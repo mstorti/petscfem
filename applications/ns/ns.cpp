@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: ns.cpp,v 1.123 2003/02/19 17:40:12 mstorti Exp $
+//$Id: ns.cpp,v 1.124 2003/03/06 20:49:03 mstorti Exp $
 #include <src/debug.h>
 #include <malloc.h>
 
@@ -138,6 +138,7 @@ int main(int argc,char **args) {
 
   HookList hook_list;
   hook_list.init(*mesh,*dofmap,ns_hook_factory);
+  BasicObject_application_factory = BasicObject_ns_factory;
 
   //o Dimension of the problem.
   GETOPTDEF(int,ndim,3);

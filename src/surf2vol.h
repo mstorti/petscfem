@@ -1,10 +1,11 @@
 // -*- mode: c++ -*-
 //__INSERT_LICENSE__
-// $Id: surf2vol.h,v 1.4 2003/02/26 00:54:50 mstorti Exp $
+// $Id: surf2vol.h,v 1.5 2003/03/06 20:49:04 mstorti Exp $
 #ifndef PETSCFEM_SURF2VOL_H
 #define PETSCFEM_SURF2VOL_H
 
 #include <src/gpdata.h>
+#include <src/texthash.h>
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 /** This is a Gauss Point data class but for elements that match a

@@ -1,6 +1,6 @@
 // -*- mode: C++ -*-
 /*__INSERT_LICENSE__*/
-//$Id: nsi_tet.h,v 1.42 2003/02/10 12:32:04 mstorti Exp $
+//$Id: nsi_tet.h,v 1.43 2003/03/06 20:49:04 mstorti Exp $
 #ifndef NSI_TET_H  
 #define NSI_TET_H
 
@@ -10,6 +10,7 @@
 #include <vector>			// ANN declarations
 
 #include <src/secant.h>
+#include <src/pfobject.h>
 
 extern int fractional_step;
 extern int reuse_mat;
@@ -381,5 +382,9 @@ double ctff(double x, double & diff_ctff, double tol=1e-5);
     @return a reference to the matrix. */ 
 void read_cond_matrix(TextHashTable *thash, const char *s,
 		      int ndof,FastMat2 &cond);
+
+/** This is the factory of BasicObjects (Objects that are read from
+    the user data file), specific for the NS module */ 
+BasicObject_factory_t BasicObject_ns_factory;
 
 #endif

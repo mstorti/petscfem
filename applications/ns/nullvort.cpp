@@ -1,7 +1,7 @@
 //__INSERT_LICENSE__
-// $Id: nullvort.cpp,v 1.14 2003/03/06 18:58:38 mstorti Exp $
+// $Id: nullvort.cpp,v 1.1 2003/03/06 20:49:04 mstorti Exp $
 
-#include <src/nullvort.h>
+#include "./nullvort.h"
 #include <src/dvector.h>
 #include <src/dvector2.h>
 #include <src/surf2vol.h>
@@ -10,13 +10,13 @@
 #include <src/cloud2.h>
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
-null_vort::null_vort() { }
+null_vort_bo::null_vort_bo() { }
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
-null_vort::~null_vort() { }
+null_vort_bo::~null_vort_bo() { }
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
-void null_vort::read(FileStack *fstack,Mesh *mesh,Dofmap *dofmap) {
+void null_vort_bo::read(FileStack *fstack,Mesh *mesh,Dofmap *dofmap) {
   // Read options from data file
   thash.read(fstack);
   int ierr;
@@ -233,7 +233,7 @@ void null_vort::read(FileStack *fstack,Mesh *mesh,Dofmap *dofmap) {
     nelem_nlr++;
   }
 
-#if 1
+#if 0
   printf("nx: %d, nelem_nlr %d, size of icone %d\n",nx,nelem_nlr,icone_stencil.size());
   for (int j=0; j<nelem_nlr; j++) {
     printf("e=%d:",j);
@@ -244,6 +244,28 @@ void null_vort::read(FileStack *fstack,Mesh *mesh,Dofmap *dofmap) {
   PetscFinalize();
   exit(0);
  
+#endif
+
+#if 0
+  elemset->type = type;
+  elemset->nelem = nelem; 
+  elemset->nel   = nel  ; 
+  elemset->elem_conne = new int[nel];
+  elemset->ndof  = ndof ; 
+  elemset->nelprops = nelprops; 
+  elemset->neliprops = neliprops; 
+  elemset->nelprops_add = nelprops_add; 
+  elemset->neliprops_add = neliprops_add; 
+  elemset->elemprops_add = elemprops_add; 
+  elemset->elemiprops_add = elemiprops_add; 
+  elemset->thash = thash; 
+  elemset->icone = icone; 
+  elemset->elemprops  = elemprops; 
+  elemset->elemiprops  = elemiprops; 
+  elemset->elem_prop_names  = props; 
+  elemset->epart = NULL;
+  elemset->isfat = 0;
+  elemset->name_m = name;
 #endif
 
   icone.clear();

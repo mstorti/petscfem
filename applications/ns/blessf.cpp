@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-/* $Id: blessf.cpp,v 1.20 2003/02/24 00:14:23 mstorti Exp $ */
+/* $Id: blessf.cpp,v 1.21 2003/03/06 20:49:03 mstorti Exp $ */
 
 #include <src/debug.h>
 #include <malloc.h>
@@ -11,6 +11,7 @@
 #include <src/util2.h>
 #include <src/sttfilter.h>
 #include <src/pfmat.h>
+#include <src/pfobject.h>
 
 #include "./nsi_tet.h"
 #include "./adaptor.h"
@@ -27,6 +28,7 @@
 #include "./mmove.h"
 #include "./genload.h"
 #include "./invcoupl.h"
+#include "./nullvort.h"
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 #undef __FUNC__
@@ -71,4 +73,11 @@ void bless_elemset(char *type,Elemset *& elemset) {
       {
 	PETSCFEM_ERROR("not known elemset type: \"%s\"\n",type);
       }
+}
+
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+BasicObject *BasicObject_ns_factory(string type) {
+  if (0) {} // tricky!!
+  else if (type=="null_vort") return new null_vort_bo;
+  else return NULL;
 }
