@@ -1,6 +1,6 @@
 // -*- mode: C++ -*- 
 /*__INSERT_LICENSE__*/
-// $Id: ampli.h,v 1.12 2002/02/12 19:49:11 mstorti Exp $
+// $Id: ampli.h,v 1.13 2002/02/19 01:38:22 mstorti Exp $
 #ifndef AMPLI_H
 #define AMPLI_H
 
@@ -31,7 +31,8 @@ typedef map<string,AmplitudeFunction *> FunctionTable;
     function that depends on some fixed parameters passed through
     a hash table and a variable parameter (typically time). 
     For instance function `sine'  with constant parameters  omega and
-    phase, depending on time. 
+    phase, depending on time. Note: All these hould be rewritten using
+    polymorphism. 
     @author M. Storti
 */ 
 class OldAmplitude : public Amplitude {
@@ -140,21 +141,36 @@ public:
   ~DLGeneric();
 };
 
-// Usefule macros for defining extended functions
-
+/** @name Useful macros for defining extended functions for amplitude 
+    temporal functions.
+*/
+//@{
+/// Defines the init_fun to be called before the loop
 #define INIT_FUN extern "C" void init_fun(TextHashTable *thash,void *&fun_data)
 
+/// Same as #INIT_FUN# but for the case where a prefix is used. 
 #define INIT_FUN1(name) extern "C" \
         void name##_init_fun(TextHashTable *thash,void *&fun_data)
 
+/// Evaluation function to be called for each time
 #define EVAL_FUN extern "C" double eval_fun(double t,void *fun_data)
 
+/// Same as #EVAL_FUN# but with prefix
 #define EVAL_FUN1(name) extern "C" double name##_eval_fun(double t,void *fun_data)
 
+/** Clean-up function to be called after all calls to the eval
+    function. 
+*/
 #define CLEAR_FUN extern "C" void clear_fun(void *fun_data) 
 
+/// Same as #CLEAR_FUN# but with prefix
 #define CLEAR_FUN1(name) extern "C" void name##_clear_fun(void *fun_data) 
 
+/** The simple way is to define a class with methods
+    #init(TextHashTable *)# and #eval_fun(double time)#. 
+    This is wrapper to this class. Clean up is done in the destructor
+    of the class.
+*/
 #define DEFINE_EXTENDED_AMPLITUDE_FUNCTION(fun_obj_class)	\
 								\
 INIT_FUN1(fun_obj_class) {					\
@@ -172,6 +188,7 @@ CLEAR_FUN1(fun_obj_class) {					\
   fun_obj_class *fun_obj_ptr = (fun_obj_class *) fun_data;	\
   delete fun_obj_ptr;						\
 }
+//@}
 #endif
 
 #endif

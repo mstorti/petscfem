@@ -1,6 +1,6 @@
 // -*- mode: C++ -*- 
 /*__INSERT_LICENSE__*/
-//$Id: nwadvdifj.h,v 1.6 2002/02/18 15:33:12 mstorti Exp $
+//$Id: nwadvdifj.h,v 1.7 2002/02/19 01:38:22 mstorti Exp $
 #ifndef NWADVDIFJ_H
 #define NWADVDIFJ_H
 
@@ -83,7 +83,7 @@ public:
     a_jac->comp_A_jac_n(A_jac_n,normal);
   }
 
-  /** Compute $\sum_{j} A_j \dep_j N$ where $N$ are the interpolation
+  /** Compute $\sum_{j} A_j \partial_j N$ where $N$ are the interpolation
       functions. 
       @param A_grad_N (output) The contraction.
       @param grad_N (input) the gradient of the interpolation function.

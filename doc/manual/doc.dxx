@@ -12,23 +12,66 @@
 //@Include: ../../src/readlist.h
 //@Include: ../../src/readmesh.h
 //@Include: ../../src/getprop.h
-//@Include: ../../src/buffpack.h
 //@Include: ../../src/maximizr.h
-//@Include: ../../src/pfmat.h
-//@Include: ../../src/distmap.h
-//@Include: ../../src/distmat.h
 //@Include: ../../src/dofmap.h
 //@Include: ../../src/idmap.h
 //@Include: ../../src/vecmacros.h
 //@Include: ../../src/texthash.h
 //@Include: ../../src/utils.h
+//@Include: ../../src/util2.h
+//@Include: ../../src/sttfilter.h
+//@Include: ../../src/timestat.h
+//@Include: ../../src/randomg.h
+//@Include: ../../src/arglistn.h
+//@Include: ../../src/machine.h
+//@Include: ../../src/matFSM.h
+//@Include: ../../src/ampli.h
+//@Include: ../../src/secant.h
+//@Include: ../../src/texthf.h
+//@Include: ../../src/debug.h
+//@Include: ../../src/part.h
+
+/** The distributed container and graph class */
+//@{
+//@Include: ../../src/buffpack.h
+//@Include: ../../src/distmap.h
+//@Include: ../../src/distmat.h
+//@Include: ../../src/distcont.h
+//@Include: ../../src/iisdgraph.h
+//@Include: ../../src/graph.h
+//@}
+
+/** The PFMat abstract Matrix class*/
+//@{
+//@Include: ../../src/pfmat.h
+//@Include: ../../src/iisdmat.h
+//@Include: ../../src/pfptscmat.h
+//@Include: ../../src/petscmat.h
+//@Include: ../../src/spdirect.h
+//@Include: ../../src/lusolver.h
+//@Include: ../../src/sparse2.h
+//@Include: ../../src/sparse.h
+//@}
+
+/** @name Navier-Stokes abd general non-linear module */
+//@{
+//@Include: ../../applications/ns/adaptor.h
+//@Include: ../../applications/ns/elast.h
+//@Include: ../../applications/ns/nsi_tet.h
+//@Include: ../../applications/ns/nssup.h
+//@Include: ../../applications/ns/qharm.h
+//@}
 
 /** @name AdvDif module */
 //@{
 //@Include: ../../applications/advdif/advective.h
+//@Include: ../../applications/advdif/aquifer.h
+//@Include: ../../applications/advdif/bubbly.h
 //@Include: ../../applications/advdif/burgers.h
+//@Include: ../../applications/advdif/diff.h
 //@Include: ../../applications/advdif/enthalpy.h
+//@Include: ../../applications/advdif/genload.h
 //@Include: ../../applications/advdif/nwadvdif.h
 //@Include: ../../applications/advdif/nwadvdifj.h
-//@Include: ../../applications/advdif/genload.h
+//@Include: ../../applications/advdif/stream.h
 //@}

@@ -1,6 +1,6 @@
 # mode: -*- makefile -*-
 #__INSERT_LICENSE__
-#$Id: Makefile,v 1.33 2002/02/18 00:02:24 mstorti Exp $
+#$Id: Makefile,v 1.34 2002/02/19 01:38:19 mstorti Exp $
 
 SHELL = /bin/bash
 
@@ -38,7 +38,8 @@ local_sw:: sync_version depend tags
 		./tools/coall ./tools/checktag \
 		./tools/insert_license.pl ./tools/makeltag \
 		./tools/maketag ./tools/makewhat.pl ./tools/myexpect.pl \
-		./tools/odoc.pl ./tools/petscload.pl ./tools/pfcpp
+		./tools/odoc.pl ./tools/petscload.pl ./tools/pfcpp \
+		./doc/manual/vrfdocpp.pl 
 
 local_clean::
 	cd tools ; rm -f ident2iso ; rm -f iso2ident

@@ -1,6 +1,6 @@
 // -*- mode: c++ -*-
 /*__INSERT_LICENSE__*/
-//$Id: gpdata.h,v 1.4 2002/02/15 19:55:53 mstorti Exp $
+//$Id: gpdata.h,v 1.5 2002/02/19 01:38:22 mstorti Exp $
  
 #ifndef GPDATA_H
 #define GPDATA_H
@@ -20,7 +20,7 @@
 */ 
 class GPdata {
 public:
-  /** gradient of shape functions with respect to master element
+  /** Gradient of shape functions with respect to master element
       coordiantes at each GP
   */
   Matrix *dshapexi,
