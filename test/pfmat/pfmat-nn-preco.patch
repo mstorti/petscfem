@@ -1,0 +1,487 @@
+Estos cambios son para incorporar el precondicionador Neumann-Neumann
+a PETSc-FEM.
+
+Index: iisdmat.cpp
+===================================================================
+RCS file: /u/mstorti/cvsroot/petscfem/src/iisdmat.cpp,v
+retrieving revision 1.63
+diff -u -r1.63 iisdmat.cpp
+--- iisdmat.cpp	1 Sep 2003 10:45:50 -0000	1.63
++++ iisdmat.cpp	7 Jul 2004 15:53:01 -0000
+@@ -26,10 +26,14 @@
+ #include <src/distmap2.h>
+ #include <src/distcont2.h>
+ #include <src/debug.h>
++#include <petscsles.h>
+ 
+ //#define PF_CHKERRQ(ierr) assert(ierr)
+ #define PF_CHKERRQ(ierr) CHKERRQ(ierr)
+ 
++//for nn preconditioner
++extern int PCCreate_NN(PC);
++
+ DofPartitioner::~DofPartitioner() {}
+ 
+ enum PETScFEMErrors {
+@@ -161,7 +165,21 @@
+   ierr = SLESGetPC(sles,&pc); CHKERRQ(ierr);
+ 
+   set_preco(preco_type);
+-
++  //esto lo agrego yo
++  if (preco_type == "nn"){
++    PetscTruth flg;
++    PCRegisterDynamic("nn",PETSC_NULL,"PCCreate_NN",PCCreate_NN);  
++    //    ierr = PetscOptionsHasName(PETSC_NULL,"-mat_type",&flg);CHKERRQ(ierr);
++    //assert(flg);
++    ierr = KSPSetType(ksp,(char *)KSP_method.c_str()); CHKERRQ(ierr);
++    int (*fcn )(KSP,int);
++    ierr = KSPGMRESSetRestart(ksp,Krylov_dim); CHKERRQ(ierr);
++    ierr = KSPSetTolerances(ksp,rtol,atol,dtol,maxits); CHKERRQ(ierr); 
++    ierr = KSPSetMonitor(ksp,PFPETScMat_default_monitor,this,NULL);
++    CHKERRQ(ierr); 
++    // sles_was_built = 1; // included in `factored'
++    return 0;
++  }
+   // warning:= avoiding `const' restriction!!
+   ierr = KSPSetType(ksp,(char *)KSP_method.c_str()); CHKERRQ(ierr);
+   if (KSP_method=="gmres") {
+@@ -714,7 +732,6 @@
+   return 0;
+ #endif
+ }
+-
+ //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+ #define PETSC_OBJECT_DESTROY_MAYBE(type)	\
+ int type##Destroy_maybe(type &v) {		\
+Index: iisdmat.h
+===================================================================
+RCS file: /u/mstorti/cvsroot/petscfem/src/iisdmat.h,v
+retrieving revision 1.30
+diff -u -r1.30 iisdmat.h
+--- iisdmat.h	31 Aug 2003 21:22:34 -0000	1.30
++++ iisdmat.h	7 Jul 2004 15:53:01 -0000
+@@ -295,7 +295,6 @@
+   /// The action corresponding to `set_values'
+   int set_values_a(int nrows,int *idxr,int ncols,int *idxc,
+ 		   PetscScalar *values, InsertMode mode=ADD_VALUES);
+-
+   /// Clear the object (almost destructor)
+   void clear();
+   /// Sets the underlying matrices to zero
+Index: petscmat.cpp
+===================================================================
+RCS file: /u/mstorti/cvsroot/petscfem/src/petscmat.cpp,v
+retrieving revision 1.12
+diff -u -r1.12 petscmat.cpp
+--- petscmat.cpp	2 Jul 2003 23:22:19 -0000	1.12
++++ petscmat.cpp	7 Jul 2004 15:53:01 -0000
+@@ -12,6 +12,9 @@
+ #include <src/pfptscmat.h>
+ #include <src/petscmat.h>
+ #include <src/graph.h>
++#include <src/iisdmat.h>
++#include <petscis.h>
++#include <petscsys.h>
+ 
+ extern int MY_RANK,SIZE;
+ 
+@@ -44,6 +47,8 @@
+   //o Pass option to underlying PETSc matrix. Gives an error if a new
+   // element is added
+   TGETOPTDEF(GLOBAL_OPTIONS,int,mat_new_nonzero_allocation_err,1);
++  TGETOPTDEF_S_PF(thash,string,preco_type,jacobi);
++  M_preco_type = preco_type;
+   GSet ngbrs_v;
+   GSet::iterator q,qe;
+ 
+@@ -65,11 +70,12 @@
+     }
+   }
+   dofs_proc_v = &*dofs_proc.begin();
+-
+   // vectors for dimensioning the PETSc matrix
+   int *d_nnz,*o_nnz,diag_ok;
+   d_nnz = new int[neqp];
+   o_nnz = new int[neqp];
++  Local = new int[neqp];
++  g_ghosts = new int[sumo];
+   //loop over local dof's
+   for (k=0;k<neqp;k++) {
+     // initialize vector
+@@ -77,6 +83,7 @@
+     o_nnz[k]=0;
+     // global dof number
+     keq = dofs_proc_v[k];
++    Local[k] = k;
+     if (debug_compute_prof) printf("-------- keq = %d: ",keq);
+     ngbrs_v.clear();
+     lgraph->set_ngbrs(keq,ngbrs_v);
+@@ -114,7 +121,7 @@
+     sumdcorr += d_nnz[k];
+     sumo += o_nnz[k];
+   }
+-  lgraph->clear();
++  //  lgraph->clear();
+ 
+   // Print statistics
+   double avo,avd,avdcorr;
+@@ -133,11 +140,88 @@
+ 			  // myrank,sumd,avd,sumdcorr,avdcorr,sumo,avo);
+ 			  myrank,sumd,avd,sumo,avo);
+   PetscSynchronizedFlush(comm);
+-  
+-  // Create matrices
+-  ierr =  MatCreateMPIAIJ(comm,neqp,neqp,neq,neq,
+-			  PETSC_NULL,d_nnz,PETSC_NULL,o_nnz,&A);
+-  CHKERRQ(ierr); 
++
++  //o defining mat_type for Neumann-Neumann preconditioner
++  if (M_preco_type == "nn"){
++    ierr = AOCreateBasic(comm,neqp,dofs_proc_v,PETSC_NULL,&ao);CHKERRQ(ierr);
++    ierr = AOApplicationToPetsc(ao,neqp,Local);CHKERRQ(ierr);
++    ierr = AODestroy(ao);CHKERRQ(ierr);
++    /*    for (int jj=0;jj<neqp;jj++){
++	  PetscSynchronizedPrintf(comm,
++	  "On processor %d,\n"
++	  "   local terms: %d,\n"
++	  // Corrected does not make sense anymore
++	  // since it seems that PETSc does not need
++	  // the diagonal terms. 
++	  // "                (corrected): %d, (%f av.)\n"
++	  "   global term: %d\n",
++	  // myrank,sumd,avd,sumdcorr,avdcorr,sumo,avo);
++	  myrank,Local[jj],dofs_proc_v[jj]);
++	  PetscSynchronizedFlush(comm);
++	  }*/
++
++    ierr      = PetscMalloc(neq*sizeof(int),&vertices);CHKERRQ(ierr);
++    ierr      = PetscMalloc(neq*sizeof(int),&verticesmask);CHKERRQ(ierr);
++    ierr      = PetscMemzero(verticesmask,neq*sizeof(int));CHKERRQ(ierr);
++    nvertices = 0;
++    bs = 1;
++    /* First load "owned vertices" into list */
++    
++    for (int i=0; i < neqp; i++) {
++      vertices[nvertices++]   = dofs_proc_v[i];
++      verticesmask[Local[i]]  = nvertices;
++    }
++    
++    /* Now load ghost vertices into list */
++
++    ghosts=0;
++    for (int i=0; i < neqp; i++) {
++      keq = dofs_proc_v[i];
++      ngbrs_v.clear();
++      lgraph->set_ngbrs(keq,ngbrs_v);
++      qe = ngbrs_v.end();
++      for (q=ngbrs_v.begin(); q!=qe; q++) {
++	leq = *q;
++	if (part.processor(leq) == myrank) {
++	  //no hago nada, ya los conte
++	} else {
++	  vertices[nvertices++] = leq;
++	  g_ghosts[ghosts++] = leq;
++	  verticesmask[leq]     = nvertices;
++	}	
++      }
++    }
++    /*    for (int jj=0;jj<nvertices;jj++){
++	  PetscSynchronizedPrintf(comm,
++	  "On processor %d,\n"
++	  "   local vertice: %d,\n"
++	  // Corrected does not make sense anymore
++	  // since it seems that PETSc does not need
++	  // the diagonal terms. 
++	  // "                (corrected): %d, (%f av.)\n"
++	  "   global vertice: %d\n",
++	  // myrank,sumd,avd,sumdcorr,avdcorr,sumo,avo);
++	  myrank,jj,vertices[jj]);
++	  PetscSynchronizedFlush(comm);
++	  }*/
++
++    /*
++      Create the scatter between the global representation and the 
++      local representation
++    */
++    ierr = ISCreateStride(comm,bs*nvertices,0,1,&islocal);CHKERRQ(ierr);
++    ierr = PetscMalloc(nvertices*sizeof(int),&svertices);CHKERRQ(ierr);
++    for (int i=0; i<nvertices; i++) svertices[i] = bs*vertices[i];
++    ierr = ISCreateBlock(comm,bs,nvertices,svertices,&isglobal);CHKERRQ(ierr);
++    ierr = PetscFree(svertices);CHKERRQ(ierr);
++    ierr = MatCreate(comm,neqp,neq,PETSC_DETERMINE,PETSC_DETERMINE,&A);CHKERRQ(ierr);
++    ierr = ISLocalToGlobalMappingCreate(comm,bs*nvertices,vertices,&ltog);CHKERRQ(ierr);
++    ierr = MatSetType(A,MATIS);CHKERRQ(ierr);
++    ierr = MatSetOption(A,MAT_NEW_NONZERO_ALLOCATION_ERR);
++    ierr = MatSetLocalToGlobalMapping(A,ltog);CHKERRQ(ierr);
++  } else  { ierr =  MatCreateMPIAIJ(comm,neqp,neqp,neq,neq,
++				    PETSC_NULL,d_nnz,PETSC_NULL,o_nnz,&A);CHKERRQ(ierr);}
++  lgraph->clear();
+   if (mat_new_nonzero_allocation_err) {
+     ierr =  MatSetOption(A, MAT_NEW_NONZERO_ALLOCATION_ERR);
+     CHKERRQ(ierr); 
+@@ -146,6 +230,7 @@
+   P=A;
+   delete[] d_nnz;
+   delete[] o_nnz;
++  delete[] Local;
+   return 0;
+ }
+ 
+@@ -154,10 +239,12 @@
+ #undef __FUNC__
+ #define __FUNC__ "PETScMat::clear"
+ void PETScMat::clear() {
+-  ierr = PFPETScMat::clear(); CHKERRQ(ierr); 
++  //  TGETOPTDEF_S_PF(thash,string,preco_type,jacobi);
++  if (M_preco_type == "nn"){
++    ierr = MatDestroy_maybe(A);CHKERRQ(ierr);
++  } else { ierr = PFPETScMat::clear(); CHKERRQ(ierr); 
+   // P is not destroyed, since P points to A
+-  int ierr = MatDestroy_maybe(A); CHKERRQ(ierr); 
+-  CHKERRQ(ierr); 
++  int ierr = MatDestroy_maybe(A); CHKERRQ(ierr); CHKERRQ(ierr);} 
+ }
+ #endif
+ 
+@@ -191,7 +278,42 @@
+ #undef __FUNC__
+ #define __FUNC__ "PETScMat::clean_mat_a"
+ int PETScMat::clean_mat_a() {
+-  ierr=MatZeroEntries(A); CHKERRQ(ierr);
++  //  TGETOPTDEF_S_PF(thash,string,preco_type,jacobi);
++  if (M_preco_type == "nn"){
++    ierr = MatDestroy_maybe(A);CHKERRQ(ierr);
++    ierr = ISLocalToGlobalMappingDestroy(ltog);
++    delete[] g_ghosts;
++  } else { ierr=MatZeroEntries(A); CHKERRQ(ierr);
++  return 0;}
++};
++
++#undef __FUNC__
++#define __FUNC__ "PETScMat::set_value_a"
++int PETScMat::set_value_a(int row,int col,PetscScalar value,InsertMode mode=ADD_VALUES) {
++    int rpp,cpp,*nqq;
++  if (M_preco_type == "nn"){
++    /* map<int,int>::iterator q = proc2glob.find(row);
++       int jloc;
++       if (q == proc2glob.end()) {
++       // no esta aca
++       } else {
++       jloc = q->second;
++       }*/
++    ISGlobalToLocalMappingApply(ltog,IS_GTOLM_MASK,1,&row,nqq,&rpp);
++    ISGlobalToLocalMappingApply(ltog,IS_GTOLM_MASK,1,&col,nqq,&cpp);
++    ierr = MatSetValuesLocal(A,1,&rpp,1,&cpp,&value,mode);CHKERRQ(ierr);
++  } else {ierr = MatSetValues(A,1,&row,1,&col,&value,mode); CHKERRQ(ierr);} 
++  return 0;
++};
++
++#undef __FUNC__
++#define __FUNC__ "PETScMat::set_value_a_v"
++int PETScMat::set_value_a_v(Vec &bb,int row,PetscScalar value,
++			    InsertMode mode=ADD_VALUES){
++  int rpp,*nqq;
++  assert(M_preco_type == "nn");
++    ISGlobalToLocalMappingApply(ltog,IS_GTOLM_MASK,1,&row,nqq,&rpp);
++  ierr = VecSetValuesLocal(bb,1,&rpp,&value,mode);CHKERRQ(ierr);
+   return 0;
+ };
+ 
+Index: petscmat.h
+===================================================================
+RCS file: /u/mstorti/cvsroot/petscfem/src/petscmat.h,v
+retrieving revision 1.5
+diff -u -r1.5 petscmat.h
+--- petscmat.h	5 Sep 2002 19:24:01 -0000	1.5
++++ petscmat.h	7 Jul 2004 15:53:01 -0000
+@@ -9,6 +9,8 @@
+ #include <src/fem.h>
+ #include <src/pfmat.h>
+ #include <src/pfptscmat.h>
++#include <src/iisdmat.h>
++#include <petscao.h>
+ 
+ // This is the OO wrapper to PETSc matrix
+ class PETScMat : public PFPETScMat {
+@@ -34,6 +36,15 @@
+       ones. The inverse of `dofs_proc'. 
+   */
+   map<int,int> proc2glob;
++  //for neumann-neumann preco_type matrices only
++  //  ISLocalToGlobalMapping ltog;
++  int *Local;
++  AO       ao;                   
++  int      *vertices;            
++  int      *verticesmask;	 
++  int      bs;                   
++  int      nvertices,*svertices; 
++  IS       isglobal,islocal;     
+ 
+ public:
+   /// Destructor (calls almost destructor)
+@@ -67,10 +78,14 @@
+       @param value (input) the value to be set
+       @param mode (input) either #ADD_VALUES# (default) or #INSERT_VALUES#
+   */ 
+-  int set_value_a(int row,int col,PetscScalar value,InsertMode mode=ADD_VALUES) {
+-    ierr = MatSetValues(A,1,&row,1,&col,&value,mode); CHKERRQ(ierr); 
+-    return 0;
+-  };
++  int set_value_a(int row,int col,PetscScalar value,InsertMode mode=ADD_VALUES); 
++  //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:
++  //for nn preco_type only
++  int set_value_a_v(Vec &bb,int row,PetscScalar value,
++		    InsertMode mode=ADD_VALUES);
++  
++  //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:
++  
+   /// Sets all values of the operator to zero.
+   int clean_mat_a();
+   /** Creates the matrix from the profile computed in #da#
+Index: pfmat.cpp
+===================================================================
+RCS file: /u/mstorti/cvsroot/petscfem/src/pfmat.cpp,v
+retrieving revision 1.13
+diff -u -r1.13 pfmat.cpp
+--- pfmat.cpp	28 Aug 2003 22:43:16 -0000	1.13
++++ pfmat.cpp	7 Jul 2004 15:53:01 -0000
+@@ -123,8 +123,28 @@
+   ierr = set_value_a(row,col,value,mode); CHKERRQ(ierr); 
+   return 0;
+ }
+-
+-//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
++//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:
++//for nn preco_type only
++#undef __FUNC__
++#define __FUNC__ "PFMat::set_value_v"
++int PFMat::set_value_v(Vec &bb,int row,PetscScalar value,
++		       InsertMode mode) {
++  fsm->set_value();
++  CHKERRQ(ierr); 
++  
++  ierr = set_value_a_v(bb,row,value,mode); CHKERRQ(ierr); 
++  return 0;
++}
++//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:
++//for nn preco_type only
++#undef __FUNC__
++#define __FUNC__ "PFMat::set_value_a_v"
++int PFMat::set_value_a_v(Vec &bb,int row,PetscScalar value,InsertMode mode=ADD_VALUES){
++  PETSCFEM_ERROR0("This function must be called in Neumann-Neumann preconditioner \
++                   environment only\n");
++  return 0;
++}
++//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:
+ #undef __FUNC__
+ #define __FUNC__ "PFMat::set_values"
+ int PFMat::set_values(int nrows,int *idxr,int ncols,int *idxc,
+@@ -136,6 +156,16 @@
+   return 0;
+ }
+ 
++//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:
++#undef __FUNC__
++#define __FUNC__ "PFMat::set_values_v"
++int PFMat::set_values_v(Vec &bb,int nrows,int *idxr,PetscScalar *values, InsertMode mode) { 
++  fsm->set_value();
++  CHKERRQ(ierr); 
++  
++  ierr = set_values_a_v(bb,nrows,idxr,values,mode); CHKERRQ(ierr); 
++  return 0;
++}
+ //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+ #undef __FUNC__
+ #define __FUNC__ "PFMat::set_values_a"
+@@ -154,6 +184,21 @@
+ }
+ 
+ //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
++//for nn preco_type only
++#undef __FUNC__
++#define __FUNC__ "PFMat::set_values_a_v"
++int PFMat::set_values_a_v(Vec &bb,int nrows,int *idxr,
++			  PetscScalar *values, InsertMode mode) { 
++  int row, ierr=0;
++  for (int j=0; j<nrows; j++) {
++    row = idxr[j];
++    ierr = set_value_a_v(bb,row,values[j]);
++    if (ierr) break;
++  }
++  return ierr;
++}
++
++//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:
+ #undef __FUNC__
+ #define __FUNC__ "PFMat::assembly_begin"
+ int PFMat::assembly_begin(MatAssemblyType type) {
+Index: pfmat.h
+===================================================================
+RCS file: /u/mstorti/cvsroot/petscfem/src/pfmat.h,v
+retrieving revision 1.39
+diff -u -r1.39 pfmat.h
+--- pfmat.h	28 Aug 2003 18:39:40 -0000	1.39
++++ pfmat.h	7 Jul 2004 15:53:01 -0000
+@@ -20,15 +20,13 @@
+   friend class pfmatFSMContext;
+   /// Pointers to pass args to solver routines through the FSM layer
+   Vec *res_p,*dx_p;
+-
+ protected:
+   /// Print Finite State Machine transitions
+   int print_fsm_transition_info;
+-
++  
+   /// Allows to pass PETSc error codes through the FSM layer
+   int ierr;
+   pfmatFSM *fsm;
+-
+   ///@name Actions of the finite state machine.
+   //@{
+   /// The action corresponding to `set_profile'
+@@ -45,6 +43,14 @@
+   virtual int set_values_a(int nrows,int *idxr,int ncols,int *idxc,
+ 			   PetscScalar *values, InsertMode mode=ADD_VALUES);
+ 
++  //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:
++  //for nn preco_type ony
++  virtual int set_value_a_v(Vec &bb,int row,PetscScalar value,
++			    InsertMode mode=ADD_VALUES);
++  virtual int set_values_a_v(Vec &bb,int nrows,int *idxr,
++			     PetscScalar *values, InsertMode mode=ADD_VALUES);
++  //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:
++
+   /// calls MatAssemblyBegin on internal matrices, see PETSc doc
+   virtual int assembly_begin_a(MatAssemblyType type)=0;
+ 
+@@ -90,6 +96,13 @@
+     m = size(1); n=size(2);
+   }
+ 
++  //for Neumann-Neumann preco_type only
++  //  Vec bb;
++  ISLocalToGlobalMapping ltog;
++  string M_preco_type;
++  int  *g_ghosts; //vector of ghosts in global index
++  int ghosts; //number of ghosts in myrank
++
+   PFMat();
+ 
+   /// Virtual destructor
+@@ -124,6 +137,15 @@
+       @param mode (input) either #ADD_VALUES# (default) or #INSERT_VALUES# */
+   int set_values(int nrows,int *idxr,int ncols,int *idxc,
+ 		 PetscScalar *values, InsertMode mode=ADD_VALUES);
++
++  //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:
++  // for nn preco_type only
++  int set_value_v(Vec &bb,int row,PetscScalar value,
++		InsertMode mode=ADD_VALUES);
++  int set_values_v(Vec &bb,int nrows,int *idxr,
++		   PetscScalar *values, InsertMode mode=ADD_VALUES);
++  //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:
++
+ 
+   /// calls MatAssemblyBegin on internal matrices, see PETSc doc
+   int assembly_begin(MatAssemblyType type);
