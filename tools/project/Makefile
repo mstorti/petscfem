@@ -1,7 +1,7 @@
 #__INSERT_LICENSE__
 .PHONY: all
 
-default: project3.o
+default: project3.bin
 
 SRCS := project.cpp project2.cpp project3.cpp project4.cpp
 
@@ -23,7 +23,7 @@ project.bin: project.o
 project2.bin: project2.o
 	${CXX_CLINKER} -o $@ $^  $(LDFLAGS_NO_PROG_LIB)
 
-project3.bin: project3.o
+project3.bin: project3.o project.o
 	${CXX_CLINKER} -o $@ $^  $(LDFLAGS_NO_PROG_LIB)
 
 project4.bin: project4.o
