@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: elemset.cpp,v 1.27 2001/10/16 02:23:56 mstorti Exp $
+//$Id: elemset.cpp,v 1.28 2001/10/31 02:51:22 mstorti Exp $
 
 #include "fem.h"
 #include <vector>
@@ -23,6 +23,9 @@ extern int MY_RANK,SIZE;
 #define RETVAL(iele,j,k) VEC3(retval,iele,j,nel,k,ndof)
 #define RETVALMAT(iele,j,k,p,q) VEC5(retval,iele,j,nel,k,ndof,p,nel,q,ndof)
 #define ICONE(j,k) VEC2(icone,j,k,nel)
+
+Chrono chrono;
+double t_min=1e20,t_max=0;
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 #undef __FUNC__
@@ -183,7 +186,11 @@ int Elemset::upload_vector(int nel,int ndof,Dofmap *dofmap,
 				// is symmetric
 		} else {
 		  if (pfmat) {
+		    chrono.start();
 		    argd.pfA->set_value(kd,kdl,val,ADD_VALUES); 
+		    double t = chrono.elapsed();
+		    if (t>t_max) t_max=t;
+		    if (t<t_min) t_min=t;
 		  } else {
 		    MatSetValue(*argd.A,kd,kdl,val,ADD_VALUES); 
 		  }
@@ -537,7 +544,7 @@ int assemble(Mesh *mesh,arg_list argl,
 	for (kloc=0; kloc<nel; kloc++) {
 	  for (kdof=0; kdof<ndof; kdof++) {
 
-//#define DEBUG_ME
+#define DEBUG_ME
 #ifdef DEBUG_ME
 	    printf("kloc %d, kdof %d\n",kloc,kdof);
 #endif
@@ -555,9 +562,11 @@ int assemble(Mesh *mesh,arg_list argl,
 	    }
 
 	    // compute perturbed residual
+	    printf("trace 0\n");
 	    elemset->assemble(arg_data_v,nodedata,dofmap,
 			      jobinfo,myrank,el_start,el_last,iter_mode,
 			      time_data);
+	    printf("trace 1\n");
 
 #define RETVALT(iele,jk) VEC2(ARGVJ.retval,iele,jk,ndoft)
 #define REFREST(iele,jk) VEC2(ARGVJ.refres,iele,jk,ndoft)
@@ -571,7 +580,8 @@ int assemble(Mesh *mesh,arg_list argl,
 		  for (kdoft=0; kdoft<ndoft; kdoft++) {
 		    fdj = -(RETVALT(iele_here,kdoft)-
 			    REFREST(iele_here,kdoft))/epsilon_fdj;
-#ifdef DEBUG_ME
+		    //#ifdef DEBUG_ME
+#if 0
 		    printf("ref, new, jac: %g %g %g\n",
 			   REFREST(iele_here,kdoft),
 			   RETVALT(iele_here,kdoft),fdj);
@@ -581,9 +591,11 @@ int assemble(Mesh *mesh,arg_list argl,
 		}
 
 		// load on Petsc matrix
+		printf("trace 2\n");
 		elemset->upload_vector(nel,ndof,dofmap,argl[j].options,ARGVJ,
 				       myrank,el_start,el_last,iter_mode,
 				       kloc,kdof);
+		printf("trace 3\n");
 
 	      }
 	    }

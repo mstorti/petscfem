@@ -1,6 +1,6 @@
 # mode: -*- makefile -*-
 #__INSERT_LICENSE__
-#$Id: Makefile.base,v 1.48 2001/10/07 00:53:26 mstorti Exp $
+#$Id: Makefile.base,v 1.49 2001/10/31 02:51:18 mstorti Exp $
 
 #p [in Makefile.base]
 #s General
@@ -12,7 +12,7 @@ BOPT = g_c++
 GNU_C_COMPILER = gcc  # gcc or egcs
 
 # uncomment in order to use the `gprof' profiler
-#PROF_FLAGS = -pg
+PROF_FLAGS = -pg
 
 # read variables from file
 include $(PETSCFEM_DIR)/../Makefile.defs
