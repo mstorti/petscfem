@@ -1,6 +1,6 @@
 // -*- mode: C++ -*-
 /*__INSERT_LICENSE__*/
-// $Id: gaschem.h,v 1.3 2003/11/11 12:51:35 mstorti Exp $
+// $Id: gaschem.h,v 1.4 2003/11/11 15:41:09 mstorti Exp $
 #ifndef PETSCFEM_GASCHEM_H
 #define PETSCFEM_GASCHEM_H
 
@@ -19,7 +19,8 @@ private:
   FastMat2 tmp1, tmp2, tmp3, W_N, Cp, Ajac, Djac, Cjac,
     u_liq, u_gas, U, Uintri, tmp0;
   int nelprops,nel,ndof,ndim,g_dir;
-  double Rgas,Tgas,nu_t,Sc,KO, KN, hm_fac;
+  double Rgas,Tgas,nu_t,Sc,KO, KN, hm_fac,
+    Nb_ctff,CO_ctff,CN_ctff,CdO_ctff,CdN_ctff;
 public:
   gaschem_ff(NewElemset *elemset_);
 

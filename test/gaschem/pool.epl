@@ -2,28 +2,32 @@
 <:                              # starts ePerl block
 #__TRANSCRIPT__
 require "$ENV{'PETSCFEM_DIR'}/test/eperlini.pl";# Initializes ePerl 
-$Nx = 1;
-$Ny = 40;
-$Ly = 20;
-$Lx = $Ly/$Ny*$Nx;
-$rho_liq = 1;
-$gravity = 9.8;
-$xO_in = 0.2;
-$KO = 1.3516e-5;
-$KN = 0.6788e-5;
-$Rgas = 8.314;
-$Tgas = 293.0;
-$nu_t = 1e-3;
-$hm_fac = 1.0;
-
-## At inlet ===============================================
+$Nx = 50;			# nbr of elements in x-y dir
+$Ny = 50;
+$Ly = 20;			# length of mesh in x-y
+$Lx = 20;
+$rho_liq = 1;			# density of liquid
+$gravity = 9.8;			# gravity acc.
+$xO_in = 0.2;			# molar fraction O2 at inlet
+$KO = 1.3516e-5;		# Henry constant O2 - N2
+$KN = 0.6788e-5; 
+$Rgas = 8.314;			# Gas const
+$Tgas = 293.0;			# Temperature
+$nu_t = 0.1;			# turbulent viscosity
+$hm_fac = 0.0;			# factor controlling gas-liquid exchange
+$L_inject = 4;			# Length of injection
+$x_inject = 4;			# Position of center of injection
+$u = 1;				# lateral velocity
 $rb = 0.01;			# radius of bubble at inlet
 $alpha = 0.1;			# gas fraction at inlet
+$patm = 1e5;			# Atmosferic pressure
+$ctff_fac = 1e-3;		# Cutoff threshold for $XX is $ctff_fac*$XX
+
+## At inlet ===============================================
 #
 $vb = 4/3*$PI*$rb**3.0;		# bubble volume
 $Nb = $alpha/$vb;		# Nbr of bubbles 
 
-$patm = 1e5;			# Atmosferic pressure
 $pgas = $patm + 
      $rho_liq*$gravity*$Ly;	# hydrostatic pressure at bottom
 $C = $patm*$alpha/($Rgas*$Tgas);# Total conc. of gas at bottom
@@ -31,10 +35,17 @@ $CO = $C*$xO_in;		# Conc. of O2 at bottom
 $CN = $C-$CO;			# Conc. of N2 at bottom
 $CdO = $KO*$patm*$xO_in;	# Conc. of O2 diss. at bottom
 $CdN = $KN*$patm*(1.0-$xO_in);	# Conc. of O2 diss. at bottom
+
+$Nb_ctff = $ctff_fac*$Nb;
+$CO_ctff = $ctff_fac*$CO;
+$CN_ctff = $ctff_fac*$CN;
+$CdO_ctff = $ctff_fac*$CdO;
+$CdN_ctff = $ctff_fac*$CdN;
+
 #
 #__END_TRANSCRIPT__
 @vars = qw(Nx Ny Lx Ly rho_liq gravity KO KN Nb alpha rb vb 
-    CN CO CdO CdN nu_t patm);
+    CN CO CdO CdN nu_t patm L_inject x_inject u);
 transcript("", @vars);	# print variables on output
 octave_export_vars(">data.m.tmp",@vars);
 :>//                            # ends ePerl block
@@ -43,32 +54,48 @@ global_options
 
 ndim 2
 nsave 5
-nstep 10
+save_file pool.state.tmp
+
+nsaverot 1
+save_file_pattern pool.state_%d.tmp
+nrc 1
+nfile 100000
+
 initial_state "pool.ini.tmp"
 
 #if 1
 solver "iisd"
-iisd_subpart 1
+iisd_subpart_auto 1000
 #else
 solver "petsc"
 preco_type "lu"
 #endif
 
+nstep 100
+nnwt 2
 atol 0
 rtol 1e-6
 dtol 1e3
-nnwt 2
 weak_form 1
 
 Krylov_dim 100
-print_internal_loop_conv 0
+print_internal_loop_conv 1
 
 steady 0
 Dt 10.0
 
 <:pr('nu_t KO KN gravity hm_fac'):>
+<:pr('Nb_ctff CN_ctff CO_ctff CdO_ctff CdN_ctff'):>
 # print_linear_system_and_stop
 
+activate_debug_print
+activate_debug_memory_usage
+report_consumed_time
+iisdmat_print_statistics
+print_partitioning_statistics
+proc_weights weights.dat
+max_partgraph_vertices 4000
+max_partgraph_vertices_proc 4000
 __END_HASH__
 
 # ndim nu ndof
@@ -90,14 +117,18 @@ geometry cartesian1d
 npg 2
 __END_HASH__
 __INCLUDE__ pool.bcc-up.tmp
+__INCLUDE__ pool.bcc-right.tmp
 __END_ELEMSET__
 
 end_elemsets
 
 fixa
 __INCLUDE__ pool.fixa.tmp
+__INCLUDE__ pool.left.tmp
 __END_FIXA__
 
+#if 0
 constraint
 __INCLUDE__ pool.peri.tmp
 __END_CONSTRAINT__
+#endif

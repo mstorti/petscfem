@@ -1,6 +1,6 @@
 // -*- mode: c++ -*-
 /*__INSERT_LICENSE__*/
-//$Id: advective.h,v 1.63 2003/11/11 02:15:43 mstorti Exp $
+//$Id: advective.h,v 1.64 2003/11/11 15:41:09 mstorti Exp $
  
 //#define CHECK_JAC // Computes also the FD Jacobian for debugging
  
@@ -583,5 +583,10 @@ void log_transf(FastMat2 &true_lstate,const FastMat2 &lstate,
     @param detjaco (input) the determinant of the jacobian
     @param elem (input) the element number */ 
 void detj_error(double &detJaco,int elem);
+
+/** Cutoff function. It is very near to ${\rm ctff(x)}\approx \rm tol$ for
+    $x<0$ and ${\rm ctff}(x)=x$ for $x\gg \rm tol$. 
+*/ 
+double ctff(double x, double & diff_ctff, double tol);
 
 #endif

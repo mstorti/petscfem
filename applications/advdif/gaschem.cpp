@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: gaschem.cpp,v 1.4 2003/11/11 12:51:35 mstorti Exp $
+//$Id: gaschem.cpp,v 1.5 2003/11/11 15:41:09 mstorti Exp $
 
 #include <src/fem.h>
 #include <src/texthash.h>
@@ -28,6 +28,17 @@ void gaschem_ff::start_chunk(int &ret_options) {
   EGETOPTDEF_ND(elemset,double,Sc,0.83);
   //o Scales bubble/liquid film exchange
   EGETOPTDEF_ND(elemset,double,hm_fac,1.0);
+
+  //o Cutoff value for Nb
+  EGETOPTDEF_ND(elemset,double,Nb_ctff,0.0);
+  //o Cutoff value for CO
+  EGETOPTDEF_ND(elemset,double,CO_ctff,0.0);
+  //o Cutoff value for CN
+  EGETOPTDEF_ND(elemset,double,CN_ctff,0.0);
+  //o Cutoff value for CdO
+  EGETOPTDEF_ND(elemset,double,CdO_ctff,0.0);
+  //o Cutoff value for CdN
+  EGETOPTDEF_ND(elemset,double,CdN_ctff,0.0);
 
   // Values for KO and KN from [Buscaglia et.al. 2002]
   //are in mol/m3/bar
@@ -117,11 +128,13 @@ void gaschem_ff::compute_flux(const FastMat2 &U,
   u_liq.set(H);
   H.rs();
 
-  double Nb = U.get(1);
-  double CO = U.get(2);
-  double CN = U.get(3);
-  double CdO = U.get(4);
-  double CdN = U.get(5);
+  double diff;
+#define GC_VAR(name,indx) double name = ctff(U.get(indx),diff,name##_ctff);
+  GC_VAR(Nb,1);
+  GC_VAR(CO,2);
+  GC_VAR(CN,3);
+  GC_VAR(CdO,4);
+  GC_VAR(CdN,5);
   
   double pgas = H.get(ndim+1);
   double vb = (CO+CN)*Rgas*Tgas/(pgas*Nb);

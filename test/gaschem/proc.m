@@ -1,9 +1,9 @@
 ###key proc.m
 ##__INSERT_LICENSE__
-## $Id: proc.m,v 1.3 2003/11/11 12:47:00 mstorti Exp $
+## $Id: proc.m,v 1.4 2003/11/11 15:41:13 mstorti Exp $
 source("data.m.tmp");
 
-u=aload("outvector.out");
+u=aload("pool.state.tmp");
 
 U = u(2*(1:Ny+1)-1,:);
 x = aload("pool.nod.tmp");
