@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: mmove.cpp,v 1.11 2002/12/02 01:00:32 mstorti Exp $
+//$Id: mmove.cpp,v 1.12 2002/12/02 21:51:44 mstorti Exp $
 
 #include <src/fem.h>
 #include <src/utils.h>
@@ -69,6 +69,9 @@ void mesh_move::init() {
   }
   res_Dir.resize(2,nel,ndim);
   init_dfun();
+  //o Perturbation scale length for increment in computing
+  // the Jacobian with finite differences. 
+  TGETOPTDEF_ND(thash,double,epsilon_x,1.e-4);
 }
 
 void mesh_move_eig::init_dfun() {
@@ -145,8 +148,9 @@ void mesh_move::element_connector(const FastMat2 &xloc,
 				   const FastMat2 &state_new,
 				   FastMat2 &res,FastMat2 &mat){
 
-  double distor,distor_p,distor_m,eps=1e-4,
+  double distor,distor_p,distor_m,
     distor_pp,distor_pm,distor_mp,distor_mm, d2f;
+  double eps = epsilon_x;
   int nen = nel*ndim;
   xloc0.reshape(2,nel,ndim).set(xloc).add(state_new).reshape(1,nel*ndim);
   distor = distor_fun(xloc0);

@@ -1,6 +1,6 @@
 // -*- mode: C++ -*-
 /*__INSERT_LICENSE__*/
-//$Id: mmove.h,v 1.8 2002/12/02 03:27:56 mstorti Exp $
+//$Id: mmove.h,v 1.9 2002/12/02 21:51:44 mstorti Exp $
 
 #ifndef MMOVE_H
 #define MMOVE_H
@@ -10,6 +10,7 @@ class  mesh_move : public adaptor {
 private:
   FastMat2 G, J, dNdxi, xlocp, xloc0, res_Dir;
   //#define USE_NEWMAT
+  double epsilon_x;
 public: 
   void init();
   void element_connector(const FastMat2 &xloc,
