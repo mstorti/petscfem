@@ -5,8 +5,8 @@ $case_name = $ENV{'case_name'};                   # case name
 print "# case_name $case_name\n";
 $case_name = 'smoke' unless $case_name;
 $smoke_run = 1;
-$ref = ($smoke_run ? 2 : 1);    # results for vieweing in DX are refined by this 
-$N = $M = 160*$ref;
+$ref = ($smoke_run ? 4 : 1);    # results for vieweing in DX are refined by this 
+$N = $M = 80*$ref;
 $sqcav_field_file = 'sqcav.state.N'.$N;
 $Lx = $Ly = 1;
 $alpha = 1;
@@ -44,9 +44,9 @@ save_file_pattern "STEPS/smoke.state.%d.tmp"
 initial_state "smoke.ini.tmp"
 #else
 # Restart
-initial_state "smoke.state.tmp"
+# initial_state "smoke.state.tmp"
 #endif
-nstep 32
+nstep 10000
 solver "iisd"
 iisd_subpart 4
 nnwt 1
