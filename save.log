@@ -3050,3 +3050,25 @@ tag: beta-3.23.pl20 on Thu, 13 Nov 2003 21:16:56 -0300 by mstorti in spider
 ----------
 tag: beta-3.23.pl21 on Thu, 13 Nov 2003 23:28:10 -0300 by mstorti in spider
      > Fixing burger tests. 
+----------
+tag: beta-3.25 on Sat, 15 Nov 2003 13:12:06 -0300 by mstorti in spider
+     > -- STABLE VERSION -- 
+     > Settled version policy in `notes.txt'
+     > Added test for exception handling in `advdif'. 
+     > Written `odoc.pl' complete list of options. 
+     > Adding locker support to adaptor. 
+     > Fixed bug in adaptor/element locker init when multiple chunks.
+     > Added Elemset::before_assemble(jobinfo ...) 
+     >      and Elemset::after_assemble(jobinfo).
+     > Cutoff parameters to gasflow now passed via options. 
+     > Making VERSION to work with the newline at the end. 
+     > Fixed bug when lacking of an __END_FIXA__ tag (and others) also.
+     > Fixed bug: no more crashes when reading empty file. 
+     > Merged from hydro-branch
+     > Added gaschem module
+     > Detected bug in gaschem.cpp: off-diagonal 
+     >     elements in tau_supg not initialized. 
+     > Fixed a bug in `advdife.cpp': U was not reset when
+     > 	perturbing for computation of the finite 
+     > 	difference flux jacobian. 
+     > Starts working on `petscfem-completing-read' under Emacs
