@@ -304,6 +304,8 @@ int fracstep::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
       dshapex.prod(iJaco,DSHAPEXI,1,-1,-1,2);
       
       if (comp_res_mom) {
+	//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+	// PREDICTOR STEP
 	// state variables and gradient
 	locstate2.is(2,1,ndim);
 	u.prod(SHAPE,locstate2,-1,-1,1);
@@ -338,8 +340,8 @@ int fracstep::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
 	//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 	// RESIDUE CALCULATION
 
-	tmp1.prod(u,grad_u,-1,-1,1).scale(1-alpha);
-	tmp2.prod(u_star,grad_u_star,-1,-1,1).scale(alpha);
+	tmp1.prod(u,grad_u,-1,-1,1).scale(-(1-alpha));
+	tmp2.prod(u_star,grad_u_star,-1,-1,1).scale(-alpha);
 	tmp1.add(tmp2).axpy(grad_p,-((1-alphap)/rho));
 	tmp3.prod(W,tmp1,1,2);
 	resmom.axpy(tmp3,wpgdet);
@@ -460,7 +462,7 @@ int fracstep::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
     }
     if (comp_res_mom) {
       veccontr.is(2,1,ndim).set(resmom);
-      veccontr.export_vals(&(RETVAL(ielh))).rs();
+      veccontr.rs().export_vals(&(RETVAL(ielh)));
       matloc.prod(matlocmom,seed,1,3,2,4).add(mom_mat_fix);
       matloc.export_vals(&(RETVALMAT(ielh)));
     } else if (comp_mat_poi) {
@@ -468,13 +470,13 @@ int fracstep::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
       matloc.export_vals(&(RETVALMAT_POI(ielh)));
     } else if (comp_res_poi) {
       veccontr.ir(2,ndof).set(rescont);
-      veccontr.export_vals(&(RETVAL(ielh))).rs();
+      veccontr.rs().export_vals(&(RETVAL(ielh)));
     } else if (comp_mat_prj) {
       matloc.prod(matlocmom,seed,1,3,2,4).add(mom_mat_fix);
       matloc.export_vals(&(RETVALMAT_PRJ(ielh)));
     } else if (comp_res_prj) {
       veccontr.is(2,1,ndim).set(resmom);
-      veccontr.export_vals(&(RETVAL(ielh))).rs();
+      veccontr.rs().export_vals(&(RETVAL(ielh)));
     } else assert(0);
   }
   FastMat2::void_cache();

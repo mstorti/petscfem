@@ -1,4 +1,4 @@
-$Id: notes.txt,v 1.141 2002/07/26 17:01:24 mstorti Exp $
+$Id: notes.txt,v 1.142 2002/07/26 18:09:00 mstorti Exp $
 OK. This is mostly in spanish...  Sorry :-)
 ================================================================
 
@@ -2465,13 +2465,13 @@ diff -c /home/mstorti/PETSC/petsc-2.0.24/bmake/linux/base_variables.bck /home/ms
 --- /home/mstorti/PETSC/petsc-2.0.24/bmake/linux/base_variables	Sun Jan 14 14:51:45 2001
 ***************
 *** 1,4 ****
-! # $Id: notes.txt,v 1.141 2002/07/26 17:01:24 mstorti Exp $ 
+! # $Id: notes.txt,v 1.142 2002/07/26 18:09:00 mstorti Exp $ 
   #
   #     See the file bmake/base_variables.defs for a complete explanation of all these fields
   #
 --- 1,5 ----
 ! # -*- mode: makefile -*-
-! # $Id: notes.txt,v 1.141 2002/07/26 17:01:24 mstorti Exp $ 
+! # $Id: notes.txt,v 1.142 2002/07/26 18:09:00 mstorti Exp $ 
   #
   #     See the file bmake/base_variables.defs for a complete explanation of all these fields
   #
@@ -2562,7 +2562,7 @@ diff -c /home/mstorti/PETSC/petsc-2.0.24/bmake/linux/base_variables.bck2 /home/m
 *** 1,3 ****
 --- 1,4 ----
 + # -*- mode: makefile -*-
-  # $Id: notes.txt,v 1.141 2002/07/26 17:01:24 mstorti Exp $ 
+  # $Id: notes.txt,v 1.142 2002/07/26 18:09:00 mstorti Exp $ 
   #
   #     See the file bmake/base_variables.defs for a complete explanation of all these fields
 ***************
@@ -4634,6 +4634,13 @@ Matriz Projection (comp_mat_prj):        0.157           0.66
 Residuo Projection(comp_res_prj):        0.162           0.80
 %
 Lo cual en general da una relacion casi 10 a 1 a favor de FastMat2. 
+%
+14:10:21: verificando los diferentes terminos del fractional step. La
+matriz de predictor esta bien. Inicialmente el residuo es 0 en los dos
+casos. 
+%
+14:14:14: El paso de poisson tambien coincide. 
+
 
 
 %# Current line ===========  

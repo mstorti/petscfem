@@ -1,6 +1,6 @@
 source("data.m.tmp");
 
-rem(N,2)==0 || warning("N should be even");
+## rem(N,2)==0 || warning("N should be even");
 
 w=zhomo([0 1 0 1],N+1,N+1,[1 hratio 1 1 hratio 1]);
 [xnod,icone] = pfcm2fem(w);

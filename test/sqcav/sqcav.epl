@@ -1,5 +1,5 @@
 # -*- mode: shell-script -*-
-#$Id: sqcav.epl,v 1.20 2002/07/26 17:01:31 mstorti Exp $
+#$Id: sqcav.epl,v 1.21 2002/07/26 18:09:03 mstorti Exp $
 # case: <:=$ENV{'case'}:>
 <:                              # starts ePerl block
 #__TRANSCRIPT__
@@ -16,7 +16,7 @@ if ($case eq 'g_body') {
 }
 $U = 1;				# typical velocity scale
 $L = 1;				# Side of the cavity
-$N = 100;
+$N = 20;
 $hratio = 4;			# refinement (h_center/h_wall)
 $Re = 100;			# Reynolds number
 $viscosity = $L/$Re;		# viscosity
@@ -80,12 +80,12 @@ global_options
 # mat_new_nonzero_allocation_err 0
 # debug_compute_prof
 nsave 5
-nstep 1
+nstep 20
 # initial_state sqcav.state
 <:pr('save_file'):> 
 
 # type of solver (may be "iisd", "petsc"...)
-#if 0
+#if 1
 #<:$maxits=1;:>
 solver "petsc"
 solver_mom "petsc"
@@ -98,7 +98,7 @@ preco_type "jacobi"
 <:pr('maxits'):> 
 
 # Number of subdomains
-iisd_subpart 10
+iisd_subpart 1
 #if $update_jacobian
 # update_jacobian_iters 3
 update_jacobian_start_steps 3
@@ -151,7 +151,7 @@ nodes  2  2  3
 __INCLUDE__ sqcav.nod.tmp
 _END_NODES__
 
-elemset <:=(!$fractional_step ? nsi_tet_les_fm2 : fracstep):> 4 
+elemset <:=(!$fractional_step ? nsi_tet_les_fm2 : fracstep_fm2):> 4 
 name malla
 
 # report_consumed_time
