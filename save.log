@@ -2546,3 +2546,6 @@ tag: beta-3.18.pl40 on Thu, 20 Mar 2003 19:58:47 -0300 by mstorti in spider
 tag: beta-3.18.pl41 on Thu, 20 Mar 2003 22:47:21 -0300 by mstorti in spider
      > Found a bug in spiller data. `G_body' goes
      > in the global options. 
+----------
+tag: beta-3.18.pl42 on Sat, 22 Mar 2003 19:20:43 -0300 by mstorti in spider
+     > Will start with the `mesh_move' version. 
