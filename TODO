@@ -2,6 +2,9 @@
 TODO: [Mainly fixes go here...]
 =====
 
+* Test gasflow_abso in supersonic flow. 
+     Test gasflow_abso in 3D. 
+     Test on a 2D geometry (bump, nozzle, flat plate?).
 * Breaks uncleanly when include directive is pasted to filename, e.g. 
             __INCLUDE__xxxxxx.file ???
 * Readd  `sqcav', `cubcav', `pfmat2' to test/Makefile

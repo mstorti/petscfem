@@ -1,70 +1,78 @@
-## $Id: mkgfabso.m,v 1.13 2005/01/23 20:01:52 mstorti Exp $
+## $Id: mkgfabso.m,v 1.14 2005/01/23 22:03:28 mstorti Exp $
 source("data.m.tmp");
 
 poutlet = pref;
 
-w = zhomo([0 Lx/Nx 0 Lx ],2,Nx+1);
-[xnod,icone] = pfcm2fem(w);
-xnod = xnod(:,[2 1]);
-nnod = size(xnod,1);
-x = xnod(1:nnod,1);
+dx = Lx/Nx;
+w = zhomo([0 dx 0 Lx ],2,Nx+1);
+[x2,ico2] = pfcm2fem(w);
+x2 = x2(:,[2 1]);
+nnod = size(x2,1);
 
-Orot = [cos(alpha),sin(alpha);
-	-sin(alpha),cos(alpha)]; # Rotation matrix
-xnod = xnod*Orot;
+[xnod,icone] = extrude(x2,ico2,1,dx);
+x = xnod(:,1);
 
-## rho,u,v at inlet
-inlet = [1;Nx+2];
-pffixa("gfabso.fixa-in.tmp",inlet,1:3,[rhoref [uref 0]*Orot])
+Ox = eye(3);
+Ox(2:3,2:3) = [cos(theta),-sin(theta);
+	       sin(theta),cos(theta)];
+Oz = eye(3);
+Oz(1:2,1:2) = [cos(phi),-sin(phi);
+	       sin(phi),cos(phi)];
 
-## p at outlet
-outlet = [Nx+1;2*Nx+2];
-pffixa("gfabso.fixa-outlet.tmp",outlet,4,pref)
+Orot = Oz*Ox*inv(Oz); # Rotation matrix
+xnod = xnod*Orot';
 
-## other
-slip = (1:nnod)';
-pffixa("gfabso.fixa-slip.tmp",slip,1+longindx)
+ndim=3;
+ndof=ndim+2;
 
+## Periodic b.c.'s
+fid = fopen("gfabso.peri.tmp","w");
+for k=1:Nx+1
+  for dof=1:ndof
+    for l=1:3
+      node = k+l*(Nx+1);
+      fprintf(fid,"%g %d %d    %g %d %d\n",
+	      -1,node,dof,1,k,dof);
+    endfor
+  endfor
+endfor
+fclose(fid);
+
+nnod = rows(xnod);
+nnod==4*(Nx+1) || error("inconsistency...");
 ## Fictitious nodes at outlet 
-## ... 2*Nx+2 nnod+3 nnod+4
-## ... Nx+1   nnod+1 nnod+2
-## nnod+5, nnod+6, 1
-## nnod+7, nnod+8, Nx+2
+## ... 4*Nx+4 nnod+1 nnod+2
+## Fictitious nodes at inlet
+## nnod+3, nnod+4, 1
 xnod = [xnod;
-	xnod(Nx+1,:);
-	xnod(Nx+1,:);
-	xnod(2*Nx+2,:);
-	xnod(2*Nx+2,:);
+	xnod(nnod,:);
+	xnod(nnod,:);
 	xnod(1,:);
-	xnod(1,:);
-	xnod(Nx+2,:);
-	xnod(Nx+2,:)];
+	xnod(1,:)];
 
 asave("gfabso.nod.tmp",xnod);
 asave("gfabso.con.tmp",icone);
 
 ## Absorbing b.c.'s
-abso1 = [Nx+1:-1:Nx-1 nnod+[1,2];
-	 2*Nx+2+(0:-1:-2),nnod+[3,4]];
+abso1 = [nnod+(0:-1:-2), nnod+[1,2]];
 asave("gfabso.con-abso1.tmp",abso1);
 
-abso0 = [1:3,nnod+[5,6];
-	 Nx+(2:4),nnod+[7,8]];
+abso0 = [1:3,nnod+[3,4]];
 asave("gfabso.con-abso0.tmp",abso0);
 
 ## Fixa on reference nodes
-Uref = [rhoref,[uref,0]*Orot,pref];
-ref = [Nx+1;2*Nx+2];
-pffixa("gfabso.fixa-ref.tmp",nnod+[2,4,6,8],1:4,Uref)
+Uref = [rhoref,[uref,0,0]*Orot',pref];
+ref = [nnod+2,nnod+4];
+pffixa("gfabso.fixa-ref.tmp",ref,1:5,Uref)
 
-asave("gfabso.some-nodes.tmp",(1:nnod/2)');
+asave("gfabso.some-nodes.tmp",(1:Nx+1)');
 
 nnod2 = size(xnod,1);
 Uini = Uref(ones(nnod2,1),:);
-Uini(nnod+[1:2:7],:) = 0;	# lagrange multipliers to 0
+Uini(nnod+[1,3],:) = 0;		# lagrange multipliers to 0
 
-dw = 0.2*[0 0 0 1]; ## perturbation
-dw(2:3) = dw(2:3)*Orot;
+dw = 0.2*[0 1 0 0 0]; ## perturbation
+dw(2:4) = dw(2:4)*Orot';
 
 dfx = exp(-((x-Lx/2)/sigma).^2);
 Uini(1:nnod,:) = Uini(1:nnod,:) + dfx*dw;

@@ -28,12 +28,12 @@ nfile 100000000
 solver "iisd"
 preco_type "jacobi"
 iisd_subpart_auto 4000
+maxits 100
 #else
 solver "petsc"
 preco_type "lu"
+maxits 1
 #endif
-
-maxits 100
 
 # file containing the weight (speed) of processors
 proc_weights weights.dat
@@ -44,7 +44,7 @@ tol_newton 1e-10
 atol 0
 rtol 1e-7
 dtol 1e3
-nnwt 3
+nnwt 1
 
 print_internal_loop_conv
 # print_linear_system_and_stop
@@ -54,12 +54,12 @@ shocap 0.0
 weak_form 0
 temporal_stability_factor 0
 
-ndim 2
+ndim 3
 Rgas <:=$Rgas:>
 visco 0.001
 cond 0.001
 steady 0
-Uref <:=$rhoref:> <:=$uref:> 0 <:=$pref:> 
+Uref <:=$rhoref:> <:=$uref*$norx:>  <:=$uref*$nory:> <:=$uref*$norz:> <:=$pref:> 
 linear_abso 1
 
 lagrange_diagonal_factor 1e-3
@@ -81,29 +81,29 @@ __END_HASH__
 
 ##================================================================
 # ndim nu ndof
-nodedata 2 2 4
+nodedata 3 3 5
 data ./gfabso.nod.tmp
 __END_HASH__
 
 ##================================================================
-elemset gasflow 4
-geometry cartesian2d
+elemset gasflow 8
+geometry cartesian3d
 dx 1
-npg 4
+npg 8
 data ./gfabso.con.tmp
 __END_HASH__
 
 #if $abso
 elemset gasflow_abso 5
 dx 0
-normaln <:=-$norx:> <:=-$nory:>
+normaln <:=-$norx:> <:=-$nory:> <:=-$norz:>
 __END_HASH__
 __INCLUDE__ gfabso.con-abso0.tmp
 __END_ELEMSET__
 
 elemset gasflow_abso 5
 dx 0
-normaln <:=$norx:> <:=$nory:>
+normaln <:=$norx:> <:=$nory:> <:=$norz:>
 __END_HASH__
 __INCLUDE__ gfabso.con-abso1.tmp
 __END_ELEMSET__
@@ -119,8 +119,10 @@ __INCLUDE__ ./gfabso.fixa-ref.tmp
 __INCLUDE__ ./gfabso.fixa-outlet.tmp
 __INCLUDE__ ./gfabso.fixa-in.tmp
 #endif
-#if 0
-__INCLUDE__ ./gfabso.fixa-slip.tmp
-#endif
 __END_FIXA__
+
+constraint
+__INCLUDE__ ./gfabso.peri.tmp
+__END_CONSTRAINT__
+
 #endif
