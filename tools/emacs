@@ -1,5 +1,9 @@
 ; -*- mode: lisp -*-
 
+(setq c-macro-preprocessor "/home/mstorti/PETSC/petscfem-pfmat/tools/pfcpp")
+;
+(setq c-macro-preprocessor (concat (getenv "PETSCFEM_DIR") 
+				   "/tools/pfcpp"))
 (defun match-paren (arg)
   "Go to the matching parenthesis if on parenthesis otherwise insert %."
   (interactive "p")
