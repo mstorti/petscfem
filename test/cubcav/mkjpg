@@ -1,0 +1,5 @@
+#!/bin/bash
+
+zcat YUV/cubcav.$1.yuv.gz > cubcav.$1.yuv
+convert -size 640x480 cubcav.$1.yuv cubcav.jpg
+rrm -f cubcav.$1.yuv

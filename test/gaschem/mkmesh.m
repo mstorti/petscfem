@@ -1,5 +1,5 @@
 ##__INSERT_LICENSE__
-## $Id: mkmesh.m,v 1.2 2003/11/10 21:29:50 mstorti Exp $
+## $Id: mkmesh.m,v 1.3 2003/11/11 02:13:00 mstorti Exp $
 source("data.m.tmp");
 
 ## rem(N,2)==0 || warning("N should be even");
@@ -8,7 +8,7 @@ w=zhomo([0 Ly 0 Lx],Ny+1,Nx+1);
 [xnod,icone] = pfcm2fem(w);
 xnod = xnod(:,[2 1]);
 
-nodfile = [xnod 0*xnod rho_liq*gravity*(Ly-xnod(:,2))];
+nodfile = [xnod 0*xnod patm+rho_liq*gravity*(Ly-xnod(:,2))];
 asave("pool.nod.tmp",nodfile);
 asave("pool.con.tmp",icone);
 

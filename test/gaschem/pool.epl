@@ -3,7 +3,7 @@
 #__TRANSCRIPT__
 require "$ENV{'PETSCFEM_DIR'}/test/eperlini.pl";# Initializes ePerl 
 $Nx = 1;
-$Ny = 20;
+$Ny = 40;
 $Ly = 20;
 $Lx = $Ly/$Ny*$Nx;
 $rho_liq = 1000;
@@ -13,7 +13,7 @@ $KO = 1.3516e-5;
 $KN = 0.6788e-5;
 $Rgas = 8.314;
 $Tgas = 293.0;
-$nu_t = 1e-6;
+$nu_t = 1e-1;
 
 ## At inlet ===============================================
 $rb = 0.01;			# radius of bubble at inlet
@@ -32,7 +32,8 @@ $CdO = $KO*$patm*$xO_in;	# Conc. of O2 diss. at bottom
 $CdN = $KN*$patm*(1.0-$xO_in);	# Conc. of O2 diss. at bottom
 #
 #__END_TRANSCRIPT__
-@vars = qw(Nx Ny Lx Ly rho_liq gravity KO KN Nb alpha rb vb CN CO CdO CdN nu_t);
+@vars = qw(Nx Ny Lx Ly rho_liq gravity KO KN Nb alpha rb vb 
+    CN CO CdO CdN nu_t patm);
 transcript("", @vars);	# print variables on output
 octave_export_vars(">data.m.tmp",@vars);
 :>//                            # ends ePerl block
@@ -41,27 +42,34 @@ global_options
 
 ndim 2
 nsave 5
-nstep 10
+nstep 100
 initial_state "pool.ini.tmp"
 
+#if 1
 solver "iisd"
 iisd_subpart 1
+#else
+solver "petsc"
+preco_type "lu"
+#endif
 
 atol 0
 rtol 1e-6
 dtol 1e3
-nnwt 1
+nnwt 2
 weak_form 1
 
 Krylov_dim 100
 print_internal_loop_conv 0
 
-steady
+steady 0
+Dt 10.0
 
 <:pr('nu_t'):>
 <:pr('KO'):>
 <:pr('KN'):>
 <:pr('gravity'):>
+# print_linear_system_and_stop
 
 __END_HASH__
 
