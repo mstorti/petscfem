@@ -612,3 +612,6 @@ tag: beta-2.30 on Thu Nov 22 23:13:55 ARST 2001, by mstorti in spider
 ----------
 tag: beta-2.31 on Fri Nov 23 21:05:19 ARST 2001, by mstorti in spider
      > `Graph' class is working (partitioning)
+----------
+tag: beta-2.32 on Sun Nov 25 19:45:13 ARST 2001, by mstorti in spider
+     > Debug now intercepts signals,so that you can activate debugging with `C-c'
