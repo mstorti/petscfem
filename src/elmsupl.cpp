@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: elmsupl.cpp,v 1.12 2003/08/30 18:02:13 mstorti Exp $
+//$Id: elmsupl.cpp,v 1.13 2003/08/30 21:14:34 mstorti Exp $
 
 #ifndef _GNU_SOURCE
 #define _GNU_SOURCE
@@ -37,13 +37,14 @@ extern int MY_RANK,SIZE;
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 #undef __FUNC__
 #define __FUNC__ "upload_vector"
-#if 0
+#if 1
 // New Fast PETSc matrix loading version (uses MatSetValues)
 int Elemset::upload_vector(int nel,int ndof,Dofmap *dofmap,
 		  int options,arg_data &argd,int myrank,
 		  int el_start,int el_last,int iter_mode,
 		  int klocc,int kdofc) {
 
+  double start = MPI_Wtime();
   int iele,kloc,node,kdof,locdof,lloc,nodel,ldof,locdofl,ierr,
     load_vec,load_mat,load_mat_col,comp_prof,iele_here,
     pfmat;
@@ -107,6 +108,9 @@ int Elemset::upload_vector(int nel,int ndof,Dofmap *dofmap,
   // This stores the values to be loaded in the matrix
   values.set_chunk_size((2*nel*ndof)*(2*nel*ndof));
 
+  int nen = ndof*nel;
+  int nen2 = nen*nen;
+
   if (load_mat) {
     // Compute row and column masks.
     for (kloc=0; kloc<nel; kloc++) {
@@ -144,6 +148,7 @@ int Elemset::upload_vector(int nel,int ndof,Dofmap *dofmap,
     if (load_mat) {
       // Build row map
       int jr=0,nr,jc=0,nc;
+      int all_one_coef = 1;
       for (kloc=0; kloc<nel; kloc++) {
 	node = ICONE(iele,kloc);
 	for (kdof=0; kdof<ndof; kdof++) {
@@ -179,6 +184,7 @@ int Elemset::upload_vector(int nel,int ndof,Dofmap *dofmap,
 	      lnodr.e(jr) = kloc;
 	      dofr.e(jr) = kdof;
 	      coefr.e(jr) = coef;
+	      if (coef!=1.0) all_one_coef = 0;
 	      jr++;
 	    }
 	    if (cm) {
@@ -194,6 +200,7 @@ int Elemset::upload_vector(int nel,int ndof,Dofmap *dofmap,
 	      lnodc.e(jc) = kloc;
 	      dofc.e(jc) = kdof;
 	      coefc.e(jc) = coef;
+	      if (coef!=1.0) all_one_coef = 0;
 	      jc++;
 	    }
 	  }
@@ -250,19 +257,44 @@ int Elemset::upload_vector(int nel,int ndof,Dofmap *dofmap,
 	values.a_resize(2,nr,nc);
 	values.defrag();
 #if 1
-	// New fast version (using C vector access)
-	double *w = values.buff();
-	for (jr=0; jr<nr; jr++) {
-	  int lnodr1 = lnodrp[jr];
-	  int dofr1 = dofrp[jr];
-	  double coefr1 = coefrp[jr];
-	  for (jc=0; jc<nc; jc++) {
-	    int lnodc1 = lnodcp[jc];
-	    int dofc1 = dofcp[jc];
-	    double coefc1 = coefcp[jc];
-	    if (!MASK(lnodr1,dofr1,lnodc1,dofc1)) continue;
-	    *w++ = coefr1*coefc1*RETVALMAT(iele_here,lnodr1,dofr1,lnodc1,dofc1);
-	  }      
+	if (!all_one_coef) {
+	  // New fast version (using C vector access)
+	  double *w = values.buff();
+	  for (jr=0; jr<nr; jr++) {
+	    int lnodr1 = lnodrp[jr];
+	    int dofr1 = dofrp[jr];
+	    double coefr1 = coefrp[jr];
+	    double *rtvm_row = &RETVALMAT(iele_here,lnodr1,dofr1,0,0);
+	    for (jc=0; jc<nc; jc++) {
+	      int lnodc1 = lnodcp[jc];
+	      int dofc1 = dofcp[jc];
+	      double coefc1 = coefcp[jc];
+	      // if (!MASK(lnodr1,dofr1,lnodc1,dofc1)) continue;
+	      // *w++ = coefr1*coefc1*RETVALMAT(iele_here,lnodr1,dofr1,lnodc1,dofc1);
+	      *w++ = coefr1 * coefc1 * *(rtvm_row + lnodc1*ndof + dofc1);
+	    }      
+	  }
+	} else {
+	  // This block takes 0.9 secs in the
+	  // cubiv cavity (cubcav) 30x30x30
+	  // New fast version (using C vector access)
+	  double *w = values.buff();
+	  int *lnodr1 = lnodrp;
+	  int *lnodr1_end = lnodrp+nr;
+	  int *dofr1 = dofrp;
+	  double *rtvm_iele = retval + iele_here*nen2;
+	  while (lnodr1<lnodr1_end) {
+	    double *rtvm_row = rtvm_iele 
+	      + nen * ((*lnodr1++) * ndof + (*dofr1++));
+	    int *lnodc1 = lnodcp;
+	    int *lnodc1_end = lnodc1 + nc;
+	    int *dofc1 = dofcp;
+	    while (lnodc1 < lnodc1_end) {
+	      // if (!MASK(lnodr1,dofr1,lnodc1,dofc1)) continue;
+	      // *w++ = coefr1*coefc1*RETVALMAT(iele_here,lnodr1,dofr1,lnodc1,dofc1);
+	      *w++ = *(rtvm_row + (*lnodc1++)*ndof + (*dofc1++));
+	    }      
+	  }
 	}
 #else
 	// Old slow version (using dvector<int>.e())
@@ -346,6 +378,7 @@ int Elemset::upload_vector(int nel,int ndof,Dofmap *dofmap,
       }
     }
   }
+  printf("Elemset::upload_vector(): fast version: %.3gsecs\n",MPI_Wtime()-start);
 }
 #else
 // Old slow PETSc matrix loading version (uses MatSetValue)
