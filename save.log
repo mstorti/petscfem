@@ -547,3 +547,6 @@ tag: beta-2.13 on Tue Oct  2 23:39:28 ART 2001, by mstorti in spider
 ----------
 tag: beta-2.14 on Sat Oct  6 20:54:11 ART 2001, by mstorti in spider
      > NS with lagrange multiplier for surface restriction compiles.
+----------
+tag: beta-2.15 on Sun Oct  7 18:13:23 ARST 2001, by mstorti in spider
+     > Fixed a bug for `weak_form=1' in the jacobian terms in nsitetlesfm2.cpp. 
