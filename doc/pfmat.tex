@@ -188,6 +188,7 @@ Richardson iteration is suggested. Sometimes this can diverge and some
 under-relaxation must be used. Options controlling iteration for the
 preconditioning problem can be found in section \S~\ref{sec:iisdopt}.
 
+%<*>---<*>---<*>---<*>---<*>---<*>---<*>---<*>---<*>---<*>---<*> 
 \SSection{Implementation details of the IISD solver} 
 
 \begin{itemize}
@@ -272,6 +273,94 @@ messages. This is performed with the DistMatrix object
 \verb+A_LL_other+. 
 \end{itemize}
 
+\SSection{Efficiency considerations} 
+
+\index{efficiency}
+\index{block uploading}
+The uploading time of elements in PETSc matrices can be significantly
+reduced by using \emph{``block uploading''}, i.e. uploading an array
+of values corresponding to a rectangular sub-matrix (not necessarily
+being contiguous indices) instead of uploading each element at a
+time. The following code snippets show the both types of uploading. 
+
+\index{MatSetValue@\verb+MatSetValue+}
+\index{MatSetValues@\verb+MatSetValues+}
+\begin{verbatim}
+// ELEMENT BY ELEMENT UPLOADING
+// The global matrix
+Mat A;
+// row and column indices (both of length `nen')
+int *row_indx,*col_indx;
+// Elementary matrix (size `nen*nen')
+double *Ae;
+// ... define row_indx, col_indx and fill Ae
+for (int j=0; j<nen; j++) {
+  for (int k=0; k<nen; k++) {
+    ierr = MatSetValue(A,row_int[j],col_indx[k],Ae[j*nen+k],ADD_VALUES);
+  }  
+}
+\end{verbatim}
+
+\begin{verbatim}
+// BLOCK UPLOADING
+// ... same stuff as before ...
+ierr = MatSetValues(A,nen,row_int[j],nen,col_indx[k],Ae,ADD_VALUES);
+\end{verbatim}
+
+\index{masks}
+\index{uploading}
+\index{block uploading@\verb+block_uploading+}
+In PETSc-FEM, the computed elemental matrices can be uploaded in
+the global matrices with both methods, as selected with the
+\verb+block_uploading+ global option (set to 1 by default, i.e. use
+block uploading). However, in some cases block uploading can be
+actually slower due to the use of \emph{``masks''}. A mask is a matrix
+of the same size as the elemental matrix with 0's or 1's indicating
+whether some coefficients are (structurally, i.e. not for a particular
+state) null. Moreover, the mask do not depends on the particular
+element, but it is rather a property of the terms being evaluated in
+the Jacobian. 
+
+\index{envelope mask} 
+For instance, for the Navier-Stokes equations the Galerkin term only
+has non null coefficients for the velocity unknowns in the continuity
+equation, while the pressure gradient term only has coefficients for
+the pressure unknowns in the momentum equations. Both terms together
+have a mask as shown in figure~\ref{fg:nsprof}. When the application
+writer codes such a term, he defines the mask. At the moment of
+uploading the elements, if \verb+block_uploading+ is in effect, then
+PETSc-FEM computes the \emph{``envelope''} of the mask, i.e. the
+rectangular mask that contains the mask in order to make just one call
+to \verb+MatSetValues+. In this case, the envelope is just a matrix
+filled with 1's, so that block uploading pays the benefit of using the
+faster \verb+MatSetValues+ routine, with the cost of loading much more
+coefficients than the original mask. In addition, the PETSc matrix
+will be bigger, with the corresponding increase in RAM demand and CPU
+time in computing factorizations (IISD solver) and matrix/vector
+products (PETSc solver). (In a future, such a combination of terms will
+be loaded more efficiently with two calls to \verb+MatSetValues+.)
+
+\index{report_consumed_time}
+The conclusion is that, if the terms to be loaded have a very sparse
+structure but a dense envelope, then may be block uploading is
+slower. (The worst case is a diagonal-like mask.) Note that also, it's
+not sufficient to have a sparse structure of the elemental matrix, but
+also the application writer has to compute and return the mask. 
+Finally, note that you can always check whether block uploading is
+faster or slower by activating the time statistics for the elemset
+(the \verb+report_consumed_time+) and run a large example with both
+kinds of uploading. 
+
+%<*>---<*>---<*>---<*>---<*>---<*>---<*>---<*>---<*>---<*>---<*> 
+\begin{figure*}[htb]
+\centerline{\includegraphics{./OBJ/nsprof}}
+\caption{Example of mask for the continuity equation (Galerkin term) in 
+   the Navier-Stokes equations}
+\label{fg:nsprof}
+\end{figure*}
+%<*>---<*>---<*>---<*>---<*>---<*>---<*>---<*>---<*>---<*>---<*> 
+
+%<*>---<*>---<*>---<*>---<*>---<*>---<*>---<*>---<*>---<*>---<*> 
 \Section{The DistMap class} 
 
 \index{DistMap@\verb+DistMap+}
@@ -282,6 +371,7 @@ each process can insert values and, at a certain point a
 \verb+scatter()+ call sends contributions to the corresponding
 processor. 
 
+%<*>---<*>---<*>---<*>---<*>---<*>---<*>---<*>---<*>---<*>---<*> 
 \SSection{Abstract interface} 
 
 \index{BufferPack@\verb+BufferPack+}
@@ -300,6 +390,7 @@ routines. The \verb+pack()+ and \verb+unpack()+ functions in the
 defines how new entries that have been sent from other processors have
 to be merged in the local object. 
 
+%<*>---<*>---<*>---<*>---<*>---<*>---<*>---<*>---<*>---<*>---<*> 
 \SSection{Implementation details} 
 
 When calling the \verb+scatter+ member, each entry in the basic
@@ -388,6 +479,8 @@ void exchange(j) {
   }
 }
 \end{verbatim}
+
+
 
 % %\begin{latexonly}
 % \begin{figure*}[htb]
