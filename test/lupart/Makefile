@@ -1,11 +1,10 @@
 #__INSERT_LICENSE__
-# $Id: Makefile,v 1.31 2001/11/09 03:05:45 mstorti Exp $ 
+# $Id: Makefile,v 1.32 2001/11/12 01:49:19 mstorti Exp $ 
 
 .PHONY: force all run tests data
 
 pp:
-	$(MAKE) NP=2  case=hitchhiking_part test_case
-	mv -f save.state save.state.hitchhiking.tmp
+	$(MAKE) NP=2 case=metis_part test_case
 
 test_eff: 
 #	$(MAKE) PROG=$(NSO) NP=2 Re=1000 case=iisd_eff case_size=large2 test_case

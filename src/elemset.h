@@ -1,6 +1,6 @@
 // -*- mode: c++ -*-
 /*__INSERT_LICENSE__*/
-//$Id: elemset.h,v 1.16 2001/07/25 17:29:45 mstorti Exp $
+//$Id: elemset.h,v 1.17 2001/11/12 01:50:29 mstorti Exp $
 
 #ifndef ELEMSET_H
 #define ELEMSET_H
@@ -104,7 +104,7 @@ public:
       elemset. 
   */ 
   virtual int ask(const char *jobinfo,int &skip_elemset) {
-
+    
     // By default process the elemset. 
     skip_elemset = 0;
     return 0;
@@ -115,6 +115,11 @@ public:
   Darray *ghost_elems;
   /// print info of this elemset
   void print();
+  
+  /** Returns the amount of work needed to process this element.
+      @return the weight of the processor
+  */ 
+  virtual double weight() {return 1.;}
 
   //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
   /** Builds localized vectors (in node/field) representation of state

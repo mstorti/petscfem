@@ -1,6 +1,6 @@
 // -*- mode: C++ -*-
 /*__INSERT_LICENSE__*/
-//$Id: utils.h,v 1.9 2001/08/02 01:54:01 mstorti Exp $
+//$Id: utils.h,v 1.10 2001/11/12 01:50:29 mstorti Exp $
  
 
 #ifndef UTILS_H
@@ -73,6 +73,13 @@ inline double drand() {
   @return integer random value
 */ 
 int irand(int imin,int imax);
+
+/** Integer random number uniformly distributed in [0,n-1]
+  @author M. Storti
+  @param n number of objects
+  @return integer random value
+*/ 
+int irand(int n);
 
 /** Minimum value of a set of integers.
   @author M. Storti

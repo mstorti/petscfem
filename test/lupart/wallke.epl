@@ -96,6 +96,7 @@ save_file_some "wallke.some.tmp"
 nsome 1
 
 partitioning_method "<:=$part_method:>"
+max_partgraph_vertices 30
 alpha 1.
 #if $eff 
 nstep 200000

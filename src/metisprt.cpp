@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: metisprt.cpp,v 1.2 2001/11/11 12:53:42 mstorti Exp $
+//$Id: metisprt.cpp,v 1.3 2001/11/12 01:50:29 mstorti Exp $
  
 #include "fem.h"
 #include "utils.h"
@@ -28,19 +28,71 @@ extern "C" {
 
 using namespace std;
 
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+#undef __FUNC__
+#define __FUNC__ "find_elem"
+void find_elem(int elem,const int *nelemsetptr,int nelemsets,Mesh *mesh,
+	       Elemset *& elemset,int &locel) {
+  // return the elemset pointer and local elemset number of
+  // a global elemset number
+  for (int ielset=0; ielset<nelemsets; ielset++) {
+    // Look for which elemset the element belongs
+    if (elem<nelemsetptr[ielset+1]) {
+      elemset  = *(Elemset **)da_ref(mesh->elemsetlist,ielset);
+      locel = elem-nelemsetptr[ielset];
+      return;
+    }
+  }
+  assert(0);
+}
+
+// return a pointer to the connectivities of a particular element,
+// given the global element number
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+#undef __FUNC__
+#define __FUNC__ "elem_connectivities"
+void elem_connectivities(int elem,Mesh *mesh,const int *nelemsetptr,
+			 int nelemsets,
+			 const int *&elem_icone,int &nel) {
+
+  // iel:= the number of elemeset to which the element belongs
+  // locel:= the element number local to the elemset
+  int iel,locel,*icone;
+  Elemset *elemset;
+  
+  find_elem(elem,nelemsetptr,nelemsets,mesh,elemset,locel);
+  nel = elemset->nel;
+  icone = elemset->icone;
+  elem_icone = &ICONE(locel,0);
+}
+
 void  metis_part(int nelemfat,Mesh *mesh,
-		 const int nelemsets,int *vpart,
+		 const int nelemsets,int *epart,
 		 int *nelemsetptr,int *n2eptr,
 		 int *node2elem,int size,const int myrank,
 		 const int partflag,float *tpwgts,
 		 int max_partgraph_vertices) {
 
   Elemset *elemset;
-  int *icone,nel,node,nvertx;
-  queue<int> vecinos; 
+  int *icone,nel,node,nvrtx,adjcount,j,elem,elemk,vrtx,
+    visited,locel,k,jj,vrtxj,vrtxjj,p;
+  const int *elem_icone;
+  double weight_scale=1.;
+  
+  // ngbrs:= Auxiliary queue that stores those nodes that are waiting
+  // to be marked. 
+  queue<int> ngbrs; 
 
-  // nvertx:= number of vertices used in graph partitioning
-  nvertx = (nelemfat>max_partgraph_vertices ?
+  // Stores the graph `adjncy' in STL format
+  vector< set<int> > adjncy_v;
+  set<int>::iterator q,qe;
+
+  // nvrtx:= number of vertices used in graph partitioning
+  // The factor 2 here avoids the case that only few elements are not
+  // coalesced. In this case, for the last elements the computational
+  // effort may be high, since the probability of getting a hole is
+  // very low. 
+  nvrtx = (nelemfat > 2*max_partgraph_vertices ?
 	    max_partgraph_vertices : nelemfat);
 
   // Create adjacency table for partitioning with Metis. In the adjacency
@@ -50,16 +102,107 @@ void  metis_part(int nelemfat,Mesh *mesh,
 
   // adjncy:= xadj:= graph desdcribed in CSR format (as defined in
   // Metis documentation)
-  int *xadj = new int[nvertx+1];
+  int *xadj = new int[nvrtx+1],*adjncy;
+  // vwgt:= weights for the vertices (elements) of the graph
+  int *vwgt = new int[nvrtx];
+  // el2vrtx:= maps elements to vertices when coalescing
+  int *el2vrtx = new int[nelemfat];
+  // vpart:= partitioning of vertices
+  int *vpart = new int[nvrtx];
+
+  // Initialize 
+  for (j=0; j<nelemfat; j++) el2vrtx[j] = -1;
+  for (j=0; j<nvrtx; j++) vwgt[j] = 0;
+  // Take `nvrtx' elements to coalesce the neighbor elements
+  
+  vrtx=0;
+#if 0
+  ngbrs.clear();
+#else
+  while (!ngbrs.empty()) ngbrs.pop();
+#endif
+  while(1) {
+    elem = irand(nelemfat);
+    if (el2vrtx[elem]!=-1) continue;
+    el2vrtx[elem]=vrtx++;
+    find_elem(elem,nelemsetptr,nelemsets,mesh,elemset,locel);
+    vwgt[vrtx] += int(elemset->weight()/weight_scale);
+    ngbrs.push(elem);
+    if (vrtx==nvrtx) break;
+  }
+  visited=nvrtx;
+  
+  // Start coalescing neighbor elements until all elements are
+  // assigned a vertex
+  while (1) {
+    if (ngbrs.empty()) {
+      // either we have visited all the elements or there are
+      // disconnected parts of the domain.
+
+      // All elements have been visited
+      if (visited==nelemfat) break;
+      
+      // Disconnected parts. Find next element not visited.
+      for (k=0; k<nel; k++) {
+	if (el2vrtx[k]<0) {
+	  ngbrs.push(k);
+	  // Put it in a random vertex
+	  vrtx = irand(0,nvrtx)-1;
+	  el2vrtx[k] = vrtx;
+	  find_elem(k,nelemsetptr,nelemsets,mesh,elemset,locel);
+	  vwgt[vrtx] += int(elemset->weight()/weight_scale);
+	  break;
+	}
+      }
+    }
+
+    // Take the first element
+    elem = ngbrs.front();
+    ngbrs.pop();
+    vrtx = el2vrtx[elem];
+    assert(vrtx>=0);
+    // Get its connectivities
+    elem_connectivities(elem,mesh,nelemsetptr,nelemsets,elem_icone,nel);
+    // Loop over all nodes of the element
+    for (k=0; k<nel; k++) {
+      node = elem_icone[k];
+      // Loop over all elements connected to the node
+      for (jj=n2eptr[node-1]; jj<n2eptr[node]; jj++) {
+	elemk = node2elem[jj];
+	// Already visited
+	if (el2vrtx[elemk]>=0) continue;
+	// Assign to group
+	el2vrtx[elemk]=vrtx;
+	visited++;
+	// Find elemset and add weight to vertex weight (for load
+	// balancing) 
+	find_elem(elemk,nelemsetptr,nelemsets,mesh,elemset,locel);
+	vwgt[vrtx] += int(elemset->weight()/weight_scale);
+	// Put in queue
+	ngbrs.push(elemk);
+      }
+    }
+  }
+
+#if 0
+  if (myrank==0) {
+    for (elem=0; elem < nelemfat; elem++) {
+      printf("el2vrtx[%d] = %d\n",elem,el2vrtx[elem]);
+    }
+  }
+#endif
 
   // mark:= auxiliary vector that flags if an element has been marked
   // already as a linked node in the graph
+#if 0
   int *mark = new int[nelemfat];
-  for (int ielgj=0; ielgj<nelemfat; ielgj++) 
-    mark[ielgj]=-1;
-    
-    // Define graph descriptors 
-  xadj[0]=0;
+  for (int ielgj=0; ielgj<nelemfat; ielgj++) mark[ielgj]=-1;
+#endif
+        
+  adjncy_v.resize(nvrtx);
+
+  // Define graph descriptors 
+  // Initializa graph ptrs
   for (int ielset=0; ielset<nelemsets; ielset++) {
     elemset  = *(Elemset **)da_ref(mesh->elemsetlist,ielset);
     //if (myrank==0) printf("elemento: %d, conec: %d\n",ielset,elemset);
@@ -67,81 +210,58 @@ void  metis_part(int nelemfat,Mesh *mesh,
     nel = elemset->nel;
     for (int iel=0; iel<elemset->nelem; iel++) {
       int ielgj = nelemsetptr[ielset]+iel;
-      xadj[ielgj+1]=xadj[ielgj];
-      // loop over the connected nodes
+      vrtxj = el2vrtx[ielgj];
       for (int iloc=0; iloc<elemset->nel; iloc++) {
 	node = ICONE(iel,iloc);
 	
 	// loop over all the elements connected to this node
-	for (int jj=n2eptr[node-1];
-	     jj<n2eptr[node]; jj++) {
+	for (int jj=n2eptr[node-1]; jj<n2eptr[node]; jj++) {
 	  int ielgjj = node2elem[jj];
 	  if (ielgjj==ielgj) continue;
-
-	  // check if the element has been already loaded
-	  if (mark[ielgjj]!=ielgj) {
-	    mark[ielgjj]=ielgj;
-	    xadj[ielgj+1]++;
-	    // printf("adding %d %d\n",ielgj,ielgjj);
-	  }
+	  vrtxjj = el2vrtx[ielgjj];
+	  adjncy_v[vrtxj].insert(vrtxjj);
+	  // adjncy_v[vrtxjj].insert(vrtxj); // is this needed?
 	}
       }
     }
   }
+
+  xadj[0] = 0;
+  for (vrtxj=0; vrtxj<nvrtx; vrtxj++) 
+    xadj[vrtxj+1] = xadj[vrtxj] + adjncy_v[vrtxj].size();
+
   // Once computed the adjncy size, it is created.
-  int adycont=0;
-  int *adjncy = new int[xadj[nelemfat]]; // fixme:= identifier adjncy is overloaded
-  for (int ielgj=0; ielgj<nelemfat; ielgj++) 
-    mark[ielgj]=-1;
-  // Define graph descriptors 
-  xadj[0]=0;
-  for (int ielset=0; ielset<nelemsets; ielset++) {
-    elemset  = *(Elemset **)da_ref(mesh->elemsetlist,ielset);
-    icone = elemset->icone;
-    nel = elemset->nel;
-    for (int iel=0; iel<elemset->nelem; iel++) {
-      int ielgj = nelemsetptr[ielset]+iel;
-      xadj[ielgj+1]=xadj[ielgj];
-      // loop over the connected nodes
-      for (int iloc=0; iloc<elemset->nel; iloc++) {
-	node = ICONE(iel,iloc);
-	
-	// loop over all the elements connected to this node
-	for (int jj=n2eptr[node-1];
-	     jj<n2eptr[node]; jj++) {
-	  int ielgjj = node2elem[jj];
-	  if (ielgjj==ielgj) continue;
-
-	  // check if the element has been already loaded
-	  if (mark[ielgjj]!=ielgj) {
-	    adjncy[adycont]=ielgjj;
-	    mark[ielgjj]=ielgj;
-	    xadj[ielgj+1]++;
-	    adycont++;
-	  }
-	}
-      }
-    }
+  adjncy = new int[xadj[nvrtx]];
+  for (vrtxj=0; vrtxj<nvrtx; vrtxj++) {
+    set<int> &adj = adjncy_v[vrtxj];
+    qe = adj.end();
+    p = xadj[vrtxj];
+    for (q=adj.begin(); q!=qe; q++) adjncy[p++] = *q;
   }
-  delete[] mark;
 
 #if 0
   // print the graph
-  for (int ielgj=0; ielgj<nelemfat; ielgj++) {
+  for (int ielgj=0; ielgj<nvrtx; ielgj++) {
     printf("%d: ",ielgj);
     for (int jj=xadj[ielgj]; jj<xadj[ielgj+1]; jj++) 
       printf(" %d",adjncy[jj]);
-    printf("\n");
+    printf(", weight: %d\n",vwgt[ielgj]);
   }
 #endif
 
-  int options=0,edgecut,numflag=0,wgtflag=0;
+  int options=0,edgecut,numflag=0,wgtflag=2;
+#if 1
+  size = 2; // debug:=
+  float *tpwgts_d = new float[size];
+  for (j=0; j<size; j++) tpwgts_d[j] = 1./float(size);
+#endif
   if (size>1) {
     if (partflag==0) {
       if (myrank==0) printf("METIS partition - partflag = %d\n",partflag);
-      METIS_WPartGraphKway(&nelemfat,xadj,adjncy,NULL, 
+      METIS_WPartGraphKway(&nvrtx,xadj,adjncy,vwgt, 
 			   NULL,&wgtflag,&numflag,&size, 
-			   tpwgts,&options,&edgecut,vpart);
+			   tpwgts_d,&options,&edgecut,vpart);
+      
     } else { // partflag=2
       if (myrank==0) printf("Neighbor Partition - partflag = %d\n",partflag);
       int *mnnel = new int [size+1];
@@ -150,23 +270,23 @@ void  metis_part(int nelemfat,Mesh *mesh,
 	mnnel[nnod+1] = mnnel[nnod]+int(nelemfat*tpwgts[nnod]);
 	if (mnnel[size] < nelemfat) mnnel[size] = nelemfat;
       }
-      // hago una busqueda de vecinos por capas en adjncy y marco los
+      // hago una busqueda de ngbrs por capas en adjncy y marco los
       // elementos (nodos del grafo) a los que le asigne una particion
       for (int imar=0; imar < nelemfat; imar++) {
 	vpart[imar]=0;
       }
-      vecinos.push(0);
+      ngbrs.push(0);
       int counter=0;
       int inod=1;
-      while (vecinos.size()>0) {
-	int nods=vecinos.front();
-	vecinos.pop();
+      while (ngbrs.size()>0) {
+	int nods=ngbrs.front();
+	ngbrs.pop();
 	for (int vecnod_c=xadj[nods]; vecnod_c<xadj[nods+1];
 	     vecnod_c++) {
 	  int vecnod = adjncy[vecnod_c];
 	  if (vecnod==nods) continue;
 	  if (vpart[vecnod]!=0) continue;
-	  vecinos.push(vecnod);
+	  ngbrs.push(vecnod);
 	  vpart[vecnod]=inod; 
 	}
 	++counter;
@@ -179,11 +299,24 @@ void  metis_part(int nelemfat,Mesh *mesh,
     }
     // length(vpart) = number of nelemfat in the graph
   } else {
-    for (int jj=0; jj<nelemfat; jj++) 
+    for (int jj=0; jj<nvrtx; jj++) 
       vpart[jj]=0;
   }
+  for (elem=0; elem<nelemfat; elem++) 
+    epart[elem] = vpart[el2vrtx[elem]];
   delete[] adjncy;
   delete[] xadj;
-  assert(vecinos.empty());
+  delete[] el2vrtx;
+  delete[] vwgt;
+  delete[] vpart;
+
+#if 0
+  for (vrtxj=0; vrtxj<nvrtx; vrtxj++)
+    printf("vrtxj %d, proc %d\n",vrtxj,vpart[vrtxj]);
+  for (elem=0; elem<nelemfat; elem++)
+    printf("elem %d, proc %d\n",elem,epart[elem]);
+#endif
+
+  assert(ngbrs.empty());
 
 }
