@@ -1,4 +1,4 @@
-# $Id: Makefile,v 1.4 2001/01/08 12:12:17 mstorti Exp $ 
+# $Id: Makefile,v 1.5 2001/01/09 17:07:11 mstorti Exp $ 
 
 .PHONY: all run  compile lclean laplace adv nso laplace_tests force \
         ctest gprof
@@ -7,6 +7,7 @@ all: run
 
 PETSCFEM_DIR = ../..
 include $(PETSCFEM_DIR)/Makefile.base
+include ../../test/Makefile.base.test
 
 NS = $(PETSCFEM_DIR)/applications/ns/ns.bin
 
@@ -15,12 +16,6 @@ NP = 1
 PROG  = $(NS)
 CASE = sqcav
 MCH = -machinefile ./machi.dat
-
-ns: $(NS)
-	ln -s $(NS) ns
-
-$(NS):
-	$(MAKE) -C $(PETSCFEM_DIR) ns
 
 NP := $(shell procsel $(PETSCFEM_PROCTABLE))
 run: $(CASE).depl force ns
