@@ -1,16 +1,18 @@
 // -*- mode: c++ -*-
 //__INSERT_LICENSE__
-// $Id: femref.h,v 1.44 2004/12/27 03:37:33 mstorti Exp $
+// $Id: femref.h,v 1.45 2005/01/03 03:15:22 mstorti Exp $
 #ifndef PETSCFEM_FEMREF_H
 #define PETSCFEM_FEMREF_H
 
 #include <list>
-#include <multimap>
+#include <multimap.h>
 #include <src/dvector.h>
 #include <src/dvector2.h>
 #include <src/generror.h>
 #include <src/linkgraph.h>
 #include "./tree.h"
+
+// using namespace __gnu_cxx;
 
 extern MD5Hasher hasher;
 
@@ -130,8 +132,9 @@ public:
       refined node depends. 
       @param nodes (output) the nodes that spawn #indx#. */ 
   void ref_node(int indx,
-		GeomObject::Type t,
-		int &nnod, const int *&nodes) const;
+		const GeomObject::Template *&tmpl,
+		int &nnod, const int *&nodes) 
+    const { assert(0); }
   /// Local nodes connected to subobject #j# of type #t#. 
   virtual const int* 
   nodes(GeomObject::Type t,int j) const { assert(0); }
@@ -375,6 +378,15 @@ public:
   void set(RefNodeIterator it,
 	   GeomObject &go);
 
+  /** Adds new refined node to the hash
+      with given arguments */
+  void add_refined_node(ElemRef::iterator q,
+			int j,int node_hash);
+
+private:
+  void hash_insert(int k,RefNodeIterator q);
+
+public:
   /** Each element in the refinement stack is
       of this type. */ 
   struct RefPathNode {

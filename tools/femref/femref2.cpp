@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-// $Id: femref2.cpp,v 1.21 2004/12/27 03:37:33 mstorti Exp $
+// $Id: femref2.cpp,v 1.22 2005/01/03 03:15:22 mstorti Exp $
 
 #include <string>
 #include <list>
@@ -13,45 +13,6 @@ using namespace std;
 #include "./gtemplates.h"
 
 MD5Hasher hasher;
-
-//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
-int OrientedTetraTemplateClass
-::perm_v[] = {1,2,0,3,
-	      2,0,1,3,
-	      0,3,1,2,
-	      1,0,3,2,
-	      3,1,0,2,
-	      1,3,2,0,
-	      3,2,1,0,
-	      2,1,3,0,
-	      0,2,3,1,
-	      2,3,0,1,
-	      3,0,2,1,GeomObject::NULL_NODE};
-
-int 
-OrientedTetraTemplateClass 
-::faces[] = {0,1,3,
-	     1,2,3,
-	     2,0,3,
-	     0,2,1,GeomObject::NULL_NODE};
-
-OrientedTetraTemplateClass
-OrientedTetraTemplate;
-
-//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
-int OrientedTriTemplateClass
-::perm_v[] = {1,2,0,
-	      2,0,1,
-	      0,2,1,
-	      2,1,0,
-	      1,0,2,GeomObject::NULL_NODE};
-
-OrientedTriTemplateClass
-OrientedTriTemplate;
-
-//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
-Tetra2TetraSplitterClass 
-Tetra2TetraSplitter;
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 GeomObject::GeomObject(Type t,const int *nodes_a) 

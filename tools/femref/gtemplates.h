@@ -1,9 +1,10 @@
 // -*- mode: c++ -*-
 //__INSERT_LICENSE__
-// $Id: gtemplates.h,v 1.8 2004/12/27 03:37:33 mstorti Exp $
+// $Id: gtemplates.h,v 1.9 2005/01/03 03:15:22 mstorti Exp $
 #ifndef PETSCFEM_GTEMPLATES_H
 #define PETSCFEM_GTEMPLATES_H
 
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 class OrientedTetraTemplateClass 
   : public GeomObject::Template {
 private:

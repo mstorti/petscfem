@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-// $Id: gtemplates.cpp,v 1.9 2004/12/26 16:37:46 mstorti Exp $
+// $Id: gtemplates.cpp,v 1.10 2005/01/03 03:15:22 mstorti Exp $
 
 #include <string>
 #include <list>
@@ -10,6 +10,45 @@ using namespace std;
 
 #include "./femref.h"
 #include "./gtemplates.h"
+
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+int OrientedTetraTemplateClass::
+perm_v[] = {1,2,0,3,
+	      2,0,1,3,
+	      0,3,1,2,
+	      1,0,3,2,
+	      3,1,0,2,
+	      1,3,2,0,
+	      3,2,1,0,
+	      2,1,3,0,
+	      0,2,3,1,
+	      2,3,0,1,
+	      3,0,2,1,GeomObject::NULL_NODE};
+
+int 
+OrientedTetraTemplateClass 
+::faces[] = {0,1,3,
+	     1,2,3,
+	     2,0,3,
+	     0,2,1,GeomObject::NULL_NODE};
+
+OrientedTetraTemplateClass
+OrientedTetraTemplate;
+
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+int OrientedTriTemplateClass
+::perm_v[] = {1,2,0,
+	      2,0,1,
+	      0,2,1,
+	      2,1,0,
+	      1,0,2,GeomObject::NULL_NODE};
+
+OrientedTriTemplateClass
+OrientedTriTemplate;
+
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+Tetra2TetraSplitterClass 
+Tetra2TetraSplitter;
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 int 
@@ -76,12 +115,19 @@ Tetra2TetraSplitterClass::
 nref_nodes() const { return 6; }
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+
+int EdgeRefNodeTemplateClass::
+perm_v[] = {1,0,GeomObject::NULL_NODE};
+
+EdgeRefNodeTemplateClass EdgeRefNodeTemplate;
+
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 void 
 Tetra2TetraSplitterClass::
 ref_node(int indx,
 	 const GeomObject::Template *&tmpl,
 	 int &nnod, 
-	 const int *&nodes) {
+	 const int *&nodes) const {
   nnod = 2;
   nodes = &ref_nodes.e(indx,0);
   tmpl = &EdgeRefNodeTemplate;
