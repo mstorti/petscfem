@@ -1681,3 +1681,6 @@ tag: beta-3.05.pl12 on Sun, 29 Sep 2002 15:30:15 -0300 by mstorti in spider
 tag: beta-3.05.pl13 on Sun, 29 Sep 2002 23:31:07 -0300 by mstorti in spider
      > Fixed some memory leaks (not important, i.e. outside loops, constant
      > in size).
+----------
+tag: beta-3.05.pl14 on Mon, 30 Sep 2002 18:45:49 -0300 by mstorti in spider
+     > Debugging memopy leak in range [beta-3.03.pl16 -- beta-3.04]
