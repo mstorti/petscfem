@@ -1,5 +1,5 @@
 //
-// time: Fri Mar 28 16:56:46 2003
+// time: Fri Mar 28 17:16:21 2003
 //
 // version: 3.1.2 (format), 4.2.0 (DX)
 //
@@ -7,32 +7,32 @@
 // Begin MDF
 // MODULE SystemDrivesImport2
 // CATEGORY Macros
-// INPUT n; integer; (no default);  
-// INPUT command; string; (make step=%d  dx_input);  
-// OUTPUT step; integer;  
+// INPUT n; value list or string; (no default);  
+// INPUT input_2; string; (no default);  
+// OUTPUT output_1; value list or string;  
 // End MDF
-// workspace: width = 357, height = 291
+// workspace: width = 352, height = 291
 // layout: snap = 0, width = 50, height = 50, align = NN
 //
 macro SystemDrivesImport2(
  n
 ,input_2
 ) -> (
- step
+ output_1
 ) {
     // 
-    // node Input[2]: x = 176, y = 39, inputs = 0, label = Input
-    // parameter: position = 2, name = 'input_2', value = '(make step=%d  dx_input)', descriptive = 1, description = ' ', required = 0, visible = 1
+    // node Input[2]: x = 177, y = 65, inputs = 0, label = Input
+    // parameter: position = 2, name = 'input_2', value = '(no default)', descriptive = 1, description = ' ', required = 0, visible = 1
     //
 SystemDrivesImport2_Input_2_out_1 = input_2;
     // 
-    // node Input[1]: x = 315, y = 46, inputs = 0, label = Input
+    // node Input[1]: x = 277, y = 62, inputs = 0, label = Input
     // parameter: position = 1, name = 'n', value = '(no default)', descriptive = 1, description = ' ', required = 0, visible = 1
     //
 SystemDrivesImport2_Input_1_out_1 = n;
     // 
-    // node Format[1]: x = 186, y = 141, inputs = 3, label = Format
-    // input[1]: defaulting = 1, visible = 1, type = 32, value = "make step=%d -C /u/mstorti/PETSC/RUN_GERARDO/AHMED/DX dx"
+    // node Format[1]: x = 196, y = 150, inputs = 3, label = Format
+    // input[1]: defaulting = 1, visible = 1, type = 32, value = "(make step=%d dx_input)"
     //
 SystemDrivesImport2_Format_1_out_1 = 
     Format(
@@ -41,12 +41,12 @@ SystemDrivesImport2_Format_1_out_1 =
     NULL
     ) [instance: 1, cache: 1];
     // 
-    // node Output[1]: x = 273, y = 226, inputs = 1, label = Output
-    // parameter: position = 1, name = 'step', value = '(NULL)', descriptive = 1, description = ' ', required = 0, visible = 1
+    // node Output[1]: x = 297, y = 229, inputs = 1, label = Output
+    // parameter: position = 1, name = 'output_1', value = ' ', descriptive = 0, description = ' ', required = 0, visible = 1
     //
-step = SystemDrivesImport2_Input_1_out_1;
+output_1 = SystemDrivesImport2_Input_1_out_1;
     // 
-    // node System[1]: x = 158, y = 229, inputs = 1, label = System
+    // node System[1]: x = 225, y = 229, inputs = 1, label = System
     //
     System(
     SystemDrivesImport2_Format_1_out_1
