@@ -1,6 +1,6 @@
 // -*- mode: c++ -*-
 //__INSERT_LICENSE__
-// $Id: advabso.h,v 1.1 2005/01/25 23:27:53 mstorti Exp $
+// $Id: advabso.h,v 1.2 2005/01/26 11:48:29 mstorti Exp $
 #ifndef PETSCFEM_ADVABSO_H
 #define PETSCFEM_ADVABSO_H
 
@@ -38,7 +38,10 @@ public:
   void lag_mul_dof(int jr,int &node,int &dof) {
     node = 2; dof=jr;
   }
-  void lm_initialize() { }
+  void lm_initialize() { 
+    int ff_options=0;
+    adv_diff_ff->start_chunk(ff_options);
+  }
   void init() {
     int ierr;
     TGETOPTDEF_ND(thash,int,ndim,0);
@@ -66,5 +69,7 @@ public:
   gasflow_abso() 
     :  AdvectiveAbso(new gasflow_ff()) { } 
 };
+
+#undef gasflow_abso
 
 #endif
