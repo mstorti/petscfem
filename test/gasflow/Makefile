@@ -1,9 +1,8 @@
-#__INSERT_LICENSE__
-# $Id: Makefile,v 1.11 2003/01/21 17:47:23 mstorti Exp $ 
+# $Id: Makefile,v 1.12 2003/01/22 13:30:26 mstorti Exp $ 
 
 .PHONY: force all run tests default strip gasflow nozzle  vtubei
 
-default: vtubei
+default: vtube
 
 tests: 
 
