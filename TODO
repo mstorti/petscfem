@@ -4,6 +4,8 @@
 TODO: [Mainly fixes go here...]
 =====
 
+* Why it takes so much time after "Start partitioning" when running
+    large problems in one proc.
 * Generate test for LES 
 * `html' target in `doc' is duplicated and `make' complains. 
 * Add a test for advdif with null weight processor
