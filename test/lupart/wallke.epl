@@ -3,6 +3,10 @@ require "$ENV{'PETSCFEM_DIR'}/test/eperlini.pl";       # Initializes ePerl
 #
 $case = $ENV{'case'};
 $Re = $ENV{'Re'};
+if ($case eq 'iisd_eff') {
+    $eff = 1;
+    $case = 'iisd';
+}
 $L = 1;                         # Semi distance between plates
 $N = 4;                         # Number of elements in transversal 'x' direction
 $hratio = 1;                    # refinement near the wall
@@ -85,7 +89,10 @@ nsome 1
 
 partitioning_method "<:=$part_method:>"
 alpha 1.
-#if $case_size eq 'small' 
+#if $eff 
+nstep 2
+nnwt 2
+#elsif $case_size eq 'small' 
 nstep 2
 nnwt 2
 #elsif $part_case
@@ -117,6 +124,7 @@ maxits 1
 preco_type "jacobi"
 rtol 1e-4
 atol 1e-10
+maxits 200
 #if ! $part_case
 maxits 10
 #else 

@@ -1,5 +1,5 @@
 #__INSERT_LICENSE__
-# $Id: Makefile,v 1.22 2001/08/10 02:07:20 mstorti Exp $ 
+# $Id: Makefile,v 1.23 2001/08/17 16:19:30 mstorti Exp $ 
 
 .PHONY: force all run tests data
 
@@ -21,8 +21,7 @@ run0:
 tests: test_iisd test_partitioning
 
 test_eff: 
-	$(MAKE) NP=2 Re=100 case=iisd case_size=large test_case
-	mv -f save.state save.state.iisd_peri.np2.tmp
+	time $(MAKE) NP=2 Re=1000 case=iisd_eff case_size=large test_case
 
 #w Tests IISD with periodic boundary conditions
 NS := $(NSO)
