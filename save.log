@@ -1677,3 +1677,7 @@ tag: beta-3.05.pl11 on Wed, 25 Sep 2002 21:01:34 -0300 by mstorti in spider
 tag: beta-3.05.pl12 on Sun, 29 Sep 2002 15:30:15 -0300 by mstorti in spider
      > Added `free_surface_set_level_factor' for controlling meniscus. 
      > Added `activate_debug_memory_usage' for controlling a memory leak. 
+----------
+tag: beta-3.05.pl13 on Sun, 29 Sep 2002 23:31:07 -0300 by mstorti in spider
+     > Fixed some memory leaks (not important, i.e. outside loops, constant
+     > in size).
