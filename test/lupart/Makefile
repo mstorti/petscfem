@@ -1,5 +1,5 @@
 #__INSERT_LICENSE__
-# $Id: Makefile,v 1.14 2001/08/06 01:07:43 mstorti Exp $ 
+# $Id: Makefile,v 1.15 2001/08/07 16:59:43 mstorti Exp $ 
 
 .PHONY: force all run tests data
 
@@ -36,11 +36,11 @@ test_iisd:
 
 #w Tests different methods of partitioning. 
 test_partitioning: 
-	$(MAKE) NP=2 case=metis_part
+	$(MAKE) NP=2 case=metis_part test_case
 	mv -f save.state save.state.metis.tmp
-	$(MAKE) NP=2  case=hitchhiking_part
+	$(MAKE) NP=2  case=hitchhiking_part test_case
 	mv -f save.state save.state.hitchhiking.tmp
-	$(MAKE) NP=1  case=nearest_neighbor_part
+	$(MAKE) NP=1  case=nearest_neighbor_part test_case
 	mv -f save.state save.state.nearest_neighbor.tmp
 	octave -q check_part.m > check_part.verif.tmp
 

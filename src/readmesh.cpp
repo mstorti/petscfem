@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: readmesh.cpp,v 1.30 2001/08/06 20:37:12 mstorti Exp $
+//$Id: readmesh.cpp,v 1.31 2001/08/07 16:57:57 mstorti Exp $
  
 #include "fem.h"
 #include "utils.h"
@@ -965,9 +965,9 @@ int read_mesh(Mesh *& mesh,char *fcase,Dofmap *& dofmap,
       int ele = n2eptr[node];
       int proc = vpart[node2elem[ele]]+1;
       for (ele = n2eptr[node]+1; ele < n2eptr[node+1]; ele++) {
-	if (vpart[node2elem[ele]]+1 != proc) 
-	  PetscPrintf(PETSC_COMM_WORLD,
-		      "proc: %d, otro proc: %d\n",proc,vpart[node2elem[ele]]+1);
+//  	if (vpart[node2elem[ele]]+1 != proc) 
+//  	  PetscPrintf(PETSC_COMM_WORLD,
+//  		      "proc: %d, otro proc: %d\n",proc,vpart[node2elem[ele]]+1);
 	if (vpart[node2elem[ele]]+1 > proc) 
 	  proc = vpart[node2elem[ele]]+1;
       }

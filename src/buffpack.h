@@ -1,12 +1,12 @@
 // -*- mode: C++ -*- 
 /*__INSERT_LICENSE__*/
-// $Id: buffpack.h,v 1.2 2001/08/06 20:37:12 mstorti Exp $
+// $Id: buffpack.h,v 1.3 2001/08/07 16:57:57 mstorti Exp $
 #ifndef BUFFPACK_H
 #define BUFFPACK_H
 
 //#define USE_NAMESPACE
 
-#if USE_NAMESPACE
+#ifdef USE_NAMESPACE
 #define BUFFER_PACK BufferPack::pack
 #define BUFFER_UNPACK BufferPack::unpack
 #else

@@ -1,5 +1,5 @@
 #__INSERT_LICENSE__
-#$Id: Makefile,v 1.21 2001/08/06 01:06:10 mstorti Exp $
+#$Id: Makefile,v 1.22 2001/08/07 16:57:54 mstorti Exp $
 
 .PHONY: html clean lclean all icons latex force ps readme
 
@@ -137,7 +137,7 @@ CLEAN_DIRS = manual OBJ
 local_clean:: local_dist_clean
 	-rm -rf *.ps.gz index petscfem icons index.html index.css \
 		version.tex *.pdf petscfem.tex \
-		contents.pl images.pl index.pl labels.pl sections.pl 
+		contents.pl images.pl index.pl labels.pl sections.pl WARNINGS
 
 #w Clean leaving PS and HTML
 local_dist_clean::
