@@ -10,12 +10,12 @@ global_options
 nstep 1000
 alpha 1.
 
-initial_state "gfshock.ini.tmp"
+# initial_state "gfshock.ini.tmp"
 ## initial_state "gfshock.state.tmp"
 nsave 1
 save_file "gfshock.state.tmp"
 
-print_some_file "gfshock.some-nodes.tmp"
+# print_some_file "gfshock.some-nodes.tmp"
 save_file_some "gfshock.some-rslt.tmp"
 nsome 1
 
@@ -30,7 +30,7 @@ preco_type "jacobi"
 iisd_subpart_auto 4000
 #else
 solver "petsc"
-preco_type "lu"
+preco_type "none"
 #endif
 
 maxits 100
@@ -73,7 +73,7 @@ hook_list advdif_dx_hook my_dx_hook
 dx_auto_combine
 dx_steps 1
 dx_read_state_from_file 1
-# dx_do_make_command
+dx_do_make_command
 dx_cache_coords 0
 dx_cache_connectivities 0
 partitioning_method natural
@@ -84,7 +84,7 @@ __END_HASH__
 ##================================================================
 # ndim nu ndof
 nodedata 2 2 4
-data ./gfshock.nod.tmp
+data /u/mstorti/PETSC/COMP-CORNER/tuyere-video/gfshock2d.nod.tmp
 __END_HASH__
 
 ##================================================================
@@ -92,7 +92,7 @@ elemset gasflow 4
 geometry cartesian2d
 dx 1
 npg 4
-data ./gfshock.con.tmp
+data /u/mstorti/PETSC/COMP-CORNER/tuyere-video/gfshock2d.con.tmp
 __END_HASH__
 
 end_elemsets

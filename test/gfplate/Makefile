@@ -1,8 +1,8 @@
-# $Id: Makefile,v 1.64 2005/03/23 01:47:51 mstorti Exp $ 
+# $Id: Makefile,v 1.65 2005/03/28 16:42:06 mstorti Exp $ 
 
 .PHONY: force all run tests default strip gasflow nozzle  vtubei
 
-default: run_shock3d
+default: run_shock
 
 BOPT := O_c++
 SRCS = 
@@ -12,7 +12,7 @@ include $(PETSCFEM_DIR)/Makefile.base
 include $(PETSCFEM_DIR)/test/Makefile.base.test
 
 ifeq ($(CASE_NAME),) 
-CASE_NAME := gfshock3d
+CASE_NAME := gfshock
 endif
 LOC_PROG := advdif
 ifeq ($(PROG),)
@@ -81,7 +81,8 @@ run:
 	$(MPIRUN) $(NL) -np $(NP) -machinefile			\
 	machi.dat $(PROG) -case $(CASE_NAME).depl 
 
-STEPS_DIR := ./STEPS
+# STEPS_DIR := ./STEPS
+STEPS_DIR := /u/nnigro/PETSC/RUN/COMPRESSION_CORNER/Tuyere/gfplate/RUN_CRANK-NICHOLSON/STEPS
 dx_make_command:
 ifeq (1,1)
 	@state=$(STEPS_DIR)/$(CASE_NAME).state_$$dx_step.tmp ;	\
@@ -98,11 +99,27 @@ ifeq (1,1)
 endif
 #	state_file=./$(CASE_NAME).dx-state.tmp 
 #		octave -qH fixstate.m ; 
+	if [ -f gfshock3d.dx-state-3d.tmp ] ; then rm gfshock3d.dx-state-3d.tmp ; fi
+	rcp geronimo:$(STEPS_DIR)/gfshock3d.state_$$dx_step.tmp.gz gfshock3d.dx-state-3d.tmp.gz
+	octave -qH compstate.m
+	rm gfshock3d.dx-state-3d.tmp.gz
 
 dx: 
 	make-depl $(CASE_NAME).epl $(CASE_NAME)-dx.depl -d dx=1
 	-$(MPIRUN) $(NL) -np $(NP) -machinefile		\
 	machi.dat $(PROG) -case $(CASE_NAME)-dx.depl # > $(CASE_NAME).log
+
+yuv_compress:
+	yuv=YUV/tuyere.$$dx_step.yuv ;		\
+	tiff=tuyere.tiff ;			\
+	if [ -f $$tiff ] ; then			\
+		if [ -f $$yuv ] ;		\
+			then rm -f $$yuv ;	\
+		fi ;				\
+		convert $$tiff $$yuv ;		\
+		gzip -f $$yuv ;			\
+		rm -f $$tiff ;			\
+	fi
 
 link:
 	$(MAKE) -C ../../ $(LOC_PROG)

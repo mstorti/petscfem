@@ -46,7 +46,7 @@ octave_export_vars(">data.m.tmp",@vars);
 doc_vals(@vars);
 
 $mkmesh = $ENV{'mkmesh'};
-$mkmesh = 1 if !defined $mkmesh;
+$mkmesh = 0 if !defined $mkmesh;
 if (!defined $mkmesh || $mkmesh) {
     system "octave -qH mkgfshock.m";
 }
