@@ -1487,3 +1487,6 @@ tag: beta-3.03.pl2 on Mon, 19 Aug 2002 13:18:24 -0300 by mstorti in spider
 tag: beta-3.03.pl3 on Mon, 19 Aug 2002 13:49:22 -0300 by mstorti in spider
      > Added test for `viscous_force_integrator' based on a strip of 3D hexas
      > in Poiseuille flow.
+----------
+tag: beta-3.03.pl4 on Mon, 19 Aug 2002 17:24:29 -0300 by mstorti in spider
+     > Updated README
