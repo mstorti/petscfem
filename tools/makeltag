@@ -1,6 +1,6 @@
 #!/usr/bin/perl
 #__INSERT_LICENSE__
-#$Id: makeltag,v 1.11.2.2 2002/07/14 16:42:27 mstorti Exp $
+#$Id: makeltag,v 1.11.2.3 2002/07/14 16:46:55 mstorti Exp $
 
 sub ask {
     my $ans;
@@ -46,18 +46,22 @@ while (<SVL>) {
 	$pl = 0;
     }
 }
+
 close SVL;
 $n = $#svl-10;
 $n = 0 if $n<0;
 for ($j=$n; $j<=$#svl; $j++) { print $svl[$j]; }
 
-$new_tag = $last_tag."pl".($pl+1);
-print "Enter new tag: [def $new_tag]> ";
+if ($last_tag && $pl) {
+    $new_tag = $last_tag."pl".($pl+1);
+} else { $new_tag = undef; }
+print "Enter new tag: [def ",($new_tag ? $new_tag : '<NONE>'),"]> ";
 $newtag = <STDIN>;
 chomp $newtag;
 if (! $newtag) {
     $newtag = $new_tag;
 }
+die "Not defined tag\n" unless $newtag;
 $newtag_ = $newtag;
 $newtag =~ s/\-/--/g; 
 $newtag =~ s/\./-/g;
