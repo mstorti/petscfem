@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: gpdata.cpp,v 1.29 2003/07/03 19:09:13 mstorti Exp $
+//$Id: gpdata.cpp,v 1.29.2.1 2003/07/24 21:22:16 mstorti Exp $
 
 #include "petscsles.h"
 #include <math.h>
@@ -532,7 +532,10 @@ GPdata::GPdata(const char *geom,int ndimel,int nel,int npg_,int
     }
 
   }
-    
+  wpg_sum = 0.;
+       for (int ipg=0; ipg<npg; ipg++) {
+	 wpg_sum += wpg[ipg];
+       }
 }
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 

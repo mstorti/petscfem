@@ -1,6 +1,6 @@
 # mode: -*- makefile -*-
 #__INSERT_LICENSE__
-#$Id: Makefile.base,v 1.145.2.2 2003/07/23 03:08:50 mstorti Exp $
+#$Id: Makefile.base,v 1.145.2.3 2003/07/24 21:22:47 mstorti Exp $
 
 #p [in Makefile.base]
 #s General
@@ -101,6 +101,7 @@ TAGINCL = --etags-include
 endif
 
 ifeq ($(PETSC_VERSION_USED_BY_PETSCFEM),2.0.24)
+$(warning PETSC_DIR: $(PETSC_DIR))
 include ${PETSC_DIR}/bmake/$(PETSC_ARCH)/base
 else
 include ${PETSC_DIR}/bmake/common/base
@@ -108,6 +109,12 @@ endif
 
 # here goes -frepo if needed
 # CPPFLAGS         := -frepo $(PROF_FLAGS) $(RH60)
+
+ifeq ($(LIBRETTO_I),)
+LIBRETTO_INCLUDE_FLAGS = 
+else
+LIBRETTO_INCLUDE_FLAGS = -I/$(LIBRETTO_I)
+endif
 
 CPPFLAGS         := 					\
 		 $(PROF_FLAGS) $(RH60)			\
@@ -118,7 +125,7 @@ CPPFLAGS         := 					\
                  ${BS_INCLUDE} -I$(GLIB) -I$(NEWMAT)	\
                  -I$(METIS)/Lib				\
                  -I$(PETSCFEM_DIR) -I$(MESCHACH)	\
-                 -I$(LIBRETTO_I)			\
+                 $(LIBRETTO_INCLUDE_FLAGS)		\
 		 $(ANN_CPPFLAGS)			\
                  $(SUPERLU_CPPFLAGS)
 

@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: nsilesther.cpp,v 1.26 2003/07/02 23:22:19 mstorti Exp $
+//$Id: nsilesther.cpp,v 1.26.2.1 2003/07/24 21:20:19 mstorti Exp $
 
 #include <src/fem.h>
 #include <src/utils.h>
@@ -392,6 +392,7 @@ int nsi_tet_les_ther::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
 #define DSHAPEXI (*gp_data.FM2_dshapexi[ipg])
 #define SHAPE    (*gp_data.FM2_shape[ipg])
 #define WPG      (gp_data.wpg[ipg])
+#define WPG_SUM  (gp_data.wpg_sum)
 
     // loop over Gauss points
     for (ipg=0; ipg<npg; ipg++) {
@@ -410,7 +411,12 @@ int nsi_tet_les_ther::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
       dshapex.prod(iJaco,DSHAPEXI,1,-1,-1,2);
       dshapex_c.set(dshapex);
 
-      double Area   = npg*wpgdet;
+      // Modificado x Beto
+      // double Area   = npg*wpgdet;
+      double Area = detJaco*WPG_SUM;
+      // fin modificado x Beto
+
+
       double h_pspg,Delta;
       if (ndim==2) {
 	h_pspg = sqrt(4.*Area/pi);
@@ -434,10 +440,14 @@ int nsi_tet_les_ther::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
         Jaco_axi.setel(Jaco.get(ind_axi_2,ind_axi_2),2,2);
 
         detJaco_axi = Jaco_axi.det();
-        double wpgdet_axi = detJaco_axi*WPG;
-        double Area_axi = 0.5*npg*fabs(wpgdet_axi);
+	// Modificado x Beto July 9 2003
+	//        double wpgdet_axi = detJaco_axi*WPG;
+	//        double Area_axi = 0.5*npg*fabs(wpgdet_axi);
+        double Area_axi = 0.5*detJaco_axi*WPG_SUM;
 	h_pspg = sqrt(4.*Area_axi/pi);
-	Delta = sqrt(Area);
+	Delta = sqrt(Area_axi);
+	// fin modificado x Beto
+
       } else {
 	PFEMERRQ("Only dimensions 2 and 3 allowed for this element.\n");
       }

@@ -1,6 +1,6 @@
 // -*- mode: c++ -*-
 /*__INSERT_LICENSE__*/
-//$Id: gpdata.h,v 1.9 2003/02/12 00:36:27 mstorti Exp $
+//$Id: gpdata.h,v 1.9.2.1 2003/07/24 21:22:16 mstorti Exp $
  
 #ifndef GPDATA_H
 #define GPDATA_H
@@ -59,6 +59,8 @@ public:
   int mat_version;
   /// The volume of the reference (master) element
   double master_volume;
+  /// Sum of Integrations weights
+  double wpg_sum;
 #ifdef USE_DX
   /** This represents how the element is mapped onto Data
       Explorer connections. */
