@@ -38,7 +38,6 @@ TODO: [Mainly fixes go here...]
      problem. 
   Mon, 08 Dec 2003 08:56:00 -0300: See discussion and patch in
      `notes.txt'. Patch is not applied yet, though. 
-* Add `sw_abso' to tests
 * Doesn't report correctly acesses to the last thash table, probably 
 	  related to the weights flag. (Reported by
 	  psanchez@intec.unl.edu.ar) Wed, 15 Oct 2003 09:12:34 -0300
@@ -152,6 +151,11 @@ TODO: [Mainly fixes go here...]
 DONE:
 =====
 
+* Add `sw_abso' to tests
+    DONE: Mon, 08 Dec 2003 20:24:09 -0300
+* `advdif/id' elemset does some `proj' task or something. We should write
+    an `ask' function for it. 
+    DONE: Mon, 08 Dec 2003 20:24:09 -0300
 * Make a test for block_uploading. 
        Mon, 08 Dec 2003 08:58:53 -0300: Almost done in
        `cubcav'. Finish it. 

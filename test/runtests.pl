@@ -1,5 +1,5 @@
 #!/usr/bin/perl
-#$Id: runtests.pl,v 1.117 2003/12/08 12:33:05 mstorti Exp $
+#$Id: runtests.pl,v 1.118 2003/12/08 23:24:45 mstorti Exp $
 #__INSERT_LICENSE__
 
 require '../tools/myexpect.pl';
@@ -21,6 +21,16 @@ EOM
 
 $COMPLAIN_ON_CANT_OPEN = $opt_o;
 
+#------/*/------/*/------/*/------/*/------/*/------/*/------/*/ 
+## Prove here new tests
+if (1) {
+    expect("sw_abso/test_abso.verif.tmp","Shallow water + abs.b.c.",
+	   read_file("sw_abso/test_abso.verif.ans"));
+    final_check();
+    exit 0;
+}
+
+#------/*/------/*/------/*/------/*/------/*/------/*/------/*/ 
 begin_section('All tests');
 
 begin_section('FastMat2');

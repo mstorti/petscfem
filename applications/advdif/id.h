@@ -1,5 +1,5 @@
 // -*- mode: C++ -*- 
-// $Id: id.h,v 1.2 2003/10/16 19:13:42 mstorti Exp $
+// $Id: id.h,v 1.3 2003/12/08 23:24:45 mstorti Exp $
 #ifndef ID_H
 #define ID_H
 
@@ -10,6 +10,7 @@
 class id : public Elemset { 
 public: 
   ASSEMBLE_FUNCTION;
+  ASK_FUNCTION;
 };
 
 #endif

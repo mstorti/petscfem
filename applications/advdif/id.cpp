@@ -1,4 +1,4 @@
-//$Id: id.cpp,v 1.2 2003/10/16 19:13:42 mstorti Exp $
+//$Id: id.cpp,v 1.3 2003/12/08 23:24:45 mstorti Exp $
 
 #include <src/fem.h>
 #include <src/utils.h>
@@ -10,6 +10,16 @@
 #include "id.h"
 
 extern TextHashTable *GLOBAL_OPTIONS;
+
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:
+#undef __FUNC__
+#define __FUNC__ "int id::ask"
+int id::ask(const char *jobinfo,int &skip_elemset) {
+   skip_elemset = 1;
+   DONT_SKIP_JOBINFO(comp_res);
+   DONT_SKIP_JOBINFO(comp_prof);
+   return 0;
+}
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 #undef __FUNC__

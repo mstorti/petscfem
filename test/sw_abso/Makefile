@@ -19,9 +19,9 @@ DEPEND_DIRS = $(CLEAN_DIRS)
 # Test for abso shallow water 1d
 
 test_abso:
-# 	$(MAKE) $(CASE).depl
-# 	$(OCTAVE) $(CASE).m
-# 	-$(MPIRUN) -np $(NP)  $(ADVDIF) -case $(CASE).depl > $(CASE).log.tmp
+	$(MAKE) $(CASE).depl
+	$(OCTAVE) $(CASE).m
+	-$(MPIRUN) -np $(NP)  $(ADVDIF) -case $(CASE).depl > $(CASE).log.tmp
 	$(OCTAVE) check_test_abso.m > test_abso.verif.tmp
 
 
