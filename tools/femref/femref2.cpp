@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-// $Id: femref2.cpp,v 1.9 2004/12/12 23:20:43 mstorti Exp $
+// $Id: femref2.cpp,v 1.10 2004/12/14 14:38:44 mstorti Exp $
 
 #include <string>
 #include <list>
@@ -531,6 +531,7 @@ refine(RefineFunction f) {
     go_stack.push_front(GeomObject());
     w = go_stack.begin();
     w->init(tmpl->type,&connec.e(k,0));
+    w->make_canonical();
     w->print();
     split_stack.push_front(etree.begin());
     split_indx_stack.push_front(0);
@@ -539,8 +540,9 @@ refine(RefineFunction f) {
       go_nodes.push(w_nodes[j]);
     go_nodes_pos.push_front(0);
     const Splitter *s = NULL;
+    bool done = false;
 
-    while(1) {
+    while(!done) {
       w = go_stack.begin();
       // here visit w...
       ElemRef::iterator q, qs, qs2, qfather;
@@ -558,6 +560,7 @@ refine(RefineFunction f) {
 	// Build `ws' from GeomObject `w' (parent) and splitter `s'
 	// and subobject index `j'
 	set(*w,s,j,*ws);
+	ws->make_canonical();
 	split_indx_stack.push_front(0);
       } else {
 	// `q' is a leave for GO's (sure it isn't
@@ -566,7 +569,9 @@ refine(RefineFunction f) {
 	// that has a right sibling
 	while (true) {
 	  // Check if we are at the root
-	  if (split_stack.size()<=1) break;
+	  if (split_stack.size()<=1) {
+	    done = true; break;
+	  }
 	  qfather = q;
 	  qfather++;
 	  assert(qfather != etree.end());
@@ -582,11 +587,14 @@ refine(RefineFunction f) {
 	    // Build `ws' from GeomObject `w' (parent) and splitter `s'
 	    // and subobject index `jsib'
 	    set(*w,s,jsib,*ws);
+	    ws->make_canonical();
 
 	    // Find next node on the splitting tree or end()
 	    qs = qfather.lchild();
-	    while (qs != etree.end()) 
+	    while (qs != etree.end()) {
 	      if (qs->so_indx == jsib) break;
+	      qs++;
+	    }
 
 	    // Push new state in the stacks
 	    split_stack.push_front(qs);
