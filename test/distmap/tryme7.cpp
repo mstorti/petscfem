@@ -32,7 +32,7 @@ int main(int argc,char **argv) {
   GPartitioner g_part(&d_part);
   debug.trace("0");
 
-  debug.activate();
+  // debug.activate();
   Debug::init();
   debug.trace("1");
   
