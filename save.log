@@ -2824,3 +2824,6 @@ tag: beta-isp.pl5 on Mon, 18 Aug 2003 17:41:32 -0300 by mstorti in spider
 ----------
 tag: beta-isp.pl6 on Mon, 18 Aug 2003 21:53:53 -0300 by mstorti in spider
      > Fixed a bug: nlay not initialized in constructor. 
+----------
+tag: beta-3.19.pl46 on Mon, 18 Aug 2003 22:18:02 -0300 by mstorti in spider
+     > Merged from `isp-branch' branch
