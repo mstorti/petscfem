@@ -1971,3 +1971,6 @@ tag: beta-3.11.pl4 on Sun, 22 Dec 2002 16:45:59 -0300 by mstorti in spider
 ----------
 tag: beta-3.11.pl5 on Sun, 22 Dec 2002 20:13:26 -0300 by mstorti in spider
      > Now FastMat2::inv() uses lapack
+----------
+tag: beta-3.11.pl6 on Mon, 23 Dec 2002 07:57:19 -0300 by mstorti in spider
+     > Runs all test but I had to change the constraints in newff/newff.m
