@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: blessf.cpp,v 1.13 2003/11/10 20:10:17 mstorti Exp $
+//$Id: blessf.cpp,v 1.14 2003/11/10 21:30:10 mstorti Exp $
 
 #include <set>
 
@@ -73,6 +73,7 @@ void bless_elemset(char *type,Elemset *& elemset) {
 
     SET_ELEMSET_TYPE(smoke)
     SET_ELEMSET_TYPE(gaschem)
+    SET_ELEMSET_TYPE(gaschem_bcconv)
     {
       printf("not known elemset type: \"%s\"\n",type);
       exit(1);

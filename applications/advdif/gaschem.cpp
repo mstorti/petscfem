@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: gaschem.cpp,v 1.1 2003/11/10 20:10:17 mstorti Exp $
+//$Id: gaschem.cpp,v 1.2 2003/11/10 21:30:10 mstorti Exp $
 
 #include <src/fem.h>
 #include <src/texthash.h>
@@ -10,6 +10,8 @@
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:
 void gaschem_ff::start_chunk(int &ret_options) {
   int ierr;
+
+  new_adv_dif_elemset = dynamic_cast<const NewAdvDif *>(elemset);
   elemset->elem_params(nel,ndof,nelprops);
   //o Dimension of the problem
   EGETOPTDEF_ND(elemset,int,ndim,0);
@@ -18,7 +20,7 @@ void gaschem_ff::start_chunk(int &ret_options) {
   //o Gas temperature
   EGETOPTDEF_ND(elemset,double,Tgas,293.0);
   //o Direction of gravity
-  EGETOPTDEF_ND(elemset,int,g_dir,3);
+  EGETOPTDEF_ND(elemset,int,g_dir,ndim);
   //o Turbulent viscosity
   EGETOPTDEF_ND(elemset,double,nu_t,0.);
   assert(nu_t>0.);

@@ -1,4 +1,4 @@
-# $Id: Makefile,v 1.1 2003/11/10 20:35:31 mstorti Exp $ 
+# $Id: Makefile,v 1.2 2003/11/10 21:29:50 mstorti Exp $ 
 
 .PHONY: run default
 
@@ -10,7 +10,7 @@ include $(PETSCFEM_DIR)/test/Makefile.base.test
 
 LOC_PROG := advdif
 CASE := pool
-PROG := $(NS)
+PROG := $(ADVDIF)
 
 ###--------<*>--------<*>--------<*>--------<*>--------<*>--------<*>--------<*> 
 NP = 1
@@ -26,4 +26,4 @@ endif
 run:
 	make-depl $(CASE).epl $(CASE).depl
 	octave -qH mkmesh.m
-#	-${MPIRUN} -np $(np) $(MCH) $(PROG) -case $(CASE).depl
+	-${MPIRUN} -np $(np) $(MCH) $(PROG) -case $(CASE).depl

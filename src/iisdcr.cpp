@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: iisdcr.cpp,v 1.46 2003/11/03 03:51:35 mstorti Exp $
+//$Id: iisdcr.cpp,v 1.47 2003/11/10 21:30:10 mstorti Exp $
 
 // fixme:= this may not work in all applications
 extern int MY_RANK,SIZE;
@@ -273,7 +273,7 @@ int IISDMat::create_a() {
 
   local_graph.part(max_partgraph_vertices_proc,iisd_subpart);
 
-#if 1
+#if 0
   printf("n_loc_pre: %d\n",n_loc_pre);
   for (k=0; k<n_loc_pre; k++) 
     printf("%d %d\n",k,local_graph.vrtx_part(k));
