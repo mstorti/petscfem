@@ -3935,3 +3935,6 @@ tag: beta-3.41.27 on Fri, 04 Feb 2005 09:22:39 -0300 by mstorti in spider
 ----------
 tag: beta-3.41.28 on Fri, 04 Feb 2005 16:58:06 -0300 by mstorti in minerva.ceride.gov.ar
      > Writing doc for absorbing boundary conditions. 
+----------
+tag: beta-3.41.29 on Mon, 07 Feb 2005 10:13:36 -0300 by mstorti in minerva.ceride.gov.ar
+     > Working on Guile extension and gasflow compression corner example. 
