@@ -3745,3 +3745,6 @@ tag: beta-3.39.51 on Thu, 20 Jan 2005 12:52:25 -0300 by mstorti in minerva.cerid
 ----------
 tag: beta-3.39.52 on Thu, 20 Jan 2005 14:42:31 -0300 by mstorti in minerva.ceride.gov.ar
      > Starts working on absorbing boundary conditions for `gasflow'. 
+----------
+tag: beta-3.39.53 on Thu, 20 Jan 2005 19:51:06 -0300 by mstorti in spider
+     > Working on `gasflow_abso'. Compiles ad runs. 
