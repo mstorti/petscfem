@@ -4017,3 +4017,6 @@ tag: beta-3.42 on Fri, 18 Feb 2005 06:43:40 -0300 by mstorti in spider
      >   `C_p' matrix was not used.
      > Merged from `bubbly7-branch'. 
      > Now with `use_Ajac_old=0' doesn't use `Ao_grad_U'. 
+----------
+tag: 3.43.1 on Fri, 18 Feb 2005 06:51:48 -0300 by mstorti in spider
+     > Administrative tag
