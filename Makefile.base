@@ -1,6 +1,6 @@
 # mode: -*- makefile -*-
 #__INSERT_LICENSE__
-#$Id: Makefile.base,v 1.89 2002/09/06 22:57:37 mstorti Exp $
+#$Id: Makefile.base,v 1.90 2002/09/07 20:46:37 mstorti Exp $
 
 #p [in Makefile.base]
 #s General
@@ -161,8 +161,8 @@ general_clean:
 #	cat /dev/null >makefile.d
 	$(MAKE) clean
 
-local_clean:: 
-	-@rm -f *~ *.o *.rpo $(OBJS) $(PROG_BIN)		\
+local_clean:: 							\
+	-@rm -f *~ *.o $(OBJS) $(PROG_BIN)			\
 		octave-core *.cppi				\
 		outvector.sal *.sal *.out TAGS makefile.d	\
 		leak.out.* &> /dev/null				\

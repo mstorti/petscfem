@@ -375,6 +375,12 @@ Weak form 1. error < tol OK \? 1
 EOT
 
 #------/*/------/*/------/*/------/*/------/*/------/*/------/*/ 
+expect("sqcav/check.re_1000_fs.verif.tmp",
+       "Square cavity with fract. step, Re1000, N=20",<<'EOT');
+Fractional step error < tol OK \? 1 
+EOT
+
+#------/*/------/*/------/*/------/*/------/*/------/*/------/*/ 
 expect("nutatcyl/checknutcyl.verif.tmp",
        "Nutating cylinder",<<'EOT');
 Roll moment OK \? 1
