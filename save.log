@@ -1872,3 +1872,6 @@ tag: beta-3.09.pl7 on Wed, 11 Dec 2002 21:05:03 -0300 by mstorti in spider
 ----------
 tag: beta-3.09.pl8 on Wed, 11 Dec 2002 21:12:31 -0300 by mstorti in spider
      > Runs very large deformation example (95% on step.epl) in 40 steps. 
+----------
+tag: beta-3.09.pl9 on Thu, 12 Dec 2002 00:11:05 -0300 by mstorti in spider
+     > Working on the `mesh_move' with analytic computation of eigenvalues. 
