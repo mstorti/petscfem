@@ -1,6 +1,6 @@
 # mode: -*- makefile -*-
 #__INSERT_LICENSE__
-#$Id: Makefile,v 1.27 2001/05/30 17:46:02 mstorti Exp $
+#$Id: Makefile,v 1.28 2001/07/01 15:13:17 mstorti Exp $
 
 SHELL = /bin/bash
 
@@ -19,7 +19,7 @@ SRCS :=
 
 DEPEND_DIRS := $(SRCDIRS)
 
-SWDIRS := test 
+SWDIRS := test tools
 
 #p [in Makefile]
 
@@ -53,6 +53,7 @@ TEX_LICENSE_FILE = tools/license.tex
 
 #w Includes license in all .cpp and .h files
 license:
+	$(MAKE) -C tools licenses
 	find . -type f -name '*.cpp' -print0 | xargs -0 -n 1 -e \
 		$(INSERT_LICENSE) $(C_LICENSE_FILE)
 	find . -type f -name '*.h' -print0 | xargs -0 -n 1 -e \
