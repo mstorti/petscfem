@@ -1505,3 +1505,6 @@ tag: beta-3.03.pl7 on Tue, 27 Aug 2002 10:47:50 -0300 by mstorti in minerva.arcr
 tag: beta-3.03.pl8 on Tue, 27 Aug 2002 22:59:48 -0300 by mstorti in spider
      > `FastVector' template (used in `FastMat2' y `IdMap' classes) passed
      > his definitions to `fastlib2.h'.
+----------
+tag: beta-3.03.pl9 on Wed, 28 Aug 2002 16:55:49 -0300 by mstorti in minerva.arcride.edu.ar
+     > Hidden debugging comments.
