@@ -1,0 +1,29 @@
+//
+// time: Sat Sep  6 14:01:35 2003
+//
+// version: 3.1.2 (format), 4.2.0 (DX)
+//
+//
+// Begin MDF
+// MODULE MyWriteImage
+// CATEGORY Macros
+// DESCRIPTION new macro
+// End MDF
+// workspace: width = 500, height = 400
+// layout: snap = 0, width = 50, height = 50, align = NN
+//
+macro MyWriteImage(
+) -> (
+) {
+    // 
+    // node WriteImage[1]: x = 0, y = 80, inputs = 4, label = WriteImage
+    // input[3]: defaulting = 0, visible = 1, type = 32, value = "yuv"
+    //
+    WriteImage(
+    NULL,
+    NULL,
+    "yuv",
+    NULL
+    ) [instance: 1, cache: 1];
+// network: end of macro body
+}

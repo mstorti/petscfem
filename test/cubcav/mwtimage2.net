@@ -1,0 +1,67 @@
+//
+// time: Sat Sep  6 14:05:30 2003
+//
+// version: 3.1.2 (format), 4.2.0 (DX)
+//
+//
+// Begin MDF
+// MODULE MyWriteImage2
+// CATEGORY Macros
+// DESCRIPTION wrapper for WriteImage with an output
+// INPUT input_1; image or image series; (no default);  
+// INPUT input_2; string; (no default);  
+// INPUT input_3; string; (no default);  
+// INPUT input_4; integer; (no default);  
+// OUTPUT output_1; object;  
+// End MDF
+// workspace: width = 377, height = 353
+// layout: snap = 0, width = 50, height = 50, align = NN
+//
+macro MyWriteImage2(
+ input_1
+,input_2
+,input_3
+,input_4
+) -> (
+ output_1
+) {
+    // 
+    // node Input[1]: x = 163, y = 111, inputs = 0, label = Input
+    // parameter: position = 1, name = 'input_1', value = ' ', descriptive = 0, description = ' ', required = 0, visible = 1
+    //
+MyWriteImage2_Input_1_out_1 = input_1;
+    // 
+    // node Input[2]: x = 222, y = 112, inputs = 0, label = Input
+    // parameter: position = 2, name = 'input_2', value = ' ', descriptive = 0, description = ' ', required = 0, visible = 1
+    //
+MyWriteImage2_Input_2_out_1 = input_2;
+    // 
+    // node Input[3]: x = 281, y = 116, inputs = 0, label = Input
+    // parameter: position = 3, name = 'input_3', value = ' ', descriptive = 0, description = ' ', required = 0, visible = 1
+    //
+MyWriteImage2_Input_3_out_1 = input_3;
+    // 
+    // node Input[4]: x = 335, y = 120, inputs = 0, label = Input
+    // parameter: position = 4, name = 'input_4', value = ' ', descriptive = 0, description = ' ', required = 0, visible = 1
+    //
+MyWriteImage2_Input_4_out_1 = input_4;
+    // 
+    // node Output[1]: x = 205, y = 291, inputs = 1, label = Output
+    // parameter: position = 1, name = 'output_1', value = ' ', descriptive = 0, description = ' ', required = 0, visible = 1
+    //
+output_1 = NULL;
+    // 
+    // node WriteImage[1]: x = 182, y = 213, inputs = 4, label = WriteImage
+    //
+    WriteImage(
+    MyWriteImage2_Input_1_out_1,
+    MyWriteImage2_Input_2_out_1,
+    MyWriteImage2_Input_3_out_1,
+    MyWriteImage2_Input_4_out_1
+    ) [instance: 1, cache: 1];
+// network: end of macro body
+}
+MyWriteImage2_Input_1_out_1 = NULL;
+MyWriteImage2_Input_2_out_1 = NULL;
+MyWriteImage2_Input_3_out_1 = NULL;
+MyWriteImage2_Input_4_out_1 = NULL;

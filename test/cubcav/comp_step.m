@@ -1,6 +1,7 @@
 source("./data.m.tmp");
+## steps_dir = "./STEPS-2003-SEP-01";
 steps_dir = "/cdrom/STEPS-2003-SEP-01";
-refine = 1;
+refine = 5;
 case_name = "cubcav";
 pf_start_step = 101;
 
@@ -20,6 +21,6 @@ else
   printf("Using u(%d)\n",sss);
 endif
 
-u = pf_smooth(u,1,10);
+u = pf_smooth(u,1,5);
 
 asave(["./" case_name ".dx-state.tmp"],u);

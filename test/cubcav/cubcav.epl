@@ -7,7 +7,7 @@ require "math.pl";
 $case = 'laplace' unless $case;
 get_var_env2('job',undef);
 $CASE = $case;
-get_var_env2('N',78);
+get_var_env2('N',60);
 $nelem = $N**3.0;
 $cs = 0.2*$nelem;		# desired chunk_size
 $chunk_size = ($cs < 5000 ? 5000 : $cs > 40000 ? 40000 : $cs);
@@ -106,6 +106,7 @@ dx_auto_combine
 dx_state_all_fields 0
 dx_steps 1
 dx_read_state_from_file
+dx_do_make_command
 #else
 # hook_list shell_hook cubcav
 #endif
