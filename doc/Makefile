@@ -1,4 +1,4 @@
-#$Id: Makefile,v 1.6 2001/01/09 16:58:51 mstorti Exp $
+#$Id: Makefile,v 1.7 2001/01/12 11:28:08 mstorti Exp $
 
 .PHONY: html clean lclean all icons latex force ps readme
 
@@ -13,8 +13,12 @@ ODOCFILES = odocadv.tex odocadve.tex odocadvfe.tex odocadvfs.tex \
 TEXFILES = prev1 layout thash idmap compprof advec \
 		ns tests fastmat2 $(ODOCFILES:.tex=)
 
-ps: petscfem.ps manual.ps
+ps: petscfem.ps.gz manual.ps.gz
 
+%.ps.gz: %.ps
+	gzip $<
+
+.INTERMEDIATE: manual.ps petscfem.ps
 petscfem.ps: petscfem.dvi
 	dvips -o $@ petscfem
 
