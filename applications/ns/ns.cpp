@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: ns.cpp,v 1.55 2001/12/05 12:56:41 mstorti Exp $
+//$Id: ns.cpp,v 1.56 2001/12/07 16:45:57 mstorti Exp $
  
 #include <src/debug.h>
 #include <malloc.h>
@@ -136,7 +136,8 @@ int main(int argc,char **args) {
   // Don't update if null. 
   GETOPTDEF(int,update_jacobian_iters,0);
   //o Update jacobian each $n$-th time step. 
-  GETOPTDEF(int,update_jacobian_steps,0);
+  GETOPTDEF(int,update_jacobian_steps,1);
+  assert(update_jacobian_steps>=1);
 #define INF INT_MAX
   //o Update jacobian each $n$-th time step. 
   GETOPTDEF(int,update_jacobian_start_steps,INF);
@@ -326,7 +327,13 @@ int main(int argc,char **args) {
   ierr = opt_read_vector(mesh,x,dofmap,MY_RANK); CHKERRA(ierr);
 
   // Filter *filter(x,*mesh);
-  int update_jacobian_step=0;
+
+  // jacobian_not_updated_count:= counts how many steps the
+  // jacobian has not been updated 
+  // update_jacobian_this_step:= Flags whether this step the
+  // jacobian should be updated or not 
+  int jacobian_not_updated_count=0;
+  int update_jacobian_this_step;
   for (int tstep=1; tstep<=nstep; tstep++) {
     TSTEP=tstep; //debug:=
     time_star.set(time.time()+alpha*Dt);
@@ -336,6 +343,10 @@ int main(int argc,char **args) {
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
     // TET ALGORITHM
 
+    // Jacobian update logic
+    update_jacobian_this_step = (tstep < update_jacobian_start_steps) 
+      || (jacobian_not_updated_count==0);
+    
     // Inicializacion del paso
     ierr = VecCopy(x,dx_step);
     ierr = VecCopy(x,xold);
@@ -345,12 +356,10 @@ int main(int argc,char **args) {
 
       glob_param.inwt = inwt;
       // Initialize step
+
+      // update_jacobian:= flags whether the Jacobian is factored in this step or not 
       int update_jacobian;
       update_jacobian = !update_jacobian_iters || inwt<update_jacobian_iters;
-      // 
-      if (update_jacobian_steps) 
-	update_jacobian = (tstep < update_jacobian_start_steps) 
-	  || (update_jacobian_step==0);
       if (update_jacobian) {
 	ierr = A_tet->destroy_sles(); CHKERRA(ierr); 
       }
@@ -521,9 +530,9 @@ int main(int argc,char **args) {
 
     } // end of loop over Newton subiteration (inwt)
 
-    update_jacobian_step++;
-    if (update_jacobian_step >= update_jacobian_steps) 
-      update_jacobian_step =0;
+    if (jacobian_not_updated_count >= update_jacobian_steps) 
+      jacobian_not_updated_count =0;
+    if (!update_jacobian)  jacobian_not_updated_count++;
 
     // error difference
     scal = -1.0;
