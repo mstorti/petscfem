@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: dofmap.cpp,v 1.9 2002/09/30 02:30:51 mstorti Exp $
+//$Id: dofmap.cpp,v 1.10 2002/09/30 14:16:11 mstorti Exp $
 
 #include <cassert>
 #include <algorithm>
@@ -430,6 +430,6 @@ Dofmap::Dofmap() : id(NULL), tpwgts(NULL) { }
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 Dofmap::~Dofmap() { 
-  DELETE_VCTR(id);
+  DELETE_SCLR(id);
   DELETE_VCTR(tpwgts);
 }

@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: ns.cpp,v 1.107 2002/09/30 02:30:48 mstorti Exp $
+//$Id: ns.cpp,v 1.108 2002/09/30 14:16:11 mstorti Exp $
 #include <src/debug.h>
 #include <malloc.h>
 
@@ -48,7 +48,7 @@ int main(int argc,char **args) {
   
   // ierr = MatCreateShell(PETSC_COMM_WORLD,int m,int n,int M,int N,void *ctx,Mat *A)
   char fcase[FLEN+1],output_file[FLEN+1];
-  Dofmap *dofmap = new Dofmap;
+  Dofmap *dofmap;
   Mesh *mesh;
   // arglf:= argument list for computing gathered quantities as forces
   arg_list argl, arglf;
@@ -815,9 +815,9 @@ int main(int argc,char **args) {
     ierr = VecDestroy(xp); CHKERRA(ierr); 
   }
 
-  delete dofmap;
-  delete mesh;
-  delete wall_data;
+  DELETE_SCLR(dofmap);
+  DELETE_SCLR(mesh);
+  DELETE_SCLR(wall_data);
 #ifdef DEBUG_MALLOC_USE
   fclose(malloc_log);
 #endif

@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: readmesh.cpp,v 1.57 2002/09/30 02:30:52 mstorti Exp $
+//$Id: readmesh.cpp,v 1.58 2002/09/30 14:16:11 mstorti Exp $
  
 #include "fem.h"
 #include "utils.h"
@@ -377,8 +377,8 @@ int read_mesh(Mesh *& mesh,char *fcase,Dofmap *& dofmap,
       abuf_destroy(buff);
 
       int nelprops_add, neliprops_add;
-      double *elemprops_add;
-      int *elemiprops_add;
+      double *elemprops_add=NULL;
+      int *elemiprops_add=NULL;
       //o Additional properties (used by the element routine)
       TGETOPTDEF(thash,int,additional_props,0);
       nelprops_add = additional_props;
@@ -1023,7 +1023,7 @@ int read_mesh(Mesh *& mesh,char *fcase,Dofmap *& dofmap,
 #else
   idmap *idnew = new idmap(nnod*ndof,NULL_MAP);
   dofmap->id->remap_cols(perm,*idnew);
-  delete dofmap->id;
+  DELETE_SCLR(dofmap->id);
   dofmap->id = idnew;
 #endif
  
