@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-// $Id: project2.cpp,v 1.5 2005/02/28 15:08:38 mstorti Exp $
+// $Id: project2.cpp,v 1.6 2005/03/01 01:54:27 mstorti Exp $
 
 #include <cstdio>
 #include <src/fastmat2.h>
@@ -33,10 +33,10 @@ int main() {
 #define STATE1 XNOD1
 #define XNOD2 "mesh2.nod"
 #else
-#define XNOD1 "square1.nod"
-#define ICONE1 "square1.con"
-#define STATE1 "square1.dat"
-#define XNOD2 "square2.nod"
+#define XNOD1 "square1.nod.tmp"
+#define ICONE1 "square1.con.tmp"
+#define STATE1 "square1.dat.tmp"
+#define XNOD2 "square2.nod.tmp"
 #endif
 
   // Reads mesh1
@@ -82,7 +82,7 @@ int main() {
   FastMatCacheList cache_list;
   int use_cache;
   FILE *fid = fopen("pinterp.tmp","w");
-  use_cache = 0;
+  use_cache = 1;
 
   // Build ANN octree
   FastMat2 xe(1,ndim),xn(1,ndim);

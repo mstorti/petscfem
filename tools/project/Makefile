@@ -1,13 +1,11 @@
 #__INSERT_LICENSE__
 .PHONY: all
 
-OPT := -O2 -funroll-loops
-
 default: project2.bin
 
 SRCS := project.cpp project2.cpp
 
-# BOPT := O_c++
+BOPT := O_c++
 PETSCFEM_DIR = ../..
 include $(PETSCFEM_DIR)/Makefile.base
 OMKFLS = 
