@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-// $Id: femref2.cpp,v 1.22 2005/01/03 03:15:22 mstorti Exp $
+// $Id: femref2.cpp,v 1.23 2005/01/05 12:21:53 mstorti Exp $
 
 #include <string>
 #include <list>
@@ -172,9 +172,6 @@ bool GeomObject::equal(GeomObject &go) {
 }
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
-int GeomObject::NULL_NODE = INT_MAX;
-
-//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 GeomObject::Template
 ::Template(int sz,GeomObject::Type t,
 	   int dim_a,int nperms_a,const int *perms,
@@ -187,7 +184,7 @@ GeomObject::Template
   for (int j=0; j<nperms_m*size_m; j++)
     perms_v.e(j) = *q++;
   // Check end of sequence
-  assert(*q==GeomObject::NULL_NODE);
+  assert(*q==NULL_NODE);
   // reshape internal array
   perms_v.reshape(2,nperms_m,size_m);
 }
@@ -659,7 +656,7 @@ set(const GeomObject &go,
     int ln1 = local_nodes[2*k];
     int n1 = go_nodes[ln1];
     int ln2 = local_nodes[2*k+1], n2;
-    if (ln2!=GeomObject::NULL_NODE) {
+    if (ln2!=NULL_NODE) {
       n2 = go_nodes[ln2];
       int n12 = combine(n1,n2);
       if (node_comb) {

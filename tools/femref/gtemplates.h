@@ -1,6 +1,6 @@
 // -*- mode: c++ -*-
 //__INSERT_LICENSE__
-// $Id: gtemplates.h,v 1.9 2005/01/03 03:15:22 mstorti Exp $
+// $Id: gtemplates.h,v 1.10 2005/01/05 12:21:53 mstorti Exp $
 #ifndef PETSCFEM_GTEMPLATES_H
 #define PETSCFEM_GTEMPLATES_H
 
@@ -76,7 +76,7 @@ GeomObject::Template						\
 GeomObject::TYPE##Template(size,GeomObject::TYPE##T,		\
 			 dim,nperms,TYPE##TemplatePerm_v,#TYPE)
 
-static int EdgeTemplatePerm_v[] = {1,0,GeomObject::NULL_NODE};
+static int EdgeTemplatePerm_v[] = {1,0,NULL_NODE};
 TEMPLATE(Edge,2,1,1);
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
@@ -85,7 +85,7 @@ TriTemplatePerm_v[] = {1,2,0,
 		       2,0,1,
 		       0,2,1,
 		       2,1,0,
-		       1,0,2,GeomObject::NULL_NODE};
+		       1,0,2,NULL_NODE};
 TEMPLATE(Tri,3,2,5);
 #endif
 

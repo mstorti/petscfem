@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-// $Id: femref.cpp,v 1.35 2004/12/25 03:45:38 mstorti Exp $
+// $Id: femref.cpp,v 1.36 2005/01/05 12:21:53 mstorti Exp $
 
 #include <string>
 #include <list>
@@ -74,6 +74,7 @@ rf(GeomObject &go,const double *xnod) {
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 int main() { 
 
+  printf("starting main\n");
   UniformMesh mesh(OrientedTetraTemplate,3);
   mesh.read("tetra.nod","tetra.con");
   // mesh.refine(rf);

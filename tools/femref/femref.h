@@ -1,6 +1,6 @@
 // -*- mode: c++ -*-
 //__INSERT_LICENSE__
-// $Id: femref.h,v 1.45 2005/01/03 03:15:22 mstorti Exp $
+// $Id: femref.h,v 1.46 2005/01/05 12:21:53 mstorti Exp $
 #ifndef PETSCFEM_FEMREF_H
 #define PETSCFEM_FEMREF_H
 
@@ -16,6 +16,9 @@
 
 extern MD5Hasher hasher;
 
+/// This is a value that a real node can't take. 
+#define NULL_NODE INT_MAX
+
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 /** Represents a geometric object `outside' its container.
     Basically, it represents a sequence of nodes and a 
@@ -30,8 +33,6 @@ public:
 	      OrientedEdgeT, EdgeT, 
 	      OrientedTriT, TriT,
 	      OrientedTetraT, TetraT};
-  /// This is a value that a real node can't take. 
-  static int NULL_NODE;
   /// Contains information about a shape
   class Template {
   public:
