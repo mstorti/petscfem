@@ -1,6 +1,6 @@
 // -*- mode: c++ -*-
 //__INSERT_LICENSE__
-// $Id: syncbuff.cpp,v 1.3 2004/01/09 14:40:39 mstorti Exp $
+// $Id: syncbuff.cpp,v 1.4 2004/01/09 15:00:42 mstorti Exp $
 #include <list>
 #include <iostream>
 #include <src/distcont.h>
@@ -18,7 +18,13 @@ public:
   int k;
   PO(int j=0) : k(j) {}
   void print() { cout << this->k << endl ; }
+  int less(PO p2) { return this->k<p2.k; }
+  friend int operator<(const PO& left, const PO& right);
 };
+
+int operator<(const PO& left, const PO& right) {
+  return left.k<right.k;
+}
 
 class TrivialPartitioner {
 public:
@@ -39,9 +45,9 @@ class SyncBuffer :
 public:
   SyncBuffer() : 
     DistCont<list<T>,T,TrivialPartitioner>(&part) {}
-  void sort() { /* not implemented yet */; assert(0); }
   void print() { 
     scatter();
+    sort();
     if (!MY_RANK) {
       typename list<T>::iterator q;
       for (q=begin(); q!=end(); q++) { q->print(); }
@@ -74,6 +80,9 @@ void DistCont<list<PO>,PO,TrivialPartitioner>
 void DistCont<list<PO>,PO,TrivialPartitioner>
 ::combine(const PO &po) { push_back(po); };
  
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+bool PO_less(PO po1,PO po2) { return po1.k<po2.k; }
+
 int main(int argc,char **argv) {
 
   PetscInitialize(&argc,&argv,NULL,NULL);
@@ -84,11 +93,8 @@ int main(int argc,char **argv) {
   debug.init();
   debug.activate();
   SyncBuffer<PO> sb;
-  if (!MY_RANK) {
-    for (int j=0; j<5; j++) sb.push_back(j);
-  } else {
-    for (int j=5; j<10; j++) sb.push_back(j);
-  }
+  int N=10;
+  for (int j=0; j<N; j++) sb.push_back(SIZE*j+MY_RANK);
   debug.trace("antes de sb.print()");
   sb.print();
   PetscFinalize();
