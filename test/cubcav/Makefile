@@ -1,4 +1,4 @@
-# $Id: Makefile,v 1.22 2002/07/28 23:25:01 mstorti Exp $ 
+# $Id: Makefile,v 1.23 2002/07/29 03:13:47 mstorti Exp $ 
 
 .PHONY: all run  compile lclean laplace adv nso laplace_tests force \
         ctest gprof
@@ -6,8 +6,8 @@
 all: run
 
 #default case
-case := laplace
-# case := iisd_sbp1_uj
+# case := laplace
+case := iisd_sbp1_uj
 export case
 
 tests: test_re1000 test_iisd

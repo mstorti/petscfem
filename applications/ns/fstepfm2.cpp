@@ -52,6 +52,7 @@ int fracstep::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
 		       int el_start,int el_last,int iter_mode,
 		       const TimeData *time_) {
 
+  assert(fractional_step);
   int ierr=0;
 
   GET_JOBINFO_FLAG(comp_mat_prof);
@@ -135,6 +136,11 @@ int fracstep::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
     locst = arg_data_v[ja++].locst;
     locst2 = arg_data_v[ja++].locst;
     retval = arg_data_v[ja++].retval;
+    if (!reuse_mat) {
+      A_prj_arg = &arg_data_v[ja];
+      retvalmat_prj = arg_data_v[ja].retval;
+      ja++;
+    }
     glob_param = (GlobParam *)(arg_data_v[ja++].user_data);
     Dt = glob_param->Dt;
   } else assert(0); // Not implemented yet!!
@@ -226,6 +232,7 @@ int fracstep::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
   } else if (comp_mat_prj) {
     mom_profile.export_vals(A_prj_arg->profile);
   } else if (comp_res_prj) {
+    if (!reuse_mat) mom_profile.export_vals(A_prj_arg->profile);
   } else assert(0);
 
   FastMat2 seed;
@@ -447,11 +454,11 @@ int fracstep::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
 	SHV(u);
 	SHV(u_star);
 
-      } else if (comp_mat_prj) {
+      } else if (comp_mat_prj || (comp_res_prj && !reuse_mat) ) {
 
-	// fixme:= esto me parece que deberia ir con signo - !!
 	tmp16.prod(SHAPE,SHAPE,1,2);
 	matlocmom.axpy(tmp16,wpgdet);
+
       } else {
 
 	printf("Don't know how to compute jobinfo: %s\n",jobinfo);
@@ -474,7 +481,7 @@ int fracstep::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
     } else if (comp_mat_prj) {
       matloc.prod(matlocmom,seed,1,3,2,4).add(mom_mat_fix);
       matloc.export_vals(&(RETVALMAT_PRJ(ielh)));
-    } else if (comp_res_prj) {
+    } else if (comp_res_prj || (comp_res_prj && !reuse_mat)) {
       veccontr.is(2,1,ndim).set(resmom);
       veccontr.rs().export_vals(&(RETVAL(ielh)));
     } else assert(0);

@@ -1,6 +1,6 @@
 // -*- mode: C++ -*-
 /*__INSERT_LICENSE__*/
-//$Id: nsi_tet.h,v 1.29 2002/05/04 23:54:13 mstorti Exp $
+//$Id: nsi_tet.h,v 1.30 2002/07/29 03:13:47 mstorti Exp $
 #ifndef NSI_TET_H  
 #define NSI_TET_H
 
@@ -8,6 +8,9 @@
 #include <vector>			// ANN declarations
 
 #include <src/secant.h>
+
+extern int fractional_step;
+extern int reuse_mat;
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 // This is the typical element for volume computations. The `ask'

@@ -9,6 +9,7 @@ $case_orig = $case;
 $case =~ s/^\s*(.*)\s*$/$1/;
 $use_tetra = 1;
 $use_prismatic = 0;
+$fracstep = 1;
 if ($case eq 'laplace_tetra') {
     $case = 'laplace';
     $use_tetra = 1;
@@ -16,7 +17,7 @@ if ($case eq 'laplace_tetra') {
 $ndim = 3;			# Number of spatial dimensions
 $U = 1;				# typical velocity scale
 $L = 1;				# Side of the cavity
-$N = 16;			# Number of elements per dimension
+$N = 30;			# Number of elements per dimension
 $graph_chunk_size  = $N**3;
 $graph_chunk_size = 
     ($graph_chunk_size < 20000 ? 20000 : 
@@ -77,9 +78,8 @@ if (scalar $case =~ /weak_form_(\d)/) {
 } else {
     die "don't know case \"$case\"\n";
 }
-$CASE = $case;
-$fracstep = 1;
 $maxits=500;
+$CASE = $case;
 #
 #__END_TRANSCRIPT__
 transcript("", qw(viscosity Dt));	# print variables on output
@@ -99,6 +99,7 @@ save_file_pattern "outvector%d.out.tmp"
 # type of solver (may be "iisd", "petsc"...)
 #if $case ne 'laplace' && $fracstep
 fractional_step
+reuse_mat 0
 #endif
 #if 1
 compact_profile_graph_chunk_size <:=$graph_chunk_size:>

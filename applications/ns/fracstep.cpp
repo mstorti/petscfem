@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: fracstep.cpp,v 1.10 2002/07/25 22:35:31 mstorti Exp $
+//$Id: fracstep.cpp,v 1.11 2002/07/29 03:13:47 mstorti Exp $
  
 #include <src/fem.h>
 #include <src/utils.h>
@@ -44,6 +44,9 @@ int fracstep::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
 		       int el_start,int el_last,int iter_mode,
 		       const TimeData *time_) {
 
+  assert(fractional_step);	// do not mix with the TET (monolithic) solver
+  assert(reuse_mat);		// not coded yet Newmat version
+				// wirhout reuse mat option
   int ierr=0;
 
   GET_JOBINFO_FLAG(comp_mat_prof);

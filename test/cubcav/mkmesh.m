@@ -35,8 +35,7 @@ if use_prismatic
 	       i3(:,[3 4 1 7 8 5])];
   asave("cubcav.con-prism.tmp",ico_prism);
 elseif use_tetra
-#  system("../../tools/hexasplit.bin -i cubcav.con.tmp -o cubcav.con-tetra.tmp");
-  system("./hexasplit.bin -i cubcav.con.tmp -o cubcav.con-tetra.tmp");
+  system("../../tools/hexasplit.bin -i cubcav.con.tmp -o cubcav.con-tetra.tmp");
 endif
 
 

@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: ns.cpp,v 1.89 2002/07/25 00:58:42 mstorti Exp $
+//$Id: ns.cpp,v 1.90 2002/07/29 03:13:47 mstorti Exp $
 #include <src/debug.h>
 #include <malloc.h>
 
@@ -19,7 +19,8 @@ TextHashTable *GLOBAL_OPTIONS;
 
 //debug:=
 int TSTEP=0;
-
+int fractional_step;
+int reuse_mat;
 
 //-------<*>-------<*>-------<*>-------<*>-------<*>------- 
 #undef __FUNC__
@@ -109,7 +110,9 @@ int main(int argc,char **args) {
 #endif
 
   //o Use fractional step or TET algorithm
-  GETOPTDEF(int,fractional_step,0);
+  TGETOPTDEF_ND(GLOBAL_OPTIONS,int,fractional_step,0);
+  //o Use fractional step or TET algorithm
+  TGETOPTDEF_ND(GLOBAL_OPTIONS,int,reuse_mat,0);
   //o Activate debugging
   GETOPTDEF(int,activate_debug,0);
   if (activate_debug) {
@@ -622,6 +625,8 @@ int main(int argc,char **args) {
 
       debug.trace("-PREDICTOR- Before solving linear system...");
       ierr = A_mom->solve(res,dx); CHKERRA(ierr); 
+      // Frees memory 
+      ierr = A_mom->clean_mat(); CHKERRA(ierr); 
       debug.trace("-PREDICTOR- After solving linear system.");
 
       scal= 1.0;
@@ -681,7 +686,7 @@ int main(int argc,char **args) {
       ierr = VecCopy(x,xp);
       scal=0;
       ierr = VecSet(&scal,res); CHKERRA(ierr);
-      if (tstep==1) {
+      if (!reuse_mat || tstep==1) {
 	argl.clear();
 	statep.set_time(time);	// fixme:= what time?
 	argl.arg_add(A_prj,OUT_MATRIX|PFMAT);
@@ -696,6 +701,7 @@ int main(int argc,char **args) {
       argl.arg_add(&statep,IN_VECTOR|USE_TIME_DATA);
       argl.arg_add(&state,IN_VECTOR|USE_TIME_DATA);
       argl.arg_add(&res,OUT_VECTOR);
+      if (!reuse_mat) argl.arg_add(A_prj,OUT_MATRIX|PFMAT);
       argl.arg_add(&glob_param,USER_DATA);
       debug.trace("-PROJECTION- Before residual computation...");
       ierr = assemble(mesh,argl,dofmap,"comp_res_prj",&time_star);
@@ -704,6 +710,7 @@ int main(int argc,char **args) {
       
       debug.trace("-PROJECTION- Before solving linear system...");
       ierr = A_prj->solve(res,dx); CHKERRA(ierr); 
+      if (!reuse_mat) { ierr = A_prj->clean_mat(); CHKERRA(ierr); }
       debug.trace("-PROJECTION- After solving linear system.");
 
       scal= 1.0;
