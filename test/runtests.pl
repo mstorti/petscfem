@@ -1089,6 +1089,26 @@ expect("sqcav/output.CASE_sqcav.np_1.case_dx_allf.out.tmp",
        "Processing states synchronously. Sends only one field array.",
        read_file("sqcav/pf_output.dx_allf.ans"));
 
+#------/*/------/*/------/*/------/*/------/*/------/*/------/*/ 
+expect("sqcav/output.CASE_sqcav.np_2.case_dx_file1.out.tmp",
+       "Reading states as records from a file",
+       read_file("sqcav/pf_output.dx_file1.ans"));
+
+#------/*/------/*/------/*/------/*/------/*/------/*/------/*/ 
+expect("sqcav/output.CASE_sqcav.np_2.case_dx_file3.out.tmp",
+       "Reading states from several files",
+       read_file("sqcav/pf_output.dx_file3.ans"));
+
+#------/*/------/*/------/*/------/*/------/*/------/*/------/*/ 
+expect("sqcav/output.CASE_sqcav.np_2.case_dx_synchro.out.tmp",
+       "Processing states synchronously",
+       read_file("sqcav/pf_output.dx_synchro.ans"));
+
+#------/*/------/*/------/*/------/*/------/*/------/*/------/*/ 
+expect("sqcav/output.CASE_sqcav.np_2.case_dx_allf.out.tmp",
+       "Processing states synchronously. Sends only one field array.",
+       read_file("sqcav/pf_output.dx_allf.ans"));
+
 end_section();
 
 #------/*/------/*/------/*/------/*/------/*/------/*/------/*/ 

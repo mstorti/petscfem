@@ -1,4 +1,4 @@
-# $Id: Makefile,v 1.53 2003/02/19 12:45:58 mstorti Exp $ 
+# $Id: Makefile,v 1.54 2003/02/19 15:57:48 mstorti Exp $ 
 
 .PHONY: all run  compile lclean laplace adv nso laplace_tests force \
         ctest gprof dxhook dx_tests dx_hook_test_post_run dx \
@@ -17,8 +17,11 @@ tests: test_re1000 test_iisd test_iisd2 test_meas_perf test_g_body test_fs \
 
 dx_tests := dx_hook_test_post_run_file_record dx_hook_test_post_run_files \
 		dx_hook_test_synchro dx_hook_test_allf
+dx_tests := $(dx_tests) $(patsubst dx_hook_test_%,dx_test_%_np2,$(dx_tests))
+dx_tests: $(dx_tests)
 
-.PHONY dx_tests: $(dx_tests)
+dx_test_%_np2: 
+	$(MAKE) np=2 dx_hook_test_$*
 
 dx:
 	$(MAKE) -C ../../dx
@@ -173,7 +176,7 @@ link:
 	ln -sf $(PROG) ns
 
 ###--------<*>--------<*>--------<*>--------<*>--------<*>--------<*>--------<*> 
-output_file1 := output.CASE_sqcav.np_1.case_dx_file1.out.tmp
+output_file1 := output.CASE_sqcav.np_$(np).case_dx_file1.out.tmp
 #w Checks reading states from file in severa records. 
 dx_hook_test_post_run_file_record: dx
 #
@@ -193,7 +196,7 @@ dx_hook_test_post_run_file_record: dx
 	cat dx_ouput.file1.tmp >> $(output_file1)
 
 ###--------<*>--------<*>--------<*>--------<*>--------<*>--------<*>--------<*> 
-output_file3 := output.CASE_sqcav.np_1.case_dx_file3.out.tmp
+output_file3 := output.CASE_sqcav.np_$(np).case_dx_file3.out.tmp
 #w Checks reading states from several files
 dx_hook_test_post_run_files: dx
 #
@@ -213,7 +216,7 @@ dx_hook_test_post_run_files: dx
 	cat dx_ouput.file3.tmp >> $(output_file3)
 
 ###--------<*>--------<*>--------<*>--------<*>--------<*>--------<*>--------<*> 
-output_synchro := output.CASE_sqcav.np_1.case_dx_synchro.out.tmp
+output_synchro := output.CASE_sqcav.np_$(np).case_dx_synchro.out.tmp
 dx_output := dx_ouput.synchro.tmp
 #w Checks reading states in synchronous form
 dx_hook_test_synchro: dx
@@ -230,7 +233,7 @@ dx_hook_test_synchro: dx
 	cat $(dx_output) >> $(output_synchro)
 
 ###--------<*>--------<*>--------<*>--------<*>--------<*>--------<*>--------<*> 
-output_allf := output.CASE_sqcav.np_1.case_dx_allf.out.tmp
+output_allf := output.CASE_sqcav.np_$(np).case_dx_allf.out.tmp
 dx_output := dx_ouput.allf.tmp
 #w Checks reading states in synchronous form
 dx_hook_test_allf: dx
