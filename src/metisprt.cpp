@@ -1,6 +1,6 @@
 //__INSERT_LICENSE__
-//$Id: metisprt.cpp,v 1.14 2002/05/05 22:01:59 mstorti Exp $
- 
+//$Id: metisprt.cpp,v 1.15 2002/05/06 13:34:02 mstorti Exp $
+
 #include "fem.h"
 #include "utils.h"
 #include "util2.h"
@@ -257,7 +257,7 @@ void  metis_part(int nelemfat,Mesh *mesh,
   adjncy = new int[xadj[nvrtx]];
   for (vrtxj=0; vrtxj<nvrtx; vrtxj++) {
     set<int> &adj = adjncy_v[vrtxj];
-    int e = int(floor(log2(adj.size())+1e-5));
+    int e = int(floor(log(adj.size())/log(2.0)+1e-5));
     if (vrtx_count.size() <= e) vrtx_count.resize(e+1,0);
     vrtx_count[e]++;
     qe = adj.end();
