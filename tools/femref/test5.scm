@@ -1,48 +1,78 @@
-;;; $Id: test5.scm,v 1.9 2005/02/17 11:52:00 mstorti Exp $
+;;; $Id: test5.scm,v 1.10 2005/02/18 00:21:29 mstorti Exp $
 
 (use-modules (srfi srfi-1))
 
 ;;; ================================================================
-;;; Generate all partitions of 'n'
+;;; Generate all partitions of 'n' We represente a partition as non
+;;; increasing lists, for instance, the partitions of 3 are ((3) (2 1)
+;;; (1 1 1)).
+;;;
+;;; A partial partition of `n' is a non increasing list whose sum is
+;;; not greater than `n'.
+;;;
+;;; Given a partial partition `p' of `n' whose sum is `s' and whose
+;;; smallest element if `m' all the partitions of `n' that start in `p'
+;;; can be obtained by combaining `p' with all the partitions of `n-s'
+;;; that have elements not greater than `m'.
+;;;
+;;; `(complete-1 part min-elem remain)' returns the list of partitions
+;;; of `remain' in elements not greater than `min-elem'. Moreover,
+;;; the partial partition `part' is appended to all these partitions. 
+;;; So that the problem of finding the partitions of `n' starting with
+;;; `part' can be solved as
+;;; `(complete-1 part (apply min part) (- (n (apply sum part))))'. 
+;;; And the global problem of finding all partitions of `n' can be solved as
+;;; `(complete-1 '() n n)'. 
+;;;
+;;; Now, the partitions of `remain' in elements not greater than
+;;; `min-elem' can be found by separating them in those who start in
+;;; k=1, those who start with k=2, and so on, until `(min min-elem
+;;; remain)'. The partitions of `remain' with elements not greater
+;;; than `min-elem' that start with `k' can be obtained combining `k'
+;;; with the partitions of `remain-k' in elements not greater than `k'.
+;;; 
 (define (partition n)
-  ;;; Completes one partition
+  ;; Completes one partial partition `part', with tails such that its
+  ;; sum is `remain' and whose elements are not greater than
+  ;; `min-elem'.
   (let complete-1 ((part '())
 		   (min-elem n)
 		   (remain n))
-;     (format #t "part ~A, min-elem ~A, remain ~A\n"
-; 	    part min-elem remain)
     (let ((kmax (min min-elem remain)))
       (cond ((zero? remain) (list part))
 	    (#t 
+	     ;; Loops over `k', cumulating lists in `completed-parts'. 
 	     (let loop ((k 1)
 			(completed-parts '()))
-; 	       (format #t "k ~A, completed-parts ~A\n"
-; 		       k completed-parts)
-	       (cond ((> k kmax) 
-; 		      (format #t 
-; 			      "loop returning completed-parts ~A\n" 
-; 			      completed-parts) 
-		      completed-parts)
+	       (cond ((> k kmax) completed-parts)
 		     (#t 
 		      (loop (+ k 1) 
 			    (append
 			     completed-parts 
+			     ;; prepends `k' to part and pass to
+			     ;; `complete-1' with rest `remain-k'. 
 			     (complete-1 (cons k part) k (- remain k))))))))))))
 
+;;---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+;; Computes the number of partitions of `n'
 (define (nparts n)
-  (define (nparts-aux n p)
-;;;  (format #t "n ~A, p ~A\n" n p)
-    (cond ((= n 1) 1)
-	((= n 0) 1)
+  ;; Auxiliary recursive function that computes the number of
+  ;; partitions of `m' with elements not greater than `p'. This
+  ;; algorithm is inefficient because it computes `(nparts-prtl m p)'
+  ;; for the same pairt `(m p)' several times, instead of storing the
+  ;; values. Some kind of lazy evaluation or simply storing the values
+  ;; in a table (dynamic programming) would be much more efficient.
+  (let nparts-prtl ((m n)
+		   (p n))
+    (cond ((= m 1) 1)
+	((= m 0) 1)
 	((= p 1) 1)
 	(#t 
-	 (let ((k-max (min p n)))
+	 (let ((k-max (min p m)))
 	   (let loop ((m 0)
 		      (k 1))
-;;;	     (format #t "m ~A, k ~A\n" m k)
 	     (cond ((> k k-max) m)
-		   (#t (loop (+ m (nparts-aux (- n k) k)) (+ k 1)))))))))
-  (nparts-aux n n))
+		   (#t (loop (+ m (nparts-prtl (- m k) k)) (+ k 1))))))))))
 
 (define (nparts2 n) (length (partition n)))
 
@@ -96,5 +126,11 @@
 	    (loop (+ n 1)))))
 !#
 
+#!
 (let ((n 5))
       (format #t "(nparts3 ~A) ~A\n" n (nparts3 n)))
+!#
+
+(let ((n 8))
+      (format #t "(partition ~A) ~A\n" n (partition n)))
+
