@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: advdif.cpp,v 1.24 2001/05/30 18:21:43 mstorti Exp $
+//$Id: advdif.cpp,v 1.25 2001/07/24 02:22:34 mstorti Exp $
 
 #include <set>
 
@@ -8,12 +8,14 @@
 #include "../../src/getprop.h"
 #include "../../src/utils.h"
 #include "../../src/util2.h"
+#include "../../src/pfmat.h"
 
 #include "advective.h"
 #include "nwadvdif.h"
 #include "nwadvdifj.h"
 #include "burgers.h"
 #include "genload.h"
+
 #include <time.h>
 
 static char help[] = "Basic finite element program.\n\n";
@@ -24,16 +26,6 @@ int print_internal_loop_conv_g=0,
   consistent_supg_matrix_g=0,
   local_time_step_g=0,
   comp_mat_each_time_step_g=0;
-
-//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
-#undef __FUNC__
-#define __FUNC__ "int MyKSPMonitor(KSP ,int ,double ,void *)"
-int MyKSPMonitor(KSP ksp,int n,double rnorm,void *dummy) {
-  if (print_internal_loop_conv_g) 
-    PetscPrintf(PETSC_COMM_WORLD,
-		"iteration %d KSP Residual norm %7.4e \n",n,rnorm);
-  return 0;
-}
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 #undef __FUNC__
@@ -74,13 +66,9 @@ ierr = VecView(name,matlab); CHKERRA(ierr)
 int main(int argc,char **args) {
 
   Vec     x, dx, xold, res; /* approx solution, RHS, residual*/
-  Mat     A;		/* linear system matrix */
-#ifdef CHECK_JAC
-  Mat     AA;
-#endif
-  SLES    sles;		/* linear solver context */
-  PC      pc;		/* preconditioner context */
-  KSP     ksp;		/* Krylov subspace method context */
+  PETScMat PETSc_A,PETSc_AA;		// linear system matrix 
+  IISDMat IISD_A,IISD_AA;		// linear system matrix 
+  PFMat *A,*AA;			// linear system matrix 
   double  *sol, scal;	/* norm of solution error */
   int     ierr, i, n = 10, col[3], its, flg, size, node,
     jdof, k, kk, nfixa,
@@ -177,12 +165,22 @@ int main(int argc,char **args) {
   //o Print, after execution, a report of the times a given option
   // was accessed. Useful for detecting if an option was used or not.
   GETOPTDEF(int,report_option_access,1);
+  //o Use IISD (Interface Iterative Subdomain Direct) or not.
+  GETOPTDEF(int,use_iisd,0);
+
+  // Use IISD (Interface Iterative Subdomain Direct) or not.
+  if (use_iisd) {
+    A = &IISD_A;
+    AA = &IISD_AA;
+  } else {
+    A= &PETSc_A;
+    AA= &PETSc_AA;
+  }
 
   set<int> node_list;
   print_some_file_init(mesh->global_options,
 		       print_some_file.c_str(),
 		       save_file_some.c_str(),node_list);
-
 
   // warning: passed to advective.cpp via a global variable
   //o Uses consistent SUPG matrix for the temporal term or not. 
@@ -271,12 +269,12 @@ int main(int argc,char **args) {
   arg_list argl;
 
   VOID_IT(argl);
-  argl.arg_add(&A,PROFILE);
+  argl.arg_add(&A,PROFILE|PFMAT);
   ierr = assemble(mesh,argl,dofmap,"comp_prof",&time); CHKERRA(ierr);
 
 #ifdef CHECK_JAC
   VOID_IT(argl);
-  argl.arg_add(&AA,PROFILE);
+  argl.arg_add(&AA,PROFILE|PFMAT);
   ierr = assemble(mesh,argl,dofmap,"comp_prof",&time); CHKERRA(ierr);
 #endif
 
@@ -322,28 +320,11 @@ int main(int argc,char **args) {
       if (comp_mat_each_time_step_g) {
 
 	//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
-	ierr = SLESCreate(PETSC_COMM_WORLD,&sles); CHKERRA(ierr);
-	ierr = SLESSetOperators(sles,A,A,
-				DIFFERENT_NONZERO_PATTERN); CHKERRA(ierr);
-	ierr = SLESGetKSP(sles,&ksp); CHKERRA(ierr);
-	ierr = SLESGetPC(sles,&pc); CHKERRA(ierr);
-	
-	ierr = KSPSetType(ksp,KSPGMRES); CHKERRA(ierr);
-//  	ierr = PCSetType(pc,
-//  			 (preco_type=="Jacobi" ? PCJACOBI :
-//  			  preco_type=="none" ? PCNONE : 
-//  			  preco_type=="LU" ? PCLU : 
-//  			  PCJACOBI)); CHKERRA(ierr);
-	ierr = KSPSetPreconditionerSide(ksp,PC_RIGHT);
-	ierr = PCSetType(pc,preco_type_); CHKERRA(ierr);
-	// ierr = PCSetType(pc,PCJACOBI); CHKERRA(ierr);
-	ierr = KSPSetTolerances(ksp,rtol,atol,dtol,maxits); CHKERRA(ierr);
-	ierr = KSPSetMonitor(ksp,MyKSPMonitor,PETSC_NULL); CHKERRA(ierr);
-	//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+	ierr = A->build_sles(GLOBAL_OPTIONS); CHKERRA(ierr); 
 
-	ierr = MatZeroEntries(A); CHKERRA(ierr);
+	ierr = A->zero_entries(); CHKERRA(ierr); 
 #ifdef CHECK_JAC
-	ierr = MatZeroEntries(AA); CHKERRA(ierr);
+	ierr = AA->zero_entries(); CHKERRA(ierr);
 #endif
 	VOID_IT(argl);
 	argl.arg_add(&xold,IN_VECTOR);
@@ -354,10 +335,10 @@ int main(int argc,char **args) {
 #endif
 	argl.arg_add(&res,OUT_VECTOR);
 	argl.arg_add(&dtmin,VECTOR_MIN);
-	argl.arg_add(&A,OUT_MATRIX);
+	argl.arg_add(&A,OUT_MATRIX|PFMAT);
 	argl.arg_add(&glob_param,USER_DATA);
 #ifdef CHECK_JAC
-	argl.arg_add(&AA,OUT_MATRIX_FDJ);
+	argl.arg_add(&AA,OUT_MATRIX_FDJ|PFMAT);
 #endif
 
 	if (measure_performance) {
@@ -369,10 +350,11 @@ int main(int argc,char **args) {
 	ierr = assemble(mesh,argl,dofmap,"comp_res",&time_star); CHKERRA(ierr);
 
 	if (!print_linear_system_and_stop || solve_system) {
-	  ierr = SLESSolve(sles,res,dx,&its); CHKERRA(ierr); 
+	  ierr = A->solve(res,dx); CHKERRA(ierr); 
 	}
-	ierr = SLESDestroy(sles);
-
+	// ierr = SLESDestroy(sles);
+	ierr = A->destroy_sles(); CHKERRA(ierr); 
+      
       } else {
 
 	VOID_IT(argl);
@@ -389,7 +371,8 @@ int main(int argc,char **args) {
 	ierr = assemble(mesh,argl,dofmap,"comp_res",&time_star); CHKERRA(ierr);
 
 	if (!print_linear_system_and_stop || solve_system) {
-	  ierr = SLESSolve(sles,res,dx,&its); CHKERRA(ierr); 
+	  ierr = A->solve(res,dx); CHKERRA(ierr); 
+	  // ierr = SLESSolve(sles,res,dx,&its); CHKERRA(ierr); 
 	}
       }
 
@@ -409,11 +392,11 @@ int main(int argc,char **args) {
 	}
 	ierr = ViewerSetFormat(matlab, 
 			       VIEWER_FORMAT_ASCII_MATLAB,"A");
-	ierr = MatView(A,matlab);
+	ierr = A->view(matlab);
 #ifdef CHECK_JAC
 	ierr = ViewerSetFormat(matlab, 
 			       VIEWER_FORMAT_ASCII_MATLAB,"AA");
-	ierr = MatView(AA,matlab);
+	ierr = AA->view(matlab);
 #endif
 	PetscFinalize();
 	exit(0);
