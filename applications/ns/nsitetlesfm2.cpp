@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: nsitetlesfm2.cpp,v 1.49 2002/04/08 16:15:51 mstorti Exp $
+//$Id: nsitetlesfm2.cpp,v 1.50 2002/04/18 02:27:26 mstorti Exp $
 
 #include <src/fem.h>
 #include <src/utils.h>
@@ -312,6 +312,13 @@ int nsi_tet_les_fm2::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
       
       ucols_star.set(ucols_new).scale(alpha).axpy(ucols,1-alpha);
       pcol_star.set(pcol_new).scale(alpha).axpy(pcol,1-alpha);
+      //#define PRINT_ELEM_DEBUG
+#ifdef PRINT_ELEM_DEBUG
+      if (k==0) {
+	locstate2.print("locstate2 (t_n):");
+	locstate.print("locstate (t_n+1):");
+      }
+#endif
     }
     
     double shear_vel;
@@ -624,6 +631,13 @@ int nsi_tet_les_fm2::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
 	  matlocf.scale(jacobian_factor);
 	matlocf.export_vals(&(RETVALMAT(ielh,0,0,0,0)));
       }
+#ifdef PRINT_ELEM_DEBUG
+      if (k==0) {
+	veccontr.print("veccontr:");
+	matlocf.print("matlocf:");
+      }
+#endif
+
     }
   }
   FastMat2::void_cache();

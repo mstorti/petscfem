@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-/* $Id: nsikepsrot.cpp,v 1.11 2002/04/15 02:54:31 mstorti Exp $ */
+/* $Id: nsikepsrot.cpp,v 1.12 2002/04/18 02:27:26 mstorti Exp $ */
 
 #include <src/fem.h>
 #include <src/utils.h>
@@ -476,6 +476,13 @@ int nsi_tet_keps_rot::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
       pcol_star.set(pcol_new).scale(alpha).axpy(pcol,1-alpha);
       kapcol_star.set(kapcol_new).scale(alpha).axpy(kapcol,1-alpha);
       epscol_star.set(epscol_new).scale(alpha).axpy(epscol,1-alpha);
+      //#define PRINT_ELEM_DEBUG
+#ifdef PRINT_ELEM_DEBUG //debug
+      if (k==0) {
+	locstate2.print("locstate2 (t_n):");
+	locstate.print("locstate (t_n+1):");
+      }
+#endif
     }
     
     double shear_vel;
@@ -1009,6 +1016,14 @@ int nsi_tet_keps_rot::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
 	veccontr.ir(2,ndof).set(reseps).rs();
       }
 
+#ifdef PRINT_ELEM_DEBUG
+      if (k==0) {
+	veccontr.print("veccontr:");
+	matlocf.is(2,1,4).is(4,1,4).print("matlocf:");
+	matlocf.rs();
+      }
+#endif
+
       if (non_inertial_frame) {
 	fveccontr.is(1,1,nelr).set(veccontr);
 	fveccontr.rs();
@@ -1026,6 +1041,7 @@ int nsi_tet_keps_rot::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
 	  matlocf.export_vals(&(RETVALMAT(ielh,0,0,0,0)));
 	}
       }
+
     }
   }
   FastMat2::void_cache();
