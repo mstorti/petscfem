@@ -1,4 +1,4 @@
-## $Id: mkgfshock.m,v 1.1 2005/02/25 21:22:05 mstorti Exp $
+## $Id: mkgfshock.m,v 1.2 2005/02/25 21:25:33 mstorti Exp $
 source("data.m.tmp");
 
 w = zhomo([0 Lx/Nx 0 Lx ],2,Nx+1);
@@ -6,6 +6,9 @@ w = zhomo([0 Lx/Nx 0 Lx ],2,Nx+1);
 xnod = xnod(:,[2 1]);
 nnod = size(xnod,1);
 x = xnod(1:nnod,1);
+
+asave("gfshock.nod.tmp",xnod);
+asave("gfshock.con.tmp",icone);
 
 ## rho,u,v at inlet
 inlet = [1];

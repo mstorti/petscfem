@@ -1,8 +1,8 @@
-# $Id: Makefile,v 1.50 2005/02/20 15:25:10 mstorti Exp $ 
+# $Id: Makefile,v 1.51 2005/02/25 21:25:33 mstorti Exp $ 
 
 .PHONY: force all run tests default strip gasflow nozzle  vtubei
 
-default: run_adre
+default: run_shock
 
 # BOPT := O_c++
 SRCS = 
@@ -22,6 +22,10 @@ NP := 1
 endif
 
 gbody.efn: gbody.cpp
+
+run_shock:
+#	mkstepsdir.pl
+	$(MAKE) CASE_NAME=gfshock run
 
 run_adre:
 	$(MPIRUN) $(NL) -np $(NP) -machinefile		\
