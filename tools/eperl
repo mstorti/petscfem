@@ -131,7 +131,7 @@ New options:
   --                        Following options are args to the ePerl script
 
 ENDOFUSAGE
-
+/'/;
   print STDERR $usage;
   exit -1;
 }
@@ -159,6 +159,7 @@ sub parse_args {
   # Defaults
   $opt{'perl'} = $PERL;
   $opt{'CaseDelimiters'} = 1;
+  $opt{'prefix'} = "\#";
 
   while ($#ARGV>=0) {
     my $arg=shift(@ARGV);
@@ -189,6 +190,8 @@ sub parse_args {
     if ($arg =~ /^-(l|-license)$/) { license(); exit(0); }
     if ($arg =~ /^-(v|-version)$/) { version(); exit(0); }
     if ($arg =~ /^-(V|-ingredients)$/) { version(); exit(0); }
+    if ($arg =~ /^-(p|-prefix)$/) { $opt{'prefix'}=arg(); next; }
+
     if ($arg =~ /^--$/) { last; }
     if ($arg =~ /^-./) { usage(\%opt,"Unknown or improperly specified option: $arg"); }
     push(@files,$arg);
@@ -817,10 +820,11 @@ sub get_line {
   }
 
   # if-elsif-else-endif
-  s/^\s*\#if\s+(\S.*)$/$opt_H->{'BeginDelimiter'} if ($1) { _$opt_H->{'EndDelimiter'}\/\//g;
-  s/^\s*\#elsif\s+(\S.*)$/$opt_H->{'BeginDelimiter'} } elsif ($1) { _$opt_H->{'EndDelimiter'}\/\//g;
-  s/^\s*\#else\s*/$opt_H->{'BeginDelimiter'} } else { _$opt_H->{'EndDelimiter'}\/\//g;
-  s/^\s*\#endif\s*/$opt_H->{'BeginDelimiter'} } _$opt_H->{'EndDelimiter'}\/\//g;
+  my $prfx = $opt_H->{'prefix'};
+  s/^\s*${prfx}if\s+(\S.*)$/$opt_H->{'BeginDelimiter'} if ($1) { _$opt_H->{'EndDelimiter'}\/\//g;
+  s/^\s*${prfx}elsif\s+(\S.*)$/$opt_H->{'BeginDelimiter'} } elsif ($1) { _$opt_H->{'EndDelimiter'}\/\//g;
+  s/^\s*${prfx}else\s*/$opt_H->{'BeginDelimiter'} } else { _$opt_H->{'EndDelimiter'}\/\//g;
+  s/^\s*${prfx}endif\s*/$opt_H->{'BeginDelimiter'} } _$opt_H->{'EndDelimiter'}\/\//g;
 
   # sinclude needs to replace delimiters
   if ($opt_H->{'sinclude'} && $opt_H->{'sinclude'}[0]) {
