@@ -23,7 +23,7 @@
 ;;; Commentary:
 
 ;; Basic support for editing PETSc-FEM data files with Emacs. Supports
-;; some basic colorization (complex ePerl constructs nay fool it), and
+;; some basic colorization (complex ePerl constructs may fool it), and
 ;; also some code to automatically insert PETSc-FEM keywords in the
 ;; data file. 
 
