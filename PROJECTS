@@ -1,9 +1,10 @@
 PROJECTS: 
 =========
 
+* Adaptive refinement
+* Filter functions for getting averages in LES
+* Absorbing b.c.'s for NS and in general
 * Document the element locker function
-* Access connectivities and properties for elements as methods of the
-      elemset. 
 * For boundary dependent temporal conditions we should have arguments
     that are a vector and a time.
 * Code a log option for the *GETOPT* functions so that they write a
@@ -33,6 +34,8 @@ PROJECTS:
 DONE:
 =====
 
+* Access connectivities and properties for elements as methods of the
+      elemset. 
 * Add a list of required software to README
 * Add a `measure_performance' item
 * escribir un test para el bug de FastMat2::prod()
