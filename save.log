@@ -3291,3 +3291,6 @@ tag: beta-3.31.11 on Fri, 24 Sep 2004 09:01:43 -0300 by mstorti in minerva.cerid
 ----------
 tag: beta-3.31.12 on Sat, 25 Sep 2004 06:38:26 -0300 by mstorti in spider
      > Fixed `delayed_flush' problem. 
+----------
+tag: beta-3.31.13 on Sat, 25 Sep 2004 08:33:17 -0300 by mstorti in spider
+     > Runs all tests with g_c++
