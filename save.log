@@ -1942,3 +1942,17 @@ tag: beta-3.10.pl15 on Wed, 18 Dec 2002 17:59:47 -0300 by mstorti in minerva.arc
 ----------
 tag: beta-3.10.pl16 on Wed, 18 Dec 2002 18:32:31 -0300 by mstorti in minerva.arcride.edu.ar
      > Added tests for NS genload
+----------
+tag: beta-3.11 on Wed, 18 Dec 2002 21:56:52 -0300, by mstorti in spider
+     > -- STABLE VERSION -- 
+     > Runs cone advection example. 
+     > Runs test for advection at the diagonal.  
+     > Runs `rotating_cone' example
+     > Runs large example with the rotating cone (160x160 mesh, 838 steps).
+     > Runs all `advec' also with noise in the mesh tests. 
+     > Adding genload element for NS
+     > Runs OK test for `genload' in NS 
+     > Added quasi-harmonic operator for NS
+     > Runs qharmm wiwth ndof=2 and lin_gen_load (hfilm) example.
+     > Added doc for NS genload
+     > Added tests for NS genload
