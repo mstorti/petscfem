@@ -1,5 +1,5 @@
 /*__INSERT_LICENSE__*/
-// $Id: hexasplit.cpp,v 1.6 2002/11/11 22:50:41 mstorti Exp $
+// $Id: hexasplit.cpp,v 1.7 2002/11/30 20:56:47 mstorti Exp $
 #define _GNU_SOURCE
 
 #include <vector>
@@ -32,7 +32,7 @@ int main (int argc, char **argv) {
   char c;
   string icone_file = "icone";
   string icone_tetra = "icone_tetra";
-  int dx; // Flags whether the mesh is being generated for opendx data explorer
+  int dx=0; // Flags whether the mesh is being generated for opendx data explorer
   while ((c = getopt (argc, argv, "i:o:x")) != -1) {
     switch (c) {
     case 'i':
