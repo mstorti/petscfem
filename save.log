@@ -420,3 +420,7 @@ tag: beta-1.80 on Sat May 26 16:55:19 ART 2001, by mstorti in spider
      > -- STABLE VERSION -- 
      > Added generic load element. 
      > Run tests.
+----------
+tag: beta-1.81 on Sat May 26 18:21:15 ART 2001, by mstorti in spider
+     > generates PDF now.
+     > cleans `test/bug100' also
