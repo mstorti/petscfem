@@ -3,4 +3,4 @@ target shell_hook_pre, step: 1, time: 0.010000
 target shell_hook_post, step: 1, time: 0.010000
 Time step: 2, time: 0.02 
 target shell_hook_pre, step: 2, time: 0.020000
-target shell_hook_close, step: -1, time: 0.000000
+target shell_hook_close, step: -2, time: 0.000000
