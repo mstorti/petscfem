@@ -1,6 +1,6 @@
 // -*- mode: C++ -*-
 /*__INSERT_LICENSE__*/
-//$Id: adaptor.h,v 1.6 2001/12/03 02:59:49 mstorti Exp $
+//$Id: adaptor.h,v 1.7 2002/08/07 16:17:08 mstorti Exp $
 #ifndef ADAPTOR_H
 #define ADAPTOR_H
 
@@ -17,7 +17,7 @@ public:
   double rec_Dt;
   /// The number of Gauss points
   int npg;
-  /// The dimension od the element
+  /// The dimension of the element
   int ndim;
   /// The element number (may be used for printing errors, for instance)
   int elem;
