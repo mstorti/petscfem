@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: spetscmat.cpp,v 1.2 2004/10/24 17:51:06 mstorti Exp $
+//$Id: spetscmat.cpp,v 1.3 2004/10/24 17:56:02 mstorti Exp $
 
 #include <src/petscmat.h>
 #include <src/pfmat.h>
@@ -39,7 +39,7 @@ int PFSymmPETScMat::build_sles() {
   nlocal = rend-rstart;
 
   assert(M==N); // this should go elsewhere
-  ierr = MatCreateShell(comm,M,M,nlocal,nlocal,this,&Asymm);
+  ierr = MatCreateShell(comm,nlocal,nlocal,M,M,this,&Asymm);
   CHKERRQ(ierr); 
   P=A;
 
