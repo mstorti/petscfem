@@ -3,6 +3,11 @@
 TODO: [Mainly fixes go here...]
 =====
 
+* There is a problem with the `fstack' close and destruction
+  functions. It gives a SIGSEGV for the following version of rosi2/pfm
+> ----------
+> tag: v0.08.pl58 on Tue, 11 Jun 2002 21:05:52 -0300 by mstorti in spider
+>      > Reads data from initialization files
 * Add test for axisymmetric option in nsi_tet_les_fm2
 * A line like this: ' __INCLUDE__ cylinder.bott_no_slip.tmp' causes a
   SIGSEGV. Fix. See ROCKET/ident -D 'Sun, 14 Apr 2002 16:37:51 -0300'
