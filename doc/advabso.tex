@@ -1,5 +1,5 @@
 %__INSERT_LICENSE__
-% $Id: advabso.tex,v 1.4 2005/02/09 01:45:13 mstorti Exp $ 
+% $Id: advabso.tex,v 1.5 2005/02/09 01:46:36 mstorti Exp $ 
 
 \SSection{Absorbing boundary conditions} 
 
@@ -11,16 +11,16 @@ rate of energy dissipation through the boundaries.
 
 In PETSc-FEM, once you write the flux function for a particular
 advective-diffusive problem you get absorbing boundary conditions with
-none or little extra wotk. There are basically two types of absorbing
+none or little extra work. There are basically two types of absorbing
 boundary conditions
 
 \begin{itemize}
 \compactlist 
 \item Linear, based on the Jacobian of the flux function, assuming
   small perturbations about a reference value. 
-\item Based on Riemman invariants (require the writter of the flux
-  function to provide the Riemman invariants for the flux
-  function). (Needs the user to write the Riemman invariants and 
+\item Based on Riemann invariants (require the writer of the flux
+  function to provide the Riemann invariants for the flux
+  function). (Needs the user to write the Riemann invariants and 
 \end{itemize}
 
 %<*>---<*>---<*>---<*>---<*>---<*>---<*>---<*>---<*>---<*>---<*>
@@ -44,7 +44,7 @@ right eigenvectors of $!A_0$ so that
 \end{equation}
 %
 where $\bzL = \diag\{\lambda_1,...,\lambda_\ndof\}$ are the
-eigenvalues of $A_0$. Multiplying (\ref{eq:advec-lin}) at left byt
+eigenvalues of $A_0$. Multiplying (\ref{eq:advec-lin}) at left by
 $!S\muno$ and defining $V=!S\muno !U'$ we obtain a decoupled system of
 equations
 %
@@ -105,7 +105,7 @@ even happen that the eigenvalues for the actual state at the boundary
 change sign with respect to the reference state. 
 
 %<*>---<*>---<*>---<*>---<*>---<*>---<*>---<*>---<*>---<*>---<*> 
-\SSSection{Riemman based absorbing boundary conditions} 
+\SSSection{Riemann based absorbing boundary conditions} 
 
 Let $n^-$ ($n^+)$ be the number of incoming (outgoing) waves, i.e. the
 number of negative (positive) eigenvalues of $A_0$, and assume that
@@ -156,7 +156,7 @@ waves is $n^-<\ndof$, then it could happen that $!U_\infty\neq
 belong to a curved $n^+$-dimensional curvilinear manifold. Even if the
 limit state $!U_\infty!=!U_0$, we can proved to be perfectly
 absorbing, since, as $!U\to!U_\infty$ at the boundary, we can expand
-each of the conditions around $!U_\infty$ and ot would result in an
+each of the conditions around $!U_\infty$ and it would result in an
 equation similar to (\ref{eq:abc-ri-dif}) but centered about
 $!U_\infty$, 
 %
@@ -165,9 +165,9 @@ $!U_\infty$,
 \end{equation}
 
 The problem is that in general the differentials are not
-exact. \emph{``Riemman invariants''} are functions that satisfy
+exact. \emph{``Riemann invariants''} are functions that satisfy
 (\ref{eq:abc-ri-def}) under some restrictions on the flow. For
-instance, Riemman invariants invariants can be computed for
+instance, Riemann invariants invariants can be computed for
 compressible gas flow if we assume that the flow is isentropic. They
 are
 %
@@ -181,7 +181,7 @@ are
   \end{aligned}
 \end{equation}
 
-Boundary conditions based on Riemman invariants are, then, absorbing
+Boundary conditions based on Riemann invariants are, then, absorbing
 in some particular cases. 
 
 %<*>---<*>---<*>---<*>---<*>---<*>---<*>---<*>---<*>---<*>---<*> 
@@ -195,14 +195,14 @@ Another possibility is to linearize around the last state $!U^n$, i.e.
 %
 This equation is always perfectly absorbing in the limit, because we
 are always linearizing about a state that, in the limit, will tend to
-$!U_\infty$ and doesn't need the computation of Riemman invariants
+$!U_\infty$ and doesn't need the computation of Riemann invariants
 (which could be unknown for certain problems). Also, this boundary
 condition is fully absorbing even in the case of inversion of the
 sense of propagation of waves. 
 
 The drawback is that we have no external control on the internal
 states, i.e. the limit internal state does not depend on some external
-value (as the $!U_0$ used for the Riemman based absorbing boundary
+value (as the $!U_0$ used for the Riemann based absorbing boundary
 conditions), but on the internal state. That means, for instance, that
 if the internal computational scheme tends to produce some error (due
 to non conservativity, or rounding errors), the internal state would
@@ -213,7 +213,7 @@ boundary conditions (\ref{eq:lin-abc}) at inlet and absorbing boundary
 conditions based on last state (\ref{eq:lin-abc-n}) at outlet. As the
 error tends to propagate more intensely towards the outlet boundary,
 it is preferably to use strongly absorbing boundary conditions there,
-whereas the linearly absorbing or Riemman invarinat boundary
+whereas the linearly absorbing or Riemann invariant boundary
 conditions upstream avoid the drift. 
 
 % Local Variables: *
