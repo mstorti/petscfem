@@ -15,15 +15,14 @@ SRCS =
 CLEAN_DIRS = 
 DEPEND_DIRS = $(CLEAN_DIRS)
 
-ADVDIF = $(APPDIR)/advdif/advdif_g.bin
 #----<*>----------<*>----------<*>----------<*>----------<*>----------<*>-----
 # Test for abso shallow water 1d
 
 test_abso:
-	$(MAKE) $(CASE).depl
-	octave -q $(CASE).m
-	-$(MPIRUN) -np $(NP)  $(ADVDIF) -case $(CASE).depl > $(CASE).log.tmp
-	$(octave) -qH check_test_abso.m
+# 	$(MAKE) $(CASE).depl
+# 	$(OCTAVE) $(CASE).m
+# 	-$(MPIRUN) -np $(NP)  $(ADVDIF) -case $(CASE).depl > $(CASE).log.tmp
+	$(OCTAVE) check_test_abso.m > test_abso.verif.tmp
 
 
 local_clean::

@@ -20,10 +20,14 @@ initial_state "canal1d.ini"
 #initial_state "outvector.out"
 
 # "rotary saving" 
-nsaverot 1
+nsaverot 10
 nfile 1
-nrec 1000
-save_file_pattern "canal1d%d.out"
+nrec 10000
+save_file_pattern "canal1d.rslt.tmp"
+
+nsave 10
+save_file "canal1d.state.tmp"
+
 # omega_newton 0.3
 tol_newton 0
 # solver "iisd"
@@ -43,7 +47,7 @@ dtol 1e10
 maxits 1
 Krylov_dim 100
 # print_internal_loop_conv 1
-Dt 0.05
+Dt 0.025
 tau_fac 0.
 
 __END_HASH__
