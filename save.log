@@ -2049,3 +2049,6 @@ tag: beta-3.14 on Thu,  2 Jan 2003 07:57:29 -0300, by mstorti in spider
 ----------
 tag: beta-3.14.pl1 on Thu,  2 Jan 2003 23:21:31 -0300 by mstorti in spider
      > Computes OK gradient of potential at coupling  nodes. 
+----------
+tag: beta-3.14.pl2 on Thu,  2 Jan 2003 23:52:42 -0300 by mstorti in spider
+     > Computes OK normal gradient of potential at coupling nodes. 
