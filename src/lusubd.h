@@ -1,4 +1,5 @@
 // -*- mode: C++ -*- 
+// $Id: lusubd.h,v 1.2 2001/07/13 01:30:38 mstorti Exp $
 #ifndef LUSUBD_H
 #define LUSUBD_H
 
