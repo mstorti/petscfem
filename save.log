@@ -2062,3 +2062,6 @@ tag: beta-3.14.pl4 on Sat,  4 Jan 2003 04:36:13 -0300 by mstorti in spider
 ----------
 tag: beta-3.14.pl5 on Sat,  4 Jan 2003 13:21:55 -0300 by mstorti in spider
      > Starts working the coupling. Converges with sub-relaxation 0.3. 
+----------
+tag: beta-3.14.pl6 on Sat,  4 Jan 2003 17:19:59 -0300 by mstorti in spider
+     > Cylinder example oscillates. 
