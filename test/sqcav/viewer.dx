@@ -64,5 +64,10 @@ object "my_p_field" class field
 component "positions" value "nodes"
 component "connections" value "icone"
 component "data" value "resultp"
+
+object "ns_result" class group
+  member "v_field" value "my_v_field" 
+  member "p_field" value "my_p_field"
+
 end
 
