@@ -1,5 +1,5 @@
 /*__INSERT_LICENSE__*/
-// $Id: tryme3.cpp,v 1.9 2002/07/24 12:08:41 mstorti Exp $
+// $Id: tryme3.cpp,v 1.10 2002/07/24 12:58:50 mstorti Exp $
 #define _GNU_SOURCE
 
 #include <src/utils.h>
@@ -7,7 +7,7 @@
 #include <src/linkgraph.h>
 
 int MY_RANK,SIZE;
-const int M=20;
+const int M=30000;
 
 void row_print(LinkGraphRow row) {
   LinkGraphRow::iterator q;
@@ -103,8 +103,8 @@ int main(int argc, char **args) {
   }
 
   printf("-------------\nBefore copying: \n");
-  graph_print(graph,"graph: ");
-  graph_print(graph2,"graph2: ");
+  // graph_print(graph,"graph: ");
+  // graph_print(graph2,"graph2: ");
   
   int indx=0;
   LinkGraph::iterator q=graph.begin(), q2=graph2.begin(), qq;
@@ -125,8 +125,8 @@ int main(int argc, char **args) {
   }
 
   printf("-------------\nAfter copying: \n");
-  graph_print(graph,"graph: ");
-  graph_print(graph2,"graph2: ");
+  // graph_print(graph,"graph: ");
+  // graph_print(graph2,"graph2: ");
 
 #else
 
