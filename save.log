@@ -1575,3 +1575,6 @@ tag: beta-3.04.pl3 on Sat,  7 Sep 2002 18:55:12 -0300 by mstorti in spider
 ----------
 tag: beta-3.04.pl4 on Sun,  8 Sep 2002 16:42:06 -0300 by mstorti in spider
      > Dynamically linked functions OK for constant rain. 
+----------
+tag: beta-3.04.pl5 on Sun,  8 Sep 2002 19:02:01 -0300 by mstorti in spider
+     > Fixed some errors in dynamic loaded temp dependent prop functions. 
