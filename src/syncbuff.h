@@ -1,6 +1,6 @@
 // -*- mode: c++ -*-
 //__INSERT_LICENSE__
-// $Id: syncbuff.h,v 1.4 2004/01/11 17:31:01 mstorti Exp $
+// $Id: syncbuff.h,v 1.5 2004/01/12 01:42:55 mstorti Exp $
 #include <list>
 #include <iostream>
 #include <src/distcont.h>
@@ -50,8 +50,12 @@ class SyncBuffer : public DistCont<list<T>,T,TrivialPartitioner<T> > {
   /// The partitioner (all elements belong to the master)
   TrivialPartitioner<T> part;
 public:
+  /** Flags whether the lines should be sorted by key in the 
+      output */
+  int sort_by_key;
   /// Constructor
-  SyncBuffer() : DistCont<list<T>,T,TrivialPartitioner<T> >() {}
+  SyncBuffer() : sort_by_key(1), 
+		 DistCont<list<T>,T,TrivialPartitioner<T> >(&part) {}
   /// Prints all elements to the output stream
   void print();
   /// This is for checking the pack/unpack routines. 

@@ -1,6 +1,6 @@
 // -*- mode: c++ -*-
 //__INSERT_LICENSE__
-// $Id: testsb.cpp,v 1.2 2004/01/11 17:31:04 mstorti Exp $
+// $Id: testsb.cpp,v 1.3 2004/01/12 01:42:59 mstorti Exp $
 #include <list>
 #include <iostream>
 #include <src/distcont.h>
@@ -130,10 +130,11 @@ int main(int argc,char **argv) {
   }
   // kbuff.check_pack();
 
-#if 0
+#if 1
   FILE *out = fopen("output.dat","w");
   KeyedLine::output = out;
   KeyedLine::print_keys = 0;
+  // kbuff.sort_by_key = 0;
   kbuff.flush();
   fclose(out);
 #else

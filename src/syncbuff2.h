@@ -1,6 +1,6 @@
 // -*- mode: c++ -*-
 //__INSERT_LICENSE__
-// $Id: syncbuff2.h,v 1.1 2004/01/11 17:31:01 mstorti Exp $
+// $Id: syncbuff2.h,v 1.2 2004/01/12 01:42:55 mstorti Exp $
 #ifndef PETSCFEM_SYNCBUFF2_H
 #define PETSCFEM_SYNCBUFF2_H
 
@@ -14,7 +14,7 @@
 #include <cstdio>
 #include <src/autostr.h>
 
-#---<*>---//---<*>---//---<*>---//---<*>---//---<*>---// 
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 template<typename T>
 void TrivialPartitioner<T>
 ::processor(const T &t,int &nproc,int *plist) {
@@ -28,7 +28,7 @@ void SyncBuffer<T>::print() {
   // Does the scatter
   scatter(); 
   // Does the sorting
-  sort();
+  if (sort_by_key) sort();
   // Prints all elements in master
   if (!MY_RANK) {
     typename list<T>::iterator q;

@@ -1,10 +1,10 @@
 %__INSERT_LICENSE__
 \Section{Synchronized buffer}
 
-One difficult task in parallel programming is printing from the
-nodes. In MPI it is not guaranteed that printing from the nodes is
-possible and in the MPICH implementation the outputs from the nodes
-get all mixed and scrambled. 
+One difficult task in parallel programming is printing from the slave
+nodes. In MPI, in general,it is not guaranteed that printing from the
+nodes is possible and in the MPICH implementation output from the
+nodes get all mixed and scrambled.
 
 PETSc provides a functions in order to facilitate this task. 
 The user can call \verb+PetscSynchronizedPrintf(...)+ as many times as
@@ -19,11 +19,10 @@ properly.
 
 The objective of the \verb+SyncBuffer<T>+ template class and the
 \verb+KeyedOutputBuffer+ class is to have a synchronized output device
-that sorts the lines written by the nodes. 
-
-The idea is that one defines a class (say \verb+KeyedObject+) that
-must support the following member functions
-
+that sorts the lines written by the nodes.  The idea is that one
+defines a class (say \verb+KeyedObject+) that must support the
+following member functions
+%
 \begin{verbatim}
 class KeyedObject {
 public:
@@ -34,22 +33,142 @@ public:
   // Dtor.
   ~KeyedObject();
   // Used for sorting the lines
-  friend int operator<(const KeyedObject& left, const KeyedObject& right);
+  friend int operator<(const KeyedObject& left, 
+           const KeyedObject& right);
   //  Call back for the distributed container. Return
   // size of the buffer needed to store this element.
   int size_of_pack() const;
   // Effectively packs the object into the buffer, 
   // upgrading the pointer. 
   void pack(char *&buff) const;
-  /** Extracts the object from the buffer, upgading the buffer. 
-      @param buff (input) the output buffer */ 
+  // Extracts the object from the buffer, upgading the buffer. 
   void unpack(const char *& buff);
   // Print the object
   void print();
 };
 \end{verbatim}
+%
+Then the user can load objects into the buffer, and finally call the
+\verb+flush()+ method to dump the actual content of the buffer to the
+output. The \verb+flush()+ is equivalent to 
+%
+\begin{itemize}
+\item sending all objects to the server, deleting them from the
+  original node, 
+\item sorting them according to the \verb+operator<(...)+ defined, and
+\item calling \verb+print(...)+ on all of them \emph{on the server.}
+\end{itemize}
+%
+The underlying container is a list so that you can manipulate it with
+the standard list accessors, but the ideal is to push elements with
+\verb+push_back(KeyedObject obj)+, or pushing a clean object with
+\verb+push_back()+ and then access the elements with
+\verb+back()+. Note that you must implement the copy constructor for
+the \verb+KeyedObject+ class. Objects with the same key are not
+overwritten, i.e. if several elements with the same key are loaded on
+the same or differente processors, then all of them are printed to the
+output. As the sorting algorithm used is stable, objects with the same
+key loaded in the same processor,  remain in the same order as were
+entered. Typical usage is as follows
+%
+\begin{verbatim}
+#include <src/syncbuff.h>
 
+class KeyedObject {
+  // define methods as declared above
+};
 
+SYNC_BUFFER_FUNCTIONS(KeyedObject);
+
+int main() {
+   SyncBuffer<KeyedObject> sb;
+
+   // Insert objects
+   sb.push_back(obj1);
+   // ...
+   sb.push_back(obj1);
+   
+   // flush the buffer. 
+   sb.flush();
+}
+\end{verbatim}
+%
+The macro \verb+SYNC_BUFFER_FUNCTIONS(...)+ takes as argument the name
+of the basic object class and generates a series of wrapper
+functions. (This should be done in the templates themself but due to
+current limitations in template specialization it has to be done
+through macros.)
+
+\SSection{A more specialized class}
+
+A more simple class derived from \verb+SyncBuffer<...>+ has been
+written. This class is based on \verb+SyncBuffer<...>+ using as
+\verb+KeyedObject+ the class \verb+KeyedLine+ which has simply an
+integer and a C-string. Typical usage is
+%
+\begin{verbatim}
+#include <src/syncbuff2.h>
+
+  KeyedOutputBuffer kbuff;
+  AutoString s;
+
+  for ( ... ) {
+    s.clear();
+    // Load string `s' with `cat_sprintf' functions
+    // ....
+
+    // Load in buffer
+    kbuff.push(k,s);
+  }
+
+  kbuff.flush();
+\end{verbatim}
+%
+If you want to dump the buffer on another stream, like a file for
+instance, then you have to set the
+\verb+static FILE *KeyedLine::output+ field of the \verb+KeyedLine+
+class. Also, the \verb+static int KeyedLine::print_keys+ flag controls
+whether the key number is printed at the beginning of the line or
+not. For instance the following code sends output to the
+\verb+output.dat+ file without key numbers. 
+%
+\begin{verbatim}
+  FILE *out = fopen("output.dat","w");
+  KeyedLine::output = out;
+  KeyedLine::print_keys = 0;
+  kbuff.flush();
+  fclose(out);
+\end{verbatim}
+%
+Also, the member \verb+int KeyedOutputBuffer::sort_by_key+ (default 1)
+controls whether to sort by keys prior to printing, then you can set 
+%
+\begin{verbatim}
+kbuff.sort_by_key = 0;
+\end{verbatim}
+%
+if you want to disable sorting. 
+
+Some notes regarding usage of this class are:
+
+\begin{itemize}
+\item You can have several \verb+SyncBuffer<..>+'s or
+\verb+KeyedOutputBuffer+'s at the same time, and you can
+\verb+flush(...)+ them independently. 
+
+\item \textbf{Memory usage:} All items sent to the buffer with
+  \verb+push()+ are kept in memory in a temporary buffer. When
+  \verb+flush()+ is called all objects are sent to the master, printed
+  and al buffers are cleared. So that you must guarantee space enough
+  in memory for all this operations. 
+
+\item \textbf{Implementation details:} Data is sent from the nodes to
+  the master with point to point MPI operations, which is far more
+  efficient than writing all nodes to a file via NFS. Sorting of the
+  objects by key in the master is done using the \verb+sort()+
+  algorithm of the \verb+list<...>+ STL container, which is $O(N\log
+  N)$ operations. 
+\end{itemize}
 
 % Local Variables: *
 % mode: latex *
