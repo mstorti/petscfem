@@ -29,7 +29,7 @@ $eta0 = 0.05;			# amplitude of free surface elevation
 $dx_steps = 1;			# visualize with DX
 
 $L_bump = 1;			# length of the bump
-$t = 0.6;			# thickness
+$t = 0.4;			# thickness
 $restart = 0;			# flags whether to restart a previous run
 
 1;
