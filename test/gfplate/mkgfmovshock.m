@@ -1,4 +1,4 @@
-## $Id: mkgfmovshock.m,v 1.3 2005/02/08 01:49:15 mstorti Exp $
+## $Id: mkgfmovshock.m,v 1.4 2005/02/08 01:53:03 mstorti Exp $
 source("data.m.tmp");
 
 ## Nbr of elements along `y' 
@@ -82,3 +82,14 @@ dw = U1-U2;
 Uini(1:nnod,:) = Uini(1:nnod,:) + dfx*dw;
 
 asave("gfmovshock.ini.tmp",Uini);
+
+nnod2 = nnod;
+
+## Aborbing nodes at outlet
+tol = 1e-7;
+nodes_out = find(xx>Lnor-tol);	# Nodes at outlet
+nficout = length(nodes_out);
+ficout = nnod+(1:nficout)';
+nnod2 = nnod2 + nficout;
+xnod = [xnod;
+	xnod(ind
