@@ -37,8 +37,14 @@ Cp=1;
 Cpfluc=0;
 alpha=1;
 
-#<:$CASE=$ENV{'CASE'}:>//
-CASE=<:=$CASE:>;
+<:
+$CASE=$ENV{'CASE'};
+if ($CASE eq 'check_nodes' || $CASE eq 'check_fields') {
+    $CASE = 'dif_temp';
+}
+:>//
+
+## CASE = <:=$CASE:>;
 
 #if $CASE eq 'stdy_dif'
 ## Steady heat eq. with source term

@@ -21,7 +21,6 @@ TODO: [Mainly fixes go here...]
         `newadvdif_burgers() : NewAdvDif(new burgers_ff(this)) {};'
 * make __INCLUDE__ can accept "" enclosed strings
 * Throw an error if nothing is read (a void file).
-* Write a norm_p function (like sum_square_all...)
 * Check headers for functions (the __FUNC__ macro). 
 * A faster (cached version) of mydet and mydetsur
 * Fix makefile: runs bison and compiles getarray.cpp even it's not
@@ -36,13 +35,14 @@ TODO: [Mainly fixes go here...]
 * Document sttfilter etc...
 * Document the element locker feature
 * Fix problems with b.c.'s when Dirichlet and periodic superimposed. 
-* Making html doc, doesn't reuse the generated gifs, which is very
+* Making html doc, doesn't reuse the generated gifs, which is _very_
            time consuming.
 
 
 DONE:
 =====
 
+* Write a norm_p function (like sum_square_all...)
 * write a generic non-linear restriction element
 * escribir una funcion "double pow_int(double base,int exp)"
 * Cached version of detsur

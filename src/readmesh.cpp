@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: readmesh.cpp,v 1.22 2001/05/30 18:21:53 mstorti Exp $
+//$Id: readmesh.cpp,v 1.23 2001/06/15 00:26:34 mstorti Exp $
  
 #include "fem.h"
 #include "utils.h"
@@ -463,7 +463,14 @@ int read_mesh(Mesh *& mesh,char *fcase,Dofmap *& dofmap,
 	}
 	  
 	int keq = row.begin()->first;
-	assert(row.begin()->second == 1.);
+	PETSCFEM_ASSERT(row.begin()->second == 1.,
+			"Fixation imposed on a bad node/field combination\n"
+			"node: %d, field: %d\n"
+			"%s:%d: \"%s\"",
+			node,kdof,
+			fstack->file_name(),
+			fstack->line_number(),
+			fstack->line_read());
 	
 	dofmap->fixed.push_back(fixation_entry(dval));
 	fixed_dofs[keq]=dofmap->fixed.size()-1;
@@ -507,7 +514,14 @@ int read_mesh(Mesh *& mesh,char *fcase,Dofmap *& dofmap,
 	}
 	  
 	int keq = row.begin()->first;
-	assert(row.begin()->second == 1.);
+	PETSCFEM_ASSERT(row.begin()->second == 1.,
+			"Fixation imposed on a bad node/field combination\n"
+			"node: %d, field: %d\n"
+			"%s:%d: \"%s\"",
+			node,kdof,
+			fstack->file_name(),
+			fstack->line_number(),
+			fstack->line_read());
 	
 	dofmap->fixed.push_back(fixation_entry(dval,amp));
 	fixed_dofs[keq]=dofmap->fixed.size()-1;
@@ -542,8 +556,16 @@ int read_mesh(Mesh *& mesh,char *fcase,Dofmap *& dofmap,
 	  ierr = readval(rflag,line,coef); if(ierr) break;
 	  ierr = readval(rflag,line,node); ERRLINE;
 	  ierr = readval(rflag,line,field); ERRLINE;
-	  assert(node<=nnod);
-	  assert(field<=ndof);
+	  PETSCFEM_ASSERT(node<=nnod,"read_mesh: "
+			  "Read node= %d greater that nnod= %d\n"
+			  "%s:%d: \"%s\"",node,nnod,fstack->file_name(),
+			  fstack->line_number(),
+			  fstack->line_read());
+	  PETSCFEM_ASSERT(field<=ndof,"read_mesh: "
+			  "Read field= %d greater that ndof= %d\n"
+			  "%s:%d: \"%s\"",field,ndof,fstack->file_name(),
+			  fstack->line_number(),
+			  fstack->line_read());
 	  constraint.add_entry(node,field,coef);
 	}
 	dofmap->set_constraint(constraint);

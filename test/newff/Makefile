@@ -1,5 +1,5 @@
 #__INSERT_LICENSE__
-# $Id: Makefile,v 1.14 2001/04/08 13:39:14 mstorti Exp $ 
+# $Id: Makefile,v 1.15 2001/06/15 00:26:41 mstorti Exp $ 
 
 .PHONY: force all run tests data
 
@@ -33,7 +33,7 @@ tests: test_dif_temp test_dif_temp_cp \
 	test_full_full_jacs_adv_cp \
 	test_full_full_jacs_t \
 	test_full_full_jacs_tr test_adv_dif_stdy_bcconv \
-	test_stdy_dif
+	test_stdy_dif test_check_fields test_check_nodes
 
 testsss: test_full_full_jacs_wf test_full_full_jacs_cp \
 	test_full_full_jacs_t \
@@ -42,6 +42,9 @@ testsss: test_full_full_jacs_wf test_full_full_jacs_cp \
 
 test_%: 
 	$(MAKE) CASE=$* run
+
+data_%:
+	$(MAKE) CASE=$* data
 
 #w Test for per-element properties 
 $(OF): newff.m data.m
@@ -59,9 +62,11 @@ advdif: advdif.link
 
 NP := $(shell procsel $(PETSCFEM_PROCTABLE))
 run: data
+	-rm -f save.state.tmp 
 	-$(MPIRUN) -np 1 -machinefile machi.dat $(ADVDIF) \
-			-case newff.depl > newff.out
-	octave -q verif.m | tee  $(CASE).vrf.tmp
+			-case newff.depl > newff.$(CASE).out
+	if [ -e save.state.tmp ] ; then \
+		octave -q verif.m | tee  $(CASE).vrf.tmp ; fi
 
 local_clean::
 	-chmod +w newff.data.res

@@ -334,6 +334,12 @@ z115: 180
 d[1]: 20.8327
 d[2]: 24.4949
 d[3]: 0
+--- Z31:  ----
+ 36.9823 38.4683 39.9635
+--- Z32:  ----
+ 31.8692 32.9698 34.0756
+z31: 62.0674
+z32: 41.1349
 EOT
 
 #------/*/------/*/------/*/------/*/------/*/------/*/------/*/ 
@@ -736,6 +742,25 @@ __NO_SKIP__
 1.249.*e-01
 1.230.*e-01
 1.230.*e-01
+EOT
+
+#------/*/------/*/------/*/------/*/------/*/------/*/------/*/ 
+expect("newff/newff.check_fields.out",
+       "Check fields<ndof in constraints",<<'EOT');
+Assertion failed: 
+read_mesh: Read field
+newff.depl:
+PETSC-FEM error 
+EOT
+
+#------/*/------/*/------/*/------/*/------/*/------/*/------/*/ 
+expect("newff/newff.check_nodes.out",
+       "Check node<nnod in constraints",<<'EOT');
+Assertion failed: "node<=nnod."
+read_mesh: Read node= 35 greater that nnod= 34
+newff.depl:.*: "1. 35 1 \-1. 33 1"
+---------------
+PETSC-FEM error at file "readmesh.cpp", line 
 EOT
 
 end_section();

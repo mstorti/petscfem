@@ -3,7 +3,10 @@
 require '../eperlini.pl';       # Initializes ePerl 
 @read_var = readm_all_v("data.m");# read all variables in octave file
 octave_string(qw(dif_type adv_type reac_type source_type enthalpy_type));
-$case=newff;
+$case='newff';
+if ($check_nodes || $check_fields) {
+    $dif_temp=1;
+}
 #__END_TRANSCRIPT__
 :>//                            # ends ePerl block
 
@@ -204,6 +207,12 @@ __END_FIXA__
 #if !$use_bcconv
 constraint
 __INCLUDE__ newff.peri.tmp
+#if $check_nodes
+1. 35 1 -1. 33 1
+#endif
+#if $check_fields
+1. 34 4 -1. 33 1
+#endif
 __END_CONSTRAINT__
 #endif
 
