@@ -1,6 +1,6 @@
 # mode: -*- makefile -*-
 #__INSERT_LICENSE__
-#$Id: Makefile.base,v 1.67.2.1 2002/02/15 21:55:25 mstorti Exp $
+#$Id: Makefile.base,v 1.67.2.2 2002/02/16 14:01:12 mstorti Exp $
 
 #p [in Makefile.base]
 #s General
@@ -170,6 +170,8 @@ LDFLAGS = 					\
           $(PROG_LIB)				\
 	  -L$(PETSCFEM_DIR)/src			\
           -lpetscfem_$(opt_level)		\
+          $(PROG_LIB)				\
+          -lpetscfem_$(opt_level)		\
           -L$(METIS) -L/usr/local/lib		\
           -lmetis  -L$(NEWMAT)  -lnewmat	\
           -lglib -L$(LIBRETTO_LIB) -libretto	\
@@ -178,14 +180,34 @@ LDFLAGS = 					\
           $(MESCHACH)/libmes.a			\
           $(SUPERLULIB) 
 
+PROG_LIB = lib$(PROG)_$(opt_level).a
+
+$(PROG_LIB): $(PROG_LIB)($(LIBOBJS))
+	ranlib $@
+
+$(PROG_LIB)(%.o): %.o
+# 	@if objdump -g $< 2>&1						\
+# 			| grep 'no recognized debugging information'	\
+# 		> /dev/null ; then					\
+# 		obj_optl='O' ;						\
+# 		else							\
+# 		obj_optl='g' ;						\
+# 	fi ;								\
+# 	if [ ! "x$(opt_level)" = "x$$obj_optl" ] ;			\
+# 		then echo "object $< does not match "			\
+# 				"optimization level BOPT: $(BOPT)" ;	\
+# 		rm $< ;							\
+# 		$(MAKE) $< ;						\
+# 	fi ;								\
+	ar ru $@ $<
+
+$(PROG): $(PROG).bin
+
 # general program 
 $(PROG).bin: $(MYOBJS) $(LIBPETSCFEM) $(PROG_LIB)
 	$(MAKE) $(PROG_LIB)
 	-rm $@
 	${CXX_CLINKER} $(PROF_FLAGS) -o $@ $(MYOBJS) $(OTHER_OBJS) $(LDFLAGS)
-
-#$(LIBPETSCFEM)(%.o): force
-#	$(MAKE) -C $(PETSCFEM_DIR)/src 'libpetscfem_$(opt_level).a($*.o)'
 
 #
 # When using ePerl the convention is to use .epl extension for the

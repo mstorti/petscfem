@@ -1,32 +1,38 @@
 #__INSERT_LICENSE__
- # $Id: Makefile,v 1.27 2002/02/15 12:47:37 mstorti Exp $ 
+ # $Id: Makefile,v 1.26.2.1 2002/02/16 14:01:17 mstorti Exp $ 
 
 .PHONY: all run lclean save compile
 
 PROG = advdif
 PETSCFEM_DIR   = ../..
-MYOBJS = advdife.o advdifeo.o advdif.o ffadvfm2_old.o  ffburg.o ffswfm2t.o \
-		wallswt.o bccadvfm2.o bccadvfm2_old.o  ffadvfm2.o ffburg_old.o \
-		enthalpy.o genload.o linhff.o diff.o aquifer.o stream.o \
-		blessf.o bubbly.o
+MYOBJS = 
+
+LIBOBJS = advdife.o advdifeo.o advdif.o ffadvfm2_old.o  ffburg.o ffswfm2t.o	\
+		wallswt.o bccadvfm2.o bccadvfm2_old.o  ffadvfm2.o ffburg_old.o	\
+		enthalpy.o genload.o linhff.o diff.o aquifer.o stream.o		\
+		blessf.o 
+
+.INTERMEDIATE: $(MYOBJS) $(LIBOBJS)
 
 TAGFLAGS = $(TAGINCL)="../../src/TAGS"
 
-SRCS := $(MYOBJS:.o=.cpp)
+SRCS := $(MYOBJS:.o=.cpp) $(LIBOBJS:.o=.cpp)
 
 include $(PETSCFEM_DIR)/Makefile.base
 
 compile: $(PROG).bin
 
-ffeuler.o: ffeuler.cpp
-	-${CC} -c ${COPTFLAGS} ${CFLAGS} ${CCPPFLAGS} -O0 $<
+#ffeuler.o: ffeuler.cpp
+#	-${CC} -c ${COPTFLAGS} ${CFLAGS} ${CCPPFLAGS} -O0 $<
 
+# Add specific optimization flags
+diff.o aquifer.o advdif.o: CPPFLAGS += -O0 -g
 
 dd := ../../doc
 
 # documentation of options with the script `odoc.pl'
-odocadvdif: $(dd)/odocadvdif.tex  $(dd)/odocadvdife.tex \
-	$(dd)/odocadvfm2.tex $(dd)/odocburgers.tex \
+odocadvdif: $(dd)/odocadvdif.tex  $(dd)/odocadvdife.tex	\
+	$(dd)/odocadvfm2.tex $(dd)/odocburgers.tex	\
 	$(dd)/odocswfm2t.tex $(dd)/odocgenl.tex 
 
 $(dd)/odocadvdif.tex: advdif.cpp $(dd)/advdif.tex

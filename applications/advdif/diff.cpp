@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: diff.cpp,v 1.3 2002/02/03 23:48:12 mstorti Exp $
+//$Id: diff.cpp,v 1.3.2.1 2002/02/16 14:01:17 mstorti Exp $
 extern int comp_mat_each_time_step_g,
   consistent_supg_matrix_g,
   local_time_step_g;
@@ -42,6 +42,7 @@ void Diff::new_assemble(arg_data_list &arg_data_v,const Nodedata *nodedata,
 			const ElementList &elemlist,
 			const TimeData *time_data) {
 
+  PetscPrintf(PETSC_COMM_WORLD,"Entering Diff with jobinfo %s\n",jobinfo);
   GET_JOBINFO_FLAG(comp_res);
   GET_JOBINFO_FLAG(comp_prof);
 

@@ -1,5 +1,5 @@
 #__INSERT_LICENSE__
-# $Id: Makefile,v 1.53.2.1 2002/02/15 21:55:30 mstorti Exp $ 
+# $Id: Makefile,v 1.53.2.2 2002/02/16 14:01:17 mstorti Exp $ 
 
 .PHONY: all run  compile lclean ns laplace adv nso laplace_tests force \
         ctest runtests clean fastmat2_obj plano idmap fastvec \
@@ -93,7 +93,7 @@ oscplate_all: oscplate3 oscplate2 oscplate2b oscplate4 \
 
 #----<*>----------<*>----------<*>----------<*>----------<*>----------<*>-----
 #w Oscillating plate with piecewise constant function
-oscplate2: ns
+oscplate2:
 	-rm tmp_file*.tmp oscsome2.sal
 	eperl -P -d piecewise_fun=1  oscplate.epl >oscplate2.depl
 	-$(MPIRUN) -np 1 $(NS) -case oscplate2.depl >/dev/null
@@ -101,7 +101,7 @@ oscplate2: ns
 
 #----<*>----------<*>----------<*>----------<*>----------<*>----------<*>-----
 #w Oscillating plate with sinusoidal oscillation
-oscplate: ns
+oscplate:
 	-rm tmp_file*.tmp oscplate1.sal
 	eperl -P -d Nperiods=20 oscplate.epl >oscplate.depl
 	-$(MPIRUN) -np 1 $(NS) -case oscplate.depl >/dev/null
@@ -114,7 +114,7 @@ oscplate: ns
 #w 32 and 128 time steps. The solution for N=128 is
 #w considered the exact, and it is checked in Octave that
 #w norm(u32-u128)/norm(u16-u128) < 0.30 (it should be <0.25). 
-oscplate3: ns
+oscplate3: 
 	-rm tmp_file*.tmp oscsome3.sal oscsome.sal
 	-chmod +w oscplate3.depl
 #
@@ -134,7 +134,7 @@ oscplate3: ns
 
 #----<*>----------<*>----------<*>----------<*>----------<*>----------<*>-----
 #w Oscillating plate with piecewise constant function
-oscplate2b: ns
+oscplate2b:
 	-rm tmp_file*.tmp oscsome2b.sal oscsome.sal
 	eperl -P -d spline_fun=1  oscplate.epl >oscplate2b.depl
 	-$(MPIRUN) -np 1 $(NS) -case oscplate2b.depl >/dev/null
@@ -142,7 +142,7 @@ oscplate2b: ns
 #----<*>----------<*>----------<*>----------<*>----------<*>----------<*>-----
 #w Oscillating plate with piecewise constant periodic function
 #w `sin(t/T)' case
-oscplate4: ns
+oscplate4:
 	-rm tmp_file*.tmp oscsome4.sal oscsome.sal
 	eperl -P -d spline_periodic_fun=1 oscplate.epl >oscplate4.depl
 	-$(MPIRUN) -np 1 $(NS) -case oscplate4.depl >/dev/null
@@ -151,7 +151,7 @@ oscplate4: ns
 
 #----<*>----------<*>----------<*>----------<*>----------<*>----------<*>-----
 #w `cos(2*pi*t/T)' case
-oscplate4cos: ns
+oscplate4cos: 
 	-rm tmp_file*.tmp oscsome4c.sal oscsome.sal
 	eperl -P -d spline_periodic_fun=1  -d cos_case=1 \
 			oscplate.epl >oscplate4c.depl
@@ -161,7 +161,7 @@ oscplate4cos: ns
 
 #----<*>----------<*>----------<*>----------<*>----------<*>----------<*>-----
 #w `sin(2*pi*t/T-pi/6)' case
-oscplate4_30deg: ns
+oscplate4_30deg: 
 	-rm tmp_file*.tmp oscsome4_30deg.sal oscsome.sal
 	eperl -P -d spline_periodic_fun=1 -d cos_case=0 -d sin30deg_case=1 \
 			oscplate.epl >oscplate4_30deg.depl
@@ -269,7 +269,7 @@ constraint_bug: laplace
 #w 5x5 Square cavity for NS
 NSO = $(PETSCFEM_DIR)/../petscfem-2.16g/applications/ns/ns.bin
 sqcav5_dat = sqcav5.nod.tmp sqcav5.con.tmp sqcav5.fixa.tmp
-sqcav5: ns sqcav5_dat
+sqcav5: sqcav5_dat
 	-$(MPIRUN) -np 3 $(NSO) -case sqcav5.dat | tee sqcav5.out
 
 sqcav5_dat: mksqcav5.m

@@ -1,5 +1,5 @@
 #__INSERT_LICENSE__
-# $Id: Makefile,v 1.46.2.1 2002/02/15 21:55:30 mstorti Exp $ 
+# $Id: Makefile,v 1.46.2.2 2002/02/16 14:01:17 mstorti Exp $ 
 
 .PHONY: all run lclean save compile
 
@@ -45,17 +45,19 @@ $(LIBPETSCFEM): $(LIBPETSCFEM)($(LIBOBJS))
 
 $(LIBPETSCFEM)(%.o): %.o
 #	If object does not have the appropriate debugging level recompile
-	@if objdump -g $< 2>&1 | grep 'no recognized debugging information'		\
-		> /dev/null ; then							\
-		obj_optl='O' ;								\
-		else									\
-		obj_optl='g' ;								\
-	fi ;										\
-	if [ ! "x$(opt_level)"="x$(obj_optl)" ] ;					\
-		echo "object $< does not match optimization level BOPT: $(BOPT)" ;	\
-		then rm $< ;								\
-		$(MAKE) $< ;								\
-	fi ;										\
+	@if objdump -g $< 2>&1						\
+			| grep 'no recognized debugging information'	\
+		> /dev/null ; then					\
+		obj_optl='O' ;						\
+		else							\
+		obj_optl='g' ;						\
+	fi ;								\
+	if [ ! "x$(opt_level)" = "x$$obj_optl" ] ;			\
+		then echo "object $< does not match "			\
+				"optimization level BOPT: $(BOPT)" ;	\
+		rm $< ;							\
+		$(MAKE) $< ;						\
+	fi ;								\
 	ar ru $@ $<
 
 .SECONDARY: fm2eperl.cpp
@@ -93,8 +95,15 @@ pfmatFSM.cpp  pfmatFSM.h: pfmat.sm
 
 local_clean:: local_dist_clean
 	-rm -f version.cpp $(LIBPETSCFEM) # &> /dev/null
-debug.o: CCPPFLAGS += -O0
-pfmat.o: CCPPFLAGS += -g
+
+gpdata.o texthash.o readmesh.o elemset.o elemlist.o			\
+	utils.o getprop.o dofmap.o fem.o idmap.o arglist.o 		\
+	fstack.o tempfun.o version.o util2.o				\
+	measperf.o mainutl.o sttfilter.o state.o secant.o getarray.o	\
+	distmat.o sparse.o randomg.o spsolve.o texthf.o timestat.o	\
+	metisprt.o debug.o graph.o iisdcr.o iisdgraph.o			\
+	iisdmat.o petscmat.o spdirect.o					\
+	pfmat.o amplidl.o : CCPPFLAGS += -O0
 
 readlist.h: readlist.eperl
 	if [ -e readlist.h ] ; then chmod +w readlist.h ; fi
@@ -144,5 +153,3 @@ $(DOC_DIR)/odocelems.tex: elemset.cpp
 $(DOC_DIR)/odocrmsh.tex: readmesh.cpp
 	$(run_odoc)
 
-pp:
-	echo $(LIBPETSCFEM)

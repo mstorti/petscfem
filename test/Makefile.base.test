@@ -10,7 +10,7 @@ SRCS = $(wildcard *.cpp)
 
 #----<*>----------<*>----------<*>----------<*>----------<*>----------<*>-----
 # Shortcuts to programs
-ns: $(NS)
+# ns: $(NS)
 adv: $(ADV)
 laplace: $(LAPLACE)
 
