@@ -4,6 +4,18 @@
 TODO: [Mainly fixes go here...]
 =====
 
+* Bad parallel error reporting when not known elemset type 
+in NS (and advdif??)
+   > not known elemset type: "ns_id"
+   > rm_l_8_1498:  p4_error: net_recv read:  probable EOF on socket: 1
+   > not known elemset type: "ns_id"
+   > not known elemset type: "ns_id"
+   > not known elemset type: "ns_id"
+   > not known elemset type: "ns_id"
+   > rm_l_2_1523:  p4_error: net_recv read:  probable EOF on socket: 1
+   > rm_l_4_1450:  p4_error: net_recv read:  probable EOF on socket: 1
+   > not known elemset type: "ns_id"
+   > not known elemset type: "ns_id"
 * Write a FastMat2::trace()
 * Sends multiple messages (from all processors) when can't open file
     in 
