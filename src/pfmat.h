@@ -1,6 +1,6 @@
 // -*- mode: C++ -*- 
 /*__INSERT_LICENSE__*/
-// $Id: pfmat.h,v 1.28.2.10 2002/01/07 16:26:00 mstorti Exp $
+// $Id: pfmat.h,v 1.28.2.11 2002/01/09 01:30:56 mstorti Exp $
 #ifndef PFMAT_H
 #define PFMAT_H
 
@@ -14,17 +14,21 @@
 #include <src/graph.h>
 
 #define PF_ACTION_DECL(action) void action() 
-#define PF_ACTION_DEF(action) \
-        void pfmatFSMContext::action() { matrix_p->action(); }
 
-#define PF_ACTION_LIST 				\
-  PF_ACTION(create_a); 
+#define PF_ACTION_DEF(action)			\
+void pfmatFSMContext::action() {		\
+  matrix_p->ierr = matrix_p->action();		\
+  if (matrix_p->ierr)				\
+    printf("pfmatFSMContext::action ierr=%d\n",	\
+	   matrix_p->ierr);			\
+}
 
-#if 0
-  PF_ACTION(factor_and_solve);			\
-  PF_ACTION(solve_only);			\
-  PF_ACTION(clean_factor);
-#endif
+#define PF_ACTION_LIST				\
+  PF_ACTION(clean_prof_a);			\
+  PF_ACTION(clean_mat_a);			\
+  PF_ACTION(clean_factor_a);			\
+  PF_ACTION(factor_and_solve_A);		\
+  PF_ACTION(solve_only_A);
 
 class PFMat;
 
@@ -49,7 +53,10 @@ class pfmatFSM;
 */
 class PFMat {
   friend class pfmatFSMContext;
+
+  Vec *res_p,*dx_p;
 protected:
+  int ierr;
   pfmatFSM fsm;
 
   ///@name Actions of the finite state machine.
@@ -58,12 +65,39 @@ protected:
   virtual int set_profile_a(int j,int k)=0;
 
   /// The action corresponding to `create'
-  virtual void create_a()=0;
+  virtual int create_a()=0;
 
   /// The action corresponding to `set_value'
-  virtual void set_value_a(int row,int col,Scalar value,
+  virtual int set_value_a(int row,int col,Scalar value,
 			   InsertMode mode=ADD_VALUES)=0;
+
+  /// calls MatAssemblyBegin on internal matrices, see PETSc doc
+  virtual int assembly_begin_a(MatAssemblyType type)=0;
+
+  /// calls MatAssemblyEnd on internal matrices, see PETSc doc
+  virtual int assembly_end_a(MatAssemblyType type)=0;
+
+  /// Factorizes matrix and solves linear system. Args are passed via pointers.
+  virtual int factor_and_solve_a(Vec &res,Vec &dx)=0;
+
+  /// Solves (matrix should be factorized). Args are passed via pointers.
+  virtual int solve_only_a(Vec &res,Vec &dx)=0;
+
+  /// Cleans the factored part
+  virtual int clean_factor_a()=0;
+
+  /// Sets all values of the operator to zero.
+  virtual int clean_mat_a()=0;
+
+  /// clear profile memory 
+  virtual int clean_prof_a()=0;
   //@}
+
+  /// Factorizes matrix and solves linear system. Args are passed via pointers.
+  int factor_and_solve_A() { factor_and_solve_a(*res_p,*dx_p); }
+
+  /// Solves linear system. Args are passed via pointers.
+  int solve_only_A() { solve_only_a(*res_p,*dx_p); }
 
 public:
   /// Returns the size of the j-th dimension
@@ -74,21 +108,33 @@ public:
     m = size(1); n=size(2);
   }
 
-  PFMat() { fsm.matrix_p = this; }
+  PFMat() : ierr(0) { fsm.matrix_p = this; }
 
   /// Virtual destructor
   virtual ~PFMat()=0;
 
   /// Adds an element to the matrix profile
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+#undef __FUNC__
+#define __FUNC__ "PFMat::set_profile"
   int set_profile(int row,int col) {
     fsm.set_profile();
-    set_profile_a(row,col);
+    CHKERRQ(ierr); 
+
+    ierr = set_profile_a(row,col);
+    CHKERRQ(ierr); 
   }
 
   /// Creates the matrix from the profile graph entered with `profile'
-  void create() {
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+#undef __FUNC__
+#define __FUNC__ "PFMat::create"
+  int create() {
     fsm.create();
-    create_a();
+    CHKERRQ(ierr); 
+
+    ierr = create_a();
+    CHKERRQ(ierr); 
   }
 
   /** Sets individual values on the operator #A(row,col) = value#
@@ -97,39 +143,124 @@ public:
       @param value (input) the value to be set
       @param mode (input) either #ADD_VALUES# (default) or #INSERT_VALUES#
   */ 
-  void set_value(int row,int col,Scalar value,
-		 InsertMode mode=ADD_VALUES) {
+  //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+#undef __FUNC__
+#define __FUNC__ "PFMat::set_value"
+  int set_value(int row,int col,Scalar value,
+		InsertMode mode=ADD_VALUES) {
     fsm.set_value();
-    set_value_a(row,col, value, mode);
+    CHKERRQ(ierr); 
+
+    ierr = set_value_a(row,col,value,mode); CHKERRQ(ierr); 
+    return 0;
   }
 
   /// calls MatAssemblyBegin on internal matrices, see PETSc doc
-  virtual int assembly_begin(MatAssemblyType type)=0;
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+#undef __FUNC__
+#define __FUNC__ "PFMat::assembly_begin"
+  int assembly_begin(MatAssemblyType type) {
+    fsm.assembly_begin();
+    CHKERRQ(ierr); 
+
+    ierr = assembly_begin_a(type); CHKERRQ(ierr);
+    return 0;
+  }
 
   /// calls MatAssemblyEnd on internal matrices, see PETSc doc
-  virtual int assembly_end(MatAssemblyType type)=0;
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+#undef __FUNC__
+#define __FUNC__ "PFMat::assembly_end"
+  int assembly_end(MatAssemblyType type) {
+    fsm.assembly_end();
+    CHKERRQ(ierr); 
+
+    ierr = assembly_end_a(type); CHKERRQ(ierr); 
+    return 0;
+  }
 
   /// This calls both.
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+#undef __FUNC__
+#define __FUNC__ "PFMat::assembly"
   int assembly(MatAssemblyType type) {
     int ierr;
     ierr = assembly_begin(type); CHKERRQ(ierr); 
     ierr = assembly_end(type); CHKERRQ(ierr); 
+    return 0;
   }
 
   /** Solve the linear system 
       @param res (input) the rhs vector
       @param dx (input) the solution vector
   */ 
-  virtual int solve(Vec &res,Vec &dx)=0;
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+#undef __FUNC__
+#define __FUNC__ "PFMat::solve"
+  int solve(Vec &res,Vec &dx) {
+    res_p = &res;
+    dx_p = &dx;
+    fsm.solve(); CHKERRQ(ierr); 
+    return 0;
+  }
+
+  /// Factorizes matrix and solves linear system. Args are passed via pointers.
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+#undef __FUNC__
+#define __FUNC__ "PFMat::factor_and_solve"
+  int factor_and_solve(Vec &res,Vec &dx) {
+    res_p = &res;
+    dx_p = &dx;
+    fsm.factor_and_solve(); CHKERRQ(ierr); 
+    return 0;
+  }
+
+  /// Solves (matrix should be factorized). Args are passed via pointers.
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+#undef __FUNC__
+#define __FUNC__ "PFMat::solve_only"
+  int solve_only(Vec &res,Vec &dx) {
+    res_p = &res;
+    dx_p = &dx;
+    fsm.solve_only(); CHKERRQ(ierr); 
+    return 0;
+  }
 
   /// Cleans the factored part
-  virtual int clean_factor()=0;
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+#undef __FUNC__
+#define __FUNC__ "PFMat::clean_factor"
+  int clean_factor() { 
+    fsm.clean_factor(); CHKERRQ(ierr); 
+    return 0;
+  }
 
   /// Sets all values of the operator to zero.
-  virtual int zero_entries()=0;
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+#undef __FUNC__
+#define __FUNC__ "PFMat::clean_mat"
+  int clean_mat() { 
+    fsm.clean_mat(); CHKERRQ(ierr); 
+    return 0;
+  }
+
+  /// Cleans the profile related part
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+#undef __FUNC__
+#define __FUNC__ "PFMat::clean_prof"
+  int clean_prof() { 
+    fsm.clean_prof(); CHKERRQ(ierr); 
+    return 0;
+  }
 
   /// clear memory (almost destructor)
-  virtual void clear()=0;
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+#undef __FUNC__
+#define __FUNC__ "PFMat::clear"
+  int clear() { 
+    fsm.clear(); CHKERRQ(ierr); 
+    return 0;
+  }
 
   /** Defines how to report convergence in the internal loop. 
       Derive this function to obtain a different effect from the

@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: petscmat.cpp,v 1.1.2.2 2001/12/28 21:13:17 mstorti Exp $
+//$Id: petscmat.cpp,v 1.1.2.3 2002/01/09 01:30:56 mstorti Exp $
 
 // fixme:= this may not work in all applications
 extern int MY_RANK,SIZE;
@@ -175,8 +175,8 @@ int PETScMat::view(Viewer viewer=VIEWER_STDOUT_WORLD) {
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 #undef __FUNC__
-#define __FUNC__ "PETScMat::zero_entries"
-int PETScMat::zero_entries() {
+#define __FUNC__ "PETScMat::clean_mat"
+int PETScMat::clean_mat() {
   ierr=MatZeroEntries(A); CHKERRQ(ierr);
   return 0;
 };

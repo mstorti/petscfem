@@ -1,6 +1,6 @@
 // -*- mode: C++ -*- 
 /*__INSERT_LICENSE__*/
-// $Id: pfptscmat.h,v 1.1.2.8 2002/01/07 16:26:00 mstorti Exp $
+// $Id: pfptscmat.h,v 1.1.2.9 2002/01/09 01:30:56 mstorti Exp $
 #ifndef PFPTSCMAT_H
 #define PFPTSCMAT_H
 
@@ -65,15 +65,16 @@ protected:
   /// The communicator
   MPI_Comm comm;
 
-  virtual int factor_and_solve(Vec &res,Vec &dx)=0;
-  virtual int solve_only(Vec &res,Vec &dx)=0;
-  int clean_factor();
+  /// Cleans linear system 'sles'
+  int clean_factor_a();
 
-  /// Derive this if you want to manage directly the preconditioning. 
-  // virtual int set_preco(const string & preco_type)=0;
+  /// Cleans linear matrix entries
+  // int clean_mat_a();
+
+  /// Cleans profile related stuff
+  int clean_prof_a() { lgraph.clear(); return 0; }
+
 public:
-
-  int solve(Vec &res,Vec &dx);
 
   PFPETScMat(int MM,const DofPartitioner &pp,MPI_Comm comm_) 
     : sles(NULL), comm(comm_), part(pp), 
@@ -91,6 +92,7 @@ public:
   /// Adds an element to the matrix profile
   int set_profile_a(int j,int k) {
     lgraph.add(j,k);
+    return 0;
   }
 
   /// returns the number of iterations spent in the last solve

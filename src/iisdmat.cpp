@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: iisdmat.cpp,v 1.1.2.13 2002/01/07 16:26:00 mstorti Exp $
+//$Id: iisdmat.cpp,v 1.1.2.14 2002/01/09 01:30:56 mstorti Exp $
 
 // fixme:= this may not work in all applications
 extern int MY_RANK,SIZE;
@@ -42,6 +42,7 @@ enum PETScFEMErrors {
   iisdmat_set_value_out_of_range
 };
 
+#if 0
 int PFPETScMat::solve(Vec &res,Vec &dx) {
   int retval;
   if (!factored) {
@@ -53,21 +54,22 @@ int PFPETScMat::solve(Vec &res,Vec &dx) {
     return solve_only(res,dx);
   }
 }
+#endif
 
+#if 0
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 #undef __FUNC__
-#define __FUNC__ "PFMat::clear"
+#define __FUNC__ "PFPETScMat::clear"
 void PFPETScMat::clear() {
   clean_factor();
 }
 
-#if 0
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 PFPETScMat::PFPETScMat(MPI_Comm comm_) : sles_was_built(0), 
   A(NULL), P(NULL), factored(0), comm(comm_)  {}
 #endif
 
-PFPETScMat::~PFPETScMat() {clear();};
+PFPETScMat::~PFPETScMat() {}
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 #undef __FUNC__
@@ -136,27 +138,24 @@ int PFPETScMat::build_sles() {
 int PFPETScMat::set_preco(const string & preco_type) {
   // warning:= avoiding `const' restriction!!
   int ierr = PCSetType(pc,(char *)preco_type.c_str()); CHKERRQ(ierr);
+  return 0;
 }
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 #undef __FUNC__
 #define __FUNC__ "PFPETScMat::clean_factor"
-int PFPETScMat::clean_factor() {
-  int ierr = SLESDestroy_maybe(sles); CHKERRQ(ierr);
-  factored = 0;
+int PFPETScMat::clean_factor_a() {
+  ierr = SLESDestroy_maybe(sles); CHKERRQ(ierr); 
   return 0;
 }
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 #undef __FUNC__
 #define __FUNC__ "IISDMat::clean_factor"
-int IISDMat::clean_factor() {
-  int ierr;
-  if (factored) { 
-    PFPETScMat::clean_factor();
-    ierr = SLESDestroy_maybe(sles_ll); CHKERRQ(ierr); 
-    ierr = MatDestroy_maybe(A_LL); CHKERRQ(ierr); 
-  }
+int IISDMat::clean_factor_a() {
+  ierr = PFPETScMat::clean_factor(); CHKERRQ(ierr); 
+  ierr = SLESDestroy_maybe(sles_ll); CHKERRQ(ierr); 
+  ierr = MatDestroy_maybe(A_LL); CHKERRQ(ierr); 
   return 0;
 }
 
@@ -334,10 +333,13 @@ int IISDMat::mult_trans(Vec x,Vec y) {
   return 0;
 }
 
+//#define PF_CHKERRQ(ierr) assert(ierr)
+#define PF_CHKERRQ(ierr) CHKERRQ(ierr)
+
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 #undef __FUNC__
-#define __FUNC__ "IISDMat::assembly_begin"
-int IISDMat::assembly_begin(MatAssemblyType type) {
+#define __FUNC__ "IISDMat::assembly_begin_a"
+int IISDMat::assembly_begin_a(MatAssemblyType type) {
   int ierr;
 
   DistMat::const_iterator I,I1,I2;
@@ -386,25 +388,24 @@ int IISDMat::assembly_begin(MatAssemblyType type) {
   }
   A_LL_other->clear();
 
-  ierr = MatAssemblyBegin(A_LI,type); CHKERRQ(ierr);
-  ierr = MatAssemblyBegin(A_II,type); CHKERRQ(ierr);
-  ierr = MatAssemblyBegin(A_IL,type); CHKERRQ(ierr);
+  ierr = MatAssemblyBegin(A_LI,type); PF_CHKERRQ(ierr);
+  ierr = MatAssemblyBegin(A_II,type); PF_CHKERRQ(ierr);
+  ierr = MatAssemblyBegin(A_IL,type); PF_CHKERRQ(ierr);
   if (local_solver == PETSc) {
-    ierr = MatAssemblyBegin(A_LL,type); CHKERRQ(ierr);
+    ierr = MatAssemblyBegin(A_LL,type); PF_CHKERRQ(ierr);
   }
   return 0;
 };
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 #undef __FUNC__
-#define __FUNC__ "IISDMat::assembly_end"
-int IISDMat::assembly_end(MatAssemblyType type) {
-  int ierr;
-  ierr = MatAssemblyEnd(A_LI,type); CHKERRQ(ierr);
-  ierr = MatAssemblyEnd(A_II,type); CHKERRQ(ierr);
-  ierr = MatAssemblyEnd(A_IL,type); CHKERRQ(ierr);
+#define __FUNC__ "IISDMat::assembly_end_a"
+int IISDMat::assembly_end_a(MatAssemblyType type) {
+  ierr = MatAssemblyEnd(A_LI,type); PF_CHKERRQ(ierr);
+  ierr = MatAssemblyEnd(A_II,type); PF_CHKERRQ(ierr);
+  ierr = MatAssemblyEnd(A_IL,type); PF_CHKERRQ(ierr);
   if (local_solver == PETSc) {
-    ierr = MatAssemblyEnd(A_LL,type); CHKERRQ(ierr);
+    ierr = MatAssemblyEnd(A_LL,type); PF_CHKERRQ(ierr);
   }
 
   return 0;
@@ -412,21 +413,20 @@ int IISDMat::assembly_end(MatAssemblyType type) {
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 #undef __FUNC__
-#define __FUNC__ "IISDMat::zero_entries"
-int IISDMat::zero_entries() {
-  int ierr;
+#define __FUNC__ "IISDMat::clean_mat_a"
+int IISDMat::clean_mat_a() {
 
   if (local_solver == PETSc) {
-    ierr = MatDestroy_maybe(A_LL); CHKERRQ(ierr); 
+    ierr = MatDestroy_maybe(A_LL); PF_CHKERRQ(ierr); 
     ierr = MatCreateSeqAIJ(PETSC_COMM_SELF,n_loc,n_loc,PETSC_NULL,
-			   d_nnz_LL.begin(),&A_LL); CHKERRQ(ierr); 
-    ierr=MatZeroEntries(A_LL); CHKERRQ(ierr);
+			   d_nnz_LL.begin(),&A_LL); PF_CHKERRQ(ierr); 
+    ierr=MatZeroEntries(A_LL); PF_CHKERRQ(ierr);
   } else {
     A_LL_SLU.clear().resize(n_loc,n_loc);
   }
-  ierr=MatZeroEntries(A_IL); CHKERRQ(ierr);
-  ierr=MatZeroEntries(A_LI); CHKERRQ(ierr);
-  ierr=MatZeroEntries(A_II); CHKERRQ(ierr);
+  ierr=MatZeroEntries(A_IL); PF_CHKERRQ(ierr);
+  ierr=MatZeroEntries(A_LI); PF_CHKERRQ(ierr);
+  ierr=MatZeroEntries(A_II); PF_CHKERRQ(ierr);
   return 0;
 }
 
@@ -441,18 +441,18 @@ int IISDMat::view(Viewer viewer=VIEWER_STDOUT_WORLD) {
       char f[10];
       sprintf(f,"a_ll_%03d",MY_RANK);
       ierr = ViewerASCIIOpen(PETSC_COMM_SELF,
-			     f,&matlab); CHKERRQ(ierr);
+			     f,&matlab); PF_CHKERRQ(ierr);
       ierr = ViewerSetFormat(matlab,
-			     VIEWER_FORMAT_ASCII_MATLAB,f); CHKERRQ(ierr);
-      ierr = MatView(A_LL,matlab); CHKERRQ(ierr);
+			     VIEWER_FORMAT_ASCII_MATLAB,f); PF_CHKERRQ(ierr);
+      ierr = MatView(A_LL,matlab); PF_CHKERRQ(ierr);
       ierr = ViewerDestroy(matlab);
     }
   } else {
     A_LL_SLU.print("L-L part");
   }
-  ierr = MatView(A_LI,viewer); CHKERRQ(ierr);
-  ierr = MatView(A_IL,viewer); CHKERRQ(ierr);
-  ierr = MatView(A_II,viewer); CHKERRQ(ierr);
+  ierr = MatView(A_LI,viewer); PF_CHKERRQ(ierr);
+  ierr = MatView(A_IL,viewer); PF_CHKERRQ(ierr);
+  ierr = MatView(A_II,viewer); PF_CHKERRQ(ierr);
 
   return 0;
 //    ViewerASCIIPrintf(viewer,"% IISD SLES\n");
@@ -462,32 +462,35 @@ int IISDMat::view(Viewer viewer=VIEWER_STDOUT_WORLD) {
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 #undef __FUNC__
 #define __FUNC__ "IISDMat::clear"
-void IISDMat::clear() {
+int IISDMat::clean_prof_a() {
   // P is not destroyed, since P points to A
-  int ierr;
 
-  PFPETScMat::clear();
+  ierr = PFPETScMat::clean_prof_a(); CHKERRQ(ierr); 
   if (local_solver == PETSc) {
     if (A_LL) {
-      int ierr = MatDestroy(A_LL); 
-      PETSCFEM_ASSERT0(ierr==0,
-		       "Error destroying PETSc matrix A_LL (loc-loc)\n");
+      int ierr = MatDestroy(A_LL); CHKERRQ(ierr); 
+//        PETSCFEM_ASSERT0(ierr==0,
+//  		       "Error destroying PETSc matrix A_LL (loc-loc)\n");
       A_LL=NULL;
     }
   } else {
     A_LL_SLU.clear();
   }
-  ierr = MatDestroy(A_LI); 
-  PETSCFEM_ASSERT0(ierr==0,"Error destroying PETSc matrix A_LI (loc-int)\n");
-  ierr = MatDestroy(A_IL); 
-  PETSCFEM_ASSERT0(ierr==0,"Error destroying PETSc matrix A_IL (int-loc)\n");
-  ierr = MatDestroy(A_II); 
-  PETSCFEM_ASSERT0(ierr==0,"Error destroying PETSc matrix A_II (int-int)\n");
+  ierr = MatDestroy(A_LI); CHKERRQ(ierr); 
+  // PETSCFEM_ASSERT0(ierr==0,"Error destroying PETSc matrix A_LI (loc-int)\n");
 
-  ierr = MatDestroy(A); 
-  PETSCFEM_ASSERT0(ierr==0,"Error destroying PETSc matrix shell A\n");
+  ierr = MatDestroy(A_IL); CHKERRQ(ierr); 
+  // PETSCFEM_ASSERT0(ierr==0,"Error destroying PETSc matrix A_IL (int-loc)\n");
+
+  ierr = MatDestroy(A_II); CHKERRQ(ierr); 
+  // PETSCFEM_ASSERT0(ierr==0,"Error destroying PETSc matrix A_II (int-int)\n");
+
+  ierr = MatDestroy(A); CHKERRQ(ierr); 
+  // PETSCFEM_ASSERT0(ierr==0,"Error destroying PETSc matrix shell A\n");
+
   delete A_LL_other;
   A_LL_other = NULL;
+  return 0;
 }
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
@@ -505,7 +508,7 @@ void IISDMat::map_dof_fun(int gdof,int &block,int &ldof) {
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 #undef __FUNC__
 #define __FUNC__ "IISDMat::set_value_a"
-void IISDMat::set_value_a(int row,int col,Scalar value,
+int IISDMat::set_value_a(int row,int col,Scalar value,
 			InsertMode mode=ADD_VALUES) {
   int row_indx,col_indx,row_t,col_t;
   double val;
@@ -520,7 +523,7 @@ void IISDMat::set_value_a(int row,int col,Scalar value,
 	|| col_indx < 0 || col_indx >= n_loc) {
       // printf("[%d] buffering (%d,%d) -> %f\n",MY_RANK,row,col,value);
       A_LL_other->insert_val(row,col,value);
-      return;
+      return 0;
     } 
     if (local_solver == SuperLU) {
       if (mode==ADD_VALUES) {
@@ -529,22 +532,18 @@ void IISDMat::set_value_a(int row,int col,Scalar value,
 	val = value;
       }
       A_LL_SLU.set(row_indx,col_indx,val);
-      return;
+      return 0;
     }
   } 
 #ifndef DEBUG_IISD_DONT_SET_VALUES
-  MatSetValues(*(AA[row_t][col_t]),
-	       1,&row_indx,1,&col_indx,&value,mode);
+  ierr = MatSetValues(*(AA[row_t][col_t]),
+		      1,&row_indx,1,&col_indx,&value,mode);
+  CHKERRQ(ierr); 
+  return 0;
 #endif
 }
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
-#undef __FUNC__
-#define __FUNC__ "IISDMat::solve"
-int IISDMat::solve_only(Vec &res,Vec &dx) {
-  return factor_and_solve(res,dx);
-}
-
 #define PETSC_OBJECT_DESTROY_MAYBE(type)	\
 int type##Destroy_maybe(type &v) {		\
   if (v) {					\
@@ -560,8 +559,8 @@ PETSC_OBJECT_DESTROY_MAYBE(SLES);
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 #undef __FUNC__
-#define __FUNC__ "IISDMat::factor_and_solve"
-int IISDMat::factor_and_solve(Vec &res,Vec &dx) {
+#define __FUNC__ "IISDMat::maybe_factor_and_solve"
+int IISDMat::maybe_factor_and_solve(Vec &res,Vec &dx,int factored=0) {
 
   int ierr,kloc,itss,j,jj;
   Viewer matlab;
@@ -569,60 +568,61 @@ int IISDMat::factor_and_solve(Vec &res,Vec &dx) {
     *x_loc_seq_a,*x_loc_a,*dx_a,scal,*x_a,*x_i_a;
   Vec res_i=NULL,x_i=NULL,res_loc=NULL,x_loc=NULL,res_loc_i=NULL;
 
+  if (!factored) build_sles();
+
   if (n_int_tot > 0 ) {
     
-    ierr = VecCreateMPI(comm,n_int,PETSC_DETERMINE,&res_i); CHKERRQ(ierr); 
-    ierr = VecDuplicate(res_i,&x_i); CHKERRQ(ierr); 
+    ierr = VecCreateMPI(comm,n_int,PETSC_DETERMINE,&res_i); PF_CHKERRQ(ierr); 
+    ierr = VecDuplicate(res_i,&x_i); PF_CHKERRQ(ierr); 
 
     // Get diagonal part of A_II matrix for preconditioning
-    ierr = VecDuplicate(res_i,&A_II_diag); CHKERRQ(ierr); 
-    ierr = MatGetDiagonal(A_II,A_II_diag); CHKERRQ(ierr);
+    ierr = VecDuplicate(res_i,&A_II_diag); PF_CHKERRQ(ierr); 
+    ierr = MatGetDiagonal(A_II,A_II_diag); PF_CHKERRQ(ierr);
 
     if (!factored && local_solver == PETSc) {
     
-      ierr = SLESDestroy_maybe(sles_ll); CHKERRQ(ierr); 
-      ierr = SLESCreate(PETSC_COMM_SELF,&sles_ll); CHKERRQ(ierr); 
+      ierr = SLESDestroy_maybe(sles_ll); PF_CHKERRQ(ierr); 
+      ierr = SLESCreate(PETSC_COMM_SELF,&sles_ll); PF_CHKERRQ(ierr); 
       ierr = SLESSetOperators(sles_ll,A_LL,
-			      A_LL,SAME_NONZERO_PATTERN); CHKERRQ(ierr); 
-      ierr = SLESGetKSP(sles_ll,&ksp_ll); CHKERRQ(ierr); 
-      ierr = SLESGetPC(sles_ll,&pc_ll); CHKERRQ(ierr); 
+			      A_LL,SAME_NONZERO_PATTERN); PF_CHKERRQ(ierr); 
+      ierr = SLESGetKSP(sles_ll,&ksp_ll); PF_CHKERRQ(ierr); 
+      ierr = SLESGetPC(sles_ll,&pc_ll); PF_CHKERRQ(ierr); 
 
-      ierr = KSPSetType(ksp_ll,KSPPREONLY); CHKERRQ(ierr); 
-      ierr = PCSetType(pc_ll,PCLU); CHKERRQ(ierr); 
+      ierr = KSPSetType(ksp_ll,KSPPREONLY); PF_CHKERRQ(ierr); 
+      ierr = PCSetType(pc_ll,PCLU); PF_CHKERRQ(ierr); 
       // printf("setting pc_lu_fill = %f\n",pc_lu_fill);
-      ierr = PCLUSetFill(pc_ll,pc_lu_fill); CHKERRQ(ierr); 
-      // ierr = PCLUSetUseInPlace(pc_ll); CHKERRQ(ierr); // debug:=
+      ierr = PCLUSetFill(pc_ll,pc_lu_fill); PF_CHKERRQ(ierr); 
+      // ierr = PCLUSetUseInPlace(pc_ll); PF_CHKERRQ(ierr); // debug:=
 
     }
 
-#if 0 // To print the Schur matrix by columns
-    for (int kk=1; kk<=2; kk++) {
+    if (print_Schur_matrix) {
+      // To print the Schur matrix by columns
       for (j = 0; j < n_int_tot; j++) {
 	scal = 0.;
 	ierr = VecSet(&scal,x_i); 
-	CHKERRQ(ierr); 
+	PF_CHKERRQ(ierr); 
 	scal = 1.;
 	ierr = VecSetValues(x_i,1,&j,&scal,INSERT_VALUES);
-	CHKERRQ(ierr); 
+	PF_CHKERRQ(ierr); 
       
 	ierr = MatMult(A,x_i,res_i);
 	PetscPrintf(comm,"For j = %d, column:\n",j);
 
 	ierr = VecView(res_i,VIEWER_STDOUT_SELF);
-	CHKERRQ(ierr); 
+	PF_CHKERRQ(ierr); 
       }
     }
-#endif
 
     ierr = VecCreateMPI(comm,
-			n_loc,PETSC_DETERMINE,&res_loc); CHKERRQ(ierr); 
-    ierr = VecDuplicate(res_loc,&x_loc); CHKERRQ(ierr); 
+			n_loc,PETSC_DETERMINE,&res_loc); PF_CHKERRQ(ierr); 
+    ierr = VecDuplicate(res_loc,&x_loc); PF_CHKERRQ(ierr); 
 
     // This could be done with a scatter
     // res -> (res_loc, res_i)
-    ierr = VecGetArray(res,&res_a); CHKERRQ(ierr); 
-    ierr = VecGetArray(res_loc,&res_loc_a); CHKERRQ(ierr); 
-    ierr = VecGetArray(res_i,&res_i_a); CHKERRQ(ierr); 
+    ierr = VecGetArray(res,&res_a); PF_CHKERRQ(ierr); 
+    ierr = VecGetArray(res_loc,&res_loc_a); PF_CHKERRQ(ierr); 
+    ierr = VecGetArray(res_i,&res_i_a); PF_CHKERRQ(ierr); 
     
     for (j=0; j<neqp; j++) {
       int dof = dofs_proc[j];
@@ -636,9 +636,9 @@ int IISDMat::factor_and_solve(Vec &res,Vec &dx) {
       }
     }
 
-    ierr = VecRestoreArray(res,&res_a); CHKERRQ(ierr); 
-    ierr = VecRestoreArray(res_loc,&res_loc_a); CHKERRQ(ierr); 
-    ierr = VecRestoreArray(res_i,&res_i_a); CHKERRQ(ierr); 
+    ierr = VecRestoreArray(res,&res_a); PF_CHKERRQ(ierr); 
+    ierr = VecRestoreArray(res_loc,&res_loc_a); PF_CHKERRQ(ierr); 
+    ierr = VecRestoreArray(res_i,&res_i_a); PF_CHKERRQ(ierr); 
 
     // NO PIERDE AQUI
 
@@ -654,14 +654,14 @@ int IISDMat::factor_and_solve(Vec &res,Vec &dx) {
 
 
     // Solves the interface problem (iteratively)
-    ierr = SLESSolve(sles,res_i,x_i,&itss); CHKERRQ(ierr); 
+    ierr = SLESSolve(sles,res_i,x_i,&itss); PF_CHKERRQ(ierr); 
     
-    ierr = VecDuplicate(res_loc,&res_loc_i); CHKERRQ(ierr); 
+    ierr = VecDuplicate(res_loc,&res_loc_i); PF_CHKERRQ(ierr); 
 
-    ierr = MatMult(A_LI,x_i,res_loc_i); CHKERRQ(ierr);
+    ierr = MatMult(A_LI,x_i,res_loc_i); PF_CHKERRQ(ierr);
 
     scal = -1.;
-    ierr = VecAXPY(&scal,res_loc_i,res_loc); CHKERRQ(ierr);
+    ierr = VecAXPY(&scal,res_loc_i,res_loc); PF_CHKERRQ(ierr);
     
     if (local_solver == PETSc) {
       local_solve(x_loc,res_loc);
@@ -670,9 +670,9 @@ int IISDMat::factor_and_solve(Vec &res,Vec &dx) {
     }
 
     // Again, this could be done with a scatter
-    ierr = VecGetArray(dx,&dx_a); CHKERRQ(ierr); 
-    ierr = VecGetArray(x_loc,&x_loc_a); CHKERRQ(ierr); 
-    ierr = VecGetArray(x_i,&x_i_a); CHKERRQ(ierr); 
+    ierr = VecGetArray(dx,&dx_a); PF_CHKERRQ(ierr); 
+    ierr = VecGetArray(x_loc,&x_loc_a); PF_CHKERRQ(ierr); 
+    ierr = VecGetArray(x_i,&x_i_a); PF_CHKERRQ(ierr); 
     
     for (j=0; j<neqp; j++) {
       int dof = dofs_proc[j];
@@ -686,38 +686,38 @@ int IISDMat::factor_and_solve(Vec &res,Vec &dx) {
       }
     }
 
-    ierr = VecRestoreArray(dx,&dx_a); CHKERRQ(ierr); 
-    ierr = VecRestoreArray(x_loc,&x_loc_a); CHKERRQ(ierr); 
-    ierr = VecRestoreArray(x_i,&x_i_a); CHKERRQ(ierr); 
+    ierr = VecRestoreArray(dx,&dx_a); PF_CHKERRQ(ierr); 
+    ierr = VecRestoreArray(x_loc,&x_loc_a); PF_CHKERRQ(ierr); 
+    ierr = VecRestoreArray(x_i,&x_i_a); PF_CHKERRQ(ierr); 
 
 #ifdef DEBUG_IISD    
     ierr = ViewerSetFormat(matlab,
-			   VIEWER_FORMAT_ASCII_MATLAB,"dxiisd"); CHKERRQ(ierr);
+			   VIEWER_FORMAT_ASCII_MATLAB,"dxiisd"); PF_CHKERRQ(ierr);
     ierr = VecView(dx,matlab);
     ierr = ViewerDestroy(matlab);
 #endif
-    ierr = VecDestroy_maybe(res_i); CHKERRQ(ierr); 
-    ierr = VecDestroy_maybe(x_i); CHKERRQ(ierr); 
-    ierr = VecDestroy_maybe(A_II_diag); CHKERRQ(ierr); 
-    ierr = VecDestroy_maybe(res_loc); CHKERRQ(ierr); 
-    ierr = VecDestroy_maybe(x_loc); CHKERRQ(ierr); 
-    ierr = VecDestroy_maybe(res_loc_i); CHKERRQ(ierr); 
+    ierr = VecDestroy_maybe(res_i); PF_CHKERRQ(ierr); 
+    ierr = VecDestroy_maybe(x_i); PF_CHKERRQ(ierr); 
+    ierr = VecDestroy_maybe(A_II_diag); PF_CHKERRQ(ierr); 
+    ierr = VecDestroy_maybe(res_loc); PF_CHKERRQ(ierr); 
+    ierr = VecDestroy_maybe(x_loc); PF_CHKERRQ(ierr); 
+    ierr = VecDestroy_maybe(res_loc_i); PF_CHKERRQ(ierr); 
 
   } else {  // if (n_int_tot == 0 )
     
-    ierr = VecGetArray(res,&res_a); CHKERRQ(ierr); 
+    ierr = VecGetArray(res,&res_a); PF_CHKERRQ(ierr); 
 
     scal=0.;
-    ierr = VecSet(&scal,y_loc_seq); CHKERRQ(ierr);
+    ierr = VecSet(&scal,y_loc_seq); PF_CHKERRQ(ierr);
     for (int j = 0; j < neqp; j++) {
       int dof = dofs_proc[j];
       kloc = map_dof[dof] - n_locp;
       // y_loc_seq_a[kloc] = res_a[k1+j];
       ierr = VecSetValues(y_loc_seq,1,&kloc,&res_a[dof],
-			  INSERT_VALUES); CHKERRQ(ierr);
+			  INSERT_VALUES); PF_CHKERRQ(ierr);
     }
     
-    ierr = VecRestoreArray(res,&res_a); CHKERRQ(ierr); 
+    ierr = VecRestoreArray(res,&res_a); PF_CHKERRQ(ierr); 
 
     if (n_loc > 0) {
 
@@ -726,39 +726,39 @@ int IISDMat::factor_and_solve(Vec &res,Vec &dx) {
 	KSP ksp_lll;
 	PC pc_lll;
 
-	ierr = SLESCreate(PETSC_COMM_SELF,&sles_lll); CHKERRQ(ierr); 
+	ierr = SLESCreate(PETSC_COMM_SELF,&sles_lll); PF_CHKERRQ(ierr); 
 	ierr = SLESSetOperators(sles_lll,A_LL,
-				A_LL,SAME_NONZERO_PATTERN); CHKERRQ(ierr); 
-	ierr = SLESGetKSP(sles_lll,&ksp_lll); CHKERRQ(ierr); 
-	ierr = SLESGetPC(sles_lll,&pc_lll); CHKERRQ(ierr); 
+				A_LL,SAME_NONZERO_PATTERN); PF_CHKERRQ(ierr); 
+	ierr = SLESGetKSP(sles_lll,&ksp_lll); PF_CHKERRQ(ierr); 
+	ierr = SLESGetPC(sles_lll,&pc_lll); PF_CHKERRQ(ierr); 
 
-	ierr = KSPSetType(ksp_lll,KSPGMRES); CHKERRQ(ierr); 
+	ierr = KSPSetType(ksp_lll,KSPGMRES); PF_CHKERRQ(ierr); 
 
-	ierr = KSPSetTolerances(ksp_lll,0,0,1e10,1); CHKERRQ(ierr); 
+	ierr = KSPSetTolerances(ksp_lll,0,0,1e10,1); PF_CHKERRQ(ierr); 
 
-	ierr = PCSetType(pc_lll,PCLU); CHKERRQ(ierr); 
+	ierr = PCSetType(pc_lll,PCLU); PF_CHKERRQ(ierr); 
 	ierr = KSPSetMonitor(ksp_lll,petscfem_null_monitor,PETSC_NULL);
 
-	ierr = SLESSolve(sles_lll,y_loc_seq,x_loc_seq,&itss); CHKERRQ(ierr); 
+	ierr = SLESSolve(sles_lll,y_loc_seq,x_loc_seq,&itss); PF_CHKERRQ(ierr); 
 
-	ierr = SLESDestroy(sles_lll); CHKERRA(ierr); CHKERRQ(ierr); 
+	ierr = SLESDestroy(sles_lll); CHKERRA(ierr); PF_CHKERRQ(ierr); 
 
       } else { // local_solver == SuperLU
 
-	ierr = VecGetArray(y_loc_seq,&y_loc_seq_a); CHKERRQ(ierr); 
-	ierr = VecGetArray(x_loc_seq,&x_loc_seq_a); CHKERRQ(ierr); 
+	ierr = VecGetArray(y_loc_seq,&y_loc_seq_a); PF_CHKERRQ(ierr); 
+	ierr = VecGetArray(x_loc_seq,&x_loc_seq_a); PF_CHKERRQ(ierr); 
 	A_LL_SLU.solve(y_loc_seq_a);
 	for (int j = 0; j < n_loc; j++) {
 	  x_loc_seq_a[j] = y_loc_seq_a[j];
 	}
-	ierr = VecRestoreArray(y_loc_seq,&y_loc_seq_a); CHKERRQ(ierr); 
-	ierr = VecRestoreArray(x_loc_seq,&x_loc_seq_a); CHKERRQ(ierr); 
+	ierr = VecRestoreArray(y_loc_seq,&y_loc_seq_a); PF_CHKERRQ(ierr); 
+	ierr = VecRestoreArray(x_loc_seq,&x_loc_seq_a); PF_CHKERRQ(ierr); 
 
       }
     }
 
-    ierr = VecGetArray(dx,&dx_a); CHKERRQ(ierr); 
-    ierr = VecGetArray(x_loc_seq,&x_loc_seq_a); CHKERRQ(ierr); 
+    ierr = VecGetArray(dx,&dx_a); PF_CHKERRQ(ierr); 
+    ierr = VecGetArray(x_loc_seq,&x_loc_seq_a); PF_CHKERRQ(ierr); 
 
     for (int j = 0; j < neqp; j++) {
       int dof = dofs_proc[j];
@@ -766,9 +766,25 @@ int IISDMat::factor_and_solve(Vec &res,Vec &dx) {
       dx_a[dof] = x_loc_seq_a[kloc];
     }
 
-    ierr = VecRestoreArray(dx,&dx_a); CHKERRQ(ierr); 
-    ierr = VecRestoreArray(x_loc_seq,&x_loc_seq_a); CHKERRQ(ierr); 
+    ierr = VecRestoreArray(dx,&dx_a); PF_CHKERRQ(ierr); 
+    ierr = VecRestoreArray(x_loc_seq,&x_loc_seq_a); PF_CHKERRQ(ierr); 
   }
+  return 0;
+}
+
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+#undef __FUNC__
+#define __FUNC__ "IISDMat::factor_and_solve_a"
+int IISDMat::factor_and_solve_a(Vec &res,Vec &dx) {
+  int ierr = maybe_factor_and_solve(res,dx,0); CHKERRQ(ierr); 
+  return 0;
+}
+
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+#undef __FUNC__
+#define __FUNC__ "IISDMat::solve_only_a"
+int IISDMat::solve_only_a(Vec &res,Vec &dx) {
+  int ierr = maybe_factor_and_solve(res,dx,1); CHKERRQ(ierr); 
   return 0;
 }
 
@@ -820,6 +836,7 @@ int IISDMat::set_preco(const string & preco_type) {
 		  preco_type.c_str());
     }
   }
+  return 0;
 }
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
@@ -832,6 +849,7 @@ int iisd_jacobi_pc_apply(void *ctx,Vec x ,Vec y) {
   AA = dynamic_cast<IISDMat *> (A);
   ierr = (AA==NULL); CHKERRQ(ierr);
   AA->jacobi_pc_apply(x,y);
+  return 0;
 }
   
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
@@ -841,6 +859,7 @@ int IISDMat::jacobi_pc_apply(Vec x,Vec w) {
   int ierr;
   // Computes the componentwise division w = x/y. 
   ierr = VecPointwiseDivide(x,A_II_diag,w); CHKERRQ(ierr);  
+  return 0;
 }
 
 #if 0

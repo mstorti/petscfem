@@ -1,5 +1,5 @@
 // -*- mode: c++ -*- 
-// $Id: pfmat.sm.in,v 1.1.2.1 2002/01/07 16:26:00 mstorti Exp $
+// $Id: pfmat.sm.in,v 1.1.2.2 2002/01/09 01:30:56 mstorti Exp $
 // This file is to be processed by SMC (State Machine Compiler)
 Context pfmatFSMContext         // name of the context class
 FSMName pfmatFSM                // name of the FSM to create
@@ -14,31 +14,36 @@ Header  pfmat.h                 // the name of the header file
   // the Mat class. The only action taken is to mark the matrix as
   // filled. 
   clean { set_profile profiling { }
-          clear clean  { }
+          clear       clean     { }
   }
 
   profiling { set_profile profiling { }
-              create profiled { }
-	      set_value profiled { create set_value }
+              create      profiled  { }
+	      set_value   profiling { create set_value }
   } 
 
-  profiled set_value in_assembly {}
-
-  in_assembly { set_value in_assembly {}
-  // assembly_begin in_scatter {}
+  profiled { clean_prof   clean { clean_prof_a }
+             clear        profiled { clean_mat }
+             set_value    in_assembly { }
   }
 
-#if 0
-  in_scatter assembly_end assembled {}
+  in_assembly { set_value      in_assembly { }
+                assembly_begin in_scatter  { }
+  }
 
-  assembled { zero_entries profiled { }
-              set_value in_assembly { }
-              clear clean { }
-	      solve factored { factor_and_solve }
+  in_scatter assembly_end assembled { }
+
+  assembled { set_value    in_assembly { }
+              clean_mat    profiled { clean_mat_a }
+              clear        assembled       { clean_mat clean_prof}
+	      factor_and_solve factored  { factor_and_solve_A }
+	      solve        factored  { factor_and_solve_A }
   }
-  factored { solve factored { solve_only }
-             zero_entries profiled { clean_factor }
-             clear clean { clean_factor }
+
+  factored { solve_only     factored { solve_only_A }
+             solve          factored { solve_only_A }
+             clean_factor   profiled { clean_factor_a }
+             clear          factored { clean_factor clear }
   }
-#endif
+
 }

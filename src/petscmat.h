@@ -1,6 +1,6 @@
 // -*- mode: C++ -*- 
 /*__INSERT_LICENSE__*/
-// $Id: petscmat.h,v 1.1.2.3 2001/12/28 21:13:17 mstorti Exp $
+// $Id: petscmat.h,v 1.1.2.4 2002/01/09 01:30:56 mstorti Exp $
 #ifndef PETSCMAT_H
 #define PETSCMAT_H
 
@@ -72,7 +72,7 @@ public:
   void set_value(int row,int col,Scalar value,InsertMode mode=ADD_VALUES) {
     MatSetValues(A,1,&row,1,&col,&value,mode);};
   /// Sets all values of the operator to zero.
-  int zero_entries();
+  int clean_mat();
   /** Creates the matrix from the profile computed in #da#
       @param da (input) dynamic array containing the adjacency matrix
       of the operator

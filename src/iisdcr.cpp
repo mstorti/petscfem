@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: iisdcr.cpp,v 1.8.4.12 2002/01/07 16:26:00 mstorti Exp $
+//$Id: iisdcr.cpp,v 1.8.4.13 2002/01/09 01:30:56 mstorti Exp $
 
 // fixme:= this may not work in all applications
 extern int MY_RANK,SIZE;
@@ -84,7 +84,7 @@ void LocalGraph::set_ngbrs(int loc1,set<int> &ngbrs_v) {
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 #undef __FUNC__
 #define __FUNC__ "IISDMat::create"
-void IISDMat::create_a() {
+int IISDMat::create_a() {
 
   int myrank,size,max_partgraph_vertices_proc,proc_l;
   int k,pos,keq,leq,jj,row,row_t,col_t,od,
@@ -106,7 +106,12 @@ void IISDMat::create_a() {
   else if (local_solver_s == string("SuperLU")) local_solver = SuperLU;
   else assert(0);
 
+  //o PETSc parameter related to the efficiency in growing
+  //   the factored profile.
   TGETOPTDEF_ND_PF(thash,double,pc_lu_fill,5.);
+
+  //o Print the Schur matrix (don't try this for big problems).
+  TGETOPTDEF_ND_PF(thash,int,print_Schur_matrix,0);
 
   // Scatter the profile graph
   lgraph.scatter();
@@ -339,7 +344,7 @@ void IISDMat::create_a() {
 
   }
 
-  // deallocate Libretto dynamic darray
+  // deallocate profile (graph)
   lgraph.clear();
 
 #if 0
@@ -374,38 +379,43 @@ void IISDMat::create_a() {
 			 PETSC_DETERMINE,PETSC_DETERMINE,
 			 PETSC_NULL,nnz[D][L][I].begin(),
 			 PETSC_NULL,nnz[O][L][I].begin(),
-			 &A_LI);
-  PETSCFEM_ASSERT0(ierr==0,"Error creating loc-int matrix\n"); 
+			 &A_LI); CHKERRQ(ierr); 
+  // PETSCFEM_ASSERT0(ierr==0,"Error creating loc-int matrix\n"); 
     
   ierr = MatCreateMPIAIJ(comm,n_int,n_loc,
 			 PETSC_DETERMINE,PETSC_DETERMINE,
 			 PETSC_NULL,nnz[D][I][L].begin(),
 			 PETSC_NULL,nnz[O][I][L].begin(),
-			 &A_IL);
-  PETSCFEM_ASSERT0(ierr==0,"Error creating int-loc matrix\n"); 
+			 &A_IL); CHKERRQ(ierr); 
+  // PETSCFEM_ASSERT0(ierr==0,"Error creating int-loc matrix\n"); 
     
   ierr = MatCreateMPIAIJ(comm,n_int,n_int,
 			 PETSC_DETERMINE,PETSC_DETERMINE,
 			 PETSC_NULL,nnz[D][I][I].begin(),
 			 PETSC_NULL,nnz[O][I][I].begin(),
-			 &A_II);
-  PETSCFEM_ASSERT0(ierr==0,"Error creating int-int matrix\n"); 
+			 &A_II); CHKERRQ(ierr); 
+  // PETSCFEM_ASSERT0(ierr==0,"Error creating int-int matrix\n"); 
   
   // extern int mult(Mat,Vec,Vec);
   ierr = MatCreateShell(comm,n_int,n_int,
 			PETSC_DETERMINE,PETSC_DETERMINE,this,&A);
-  PETSCFEM_ASSERT0(ierr==0,"Error creating shell matrix\n"); 
+  CHKERRQ(ierr); 
+  // PETSCFEM_ASSERT0(ierr==0,"Error creating shell matrix\n"); 
   P=A;
 
   MatShellSetOperation(A,MATOP_MULT,(void *)(&IISD_mult));
   MatShellSetOperation(A,MATOP_MULT_TRANS,(void *)(&IISD_mult_trans));
 
   ierr = VecCreateMPI(comm,n_loc,PETSC_DETERMINE,&x_loc);
-  PETSCFEM_ASSERT0(ierr==0,"Error creating `x_loc' vector\n"); 
+  CHKERRQ(ierr); 
+  // PETSCFEM_ASSERT0(ierr==0,"Error creating `x_loc' vector\n"); 
+
   ierr = VecCreateSeq(PETSC_COMM_SELF,n_loc,&y_loc_seq);
-  PETSCFEM_ASSERT0(ierr==0,"Error creating `y_loc_seq' vector\n"); 
-  ierr = VecDuplicate(y_loc_seq,&x_loc_seq);
-  PETSCFEM_ASSERT0(ierr==0,"Error creating `x_loc_seq' vector\n"); 
+  CHKERRQ(ierr); 
+  // PETSCFEM_ASSERT0(ierr==0,"Error creating `y_loc_seq' vector\n"); 
+
+  ierr = VecDuplicate(y_loc_seq,&x_loc_seq); CHKERRQ(ierr); 
+  // PETSCFEM_ASSERT0(ierr==0,"Error creating `x_loc_seq' vector\n"); 
 
   // Shortcuts
   AA[L][L] = &A_LL;
@@ -416,4 +426,7 @@ void IISDMat::create_a() {
   // Save copy of d_nnz_LL for use later when recreating A_LL
   d_nnz_LL = nnz[D][L][L];
 
+  ierr = clean_mat_a(); CHKERRQ(ierr);
+
+  return 0;
 }

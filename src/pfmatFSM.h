@@ -8,16 +8,53 @@ class pfmatFSMState {
 public:
 
   virtual const char* StateName() const = 0;
+  virtual void clean_factor(pfmatFSM& s);
+  virtual void solve_only(pfmatFSM& s);
+  virtual void solve(pfmatFSM& s);
+  virtual void factor_and_solve(pfmatFSM& s);
+  virtual void clean_mat(pfmatFSM& s);
+  virtual void assembly_end(pfmatFSM& s);
+  virtual void assembly_begin(pfmatFSM& s);
+  virtual void clean_prof(pfmatFSM& s);
   virtual void set_value(pfmatFSM& s);
   virtual void create(pfmatFSM& s);
   virtual void clear(pfmatFSM& s);
   virtual void set_profile(pfmatFSM& s);
 };
 
+class pfmatFSMfactoredState : public pfmatFSMState {
+public:
+  virtual const char* StateName() const
+  {return("factored");};
+  virtual void clear(pfmatFSM&);
+  virtual void clean_factor(pfmatFSM&);
+  virtual void solve(pfmatFSM&);
+  virtual void solve_only(pfmatFSM&);
+};
+
+class pfmatFSMassembledState : public pfmatFSMState {
+public:
+  virtual const char* StateName() const
+  {return("assembled");};
+  virtual void solve(pfmatFSM&);
+  virtual void factor_and_solve(pfmatFSM&);
+  virtual void clear(pfmatFSM&);
+  virtual void clean_mat(pfmatFSM&);
+  virtual void set_value(pfmatFSM&);
+};
+
+class pfmatFSMin_scatterState : public pfmatFSMState {
+public:
+  virtual const char* StateName() const
+  {return("in_scatter");};
+  virtual void assembly_end(pfmatFSM&);
+};
+
 class pfmatFSMin_assemblyState : public pfmatFSMState {
 public:
   virtual const char* StateName() const
   {return("in_assembly");};
+  virtual void assembly_begin(pfmatFSM&);
   virtual void set_value(pfmatFSM&);
 };
 
@@ -26,6 +63,8 @@ public:
   virtual const char* StateName() const
   {return("profiled");};
   virtual void set_value(pfmatFSM&);
+  virtual void clear(pfmatFSM&);
+  virtual void clean_prof(pfmatFSM&);
 };
 
 class pfmatFSMprofilingState : public pfmatFSMState {
@@ -46,11 +85,22 @@ public:
 };
 class pfmatFSM : public pfmatFSMContext {
   public:
+  static pfmatFSMfactoredState factoredState;
+  static pfmatFSMassembledState assembledState;
+  static pfmatFSMin_scatterState in_scatterState;
   static pfmatFSMin_assemblyState in_assemblyState;
   static pfmatFSMprofiledState profiledState;
   static pfmatFSMprofilingState profilingState;
   static pfmatFSMcleanState cleanState;
   pfmatFSM();// default constructor
+  void clean_factor() {itsState->clean_factor(*this);}
+  void solve_only() {itsState->solve_only(*this);}
+  void solve() {itsState->solve(*this);}
+  void factor_and_solve() {itsState->factor_and_solve(*this);}
+  void clean_mat() {itsState->clean_mat(*this);}
+  void assembly_end() {itsState->assembly_end(*this);}
+  void assembly_begin() {itsState->assembly_begin(*this);}
+  void clean_prof() {itsState->clean_prof(*this);}
   void set_value() {itsState->set_value(*this);}
   void create() {itsState->create(*this);}
   void clear() {itsState->clear(*this);}

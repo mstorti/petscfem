@@ -1,5 +1,5 @@
 /*__INSERT_LICENSE__*/
-// $Id: pfmat.cpp,v 1.1.2.17 2002/01/07 16:23:52 mstorti Exp $
+// $Id: pfmat.cpp,v 1.1.2.18 2002/01/09 01:30:23 mstorti Exp $
 
 // Tests for the `PFMat' class
 #include <src/debug.h>
@@ -161,6 +161,8 @@ int main(int argc,char **args) {
   A.set_option("rtol",1e-8);
   A.set_option("atol",0);
   A.set_option("local_solver","PETSc");
+  A.set_option("print_Schur_matrix",0);
+  // A.set_option("preco_type","none");
   A.create();
   // if (debug_print) A.view();
 
@@ -174,7 +176,6 @@ int main(int argc,char **args) {
   ierr = VecDuplicate(b,&xex); CHKERRA(ierr); 
 
   for (int imat=0; imat<nmat; imat++) {
-    A.zero_entries();
     if (myrank==0) {
       cond = 1. + rand_coef * ::drand();
       L = 1. + rand_coef * ::drand();
