@@ -1,6 +1,6 @@
 // -*- mode: C++ -*- 
 /*__INSERT_LICENSE__*/
-// $Id: graph.h,v 1.2 2001/11/23 00:34:07 mstorti Exp $
+// $Id: graph.h,v 1.3 2001/11/23 02:13:28 mstorti Exp $
 #ifndef GRAPH_H
 #define GRAPH_H
 
@@ -26,14 +26,19 @@ class Graph {
   vector< set<int> > adjncy_v;
   set<int> subd_remap_aux;
   double weight_scale;
- public:
-  virtual ~Graph()=0;
   /// The number of vertices in the fine `graph'
   int nelemfat;
   /// The number of vertices in the coarse `graph'
   int nvrtx;
   /// max number of vertices in the allowed in the coarse `graph'
   int max_partgraph_vertices;
+ public:
+  /// Constructor
+  Graph(int nelemfat,int max_partgraph_vertices);
+  /** Virtual destructor (Just to prevent instantiations of this
+      class. See Thinking in C++, by Bruce Eckel).
+  */
+  virtual ~Graph()=0;
   /// number of subdomains to partition
   void part(int npart);
   /// return an array with the domain indices of all fine vertices 

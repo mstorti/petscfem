@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: graph.cpp,v 1.2 2001/11/23 00:34:07 mstorti Exp $
+//$Id: graph.cpp,v 1.3 2001/11/23 02:13:28 mstorti Exp $
 
 #include <src/utils.h>
 #include <src/graph.h>
@@ -213,3 +213,12 @@ const int *Graph::vrtx_part() {
   return vpartf;
 }
 
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:
+void Graph::clear() {
+  delete[] adjncy;
+  delete[] xadj;
+  delete[] el2vrtx;
+  delete[] vwgt;
+  delete[] vpart;
+  delete[] subd2proc;
+}
