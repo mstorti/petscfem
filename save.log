@@ -4176,7 +4176,7 @@ tag: beta-3.43.45 on Tue, 08 Mar 2005 22:29:36 -0300 by mstorti in spider
 tag: beta-3.43.46 on Tue, 08 Mar 2005 22:44:10 -0300 by mstorti in spider
      > Computes area nodes. 
 ----------
-tag: beta-3.45 on Wed, 09 Mar 2005 07:52:05 -0300 by mstorti in spider
+tag: 3.45 on Wed, 09 Mar 2005 07:50:17 -0300 by mstorti in spider
      > -- STABLE VERSION -- 
      > Implemented `dofmap->solve' with iterative solution 
      > of the least squares eqs.
