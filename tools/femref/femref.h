@@ -1,6 +1,6 @@
 // -*- mode: c++ -*-
 //__INSERT_LICENSE__
-// $Id: femref.h,v 1.9 2004/11/19 01:33:41 mstorti Exp $
+// $Id: femref.h,v 1.10 2004/11/19 22:01:00 mstorti Exp $
 #ifndef PETSCFEM_FEMREF_H
 #define PETSCFEM_FEMREF_H
 
@@ -132,7 +132,8 @@ private:
   };
   dvector<double> coords;
   dvector<int> tri;
-  dvector<int> nod_adj;
+  dvector<int> n2e;
+  dvector<int> n2e_ptr;
   int ndim;
   LinkGraph lgraph;
   int nnod, nelem, nel;
@@ -175,6 +176,44 @@ public:
       GSet::iterator p = ngbrs.begin();
       while (p!=ngbrs.end()) printf("%d ",*p++);
       printf("\n");
+    }
+
+    // Pass the connectivity in graph `lgraph' to
+    // node_list
+    n2e_ptr.resize(nnod+1);
+    for (int j=0; j<nnod; j++) n2e.ref(j) = 0;
+    int nadj = 0;
+    for (int nod=0; nod<nnod; nod=+) {
+      n2e_ptr.e(nod) = nadj;
+      ngbrs.clear();
+      lgraph.set_ngbrs(node,ngbrs);
+      nadj += ngbrs.size();
+      GSet::iterator p = ngbrs.begin();
+      while (p!=ngbrs.end()) n2e.push(*p);
+    }
+    n2e_ptr.ref(nnod) = nadj;
+    lgraph.clear();
+  }
+
+  void list_faces() {
+    for (int ele=0; ele<nelem; ele++) {
+      for (int ledge=0; ledge<3; ledge++) {
+	int nodes[2];
+	nodes[0]= tri(ele,0);
+	nodes[1]= tri(ele,1);
+	int p0 = n2e_ptr.ref(nodes[0]);
+	int p0e = n2e_ptr.ref(nodes[0]+1);
+	int p1 = n2e_ptr.ref(nodes[1]);
+	int p1e = n2e_ptr.ref(nodes[1]+1);
+	while (p0<p0e && p1<p1e) {
+	  int ele0 = n2e.ref(p0);
+	  int ele1 = n2e.ref(p1);
+	  if (ele0 && ele1) {
+	    
+	  } else if (ele0<ele1) ele0++;
+	  } else ele1++;
+	}
+      }
     }
   }
 };
