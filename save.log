@@ -4230,3 +4230,7 @@ tag: beta-3.45.12 on Tue, 29 Mar 2005 22:18:04 -0300 by mstorti in spider
 tag: beta-3.45.13 on Thu, 31 Mar 2005 20:49:30 -0300 by mstorti in spider
      > Now `mov_wall' hook and `cond_wall' elemset dialog via a 
      > global map with a keyword. 
+----------
+tag: beta-3.45.14 on Fri, 01 Apr 2005 13:09:09 -0300 by mstorti in minerva.ceride.gov.ar
+     > Runs example with sliding blade with velocities 
+     > for the moving blade. 
