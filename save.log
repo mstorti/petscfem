@@ -1166,3 +1166,6 @@ tag: beta-2.94.pl13 on Sun, 12 May 2002 12:10:50 -0300 by mstorti in spider
 ----------
 tag: beta-2.94.pl14 on Wed, 15 May 2002 16:41:02 -0300 by mstorti in node1.beowulf.gtm
      > Added axisymmetric version of `nsi_tet_les_fm2'
+----------
+tag: beta-2.94.pl15 on Wed, 15 May 2002 20:56:19 -0300 by mstorti in spider
+     > Improved "axisymmetric" option for NS
