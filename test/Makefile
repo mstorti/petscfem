@@ -1,5 +1,5 @@
 #__INSERT_LICENSE__
-# $Id: Makefile,v 1.105 2004/11/11 18:32:26 mstorti Exp $ 
+# $Id: Makefile,v 1.106 2004/11/12 01:11:25 mstorti Exp $ 
 
 .PHONY: all run  compile lclean ns laplace adv nso laplace_tests force		\
         ctest runtests clean fastmat2_obj plano idmap fastvec			\
@@ -54,7 +54,19 @@ local_clean::
 #w and make a tar with the results
 torture_1:
 	$(MAKE) -k runtests 2>&1 | tee make-tests-$(BOPT).log
+#
+	echo "-------------------------" | tee -a  make-tests-$(BOPT).log
+	echo "FULL TEST REPORT: " | tee -a make-tests-$(BOPT).log
 	-runtests.pl -o | tee -a make-tests-$(BOPT).log
+#
+	echo "-------------------------" | tee -a  make-tests-$(BOPT).log
+	echo "COULDN'T OPEN: " | tee -a make-tests-$(BOPT).log
+	-runtests.pl -o | grep "^can't" | tee -a make-tests-$(BOPT).log
+#
+	echo "-------------------------" | tee -a  make-tests-$(BOPT).log
+	echo "NOT OK TESTS: " | tee -a make-tests-$(BOPT).log
+	-runtests.pl -n | tee -a make-tests-$(BOPT).log
+#
 	tar czvf ../make-tests-$(BOPT).tar.gz .
 
 #w torture for BOPT=g_c++
@@ -89,7 +101,8 @@ tests: runtests
 runtests: compile sector oscplate fastmat2 plano idmap fastvec			\
 	chunk_size_process constraint_bug fstack triangle advdif texthash	\
 	log_vars newff burgers bug100 genload lupart distmap sparse graph	\
-	pfmat aquifer nutatcyl mmove advec nsgenload oscplate idmap 
+	sqcav pfmat aquifer nutatcyl mmove advec nsgenload oscplate idmap	\
+	cubcav
 
 rp: runtests_p
 runtests_p: sector aquifer nutatcyl mmove advec nsgenload oscplate idmap
