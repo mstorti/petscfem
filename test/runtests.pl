@@ -1,5 +1,5 @@
 #!/usr/bin/perl
-#$Id: runtests.pl,v 1.109 2003/09/13 17:30:02 mstorti Exp $
+#$Id: runtests.pl,v 1.110 2003/09/13 18:01:23 mstorti Exp $
 #__INSERT_LICENSE__
 
 require '../tools/myexpect.pl';
@@ -551,6 +551,10 @@ expect("sector/sector_triangle_npg7.sal",
 end_section();
 
 begin_section('Misc tests.');
+
+#------/*/------/*/------/*/------/*/------/*/------/*/------/*/ 
+expect("sqcav/simple.state.tmp","Disconnected graph bug in metis_part()",
+       read_file('sqcav/simple.ans'));
 
 #------/*/------/*/------/*/------/*/------/*/------/*/------/*/ 
 expect("fstack/tfstack.out","FileStack class",read_file('fstack/tfstack.ans'));

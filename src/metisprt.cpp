@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: metisprt.cpp,v 1.21 2003/09/13 17:32:09 mstorti Exp $
+//$Id: metisprt.cpp,v 1.22 2003/09/13 18:01:23 mstorti Exp $
 
 #include "fem.h"
 #include "utils.h"
@@ -162,17 +162,23 @@ void metis_part(int nelemfat,Mesh *mesh,
       if (visited==nelemfat) break;
       
       // Disconnected parts. Find next element not visited.
-      for (k=0; k<nel; k++) {
+      // bug: aqui va nel-> nelemfat
+      int found=0;
+      for (k=0; k<nelemfat; k++) {
 	if (el2vrtx[k]<0) {
+	  found=1;
 	  ngbrs.push(k);
 	  // Put it in a random vertex
 	  vrtx = irand(nvrtx);
 	  el2vrtx[k] = vrtx;
+	  visited++;
 	  find_elem(k,nelemsetptr,nelemsets,mesh,elemset,locel);
 	  vwgt[vrtx] += int(elemset->weight()/weight_scale);
 	  break;
 	}
       }
+      PETSCFEM_ASSERT0(found,"Internal error: Disconnected graph found, "
+		       "and couldn't find a new vertex.");
     }
 
     // Take the first element
