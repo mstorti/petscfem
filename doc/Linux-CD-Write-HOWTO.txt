@@ -1,4 +1,4 @@
-# $Id: Linux-CD-Write-HOWTO.txt,v 1.8 2004/09/13 21:36:51 mstorti Exp $
+# $Id: Linux-CD-Write-HOWTO.txt,v 1.9 2005/01/19 22:18:11 mstorti Exp $
 
  COMO GUARDAR DATOS GENERADOS EN LINUX EN UN CD USANDO UNA GRABADORA
 		 INSTALADA EN UNA MAQUINA CON WINDOWS
@@ -97,6 +97,32 @@ Para crear una imagen ext2
 7./ Para chequear el disco hacer 
 
 		$ /sbin/e2fsck -nf /cdrom/BACKUP.img 
+
+Grabacion de CD's en Fedora Core 2
+==================================
+
+No es mas necesario usar el modulo `ide-scsi'. El dispositivo vuelve a
+ser de la forma /dev/hdX... Hay que hacer (como `root')
+
+> [root@minerva linux-2.6.5-1.358]# cdrecord dev=ATAPI -scanbus
+
+> Cdrecord-Clone 2.01a27-dvd (i686-pc-linux-gnu) Copyright (C)\
+         1995-2004 Jörg Schilling
+> ....
+> scsidev: 'ATAPI'
+> devname: 'ATAPI'
+> scsibus: -2 target: -2 lun: -2
+> ...
+> scsibus0:
+> 	0,0,0	  0) *
+> 	0,1,0	  1) 'SAMSUNG ' 'DVD R/RW SH-W08A' '1S30' Removable CD-ROM
+> 	0,2,0	  2) *
+...
+
+Que quiere decir que la grabadora es la unidad `0,1,0'. Entonces para
+grabar hay que hacer
+
+   # cdrecord -v speed=16 dev=ATAPI:0,1,0 -data fc2-1.iso 
 
 Grabacion de DVD's
 ==================
