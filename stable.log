@@ -400,7 +400,7 @@ tag: beta-3.20 on Wed Sep  3 00:08:54 GMT+3 2003, by mstorti in spider
      > instead of MatSetValue. 
      > More efficient verison of `upload_vector()'
 ----------
-tag: beta-3.21 on Sun Sep 14 10:29:14 GMT+3 2003, by mstorti in spider
+tag: beta-3.22 on Sun Sep 14 10:29:14 GMT+3 2003, by mstorti in spider
      > Added natural partitioning. 
      > Added simple error handling in elemset. 
      > Fixed disconnected graph bug.

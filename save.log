@@ -2962,7 +2962,7 @@ tag: beta-3.20.pl14 on Sat, 13 Sep 2003 21:23:39 -0300 by mstorti in spider
      > Uses excpetion handling in `advdif' (GenericError). 
      > Modified `bubbly' module launching. 
 ----------
-tag: beta-3.21 on Sun, 14 Sep 2003 10:29:14 -0300 by mstorti in spider
+tag: beta-3.22 on Sun, 14 Sep 2003 10:29:14 -0300 by mstorti in spider
      > -- STABLE VERSION -- 
      > Added natural partitioning. 
      > Added simple error handling in elemset. 
