@@ -4,6 +4,7 @@
 TODO: [Mainly fixes go here...]
 =====
 
+* make killpar print username when other user
 * List grants in doc
 * Add `dataflow.obj' to doc.
 * Let `upload_vector_fast' to have several masks with integer values,
