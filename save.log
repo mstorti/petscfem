@@ -2097,3 +2097,6 @@ tag: beta-3.14.pl14 on Wed,  8 Jan 2003 14:22:56 -0300 by mstorti in minerva.arc
 tag: beta-3.14.pl15 on Wed,  8 Jan 2003 21:24:26 -0300 by mstorti in spider
      > `visc_force_integrator' with quad2hexa geometry is working OK. 
      > Runs all `test/nutatcyl' tests. 
+----------
+tag: beta-3.14.pl16 on Wed,  8 Jan 2003 23:38:01 -0300 by mstorti in spider
+     > Implementing `line2quad' and `tri2pism' integrators. 
