@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-// $Id: femref.cpp,v 1.28 2004/12/19 20:46:21 mstorti Exp $
+// $Id: femref.cpp,v 1.29 2004/12/19 22:57:50 mstorti Exp $
 
 #include <string>
 #include <list>
@@ -65,11 +65,34 @@ int main1() {
   }
 }
 
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 double
 rf(GeomObject &go,const double *xnod) {
   return 0.1;
 }
 
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+class NodeInfoSum : public NodeInfo {
+public:
+  int sum;
+  ~NodeInfoSum() { }
+};
+
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+NodeInfo*
+node_sum(const NodeInfo &ni1,
+	 const NodeInfo &ni2) {
+  const NodeInfoSum *ni1_p 
+    = dynamic_cast<const NodeInfoSum *>(&ni1);
+  const NodeInfoSum *ni2_p 
+    = dynamic_cast<const NodeInfoSum *>(&ni2);
+
+  NodeInfoSum *ni12_p = new NodeInfoSum;
+  ni12_p->sum = ni1_p->sum + ni2_p->sum;
+  return ni12_p;
+}
+
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 int main() { 
 
   UniformMesh mesh(OrientedTetraTemplate,3);
@@ -102,6 +125,7 @@ int main() {
 
   // Print mesh down to level 0
   vis.trace = 1;
+  vis.node_comb_fun = &node_sum;
   vis.init(mesh);
   while (vis.next(1)) {  }
 }

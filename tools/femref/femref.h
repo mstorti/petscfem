@@ -1,6 +1,6 @@
 // -*- mode: c++ -*-
 //__INSERT_LICENSE__
-// $Id: femref.h,v 1.36 2004/12/19 20:46:21 mstorti Exp $
+// $Id: femref.h,v 1.37 2004/12/19 22:57:50 mstorti Exp $
 #ifndef PETSCFEM_FEMREF_H
 #define PETSCFEM_FEMREF_H
 
@@ -105,6 +105,7 @@ public:
   void set(Type t,int j,GeomObject &go) const;
 };
 
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 class Splitter {
 public:
   /// Number of subobjetcs of type #t# in this shape. 
@@ -120,12 +121,18 @@ public:
 typedef double
 (*RefineFunction)(GeomObject &go,const double *xnod);
 
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 class NodeInfo {
 public:
   virtual ~NodeInfo()=0;
-  virtual NodeInfo *combine(NodeInfo &ni1,NodeInfo &ni2)=0;
 };
 
+typedef NodeInfo*
+(*NodeInfoCombineFunction) 
+  (const NodeInfo &ni1,
+   const NodeInfo &ni2);
+
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 /** A mesh is a container of geometrical objects
     linked (as in a graph).  Two objects are linked
     if they share a node. For reasons of efficiency,
@@ -239,10 +246,30 @@ public:
       @param it (input) iterator to geometric object in mesh
       @param go (output) the opject pointed by #it# */ 
   void set(iterator it,GeomObject &go);
+
+  /** The type for the container that
+      stores NodeInfo objects */ 
+  typedef 
+  map<int,NodeInfo *> NodeInfoMapT;
+
   /** Builds subobject #sgo# to be the #indx#-th subobject
-      of #go# when splitted with splitter #s#. */ 
-  void set(const GeomObject &go,const Splitter *s,
-	   int indx,GeomObject &sgo);  
+      of #go# when splitted with splitter #s#. 
+      @param go (input) the "father" object
+      @param s (input) the splitter for the father object
+      @param indx (input) the subobject index for this object
+      @param sgo (output) the object to be constructed
+      @param ref_nodes (output) the nodes for #sgo# that
+      @param comb (input) the function used to 
+      combine NodeInfo objects
+      @param node_info_map (input/output) adds new #NodeInfo#
+      objects to this container */ 
+  void set(const GeomObject &go,
+	   const Splitter *s,
+	   int indx,
+	   GeomObject &sgo,
+	   list<int> &ref_nodes,
+	   NodeInfoCombineFunction node_comb_fun,
+	   NodeInfoMapT &node_info_map);  
   /** Finds the _first_ iterator to object #go#. 
       If there isn't, returns the empty iterator. 
       @param go (input) the object to find
@@ -287,6 +314,9 @@ public:
     /** The sibling index in the sibling list for
 	this object */
     int so_indx;
+    /** List of nodes that have been created
+	at this level */ 
+    list<int> ref_nodes;
   };
 
   friend class visitor;
@@ -303,13 +333,21 @@ public:
     bool at_end;
     /// The element we are currently visiting
     int elem;
+    /// Pop the deepest level object in the refinement stack
+    void pop();
   public: 
+    /// The type for the refinement stack
+    typedef list<RefPathNode> RefStackT;
     /// Flags whether we print the elements as they are visited
     int trace;
+    /// Functions used to combine #NodeInfo# at nodes
+    NodeInfoCombineFunction node_comb_fun;
+    /// Stores `NodeInfo' objects
+    NodeInfoMapT node_info_map;
     /// Ctor.
     visitor();
     /// Stack containing the elements in the refinement tree
-    list<RefPathNode> ref_stack;
+    RefStackT ref_stack;
     /// Inits the visitor to the base element of index #elem#
     void init(UniformMesh &mesh_a,int elem);
     /** Inits the visitor to the base element of the
@@ -332,6 +370,8 @@ public:
     /** Pass to the following subobject of the 
 	mesh, at this level or higher. */
     bool level_next();
+    /** Pass to the following subobject of the 
+	element, at this level or higher. */
     bool level_so_next();
     /** Is this node a leave in the refienement tree? */ 
     bool is_leave();

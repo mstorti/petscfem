@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-// $Id: visitor.cpp,v 1.10 2004/12/19 20:46:21 mstorti Exp $
+// $Id: visitor.cpp,v 1.11 2004/12/19 22:57:50 mstorti Exp $
 
 #include <string>
 #include <list>
@@ -13,7 +13,8 @@ using namespace std;
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 UniformMesh::visitor::visitor() 
   : at_end(true), mesh(NULL), 
-    etree_p(NULL), trace(0) { }
+    etree_p(NULL), trace(0),
+    node_comb_fun(NULL) { }
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 void UniformMesh::visitor::init(UniformMesh &mesh_a,int elem_a) {
@@ -34,7 +35,7 @@ void UniformMesh::visitor::init(UniformMesh &mesh_a,int elem_a) {
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 bool UniformMesh::visitor::so_next() {
-  list<RefPathNode>::iterator ws, 
+  RefStackT::iterator ws, 
     w = ref_stack.begin();
   // here visit w...
   ElemRef::iterator q, qs, qrsib, qfather;
@@ -42,7 +43,7 @@ bool UniformMesh::visitor::so_next() {
   int j = w->so_indx;
   if (trace) {
     printf("elem %d, (siblings ",elem);
-    list<RefPathNode>::iterator 
+    RefStackT::iterator 
       r = ref_stack.begin(), t; 
     t = r; t++;
     while (t!=ref_stack.end()) {
@@ -63,7 +64,9 @@ bool UniformMesh::visitor::so_next() {
     w = ws; w++;
     // Build `ws' from GeomObject `w' (parent) and
     // splitter `s' and subobject index `j'
-    mesh->set(w->go,q->splitter,j,ws->go);
+    mesh->set(w->go,q->splitter,j,ws->go,
+	      ws->ref_nodes,node_comb_fun,
+	      node_info_map);
     ws->splitter = qs;
     ws->go.make_canonical();
     ws->so_indx = 0;
@@ -97,7 +100,9 @@ bool UniformMesh::visitor::so_next() {
 	w = ws; w++;
 	// Build `ws' from GeomObject `w' (parent) and splitter `s'
 	// and subobject index `jsib'
-	mesh->set(w->go,s,jsib,ws->go);
+	mesh->set(w->go,s,jsib,ws->go,
+		  ws->ref_nodes,node_comb_fun,
+		  node_info_map);
 	ws->go.make_canonical();
 
 	// Find next node on the splitting tree or end()
@@ -143,7 +148,7 @@ end() { return at_end && elem>= mesh->nelem; }
 void UniformMesh::visitor::
 refine(const Splitter* s) {
   assert(is_leave());
-  list<RefPathNode>::iterator 
+  RefStackT::iterator 
     w = ref_stack.begin();
   ElemRef::iterator 
     &q = w->splitter;
@@ -158,7 +163,7 @@ refine(const Splitter* s) {
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 bool UniformMesh::visitor::
 is_leave() {
-  list<RefPathNode>::iterator 
+  RefStackT::iterator 
     w = ref_stack.begin();
   return w->splitter == etree_p->end();
 }
@@ -169,7 +174,7 @@ ref_level() { return ref_stack.size()-1; }
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 bool UniformMesh::visitor::level_so_next() {
-  list<RefPathNode>::iterator ws, 
+  RefStackT::iterator ws, 
     w = ref_stack.begin();
   // here visit w...
   ElemRef::iterator q, qs, qrsib, qfather;
@@ -177,7 +182,7 @@ bool UniformMesh::visitor::level_so_next() {
   int j = w->so_indx;
   if (trace) {
     printf("elem %d, (siblings ",elem);
-    list<RefPathNode>::iterator 
+    RefStackT::iterator 
       r = ref_stack.begin(), t; 
     t = r; t++;
     while (t!=ref_stack.end()) {
@@ -216,7 +221,10 @@ bool UniformMesh::visitor::level_so_next() {
       w = ws; w++;
       // Build `ws' from GeomObject `w' (parent) and splitter `s'
       // and subobject index `jsib'
-      mesh->set(w->go,s,jsib,ws->go);
+      mesh->set(w->go,s,jsib,ws->go,
+		ws->ref_nodes,
+		node_comb_fun,
+		node_info_map);
       ws->go.make_canonical();
       
       // Find next node on the splitting tree or end()
@@ -234,7 +242,8 @@ bool UniformMesh::visitor::level_so_next() {
 }
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
-bool UniformMesh::visitor::
+bool 
+UniformMesh::visitor::
 level_next() { 
   if (level_so_next()) return true;
   elem++;
@@ -244,8 +253,28 @@ level_next() {
 }
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
-bool UniformMesh::visitor::
+bool 
+UniformMesh::visitor::
 next(int level) {
   if (ref_level()<level) return next();
   else return level_next();
+}
+
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+void 
+UniformMesh::visitor::
+pop() {
+  if (node_comb_fun) {
+    RefStackT::iterator w 
+      = ref_stack.begin();
+    list<int>::iterator 
+      q = w->ref_nodes.begin();
+    while (q!=w->ref_nodes.end()) {
+      NodeInfoMapT::iterator 
+	r = node_info_map.find(*q);
+      assert(r!=node_info_map.end());
+      node_info_map.erase(r);
+    }
+    ref_stack.pop_front();
+  }
 }
