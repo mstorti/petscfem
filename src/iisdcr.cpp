@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: iisdcr.cpp,v 1.37.2.6 2003/08/18 14:58:58 mstorti Exp $
+//$Id: iisdcr.cpp,v 1.37.2.7 2003/08/18 16:18:38 mstorti Exp $
 
 // fixme:= this may not work in all applications
 extern int MY_RANK,SIZE;
@@ -229,6 +229,8 @@ int IISDMat::create_a() {
   //o Number of layers in the preconditioning band (should
   //  be \verb+nlay>=1+.) 
   TGETOPTDEF_ND_PF(thash,int,use_interface_full_preco_nlay,3);
+  nlay = use_interface_full_preco_nlay;
+  PETSCFEM_ASSERT0(nlay>0,"Number of ISP layers must be positive.");  
   //o Number of iters in solving the preconditioning for the 
   // interface problem when using \verb+use_interface_full_preco+. 
   TGETOPTDEF_ND_PF(thash,int,interface_full_preco_maxits,5);
@@ -339,7 +341,6 @@ int IISDMat::create_a() {
   // isp_lay_map:= contains the layer number for dof k
   // isp_lay_map2:= auxiliary for reduce operations
   vector<int> isp_lay_map(neq,0), isp_lay_map2(neq,0);
-  int nlay = use_interface_full_preco_nlay;
   if (nlay<1) nlay=1;
   // mark layer 1
   for (int j=0; j<neq; j++) isp_lay_map[j] = map_dof[j]>=n_loc_tot;
@@ -421,29 +422,36 @@ int IISDMat::create_a() {
   //                                  range n_lay1_p[p] <= keq < n_band_p[p] 
   // n_band_p:= Dof's in band/processor `p': are in 
   //                                  range n_band_p[p] <= keq < n_lay1_p[p+1] 
-  vector<int> n_lay1_p(size+1,0), n_band_p(size+1,0);
+  n_lay1_p.resize(size+1,0);
+  n_band_p.resize(size+1,0);
 
   // isp_map:= isp_map[j] is the position in the PETSc `A_isp' matrix
-  vector<int>  isp_map(neq,0);
+  // vector<int>  isp_map(neq,0);
+  isp_map.resize(neq,0);
   for (int j=0; j<neq; j++) {
     int lay = isp_lay_map[j];
     int proc = part.processor(j);
     if (lay==1) isp_map[j] = n_lay1[proc]++;
     else if (lay>1) isp_map[j] = n_band[proc]++;
     // Rest dof's are *not* numbered
-    else if (lay==0) n_rest[proc]++;
+    else if (lay==0) {
+      isp_map[j]=-1;
+      n_rest[proc]++;
+    }
   }
 
   // We ended with n_lay1[proc+1] = number of dof's in
   // interface, proc=p, etc...
   // Now build the pointers (cumsum)
   n_lay1_p[0]=0;
+  n_isp_tot = 0;
   for (int p=0; p<size; p++) {
     n_isp[p] = n_lay1[p] + n_band[p];
+    n_isp_tot += n_isp[p];
     n_band_p[p] = n_lay1_p[p] + n_lay1[p];
     n_lay1_p[p+1] = n_band_p[p] + n_band[p];
   }
-#if 1
+#if 0
   if (!myrank) {
     printf("proc, lay1, band, rest, n_lay1_p, n_band_p\n");
     for (int p=0; p<size; p++)
@@ -461,7 +469,7 @@ int IISDMat::create_a() {
     if (lay==1) isp_map[j] += n_lay1_p[proc];
     else if (lay>1) isp_map[j] += n_band_p[proc];
   }
-#if 1
+#if 0
   if (!myrank) {
     printf("j, isp_lay_map[j], isp_map[j]\n");
     for (int j=0; j<neq; j++) {
@@ -490,7 +498,7 @@ int IISDMat::create_a() {
     }
   }
 
-#if 1
+#if 0
   PetscSynchronizedPrintf(PETSC_COMM_WORLD,"In [%d]:\n",myrank);
   for (int j=0; j<neq; j++) {
     if (!(isp_lay_map[j] && part.processor(j)==myrank)) continue;
@@ -501,10 +509,6 @@ int IISDMat::create_a() {
   }
   PetscSynchronizedFlush(PETSC_COMM_WORLD);
 #endif
-
-  //# Current line =========== 
-  PetscFinalize();
-  exit(0);
 
   if (iisdmat_print_statistics) {
     PetscPrintf(comm,"IISDMat -- dof statistics:\n");
@@ -707,7 +711,7 @@ int IISDMat::create_a() {
 			 &A_IL); CHKERRQ(ierr); 
   ierr =  MatSetOption(A_IL, MAT_NEW_NONZERO_ALLOCATION_ERR);
   CHKERRQ(ierr); 
-    
+  
   ierr = MatCreateMPIAIJ(comm,n_int,n_int,
 			 PETSC_DETERMINE,PETSC_DETERMINE,
 			 PETSC_NULL,&*nnz[D][I][I].begin(),
@@ -715,8 +719,22 @@ int IISDMat::create_a() {
 			 &A_II); CHKERRQ(ierr); 
   ierr =  MatSetOption(A_II, MAT_NEW_NONZERO_ALLOCATION_ERR);
   CHKERRQ(ierr); 
+  
   ierr = MatSetStashInitialSize(A_II,300000,0);
   CHKERRQ(ierr); 
+
+  if (nlay>1) {
+    // Creating the A_II_isp matrix for ISP preconditioning
+    ierr = MatCreateMPIAIJ(comm,n_isp_here,n_isp_here,
+			   PETSC_DETERMINE,PETSC_DETERMINE,
+			   PETSC_NULL,&*isp_d_nnz.begin(),
+			   PETSC_NULL,&*isp_o_nnz.begin(),
+			   &A_II_isp); CHKERRQ(ierr); 
+    ierr =  MatSetOption(A_II_isp, MAT_NEW_NONZERO_ALLOCATION_ERR);
+    CHKERRQ(ierr); 
+    // ierr = MatSetStashInitialSize(A_II,300000,0);
+    // CHKERRQ(ierr); 
+  }
   
   ierr = MatCreateShell(comm,n_int,n_int,
 			PETSC_DETERMINE,PETSC_DETERMINE,this,&A);

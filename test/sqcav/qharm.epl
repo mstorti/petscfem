@@ -109,7 +109,7 @@ hook_list shell_hook shell_hook
 shell_hook "echo stage %s, step %d, time %f"
 #endif
 
-print_dofmap_id
+# print_dofmap_id
 __END_HASH__
 
 # ndim nu ndof

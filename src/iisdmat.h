@@ -1,6 +1,6 @@
 // -*- mode: C++ -*- 
 /*__INSERT_LICENSE__*/
-// $Id: iisdmat.h,v 1.27 2003/07/07 10:58:50 mstorti Exp $
+// $Id: iisdmat.h,v 1.27.2.1 2003/08/18 16:18:38 mstorti Exp $
 #ifndef IISDMAT_H
 #define IISDMAT_H
 
@@ -76,6 +76,9 @@ class IISDMat : public PFPETScMat {
   int use_interface_full_preco;
   /** Number of iters in solving the preconditioning for the 
       interface problem when using #use_interface_full_preco#.*/ 
+  int nlay;
+  /** Number of iters in solving the preconditioning for the 
+      interface problem when using #use_interface_full_preco#.*/ 
   int interface_full_preco_maxits;
   /** Defines the preconditioning to be used for the solution
       of the diagonal interface problem (not the Schur problem) */ 
@@ -114,6 +117,7 @@ class IISDMat : public PFPETScMat {
   Mat A_IL;
   /// Interface-Interface matrix (MPI matrix).
   Mat A_II;
+
   /// Shortcuts to the #A_LL#, #A_IL#, #A_LI# and #A_II# matrices. 
   Mat *AA[2][2];
   /** Here we put all non-local things that are in the loca-local
@@ -203,6 +207,25 @@ class IISDMat : public PFPETScMat {
       ones. The inverse of `dofs_proc'. 
   */
   map<int,int> proc2glob;
+
+  /** @name ISP preconditioning */
+  //@{
+  /// Band-Band matrix (MPI matrix for ISP preco).
+  Mat A_II_isp;
+  /// Dofs in band region
+  int n_isp_tot;
+  /// #isp_map[j]# is the position in the PETSc #A_isp# matrix
+  vector<int>  isp_map;
+  /// Set value in the A_II_isp matrix (for ISP preconditioning).
+  int isp_set_value(int row,int col,PetscScalar value, 
+		    InsertMode mode);
+  /** Dof's in interface/processor #p#: are in range 
+      #n_lay1_p[p] <= keq < n_band_p[p]# */
+  vector<int> n_lay1_p;
+  /** Dof's in band/processor #p#: are in range 
+      #n_band_p[p] <= keq < n_lay1_p[p+1]# */
+  vector<int> n_band_p;
+  //@}
 
 public:
 

@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: iisdmat.cpp,v 1.48 2003/08/06 20:36:47 mstorti Exp $
+//$Id: iisdmat.cpp,v 1.48.2.1 2003/08/18 16:18:38 mstorti Exp $
 // fixme:= this may not work in all applications
 extern int MY_RANK,SIZE;
 
@@ -469,6 +469,9 @@ int IISDMat::assembly_begin_a(MatAssemblyType type) {
     ierr = MatAssemblyBegin(A_LL,type); PF_CHKERRQ(ierr);
   }
   A_LL_other->scatter();
+
+  if (nlay>1) { ierr = MatAssemblyBegin(A_II_isp,type); PF_CHKERRQ(ierr); }
+
 #if 0
   PetscSynchronizedPrintf(PETSC_COMM_WORLD,
 			  "[%d] t1 %f, t2 %f, t3 %f, scattered %d, sr %d\n",
@@ -515,6 +518,7 @@ int IISDMat::assembly_end_a(MatAssemblyType type) {
   if (local_solver == PETSc) {
     ierr = MatAssemblyEnd(A_LL,type); PF_CHKERRQ(ierr);
   }
+  if (nlay>1) { ierr = MatAssemblyEnd(A_II_isp,type); PF_CHKERRQ(ierr); }
 #endif
   return 0;
 };
@@ -542,6 +546,7 @@ int IISDMat::clean_mat_a() {
   ierr=MatZeroEntries(A_IL); PF_CHKERRQ(ierr);
   ierr=MatZeroEntries(A_LI); PF_CHKERRQ(ierr);
   ierr=MatZeroEntries(A_II); PF_CHKERRQ(ierr);
+  if (nlay>1) { ierr=MatZeroEntries(A_II_isp); PF_CHKERRQ(ierr); }
   return 0;
 }
 
@@ -603,6 +608,9 @@ int IISDMat::clean_prof_a() {
   ierr = MatDestroy_maybe(A_II); CHKERRQ(ierr); 
   // PETSCFEM_ASSERT0(ierr==0,"Error destroying PETSc matrix A_II (int-int)\n");
 
+  if (nlay>1) { ierr = MatDestroy_maybe(A_II_isp); CHKERRQ(ierr); }
+  // PETSCFEM_ASSERT0(ierr==0,"Error destroying PETSc matrix A_II (int-int)\n");
+
   ierr = MatDestroy_maybe(A); CHKERRQ(ierr); 
   // PETSCFEM_ASSERT0(ierr==0,"Error destroying PETSc matrix shell A\n");
 
@@ -623,6 +631,23 @@ void IISDMat::map_dof_fun(int gdof,int &block,int &ldof) {
     ldof -= n_loc_tot;
   }
 }
+
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+#undef __FUNC__
+#define __FUNC__ "IISDMat::isp_set_value"
+int IISDMat::isp_set_value(int row,int col,PetscScalar value,
+			   InsertMode mode) {
+  int rindx = isp_map[row];
+  if (rindx<0) return 0;
+  int cindx = isp_map[col];
+  if (cindx<0) return 0;
+
+  printf("setting: (%d,%d) -> (%d,%d) -> %f\n",row,col,rindx,cindx,value);
+  ierr = MatSetValues(A_II_isp,
+			1,&rindx,1,&cindx,&value,mode);
+  CHKERRQ(ierr);
+}
+
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 #undef __FUNC__
 #define __FUNC__ "IISDMat::set_value_a"
@@ -630,6 +655,8 @@ int IISDMat::set_value_a(int row,int col,PetscScalar value,
 			InsertMode mode) {
   int row_indx,col_indx,row_t,col_t;
   double val;
+
+  if (nlay>1) isp_set_value(row,col,value,mode);
 
   map_dof_fun(row,row_t,row_indx);
   map_dof_fun(col,col_t,col_indx);
@@ -689,6 +716,16 @@ int IISDMat::maybe_factor_and_solve(Vec &res,Vec &dx,int factored=0) {
   double *res_a,*res_i_a,*res_loc_a,*y_loc_seq_a,
     *x_loc_seq_a,*x_loc_a,*dx_a,scal,*x_a,*x_i_a;
   Vec res_i=NULL,x_i=NULL,res_loc=NULL,x_loc=NULL,res_loc_i=NULL;
+
+#if 1
+    ierr = PetscViewerASCIIOpen(PETSC_COMM_SELF,
+				"aiiisp.dat",&matlab); PF_CHKERRQ(ierr);
+    ierr = PetscViewerSetFormat(matlab,
+				PETSC_VIEWER_ASCII_MATLAB); PF_CHKERRQ(ierr);
+    ierr = MatView(A_II_isp,matlab); PF_CHKERRQ(ierr);
+    PetscFinalize();
+    exit(0);
+#endif
 
   if (!factored) build_sles();
 
