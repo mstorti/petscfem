@@ -47,7 +47,7 @@ nstep 1
 #else
 nnwt 1
 steady 0
-nstep 1000
+nstep 10000
 #endif
 
 # Compute time step from Courant number
