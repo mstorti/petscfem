@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: gpdata.cpp,v 1.25 2003/02/12 00:36:27 mstorti Exp $
+//$Id: gpdata.cpp,v 1.26 2003/04/01 22:47:19 mstorti Exp $
 
 #include "petscsles.h"
 #include <math.h>
@@ -317,7 +317,7 @@ GPdata::GPdata(const char *geom,int ndimel,int nel,int npg_,int
     // npg:= npg1d^ndimel total number of Gauss points
     int ndimel;
     sscanf(geom,"cartesian%dd",&ndimel);
-    master_volume = pow(0.5,ndimel);
+    master_volume = pow(2.0,ndimel);
 
 //      if (ndimel==0 && npg==1) {
     int npg1d=int(pow(double(npg),1./double(ndimel)));
@@ -350,7 +350,7 @@ GPdata::GPdata(const char *geom,int ndimel,int nel,int npg_,int
     int ndimel;
     sscanf(geom,"cartesian%dd",&ndimel);
     assert(nel==int_pow(2,ndimel));
-    master_volume = pow(0.5,ndimel);
+    master_volume = pow(2.0,ndimel);
     int npg1d=int(pow(double(npg),1./double(ndimel)));
     // AGREGAR lin1d y brick integrations!!
     //    } else if (!(strcmp(geom,"quad")) || !(strcmp(geom,"lin1d"))
@@ -375,7 +375,7 @@ GPdata::GPdata(const char *geom,int ndimel,int nel,int npg_,int
       for (int ixipg=0; ixipg<npg1d; ixipg++) {
 	double xipg = xipgf(ixipg,npg1d);
 	ipg++;
-	wpg[ipg] = 1;
+	wpg[ipg] = master_volume/double(npg);
 	
 	shape[ipg] = RowVector(nel);
 	dshapex[ipg]= Matrix(ndimel,nel);
@@ -401,7 +401,7 @@ GPdata::GPdata(const char *geom,int ndimel,int nel,int npg_,int
 	for (int ietapg=0; ietapg<npg1d; ietapg++) {
 	  ipg++;
 	  double etapg=xipgf(ietapg,npg1d);
-	  wpg[ipg] = 1;
+	  wpg[ipg] = master_volume/double(npg);
 
 	  shape[ipg] = RowVector(nel);
 	  dshapex[ipg]= Matrix(ndimel,nel);
@@ -441,7 +441,7 @@ GPdata::GPdata(const char *geom,int ndimel,int nel,int npg_,int
 	    double zetapg=xipgf(izetapg,npg1d);
 
 	    ipg++;
-	    wpg[ipg] = 1;
+	    wpg[ipg] = master_volume/double(npg);
 
 	    shape[ipg] = RowVector(nel);
 	    dshapex[ipg]= Matrix(ndimel,nel);

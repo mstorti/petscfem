@@ -1,6 +1,6 @@
 // -*- mode: C++ -*-
 /*__INSERT_LICENSE__*/
-//$Id: nsgath.h,v 1.1 2003/01/25 17:15:10 mstorti Exp $
+//$Id: nsgath.h,v 1.2 2003/04/01 22:47:19 mstorti Exp $
 #ifndef NS_GATHERER_H
 #define NS_GATHERER_H
 
@@ -69,6 +69,21 @@ public:
 		     FastMat2 &uold,FastMat2 &xpg,FastMat2 &Jaco,
 		     double wpgdet,double time) {
     pg_values[0] = wpgdet * u.get(1);
+  }
+};
+
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+/** Computes the total volume occupied by the volume elemset. */ 
+class volume_integrator : public gatherer {
+private:
+public:
+  /// perform several checks and initialization
+  void init() { assert(gather_length==1); }
+  /// add volume
+  void set_pg_values(vector<double> &pg_values,FastMat2 &u,
+		     FastMat2 &uold,FastMat2 &xpg,FastMat2 &Jaco,
+		     double wpgdet,double time) {
+    pg_values[0] = wpgdet;
   }
 };
 

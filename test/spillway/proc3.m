@@ -1,11 +1,11 @@
 source("data.m.tmp");
 
-if 0
+if 1
 fs = (1:Nx+1)'*(Ny+1);
 vfs=[];
 k=0;
 while 1
-  file = ["wave.state_" int2str(k) ".tmp"];
+  file = ["RUN1/wave.state_" int2str(k) ".tmp"];
   [info, err, msg] = stat (file);
   if err; break; endif
   U = aload(file);

@@ -2,7 +2,7 @@
 ##
 ## This file is part of PETSc-FEM.
 ##__INSERT_LICENSE__
-## $Id: mkwave.m,v 1.4 2003/03/31 23:47:32 mstorti Exp $
+## $Id: mkwave.m,v 1.5 2003/04/01 22:47:19 mstorti Exp $
 
 ## Author: Mario Storti
 ## Keywords: wave, mesh
@@ -34,20 +34,25 @@ fid  = fopen("wave.fixa_bot.tmp","w");
 fid2 = fopen("wave.fixa_top.tmp","w");
 fid3 = fopen("wave.patm.tmp","w");
 fid4 = fopen("wave.mmv_top.tmp","w");
+fid5  = fopen("wave_mmv.fixa_bot.tmp","w");
 for k=1:Nx
   node = (k-1)*(Ny+1)+1;
-  fprintf(fid,"%d %d %f\n",node,1,0.);
-  fprintf(fid,"%d %d %f\n",node,2,0.);
+  fprintf(fid,"%d %d %f\n",node,1,1.);
+  fprintf(fid,"%d %d %f\n",node,2,1.);
+  fprintf(fid5,"%d %d %f\n",node,1,0.);
+  fprintf(fid5,"%d %d %f\n",node,2,0.);
   node = k*(Ny+1);
   fprintf(fid2,"%d %d %f\n",node,2,0.);
   fprintf(fid3,"%d %d %f\n",node,3,0.);
   fprintf(fid4,"%d %d %f\n",node,1,1.);
+
   fprintf(fid4,"%d %d %f\n",node,2,1.);
 endfor
 fclose(fid);
 fclose(fid2);
 fclose(fid3);
 fclose(fid4);
+fclose(fid5);
 
 ## Periodic
 fid = fopen("wave.peri.tmp","w");

@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-/* $Id: blessf.cpp,v 1.22 2003/03/06 22:45:56 mstorti Exp $ */
+/* $Id: blessf.cpp,v 1.23 2003/04/01 22:47:19 mstorti Exp $ */
 
 #include <src/debug.h>
 #include <malloc.h>
@@ -63,6 +63,7 @@ void bless_elemset(char *type,Elemset *& elemset) {
     SET_ELEMSET_TYPE(visc_force_integrator)
     SET_ELEMSET_TYPE(flow_rate_integrator)
     SET_ELEMSET_TYPE(free_surface_level_integrator)
+    SET_ELEMSET_TYPE(volume_integrator)
 
     SET_ELEMSET_TYPE_ALIAS(mesh_move,mesh_move_eig_anal)
     SET_ELEMSET_TYPE(mesh_move_eig_anal)

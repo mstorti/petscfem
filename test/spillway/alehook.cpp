@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: alehook.cpp,v 1.14 2003/03/31 23:47:32 mstorti Exp $
+//$Id: alehook.cpp,v 1.15 2003/04/01 22:47:19 mstorti Exp $
 #define _GNU_SOURCE
 
 #include <cstdio>
@@ -90,6 +90,8 @@ void ale_hook::close() {}
 
 DL_GENERIC_HOOK(ale_hook);
 
+const vector<double> *gather_values = NULL;
+
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 class ale_hook2 {
 private:
@@ -162,7 +164,9 @@ void ale_hook2::init(Mesh &mesh_a,Dofmap &dofmap,
 void ale_hook2::time_step_pre(double time,int step) {}
 
 void ale_hook2::time_step_post(double time,int step,
-			      const vector<double> &gather_values) {
+			      const vector<double> &gather_values_a) {
+  // Pass to global for computing the bottom flux
+  gather_values = &gather_values_a;
   // Displacements are read in server and sent to slaves
   if (!MY_RANK) {
     printf("ALE_HOOK2: starting time_step_post()\n");
@@ -475,3 +479,54 @@ double fs_coupling::eval(double) {
 }
 
 DEFINE_EXTENDED_AMPLITUDE_FUNCTION2(fs_coupling);
+
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+class fs_bottom : public DLGenericTmpl {
+private:
+  int volume_gather_pos, steady;
+  double volume_ref;
+  double bottom_length, Dt;
+public:
+  fs_bottom() { }
+  void init(TextHashTable *thash);
+  double eval(double);
+  ~fs_bottom() { }
+};
+
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+void fs_bottom::init(TextHashTable *thash) {
+  int ierr;
+  //o Position of the computed volume in the gather vector
+  TGETOPTDEF_ND(GLOBAL_OPTIONS,int,volume_gather_pos,-1);
+  assert(volume_gather_pos>=0);
+  //o Reference volume. Fluxes are injected to the bottom in order
+  //  to reach this value/
+  TGETOPTDEF_ND(GLOBAL_OPTIONS,double,volume_ref,0.);
+  assert(volume_ref>0.);
+  //o Reference volume. Fluxes are injected to the bottom in order
+  //  to reach this value/
+  TGETOPTDEF_ND(GLOBAL_OPTIONS,double,bottom_length,0.);
+  assert(bottom_length>0.);
+  //o Time step
+  TGETOPTDEF_ND(GLOBAL_OPTIONS,double,Dt,0.);
+  assert(Dt>0.);
+  //o Steady flag
+  TGETOPTDEF_ND(GLOBAL_OPTIONS,int,steady,0);
+}
+
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+double fs_bottom::eval(double) { 
+  double bottom_vel = 0.;
+  if (!steady && gather_values) {
+    double volume = (*gather_values)[volume_gather_pos];
+    bottom_vel = -(volume-volume_ref)/bottom_length/Dt;
+  }
+  double val=0.;
+  int f = field();
+  assert(f==1 || f==2);
+  if (f==2) val = bottom_vel;
+  // printf("node %d, field %d, val %f\n",node(),f,val);
+  return val;
+}
+
+DEFINE_EXTENDED_AMPLITUDE_FUNCTION2(fs_bottom);
