@@ -16,7 +16,7 @@ if ($case eq 'laplace_tetra') {
 $ndim = 3;			# Number of spatial dimensions
 $U = 1;				# typical velocity scale
 $L = 1;				# Side of the cavity
-$N = 30;			# Number of elements per dimension
+$N = 10;			# Number of elements per dimension
 $graph_chunk_size  = $N**3;
 $graph_chunk_size = 
     ($graph_chunk_size < 20000 ? 20000 : 
@@ -78,8 +78,8 @@ if (scalar $case =~ /weak_form_(\d)/) {
     die "don't know case \"$case\"\n";
 }
 $CASE = $case;
-$fracstep = 1;
-$maxits=100;
+$fracstep = 0;
+$maxits=500;
 #
 #__END_TRANSCRIPT__
 transcript("", qw(viscosity Dt));	# print variables on output
@@ -91,7 +91,7 @@ global_options
 
 <:pr('ndim'):>
 nsave 5
-nstep 3
+nstep 2
 # initial_state cubcav.state
 <:pr('save_file'):> 
 save_file_pattern "outvector%d.out.tmp"
@@ -101,21 +101,20 @@ save_file_pattern "outvector%d.out.tmp"
 fractional_step
 #endif
 #if 1
-use_compact_profile 2
 compact_profile_graph_chunk_size <:=$graph_chunk_size:>
 #endif
 solver     "iisd"
 solver_mom "petsc"
 preco_type "jacobi"
 rtol 1e-6
-iisd_subpart 50
-maxits 200
+iisd_subpart 20
+<:pr('maxits'):>
 report_consumed_time
 activate_debug_print
 use_interface_full_preco 0
 print_interface_full_preco_conv 0
-interface_full_preco_maxits 3
-interface_full_preco_relax_factor 1.
+interface_full_preco_maxits 10
+interface_full_preco_relax_factor 0.5
 # activate_debug
 
 iisdmat_print_statistics
@@ -123,8 +122,8 @@ print_partitioning_statistics
 
 # file containing the weight (speed) of processors
 proc_weights weights.dat
-max_partgraph_vertices 10000
-max_partgraph_vertices_proc 10000
+max_partgraph_vertices 4000
+max_partgraph_vertices_proc 4000
 
 #    Iterative parameters
 tol_tet 1e-5
@@ -141,7 +140,7 @@ print_internal_loop_conv 1
 
 #print_nodal_partitioning 1
 Dt <:=$Dt:>
-steady 1
+steady 0
 temporal_stability_factor 0
 
 shock_capturing_factor 0
@@ -157,36 +156,22 @@ nodes  3  3  <:=($case eq 'laplace' ? 1 : 4):>
 __INCLUDE__ cubcav.nod.tmp
 _END_NODES__
 
-#if $case ne 'laplace'
-elemset <:=($fracstep ? "fracstep_fm2" : "nsi_tet_les_fm2"); :> <:=($use_tetra ? 4 : 8):>
+elemset \
+ <:=($case eq 'laplace'? 'qharm' : $fracstep? 'fracstep_fm2' : 'nsi_tet_les_fm2'); :> \
+	<:=($use_prismatic? 6 : $use_tetra? 4 : 8):>
 name malla
 # report_consumed_time
-geometry <:=($use_tetra ?  "tetra" : "cartesian3d"):>
-npg <:=($use_tetra ? 4 : 8):>
-#
-# Datos fisicos
-#
+geometry <:=($use_prismatic? 'prismatic' : $use_tetra ?  'tetra' : 'cartesian3d'):>
+npg <:=($use_prismatic? 6 : $use_tetra ? ($case eq 'laplace'? 1 : 4) : 8):>
+
+#if $case ne 'laplace'
 <:pr('viscosity'):> 
 <:pr('weak_form'):>
 LES 0
-__END_HASH__
-__INCLUDE__ cubcav.con<:=($use_tetra ? "-tetra" : ""):>.tmp
-__END_ELEMSET__
-
-#else
-
-elemset qharm <:=($use_prismatic? 6 : $use_tetra ? 4 : 8):>
-name malla
-# report_consumed_time
-geometry <:=($use_prismatic? "prismatic" : $use_tetra ?  "tetra" : "cartesian3d"):>
-npg <:=($use_prismatic? 6 : $use_tetra ? 1 : 8):>
-#
-# Datos fisicos
-#
-__END_HASH__
-__INCLUDE__ cubcav.con<:=($use_prismatic ? "-prism" : $use_tetra ? "-tetra" : ""):>.tmp
-__END_ELEMSET__
 #endif
+__END_HASH__
+__INCLUDE__ cubcav.con<:=($use_prismatic ? '-prism' : $use_tetra ? '-tetra' : ''):>.tmp
+__END_ELEMSET__
 
 end_elemsets
 
