@@ -26,7 +26,7 @@ respectively. We use the SUPG variational formulation
      & + \int_\Gamma (\swf \F^\conv_{i\mu} 
         + \F^\diff_{i\mu}) n_i \di\Gamma \\
      & + \sum_e \int_{\Omega_e} 
-     \taufac \, !P_{ep} \, \LL\{\bsupg \dep{!H_\mu}t + 
+     \taufac \, !P_{e} \, \LL\{\bsupg \dep{!H_\mu}t + 
         \dep{}{x_i}\F_{i\mu}
               - G_\mu \RR\} \di\Omega =0
 \end{split}
@@ -46,9 +46,14 @@ the advective term.
 \index{beta_supg@\verb+beta_supg+}
 \item $0\le\bsupg\le 1$ (option \verb+beta_supg+) controls whether the
 temporal term is treated consistently or not.
-\item $P_{ep}(!x)$ is the SUPG \emph{``perturbation function''} for node
+\item $P_{e}(!x)$ is the SUPG \emph{``perturbation function''} for node
 $p$ on element $e$. For systems, as it is here, it may be a matrix of
 size $\ndof\times\ndof$. 
+\item $\taufac$ is an \emph{``upwind selector''} entered via the
+\verb+tau_fac+ option. Setting \verb+tau_fac 0+ implies no upwind, and
+\verb+tau_fac+$=1$ implies to add more upwind than that computed by
+the program. This lets you to tweak or frobnicate with the quantity of
+upwind added. You shouldn't change this in normal operation. 
 \item The integral on the boundary is computed in elemsets of type
 \verb+bcconv+, whereas the rest are computed in elemset of type
 \verb+advdif+. 
