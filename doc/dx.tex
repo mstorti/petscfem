@@ -1,0 +1,140 @@
+%__INSERT_LICENSE__
+\Section{Visualization with DX}
+
+Data Explorer (\url{http://www.opendx.org}) is a system of tools and
+user interfaces for visualizing scientific data. Originally an IBM
+comercial product, has been released now under the IBM Open Source
+License, and maintained by a group of volunteers (see the URL
+above). Besides their impressive visualization capabilities, DX has
+many features that make it an ideal visualization tool for PETSc-FEM. 
+
+\begin{itemize}
+\item DX is Open Source with a License very close to the GPL (not
+completely compatible though)
+\item It has a \emph{``Visual Program Editor''} which makes it very
+configurable for different modules. 
+\item It has been linked to PETSc-FEM throughs sockets, which makes it
+possible to visualize a running job, even in background. 
+\item It has a scripting language. 
+\end{itemize}
+
+If you want to visualize your results with DX you have first to
+download it from the URL above and install it. Then you can pass your
+results to DX simply by editing the needed {\tt .dx} files or well by
+using the {\tt ExtProgImport} DX module. In order to use this last
+option you have to
+
+\begin{itemize}
+\item Compile PETSc-FEM with the \verb+USE_SSL+ flag enabled (disabled
+      by default). Also, if you want to DX be able to communicate asynchronously
+       with PETSc-FEM, you have to compile with the
+       \verb+USE_PTHREADS+ flag enabled (disabled by default)
+\item Load the \verb+dx_hook+ hook in PETSc-FEM and pass it some
+options. 
+\item Build the module and load it in DX
+\end{itemize}
+
+The communication between DX and PETSc-FEM is done through a
+socket. PETSc-FEM acts as a \emph{``server''} whereas DX acts as a
+\emph{``client''}. PETSc-FEM opens a \emph{``port''} (option
+\verb+dx_port+), and DX connects to that port (the \emph{``port''}
+input tab in the {\tt ExtProgImport} module). DX can communicate with
+PETSc-FEM running in the background ad even on other machine (the
+\emph{``serverhost''} input tab).  At each time step, DX sends a
+request to PETSc-FEM which answers sending back \emph{``arrays''} and
+\emph{``fields''}.
+
+\SSection{Asynchronous/synchronous communication}
+
+\begin{itemize}
+\item In \emph{``synchronous''} mode ({\tt steps>0}) PETSc-FEM waits each
+{\tt steps} time steps a connection from DX. One DX connects to the
+port, PETSc-FEM transmits the required data and resumes
+computation. This is the appropriate way of communication when
+generating a sequence of frames for a video with a DX sequencer, for
+instance. 
+
+\item In \emph{``asynchronous''} mode ({\tt steps=0}), in contrast,
+PETSc-FEM monitors each port after computing a time step. If a DX
+client is trying to connect, it answers the request and resumes computing,
+otherwise it resumes computing immediatly. This is ideal for monitor a
+job that is running in background, for instance. 
+\end{itemize}
+
+The {\tt steps} state variable is internal to PETSc-FEM. It can be set
+initially with a \verb+dx_steps+ options line (1 by default). After
+that, it can be changed by changing the {\tt steps} input
+tab. However, note that the change doesn't take effect until the next
+connection of DX to PETSc-FEM.  If you don't want to change the
+internal state of the \verb+steps+ variable then you can set it to
+\verb+NULL+ or \verb+-1+.
+
+\SSection{Building and loading the ExtProgImport module}
+
+This module allows PETSc-FEM to exchange data with DX through a
+socket, using a predefined protocol. The module is in the {\tt
+\$(PETSCFEM\_DIR)/dx} directory of the PETSc-FEM distribution.  To
+built it, you have to compile first the {\tt petscfem} library, and
+then {\tt cd} to the {\tt dx} directory and make {\tt \$ make}. This
+should build the {\tt dx/epimport} file, which is a dynamically
+loadable module for DX. This one alltogether with the {\tt
+dx/epimport.mdf} (which is a plain text file describing the
+inputs/outputs of the module, and other things) are the files needed
+by DX in order to run the module. 
+
+To load this module in DX you can
+do this either at the moment of launching DX with someting like
+%
+\begin{alltt}
+\$ dx -mdf /path/to/epimport.mdf 
+\end{alltt}
+%
+or well from the {\tt dxexec} window (menu {\tt File/Load Module
+Descriptions}). 
+
+\item Load the \verb+dx_hook+ hook in PETSc-FEM and pass it some
+options. 
+
+\SSection{Module inputs outputs of ExtProgImport} 
+
+\begin{itemize}
+\item (input) \verb+steps+: type {\tt integer}; default {\tt
+           0}. {\sl Description:}  Visualize each "steps" time steps. (0 means
+           asynchronously). 
+\item (input) \verb+serverhost+ type {\tt string}; default \verb+"localhost"+; 
+         {\sl Description:} Name of host where the external program is running
+\item (input)  \verb+port+; type {\tt integer}; default {\tt 5314}; 
+       {\sl Description:}Port number
+\item (input) \verb+options+; type {\tt string}; default {\tt NULL}; 
+     {\sl Description:} Options to be passed to the external program
+\item (input) \verb+step+; type {\tt integer}; default {\tt -1}; 
+        {\sl Description:} Input for sequencer. This value is passed
+        to the \verb+dx_hook+ hook, but currently is ignored by it. It
+        could be used in a future in order to synchronize the DX
+        internal step number with the PETSc-FEM one. 
+\item (input) \verb+state_file+; type {\tt string}; default {\tt
+       NULL}; An ASCII file storing a state where to read the state to be
+     visualized. 
+\item (output) \verb+ output_array_list+; type {\tt field}; 
+        {\sl Description:} Imported arrays
+\item (output) \verb+output_field_list+; type {\tt field}; 
+                {\sl Description:} Imported fields
+\end{itemize}
+
+%<*>---<*>---<*>---<*>---<*>---<*>---<*>---<*>---<*>---<*>---<*> 
+\SSection{DX hook options}
+
+\begin{itemize}
+\index{dx\_port@\verb+dx_port+}
+\item\verb+int dx_port+ {\rm(default=5314)}: TCP/IP port for communicating
+with DX (5000 < dx_port < 65536).
+
+\index{rtol@\verb+rtol+}
+\item\verb+int dx_steps+ {\rm(default=1)}: Initial value for the \verb+steps+ parameter.
+\end{itemize}
+
+% Local Variables: *
+% mode: latex *
+% tex-main-file: "petscfem.tex" *
+% End: *
+
