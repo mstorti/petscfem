@@ -70,7 +70,7 @@ cdepend:
 
 GETSURF := ./getsurf.bin
 cube:
-	make-depl cube.dx.epl cube.dx
+	make-depl cube.dx.epl cube2.dx
 
 getsurf:
 	$(GETSURF) -b 1 -x ./cube.nod.tmp	\

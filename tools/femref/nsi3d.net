@@ -1,5 +1,5 @@
 //
-// time: Thu Jan 13 13:01:24 2005
+// time: Thu Jan 13 17:11:17 2005
 //
 // version: 3.1.2 (format), 4.2.0 (DX)
 //
@@ -11,7 +11,7 @@
 // comment: The control panels allow you to choose which variable to visualize as a deformed surface, which variable to visualize as colors on the surface, and which variable to visualize as contour lines (for scalar data) or glyphs (for vector or connection-dependent data). You can also set the contour line values.
 // comment: 
 // comment: If you would like to modify or use this visual program in the future, choose Open Visual Program Editor from the Windows menu, and then choose Save As from the File menu of the VPE.
-// page assignment: ProcScalar	order=5, windowed=0, showing=0
+// page assignment: ProcScalar	order=5, windowed=0, showing=1
 // page assignment: ProcVelocity	order=6, windowed=0, showing=0
 // page assignment: ScalarGrad	order=4, windowed=0, showing=0
 // page assignment: Selectscalar	order=3, windowed=0, showing=0
@@ -19,8 +19,8 @@
 // page assignment: Vectors	order=7, windowed=0, showing=0
 // page assignment: camera	order=9, windowed=0, showing=0
 // page assignment: image	order=10, windowed=0, showing=0
-// page assignment: import	order=2, windowed=0, showing=1
-// workspace: width = 711, height = 690
+// page assignment: import	order=2, windowed=0, showing=0
+// workspace: width = 797, height = 662
 // layout: snap = 0, width = 20, height = 20, align = NN
 //
 macro main(
@@ -28,8 +28,8 @@ macro main(
 ) {
     // 
     // node Import[11]: x = 427, y = 30, inputs = 6, label = Import
-    // input[1]: defaulting = 0, visible = 1, type = 32, value = "cub.dx"
-    // input[2]: defaulting = 0, visible = 1, type = 32, value = "ns_field_t"
+    // input[1]: defaulting = 0, visible = 1, type = 32, value = "cube2.dx"
+    // input[2]: defaulting = 0, visible = 1, type = 32, value = "ns_surf_s"
     // input[3]: defaulting = 0, visible = 1, type = 32, value = "dx"
     // page group: import
     //
@@ -194,7 +194,7 @@ main_Select_1_out_1 =
     ) [instance: 1, cache: 1];
     // 
     // node Import[10]: x = 304, y = 61, inputs = 6, label = Import
-    // input[1]: defaulting = 0, visible = 1, type = 32, value = "cub.dx"
+    // input[1]: defaulting = 0, visible = 1, type = 32, value = "cube2.dx"
     // input[2]: defaulting = 0, visible = 1, type = 32, value = "ns_vol"
     // input[3]: defaulting = 0, visible = 1, type = 32, value = "dx"
     // page group: import
@@ -814,7 +814,7 @@ main_Collect_12_out_1 =
     main_ColorBar_3_out_1
     ) [instance: 12, cache: 1];
     // 
-    // node Translate[1]: x = 480, y = 532, inputs = 2, label = Translate
+    // node Translate[1]: x = 485, y = 515, inputs = 2, label = Translate
     // input[2]: defaulting = 0, visible = 1, type = 8, value = [3 0 0]
     // page group: import
     //
@@ -824,7 +824,7 @@ main_Translate_1_out_1 =
     main_Translate_1_in_2
     ) [instance: 1, cache: 1];
     // 
-    // node Transmitter[37]: x = 471, y = 628, inputs = 1, label = surf_data
+    // node Transmitter[37]: x = 488, y = 584, inputs = 1, label = surf_data
     // page group: import
     //
 surf_data = main_Translate_1_out_1;
@@ -1198,7 +1198,7 @@ main_Compute_36_out_1 =
     //
 main_Receiver_52_out_1[cache: 0] = seq_step;
     // 
-    // node Image[6]: x = 211, y = 445, inputs = 49, label = Image
+    // node Image[6]: x = 200, y = 420, inputs = 49, label = Image
     // input[1]: defaulting = 0, visible = 0, type = 67108863, value = "Image_6"
     // input[4]: defaulting = 0, visible = 0, type = 1, value = 1
     // input[5]: defaulting = 0, visible = 0, type = 8, value = [2.46443 1.10041 -0.493634]
@@ -1206,7 +1206,7 @@ main_Receiver_52_out_1[cache: 0] = seq_step;
     // input[7]: defaulting = 0, visible = 0, type = 5, value = 3.81401
     // input[8]: defaulting = 0, visible = 0, type = 1, value = 640
     // input[9]: defaulting = 0, visible = 0, type = 5, value = 0.75
-    // input[10]: defaulting = 0, visible = 0, type = 8, value = [-0.391109 0.577694 0.716452]
+    // input[10]: defaulting = 0, visible = 0, type = 8, value = [-0.391108 0.577693 0.716453]
     // input[11]: defaulting = 1, visible = 0, type = 5, value = 24.7133
     // input[12]: defaulting = 0, visible = 0, type = 1, value = 0
     // input[14]: defaulting = 0, visible = 0, type = 1, value = 1
@@ -1223,10 +1223,10 @@ main_Receiver_52_out_1[cache: 0] = seq_step;
     // input[27]: defaulting = 0, visible = 0, type = 1, value = 1024
     // input[28]: defaulting = 0, visible = 0, type = 5, value = 0.75
     // input[29]: defaulting = 1, visible = 0, type = 3, value = 0
-    // input[41]: defaulting = 0, visible = 0, type = 32, value = "rotate"
+    // input[41]: defaulting = 0, visible = 0, type = 32, value = "none"
     // page group: image
     // depth: value = 16
-    // window: position = (0.0801,0.1992), size = 0.6387x0.6823
+    // window: position = (0.0801,0.1497), size = 0.6387x0.6823
     // internal caching: 1
     //
 main_Image_6_out_1,
@@ -1295,15 +1295,15 @@ main_Format_2_out_1 =
     main_Image_6_out_1
     ) [instance: 2, cache: 1];
     // 
-    // node Print[1]: x = 407, y = 494, inputs = 3, label = Print
+    // node Print[2]: x = 308, y = 525, inputs = 3, label = Print
     // input[2]: defaulting = 0, visible = 1, type = 32, value = "rd"
     // page group: image
     //
     Print(
-    main_Collect_2_out_1,
-    main_Print_1_in_2,
-    main_Print_1_in_3
-    ) [instance: 1, cache: 1];
+    main_Image_6_out_1,
+    main_Print_2_in_2,
+    main_Print_2_in_3
+    ) [instance: 2, cache: 1];
     // 
     // node Toggle[3]: x = 40, y = 260, inputs = 6, label = Toggle
     // input[1]: defaulting = 0, visible = 0, type = 32, value = "Toggle_3"
@@ -1481,8 +1481,8 @@ abs_u = main_Compute_29_out_1;
 // network: end of macro body
 CacheScene(main_Image_6_in_1, main_Image_6_out_1, main_Image_6_out_2);
 }
-main_Import_11_in_1 = "cub.dx";
-main_Import_11_in_2 = "ns_field_t";
+main_Import_11_in_1 = "cube2.dx";
+main_Import_11_in_2 = "ns_surf_s";
 main_Import_11_in_3 = "dx";
 main_Import_11_in_4 = NULL;
 main_Import_11_in_5 = NULL;
@@ -1546,7 +1546,7 @@ main_ExtProgImport_1_out_2 = NULL;
 main_Select_1_in_2 = "viscous_fluid_elemset_state";
 main_Select_1_in_3 = NULL;
 main_Select_1_out_1 = NULL;
-main_Import_10_in_1 = "cub.dx";
+main_Import_10_in_1 = "cube2.dx";
 main_Import_10_in_2 = "ns_vol";
 main_Import_10_in_3 = "dx";
 main_Import_10_in_4 = NULL;
@@ -2192,7 +2192,7 @@ main_Image_6_in_6 = [5.87947 -4.11865 5.57887];
 main_Image_6_in_7 = 3.81401;
 main_Image_6_in_8 = 640;
 main_Image_6_in_9 = 0.75;
-main_Image_6_in_10 = [-0.391109 0.577694 0.716452];
+main_Image_6_in_10 = [-0.391108 0.577693 0.716453];
 main_Image_6_in_11 = NULL;
 main_Image_6_in_12 = 0;
 main_Image_6_in_13 = NULL;
@@ -2222,7 +2222,7 @@ main_Image_6_in_37 = NULL;
 main_Image_6_in_38 = NULL;
 main_Image_6_in_39 = NULL;
 main_Image_6_in_40 = NULL;
-main_Image_6_in_41 = "rotate";
+main_Image_6_in_41 = "none";
 main_Image_6_in_42 = NULL;
 main_Image_6_in_43 = NULL;
 main_Image_6_in_44 = NULL;
@@ -2234,8 +2234,8 @@ main_Image_6_in_49 = NULL;
 main_Image_6_out_1 = NULL;
 main_Format_2_in_1 = "make yuv_compress dx_step=%d";
 main_Format_2_out_1 = NULL;
-main_Print_1_in_2 = "rd";
-main_Print_1_in_3 = NULL;
+main_Print_2_in_2 = "rd";
+main_Print_2_in_3 = NULL;
 main_Toggle_3_in_1 = "Toggle_3";
 main_Toggle_3_in_2 = 1;
 main_Toggle_3_in_3 = 1;

@@ -23,7 +23,7 @@ icone = aload("cube.con.tmp");
 asave("cube.con0.tmp",icone-1);
 
 nnod = rows(xnod);
-if 0
+if 1
   v = pvec(xnod,[0,0,1]);
   rho = l2(v);
   v = leftscal(1./(dd^2+rho.^2),v);
@@ -31,11 +31,10 @@ else
   v = xnod;
 endif
 asave("cube.state.tmp",[v,zeros(nnod,1)]);
-return
 
 system("make getsurf");
 
-grad_u = aload("cube.grad-u.tmp");
+grad_u = aload("cube.grad-un.tmp");
 
 w = [+grad_u(:,10)-grad_u(:,7), \
      -grad_u(:,3)+grad_u(:,9), \
@@ -45,6 +44,8 @@ aw=l2(w);
 asave("cube.aw.tmp",aw);
 
 surf_con = aload("cube.surf-con.tmp")+1;
+return
+
 xe = pfnd2ele(xnod,surf_con,xnod);
 
 rhoe=l2(xe(:,1:2));

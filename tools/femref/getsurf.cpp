@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-// $Id: getsurf.cpp,v 1.12 2005/01/13 19:28:33 mstorti Exp $
+// $Id: getsurf.cpp,v 1.13 2005/01/13 20:12:27 mstorti Exp $
 
 #include <string>
 #include <list>
@@ -186,9 +186,10 @@ int main(int argc,char **argv) {
   map<int,int> surf_nodes_map;
   int nfaces = face_table.size(),
     nsurf_nodes = 0;
-  dvector<double> 
-    grad_Ue;
+  dvector<double> grad_Ue;
   grad_Ue.a_resize(2,nfaces,ndim*ndof);
+  grad_Ue.defrag();
+  dvector<int> surf_nodes;
   dvector<int> surf_con;
   dvector<double> surf_mass, node_mass;
   surf_con.a_resize(2,nfaces,face_nel);
@@ -205,8 +206,10 @@ int main(int argc,char **argv) {
     for (int j=0; j<face_nel; j++) {
       int node = face_nodes[j];
       if (surf_nodes_map.find(node)
-	  == surf_nodes_map.end())
+	  == surf_nodes_map.end()) {
 	surf_nodes_map[node] = nsurf_nodes++;
+	surf_nodes.push(node);
+      }
       surf_con.e(surf_elem,j) 
 	= surf_nodes_map[node];
       for (int l=0; l<mesh_nel; l++) {
@@ -273,6 +276,7 @@ int main(int argc,char **argv) {
     Area += area;
     surf_elem++;
   }
+  surf_nodes.defrag();
   fclose(fid);
   fclose(fidgu);
   printf("total area %f\n",Area);
@@ -281,8 +285,29 @@ int main(int argc,char **argv) {
   grad_Un.a_resize(2,nsurf_nodes,ndim*ndof);
   grad_Un.defrag();
 
+  // Save surface connectivity (reduced representation)
+  fid = fopen("cube.surf-con-red.tmp","w");
+  for (int jface=0; jface<nfaces; jface++) {
+    for (int j=0; j<face_nel; j++) {
+      int node = surf_con.e(jface,j);
+      fprintf(fid,"%d ",surf_con.e(jface,j));
+    }
+    fprintf(fid,"\n");
+  }
+  fclose(fid);
+
+  // Save surface node coordinates
+  fid = fopen("cube.surf-nod.tmp","w");
+  for (int jnode=0; jnode<nsurf_nodes; jnode++) {
+    int node = surf_nodes.ref(jnode);
+    for (int j=0; j<ndim; j++) 
+      fprintf(fid,"%g ",x.e(node,j));
+    fprintf(fid,"\n");
+  }
+  fclose(fid);
+
   // Loop over smoothing steps
-  int niter=10;
+  int niter=1;
   node_mass.set(0.);
   for (int jiter=0; jiter<niter; jiter++) {
     grad_Un.set(0.);
@@ -302,6 +327,19 @@ int main(int argc,char **argv) {
       double nod_area = node_mass.ref(node);
       for (int k=0; k<ndim*ndof; k++) 
 	grad_Un.e(node,k) /= nod_area;
+    }
+
+    grad_Ue.set(0.);
+    for (int jface=0; jface<nfaces; jface++) {
+      double *to = &grad_Ue.e(jface,0);
+      for (int j=0; j<face_nel; j++) {
+	int node = surf_con.e(jface,j);
+	double *from = &grad_Un.e(node,0);
+	for (int k=0; k<ndim*ndof; k++) 
+	  to[k] += from[k];
+      }
+      for (int k=0; k<ndim*ndof; k++) 
+	to[k] /= double(face_nel);
     }
   }
 
