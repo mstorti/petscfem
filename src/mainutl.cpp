@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: mainutl.cpp,v 1.18 2003/07/03 04:32:11 mstorti Exp $
+//$Id: mainutl.cpp,v 1.19 2003/11/26 00:12:38 mstorti Exp $
  
 #include "fem.h"
 #include "utils.h"
@@ -7,6 +7,7 @@
 #include "readmesh.h"
 #include "idmap.h"
 #include "elemset.h"
+#include "generror.h"
 #include <src/dvector.h>
 
 extern int MY_RANK,SIZE;
@@ -115,17 +116,11 @@ int print_vector(const char *filename,const Vec x,const Dofmap *dofmap,
 		       SCATTER_FORWARD,*dofmap->scatter_print); CHKERRA(ierr); 
   ierr = VecGetArray(vseq,&vseq_vals); CHKERRQ(ierr);
  
-  if (myrank==0) {
+  if (myrank==0) try {
     printf("Writing vector to file \"%s\"\n",filename);
     FILE *output;
     output = fopen(filename,(append == 0 ? "w" : "a" ) );
-    if (output==NULL) {
-      printf("Couldn't open output file\n");
-      // fixme:= esto esta mal. Todos los procesadores
-      // tienen que llamar a PetscFinalize()
-      PetscFinalize();
-      exit(1);
-    }
+    if (output==NULL) throw GenericError("Couldn't open output file");
 
     int ndof=dofmap->ndof;
     double dval;
@@ -137,7 +132,9 @@ int print_vector(const char *filename,const Vec x,const Dofmap *dofmap,
       fprintf(output,"\n");
     }
     fclose(output);
-  }
+  } catch(GenericError e) { ierr = 1; }
+  MPI_Bcast(&ierr,1,MPI_INT,0,PETSC_COMM_WORLD);
+  PETSCFEM_ASSERT0(!ierr,"Couldn't open output file");
   ierr = VecRestoreArray(vseq,&vseq_vals); CHKERRQ(ierr); 
   ierr = VecDestroy(vseq);
 }
