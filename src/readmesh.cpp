@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: readmesh.cpp,v 1.34 2001/10/11 20:44:48 mstorti Exp $
+//$Id: readmesh.cpp,v 1.35 2001/11/11 01:13:17 mstorti Exp $
  
 #include "fem.h"
 #include "utils.h"
@@ -742,7 +742,7 @@ int read_mesh(Mesh *& mesh,char *fcase,Dofmap *& dofmap,
   }
   PetscPrintf(PETSC_COMM_WORLD,"Starts partitioning.\n"); 
 
-  // Create adjacency table for aprtitioning with Metis. In the adjacency
+  // Create adjacency table for partitioning with Metis. In the adjacency
   // graph the nodes are the elements of the FEM mesh. Two nodes of
   // the graph (elements of the mesh) have are linked if they share a
   // node. 

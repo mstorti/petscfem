@@ -11,8 +11,8 @@ SYNOPSIS
     This is PETSc-FEM, a general purpose, parallel, multi-physics FEM
     program for CFD applications based on PETSc. PETSc-FEM comprises both a
     library that allows the user to develop FEM (or FEM-like, i.e.
-    structured mesh oriented) programs, and a suite of application programs.
-    It is written in the C++ language with an OOP (Object Oriented
+    non-structured mesh oriented) programs, and a suite of application
+    programs. It is written in the C++ language with an OOP (Object Oriented
     Programming) philosophy, but always keeping in mind the scope of
     efficiency.
 
@@ -136,13 +136,13 @@ INSTALLATION
 
   Unpacking
 
-    Once you got the *petscfem-beta-2.12.tar.gz* package, gunzip and untar
+    Once you got the *petscfem-beta-2.18.tar.gz* package, gunzip and untar
     it like this:
 
-      $ gunzip petscfem-beta-2.12.tar.gz
-      $ tar xvf petscfem-beta-2.12.tar
+      $ gunzip petscfem-beta-2.18.tar.gz
+      $ tar xvf petscfem-beta-2.18.tar
 
-    This will create a *petscfem-beta-2.12* directory with all the source
+    This will create a *petscfem-beta-2.18* directory with all the source
     files included.
 
   Makefile variables
