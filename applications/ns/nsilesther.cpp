@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: nsilesther.cpp,v 1.7 2001/05/02 00:08:59 mstorti Exp $
+//$Id: nsilesther.cpp,v 1.8 2001/05/05 01:20:40 mstorti Exp $
 
 #include "../../src/fem.h"
 #include "../../src/utils.h"
@@ -105,7 +105,11 @@ int nsi_tet_les_ther::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
     locst2 = arg_data_v[ja++].locst;
     retval = arg_data_v[ja++].retval;
     if (update_jacobian) retvalmat = arg_data_v[ja++].retval;
+#ifdef RH60    // fixme:= STL vector compiler bug??? see notes.txt
     hmin = (arg_data_v[ja++].vector_assoc)->begin();
+#else
+    ja++;
+#endif
     ja_hmin=ja;
     Dt = *(double *)(arg_data_v[ja++].user_data);
     wall_data = (WallData *)arg_data_v[ja++].user_data;
@@ -361,7 +365,9 @@ int nsi_tet_les_ther::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
 	// computes the minimum size of the mesh
 	if (!WAS_SET || h_pspg<*hmin) {
 	  WAS_SET = 1;
+#ifdef RH60    // fixme:= STL vector compiler bug??? see notes.txt
 	  *hmin = h_pspg;
+#endif
 	}
 
 	// state variables and gradient

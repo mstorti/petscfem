@@ -1,6 +1,6 @@
 # mode: -*- makefile -*-
 #__INSERT_LICENSE__
-#$Id: Makefile.base,v 1.27 2001/04/02 21:21:51 mstorti Exp $
+#$Id: Makefile.base,v 1.28 2001/05/05 01:20:36 mstorti Exp $
 
 #p [in Makefile.base]
 #s General
@@ -60,7 +60,9 @@ INSERT_LICENSE = $(PETSCFEM_DIR)/tools/insert_license.pl
 OCTAVE = octave
 
 include ${PETSC_DIR}/bmake/${PETSC_ARCH}/base
-G_COPTFLAGS      = -ggdb
+#G_COPTFLAGS      = -ggdb
+#GCXX_COPTFLAGS   = -ggdb
+#GCXX_COPTFLAGS   = -O0
 
 .PHONY: tags lclean general_clean force libpetscfem depend local_depend
 
@@ -161,7 +163,7 @@ BIN = $(LNK)/$(LNK).bin
 ns.link:		LNK=ns
 advdif.link:		LNK=advdif
 adv.link:		LNK=adv
-adv.link:		BIN:=advective/adv.bin
+adv.link:		BIN=advective/adv.bin
 laplace.link:		LNK=laplace
 
 #w makes local link to binary, for instance adv.bin

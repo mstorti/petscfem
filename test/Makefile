@@ -1,5 +1,5 @@
 #__INSERT_LICENSE__
-# $Id: Makefile,v 1.19 2001/05/02 01:40:17 mstorti Exp $ 
+# $Id: Makefile,v 1.20 2001/05/05 01:20:45 mstorti Exp $ 
 
 .PHONY: all run  compile lclean ns laplace adv nso laplace_tests force \
         ctest runtests clean fastmat2_obj plano idmap fastvec \
@@ -55,7 +55,8 @@ tests: runtests
 runtests: compile lap_per sector oscplate_all fastmat2 plano \
 	idmap fastvec chunk_size_process constraint_bug fstack triangle \
 	advdif texthash log_vars newff burgers
-runtests_p: texthash log_vars newff
+runtests_p: 	idmap fastvec chunk_size_process constraint_bug fstack triangle \
+	advdif texthash log_vars newff burgers
 
 #s Specific tests
 #----<*>----------<*>----------<*>----------<*>----------<*>----------<*>-----
@@ -177,17 +178,53 @@ ADVO = $(PETSCFEM_DIR)/../petscfem-beta-1.14/applications/advective/adv.bin
 
 export EPERLFLAGS
 
-plano_cons:       EPERLFLAGS := "-d consistent_supg=1"
-plano_cons_auto:  EPERLFLAGS := "-d consistent_supg_auto=1"
-plano_local:      EPERLFLAGS := "-d local_time_step=1"
-plano_auto:       EPERLFLAGS := "-d auto_time_step=1"
-plano_local_nm:   EPERLFLAGS := "-d local_time_step_nm=1"
-plano_local_weak: EPERLFLAGS := "-d local_time_step_weak=1"
-plano_fm2_weak:   EPERLFLAGS := "-d fm2_weak=1"
+pp:
+	echo $(RH60)
+
+ifneq ($(RH60),) 
+
+plano_cons:       EPERLFLAGS = "-d consistent_supg=1"
+plano_cons_auto:  EPERLFLAGS = "-d consistent_supg_auto=1"
+plano_local:      EPERLFLAGS = "-d local_time_step=1"
+plano_auto:       EPERLFLAGS = "-d auto_time_step=1"
+plano_local_nm:   EPERLFLAGS = "-d local_time_step_nm=1"
+plano_local_weak: EPERLFLAGS = "-d local_time_step_weak=1"
+plano_fm2_weak:   EPERLFLAGS = "-d fm2_weak=1"
 
 plano_%: 
-	$(MAKE) EPERLFLAGS=$(EPERLFLAGS) plano.depl
 	-$(MPIRUN) -np 1 $(ADV) -case plano.depl &> $@.sal
+else
+
+plano_cons:
+	$(MAKE) EPERLFLAGS="-d consistent_supg=1" plano.depl
+	-$(MPIRUN) -np 1 $(ADV) -case plano.depl &> $@.sal
+
+plano_cons_auto:
+	$(MAKE) EPERLFLAGS="-d consistent_supg_auto=1" plano.depl
+	-$(MPIRUN) -np 1 $(ADV) -case plano.depl &> $@.sal
+
+plano_local:      
+	$(MAKE) EPERLFLAGS="-d local_time_step=1" plano.depl
+	-$(MPIRUN) -np 1 $(ADV) -case plano.depl &> $@.sal
+
+plano_auto:       
+	$(MAKE) EPERLFLAGS="-d auto_time_step=1" plano.depl
+	-$(MPIRUN) -np 1 $(ADV) -case plano.depl &> $@.sal
+
+plano_local_nm:
+	$(MAKE) EPERLFLAGS="-d local_time_step_nm=1" plano.depl
+	-$(MPIRUN) -np 1 $(ADV) -case plano.depl &> $@.sal
+
+plano_local_weak: 
+	$(MAKE) EPERLFLAGS="-d local_time_step_weak=1" plano.depl
+	-$(MPIRUN) -np 1 $(ADV) -case plano.depl &> $@.sal
+
+plano_fm2_weak:   
+	$(MAKE) EPERLFLAGS="-d fm2_weak=1" plano.depl
+	-$(MPIRUN) -np 1 $(ADV) -case plano.depl &> $@.sal
+
+endif
+
 
 #----<*>----------<*>----------<*>----------<*>----------<*>----------<*>-----
 #w Idmap class

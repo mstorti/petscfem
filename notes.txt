@@ -1,4 +1,4 @@
-$Id: notes.txt,v 1.37 2001/05/05 01:15:22 mstorti Exp $
+$Id: notes.txt,v 1.38 2001/05/05 01:20:36 mstorti Exp $
 OK. This is mostly in spanish...  Sorry :-)
 ================================================================
 
@@ -2465,13 +2465,13 @@ diff -c /home/mstorti/PETSC/petsc-2.0.24/bmake/linux/base_variables.bck /home/ms
 --- /home/mstorti/PETSC/petsc-2.0.24/bmake/linux/base_variables	Sun Jan 14 14:51:45 2001
 ***************
 *** 1,4 ****
-! # $Id: notes.txt,v 1.37 2001/05/05 01:15:22 mstorti Exp $ 
+! # $Id: notes.txt,v 1.38 2001/05/05 01:20:36 mstorti Exp $ 
   #
   #     See the file bmake/base_variables.defs for a complete explanation of all these fields
   #
 --- 1,5 ----
 ! # -*- mode: makefile -*-
-! # $Id: notes.txt,v 1.37 2001/05/05 01:15:22 mstorti Exp $ 
+! # $Id: notes.txt,v 1.38 2001/05/05 01:20:36 mstorti Exp $ 
   #
   #     See the file bmake/base_variables.defs for a complete explanation of all these fields
   #
@@ -2562,7 +2562,7 @@ diff -c /home/mstorti/PETSC/petsc-2.0.24/bmake/linux/base_variables.bck2 /home/m
 *** 1,3 ****
 --- 1,4 ----
 + # -*- mode: makefile -*-
-  # $Id: notes.txt,v 1.37 2001/05/05 01:15:22 mstorti Exp $ 
+  # $Id: notes.txt,v 1.38 2001/05/05 01:20:36 mstorti Exp $ 
   #
   #     See the file bmake/base_variables.defs for a complete explanation of all these fields
 ***************
@@ -3037,6 +3037,20 @@ doc/license.txt, src/version.cppin y doc/latex2html.init
 El problema al linkeditar con /linux: ... se debe a que si en
 Makefile.base llegas a poner 'BOPT = O_c++   ' entonces los trailing
 spaces te joden!!!
+
+%===Fri May  4 19:11:45 ART 2001 mstorti@node1.beowulf.gtm
+%
+STL vector bug
+==============
+%
+No compila en geronimo (o sea RH 5.2.)!! Para mi es un error en las
+STL del compilador. Hay problemas con la implementacion de vectores y
+da un error en el assembler. Los errores aparecen solo en NS en
+ns.cpp, wall.cpp, walldata.cpp  y nsi_tet.cpp. Por ahora la solucion
+es pasar 'hmin' como 'USER_DATA' en donde este el compilador viejo. Y
+hacer una serie de trucos para que no use ciertos vectores STL en esos
+archivos. Espero que esto cambie cuando upgrademos el compilador en
+geronimo... 
 
 %# Current line ===========  
 # Local Variables: $

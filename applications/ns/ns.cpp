@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: ns.cpp,v 1.17 2001/05/02 00:08:59 mstorti Exp $
+//$Id: ns.cpp,v 1.18 2001/05/05 01:20:40 mstorti Exp $
  
 #include <malloc.h>
 
@@ -43,7 +43,7 @@ void bless_elemset(char *type,Elemset *& elemset) {
   //  SET_ELEMSET_TYPE(internal)
   //    SET_ELEMSET_TYPE(fracstep) Por ahora lo desactivamos hasta que
   // hagamos la interfase
-    SET_ELEMSET_TYPE(nsi_tet)
+  // SET_ELEMSET_TYPE(nsi_tet)
     SET_ELEMSET_TYPE(nsi_tet_les)
     SET_ELEMSET_TYPE(nsi_tet_les_fm2)
     SET_ELEMSET_TYPE(nsi_tet_les_ther)
@@ -94,7 +94,10 @@ int main(int argc,char **args) {
   Dofmap *dofmap = new Dofmap;
   Mesh *mesh;
   arg_list argl;
-  vector<double> hmin(1);
+  vector<double> hmin;
+#ifdef RH60   // fixme:= STL vector compiler bug??? see notes.txt
+  hmin.resize(1);
+#endif
 
   PetscInitialize(&argc,&args,(char *)0,help);
   print_copyright();
@@ -283,11 +286,11 @@ int main(int argc,char **args) {
 
   //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
   // Build octree for nearest neighbor calculation
+
   vector<double> *data_pts_ = new vector<double>;
   vector<ElemToPtr> *elemset_pointer = new vector<ElemToPtr>;
   WallData *wall_data;
   if (LES) {
-
     VOID_IT(argl);
     argl.arg_add(data_pts_,USER_DATA);
     argl.arg_add(elemset_pointer,USER_DATA);
@@ -385,7 +388,11 @@ int main(int argc,char **args) {
       argl.arg_add(&xold,IN_VECTOR);
       argl.arg_add(&res,OUT_VECTOR);
       if (update_jacobian) argl.arg_add(&A_tet,OUT_MATRIX);
+#ifdef RH60 // fixme:= STL vector compiler bug??? see notes.txt
       argl.arg_add(&hmin,VECTOR_MIN);
+#else
+      argl.arg_add(&hmin,USER_DATA);
+#endif
       argl.arg_add(&glob_param,USER_DATA);
       argl.arg_add(wall_data,USER_DATA);
 
@@ -421,7 +428,11 @@ int main(int argc,char **args) {
 	argl.arg_add(&xold,IN_VECTOR);
 	argl.arg_add(&A_tet_c,OUT_MATRIX_FDJ);
 	if (update_jacobian) argl.arg_add(&A_tet,OUT_MATRIX);
+#ifdef RH60    // fixme:= STL vector compiler bug??? see notes.txt
 	argl.arg_add(&hmin,VECTOR_MIN);
+#else
+	argl.arg_add(&hmin,USER_DATA);
+#endif
 	argl.arg_add(&Dt,USER_DATA);
 	argl.arg_add(wall_data,USER_DATA);
 	ierr = assemble(mesh,argl,dofmap,jobinfo,

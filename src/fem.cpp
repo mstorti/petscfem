@@ -1,7 +1,8 @@
 //__INSERT_LICENSE__
-//$Id: fem.cpp,v 1.3 2001/04/01 01:35:06 mstorti Exp $
+//$Id: fem.cpp,v 1.4 2001/05/05 01:20:43 mstorti Exp $
 
 #include <time.h>
+#include <stdarg.h>
 
 #include "fem.h"
 #include "readmesh.h"
@@ -103,6 +104,23 @@ int compute_prof(Darray *da,Dofmap *dofmap,int myrank,
   delete[] o_nnz;
   return 0;
 }
+
+#ifndef RH60
+void PETSCFEM_ERROR(const char *templ,...) {
+  va_list list;
+  va_start(list,templ);
+  PetscPrintf(PETSC_COMM_WORLD,templ,list);
+  abort();
+}
+
+void PETSCFEM_ASSERT(int cond, const char *templ,...) {
+  if (!cond) {
+    va_list list;
+    va_start(list,templ);
+    PETSCFEM_ERROR(templ,list);
+  }
+}
+#endif
 
 #if 0
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 

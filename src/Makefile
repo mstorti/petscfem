@@ -1,5 +1,5 @@
 #__INSERT_LICENSE__
-# $Id: Makefile,v 1.17 2001/05/02 00:09:04 mstorti Exp $ 
+# $Id: Makefile,v 1.18 2001/05/05 01:20:42 mstorti Exp $ 
 
 .PHONY: all run lclean save compile
 
@@ -57,9 +57,9 @@ fm2eperl.cpp: fmat2ep.cpp prep.pl
 	eperl -B '//<' -E '//>' $< > $@ ; chmod -w $@
 
 # This doesn't compile with -O2
-measperf.o: CCPPFLAGS += -O1
-#measperf.o: measperf.cpp
-#	-${CC} -c ${COPTFLAGS} ${CFLAGS} ${CCPPFLAGS} -O1 $<
+#measperf.o: CCPPFLAGS += -O1 // this doesn't work with the old 'make'
+measperf.o: measperf.cpp
+	-${CC} -c ${COPTFLAGS} ${CFLAGS} ${CCPPFLAGS} -O1 $<
 
 local_clean:: local_dist_clean
 	-rm -f version.cpp libpetscfem.a # &> /dev/null

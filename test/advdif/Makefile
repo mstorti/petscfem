@@ -1,5 +1,5 @@
 #__INSERT_LICENSE__
-# $Id: Makefile,v 1.22 2001/04/01 03:11:29 mstorti Exp $ 
+# $Id: Makefile,v 1.23 2001/05/05 01:20:48 mstorti Exp $ 
 
 .PHONY: plano data run sine 
 
@@ -61,7 +61,7 @@ endif
 	-chmod -w $(eperl_out_$(case))
 
 $(octave_out_$(case)): $(octave_in_$(case))
-ifneq ($(eperl_out_$(case)),)
+ifneq ($(octave_out_$(case)),)
 	-rm -f $(octave_out_$(case))
 endif
 	octave -q $(octave_script_$(case))

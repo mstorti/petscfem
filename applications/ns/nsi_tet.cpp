@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: nsi_tet.cpp,v 1.7 2001/05/02 00:08:59 mstorti Exp $
+//$Id: nsi_tet.cpp,v 1.8 2001/05/05 01:20:40 mstorti Exp $
 
 #include <string>
 
@@ -124,7 +124,9 @@ int nsi_tet::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
     locst2 = arg_data_v[1].locst;
     retval = arg_data_v[2].retval;
     retvalmat = arg_data_v[3].retval;
+#ifdef RH60    // fixme:= STL vector compiler bug??? see notes.txt
     hmin = (arg_data_v[4].vector_assoc)->begin();
+#endif
 #define WAS_SET arg_data_v[4].was_set
     Dt = *(double *)(arg_data_v[5].user_data);
   }
@@ -375,7 +377,9 @@ int nsi_tet::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
 	// computes the minimum size of the mesh
 	if (!WAS_SET || h_pspg<*hmin) {
 	  WAS_SET = 1;
+#ifdef RH60    // fixme:= STL vector compiler bug??? see notes.txt
 	  *hmin = h_pspg;
+#endif
 	}
 
 	// state variables and gradient

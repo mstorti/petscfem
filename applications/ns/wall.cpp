@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: wall.cpp,v 1.8 2001/05/02 00:08:59 mstorti Exp $
+//$Id: wall.cpp,v 1.9 2001/05/05 01:20:40 mstorti Exp $
   
 #include "../../src/fem.h"
 #include "../../src/utils.h"
@@ -227,10 +227,15 @@ int wall::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
     }      
 
     if (build_nneighbor_tree) {
+      // This doesn't compile under RH 5.2
+#ifdef RH60    // fixme:= STL vector compiler bug??? see notes.txt
       xc.sum(xloc,-1,1).scale(i_nel);
       double *xc_ = xc.storage_begin();
       data_pts->insert(data_pts->end(),xc_,xc_+ndim);
       continue;
+#else
+      assert(0);
+#endif
     }
 
 #define DSHAPEXI (*gp_data.FM2_dshapexi[ipg])
@@ -275,7 +280,6 @@ int wall::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
       veccontr.export_vals(&(RETVAL(ielh,0,0)));
       matloc.export_vals(&(RETVALMAT(ielh,0,0,0,0)));
     }
-    
 
   }
   if (elemset!=this) {

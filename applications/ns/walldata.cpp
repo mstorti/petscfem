@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: walldata.cpp,v 1.2 2001/04/01 01:34:59 mstorti Exp $
+//$Id: walldata.cpp,v 1.3 2001/05/05 01:20:40 mstorti Exp $
  
 #include "../../src/fem.h"
 //  #include "../../src/readmesh.h"
@@ -16,6 +16,7 @@ extern int MY_RANK,SIZE;
 #define __FUNC__ "WallData::WallData()"
 WallData::WallData(vector<double> *data_pts_,vector<ElemToPtr>
 		   *elemset_pointer_,int ndim_) {
+#ifdef RH60    // fixme:= STL vector compiler bug??? see notes.txt
   ndim=ndim_;
   npoints = data_pts_->size()/ndim;
   data_pts = annAllocPts(npoints,ndim);
@@ -32,6 +33,9 @@ WallData::WallData(vector<double> *data_pts_,vector<ElemToPtr>
   // This is tricky?
   nelemset = elemset_pointer_->size();
   elemset_pointer = elemset_pointer_->begin();
+#else
+  assert(0); // I Think this is a compiler bug see 'notes.txt'
+#endif
 }
 
 

@@ -1,6 +1,6 @@
 // -*- mode: c++ -*-
 //__INSERT_LICENSE__
-//$Id: fem.h,v 1.16 2001/05/02 00:09:04 mstorti Exp $
+//$Id: fem.h,v 1.17 2001/05/05 01:20:43 mstorti Exp $
  
 
 #ifndef FEM_H
@@ -279,6 +279,7 @@
     calls #abort()#
     @author M. Storti
 */ 
+#ifdef RH60
 #define PETSCFEM_ERROR(...)				\
   PetscPrintf(PETSC_COMM_WORLD,				\
               "---------------"				\
@@ -302,6 +303,11 @@ if (!(bool_cond)) {					\
   PetscPrintf(PETSC_COMM_WORLD, __VA_ARGS__);		\
   abort();						\
 }
+
+#else  // The old C preprocessor doesn't support variable arg. marcos
+void PETSCFEM_ERROR(const char *templ,...);
+void PETSCFEM_ASSERT(int bool_cond,const char *templ,...);
+#endif
 
 #define PFEM_TRACE(s) PetscPrintf(PETSC_COMM_WORLD,		\
      "<%s>. At file " __FILE__ ", line %d\n",s,__LINE__)

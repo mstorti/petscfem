@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: getarray.cpp,v 1.5 2001/05/02 00:09:04 mstorti Exp $
+//$Id: getarray.cpp,v 1.6 2001/05/05 01:20:43 mstorti Exp $
 
 #include <cstdio>
 #include <ctype.h>
@@ -35,7 +35,7 @@ int yylex (void) {
     s="";
     j=0; 
     while (isalpha(c) || isdigit(c) || c=='_') {
-      s.push_back(c);
+      s += c;
       c = *line_to_parse++;
     }
     line_to_parse--;
@@ -48,7 +48,7 @@ int yylex (void) {
     s="";
     j=0; 
     while (isdigit(c)) {
-      s.push_back(c);
+      s += c;
       c = *line_to_parse++;
     }
     line_to_parse--;
