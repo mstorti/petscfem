@@ -1,0 +1,52 @@
+# -*- mode: makefile -*-
+
+# Points to the directory `src' in the Newmat directory
+NEWMAT = $(HOME)/SOFT/NEWMAT/src
+
+# Point to the Meschach home directory 
+MESCHACH = $(HOME)/SOFT/meschach-1.2
+
+# Glib headers are in two separate directories. Put them as here
+GLIB   = /usr/include/glib-1.2 -I/usr/lib/glib/include
+
+# Points to the Metis home directory
+METIS  = $(HOME)/SOFT/metis-4.0
+
+# Point to the directory where the Libretto headers live after
+# installation
+LIBRETTO_I = /usr/local/include
+
+# Point where the Libretto libraries are installed after installation
+LIBRETTO_LIB = /usr/local/lib
+
+# Point to the ANN home directory
+ANN_HOME = $(HOME)/PETSC/ann_0.2
+
+# Which GNU compiler is being used (may be egc++ also, not tested however). 
+GNUCXX = g++
+
+# Point to the SuperLU home directory
+SUPERLU = $(HOME)/SOFT/SuperLU
+
+# Set to yes/no if you plan to use dynamically loaded functions
+# (extension `.efn'). If you have problems in linking them set to 'no'
+USE_DYNAMICALLY_LOADED_EXTENDED_FUNCTIONS = yes
+
+################################################################
+###   Probably you have not to customize the variables below
+################################################################
+
+# The `etags' program changed in some versions of RedHat, these
+# variables may help in customize then. 
+TAGINCL = --include
+ETAGS := GNU
+
+# Points to the `smc' binary, the Finite State Machine
+# Compiler. Notmally these are shipped already compiled with PETSc-FEM
+# so that you don't need it (unless you change the finite state
+# machine code itself `.sm' or `.sm.in' files). 
+SMC = smc
+
+# Points to the Latex2html program. Only needed if you want to
+# generate the doc.
+LATEX2HTML = /usr/local/latex2html/latex2html
