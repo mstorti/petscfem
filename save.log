@@ -1153,3 +1153,6 @@ tag: beta-2.94.pl11 on Mon,  6 May 2002 17:24:28 -0300 by mstorti in node1.beowu
      > Fixed a bug in graph.cpp for disconnected graphs. 
      > Fixed a bug in readmesh.cpp for not including non-fat 
      > elemsets in partitioning. 
+----------
+tag: beta-2.94.pl12 on Mon,  6 May 2002 23:46:45 -0300 by mstorti in spider
+     > Measuring performance.
