@@ -3615,3 +3615,6 @@ tag: beta-3.38.10 on Thu, 06 Jan 2005 23:39:35 -0300 by mstorti in spider
 ----------
 tag: beta-3.38.11 on Fri, 07 Jan 2005 13:52:48 -0300 by mstorti in minerva.ceride.gov.ar
      > Traverses OK breadth-first a very simple mesh. 
+----------
+tag: beta-3.38.12 on Fri, 07 Jan 2005 20:39:20 -0300 by mstorti in spider
+     > Runs with wall temperature imposed via Lagrange Multiplier. 
