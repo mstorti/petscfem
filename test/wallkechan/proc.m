@@ -18,6 +18,8 @@ plot(yc,uc);
 U=reshape(u(1:NNy*NN,1),NNy,NN)';
 V=reshape(u(1:NNy*NN,2),NNy,NN)';
 P=reshape(u(1:NNy*NN,3),NNy,NN)';
+K=reshape(u(1:NNy*NN,4),NNy,NN)';
+E=reshape(u(1:NNy*NN,5),NNy,NN)';
 
 Q=sum(leftscal(diff(x),xcent(V)));
 

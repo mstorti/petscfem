@@ -4,15 +4,16 @@ require "$ENV{'PETSCFEM_DIR'}/test/eperlini.pl";       # Initializes ePerl
 $L = 1;                         # Semi distance between plates
 $N = 16;                        # Number of elements 
 $hratio = 5;                    # refinement near the wall
-$hratioy = 20;                   # refinement to the exit
-$Ny = 20;                       # Number of elements in y dir
-$Ly = 5;                        # longitudinal length 
+$hratioy = 20;                  # refinement to the exit
+$Ny = 80;                       # Number of elements in y dir
+$Ny_eq = 20;                    # last elements that are equal in size in the y direction
+$Ly = 20;                        # longitudinal length 
 $wall_ke=1;                     # set non-slip condition or
                                 # mixed type (wall_ke) boundary condition
 $peri = 0;                      # Set periodic in the `y' direction or not
 if ($case eq 'poi_lam') {
 #    $wall_ke=1;
-    $Re_l = 10;                  # laminar Re
+    $Re_l = 5;                 # laminar Re
     $Umax = 1;                  # Max vel in the channel
     $Uav = 1.5*$Umax;           # Aver vel 
     $nu = $Uav*2*$L/$Re_l;      # kinematic visc.
@@ -26,9 +27,9 @@ if ($case eq 'poi_lam') {
     $Umax = 1;                  # Max vel in the channel
     $Uav = 1.5*$Umax;           # Aver vel 
     $nu = $Uav*2*$L/$Re_l;      # kinematic visc.
-    $g = $nu*2*$Umax/$L**2;     # body force
+    $g = 0;                     # body force
     $y_wall_plus = 50;          # non-dim. distance to the wall
-    $turbulence_coef=1;               # activate turbulence
+    $turbulence_coef=1;         # activate turbulence
 } elsif ($case eq 'couette') {
     $Re_l = 34000;              # laminar Re
     $Uwall = 1;                 # half relative velocity of the plates
@@ -39,7 +40,7 @@ if ($case eq 'poi_lam') {
     $turbulence_coef=1;               # activates turbulence
 }
 $ocase = $case;    
-octave_export_vars("data.m.tmp",qw(nu g N Ny hratio hratioy L Ly peri));
+octave_export_vars("data.m.tmp",qw(nu g N Ny hratio hratioy L Ly peri Ny_eq));
 :>//                            # ends ePerl block
 
 #default definitions
@@ -72,12 +73,12 @@ save_file_some "wallke.some.tmp"
 nsome 1
 
 alpha 1.
-nstep 1
-nnwt 4
+nstep 10
+nnwt 2
 tol_newton 0
 preco_type "lu"
 Dt 1
-steady
+#steady
 
 #verify_jacobian_with_numerical_one
 #print_linear_system_and_stop
@@ -107,7 +108,7 @@ __END_HASH__
 __INCLUDE__ wallke.con.tmp
 __END_ELEMSET__
 
-#if 0
+#if 1
 #if $wall_ke
 elemset wallke 2
 geometry cartesian1d
@@ -142,7 +143,7 @@ __INCLUDE__ wallke.u_0_right_wall.tmp
 
 # v velocity imposed to 0 in all the left wall
 # in turbulent case this should be done via wall functions
-__INCLUDE__ wallke.v_0_left_wall.tmp
+#__INCLUDE__ wallke.v_0_left_wall.tmp
 
 # fix other fields than the two lagrange multipliers
 __INCLUDE__ wallke.fixa_lag.tmp

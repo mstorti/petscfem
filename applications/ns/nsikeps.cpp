@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-/* $Id: nsikeps.cpp,v 1.8 2001/06/20 02:14:53 mstorti Exp $ */
+/* $Id: nsikeps.cpp,v 1.9 2001/06/21 01:49:56 mstorti Exp $ */
 
 #include "../../src/fem.h"
 #include "../../src/utils.h"
@@ -585,10 +585,10 @@ int nsi_tet_keps::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
           Peps_2 = C_2*eps_over_kap*eps_star;
 
           tmp6_ke.set(W_supg_k).scale(Pkap-eps_star);
-          reskap.axpy(tmp6_ke,wpgdet);
+          reskap.axpy(tmp6_ke,wpgdet*turbulence_coef);
 
           tmp6_ke.set(W_supg_e).scale(Peps-Peps_2);
-          reseps.axpy(tmp6_ke,wpgdet);
+          reseps.axpy(tmp6_ke,wpgdet*turbulence_coef);
 
 	  // kappa-epsilon matrix
 
@@ -605,8 +605,10 @@ int nsi_tet_keps::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
 
           Jaco_k.ir(1,1).set(Jaco_kk).rs();
           Jaco_k.ir(1,2).set(Jaco_ke).rs();
+	  Jaco_k.scale(turbulence_coef);
           Jaco_e.ir(1,1).set(Jaco_ek).rs();
           Jaco_e.ir(1,2).set(Jaco_ee).rs();
+	  Jaco_e.scale(turbulence_coef);
 
           tmp9_ke.prod(tmp7_ke,Jaco_k,1,2,3);
           matlocf.ir(2,ndof-1).is(4,ndof-1,ndof).axpy(tmp9_ke,wpgdet).rs();

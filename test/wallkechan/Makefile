@@ -1,14 +1,13 @@
 #__INSERT_LICENSE__
-# $Id: Makefile,v 1.2 2001/06/20 02:14:56 mstorti Exp $ 
+# $Id: Makefile,v 1.4 2001/06/21 01:49:59 mstorti Exp $ 
 
 .PHONY: force all run tests data
 
-#all: run
-tests: test_case_a
+all: run
 
 PETSCFEM_DIR = ../..
 include $(PETSCFEM_DIR)/Makefile.base
-include ../Makefile.base.test
+include $(PETSCFEM_DIR)/test/Makefile.base.test
 SRCS = 
 
 ifeq ($(case),"test_case_a")
@@ -20,6 +19,7 @@ endif
 PROG = $(NS)
 LOC_PROG = ns
 
+tests: test_case_a
 
 .PHONY: data force
 NP := $(shell procsel $(PETSCFEM_PROCTABLE))
@@ -35,9 +35,9 @@ $(NAME).depl: force
 #	$(MAKE) $(NAME).depl
 
 test_case_%: test_case_%_data
+	if [ -e save.state ] ; then cp save.state save.state.tmp ; fi
 	-$(MPIRUN) -np 1 -machinefile machi.dat $(PROG) \
-			-case $(NAME).depl | tee  output.case_$*.tmp
-	cp save.state save.state.tmp
+			-case $(NAME).depl #> output.case_$*.tmp
 
 local_clean::
 	-rm -rf mat.output system.dat save.state data.m
