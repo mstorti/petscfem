@@ -1,5 +1,5 @@
 #__INSERT_LICENSE__
-# $Id: Makefile,v 1.5 2001/05/26 19:58:17 mstorti Exp $ 
+# $Id: Makefile,v 1.6 2002/02/13 12:09:23 mstorti Exp $ 
 
 .PHONY: fstack force
 
@@ -27,7 +27,4 @@ tfstack.bin: tfstack.o ../../src/libpetscfem.a(fstack.o)
 		-lc ${PETSC_SLES_LIB} \
 		-L$(LIBRETTO_LIB) -libretto
 
-#w Prints all main targets for 'make' along with a brief description
-what:
-	@$(PETSCFEM_DIR)/tools/makewhat.pl -s Makefile $(OMKFLS)
 #

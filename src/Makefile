@@ -1,5 +1,5 @@
 #__INSERT_LICENSE__
-# $Id: Makefile,v 1.44 2002/02/10 00:20:09 mstorti Exp $ 
+# $Id: Makefile,v 1.45 2002/02/13 12:09:23 mstorti Exp $ 
 
 .PHONY: all run lclean save compile
 
@@ -34,23 +34,17 @@ TAGFLAGS =
 
 include $(PETSCFEM_DIR)/Makefile.base
 
-all: libpetscfem.a
+LIBPETSCFEM := libpetscfem_$(opt_level).a
 
-compile:  libpetscfem.a
+all: compile
 
-libpetscfem.a: libpetscfem.a($(LIBOBJS))
+compile:  $(LIBPETSCFEM)
+
+$(LIBPETSCFEM): $(LIBPETSCFEM)($(LIBOBJS))
 	ranlib $@
 
-libpetscfem.a(%.o): %.o
+$(LIBPETSCFEM)(%.o): %.o
 	ar ru $@ $<
-
-#libpetscfem($(LIBOBJS)): $(LIBOBJS)
-#libpetscfem.a: $(LIBOBJS)
-#	ar -ru $@ $(LIBOBJS)
-#	ranlib $@
-
-#spline.o: spline.f
-#	g77 -c $(FFLAGS) -O0 $<
 
 .SECONDARY: fm2eperl.cpp
 
@@ -86,8 +80,7 @@ pfmatFSM.cpp  pfmatFSM.h: pfmat.sm
 #	-${CC} -c ${COPTFLAGS} ${CFLAGS} ${CCPPFLAGS} -O1 $<
 
 local_clean:: local_dist_clean
-	-rm -f version.cpp libpetscfem.a # &> /dev/null
-
+	-rm -f version.cpp $(LIBPETSCFEM) # &> /dev/null
 readlist.h: readlist.eperl
 	if [ -e readlist.h ] ; then chmod +w readlist.h ; fi
 	eperl readlist.eperl > readlist.h
@@ -135,3 +128,6 @@ $(DOC_DIR)/odocelems.tex: elemset.cpp
 
 $(DOC_DIR)/odocrmsh.tex: readmesh.cpp
 	$(run_odoc)
+
+pp:
+	echo $(LIBPETSCFEM)

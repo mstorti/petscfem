@@ -1,17 +1,21 @@
 #__INSERT_LICENSE__
- # $Id: Makefile,v 1.19 2001/12/02 20:54:08 mstorti Exp $ 
+ # $Id: Makefile,v 1.20 2002/02/13 12:09:23 mstorti Exp $ 
 
 .PHONY: all run lclean save compile
 
 PROG = ns
 PETSCFEM_DIR   = ../..
 #MYOBJS = ns.o fracstep.o nsi_tet.o
-MYOBJS = ns.o nsitetlesfm2.o					\
+
+LIBOBJS = nsitetlesfm2.o					\
 		bccnsfm2.o wall.o nsvol.o walldata.o		\
 		nsilesther.o bccnstherfm2.o nsikeps.o		\
 		wallke.o nonlr.o lagmul.o nssup.o nssupr.o	\
 		nsid.o nsres.o adaptor.o elast.o adappg.o	\
 		qharm.o
+
+MYOBJS = ns.o 
+
 
 TAGFLAGS = $(TAGINCL)="../../src/TAGS"
 #TAGFLAGS = --include="../../src/TAGS"
@@ -20,6 +24,17 @@ TAGFLAGS = $(TAGINCL)="../../src/TAGS"
 SRCS := $(MYOBJS:.o=.cpp)
 
 include $(PETSCFEM_DIR)/Makefile.base
+
+PROG_LIB = lib$(PROG)_$(opt_level).a
+
+$(PROG_LIB): $(PROG_LIB)($(LIBOBJS))
+	ranlib $@
+
+$(PROG_LIB)(%.o): %.o
+	ar ru $@ $<
+
+pp:
+	echo $(PROG_LIB)
 
 $(PROG) compile: $(PROG).bin
 
