@@ -1,0 +1,143 @@
+%__INSERT_LICENSE__
+
+\Section{The PFMat class} 
+
+\index{PFMat@\verb+PFMat+} The \verb+PFMat+ class is a matrix class
+that acts either as a wrapper to the \PETSc{} \verb+Mat+ or to other
+representations of matrix/solvers. Currently there is the basic
+\PETSc{} class named \verb+PETScMat+ and a class called \verb+IISDMat+
+(for \emph{``Interface Iterative -- Sub-domain Direct''}, method)
+that has a special solver that solves the linear system by solving
+iteratively over the interface nodes, while solving with a direct
+method in the sub-domain interiors. 
+
+\SSection{The PFMat abstract interface} 
+
+The \verb+create(...)+ member should create the matrix from the matrix
+profile \verb+da+ and the \verb+dofmap'. For the \verb+PETScMat+
+matrix class it calls the old \verb+compute_prof+ routine calculating
+the \verb+d_nnz+ and \verb+o_nnz+ arrays, and calling the
+\verb+MatCreate+ routine. For the \verb+IISD+ matrix it has to
+determine which dofs are in the local blocks and create the
+appropriate numbering.
+
+The \verb+set_value+ member is equivalent to the 'MatSetValues'
+routine and allows to enter values in the matrix. For the
+\verb+IISDMat+ class it sets the value in the appropriate block
+($A_{LL}$, $A_{IL}$, $A_{LI}$ or $A_{II}$ \PETSc{} matrices). In
+addition, for the $A_{LL}$ (\emph{``local-local''} block) it has to
+\emph{``buffer''} those values that are not in this processor (this
+can happen when dealing with periodic boundary conditions, or bad
+partitionings, for instance,  an element that is connected to all
+nodes that belong to other processor. This last case is not the most
+common but it can happen. 
+
+Once you have filled the entries in the matrix you have to call the
+\verb+assembly_begin()+ and \verb+assembly_end()+  members (as in
+\PETSc{}). 
+
+The \verb+solve(...)+ member solves a linear ssytem associated to the
+given operator. 
+
+The \verb+zero_entries()+ is also the counterpart of the corresponding
+\PETSc() routine. The \verb+build_sles()+ member creates internally the
+SLES needed by the solution (included the preconditioner). It takes as
+an argument a \verb+TextHashTable+ from where it takes a series of
+options. The \verb+destroy_sles()+ member has to be called afterwards,
+in order to destroy it (and free space). The \verb+monitor()+ member
+allows the user to redefine the convergence monitoring routine. 
+
+The \verb+view()+ member prints operator information to the output. 
+
+\SSection{IISD solver} 
+
+Let's consider a mesh as in figure ~\ref{fg:iisd}, partitioned such
+that a certain number of elements and nodes belong to processor 0 and
+others to processor 1. We assume that one unknown is associated to
+each node and no Dirichlet boundary conditions are imposed so that
+each node corresponds to one unknown. We split the nodes unknowns in
+three disjoint subsets $L_{1,2}$ and $I$ such that the nodes in $L_1$
+are not connected to those in $L_2$ (i.e. they not share an element,
+and then, the FEM matrix element $A_{i,j}$ with $i\in L_1$ and $j\in
+L_2$ are null. The matrix is split in blocks as follows
+%
+\begin{equation} 
+\begin{split}
+  !A &= \begin{sqmat}{cc}
+             !A_{LL} & !A_{LI} \\
+              !A_{IL} & !A_{II}
+  \end{sqmat}\\
+%
+!A_{LL} &= \begin{sqmat}{cc}
+        !A_{11} & 0\\
+        0 & !A_{11} 
+       \end{sqmat}\\
+%
+!A_{LI} &= \begin{sqmat}{cc}
+        !A_{1I} & !A_{2I}
+        \end{sqmat}\\
+%
+!A_{IL} &= \begin{sqmat}{c}
+        !A_{I1} \\ 
+        !A_{I2}
+        \end{sqmat}
+\end{split}
+\end{equation}
+%
+Now consider the system of equations
+%
+\begin{equation} 
+ !A!x = !b
+\end{equation}
+%
+which is split as
+%
+\begin{equation} 
+\begin{split}
+  !A_{LL} \, !x_L + !A_{LI} \, !x_I & = !b_L \\
+  !A_{IL} \, !x_L + !A_{II} \, !x_I & = !b_I 
+\end{split}
+\end{equation}
+%
+Now consider eliminating $!x_L$ from the first equation and replacing
+in the second so that, we have an equation for $!x_I$
+%
+\begin{equation} 
+\begin{split}
+  (!A_{II} - !A_{IL} \, !A_{LL}\muno \, !A_{LI}) \, !x_I 
+        &= (!b_I - !A_{IL} \, !A_{LL}\muno \, !b_L)\\
+  \btA \, !x_I &= \btb_I 
+\end{split}
+\end{equation}
+%
+We consider solving this system of equations by an iterative method
+such as GMRES, for instance. For such an iterative method, we have
+only to specify how to compute the modified right hand side $\btb$ and
+also how to compute the matrix-vector product $!y=\btA\,!x$. Computing
+the matrix product involves the following steps
+%
+\begin{enumerate}
+\item Compute $!y = !A_{II} \, !x$
+\item Compute $!w = !A_{LI} \, !x$
+\item Solve $!A_{LL} \, !z = !w$ for $!z$
+\item Compute $!v = !A_{IL} \, !z$
+\item Add $!y \gets !y - !v$
+\end{enumerate}
+%
+involving three matrix products with matrices $!A_{II}$, $!A_{IL}$ and
+$!A_{LI}$ and to solve the system with $!A_{LL}$. As the matrix
+$!A_{LL}$ has no elements connecting unknowns in different processors
+the solution system may be computed very efficiently in parallel.
+
+%<*>---<*>---<*>---<*>---<*>---<*>---<*>---<*>---<*>---<*>---<*> 
+\begin{figure*}[htb]
+\centerline{\includegraphics{./OBJ/iisd.eps}}
+\caption{IISD deccomposition by subdomains}
+\label{fg:iisd}
+\end{figure*}
+%<*>---<*>---<*>---<*>---<*>---<*>---<*>---<*>---<*>---<*>---<*> 
+ 
+% Local Variables: *
+% mode: latex *
+% tex-main-file: "petscfem.tex" *
+% End: *
