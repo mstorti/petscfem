@@ -1,5 +1,5 @@
 #__INSERT_LICENSE__
-# $Id: Makefile,v 1.5 2001/06/15 17:42:18 mstorti Exp $ 
+# $Id: Makefile,v 1.6 2001/07/28 20:04:28 mstorti Exp $ 
 
 .PHONY: force all run tests data
 
@@ -42,10 +42,11 @@ test_case_%: test_case_%_data
 local_clean::
 	-rm -rf mat.output system.dat save.state data.m
 
-auxi:
+LOC_PROG := ns
+auxi_old:
 	if [ ! -L advdif ] ; \
 	 then ln -sf $(PROG) $(LOC_PROG) ; \
 	fi
-	echo file ns >.gdbinit
+	echo file $(LOC_PROG) >.gdbinit
 	echo set args -case $(NAME).depl >>.gdbinit
 #s

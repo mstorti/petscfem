@@ -8,6 +8,7 @@ $NPROC = "$ENV{'NP'}";
 if ($check_nodes || $check_fields) {
     $dif_temp=1;
 }
+$solver = $ENV{'solver'};
 #__END_TRANSCRIPT__
 :>//                            # ends ePerl block
 
@@ -28,12 +29,17 @@ nsaverot 1000000
 nstep <:=$nstep:>
 nnwt <:=$nnwt:>
 tol_newton 0
-#if $NPROC > 1
+#if $solver eq 'iisd' 
+use_iisd
+maxits 20
+#elsif $NPROC ==1 && ( ! defined $solver || $solver eq 'lu' )
+preco_type "lu"
+maxits 1
+#elsif ! defined $solver
 preco_type "jacobi"
 maxits 100
 #else
-preco_type "lu"
-maxits 1
+<: die "undefined solver: $solver\n"; :>
 #endif
 
 local_time_step 0

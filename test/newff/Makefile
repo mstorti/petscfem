@@ -1,9 +1,9 @@
 #__INSERT_LICENSE__
-# $Id: Makefile,v 1.16 2001/07/19 13:46:25 mstorti Exp $ 
+# $Id: Makefile,v 1.17 2001/07/28 20:04:21 mstorti Exp $ 
 
 .PHONY: force all run tests data
 
-all: run
+all: test_dif_temp_iisd
 
 PETSCFEM_DIR = ../..
 include $(PETSCFEM_DIR)/Makefile.base
@@ -24,21 +24,28 @@ newff.depl: data.m force
 ################################################################
 # TESTS FOR THE NEW FLUX FUNCTIONS...
 
-tests: test_dif_temp test_dif_temp_cp \
-	test_adv_dif_temp test_adv_temp_cp \
-	test_pure_adv test_reac_adv_dif_temp_y \
-	test_reac_steady test_reac_dif_temp test_std_ard_x_y \
-	test_full_jacs test_full_jacs_cp test_full_full_jacs \
-	test_full_full_jacs_wf test_full_full_jacs_cp \
-	test_full_full_jacs_adv_cp \
-	test_full_full_jacs_t \
-	test_full_full_jacs_tr test_adv_dif_stdy_bcconv \
-	test_stdy_dif test_check_fields test_check_nodes
+tests: tests_plain tests_iisd
 
-testsss: test_full_full_jacs_wf test_full_full_jacs_cp \
-	test_full_full_jacs_t \
-	test_full_full_jacs_tr test_adv_dif_stdy_bcconv \
-	test_stdy_dif
+tests_plain: test_dif_temp test_dif_temp_cp			\
+	test_adv_dif_temp test_adv_temp_cp			\
+	test_pure_adv test_reac_adv_dif_temp_y			\
+	test_reac_steady test_reac_dif_temp test_std_ard_x_y	\
+	test_full_jacs test_full_jacs_cp test_full_full_jacs	\
+	test_full_full_jacs_wf test_full_full_jacs_cp		\
+	test_full_full_jacs_adv_cp				\
+	test_full_full_jacs_t					\
+	test_full_full_jacs_tr test_adv_dif_stdy_bcconv		\
+	test_stdy_dif test_check_fields test_check_nodes 
+
+tests_iisd: test_adv_dif_temp_iisd test_adv_temp_cp_iisd	\
+	test_dif_temp_iisd					\
+	test_full_full_jacs_iisd test_full_jacs_iisd		\
+	test_full_jacs_cp_iisd test_pure_adv_iisd		\
+	test_reac_adv_dif_temp_y_iisd test_std_ard_x_y_iisd 
+
+# test suite, used when performing particular tests
+testsss: test_dif_temp_iisd test_dif_temp_cp_iisd \
+	test_adv_dif_temp_iisd test_adv_temp_cp_iisd
 
 test_%: 
 	$(MAKE) CASE=$* run
@@ -61,9 +68,14 @@ auxi_dat: advdif .gdbinit
 advdif: advdif.link
 
 NPP := $(shell procsel $(PETSCFEM_PROCTABLE))
-ifeq ($(NP),)
-NP = 1
+# use NP=2 for all IISD cases
+ifeq ($(findstring _iisd,$(CASE)),_iisd)
+NP:= 2
 endif
+ifeq ($(NP),)
+NP := 1
+endif
+
 run: data
 	-rm -f save.state.tmp 
 	-$(MPIRUN) -np $(NP) -machinefile machi.dat $(ADVDIF) \
@@ -74,5 +86,9 @@ run: data
 local_clean::
 	-chmod +w newff.data.res
 	-rm -f data.m save.state*
+
+LOC_PROG = advdif
+PROG = ../../applications/advdif/advdif.bin
+CASE_NAME = newff
 
 #s

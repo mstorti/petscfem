@@ -998,6 +998,24 @@ end_section();
 #------/*/------/*/------/*/------/*/------/*/------/*/------/*/ 
 #------/*/------/*/------/*/------/*/------/*/------/*/------/*/ 
 
+begin_section('IISD checking with advdif');
+
+check_newff('adv_dif_temp_iisd');
+check_newff('adv_temp_cp_iisd');
+check_newff('dif_temp_iisd');
+check_newff('full_full_jacs_iisd');
+check_newff('full_jacs_iisd');
+check_newff('full_jacs_cp_iisd');
+check_newff('pure_adv_iisd');
+check_newff('reac_adv_dif_temp_y_iisd');
+check_newff('std_ard_x_y_iisd');
+
+end_section();
+
+#------/*/------/*/------/*/------/*/------/*/------/*/------/*/ 
+#------/*/------/*/------/*/------/*/------/*/------/*/------/*/ 
+#------/*/------/*/------/*/------/*/------/*/------/*/------/*/ 
+
 begin_section('Burgers/advdif tests.');
 
 #------/*/------/*/------/*/------/*/------/*/------/*/------/*/ 

@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: lusubd.cpp,v 1.22 2001/07/28 15:54:15 mstorti Exp $
+//$Id: lusubd.cpp,v 1.23 2001/07/28 20:03:59 mstorti Exp $
 
 // fixme:= this may not work in all applications
 extern int MY_RANK,SIZE;
@@ -232,11 +232,7 @@ void IISDMat::create(Darray *da,const Dofmap *dofmap_,
     row_t = (row < n_loc_tot ? L : I);
     
     // Correct dof's
-    if (row < n_loc_tot) {
-      row = row - n_loc_v[myrank];
-    } else {
-      row = row - n_int_v[myrank];
-    }
+    row -= (row < n_loc_tot ? n_locp : n_intp);
     // loop over the connected dof's
     pos = keq;
     while (1) {
@@ -910,14 +906,15 @@ int PFMat::build_sles(TextHashTable *thash,char *name=NULL) {
   //o Chooses the preconditioning operator. 
   TGETOPTDEF_S(thash,string,preco_type,jacobi);
 
-  if (!warn_iisdmat && typeid(*this)==typeid(IISDMat) 
-      && preco_type != "none") {
-    warn_iisdmat=1;
-    PetscPrintf(PETSC_COMM_WORLD,
-		"PETScFEM warning: IISD operator does not support any\n"
-		"preconditioning. Entered \"%s\", switching to \"PCNONE\"\n",
-		preco_type.c_str());
+  if (typeid(*this)==typeid(IISDMat) && preco_type != "none") {
     preco_type = "none";
+    if ( !warn_iisdmat ) {
+      warn_iisdmat=1;
+      PetscPrintf(PETSC_COMM_WORLD,
+		  "PETScFEM warning: IISD operator does not support any\n"
+		  "preconditioning. Entered \"%s\", switching to \"PCNONE\"\n",
+		  preco_type.c_str());
+    }
   }
 
   ierr = SLESCreate(PETSC_COMM_WORLD,&sles); CHKERRQ(ierr);

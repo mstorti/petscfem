@@ -1,6 +1,6 @@
 // -*- mode: C++ -*- 
 /*__INSERT_LICENSE__*/
-// $Id: pfmat.h,v 1.6 2001/07/24 01:20:01 mstorti Exp $
+// $Id: pfmat.h,v 1.7 2001/07/28 20:03:59 mstorti Exp $
 #ifndef PFMAT_H
 #define PFMAT_H
 
@@ -135,7 +135,7 @@ public:
   void set_value(int row,int col,Scalar value,InsertMode mode=ADD_VALUES) {
     MatSetValues(A,1,&row,1,&col,&value,mode);};
   /// Sets all values of the operator to zero.
-  int zero_entries() {ierr=MatZeroEntries(A); CHKERRQ(ierr);};
+  int zero_entries();
   /** Creates the matrix from the profile computed in #da#
       @param da (input) dynamic array containing the adjacency matrix
       of the operator

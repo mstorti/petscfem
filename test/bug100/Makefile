@@ -1,5 +1,5 @@
 #__INSERT_LICENSE__
-# $Id: Makefile,v 1.1 2001/05/12 22:33:27 mstorti Exp $ 
+# $Id: Makefile,v 1.2 2001/07/28 20:04:04 mstorti Exp $ 
 
 .PHONY: force all run tests data
 
@@ -20,7 +20,10 @@ run: newff.depl
 
 local_clean::
 
-auxi:
+LOC_PROG := advdif
+PROG := $(ADVDIF)
+CASE_NAME := newff
+auxi_o:
 	if [ ! -L advdif ] ; \
 	 then ln -sf $(PETSCFEM_DIR)/applications/advdif/advdif.bin advdif ; \
 	fi

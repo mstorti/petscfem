@@ -1,6 +1,6 @@
 # mode: -*- makefile -*-
 #__INSERT_LICENSE__
-#$Id: Makefile.base,v 1.39 2001/07/25 16:11:11 mstorti Exp $
+#$Id: Makefile.base,v 1.40 2001/07/28 20:03:56 mstorti Exp $
 
 #p [in Makefile.base]
 #s General
@@ -206,3 +206,10 @@ OMKFLS = $(PETSCFEM_DIR)/Makefile.base
 #w Prints all main targets for 'make' along with a brief description
 what:
 	@$(PETSCFEM_DIR)/tools/makewhat.pl -s Makefile $(OMKFLS)
+
+auxi:
+	if [ ! -L $(LOC_PROG) ] ; \
+	 then ln -sf $(PROG) $(LOC_PROG) ; \
+	fi
+	echo file $(LOC_PROG) >.gdbinit
+	echo set args -case $(CASE_NAME).depl >>.gdbinit

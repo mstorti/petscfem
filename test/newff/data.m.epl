@@ -37,14 +37,21 @@ Cp=1;
 Cpfluc=0;
 alpha=1;
 
+## CASE = <:=$CASE:>    received
 <:
 $CASE=$ENV{'CASE'};
+if ($CASE =~ /^(.*)_iisd$/) {
+$solver = 'iisd';
+$CASE = $1;
+}
+
+print "## CASE = $CASE   after striping\n";
+
 if ($CASE eq 'check_nodes' || $CASE eq 'check_fields') {
     $CASE = 'dif_temp';
 }
 :>//
-
-## CASE = <:=$CASE:>;
+## CASE = <:=$CASE:>  after redirecting
 
 #if $CASE eq 'stdy_dif'
 ## Steady heat eq. with source term

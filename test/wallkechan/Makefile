@@ -1,5 +1,5 @@
 #__INSERT_LICENSE__
-# $Id: Makefile,v 1.6 2001/07/10 00:53:43 mstorti Exp $ 
+# $Id: Makefile,v 1.7 2001/07/28 20:04:32 mstorti Exp $ 
 
 .PHONY: force all run tests data
 
@@ -42,7 +42,7 @@ test_case_%: test_case_%_data
 local_clean::
 	-rm -rf mat.output system.dat save.state data.m
 
-auxi:
+auxi_o:
 	if [ ! -L advdif ] ; \
 	 then ln -sf $(PROG) $(LOC_PROG) ; \
 	fi

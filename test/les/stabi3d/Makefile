@@ -1,5 +1,5 @@
 #__INSERT_LICENSE__
-# $Id: Makefile,v 1.1 2001/05/10 03:55:41 mstorti Exp $ 
+# $Id: Makefile,v 1.2 2001/07/28 20:04:14 mstorti Exp $ 
 
 .PHONY: force tangent stabi data auxi
 
@@ -32,7 +32,7 @@ stabi:
 local_clean::
 	-rm system.dat flux_jaco.dat
 
-auxi:
+auxi_o:
 	ln -sf $(PETSCFEM_DIR)/applications/ns/ns.bin ns
 	echo set args -case stabi.depl >.gdbinit
 	echo file ns >>.gdbinit
