@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: ns.cpp,v 1.139 2003/11/27 21:22:50 mstorti Exp $
+//$Id: ns.cpp,v 1.140 2004/01/26 20:22:06 mstorti Exp $
 #include <src/debug.h>
 #include <malloc.h>
 
@@ -254,7 +254,7 @@ int main(int argc,char **args) {
   //o Number of ``gathered'' quantities.
   GETOPTDEF(int,ngather,0);
   //o Print values in this file 
-  TGETOPTDEF_S(GLOBAL_OPTIONS,string,gather_file,"gather.out");
+  TGETOPTDEF_S(GLOBAL_OPTIONS,string,gather_file,gather.out);
   // Initialize gather_file
   FILE *gather_file_f;
   if (MY_RANK==0 && ngather>0) {
