@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-// $Id: epimport.cpp,v 1.6 2003/02/16 01:42:01 mstorti Exp $
+// $Id: epimport.cpp,v 1.7 2003/02/16 15:15:49 mstorti Exp $
 #include <string>
 #include <vector>
 #include <map>
@@ -243,35 +243,6 @@ Error build_dx_array_int(Socket *clnt,int shape,int length, Array &array) {
 }
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
-class AutoString {
-private:
-  char *s;
-  int n;
-public:
-  AutoString() : s(NULL) {}
-  ~AutoString() { free(s); }
-  char *str() const { return s; }
-  int *N() { return &n; }
-  void resize(int m) { 
-    if (m>n) {
-      char *new_s = (char *)malloc(m);
-      if (n>0) {
-	strcpy(new_s,s);
-	free(s);
-      }
-      n=m;
-    }
-  }
-  void clear() {
-    if (n>0) { n=0; free(s); }
-  }
-  void cat(AutoString &s) { 
-    // Cats s at the rear of this string
-    // not coded yet
-  }
-};
-
-//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 extern "C" Error m_ExtProgImport(Object *in, Object *out) {
   int i,N, *icone_p,node,nread,nnod,nnod2,ndim,ndof,
     nelem, nel, cookie, fields_n, arrays_n;
@@ -377,7 +348,7 @@ extern "C" Error m_ExtProgImport(Object *in, Object *out) {
 
   while(1) {
     Sgetline(&buf,&Nbuf,clnt);
-    DXMessage("Got line \"%s\"",buf);
+    // DXMessage("Got line \"%s\"",buf);
     tokenize(buf,tokens);
 
     if (tokens[0]=="end") break;
@@ -421,7 +392,6 @@ extern "C" Error m_ExtProgImport(Object *in, Object *out) {
       Sprintf(clnt,"state_OK %d\n",cookie);
       //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
     } else if (tokens[0]=="elemset") {
-      DXMessage("Got line %s",buf);
       string &name = tokens[1];
       string &dx_type = tokens[2];
       if (string2int(tokens[3],nel)) goto error;
@@ -510,7 +480,7 @@ extern "C" Error m_ExtProgImport(Object *in, Object *out) {
 	  string dname(r->first);
 	  DXField *dxf = new DXField(n,cname,dname,field);
 	  string fname = cname + "_" + dname;
-	  DXMessage("Creating field %s",fname.c_str());
+	  DXMessage("Builds field %s",fname.c_str());
 	  ierr = dx_objects_table.load_new(fname,dxf);
 	  if(ierr!=OK) return ierr;
 	}
@@ -527,7 +497,6 @@ extern "C" Error m_ExtProgImport(Object *in, Object *out) {
   }
 
   fields_n=0; arrays_n=0;
-  DXMessage("Before building alist and flist");
   qe = dx_objects_table.end();
   for (q=dx_objects_table.begin(); q!=qe; q++) {
     DXField *field = dynamic_cast<DXField *>(q->second);
@@ -541,7 +510,7 @@ extern "C" Error m_ExtProgImport(Object *in, Object *out) {
       o = (Object)field->dx_object();
       flist = DXSetMember(flist,name,o);
       if (!flist) goto error;
-      DXMessage("Field %d, ptr. %p, member name \"%s\"",fields_n,o,name);
+      DXMessage("#%d. Field ptr. %p, member name \"%s\"",fields_n,o,name);
     } else {
       if (!arrays_n++) {
 	alist = DXNewGroup();
@@ -550,7 +519,7 @@ extern "C" Error m_ExtProgImport(Object *in, Object *out) {
       o = (Object)q->second->dx_object();
       alist = DXSetMember(alist,name,o);
       if (!alist) goto error;
-      DXMessage("Array %d, ptr. %p, member name \"%s\"",arrays_n,o,name);
+      DXMessage("#%d Array ptr. %p, member name \"%s\"",arrays_n,o,name);
     }
   }
 

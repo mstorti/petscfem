@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-// $Id: autostr.cpp,v 1.1 2003/02/16 03:15:36 mstorti Exp $
+// $Id: autostr.cpp,v 1.2 2003/02/16 15:15:53 mstorti Exp $
 #define _GNU_SOURCE
 #include <cstdlib>
 #include <cstring>
@@ -45,13 +45,30 @@ void AutoString::cat(AutoString &as) {
 }
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+void AutoString::vsprintf(char *f,va_list ap) { 
+  n = vasprintf(&s,f,ap);
+}
+
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 void AutoString::sprintf(char *f,...) {
   va_list ap;
-  int count;
-  va_start (ap,f);
-  n = vasprintf(&s,f,ap);
+  va_start(ap,f);
+  vsprintf(f,ap);
 }
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 int AutoString::len() { return strlen(s); }
 
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+void AutoString::vcat_sprintf(char *f,va_list ap) {
+  AutoString t;
+  t.vsprintf(f,ap);
+  cat(t);
+}
+
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+void AutoString::cat_sprintf(char *f,...) {
+  va_list ap;
+  va_start(ap,f);
+  vcat_sprintf(f,ap);
+}
