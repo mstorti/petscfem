@@ -3,6 +3,11 @@ function x = mapbou (nodi,nodj,xi,XNOD)
 
   global Rint Rext L Rmean
 
+  if nodi>nodj
+    x = mapbou (nodj,nodi,1-xi,XNOD);
+    return;
+  endif
+
   if nodi==1 && nodj==9
     theta = (1-xi)*pi/4;
     x = Rint*[cos(theta) sin(theta)];
@@ -21,6 +26,6 @@ function x = mapbou (nodi,nodj,xi,XNOD)
       x = Rext*[cos(theta) sin(theta)];
     endif
   else
-    x = XNOD(nodi,:)+xi*(XNOD(nodj,:)-XNOD(nodi,3));
+    x = XNOD(nodi,:)+xi*(XNOD(nodj,:)-XNOD(nodi,:));
   endif
 endfunction

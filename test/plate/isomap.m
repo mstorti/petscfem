@@ -20,12 +20,35 @@ function [xnod,icone]= isomap(XNOD,ICONE,m,n)
     X23(k,:) = mapbou(ICONE(2),ICONE(3),eta(k),XNOD);
   endfor
   
+  tol = 1e-10;
+  merr(X12(1,  :) - X14(1,:))   < tol || error("Corner doesn't match");
+  X1 = X12(1,  :);
+  merr(X12(m+1,:) - X23(1,:))   < tol || error("Corner doesn't match");
+  X2 = X12(m+1,  :);
+  merr(X23(n+1,:) - X43(m+1,:)) < tol || error("Corner doesn't match");
+  X3 = X23(n+1,  :);
+  merr(X14(n+1,:) - X43(1,:))   < tol || error("Corner doesn't match");
+  X4 = X14(n+1,  :);
+
   xnod = zeros(size(xinod));
   for k=1:rows(xnod);
     xi  = xinod(k,1);
     eta = xinod(k,2);
     ii = 1+round(xi*m);
     jj = 1+round(eta*n);
-    xnod = (
+    XBL = \
+	X1*(1-xi)*(1-eta)+ \
+	X2*    xi*(1-eta)+ \
+	X3*    xi*   eta + \
+	X4*(1-xi)*   eta;
+    XS = X1*(1-xi)+X2*xi;
+    XN = X4*(1-xi)+X3*xi;
+    XW = X1*(1-eta)+X4*eta;
+    XE = X2*(1-eta)+X3*eta;
+    XPL = \
+	(1-eta)*(X12(ii,:)-XS) + eta*(X43(ii,:)-XN) + \
+	(1-xi)*(X14(jj,:)-XW) + xi*(X23(jj,:)-XE);
+    xnod(k,:) = XBL + XPL;
+  endfor
 
 endfunction

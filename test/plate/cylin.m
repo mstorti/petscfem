@@ -28,4 +28,11 @@ ICONE = [1 2 7 6;
 	 9 10 2 1;
 	 10 11 4 2];
 
-[xnod,icone] = isomap(XNOD,ICONE(1,:),Nr/2,Ntheta/4);
+xnod = []; icone=[];
+
+for k=1:rows(ICONE)
+  [xx,ii] = isomap(XNOD,ICONE(k,:),20,20);
+  nnod = rows(xnod);
+  xnod = [xnod; xx];
+  icone = [icone; ii+nnod];
+endfor
