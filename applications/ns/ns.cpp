@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: ns.cpp,v 1.45 2001/11/09 19:45:02 mstorti Exp $
+//$Id: ns.cpp,v 1.46 2001/11/20 16:27:43 mstorti Exp $
  
 #include <malloc.h>
 
@@ -10,6 +10,7 @@
 #include <src/util2.h>
 #include <src/sttfilter.h>
 #include <src/pfmat.h>
+#include <src/debug.h>
 
 #include <applications/ns/nsi_tet.h>
 #include <applications/ns/nssup.h>
@@ -102,6 +103,10 @@ int main(int argc,char **args) {
   read_mesh(mesh,fcase,dofmap,neq,SIZE,MY_RANK);
 
   GLOBAL_OPTIONS = mesh->global_options;
+
+  //o Activate debugging
+  GETOPTDEF(int,activate_debug,0);
+  if (activate_debug) debug.activate();
 
   //o Dimension of the problem.
   GETOPTDEF(int,ndim,3);
@@ -238,7 +243,7 @@ int main(int argc,char **args) {
   // COMPUTE ACTIVE PROFILE
   VOID_IT(argl);
   argl.arg_add(A_tet,PROFILE|PFMAT);
-  PetscPrintf(PETSC_COMM_WORLD,"Computing profile...\n");
+  debug.wait("Computing profile...\n");
   ierr = assemble(mesh,argl,dofmap,"comp_mat",&time); CHKERRA(ierr); 
   PetscPrintf(PETSC_COMM_WORLD,"... Done.\n");
 
