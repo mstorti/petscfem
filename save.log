@@ -585,3 +585,8 @@ tag: beta-2.23 on Tue Nov 13 22:53:02 ARST 2001, by mstorti in spider
 ----------
 tag: beta-2.24 on Wed Nov 14 23:50:10 ARST 2001, by mstorti in spider
      > Adding options to PFMat and Sparse::Mat
+----------
+tag: beta-2.25 on Mon Nov 19 00:35:38 ARST 2001, by mstorti in spider
+     > Added options to PFMat and Sparse::Mat
+     > In sloshing, computing several matrices for different frequencies 
+     > and verifying linearity with omega.
