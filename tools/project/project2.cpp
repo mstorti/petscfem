@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-// $Id: project2.cpp,v 1.1 2005/02/28 00:38:49 mstorti Exp $
+// $Id: project2.cpp,v 1.2 2005/02/28 00:58:53 mstorti Exp $
 
 #include <cstdio>
 #include <src/fastmat2.h>
@@ -67,7 +67,7 @@ int main() {
     nor(1,ndim),L(1,nd1),
     b(1,ndim+1),u1_loc(2,ndof,nel),
     u2(1,ndof);
-  vector<int> restricted(ndim);
+  vector<int> restricted(nel);
   double tol = 1e-6;
   double d2min;			// Minimum distance to elements in mesh1
   int k1min;			// Element in mesh1 with minimum distance
@@ -94,10 +94,9 @@ int main() {
       // elements in the `ndim+1' row to 0. 
       assert(ndimel==ndim);
       
-      C.setel(0.0,nd1,nd1);
       b.is(1,1,ndim).set(x2).rs();
       b.setel(1.0,nd1);
-      for (int j=0; j<ndim; j++)
+      for (int j=0; j<nel; j++)
 	restricted[j] = 0;
       invC.inv(C);
       C2.set(C);
@@ -185,7 +184,7 @@ int main() {
     for (int j=1; j<=nel; j++) {
       u1_loc.ir(2,j);
       int node = ico1.e(k1min,j-1);
-      u1_loc.set(u1.e(node-1,0));
+      u1_loc.set(&u1.e(node-1,0));
     }
     u1_loc.rs();
     // Interpolate
