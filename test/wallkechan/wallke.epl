@@ -78,11 +78,11 @@ nsome 1
 
 alpha 1.
 nstep 10
-nnwt 4
+nnwt 10
 tol_newton 0
 preco_type "lu"
 Dt 0.1
-#steady
+steady
 #pspg_advection_factor 0.
 #pspg_factor 2.
 

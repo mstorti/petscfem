@@ -2,6 +2,7 @@ source("data.m.tmp");
 NN=(N+1);
 NNy = Ny+1;
 nnod = NN*NNy;
+ndof=5;
 xx=aload("wallke.nod.tmp");
 x=xx(1:NNy:nnod,1);
 if !exist("state") 
@@ -15,22 +16,22 @@ nargs = rows(args);
 if nargs<3
   indx=1;
 else
-  indx = str2num (args[3]);
+  indx = str2num (args(3,:));
 endif
 
 if nargs<2
   filename = "save.state";
 else
-  filename = deblank(args[2]);
+  filename = deblank(args(2,:));
 endif
 
 if nargs<1;
   ss="";
 else
-  ss=deblank(args[1]);
+  ss=deblank(args(1,:));
 endif
 
-u=read_state(filename,);
+u=read_state(filename,nnod,ndof,indx);
 out=NNy:NNy:nnod;
 vout=u(out,2);
 cntr=(NN-1)*NNy+(1:NNy)';
