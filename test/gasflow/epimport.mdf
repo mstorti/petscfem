@@ -1,7 +1,11 @@
+# -*- mode: shell-script -*-
+# $Id: epimport.mdf,v 1.5 2003/02/07 20:13:34 mstorti Exp $ 
 MODULE ExtProgImport
 CATEGORY Import and Export
 DESCRIPTION Imports data from a fifo/socket
 LOADABLE epimport;
-INPUT serverhost; string;  (none); Name of host where the external CFD program is running
+INPUT options; string;  (none); Options to be passed to the external program
+INPUT serverhost; string;  localhost; Name of host where the external program is running
 INPUT port; integer; 5314; Port number
+INPUT steps; integer; 0; Visualize each `steps' time steps. (0 means asynchronously)
 OUTPUT output_field; field;  Imported field
