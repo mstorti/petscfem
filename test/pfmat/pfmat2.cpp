@@ -1,5 +1,5 @@
 /*__INSERT_LICENSE__*/
-// $Id: pfmat2.cpp,v 1.1.2.1 2002/01/02 23:55:24 mstorti Exp $
+// $Id: pfmat2.cpp,v 1.1.2.2 2002/01/03 15:31:27 mstorti Exp $
 
 // Tests for the `PFMat' class
 #include <src/debug.h>
@@ -25,13 +25,19 @@ public:
 } part;
 
 #define CHKOPT(name)  if (myrank==0) assert(!strcmp(#name,args[++arg]))
+//  void set_print_maybe(int cond, int myrank, PFMat &A,int j, int k,
+//  		     double val) {
+  
+#define SET_PRINT_MAYBE(j,k,val)					\
+     { if (((j)*size)/Nelem == myrank) A.set_value((j),(k),(val));	\
+       if (myrank == 0) fprintf(fid,"%d %d %f",(j),(k),(val)); }
 
 int main(int argc,char **args) {
 
   PFMat *A_p;
-  Vec x,b,xex;
+  Vec x,b;
   int ierr,iisd_subpart,nsolve,rand_flag,mat_type,q_type,
-    tests_ok=1;
+    tests_ok=1,nprof=1;
   // is_diag:= `is_diag[k]' flags whether the element `k' is Laplace
   // (element matrix propto. [1 -1; -1 1]) or Identity ([1 0; 0 1]);
   vector<int> is_diag;
@@ -48,7 +54,7 @@ int main(int argc,char **args) {
   int arg=0;
 
   // usage: pfmat.bin ne <Nelem> deb <debug_print> nsl <nsolve> sbdp
-  // <iisd_subpart> nmat <nmat> rrhs <rand_flag> mtyp <mat_type>
+  // <iisd_subpart> nmat <nmat> mtyp <mat_type> f <fill>
 
   CHKOPT(ne);
   if (myrank==0 && argc>++arg)
@@ -94,14 +100,15 @@ int main(int argc,char **args) {
 		    1, MPI_INT, 0,MPI_COMM_WORLD); CHKERRA(ierr); 
   PetscPrintf(PETSC_COMM_WORLD,"nmat %d  (solve with nmat matrices)\n",nmat);
 
-  CHKOPT(rrhs);
-  rand_flag=0;
+  CHKOPT(nprof);
+  nprof=1;
   if (myrank==0 && argc>++arg) 
-    sscanf(args[arg],"%d",&rand_flag);
-  ierr = MPI_Bcast (&rand_flag, 
+    sscanf(args[arg],"%d",&nprof);
+  ierr = MPI_Bcast (&nprof, 
 		    1, MPI_INT, 0,MPI_COMM_WORLD); CHKERRA(ierr); 
-  PetscPrintf(PETSC_COMM_WORLD,"rand_flag %d  (use a randomly "
-	      "perturbated Q, k and L\n",rand_flag);
+  PetscPrintf(PETSC_COMM_WORLD,"nprof %d  (solve with nprof profiles)\n",nmat);
+
+  rand_flag=0;
 
   CHKOPT(mtyp);
   mat_type=0; // 0 -> IISDMat, 1 -> PETScMat
@@ -115,7 +122,7 @@ int main(int argc,char **args) {
   CHKOPT(f);
   mat_type=0; // 0 -> IISDMat, 1 -> PETScMat
   if (myrank==0 && argc>++arg) 
-    sscanf(args[arg],"%f",&fill);
+    sscanf(args[arg],"%lf",&fill);
   ierr = MPI_Bcast (&fill, 
 		    1, MPI_DOUBLE, 0,MPI_COMM_WORLD); CHKERRA(ierr); 
   PetscPrintf(PETSC_COMM_WORLD,
@@ -141,91 +148,86 @@ int main(int argc,char **args) {
   A.set_option("print_internal_loop_conv",debug_print);
   A.set_option("rtol",1e-8);
   A.set_option("atol",0);
-  A.create();
-  // if (debug_print) A.view();
 
-  int nhere=0;
-  for (int k=0; k<N; k++) 
-    if (part.processor(k)==myrank) nhere++;
-  
-  ierr = VecCreateMPI(PETSC_COMM_WORLD,
-		      nhere,PETSC_DETERMINE,&b); CHKERRA(ierr); 
-  ierr = VecDuplicate(b,&x); CHKERRA(ierr); 
-  ierr = VecDuplicate(b,&xex); CHKERRA(ierr); 
+  for (int jprof=0; jprof<nprof; jprof++) {
 
-  for (int imat=0; imat<nmat; imat++) {
-    A.zero_entries();
+    // define type of elements
+    is_diag.clear();
+    is_diag.resize(Nelem,0);
     if (myrank==0) {
-      cond = 1. + rand_coef * ::drand();
-      L = 1. + rand_coef * ::drand();
-      
-    }
-
-    ierr = MPI_Bcast (&cond, 1, MPI_DOUBLE, 0,MPI_COMM_WORLD);
-    ierr = MPI_Bcast (&L, 1, MPI_DOUBLE, 0,MPI_COMM_WORLD);
-    double h = L/double(Nelem);
-    double coef = cond / (h*h);
-
-    for (int j=0; j<N; j++) {
-      if (j % size != myrank) continue; // Load periodically
-      A.set_value(j,j,2.*coef);
-      if (j+1 <  N ) A.set_value(j,j+1,-coef);
-      if (j-1 >= 0 ) A.set_value(j,j-1,-coef);
-    }
-    A.assembly_begin(MAT_FINAL_ASSEMBLY); 
-    A.assembly_end(MAT_FINAL_ASSEMBLY); 
-
-    for (int ksolve=0; ksolve<nsolve; ksolve++) {
-
-      if (myrank==0) {
-	Q = 1. + rand_coef * ::drand();
-	printf("cond %f, Q %f, L %f\n",cond,Q,L);
+      for (int je=0; je<Nelem; je++) {
+	is_diag[je] = ::drand()>fill;
       }
-      ierr = MPI_Bcast (&Q, 1, MPI_DOUBLE, 0,MPI_COMM_WORLD);
+    }
+    ierr = MPI_Bcast (is_diag.begin(), Nelem, MPI_INT, 0,MPI_COMM_WORLD);
+    
+    // Define profile
+    for (int j=0; j<Nelem; j++) {
+      // Is this element in this processor?
+      if ((j*size)/Nelem != myrank) continue; 
+      if (j-1>=0) A.set_profile(j-1,j-1);
+      if (j<N)   A.set_profile(j,j);
+      if (!is_diag[j] && j-1>=0 && j<N) {
+	A.set_profile(j-1,j);
+	A.set_profile(j,j-1);
+      }
+    }
 
-      if (myrank==0) {
-	for (int j=0; j<N; j++) {
-	  double x = double(j+1)/double(Nelem)*L;
-	  double Qx = (q_type==0 ? Q : Q*(x-L/2));
-	  ierr = VecSetValues(b,1,&j,&Qx,INSERT_VALUES); CHKERRA(ierr);
-	  double val = (q_type==0 ? x*(L-x)*Q/cond/2.
-			: Q/cond*x*(L-x)*(x-L/2.)/6.);
-	  ierr = VecSetValues(xex,1,&j,&val,INSERT_VALUES); CHKERRA(ierr);
+    A.create();
+    // if (debug_print) A.view();
+
+    int nhere=0;
+    for (int k=0; k<N; k++) 
+      if (part.processor(k)==myrank) nhere++;
+  
+    ierr = VecCreateMPI(PETSC_COMM_WORLD,
+			nhere,PETSC_DETERMINE,&b); CHKERRA(ierr); 
+    ierr = VecDuplicate(b,&x); CHKERRA(ierr); 
+
+    for (int imat=0; imat<nmat; imat++) {
+      A.zero_entries();
+
+      for (int j=0; j<Nelem; j++) {
+	// Is this element in this processor?
+	if ((j*size)/Nelem != myrank) continue; 
+	if (j-1>=0) A.set_value(j-1,j-1,1.);
+	if (j<N)   A.set_value(j,j,1.);
+	if (!is_diag[j] && j-1>=0 && j<N) {
+	  A.set_value(j-1,j,-1.);
+	  A.set_value(j,j-1,-1.);
 	}
       }
-      ierr = VecAssemblyBegin(b); CHKERRA(ierr);
-      ierr = VecAssemblyEnd(b); CHKERRA(ierr);
+      A.assembly_begin(MAT_FINAL_ASSEMBLY); 
+      A.assembly_end(MAT_FINAL_ASSEMBLY); 
+      // A.view();
 
-      ierr = VecAssemblyBegin(xex); CHKERRA(ierr);
-      ierr = VecAssemblyEnd(xex); CHKERRA(ierr);
+      for (int ksolve=0; ksolve<nsolve; ksolve++) {
 
-      // A.view(VIEWER_STDOUT_WORLD);
-      ierr = A.solve(b,x); CHKERRA(ierr); 
+	if (myrank==0) {
+	  for (int j=0; j<N; j++) {
+	    double Qx=1.;
+	    ierr = VecSetValues(b,1,&j,&Qx,INSERT_VALUES); CHKERRA(ierr);
+	  }
+	}
+	ierr = VecAssemblyBegin(b); CHKERRA(ierr);
+	ierr = VecAssemblyEnd(b); CHKERRA(ierr);
 
-      if (debug_print) {
-	PetscPrintf(PETSC_COMM_WORLD,"b: \n");
-	ierr = VecView(b,VIEWER_STDOUT_WORLD);
-	PetscPrintf(PETSC_COMM_WORLD,"FEM: \n");
-	ierr = VecView(x,VIEWER_STDOUT_WORLD);
-	PetscPrintf(PETSC_COMM_WORLD,"Exact: \n");
-	ierr = VecView(xex,VIEWER_STDOUT_WORLD);
+	// A.view(VIEWER_STDOUT_WORLD);
+	ierr = A.solve(b,x); CHKERRA(ierr); 
+
+	if (debug_print) {
+	  PetscPrintf(PETSC_COMM_WORLD,"b: \n");
+	  ierr = VecView(b,VIEWER_STDOUT_WORLD);
+	  PetscPrintf(PETSC_COMM_WORLD,"FEM: \n");
+	  ierr = VecView(x,VIEWER_STDOUT_WORLD);
+	}
+
       }
-
-      double norm,normex;
-      double scal = -1.;
-      ierr  = VecNorm(xex,NORM_2,&normex); CHKERRA(ierr);
-
-      ierr = VecAXPY(&scal,xex,x); CHKERRA(ierr);
-      ierr  = VecNorm(x,NORM_2,&norm); CHKERRA(ierr);
-
-      int this_ok = norm/normex<=tol;
-      PetscPrintf(PETSC_COMM_WORLD,"test OK: %d, ||x-xex|| = %g,   "
-		  "||x-xex||/||xex|| = %g, tol %g\n",this_ok,
-		  norm,norm/normex,tol);
-      if (!this_ok) tests_ok = 0;
+      A.clean_factor(); 
     }
-    A.clean_factor(); 
+    A.clear();
   }
+
   PetscPrintf(PETSC_COMM_WORLD,"All tests OK ?  %d\n",tests_ok);
   PetscFinalize();
   exit(0);
