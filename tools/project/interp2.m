@@ -24,7 +24,9 @@ C = zeros(ndim);
 C2 = C;
 xeh=[];
 xprojh=[];
-for j=1:100
+maxit=0;
+tol = 1e-6;
+for j=1:1000
   xe = 1.5*rand(1,2)-0.25;			# point to project
   ## xe = [1 1];
   for k=1:nelem1
@@ -35,20 +37,23 @@ for j=1:100
     invC(ndim,:)=0;
     b = [xe';1];
     flag = zeros(3,1);			# indices for which restrictions are active
+    iters=0;
     while 1
+      iters = iters+1;
       indx = find(flag);
       C2 = C;
       if length(indx)>0;
 	C2(:,indx) = -invC(:,indx);
       endif
       L = C2\b;
-      bad = find(L<0);
+      bad = find(L<-tol);
       if length(bad)==0; 
 	break; 
       else
 	flag(bad) = !flag(bad);
       endif
     endwhile
+    maxit = max([maxit iters]);
     indx = find(flag);
     L(indx)=0;
     xproj = (C(1:2,:)*L)';
@@ -58,6 +63,8 @@ for j=1:100
 	 xe];
   endfor
 endfor
+
+printf("maximum %d iters\n",maxit);
 
 plot(xeh(:,1),xeh(:,2),'og',xprojh(:,1),xprojh(:,2),'or',\
      [xeh(:,1)';xprojh(:,1)'], [xeh(:,2)';xprojh(:,2)'],b);
