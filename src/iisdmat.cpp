@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: iisdmat.cpp,v 1.1.2.17 2002/01/12 00:26:14 mstorti Exp $
+//$Id: iisdmat.cpp,v 1.1.2.18 2002/01/13 20:56:33 mstorti Exp $
 
 // fixme:= this may not work in all applications
 extern int MY_RANK,SIZE;
@@ -29,11 +29,7 @@ extern int MY_RANK,SIZE;
 
 // PFMat::PFMat() : fsm(this) {}
 
-PFMat::~PFMat() {}
-
-#define PF_ACTION(name) PF_ACTION_DEF(name) 
-PF_ACTION_LIST;
-#undef PF_ACTION
+// PFMat::~PFMat() {}
 
 DofPartitioner::~DofPartitioner() {}
 
@@ -844,8 +840,6 @@ void IISDMat::print(void) {
   lgraph.print();
 }
 #endif
-
-#include "pfmatFSM.cpp"
 
 /*
   Local Variables: 

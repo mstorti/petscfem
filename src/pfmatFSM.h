@@ -31,12 +31,14 @@ public:
   virtual void clean_factor(pfmatFSM&);
   virtual void solve(pfmatFSM&);
   virtual void solve_only(pfmatFSM&);
+  virtual void clean_mat(pfmatFSM&);
 };
 
 class pfmatFSMassembledState : public pfmatFSMState {
 public:
   virtual const char* StateName() const
   {return("assembled");};
+  virtual void assembly_begin(pfmatFSM&);
   virtual void solve(pfmatFSM&);
   virtual void factor_and_solve(pfmatFSM&);
   virtual void clear(pfmatFSM&);

@@ -70,6 +70,18 @@ void pfmatFSMfactoredState::solve_only(pfmatFSM& s) {
   s.SetState(pfmatFSM::factoredState);
   s.solve_only_A();
 }
+void pfmatFSMfactoredState::clean_mat(pfmatFSM& s) {
+  if (s.matrix_p->print_fsm_transition_info_f())
+    printf("from: \"factored\", event: \"clean_mat\", "
+           "to: \"factored\"\n");
+  s.SetState(pfmatFSM::factoredState);
+}
+void pfmatFSMassembledState::assembly_begin(pfmatFSM& s) {
+  if (s.matrix_p->print_fsm_transition_info_f())
+    printf("from: \"assembled\", event: \"assembly_begin\", "
+           "to: \"in_scatter\"\n");
+  s.SetState(pfmatFSM::in_scatterState);
+}
 void pfmatFSMassembledState::solve(pfmatFSM& s) {
   if (s.matrix_p->print_fsm_transition_info_f())
     printf("from: \"assembled\", event: \"solve\", "
