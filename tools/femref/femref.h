@@ -1,6 +1,6 @@
 // -*- mode: c++ -*-
 //__INSERT_LICENSE__
-// $Id: femref.h,v 1.53 2005/01/10 16:12:18 mstorti Exp $
+// $Id: femref.h,v 1.54 2005/01/10 20:13:35 mstorti Exp $
 #ifndef PETSCFEM_FEMREF_H
 #define PETSCFEM_FEMREF_H
 
@@ -302,7 +302,9 @@ public:
   ~UniformMesh(); 
   const GeomObject::Template *tmplt() { return tmpl; }
   /// Read the mesh from specified files
-  void read(const char *node_file,const char *conn_file);
+  void read(const char *node_file,
+	    const char *conn_file,
+	    int base=0);
   /** Sets #go# to object pointed by #it#. 
       @param it (input) iterator to geometric object in mesh
       @param go (output) the opject pointed by #it# */ 

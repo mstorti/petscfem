@@ -20,7 +20,7 @@ CPP_FILES := femref2 hasher md5r gtemplates visitor combiner
 SRCS := $(CPP_FILES=.cpp) getsurf.cpp femref.cpp  myhash.cpp myhash2.cpp \
 	myhash3.cpp myhash4.cpp myhash5.cpp trytree.cpp 
 
-BOPT := O_c++
+BOPT := g_c++
 PETSCFEM_DIR = ../..
 include $(PETSCFEM_DIR)/Makefile.base
 OMKFLS = 

@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-// $Id: femref2.cpp,v 1.25 2005/01/10 16:12:18 mstorti Exp $
+// $Id: femref2.cpp,v 1.26 2005/01/10 20:13:35 mstorti Exp $
 
 #include <string>
 #include <list>
@@ -424,7 +424,7 @@ UniformMesh::
 /// Read the mesh from specified files
 void UniformMesh::
 read(const char *node_file,
-     const char *conn_file) {
+     const char *conn_file, int base) {
   // This is used auxiliary
   LinkGraph lgraph;
   // Reads coors file and resize
@@ -439,6 +439,10 @@ read(const char *node_file,
   // Add connections to graph
   lgraph.init(nnod);
   nelem = connec.size(0);
+  if (base) {
+    for (int j=0; j<connec.size(); j++)
+      connec.ref(j) -= base;
+  }
   for (int ele=0; ele<nelem; ele++) {
     for (int k=0; k<nel; k++) {
       int node = connec.e(ele,k);
