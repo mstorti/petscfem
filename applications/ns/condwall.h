@@ -1,6 +1,6 @@
 // -*- mode: c++ -*-
 //__INSERT_LICENSE__
-// $Id: condwall.h,v 1.2 2005/03/28 16:42:53 mstorti Exp $
+// $Id: condwall.h,v 1.3 2005/03/29 04:01:50 mstorti Exp $
 #ifndef PETSCFEM_CONDWALL_H
 #define PETSCFEM_CONDWALL_H
 
@@ -15,6 +15,9 @@
 #include "./nslagmul.h"
 #include "./nsi_tet.h"
 
+extern dvector<double> 
+cond_wall_resistance;
+
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 /** Generic nonlinear restriction element. 
     It may not work for restrictions that involve
@@ -23,13 +26,14 @@
 class cond_wall : public NSLagrangeMult {
 private:
   int ndim,nel,ndof;
+  int use_vector_resistance;
   double R;			// Resistance of the membrane
   // Property normal_prop;
   FastMat2 U1,U2;
 public:
   // First two nodes are real nodes at both sides of the membrane. 
   // Other two nodes are lagrange multipliers. 
-  cond_wall() {} 
+  cond_wall() { } 
   ~cond_wall() { } 
   int nres();
   void lag_mul_dof(int jr,int &node,int &dof);

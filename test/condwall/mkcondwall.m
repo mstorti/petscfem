@@ -1,5 +1,5 @@
 ##__INSERT_LICENSE__
-## $Id: mkcondwall.m,v 1.3 2005/03/28 18:19:24 mstorti Exp $
+## $Id: mkcondwall.m,v 1.4 2005/03/29 04:01:36 mstorti Exp $
 
 source("data.m.tmp");
 
@@ -72,18 +72,12 @@ fic2 = fic2_base+(1:Ny+1)';
 
 ## Connectivities for the `cond_wall' elemeset
 icowall = [right1,left2,fic1,fic2];
-## icowall(Ny+1,:)=[]; ## Last node goes by periodic b.c.'s
+asave("condwall.condwall-con.tmp",icowall);
 
 asave("condwall.nod.tmp",xnod);
 asave("condwall.con.tmp",icone);
 
 asave("condwall.nod-dx.tmp",xnod(1:(nnod1+nnod2),:));
-
-indx = find(xnod(right1,2)<Lslit);
-asave("condwall.condwall-slit-con.tmp",icowall(indx,:));
-
-indx = complement(indx,(1:Ny+1)')';
-asave("condwall.condwall-wall-con.tmp",icowall(indx,:));
 
 ## Connectivities for the `cond_wall' elemeset
 pfperi("condwall.wall-peri.tmp",right1,left2,(1:ndof)');

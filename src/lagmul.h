@@ -1,6 +1,6 @@
 // -*- mode: c++ -*-
 //__INSERT_LICENSE__
-// $Id: lagmul.h,v 1.8 2005/01/28 18:16:48 mstorti Exp $
+// $Id: lagmul.h,v 1.9 2005/03/29 04:01:53 mstorti Exp $
 #ifndef PETSCFEM_LAGMUL_H
 #define PETSCFEM_LAGMUL_H
 
@@ -31,39 +31,47 @@ class LagrangeMult : public NewElemset {
       @param nfic (output) number of fictitious nodes
    */
   virtual int nres()=0;
-  /** Return the node/dof pair to be used as lagrange multiplier for
-      the #jr#-th restriction. 
+  /** Return the node/dof pair to be used as lagrange
+      multiplier for the #jr#-th restriction.
       @param jr (input) Number of restriction
       @param node (output) number of node for multiplier
       @param dof (output) number of field for multiplier
   */ 
   virtual void lag_mul_dof(int jr,int &node,int &dof)=0;
-  /** Calls the #lm_initialize()# function for each elemset. */
+  /** Calls the #lm_initialize()# function for each
+      elemset. */
   void initialize();
   /** Initialize the elemset. This is called in the
-      LagrangeMult::initialize() function so that it is called before
-      all chunks. And it is called even if there are not elements in
-      this processor */
+      LagrangeMult::initialize() function so that it is
+      called before all chunks. And it is called even if
+      there are not elements in this processor */
   virtual void lm_initialize() {}
-  /** Initialize the elemset (maybe reads hash table). This is called before
-      each element chunk. It is not called if there are not elements in
-      this processor */
+  /** Initialize the elemset (maybe reads hash
+      table). This is called before each element
+      chunk. It is not called if there are not elements
+      in this processor */
   virtual void init()=0;
-  /** Computes the residual and jacobian of the function to be
-      imposed. Usually you derive #NonLinearRes# and instantiate this
-      function that defines the restriction to be imposed. 
+  /** Computes the residual and jacobian of the function
+      to be imposed. Usually you derive #NonLinearRes#
+      and instantiate this function that defines the
+      restriction to be imposed.
       @param k (input) element number in elemset
       @param U (input) state vector at all nodes
-      @param r (output) a vector of length #nres*nel/2# containing the
-      residuals for each restriction at each node.
-      @param w (input) the vector of reactions of the Lagrange multipliers 
-      @param jac (output) the jacobian of the residuals with respect
-      to the node state. (size #nel/2 * nres* nel/2 x ndof#)
+      @param r (output) a vector of length #nres*nel/2#
+      containing the residuals for each restriction at
+      each node.
+      @param w (input) the vector of reactions of the
+      Lagrange multipliers
+      @param jac (output) the jacobian of the residuals
+      with respect to the node state. (size #nel/2 *
+      nres* nel/2 x ndof#)
   */ 
   virtual void res(int k,FastMat2 &U,FastMat2 & r,
 		   FastMat2 & w,FastMat2 & jac)=0;
-  /** Returns the coordinate of the nodes of the element. 
-      @return a matrix with the coordinates of the nodes (size #nel*ndim#) */ 
+  /** Returns the coordinate of the nodes 
+      of the element.       
+      @param xloc (output) the coordinates of the nodes
+      @param H (output) the vector of constant fields. */ 
   void get_xloc(FastMat2 &xloc,FastMat2 &H);
   /** Returns the old state at nodes. 
       @param Uold (output) the state of the nodes at the

@@ -1,7 +1,9 @@
 //__INSERT_LICENSE__
-// $Id: condwall.cpp,v 1.4 2005/03/28 18:19:22 mstorti Exp $
+// $Id: condwall.cpp,v 1.5 2005/03/29 04:01:50 mstorti Exp $
 
 #include "./condwall.h"
+
+dvector<double> cond_wall_resistance;
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 int cond_wall::nres() { return ndof*2; }
@@ -18,8 +20,7 @@ lag_mul_dof(int jr,int &node,int &dof) {
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 void cond_wall::
-lm_initialize() { 
-}
+lm_initialize() { }
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 void cond_wall::
@@ -34,6 +35,12 @@ init() {
   NSGETOPTDEF_ND(int,ndim,0);
   assert(ndof==ndim+1); // Only NS incompressible so far
   R = resistance;
+  //o Flags taking a per element resistance from
+  //  global #cond_wall_resistance# vector. 
+  NSGETOPTDEF_ND(int,use_vector_resistance,0);
+  double r = 0.;
+  if (use_vector_resistance)
+    cond_wall_resistance.resize(size(),r);
 }
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
@@ -45,6 +52,8 @@ res(int k,FastMat2 &U,FastMat2 &r,
   U.ir(1,2);
   U2.set(U);
   U.rs();
+  if (use_vector_resistance) 
+    R = cond_wall_resistance.ref(k);
   if (R>0) {
     // Closed
     U1.is(1,1,ndim);
@@ -56,7 +65,7 @@ res(int k,FastMat2 &U,FastMat2 &r,
 
     w.set(0.);
     w.is(2,1,ndim).ir(1,1).is(3,1,ndim).eye().rs();
-    w.is(2,1,ndim).ir(1,2).is(3,ndof+1,ndof+ndim).eye();
+    w.is(2,1,ndim).ir(1,2).is(3,ndof+1,ndof+ndim).eye().rs();
 
     jac.set(0.).is(1,1,ndim).ir(2,1)
       .is(3,1,ndim).eye().rs();
@@ -72,7 +81,6 @@ res(int k,FastMat2 &U,FastMat2 &r,
       .is(1,1,ndof).ir(2,1).eye()
       .ir(2,2).eye(-1.)
       .rs();
-    // printf("hi hi \n");
   }
 }
 

@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-/* $Id: lagmul.cpp,v 1.9 2005/03/28 16:42:56 mstorti Exp $ */
+/* $Id: lagmul.cpp,v 1.10 2005/03/29 04:01:53 mstorti Exp $ */
 
 #include <src/fem.h>
 #include <src/utils.h>
@@ -73,6 +73,8 @@ new_assemble(arg_data_list &arg_data_v,const Nodedata *nodedata,
   NSGETOPTDEF(double,lagrange_row_scale_factor,1.);
   // Dimension of the embedding space (position vector of nodes)
   NSGETOPTDEF(int,ndim,0); //nd
+  // Use or not caches for the FastMat2 libray
+  NSGETOPTDEF(int,use_fastmat2_cache,1);
 
   // Call callback function defined by user initializing the elemset
   init();
@@ -91,7 +93,7 @@ new_assemble(arg_data_list &arg_data_v,const Nodedata *nodedata,
   FastMat2 r(1,nr),w(3,nel,ndof,nr),jac(3,nr,nel,ndof);
   jac.set(0.);
 
-#define COMPUTE_FD_RES_JACOBIAN
+  //#define COMPUTE_FD_RES_JACOBIAN
 #ifdef COMPUTE_FD_RES_JACOBIAN
   FastMat2 res_fd_jac(3,nr,nel,ndof),
     d_res_fd_jac(3,nr,nel,ndof),
@@ -105,7 +107,8 @@ new_assemble(arg_data_list &arg_data_v,const Nodedata *nodedata,
 #endif
  
   FastMatCacheList cache_list;
-  FastMat2::activate_cache(&cache_list);
+  if (use_fastmat2_cache)
+    FastMat2::activate_cache(&cache_list);
   int ielh=-1;
   nu=nodedata->nu;
 
@@ -152,6 +155,7 @@ new_assemble(arg_data_list &arg_data_v,const Nodedata *nodedata,
       R.rs().export_vals(element.ret_vector_values(*retval));
       matloc.rs().export_vals(element.ret_mat_values(*retvalmat));
       jac.rs();
+      w.rs();
     }
 
 #ifdef COMPUTE_FD_RES_JACOBIAN

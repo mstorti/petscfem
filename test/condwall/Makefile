@@ -1,4 +1,4 @@
-# $Id: Makefile,v 1.3 2005/03/28 18:19:24 mstorti Exp $ 
+# $Id: Makefile,v 1.4 2005/03/29 04:01:36 mstorti Exp $ 
 
 default: condwall
 
@@ -20,8 +20,12 @@ NP = 1
 condwall:
 	$(MAKE) run
 
+###--------<*>--------<*>--------<*>--------<*>--------<*>--------<*>
+#w Makes local link for running with debugger
+movwall.efn: movwall.cpp $(LIBPETSCFEM)
+
 #w Runs program
-run:
+run: movwall.efn
 	make-depl $(CASE).epl $(CASE).depl
 	-${MPIRUN} $(MCH) -np $(NP) $(PROG) -case $(CASE).depl
 
