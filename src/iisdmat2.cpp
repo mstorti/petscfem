@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: iisdmat2.cpp,v 1.2 2003/09/01 00:17:19 mstorti Exp $
+//$Id: iisdmat2.cpp,v 1.3 2003/09/01 01:09:40 mstorti Exp $
 // fixme:= this may not work in all applications
 #ifndef _GNU_SOURCE
 #define _GNU_SOURCE
@@ -96,7 +96,7 @@ int IISDMat::set_values_a(int nrows,int *idxr,int ncols,int *idxc,
 	while (jc<jc_end) *vvv++ = *(values_jrow + (*jc++));
       }
       // This is for debugging
-#define LOAD_VALUES
+      //#define LOAD_VALUES
 #ifdef LOAD_VALUES
       ierr = MatSetValues(*(AA[row_t][col_t]),
 			  nrr,indxr[row_t]->buff(),ncc,
@@ -163,7 +163,7 @@ int IISDMat::set_values_a(int nrows,int *idxr,int ncols,int *idxc,
     int *jcp = jndxc[L]->buff();
 
     //#ifdef DBG
-#if 1
+#if 0
     // Print the original LL matrix
     printf("LL Matrix\n");
     for (int jrl=0; jrl<nrr; jrl++) { 
@@ -178,7 +178,6 @@ int IISDMat::set_values_a(int nrows,int *idxr,int ncols,int *idxc,
 #endif
 
     // Filtered dimensions (eliminated those sent to A_LL_other) 
-    int nrf=0, ncf=0;
     double *to = vvp;
     for (int jrl=0; jrl<nrr; jrl++) { 
       int jr = jrp[jrl];
@@ -190,9 +189,11 @@ int IISDMat::set_values_a(int nrows,int *idxr,int ncols,int *idxc,
 	if (indxr <0 || indxr >=n_loc || indxc <0 || indxc >=n_loc) {
 	  // send to A_LL_other
 	  A_LL_other->insert_val(idxr[jr],idxc[jc],*w);
+#if 0
 	  PetscSynchronizedPrintf(PETSC_COMM_WORLD,
 				  "[%d] NEW, sending to A_LL_other %d,%d,%g\n",
 				  MY_RANK,idxr[jr],idxc[jc],*w);
+#endif
 	} else {
 	  // Load matrix to pass to PETSc A_LL matrix
 	  // (eliminate rows and columns sent to A_LL_other)
@@ -231,18 +232,15 @@ int IISDMat::set_values_a(int nrows,int *idxr,int ncols,int *idxc,
   }
 
 #if 1
-  // Print for debugging
-  printf("LL Matrix to be exported\n");
-  for (int j=0; j<nrf; j++) { 
-    for (int k=0; k<ncf; k++) { 
-      printf("%d,%d %g ",indxrp[j],indxcp[j],vvp[j*ncf+k]);
+  if (any_A_LL_other) {
+    // Print for debugging
+    printf("LL Matrix to be exported\n");
+    for (int j=0; j<nrf; j++) { 
+      for (int k=0; k<ncf; k++) { 
+	printf("<dbg> [%d] NEW %d,%d %g\n",MY_RANK,indxrp[j],indxcp[k],vvp[j*ncf+k]);
+      }
     }
-    printf("\n");
   }
-  printf("Exported row indices\n");
-  for (int j=0; j<ncf; j++) printf("%d %d\n",j,indxrp[j]);
-  printf("Exported column indices\n");
-  for (int j=0; j<ncf; j++) printf("%d %d\n",j,indxcp[j]);
 #endif
 
 #ifdef LOAD_VALUES
