@@ -1,13 +1,15 @@
 # mode: -*- makefile -*-
 #__INSERT_LICENSE__
-#$Id: Makefile.base,v 1.66 2002/02/13 12:09:19 mstorti Exp $
+#$Id: Makefile.base,v 1.67 2002/02/13 15:26:19 mstorti Exp $
 
 #p [in Makefile.base]
 #s General
 
 ######  begin of CONGIGURATION VARIABLES section  ####################
 #  Configure this variable!! (either g_c++ or O_c++) 
-BOPT = O_c++
+ifeq ($(BOPT),)
+BOPT = g_c++
+endif
 export BOPT
 
 GNU_C_COMPILER = gcc  # gcc or egcs
@@ -164,9 +166,10 @@ distclean:
 	$(MAKE) clean local_dist_clean &> /dev/null
 	for dir in $(CLEAN_DIRS) ; do $(MAKE) -C $$dir distclean  ; done
 
-LDFLAGS = -L$(PETSCFEM_DIR)/src			\
-          -lpetscfem_$(opt_level)		\
+LDFLAGS = 					\
           $(PROG_LIB)				\
+	  -L$(PETSCFEM_DIR)/src			\
+          -lpetscfem_$(opt_level)		\
           -L$(METIS) -L/usr/local/lib		\
           -lmetis  -L$(NEWMAT)  -lnewmat	\
           -lglib -L$(LIBRETTO_LIB) -libretto	\
@@ -177,6 +180,7 @@ LDFLAGS = -L$(PETSCFEM_DIR)/src			\
 
 # general program 
 $(PROG).bin: $(MYOBJS) $(LIBPETSCFEM) $(PROG_LIB)
+	$(MAKE) $(PROG_LIB)
 	-rm $@
 	${CXX_CLINKER} $(PROF_FLAGS) -o $@ $(MYOBJS) $(OTHER_OBJS) $(LDFLAGS)
 
