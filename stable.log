@@ -460,7 +460,7 @@ tag: beta-3.26 on Sun Dec  7 21:18:04 GMT+3 2003, by mstorti in spider
      > 	 Tetras had a volume of 1/3!!! (in place of 1/60). 
      > Gaschem 3D is working. 
 ----------
-tag: beta-3.29 on Mon Jan 19 18:55:10 GMT+3 2004, by mstorti in spider
+tag: beta-3.28 on Mon Jan 19 18:55:10 GMT+3 2004, by mstorti in spider
      > Fixed `bcconv' normal orientation policy. 
      > Added test with reference solution for cubic cavity at Re=100. 
      > Modified the Makefile structure for the `newff' tests directory. 
