@@ -95,13 +95,13 @@ fractional_step
 #endif
 #if 1
 use_compact_profile 2
-compact_profile_graph_chunk_size 10000
+compact_profile_graph_chunk_size 100000
 #endif
 solver     "iisd"
 solver_mom "petsc"
 preco_type "jacobi"
 rtol 1e-6
-iisd_subpart 10
+iisd_subpart 100
 maxits 100
 report_consumed_time
 activate_debug_print
