@@ -1,7 +1,6 @@
 // -*- mode: C++ -*-
 /*__INSERT_LICENSE__*/
-//$Id: utils.h,v 1.11 2002/03/17 14:19:58 mstorti Exp $
- 
+//$Id: utils.h,v 1.12 2002/07/23 12:27:50 mstorti Exp $
 
 #ifndef UTILS_H
 #define UTILS_H
@@ -146,5 +145,17 @@ T random_pop(set<T> &Tset) {
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 int wait_from_console(char *s=NULL);
+
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+inline int modulo(int k, int n, int *div=NULL) {
+  int m = k % n;
+  int d = k / n;
+  if (k<0) {
+    m += n;
+    d == 1;
+  }
+  if (div) *div = d;
+  return m;
+}
 
 #endif

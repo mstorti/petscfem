@@ -1,20 +1,13 @@
 //__INSERT_LICENSE__
-//$Id: linkgraph.cpp,v 1.4 2002/07/22 20:22:29 mstorti Exp $
+//$Id: linkgraph.cpp,v 1.5 2002/07/23 12:27:50 mstorti Exp $
 
 #include <src/linkgraph.h>
 
-int link_graph::CHUNK_SIZE_DEF = 10000;
-int link_graph::null = -1;
+int LinkGraph::CHUNK_SIZE_DEF = 10000;
+int LinkGraph::null = -1;
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
-link_graph::link_graph(int MM, const DofPartitioner *part,
-		       MPI_Comm comm,int chunk_size=CHUNK_SIZE_DEF) 
-  : M(MM), da(chunk_size) {
-  if (M) init(MM);
-}
-
-//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
-void link_graph::init(int MM) {
+void LinkGraph::init(int MM) {
   M=MM;
   da.resize(M+1);		// cell `M' is for the `free' cell list
   int_pair p(0,null);
@@ -22,7 +15,7 @@ void link_graph::init(int MM) {
 }
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
-int link_graph::available() {
+int LinkGraph::available() {
   int_pair &fh = da.ref(M);
   if (fh.j == null) {
     da.push(int_pair());
@@ -34,7 +27,7 @@ int link_graph::available() {
 }
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
-void link_graph::list_insert(int header, int val) {
+void LinkGraph::list_insert(int header, int val) {
   int_pair *p = &da.ref(header);
   while (p->j != null) {
     if (p->i == val) return;
@@ -50,7 +43,7 @@ void link_graph::list_insert(int header, int val) {
 }
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
-void link_graph::set_ngbrs(int v,GSet &ngbrs) {
+void LinkGraph::set_ngbrs(int v,GSet &ngbrs) {
   int_pair *p = &da.ref(v);
   while (p->j != null) {
     ngbrs.insert(p->i);

@@ -1,6 +1,6 @@
 // -*- mode: C++ -*- 
 /*__INSERT_LICENSE__*/
-// $Id: linkgraph.h,v 1.5 2002/07/23 03:42:38 mstorti Exp $
+// $Id: linkgraph.h,v 1.6 2002/07/23 12:27:50 mstorti Exp $
 #ifndef LINKGRAPH_H
 #define LINKGRAPH_H
 
@@ -16,7 +16,7 @@ extern int MY_RANK,SIZE;
     adjacent to a vertex #i# as a linked list of cells pointed 
     by cursors in a dynamic vector (dvector). 
 */
-class link_graph {
+class LinkGraph {
 protected:
   /// Number of nodes in the graph
   int M;
@@ -31,12 +31,35 @@ protected:
   /// return a cursor to an available cell
   int available();
 public:
-  class row : public set<int> {};
-  // class iterator : public int {};
-  typedef int iterator;
-  typedef int const_iterator;
-  int begin() { return 0; }
-  iterator end() { return M; }
+  class Row : public set<int> {};
+
+  class iterator;
+  friend class iterator;
+  class const_iterator {
+    friend class LinkGraph;
+  protected:
+    int r;
+    LinkGraph *graph;
+  public:
+    const_iterator(int rr=0,LinkGraph *g=NULL) : r(rr), graph(g) {}
+    const_iterator &operator++(int) { 
+      r++;
+      return *this;
+    }
+    int operator==(const_iterator q) const { return r==q.r; }
+  };
+  class iterator : public const_iterator {
+    friend class LinkGraph;
+  public:
+    iterator(int rr=0,LinkGraph *g=NULL) : const_iterator(rr,g) {}
+    Row operator*() {
+      Row row;
+      assert(0); // code here...
+      return row;
+    }
+  };    
+  iterator begin() { return iterator(0,this); }
+  iterator end() { return iterator(M,this); }
   void erase(int first,int last) {}
   /// cuasi constructor
   void init(int MM);
@@ -45,7 +68,7 @@ public:
   */
   void set_chunk_size(int new_chunk_size) { da.set_chunk_size(new_chunk_size); }
   /// Destructor. Clear dynamic array. 
-  ~link_graph() { da.clear(); }
+  ~LinkGraph() { da.clear(); }
   /** Add an edge to the adjacency table
     @param j (input) first index of edge
     @param k (input) second index of edge
@@ -63,15 +86,16 @@ public:
   void clear() { M=0; da.clear(); }
 };
 
-typedef link_graph::row link_graph_row; 
-typedef Partitioner<link_graph_row> link_graph_row_part;
+typedef LinkGraph::Row LinkGraphRow; 
+typedef Partitioner<LinkGraphRow> LinkGraphRowPart;
 
 typedef  
-DistCont<link_graph,link_graph_row,link_graph_row_part>  link_graph_dis;
+DistCont<LinkGraph,LinkGraphRow,LinkGraphRowPart>  LinkGraphDis;
 
-class link_graph_wrapper : public StoreGraph {
+#if 0
+class LinkGraphWrapper : public StoreGraph {
  private:
-  link_graph_dis lgd;
+  LinkGraphDis lgd;
   GPartitioner g_part;
  public:
   /// Adds an edge to the graph
@@ -79,9 +103,9 @@ class link_graph_wrapper : public StoreGraph {
   /// callback function, returns the set of neighbors to #j# vertex. 
   void set_ngbrs(int j,GSet &ngbrs_v) { lgd.set_ngbrs(j,ngbrs_v); }
   /// Clean all memory related 
-  ~link_graph_wrapper() { lgd.clear(); };
+  ~LinkGraphWrapper() { lgd.clear(); };
   /// Constructor
-  link_graph_wrapper(int N=0,const DofPartitioner *pp=NULL,
+  LinkGraphWrapper(int N=0,const DofPartitioner *pp=NULL,
 		     MPI_Comm comm_=MPI_COMM_WORLD) :
     g_part(pp),
     lgd(&g_part,comm_) { init(N); }
@@ -91,5 +115,6 @@ class link_graph_wrapper : public StoreGraph {
   /// Clean all memory related 
   void clear() { lgd.clear(); }
 };
+#endif
 
 #endif

@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: iisdmat.cpp,v 1.14 2002/07/23 03:42:38 mstorti Exp $
+//$Id: iisdmat.cpp,v 1.15 2002/07/23 12:27:50 mstorti Exp $
 // fixme:= this may not work in all applications
 extern int MY_RANK,SIZE;
 
@@ -25,7 +25,7 @@ extern int MY_RANK,SIZE;
 #include <src/pfptscmat.h>
 #include <src/iisdmat.h>
 #include <src/graph.h>
-#include <src/linkgraph.h>
+//#include <src/linkgraph.h>
 
 extern TextHashTable *GLOBAL_OPTIONS;
 
@@ -58,7 +58,7 @@ PFPETScMat::PFPETScMat(int MM,const DofPartitioner &pp,MPI_Comm comm_)
   : sles(NULL), comm(comm_), part(pp), pf_part(part), 
   lgraph1(MM,&part,comm_), 
   lgraph_dv(MM,&part,comm_), 
-  lgraph_lkg(0,&part,comm_), 
+  // lgraph_lkg(0,&part,comm_), 
   lgraph(&lgraph1), 
   // lgraph(&lgraph_dv), 
   A(NULL), P(NULL), factored(0) { 
@@ -82,12 +82,13 @@ PFPETScMat::PFPETScMat(int MM,const DofPartitioner &pp,MPI_Comm comm_)
       lgraph_dv.set_chunk_size(compact_profile_graph_chunk_size);
 
   } else if (use_compact_profile==LINK_GRAPH) {
-
+    assert(0);
+#if 0
     lgraph = &lgraph_lkg;
     if (compact_profile_graph_chunk_size>0)
       lgraph_lkg.set_chunk_size(compact_profile_graph_chunk_size);
     lgraph_lkg.init(MM);
-
+#endif
   }
 }
 
