@@ -2,6 +2,7 @@
 TODO: [Mainly fixes go here...]
 =====
 
+* `gatherer.cpp' doesn't use `set_error' for handling detjaco<0
 * `advdif/id' elemset does some `proj' task or something. We should write
     an `ask' function for it. 
 * Add `start_step' feature. 
