@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: iisdmat.cpp,v 1.44 2003/07/07 21:15:26 mstorti Exp $
+//$Id: iisdmat.cpp,v 1.45 2003/07/08 22:35:52 mstorti Exp $
 // fixme:= this may not work in all applications
 extern int MY_RANK,SIZE;
 
@@ -807,7 +807,9 @@ int IISDMat::maybe_factor_and_solve(Vec &res,Vec &dx,int factored=0) {
 
 
     // Solves the interface problem (iteratively)
+    monitor->start();
     ierr = SLESSolve(sles,res_i,x_i,&itss); PF_CHKERRQ(ierr); 
+    monitor->close();
     
     ierr = VecDuplicate(res_loc,&res_loc_i); PF_CHKERRQ(ierr); 
 
@@ -999,4 +1001,20 @@ int IISDMat::jacobi_pc_apply(Vec x,Vec w) {
     ierr = VecPointwiseDivide(x,A_II_diag,w); CHKERRQ(ierr);  
   }
   return 0;
+}
+
+void fun() {
+  if (qqq) {
+    aasasas;
+  } else
+}
+
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+Monitor *Monitor::factory(TextHashTable *thash) {
+  // TGETOPTDEF_S(thash,string,monitor_type,default);
+  Monitor * monitor=NULL;
+//    if (monitor_type=="default") {
+//      monitor = new DefaultMonitor;
+  //    } else
+  monitor->init(thash);
 }

@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-// $Id: monitor.cpp,v 1.3 2003/07/08 12:49:38 mstorti Exp $
+// $Id: monitor.cpp,v 1.4 2003/07/08 22:35:52 mstorti Exp $
 
 #include <cstdio>
 #include <petsc.h>
@@ -38,9 +38,9 @@ void DefaultMonitor::stop() {
 Monitor *Monitor::factory(TextHashTable *thash) {
   TGETOPTDEF_S(thash,string,monitor_type,default);
   Monitor * monitor=NULL;
-  if (monitor_type=="default") {
-    monitor = new DefaultMonitor;
-  } else
+//    if (monitor_type=="default") {
+//      monitor = new DefaultMonitor;
+  //    } else
   monitor->init(thash);
 }
 

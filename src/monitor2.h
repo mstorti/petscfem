@@ -1,6 +1,6 @@
 // -*- mode: c++ -*-
 //__INSERT_LICENSE__
-// $Id: monitor2.h,v 1.1 2003/07/07 21:15:26 mstorti Exp $
+// $Id: monitor2.h,v 1.2 2003/07/08 22:35:52 mstorti Exp $
 #ifndef PETSCFEM_MONITOR2_H
 #define PETSCFEM_MONITOR2_H
 
@@ -9,19 +9,20 @@
 #include <src/monitor.h>
 
 class DefaultMonitor : public Monitor {
- private:
-  PFPETScMat *A;
-  friend class PFPETScMat;
- public:
-  void step(int n,double rnorm) { 
-    if (A->print_internal_loop_conv) {
-      if (n==0) PetscPrintf(A->comm,
-			    " Begin internal iterations "
-			    "--------------------------------------\n");
-      PetscPrintf(A->comm,
-		  "iteration %d KSP Residual_norm = %14.12e \n",n,rnorm);
-    }
-  }
+private:
+  MPI_Comm comm;
+  TextHashTable *options;
+  int print_internal_loop_conv;
+public:
+  void init(MPI_Comm comm,TextHashTable *thash);
+  void start();
+  void step(int n,double rnorm);
+  void stop();
 };
+
+#if 0
+class ShortMonitor : public Monitor {
+};
+#endif
 
 #endif
