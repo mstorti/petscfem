@@ -1,4 +1,4 @@
-# $Id: Makefile,v 1.1 2000/12/28 12:54:43 mstorti Exp $ 
+# $Id: Makefile,v 1.2 2001/01/02 16:52:48 mstorti Exp $ 
 
 .PHONY: constraint_bug chunk_size_process sector iprops
 
@@ -71,4 +71,4 @@ iprops:
 	eperl -P -d chunk_size=10 -d iprops=1 sector.epl >sector.depl
 	chmod -w sector.depl
 
-include makefile.d
+#

@@ -1,4 +1,4 @@
-# $Id: Makefile,v 1.1 2000/12/28 12:54:43 mstorti Exp $ 
+# $Id: Makefile,v 1.2 2001/01/02 16:52:40 mstorti Exp $ 
 
 .PHONY: fstack force
 
@@ -25,4 +25,4 @@ tfstack.bin: tfstack.o $(PETSCFEM_LIB)
 		-lc ${PETSC_SLES_LIB} \
 		-L$(LIBRETTO_LIB) -libretto
 
-include makefile.d
+#

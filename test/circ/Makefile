@@ -1,4 +1,4 @@
-# $Id: Makefile,v 1.1 2000/12/28 12:54:43 mstorti Exp $ 
+# $Id: Makefile,v 1.2 2001/01/02 16:52:34 mstorti Exp $ 
 
 .PHONY: constraint_bug
 
@@ -16,4 +16,4 @@ constraint_bug:
 	-$(MPIRUN) -np 1 $(ADV) -case circ.dat >/dev/null
 	octave -q check_circ.m  >check_circ.sal
 
-include makefile.d
+#

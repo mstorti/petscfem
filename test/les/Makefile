@@ -1,4 +1,4 @@
-# $Id: Makefile,v 1.1 2000/12/28 12:54:43 mstorti Exp $ 
+# $Id: Makefile,v 1.2 2001/01/02 16:52:43 mstorti Exp $ 
 
 .PHONY: fstack force les_data
 
@@ -40,4 +40,4 @@ lclean: add_clean
 add_clean: 
 	-rm les.flag 
 
-include makefile.d
+#
