@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: dxhook.cpp,v 1.23 2003/02/15 22:29:29 mstorti Exp $
+//$Id: dxhook.cpp,v 1.24 2003/02/16 01:42:01 mstorti Exp $
 
 #include <src/debug.h>
 #include <src/fem.h>
@@ -158,7 +158,7 @@ void dx_hook::init(Mesh &mesh_a,Dofmap &dofmap_a,
   TextHashTable *go = mesh_a.global_options;
   int dx_split_state_flag=0;
   //o Generates DX fields by combination of the input fields
-  TGETOPTDEF_S(go,string,dx_split_state,"");
+  TGETOPTDEF_S(go,string,dx_split_state,);
   if (dx_split_state!="") {
     dx_split_state_flag = 1;
     FieldGenLine *fgl = new FieldGenLine;
@@ -170,7 +170,8 @@ void dx_hook::init(Mesh &mesh_a,Dofmap &dofmap_a,
   //o Generates a DX field with the whole state (all ndof fields)
   TGETOPTDEF(go,int,dx_state_all_fields,!dx_split_state_flag);
   if (dx_state_all_fields) {
-    FieldGen *fg = new FieldGenDefault;
+    FieldGenDefault *fg = new FieldGenDefault;
+    fg->init(dofmap->ndof,mesh_a.global_options,"all_fields");
     field_gen_list.push_back(fg);
   }
 
@@ -355,17 +356,20 @@ time_step_post(double time,int step,
 	int size=1;
 	q->field(jf,name,rank);
 	vector<double> in(ndof),out(size);
+	char buff[2000];
 	// Sends name and rank of entity
-	Sprintf(srvr,"state %s %d",name.c_str(),rank.size());
+	sprintf(buff,"state %s %d",name.c_str(),rank.size());
 
 	// Sends the list of dimensions and total size
 	for (int jd=0; jd<rank.size(); jd++) {
-	  Sprintf(srvr," %d",rank[jd]);
+	  sprintf(buff+strlen(buff)," %d",rank[jd]);
 	  size *= rank[jd];
 	}
 	
 	// Send number of nodes and cookie
-	Sprintf(srvr," %d %d\n",nnod,cookie);
+	sprintf(buff+strlen(buff)," %d %d",nnod,cookie);
+	printf("sending state line \"%s\"\n",buff);
+	Sprintf(srvr,"%s\n",buff);
 
 	// Send values 
 	for (int j=0; j<nnod; j++) {

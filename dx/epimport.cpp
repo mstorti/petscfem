@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-// $Id: epimport.cpp,v 1.5 2003/02/15 15:49:52 mstorti Exp $
+// $Id: epimport.cpp,v 1.6 2003/02/16 01:42:01 mstorti Exp $
 #include <string>
 #include <vector>
 #include <map>
@@ -52,10 +52,12 @@ public:
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 class State : public DXObject {
 public:
-  int ndof,nnod;
+  int rank,size,nnod;
+  vector<int> shape;
   Array array;
   Object dx_object() { return (Object)array; }
-  State(int f,int d,Array a) : ndof(f), nnod(d), array(a) {}
+  State(int k,vector<int> &s,int z,int d,Array a) 
+    : rank(k), shape(s), size(z), nnod(d), array(a) {}
 };
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
@@ -197,29 +199,45 @@ int DXObjectsTable::get_state(string &name,Object &object) {
 #endif
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
-Error build_dx_array(Socket *clnt,int shape,int size, Array &array) {
+Error build_dx_array(Socket *clnt,int shape,int length, Array &array) {
   array = NULL;
   array = DXNewArray(DX_SCALAR_TYPE, CATEGORY_REAL, 1,shape);
   if (!array) return ERROR;
-  array = DXAddArrayData(array, 0, size, NULL);
+  array = DXAddArrayData(array, 0, length, NULL);
   if (!array) return ERROR;
   DX_SCALAR_TYPE_DECL *array_p = (DX_SCALAR_TYPE_DECL *)DXGetArrayData(array);
 
-  int nread = Sreadbytes(clnt,array_p,shape*size*sizeof(DX_SCALAR_TYPE_DECL));
+  int nread = Sreadbytes(clnt,array_p,shape*length*sizeof(DX_SCALAR_TYPE_DECL));
   if (nread==EOF) return ERROR;
   return OK;
 }
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
-Error build_dx_array_int(Socket *clnt,int shape,int size, Array &array) {
+Error build_dx_array_v(Socket *clnt,int rank,
+		       vector<int> shape, int size, 
+		       int length, Array &array) {
+  array = NULL;
+  array = DXNewArrayV(DX_SCALAR_TYPE, CATEGORY_REAL, rank, shape.begin());
+  if (!array) return ERROR;
+  array = DXAddArrayData(array, 0, length, NULL);
+  if (!array) return ERROR;
+  DX_SCALAR_TYPE_DECL *array_p = (DX_SCALAR_TYPE_DECL *)DXGetArrayData(array);
+
+  int nread = Sreadbytes(clnt,array_p,size*length*sizeof(DX_SCALAR_TYPE_DECL));
+  if (nread==EOF) return ERROR;
+  return OK;
+}
+
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+Error build_dx_array_int(Socket *clnt,int shape,int length, Array &array) {
   array = NULL;
   array = DXNewArray(TYPE_INT, CATEGORY_REAL, 1,shape);
   if (!array) return ERROR;
-  array = DXAddArrayData(array, 0, size, NULL);
+  array = DXAddArrayData(array, 0, length, NULL);
   if (!array) return ERROR;
   int *array_p = (int *)DXGetArrayData(array);
 
-  int nread = Sreadbytes(clnt,array_p,shape*size*sizeof(int));
+  int nread = Sreadbytes(clnt,array_p,shape*length*sizeof(int));
   if (nread==EOF) return ERROR;
   return OK;
 }
@@ -247,15 +265,20 @@ public:
   void clear() {
     if (n>0) { n=0; free(s); }
   }
+  void cat(AutoString &s) { 
+    // Cats s at the rear of this string
+    // not coded yet
+  }
 };
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 extern "C" Error m_ExtProgImport(Object *in, Object *out) {
   int i,N, *icone_p,node,nread,nnod,nnod2,ndim,ndof,
-    nelem,nel,cookie;
+    nelem, nel, cookie, fields_n, arrays_n;
+
   double *xnod_p,*data_p;
   Array icone=NULL,xnod=NULL,data=NULL,step_comp_o=NULL; 
-  Group g=NULL,flist=NULL;
+  Group alist=NULL,flist=NULL;
   char *token;
   String s;
   Type t;
@@ -373,16 +396,28 @@ extern "C" Error m_ExtProgImport(Object *in, Object *out) {
       Sprintf(clnt,"nodes_OK %d\n",cookie);
       //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
     } else if (tokens[0]=="state") {
-      name = tokens[1];
-      if (string2int(tokens[2],ndof)) goto error;
-      if (string2int(tokens[3],nnod)) goto error;
-      if (string2int(tokens[4],cookie)) goto error;
-      ierr = build_dx_array(clnt,ndof,nnod,array);
+      DXMessage("Got state line %s",buf);
+      int rank,dim,tk=1,size=1;
+      vector<int> shape;
+      string &name = tokens[tk++];
+      if (string2int(tokens[tk++],rank)) goto error;
+      for (int j=0; j<rank; j++) {
+	if (string2int(tokens[tk++],dim)) goto error;
+	size *= dim;
+	shape.push_back(dim);
+      }
+      if (string2int(tokens[tk++],nnod)) goto error;
+      if (string2int(tokens[tk++],cookie)) goto error;
+
+      ierr = build_dx_array_v(clnt,rank,shape,size,nnod,array);
       if(ierr!=OK) return ierr;
-      ierr = dx_objects_table.load_new(name,new State(ndim,nnod,array));
+      ierr = dx_objects_table.
+	load_new(name,new State(rank,shape,size,nnod,array));
       if(ierr!=OK) return ierr;
-      DXMessage("Got new \"State\" name %s, ptr %p, ndof %d, nnod %d",
-		name.c_str(),array,ndof,nnod);
+      DXMessage("Got new \"State\" name %s, ptr %p, rank %d, dims (",
+		name.c_str(),array,rank);
+      for (int j=0; j<rank; j++) DXMessage(" %d",shape[j]);
+      DXMessage("), size %d, nnod %d",size,nnod);
       Sprintf(clnt,"state_OK %d\n",cookie);
       //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
     } else if (tokens[0]=="elemset") {
@@ -491,33 +526,38 @@ extern "C" Error m_ExtProgImport(Object *in, Object *out) {
     }
   }
 
-  g = DXNewGroup();
-  if (!g) goto error;
-  flist = DXNewGroup();
-  if (!flist) goto error;
-
+  fields_n=0; arrays_n=0;
+  DXMessage("Before building alist and flist");
   qe = dx_objects_table.end();
   for (q=dx_objects_table.begin(); q!=qe; q++) {
     DXField *field = dynamic_cast<DXField *>(q->second);
     Object o;
     char *name = (char *)(q->first.c_str());
     if (field) {
+      if (!fields_n++) {
+	flist = DXNewGroup();
+	if (!flist) goto error;
+      }
       o = (Object)field->dx_object();
       flist = DXSetMember(flist,name,o);
       if (!flist) goto error;
-      DXMessage("Field %p, member name \"%s\"",o,name);
+      DXMessage("Field %d, ptr. %p, member name \"%s\"",fields_n,o,name);
     } else {
+      if (!arrays_n++) {
+	alist = DXNewGroup();
+	if (!alist) goto error;
+      }
       o = (Object)q->second->dx_object();
-      g = DXSetMember(g,name,o);
-      if (!g) goto error;
-      DXMessage("Array %p, member name \"%s\"",o,name);
+      alist = DXSetMember(alist,name,o);
+      if (!alist) goto error;
+      DXMessage("Array %d, ptr. %p, member name \"%s\"",arrays_n,o,name);
     }
   }
 
   step_comp_o = DXMakeInteger(step_comp);
 
-  out[0] = (Object)g;
-  out[1] = (Object)flist;
+  if(alist) out[0] = (Object)alist;
+  if(flist) out[1] = (Object)flist;
   out[2] = (Object)step_comp_o;
 
   if (!clnt) Sclose(clnt);

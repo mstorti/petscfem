@@ -28,7 +28,7 @@ OLIBS = -lDXlite -lm
 BIN = $(BASE)/bin
 
 # create the necessary executable
-epimport: $(FILES_epimport) 
+epimport: $(FILES_epimport) $(PETSCFEM_DIR)/src/libpetscfem$(osfx).a
 	$(SHARED_LINK) $(DXABI) $(LDFLAGS) -o epimport userepimport.$(OBJEXT)	\
 		epimport.$(OBJEXT) $(DX_RTL_LDFLAGS) $(SYSLIBS)			\
 		$(SSL)/simpleskts.a $(LIBPETSCFEM) -lstdc++

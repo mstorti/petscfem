@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-// $Id: util3.cpp,v 1.4 2003/02/11 11:34:00 mstorti Exp $
+// $Id: util3.cpp,v 1.5 2003/02/16 01:42:01 mstorti Exp $
 #include <cstring>
 #include <cstdio>
 #include <string>
@@ -44,7 +44,7 @@ void tokenize(const char *line,vector<string> &tokens) {
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 #define SGETLINE_FACTOR 2
 #define SGETLINE_INIT_SIZE 512
-#define SGETLINE_MAX_SIZE INT_MAX
+#define SGETLINE_MAX_SIZE 65536
 /** Reads a line from a socket using the Simple sockets 
     library function #Sgets# but with eventual reallocation, 
     using #malloc#. (This is similar ro the GNU #getline# function). 
@@ -76,6 +76,10 @@ ssize_t Sgetline(char **lineptr, size_t *N_a,Socket *sock) {
       for (q = q0; q<qe; q++) if (*q == '\n') break;
       if (q<qe) break;
       // If not end, then we have read all, except the two nulls at the end
+      // Verify there are two nulls at the end
+      assert(*(qe-2)=='\0' &&*(qe-1)=='\0');
+      // update the pointer to last byte read
+      // The `2' accounts for the two nulls at the end
       read_so_far = N-2;
     }
     // Realocate
