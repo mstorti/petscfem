@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: sparse.cpp,v 1.28 2001/11/19 03:35:06 mstorti Exp $
+//$Id: sparse.cpp,v 1.29 2001/11/20 23:00:26 mstorti Exp $
 
 #include <src/sparse2.h>
 
@@ -969,7 +969,7 @@ namespace Sparse {
     } else if (!strcmp(opt,"SuperLU")) {
       m = new SuperLUMat;
     } else assert(0);
-    m->thash.include_table(string("father"),t);
+    if (t!=NULL) m->thash.include_table(string("father"),t);
     return m;
   }  
 
