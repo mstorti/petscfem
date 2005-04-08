@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-// $Id: condwall.cpp,v 1.12 2005/04/06 14:47:20 mstorti Exp $
+// $Id: condwall.cpp,v 1.13 2005/04/08 20:51:11 mstorti Exp $
 
 #include "./condwall.h"
 extern int MY_RANK,SIZE;
@@ -57,6 +57,7 @@ res(int k,FastMat2 &U,FastMat2 &r,
   U.ir(1,2);
   U2.set(U);
   U.rs();
+  double alpha=1.0;
   if (data_p && data_p->Rv.size()>0) {
     if (k==0) assert(data_p->Rv.size()==size());
     R = data_p->Rv.ref(k);
@@ -95,14 +96,15 @@ res(int k,FastMat2 &U,FastMat2 &r,
       .is(3,1,ndim).eye().rs();
   } else {
     // Open
-    r.set(0.).is(1,1,ndof).set(U1).rest(U2).rs();
+    r.set(0.).is(1,1,ndof).set(U1).rest(U2)
+      .rs().scale(alpha);
     w.set(0.).is(3,1,ndof)
       .ir(1,1).eye()
       .ir(1,2).eye(-1.0).rs();
     jac.set(0.)
       .is(1,1,ndof).ir(2,1).eye()
       .ir(2,2).eye(-1.)
-      .rs();
+      .rs().scale(alpha);
   }
 }
 
