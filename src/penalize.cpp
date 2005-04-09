@@ -1,7 +1,9 @@
 //__INSERT_LICENSE__
-/* $Id: penalize.cpp,v 1.9 2005/04/09 22:28:11 mstorti Exp $ */
+/* $Id: penalize.cpp,v 1.10 2005/04/09 23:11:09 mstorti Exp $ */
 
+#ifdef USE_DLEF
 #include <dlfcn.h>
+#endif
 
 #include <src/fem.h>
 #include <src/utils.h>
@@ -144,6 +146,7 @@ int
 DLRestriction::init(int nel,int ndof,
 		     TextHashTable *thash,
 		     const char *name) {
+#ifdef USE_DLEF
   const char *error;
   int ierr;
   string s;
@@ -178,5 +181,12 @@ DLRestriction::init(int nel,int ndof,
   GET_FUN(CloseFun,close_fun);
 
   return (*init_fun)(nel,ndof,thash,name,fun_data);
+#else
+#warning "not linking with dynamic linking"
+  PETSCFEM_ERROR("Error trying to load dynamically linked restriction\n"
+		 "for name \"%s\".\n"
+		 "Not compiled with dynamic linking functions enabled.\n"
+		 "Recompile with USE_DLEF flag enabled\n",
+		 name);
+#endif
 }
-
