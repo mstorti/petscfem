@@ -4261,3 +4261,6 @@ tag: beta-3.45.22 on Sat, 09 Apr 2005 14:22:51 -0300 by mstorti in spider
 ----------
 tag: beta-3.45.23 on Sat, 09 Apr 2005 14:42:13 -0300 by mstorti in spider
      > Compiles OK DL generic restriction. Fixed some errors.
+----------
+tag: beta-3.45.24 on Sat, 09 Apr 2005 18:45:54 -0300 by mstorti in spider
+     > Fixed error in `BasicObject' initialization. 
