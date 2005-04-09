@@ -1,6 +1,6 @@
 // -*- mode: c++ -*-
 //__INSERT_LICENSE__
-// $Id: penalize.h,v 1.3 2005/04/09 11:02:23 mstorti Exp $
+// $Id: penalize.h,v 1.4 2005/04/09 15:49:07 mstorti Exp $
 #ifndef PETSCFEM_PENALIZE_H
 #define PETSCFEM_PENALIZE_H
 
@@ -17,10 +17,13 @@ public:
       @param nel (input) number of nodes per element
       @param ndof (input) number of fields per node
       @param thash (input) table of options
+      @param name (input) the name of this object
+      (probably equal to the element using it)
       @return number of restrictions to be applied
   */
   virtual int
-  init(int nel,int ndof,TextHashTable *thash) { }
+  init(int nel,int ndof,
+       TextHashTable *thash,const char *name) { }
   /** Computes the residual and jacobian of the function
       to be imposed. Usually you derive #NonLinearRes#
       and instantiate this function that defines the

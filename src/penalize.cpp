@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-/* $Id: penalize.cpp,v 1.4 2005/04/09 11:36:55 mstorti Exp $ */
+/* $Id: penalize.cpp,v 1.5 2005/04/09 15:49:07 mstorti Exp $ */
 
 #include <src/fem.h>
 #include <src/utils.h>
@@ -46,7 +46,7 @@ new_assemble(arg_data_list &arg_data_v,const Nodedata *nodedata,
   if (comp_mat) matloc_prof.set(1.);
 
   // Call callback function defined by user initializing the elemset
-  int nr = restr->init(nel,ndof,option_table());
+  int nr = restr->init(nel,ndof,option_table(),name());
 
   int nu = nodedata->nu;
   int nH = nu-ndim;
@@ -93,10 +93,8 @@ new_assemble(arg_data_list &arg_data_v,const Nodedata *nodedata,
 
     if (comp_mat_res) {
       restr->res(elem,U,r,w,jac);
-      R.prod(w,r,1,2,-1,-1).scale(K);
+      R.prod(w,r,1,2,-1,-1).scale(-K);
       matloc.prod(w,jac,1,2,-1,-1,3,4).scale(K);
-      R.print("R:");
-      matloc.print("matloc:");
       R.rs()
 	.export_vals(element
 			 .ret_vector_values(*retval));

@@ -1,6 +1,6 @@
 // -*- mode: c++ -*-
 //__INSERT_LICENSE__
-// $Id: condwallpen.h,v 1.2 2005/04/09 11:36:52 mstorti Exp $
+// $Id: condwallpen.h,v 1.3 2005/04/09 15:49:04 mstorti Exp $
 #ifndef PETSCFEM_CONDWALLPEN_H
 #define PETSCFEM_CONDWALLPEN_H
 
@@ -18,9 +18,15 @@
 
 class CondWallRestriction : public Restriction {
 private:
-  int nel,ndof;
+  int nel,ndof,ndim;
+  int use_vector_resistance;
+  double R;			// Resistance of the membrane
+  cond_wall_data_t *data_p;
+  FastMat2 U1,U2,u1,u2;
 public:
-  int init(int nel_a,int ndof_a,TextHashTable *thash);
+  CondWallRestriction() : data_p(NULL) { }
+  int init(int nel_a,int ndof_a,
+	   TextHashTable *thash,const char *name);
   void res(int k,FastMat2 &U,FastMat2 & r,
 	   FastMat2 & w,FastMat2 & jac);
   ~CondWallRestriction() { }
