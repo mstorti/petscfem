@@ -1,6 +1,6 @@
 // -*- mode: c++ -*-
 //__INSERT_LICENSE__
-// $Id: penalize.h,v 1.5 2005/04/09 17:10:05 mstorti Exp $
+// $Id: penalize.h,v 1.6 2005/04/09 17:22:42 mstorti Exp $
 #ifndef PETSCFEM_PENALIZE_H
 #define PETSCFEM_PENALIZE_H
 
@@ -122,5 +122,27 @@ class Penalize : public NewElemset {
   /// Initialize element
   virtual void element_hook(ElementIterator &element) {}
 };
+
+#define DL_GENERIC_RESTRICTION(prefix)			\
+extern "C"						\
+void prefix##_init_fun(int nel,int ndof,		\
+		       TextHashTable *thash,		\
+		       const char *name,		\
+		       void *fun_data) {		\
+  fun_data = new prefix;				\
+  ((prefix *)fun_data)->init(nel,ndof,thash,name);	\
+}							\
+							\
+extern "C" void						\
+prefix##_res_fun(int k,FastMat2 &U,FastMat2 & r,	\
+	      FastMat2 & w,FastMat2 & jac,		\
+	      void *fun_data_a) {			\
+  ((prefix *)fun_data)->res(k,U,r,w,jac);		\
+}							\
+							\
+extern "C" void						\
+prefix##_close_fun( void *fun_data) {			\
+  ((prefix *)fun_data)->close();			\
+}
 
 #endif

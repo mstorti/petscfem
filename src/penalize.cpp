@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-/* $Id: penalize.cpp,v 1.6 2005/04/09 17:10:05 mstorti Exp $ */
+/* $Id: penalize.cpp,v 1.7 2005/04/09 17:22:42 mstorti Exp $ */
 
 #include <dlfcn.h>
 
@@ -158,14 +158,17 @@ dl_restriction::init(int nel,int ndof,
 		  "can't dlopen() file \"%s\".\n"
 		  "    Error \"%s\"\n",name,filename.c_str(),error);  
 
+  string prefix = name, s;
+
 #define GET_FUN(FunType,fun)				\
-  fun = (FunType *) dlsym(handle,#fun);			\
+  s = prefix + string("_" #fun);			\
+  fun = (FunType *) dlsym(handle,s.c_str());		\
   error = dlerror();					\
   PETSCFEM_ASSERT(!error,				\
 		  "Hook %s, can't dlsym() \"%s\" "	\
 		  "in file \"%s\".\n"			\
-		  "    Error \"%s\"\n",name,		\
-		  #fun,filename.c_str(),error);  
+		  "    Error \"%s\"\n",name,s.c_str(),	\
+		  filename.c_str(),error);  
 
   GET_FUN(InitFun,init_fun);
   GET_FUN(ResFun,res_fun);
