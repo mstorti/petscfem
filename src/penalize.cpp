@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-/* $Id: penalize.cpp,v 1.3 2005/04/09 11:02:23 mstorti Exp $ */
+/* $Id: penalize.cpp,v 1.4 2005/04/09 11:36:55 mstorti Exp $ */
 
 #include <src/fem.h>
 #include <src/utils.h>
@@ -95,6 +95,16 @@ new_assemble(arg_data_list &arg_data_v,const Nodedata *nodedata,
       restr->res(elem,U,r,w,jac);
       R.prod(w,r,1,2,-1,-1).scale(K);
       matloc.prod(w,jac,1,2,-1,-1,3,4).scale(K);
+      R.print("R:");
+      matloc.print("matloc:");
+      R.rs()
+	.export_vals(element
+			 .ret_vector_values(*retval));
+      matloc.rs()
+	.export_vals(element
+		     .ret_mat_values(*retvalmat));
+      jac.rs();
+      w.rs();
     }
 
 #ifdef COMPUTE_FD_RES_JACOBIAN
@@ -108,14 +118,6 @@ new_assemble(arg_data_list &arg_data_v,const Nodedata *nodedata,
 	res_fd_jac.ir(2,jele).ir(3,jdof)
 	  .set(res_pert).rs();
       }
-      R.rs()
-	.export_vals(element
-			 .ret_vector_values(*retval));
-      matloc.rs()
-	.export_vals(element
-		     .ret_mat_values(*retvalmat));
-      jac.rs();
-      w.rs();
     }
     d_res_fd_jac
       .set(jac).rest(res_fd_jac);

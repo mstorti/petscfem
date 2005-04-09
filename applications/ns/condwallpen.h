@@ -1,6 +1,6 @@
 // -*- mode: c++ -*-
 //__INSERT_LICENSE__
-// $Id: condwallpen.h,v 1.1 2005/04/09 11:02:19 mstorti Exp $
+// $Id: condwallpen.h,v 1.2 2005/04/09 11:36:52 mstorti Exp $
 #ifndef PETSCFEM_CONDWALLPEN_H
 #define PETSCFEM_CONDWALLPEN_H
 
@@ -20,26 +20,9 @@ class CondWallRestriction : public Restriction {
 private:
   int nel,ndof;
 public:
-  int init(int nel_a,int ndof_a,TextHashTable *thash) { 
-    nel = nel_a;
-    ndof = ndof_a;
-    assert(nel==2);
-    return ndof;
-  }
+  int init(int nel_a,int ndof_a,TextHashTable *thash);
   void res(int k,FastMat2 &U,FastMat2 & r,
-		   FastMat2 & w,FastMat2 & jac) {
-    U.ir(1,1);
-    r.set(0.).is(1,1,ndof).set(U);
-    U.ir(1,2);
-    r.rest(U).rs();
-    w.set(0.).is(3,1,ndof)
-      .ir(1,1).eye()
-      .ir(1,2).eye(-1.0).rs();
-    jac.set(0.)
-      .is(1,1,ndof).ir(2,1).eye()
-      .ir(2,2).eye(-1.).rs();
-
-  }
+	   FastMat2 & w,FastMat2 & jac);
   ~CondWallRestriction() { }
 };
 
