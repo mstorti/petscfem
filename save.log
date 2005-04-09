@@ -4267,4 +4267,6 @@ tag: beta-3.45.24 on Sat, 09 Apr 2005 18:45:54 -0300 by mstorti in spider
 ----------
 tag: beta-3.45.25 on Sat, 09 Apr 2005 19:28:21 -0300 by mstorti in spider
      > Runs example with penalization restriction `Penalize',
-     > dynamically loaded (dlopen()). 
+     > dynamically loaded (dlopen()). ----------
+tag: beta-3.45.26 on Sat, 09 Apr 2005 20:11:17 -0300 by mstorti in spider
+     > Making dynamic loading of penalization functions optional. 
