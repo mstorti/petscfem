@@ -2,6 +2,9 @@
 TODO: [Mainly fixes go here...]
 =====
 
+* In FastMat2::is() is the index is greater than the dimension of 
+  the matrix, that index is discarded in the mask in place of throwing
+  an error. Now I think that it should throw an error. 
 * When using `ndim=2' in global options and 'ndim=3' in an elemset
    some things go wrong. (reported by Beto).
 * When not using __INCLUDE__ in the constraint section (for instance)
