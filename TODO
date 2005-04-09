@@ -2,32 +2,6 @@
 TODO: [Mainly fixes go here...]
 =====
 
-* Apparently crashes when in the elemset section finds a string that
-    is not elemset, for instance
-> elemset qharmm 8
-> conductivity 1.
-> C 0.
-> Cp 0.
-> geometry cartesian3d
-> name fluid
-> npg 8
-> dx 1
-> __END_HASH__
-> 1 2 3 4 5 6 7 8
-> 9 10 11 12 13 14 15 16
-> __END_ELEMSET__
-> 
-> ##---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
-> name wall
-> dx 0
-> resistance 1.
-> penalization_factor 10000.0
-> __END_HASH__
-> 5  9
-> 6 10
-> 7 11
-> 8 12
-> __END_ELEMSET__
 * In FastMat2::is() is the index is greater than the dimension of 
   the matrix, that index is discarded in the mask in place of throwing
   an error. Now I think that it should throw an error. 
@@ -185,6 +159,32 @@ TODO: [Mainly fixes go here...]
 DONE:
 =====
 
+* Apparently crashes when in the elemset section finds a string that
+    is not elemset, for instance
+> elemset qharmm 8
+> conductivity 1.
+> C 0.
+> Cp 0.
+> geometry cartesian3d
+> name fluid
+> npg 8
+> dx 1
+> __END_HASH__
+> 1 2 3 4 5 6 7 8
+> 9 10 11 12 13 14 15 16
+> __END_ELEMSET__
+> 
+> ##---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+> name wall
+> dx 0
+> resistance 1.
+> penalization_factor 10000.0
+> __END_HASH__
+> 5  9
+> 6 10
+> 7 11
+> 8 12
+> __END_ELEMSET__
 * Can't open `weights.dat' gives a SIGSEGV and not in parallel. 
 > Couldn't open file "weights.dat"!!
 > --------------------------------------------------------------------------
