@@ -1,6 +1,6 @@
 // -*- mode: c++ -*-
 //__INSERT_LICENSE__
-// $Id: penalize.h,v 1.8 2005/04/09 22:28:11 mstorti Exp $
+// $Id: penalize.h,v 1.9 2005/04/09 23:45:51 mstorti Exp $
 #ifndef PETSCFEM_PENALIZE_H
 #define PETSCFEM_PENALIZE_H
 
@@ -24,6 +24,15 @@ public:
   virtual int
   init(int nel,int ndof,
        TextHashTable *thash,const char *name) { }
+  /** Return the node/dof pair to be used as lagrange
+      multiplier for the #jr#-th restriction.
+      @param jr (input) Number of restriction
+      @param node (output) number of node for multiplier
+      @param dof (output) number of field for multiplier
+  */ 
+  virtual void lag_mul_dof(int jr,int &node,int &dof) { 
+    assert(0); 
+  }
   /** Computes the residual and jacobian of the function
       to be imposed. Usually you derive #NonLinearRes#
       and instantiate this function that defines the
@@ -59,6 +68,9 @@ public:
 	      TextHashTable *thash,
 	      const char *name,
 	      void *&fun_data_a);
+  typedef
+  void LagMulDofFun(int jr,int &node,
+		    int &dof,void *&fun_data_a);
   typedef 
   void ResFun(int k,FastMat2 &U,FastMat2 & r,
 	      FastMat2 & w,FastMat2 & jac,
@@ -68,11 +80,16 @@ private:
   void *handle;
   void *fun_data;
   InitFun *init_fun;
+  LagMulDofFun *lag_mul_dof_fun;
   ResFun *res_fun;
   CloseFun *close_fun;
 public:
   int init(int nel,int ndof,
 	   TextHashTable *thash,const char *name);
+  void lag_mul_dof(int jr,int &node,int &dof) {
+    assert(lag_mul_dof_fun);
+    (*lag_mul_dof_fun)(jr,node,dof,fun_data);
+  }
   void res(int k,FastMat2 &U,FastMat2 & r,
 	   FastMat2 & w,FastMat2 & jac) {
     (*res_fun)(k,U,r,w,jac,fun_data);
@@ -123,6 +140,34 @@ class Penalize : public NewElemset {
   virtual void element_hook(ElementIterator &element) {}
 };
 
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+class DLBaseRestriction {
+public:
+  virtual 
+  int init(int nel,int ndof_a,
+	   TextHashTable *thash,const char *name) { }
+  virtual
+  void res(int k,FastMat2 &U,FastMat2 & r,
+	   FastMat2 & w,FastMat2 & jac)=0;
+  virtual
+  void lag_mul_dof(int jr,int &node,int &dof) { assert(0); }
+  virtual
+  void close() { }
+};
+
+// Takes the generic pointer `fun_data' and
+// converts it to the objectm using RTTI (dynamic_cast<>)
+// This ensures that the proper object is loaded, and
+// also lets defining default behaviour for the objects. 
+#define convert_to_class  			\
+DLBaseRestriction *obj = 			\
+dynamic_cast<DLBaseRestriction *>(fun_data);	\
+assert(obj);
+
+// Wraps the object interface to a C interface that
+// can be dynamically laoded. Each C function calls the
+// corresponding function on the object hided in the
+// `fun_data' argument. 
 #define DL_GENERIC_RESTRICTION(prefix)			\
 extern "C"						\
 void prefix##_init_fun(int nel,int ndof,		\
@@ -130,19 +175,29 @@ void prefix##_init_fun(int nel,int ndof,		\
 		       const char *name,		\
 		       void *&fun_data) {		\
   fun_data = new prefix;				\
-  ((prefix *)fun_data)->init(nel,ndof,thash,name);	\
+  convert_to_class;					\
+  obj->init(nel,ndof,thash,name);			\
+}							\
+							\
+extern "C" void						\
+prefix##_lag_mul_dof_fun(int jr,int &node,		\
+			 int &dof,void *fun_data_a) {	\
+  convert_to_class;					\
+  obj->(jr,node,dof);					\
 }							\
 							\
 extern "C" void						\
 prefix##_res_fun(int k,FastMat2 &U,FastMat2 & r,	\
 	      FastMat2 & w,FastMat2 & jac,		\
 	      void *fun_data) {				\
-  ((prefix *)fun_data)->res(k,U,r,w,jac);		\
+  convert_to_class;					\
+  obj->res(k,U,r,w,jac);				\
 }							\
 							\
 extern "C" void						\
 prefix##_close_fun( void *fun_data) {			\
-  ((prefix *)fun_data)->close();			\
+  convert_to_class;					\
+  obj->close();						\
 }
 
 #endif
