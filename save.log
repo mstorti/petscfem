@@ -4252,3 +4252,6 @@ tag: beta-3.45.19 on Sat, 09 Apr 2005 08:37:03 -0300 by mstorti in spider
 ----------
 tag: beta-3.45.20 on Sat, 09 Apr 2005 12:49:16 -0300 by mstorti in spider
      > Runs OK `cubes' test with new Penalize restriction. 
+----------
+tag: beta-3.45.21 on Sat, 09 Apr 2005 14:10:13 -0300 by mstorti in spider
+     > Compiles ok DL generic restriction. 
