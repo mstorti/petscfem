@@ -4249,3 +4249,6 @@ tag: beta-3.45.18 on Sat, 09 Apr 2005 08:02:32 -0300 by mstorti in spider
 ----------
 tag: beta-3.45.19 on Sat, 09 Apr 2005 08:37:03 -0300 by mstorti in spider
      > Made example of penalization `condwall' in `cubes.epl'
+----------
+tag: beta-3.45.20 on Sat, 09 Apr 2005 12:49:16 -0300 by mstorti in spider
+     > Runs OK `cubes' test with new Penalize restriction. 
