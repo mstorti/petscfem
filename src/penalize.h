@@ -1,6 +1,6 @@
 // -*- mode: c++ -*-
 //__INSERT_LICENSE__
-// $Id: penalize.h,v 1.7 2005/04/09 17:42:06 mstorti Exp $
+// $Id: penalize.h,v 1.8 2005/04/09 22:28:11 mstorti Exp $
 #ifndef PETSCFEM_PENALIZE_H
 #define PETSCFEM_PENALIZE_H
 
@@ -58,7 +58,7 @@ public:
   int InitFun(int nel,int ndof,
 	      TextHashTable *thash,
 	      const char *name,
-	      void *fun_data_a);
+	      void *&fun_data_a);
   typedef 
   void ResFun(int k,FastMat2 &U,FastMat2 & r,
 	      FastMat2 & w,FastMat2 & jac,
@@ -128,7 +128,7 @@ extern "C"						\
 void prefix##_init_fun(int nel,int ndof,		\
 		       TextHashTable *thash,		\
 		       const char *name,		\
-		       void *fun_data) {		\
+		       void *&fun_data) {		\
   fun_data = new prefix;				\
   ((prefix *)fun_data)->init(nel,ndof,thash,name);	\
 }							\

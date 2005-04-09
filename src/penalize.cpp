@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-/* $Id: penalize.cpp,v 1.8 2005/04/09 17:42:06 mstorti Exp $ */
+/* $Id: penalize.cpp,v 1.9 2005/04/09 22:28:11 mstorti Exp $ */
 
 #include <dlfcn.h>
 
@@ -146,9 +146,14 @@ DLRestriction::init(int nel,int ndof,
 		     const char *name) {
   const char *error;
   int ierr;
+  string s;
 
   //o Dimension of the problem
   TGETOPTDEF_S(thash,string,filename,"");
+  //o Dimension of the problem
+  TGETOPTDEF_S(thash,string,restriction,"");
+  if (restriction =="") restriction = name;
+
   PETSCFEM_ASSERT(filename!="","Couldn't find filename entry for "
 		  "DL restriction \"%s\"\n",name);  
   // Get `dlopen()' handle to the extension function
@@ -158,10 +163,8 @@ DLRestriction::init(int nel,int ndof,
 		  "can't dlopen() file \"%s\".\n"
 		  "    Error \"%s\"\n",name,filename.c_str(),error);  
 
-  string prefix = name, s;
-
 #define GET_FUN(FunType,fun)				\
-  s = prefix + string("_" #fun);			\
+  s = restriction + string("_" #fun);			\
   fun = (FunType *) dlsym(handle,s.c_str());		\
   error = dlerror();					\
   PETSCFEM_ASSERT(!error,				\
@@ -174,6 +177,6 @@ DLRestriction::init(int nel,int ndof,
   GET_FUN(ResFun,res_fun);
   GET_FUN(CloseFun,close_fun);
 
-  (*init_fun)(nel,ndof,thash,name,fun_data);
+  return (*init_fun)(nel,ndof,thash,name,fun_data);
 }
 
