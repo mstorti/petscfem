@@ -1,5 +1,7 @@
 //__INSERT_LICENSE__
-/* $Id: penalize.cpp,v 1.5 2005/04/09 15:49:07 mstorti Exp $ */
+/* $Id: penalize.cpp,v 1.6 2005/04/09 17:10:05 mstorti Exp $ */
+
+#include <dlfcn.h>
 
 #include <src/fem.h>
 #include <src/utils.h>
@@ -136,3 +138,39 @@ new_assemble(arg_data_list &arg_data_v,const Nodedata *nodedata,
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 Restriction::~Restriction() { }
+
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+int
+dl_restriction::init(int nel,int ndof,
+		     TextHashTable *thash,
+		     const char *name) {
+  const char *error;
+  int ierr;
+
+  //o Dimension of the problem
+  TGETOPTDEF_S(thash,string,filename,"");
+  PETSCFEM_ASSERT(filename!="","Couldn't find filename entry for "
+		  "dl_restriction \"%s\"\n",name);  
+  // Get `dlopen()' handle to the extension function
+  void *handle = dlopen(filename.c_str(),RTLD_LAZY);
+  error = dlerror();
+  PETSCFEM_ASSERT(!error && handle,"Restriction %s, "
+		  "can't dlopen() file \"%s\".\n"
+		  "    Error \"%s\"\n",name,filename.c_str(),error);  
+
+#define GET_FUN(FunType,fun)				\
+  fun = (FunType *) dlsym(handle,#fun);			\
+  error = dlerror();					\
+  PETSCFEM_ASSERT(!error,				\
+		  "Hook %s, can't dlsym() \"%s\" "	\
+		  "in file \"%s\".\n"			\
+		  "    Error \"%s\"\n",name,		\
+		  #fun,filename.c_str(),error);  
+
+  GET_FUN(InitFun,init_fun);
+  GET_FUN(ResFun,res_fun);
+  GET_FUN(CloseFun,close_fun);
+
+  (*init_fun)(nel,ndof,thash,name,fun_data);
+}
+

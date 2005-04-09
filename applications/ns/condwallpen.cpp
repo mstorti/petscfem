@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-// $Id: condwallpen.cpp,v 1.3 2005/04/09 15:49:04 mstorti Exp $
+// $Id: condwallpen.cpp,v 1.4 2005/04/09 17:10:02 mstorti Exp $
 
 #include "./condwallpen.h"
 
@@ -16,9 +16,9 @@ init(int nel_a,int ndof_a,
   int ierr;
   //o Resistance of the membrane (fixme:=
   //  so far may be only ON(R>0) / OFF(R==0) 
-  SGETOPTDEF(double,resistance,0.);
+  TGETOPTDEF(thash,double,resistance,0.);
   //o Dimension of the problem
-  SGETOPTDEF_ND(int,ndim,0);
+  TGETOPTDEF_ND(thash,int,ndim,0);
   assert(ndof==ndim+1); // Only NS incompressible so far
   R = resistance;
   u1.resize(1,ndim);

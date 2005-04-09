@@ -1,6 +1,6 @@
 // -*- mode: c++ -*-
 //__INSERT_LICENSE__
-// $Id: penalize.h,v 1.4 2005/04/09 15:49:07 mstorti Exp $
+// $Id: penalize.h,v 1.5 2005/04/09 17:10:05 mstorti Exp $
 #ifndef PETSCFEM_PENALIZE_H
 #define PETSCFEM_PENALIZE_H
 
@@ -45,6 +45,40 @@ public:
   virtual void close() {}
   /// Make it pure virtual. 
   virtual ~Restriction()=0;
+};
+
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+/** Restriction loaded dynamically 
+    (with #dlopen()# from a shared object file. */ 
+class dl_restriction {
+public:
+  dl_restriction() { }
+  ~dl_restriction() { }
+  typedef 
+  int InitFun(int nel,int ndof,
+	      TextHashTable *thash,
+	      const char *name,
+	      void *fun_data_a);
+  typedef 
+  void ResFun(int k,FastMat2 &U,FastMat2 & r,
+	      FastMat2 & w,FastMat2 & jac,
+	      void *fun_data_a);
+  typedef void CloseFun(void *fun_data_a);
+private:
+  void *handle;
+  void *fun_data;
+  InitFun *init_fun;
+  ResFun *res_fun;
+  CloseFun *close_fun;
+public:
+  int init(int nel,int ndof,
+	   TextHashTable *thash,const char *name);
+  void res(int k,FastMat2 &U,FastMat2 & r,
+	   FastMat2 & w,FastMat2 & jac) {
+    (*res_fun)(k,U,r,w,jac,fun_data);
+  }
+  /// Called after the loop over all elements
+  void close() { (*close_fun)(fun_data); }
 };
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
