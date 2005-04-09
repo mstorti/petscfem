@@ -4243,3 +4243,6 @@ tag: beta-3.45.16 on Fri,  1 Apr 2005 18:20:59 -0300 by mstorti in node1.beowulf
 ----------
 tag: beta-3.45.17 on Sat, 09 Apr 2005 07:32:01 -0300 by mstorti in spider
      > Writing a `Penalize' elemset, similar to `LagrangeMult'. 
+----------
+tag: beta-3.45.18 on Sat, 09 Apr 2005 08:02:32 -0300 by mstorti in spider
+     > Writing a `Penalize' elemset, similar to `LagrangeMult'. 
