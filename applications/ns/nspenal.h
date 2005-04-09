@@ -1,6 +1,6 @@
 // -*- mode: c++ -*-
 //__INSERT_LICENSE__
-// $Id: nspenal.h,v 1.1 2005/04/09 11:02:19 mstorti Exp $
+// $Id: nspenal.h,v 1.2 2005/04/09 17:42:03 mstorti Exp $
 #ifndef PETSCFEM_NSPENAL_H
 #define PETSCFEM_NSPENAL_H
 
@@ -33,6 +33,14 @@ public:
   void 
   get_data(arg_data_list &arg_data_v,
 	   arg_data *&retvalmat);
+};
+
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+class dl_penalize : public NSPenalize {
+public:
+  // First two nodes are real nodes at both sides of the membrane. 
+  // Other two nodes are lagrange multipliers. 
+  dl_penalize() : NSPenalize(new DLRestriction) { }
 };
 
 #endif

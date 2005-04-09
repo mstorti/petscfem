@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-/* $Id: penalize.cpp,v 1.7 2005/04/09 17:22:42 mstorti Exp $ */
+/* $Id: penalize.cpp,v 1.8 2005/04/09 17:42:06 mstorti Exp $ */
 
 #include <dlfcn.h>
 
@@ -141,7 +141,7 @@ Restriction::~Restriction() { }
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 int
-dl_restriction::init(int nel,int ndof,
+DLRestriction::init(int nel,int ndof,
 		     TextHashTable *thash,
 		     const char *name) {
   const char *error;
@@ -150,7 +150,7 @@ dl_restriction::init(int nel,int ndof,
   //o Dimension of the problem
   TGETOPTDEF_S(thash,string,filename,"");
   PETSCFEM_ASSERT(filename!="","Couldn't find filename entry for "
-		  "dl_restriction \"%s\"\n",name);  
+		  "DL restriction \"%s\"\n",name);  
   // Get `dlopen()' handle to the extension function
   void *handle = dlopen(filename.c_str(),RTLD_LAZY);
   error = dlerror();

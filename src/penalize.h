@@ -1,6 +1,6 @@
 // -*- mode: c++ -*-
 //__INSERT_LICENSE__
-// $Id: penalize.h,v 1.6 2005/04/09 17:22:42 mstorti Exp $
+// $Id: penalize.h,v 1.7 2005/04/09 17:42:06 mstorti Exp $
 #ifndef PETSCFEM_PENALIZE_H
 #define PETSCFEM_PENALIZE_H
 
@@ -50,10 +50,10 @@ public:
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 /** Restriction loaded dynamically 
     (with #dlopen()# from a shared object file. */ 
-class dl_restriction {
+class DLRestriction : public Restriction {
 public:
-  dl_restriction() { }
-  ~dl_restriction() { }
+  DLRestriction() { }
+  ~DLRestriction() { }
   typedef 
   int InitFun(int nel,int ndof,
 	      TextHashTable *thash,
@@ -136,7 +136,7 @@ void prefix##_init_fun(int nel,int ndof,		\
 extern "C" void						\
 prefix##_res_fun(int k,FastMat2 &U,FastMat2 & r,	\
 	      FastMat2 & w,FastMat2 & jac,		\
-	      void *fun_data_a) {			\
+	      void *fun_data) {				\
   ((prefix *)fun_data)->res(k,U,r,w,jac);		\
 }							\
 							\
