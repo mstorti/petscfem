@@ -1,6 +1,6 @@
 // -*- mode: c++ -*-
 //__INSERT_LICENSE__
-// $Id: penalize.h,v 1.1 2005/04/09 01:54:05 mstorti Exp $
+// $Id: penalize.h,v 1.2 2005/04/09 10:31:35 mstorti Exp $
 #ifndef PETSCFEM_PENALIZE_H
 #define PETSCFEM_PENALIZE_H
 
@@ -13,8 +13,14 @@ public:
   /** Initialize the object (maybe reads hash
       table). This is called before each element
       chunk. It is not called if there are not elements
-      in this processor */
-  virtual void init(TextHashTable *thash) { }
+      in this processor 
+      @param nel (input) number of nodes per element
+      @param ndof (input) number of fields per node
+      @param thash (input) table of options
+      @return number of restrictions to be applied
+  */
+  virtual int
+  init(int nel,int ndof,TextHashTable *thash) { }
   /** Returns data (to be derived)
       @param nr (output) number of restrictions
       @param nfic (output) number of fictitious nodes
@@ -53,9 +59,17 @@ class Penalize : public NewElemset {
   const Nodedata *nodedata_m;
   arg_data *stateo,*staten,*retval,*retvalmat;
   Restriction *restr;
+  /// The element actually visited
+  int elem;
+  ElementIterator element;
  public:
   Penalize(Restriction *r=NULL) : restr(r) { }
-  ~Penalize() { close(); if (restr) delete restr; }
+  ~Penalize() { 
+    if (restr) {
+      restr->close(); 
+      delete restr; 
+    }
+  }
   virtual void close()=0;
   NewAssembleFunction new_assemble;
   // virtual ~Penalize()=0;

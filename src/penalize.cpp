@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-/* $Id: penalize.cpp,v 1.1 2005/04/09 01:54:05 mstorti Exp $ */
+/* $Id: penalize.cpp,v 1.2 2005/04/09 10:31:35 mstorti Exp $ */
 
 #include <src/fem.h>
 #include <src/utils.h>
@@ -9,8 +9,6 @@
 #include <src/fastmat2.h>
 
 #include <src/penalize.h>
-
-extern TextHashTable *GLOBAL_OPTIONS;
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 // modif nsi_tet
@@ -34,24 +32,23 @@ new_assemble(arg_data_list &arg_data_v,const Nodedata *nodedata,
   int ierr;
   //o The residual computed by the #res()# function is scaled by this. 
   NSGETOPTDEF(double,penalization_factor,0.);
+  double K = penalization_factor;
   // Dimension of the embedding space (position vector of nodes)
   NSGETOPTDEF(int,ndim,0); //nd
   // Use or not caches for the FastMat2 libray
   NSGETOPTDEF(int,use_fastmat2_cache,1);
 
-  // Call callback function defined by user initializing the elemset
-  restr->init(thash);
-  nr = nres(); // Get dimensions of problem
-
-#if 0
   int nelprops,ndof;
   elem_params(nel,ndof,nelprops);
   FastMat2 matloc_prof(4,nel,ndof,nel,ndof),
     matloc(4,nel,ndof,nel,ndof), U(2,nel,ndof),R(2,nel,ndof);
-  xloc_m.resize(2,nel,ndim);
+  // xloc_m.resize(2,nel,ndim);
   if (comp_mat) matloc_prof.set(1.);
 
-  int nu=nodedata->nu;
+  // Call callback function defined by user initializing the elemset
+  int nr = restr->init(nel,ndof,option_table());
+
+  int nu = nodedata->nu;
   int nH = nu-ndim;
 
   FastMat2 r(1,nr),w(3,nel,ndof,nr),jac(3,nr,nel,ndof);
@@ -95,31 +92,9 @@ new_assemble(arg_data_list &arg_data_v,const Nodedata *nodedata,
     R.set(0.);
 
     if (comp_mat_res) {
-      res(elem,U,r,w,jac);
-      for (jr=1; jr<=nr; jr++) {
-	// get node/field of the Lag.mul.
-	lag_mul_dof(jr,jfic,dofic);
-
-	lambda = U.get(jfic,dofic);
-	w.rs().ir(3,jr);
-	R.axpy(w,lambda*lagrange_scale_factor);
-	rr = r.get(jr) - lagrange_diagonal_factor
-	  *lagrange_residual_factor*U.get(jfic,dofic);
-	R.addel(rr*lagrange_row_scale_factor,jfic,dofic);
-
-	matloc.rs().ir(3,jfic).
-	  ir(4,dofic).axpy(w,-lagrange_scale_factor);
-	matloc.rs().addel(lagrange_diagonal_factor
-			  *lagrange_row_scale_factor,
-			  jfic,dofic,jfic,dofic);
-	jac.rs().ir(1,jr);
-	matloc.ir(1,jfic).ir(2,dofic)
-	  .axpy(jac,-lagrange_row_scale_factor);
-      }
-      R.rs().export_vals(element.ret_vector_values(*retval));
-      matloc.rs().export_vals(element.ret_mat_values(*retvalmat));
-      jac.rs();
-      w.rs();
+      restr->res(elem,U,r,w,jac);
+      R.prod(w,r,1,2,-1,-1).scale(K);
+      matloc.prod(w,jac,1,2,-1,-1,3,4).scale(K);
     }
 
 #ifdef COMPUTE_FD_RES_JACOBIAN
@@ -133,6 +108,14 @@ new_assemble(arg_data_list &arg_data_v,const Nodedata *nodedata,
 	res_fd_jac.ir(2,jele).ir(3,jdof)
 	  .set(res_pert).rs();
       }
+      R.rs()
+	.export_vals(element
+			 .ret_vector_values(*retval));
+      matloc.rs()
+	.export_vals(element
+		     .ret_mat_values(*retvalmat));
+      jac.rs();
+      w.rs();
     }
     d_res_fd_jac
       .set(jac).rest(res_fd_jac);
@@ -147,8 +130,6 @@ new_assemble(arg_data_list &arg_data_v,const Nodedata *nodedata,
   FastMat2::void_cache();
   FastMat2::deactivate_cache();
   close();
-#endif
 } catch (GenericError e) {
   set_error(1);
 }
-

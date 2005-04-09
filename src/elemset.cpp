@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: elemset.cpp,v 1.92 2004/09/25 09:37:57 mstorti Exp $
+//$Id: elemset.cpp,v 1.93 2005/04/09 10:31:35 mstorti Exp $
 
 #ifndef _GNU_SOURCE
 #define _GNU_SOURCE
@@ -1035,6 +1035,10 @@ Elemset::Elemset() : type(NULL), icone(NULL), elemprops(NULL),
 		     elemiprops(NULL), elemprops_add(NULL),
 		     elemiprops_add(NULL), thash(NULL),
                      elem_conne(NULL), error_code_m(0) { }
+
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+TextHashTable* 
+Elemset::option_table() { return thash; }
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 Elemset::~Elemset() {

@@ -1,6 +1,6 @@
 // -*- mode: c++ -*-
 /*__INSERT_LICENSE__*/
-//$Id: elemset.h,v 1.40 2004/11/08 18:13:40 mstorti Exp $
+//$Id: elemset.h,v 1.41 2005/04/09 10:31:35 mstorti Exp $
 
 #ifndef ELEMSET_H
 #define ELEMSET_H
@@ -394,6 +394,8 @@ public:
   virtual void handle_error(int error);
   /// Return the actual error code
   int error_code();
+  /// Return the option table for this elemset
+  TextHashTable *option_table();
 
   //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
   // The following will be declared `private' in the future
@@ -751,6 +753,7 @@ public:
   Elemset::check_error;
   Elemset::handle_error;
   Elemset::size;
+  Elemset::option_table;
 
   // Elemset::thash;
   void get_entry(const char *k,const char *&v) const {
