@@ -185,6 +185,10 @@ DONE:
 > 7 11
 > 8 12
 > __END_ELEMSET__
+>
+FIXED: Sat Apr  9 18:39:58 2005 There was an error in the
+    `BasicObject' factory that when the Factory 
+
 * Can't open `weights.dat' gives a SIGSEGV and not in parallel. 
 > Couldn't open file "weights.dat"!!
 > --------------------------------------------------------------------------
