@@ -1,6 +1,6 @@
 // -*- mode: c++ -*-
 //__INSERT_LICENSE__
-// $Id: penalize.h,v 1.9 2005/04/09 23:45:51 mstorti Exp $
+// $Id: penalize.h,v 1.10 2005/04/09 23:58:06 mstorti Exp $
 #ifndef PETSCFEM_PENALIZE_H
 #define PETSCFEM_PENALIZE_H
 
@@ -159,9 +159,9 @@ public:
 // converts it to the objectm using RTTI (dynamic_cast<>)
 // This ensures that the proper object is loaded, and
 // also lets defining default behaviour for the objects. 
-#define convert_to_class  			\
-DLBaseRestriction *obj = 			\
-dynamic_cast<DLBaseRestriction *>(fun_data);	\
+#define dl_penal_convert_to_class		\
+DLBaseRestriction *obj =			\
+(DLBaseRestriction *)(fun_data);		\
 assert(obj);
 
 // Wraps the object interface to a C interface that
@@ -175,14 +175,14 @@ void prefix##_init_fun(int nel,int ndof,		\
 		       const char *name,		\
 		       void *&fun_data) {		\
   fun_data = new prefix;				\
-  convert_to_class;					\
+  dl_penal_convert_to_class;				\
   obj->init(nel,ndof,thash,name);			\
 }							\
 							\
 extern "C" void						\
 prefix##_lag_mul_dof_fun(int jr,int &node,		\
-			 int &dof,void *fun_data_a) {	\
-  convert_to_class;					\
+			 int &dof,void *fun_data) {	\
+  dl_penal_convert_to_class;				\
   obj->(jr,node,dof);					\
 }							\
 							\
@@ -190,13 +190,13 @@ extern "C" void						\
 prefix##_res_fun(int k,FastMat2 &U,FastMat2 & r,	\
 	      FastMat2 & w,FastMat2 & jac,		\
 	      void *fun_data) {				\
-  convert_to_class;					\
+  dl_penal_convert_to_class;				\
   obj->res(k,U,r,w,jac);				\
 }							\
 							\
 extern "C" void						\
 prefix##_close_fun( void *fun_data) {			\
-  convert_to_class;					\
+  dl_penal_convert_to_class;				\
   obj->close();						\
 }
 
