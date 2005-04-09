@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-/* $Id: blessf.cpp,v 1.28 2005/03/28 03:29:31 mstorti Exp $ */
+/* $Id: blessf.cpp,v 1.29 2005/04/09 11:02:19 mstorti Exp $ */
 
 #include <src/debug.h>
 #include <malloc.h>
@@ -32,6 +32,7 @@
 #include "./nullvort.h"
 #include "./interplns.h"
 #include "./condwall.h"
+#include "./condwallpen.h"
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:
 #undef __FUNC__
@@ -81,6 +82,7 @@ void bless_elemset(char *type,Elemset *& elemset) {
 
     SET_ELEMSET_TYPE(lin_gen_load)
     SET_ELEMSET_TYPE(cond_wall)
+    SET_ELEMSET_TYPE(cond_wall_pen)
 
     SET_ELEMSET_TYPE_ALIAS(interpolation,interpolation_ns)
       {

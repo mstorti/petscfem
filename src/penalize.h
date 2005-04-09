@@ -1,6 +1,6 @@
 // -*- mode: c++ -*-
 //__INSERT_LICENSE__
-// $Id: penalize.h,v 1.2 2005/04/09 10:31:35 mstorti Exp $
+// $Id: penalize.h,v 1.3 2005/04/09 11:02:23 mstorti Exp $
 #ifndef PETSCFEM_PENALIZE_H
 #define PETSCFEM_PENALIZE_H
 
@@ -21,11 +21,6 @@ public:
   */
   virtual int
   init(int nel,int ndof,TextHashTable *thash) { }
-  /** Returns data (to be derived)
-      @param nr (output) number of restrictions
-      @param nfic (output) number of fictitious nodes
-   */
-  virtual int nres()=0;
   /** Computes the residual and jacobian of the function
       to be imposed. Usually you derive #NonLinearRes#
       and instantiate this function that defines the
@@ -70,9 +65,8 @@ class Penalize : public NewElemset {
       delete restr; 
     }
   }
-  virtual void close()=0;
+  virtual void close() { }
   NewAssembleFunction new_assemble;
-  // virtual ~Penalize()=0;
 
   virtual void 
   get_comp_flags(const char *jobinfo,

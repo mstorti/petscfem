@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-/* $Id: penalize.cpp,v 1.2 2005/04/09 10:31:35 mstorti Exp $ */
+/* $Id: penalize.cpp,v 1.3 2005/04/09 11:02:23 mstorti Exp $ */
 
 #include <src/fem.h>
 #include <src/utils.h>
@@ -133,3 +133,6 @@ new_assemble(arg_data_list &arg_data_v,const Nodedata *nodedata,
 } catch (GenericError e) {
   set_error(1);
 }
+
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+Restriction::~Restriction() { }
