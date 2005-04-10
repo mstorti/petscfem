@@ -1,4 +1,4 @@
-## $Id: mknozzle2.m,v 1.3 2005/04/10 09:44:52 mstorti Exp $
+## $Id: mknozzle2.m,v 1.4 2005/04/10 09:57:37 mstorti Exp $
 source("data.m.tmp");
 
 Nx = Nx1+Nx2;
@@ -27,12 +27,23 @@ indx = find(x>=Lx1);
 x(indx) = onedstr([1 0 rratio],x(indx));
 r = (x(indx)-Lx1);
 theta = pi/2*y(indx)/Ly;
-x(indx) = Lx1+r.*cos(theta);
-y(indx) = y(indx)+r.*sin(theta);
+dx = Lx1+r.*cos(theta)-x(indx);
+dy = r.*sin(theta);
+
+## Affect displacement by a blending function
+## depending on the distance to the corner
+R = 0.6*Ly;
+r = l2([x(indx)-Lx1,y(indx)-Ly]);
+cr = (1-r/R);
+cr = cr.*(cr>0);
+c = 1-(1-y(indx)/Ly).^0.5.*cr;
+
+x(indx) = x(indx) + c.*dx;
+y(indx) = y(indx) + c.*dy;
 
 xnod = [x,y];
 
-if 1
+if 0
   gplfem(xnod,icone);
   gplot "malla.gpl"
   return
