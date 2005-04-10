@@ -10,6 +10,8 @@ $Nx1 = 2*$Ny;			# Nbr of points along x (duct)
 $Nx2 = $Ny;			# Nbr of points along x (exterior)
 $Lx1 = 2*$Ly;			# Long of comp. domain along x. (duct)
 $Lx2 = 3*$Ly;			# Long of comp. domain along x. (exterior)
+$rratio = 5; 			# Refinement towards outlet in the outer
+				# exapnsion region
 $Rgas = 1;
 $Tref = 1;
 $rhoref = 1;
