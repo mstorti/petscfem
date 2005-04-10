@@ -4273,3 +4273,8 @@ tag: beta-3.45.26 on Sat, 09 Apr 2005 20:11:17 -0300 by mstorti in spider
 ----------
 tag: beta-3.45.27 on Sun, 10 Apr 2005 05:04:09 -0300 by mstorti in spider
      > Added `lag_mul_dof()' with a default value. 
+----------
+tag: beta-3.45.28 on Sun, 10 Apr 2005 05:48:28 -0300 by mstorti in spider
+     > Runs `condwall' via `LagrangeMult' but based 
+     > on the `Restriction' object. So that the `Penalize' and
+     > `LagrangeMult' share the same restriction code. 
