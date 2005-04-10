@@ -1,6 +1,6 @@
 // -*- mode: c++ -*-
 //__INSERT_LICENSE__
-// $Id: lagmul.h,v 1.9 2005/03/29 04:01:53 mstorti Exp $
+// $Id: lagmul.h,v 1.10 2005/04/10 08:04:02 mstorti Exp $
 #ifndef PETSCFEM_LAGMUL_H
 #define PETSCFEM_LAGMUL_H
 
@@ -11,7 +11,7 @@
     It may not work for restrictions that involve
     fields in more than one node. */ 
 class LagrangeMult : public NewElemset {
- private:
+private:
   /// Stores internal matrix with coordinates of nodes
   FastMat2 xloc_m;
   /// Row dimension of coordinates vector
@@ -24,7 +24,7 @@ class LagrangeMult : public NewElemset {
   const Nodedata *nodedata_m;
   arg_data *stateo,*staten, 
     *retval, *retvalmat;
- public:
+public:
   NewAssembleFunction new_assemble;
   /** Returns data (to be derived)
       @param nr (output) number of restrictions
@@ -99,6 +99,24 @@ class LagrangeMult : public NewElemset {
   /// Initialize element
   virtual void element_hook(ElementIterator &element) {}
 };
+
+#if 0
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+class DLLagrangeMult : public LagrangeMult {
+private:
+  
+public:
+  int nres();
+  void lag_mul_dof(int jr,int &node,int &dof);
+  void lm_initialize();
+  void init();
+  void res(int k,FastMat2 &U,FastMat2 & r,
+	   FastMat2 & w,FastMat2 & jac);
+  void close() {}
+  ~LagrangeMult() { }
+  void element_hook(ElementIterator &element);
+};
+#endif
 
 #undef LagrangeMult
 

@@ -1,6 +1,6 @@
 // -*- mode: c++ -*-
 //__INSERT_LICENSE__
-// $Id: penalize.h,v 1.10 2005/04/09 23:58:06 mstorti Exp $
+// $Id: penalize.h,v 1.11 2005/04/10 08:04:02 mstorti Exp $
 #ifndef PETSCFEM_PENALIZE_H
 #define PETSCFEM_PENALIZE_H
 
@@ -183,7 +183,7 @@ extern "C" void						\
 prefix##_lag_mul_dof_fun(int jr,int &node,		\
 			 int &dof,void *fun_data) {	\
   dl_penal_convert_to_class;				\
-  obj->(jr,node,dof);					\
+  obj->lag_mul_dof(jr,node,dof);					\
 }							\
 							\
 extern "C" void						\
