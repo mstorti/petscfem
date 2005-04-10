@@ -4284,3 +4284,6 @@ tag: beta-3.45.29 on Sun, 10 Apr 2005 06:14:25 -0300 by mstorti in spider
 ----------
 tag: beta-3.45.30 on Sun, 10 Apr 2005 07:19:32 -0300 by mstorti in spider
      > Working on 2D example with contraction and outlet. 
+----------
+tag: beta-3.45.31 on Sun, 10 Apr 2005 09:24:45 -0300 by mstorti in spider
+     > Runs OK very little example of nozzle with exit. 
