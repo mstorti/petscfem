@@ -1,8 +1,8 @@
-# $Id: Makefile,v 1.65 2005/03/28 16:42:06 mstorti Exp $ 
+# $Id: Makefile,v 1.66 2005/04/10 09:14:04 mstorti Exp $ 
 
 .PHONY: force all run tests default strip gasflow nozzle  vtubei
 
-default: run_shock
+default: run_nozzle2
 
 BOPT := O_c++
 SRCS = 
@@ -73,13 +73,17 @@ run_nozzle:
 	mkstepsdir.pl
 	$(MAKE) CASE_NAME=gfnozzle run
 
+run_nozzle2: 
+	mkstepsdir.pl
+	$(MAKE) CASE_NAME=gfnozzle2 run
+
 mesh: 
 	make-depl $(CASE_NAME).epl $(CASE_NAME).depl -D mkmesh=1
 
 run:
 	make-depl $(CASE_NAME).epl $(CASE_NAME).depl
-	$(MPIRUN) $(NL) -np $(NP) -machinefile			\
-	machi.dat $(PROG) -case $(CASE_NAME).depl 
+#	$(MPIRUN) $(NL) -np $(NP) -machinefile			\
+#	machi.dat $(PROG) -case $(CASE_NAME).depl 
 
 # STEPS_DIR := ./STEPS
 STEPS_DIR := /u/nnigro/PETSC/RUN/COMPRESSION_CORNER/Tuyere/gfplate/RUN_CRANK-NICHOLSON/STEPS

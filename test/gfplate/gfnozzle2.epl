@@ -1,0 +1,110 @@
+# -*- mode: shell-script -*-
+# case: <:=$ENV{'case'}:>
+# <: require './dnozzle2.pl'; :>
+## Derived quantities:
+## ==================
+global_options
+
+# dx <:=$dx:>
+
+nstep 10000
+alpha 1.
+
+initial_state "gfnozzle2.ini.tmp"
+# initial_state "gfnozzle2.state-q0.tmp"
+# initial_state "gfnozzle2.state.tmp"
+nsave 1
+save_file "gfnozzle2.state.tmp"
+
+save_file_pattern "STEPS/gfnozzle2.state_%d.tmp"
+nsaverot 1
+nrec 1
+nfile 100000000
+
+# type of solver (may be "iisd", "petsc"...)
+solver "iisd"
+preco_type "jacobi"
+iisd_subpart_auto 4000
+
+maxits 100
+
+# file containing the weight (speed) of processors
+proc_weights weights.dat
+
+#    Iterative parameters
+tol_tet 1e-5
+tol_newton 1e-10
+atol 0
+rtol 1e-7
+dtol 1e3
+nnwt 3
+
+print_internal_loop_conv
+# print_linear_system_and_stop
+# solve_system 0
+Dt 1e-3
+shocap 0.1
+weak_form 0
+temporal_stability_factor 0
+
+ndim 2
+Rgas 1.0
+visco 0.001
+cond 0.001
+steady 0
+lagrange_diagonal_factor 1.0e-5
+
+#if $dx
+# Para DX
+hook_list advdif_dx_hook my_dx_hook
+dx_auto_combine
+dx_steps 1
+dx_read_state_from_file 1
+dx_do_make_command
+dx_cache_coords 0
+dx_cache_connectivities 0
+partitioning_method natural
+#endif
+
+__END_HASH__
+
+##================================================================
+# ndim nu ndof
+nodedata 2 2 4
+#if $dx
+data ./gfnozzle2.dx-nod.tmp
+#else
+data ./gfnozzle2.nod.tmp
+#endif
+__END_HASH__
+
+##================================================================
+elemset gasflow 4
+geometry cartesian2d
+dx 1
+npg 4
+data ./gfnozzle2.con.tmp
+__END_HASH__
+
+##================================================================
+#if 0 && $abso
+elemset gasflow_abso2 3
+normal 1 0
+dx 0
+use_old_state_as_ref 1
+__END_HASH__
+__INCLUDE__ gfnozzle2.abso-con.tmp
+__END_ELEMSET__
+#endif
+
+#if !$dx
+fixa
+__INCLUDE__ gfnozzle2.fixa-slip.tmp
+__INCLUDE__ gfnozzle2.fixa-out.tmp
+__INCLUDE__ gfnozzle2.fixa-in.tmp
+__END_FIXA__
+
+constraint
+__INCLUDE__ gfnozzle2.constr-wall.tmp
+__END_CONSTRAINT__
+#endif
