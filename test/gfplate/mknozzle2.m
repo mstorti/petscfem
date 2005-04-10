@@ -1,5 +1,7 @@
-## $Id: mknozzle2.m,v 1.2 2005/04/10 09:31:49 mstorti Exp $
+## $Id: mknozzle2.m,v 1.3 2005/04/10 09:44:52 mstorti Exp $
 source("data.m.tmp");
+
+Nx = Nx1+Nx2;
 
 pref = Rgas*Tref*rhoref;
 cref = sqrt(gamma*Tref*Rgas);
@@ -21,34 +23,20 @@ y(indx) = y(indx).*c(indx);
 
 ## Make expansion
 indx = find(x>=Lx1);
-z0 = Lx1+i*Ly;
-w = z0+i*(x(indx)+i*y(indx)-z0).^2;
 
-dx = real(w)-x(indx);
-dy = imag(w)-y(indx);
-c = y(indx)/Ly;
-
-x(indx) = x(indx)+c.*dx;
-y(indx) = y(indx)+c.*dy;
+x(indx) = onedstr([1 0 rratio],x(indx));
+r = (x(indx)-Lx1);
+theta = pi/2*y(indx)/Ly;
+x(indx) = Lx1+r.*cos(theta);
+y(indx) = y(indx)+r.*sin(theta);
 
 xnod = [x,y];
 
-gplfem(xnod,icone);
-gplot "malla.gpl"
-
-return
-
-
-Hin = Ly;
-Hout = Ly/Aratio;
-Hmean = (Hin+Hout)/2;
-DH = (Hin-Hout)/2;
-eta = (Ly-y)/Ly;
-xi = 2*atanh(0.99)*(x-Lx/2)/Lnozzle;
-eta = eta.*(Hmean-DH*tanh(xi))/Hin;
-y = (Ly-eta*Hin);
-
-xnod = [x,y];
+if 1
+  gplfem(xnod,icone);
+  gplot "malla.gpl"
+  return
+endif
 
 asave("gfnozzle2.nod.tmp",xnod);
 asave("gfnozzle2.con.tmp",icone);
