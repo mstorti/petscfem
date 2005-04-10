@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-/* $Id: nspenal.cpp,v 1.1 2005/04/09 11:02:19 mstorti Exp $ */
+/* $Id: nspenal.cpp,v 1.2 2005/04/10 08:48:17 mstorti Exp $ */
 
 #include "./nspenal.h"
 
@@ -14,6 +14,7 @@ int NSPenalize::ask(const char *jobinfo,int &skip_elemset) {
    return 0;
 }
 
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 void 
 NSPenalize::
 get_comp_flags(const char *jobinfo,
@@ -25,6 +26,7 @@ get_comp_flags(const char *jobinfo,
   comp_mat_res_a = comp_mat_res;
 }
 
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 void
 NSPenalize::
 get_data(arg_data_list &arg_data_v,
@@ -41,6 +43,7 @@ get_data(arg_data_list &arg_data_v,
   retvalmat = &arg_data_v[++j];	//[3]
 }
 
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 void
 NSPenalize::
 get_data(arg_data_list &arg_data_v,

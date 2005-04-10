@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-// $Id: condwallpen.cpp,v 1.4 2005/04/09 17:10:02 mstorti Exp $
+// $Id: condwallpen.cpp,v 1.5 2005/04/10 08:48:17 mstorti Exp $
 
 #include "./condwallpen.h"
 
@@ -11,7 +11,7 @@ init(int nel_a,int ndof_a,
      TextHashTable *thash,const char *name) { 
   nel = nel_a;
   ndof = ndof_a;
-  assert(nel==2);
+  assert(nel==2 || nel==4);
 
   int ierr;
   //o Resistance of the membrane (fixme:=
@@ -87,6 +87,17 @@ res(int k,FastMat2 &U,FastMat2 & r,
     jac.set(0.)
       .is(1,1,ndof).ir(2,1).eye()
       .ir(2,2).eye(-1.).rs();
+  }
+}
+
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+void CondWallRestriction::
+lag_mul_dof(int jr,int &node,int &dof) {
+  assert(nel==4);
+  if (jr<=ndof) {
+    node = 3; dof=jr;
+  } else {
+    node = 4; dof=jr-ndof;
   }
 }
 

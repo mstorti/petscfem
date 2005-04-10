@@ -1,8 +1,10 @@
 // -*- mode: c++ -*-
 //__INSERT_LICENSE__
-// $Id: lagmul.h,v 1.10 2005/04/10 08:04:02 mstorti Exp $
+// $Id: lagmul.h,v 1.11 2005/04/10 08:48:20 mstorti Exp $
 #ifndef PETSCFEM_LAGMUL_H
 #define PETSCFEM_LAGMUL_H
+
+#include <src/penalize.h>
 
 #define LagrangeMult GLagrangeMult
 
@@ -100,23 +102,45 @@ public:
   virtual void element_hook(ElementIterator &element) {}
 };
 
-#if 0
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
-class DLLagrangeMult : public LagrangeMult {
+/** The `ROB' prefix means "Restriction-Object Based". 
+    It means that the Lagrange multiplier object is based
+    on a separate #Restriction# object, instead of deriving the
+    the same Lagrange multiplier object. This allows the
+    same restriction object to be used by several elemsets, 
+    like #Penalize# and #LagrangeMult#. */ 
+class ROBLagrangeMult : public LagrangeMult {
 private:
-  
+  int nr;
+  Restriction *restr;
+  /// Number of nodes per element
+  int nel, ndof, nelprops; 
+  const Nodedata *nodedata_m;
+  arg_data *stateo,*staten,*retval,*retvalmat;
 public:
-  int nres();
-  void lag_mul_dof(int jr,int &node,int &dof);
-  void lm_initialize();
-  void init();
+  int nres() { return nr; }
+  void init() { 
+    elem_params(nel,ndof,nelprops);
+    nr = restr->init(nel,ndof,option_table(),name()); 
+  }
+  void lag_mul_dof(int jr,int &node,int &dof) {
+    restr->lag_mul_dof(jr,node,dof);
+  }
   void res(int k,FastMat2 &U,FastMat2 & r,
-	   FastMat2 & w,FastMat2 & jac);
-  void close() {}
-  ~LagrangeMult() { }
-  void element_hook(ElementIterator &element);
+	   FastMat2 & w,FastMat2 & jac) {
+    restr->res(k,U,r,w,jac);
+  }
+  void close() { restr->close(); }
+  ROBLagrangeMult(Restriction *r=NULL) 
+    : restr(r) { }
+  ~ROBLagrangeMult() { 
+    if (restr) {
+      restr->close(); 
+      delete restr; 
+    }
+  }
+  // void element_hook(ElementIterator &element);
 };
-#endif
 
 #undef LagrangeMult
 

@@ -1,6 +1,6 @@
 // -*- mode: c++ -*-
 //__INSERT_LICENSE__
-// $Id: condwallpen.h,v 1.3 2005/04/09 15:49:04 mstorti Exp $
+// $Id: condwallpen.h,v 1.4 2005/04/10 08:48:17 mstorti Exp $
 #ifndef PETSCFEM_CONDWALLPEN_H
 #define PETSCFEM_CONDWALLPEN_H
 
@@ -27,6 +27,7 @@ public:
   CondWallRestriction() : data_p(NULL) { }
   int init(int nel_a,int ndof_a,
 	   TextHashTable *thash,const char *name);
+  void lag_mul_dof(int jr,int &node,int &dof);
   void res(int k,FastMat2 &U,FastMat2 & r,
 	   FastMat2 & w,FastMat2 & jac);
   ~CondWallRestriction() { }
@@ -37,6 +38,13 @@ public:
   // First two nodes are real nodes at both sides of the membrane. 
   // Other two nodes are lagrange multipliers. 
   cond_wall_pen() : NSPenalize(new CondWallRestriction){ }
+};
+  
+class cond_wall_lm : public NSROBLagrangeMult {
+public:
+  // First two nodes are real nodes at both sides of the membrane. 
+  // Other two nodes are lagrange multipliers. 
+  cond_wall_lm() : NSROBLagrangeMult(new CondWallRestriction){ }
 };
   
 #endif
