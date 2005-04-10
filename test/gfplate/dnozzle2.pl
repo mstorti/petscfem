@@ -20,11 +20,12 @@ $Machin = 0.5;
 $pref = $rhoref*$Rgas*$Tref;
 $cref = sqrt($gamma*$pref/$rhoref);
 $uref = $Machin*$cref;
-$Uref = [$rhoref,$uref,0,$pref];
+$pratio = 3;
+# $Uref = [$rhoref,$uref,0,$pref];
 
 @vars = qw(Machin gamma rhoref Tref Rgas
 	   Ly DLy yratio Ny Nx1 Nx2  Lx1 Lx2 
-	   pref cref uref Uref rratio);
+	   pref cref uref rratio pratio);
 octave_export_vars(">data.m.tmp",@vars);
 
 system "octave -qH mknozzle2.m";

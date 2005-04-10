@@ -10,9 +10,8 @@ global_options
 nstep 10000
 alpha 1.
 
-initial_state "gfnozzle2.ini.tmp"
-# initial_state "gfnozzle2.state-q0.tmp"
-# initial_state "gfnozzle2.state.tmp"
+# initial_state "gfnozzle2.ini.tmp"
+initial_state "gfnozzle2.state.tmp"
 nsave 1
 save_file "gfnozzle2.state.tmp"
 
@@ -37,13 +36,15 @@ tol_newton 1e-10
 atol 0
 rtol 1e-7
 dtol 1e3
-nnwt 3
+nnwt 2
 
 print_internal_loop_conv
 # print_linear_system_and_stop
 # solve_system 0
-Dt 1e-3
+Dt 1e-2
 shocap 0.1
+shocap_aniso 0.1
+p_thrsh 1.0e-7
 weak_form 0
 temporal_stability_factor 0
 
@@ -54,9 +55,11 @@ cond 0.001
 steady 0
 lagrange_diagonal_factor 1.0e-5
 
+##<:add_hook('shell_hook gf_shell_hook'):>
+
 #if $dx
 # Para DX
-hook_list advdif_dx_hook my_dx_hook
+##<:add_hook('advdif_dx_hook my_dx_hook'):>
 dx_auto_combine
 dx_steps 1
 dx_read_state_from_file 1
@@ -66,12 +69,13 @@ dx_cache_connectivities 0
 partitioning_method natural
 #endif
 
+<:print_hook():>
 __END_HASH__
 
 ##================================================================
 # ndim nu ndof
 nodedata 2 2 4
-#if $dx
+#if 0 && $dx
 data ./gfnozzle2.dx-nod.tmp
 #else
 data ./gfnozzle2.nod.tmp
@@ -87,20 +91,18 @@ data ./gfnozzle2.con.tmp
 __END_HASH__
 
 ##================================================================
-#if 0 && $abso
 elemset gasflow_abso2 3
-normal 1 0
+props normal[2]
 dx 0
 use_old_state_as_ref 1
 __END_HASH__
 __INCLUDE__ gfnozzle2.abso-con.tmp
 __END_ELEMSET__
-#endif
 
 #if !$dx
 fixa
 __INCLUDE__ gfnozzle2.fixa-slip.tmp
-__INCLUDE__ gfnozzle2.fixa-out.tmp
+# __INCLUDE__ gfnozzle2.fixa-out.tmp
 __INCLUDE__ gfnozzle2.fixa-in.tmp
 __END_FIXA__
 

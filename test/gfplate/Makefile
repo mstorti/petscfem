@@ -1,4 +1,4 @@
-# $Id: Makefile,v 1.66 2005/04/10 09:14:04 mstorti Exp $ 
+# $Id: Makefile,v 1.67 2005/04/10 12:24:30 mstorti Exp $ 
 
 .PHONY: force all run tests default strip gasflow nozzle  vtubei
 
@@ -12,7 +12,7 @@ include $(PETSCFEM_DIR)/Makefile.base
 include $(PETSCFEM_DIR)/test/Makefile.base.test
 
 ifeq ($(CASE_NAME),) 
-CASE_NAME := gfshock
+CASE_NAME := gfnozzle2
 endif
 LOC_PROG := advdif
 ifeq ($(PROG),)
@@ -82,13 +82,13 @@ mesh:
 
 run:
 	make-depl $(CASE_NAME).epl $(CASE_NAME).depl
-#	$(MPIRUN) $(NL) -np $(NP) -machinefile			\
-#	machi.dat $(PROG) -case $(CASE_NAME).depl 
+	$(MPIRUN) $(NL) -np $(NP) -machinefile			\
+	machi.dat $(PROG) -case $(CASE_NAME).depl 
 
 # STEPS_DIR := ./STEPS
 STEPS_DIR := /u/nnigro/PETSC/RUN/COMPRESSION_CORNER/Tuyere/gfplate/RUN_CRANK-NICHOLSON/STEPS
 dx_make_command:
-ifeq (1,1)
+ifeq (0,1)
 	@state=$(STEPS_DIR)/$(CASE_NAME).state_$$dx_step.tmp ;	\
 	if [ -f $$state ] ; then				\
 		echo "state file: $$state"  ;			\
@@ -103,10 +103,15 @@ ifeq (1,1)
 endif
 #	state_file=./$(CASE_NAME).dx-state.tmp 
 #		octave -qH fixstate.m ; 
+ifeq (0,1)
 	if [ -f gfshock3d.dx-state-3d.tmp ] ; then rm gfshock3d.dx-state-3d.tmp ; fi
 	rcp geronimo:$(STEPS_DIR)/gfshock3d.state_$$dx_step.tmp.gz gfshock3d.dx-state-3d.tmp.gz
 	octave -qH compstate.m
 	rm gfshock3d.dx-state-3d.tmp.gz
+endif
+#	cp STEPS/gfnozzle2.state_$$dx_step.tmp ./gfnozzle2.dx-state.tmp 
+	@echo "making dx-state for dx_step $$dx_step" ; \
+	gunzip -c STEPS/gfnozzle2.state_$$dx_step.tmp.gz > ./gfnozzle2.dx-state.tmp 
 
 dx: 
 	make-depl $(CASE_NAME).epl $(CASE_NAME)-dx.depl -d dx=1
@@ -130,12 +135,20 @@ link:
 	ln -f $(PROG) $(LOC_PROG)
 
 zip:
-	for f in STEPS*/*.state*.tmp ;		\
+	@for f in STEPS*/*.state*.tmp ;		\
 		do echo gzipping $$f ;		\
 		gzip $$f ;			\
 	done
 
 clean_steps:
 	rrm -rf STEPS*
+
+gf_shell_hook_init:
+
+gf_shell_hook_pre:
+
+gf_shell_hook_post: zip
+
+gf_shell_hook_close:
 
 #s
