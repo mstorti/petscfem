@@ -1,4 +1,4 @@
-## $Id: mknozzle2.m,v 1.6 2005/04/10 12:24:30 mstorti Exp $
+## $Id: mknozzle2.m,v 1.7 2005/04/10 16:07:50 mstorti Exp $
 source("data.m.tmp");
 
 Nx = Nx1+Nx2;
@@ -105,16 +105,16 @@ pfconstr("gfnozzle2.constr-wall.tmp", \
 
 ## [rho v p] at inlet
 pffixa("gfnozzle2.fixa-in.tmp",inlet, \
-       [1 3 4],[rhoref,0,pratio*pref]);
+       [1 3 4],[rhoref,0,pref]);
 
 ## `p' at outlet
-pffixa("gfnozzle2.fixa-out.tmp",outlet,4,pref);
+pffixa("gfnozzle2.fixa-out.tmp",outlet,4,pref/pratio);
 
 ## `v=0' at axis
 pffixa("gfnozzle2.fixa-slip.tmp",slip,3);
 
 nnod = rows(xnod);
-uini = [rhoref,0,0,pref];
+uini = [rhoref,0,0,pref/pratio];
 uini = [uini(ones(nnodact,1),:);
 	zeros(nnodfic,ndof)];
 asave("gfnozzle2.ini.tmp",uini);

@@ -10,8 +10,8 @@ global_options
 nstep 10000
 alpha 1.
 
-# initial_state "gfnozzle2.ini.tmp"
-initial_state "gfnozzle2.state.tmp"
+initial_state "gfnozzle2.ini.tmp"
+# initial_state "gfnozzle2.state.tmp"
 nsave 1
 save_file "gfnozzle2.state.tmp"
 
@@ -41,7 +41,7 @@ nnwt 2
 print_internal_loop_conv
 # print_linear_system_and_stop
 # solve_system 0
-Dt 1e-2
+<:pr('Dt'):>
 shocap 0.1
 shocap_aniso 0.1
 p_thrsh 1.0e-7
