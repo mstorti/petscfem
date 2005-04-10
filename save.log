@@ -4270,3 +4270,6 @@ tag: beta-3.45.25 on Sat, 09 Apr 2005 19:28:21 -0300 by mstorti in spider
      > dynamically loaded (dlopen()). ----------
 tag: beta-3.45.26 on Sat, 09 Apr 2005 20:11:17 -0300 by mstorti in spider
      > Making dynamic loading of penalization functions optional. 
+----------
+tag: beta-3.45.27 on Sun, 10 Apr 2005 05:04:09 -0300 by mstorti in spider
+     > Added `lag_mul_dof()' with a default value. 
