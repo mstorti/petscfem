@@ -1,4 +1,4 @@
-## $Id: mknozzle2.m,v 1.1 2005/04/10 09:14:04 mstorti Exp $
+## $Id: mknozzle2.m,v 1.2 2005/04/10 09:31:49 mstorti Exp $
 source("data.m.tmp");
 
 pref = Rgas*Tref*rhoref;
@@ -14,9 +14,22 @@ icone = icone(:,[1 4 3 2]);
 x = xnod(:,1);
 y = xnod(:,2);
 
+## Make contraction in the [0,Lx1] range
 indx = find(x<Lx1);
 c = 1-(DLy/Ly)*(1-abs((x-Lx1/2)/(Lx1/2)));
 y(indx) = y(indx).*c(indx);
+
+## Make expansion
+indx = find(x>=Lx1);
+z0 = Lx1+i*Ly;
+w = z0+i*(x(indx)+i*y(indx)-z0).^2;
+
+dx = real(w)-x(indx);
+dy = imag(w)-y(indx);
+c = y(indx)/Ly;
+
+x(indx) = x(indx)+c.*dx;
+y(indx) = y(indx)+c.*dy;
 
 xnod = [x,y];
 
