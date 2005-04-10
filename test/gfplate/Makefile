@@ -1,4 +1,4 @@
-# $Id: Makefile,v 1.67 2005/04/10 12:24:30 mstorti Exp $ 
+# $Id: Makefile,v 1.68 2005/04/10 18:57:20 mstorti Exp $ 
 
 .PHONY: force all run tests default strip gasflow nozzle  vtubei
 
@@ -145,9 +145,9 @@ clean_steps:
 
 gf_shell_hook_init:
 
-gf_shell_hook_pre:
+gf_shell_hook_pre: zip
 
-gf_shell_hook_post: zip
+gf_shell_hook_post: 
 
 gf_shell_hook_close:
 

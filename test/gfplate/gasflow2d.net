@@ -1,5 +1,5 @@
 //
-// time: Sun Apr 10 12:56:54 2005
+// time: Sun Apr 10 15:51:37 2005
 //
 // version: 3.1.2 (format), 4.2.0 (DX)
 //
@@ -12,11 +12,11 @@
 // comment: 
 // comment: If you would like to modify or use this visual program in the future, choose Open Visual Program Editor from the Windows menu, and then choose Save As from the File menu of the VPE.
 // page assignment: external	order=3, windowed=0, showing=0
-// page assignment: image	order=6, windowed=0, showing=0
-// page assignment: import	order=2, windowed=0, showing=1
+// page assignment: image	order=6, windowed=0, showing=1
+// page assignment: import	order=2, windowed=0, showing=0
 // page assignment: proc_u	order=4, windowed=0, showing=0
 // page assignment: scalar	order=5, windowed=0, showing=0
-// workspace: width = 584, height = 548
+// workspace: width = 558, height = 758
 // layout: snap = 0, width = 20, height = 20, align = NN
 //
 macro main(
@@ -28,9 +28,9 @@ macro main(
     // input[4]: defaulting = 0, visible = 1, type = 1, value = 0
     // input[5]: defaulting = 0, visible = 1, type = 1, value = 10000
     // input[6]: defaulting = 1, visible = 0, type = 1, value = 5
-    // input[7]: defaulting = 0, visible = 0, type = 16777217, value = { 0 10000 5 0 110 1 }
+    // input[7]: defaulting = 0, visible = 0, type = 16777217, value = { 0 10000 5 0 262 1 }
     // page group: import
-    // vcr[3]: min = 0, max = 10000, beg = 0, end = 110, cur = 0, inc = 5, loop = off, step = off, pal = off
+    // vcr[3]: min = 0, max = 10000, beg = 0, end = 262, cur = 0, inc = 5, loop = off, step = off, pal = off
     // window: position = (0.4971,0.0469), size = 0.3477x0.1328
     //
     main_Sequencer_3_in_3 = @frame;
@@ -458,23 +458,23 @@ main_Switch_5_out_1 =
     // 
     // node Scalar[3]: x = 529, y = 457, inputs = 11, label = Scalar
     // input[1]: defaulting = 0, visible = 0, type = 32, value = "Scalar_3"
-    // input[3]: defaulting = 0, visible = 0, type = 5, value = -5.0
+    // input[3]: defaulting = 0, visible = 0, type = 5, value = 0.0
     // input[5]: defaulting = 1, visible = 0, type = 5, value = -1000000.0
     // input[6]: defaulting = 1, visible = 0, type = 5, value = 1000000.0
     // input[7]: defaulting = 1, visible = 0, type = 5, value = 1.0
     // input[9]: defaulting = 1, visible = 0, type = 1, value = 5
-    // output[1]: visible = 1, type = 5, value = -5.0
+    // output[1]: visible = 1, type = 5, value = 0.0
     // page group: scalar
     //
     // 
     // node Scalar[4]: x = 601, y = 457, inputs = 11, label = Scalar
     // input[1]: defaulting = 0, visible = 0, type = 32, value = "Scalar_4"
-    // input[3]: defaulting = 0, visible = 0, type = 5, value = 5.0
+    // input[3]: defaulting = 0, visible = 0, type = 5, value = 10.0
     // input[5]: defaulting = 1, visible = 0, type = 5, value = -1000000.0
     // input[6]: defaulting = 1, visible = 0, type = 5, value = 1000000.0
     // input[7]: defaulting = 1, visible = 0, type = 5, value = 1.0
     // input[9]: defaulting = 1, visible = 0, type = 1, value = 5
-    // output[1]: visible = 1, type = 5, value = 5.0
+    // output[1]: visible = 1, type = 5, value = 10.0
     // page group: scalar
     //
     // 
@@ -511,14 +511,14 @@ main_Compute_44_out_1 =
     // input[3]: defaulting = 0, visible = 0, type = 16777224, value = { [0.0 1.0] [1.0 1.0] }
     // input[4]: defaulting = 0, visible = 0, type = 16777224, value = { [0.0 1.0] [1.0 1.0] }
     // input[5]: defaulting = 0, visible = 0, type = 32, value = "Colormap_4"
-    // input[7]: defaulting = 1, visible = 1, type = 5, value = 4.4323573e-17
-    // input[8]: defaulting = 1, visible = 1, type = 5, value = 1.8809417
+    // input[7]: defaulting = 1, visible = 1, type = 5, value = 4.9396984e-20
+    // input[8]: defaulting = 1, visible = 1, type = 5, value = 2.8677595
     // input[9]: defaulting = 1, visible = 0, type = 1, value = 20
     // input[10]: visible = 0
     // input[11]: visible = 0
-    // input[12]: defaulting = 0, visible = 0, type = 16777221, value = { 4.4323573e-17 1.8809417 }
-    // input[17]: defaulting = 0, visible = 0, type = 5, value = 4.4323573e-17
-    // input[18]: defaulting = 0, visible = 0, type = 5, value = 1.8809417
+    // input[12]: defaulting = 0, visible = 0, type = 16777221, value = { 4.9396984e-20 2.8677595 }
+    // input[17]: defaulting = 0, visible = 0, type = 5, value = 4.9396984e-20
+    // input[18]: defaulting = 0, visible = 0, type = 5, value = 2.8677595
     // output[2]: visible = 0
     // page group: scalar
     // window: position = (0.4941,0.0117), size = 0.6875x0.5000
@@ -553,14 +553,14 @@ main_Colormap_4_out_2[cache: 2] =
     // input[3]: defaulting = 0, visible = 0, type = 16777224, value = { [0.0 1.0] [1.0 1.0] }
     // input[4]: defaulting = 0, visible = 0, type = 16777224, value = { [0.0 1.0] [1.0 1.0] }
     // input[5]: defaulting = 0, visible = 0, type = 32, value = "Colormap_2"
-    // input[7]: defaulting = 1, visible = 1, type = 5, value = -500.0
-    // input[8]: defaulting = 1, visible = 1, type = 5, value = -500.0
+    // input[7]: defaulting = 1, visible = 1, type = 5, value = -5.0
+    // input[8]: defaulting = 1, visible = 1, type = 5, value = 10.0
     // input[9]: defaulting = 1, visible = 0, type = 1, value = 20
     // input[10]: visible = 0
     // input[11]: visible = 0
-    // input[12]: defaulting = 0, visible = 0, type = 16777221, value = { -500.0 -500.0 }
-    // input[17]: defaulting = 0, visible = 0, type = 5, value = -500.0
-    // input[18]: defaulting = 0, visible = 0, type = 5, value = -500.0
+    // input[12]: defaulting = 0, visible = 0, type = 16777221, value = { -5.0 10.0 }
+    // input[17]: defaulting = 0, visible = 0, type = 5, value = -5.0
+    // input[18]: defaulting = 0, visible = 0, type = 5, value = 10.0
     // output[2]: visible = 0
     // page group: scalar
     // window: position = (0.4941,0.0117), size = 0.6875x0.5000
@@ -622,18 +622,6 @@ main_Collect_8_out_1 =
     main_Collect_8_in_3
     ) [instance: 8, cache: 1];
     // 
-    // node RubberSheet[1]: x = 23, y = 787, inputs = 4, label = RubberSheet
-    // input[2]: defaulting = 0, visible = 1, type = 5, value = 2e-06
-    // page group: scalar
-    //
-main_RubberSheet_1_out_1 = 
-    RubberSheet(
-    main_Collect_8_out_1,
-    main_RubberSheet_1_in_2,
-    main_RubberSheet_1_in_3,
-    main_RubberSheet_1_in_4
-    ) [instance: 1, cache: 1];
-    // 
     // node ColorBar[2]: x = 333, y = 756, inputs = 16, label = ColorBar
     // page group: scalar
     //
@@ -662,7 +650,7 @@ main_ColorBar_2_out_1 =
     //
 main_Collect_4_out_1 = 
     Collect(
-    main_RubberSheet_1_out_1,
+    main_Collect_8_out_1,
     main_ColorBar_2_out_1,
     main_Collect_4_in_3
     ) [instance: 4, cache: 1];
@@ -677,43 +665,17 @@ colored_scalar = main_Collect_4_out_1;
     //
 main_Receiver_6_out_1[cache: 0] = colored_scalar;
     // 
-    // node Glyph[1]: x = 577, y = 144, inputs = 7, label = Glyph
-    // input[2]: defaulting = 0, visible = 1, type = 32, value = "arrow2D"
-    // input[3]: defaulting = 0, visible = 1, type = 5, value = 1.0
-    // page group: proc_u
-    //
-main_Glyph_1_out_1 = 
-    Glyph(
-    main_Receiver_35_out_1,
-    main_Glyph_1_in_2,
-    main_Glyph_1_in_3,
-    main_Glyph_1_in_4,
-    main_Glyph_1_in_5,
-    main_Glyph_1_in_6,
-    main_Glyph_1_in_7
-    ) [instance: 1, cache: 1];
-    // 
-    // node Transmitter[40]: x = 599, y = 235, inputs = 1, label = vectors
-    // page group: proc_u
-    //
-vectors = main_Glyph_1_out_1;
-    // 
-    // node Receiver[55]: x = 157, y = 326, inputs = 1, label = vectors
-    // page group: image
-    //
-main_Receiver_55_out_1[cache: 0] = vectors;
-    // 
     // node Collect[2]: x = 74, y = 468, inputs = 6, label = Collect
     // page group: image
     //
 main_Collect_2_out_1 = 
     Collect(
     main_Receiver_6_out_1,
-    main_Receiver_55_out_1,
+    main_Collect_2_in_2,
     main_Collect_2_in_3,
-    main_Caption_2_out_1,
+    main_Collect_2_in_4,
     main_Collect_2_in_5,
-    main_Collect_2_in_6
+    main_Caption_2_out_1
     ) [instance: 2, cache: 1];
     // 
     // node Receiver[42]: x = 260, y = 20, inputs = 1, label = u_all
@@ -847,13 +809,13 @@ main_Compute_47_out_1 =
     // node Image[4]: x = 162, y = 544, inputs = 49, label = Image
     // input[1]: defaulting = 0, visible = 0, type = 67108863, value = "Image_4"
     // input[4]: defaulting = 0, visible = 0, type = 1, value = 1
-    // input[5]: defaulting = 0, visible = 0, type = 8, value = [1.98496 1.03078 0.0007703]
-    // input[6]: defaulting = 0, visible = 0, type = 8, value = [1.98496 1.03078 1.03889]
-    // input[7]: defaulting = 0, visible = 0, type = 5, value = 6.6919
+    // input[5]: defaulting = 0, visible = 0, type = 8, value = [1.63876 0.862368 0.25]
+    // input[6]: defaulting = 0, visible = 0, type = 8, value = [1.63876 0.862368 25.1804]
+    // input[7]: defaulting = 0, visible = 0, type = 5, value = 3.50037
     // input[8]: defaulting = 0, visible = 0, type = 1, value = 1000
     // input[9]: defaulting = 0, visible = 0, type = 5, value = 0.698
     // input[10]: defaulting = 0, visible = 0, type = 8, value = [0 1 0]
-    // input[11]: defaulting = 1, visible = 0, type = 5, value = 145.526
+    // input[11]: defaulting = 1, visible = 0, type = 5, value = 8.03148
     // input[12]: defaulting = 0, visible = 0, type = 1, value = 0
     // input[14]: defaulting = 0, visible = 0, type = 1, value = 1
     // input[15]: defaulting = 1, visible = 0, type = 32, value = "none"
@@ -942,6 +904,22 @@ main_Format_2_out_1 =
     main_Image_4_out_1
     ) [instance: 2, cache: 1];
     // 
+    // node Glyph[1]: x = 577, y = 144, inputs = 7, label = Glyph
+    // input[2]: defaulting = 0, visible = 1, type = 32, value = "arrow2D"
+    // input[3]: defaulting = 0, visible = 1, type = 5, value = 1.0
+    // page group: proc_u
+    //
+main_Glyph_1_out_1 = 
+    Glyph(
+    main_Receiver_35_out_1,
+    main_Glyph_1_in_2,
+    main_Glyph_1_in_3,
+    main_Glyph_1_in_4,
+    main_Glyph_1_in_5,
+    main_Glyph_1_in_6,
+    main_Glyph_1_in_7
+    ) [instance: 1, cache: 1];
+    // 
     // node Isolate[1]: x = 109, y = 957, inputs = 2, label = Isolate
     // input[2]: defaulting = 0, visible = 1, type = 5, value = .8
     // page group: scalar
@@ -971,6 +949,39 @@ main_Receiver_43_out_1[cache: 0] = scalar_abs_grad_phi;
     // page group: scalar
     //
 main_Receiver_45_out_1[cache: 0] = u_all;
+    // 
+    // node Transmitter[40]: x = 599, y = 235, inputs = 1, label = vectors
+    // page group: proc_u
+    //
+vectors = main_Glyph_1_out_1;
+    // 
+    // node Receiver[55]: x = 157, y = 326, inputs = 1, label = vectors
+    // page group: image
+    //
+main_Receiver_55_out_1[cache: 0] = vectors;
+    // 
+    // node Scalar[5]: x = 33, y = 622, inputs = 11, label = Scalar
+    // input[1]: defaulting = 0, visible = 0, type = 32, value = "Scalar_5"
+    // input[3]: defaulting = 0, visible = 0, type = 5, value = 0.3
+    // input[5]: defaulting = 1, visible = 0, type = 5, value = -1000000.0
+    // input[6]: defaulting = 1, visible = 0, type = 5, value = 1000000.0
+    // input[7]: defaulting = 1, visible = 0, type = 5, value = 1.0
+    // input[9]: defaulting = 1, visible = 0, type = 1, value = 5
+    // output[1]: visible = 1, type = 5, value = 0.3
+    // page group: scalar
+    //
+    // 
+    // node RubberSheet[1]: x = 23, y = 787, inputs = 4, label = RubberSheet
+    // input[2]: defaulting = 1, visible = 1, type = 5, value = 0.5
+    // page group: scalar
+    //
+main_RubberSheet_1_out_1 = 
+    RubberSheet(
+    main_Collect_8_out_1,
+    main_Scalar_5_out_1,
+    main_RubberSheet_1_in_3,
+    main_RubberSheet_1_in_4
+    ) [instance: 1, cache: 1];
     // 
     // node Scalar[2]: x = 174, y = 128, inputs = 11, label = Scalar
     // input[1]: defaulting = 0, visible = 0, type = 32, value = "Scalar_2"
@@ -1022,12 +1033,12 @@ main_Sequencer_3_in_3 = NULL;
 main_Sequencer_3_in_4 = 0;
 main_Sequencer_3_in_5 = 10000;
 main_Sequencer_3_in_6 = NULL;
-main_Sequencer_3_in_7 = { 0 10000 5 0 110 1 };
+main_Sequencer_3_in_7 = { 0 10000 5 0 262 1 };
 main_Sequencer_3_out_1 = NULL;
 
 @startframe = 0;
 @nextframe  = @startframe;
-@endframe   = 110;
+@endframe   = 262;
 @deltaframe = 5;
 main_Transmitter_39_out_1 = NULL;
 main_Receiver_36_out_1 = NULL;
@@ -1119,7 +1130,7 @@ main_Compute_46_out_1 = NULL;
 main_Switch_5_out_1 = NULL;
 main_Scalar_3_in_1 = "Scalar_3";
 main_Scalar_3_in_2 = NULL;
-main_Scalar_3_in_3 = -5.0;
+main_Scalar_3_in_3 = 0.0;
 main_Scalar_3_in_4 = NULL;
 main_Scalar_3_in_5 = NULL;
 main_Scalar_3_in_6 = NULL;
@@ -1128,10 +1139,10 @@ main_Scalar_3_in_8 = NULL;
 main_Scalar_3_in_9 = NULL;
 main_Scalar_3_in_10 = NULL;
 main_Scalar_3_in_11 = NULL;
-main_Scalar_3_out_1 = -5.0;
+main_Scalar_3_out_1 = 0.0;
 main_Scalar_4_in_1 = "Scalar_4";
 main_Scalar_4_in_2 = NULL;
-main_Scalar_4_in_3 = 5.0;
+main_Scalar_4_in_3 = 10.0;
 main_Scalar_4_in_4 = NULL;
 main_Scalar_4_in_5 = NULL;
 main_Scalar_4_in_6 = NULL;
@@ -1140,7 +1151,7 @@ main_Scalar_4_in_8 = NULL;
 main_Scalar_4_in_9 = NULL;
 main_Scalar_4_in_10 = NULL;
 main_Scalar_4_in_11 = NULL;
-main_Scalar_4_out_1 = 5.0;
+main_Scalar_4_out_1 = 10.0;
 main_Compute_44_in_1 = "max(min($0,$2),$1)";
 main_Compute_44_out_1 = NULL;
 main_Toggle_1_in_1 = "Toggle_1";
@@ -1160,13 +1171,13 @@ main_Colormap_4_in_8 = NULL;
 main_Colormap_4_in_9 = NULL;
 main_Colormap_4_in_10 = NULL;
 main_Colormap_4_in_11 = NULL;
-main_Colormap_4_in_12 = { 4.4323573e-17 1.8809417 };
+main_Colormap_4_in_12 = { 4.9396984e-20 2.8677595 };
 main_Colormap_4_in_13 = NULL;
 main_Colormap_4_in_14 = NULL;
 main_Colormap_4_in_15 = NULL;
 main_Colormap_4_in_16 = NULL;
-main_Colormap_4_in_17 = 4.4323573e-17;
-main_Colormap_4_in_18 = 1.8809417;
+main_Colormap_4_in_17 = 4.9396984e-20;
+main_Colormap_4_in_18 = 2.8677595;
 main_Colormap_4_in_19 = NULL;
 main_Colormap_4_out_1 = NULL;
 main_Colormap_2_in_1 = { [0.0 0.666667] [1.0 0.0] };
@@ -1177,13 +1188,13 @@ main_Colormap_2_in_5 = "Colormap_2";
 main_Colormap_2_in_9 = NULL;
 main_Colormap_2_in_10 = NULL;
 main_Colormap_2_in_11 = NULL;
-main_Colormap_2_in_12 = { -500.0 -500.0 };
+main_Colormap_2_in_12 = { -5.0 10.0 };
 main_Colormap_2_in_13 = NULL;
 main_Colormap_2_in_14 = NULL;
 main_Colormap_2_in_15 = NULL;
 main_Colormap_2_in_16 = NULL;
-main_Colormap_2_in_17 = -500.0;
-main_Colormap_2_in_18 = -500.0;
+main_Colormap_2_in_17 = -5.0;
+main_Colormap_2_in_18 = 10.0;
 main_Colormap_2_in_19 = NULL;
 main_Colormap_2_out_1 = NULL;
 main_Switch_6_out_1 = NULL;
@@ -1194,10 +1205,6 @@ main_Color_1_out_1 = NULL;
 main_Collect_8_in_2 = NULL;
 main_Collect_8_in_3 = NULL;
 main_Collect_8_out_1 = NULL;
-main_RubberSheet_1_in_2 = 2e-06;
-main_RubberSheet_1_in_3 = NULL;
-main_RubberSheet_1_in_4 = NULL;
-main_RubberSheet_1_out_1 = NULL;
 main_ColorBar_2_in_2 = NULL;
 main_ColorBar_2_in_3 = NULL;
 main_ColorBar_2_in_4 = NULL;
@@ -1218,18 +1225,10 @@ main_Collect_4_in_3 = NULL;
 main_Collect_4_out_1 = NULL;
 main_Transmitter_5_out_1 = NULL;
 main_Receiver_6_out_1 = NULL;
-main_Glyph_1_in_2 = "arrow2D";
-main_Glyph_1_in_3 = 1.0;
-main_Glyph_1_in_4 = NULL;
-main_Glyph_1_in_5 = NULL;
-main_Glyph_1_in_6 = NULL;
-main_Glyph_1_in_7 = NULL;
-main_Glyph_1_out_1 = NULL;
-main_Transmitter_40_out_1 = NULL;
-main_Receiver_55_out_1 = NULL;
+main_Collect_2_in_2 = NULL;
 main_Collect_2_in_3 = NULL;
+main_Collect_2_in_4 = NULL;
 main_Collect_2_in_5 = NULL;
-main_Collect_2_in_6 = NULL;
 main_Collect_2_out_1 = NULL;
 main_Receiver_42_in_1 = NULL;
 main_Receiver_42_out_1 = NULL;
@@ -1596,9 +1595,9 @@ macro Image(
 main_Image_4_in_1 = "Image_4";
 main_Image_4_in_3 = "X16,,";
 main_Image_4_in_4 = 1;
-main_Image_4_in_5 = [1.98496 1.03078 0.0007703];
-main_Image_4_in_6 = [1.98496 1.03078 1.03889];
-main_Image_4_in_7 = 6.6919;
+main_Image_4_in_5 = [1.63876 0.862368 0.25];
+main_Image_4_in_6 = [1.63876 0.862368 25.1804];
+main_Image_4_in_7 = 3.50037;
 main_Image_4_in_8 = 1000;
 main_Image_4_in_9 = 0.698;
 main_Image_4_in_10 = [0 1 0];
@@ -1643,10 +1642,32 @@ main_Image_4_in_49 = NULL;
 main_Image_4_out_1 = NULL;
 main_Format_2_in_1 = "make dx_step=%d yuv_compress";
 main_Format_2_out_1 = NULL;
+main_Glyph_1_in_2 = "arrow2D";
+main_Glyph_1_in_3 = 1.0;
+main_Glyph_1_in_4 = NULL;
+main_Glyph_1_in_5 = NULL;
+main_Glyph_1_in_6 = NULL;
+main_Glyph_1_in_7 = NULL;
+main_Glyph_1_out_1 = NULL;
 main_Isolate_1_in_2 = .8;
 main_Receiver_32_in_1 = NULL;
 main_Transmitter_33_out_1 = NULL;
 main_Receiver_45_in_1 = NULL;
+main_Transmitter_40_out_1 = NULL;
+main_Scalar_5_in_1 = "Scalar_5";
+main_Scalar_5_in_2 = NULL;
+main_Scalar_5_in_3 = 0.3;
+main_Scalar_5_in_4 = NULL;
+main_Scalar_5_in_5 = NULL;
+main_Scalar_5_in_6 = NULL;
+main_Scalar_5_in_7 = NULL;
+main_Scalar_5_in_8 = NULL;
+main_Scalar_5_in_9 = NULL;
+main_Scalar_5_in_10 = NULL;
+main_Scalar_5_in_11 = NULL;
+main_Scalar_5_out_1 = 0.3;
+main_RubberSheet_1_in_3 = NULL;
+main_RubberSheet_1_in_4 = NULL;
 main_Scalar_2_in_1 = "Scalar_2";
 main_Scalar_2_in_2 = NULL;
 main_Scalar_2_in_3 = -0.4 ;
