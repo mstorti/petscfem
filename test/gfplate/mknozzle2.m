@@ -1,4 +1,4 @@
-## $Id: mknozzle2.m,v 1.4 2005/04/10 09:57:37 mstorti Exp $
+## $Id: mknozzle2.m,v 1.5 2005/04/10 10:19:13 mstorti Exp $
 source("data.m.tmp");
 
 Nx = Nx1+Nx2;
@@ -53,17 +53,22 @@ asave("gfnozzle2.nod.tmp",xnod);
 asave("gfnozzle2.con.tmp",icone);
 
 inlet = (1:Ny+1)';
-slip = (Ny+1)*(1:Nx+1);
+slip = 1+(Ny+1)*(0:Nx)';
 outlet = Nx*(Ny+1)+inlet;
-wall = 1+(Ny+1)*(0:Nx)';
+wall = (Ny+1)*(1:Nx+1);
 
 ## Tangents at the wall
 nwall = length(wall);
 tan = zeros(nwall,2);
-tan(2:nwall-1,:) = xnod(wall(3:nwall),:) \
-    - xnod(wall(1:nwall-2),:);
-tan(1,:) = [-3,4,-1]*xnod(wall(1:3),:);
-tan(nwall,:) = [1,-4,3]*xnod(wall(nwall+(-2:0)),:);
+## Tangents to elements
+dtan = xnod(wall(2:nwall),:)-xnod(wall(1:nwall-1),:);
+dtan = leftscal(1./l2(dtan),dtan);
+
+tan(2:nwall-1,:) = 0.5*(dtan(1:nwall-2,:) \
+			+dtan(2:nwall-1,:));
+tan(1,:) = dtan(1,:);
+tan(nwall,:) = dtan(nwall-1,:);
+tan = leftscal(1./l2(tan),tan);
 
 ## Normals
 nor = [-tan(:,2),tan(:,1)];
@@ -75,8 +80,8 @@ xwall2 = xwall+0.1*nor;
 tmp = complement(inlet,wall)';
 pfconstr("gfnozzle2.constr-wall.tmp",[tmp,tmp],2:3,nor);
 
-## [rho u v] at inlet
-pffixa("gfnozzle2.fixa-in.tmp",inlet,1:3,[rhoref,uref,0]);
+## [rho v p] at inlet
+pffixa("gfnozzle2.fixa-in.tmp",inlet,[1 3 4],[rhoref,0,3*pref]);
 
 ## `p' at outlet
 pffixa("gfnozzle2.fixa-out.tmp",outlet,4,pref);

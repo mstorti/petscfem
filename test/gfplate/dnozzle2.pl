@@ -11,7 +11,7 @@ $Nx2 = $Ny;			# Nbr of points along x (exterior)
 $Lx1 = 2*$Ly;			# Long of comp. domain along x. (duct)
 $Lx2 = 3*$Ly;			# Long of comp. domain along x. (exterior)
 $rratio = 5; 			# Refinement towards outlet in the outer
-				# exapnsion region
+				# expansion region
 $Rgas = 1;
 $Tref = 1;
 $rhoref = 1;
@@ -24,7 +24,7 @@ $Uref = [$rhoref,$uref,0,$pref];
 
 @vars = qw(Machin gamma rhoref Tref Rgas
 	   Ly DLy yratio Ny Nx1 Nx2  Lx1 Lx2 
-	   pref cref uref Uref);
+	   pref cref uref Uref rratio);
 octave_export_vars(">data.m.tmp",@vars);
 
 system "octave -qH mknozzle2.m";
