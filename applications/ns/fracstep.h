@@ -1,6 +1,6 @@
 // -*- mode: C++ -*- 
 /*__INSERT_LICENSE__*/
-// $Id: fracstep.h,v 1.9 2004/12/21 12:20:40 mstorti Exp $
+// $Id: fracstep.h,v 1.10 2005/04/13 20:52:57 mstorti Exp $
 #ifndef FRACSTEP_H
 #define FRACSTEP_H
 
@@ -15,6 +15,13 @@ public:
 
 //-------<*>-------<*>-------<*>-------<*>-------<*>------- 
 class fracstep_fm2 : public Elemset { 
+public: 
+  ASK_FUNCTION;
+  ASSEMBLE_FUNCTION;
+};
+
+//-------<*>-------<*>-------<*>-------<*>-------<*>------- 
+class fracstep_fm2_cw : public Elemset { 
 public: 
   ASK_FUNCTION;
   ASSEMBLE_FUNCTION;

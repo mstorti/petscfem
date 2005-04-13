@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: ns.cpp,v 1.159 2005/02/21 18:49:43 mstorti Exp $
+//$Id: ns.cpp,v 1.160 2005/04/13 20:52:57 mstorti Exp $
 #include <src/debug.h>
 #include <malloc.h>
 
@@ -339,7 +339,8 @@ int main(int argc,char **args) {
       A_prj->set_option("use_interface_full_preco_nlay",1);
 #else
       // Global PETSc iteration
-      A_mom->set_option("KSP_method",KSPBCGS);
+      // A_mom->set_option("KSP_method",KSPBCGS);
+      A_mom->set_option("KSP_method",KSPGMRES);
       A_mom->set_option("preco_side","left");
       
       // A_poi = PFMat::dispatch(dofmap->neq,*dofmap,solver.c_str());

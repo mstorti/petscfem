@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-// $Id: condwallpen.cpp,v 1.5 2005/04/10 08:48:17 mstorti Exp $
+// $Id: condwallpen.cpp,v 1.6 2005/04/13 20:52:57 mstorti Exp $
 
 #include "./condwallpen.h"
 
@@ -50,6 +50,7 @@ res(int k,FastMat2 &U,FastMat2 & r,
     assert(k<data_p->Rv.size());
     R = data_p->Rv.ref(k);
   }
+  printf("k %d, R %f\n",k,R);
   if (R>0) {
     u1.set(0.0);
     u2.set(0.0);
@@ -58,7 +59,6 @@ res(int k,FastMat2 &U,FastMat2 & r,
       assert(k*ndim<data_p->u2.size());
       u1.set(&data_p->u1.e(k,0));
       u2.set(&data_p->u2.e(k,0));
-      // printf("k %d, v1 %f, v2 %f\n",k,u1.get(2),u2.get(2));
     }
     // Closed
     r.set(0.0);
