@@ -67,6 +67,7 @@ int fracstep::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
   ierr = get_int(thash,"couple_velocity",&couple_velocity,1); CHKERRA(ierr);
   ierr = get_int(thash,"npg",&npg); CHKERRA(ierr);
   ierr = get_int(thash,"ndim",&ndim); CHKERRA(ierr);
+  assert(nel==2);
   int nen = nel*ndof;
 
   // Unpack nodedata
@@ -139,10 +140,12 @@ int fracstep::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
   }
 
   nen = nel*ndof;
-  FastMat2 matloc(4,nel,ndof,nel,ndof);
+  FastMat2 matloc(4,nel,ndof,nel,ndof),
+    mom_profile(4,nel,ndof,nel,ndof), du(1,ndim);
 
   FastMatCacheList cache_list;
   FastMat2::activate_cache(&cache_list);
+  double penalization_factor = 1000.0;
 
   int ielh=-1;
   int SHV_debug=0;
@@ -155,333 +158,48 @@ int fracstep::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
     ielh++;
 
     if (comp_mat_prof) {
-      // We export anything, because in fact `upload_vector'
-      // doesn't even look at the `retvalmat' values. It looks at the
-      // .profile member in the argument value
-      matlocmom.export_vals(&(RETVALMAT_MOM(ielh)));
-      matlocmom.export_vals(&(RETVALMAT_PRJ(ielh)));
-      matlocmom.export_vals(&(RETVALMAT_POI(ielh)));
+      matloc.set(1.);
+      matloc.export_vals(&(RETVALMAT_MOM(ielh)));
+      matloc.export_vals(&(RETVALMAT_PRJ(ielh)));
+      matloc.export_vals(&(RETVALMAT_POI(ielh)));
       continue;
     } 
 
-    load_props(propel,elprpsindx,nprops,&(ELEMPROPS(k,0)));
-    //    printf("element %d, prop %f\n",k,ELEMPROPS(k,0));
-    // Load local node coordinates in local vector
-    for (kloc=0; kloc<nel; kloc++) {
-      node = ICONE(k,kloc);
-      xloc.ir(1,kloc+1).set(&NODEDATA(node-1,0));
-    }
-    xloc.rs();
-
-    if (get_nearest_wall_element && A_van_Driest>0.) {
-      assert(LES);
-#ifdef USE_ANN
-      xc.sum(xloc,-1,1).scale(1./double(nel));
-      int nn;
-      wall_data->nearest(xc.storage_begin(),nn);
-      NN_IDX(k) = nn;
-      continue;
-#else
-      PETSCFEM_ERROR0("Not compiled with ANN library!!\n");
-#endif
-    }
-
-    // tenemos el estado locstate2 <- u^n
-    //                   locstate  <- u^*
     if (comp_res_mom || comp_res_poi || comp_res_prj) {
       locstate.set(&(LOCST(ielh,0,0)));
       locstate2.set(&(LOCST2(ielh,0,0)));
     }
-    matlocmom.set(0.);
-    matlocmom2.set(0.);
     veccontr.set(0.);
-    resmom.set(0.);
-    rescont.set(0.);
 
-    double shear_vel;
-    if (comp_res_mom) {
-      int wall_elem;
-      if (LES && A_van_Driest>0.) {
-#ifdef USE_ANN
-	if (!wall_data) { set_error(2); return 1; }
-	Elemset *wall_elemset;
-	const double *wall_coords_;
-	wall_data->nearest_elem_info(NN_IDX(k),wall_elemset,wall_elem,wall_coords_);
-	wall_coords.set(wall_coords_);
-	shear_vel = wall_elemset->elemprops_add[wall_elem];
-#else
-	PETSCFEM_ERROR0("Not compiled with ANN library!!\n");
-#endif
-      }
-      
-    }
-    
+    if (comp_res_mom || comp_res_prj) {
+      locstate.ir(1,1).is(2,1,ndim);
+      du.set(locstate);
+      locstate.ir(1,2);
+      du.rest(locstate);
+      locstate.rs();
+      veccontr.rs().ir(1,1).is(2,1,ndim)
+	.axpy(du,-penalization_factor);
+      veccontr.rs().ir(1,2).is(2,1,ndim)
+	.axpy(du,+penalization_factor);
+      veccontr.export_vals(&(RETVAL(ielh)));
 
-#define DSHAPEXI (*gp_data.FM2_dshapexi[ipg])
-#define SHAPE    (*gp_data.FM2_shape[ipg])
-#define WPG      (gp_data.wpg[ipg])
-#define WPG_SUM  (gp_data.wpg_sum)
-
-    // loop over Gauss points
-
-    for (ipg=0; ipg<npg; ipg++) {
-
-      //      Matrix xpg = SHAPE * xloc;
-      Jaco.prod(DSHAPEXI,xloc,1,-1,-1,2);
-
-      elem = k;
-
-      detJaco = Jaco.det();
-      if (detJaco<=0.) {
-	detj_error(detJaco,elem);
-	set_error(1);
-      }
-      wpgdet = detJaco*WPG;
-      iJaco.inv(Jaco);
-      dshapex.prod(iJaco,DSHAPEXI,1,-1,-1,2);
-
-      double Area = detJaco*WPG_SUM, Delta;
-      if (ndim==2) {
-	Delta = sqrt(Area);
-      } else if (ndim==3 && axi==0) {
-	Delta = cbrt(Area);
-      } else if (ndim==3 && axi>0) {
-
-        ind_axi_1 = (  axi   % 3)+1;
-        ind_axi_2 = ((axi+1) % 3)+1;
-
-        Jaco_axi.setel(Jaco.get(ind_axi_1,ind_axi_1),1,1);
-        Jaco_axi.setel(Jaco.get(ind_axi_1,ind_axi_2),1,2);
-        Jaco_axi.setel(Jaco.get(ind_axi_2,ind_axi_1),2,1);
-        Jaco_axi.setel(Jaco.get(ind_axi_2,ind_axi_2),2,2);
-
-        detJaco_axi = Jaco_axi.det();
-        double Area_axi = 0.5*detJaco_axi*WPG_SUM;
-	Delta = sqrt(Area_axi);
-      } else {
-	PFEMERRQ("Only dimensions 2 and 3 allowed for this element.\n");
-      }
-
-      double u2 ,Uh;      
-
-      if (comp_res_mom) {
-	//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
-	// PREDICTOR STEP
-	// state variables and gradient
-	locstate2.is(2,1,ndim);
-	u.prod(SHAPE,locstate2,-1,-1,1);
-	grad_u.prod(dshapex,locstate2,1,-1,-1,2);
-	locstate2.rs();
-
-	locstate.is(2,1,ndim);
-	u_star.prod(SHAPE,locstate,-1,-1,1);
-	grad_u_star.prod(dshapex,locstate,1,-1,-1,2);
-	locstate.rs();
-
-	locstate2.ir(2,ndof);
-	grad_p.prod(dshapex,locstate2,1,-1,-1);
-	locstate2.rs();
-
-	// Smagorinsky turbulence model
-	double nu_eff;
-	if (LES) {
-
-	strain_rate.set(grad_u_star);
-	grad_u_star.t();
-	strain_rate.add(grad_u_star).scale(0.5);
-	grad_u_star.rs();
-
-	  double tr = (double) tmp15.prod(strain_rate,strain_rate,-1,-2,-1,-2);
-	  double van_D;
-	  if (A_van_Driest>0.) {
-	    dist_to_wall.prod(SHAPE,xloc,-1,-1,1).rest(wall_coords);
-	    double ywall = sqrt(dist_to_wall.sum_square_all());
-	    double y_plus = ywall*shear_vel/VISC;
-	    van_D = 1.-exp(-y_plus/A_van_Driest);
-	    if (k % 250==0) printf("van_D: %f\n",van_D);
-	  } else van_D = 1.;
-	  
-	  double nu_t = SQ(C_smag*Delta*van_D)*sqrt(2*tr);
-	  nu_eff = VISC + nu_t;
-	} else {
-	  nu_eff = VISC;
-	}
-
-        u2 = u.sum_square_all(); 
-
-        if(axi>0){
-          u_axi.set(u);
-          u_axi.setel(0.,axi);
-          u2 = u_axi.sum_square_all();
-	  uintri.prod(iJaco,u_axi,1,-1,-1);
-	  Uh = sqrt(uintri.sum_square_all())/2.;
-        } else {
-	  uintri.prod(iJaco,u,1,-1,-1);
-	  Uh = sqrt(uintri.sum_square_all())/2.;
-	}
-
-	//	if(u2<=1e-6*(2.*Uh*VISC)) {
-	if(u2<=1e-6*(2.*Uh*nu_eff)) {
-	  Peclet=0.;
-	  psi=0.;
-	  tau=0.;
-	} else {
-	  //	  Peclet = u2 / (2. * Uh * VISC);
-	  Peclet = u2 / (2. * Uh * nu_eff);
-	  psi = 1./tanh(Peclet)-1/Peclet;
-	  tau = psi/(2.*Uh);
-	}
-	P_supg.prod(u,dshapex,-1,-1,1).scale(taufac * tau);
-	W.set(SHAPE).add(P_supg);
-
-	//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
-	// RESIDUE CALCULATION
-
-	tmp1.prod(u,grad_u,-1,-1,1).scale(-(1-alpha));
-	tmp2.prod(u_star,grad_u_star,-1,-1,1).scale(-alpha);
-	tmp1.add(tmp2).axpy(grad_p,-(gammap/rho));
-	tmp3.prod(W,tmp1,1,2);
-	resmom.axpy(tmp3,wpgdet);
-	SHV(resmom);
-	// sacamos gradiente de presion en la ec. de momento (conf. Codina)
-	//- (1/rho)* grad_p.t());
-
-	// Parte difusiva
-	// version implicita
-	// resmom -= wpgdet * VISC * dshapex.t() * grad_u_star;
-	// version Crank-Nicholson 
-	tmp4.set(grad_u).scale(1-alpha).axpy(grad_u_star,alpha);
-	tmp5.prod(dshapex,tmp4,-1,1,-1,2);
-	//	resmom.axpy(tmp5,-wpgdet*VISC);
-	resmom.axpy(tmp5,-wpgdet*nu_eff);
-	SHV(resmom);
-	
-	// Parte temporal
-	tmp6.set(u_star).rest(u);
-	tmp7.prod(W,tmp6,1,2);
-	resmom.axpy(tmp7,-wpgdet/Dt);
-	SHV(resmom);
-
-	// Fuerza de cuerpo
-	tmp71.prod(W,G_body,1,2);
-	resmom.axpy(tmp71,wpgdet);
-
-	//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
-	// JACOBIAN CALCULATION
-	tmp17.prod(u_star,dshapex,-1,-1,1);
-	tmp8.prod(W,tmp17,1,2);
-	matlocmom.axpy(tmp8,alpha*wpgdet);
-
-	masspg.prod(W,SHAPE,1,2);
-	tmp9.prod(masspg,grad_u_ext,1,3,2,4);
-	if (couple_velocity)
-	  matlocmom2.is(2,1,ndim).is(4,1,ndim).axpy(tmp9,alpha * wpgdet).rs();
-
-	// Parte difusiva
-	tmp10.prod(dshapex,dshapex,-1,1,-1,2);
-	//	matlocmom.axpy(tmp10,alpha*wpgdet*VISC);
-	matlocmom.axpy(tmp10,alpha*wpgdet*nu_eff);
-	
-	// Parte temporal
-	matlocmom.axpy(masspg,wpgdet/Dt);
-       
-      } else if (comp_res_poi || comp_mat_poi) {
-
-	double dt_fac = 1.0;
-	if (dt_art_fac > 0.0) {
-	  double area = detJaco * gp_data.wpg_sum;
-	  double h = pow(area,1.0/double(ndim));
-	  dt_fac += dt_art_fac/Dt*(1. /(4.*VISC/h/h+2.*U_char/h)); 
-	  //	  dt_fac += dt_art_fac*h*h/VISC;
-	} 
-
-	if (comp_res_poi) {
-	  locstate.ir(2,ndof);
-	  grad_p.prod(dshapex,locstate,1,-1,-1);
-	  locstate.rs();
-	  
-	  // The Poisson equation is treated in weak form. This
-	  // guarantees that the solution of the Poisson equation is
-	  // independent of which node is fixed its pressure. 
-	  locstate2.is(2,1,ndim);
-	  u_star.prod(SHAPE,locstate2,-1,-1,1);
-	  locstate2.rs();
-	  tmp12.set(u_star).scale(-rho/Dt).axpy(grad_p,dt_fac-gammap);
-	  tmp11.prod(dshapex,tmp12,-1,1,-1);
-	  rescont.axpy(tmp11,-wpgdet);
-#if 0
-	  // No-weak form
-	  div_u_star = (dshapex * ustate2).Trace();
-	  rescont -= wpgdet * ((rho/Dt_art) * SHAPE.t() * div_u_star
-			       + dshapex.t() * grad_p);
-#endif
-	}
-
-	if (comp_mat_poi) {
-	  tmp13.prod(dshapex,dshapex,-1,1,-1,2);
-	  matlocmom.axpy(tmp13,dt_fac*wpgdet);
-	}
- 
-      } else if (comp_res_prj) {
-
-	locstate.ir(2,ndof);
-	grad_p_star.prod(dshapex,locstate,1,-1,-1);
-	locstate.rs();
-
-	locstate2.ir(2,ndof);
-	grad_p.prod(dshapex,locstate2,1,-1,-1);
-
-	locstate2.rs().is(2,1,ndim);
-	u_star.prod(SHAPE,locstate2,-1,-1,1);
-	locstate2.rs();
-
-	locstate.is(2).is(2,1,ndim);
-	u.prod(SHAPE,locstate,-1,-1,1);
-	locstate.rs();
-
-	tmp14.set(u_star).rest(u).axpy(grad_p_star,-Dt/rho);
-	if (gammap) tmp14.axpy(grad_p,+gammap*Dt/rho);
-	tmp15.prod(SHAPE,tmp14,1,2);
-	resmom.axpy(tmp15,wpgdet);
-
-	SHV(resmom);
-	SHV(SHAPE);
-	SHV(u);
-	SHV(u_star);
-
-      } else if (comp_mat_prj || (comp_res_prj && !reuse_mat) ) {
-
-	tmp16.prod(SHAPE,SHAPE,1,2);
-	matlocmom.axpy(tmp16,wpgdet);
-
-      } else {
-
-	printf("Don't know how to compute jobinfo: %s\n",jobinfo);
-	exit(1);
-
-      }
-
-    }
-    if (comp_res_mom) {
-      veccontr.is(2,1,ndim).set(resmom);
-      veccontr.rs().export_vals(&(RETVAL(ielh)));
-      // matloc.prod(matlocmom,seed,1,3,2,4).add(mom_mat_fix);
-      for (int j=1; j<=ndim; j++)
-	matloc.ir(2,j).ir(4,j).set(matlocmom);
-      matloc.rs();
-      matloc.export_vals(&(RETVALMAT(ielh)));
+      matloc.set(0.).is(2,1,ndim).is(4,1,ndim)
+	.ir(1,1).ir(3,1).eye()
+	.ir(1,1).ir(3,2).eye(-1.)
+	.ir(1,2).ir(3,1).eye(-1.)
+	.ir(1,2).ir(3,2).eye(1.)
+	.rs();
     } else if (comp_mat_poi) {
-      matloc.prod(matlocmom,seed,1,3,2,4).add(poi_mat_fix);
+      matloc.set(0.).ir(2,ndof).ir(4,ndof)
+	.setel(+1.0,1,1)
+	.setel(-1.0,1,2)
+	.setel(-1.0,2,1)
+	.setel(+1.0,2,2);
       matloc.export_vals(&(RETVALMAT_POI(ielh)));
     } else if (comp_res_poi) {
-      veccontr.ir(2,ndof).set(rescont);
       veccontr.rs().export_vals(&(RETVAL(ielh)));
     } else if (comp_mat_prj) {
-      matloc.prod(matlocmom,seed,1,3,2,4).add(mom_mat_fix);
       matloc.export_vals(&(RETVALMAT_PRJ(ielh)));
-    } else if (comp_res_prj || (comp_res_prj && !reuse_mat)) {
-      veccontr.is(2,1,ndim).set(resmom);
-      veccontr.rs().export_vals(&(RETVAL(ielh)));
     } else assert(0);
   }
   FastMat2::void_cache();
