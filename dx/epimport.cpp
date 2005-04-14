@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-// $Id: epimport.cpp,v 1.23 2005/01/24 16:05:37 mstorti Exp $
+// $Id: epimport.cpp,v 1.24 2005/04/14 15:30:39 mstorti Exp $
 #include <cassert>
 #include <string>
 #include <vector>
@@ -684,7 +684,7 @@ extern "C" Error m_ExtProgImport(Object *in, Object *out) {
   if(flist) out[1] = (Object)flist;
   out[2] = (Object)step_comp_o;
 
-  if (!clnt) Sclose(clnt);
+  if (clnt) Sclose(clnt);
   clnt = NULL;
 
   clean_tempo_list(tempo_list);
