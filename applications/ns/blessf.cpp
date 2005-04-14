@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-/* $Id: blessf.cpp,v 1.31 2005/04/10 08:48:17 mstorti Exp $ */
+/* $Id: blessf.cpp,v 1.32 2005/04/14 21:21:00 mstorti Exp $ */
 
 #include <src/debug.h>
 #include <malloc.h>
@@ -62,6 +62,7 @@ void bless_elemset(char *type,Elemset *& elemset) {
     SET_ELEMSET_TYPE(fracstep)
     SET_ELEMSET_TYPE(fracstep_fm2)
     SET_ELEMSET_TYPE(bcconv_fstep_fm2)
+    SET_ELEMSET_TYPE(fracstep_fm2_cw)
 
     SET_ELEMSET_TYPE(bcconv_ns_fm2)
     SET_ELEMSET_TYPE(bcconv_nsther_fm2)

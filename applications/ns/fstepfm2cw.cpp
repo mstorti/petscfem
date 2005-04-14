@@ -27,7 +27,7 @@ int fracstep_fm2_cw::ask(const char *jobinfo,int &skip_elemset) {
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 #undef __FUNC__
 #define __FUNC__ "fracstep::assemble"
-int fracstep::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
+int fracstep_fm2_cw::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
 		       Dofmap *dofmap,const char *jobinfo,int myrank,
 		       int el_start,int el_last,int iter_mode,
 		       const TimeData *time_) {
@@ -63,10 +63,9 @@ int fracstep::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
   char *value;
 
   // Unpack Elemset
-  int npg,ndim,couple_velocity=0;
-  ierr = get_int(thash,"couple_velocity",&couple_velocity,1); CHKERRA(ierr);
-  ierr = get_int(thash,"npg",&npg); CHKERRA(ierr);
+  int ndim;
   ierr = get_int(thash,"ndim",&ndim); CHKERRA(ierr);
+  assert(ndof==ndim+1);
   assert(nel==2);
   int nen = nel*ndof;
 
@@ -146,6 +145,7 @@ int fracstep::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
   FastMatCacheList cache_list;
   FastMat2::activate_cache(&cache_list);
   double penalization_factor = 1000.0;
+  double KP = penalization_factor;
 
   int ielh=-1;
   int SHV_debug=0;
@@ -170,6 +170,7 @@ int fracstep::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
       locstate2.set(&(LOCST2(ielh,0,0)));
     }
     veccontr.set(0.);
+    matloc.set(0.);
 
     if (comp_res_mom || comp_res_prj) {
       locstate.ir(1,1).is(2,1,ndim);
@@ -178,29 +179,42 @@ int fracstep::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
       du.rest(locstate);
       locstate.rs();
       veccontr.rs().ir(1,1).is(2,1,ndim)
-	.axpy(du,-penalization_factor);
+	.axpy(du,-KP);
       veccontr.rs().ir(1,2).is(2,1,ndim)
-	.axpy(du,+penalization_factor);
-      veccontr.export_vals(&(RETVAL(ielh)));
-
-      matloc.set(0.).is(2,1,ndim).is(4,1,ndim)
-	.ir(1,1).ir(3,1).eye()
-	.ir(1,1).ir(3,2).eye(-1.)
-	.ir(1,2).ir(3,1).eye(-1.)
-	.ir(1,2).ir(3,2).eye(1.)
-	.rs();
-    } else if (comp_mat_poi) {
-      matloc.set(0.).ir(2,ndof).ir(4,ndof)
-	.setel(+1.0,1,1)
-	.setel(-1.0,1,2)
-	.setel(-1.0,2,1)
-	.setel(+1.0,2,2);
-      matloc.export_vals(&(RETVALMAT_POI(ielh)));
-    } else if (comp_res_poi) {
+	.axpy(du,+KP);
       veccontr.rs().export_vals(&(RETVAL(ielh)));
-    } else if (comp_mat_prj) {
+    }
+
+    if (comp_res_mom || comp_mat_prj) {
+      matloc.set(0.).is(2,1,ndim).is(4,1,ndim)
+	.ir(1,1).ir(3,1).eye(+KP)
+	.ir(1,1).ir(3,2).eye(-KP)
+	.ir(1,2).ir(3,1).eye(-KP)
+	.ir(1,2).ir(3,2).eye(+KP)
+	.rs();
+    }
+    if (comp_res_mom)
+      matloc.export_vals(&(RETVALMAT(ielh)));
+    if (comp_mat_prj) 
       matloc.export_vals(&(RETVALMAT_PRJ(ielh)));
-    } else assert(0);
+ 
+    if (comp_mat_poi) {
+      matloc.set(0.).ir(2,ndof).ir(4,ndof)
+	.setel(+KP,1,1)
+	.setel(-KP,1,2)
+	.setel(-KP,2,1)
+	.setel(+KP,2,2)
+	.rs();
+      matloc.export_vals(&(RETVALMAT_POI(ielh)));
+    } 
+
+    if (comp_res_poi) {
+      double dp = locstate.get(1,ndof)-locstate.get(2,ndof);
+      veccontr.rs().set(0.)
+	.setel(-KP*dp,1,ndof)
+	.setel(+KP*dp,2,ndof);
+      veccontr.rs().export_vals(&(RETVAL(ielh)));
+    } 
   }
   FastMat2::void_cache();
   FastMat2::deactivate_cache();
