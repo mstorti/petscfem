@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-// $Id: epimport.cpp,v 1.24 2005/04/14 15:30:39 mstorti Exp $
+// $Id: epimport.cpp,v 1.25 2005/04/15 11:56:31 mstorti Exp $
 #include <cassert>
 #include <string>
 #include <vector>
@@ -455,10 +455,11 @@ extern "C" Error m_ExtProgImport(Object *in, Object *out) {
 	  DXMessage("Requesting nodes.. ");
 	  Sprintf(clnt,"send_nodes\n");
 	  ierr = build_dx_array(clnt,ndim,nnod,array);
-	  if(ierr!=OK) return ierr;
-	  DXMessage("Ends requesting nodes.. OK");
 	  ierr = DXSetCacheEntry((Object)array,
 				 CACHE_PERMANENT,NODES_KEY,0,0);
+	  DXReference((Object)array);
+	  if(ierr!=OK) return ierr;
+	  DXMessage("Ends requesting nodes.. OK");
 	  if (ierr!=OK) {
 	    DXMessage("Couldn't create cache entry");
 	    goto error;
@@ -532,6 +533,7 @@ extern "C" Error m_ExtProgImport(Object *in, Object *out) {
 	  DXMessage("Ends requesting elemset.. OK");
 	  ierr = DXSetCacheEntry((Object)array,
 				 CACHE_PERMANENT,ELEM_KEY,0,0);
+	  DXReference((Object)array);
 	}
 	if (ierr!=OK) {
 	  DXMessage("Couldn't create cache entry");
