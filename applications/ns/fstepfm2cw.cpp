@@ -142,13 +142,15 @@ int fracstep_fm2_cw::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
   FastMat2 matloc(4,nel,ndof,nel,ndof),
     mom_profile(4,nel,ndof,nel,ndof), du(1,ndim);
 
+  //o Large positive constant to enforce the restriction. 
+  TGETOPTDEF(thash,double,penalization_factor,1000.0);
+
   FastMatCacheList cache_list;
-  FastMat2::activate_cache(&cache_list);
-  double penalization_factor = 1000.0;
   double KP = penalization_factor;
 
   int ielh=-1;
   int SHV_debug=0;
+  double R=1.;
 #undef SHV
 #define SHV(pp) { if (SHV_debug) pp.print(#pp); }
   for (int k=el_start; k<=el_last; k++) {
@@ -172,49 +174,89 @@ int fracstep_fm2_cw::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
     veccontr.set(0.);
     matloc.set(0.);
 
-    if (comp_res_mom || comp_res_prj) {
-      locstate.ir(1,1).is(2,1,ndim);
-      du.set(locstate);
-      locstate.ir(1,2);
-      du.rest(locstate);
-      locstate.rs();
-      veccontr.rs().ir(1,1).is(2,1,ndim)
-	.axpy(du,-KP);
-      veccontr.rs().ir(1,2).is(2,1,ndim)
-	.axpy(du,+KP);
-      veccontr.rs().export_vals(&(RETVAL(ielh)));
-    }
+    if (R==0.) {
+      // Open
+      if (comp_res_mom || comp_res_prj) {
+	locstate.ir(1,1).is(2,1,ndim);
+	du.set(locstate);
+	locstate.ir(1,2);
+	du.rest(locstate);
+	locstate.rs();
+	veccontr.rs().ir(1,1).is(2,1,ndim)
+	  .axpy(du,-KP);
+	veccontr.rs().ir(1,2).is(2,1,ndim)
+	  .axpy(du,+KP);
+	veccontr.rs().export_vals(&(RETVAL(ielh)));
+      }
 
-    if (comp_res_mom || comp_mat_prj) {
-      matloc.set(0.).is(2,1,ndim).is(4,1,ndim)
-	.ir(1,1).ir(3,1).eye(+KP)
-	.ir(1,1).ir(3,2).eye(-KP)
-	.ir(1,2).ir(3,1).eye(-KP)
-	.ir(1,2).ir(3,2).eye(+KP)
-	.rs();
-    }
-    if (comp_res_mom)
-      matloc.export_vals(&(RETVALMAT(ielh)));
-    if (comp_mat_prj) 
-      matloc.export_vals(&(RETVALMAT_PRJ(ielh)));
+      if (comp_res_mom || comp_mat_prj) {
+	matloc.set(0.).is(2,1,ndim).is(4,1,ndim)
+	  .ir(1,1).ir(3,1).eye(+KP)
+	  .ir(1,1).ir(3,2).eye(-KP)
+	  .ir(1,2).ir(3,1).eye(-KP)
+	  .ir(1,2).ir(3,2).eye(+KP)
+	  .rs();
+      }
+      if (comp_res_mom)
+	matloc.export_vals(&(RETVALMAT(ielh)));
+      if (comp_mat_prj) 
+	matloc.export_vals(&(RETVALMAT_PRJ(ielh)));
  
-    if (comp_mat_poi) {
-      matloc.set(0.).ir(2,ndof).ir(4,ndof)
-	.setel(+KP,1,1)
-	.setel(-KP,1,2)
-	.setel(-KP,2,1)
-	.setel(+KP,2,2)
-	.rs();
-      matloc.export_vals(&(RETVALMAT_POI(ielh)));
-    } 
+      if (comp_mat_poi) {
+	matloc.set(0.).ir(2,ndof).ir(4,ndof)
+	  .setel(+KP,1,1)
+	  .setel(-KP,1,2)
+	  .setel(-KP,2,1)
+	  .setel(+KP,2,2)
+	  .rs();
+	matloc.export_vals(&(RETVALMAT_POI(ielh)));
+      } 
 
-    if (comp_res_poi) {
-      double dp = locstate.get(1,ndof)-locstate.get(2,ndof);
-      veccontr.rs().set(0.)
-	.setel(-KP*dp,1,ndof)
-	.setel(+KP*dp,2,ndof);
-      veccontr.rs().export_vals(&(RETVAL(ielh)));
-    } 
+      if (comp_res_poi) {
+	double dp = locstate.get(1,ndof)-locstate.get(2,ndof);
+	veccontr.rs().set(0.)
+	  .setel(-KP*dp,1,ndof)
+	  .setel(+KP*dp,2,ndof);
+	veccontr.rs().export_vals(&(RETVAL(ielh)));
+      } 
+
+    } else {
+      // Closed
+      if (comp_res_mom || comp_res_prj) {
+	locstate.ir(1,1).is(2,1,ndim);
+	veccontr.rs().ir(1,1)
+	  .is(2,1,ndim).axpy(locstate,-KP);
+
+	locstate.ir(1,2);
+	veccontr.ir(1,2).axpy(locstate,-KP);
+
+	locstate.rs();
+	veccontr.rs().export_vals(&(RETVAL(ielh)));
+      }
+
+      if (comp_res_mom || comp_mat_prj) {
+	matloc.set(0.).is(2,1,ndim).is(4,1,ndim)
+	  .ir(1,1).ir(3,1).eye(+KP)
+	  .ir(1,2).ir(3,2).eye(+KP)
+	  .rs();
+      }
+
+      if (comp_res_mom)
+	matloc.export_vals(&(RETVALMAT(ielh)));
+      if (comp_mat_prj) 
+	matloc.export_vals(&(RETVALMAT_PRJ(ielh)));
+ 
+      if (comp_mat_poi) {
+	// Do nothing on pressure for open `cond_wall'
+	matloc.export_vals(&(RETVALMAT_POI(ielh)));
+      } 
+
+      if (comp_res_poi) {
+	// Do nothing on pressure for open `cond_wall'
+	veccontr.rs().export_vals(&(RETVAL(ielh)));
+      } 
+
+    }
   }
   FastMat2::void_cache();
   FastMat2::deactivate_cache();
