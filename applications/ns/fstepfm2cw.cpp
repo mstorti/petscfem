@@ -146,8 +146,8 @@ int fracstep_fm2_cw::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
   if(cond_wall_data_map.find(ename)
      != cond_wall_data_map.end()) {
     data_p = &cond_wall_data_map[ename];
-    if (!MY_RANK)
-      printf("in cond_wall::init(), data_p %p\n",data_p);
+    // if (!MY_RANK)
+    // printf("in cond_wall::init(), data_p %p\n",data_p);
     if (data_p->Rv.size()) 
       assert(data_p->Rv.size()==nelem);
   }
@@ -164,6 +164,8 @@ int fracstep_fm2_cw::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
   double R = resistance;
 
   FastMatCacheList cache_list;
+  FastMat2::activate_cache(&cache_list);
+
   double KP = penalization_factor;
 
   int ielh=-1;
@@ -195,7 +197,9 @@ int fracstep_fm2_cw::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
     veccontr.set(0.);
     matloc.set(0.);
 
+    FastMat2::branch();
     if (R==0.) {
+      FastMat2::choose(0);
       // Open
       if (comp_res_mom || comp_res_prj) {
 	locstate.ir(1,1).is(2,1,ndim);
@@ -242,6 +246,8 @@ int fracstep_fm2_cw::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
       } 
 
     } else {
+
+      FastMat2::choose(1);
       // Closed
       if (comp_res_mom || comp_res_prj) {
 	locstate.ir(1,1).is(2,1,ndim);
@@ -278,6 +284,7 @@ int fracstep_fm2_cw::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
       } 
 
     }
+    FastMat2::leave();
   }
   FastMat2::void_cache();
   FastMat2::deactivate_cache();

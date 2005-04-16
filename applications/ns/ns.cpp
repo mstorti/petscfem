@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: ns.cpp,v 1.161 2005/04/14 21:21:00 mstorti Exp $
+//$Id: ns.cpp,v 1.162 2005/04/16 22:12:19 mstorti Exp $
 #include <src/debug.h>
 #include <malloc.h>
 
@@ -118,7 +118,7 @@ int main(int argc,char **args) {
 
 #if 0
   //o If set, redirect output to this file.
-  TGETOPTDEF_S(GLOBAL_OPTIONS,string,stdout_file,);
+  TGETOPTDEF_S(GLOBAL_OPTIONS,string,stdout_file,none);
   if (!strcmp(stdout_file.c_str(),"")) {
     fclose(stdout);
     stdout = fopen(stdout_file.c_str(),"w");
@@ -298,7 +298,7 @@ int main(int argc,char **args) {
 
   //o Name of file where to read the nodes for the ``print some'' 
   // feature. 
-  TGETOPTDEF_S(GLOBAL_OPTIONS,string,print_some_file,);
+  TGETOPTDEF_S(GLOBAL_OPTIONS,string,print_some_file,<none>);
   //o Name of file where to save node values for the ``print some'' 
   // feature. 
   TGETOPTDEF_S(GLOBAL_OPTIONS,string,save_file_some,outvsome.out);
@@ -309,6 +309,8 @@ int main(int argc,char **args) {
   // was accessed. Useful for detecting if an option was used or not.
   GETOPTDEF(int,report_option_access,1);
 
+  if (print_some_file=="<none>")
+    print_some_file = "";
   set<int> node_list;
   print_some_file_init(mesh->global_options,
 		       print_some_file.c_str(),
@@ -335,7 +337,7 @@ int main(int argc,char **args) {
       A_prj = PFMat::dispatch(dofmap->neq,*dofmap,solver_mom.c_str());
     } else {
 #if 1
-#if 0      
+#if 0
       // IISD (Domain decomposition) iteration
       A_mom = PFMat::dispatch(dofmap->neq,*dofmap,"iisd");
       A_mom->set_option("preco_type","jacobi");
@@ -844,7 +846,10 @@ int main(int argc,char **args) {
 	ierr = assemble(mesh,argl,dofmap,"comp_mat_prj",&time_star);
 	CHKERRA(ierr);
 	debug.trace("-PROJECTION- After matrix computation.");
-      }
+       }
+#if 0
+      ierr = A_prj->view(PETSC_VIEWER_STDOUT_SELF);
+#endif
 
       argl.clear();
       statep.set_time(time);	// fixme:= what time?
@@ -857,17 +862,6 @@ int main(int argc,char **args) {
       ierr = assemble(mesh,argl,dofmap,"comp_res_prj",&time_star);
       CHKERRA(ierr);
       debug.trace("-PROJECTION- After residual computation.");
-      
-      debug.trace("-PROJECTION- Before solving linear system...");
-      ierr = A_prj->solve(res,dx); CHKERRA(ierr); 
-      if (!reuse_mat) { ierr = A_prj->clean_mat(); CHKERRA(ierr); }
-      debug.trace("-PROJECTION- After solving linear system.");
-
-      scal= 1.0;
-      ierr = VecAXPY(&scal,dx,x);
-
-#endif
-
       if (do_stop && stop_prj) {
 	ierr = PetscViewerASCIIOpen(PETSC_COMM_WORLD,
 				    "system.dat",&matlab); 
@@ -875,6 +869,14 @@ int main(int argc,char **args) {
 	ierr = PetscViewerSetFormat_WRAPPER(matlab,
 					    PETSC_VIEWER_ASCII_MATLAB,"aprj"); 
 	CHKERRA(ierr);
+      }
+      
+      debug.trace("-PROJECTION- Before solving linear system...");
+      ierr = A_prj->solve(res,dx); CHKERRA(ierr); 
+      if (!reuse_mat) { ierr = A_prj->clean_mat(); CHKERRA(ierr); }
+      debug.trace("-PROJECTION- After solving linear system.");
+
+      if (do_stop && stop_prj) {
 	ierr = A_prj->view(matlab);
 	ierr = PetscViewerSetFormat_WRAPPER(matlab,
 					    PETSC_VIEWER_ASCII_MATLAB,"res"); 
@@ -887,6 +889,10 @@ int main(int argc,char **args) {
 	PetscFinalize();
 	exit(0);
       }
+
+      scal= 1.0;
+      ierr = VecAXPY(&scal,dx,x);
+#endif
     }
 
     // error difference
