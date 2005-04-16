@@ -7,10 +7,12 @@
 #include <src/getprop.h>
 #include <src/fastmat2.h>
 
-#include "nsi_tet.h"
-#include "fracstep.h"
+#include "./condwallpen.h"
+#include "./nsi_tet.h"
+#include "./fracstep.h"
 
 #define MAXPROP 100
+extern int MY_RANK,SIZE;
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 int fracstep_fm2_cw::ask(const char *jobinfo,int &skip_elemset) {
@@ -138,19 +140,34 @@ int fracstep_fm2_cw::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
     PetscPrintf(PETSC_COMM_WORLD,"ndof != ndim+1\n"); CHKERRA(1);
   }
 
+  string ename = name();
+  cond_wall_data_t *data_p = NULL;
+  int nelem = size();
+  if(cond_wall_data_map.find(ename)
+     != cond_wall_data_map.end()) {
+    data_p = &cond_wall_data_map[ename];
+    if (!MY_RANK)
+      printf("in cond_wall::init(), data_p %p\n",data_p);
+    if (data_p->Rv.size()) 
+      assert(data_p->Rv.size()==nelem);
+  }
+
   nen = nel*ndof;
   FastMat2 matloc(4,nel,ndof,nel,ndof),
     mom_profile(4,nel,ndof,nel,ndof), du(1,ndim);
 
   //o Large positive constant to enforce the restriction. 
   TGETOPTDEF(thash,double,penalization_factor,1000.0);
+  //o Resistance of the membrane (fixme:=
+  //  so far may be only ON(R>0) / OFF(R==0) 
+  TGETOPTDEF(thash,double,resistance,0.);
+  double R = resistance;
 
   FastMatCacheList cache_list;
   double KP = penalization_factor;
 
   int ielh=-1;
   int SHV_debug=0;
-  double R=1.;
 #undef SHV
 #define SHV(pp) { if (SHV_debug) pp.print(#pp); }
   for (int k=el_start; k<=el_last; k++) {
@@ -158,6 +175,10 @@ int fracstep_fm2_cw::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
     FastMat2::reset_cache();
     //if (epart[k] != myrank+1) continue;
     ielh++;
+
+    if (data_p && data_p->Rv.size()>0) 
+      R = data_p->Rv.ref(k);
+    // printf("k %d, R %f\n",k,R);
 
     if (comp_mat_prof) {
       matloc.set(1.);
