@@ -1,8 +1,8 @@
-# $Id: Makefile,v 1.68 2005/04/10 18:57:20 mstorti Exp $ 
+# $Id: Makefile,v 1.69 2005/04/18 20:07:44 mstorti Exp $ 
 
 .PHONY: force all run tests default strip gasflow nozzle  vtubei
 
-default: run_nozzle2
+default: run_shock
 
 BOPT := O_c++
 SRCS = 
@@ -12,7 +12,7 @@ include $(PETSCFEM_DIR)/Makefile.base
 include $(PETSCFEM_DIR)/test/Makefile.base.test
 
 ifeq ($(CASE_NAME),) 
-CASE_NAME := gfnozzle2
+CASE_NAME := gfshock
 endif
 LOC_PROG := advdif
 ifeq ($(PROG),)
@@ -103,15 +103,17 @@ ifeq (0,1)
 endif
 #	state_file=./$(CASE_NAME).dx-state.tmp 
 #		octave -qH fixstate.m ; 
-ifeq (0,1)
+ifeq (1,1)
 	if [ -f gfshock3d.dx-state-3d.tmp ] ; then rm gfshock3d.dx-state-3d.tmp ; fi
 	rcp geronimo:$(STEPS_DIR)/gfshock3d.state_$$dx_step.tmp.gz gfshock3d.dx-state-3d.tmp.gz
 	octave -qH compstate.m
 	rm gfshock3d.dx-state-3d.tmp.gz
 endif
+ifeq (1,0)
 #	cp STEPS/gfnozzle2.state_$$dx_step.tmp ./gfnozzle2.dx-state.tmp 
 	@echo "making dx-state for dx_step $$dx_step" ; \
 	gunzip -c STEPS/gfnozzle2.state_$$dx_step.tmp.gz > ./gfnozzle2.dx-state.tmp 
+endif
 
 dx: 
 	make-depl $(CASE_NAME).epl $(CASE_NAME)-dx.depl -d dx=1
