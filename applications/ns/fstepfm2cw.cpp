@@ -261,7 +261,8 @@ int fracstep_fm2_cw::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
 	veccontr.rs().export_vals(&(RETVAL(ielh)));
       }
 
-      if (comp_res_mom || comp_mat_prj) {
+      if (comp_res_mom || comp_mat_prj 
+	  || (comp_res_prj && !reuse_mat)) {
 	matloc.set(0.).is(2,1,ndim).is(4,1,ndim)
 	  .ir(1,1).ir(3,1).eye(+KP)
 	  .ir(1,2).ir(3,2).eye(+KP)
@@ -270,7 +271,7 @@ int fracstep_fm2_cw::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
 
       if (comp_res_mom)
 	matloc.export_vals(&(RETVALMAT(ielh)));
-      if (comp_mat_prj) 
+      if (comp_mat_prj  || (comp_res_prj && !reuse_mat)) 
 	matloc.export_vals(&(RETVALMAT_PRJ(ielh)));
  
       if (comp_mat_poi) {
