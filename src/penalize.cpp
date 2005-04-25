@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-/* $Id: penalize.cpp,v 1.10 2005/04/09 23:11:09 mstorti Exp $ */
+/* $Id: penalize.cpp,v 1.11 2005/04/25 01:47:19 mstorti Exp $ */
 
 #ifdef USE_DLEF
 #include <dlfcn.h>
@@ -58,7 +58,7 @@ new_assemble(arg_data_list &arg_data_v,const Nodedata *nodedata,
   FastMat2 r(1,nr),w(3,nel,ndof,nr),jac(3,nr,nel,ndof);
   jac.set(0.);
 
-  //#define COMPUTE_FD_RES_JACOBIAN
+  // #define COMPUTE_FD_RES_JACOBIAN
 #ifdef COMPUTE_FD_RES_JACOBIAN
   FastMat2 res_fd_jac(3,nr,nel,ndof),
     d_res_fd_jac(3,nr,nel,ndof),
@@ -115,7 +115,7 @@ new_assemble(arg_data_list &arg_data_v,const Nodedata *nodedata,
       for (int jdof=1; jdof<=ndof; jdof++) {
 	U_pert.set(U);      	
 	U_pert.addel(eps_fd,jele,jdof);
-	res(elem,U_pert,res_pert,lambda_pert,fd_jac);
+	restr->res(elem,U_pert,res_pert,lambda_pert,fd_jac);
 	res_pert.rest(r).scale(1./eps_fd);
 	res_fd_jac.ir(2,jele).ir(3,jdof)
 	  .set(res_pert).rs();
@@ -124,7 +124,7 @@ new_assemble(arg_data_list &arg_data_v,const Nodedata *nodedata,
     d_res_fd_jac
       .set(jac).rest(res_fd_jac);
     double erro = d_res_fd_jac.sum_abs_all();
-    // printf("error %g\n",erro);
+    if (erro>1e-10) printf("error %g\n",erro);
 #endif	
 
   } catch (GenericError e) {
