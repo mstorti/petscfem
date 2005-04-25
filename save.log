@@ -4297,3 +4297,6 @@ tag: beta-3.45.33 on Fri, 15 Apr 2005 08:57:13 -0300 by mstorti in minerva.cerid
 ----------
 tag: beta-3.45.34 on Fri, 15 Apr 2005 22:55:28 -0300 by mstorti in spider
      > Fractional step is working with `cond_wall'. 
+----------
+tag: beta-3.45.35 on Sun, 24 Apr 2005 22:47:26 -0300 by mstorti in spider
+     > Runs outlet with dynamic restriction. 
