@@ -4300,3 +4300,6 @@ tag: beta-3.45.34 on Fri, 15 Apr 2005 22:55:28 -0300 by mstorti in spider
 ----------
 tag: beta-3.45.35 on Sun, 24 Apr 2005 22:47:26 -0300 by mstorti in spider
      > Runs outlet with dynamic restriction. 
+----------
+tag: beta-3.45.36 on Mon, 25 Apr 2005 00:04:00 -0300 by mstorti in spider
+     > Runs outlet with dynamic restriction in inlet and outlet. 
