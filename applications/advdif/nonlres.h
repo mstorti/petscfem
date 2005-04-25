@@ -1,6 +1,6 @@
 // -*- mode: c++ -*-
 //__INSERT_LICENSE__
-// $Id: nonlres.h,v 1.7 2005/02/23 01:40:34 mstorti Exp $
+// $Id: nonlres.h,v 1.8 2005/04/25 03:03:50 mstorti Exp $
 #ifndef PETSCFEM_NONLRES_H  
 #define PETSCFEM_NONLRES_H
 
@@ -81,17 +81,6 @@ class LagrangeMult : public NewElemset {
 		   FastMat2 & lambda,FastMat2 & jac)=0;
   /// Make it pure virtual. 
   virtual ~LagrangeMult()=0;
-};
-
-//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
-class MakeTangentSpace {
-private:
-  int ndim;
-  FastMat2 z;
-public:
-  void init(int ndim_a);
-  void make_tangent(const FastMat2 &normal);
-  FastMat2 tangent;
 };
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 

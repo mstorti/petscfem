@@ -1,6 +1,6 @@
 // -*- mode: c++ -*-
 /*__INSERT_LICENSE__*/
-//$Id: util2.h,v 1.14 2003/02/27 03:32:41 mstorti Exp $
+//$Id: util2.h,v 1.15 2005/04/25 03:03:53 mstorti Exp $
 #ifndef UTIL2_H
 #define UTIL2_H
 
@@ -8,6 +8,10 @@
 #include <newmat.h>
 #include <petscsles.h>
 #include <src/fstack.h>
+// Where are they defined??
+#undef min
+#undef max
+#include <src/fastmat2.h>
 
 typedef double scalarfun(double,void *);
 
@@ -137,5 +141,15 @@ int SLESDestroy_maybe(SLES &v);
 #define DELETE_VCTR(name)			\
   if (name) { delete[] name; name=NULL; }
 
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+class MakeTangentSpace {
+private:
+  int ndim;
+  FastMat2 z;
+public:
+  void init(int ndim_a);
+  void make_tangent(const FastMat2 &normal);
+  FastMat2 tangent;
+};
 
 #endif

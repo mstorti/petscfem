@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: util2.cpp,v 1.18 2004/09/25 23:11:39 mstorti Exp $
+//$Id: util2.cpp,v 1.19 2005/04/25 03:03:53 mstorti Exp $
   
 #include <stdio.h>
 #include <cassert>
@@ -301,5 +301,45 @@ int crem(int j, int m) {
     return j % mm;
   } else {
     return mm -1 + ((j+1) % mm);
+  }
+}
+
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+void MakeTangentSpace::
+init(int ndim_a) {
+  ndim = ndim_a;
+  z.resize(1,ndim);
+  tangent.resize(2,ndim,ndim-1);
+}
+
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+void MakeTangentSpace::
+make_tangent(const FastMat2 &normal) {
+  assert(ndim<=3);
+  if (ndim==2) {
+    // t = e_z x n (i.e., n rotated
+    // 90degree counter-clockwise)
+    tangent.setel(-normal.get(2),1,1);
+    tangent.setel(+normal.get(1),2,1);
+  } else {
+    // We construct the two tangents `t1 = z x n', `t1 = t1/|t1|'
+    // `t2 = n x t1'. `z' must be non parallel to `n', so that
+    // we choose the versor along the 'j' axis, with `j' the direction
+    // such that `|n_j|' is minimum. 
+    int j;
+    double amin;
+    for (int k=1; k<=ndim; k++) {
+      double anj = fabs(normal.get(k));
+      if (k==1 || anj<amin) {
+	j = k; amin=anj;
+      }
+    }
+    FastMat2::deactivate_cache();
+    z.set(0.).setel(1.0,j);
+    FastMat2::activate_cache();
+    tangent.ir(2,1).cross(z,normal);
+    // Here we reuse `z' 
+    z.set(tangent);
+    tangent.ir(2,2).cross(normal,z).rs();
   }
 }
