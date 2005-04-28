@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-// $Id: project.cpp,v 1.23 2005/03/09 01:52:25 mstorti Exp $
+// $Id: project.cpp,v 1.24 2005/04/28 15:43:04 mstorti Exp $
 
 #include <cstdio>
 #include <src/fastmat2.h>
@@ -114,7 +114,8 @@ void FemInterp::interp(const dvector<double> &xnod2,
   // a zero distance of the test point. If `ndimel<ndim'
   // then this is rarely the case and we check only for
   // the `knbr' elements reported by `ANN'. 
-  int nelem_check = (ndimel==ndim? nelem+knbr : knbr);
+  // int nelem_check = (ndimel==ndim? nelem+knbr : knbr);
+  int nelem_check = knbr;
   for (int n2=0; n2<nnod2; n2++) {
     x2.set(&xnod2.e(n2,0));
     if(use_cache) FastMat2::activate_cache(&cache_list);
@@ -192,7 +193,12 @@ void FemInterp::interp(const dvector<double> &xnod2,
 	  FastMat2::leave();
 	}
 	if (!neg) break;
-	assert(iter<=ndim);
+	// assert(iter<=ndim);
+	int nitmax=20;
+	if (iter>nitmax) {
+	  printf("failed to converge in %d iters\n",nitmax);
+	  break;
+	}
       }
       // FastMat2::leave();
       FastMat2::resync_was_cached();
@@ -228,6 +234,7 @@ void FemInterp::interp(const dvector<double> &xnod2,
     }
     FastMat2::deactivate_cache();
     // x2.print("x2");
+    // printf("tries %d\n",q+1);
     // x2prjmin.print("x2prjmin");
     // Load state values in `u1_loc'
     for (int j=1; j<=nel; j++) {
