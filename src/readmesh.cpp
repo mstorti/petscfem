@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: readmesh.cpp,v 1.110 2005/04/03 01:33:30 mstorti Exp $
+//$Id: readmesh.cpp,v 1.111 2005/05/01 18:38:35 mstorti Exp $
 #ifndef _GNU_SOURCE 
 #define _GNU_SOURCE 
 #endif
@@ -765,8 +765,8 @@ int read_mesh(Mesh *& mesh,char *fcase,Dofmap *& dofmap,
 
       PetscPrintf(PETSC_COMM_WORLD," -- Reading constraint section\n"); 
 #define ERRLINE								\
-      if (ierr) {							\
-         PetscPrintf(PETSC_COMM_WORLD,"Error reading line \"%s\"",	\
+      if (ierr==-1) {							\
+         PetscPrintf(PETSC_COMM_WORLD,"Error reading line:\n\"%s\"\n",	\
 		     astr_chars(linecopy));				\
          CHKERRQ(1);							\
       }
@@ -777,6 +777,7 @@ int read_mesh(Mesh *& mesh,char *fcase,Dofmap *& dofmap,
       while (1) {
 	
 	ierr = fstack->get_line(line);
+	astr_copy_s(linecopy, line);
 	PETSCFEM_ASSERT0(ierr==0,"Can't find __END_CONSTRAINT__ tag");  
 	if (strstr(line,"__END_CONSTRAINT__")) break;
 	nconstr++;
@@ -790,7 +791,8 @@ if (!(bool_cond)) { PetscPrintf(PETSC_COMM_WORLD, 				\
 				"PETSc-FEM warning: " templ,__VA_ARGS__);}
 
 	while (1) { 
-	  ierr = readval(rflag,line,coef); if(ierr) break;
+	  ierr = readval(rflag,line,coef); ERRLINE;
+	  if (!ierr) break;
 	  ierr = readval(rflag,line,node); ERRLINE;
 	  ierr = readval(rflag,line,field); ERRLINE;
 	  PETSCFEM_ASSERT(node<=nnod,"read_mesh: "

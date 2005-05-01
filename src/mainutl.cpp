@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: mainutl.cpp,v 1.22 2005/02/20 16:55:37 mstorti Exp $
+//$Id: mainutl.cpp,v 1.23 2005/05/01 18:38:35 mstorti Exp $
  
 #include "fem.h"
 #include "utils.h"
@@ -15,24 +15,29 @@ extern int MY_RANK,SIZE;
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 #undef __FUNC__
 #define __FUNC__ "readval(int&,char *,double&)"
+// Returns the number of nodes it could read.
+// If there is a token, but it couldn't be converted
+// to a double, then returns an error (-1). 
 int readval(int &rflag,char *line,double &val) {
   static char *bsp=" \t";
   char *token;
   token = strtok((rflag==0 ? rflag=1,line : NULL),bsp);
-  if (token==NULL) return 1;
+  if (token==NULL) return 0;
   int nread = sscanf(token,"%lf",&val);
-  return nread!=1;
+  return (nread==1 ? 1 : -1);
 }
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 #undef __FUNC__
 #define __FUNC__ "readval(int&,char *,int&)"
+// Same as for `readval(...double)'
 int readval(int &rflag,char *line,int &val) {
   static char *bsp=" \t";
   char *token;
   token = strtok((rflag==0 ? rflag=1,line : NULL),bsp);
+  if (token==NULL) return 0;
   int nread = sscanf(token,"%d",&val);
-  return nread!=1;
+  return (nread==1 ? 1 : -1);
 }
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
