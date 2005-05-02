@@ -4307,3 +4307,6 @@ tag: beta-3.45.36 on Mon, 25 Apr 2005 00:04:00 -0300 by mstorti in spider
 tag: beta-3.45.37 on Sun, 01 May 2005 15:38:42 -0300 by mstorti in spider
      > Fixed bug in reading constraints. 
      > Now gives error if find a token that can't be read. 
+----------
+tag: beta-3.45.38 on Sun, 01 May 2005 21:37:31 -0300 by mstorti in spider
+     > Runs all tests except two in `test/aquifer'. 
