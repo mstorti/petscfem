@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: diff.cpp,v 1.9 2003/09/14 00:23:19 mstorti Exp $
+//$Id: diff.cpp,v 1.10 2005/05/02 23:56:09 mstorti Exp $
 extern int comp_mat_each_time_step_g,
   consistent_supg_matrix_g,
   local_time_step_g;
@@ -240,7 +240,7 @@ void Diff::new_assemble(arg_data_list &arg_data_v,const Nodedata *nodedata,
 	tmp10.set(G_source);	// tmp10 = G - dUdt
 	if (!lumped_mass) tmp10.rest(dUdt);
 
-	diff_ff->comp_N_Cp_N(N_Cp_N,SHAPE,wpgdet*rec_Dt);
+	diff_ff->comp_N_Cp_N(N_Cp_N,SHAPE,wpgdet*rec_Dt/alpha);
 	if (lumped_mass) {
 	  matlocf_mass.add(N_Cp_N);
 	} else {
@@ -254,7 +254,7 @@ void Diff::new_assemble(arg_data_list &arg_data_v,const Nodedata *nodedata,
 	veccontr.axpy(tmp8,wpgdet);
 
 	diff_ff->comp_grad_N_D_grad_N(grad_N_D_grad_N,
-				      dshapex,wpgdet*alpha);
+				      dshapex,wpgdet);
 	matlocf.add(grad_N_D_grad_N);
 
       } else {

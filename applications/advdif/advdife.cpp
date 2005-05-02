@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: advdife.cpp,v 1.103 2005/03/29 01:48:02 mstorti Exp $
+//$Id: advdife.cpp,v 1.104 2005/05/02 23:56:09 mstorti Exp $
 extern int comp_mat_each_time_step_g,
   consistent_supg_matrix_g,
   local_time_step_g;
@@ -732,7 +732,9 @@ void NewAdvDif::new_assemble(arg_data_list &arg_data_v,const Nodedata *nodedata,
 
 	// MODIF BETO 8/6
 	if (!lumped_mass) {
-	  adv_diff_ff->enthalpy_fun->comp_W_Cp_N(N_Cp_N,SHAPE,SHAPE,wpgdet*rec_Dt_m);
+	  adv_diff_ff->enthalpy_fun
+	    ->comp_W_Cp_N(N_Cp_N,SHAPE,SHAPE,
+			  wpgdet*rec_Dt_m);
 	  matlocf.add(N_Cp_N);
 	}
 
