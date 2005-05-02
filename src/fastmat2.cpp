@@ -1,5 +1,5 @@
 ///__INSERT_LICENSE__
-//$Id: fastmat2.cpp,v 1.19 2005/03/23 01:47:47 mstorti Exp $
+//$Id: fastmat2.cpp,v 1.20 2005/05/02 00:35:12 mstorti Exp $
 
 #include <cmath>
 #include <cstdio>
@@ -446,10 +446,11 @@ FastMat2 & FastMat2::is(const int index,const int start,const int finish,
   }
   int dim_= dims[index-1].dim;
   int f_ = (finish>0? finish : finish<0 ? dim_ : start);
-  for (int jj=start; (step>0 ? jj<=f_ : jj>=f_) ; jj+=step) 
+  for (int jj=start; (step>0 ? jj<=f_ : jj>=f_) ; jj+=step) {
     // Store 0 based indices 
-    if (jj<=dim_)
-      dims[index-1].push_back(jj-1);
+    assert(jj>=1 && jj<=dim_);
+    dims[index-1].push_back(jj-1);
+  }
   return *this;
 }
 

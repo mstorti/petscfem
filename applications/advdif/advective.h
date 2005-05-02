@@ -1,6 +1,6 @@
 // -*- mode: c++ -*-
 /*__INSERT_LICENSE__*/
-//$Id: advective.h,v 1.75 2005/03/29 01:48:02 mstorti Exp $
+//$Id: advective.h,v 1.76 2005/05/02 00:36:49 mstorti Exp $
  
 //#define CHECK_JAC // Computes also the FD Jacobian for debugging
  
@@ -13,28 +13,34 @@
 #define AJAC(jd) (*A_jac[(jd)-1])
 
 /// Standard arguments for the typical flux function. Newmat version. 
-#define FLUX_FUN_ARGS const RowVector &U,int ndim,const Matrix &iJaco,		\
-	      Matrix &H, Matrix &grad_H,					\
-	      Matrix &flux,vector<Matrix *> A_jac,				\
-	      Matrix &A_grad_U, Matrix &grad_U,					\
-	      Matrix &G_source,Matrix &tau_supg, double &delta_sc,		\
-	      double &lam_max,							\
-	      TextHashTable *thash,						\
-              Matrix &nor,Matrix &lambda,Matrix &Vr,Matrix &Vr_inv,		\
-              double *propel,							\
-	      void *user_data,int options, int &start_chunk, int & ret_options
+#define FLUX_FUN_ARGS const RowVector &U,		\
+              int ndim,const Matrix &iJaco,		\
+	      Matrix &H, Matrix &grad_H,		\
+	      Matrix &flux,vector<Matrix *> A_jac,	\
+	      Matrix &A_grad_U, Matrix &grad_U,		\
+	      Matrix &G_source,Matrix &tau_supg, 	\
+              double &delta_sc,				\
+	      double &lam_max,				\
+	      TextHashTable *thash,			\
+              Matrix &nor,Matrix &lambda,		\
+              Matrix &Vr,Matrix &Vr_inv,		\
+              double *propel,				\
+	      void *user_data,int options, 		\
+              int &start_chunk, int & ret_options
 
-#define FLUX_FUN_ARGS_GENER(ML_) const ML_ &U,			\
-              int ndim,const ML_ &iJaco,			\
-	      ML_ &H, ML_ &grad_H,				\
-	      ML_ &flux,vector<ML_ *> A_jac,			\
-	      ML_ &A_grad_U, ML_ &grad_U,			\
-	      ML_ &G_source,ML_ &tau_supg, double &delta_sc,	\
-	      double &lam_max,					\
-	      TextHashTable *thash,				\
-              ML_ &nor,ML_ &lambda,ML_ &Vr,ML_ &Vr_inv,		\
-              double *propel,					\
-	      void *user_data,int options,			\
+#define FLUX_FUN_ARGS_GENER(ML_) const ML_ &U,		\
+              int ndim,const ML_ &iJaco,		\
+	      ML_ &H, ML_ &grad_H,			\
+	      ML_ &flux,vector<ML_ *> A_jac,		\
+	      ML_ &A_grad_U, ML_ &grad_U,		\
+	      ML_ &G_source,ML_ &tau_supg,		\
+	      double &delta_sc,				\
+	      double &lam_max,				\
+	      TextHashTable *thash,			\
+              ML_ &nor,ML_ &lambda,			\
+	      ML_ &Vr,ML_ &Vr_inv,			\
+              double *propel,				\
+	      void *user_data,int options,		\
               int &start_chunk, int & ret_options
 
 #define AD_FLUX_FUN_ARGS const  FastMat2  &U,					\

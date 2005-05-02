@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: aquifer.cpp,v 1.17 2003/11/25 02:10:22 mstorti Exp $
+//$Id: aquifer.cpp,v 1.18 2005/05/02 00:36:49 mstorti Exp $
 
 #include <src/fem.h>
 #include <src/texthash.h>
@@ -55,21 +55,27 @@ void aquifer_ff::end_chunk() {
 }  
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
-void aquifer_ff::element_hook(ElementIterator &element) {
+void aquifer_ff::
+element_hook(ElementIterator &element) {
   S = elemset->prop_val(element,S_pr);
   K = elemset->prop_val(element,K_pr);
   element_m = element;
 }
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
-void aquifer_ff::gp_hook(int ipg,const FastMat2 &U,const FastMat2 &grad_U) {
-  rain = elemset->prop_val(element_m,rain_pr,elemset->time());
+void aquifer_ff::
+gp_hook(int ipg,const FastMat2 &U,
+	const FastMat2 &grad_U) {
+  rain = 
+    elemset->prop_val(element_m,
+		      rain_pr,elemset->time());
 }  
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
-void aquifer_ff::compute_flux(const FastMat2 &U,const FastMat2
-			      &grad_U,FastMat2 &fluxd,FastMat2 &G,
-			      FastMat2 &H, FastMat2 &grad_H) {
+void aquifer_ff::
+compute_flux(const FastMat2 &U,const FastMat2
+	     &grad_U,FastMat2 &fluxd,FastMat2 &G,
+	     FastMat2 &H, FastMat2 &grad_H) {
   eta = H.get(1);
   phi = U.get(aquifer_phi_dof);
   ///  phi = U.get(1);
@@ -83,8 +89,9 @@ void aquifer_ff::compute_flux(const FastMat2 &U,const FastMat2
 }
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
-void aquifer_ff::comp_grad_N_D_grad_N(FastMat2 &grad_N_D_grad_N,
-		       FastMat2 & dshapex,double w) {
+void aquifer_ff::
+comp_grad_N_D_grad_N(FastMat2 &grad_N_D_grad_N,
+		     FastMat2 & dshapex,double w) {
   tmp.set(dshapex).scale(w*K*(phi-eta));
   int d = aquifer_phi_dof;
   grad_N_D_grad_N.set(0.).ir(2,d).ir(4,d);
@@ -93,12 +100,15 @@ void aquifer_ff::comp_grad_N_D_grad_N(FastMat2 &grad_N_D_grad_N,
 }
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
-void aquifer_ff::enthalpy(FastMat2 &H, FastMat2 &U) {
+void aquifer_ff::
+enthalpy(FastMat2 &H, FastMat2 &U) {
   H.set(U).scale(S*(phi-eta));
 }
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
-void aquifer_ff::comp_N_Cp_N(FastMat2 &N_Cp_N,FastMat2 &N, double w) {
+void aquifer_ff::
+comp_N_Cp_N(FastMat2 &N_Cp_N,
+	    FastMat2 &N, double w) {
   tmp2.set(N).scale(S*(phi-eta)*w);
   tmp3.prod(N,tmp2,1,2);
   int d = aquifer_phi_dof;
