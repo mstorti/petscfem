@@ -4332,3 +4332,6 @@ tag: beta-3.46 on Mon, 02 May 2005 21:54:38 -0300 by mstorti in spider
      > Fixed cache manipulation in the ExtProgImport DX module. 
      > Fixed bug in reading constraints. 
      > Now gives error if find a token that can't be read. 
+----------
+tag: beta-3.46.1 on Mon, 02 May 2005 22:07:25 -0300 by mstorti in spider
+     > Administrative tag
