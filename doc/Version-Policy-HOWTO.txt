@@ -1,17 +1,7 @@
-$Id: Version-Policy-HOWTO.txt,v 1.13 2005/05/02 23:58:56 mstorti Exp $
+$Id: Version-Policy-HOWTO.txt,v 1.14 2005/05/03 00:49:26 mstorti Exp $
 
-(progn
-(defun do-replace(from to)
-       (interactive)
-       (goto-char (point-min))
-       (search-forward-regexp "^__MARKER__")
-       (replace-string from to nil (point) (point-max)))
-(do-replace "3.45" "3.47")
-(do-replace "3-45" "3-47")
-(do-replace "3.44" "3.46")
-(do-replace "3-44" "3-46")
-(do-replace "3.43" "3.45")
-(do-replace "3.42" "3.44"))
+;;; usage (do-all-replace major new-unstable)
+(do-all-replace 3 49)
 __MARKER__
 
 These are the steps for saving a new stable version of PETSc-FEM. The
