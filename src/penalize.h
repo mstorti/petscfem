@@ -1,6 +1,6 @@
 // -*- mode: c++ -*-
 //__INSERT_LICENSE__
-// $Id: penalize.h,v 1.11 2005/04/10 08:04:02 mstorti Exp $
+// $Id: penalize.h,v 1.12 2005/05/03 12:57:26 mstorti Exp $
 #ifndef PETSCFEM_PENALIZE_H
 #define PETSCFEM_PENALIZE_H
 
@@ -145,7 +145,7 @@ class DLBaseRestriction {
 public:
   virtual 
   int init(int nel,int ndof_a,
-	   TextHashTable *thash,const char *name) { }
+	   TextHashTable *thash,const char *name) { return 0; }
   virtual
   void res(int k,FastMat2 &U,FastMat2 & r,
 	   FastMat2 & w,FastMat2 & jac)=0;
