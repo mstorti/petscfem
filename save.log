@@ -4314,7 +4314,7 @@ tag: beta-3.45.38 on Sun, 01 May 2005 21:37:31 -0300 by mstorti in spider
 tag: beta-3.45.39 on Mon, 02 May 2005 20:56:29 -0300 by mstorti in spider
      > Fixed `alpha' error in `diff.cpp'. 
 ----------
-tag: beta-3.47 on Mon, 02 May 2005 21:54:38 -0300 by mstorti in spider
+tag: beta-3.46 on Mon, 02 May 2005 21:54:38 -0300 by mstorti in spider
      > -- STABLE VERSION -- 
      > Periodic duct with sliding aperture. 
      > Periodic `cond_wall' elemset. 
