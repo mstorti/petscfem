@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: util2.cpp,v 1.19 2005/04/25 03:03:53 mstorti Exp $
+//$Id: util2.cpp,v 1.19.2.1 2005/05/03 12:52:05 mstorti Exp $
   
 #include <stdio.h>
 #include <cassert>
@@ -19,6 +19,8 @@ extern "C" {
 #include <matrix.h>
 #include <matrix2.h>
 }
+// Defined in Meschach matrix.h!!
+#undef catch
 
 #include "texthash.h"
 #include "fstack.h"
