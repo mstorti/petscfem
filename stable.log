@@ -572,3 +572,21 @@ tag: beta-3.44 on Wed Mar  9 07:52:05 GMT+3 2005, by mstorti in spider
 ----------
 tag: beta-3.45.9 on Mon Mar 28 22:50:19 GMT+3 2005, by mstorti in spider
      > Final merge from `bubbly10-branch'
+----------
+tag: beta-3.47 on Mon May  2 21:54:38 GMT+3 2005, by mstorti in spider
+     > Periodic duct with sliding aperture. 
+     > Periodic `cond_wall' elemset. 
+     > Merged from (bubbly9--0-0-1)-(bubbly9-branch). 
+     > Fixing a bug in the implementation of `comp_grad_N_dDdU_N'. 
+     > Final merge from `bubbly10-branch'
+     > Running `cond_wall' with moving surfaces. 
+     > Runs example with sliding blade. 
+     > `mov_wall' hook and `cond_wall' elemset dialog via a 
+     > global map with a keyword. 
+     > Implemented `Penalize' elemset, similar to `LagrangeMult'. 
+     > Implemented DL generic restriction. 
+     > Fixed error in `BasicObject' initialization. 
+     > Implemented Fractional Step, `cond_wall' elemset. 
+     > Fixed cache manipulation in the ExtProgImport DX module. 
+     > Fixed bug in reading constraints. 
+     > Now gives error if find a token that can't be read. 

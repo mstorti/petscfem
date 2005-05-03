@@ -4313,3 +4313,22 @@ tag: beta-3.45.38 on Sun, 01 May 2005 21:37:31 -0300 by mstorti in spider
 ----------
 tag: beta-3.45.39 on Mon, 02 May 2005 20:56:29 -0300 by mstorti in spider
      > Fixed `alpha' error in `diff.cpp'. 
+----------
+tag: beta-3.47 on Mon, 02 May 2005 21:54:38 -0300 by mstorti in spider
+     > -- STABLE VERSION -- 
+     > Periodic duct with sliding aperture. 
+     > Periodic `cond_wall' elemset. 
+     > Merged from (bubbly9--0-0-1)-(bubbly9-branch). 
+     > Fixing a bug in the implementation of `comp_grad_N_dDdU_N'. 
+     > Final merge from `bubbly10-branch'
+     > Running `cond_wall' with moving surfaces. 
+     > Runs example with sliding blade. 
+     > `mov_wall' hook and `cond_wall' elemset dialog via a 
+     > global map with a keyword. 
+     > Implemented `Penalize' elemset, similar to `LagrangeMult'. 
+     > Implemented DL generic restriction. 
+     > Fixed error in `BasicObject' initialization. 
+     > Implemented Fractional Step, `cond_wall' elemset. 
+     > Fixed cache manipulation in the ExtProgImport DX module. 
+     > Fixed bug in reading constraints. 
+     > Now gives error if find a token that can't be read. 
