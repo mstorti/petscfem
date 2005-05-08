@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: nsitetlesfm2.cpp,v 1.69 2005/05/08 15:19:39 mstorti Exp $
+//$Id: nsitetlesc.cpp,v 1.1 2005/05/08 15:19:39 mstorti Exp $
 
 #include <src/fem.h>
 #include <src/utils.h>
@@ -21,8 +21,8 @@ extern TextHashTable *GLOBAL_OPTIONS;
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 #undef __FUNC__
-#define __FUNC__ "nsi_tet_les_fm2::assemble"
-int nsi_tet_les_fm2::
+#define __FUNC__ "nsi_tet_les_comp::assemble"
+int nsi_tet_les_comp::
 assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
 	 Dofmap *dofmap,const char *jobinfo,int myrank,
 	 int el_start,int el_last,int iter_mode,
@@ -195,6 +195,9 @@ assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
   
   //o Density
   TGETOPTDEF(thash,double,rho,1.);
+  //o Speed of sound
+  TGETOPTDEF(thash,double,sound_speed,0.);
+  double c2 = square(sound_speed);
   //o Type of element geometry to define Gauss Point data
   TGETOPTDEF_S(thash,string,geometry,cartesian2d);
   //GPdata gp_data(geom,ndim,nel,npg);
@@ -202,7 +205,7 @@ assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
 
   // Definiciones para descargar el lazo interno
   double detJaco, UU, u2, Peclet, psi, tau_supg, tau_pspg, div_u_star,
-    p_star,wpgdet,velmod,tol,h_supg,fz,delta_supg,Uh;
+    p_star,p,wpgdet,velmod,tol,h_supg,fz,delta_supg,Uh;
 
   FastMat2 P_supg, W_supg, W_supg_t, dmatw,
     grad_div_u(4,nel,ndim,nel,ndim),P_pspg(2,ndim,nel),dshapex(2,ndim,nel);
@@ -220,7 +223,7 @@ assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
     ucols_star,pcol_star,pcol_new,pcol,fm_p_star,tmp1,tmp2,tmp3,tmp4,tmp5,tmp6,
     massm,tmp7,tmp8,tmp9,tmp10,tmp11,tmp13,tmp14,tmp15,dshapex_c,xc,
     wall_coords(ndim),dist_to_wall,tmp16,tmp162,tmp17,tmp18,tmp19;
-  FastMat2 tmp20(2,nel,nel),tmp21;
+  FastMat2 tmp20(2,nel,nel),tmp21,tmp30;
 
   double tmp12;
   double tsf = temporal_stability_factor;
@@ -436,8 +439,8 @@ assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
 
 	// state variables and gradient
 	u.prod(SHAPE,ucols,-1,-1,1);
-
 	p_star = double(tmp8.prod(SHAPE,pcol_star,-1,-1));
+	p = double(tmp8.prod(SHAPE,pcol,-1,-1));
 	u_star.prod(SHAPE,ucols_star,-1,-1,1);
 
 
@@ -545,7 +548,7 @@ assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
 	
 	delta_supg *= shock_capturing_factor;
 	
-	// P_supg es un vector fila
+	// P_supg is a vector
 	P_supg.prod(u,dshapex,-1,-1,1).scale(tau_supg);
 
 	// Weight function 
@@ -592,6 +595,11 @@ assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
 
 	// Galerkin - continuity
 	rescont.axpy(SHAPE,wpgdet*div_u_star);
+	if (sound_speed) {
+	  double dmat_p = (p_star-p)*rec_Dt/alpha+ 
+	    double(tmp30.prod(u_star,grad_p_star,-1,-1));
+	  rescont.axpy(SHAPE,+wpgdet*dmat_p/c2);
+	}
 
 	// PSPG perturbation - continuity
 	tmp5.prod(P_pspg,tmp3,-1,1,-1);
@@ -651,8 +659,14 @@ assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
 	  matlocf.ir(2,ndof).is(4,1,ndim);
 	  tmp17.prod(P_pspg,dmatw,3,1,2).scale(wpgdet);
 	  matlocf.rest(tmp17);
+	  // Continuity Galerkin
 	  tmp17.prod(dshapex,SHAPE,3,2,1).scale(wpgdet);
 	  matlocf.rest(tmp17).rs();
+	  if (sound_speed) {
+	    tmp20.prod(SHAPE,SHAPE,1,2);
+	    matlocf.rs().ir(2,ndof).ir(4,ndof);
+	    matlocf.axpy(tmp20,-rec_Dt/alpha*wpgdet/c2).rs();
+	  }
 
 	  matlocf.ir(2,ndof).ir(4,ndof).axpy(tmp13,-wpgdet).rs();
 

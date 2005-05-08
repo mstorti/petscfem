@@ -1,6 +1,6 @@
 // -*- mode: C++ -*-
 /*__INSERT_LICENSE__*/
-//$Id: nsi_tet.h,v 1.48 2003/12/04 12:21:04 mstorti Exp $
+//$Id: nsi_tet.h,v 1.49 2005/05/08 15:19:39 mstorti Exp $
 #ifndef PETSCFEM_NSI_TET_H  
 #define PETSCFEM_NSI_TET_H
 
@@ -37,6 +37,12 @@ public:
 
 //-------<*>-------<*>-------<*>-------<*>-------<*>------- 
 class nsi_tet_les_fm2 : public ns_volume_element { 
+public: 
+  ASSEMBLE_FUNCTION;
+};
+
+//-------<*>-------<*>-------<*>-------<*>-------<*>------- 
+class nsi_tet_les_comp : public ns_volume_element { 
 public: 
   ASSEMBLE_FUNCTION;
 };
