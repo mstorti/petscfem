@@ -1,4 +1,4 @@
-$Id: notes.txt,v 1.474 2005/05/11 00:00:05 mstorti Exp $
+$Id: notes.txt,v 1.475 2005/05/11 02:50:49 mstorti Exp $
 OK. This is mostly in spanish...  Sorry :-)
 ================================================================
 
@@ -2465,13 +2465,13 @@ diff -c /home/mstorti/PETSC/petsc-2.0.24/bmake/linux/base_variables.bck /home/ms
 --- /home/mstorti/PETSC/petsc-2.0.24/bmake/linux/base_variables	Sun Jan 14 14:51:45 2001
 ***************
 *** 1,4 ****
-! # $Id: notes.txt,v 1.474 2005/05/11 00:00:05 mstorti Exp $ 
+! # $Id: notes.txt,v 1.475 2005/05/11 02:50:49 mstorti Exp $ 
   #
   #     See the file bmake/base_variables.defs for a complete explanation of all these fields
   #
 --- 1,5 ----
 ! # -*- mode: makefile -*-
-! # $Id: notes.txt,v 1.474 2005/05/11 00:00:05 mstorti Exp $ 
+! # $Id: notes.txt,v 1.475 2005/05/11 02:50:49 mstorti Exp $ 
   #
   #     See the file bmake/base_variables.defs for a complete explanation of all these fields
   #
@@ -2562,7 +2562,7 @@ diff -c /home/mstorti/PETSC/petsc-2.0.24/bmake/linux/base_variables.bck2 /home/m
 *** 1,3 ****
 --- 1,4 ----
 + # -*- mode: makefile -*-
-  # $Id: notes.txt,v 1.474 2005/05/11 00:00:05 mstorti Exp $ 
+  # $Id: notes.txt,v 1.475 2005/05/11 02:50:49 mstorti Exp $ 
   #
   #     See the file bmake/base_variables.defs for a complete explanation of all these fields
 ***************
@@ -8156,7 +8156,7 @@ diff -u -r1.5 graphdv.cpp
 --- src/graphdv.cpp	2 Jul 2003 23:22:19 -0000	1.5
 +++ src/graphdv.cpp	20 Oct 2004 08:59:14 -0000
 @@ -2,6 +2,7 @@
- //$Id: notes.txt,v 1.474 2005/05/11 00:00:05 mstorti Exp $
+ //$Id: notes.txt,v 1.475 2005/05/11 02:50:49 mstorti Exp $
  
  #include <src/graphdv.h>
 +#include <cassert>
@@ -8229,7 +8229,7 @@ diff -u -r1.12 util3.cpp
 --- src/util3.cpp	14 Sep 2003 00:23:22 -0000	1.12
 +++ src/util3.cpp	20 Oct 2004 09:09:51 -0000
 @@ -2,6 +2,7 @@
- // $Id: notes.txt,v 1.474 2005/05/11 00:00:05 mstorti Exp $
+ // $Id: notes.txt,v 1.475 2005/05/11 02:50:49 mstorti Exp $
  #include <cstring>
  #include <cstdio>
 +#include <cassert>
@@ -9181,7 +9181,37 @@ periodo. De esa forma con alpha=1 la onda se amortigua un
 
 %=== Tue May 10 20:56:52 2005 mstorti@spider
 %
-20:56:52: 
+20:56:52: Logro una situacion en la que se forma un gran
+chorro. En un estado inicial hasta que el chorro se estabiliza y
+despues forma inestabilidades tipo Kelvin-Helmholtz. Al comenzar, en
+el paso 35 se produce una gran diferencia en la conservatividad,
+acompanada de una inversion de 9 puntos (de 20) en la salida. Voy a
+probar como influye el paso de tiempo, la viscosidad, el nnwt, etc...
+VERSION: cases-0.1.8. 
+%
+21:14:28: Lo corro con Dt=0.01 (antes estaba en Dt=0.02). La
+conservatividad se mantiene en todo momento (qin=6,
+|qout-qin|<0.015). El caudal a la salida se comporta bastante
+oscilatorio. Como el patron periodico de vorticidad que se desprende.
+%
+21:47:14: El patro parece mantenerse indefinidamente. Ahora voy a
+probar con Dt=0.04. 
+%
+21:54:13: Curiosamente con Dt=0.04 anda bien. El caudal a la salida
+oscila un poco y despues se estabiliza en 6.02. Voy a probar con
+Dt=0.1. Hice 198 pasos. 
+%
+21:56:44: Con Dt=0.01 tampoco tiene problemas, pero en el paso 6 o 7 se
+manda una excursion que el caudal a la salida baja a menos de 5.8. El
+caudal a la salida se estabiliza en 6.02. 
+%
+22:33:21: Con Dt=0.015 el |Qout-Qin| oscila mucho con excursiones de
+hasta 0.06, y despues se estabiliza en 0.02.
+%
+22:37:04: Con Dt=0.025 el Qout llega hasta 270, 165,-3 y despues se
+estaciona limpiamente en 6. Se pega despues unas excursiones tambien
+que van hasta valores de 10. El Qout tiende a 6.02. 
+
 
 
 # Current line ===========  %
