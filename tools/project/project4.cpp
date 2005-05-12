@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-// $Id: project4.cpp,v 1.6 2005/04/28 21:14:11 mstorti Exp $
+// $Id: project4.cpp,v 1.7 2005/05/12 21:34:15 mstorti Exp $
 
 #include <cstdio>
 #include <src/fastmat2.h>
@@ -72,13 +72,21 @@ int main() {
 #define XNOD2  "./mesh3.nod"
 #endif
 
-#if 1
+#if 0
 #define DATA_DIR "/u/mstorti/PETSC/COMP-CORNER/euler-mach-10-run2"
 #define XNOD1  DATA_DIR "/comp_corner_Ma_10_Euler.nod.tmp"
   // #define ICONE1 DATA_DIR "/comp_corner_Ma_10_Euler.con.tmp"
 #define ICONE1 DATA_DIR "/comp-corner-tri.con.tmp"
 #define STATE1 DATA_DIR "/comp_corner_Ma_10_Euler.state.tmp"
 #define XNOD2  DATA_DIR "/test-points.dat"
+#endif
+
+#if 1
+#define DATA_DIR "/u/mstorti/PETSC/COMP-CORNER/viscous"
+#define XNOD1  DATA_DIR "/comp_corner_Ma_5_low_Rey_ref_3.nod.tmp"
+#define ICONE1 DATA_DIR "/comp_corner_Ma_5_low_Rey_ref_3.con-tri.tmp"
+#define STATE1 DATA_DIR "/comp_corner_Ma_5_low_Rey_ref_3.state.tmp"
+#define XNOD2  DATA_DIR "/xtest.dat"
 #endif
 
   int ndim = 2;
