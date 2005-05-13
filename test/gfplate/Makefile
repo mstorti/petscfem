@@ -1,4 +1,4 @@
-# $Id: Makefile,v 1.70 2005/05/01 18:37:05 mstorti Exp $ 
+# $Id: Makefile,v 1.71 2005/05/13 21:33:06 mstorti Exp $ 
 
 .PHONY: force all run tests default strip gasflow nozzle  vtubei
 
@@ -12,7 +12,7 @@ include $(PETSCFEM_DIR)/Makefile.base
 include $(PETSCFEM_DIR)/test/Makefile.base.test
 
 ifeq ($(CASE_NAME),) 
-CASE_NAME := gfshock
+CASE_NAME := gftuyere
 endif
 LOC_PROG := advdif
 ifeq ($(PROG),)
