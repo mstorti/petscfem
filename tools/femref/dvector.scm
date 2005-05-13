@@ -1,5 +1,6 @@
-;;; $Id: dvector.scm,v 1.6 2005/03/03 02:20:56 mstorti Exp $
+;;; $Id: dvector.scm,v 1.7 2005/05/13 02:50:51 mstorti Exp $
 (define-module (dvector))
+(use-modules (oop goops))
 
 (load-extension 
  (search-path %load-path "libfemref.so") 
@@ -16,7 +17,7 @@
 	   (apply dvdbl-reshape! v shape))
 	  (#t (loop (* size (car q)) (cdr q))))))
 	   
-(define (dvdbl-set-with-filler! v filler)
+(define-public (dvdbl-set-with-filler! v filler)
   (let ((shape (dvdbl-shape v)))
     (let loop ((q shape)
 	       (indx '()))

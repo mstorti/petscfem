@@ -36,8 +36,7 @@ yuv_compress:
 project-wrp.x: project-wrp.cpp
 
 libproject.so: project.o project-wrp.o
-	${CXX_CLINKER} -g -shared				\
-
+	${CXX_CLINKER} -g -shared \
 		-o $@ $^ `guile-config link` $(LDFLAGS_NO_PROG_LIB)
 
 fluent.dx: fluent-in.dx
