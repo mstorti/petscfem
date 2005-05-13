@@ -1,6 +1,9 @@
 (use-modules (oop goops))
 (use-modules (ice-9 format))
 
+;;; The generic function print in base class
+;;; uses the functions of the derived A and B.
+
 (define-class super ())
 (define-method (print (s super) v) 
   (let loop ((q v))
@@ -18,9 +21,6 @@
 
 (define a (make A))
 (define b (make B))
-
-(meth a)
-(meth b)
 
 (print a '(1 2 3 4 5))
 (print b '(1 2 3 4 5))
