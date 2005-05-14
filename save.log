@@ -4344,3 +4344,6 @@ tag: beta-3.47.3 on Sat, 14 May 2005 13:37:28 -0300 by mstorti in spider
 ----------
 tag: beta-3.47.4 on Sat, 14 May 2005 15:50:19 -0300 by mstorti in spider
      > Writing `dvector2.scm'. 
+----------
+tag: beta-3.47.5 on Sat, 14 May 2005 18:34:10 -0300 by mstorti in spider
+     > Writing `dvector2.scm'. Ported many generic functions. 
