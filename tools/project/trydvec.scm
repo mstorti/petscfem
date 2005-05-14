@@ -34,5 +34,12 @@
 (dv-dump-v)
 
 (dv-set! v (lambda (indx) (cadr indx)))
-(dv-dump-v)
 
+(define w (make <dvdbl>))
+(format #t "v size ~A\n" (dv-size v))
+(format #t "w size ~A\n" (dv-size w))
+
+(dv-clone! w v)
+
+(dv-slice-range! w v '(1 1 5 2))
+(dv-dump-v)
