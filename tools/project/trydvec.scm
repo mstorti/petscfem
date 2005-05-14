@@ -7,18 +7,17 @@
 (use-modules (dvector))
 
 (define v (make <dvdbl>))
-(dv-resize! v 2 3)
+(dv-resize! v 5 4)
+(define (dv-dump-v) (dv-dump v) (newline))
+(dv-dump-v)
 
-(dv-dump v)
-
-(dv-set-with-filler! v 
-;  (lambda (j k) (+ (* 1000 j) k))
+(dv-set! v 
   (lambda (indx)
     (let loop ((q indx)
 	       (x 0))
       (cond ((null? q) x)
 	    (else (loop (cdr q) (+ (* x 100) (car q))))))))
-(dv-dump v)
+(dv-dump-v)
 
 (dv-set! v
   (lambda (indx)
@@ -26,8 +25,14 @@
 	       (x 0))
       (cond ((null? q) x)
 	    (else (loop (cdr q) (+ (* x 1000) (car q))))))))
-(dv-dump v)
+(dv-dump-v)
 
 (dv-set! v 7)
-(dv-dump v)
+(dv-dump-v)
+
+(dv-set! v (lambda (indx) (car indx)))
+(dv-dump-v)
+
+(dv-set! v (lambda (indx) (cadr indx)))
+(dv-dump-v)
 
