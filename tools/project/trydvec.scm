@@ -8,6 +8,7 @@
 
 (define v (make <dvdbl>))
 (dv-resize! v 2 3)
+#!
 
 (dv-dump v)
 ;;(dvdbl-dump (vec v))
@@ -16,3 +17,4 @@
   `(string->symbol (string-append "<" (symbol->string ,type) ">")))
 
 (format #t "result ~A\n" (dv-class 'dvdbl))
+!#
