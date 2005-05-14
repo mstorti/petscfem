@@ -6,14 +6,16 @@
 (load-from-path "while2")
 (use-modules (dvector2))
 
-dv-resize-w!
-
 (define v (make <dvdbl>))
 (dv-resize! v 2 3)
 
 (dv-dump v)
-#!
-;;(dvdbl-dump (vec v))
 
-;(format #t "result ~A\n" (dv-class 'dvdbl))
-!#
+(dv-set-with-filler! v 
+;  (lambda (j k) (+ (* 1000 j) k))
+  (lambda (indx)
+    (let loop ((q indx)
+	       (x 0))
+      (cond ((null? q) x)
+	    (else (loop (cdr q) (+ (* x 100) (car q))))))))
+(dv-dump v)
