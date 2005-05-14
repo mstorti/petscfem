@@ -1,6 +1,8 @@
 (use-modules (oop goops))
 (use-modules (ice-9 format))
 
+;;; Example of use of classes
+
 (define-class A ())
 (define-method (meth (a A)) (format #t "in meth A\n"))
 
