@@ -1,4 +1,4 @@
-;;; $Id: dvector2.scm,v 1.2 2005/05/14 16:36:33 mstorti Exp $
+;;; $Id: dvector2.scm,v 1.3 2005/05/14 18:44:54 mstorti Exp $
 (define-module (dvector2))
 (use-modules (oop goops))
 
@@ -37,8 +37,9 @@
      (apply ,(dvtype-fun type fun) (vec v) rest)))
 
 (define-macro (dv-method fun)
-  `(dv-method1 dvdbl ,fun)
-  `(dv-method1 dvint ,fun))
+  `(begin 
+     (dv-method1 dvdbl ,fun)
+     (dv-method1 dvint ,fun)))
 
 ; (define-macro (dv-method fun)
 ;   `(dv-method1 dvdbl ,fun)
@@ -49,7 +50,13 @@
   (v #:init-value (make-dvdbl)
      #:accessor vec))
 
+;(dv-method resize-w!)
+
+; (define-method (dv-resize-w! (v <dvdbl>) . rest)
+;   (apply dvdbl-resize-w! (vec v) rest))
 (dv-method resize-w!)
+
+
 (dv-method clone!)
 (dv-method push!)
 (dv-method size)
@@ -75,4 +82,4 @@
 (export dv-cat!)
 (export dv-dump)
 
-(export <dvector> <dvdbl> vec)
+(export <dvector> <dvdbl> vec dv-resize!)
