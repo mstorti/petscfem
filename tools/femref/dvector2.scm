@@ -1,4 +1,4 @@
-;;; $Id: dvector2.scm,v 1.3 2005/05/14 18:44:54 mstorti Exp $
+;;; $Id: dvector2.scm,v 1.4 2005/05/14 18:50:08 mstorti Exp $
 (define-module (dvector2))
 (use-modules (oop goops))
 
@@ -39,24 +39,14 @@
 (define-macro (dv-method fun)
   `(begin 
      (dv-method1 dvdbl ,fun)
-     (dv-method1 dvint ,fun)))
-
-; (define-macro (dv-method fun)
-;   `(dv-method1 dvdbl ,fun)
-;   `(dv-method1 dvint ,fun)
-;   `(export ,(dv-fun fun)))
+     (dv-method1 dvint ,fun)
+     (export ,(dv-fun fun))))
 
 (define-class <dvdbl> (<dvector>)
   (v #:init-value (make-dvdbl)
      #:accessor vec))
 
-;(dv-method resize-w!)
-
-; (define-method (dv-resize-w! (v <dvdbl>) . rest)
-;   (apply dvdbl-resize-w! (vec v) rest))
 (dv-method resize-w!)
-
-
 (dv-method clone!)
 (dv-method push!)
 (dv-method size)
@@ -69,17 +59,17 @@
 (dv-method cat!)
 (dv-method dump)
 
-(export dv-resize-w!)
-(export dv-clone!)
-(export dv-push!)
-(export dv-size)
-(export dv-reshape!)
-(export dv-shape)
-(export dv-set-w1)
-(export dv-set-w2)
-(export dv-ref)
-(export dv-read!)
-(export dv-cat!)
-(export dv-dump)
+; (export dv-resize-w!)
+; (export dv-clone!)
+; (export dv-push!)
+; (export dv-size)
+; (export dv-reshape!)
+; (export dv-shape)
+; (export dv-set-w1)
+; (export dv-set-w2)
+; (export dv-ref)
+; (export dv-read!)
+; (export dv-cat!)
+; (export dv-dump)
 
 (export <dvector> <dvdbl> vec dv-resize!)

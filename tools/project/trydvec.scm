@@ -6,15 +6,14 @@
 (load-from-path "while2")
 (use-modules (dvector2))
 
+dv-resize-w!
+
 (define v (make <dvdbl>))
 (dv-resize! v 2 3)
-#!
 
 (dv-dump v)
+#!
 ;;(dvdbl-dump (vec v))
 
-(define-macro (dv-class type)
-  `(string->symbol (string-append "<" (symbol->string ,type) ">")))
-
-(format #t "result ~A\n" (dv-class 'dvdbl))
+;(format #t "result ~A\n" (dv-class 'dvdbl))
 !#
