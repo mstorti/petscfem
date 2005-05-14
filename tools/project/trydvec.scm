@@ -4,7 +4,7 @@
 (use-modules (ice-9 format))
 (load-from-path "utils.scm")
 (load-from-path "while2")
-(use-modules (dvector2))
+(use-modules (dvector))
 
 (define v (make <dvdbl>))
 (dv-resize! v 2 3)
@@ -19,3 +19,15 @@
       (cond ((null? q) x)
 	    (else (loop (cdr q) (+ (* x 100) (car q))))))))
 (dv-dump v)
+
+(dv-set! v
+  (lambda (indx)
+    (let loop ((q indx)
+	       (x 0))
+      (cond ((null? q) x)
+	    (else (loop (cdr q) (+ (* x 1000) (car q))))))))
+(dv-dump v)
+
+(dv-set! v 7)
+(dv-dump v)
+
