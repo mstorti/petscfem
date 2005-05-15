@@ -1,4 +1,4 @@
-;;; $Id: dvector.scm,v 1.11 2005/05/15 16:22:00 mstorti Exp $
+;;; $Id: dvector.scm,v 1.12 2005/05/15 16:44:40 mstorti Exp $
 (define-module (dvector))
 (use-modules (oop goops))
 
@@ -102,34 +102,21 @@
       (dv-set-with-filler! v filler))))
 
 (define (dv-slice1! v w range)
-;   (format #t "v: \n")
-;   (dv-dump v)
-;   (format #t "\n")
-;   (format #t "w: \n")
-;   (dv-dump w)
-;   (format #t "\n")
-;   (format #t "v ~A, w ~A range ~A\n" v w range)
-  (format #t "dv-slice1!: v-shape ~A, w-shape ~A, range ~A\n" 
-	  (dv-shape v) (dv-shape w) range)
   (dv-slice-range! v w range))
 
 (define-public (dv-slice! v w . args)
   (cond ((null? args) (dv-clone! v w))
 	((= (length args) 1) (dv-slice1! v w (car args)))
 	(else 
-	 (format #t "length(args) ~A\n" (length args))
 	 (let ((vaux1 (make (class-of w)))
 	       (vaux2 (make (class-of w))))
 		(dv-slice1! vaux1 w (car args))
-		(dv-dump vaux1)
+;		(dv-dump vaux1)
 		(let loop ((q (cdr args))
 			   (v1 vaux1)
 			   (v2 vaux2))
 		  (cond ((= (length q) 1) 
-			 (format #t "ending...\n")
-			 (dv-slice1! v v1 (car q))
-			 (format #t "v: \n")
-			 (dv-dump v))
+			 (dv-slice1! v v1 (car q)))
 			(else (dv-slice1! v2 v1 (car q))
 			      (loop v1 v2 (cdr q)))))))))
 
@@ -153,11 +140,20 @@
 		  (set! result (fun (dv-ref v j) result)))
 		result)))))
 
+(define-public (dv-dump v . args)
+  (if (null? args) 
+      (dv-dump1 v)
+      (begin 
+	(if (= (length args) 1)
+	    (format #t "~A: \n" (car args))
+	    (apply format #t args))
+	(dv-dump1 v)
+	(newline))))
+
 (define (dv-max-aux v comp)
-  (dv-assoc v 
-	       (lambda (x y) 
-		 (cond ((comp x y) x) (#t y)))
-	       0))
+  (dv-assoc v (lambda (x y) 
+		(cond ((comp x y) x) (#t y)))
+	    0))
 
 (define-public (dv-max v . args)
   (cond ((null? args) (dv-max-aux v >))
@@ -210,17 +206,16 @@
 (define-method (initialize (v <dvint>) . args)
   (set! (vec v) (make-dvint)))
 
-(dv-method resize-w!)
-(dv-method set-w1)
-(dv-method set-w2)
-
-;(dv-method-exp clone!)
-
 (define-method (dv-clone! (v <dvdbl>) (w <dvdbl>))
   (dvdbl-clone! (vec v) (vec w)))
 
 (define-method (dv-clone! (v <dvint>) (w <dvint>))
   (dvint-clone! (vec v) (vec w)))
+
+(dv-method resize-w!)
+(dv-method set-w1)
+(dv-method set-w2)
+(dv-method dump1)
 
 (dv-method-exp push!)
 (dv-method-exp size)
@@ -229,7 +224,6 @@
 (dv-method-exp ref)
 (dv-method-exp read!)
 (dv-method-exp cat!)
-(dv-method-exp dump)
 
 (export <dvector> <dvdbl> vec 
 	dv-resize! dv-set! dv-slice-range! 

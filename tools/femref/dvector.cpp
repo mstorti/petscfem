@@ -292,7 +292,7 @@ DVECTOR_CAT_FUN(SCM s_w,SCM s_file) {
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 #undef __FUN__
-#define __FUN__ DVTYPE "-dump"
+#define __FUN__ DVTYPE "-dump1"
 static SCM
 DVECTOR_DUMP_FUN(SCM s_w,SCM s_file,SCM s_rowsz) {
   dvector_t *w;
@@ -439,7 +439,7 @@ INIT_DVECTOR_FUN(void) {
   scm_c_define_gsubr(DVTYPE "-ref", 2, 0, 0, scm_fun(DVECTOR_REF_FUN));
   scm_c_define_gsubr(DVTYPE "-read!", 2, 0, 0, scm_fun(DVECTOR_READ_FUN));
   scm_c_define_gsubr(DVTYPE "-cat!", 2, 0, 0, scm_fun(DVECTOR_CAT_FUN));
-  scm_c_define_gsubr(DVTYPE "-dump", 1, 2, 0, scm_fun(DVECTOR_DUMP_FUN));
+  scm_c_define_gsubr(DVTYPE "-dump1", 1, 2, 0, scm_fun(DVECTOR_DUMP_FUN));
 #ifndef SCM_MAGIC_SNARFER
 #if defined DV_DBL
 #include "./dvectord.x"

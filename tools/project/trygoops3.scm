@@ -26,3 +26,7 @@
 (define a2 (make <A>))
 
 (format #t "a1.l ~A, a2.l ~A\n" (l-part a1) (l-part a2))
+
+(define a3 (make (class-of a1)))
+(format #t "a3 ~A\n" a3)
+
