@@ -89,3 +89,15 @@
 (format #t "sum w4: ~A\n" (dv-assoc w4 (lambda(x y) (+ x y)) 0))
 (format #t "sum(|w4|): ~A\n" (dv-assoc w4 (lambda(x y) (+ (abs x) (abs y))) 0))
 
+
+(define (my-sum . args) 
+  (let ((n (length args)))
+    (cond ((= n 0) 0)
+	  ((= n 1) (apply + args)))))
+
+(set! w4 (make <dvdbl>))
+(format #t "sum w4 (empty): ~A\n" (dv-assoc w4 my-sum))
+
+(dv-resize! w4 1)
+(dv-set! w4 23)
+(format #t "sum w4 [23]: ~A\n" (dv-assoc w4 my-sum))
