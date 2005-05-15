@@ -84,6 +84,8 @@
 (dv-dump w3 "w3 <- (modulo x 10)")
 (set! w3 #f)
 
-(dv-apply! w4 (lambda(x) (quotient x 10)))
-(dv-dump w4 "w4 <- (quotient x 10)")
-(set! w4 #f)
+(dv-apply! w4 (lambda(x) (- (* 2 (random 10)) 10)))
+(dv-dump w4 "w4 <- random [-5 5]")
+(format #t "sum w4: ~A\n" (dv-assoc w4 (lambda(x y) (+ x y)) 0))
+(format #t "sum(|w4|): ~A\n" (dv-assoc w4 (lambda(x y) (+ (abs x) (abs y))) 0))
+

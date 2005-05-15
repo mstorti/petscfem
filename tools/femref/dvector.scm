@@ -1,4 +1,4 @@
-;;; $Id: dvector.scm,v 1.15 2005/05/15 20:25:38 mstorti Exp $
+;;; $Id: dvector.scm,v 1.16 2005/05/15 21:26:37 mstorti Exp $
 (define-module (dvector))
 (use-modules (oop goops))
 
@@ -148,31 +148,54 @@
 		   ((= (length q) 2) 
 		    (dv-slice1! v v1 (car q) (cadr q)))
 		   (else 
-		    (format #t "q ~A\n" q)
+;		    (format #t "q ~A\n" q)
 		    (dv-slice1! v2 v1 (car q) (cadr q))
 		    (loop v1 v2 (cddr q)))))))))
 
-;;; Applys a function to each element in `v'. 
+;;; Applys a function to each element in `v'.
+;;; Example: (dv-apply! v (lambda(x) (* 2 x)))
 (define-public (dv-apply! v fun)
   (let ((n (dv-size v)))
     (do ((j 0 (+ j 1))) ((= j n)) 
       (let ((w (dv-ref v j)))
 	(dv-set! v j (fun w))))))
 
+;;; Adds a fixed number to each element in `v'. 
+;;; Example: (dv-add! v 1.3)
 (define-public (dv-add! v alpha)
   (dv-apply! v (lambda (y) (+ alpha y))))
 
+;;; Fills with random numbers
 (define-public (dv-rand! v)
   (dv-apply! v (lambda (y) (random:uniform))))
 
-(define-public (dv-assoc v fun init)
-  (let ((n (dv-size v)))
-    (cond ((= n 0) init)
-	  (#t (let ((result (dv-ref v 0)))
-		(do ((j 1 (+ j 1))) ((= j n))
-		  (set! result (fun (dv-ref v j) result)))
-		result)))))
+;;; Associates all elements with function 
+;;; Example: (dv-assoc v (lambda(x y) (+ x y)))
+;;; If `v' can have less than 2 elements, then
+;;; `fun' must accept 0 and 1 arguments. 
+(define-public (dv-assoc v fun . args)
+  (cond ((not (null? args))
+	 (apply dv-assoc-nil v fun args))
+	(else
+	 (dv-assoc-non-nil v fun))))
 
+(define (dv-assoc-non-nil v fun)
+  (cond ((= n 0) (fun))
+	((= n 1) (fun (dv-ref v 0)))
+	(else
+	 (let ((n (dv-size v)))
+	   (let loop ((j 2)
+		      (result (fun (dv-ref v 0) (dv-ref v 1))))
+	     (cond ((= j n) result)
+		   (else (loop (+ j 1) (fun result (dv-ref v j))))))))))
+	    
+(define (dv-assoc-nil v fun knil)
+  (let ((n (dv-size v)))
+    (let loop ((j 0)
+	       (result knil))
+      (cond ((= j n) result)
+	    (else (loop (+ j 1) (fun result (dv-ref v j))))))))
+	    
 (define-public (dv-dump v . args)
   (if (null? args) 
       (dv-dump1 v)
