@@ -1,4 +1,4 @@
-;;; $Id: dvector.scm,v 1.16 2005/05/15 21:26:37 mstorti Exp $
+;;; $Id: dvector.scm,v 1.17 2005/05/15 21:33:58 mstorti Exp $
 (define-module (dvector))
 (use-modules (oop goops))
 
@@ -180,14 +180,15 @@
 	 (dv-assoc-non-nil v fun))))
 
 (define (dv-assoc-non-nil v fun)
-  (cond ((= n 0) (fun))
-	((= n 1) (fun (dv-ref v 0)))
-	(else
-	 (let ((n (dv-size v)))
-	   (let loop ((j 2)
-		      (result (fun (dv-ref v 0) (dv-ref v 1))))
-	     (cond ((= j n) result)
-		   (else (loop (+ j 1) (fun result (dv-ref v j))))))))))
+  (let ((n (dv-size v)))
+    (cond ((= n 0) (fun))
+	  ((= n 1) (fun (dv-ref v 0)))
+	  (else
+	   (let ((n (dv-size v)))
+	     (let loop ((j 2)
+			(result (fun (dv-ref v 0) (dv-ref v 1))))
+	       (cond ((= j n) result)
+		     (else (loop (+ j 1) (fun result (dv-ref v j)))))))))))
 	    
 (define (dv-assoc-nil v fun knil)
   (let ((n (dv-size v)))
