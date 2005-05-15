@@ -1,4 +1,4 @@
-;;; 
+;;; $Id: dvector.scm,v 1.19 2005/05/15 22:52:02 mstorti Exp $
 (define-module (dvector))
 (use-modules (oop goops))
 
@@ -9,7 +9,7 @@
  (search-path %load-path "libfemref.so") 
  "dvdbl_init")
 
-(define version "$Id: dvector.scm,v 1.18 2005/05/15 22:01:18 mstorti Exp $")
+(define dv-version "$Id: dvector.scm,v 1.19 2005/05/15 22:52:02 mstorti Exp $")
 
 ;;; We first define the base class <dvector>
 ;;; and then add some functions that operate
@@ -142,7 +142,6 @@
 	 (let ((vaux1 (make (class-of w)))
 	       (vaux2 (make (class-of w))))
 	   (dv-slice1! vaux1 w (car args) (cadr args))
-					;		(dv-dump vaux1)
 	   (let loop ((q (cddr args))
 		      (v1 vaux1)
 		      (v2 vaux2))
@@ -166,15 +165,6 @@
 ;;; Example: (dv-add! v 1.3)
 (define-public (dv-add! v alpha)
   (dv-apply! v (lambda (y) (+ alpha y))))
-
-;;; Fills with uniform random numbers
-(define-method (dv-rand! (v <dvdbl>))
-  (dv-apply! v (lambda (x) (random:uniform))))
-
-;;; Fills with uniform random numbers in the
-;;; range [0,n)
-(define-method (dv-rand! (v <dvint>) n)
-  (dv-apply! v (lambda (x) (random n))))
 
 ;;; Associates all elements with function 
 ;;; Example: (dv-assoc v (lambda(x y) (+ x y)))
@@ -276,6 +266,16 @@
 (define-method (dv-clone! (v <dvint>) (w <dvint>))
   (dvint-clone! (vec v) (vec w)))
 
+;;; Fills with uniform random numbers (uniform
+;;; distribution in [0,1])
+(define-method (dv-rand! (v <dvdbl>))
+  (dv-apply! v (lambda (x) (random:uniform))))
+
+;;; Fills with uniform random numbers in the
+;;; range [0,n)
+(define-method (dv-rand! (v <dvint>) n)
+  (dv-apply! v (lambda (x) (random n))))
+
 (dv-method resize-w!)
 (dv-method set-w1)
 (dv-method set-w2)
@@ -293,4 +293,5 @@
 	dv-resize! dv-set! dv-slice-range! 
 	dv-slice-indx! dv-slice! 
 	dv-apply! dv-add! dv-rand! dv-assoc dv-max-aux 
-	dv-max dv-min dv-clone! dv-slice!)
+	dv-max dv-min dv-clone! dv-slice!
+	dv-version dv-rand!)

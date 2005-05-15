@@ -89,7 +89,6 @@
 (format #t "sum w4: ~A\n" (dv-assoc w4 (lambda(x y) (+ x y)) 0))
 (format #t "sum(|w4|): ~A\n" (dv-assoc w4 (lambda(x y) (+ (abs x) (abs y))) 0))
 
-
 (define (my-sum . args) 
   (let ((n (length args)))
     (cond ((= n 0) 0)
@@ -101,3 +100,29 @@
 (dv-resize! w4 1)
 (dv-set! w4 23)
 (format #t "sum w4 [23]: ~A\n" (dv-assoc w4 my-sum))
+
+(format #t "version ~A\n" dv-version)
+
+(dv-resize! w4 7 7)
+(format #t "antes de dv-rand!\n")
+(dv-rand! w4)
+(format #t "despues de dv-rand!\n")
+
+(dv-dump w4 "w4 dbl rand (rand!)")
+
+(set! w4 (make <dvint>))
+(dv-resize! w4 7 7)
+(dv-rand! w4 100)
+(dv-dump w4 "w4 int rand (rand!)")
+
+#!
+(define w5 (make <dvdbl>))
+(dv-resize! w5 6 6)
+(dv-rand! w5)
+(dv-dump w5 "w5 rand" 1)
+
+(set! w4 (make <dvint>))
+(dv-resize! w4 6 6)
+(dv-rand! w4 10)
+(dv-dump w4 "w4 rand")
+!#
