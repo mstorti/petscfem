@@ -44,14 +44,25 @@
 
 (dv-clone! w v)
 (m-set w 1000)
-(dv-slice-range! v w '(0 0 5 2))
+(dv-slice-range! v w '(0 5 2) 0)
 (dv-dump v "v <- slice ~A\n" '(0 0 5 2))
 
-(dv-slice! v w '(0 #f #f 2) '(1 #f #f 2))
+(dv-slice! v w '(#f #f 2)  0 '(#f #f 2) 1)
 (dv-dump v "v <- slice ~A\n" '((0 #f #f 2) (1 #f #f 2)))
 
+(define ivec (make <dvint>))
+(dv-resize! ivec 3)
+(dv-set! ivec (lambda(q) (car q)))
+(dv-dump ivec "ivec: ")
+
+(dv-slice! v w ivec 1)
+(dv-dump v "w(1:3,:) ")
+
+#!
 (define x (make <dvint>))
 (dv-resize! x 7 6)
 
-(dv-set! x (lambda (indx) (inexact->exact (* 23.24253 (car indx)))))
+(dv-set! x (lambda (indx) (inexact->exact (* 23.4 (car indx)))))
 (dv-dump x "x integer vector")
+
+!#

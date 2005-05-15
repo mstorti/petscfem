@@ -1,4 +1,4 @@
-;;; $Id: dvector.scm,v 1.13 2005/05/15 17:01:30 mstorti Exp $
+;;; $Id: dvector.scm,v 1.14 2005/05/15 20:02:28 mstorti Exp $
 (define-module (dvector))
 (use-modules (oop goops))
 
@@ -60,11 +60,10 @@
 ;;; range = indx start end [inc]
 ;;; If `start' is `#f' then 0 is used.
 ;;; If `end' is `#f' then the size of `indx' index is used. 
-(define-public (dv-slice-range! v w range)
+(define-public (dv-slice-range! v w range indx)
   (let ((shape (dv-shape w))
-	(indx (car range))
-	(start (cadr range))
-	(end (caddr range))
+	(start (car range))
+	(end (cadr range))
 	(inc 1))
     (if (not start) (set! start 0))
     (if (not end) (set! end (list-ref shape indx)))
@@ -87,38 +86,46 @@
 ;;; range = indx start end [inc]
 (define-public (dv-slice-indx! v w ivec indx)
   (if (not (is-a? ivec <dvint>)) 
-      (error "ivec is not an <dvint> vector"))
+      (error "ivec is not an <dvint> vector. ivec= ~A" ivec))
   (let ((shape (dv-shape w)))
     (if (>= indx (length shape)) (error "indx exceeds rank"))
     (let ((v-shape shape)
-	  (indx-len (dvint-size ivec))
+	  (indx-len (dv-size ivec))
 	  (filler (lambda (v-indx-vec) 
 		    (let ((w-indx-vec v-indx-vec))
 		      (list-set! w-indx-vec indx 
-				 (dvint-ref! ivec (list-ref v-indx-vec indx)))
+				 (dv-ref ivec (list-ref v-indx-vec indx)))
 		      (dv-ref w w-indx-vec)))))
       (list-set! v-shape indx indx-len)
       (apply dv-resize! v v-shape)
       (dv-set-with-filler! v filler))))
-
-(define (dv-slice1! v w range)
-  (dv-slice-range! v w range))
+  
+(define (dv-slice1! v w range indx)
+  (cond ((is-a? range <dvint>)
+	 (dv-slice-indx! v w range indx))
+	(else
+	 (dv-slice-range! v w range indx))))
 
 (define-public (dv-slice! v w . args)
+  (format #t "in dv-slice! args ~A\n" args)
   (cond ((null? args) (dv-clone! v w))
-	((= (length args) 1) (dv-slice1! v w (car args)))
+	((= (length args) 1) (error "[1] not enough args"))
+	((= (length args) 2) (apply dv-slice1! v w args))
 	(else 
 	 (let ((vaux1 (make (class-of w)))
 	       (vaux2 (make (class-of w))))
-		(dv-slice1! vaux1 w (car args))
-;		(dv-dump vaux1)
-		(let loop ((q (cdr args))
-			   (v1 vaux1)
-			   (v2 vaux2))
-		  (cond ((= (length q) 1) 
-			 (dv-slice1! v v1 (car q)))
-			(else (dv-slice1! v2 v1 (car q))
-			      (loop v1 v2 (cdr q)))))))))
+	   (dv-slice1! vaux1 w (car args) (cadr args))
+					;		(dv-dump vaux1)
+	   (let loop ((q (cddr args))
+		      (v1 vaux1)
+		      (v2 vaux2))
+	     (cond ((= (length q) 1) (error "[2] not enough args"))
+		   ((= (length q) 2) 
+		    (dv-slice1! v v1 (car q) (cadr q)))
+		   (else 
+		    (format #t "q ~A\n" q)
+		    (dv-slice1! v2 v1 (car q) (cadr q))
+		    (loop v1 v2 (cddr q)))))))))
 
 (define-public (dv-apply! v fun)
   (let ((n (dv-size v)))
