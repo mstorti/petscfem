@@ -1,4 +1,4 @@
-;;; $Id: dvector.scm,v 1.17 2005/05/15 21:33:58 mstorti Exp $
+;;; 
 (define-module (dvector))
 (use-modules (oop goops))
 
@@ -8,6 +8,8 @@
 (load-extension 
  (search-path %load-path "libfemref.so") 
  "dvdbl_init")
+
+(define version "$Id: dvector.scm,v 1.18 2005/05/15 22:01:18 mstorti Exp $")
 
 ;;; We first define the base class <dvector>
 ;;; and then add some functions that operate
@@ -165,9 +167,14 @@
 (define-public (dv-add! v alpha)
   (dv-apply! v (lambda (y) (+ alpha y))))
 
-;;; Fills with random numbers
-(define-public (dv-rand! v)
-  (dv-apply! v (lambda (y) (random:uniform))))
+;;; Fills with uniform random numbers
+(define-method (dv-rand! (v <dvdbl>))
+  (dv-apply! v (lambda (x) (random:uniform))))
+
+;;; Fills with uniform random numbers in the
+;;; range [0,n)
+(define-method (dv-rand! (v <dvint>) n)
+  (dv-apply! v (lambda (x) (random n))))
 
 ;;; Associates all elements with function 
 ;;; Example: (dv-assoc v (lambda(x y) (+ x y)))
