@@ -4374,3 +4374,6 @@ tag: beta-3.47.13 on Sun, 15 May 2005 18:34:15 -0300 by mstorti in spider
 ----------
 tag: beta-3.47.14 on Sun, 15 May 2005 19:52:13 -0300 by mstorti in spider
      > Writing `dvector.scm'. Testing `dvi-rand!'.  
+----------
+tag: beta-3.47.15 on Sun, 15 May 2005 20:47:12 -0300 by mstorti in spider
+     > Writing `dvector.scm'. Testing no leak memories. 
