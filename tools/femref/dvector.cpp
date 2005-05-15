@@ -247,7 +247,6 @@ DVECTOR_SIZE_FUN(SCM s_w) {
   SCM_ASSERT (SCM_SMOB_PREDICATE(TAG, s_w),
               s_w, SCM_ARG1, __FUN__);
   w = (dvector_t *) SCM_SMOB_DATA (s_w);
-  printf("w %p\n",w);
 
   return SCM_MAKINUM(w->size());
 }
@@ -292,7 +291,7 @@ DVECTOR_CAT_FUN(SCM s_w,SCM s_file) {
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 #undef __FUN__
-#define __FUN__ DVTYPE "-dump1"
+#define __FUN__ DVTYPE "-dump"
 static SCM
 DVECTOR_DUMP_FUN(SCM s_w,SCM s_file,SCM s_rowsz) {
   dvector_t *w;
@@ -439,7 +438,7 @@ INIT_DVECTOR_FUN(void) {
   scm_c_define_gsubr(DVTYPE "-ref", 2, 0, 0, scm_fun(DVECTOR_REF_FUN));
   scm_c_define_gsubr(DVTYPE "-read!", 2, 0, 0, scm_fun(DVECTOR_READ_FUN));
   scm_c_define_gsubr(DVTYPE "-cat!", 2, 0, 0, scm_fun(DVECTOR_CAT_FUN));
-  scm_c_define_gsubr(DVTYPE "-dump1", 1, 2, 0, scm_fun(DVECTOR_DUMP_FUN));
+  scm_c_define_gsubr(DVTYPE "-dump", 1, 2, 0, scm_fun(DVECTOR_DUMP_FUN));
 #ifndef SCM_MAGIC_SNARFER
 #if defined DV_DBL
 #include "./dvectord.x"

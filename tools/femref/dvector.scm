@@ -1,4 +1,4 @@
-;;; $Id: dvector.scm,v 1.12 2005/05/15 16:44:40 mstorti Exp $
+;;; $Id: dvector.scm,v 1.13 2005/05/15 17:01:30 mstorti Exp $
 (define-module (dvector))
 (use-modules (oop goops))
 
@@ -225,7 +225,7 @@
 (dv-method-exp read!)
 (dv-method-exp cat!)
 
-(export <dvector> <dvdbl> vec 
+(export <dvector> <dvdbl> <dvint> vec 
 	dv-resize! dv-set! dv-slice-range! 
 	dv-slice-indx! dv-slice! 
 	dv-apply! dv-add! dv-rand! dv-assoc dv-max-aux 

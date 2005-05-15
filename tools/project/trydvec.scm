@@ -8,8 +8,6 @@
 
 (define v (make <dvdbl>))
 (define w (make <dvdbl>))
-(format #t "v size ~A\n" (dv-size v))
-(format #t "w size ~A\n" (dv-size w))
 
 (dv-resize! v 5 4)
 ;(define (dv-dump-v) (dv-dump v) (newline))
@@ -36,8 +34,8 @@
 (dv-set! v 7)
 (dv-dump v "v <- 7")
 
-(dv-set! v (lambda (indx) (cadr indx)))
-(dv-dump v "v <- j")
+(dv-set! v (lambda (indx) (+ (cadr indx) 0.5)))
+(dv-dump v "v <- j+0.5")
 
 (dv-set! v (lambda (indx) (car indx)))
 (dv-dump v "v <- k")
@@ -51,3 +49,9 @@
 
 (dv-slice! v w '(0 #f #f 2) '(1 #f #f 2))
 (dv-dump v "v <- slice ~A\n" '((0 #f #f 2) (1 #f #f 2)))
+
+(define x (make <dvint>))
+(dv-resize! x 7 6)
+
+(dv-set! x (lambda (indx) (inexact->exact (* 23.24253 (car indx)))))
+(dv-dump x "x integer vector")
