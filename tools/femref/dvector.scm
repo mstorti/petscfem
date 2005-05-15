@@ -1,4 +1,4 @@
-;;; $Id: dvector.scm,v 1.10 2005/05/15 13:56:51 mstorti Exp $
+;;; $Id: dvector.scm,v 1.11 2005/05/15 16:22:00 mstorti Exp $
 (define-module (dvector))
 (use-modules (oop goops))
 
@@ -58,6 +58,8 @@
 ;;; such that index `indx' has a value in the set
 ;;; (start start+inc start+2*inc ...) that are lower than `end'. 
 ;;; range = indx start end [inc]
+;;; If `start' is `#f' then 0 is used.
+;;; If `end' is `#f' then the size of `indx' index is used. 
 (define-public (dv-slice-range! v w range)
   (let ((shape (dv-shape w))
 	(indx (car range))
@@ -74,33 +76,62 @@
 		    (let ((w-indx-vec v-indx-vec))
 		      (list-set! w-indx-vec indx 
 				 (+ start (* (list-ref v-indx-vec indx) inc)))
-		      (format #t "v-indx-vec: ~A\n" v-indx-vec)
-		      (format #t "w-indx-vec: ~A\n" w-indx-vec)
 		      (dv-ref w w-indx-vec)))))
       (list-set! v-shape indx range-len)
-      (format #t "range-len: ~A\n" range-len)
-      (format #t "v-shape: ~A\n" v-shape)
       (apply dv-resize! v v-shape)
       (dv-set-with-filler! v filler))))
 
+;;; Sets `w' to the slice of `v' consisting of all
+;;; elements for which index takes the values given in `ivec'.
+;;; ivec is a `<dvint>' vector. 
 ;;; range = indx start end [inc]
 (define-public (dv-slice-indx! v w ivec indx)
+  (if (not (is-a? ivec <dvint>)) 
+      (error "ivec is not an <dvint> vector"))
   (let ((shape (dv-shape w)))
     (if (>= indx (length shape)) (error "indx exceeds rank"))
     (let ((v-shape shape)
-	  (indx-len (dvint-size ivec)))
+	  (indx-len (dvint-size ivec))
+	  (filler (lambda (v-indx-vec) 
+		    (let ((w-indx-vec v-indx-vec))
+		      (list-set! w-indx-vec indx 
+				 (dvint-ref! ivec (list-ref v-indx-vec indx)))
+		      (dv-ref w w-indx-vec)))))
       (list-set! v-shape indx indx-len)
       (apply dv-resize! v v-shape)
-      (dv-set-with-filler! v (lambda (v-indx-vec) 
-				 (let ((w-indx-vec v-indx-vec))
-				   (list-set! w-indx-vec indx 
-					       (dvint-ref! ivec (list-ref v-indx-vec indx)))
-				   (dv-ref w w-indx-vec)))))))
+      (dv-set-with-filler! v filler))))
+
+(define (dv-slice1! v w range)
+;   (format #t "v: \n")
+;   (dv-dump v)
+;   (format #t "\n")
+;   (format #t "w: \n")
+;   (dv-dump w)
+;   (format #t "\n")
+;   (format #t "v ~A, w ~A range ~A\n" v w range)
+  (format #t "dv-slice1!: v-shape ~A, w-shape ~A, range ~A\n" 
+	  (dv-shape v) (dv-shape w) range)
+  (dv-slice-range! v w range))
 
 (define-public (dv-slice! v w . args)
-  (cond ((pair? (car args)) (apply dv-slice-range! v w args))
-	((dvint? (car args) (apply dv-slice-indx! v w args)))))
-
+  (cond ((null? args) (dv-clone! v w))
+	((= (length args) 1) (dv-slice1! v w (car args)))
+	(else 
+	 (format #t "length(args) ~A\n" (length args))
+	 (let ((vaux1 (make (class-of w)))
+	       (vaux2 (make (class-of w))))
+		(dv-slice1! vaux1 w (car args))
+		(dv-dump vaux1)
+		(let loop ((q (cdr args))
+			   (v1 vaux1)
+			   (v2 vaux2))
+		  (cond ((= (length q) 1) 
+			 (format #t "ending...\n")
+			 (dv-slice1! v v1 (car q))
+			 (format #t "v: \n")
+			 (dv-dump v))
+			(else (dv-slice1! v2 v1 (car q))
+			      (loop v1 v2 (cdr q)))))))))
 
 (define-public (dv-apply! v fun)
   (let ((n (dv-size v)))
@@ -173,6 +204,12 @@
 (define-method (initialize (v <dvdbl>) . args)
   (set! (vec v) (make-dvdbl)))
 
+(define-class <dvint> (<dvector>)
+  (v #:accessor vec))
+
+(define-method (initialize (v <dvint>) . args)
+  (set! (vec v) (make-dvint)))
+
 (dv-method resize-w!)
 (dv-method set-w1)
 (dv-method set-w2)
@@ -180,7 +217,6 @@
 ;(dv-method-exp clone!)
 
 (define-method (dv-clone! (v <dvdbl>) (w <dvdbl>))
-  (format #t "v ~A, w ~A\n" (vec v) (vec w))
   (dvdbl-clone! (vec v) (vec w)))
 
 (define-method (dv-clone! (v <dvint>) (w <dvint>))
@@ -199,4 +235,4 @@
 	dv-resize! dv-set! dv-slice-range! 
 	dv-slice-indx! dv-slice! 
 	dv-apply! dv-add! dv-rand! dv-assoc dv-max-aux 
-	dv-max dv-min dv-clone!)
+	dv-max dv-min dv-clone! dv-slice!)
