@@ -6,7 +6,8 @@ OPT := -O2 -funroll-loops
 # OPT := -g
 
 PROG := myhash$(N).bin
-default: getsurf.bin
+default: libfemref.so
+# default: getsurf.bin
 
 scripts = odoc.pl makewhat.pl
 

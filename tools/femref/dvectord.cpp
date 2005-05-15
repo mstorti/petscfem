@@ -1,6 +1,6 @@
 // -*- mode: C++ -*-
 //__INSERT_LICENSE__
-// $Id: dvectord.cpp,v 1.16 2005/03/03 02:20:56 mstorti Exp $
+// $Id: dvectord.cpp,v 1.17 2005/05/15 13:28:12 mstorti Exp $
 
 #define DV_DBL
 #define TYPE double

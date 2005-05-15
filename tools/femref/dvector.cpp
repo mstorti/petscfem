@@ -247,6 +247,7 @@ DVECTOR_SIZE_FUN(SCM s_w) {
   SCM_ASSERT (SCM_SMOB_PREDICATE(TAG, s_w),
               s_w, SCM_ARG1, __FUN__);
   w = (dvector_t *) SCM_SMOB_DATA (s_w);
+  printf("w %p\n",w);
 
   return SCM_MAKINUM(w->size());
 }

@@ -7,6 +7,10 @@
 (use-modules (dvector))
 
 (define v (make <dvdbl>))
+(define w (make <dvdbl>))
+(format #t "v size ~A\n" (dv-size v))
+(format #t "w size ~A\n" (dv-size w))
+
 (dv-resize! v 5 4)
 (define (dv-dump-v) (dv-dump v) (newline))
 (dv-dump-v)
@@ -36,8 +40,6 @@
 (dv-set! v (lambda (indx) (cadr indx)))
 
 (define w (make <dvdbl>))
-(format #t "v size ~A\n" (dv-size v))
-(format #t "w size ~A\n" (dv-size w))
 
 (dv-clone! w v)
 

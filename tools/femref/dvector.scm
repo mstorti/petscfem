@@ -1,4 +1,4 @@
-;;; $Id: dvector.scm,v 1.8 2005/05/14 21:56:33 mstorti Exp $
+;;; $Id: dvector.scm,v 1.9 2005/05/15 13:28:12 mstorti Exp $
 (define-module (dvector))
 (use-modules (oop goops))
 
@@ -14,7 +14,7 @@
 ;;; the same way on <dvdbl> and <dvint>
 (define-class <dvector>())
 
-;;; Resizes and reshapes a vector to new shape SHAPE
+;;; Resizes and reshapes a vector to new shape `shape'
 ;;; For example: (dv-resize! v 2 3 4)
 (define-method (dv-resize! (v <dvector>) . shape)
   (let loop ((size 1)
@@ -67,15 +67,16 @@
     (if (>= indx (length shape)) (error "indx exceeds rank"))
     (if (>= (length range) 4) (set! inc (cadddr range)))
     (let ((v-shape shape)
-	  (range-len (quotient (- end start) inc)))
+	  (range-len (quotient (- end start) inc))
+	  (filler (lambda (v-indx-vec) 
+		    (let ((w-indx-vec v-indx-vec))
+		      (list-set! w-indx-vec indx 
+				 (+ start (* (list-ref v-indx-vec indx) inc)))
+;		      (format #t "w-indx-vec ~A\n" w-indx-vec)
+		      (dv-ref w w-indx-vec)))))
       (list-set! v-shape indx range-len)
       (apply dv-resize! v v-shape)
-      (dv-set-with-filler! v (lambda (v-indx-vec) 
-				 (let ((w-indx-vec v-indx-vec))
-				   (list-set! w-indx-vec indx 
-					       (+ start (* (list-ref v-indx-vec indx) inc)))
-				   (format #t "w-indx-vec ~A\n" w-indx-vec)
-				   (dv-ref w w-indx-vec)))))))
+      (dv-set-with-filler! v filler))))
 
 ;;; range = indx start end [inc]
 (define-public (dv-slice-indx! v w ivec indx)
@@ -162,14 +163,24 @@
      (export ,(dv-fun fun))))
 
 (define-class <dvdbl> (<dvector>)
-  (v #:init-value (make-dvdbl)
-     #:accessor vec))
+  (v #:accessor vec))
+
+(define-method (initialize (v <dvdbl>) . args)
+  (set! (vec v) (make-dvdbl)))
 
 (dv-method resize-w!)
 (dv-method set-w1)
 (dv-method set-w2)
 
-(dv-method-exp clone!)
+;(dv-method-exp clone!)
+
+(define-method (dv-clone! (v <dvdbl>) (w <dvdbl>))
+  (format #t "v ~A, w ~A\n" (vec v) (vec w))
+  (dvdbl-clone! (vec v) (vec w)))
+
+(define-method (dv-clone! (v <dvint>) (w <dvint>))
+  (dvint-clone! (vec v) (vec w)))
+
 (dv-method-exp push!)
 (dv-method-exp size)
 (dv-method-exp reshape!)
@@ -183,8 +194,4 @@
 	dv-resize! dv-set! dv-slice-range! 
 	dv-slice-indx! dv-slice! 
 	dv-apply! dv-add! dv-rand! dv-assoc dv-max-aux 
-	dv-max dv-min)
-
-
-
-
+	dv-max dv-min dv-clone!)
