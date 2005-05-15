@@ -1,4 +1,4 @@
-;;; $Id: dvector.scm,v 1.9 2005/05/15 13:28:12 mstorti Exp $
+;;; $Id: dvector.scm,v 1.10 2005/05/15 13:56:51 mstorti Exp $
 (define-module (dvector))
 (use-modules (oop goops))
 
@@ -64,17 +64,22 @@
 	(start (cadr range))
 	(end (caddr range))
 	(inc 1))
+    (if (not start) (set! start 0))
+    (if (not end) (set! end (list-ref shape indx)))
     (if (>= indx (length shape)) (error "indx exceeds rank"))
     (if (>= (length range) 4) (set! inc (cadddr range)))
     (let ((v-shape shape)
-	  (range-len (quotient (- end start) inc))
+	  (range-len (+ 1 (quotient (- end start 1) inc)))
 	  (filler (lambda (v-indx-vec) 
 		    (let ((w-indx-vec v-indx-vec))
 		      (list-set! w-indx-vec indx 
 				 (+ start (* (list-ref v-indx-vec indx) inc)))
-;		      (format #t "w-indx-vec ~A\n" w-indx-vec)
+		      (format #t "v-indx-vec: ~A\n" v-indx-vec)
+		      (format #t "w-indx-vec: ~A\n" w-indx-vec)
 		      (dv-ref w w-indx-vec)))))
       (list-set! v-shape indx range-len)
+      (format #t "range-len: ~A\n" range-len)
+      (format #t "v-shape: ~A\n" v-shape)
       (apply dv-resize! v v-shape)
       (dv-set-with-filler! v filler))))
 
