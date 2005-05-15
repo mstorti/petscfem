@@ -4365,3 +4365,6 @@ tag: beta-3.47.10 on Sun, 15 May 2005 17:02:41 -0300 by mstorti in spider
 ----------
 tag: beta-3.47.11 on Sun, 15 May 2005 17:25:50 -0300 by mstorti in spider
      > Writing `dvector.scm'. Testing `dvi-apply!'.  
+----------
+tag: beta-3.47.12 on Sun, 15 May 2005 18:26:47 -0300 by mstorti in spider
+     > Writing `dvector.scm'. Testing `dvi-apply!'.  
