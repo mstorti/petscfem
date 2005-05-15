@@ -1,4 +1,4 @@
-;;; $Id: dvector.scm,v 1.14 2005/05/15 20:02:28 mstorti Exp $
+;;; $Id: dvector.scm,v 1.15 2005/05/15 20:25:38 mstorti Exp $
 (define-module (dvector))
 (use-modules (oop goops))
 
@@ -57,9 +57,12 @@
 ;;; Sets w to the slice of `v' consisting of all elements
 ;;; such that index `indx' has a value in the set
 ;;; (start start+inc start+2*inc ...) that are lower than `end'. 
-;;; range = indx start end [inc]
+;;; range = start end [inc]
 ;;; If `start' is `#f' then 0 is used.
 ;;; If `end' is `#f' then the size of `indx' index is used. 
+;;; Example: (dv-slice-range! v w '(0 5 2) 1)
+;;; extracts all elements such that index 1 takes the values
+;;; 0 2 4 
 (define-public (dv-slice-range! v w range indx)
   (let ((shape (dv-shape w))
 	(start (car range))
@@ -83,7 +86,6 @@
 ;;; Sets `w' to the slice of `v' consisting of all
 ;;; elements for which index takes the values given in `ivec'.
 ;;; ivec is a `<dvint>' vector. 
-;;; range = indx start end [inc]
 (define-public (dv-slice-indx! v w ivec indx)
   (if (not (is-a? ivec <dvint>)) 
       (error "ivec is not an <dvint> vector. ivec= ~A" ivec))
@@ -99,19 +101,42 @@
       (list-set! v-shape indx indx-len)
       (apply dv-resize! v v-shape)
       (dv-set-with-filler! v filler))))
-  
+
+;;; Auxiliary function that calls either the
+;;; `-range!' or `index!' versions. 
 (define (dv-slice1! v w range indx)
   (cond ((is-a? range <dvint>)
 	 (dv-slice-indx! v w range indx))
 	(else
 	 (dv-slice-range! v w range indx))))
 
+;;; Wrapper that iterates over pair of arguments appliying
+;;; successively `dv-slice1!'.
+;;; Example:
+;;;    (dv-slice! v w '(0 5 2) 0 '(0 3) 1)
 (define-public (dv-slice! v w . args)
-  (format #t "in dv-slice! args ~A\n" args)
   (cond ((null? args) (dv-clone! v w))
 	((= (length args) 1) (error "[1] not enough args"))
 	((= (length args) 2) (apply dv-slice1! v w args))
 	(else 
+	 ;;; Each pair of values in `args' defines a slicing.
+	 ;;; For instance, if we write
+	 ;;;    (dv-slice! v w r1 i1 r2 i2 r3 i3 r4 i4)
+	 ;;; then this should be expanded to
+	 ;;;    (dv-slice! vaux1 w r1 i1)
+	 ;;;    (dv-slice! vaux2 vaux1 r2 i2)
+	 ;;;    (dv-slice! vaux3 vaux2 r3 i3)
+	 ;;;    (dv-slice! v vaux3 r4 i4)
+	 ;;; But in fact we need only two auxiliary vectors
+	 ;;; `vaux1', `vaux2' alternating in the following way
+	 ;;;    (dv-slice! vaux1 w r1 i1)
+	 ;;;    (dv-slice! vaux2 vaux1 r2 i2)
+	 ;;;    (dv-slice! vaux1 vaux2 r3 i3)
+	 ;;;    (dv-slice! v vaux1 r4 i4)
+	 ;;; The variables `v1' and `v2' below takes the alternate
+	 ;;; values (vaux1,vaux2), (vaux2,vaux1) and so on.
+	 ;;; When the numbr of args reaches 2, then we directly
+	 ;;; slice onto `v'. 
 	 (let ((vaux1 (make (class-of w)))
 	       (vaux2 (make (class-of w))))
 	   (dv-slice1! vaux1 w (car args) (cadr args))
@@ -127,6 +152,7 @@
 		    (dv-slice1! v2 v1 (car q) (cadr q))
 		    (loop v1 v2 (cddr q)))))))))
 
+;;; Applys a function to each element in `v'. 
 (define-public (dv-apply! v fun)
   (let ((n (dv-size v)))
     (do ((j 0 (+ j 1))) ((= j n)) 

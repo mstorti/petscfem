@@ -41,7 +41,6 @@
 (dv-dump v "v <- k")
 
 (define w (make <dvdbl>))
-
 (dv-clone! w v)
 (m-set w 1000)
 (dv-slice-range! v w '(0 5 2) 0)
@@ -58,11 +57,33 @@
 (dv-slice! v w ivec 1)
 (dv-dump v "w(1:3,:) ")
 
-#!
 (define x (make <dvint>))
 (dv-resize! x 7 6)
 
 (dv-set! x (lambda (indx) (inexact->exact (* 23.4 (car indx)))))
 (dv-dump x "x integer vector")
 
-!#
+(define w2 (make <dvdbl>))
+(dv-resize! w2 5 5)
+(m-set w2 1000)
+(dv-dump w2 "w2 filled with 1000*j+k")
+
+(dv-apply! w2 (lambda(x) (sqrt (+ x 1))))
+(dv-dump w2 "w2 <- sqrt(w2+1)")
+(set! w2 #f)
+
+(define w3 (make <dvint>))
+(dv-resize! w3 5 5)
+(m-set w3 10)
+(dv-dump w3 "w3 filled with 10*j+k")
+
+(define w4 (make <dvint>))
+(dv-clone! w4 w3)
+
+(dv-apply! w3 (lambda(x) (modulo x 10)))
+(dv-dump w3 "w3 <- (modulo x 10)")
+(set! w3 #f)
+
+(dv-apply! w4 (lambda(x) (quotient x 10)))
+(dv-dump w4 "w4 <- (quotient x 10)")
+(set! w4 #f)
