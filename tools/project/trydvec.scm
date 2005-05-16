@@ -1,4 +1,4 @@
-;;; $Id: trydvec.scm,v 1.19 2005/05/15 23:48:07 mstorti Exp $
+;;; $Id: trydvec.scm,v 1.20 2005/05/16 03:25:08 mstorti Exp $
 (set! %load-path (cons "../femref" %load-path))
 
 (use-modules (oop goops))
@@ -27,8 +27,9 @@
 	  ((= n 1) (apply + args)))))
 
 (dv-resize! v 5 4)
-(dv-dump v "v size 5x4")
+(dv-dump v "qqqq" 1 "v size 5x4")
 
+#!
 (dv-set! v 
 	 (lambda (indx)
 	   (let loop ((q indx)
@@ -89,15 +90,15 @@
 
 (dv-apply! w4 (lambda(x) (- (* 2 (random 10)) 10)))
 (dv-dump w4 "w4 <- random [-5 5]")
-(format #t "sum w4: ~A\n" (dv-assoc w4 (lambda(x y) (+ x y)) 0))
-(format #t "sum(|w4|): ~A\n" (dv-assoc w4 (lambda(x y) (+ (abs x) (abs y))) 0))
+(format #t "sum w4: ~A\n" (dv-reduce w4 (lambda(x y) (+ x y)) 0))
+(format #t "sum(|w4|): ~A\n" (dv-reduce w4 (lambda(x y) (+ (abs x) (abs y))) 0))
 
 (set! w4 (make <dvdbl>))
-(format #t "sum w4 (empty): ~A\n" (dv-assoc w4 my-sum))
+(format #t "sum w4 (empty): ~A\n" (dv-reduce w4 my-sum))
 
 (dv-resize! w4 1)
 (dv-set! w4 23)
-(format #t "sum w4 [23]: ~A\n" (dv-assoc w4 my-sum))
+(format #t "sum w4 [23]: ~A\n" (dv-reduce w4 my-sum))
 
 (format #t "version ~A\n" dv-version)
 
@@ -113,14 +114,16 @@
 (dv-rand! w4 100)
 (dv-dump w4 "w4 int rand (rand!)")
 
-#!
-(define w5 (make <dvdbl>))
-(dv-resize! w5 6 6)
-(dv-rand! w5)
-(dv-dump w5 "w5 rand" 1)
+; #!
+; (define w5 (make <dvdbl>))
+; (dv-resize! w5 6 6)
+; (dv-rand! w5)
+; (dv-dump w5 "w5 rand" 1)
 
-(set! w4 (make <dvint>))
-(dv-resize! w4 6 6)
-(dv-rand! w4 10)
-(dv-dump w4 "w4 rand")
+; (set! w4 (make <dvint>))
+; (dv-resize! w4 6 6)
+; (dv-rand! w4 10)
+; (dv-dump w4 "w4 rand")
+; !#
 !#
+

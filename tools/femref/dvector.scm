@@ -1,4 +1,4 @@
-;;; $Id: dvector.scm,v 1.21 2005/05/16 01:06:36 mstorti Exp $
+;;; $Id: dvector.scm,v 1.22 2005/05/16 03:25:05 mstorti Exp $
 (define-module (dvector))
 (use-modules (oop goops))
 
@@ -9,7 +9,7 @@
  (search-path %load-path "libfemref.so") 
  "dvdbl_init")
 
-(define dv-version "$Id: dvector.scm,v 1.21 2005/05/16 01:06:36 mstorti Exp $")
+(define dv-version "$Id: dvector.scm,v 1.22 2005/05/16 03:25:05 mstorti Exp $")
 
 ;;; We first define the base class <dvector>
 ;;; and then add some functions that operate
@@ -171,9 +171,9 @@
 ;;; Reduces all elements with function `fun'.
 ;;; `fun' should be a function that is invariant under
 ;;; permutations of its arguments, and furthermore
-;;; we assume that there is a valu `knil' such that
+;;; we assume that there is a value `knil' such that
 ;;; r = (f v0 v1 ...) is equivalent to
-;;; r=(fun v_0 r), r=(fun v_1 knil), ...
+;;; r = knil; r=(fun v_0 r), r=(fun v_1 r), ...
 ;;; For instance, for `fun=+' we have `knil=0', and also
 ;;; (fun=max,knil=-infty), (fun=min,knil=+infty),
 ;;; (fun=max_abs,knil=0), (fun=min_abs,knil=+infty),
@@ -184,24 +184,19 @@
 ;;; the vector has at less two arguments, then `fun' is
 ;;; guaranteed to be called only with two arguments.
 ;;; If it is called with 1 or 0 arguments, then `fun' should
-;;; accept the same arity. 
-;;; 0, or two arguments, and `dv-reduce' returns the
-;;; result of r=knil; 
+;;; accept the same arity.
+;;; In the second form, i.e. if `knil' is provided,
+;;; then  `fun' is
+;;; guaranteed to be called only with two arguments.
 ;;; `knil' is the neutral value for `fun', i.e. (fun args)
 ;;; should be invariant if we insert `knil' in each position of
 ;;; `args'. 
-;;; Example: (dv-reduce v (lambda(x y) (+ x y)))
-;;; If `v' can have less than 2 elements, then
-;;; `fun' must accept 0 and 1 arguments.
-;;; If the values are v_0,v_1,...
-;;; then the value returned is (f (f v_0 v_1) v_2)...
-;;; If `v' has only one value, then `(f v_0)' is returned
-;;; and if it is empty, then `(f)' is returned.
-;;; If an optional `knil' argument is passed, then
-;;; the value returned is (f (f knil v_0) v_1)...
-;;; `knil' should be the value that leaves the
-;;; associative function invariant.
-;;; (f x knil) = (f x)
+;;; Example: (dv-reduce v (lambda(x y) (+ x y)) 0)
+;;; or:
+;;;     (dv-reduce v (lambda args 
+;;; 	       (cond ((zero? (length args)) 0)
+;;; 		     ((= (length args) 1) (car args))
+;;; 		     (else (apply + args)))))
 (define-public (dv-reduce v fun . args)
   (cond ((not (null? args))
 	 (apply dv-reduce-nil v fun args))
@@ -222,23 +217,38 @@
 	       (cond ((= j n) result)
 		     (else (loop (+ j 1) (fun result (dv-ref v j)))))))))))
 
-;;; This is for having a nil object. 	    
+;;; This is when having a nil object. 	    
 (define (dv-reduce-nil v fun knil)
   (let ((n (dv-size v)))
     (let loop ((j 0)
 	       (result knil))
       (cond ((= j n) result)
 	    (else (loop (+ j 1) (fun result (dv-ref v j))))))))
-	    
+
+;;; Prints vector to a file or standard output. 	    
+;;; usage:
+;;;    (dv-dump v . file message items)
 (define-public (dv-dump v . args)
-  (if (null? args) 
-      (dv-dump1 v)
-      (begin 
-	(if (= (length args) 1)
-	    (format #t "~A: \n" (car args))
-	    (apply format #t args))
-	(dv-dump1 v)
-	(newline))))
+  (let ((file #f)
+	(rowsz #f))
+    (cond ((not (null? args))
+	   (set! file (car args))
+	   (set! args (cdr args))))
+;    (format #t "args: ~A\n" args)
+    (cond ((not (null? args))
+	   (set! rowsz (car args))
+	   (set! args (cdr args))))
+    (if (null? args) 
+	(begin 
+	  (dv-dump1 v file rowsz))
+	(begin 
+	  (if (= (length args) 1)
+	      (format #t "~A: \n" (car args))
+	      (apply format #t args))
+;	  (format #t "v ~A, file ~A, rowsz ~A\n" v file rowsz)
+;	  (format #t "rowsz: ~A\n" rowsz)
+	  (dv-dump1 v #f rowsz)
+	  (newline)))))
 
 (define (dv-max-aux v comp)
   (dv-reduce v (lambda (x y) 
