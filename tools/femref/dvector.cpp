@@ -300,17 +300,32 @@ DVECTOR_DUMP_FUN(SCM s_w,SCM s_file,SCM s_rowsz) {
 	     s_w, SCM_ARG1, __FUN__);
   w = (dvector_t *) SCM_SMOB_DATA (s_w);
 
+#if 0
+  printf("not w? %d\n",scm_not(s_w));
+  printf("not rowsz? %d\n",scm_not(s_rowsz));
+  printf("not file? %d\n",scm_not(s_file));
+#endif
+
+#if 1
+  printf("not w? %d\n",SCM_NFALSEP(s_w));
+  printf("not rowsz? %d\n",SCM_NFALSEP(s_rowsz));
+  printf("not file? %d\n",SCM_NFALSEP(s_file));
+#endif
+
   int rowsz;
-  if (s_rowsz == SCM_UNDEFINED) 
+  if (s_rowsz == SCM_UNDEFINED || 
+      ! SCM_NFALSEP(s_rowsz)) {
+    printf("setting rowsz to 0\n");
     rowsz = 0;
-  else {
+  } else {
     SCM_ASSERT(SCM_INUMP(s_rowsz),
 	       s_rowsz, SCM_ARG3, __FUN__);
     rowsz = SCM_INUM(s_rowsz);
   }
 
   bool tostdout = false;
-  if (s_file == SCM_UNDEFINED) 
+  if (s_file == SCM_UNDEFINED  || 
+      ! SCM_NFALSEP(s_file)) 
     tostdout = true;
   else {
     SCM_ASSERT(scm_string_p(s_file),
@@ -319,6 +334,7 @@ DVECTOR_DUMP_FUN(SCM s_w,SCM s_file,SCM s_rowsz) {
       tostdout = true;
     else {
       const char *file = SCM_STRING_CHARS(s_file);
+      // printf("file %s\n",file);
       w->print(file,rowsz);
     }
   }
