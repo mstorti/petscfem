@@ -1,4 +1,4 @@
-;;; $Id: dvector.scm,v 1.20 2005/05/16 00:02:00 mstorti Exp $
+;;; $Id: dvector.scm,v 1.21 2005/05/16 01:06:36 mstorti Exp $
 (define-module (dvector))
 (use-modules (oop goops))
 
@@ -9,7 +9,7 @@
  (search-path %load-path "libfemref.so") 
  "dvdbl_init")
 
-(define dv-version "$Id: dvector.scm,v 1.20 2005/05/16 00:02:00 mstorti Exp $")
+(define dv-version "$Id: dvector.scm,v 1.21 2005/05/16 01:06:36 mstorti Exp $")
 
 ;;; We first define the base class <dvector>
 ;;; and then add some functions that operate
@@ -166,10 +166,31 @@
 (define-public (dv-add! v alpha)
   (dv-apply! v (lambda (y) (+ alpha y))))
 
-;;; Associates all elements with function `fun'.
-;;; `fun' should accept 0,1, or any number of
-;;; arguments, and must be associative.
-;;; Example: (dv-assoc v (lambda(x y) (+ x y)))
+;;; usage: (dv-reduce v fun)
+;;;        (dv-reduce v fun knil)
+;;; Reduces all elements with function `fun'.
+;;; `fun' should be a function that is invariant under
+;;; permutations of its arguments, and furthermore
+;;; we assume that there is a valu `knil' such that
+;;; r = (f v0 v1 ...) is equivalent to
+;;; r=(fun v_0 r), r=(fun v_1 knil), ...
+;;; For instance, for `fun=+' we have `knil=0', and also
+;;; (fun=max,knil=-infty), (fun=min,knil=+infty),
+;;; (fun=max_abs,knil=0), (fun=min_abs,knil=+infty),
+;;; (fun=sum_square,knil=0), (fun=sum_abs,knil=0), 
+;;; (fun=*,knil=1). 
+;;; In the first form, i.e. if `knil' is not provided,
+;;; then `fun' should accept 0, 1 or two arguments. If
+;;; the vector has at less two arguments, then `fun' is
+;;; guaranteed to be called only with two arguments.
+;;; If it is called with 1 or 0 arguments, then `fun' should
+;;; accept the same arity. 
+;;; 0, or two arguments, and `dv-reduce' returns the
+;;; result of r=knil; 
+;;; `knil' is the neutral value for `fun', i.e. (fun args)
+;;; should be invariant if we insert `knil' in each position of
+;;; `args'. 
+;;; Example: (dv-reduce v (lambda(x y) (+ x y)))
 ;;; If `v' can have less than 2 elements, then
 ;;; `fun' must accept 0 and 1 arguments.
 ;;; If the values are v_0,v_1,...
@@ -180,17 +201,17 @@
 ;;; the value returned is (f (f knil v_0) v_1)...
 ;;; `knil' should be the value that leaves the
 ;;; associative function invariant.
-;;; (f x (f y 0)) == (f (f x y) 0))
-(define-public (dv-assoc v fun . args)
+;;; (f x knil) = (f x)
+(define-public (dv-reduce v fun . args)
   (cond ((not (null? args))
-	 (apply dv-assoc-nil v fun args))
+	 (apply dv-reduce-nil v fun args))
 	(else
-	 (dv-assoc-non-nil v fun))))
+	 (dv-reduce-non-nil v fun))))
 
-;;; This is for non havong a `nil' object.
-;;; The function then can be called with
-;;; zero one or two arguments. 
-(define (dv-assoc-non-nil v fun)
+;;; This is for the case of non having a `nil' object.
+;;; The function then can be called with zero one or
+;;; two arguments.
+(define (dv-reduce-non-nil v fun)
   (let ((n (dv-size v)))
     (cond ((= n 0) (fun))
 	  ((= n 1) (fun (dv-ref v 0)))
@@ -202,7 +223,7 @@
 		     (else (loop (+ j 1) (fun result (dv-ref v j)))))))))))
 
 ;;; This is for having a nil object. 	    
-(define (dv-assoc-nil v fun knil)
+(define (dv-reduce-nil v fun knil)
   (let ((n (dv-size v)))
     (let loop ((j 0)
 	       (result knil))
@@ -220,7 +241,7 @@
 	(newline))))
 
 (define (dv-max-aux v comp)
-  (dv-assoc v (lambda (x y) 
+  (dv-reduce v (lambda (x y) 
 		(cond ((comp x y) x) (#t y)))
 	    0))
 
@@ -307,6 +328,6 @@
 (export <dvector> <dvdbl> <dvint> vec 
 	dv-resize! dv-set! dv-slice-range! 
 	dv-slice-indx! dv-slice! 
-	dv-apply! dv-add! dv-rand! dv-assoc dv-max-aux 
+	dv-apply! dv-add! dv-rand! dv-reduce dv-max-aux 
 	dv-max dv-min dv-clone! dv-slice!
 	dv-version dv-rand!)
