@@ -1,4 +1,4 @@
-;;; $Id: dvector.scm,v 1.19 2005/05/15 22:52:02 mstorti Exp $
+;;; $Id: dvector.scm,v 1.20 2005/05/16 00:02:00 mstorti Exp $
 (define-module (dvector))
 (use-modules (oop goops))
 
@@ -9,7 +9,7 @@
  (search-path %load-path "libfemref.so") 
  "dvdbl_init")
 
-(define dv-version "$Id: dvector.scm,v 1.19 2005/05/15 22:52:02 mstorti Exp $")
+(define dv-version "$Id: dvector.scm,v 1.20 2005/05/16 00:02:00 mstorti Exp $")
 
 ;;; We first define the base class <dvector>
 ;;; and then add some functions that operate
@@ -166,16 +166,30 @@
 (define-public (dv-add! v alpha)
   (dv-apply! v (lambda (y) (+ alpha y))))
 
-;;; Associates all elements with function 
+;;; Associates all elements with function `fun'.
+;;; `fun' should accept 0,1, or any number of
+;;; arguments, and must be associative.
 ;;; Example: (dv-assoc v (lambda(x y) (+ x y)))
 ;;; If `v' can have less than 2 elements, then
-;;; `fun' must accept 0 and 1 arguments. 
+;;; `fun' must accept 0 and 1 arguments.
+;;; If the values are v_0,v_1,...
+;;; then the value returned is (f (f v_0 v_1) v_2)...
+;;; If `v' has only one value, then `(f v_0)' is returned
+;;; and if it is empty, then `(f)' is returned.
+;;; If an optional `knil' argument is passed, then
+;;; the value returned is (f (f knil v_0) v_1)...
+;;; `knil' should be the value that leaves the
+;;; associative function invariant.
+;;; (f x (f y 0)) == (f (f x y) 0))
 (define-public (dv-assoc v fun . args)
   (cond ((not (null? args))
 	 (apply dv-assoc-nil v fun args))
 	(else
 	 (dv-assoc-non-nil v fun))))
 
+;;; This is for non havong a `nil' object.
+;;; The function then can be called with
+;;; zero one or two arguments. 
 (define (dv-assoc-non-nil v fun)
   (let ((n (dv-size v)))
     (cond ((= n 0) (fun))
@@ -186,7 +200,8 @@
 			(result (fun (dv-ref v 0) (dv-ref v 1))))
 	       (cond ((= j n) result)
 		     (else (loop (+ j 1) (fun result (dv-ref v j)))))))))))
-	    
+
+;;; This is for having a nil object. 	    
 (define (dv-assoc-nil v fun knil)
   (let ((n (dv-size v)))
     (let loop ((j 0)
