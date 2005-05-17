@@ -1,4 +1,4 @@
-;;; $Id: trydvec.scm,v 1.20 2005/05/16 03:25:08 mstorti Exp $
+;;; $Id: trydvec.scm,v 1.21 2005/05/17 16:29:39 mstorti Exp $
 (set! %load-path (cons "../femref" %load-path))
 
 (use-modules (oop goops))
@@ -27,7 +27,7 @@
 	  ((= n 1) (apply + args)))))
 
 (dv-resize! v 5 4)
-(dv-dump v "qqqq" 1 "v size 5x4")
+(dv-dump v #:file "qqqq" #:rowsz 1 "v size 5x4")
 
 #!
 (dv-set! v 

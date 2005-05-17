@@ -1,6 +1,7 @@
-;;; $Id: dvector.scm,v 1.22 2005/05/16 03:25:05 mstorti Exp $
+;;; $Id: dvector.scm,v 1.23 2005/05/17 16:29:39 mstorti Exp $
 (define-module (dvector))
 (use-modules (oop goops))
+(use-modules (ice-9 optargs))
 
 (load-extension 
  (search-path %load-path "libfemref.so") 
@@ -9,7 +10,7 @@
  (search-path %load-path "libfemref.so") 
  "dvdbl_init")
 
-(define dv-version "$Id: dvector.scm,v 1.22 2005/05/16 03:25:05 mstorti Exp $")
+(define dv-version "$Id: dvector.scm,v 1.23 2005/05/17 16:29:39 mstorti Exp $")
 
 ;;; We first define the base class <dvector>
 ;;; and then add some functions that operate
@@ -229,26 +230,21 @@
 ;;; usage:
 ;;;    (dv-dump v . file message items)
 (define-public (dv-dump v . args)
-  (let ((file #f)
-	(rowsz #f))
-    (cond ((not (null? args))
-	   (set! file (car args))
-	   (set! args (cdr args))))
-;    (format #t "args: ~A\n" args)
-    (cond ((not (null? args))
-	   (set! rowsz (car args))
-	   (set! args (cdr args))))
-    (if (null? args) 
-	(begin 
-	  (dv-dump1 v file rowsz))
-	(begin 
-	  (if (= (length args) 1)
-	      (format #t "~A: \n" (car args))
-	      (apply format #t args))
-;	  (format #t "v ~A, file ~A, rowsz ~A\n" v file rowsz)
-;	  (format #t "rowsz: ~A\n" rowsz)
-	  (dv-dump1 v #f rowsz)
-	  (newline)))))
+  (let-keywords args #f ((file  #f)
+ 			 (rowsz #f))
+;;;   (let-optional args ((file  #f)
+;;; 		      (rowsz #f))
+     (format #t "file ~A, rowsz ~A, args ~A\n" file rowsz args)
+;      (if (null? args) 
+; 	(begin 
+; 	  (dv-dump1 v file rowsz))
+; 	(begin 
+; 	  (if (= (length args) 1)
+; 	      (format #t "~A: \n" (car args))
+; 	      (apply format #t args))
+; 	  (dv-dump1 v file rowsz)
+; 	  (newline)))
+))
 
 (define (dv-max-aux v comp)
   (dv-reduce v (lambda (x y) 
