@@ -1,6 +1,8 @@
-// Taken from http://burtleburtle.net/bob/hash/evahash.html
-// Hash Functions for Hash Table Lookup
-// Robert J. Jenkins Jr., 1995-1997
+/*
+  Taken from http://burtleburtle.net/bob/hash/evahash.html
+  Hash Functions for Hash Table Lookup
+  Robert J. Jenkins Jr., 1995-1997
+*/
 
 #include <stdio.h>
 
@@ -22,7 +24,7 @@ typedef  unsigned     char  u1;   /* unsigned 1-byte type */
 }
 
 /* The whole new hash function */
-u4 hash( k, length, initval)
+u4 bjhash( k, length, initval)
 register u1 *k;        /* the key */
 u4           length;   /* the length of the key in bytes */
 u4           initval;  /* the previous hash, or an arbitrary value */
@@ -66,10 +68,4 @@ u4           initval;  /* the previous hash, or an arbitrary value */
    mix(a,b,c);
    /*-------------------------------------------- report the result */
    return c;
-}
-
-int main() {
-  int j;
-  for (j=0; j<100; j++) 
-    printf("j %u, hash %d\n",j,hash(&j,4,0));
 }

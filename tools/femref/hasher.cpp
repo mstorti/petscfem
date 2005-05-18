@@ -1,4 +1,4 @@
-// $Id: hasher.cpp,v 1.8 2004/12/03 23:22:20 mstorti Exp $
+// $Id: hasher.cpp,v 1.9 2005/05/18 23:10:31 mstorti Exp $
 #include <cstdlib>
 #include <cstring>
 #include <cstdio>
@@ -59,4 +59,18 @@ void SumHasher::hash(int *w,int n) {
 
 long int SumHasher::val() {
   return result;
+}
+
+long int bjhash(void *k, long int length, long int initval);
+
+void BJHasher::hash(int w) {
+  retval = bjhash(&w,sizeof(long int),state);
+}
+
+void BJHasher::hash(int *w,int n) {
+  for (int j=0; j<n; j++) hash(w[j]);
+}
+
+long int BJHasher::val() {
+  return retval;
 }

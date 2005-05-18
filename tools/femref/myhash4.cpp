@@ -46,6 +46,7 @@ int main() {
   DEF_HASHER(MD5SumHasher);
   DEF_HASHER(FastHasher);
   DEF_HASHER(FastSumHasher);
+  DEF_HASHER(BJHasher);
 
   const char *hasher;
 
@@ -59,5 +60,6 @@ int main() {
   TEST_HASHER(SumHasher);
   // TEST_HASHER(MD5SumHasher);
   TEST_HASHER(FastSumHasher);
+  TEST_HASHER(BJHasher);
 
 }
