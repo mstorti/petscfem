@@ -1,4 +1,4 @@
-;;; $Id: trykeyw2.scm,v 1.1 2005/05/19 02:26:01 mstorti Exp $
+;;; $Id: trykeyw2.scm,v 1.2 2005/05/19 11:56:49 mstorti Exp $
 (use-modules (ice-9 format))
 (use-modules (ice-9 receive))
 
@@ -21,3 +21,7 @@
  (kw-vals args)
  (parse-args '((a . 1) (b . 5)) '(34 45 3 b 7 w a))
  (format #t "kws ~A, args ~A\n" kw-vals args))
+
+
+
+(define (f 
