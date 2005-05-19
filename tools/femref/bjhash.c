@@ -3,7 +3,7 @@
   Hash Functions for Hash Table Lookup
   Robert J. Jenkins Jr., 1995-1997
 */
-/* $Id */
+/* $Id: bjhash.c,v 1.4 2005/05/19 00:21:32 mstorti Exp $ */
 
 #include <stdio.h>
 
