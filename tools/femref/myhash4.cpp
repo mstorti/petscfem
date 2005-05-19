@@ -12,7 +12,7 @@ using namespace std;
 void test_hasher(BaseHasher *hash,
 		 const char *name) {
   time_t start, end;
-  int N=20, M=1000, NN=100, 
+  int N=20, M=1000, NN=1000, 
     ntime=100, NBUFF=N*NN;
   vector<int> buffer(NBUFF);
   for (int j=0; j<NBUFF; j++)

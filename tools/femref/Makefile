@@ -1,7 +1,7 @@
 #__INSERT_LICENSE__
 .PHONY: all
 
-N := 5
+N := 4
 OPT := -O2 -funroll-loops
 # OPT := -g
 
