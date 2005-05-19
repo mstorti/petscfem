@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-/* $Id: lagmul.cpp,v 1.11 2005/04/10 08:48:20 mstorti Exp $ */
+/* $Id: lagmul.cpp,v 1.12 2005/05/19 19:35:07 mstorti Exp $ */
 
 #include <src/fem.h>
 #include <src/utils.h>
@@ -15,6 +15,17 @@
 extern TextHashTable *GLOBAL_OPTIONS;
 
 LagrangeMult::~LagrangeMult() {};
+
+void 
+read_double_array_options(NewElemset &elemset,
+			  vector<double> &v) {
+  const char *line;
+  elemset.get_entry("x0",line);
+  if(line) {
+    v.clear();
+    read_double_array(v,line);
+  }
+}
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 // modif nsi_tet
@@ -46,13 +57,28 @@ new_assemble(arg_data_list &arg_data_v,const Nodedata *nodedata,
   else if (comp_mat) 
     get_data(arg_data_v,retvalmat);
 
-  //o Using Lagrange multipliers leads to diagonal null terms, which can
-  // cause zero pivots when using direct methods. With this option
-  // a small term is added to the diagonal in order to fix this. The
-  // term is added only in the Jacobian or also in the residual (which
-  // results would be non-consistent). See option
-  //  #lagrange_residual_factor# . 
-  NSGETOPTDEF(double,lagrange_diagonal_factor,0.);
+  int nelprops,ndof;
+  elem_params(nel,ndof,nelprops);
+
+  vector<double> lagrange_diagonal_factor;
+  //o _T: vector<double>
+  // _N: lagrange_diagonal_factor
+  // _D: scalar, 1e-5
+  // _DOC: Using Lagrange multipliers leads to diagonal null
+  // terms, which can cause zero pivots when using direct
+  // methods. With this option a small term is added to the
+  // diagonal in order to fix this. The term is added only
+  // in the Jacobian or also in the residual (which results
+  // would be non-consistent). See option
+  // #lagrange_residual_factor# .
+  //  _END
+  read_double_array_options(*this,lagrange_diagonal_factor_v);
+  int nldf = lagrange_diagonal_factor_v.size();
+  assert(nldf==0 || nldf==1 || nldf==ndof);
+  if (nldf==0) 
+    lagrange_diagonal_factor_v.resize(ndof,1e-5);
+  }
+
   //o The diagonal term proportional to   #lagrange_diagonal_factor#  
   // may be also entered in the residual. If this is so
   // ( #lagrange_residual_factor=1# , then the
@@ -81,8 +107,6 @@ new_assemble(arg_data_list &arg_data_v,const Nodedata *nodedata,
   init();
   nr = nres(); // Get dimensions of problem
 
-  int nelprops,ndof;
-  elem_params(nel,ndof,nelprops);
   FastMat2 matloc_prof(4,nel,ndof,nel,ndof),
     matloc(4,nel,ndof,nel,ndof), U(2,nel,ndof),R(2,nel,ndof);
   xloc_m.resize(2,nel,ndim);
