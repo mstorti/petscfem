@@ -3,6 +3,7 @@
   Hash Functions for Hash Table Lookup
   Robert J. Jenkins Jr., 1995-1997
 */
+/* $Id */
 
 #include <stdio.h>
 
