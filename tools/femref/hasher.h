@@ -1,6 +1,6 @@
 // -*- mode: c++ -*-
 //__INSERT_LICENSE__
-// $Id: hasher.h,v 1.10 2005/05/18 23:10:31 mstorti Exp $
+// $Id: hasher.h,v 1.11 2005/05/19 00:46:54 mstorti Exp $
 #ifndef PETSCFEM_HASHER_H
 #define PETSCFEM_HASHER_H
 
@@ -163,10 +163,9 @@ public:
 class BJHasher : public BaseHasher {
 private:
   int state;
-  int retval;
 public:
   BJHasher() { reset(); }
-  void reset() { state=0; retval=0; }
+  void reset() { state=0; }
   void hash(int w);
   void hash(int *w,int n);
   long int val();

@@ -10,7 +10,7 @@
 using namespace std;
 
 void test_hasher(BaseHasher *hash,const char *name) {
-  int N=20, M=14, NN=1000000;
+  int N=1, M=10000, NN=M;
   set<int> shash;
   srand(0x234edee4);
   for (int j=0; j<NN; j++) {
@@ -34,11 +34,26 @@ int main() {
   name name##_h;				\
   test_hasher(&name##_h,#name);
 
-  // TEST_HASHER(Hasher);
-  // TEST_HASHER(MD5Hasher);
-  // TEST_HASHER(FastHasher);
-
+#if 1
+  TEST_HASHER(Hasher);
+  TEST_HASHER(MD5Hasher);
+  TEST_HASHER(FastHasher);
   TEST_HASHER(SumHasher);
   TEST_HASHER(MD5SumHasher);
   TEST_HASHER(FastSumHasher);
+  TEST_HASHER(BJHasher);
+#endif
+  
+#if 0
+  BJHasher h;
+  h.reset();
+  h.hash(10);
+  h.hash(30);
+  h.hash(40);
+  printf("hash 10,30,40: %d\n",h.val());
+
+  h.reset();
+  h.hash(40);
+  printf("hash 40: %d\n",h.val());
+#endif
 }
