@@ -1,4 +1,4 @@
-# $Id: condwall.pl,v 1.10 2005/04/01 21:18:04 mstorti Exp $ 
+# $Id: condwall.pl,v 1.11 2005/05/19 16:50:31 mstorti Exp $ 
 
 require "$ENV{'PETSCFEM_DIR'}/test/eperlini.pl"; # Initializes ePerl 
 
@@ -6,7 +6,7 @@ $Lx1=1;
 $Lx2=1;
 $Ly=1;
 
-$Nx1 = $Nx2 = $Ny = 10;
+$Nx1 = $Nx2 = $Ny = 200;
 $hratio1 = 5;
 $hratio2 = 5;
 

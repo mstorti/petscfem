@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: srfgath.cpp,v 1.13 2004/02/06 21:37:16 mstorti Exp $
+//$Id: srfgath.cpp,v 1.14 2005/05/19 16:44:52 mstorti Exp $
 
 #include <src/fem.h>
 #include <src/utils.h>
@@ -461,7 +461,8 @@ int SurfGatherer::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
 	double area = c.norm_p_all(2.0)/2.0;
 	Area += area;
 	tmp2.prod(n,c,-1,-1);
-	if (tmp2.get() < 0.) 
+	double tol = 1e-6;
+	if (tmp2.get() < -tol) 
 	  set_error(found_bad_intersection_polygon);
 	
 	set_ip_values(ip_values,ut,xpg,n,t);

@@ -52,7 +52,21 @@ sub pr {
     my $line = shift();
     my @names = split " ",$line;
     my @text = ();
-    foreach $name (@names) { push @text,"$name ",quote_string(${$name}),"\n"; }
+    foreach $name (@names) { 
+	my $elem = $ {$name};
+	push @text,"$name ";
+	## Deactivated since the trick is to pass the
+	## string with values to pr (not the reference
+	## to an array).
+	if (0 && ref($elem) eq 'ARRAY') {
+	    for $q (@$elem) {
+		push @text," $q"; 
+	    }
+	} else {
+	    push @text," $elem"; 
+	}
+	push @text,"\n"; 
+    }
     pop @text;
     print @text;
 }

@@ -1,5 +1,5 @@
 # -*- mode: shell-script -*-
-#$Id: condwall.epl,v 1.12 2005/04/01 21:18:04 mstorti Exp $
+#$Id: condwall.epl,v 1.13 2005/05/19 16:50:31 mstorti Exp $
 # case: <:=$ENV{'case'}:>
 #<: require './condwall.pl'; :>
 ##---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
@@ -10,7 +10,7 @@ nsave 5
 nstep 10000
 save_file condwall.state.tmp
 
-nsaverot 1
+nsaverot 20
 save_file_pattern "STEPS/condwall.state_%d.tmp"
 nrec 1
 nfile 100000000

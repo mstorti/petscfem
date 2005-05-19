@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-// $Id: condwall.cpp,v 1.13 2005/04/08 20:51:11 mstorti Exp $
+// $Id: condwall.cpp,v 1.14 2005/05/19 16:45:51 mstorti Exp $
 
 #include "./condwall.h"
 extern int MY_RANK,SIZE;
@@ -57,7 +57,7 @@ res(int k,FastMat2 &U,FastMat2 &r,
   U.ir(1,2);
   U2.set(U);
   U.rs();
-  double alpha=1.0;
+  double alpha=-1.0;
   if (data_p && data_p->Rv.size()>0) {
     if (k==0) assert(data_p->Rv.size()==size());
     R = data_p->Rv.ref(k);

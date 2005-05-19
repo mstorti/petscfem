@@ -1,8 +1,8 @@
-# $Id: Makefile,v 1.11 2005/04/01 21:18:04 mstorti Exp $ 
+# $Id: Makefile,v 1.12 2005/05/19 16:50:31 mstorti Exp $ 
 
 default: condwall
 
-# BOPT = O_c++
+BOPT = O_c++
 PETSCFEM_DIR = ../..
 include $(PETSCFEM_DIR)/Makefile.base
 include $(PETSCFEM_DIR)/test/Makefile.base.test
@@ -11,9 +11,8 @@ LOC_PROG := ns
 PROG := $(NS)
 CASE := condwall
 
-NP = 1
-# MCH = -machinefile ./machi.dat
-# NP := $(shell procsel $(PETSCFEM_PROCTABLE))
+MCH = -nolocal -machinefile ./machi.dat
+NP := $(shell procsel -n ./proctable)
 
 .PHONY: default condwall
 
@@ -46,7 +45,8 @@ dx:
 	-${MPIRUN} -np 1 $(PROG) -case $(CASE)-dx.depl
 
 zip:
-	@for f in STEPS/$(CASE).state_*.tmp ; \
+	@shop -s nullglob ;				\
+	for f in STEPS/$(CASE).state_*.tmp ;		\
 	do echo gzipping $$f ; gzip -f $$f ; done
 
 dx_make_command:
