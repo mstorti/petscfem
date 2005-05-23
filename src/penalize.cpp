@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-/* $Id: penalize.cpp,v 1.11 2005/04/25 01:47:19 mstorti Exp $ */
+/* $Id: penalize.cpp,v 1.12 2005/05/23 02:54:12 mstorti Exp $ */
 
 #ifdef USE_DLEF
 #include <dlfcn.h>
@@ -141,6 +141,11 @@ new_assemble(arg_data_list &arg_data_v,const Nodedata *nodedata,
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 Restriction::~Restriction() { }
 
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>
+void Restriction::
+set_ldf(FastMat2 &ldf_user,
+	vector<double> &ldf) { }
+
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 int
 DLRestriction::init(int nel,int ndof,
@@ -190,3 +195,4 @@ DLRestriction::init(int nel,int ndof,
 		 name);
 #endif
 }
+

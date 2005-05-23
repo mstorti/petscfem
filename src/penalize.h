@@ -1,6 +1,6 @@
 // -*- mode: c++ -*-
 //__INSERT_LICENSE__
-// $Id: penalize.h,v 1.12 2005/05/03 12:57:26 mstorti Exp $
+// $Id: penalize.h,v 1.13 2005/05/23 02:54:12 mstorti Exp $
 #ifndef PETSCFEM_PENALIZE_H
 #define PETSCFEM_PENALIZE_H
 
@@ -50,6 +50,8 @@ public:
   */ 
   virtual void res(int k,FastMat2 &U,FastMat2 & r,
 		   FastMat2 & w,FastMat2 & jac)=0;
+  virtual void set_ldf(FastMat2 &ldf_user,
+		       vector<double> &ldf);
   /// Called after the loop over all elements
   virtual void close() {}
   /// Make it pure virtual. 

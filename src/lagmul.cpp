@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-/* $Id: lagmul.cpp,v 1.12 2005/05/19 19:35:07 mstorti Exp $ */
+/* $Id: lagmul.cpp,v 1.13 2005/05/23 02:54:12 mstorti Exp $ */
 
 #include <src/fem.h>
 #include <src/utils.h>
@@ -72,12 +72,7 @@ new_assemble(arg_data_list &arg_data_v,const Nodedata *nodedata,
   // would be non-consistent). See option
   // #lagrange_residual_factor# .
   //  _END
-  read_double_array_options(*this,lagrange_diagonal_factor_v);
-  int nldf = lagrange_diagonal_factor_v.size();
-  assert(nldf==0 || nldf==1 || nldf==ndof);
-  if (nldf==0) 
-    lagrange_diagonal_factor_v.resize(ndof,1e-5);
-  }
+  read_double_array_options(*this,lagrange_diagonal_factor);
 
   //o The diagonal term proportional to   #lagrange_diagonal_factor#  
   // may be also entered in the residual. If this is so
@@ -107,8 +102,26 @@ new_assemble(arg_data_list &arg_data_v,const Nodedata *nodedata,
   init();
   nr = nres(); // Get dimensions of problem
 
+#if 0
+  int nldf = lagrange_diagonal_factor.size();
+  assert(nldf==0 || nldf==1 || nldf==nr);
+  if (nldf==0) 
+    lagrange_diagonal_factor.resize(nr,1e-5);
+  if (nldf==1)
+    lagrange_diagonal_factor
+      .resize(nr,lagrange_diagonal_factor[0]);
+  { static int flag=0;
+  if (!flag) {
+    flag=1;
+    for (int j=0; j<nr; j++)
+      printf("ldf[%d]=%g\n",j+1,lagrange_diagonal_factor[j]);
+  }
+  }
+#endif
+  
   FastMat2 matloc_prof(4,nel,ndof,nel,ndof),
-    matloc(4,nel,ndof,nel,ndof), U(2,nel,ndof),R(2,nel,ndof);
+    matloc(4,nel,ndof,nel,ndof), U(2,nel,ndof),R(2,nel,ndof),
+    ldf_user(1,nr);
   xloc_m.resize(2,nel,ndim);
   if (comp_mat) matloc_prof.set(1.);
 
@@ -157,21 +170,28 @@ new_assemble(arg_data_list &arg_data_v,const Nodedata *nodedata,
 
     if (comp_mat_res) {
       res(elem,U,r,w,jac);
+      if (lagrange_diagonal_factor.size()==0)
+	ldf_user.set(1e-5);
+      else if (lagrange_diagonal_factor.size()==1)
+	ldf_user.set(lagrange_diagonal_factor[0]);
+      else if (lagrange_diagonal_factor.size()==nr)
+	ldf_user.set(&lagrange_diagonal_factor[0]);
+      set_ldf(ldf_user,lagrange_diagonal_factor);
       for (jr=1; jr<=nr; jr++) {
+	double ldf = ldf_user.get(jr);
 	// get node/field of the Lag.mul.
 	lag_mul_dof(jr,jfic,dofic);
 
 	lambda = U.get(jfic,dofic);
 	w.rs().ir(3,jr);
 	R.axpy(w,lambda*lagrange_scale_factor);
-	rr = r.get(jr) - lagrange_diagonal_factor
-	  *lagrange_residual_factor*U.get(jfic,dofic);
+	rr = r.get(jr) - ldf * 
+	  lagrange_residual_factor*U.get(jfic,dofic);
 	R.addel(rr*lagrange_row_scale_factor,jfic,dofic);
 
 	matloc.rs().ir(3,jfic).
 	  ir(4,dofic).axpy(w,-lagrange_scale_factor);
-	matloc.rs().addel(lagrange_diagonal_factor
-			  *lagrange_row_scale_factor,
+	matloc.rs().addel(ldf * lagrange_row_scale_factor,
 			  jfic,dofic,jfic,dofic);
 	jac.rs().ir(1,jr);
 	matloc.ir(1,jfic).ir(2,dofic)
@@ -234,3 +254,8 @@ void LagrangeMult::
 get_old_state(FastMat2 &Uold) {
   Uold.set(element.vector_values(*stateo));
 }
+
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+void LagrangeMult::
+set_ldf(FastMat2 &ldf_user,
+	vector<double> &ldf) { }

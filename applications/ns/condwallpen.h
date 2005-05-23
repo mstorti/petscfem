@@ -1,6 +1,6 @@
 // -*- mode: c++ -*-
 //__INSERT_LICENSE__
-// $Id: condwallpen.h,v 1.4 2005/04/10 08:48:17 mstorti Exp $
+// $Id: condwallpen.h,v 1.5 2005/05/23 02:54:09 mstorti Exp $
 #ifndef PETSCFEM_CONDWALLPEN_H
 #define PETSCFEM_CONDWALLPEN_H
 
@@ -30,6 +30,8 @@ public:
   void lag_mul_dof(int jr,int &node,int &dof);
   void res(int k,FastMat2 &U,FastMat2 & r,
 	   FastMat2 & w,FastMat2 & jac);
+  void set_ldf(FastMat2 &ldf_user,
+	       vector<double> &ldf);
   ~CondWallRestriction() { }
 };
 

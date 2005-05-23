@@ -1,6 +1,6 @@
 // -*- mode: c++ -*-
 //__INSERT_LICENSE__
-// $Id: lagmul.h,v 1.11 2005/04/10 08:48:20 mstorti Exp $
+// $Id: lagmul.h,v 1.12 2005/05/23 02:54:12 mstorti Exp $
 #ifndef PETSCFEM_LAGMUL_H
 #define PETSCFEM_LAGMUL_H
 
@@ -70,6 +70,8 @@ public:
   */ 
   virtual void res(int k,FastMat2 &U,FastMat2 & r,
 		   FastMat2 & w,FastMat2 & jac)=0;
+  virtual void set_ldf(FastMat2 &ldf_user,
+		       vector<double> &ldf);
   /** Returns the coordinate of the nodes 
       of the element.       
       @param xloc (output) the coordinates of the nodes
@@ -129,6 +131,10 @@ public:
   void res(int k,FastMat2 &U,FastMat2 & r,
 	   FastMat2 & w,FastMat2 & jac) {
     restr->res(k,U,r,w,jac);
+  }
+  void set_ldf(FastMat2 &ldf_user,
+	       vector<double> &ldf) {
+    restr->set_ldf(ldf_user,ldf);
   }
   void close() { restr->close(); }
   ROBLagrangeMult(Restriction *r=NULL) 
