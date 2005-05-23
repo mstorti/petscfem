@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: gasflow.cpp,v 1.37 2005/03/29 01:48:02 mstorti Exp $
+//$Id: gasflow.cpp,v 1.37.4.1 2005/05/23 18:36:06 mstorti Exp $
 
 #include <src/fem.h>
 #include <src/texthash.h>
@@ -7,6 +7,8 @@
 #include <src/generror.h>
 
 #include "gasflow.h"
+
+extern int MY_RANK,SIZE;
 
 #define GF_GETOPTDEF_ND(type,var,def)				\
  { if (elemset) { EGETOPTDEF_ND(elemset,type,var,def); }	\
@@ -18,6 +20,7 @@
 void gasflow_ff::start_chunk(int &ret_options) {
   int ierr;
   FastMat2 tmp5;
+
 
   if (elemset) {
     new_adv_dif_elemset = dynamic_cast<const NewAdvDif *>(elemset);
@@ -47,12 +50,12 @@ void gasflow_ff::start_chunk(int &ret_options) {
   GF_GETOPTDEF_ND(double,rho_thrsh,0.);
   //o Threshold value for pressure. See doc for rho_thrsh.
   GF_GETOPTDEF_ND(double,p_thrsh,0.);
-  //o If this flag is activated the code stops when a negative 
+  //o If this flag is activated the code stops when a negative
   //  value for density or pressure is found. Setting either
-  //  #p_thrsh# or #rho_thrsh# deactivates #stop_on_neg_val# . 
+  //  #p_thrsh# or #rho_thrsh# deactivates #stop_on_neg_val# .
   GF_GETOPTDEF_ND(int,stop_on_neg_val,1);
-  PETSCFEM_ASSERT0(rho_thrsh>=0,"Density threshold should be non-negative");  
-  PETSCFEM_ASSERT0(p_thrsh>=0,"Pressure threshold should be non-negative");  
+  PETSCFEM_ASSERT0(rho_thrsh>=0,"Density threshold should be non-negative");
+  PETSCFEM_ASSERT0(p_thrsh>=0,"Pressure threshold should be non-negative");
   if (rho_thrsh>0 || p_thrsh>0) stop_on_neg_val=0;
 
   //o Adjust the stability parameters, taking into account
@@ -66,12 +69,23 @@ void gasflow_ff::start_chunk(int &ret_options) {
   // constant of a particular gas for ideal gas law (state equation for the gas)
   GF_GETOPTDEF_ND(double,Rgas,287.);
 
-  // shock capturing scheme 
-  // [0] standard [default]
+  // tau scheme 
+  // [0] standard [default] tau = max(0, tau_a-tau_d-tau_delta) 
   // [1] see Tezduyar & Senga WCCM VI (2004) 
-  GF_GETOPTDEF_ND(int,shocap_scheme,0);
+  //     inv(tau[jdof,jdof])^r_switch = 
+  //                    inv(tau_adv[jdof])^r_switch+inv(tau_dif[jdof])^r_switch 
+  // 
+  GF_GETOPTDEF_ND(int,tau_scheme,0);
+
+  // r-switch : exponent for stabilization switching 
+  //            see Tezduyar & Senga WCCM VI (2004) 
+  GF_GETOPTDEF_ND(double,r_switch,2.0);
+
   // beta parameter for shock capturing, see Tezduyar & Senga WCCM VI (2004)
   GF_GETOPTDEF_ND(double,shocap_beta,1.0);
+  //o Add a shock capturing term 
+  // (copy from advdife.cpp)
+  GF_GETOPTDEF_ND(double,shocap,0.0);
 
   // Sutherland law key
   GF_GETOPTDEF_ND(int,sutherland_law,0);
@@ -121,7 +135,7 @@ void gasflow_ff::start_chunk(int &ret_options) {
   //o Use linear approximation for the absorbing
   //  boundary condition. Gives fully absorbing b.c. in the
   //  linear range, but not truly Riemman Invariant in the
-  //  nonlinear range. 
+  //  nonlinear range.
   GF_GETOPTDEF_ND(int,linear_abso,0);
 
   assert(ndim>0);
@@ -142,6 +156,7 @@ void gasflow_ff::start_chunk(int &ret_options) {
   Id_ndim.resize(2,ndim,ndim).eye();
   Amom.resize(2,ndim,ndim);
   Y.resize(2,ndim,ndim);
+  Y3.resize(3,ndim,ndim,ndim);
 
   Djac.resize(4,ndim,ndof,ndim,ndof);
   Djac_tmp.resize(4,ndim,ndof,ndim,ndof);
@@ -161,6 +176,12 @@ void gasflow_ff::start_chunk(int &ret_options) {
   sigma.resize(2,ndim,ndim);
   grad_T.resize(1,ndim);
   grad_p.resize(1,ndim);
+  grad_rho.resize(1,ndim);
+
+  grad_U_norm_c.resize(1,ndim);
+  Gamma_i.resize(1,ndof);
+  tau_supg_d.resize(1,ndof);
+  tmp_vaux_ndim.resize(1,ndim);
 
   IdId.resize(4,ndim,ndim,ndim,ndim);
   IdId.prod(Id_ndim,Id_ndim,1,3,2,4);
@@ -171,6 +192,7 @@ void gasflow_ff::start_chunk(int &ret_options) {
   uintri.resize(1,ndim);
   svec.resize(1,ndim);
   tmp9.resize(1,nel);
+  tmp9_aux.resize(1,nel);
   W_N.resize(2,nel,nel);
   jvec.resize(1,ndim);
 
@@ -183,6 +205,7 @@ void gasflow_ff::start_chunk(int &ret_options) {
      assert(Tem_ref>0.0);
   }
 
+  ip.resize(ndim+1);
 }
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:
@@ -219,7 +242,7 @@ void gasflow_ff::set_state(const FastMat2 &UU) {
   rho = U.get(1);
   p = U.get(ndof);
 
-  if (stop_on_neg_val && (p<0 || rho<0)) 
+  if (stop_on_neg_val && (p<0 || rho<0))
     throw GenericError("negative pressure or density detected.");
 
   // Cutoff values
@@ -287,6 +310,36 @@ get_Ajac(FastMat2 &Ajac_a) {
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:
 void gasflow_ff::
+compute_tau_viscous(FastMat2 &grad_state_norm, double &delta_sc) {
+
+  // compute viscous part of time intrinsic matrix
+  // following Tezduyar et.al. papers
+
+  double sonic_speed = sqrt(ga*p/rho);
+  vel_beta.prod(vel_supg,grad_state_norm,-1,-1);
+  double velmod = fabs(double(vel_beta));
+  double vel_char = velmod+sonic_speed;
+  Gamma_i.set(0.0);
+
+  //  tmp_vaux_ndim.set(1.0);
+  //  tmp_vaux_ndim.axpy(grad_state_norm.fun(square),1./3.).scale(visco_supg);  
+
+  tmp_vaux_ndim.set(grad_state_norm).fun(square).scale(1./3.);
+  for (int j=1; j<=ndim; j++) {
+    tmp_vaux_ndim.addel(1.,j);
+  }
+  tmp_vaux_ndim.scale(visco_supg);  
+
+  Gamma_i.is(1,vl_indx,vl_indxe).set(tmp_vaux_ndim).rs();
+  Gamma_i.setel(cond_supg/Cv/rho,ndof).rs();
+  tau_supg_d.set(Gamma_i).scale(1.0/square(vel_char));
+
+  tau_supg_delta = shocap*delta_sc/square(vel_char);
+
+}
+
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:
+void gasflow_ff::
 compute_tau(int ijob,double &delta_sc) {
 
   //    static FastMat2 svec,tmp9;
@@ -310,19 +363,20 @@ compute_tau(int ijob,double &delta_sc) {
     }
     FastMat2::leave();
 
-    double Peclet = velmod * h_supg / (2. * visco_supg);
+    double Peclet;
     double sonic_speed = sqrt(ga*p/rho);
     double velmax = velmod+sonic_speed;
     
+    /*
+      Peclet = velmax * h_supg / (2. * visco_supg);
+      double fz3 = (Peclet < 3. ? Peclet/3. : 1.);
+      tau_supg_a = h_supg/2./velmax*fz3;
+    */
+    
     tau_supg_a = h_supg/2./velmax;
 
-#if 0
-    if (shocap_scheme==0) {
-      double fz = (Peclet < 3. ? Peclet/3. : 1.);
-      delta_sc = 0.5*h_supg*velmax*fz;
-    } 
-#endif
-    // antes era shocap_scheme==1
+    Peclet = velmod * h_supg / (2. * visco_supg);
+
     double tol_shoc = 1e-010;
     // compute j direction , along density gradient
     double h_shoc, grad_rho_mod = sqrt(grad_rho.sum_square_all());
@@ -343,9 +397,11 @@ compute_tau(int ijob,double &delta_sc) {
     double fz = grad_rho_mod*h_shoc/rho;
     fz = pow(fz,shocap_beta);
     delta_sc_aniso = 0.5*h_shoc*velmax*fz;
-    
+
     double fz2 = (Peclet < 3. ? Peclet/3. : 1.);
     delta_sc = 0.5*h_supg*velmax*fz2;
+
+
 }
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:
@@ -363,6 +419,9 @@ void gasflow_ff::compute_flux(const FastMat2 &U,
 				// that we are returning a MATRIX tau
 
 
+  double tau_con, tau_mom,tau_ene;
+  
+  double tol=1.0e-16;
   //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:
   // Enthalpy Jacobian Cp
 
@@ -386,6 +445,7 @@ void gasflow_ff::compute_flux(const FastMat2 &U,
   flux.is(1,vl_indx,vl_indxe).add(Y).rs();
   flux.ir(1,ndof).set(vel).scale(entalpy).rs();
 
+/*
   //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:
   // Adjective Jacobians
   Ajac.set(0.);
@@ -429,6 +489,36 @@ void gasflow_ff::compute_flux(const FastMat2 &U,
   Ajac_tmp.set(Ajac);
   Ajac.prod(Ajac_tmp,Cp,1,2,-1,-1,3);
 
+*/
+
+  // Adjective Jacobians in primitive basis
+  Ajac.set(0.);
+
+  // First row
+  Ajac.ir(2,1).ir(3,1).set(vel).rs();
+  Ajac.ir(2,1).is(3,vl_indx,vl_indxe).set(Id_ndim).scale(rho).rs();
+
+  // Last row
+  Ajac.ir(2,ndof).ir(3,1).set(vel).scale(0.5*square(velmod)).rs();
+  Ajac.ir(2,ndof).ir(3,ndof).set(vel).scale(ga/g1).rs();
+
+  Ajac.ir(2,ndof).is(3,vl_indx,vl_indxe).prod(vel,vel,1,2).scale(rho).rs();
+  Ajac.ir(2,ndof).is(3,vl_indx,vl_indxe).axpy(Id_ndim,ga/g1*p+0.5*rho*square(velmod)).rs();
+
+  // Momentum rows
+  Ajac.is(2,vl_indx,vl_indxe).ir(3,1).prod(vel,vel,1,2).rs();
+  Ajac.is(2,vl_indx,vl_indxe).ir(3,ndof).set(Id_ndim).rs();
+  Ajac.is(2,vl_indx,vl_indxe).is(3,vl_indx,vl_indxe).prod(vel,Id_ndim,1,2,3).scale(rho).rs();
+
+  // Ajac.is(2,vl_indx,vl_indxe).is(3,vl_indx,vl_indxe).prod(vel,Id_ndim,2,1,3).scale(rho).rs();
+  Y3.prod(vel,Id_ndim,2,1,3).scale(rho).rs();
+  Ajac.is(2,vl_indx,vl_indxe).is(3,vl_indx,vl_indxe).add(Y3).rs();
+
+/*
+  Ajac.print("Ajac: ");
+  Ajac_tmp.print("Ajac_tmp: ");
+*/
+
   //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:
 
   A_grad_U.prod(Ajac,grad_U,-1,1,-2,-1,-2);
@@ -459,7 +549,7 @@ void gasflow_ff::compute_flux(const FastMat2 &U,
       double Volume = advdf_e->volume();
       int axi = advdf_e->axi;
       double h_grid;
-      
+
       if (ndim==2 | (ndim==3 && axi>0)) {
 	h_grid = sqrt(4.*Volume/pi);
       } else if (ndim==3) {
@@ -469,7 +559,7 @@ void gasflow_ff::compute_flux(const FastMat2 &U,
 		    "Only dimensions 2 and 3 allowed for this element.\n");
       }
       double strain_rate_abs = strain_rate.sum_square_all();
-      
+
       strain_rate_abs = sqrt(strain_rate_abs);
       double nu_t = C_smag*strain_rate_abs*h_grid*h_grid;
       visco_t = rho*nu_t;
@@ -496,7 +586,7 @@ void gasflow_ff::compute_flux(const FastMat2 &U,
   // Stress tensor
   sigma.set(0.);
   //  sigma.eye(divu).scale(-2./3.*visco_eff).add(strain_rate).scale(2.*visco_eff).rs();
-  sigma.eye(divu).scale(-2./3.).add(strain_rate).scale(2.).rs();
+  sigma.eye(divu).scale(-2./3.).axpy(strain_rate,2.0).rs();
 
   // Temperature gradient
   grad_U.ir(2,1);
@@ -507,9 +597,9 @@ void gasflow_ff::compute_flux(const FastMat2 &U,
   grad_T.set(grad_p).axpy(grad_rho,-p/rho).scale(1./Rgas/rho).rs();
   double dTdp   =  1./Rgas/rho;
   double dTdrho = -p/Rgas/rho/rho;
-  
+
   double dvisco_l_dT = 0.;
-  if (sutherland_law !=0 && sutherland_law_implicit !=0) 
+  if (sutherland_law !=0 && sutherland_law_implicit !=0)
     dvisco_l_dT = visco*(3./2.*sutherland_factor/Tem-pow(Tem/Tem_infty,1.5)/pow((Tem_ref+Tem),2.0));
 
   dviscodU.set(0.);
@@ -527,94 +617,142 @@ void gasflow_ff::compute_flux(const FastMat2 &U,
   fluxd.ir(1,ndof).set(viscous_work).rest(heat_flux).rs();
 
   // Diffusive jacobians
-  Djac.set(0.);
-  Djac.is(2,vl_indx,vl_indxe).is(4,vl_indx,vl_indxe).axpy(IdId,visco_eff).rs();
-  tmp00 = 1./3.*visco_eff;
-  tmp00_lam = 1./3.*visco_l;
-  for (int j=1; j<=ndim; j++) {
-     Djac.addel(tmp00,j,j+1,j,j+1);
-  }
-  // Momentum rows and first columns of K_ii
-  tmp_vel.set(vel).scale(-tmp00);
-  for (int j=1; j<=ndim; j++) {
-    Djac.ir(1,j).ir(3,j).is(2,vl_indx,vl_indxe).ir(4,1).set(vel).scale(-visco_eff).rs();
-    Djac.ir(1,j).ir(3,j).ir(4,1).ir(2,j+1).add(tmp_vel.get(j)).rs();
-  }
-  // Momentum columns and last row of K_ii
-  tmp_vel.set(vel).scale(tmp00_lam);
-  for (int j=1; j<=ndim; j++) {
-    Djac.ir(1,j).ir(3,j).is(4,vl_indx,vl_indxe).ir(2,ndof).set(vel).scale(visco_bar).rs();
-    Djac.ir(1,j).ir(3,j).ir(2,ndof).ir(4,j+1).add(tmp_vel.get(j)).rs();
+  if(ndim==3) {
+    ip[0] = 1;
+    ip[1] = 2;
+    ip[2] = 3;
+    ip[3] = 1;
+  } else {
+    ip[0] = 1;
+    ip[1] = 2;
+    ip[2] = 1;
   }
 
-  // Last row and first and last column
-  tmp02 = cond_eff/Cv;
-  tmp01 = (0.5*square(velmod)-int_ene)*tmp02-visco_l*square(velmod);
-  for (int j=1; j<=ndim; j++) {
-    vel_j2 = square(double(vel.get(j)));
-    //    vel.rs();
-    tmp03 = tmp01 - tmp00_lam*vel_j2;
-    Djac.setel(tmp02,j,ndof,j,ndof);
-    Djac.setel(tmp03,j,ndof,j,1);
-  }
-  Djac.rs();
+  if(0) {
+    Djac.set(0.);
+    Djac.is(2,vl_indx,vl_indxe).is(4,vl_indx,vl_indxe).axpy(IdId,visco_eff).rs();
+    tmp00 = 1./3.*visco_eff;
+    tmp00_lam = 1./3.*visco_l;
+    for (int j=1; j<=ndim; j++) {
+       Djac.addel(tmp00,j,j+1,j,j+1);
+    }
+    // Momentum rows and first columns of K_ii
+    tmp_vel.set(vel).scale(-tmp00);
+    for (int j=1; j<=ndim; j++) {
+      Djac.ir(1,j).ir(3,j).is(2,vl_indx,vl_indxe).ir(4,1).set(vel).scale(-visco_eff).rs();
+      Djac.ir(1,j).ir(3,j).ir(4,1).ir(2,j+1).add(tmp_vel.get(j)).rs();
+    }
+    // Momentum columns and last row of K_ii
+    tmp_vel.set(vel).scale(tmp00_lam);
+    for (int j=1; j<=ndim; j++) {
+      Djac.ir(1,j).ir(3,j).is(4,vl_indx,vl_indxe).ir(2,ndof).set(vel).scale(visco_bar).rs();
+      Djac.ir(1,j).ir(3,j).ir(2,ndof).ir(4,j+1).add(tmp_vel.get(j)).rs();
+    }
 
-  // Diffusive Jacobians K_ij with i .ne. j
-  tmp00 = 2.*visco_eff/3.;
-  tmp00_lam = 2.*visco_l/3.;
+    // Last row and first and last column
+    tmp02 = cond_eff/Cv;
+    tmp01 = (0.5*square(velmod)-int_ene)*tmp02-visco_l*square(velmod);
+    for (int j=1; j<=ndim; j++) {
+      vel_j2 = square(double(vel.get(j)));
+      //    vel.rs();
+      tmp03 = tmp01 - tmp00_lam*vel_j2;
+      Djac.setel(tmp02,j,ndof,j,ndof);
+      Djac.setel(tmp03,j,ndof,j,1);
+    }
+    Djac.rs();
 
-  if(ndim==2) {
-  int ip[] = {1,2,1};
+    // Diffusive Jacobians K_ij with i .ne. j
+    tmp00 = 2.*visco_eff/3.;
+    tmp00_lam = 2.*visco_l/3.;
 
-  for (int j=0; j<ndim; j++) {
+    for (int j=0; j<ndim; j++) {
 
-    Djac.setel(-tmp00,ip[j],ip[j]+1,ip[j+1],ip[j+1]+1);
-    Djac.setel(visco_eff,ip[j],ip[j+1]+1,ip[j+1],ip[j]+1);
+      Djac.setel(-tmp00,ip[j],ip[j]+1,ip[j+1],ip[j+1]+1);
+      Djac.setel(visco_eff,ip[j],ip[j+1]+1,ip[j+1],ip[j]+1);
 
-    tmp04 = -visco_l/3*double(vel.get(ip[j]))*double(vel.get(ip[j+1]));
-    Djac.setel(tmp04,ip[j],ndof,ip[j+1],1);
+      Djac.setel(visco_eff,ip[j+1],ip[j]+1,ip[j],ip[j+1]+1);
+      Djac.setel(-tmp00,ip[j+1],ip[j+1]+1,ip[j],ip[j]+1);
 
-    tmp04 = tmp00*double(vel.get(ip[j+1]));
-    Djac.setel(tmp04,ip[j],ip[j]+1,ip[j+1],1);
-    tmp04 = -visco_eff*double(vel.get(ip[j]));
-    Djac.setel(tmp04,ip[j],ip[j+1]+1,ip[j+1],1);
+      tmp04 = -visco_l/3*double(vel.get(ip[j]))*double(vel.get(ip[j+1]));
+      Djac.setel(tmp04,ip[j],ndof,ip[j+1],1);
+      Djac.setel(tmp04,ip[j+1],ndof,ip[j],1);
 
-    tmp04 = -tmp00_lam*double(vel.get(ip[j]));
-    Djac.setel(tmp04,ip[j],ndof,ip[j+1],ip[j+1]+1);
-    tmp04 = visco_l*double(vel.get(ip[j+1]));
-    Djac.setel(tmp04,ip[j],ndof,ip[j+1],ip[j]+1);
-  }
+      tmp04 = tmp00*double(vel.get(ip[j+1]));
+      Djac.setel(tmp04,ip[j],ip[j]+1,ip[j+1],1);
+      tmp04 = -visco_eff*double(vel.get(ip[j]));
+      Djac.setel(tmp04,ip[j],ip[j+1]+1,ip[j+1],1);
+
+      tmp04 = -visco_eff*double(vel.get(ip[j+1]));
+      Djac.setel(tmp04,ip[j+1],ip[j]+1,ip[j],1);
+      tmp04 = tmp00*double(vel.get(ip[j]));
+      Djac.setel(tmp04,ip[j+1],ip[j+1]+1,ip[j],1);
+
+      tmp04 = -tmp00_lam*double(vel.get(ip[j]));
+      Djac.setel(tmp04,ip[j],ndof,ip[j+1],ip[j+1]+1);
+      tmp04 = visco_l*double(vel.get(ip[j+1]));
+      Djac.setel(tmp04,ip[j],ndof,ip[j+1],ip[j]+1);
+
+      tmp04 = visco_l*double(vel.get(ip[j]));
+      Djac.setel(tmp04,ip[j+1],ndof,ip[j],ip[j+1]+1);
+      tmp04 = -tmp00_lam*double(vel.get(ip[j+1]));
+      Djac.setel(tmp04,ip[j+1],ndof,ip[j],ip[j]+1);
+
+    }
+
+
+    // D_ij * Cp  transformed to the primitive state variables
+    Djac_tmp.set(Djac);
+    Djac.prod(Djac_tmp,Cp,1,2,3,-1,-1,4);
+    Djac.scale(1./rho);
+
+    /*
+      Djac.print("Djac: ");
+      Djac_tmp.print("Djac_tmp: ");
+    */
 
   } else {
 
-  int ip[] = {1,2,3,1};
+    // Diffusive jacobians in primitive variables
+    Djac.set(0.);
+    Djac.is(2,vl_indx,vl_indxe).is(4,vl_indx,vl_indxe).axpy(IdId,visco_eff).rs();
+    tmp00 = 1./3.*visco_eff;
+    for (int j=1; j<=ndim; j++) {
+       Djac.addel(tmp00,j,j+1,j,j+1);
+    }
 
-  for (int j=0; j<ndim; j++) {
+    // Last row and first and last column
+    tmp01 = -cond_eff*Tem/rho;
+    tmp02 = cond_eff/rho/Cv/g1;
 
-    Djac.setel(-tmp00,ip[j],ip[j]+1,ip[j+1],ip[j+1]+1);
-    Djac.setel(visco_eff,ip[j],ip[j+1]+1,ip[j+1],ip[j]+1);
+    Djac.ir(2,ndof).ir(4,1).axpy(Id_ndim,tmp01).rs();
+    Djac.ir(2,ndof).ir(4,ndof).axpy(Id_ndim,tmp02).rs();
 
-    tmp04 = -visco_l/3*double(vel.get(ip[j]))*double(vel.get(ip[j+1]));
-    Djac.setel(tmp04,ip[j],ndof,ip[j+1],1);
+    tmp_vel_ndim.prod(Id_ndim,vel,1,2,3);
 
-    tmp04 = tmp00*double(vel.get(ip[j+1]));
-    Djac.setel(tmp04,ip[j],ip[j]+1,ip[j+1],1);
-    tmp04 = -visco_eff*double(vel.get(ip[j]));
-    Djac.setel(tmp04,ip[j],ip[j+1]+1,ip[j+1],1);
+    Djac.ir(2,ndof).is(4,vl_indx,vl_indxe).axpy(tmp_vel_ndim,visco_eff).rs();
+    tmp_vel.set(vel).scale(tmp00);
+    for (int j=1; j<=ndim; j++) {
+        Djac.addel(tmp_vel.get(j),j,ndof,j,j+1);
+    }
 
-    tmp04 = -tmp00_lam*double(vel.get(ip[j]));
-    Djac.setel(tmp04,ip[j],ndof,ip[j+1],ip[j+1]+1);
-    tmp04 = visco_l*double(vel.get(ip[j+1]));
-    Djac.setel(tmp04,ip[j],ndof,ip[j+1],ip[j]+1);
+    // Diffusive Jacobians K_ij with i .ne. j
+    tmp00 = 2./3.*visco_eff;
+    for (int j=0; j<ndim; j++) {
+        Djac.addel(-2./3.*visco_eff,ip[j],ip[j]+1,ip[j+1],ip[j+1]+1);
+        Djac.addel(visco_eff,ip[j],ip[j+1]+1,ip[j+1],ip[j]+1);
+
+        Djac.addel(-2./3.*visco_eff,ip[j+1],ip[j+1]+1,ip[j],ip[j]+1);
+        Djac.addel(visco_eff,ip[j+1],ip[j]+1,ip[j],ip[j+1]+1);
+
+        Djac.addel(visco_eff*vel.get(ip[j+1]),ip[j],ndof,ip[j+1],ip[j]+1);
+        Djac.addel(-2./3.*visco_eff*vel.get(ip[j]),ip[j],ndof,ip[j+1],ip[j+1]+1);
+
+        Djac.addel(-2./3.*visco_eff*vel.get(ip[j+1]),ip[j+1],ndof,ip[j],ip[j]+1);
+        Djac.addel(visco_eff*vel.get(ip[j]),ip[j+1],ndof,ip[j],ip[j+1]+1);
+
+    }
+
   }
-
-  }
-
-  // D_ij * Cp  transformed to the primitive state variables
-  Djac_tmp.set(Djac);
-  Djac.prod(Djac_tmp,Cp,1,2,3,-1,-1,4);
-  Djac.scale(1./rho);
-
   // Reactive terms
   //  there is no reactive terms in this formulation
   Cjac.set(0.);
@@ -649,16 +787,45 @@ void gasflow_ff::compute_flux(const FastMat2 &U,
     }
 
     visco_supg = visco_eff/rho;
-    int ijob =0;
-    compute_tau(ijob,delta_sc);
+    cond_supg = cond_eff;
 
-    if (tau_fac != 1.) {
-      tau_supg_a *= tau_fac;
+    if (tau_scheme==0) {
+      int ijob =0;
+      compute_tau(ijob,delta_sc);
+      
+      grad_U_norm_c.set(grad_rho);
+      grad_U_norm_c.scale(1.0/(sqrt(grad_U_norm_c.sum_square_all())+tol));
+      
+      compute_tau_viscous(grad_U_norm_c, delta_sc);
+      
+      tau_supg.eye(tau_supg_a-tau_supg_delta);
+      
+      tau_supg.d(1,2).rest(tau_supg_d).rs();
+      for (int j=1; j<=ndof; j++) {
+	double vaux = double(tau_supg.get(j,j));
+	vaux = (vaux > 0.0 ? vaux : 0.0);
+	tau_supg.setel(vaux,j,j);
+      }
+      
+    } else {
+      
+      compute_tau_switched(tau_con,tau_mom,tau_ene);
+
+      tau_supg.set(0.0);
+      tau_supg.setel(tau_con,1,1);
+      tau_supg.setel(tau_ene,ndof,ndof);
+      tau_supg.is(1,vl_indx,vl_indxe).is(2,vl_indx,vl_indxe);
+      tau_supg.eye(tau_mom);
+      tau_supg.rs();
+
+      compute_shocap(delta_sc);
+      
     }
-
-    tau_supg.eye(tau_supg_a);
-
-// postmultiply by inv(Cp)
+    
+    
+    tau_supg.scale(tau_fac);
+    
+    // postmultiply by inv(Cp)
     Cpi.set(0.);
     Cpi.setel(1.0,1,1);
     Cpi.is(1,vl_indx,vl_indxe).ir(2,1).set(vel).scale(-1.0/rho).rs();
@@ -667,8 +834,8 @@ void gasflow_ff::compute_flux(const FastMat2 &U,
     Cpi.setel(g1,ndof,ndof);
     Cpi.setel(0.5*square(velmod)*g1,ndof,1);
 
-//    tau_supg_c.set(tau_supg);
-    tau_supg_c.prod(tau_supg,Cpi,1,-1,-1,2);
+    // tau_supg_c.prod(tau_supg,Cpi,1,-1,-1,2);
+    tau_supg_c.prod(Cpi,tau_supg,1,-1,-1,2);
 
   }
 
@@ -700,7 +867,7 @@ void gasflow_ff::comp_grad_N_D_grad_N(FastMat2 &grad_N_D_grad_N,
 }
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:
-int gasflow_ff::comp_grad_N_dDdU_N(FastMat2 &grad_N_dDdU_N, FastMat2 &grad_U, 
+int gasflow_ff::comp_grad_N_dDdU_N(FastMat2 &grad_N_dDdU_N, FastMat2 &grad_U,
 				   FastMat2 &dshapex,FastMat2 &N,double w) {
   tmp40.prod(Djac,grad_U,1,2,-1,-2,-1,-2).scale(1. /visco_eff);
   tmp41.prod(tmp40,dviscodU,1,2,3);
@@ -722,6 +889,8 @@ void gasflow_ff::comp_N_P_C(FastMat2 &N_P_C, FastMat2 &P_supg,
   N_P_C.prod(tmp3,N,1,3,2);
 }
 
+#define SHV(mess,v) printf("[%d] %s " #v " %f\n",	\
+	    MY_RANK,mess,v.sum_square_all());
 
 #ifdef USE_COMP_P_SUPG
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:
@@ -730,14 +899,17 @@ void gasflow_ff::comp_P_supg(FastMat2 &P_supg) {
   double rho_m,tau;
 
     const FastMat2 &grad_N = *new_adv_dif_elemset->grad_N();
-
     const FastMat2 &Ao_grad_N = new_adv_dif_elemset->Ao_grad_N;
+    // SHV("en comp_P_supg",grad_N);
+    // SHV("en comp_P_supg",Ao_grad_N);
+    // SHV("en comp_P_supg",tau_supg_c);
     P_supg.prod(Ao_grad_N,tau_supg_c,1,2,-1,-1,3);
+    // SHV("en comp_P_supg",P_supg);
 
 }
 #endif
 
-//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:
 void gasflow_ff::
 Riemann_Inv(const FastMat2 &U, const FastMat2 &normal,
 	    FastMat2 &Rie, FastMat2 &drdU, FastMat2 &C) {
@@ -746,7 +918,7 @@ Riemann_Inv(const FastMat2 &U, const FastMat2 &normal,
   if (!linear_abso) {
     // Speed of sound
     double a = sqrt(ga*p/rho);
-  
+
     tmp20.prod(vel,normal,-1,-1);
     double un = tmp20.get();
     // Riemman based b.c.'s
@@ -786,7 +958,7 @@ Riemann_Inv(const FastMat2 &U, const FastMat2 &normal,
     C.setel(un-a,1);
     C.setel(un+a,2);
 
-    for (int k=3; k<=ndof; k++) 
+    for (int k=3; k<=ndof; k++)
       C.setel(un,k);
   } else {
 
@@ -832,7 +1004,7 @@ Riemann_Inv(const FastMat2 &U, const FastMat2 &normal,
       .ctr(maktgsp.tangent,2,1).rs();
 
     // Characteristic speeds
-  
+
     C.setel(uref-aref,1);
     C.setel(uref+aref,2);
 
@@ -855,8 +1027,159 @@ compute_shock_cap_aniso(double &delta_aniso,
   FastMat2::leave();
 }
 
-//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:
 void gasflow_ff::
 get_C(FastMat2 &C) {
   C.set(0.);
 }
+
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:
+void gasflow_ff::compute_rec_h_rgn(FastMat2 &r_dir) {
+  
+  // compute the inverse of the element length
+  // the inverse is convenient because for switching tau
+  // the inverse of tau is needed.
+  
+  double tol=1.0e-16;
+  const FastMat2 &grad_N = *advdf_e->grad_N();
+  
+  //	r_dir_mod = sqrt(r_dir.sum_square_all());
+  //	r_dir_mod = (r_dir_mod < tol ? tol : r_dir_mod);
+  //	svec.set(r_dir).scale(1./r_dir_mod);
+  svec.set(r_dir);
+  h_rgn = double(tmp9.prod(grad_N,svec,-1,1,-1).sum_abs_all());
+  h_rgn = h_rgn/2.0;
+  
+}
+
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:
+void gasflow_ff::compute_rec_h_rgn(FastMat2 &r_dir,FastMat2 &r_dir_aux) {
+  
+  double tol=1.0e-16;
+  const FastMat2 &grad_N = *advdf_e->grad_N();
+  
+  svec.set(r_dir);
+  h_rgn = double(tmp9.prod(grad_N,svec,-1,1,-1).sum_abs_all());
+  svec.set(r_dir_aux);
+  h_rgn = h_rgn + double(tmp9_aux.prod(grad_N,svec,-1,1,-1).sum_abs_all());
+  h_rgn = h_rgn/2.0;
+  
+}
+
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:
+void gasflow_ff:: compute_tau_switched(double &tau_con, double &tau_mom, 
+				       double &tau_ene) {
+  
+  double tol=1.0e-16;
+  grad_U_norm.set(new_adv_dif_elemset->grad_U_norm);
+  
+  double sonic_speed = sqrt(ga*p/rho);
+  velmod = sqrt(vel_supg.sum_square_all());
+  
+  r_dir.set(vel_supg);
+  r_dir_aux.set(grad_rho).scale(sonic_speed);
+  compute_rec_h_rgn(r_dir,r_dir_aux);
+  double tau_inv_sugn1 = 2.0*h_rgn;
+
+  grad_U_norm.is(2,vl_indx,vl_indxe);
+
+  //  grad_velmod.set(grad_U_norm.sum());
+  grad_velmod.sum(grad_U_norm,1,-1);
+
+  grad_U_norm.rs();
+  r_dir.set(grad_velmod);
+  r_dir_mod = sqrt(r_dir.sum_square_all());
+  FastMat2::branch();
+  if(r_dir_mod<tol) {
+    FastMat2::choose(0);
+    r_dir.set(0.0);
+  } else {
+    FastMat2::choose(1);
+    r_dir.scale(1./r_dir_mod);
+  }
+  FastMat2::leave();
+  
+  compute_rec_h_rgn(r_dir);
+  double tau_inv_mom_sugn3 = 4.0*visco_supg*square(h_rgn);
+  
+  r_dir.set(grad_T);
+  r_dir_mod = sqrt(r_dir.sum_square_all());
+  FastMat2::branch();
+  if(r_dir_mod<tol) {
+    FastMat2::choose(0);
+    r_dir.set(0.0);
+  } else {
+    FastMat2::choose(1);
+    r_dir.scale(1./r_dir_mod);
+  }
+  FastMat2::leave();
+  
+  compute_rec_h_rgn(r_dir);
+  double tau_inv_ene_sugn3 = 4.0*(cond_supg/rho/(ga*Cv))*square(h_rgn);
+  
+  tau_con = pow(tau_inv_sugn1,-1.0);
+  tau_mom = pow(pow(tau_inv_sugn1,r_switch)+pow(tau_inv_mom_sugn3,r_switch),
+		-1.0/r_switch);
+  
+  tau_ene = pow(pow(tau_inv_sugn1,r_switch)+pow(tau_inv_ene_sugn3,r_switch),
+		-1.0/r_switch);
+  
+}
+
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:
+void gasflow_ff:: compute_shocap(double &delta_sc) {
+  
+  const FastMat2 &grad_N = *advdf_e->grad_N();
+  double tol=1.0e-16;
+  
+  r_dir.set(vel_supg);
+  r_dir_mod = sqrt(r_dir.sum_square_all());
+  FastMat2::branch();
+  if(r_dir_mod<tol) {
+    FastMat2::choose(0);
+    h_supg = h_pspg;
+  } else {
+    FastMat2::choose(1);
+    r_dir.scale(1./r_dir_mod);
+    compute_rec_h_rgn(r_dir);
+    h_supg = 1.0/h_rgn;
+  }
+  FastMat2::leave();
+  
+  double sonic_speed = sqrt(ga*p/rho);
+  double Peclet = velmod * h_supg / (2. * visco_supg);
+  double velmax = velmod+sonic_speed;
+  
+  double tol_shoc = 1e-010;
+  // compute j direction , along density gradient
+  double h_shoc, grad_rho_mod = sqrt(grad_rho.sum_square_all());
+  FastMat2::branch();
+  if(grad_rho_mod>tol_shoc) {
+    FastMat2::choose(0);
+    //      grad_rho_mod = (grad_rho_mod <= 0 ? tol_shoc : grad_rho_mod);
+    jvec.set(grad_rho).scale(1.0/grad_rho_mod);
+
+    compute_rec_h_rgn(jvec);
+    h_rgn = (h_rgn < tol ? tol : h_rgn);
+    h_shoc = 1.0/h_rgn;
+
+    /*
+      h_shoc = tmp9.prod(grad_N,jvec,-1,1,-1).sum_abs_all();
+      h_shoc = (h_shoc < tol ? tol : h_shoc);
+      h_shoc = 2./h_shoc;
+    */
+    
+  } else {
+    FastMat2::choose(1);
+    jvec.set(0.);
+    h_shoc = h_supg;
+  }
+  FastMat2::leave();
+  double fz = grad_rho_mod*h_shoc/rho;
+  fz = pow(fz,shocap_beta);
+  delta_sc_aniso = 0.5*h_shoc*velmax*fz;
+  
+  double fz2 = (Peclet < 3. ? Peclet/3. : 1.);
+  delta_sc = 0.5*h_supg*velmax*fz2;
+}
+

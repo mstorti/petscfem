@@ -1,6 +1,6 @@
 // -*- mode: c++ -*-
 /*__INSERT_LICENSE__*/
-//$Id: advective.h,v 1.76 2005/05/02 00:36:49 mstorti Exp $
+//$Id: advective.h,v 1.76.4.1 2005/05/23 18:36:06 mstorti Exp $
  
 //#define CHECK_JAC // Computes also the FD Jacobian for debugging
  
@@ -413,6 +413,8 @@ protected:
   int compute_fd_adv_jacobian, comp_checked, comp_total;
   double compute_fd_adv_jacobian_eps,
     compute_fd_adv_jacobian_rel_err_threshold,
+  FastMat2 dshapex_low;
+  FastMat2 grad_U_norm;
     A_fd_jac_norm_max, A_fd_jac_norm_min, A_jac_norm_max, 
     A_jac_norm_min, A_jac_err_norm_max, A_jac_err_norm_min,
     A_rel_err_min, A_rel_err_max;

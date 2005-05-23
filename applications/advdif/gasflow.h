@@ -1,6 +1,6 @@
 // -*- mode: C++ -*-
 /*__INSERT_LICENSE__*/
-// $Id: gasflow.h,v 1.27 2005/03/29 01:48:02 mstorti Exp $
+// $Id: gasflow.h,v 1.27.4.1 2005/05/23 18:36:06 mstorti Exp $
 #ifndef PETSCFEM_GASFLOW_H
 #define PETSCFEM_GASFLOW_H
 
@@ -18,26 +18,34 @@ class gasflow_ff : public AdvDifFFWEnth {
 private:
   int nelprops,nel,ndof,ndim,k_indx,e_indx,vg_indx,vl_indx,
     vl_indxe,vg_indxe,LES;
-  FastMat2 U,vel,Cp,Cpi,Ajac,Id_ndim,Amom,Y,vel_old,
+  FastMat2 U,vel,Cp,Cpi,Ajac,Id_ndim,Amom,Y,Y3,vel_old,
     Djac,tmp1,Cjac,tmp2,tmp3,grad_vel,strain_rate,IdId,G_body,
-    uintri,svec,tmp9,W_N,grad_p,grad_T,grad_rho,
+    uintri,svec,tmp9,tmp9_aux,W_N,grad_p,grad_T,grad_rho,
     tmp6,tmp7,tmp05,tmp10,tmp_vel,tang;
   FastMat2 tmp40,tmp41,tmp42;
   FastMat2 viscous_work,heat_flux,sigma;
-  FastMat2 tau_supg_c,vel_supg;
+  FastMat2 tau_supg_c,vel_supg,tau_supg_d;
   FastMat2 Ajac_tmp,Djac_tmp;
-  FastMat2 dviscodU;
+  FastMat2 dviscodU,grad_U_norm_c,vel_beta,Gamma_i;
+  FastMat2 r_dir,r_dir_aux,grad_velmod;
+  FastMat2 grad_U_norm;
+
   double rho,p,visco,visco_t,visco_eff,cond,cond_t,cond_eff,Tem;
   double tau_fac,temporal_stability_factor;
   double ga,Rgas,rho_ene,entalpy,g1,ene,int_ene,vel_j2,Cv;
-  double tau_supg_a,visco_supg,velmod, h_supg, h_pspg;
+  double tau_supg_a,visco_supg,velmod, h_supg, h_pspg,cond_supg;
+  double tau_supg_delta;
   double Pr_t, C_smag;
   double rho_thrsh, p_thrsh;
   int stop_on_neg_val;
-  int shocap_scheme,sutherland_law,sutherland_law_implicit;
-  double shocap_beta,Tem_infty,Tem_ref,    delta_sc_aniso;
+  int tau_scheme,sutherland_law,sutherland_law_implicit;
+  double shocap_beta,Tem_infty,Tem_ref,delta_sc_aniso;
+  double shocap,h_rgn,r_dir_mod,r_switch;
 
   double visco_l, visco_bar;
+
+  vector<int> ip;
+  FastMat2 tmp_vel_ndim,tmp_vaux_ndim;
 
   FastMat2 tmp_vj;
   const NewAdvDif *advdf_e;
@@ -50,6 +58,16 @@ private:
   double G_body_scale;
 
   void compute_tau(int ijob,double &delta_sc);
+
+  void compute_tau_viscous(FastMat2 &grad_U_norm_c,double &delta_sc);
+
+  void compute_rec_h_rgn(FastMat2 &r_dir);
+
+  void compute_rec_h_rgn(FastMat2 &r_dir,FastMat2 &r_dir_aux);
+
+  void compute_tau_switched(double &tau_con, double &tau_mom, double &tau_ene);
+
+  void compute_shocap(double &delta_sc);
 
 public:
   gasflow_ff(NewElemset *elemset=NULL);
@@ -126,7 +144,7 @@ public:
       = dDdU_(i,mu,nu) (grad_N)_(i,p) (N)_(q)#
       @param grad_N_dDdU_N (output) size #nel# x #ndof# x #nel# x #ndof#
       @param grad_N (input) size #nel# x #ndof#
-      @param N (input) size #nel# 
+      @param N (input) size #nel#
   */
   int comp_grad_N_dDdU_N(FastMat2 &grad_N_dDdU_N,FastMat2 &grad_U,
 			 FastMat2 &dshapex,FastMat2 &N,double w);
@@ -175,26 +193,26 @@ public:
   void comp_P_supg(FastMat2 &P_supg);
 #endif
 
-  /** The dimension of the corresponding `volume' 
+  /** The dimension of the corresponding `volume'
       elemenset minus ons. */
-  int dim() const { return ndim; } 
+  int dim() const { return ndim; }
 
   /** Returns the Riemann Invariants and jacobians for Adv-Diff
       absorbent condition.  From #nel# nodes, nodes 1 to #nel-2# are
       ```real'', i.e. the nodes at the boundary, the #nel-1# node is
       reserved for the lagrange multipliers, and node #nel# is the
-      nodes from where to take the reference state. 
+      nodes from where to take the reference state.
       @param U (input) (size #ndof#) state vector
-      @param normal (input) (size #ndim#) normal to output surface. 
+      @param normal (input) (size #ndim#) normal to output surface.
       @param Rie (output) (size #ndof#) Riemman invariants for state #U#
       @param dRdU (output) (size #ndof x ndof#) Jacobian of Riemman invariants
       w.r.t. #U#
       @param (input) C (output) (size #ndof#) speeds for
-      each Riemman characteristic variable. */ 
+      each Riemman characteristic variable. */
   void Riemann_Inv(const FastMat2 &U, const FastMat2 &normal,
 		   FastMat2 &Rie, FastMat2 &drdU, FastMat2 &C_);
 
-  void 
+  void
   compute_shock_cap_aniso(double &delta_aniso,
 			  FastMat2 &jvec);
 };
@@ -215,17 +233,17 @@ public:
   gasflow_bcconv() : NewBcconv(new gasflow_ff(this)) {};
 };
 
-//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:
 class gasflow_abso : public AdvDiff_Abs_Nl_Res {
 public:
-  gasflow_abso() :  AdvDiff_Abs_Nl_Res(new gasflow_ff(this)) { } 
+  gasflow_abso() :  AdvDiff_Abs_Nl_Res(new gasflow_ff(this)) { }
 };
 
-//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:
 class gasflow_abso2 : public AdvectiveAbso {
 public:
-  gasflow_abso2() 
-    :  AdvectiveAbso(new gasflow_ff(this)) { } 
+  gasflow_abso2()
+    :  AdvectiveAbso(new gasflow_ff(this)) { }
 };
 
 #endif
