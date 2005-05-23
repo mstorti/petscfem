@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: gasflow.cpp,v 1.37.4.1 2005/05/23 18:36:06 mstorti Exp $
+//$Id: gasflow.cpp,v 1.37.4.2 2005/05/23 21:54:55 mstorti Exp $
 
 #include <src/fem.h>
 #include <src/texthash.h>
@@ -889,6 +889,7 @@ void gasflow_ff::comp_N_P_C(FastMat2 &N_P_C, FastMat2 &P_supg,
   N_P_C.prod(tmp3,N,1,3,2);
 }
 
+#undef SHV
 #define SHV(mess,v) printf("[%d] %s " #v " %f\n",	\
 	    MY_RANK,mess,v.sum_square_all());
 

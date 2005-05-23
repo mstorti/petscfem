@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: nsitetlesfm2.cpp,v 1.69.2.1 2005/05/23 18:36:27 mstorti Exp $
+//$Id: nsitetlesfm2.cpp,v 1.69.2.2 2005/05/23 21:54:58 mstorti Exp $
 
 #include <src/fem.h>
 #include <src/utils.h>
@@ -133,7 +133,8 @@ assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
   // allocate local vecs
   int kdof;
   FastMat2 veccontr(2,nel,ndof),xloc(2,nel,ndim),locstate(2,nel,ndof), 
-         locstate2(2,nel,ndof),xpg,G_body(1,ndim);
+    locstate2(2,nel,ndof),xpg,G_body(1,ndim),
+    vrel;
 
   if (ndof != ndim+1) {
     PetscPrintf(PETSC_COMM_WORLD,"ndof != ndim+1\n"); CHKERRA(1);
@@ -231,7 +232,7 @@ assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
     ucols_star,pcol_star,pcol_new,pcol,fm_p_star,tmp1,tmp2,tmp3,tmp4,tmp5,tmp6,
     massm,tmp7,tmp8,tmp9,tmp10,tmp11,tmp13,tmp14,tmp15,dshapex_c,xc,
     wall_coords(ndim),dist_to_wall,tmp16,tmp162,tmp17,tmp18,tmp19;
-  FastMat2 tmp20(2,nel,nel),tmp21;
+  FastMat2 tmp20(2,nel,nel),tmp21,vel_supg;
 
   double tmp12;
   double tsf = temporal_stability_factor;

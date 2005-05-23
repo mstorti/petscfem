@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: advdife.cpp,v 1.104.4.1 2005/05/23 18:36:06 mstorti Exp $
+//$Id: advdife.cpp,v 1.104.4.2 2005/05/23 21:54:55 mstorti Exp $
 extern int comp_mat_each_time_step_g,
   consistent_supg_matrix_g,
   local_time_step_g;
@@ -509,11 +509,13 @@ void NewAdvDif::new_assemble(arg_data_list &arg_data_v,const Nodedata *nodedata,
 #define SHAPE_LOW    (*gp_data_low.FM2_shape[0])
 #define WPG_LOW	     (gp_data_low.wpg[0])
 
+#if 0
 #define SHV(mess,v)                                     \
      printf("[%d] elem %d, %s " #v " %f\n",             \
 	    MY_RANK,k_elem,mess,v.sum_square_all(),     \
 	    v.sum_square_all());
-    
+#endif
+
     assert(ndim==ndimel);
     vaux.set(DSHAPEXI_LOW);
     Jaco_low.prod(DSHAPEXI_LOW,xloc,1,-1,-1,2);
