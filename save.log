@@ -4380,3 +4380,6 @@ tag: beta-3.47.15 on Sun, 15 May 2005 20:47:12 -0300 by mstorti in spider
 ----------
 tag: beta-3.47.16 on Wed, 18 May 2005 21:47:09 -0300 by mstorti in spider
      > Working `bjhash'. 
+----------
+tag: bubbly12-merge-0.1.0 on Mon, 23 May 2005 15:36:58 -0300 by mstorti in minerva.ceride.gov.ar
+     > Merged from Beto. Doesn't compile yet. 
