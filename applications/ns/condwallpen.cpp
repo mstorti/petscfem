@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-// $Id: condwallpen.cpp,v 1.7 2005/04/25 01:47:16 mstorti Exp $
+// $Id: condwallpen.cpp,v 1.8 2005/05/23 02:53:16 mstorti Exp $
 
 #include "./condwallpen.h"
 
@@ -88,6 +88,13 @@ res(int k,FastMat2 &U,FastMat2 & r,
       .is(1,1,ndof).ir(2,1).eye()
       .ir(2,2).eye(-1.).rs();
   }
+}
+
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>
+void CondWallRestriction::
+set_ldf(FastMat2 &ldf_user,
+	vector<double> &ldf) {
+  
 }
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
