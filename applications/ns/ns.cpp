@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: ns.cpp,v 1.162.4.1 2005/05/23 18:36:26 mstorti Exp $
+//$Id: ns.cpp,v 1.162.4.2 2005/05/24 03:12:57 mstorti Exp $
 #include <src/debug.h>
 #include <malloc.h>
 
@@ -337,7 +337,7 @@ int main(int argc,char **args) {
       A_prj = PFMat::dispatch(dofmap->neq,*dofmap,solver_mom.c_str());
     } else {
 #if 1
-#if 1
+#if 0
       // IISD (Domain decomposition) iteration
       A_mom = PFMat::dispatch(dofmap->neq,*dofmap,"iisd");
       A_mom->set_option("preco_type","jacobi");
