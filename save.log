@@ -4386,3 +4386,7 @@ tag: bubbly12-merge-0.1.0 on Mon, 23 May 2005 15:36:58 -0300 by mstorti in miner
 ----------
 tag: bubbly12-merge-0.1.1 on Mon, 23 May 2005 18:55:25 -0300 by mstorti in spider
      > Merged from `bubbly12': now compiles. 
+----------
+tag: bubbly12-merge-0.1.2 on Tue, 24 May 2005 00:13:14 -0300 by mstorti in spider
+     > Runs all tests, but with the old `advdife.cpp'. 
+     > Newer `advdife.cpp' is renamed to `advdife-lowpg.cpp'. 
