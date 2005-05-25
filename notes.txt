@@ -1,4 +1,4 @@
-$Id: notes.txt,v 1.477 2005/05/12 21:34:15 mstorti Exp $
+$Id: notes.txt,v 1.478 2005/05/25 23:18:47 mstorti Exp $
 OK. This is mostly in spanish...  Sorry :-)
 ================================================================
 
@@ -2345,7 +2345,6 @@ diff -c /home/mstorti/SOFT/NEWMAT/src/newmat1.cpp.orig /home/mstorti/SOFT/NEWMAT
   }
 ========cut here
 
-
 %===Sat Jan  6 11:24:35 ARST 2001 mstorti@spider
 %
 Patch para meschach: matrix.h
@@ -2465,13 +2464,13 @@ diff -c /home/mstorti/PETSC/petsc-2.0.24/bmake/linux/base_variables.bck /home/ms
 --- /home/mstorti/PETSC/petsc-2.0.24/bmake/linux/base_variables	Sun Jan 14 14:51:45 2001
 ***************
 *** 1,4 ****
-! # $Id: notes.txt,v 1.477 2005/05/12 21:34:15 mstorti Exp $ 
+! # $Id: notes.txt,v 1.478 2005/05/25 23:18:47 mstorti Exp $ 
   #
   #     See the file bmake/base_variables.defs for a complete explanation of all these fields
   #
 --- 1,5 ----
 ! # -*- mode: makefile -*-
-! # $Id: notes.txt,v 1.477 2005/05/12 21:34:15 mstorti Exp $ 
+! # $Id: notes.txt,v 1.478 2005/05/25 23:18:47 mstorti Exp $ 
   #
   #     See the file bmake/base_variables.defs for a complete explanation of all these fields
   #
@@ -2562,7 +2561,195 @@ diff -c /home/mstorti/PETSC/petsc-2.0.24/bmake/linux/base_variables.bck2 /home/m
 *** 1,3 ****
 --- 1,4 ----
 + # -*- mode: makefile -*-
-  # $Id: notes.txt,v 1.477 2005/05/12 21:34:15 mstorti Exp $ 
+  # $Id: notes.txt,v 1.478 2005/05/25 23:18:47 mstorti Exp $ 
+  #
+  #     See the file bmake/base_variables.defs for a complete explanation of all these fields
+***************
+*** 25,42 ****
+  O_FOPTFLAGS      = -O
+  # ########################## C++ compiler ##################################
+  #
+! CXX_CC           = g++ -fPIC
+  CXX_FC           = g77 -Wno-globals
+! CXX_CLINKER      = g++ ${COPTFLAGS} -Wl,-rpath,${LDIR}:${DYLIBPATH}
+! CXX_FLINKER      = g++ ${COPTFLAGS} -Wl,-rpath,${LDIR}:${DYLIBPATH}
+  CXX_CCV          = ${CXX_CC} --version
+! CXX_SYS_LIB      = -ldl -lc -lg2c -lm
+! #CXX_SYS_LIB      = -ldl -lc -lf2c -lm
+  # ------------------------- BOPT=g_c++ options ------------------------------
+  GCXX_COPTFLAGS   = -gstabs+
+  GCXX_FOPTFLAGS   = -g
+  # ------------------------- BOPT=O_c++ options ------------------------------
+! OCXX_COPTFLAGS   = -O2 
+  OCXX_FOPTFLAGS   = -O2
+  # -------------------------- BOPT=g_complex options ------------------------
+  GCOMP_COPTFLAGS  = -g
+--- 26,42 ----
+  O_FOPTFLAGS      = -O
+  # ########################## C++ compiler ##################################
+  #
+! CXX_CC           = $(GNUCXX) -fPIC
+  CXX_FC           = g77 -Wno-globals
+! CXX_CLINKER      = $(GNUCXX) ${COPTFLAGS} -Wl,-rpath,${LDIR}:${DYLIBPATH}
+! CXX_FLINKER      = $(GNUCXX) ${COPTFLAGS} -Wl,-rpath,${LDIR}:${DYLIBPATH}
+  CXX_CCV          = ${CXX_CC} --version
+! CXX_SYS_LIB      = $(CXX_SYS_LIB_USR) -ldl -lc -lg2c -lm
+  # ------------------------- BOPT=g_c++ options ------------------------------
+  GCXX_COPTFLAGS   = -gstabs+
+  GCXX_FOPTFLAGS   = -g
+  # ------------------------- BOPT=O_c++ options ------------------------------
+! OCXX_COPTFLAGS   = -O2 $(OCXX_COPTFLAGS_USR)
+  OCXX_FOPTFLAGS   = -O2
+  # -------------------------- BOPT=g_complex options ------------------------
+  GCOMP_COPTFLAGS  = -g
+
+Diff finished at Sun Jan 14 15:22:21
+%---------- CUT HERE
+%
+
+%===Sun Jan 14 15:13:06 ARST 2001 mstorti@spider
+%
+Puedo compilar versiones viejas con egcs!! 
+%
+Instrucciones:
+%
+* Cambiar el compilador C++ en petsc/bmake/linux/base_variables de g++
+  a egcs++ (hay que tener los paquetes compat-egcs y compat-egcs++
+  instalados). 
+* Agregar '-static' a las banderas de linkedicion
+* Agregar '-L/usr/lib/gcc-lib/i386-redhat-linux/2.96/' a las librerias
+%
+Para poder seguir compilando con gcc tambien, conviene agregar
+las siguientes variables en Makefile.base 
+%-------- para compilar con egcs++
+GNUCXX = egcs++
+OCXX_COPTFLAGS_USR = -static
+CXX_SYS_LIB_USR = -L/usr/lib/gcc-lib/i386-redhat-linux/2.96/ 
+%--------pra compilar con g++
+GNUCXX = g++
+OCXX_COPTFLAGS_USR = 
+CXX_SYS_LIB_USR = 
+%-------------
+%
+y modificar un poco el base_variables con el siguiente parche:
+%-----------ESTE PARCHE ES CON RESPECTO AL BASE_VARIABLES ORIGINAL
+%---------- CUT HERE
+cd ~/PETSC/petsc-2.0.24/bmake/linux/
+diff -c /home/mstorti/PETSC/petsc-2.0.24/bmake/linux/base_variables.bck /home/mstorti/PETSC/petsc-2.0.24/bmake/linux/base_variables
+*** /home/mstorti/PETSC/petsc-2.0.24/bmake/linux/base_variables.bck	Wed Mar 31 15:38:47 1999
+--- /home/mstorti/PETSC/petsc-2.0.24/bmake/linux/base_variables	Sun Jan 14 14:51:45 2001
+***************
+*** 1,4 ****
+<<<<<<< notes.txt
+! # $Id: notes.txt,v 1.478 2005/05/25 23:18:47 mstorti Exp $ 
+=======
+! # $Id: notes.txt,v 1.478 2005/05/25 23:18:47 mstorti Exp $ 
+>>>>>>> 1.228.2.1
+  #
+  #     See the file bmake/base_variables.defs for a complete explanation of all these fields
+  #
+--- 1,5 ----
+! # -*- mode: makefile -*-
+<<<<<<< notes.txt
+! # $Id: notes.txt,v 1.478 2005/05/25 23:18:47 mstorti Exp $ 
+=======
+! # $Id: notes.txt,v 1.478 2005/05/25 23:18:47 mstorti Exp $ 
+>>>>>>> 1.228.2.1
+  #
+  #     See the file bmake/base_variables.defs for a complete explanation of all these fields
+  #
+***************
+*** 7,41 ****
+  OMAKE            = make  --no-print-directory
+  RANLIB           = ranlib
+  SHELL            = /bin/sh
+! SH_LD            = gcc
+  # ######################### C and Fortran compiler ########################
+  #
+! C_CC             = gcc -fPIC
+  C_FC             = g77 -Wno-globals
+! C_CLINKER        = gcc ${COPTFLAGS} -rdynamic -Wl,-rpath,${LDIR}:${DYLIBPATH}
+  C_FLINKER        = g77 ${FOPTFLAGS} -rdynamic -Wl,-rpath,${LDIR}:${DYLIBPATH}
+  C_CCV            = ${C_CC} --version
+  C_SYS_LIB        = -ldl -lc -lg2c -lm
+  # ---------------------------- BOPT=g options ----------------------------
+! G_COPTFLAGS      = -g 
+  G_FOPTFLAGS      = -g
+  # ----------------------------- BOPT=O options -----------------------------
+  O_COPTFLAGS      = -O -Wall -Wshadow  -fomit-frame-pointer
+  O_FOPTFLAGS      = -O
+  # ########################## C++ compiler ##################################
+  #
+! CXX_CC           = g++ -fPIC
+  CXX_FC           = g77 -Wno-globals
+! CXX_CLINKER      = g++ ${COPTFLAGS} -Wl,-rpath,${LDIR}:${DYLIBPATH}
+! CXX_FLINKER      = g++ ${COPTFLAGS} -Wl,-rpath,${LDIR}:${DYLIBPATH}
+  CXX_CCV          = ${CXX_CC} --version
+! CXX_SYS_LIB      = -ldl -lc -lg2c -lm
+  # ------------------------- BOPT=g_c++ options ------------------------------
+! GCXX_COPTFLAGS   = -g 
+  GCXX_FOPTFLAGS   = -g
+  # ------------------------- BOPT=O_c++ options ------------------------------
+! OCXX_COPTFLAGS   = -O 
+! OCXX_FOPTFLAGS   = -O
+  # -------------------------- BOPT=g_complex options ------------------------
+  GCOMP_COPTFLAGS  = -g
+  GCOMP_FOPTFLAGS  = -g
+--- 8,43 ----
+  OMAKE            = make  --no-print-directory
+  RANLIB           = ranlib
+  SHELL            = /bin/sh
+! SH_LD            = egcs
+  # ######################### C and Fortran compiler ########################
+  #
+! C_CC             = egcs -fPIC
+  C_FC             = g77 -Wno-globals
+! C_CLINKER        = egcs ${COPTFLAGS} -rdynamic -Wl,-rpath,${LDIR}:${DYLIBPATH}
+  C_FLINKER        = g77 ${FOPTFLAGS} -rdynamic -Wl,-rpath,${LDIR}:${DYLIBPATH}
+  C_CCV            = ${C_CC} --version
+  C_SYS_LIB        = -ldl -lc -lg2c -lm
++ #C_SYS_LIB        = -ldl -lc -lf2c -lm
+  # ---------------------------- BOPT=g options ----------------------------
+! G_COPTFLAGS      = -g
+  G_FOPTFLAGS      = -g
+  # ----------------------------- BOPT=O options -----------------------------
+  O_COPTFLAGS      = -O -Wall -Wshadow  -fomit-frame-pointer
+  O_FOPTFLAGS      = -O
+  # ########################## C++ compiler ##################################
+  #
+! CXX_CC           = $(GNUCXX) -fPIC
+  CXX_FC           = g77 -Wno-globals
+! CXX_CLINKER      = $(GNUCXX) ${COPTFLAGS} -Wl,-rpath,${LDIR}:${DYLIBPATH}
+! CXX_FLINKER      = $(GNUCXX) ${COPTFLAGS} -Wl,-rpath,${LDIR}:${DYLIBPATH}
+  CXX_CCV          = ${CXX_CC} --version
+! CXX_SYS_LIB      = $(CXX_SYS_LIB_USR) -ldl -lc -lg2c -lm
+  # ------------------------- BOPT=g_c++ options ------------------------------
+! GCXX_COPTFLAGS   = -gstabs+
+  GCXX_FOPTFLAGS   = -g
+  # ------------------------- BOPT=O_c++ options ------------------------------
+! OCXX_COPTFLAGS   = -O2 $(OCXX_COPTFLAGS_USR)
+! OCXX_FOPTFLAGS   = -O2
+  # -------------------------- BOPT=g_complex options ------------------------
+  GCOMP_COPTFLAGS  = -g
+  GCOMP_FOPTFLAGS  = -g
+
+Diff finished at Sun Jan 14 15:14:01
+%---------- CUT HERE
+%
+%---------- ESTE ES CON RESPECTO AL ULTIMO (YA CONFIGURADO)
+%---------- CUT HERE
+diff -c /home/mstorti/PETSC/petsc-2.0.24/bmake/linux/base_variables.bck2 /home/mstorti/PETSC/petsc-2.0.24/bmake/linux/base_variables
+*** /home/mstorti/PETSC/petsc-2.0.24/bmake/linux/base_variables.bck2	Fri Dec  8 15:19:17 2000
+--- /home/mstorti/PETSC/petsc-2.0.24/bmake/linux/base_variables	Sun Jan 14 14:51:45 2001
+***************
+*** 1,3 ****
+--- 1,4 ----
++ # -*- mode: makefile -*-
+<<<<<<< notes.txt
+  # $Id: notes.txt,v 1.478 2005/05/25 23:18:47 mstorti Exp $ 
+=======
+  # $Id: notes.txt,v 1.478 2005/05/25 23:18:47 mstorti Exp $ 
+>>>>>>> 1.228.2.1
   #
   #     See the file bmake/base_variables.defs for a complete explanation of all these fields
 ***************
@@ -2820,6 +3007,15 @@ Andan los filtros. Falta hacer lo siguiente
 * Configurar mejor en ns.cpp. Que pueda leer nombre de archivo para
      guardar. 
 
+%===Tue Jan 23 09:20:29 ARST 2001 mstorti@minerva
+%
+Andan los filtros. Falta hacer lo siguiente
+* Que filtros impriman delta_u
+* Documentar filtro
+* salvar version filtro
+* Configurar mejor en ns.cpp. Que pueda leer nombre de archivo para
+     guardar. 
+
 %===Tue Jan 23 10:29:42 ARST 2001 mstorti@minerva
 %
 Voy a agregar las cosas de Beto (shallow water turbulento). Hago el
@@ -2827,6 +3023,10 @@ siguiente merge
 
 version al 5 Jan 12:00  ---->  petscfem.beto
                     +------->  petscfem.actual
+
+%===Tue Jan 23 10:29:42 ARST 2001 mstorti@minerva
+%
+Voy a agregar las cosas de Beto (shallow water turbulento).
 
 %===Wed Jan 24 19:14:08 ARST 2001 mstorti@minerva
 %
@@ -3707,6 +3907,62 @@ problema de 64x250 vemos que el tiempo por iteracion aumento un factor
 numero de nodos. N=64629 nodos en la malla de 128x500. Ahora vamos a
 tratar de probar con un problema 3D. Creo que andaba por ahi el LES. 
 
+%===Thu Aug 16 18:14:56 ART 2001 mstorti@node1.beowulf.gtm
+%
+Reporte de eficiencia para IISD:
+=================================
+Se corre el canal a Re=1e4 con 
+%
+iisd: IISD + preco jacobi 10 procesadores
+lu: LU en 1 proc.
+gmresg: GMRES + Jacobi global en 10 procs.
+%
+Para N=16, Ny=60, Ly=1, (malla `medium') da:
+%
+iisd: (Porque da tan alto el system?). Convergencia siempre a 1e-3 
+10.71user 8.58system 0:29.69elapsed 64%CPU (0avgtext+0avgdata 0maxresident)k
+lu:
+28.98user 0.67system 0:31.59elapsed 93%CPU (0avgtext+0avgdata 0maxresident)k
+gmresg: (La convergencia es muy mala, no ceonverge en ningun caso)
+13.67user 16.74system 1:07.31elapsed 45%CPU (0avgtext+0avgdata 0maxresident)k
+%
+Malla 'very_large' de N=32 por Ny=120, Ly=10
+============================================
+%
+lu: 
+191.73user 2.76system 3:17.78elapsed 98%CPU (0avgtext+0avgdata 0maxresident)k
+iisd: (En promedio usa al principio entre 120 y 150 iteraciones y
+               despues va bajando, porque salta por atol)
+65.65user 11.38system 1:52.05elapsed 68%CPU (0avgtext+0avgdata 0maxresident)k
+gmresg:
+53.17user 23.63system 3:58.88elapsed 32%CPU (0avgtext+0avgdata 0maxresident)k
+%
+Malla de 64 x 250 (N=16315 nodos):
+==================
+gmresg: la convergencia es pesima!! En 200 iteraciones no baja un 20%
+           el residuo!!
+174.78user 20.53system 5:24.05elapsed 60%CPU (0avgtext+0avgdata 0maxresident)k
+iisd: tarda entre 140 y 190 iteraciones al principio. Al final baja
+       bastante porque salta por atol. 
+388.86user 16.09system 9:01.87elapsed 74%CPU (0avgtext+0avgdata 0maxresident)k
+lu:
+1465.77user 11.82system 25:00.16elapsed 98%CPU (0avgtext+0avgdata 0maxresident)k
+%
+Malla de 128 x 500 (N=64629 nodos):
+==================
+%
+gmresg: no converge ni a canhonazos
+lu: no entra en memoria
+iisd: converge bien, 4 ordenes de magnitud en approx 200 iter. Usa 66
+Mb de memoria. Usa unos 4' por iteracion, pero se podria bajar
+bastante ya que podriamos usar una tolerancia de 1e-2 con lo cual
+bajaria el tiempo a la mitad. La tasa de convergencia es de 60
+iter/orden. Los 20 pasos de tiempo tardarian unos 80'. Con respecto al
+problema de 64x250 vemos que el tiempo por iteracion aumento un factor
+9, con lo cual el costo re resolucion va como N^1.6, donde N es el
+numero de nodos. N=64629 nodos en la malla de 128x500. Ahora vamos a
+tratar de probar con un problema 3D. Creo que andaba por ahi el LES. 
+
 %===Sat Aug 18 17:11:14 ART 2001 mstorti@spider
 %
 Sinopsis de uso de PFMat:
@@ -3760,6 +4016,15 @@ por esto.
 11:39:52: Fuerzo a que los perfiles sean simetricos, haciendo que en
 `compute_prof' se inserten `j,k' y `k,j'. 
 
+%===Mon Aug 20 10:17:09 ART 2001 mstorti@spider
+%
+Voy a empezar a escribir el precondicionamiento para IISD. 
+Branchear a partir de beta-2.02 si se quiere evitar el lio generado
+por esto. 
+%
+11:39:52: Fuerzo a que los perfiles sean simetricos, haciendo que en
+`compute_prof' se inserten `j,k' y `k,j'.  
+
 %===Tue Aug 21 22:08:28 ART 2001 mstorti@spider
 %
 Escribiendo la clase DistMap (distributed Container). Habia un error
@@ -3767,7 +4032,7 @@ que ponia hacia pack tambien para mandarse a si mismo (myrank ->
 myrank). Entonces hay que poner:
 %
       if (k!=myrank) pack(*iter,send_buff_pos[k]);
- 
+
 %===Tue Aug 21 22:25:56 ART 2001 mstorti@spider
 %
 Works well with changed names from `distmap2.xxx' to `distcont.xxx'
@@ -3801,6 +4066,32 @@ Se jode cuando agrego el termino de viscosidad $\Delta!u$.
 La viscosidad hay que ponerla muy pequenha porque si la pones a 0 te
 da una singularidad en el Peclet, etc... 
 
+%===Fri Sep  7 16:04:47 ART 2001 mstorti@minerva
+%
+Con jacobiano numerico anda bien si en las contribuciones a la
+ecuacion de momento `resmom' agrego solo el termino du/dt. Voy
+agregando otros terminos y veo. Si agrego el convectivo sigue andando
+bien. 
+%
+Se jode cuando agrego el termino de viscosidad $\Delta!u$. 
+%
+<<<<<<< notes.txt
+La viscosidad hay que ponerla muy pequenha porque si la pones a 0 te
+da una singularidad en el Peclet, etc... 
+
+%===Fri Sep  7 16:04:47 ART 2001 mstorti@minerva
+%
+Con jacobiano numerico anda bien si en las contribuciones a la
+ecuacion de momento `resmom' agrego solo el termino du/dt. Voy
+agregando otros terminos y veo. Si agrego el convectivo sigue andando
+bien. 
+%
+Se jode cuando agrego el termino de viscosidad $\Delta!u$. 
+%
+V
+
+=======
+
 %===Sat Sep  8 09:57:15 ART 2001 mstorti@spider
 %
 Comentando todo da Ainf=ADt=0. Ahora voy a probar a prender solo la
@@ -3830,23 +4121,53 @@ numericos.
 11:26:19: Con upwind (`tau_fac=1') tambien anda todo bien. 
 
 =======
-%===Fri Sep  7 15:12:01 ART 2001 mstorti@minerva
-%
-Me daban mal los jacobianos, habia un bug en la version beta-1.82 para
-el calculo de jacobianos. Se pasaba mal el `glob_param' eso se
-arreglaria con `dynamic_cast' etc... 
 
-%===Fri Sep  7 16:04:47 ART 2001 mstorti@minerva
+%===Sat Sep  8 09:57:15 ART 2001 mstorti@spider
 %
-Con jacobiano numerico anda bien si en las contribuciones a la
-ecuacion de momento `resmom' agrego solo el termino du/dt. Voy
-agregando otros terminos y veo. Si agrego el convectivo sigue andando
-bien. 
+Comentando todo da Ainf=ADt=0. Ahora voy a probar a prender solo la
+matriz de masa. 
 %
-Se jode cuando agrego el termino de viscosidad $\Delta!u$. 
+10:13:32: Poniendo solo la masa da perfecto. Ainf es 0. ADt da igual
+para todos los campos y la suma de los elementos da 29.800 que
+dividido por 3 (por campos) y por el Dt que es 0.01 da 9.9335e-02 que
+es el volumen del sector de cilindro 0<=z<=1, r<=1, 0\le\theta\le
+.2. cuyo volumen es h*\Delta\theta*R^2/2=.1, pero el volumen del area
+discretizada (por el error entre la cuerda y el arco de
+circunferencia) es h*\cos(\Delta\theta)*\sin(\Delta\theta)*R^2 que da
+exactamente eso. Ahora prendemos el termino de viscosidad y apagamos
+el temporal. 
 %
-La viscosidad hay que ponerla muy pequenha porque si la pones a 0 te
-da una singularidad en el Peclet, etc... 
+10:28:13: Apagando el termino temporal y prendiendo viscosidad
+efectivamente dan diferentes ADt de Ainf (deberian dar iguales). 
+%
+10:31:00: Los dos dan suma 0, esta bien. 
+%
+10:32:42: Guarda!! que me parece que estaba mirando mal. 
+%
+10:40:33: Efectivamente, ahora pongo todo y da lo que tiene que
+dar. Todo el error se debio al error en el calculo de los jacobianos
+numericos. 
+%
+11:26:19: Con upwind (`tau_fac=1') tambien anda todo bien. 
+=======
+V
+
+=======
+
+%===Sun Sep  9 10:19:42 ART 2001 mstorti@spider
+%
+El `rotconden' anda ma o menos bien. Para la matriz de masa preserva
+la masa total. 
+%
+17:08:22: Flujo vertical: da bien. Flujo radial, no da bien. Incluso
+dejando que el valor a la salida lo saque solo, es decir dejando
+u_normal a la salida libre. 
+%
+18:50:02: El flujo radial da "mas o menos" bien. La velocidad aumenta
+hacia el eje, pero no todo lo que deberia y la presion tiene una
+oscilacion fuerte. Me imagino que es por la imposicion de la presion. 
+
+=======
 
 %===Mon Sep 10 12:10:44 ART 2001 mstorti@minerva
 %
@@ -3860,6 +4181,12 @@ proporcional al radio (por continuidad).
 16:31:20: El problema con velocidad circunferencial da perfecto. Con
 velocidad proporcional al radio y proporcional a la inversa del radio
 (las dos soluciones fundamentales). 
+
+%===Mon Sep 10 12:10:44 ART 2001 mstorti@minerva
+%
+14:20:50: Lo que parecia ser una onda de alta frequency era un error
+de no correr el `rock2' despues de volver a correr un problema
+incrementando el numero de nodos. 
 
 %===Tue Sep 11 08:29:58 ART 2001 mstorti@minerva
 %
@@ -3882,25 +4209,6 @@ de oscilacion a frecuencias relativamente altas.
 andaba). Voy a probar a refinar la malla y reducir el diametro
 interno. 
 =======
-%===Sun Sep  9 10:19:42 ART 2001 mstorti@spider
-%
-El `rotconden' anda ma o menos bien. Para la matriz de masa preserva
-la masa total. 
-%
-17:08:22: Flujo vertical: da bien. Flujo radial, no da bien. Incluso
-dejando que el valor a la salida lo saque solo, es decir dejando
-u_normal a la salida libre. 
-%
-18:50:02: El flujo radial da "mas o menos" bien. La velocidad aumenta
-hacia el eje, pero no todo lo que deberia y la presion tiene una
-oscilacion fuerte. Me imagino que es por la imposicion de la presion. 
-
-=======
-%===Mon Sep 10 12:10:44 ART 2001 mstorti@minerva
-%
-14:20:50: Lo que parecia ser una onda de alta frequency era un error
-de no correr el `rock2' despues de volver a correr un problema
-incrementando el numero de nodos. 
 
 %===Tue Sep 18 09:07:15 ART 2001 mstorti@minerva
 %
@@ -3926,6 +4234,22 @@ columnwise stored representation.
 %===Sat Sep 29 09:41:20 ART 2001 mstorti@spider
 %
 Sparse::Mat is working as a finite state machine. Now I will include
+the new Sparse::Mat (with SuperLu) as a sequential solver for IISD. 
+%
+%
+14:19:10: 
+
+%===Sat Sep 29 09:41:20 ART 2001 mstorti@spider
+%
+Sparse::Mat is working as a finite state machine. Now I will include
+the new Sparse::Mat (with SuperLu) as a sequential solver for IISD. 
+%
+%
+14:19:10: 
+
+%===Sat Sep 29 09:41:20 ART 2001 mstorti@spider
+%
+Sparse::Mat i working as a finite state machine. Now I will include
 the new Sparse::Mat (with SuperLu) as a sequential solver for IISD. 
 
 %===Thu Oct  4 13:12:19 ART 2001 mstorti@minerva
@@ -4103,11 +4427,43 @@ estamos usando. Ahora voy a tratar de debuggear porque da error cuando
 se reusa la factorizacion de `iisd_petsc', por ejemplo cuando usamos
 `update_jacobian'. 
 
+%===Fri Dec  7 08:51:29 ART 2001 mstorti@minerva
+%
+No pude resolver el problema del `pure virtual method called' para el
+uso de la matriz `SuperLUMat' en `IISDMat' con la version
+`SuperLU'. Parece ser algo relacionado con la logica de la maquina de
+estados pero tambien podria ser algun mal manejo de la memoria
+(new/delete) dentro de la clase SuperLUMat, ya que la version PETSc
+(Sparse::PETScMat) anda bien. 
+%
+08:53:58: Ahora voy a ver si puedo hacer andar el IISD con varios
+`solve()' seguidos (para usar con el `update_jacobian'). 
+
 %===Fri Dec  7 21:39:41 ARST 2001 mstorti@spider
 %
 Estoy agregando la maquina de estados, pero de a poco. Primero estoy
 descomponiendo la funcion `solve()' anterior, como `factor_and_solve()' y
 `solve_only()'. Esto ya esta compilando. 
+
+%===Mon Dec 10 08:51:01 ART 2001 mstorti@minerva
+%
+`update_jacobians' anda en el cluster para la cavidad (el ejemplo
+`test/sqcav/') pero no para la cavidad cubica. Los tiempos obtenidos
+en la cavidad cuadrada con 40000 elementos (200x200) es de 0.79 secs
+para el assemble de residuo (`update_jacobians=0') y 3.5 secs para
+assemble de residuo y matriz (`update_jacobians=1'). O sea una
+relacion de 4.4. Sin embargo en este caso la resolucion es mas cara
+(7 a 8 secs promedio). 
+%
+08:56:36: La convergencia se deteriora pero llega a bajar el residuo
+desde 1e-3 hasta 3e-8 en unos 30 pasos de tiempo. 
+Las dudas son: si la convergencia se termina deteriorando por
+problemas de precision o por usar el IISD. 
+
+%===Wed Dec 12 14:52:11 ART 2001 mstorti@minerva
+%
+Uno de los tests de `lupart' no anda y se trata del IISDMat con solver
+PETSc cuando no hay `sles_ll'. 
 
 %===Fri Jan  4 08:20:01 ARST 2002 mstorti@spider
 %
@@ -4132,6 +4488,26 @@ perdia menos, pero ahora no estoy muy seguro.
 21:56:04: Sacando la parte de resolucion no pierde memoria.
 %
 21:59:15: La perdida de memoria esta en el solve.
+
+%===Fri Jan  4 08:20:01 ARST 2002 mstorti@spider
+%
+La nueva version de `PFMat' (por ahora `IISDMat' y `PETScMat')
+funciona aparentemente bien, pero pierde memoria. Aparentemente no
+esta relacionado con StoreGrpah (lgraph). Todas estas pruebas hechas
+con `pfmat.cpp'. 
+%
+08:31:23: Multiples soluciones (nsl>>1) no produce perdida de memoria.
+%
+08:33:24: Multiples definiciones de la matriz (nmat>>1) si produce
+perdida de memoria. 
+%
+09:04:55: Solo se produce perdida de memoria con `IISDMat' no con
+`PETScMat'. 
+%
+09:09:58: Con `iisd_subpart>1' es cuando pierde memoria. 
+%
+12:22:38: Con `SuperLU' como `LocalSolver' parecia al principio que
+perdia menos, pero ahora no estoy muy seguro. 
 
 %===Sat Jan  5 07:34:25 ARST 2002 mstorti@spider
 %
@@ -4164,26 +4540,6 @@ anda bien.
 %
 21:02:29: Abandono... Parece ser un quilobo relacionado puramente con
 SuperLU. 
-
-%===Mon Dec 10 08:51:01 ART 2001 mstorti@minerva
-%
-`update_jacobians' anda en el cluster para la cavidad (el ejemplo
-`test/sqcav/') pero no para la cavidad cubica. Los tiempos obtenidos
-en la cavidad cuadrada con 40000 elementos (200x200) es de 0.79 secs
-para el assemble de residuo (`update_jacobians=0') y 3.5 secs para
-assemble de residuo y matriz (`update_jacobians=1'). O sea una
-relacion de 4.4. Sin embargo en este caso la resolucion es mas cara
-(7 a 8 secs promedio). 
-%
-08:56:36: La convergencia se deteriora pero llega a bajar el residuo
-desde 1e-3 hasta 3e-8 en unos 30 pasos de tiempo. 
-Las dudas son: si la convergencia se termina deteriorando por
-problemas de precision o por usar el IISD. 
-
-%===Wed Dec 12 14:52:11 ART 2001 mstorti@minerva
-%
-Uno de los tests de `lupart' no anda y se trata del IISDMat con solver
-PETSc cuando no hay `sles_ll'. 
 
 %===Mon Jan 14 06:16:44 ARST 2002 mstorti@spider
 %
@@ -4419,6 +4775,37 @@ el numero de nodos de interfase.
 130secs. La verdad es que el perfil de velocidad en el waterline es
 bastante ruidoso. 
 
+%===Sun, 12 May 2002 12:01:37 -0300 mstorti@spider
+%
+Creo que encontre el problema. No era un error en el programa sino con
+el quilombo de elementos ficticios, `is_fat', nodos ficticios,
+etc... Al marcar los elementos de supeficie como `is_fat=0', entonces
+los nodos de superficie quedaban desconectados y entonces los asignaba
+arbitrariamente a un procesador, por lo tanto quedaba todo un monton
+de nodos marcados como interfase. 
+%
+18:51:14: Con una malla de 20/1 (1200 elementos) en un procesador da
+todo bien. Porque los tiempos de calculo de elementos son 28secs para
+`nsi_tet_keps_rot' y 28 secs para `bcconv_ns_fm2' y despues reporta un
+tiempo de ensamblaje total de 58secs. Despues tarda unos 20secs en
+resolver. Ahora voy a probar con una malla con mas `nz' y menos `n'. 
+%
+19:31:43: Con una malla 12/6 (2592 elementos) da 65'' para evaluar
+`nsi_tet_keps_rot' y 15'' para evaluar `bcconv'. No puedo correr con
+optimizacion (no se porque). Ahora voy a probar en paralelo. 
+%
+19:38:19: Corriendo con dos procesadores da 95secs total,
+`bcconv_ns_fm2' 17secs y `nsi_tet_keps_rot' 73secs. Lo cual quiere
+decir que el ensamblaje y otros elementos se comen solo 5secs, lo cual
+esta muy bien. La resolucion se come 100secs. En un solo proc. parece
+converger mejor, probablemente porque al mantener el `iisd_subpart' al
+pasar a dos procs. se reduce el tamanio de los subdominios y aumenta
+el numero de nodos de interfase. 
+%
+20:15:07: Con optimizacion da total=50, `nsi_tet_keps_rot=45',
+`bcconv_ns_fm2=5'. Con lo cual esta muy bien. La resolucion tarda unos
+130secs. 
+
 %===Mon May 13 10:52:11 ART 2002 mstorti@node1.beowulf.gtm
 %
 Puedo correr `cylinder.epl' con una malla de 30/15 (46939 nodos, 40500
@@ -4479,6 +4866,24 @@ ser bastante mas que lineal.
 %
 22:18:35: Vamos a probar hasta donde se puede llegar. 
 
+%===Sat, 13 Jul 2002 19:20:37 -0300 mstorti@spider
+%
+Mirando eficiencia corro una malla de 50^3=125,000 elementos hexas con
+qharm con `-O2 -funroll-loops' en spider (spider: dyntest 83Mflops
+para N=41, 22Mflops asint). Tarda 60 secs en ensamblar (0.5sec/Kelem)
+y 160 secs. en resolver el sistema a toleacia rtol=1e-6 con
+iisd_subpart=60. Si todo escaleara bien deberia tardar unas 80 veces menos
+en un cluster de 10 procesadores P4, o sea 1sec para ensamblar y 2
+secs para resolver. Ahora voy a tratar de hacerlo con tetras. (Solo
+deberia cambiar significativamente el tiempo de ensamblaje). 
+%
+21:08:06: Con tetras la malla de 50^3=625K elementos da: 36 secs de ensamblaje
+(0.058secs/Ke), 100 secs de resolucion. 
+%
+22:10:51: Con tetras la malla de 60^3=1.08Melementos da: 62 secs de ensamblaje
+(0.058secs/Ke), 276 secs de resolucion. 
+%
+
 %===Sun, 14 Jul 2002 13:16:13 -0300 mstorti@spider
 %
 Reflotando el fractional-step. Compila. 
@@ -4527,6 +4932,13 @@ hace un `erase()' de un dado elemento. Para `maps' y listas el
 iterator es borrado y no hay que actualizarlo, mientras que para
 vectores hay que avanzarlo cuando es borrado. Todavia no se como
 hacers para que quede en forma automatica. 
+
+%===Wed Jul 24 12:34:25 ART 2002 mstorti@minerva
+%
+La clase de grafo distribuida esta funcionando bien, pero se hay un
+problema en el cual se plantea una disyuntiva en cuanto a como
+funcionan los iterators de la clase base en `DistCont<>' cuando se
+hace un `erase()' de un dado 
 
 %===Wed, 24 Jul 2002 21:11:35 -0300 mstorti@spider
 %
@@ -4605,11 +5017,75 @@ de 70^3 tarda 100sec evaluar y 160sec resolver.
 unos 460MB, con krylov de 100 (iisd_subpart=300, tal vez se podria
 aumentar mas). Los tiempos son 130secs eval, 450secs resol. 
 
+%===Wed, 24 Jul 2002 21:11:35 -0300 mstorti@spider
+%
+Esta andando la nueva representacion de grafo
+`LinkGraphWrapper'. Puedo correr en minerva el problema de 
+>      Etapa   |     sub-etapa           |  termina(reloj)| diff(t) | Nro etapa | 
+> 
+>   -PREDICTOR-   residual computation... --  [t=262.638]   263.19   1 
+>   -PREDICTOR-   solving linear system... -- [t=525.896]     4.80   3
+>   -POISSON-     matrix computation... --    [t=530.748]    90.53   5
+>   -POISSON-     residual computation... --  [t=621.297]    68.84   7
+>   -POISSON-     solving linear system... -- [t=690.159]   264.23   9
+>   -PROJECTION-  matrix computation... --    [t=954.451]   106.30  11
+>   -PROJECTION-  residual computation... --  [t=1060.776]   79.03  13
+>   -PROJECTION-  solving linear system... -- [t=1139.876]    5.83  15
+> Primer paso: 886secs						  
+> 								  
+>   -PREDICTOR-  residual computation... --   [t=1148.656]   263.0   17
+>   -PREDICTOR-  solving linear system... --  [t=1411.675]     4.9   19
+>   -POISSON-    residual computation... --   [t=1416.786]    69.6   21
+>   -POISSON-    solving linear system... --  [t=1486.415]    96.1   23
+>   -PROJECTION- residual computation... --   [t=1582.726]    81.0   25
+>   -PROJECTION- solving linear system... --  [t=1663.779]     5.0   27
+> Segundo paso: 523secs						  
+> 								  
+>   -PREDICTOR-  residual computation... --   [t=1668.957]   263.4   29
+>   -PREDICTOR-  solving linear system... --  [t=1932.435]     4.7   31
+>   -POISSON-    residual computation... --   [t=1937.192]    69.3   33
+>   -POISSON-    solving linear system... --  [t=2006.542]    95.0   35
+>   -PROJECTION- residual computation... --   [t=2101.716]    79.6   37
+>   -PROJECTION- solving linear system... --  [t=2181.356]     5.1   39
+> Segundo paso: 517secs
+> 
+%
+22:18:20: Conclusiones: 1/3 del tiempo en el primer paso y 1/2 de los
+siguientes (160secs) se va en calculo del residuo y matriz. Lo que se
+ahorra en las iteraciones n>1 es el ensamblaje de las matrices
+(90+106\approx 200 secs) y la diferencia de no factorizar las matrices
+unos 160 secs. Eso da unos 350secs de diferencia. 
+%
+22:23:45: Puedo correr la cavidad cubica con 50^3 con 20 subdominios
+en minerva, llega a ocupar unos 370 MB. Tarda unos 660secs (11'). Voy
+a probar a incrementar el iisd_subpart. Consume unos 377MB. 
+%
+Con iisd_subpart=20
+%
+-- residual computation... -- [22:11:13    184.128]       36.204
+-- solving linear system... -- [22:11:49    220.332]     624.739
+-- residual computation... -- [22:22:14    845.071]       37.247
+-- solving linear system... -- [22:22:51    882.318]     634.037
+-- residual computation... -- [22:33:25   1516.355]       36.790
+
 %===Thu Jul 25 11:36:39 ART 2002 mstorti@node1.beowulf.gtm
 %
 Puedo correr malla de 50^3 (625000 tetras) con nsi_tet_les_fm2 en geronimo con 5
 procs, usa del orden de 140MB por nodo. Tarda unos 105+30 secs por
 iteracion. 
+%
+> --  residual computation... -- [11:27:10    236.669]     105.180
+> --  solving linear system... -- [11:28:55    341.849]     30.195
+> --  residual computation... -- [11:29:26    372.044]     108.410
+> --  solving linear system... -- [11:31:14    480.454]     28.136
+> --  residual computation... -- [11:31:42    508.590]     108.694
+
+%===Thu Jul 25 11:36:39 ART 2002 mstorti@node1.beowulf.gtm
+%
+Puedo correr malla de 50^3 (625000 tetras) con nsi_tet_les_fm2 en geronimo con 5
+procs, usa del orden de 140MB por nodo. Tarda unos 105+30 secs por
+iteracion. 
+
 %
 > --  residual computation... -- [11:27:10    236.669]     105.180
 > --  solving linear system... -- [11:28:55    341.849]     30.195
@@ -4665,6 +5141,27 @@ resolucion baja a 70 con `use_interface_full_preco=0' y a 50secs con
 00:05:49: Con NS tarda unos 70secs de resolucion con una malla de 26^3
 y `iisd_subpart=100' y con `use_interface_full_preco=1'. Tarda entre
 110 y 125 secs con `use_interface_full_preco=0'.
+
+%===Fri Jul 26 18:48:01 GMT+3 2002 mstorti@spider
+%
+Esta andando bien el procsel. 
+%
+20:44:21: puedo correr malla de 30^3 con fractional step en spider.
+%
+21:11:15: para la malla de 10^3 con laplace el
+`use_full_diagonal_preco' mejora la convergencia en un factor 2 (hace
+la mitad de iteraciones). 
+%
+21:23:13: Con 30^3 tambien baja a la mitad. Sin embargo el costo es
+mayor, aparetemente porque itera demasiado en la interfase. 
+%
+23:38:17: Con una malla de 50^3 tarda unos 37secs eval y 80secs resol
+con `use_interface_full_preco', mientras que tarda 120secs sin
+`use_interface_full_preco'. 
+%
+23:45:37: Aumentando el iisd_subpart a 100 (estaba en 50) el tiempo de
+resolucion baja a 70 con `use_interface_full_preco=0' y a 50secs con
+`use_interface_full_preco=1'. Las iterciones bajan a la mitad.  
 
 %===Sat, 27 Jul 2002 10:37:04 -0300 mstorti@spider
 %
@@ -5062,6 +5559,24 @@ PETSc. La diferencia empieza siendo pequenha pero despues
 aumenta. Pareceria estar relacionado con un mal condicionamiento de la
 matriz. 
 
+%===Fri,  6 Sep 2002 11:51:59 -0300 mstorti@minerva
+% From Makefile.defs
+From version beta-3.04 on, PETSc-FEM must be compiled with PETSc 2.1.3. 
+For compiling older versions (that compile with PETSc 2.0.24) you may want
+probably to have several versions of PETSc compiled. You put all the versions
+in a directory pointed by `PETSC_ROOT_DIR' and then version of PETSc newer
+than beta-3.04 will specify the version of PETSc needed through the variable
+`PETSC_VERSION_USED_BY_PETSCFEM'
+%
+ifneq ($(PETSC_VERSION_USED_BY_PETSCFEM),)
+PETSC_DIR=$(PETSC_ROOT_DIR)/petsc-$(PETSC_VERSION_USED_BY_PETSCFEM)
+endif
+%
+12:52:03: Corriendo ROCKET/ident no da lo mismo la nueva version de
+PETSc. La diferencia empieza siendo pequenha pero despues
+aumenta. Pareceria estar relacionado con un mal condicionamiento de la
+matriz. 
+
 %===Fri,  6 Sep 2002 21:00:36 -0300 mstorti@spider
 %
 Corriendo con las versiones 3.04 (actual) y 3.03.pl15 (vieja) da
@@ -5142,6 +5657,7 @@ Con fractional step puedo correr con 1.8Melem. (rtol=1e-4)
 > PROJECTION-  solving linear system. =    0.97
 > Total                               =  208.23 secs
 %
+
 %===Fri Sep 13 10:51:10 ART 2002 mstorti@node1.beowulf.gtm
 %
 Con 2.2Melem (sin node 11), 
@@ -5263,6 +5779,126 @@ bajan los tiempos y obtengo:
 > PROJECTION-  solving linear system. =   0.26 (sigma    0.00)
 > Total                               =  78.42
 
+%===Fri Sep 13 10:51:10 ART 2002 mstorti@node1.beowulf.gtm
+%
+Con 2.2Melem (sin node 11), 
+%
+Proctable=
+node1         1.3   server
+node2         4.2
+node4         4.2
+node9         4.
+node8         4.2
+node3         1.6
+node7         1.6
+node10        1.6
+node12        1.6
+%
+> PREDICTOR-  residual computation.   =   106.2873
+> PREDICTOR-  solving linear system.  =    13.5177
+> POISSON-  residual computation.     =    15.1890
+> POISSON-  solving linear system.    =   169.9040
+> PROJECTION-  matrix computation.    =    66.0503
+> PROJECTION-  residual computation.  =    69.7543
+> PROJECTION-  solving linear system. =     2.7333
+%
+% Agregando el nodo 11 con peso 2.2
+%
+> PREDICTOR-  residual computation.   =  174.12 (sigma  17.66)
+> PREDICTOR-  solving linear system.  =   26.24 (sigma   1.05)
+> POISSON-  residual computation.     =   27.48 (sigma   2.25)
+> POISSON-  solving linear system.    =  229.47 (sigma  19.52)
+> PROJECTION-  matrix computation.    =  125.78 (sigma  15.63)
+> PROJECTION-  residual computation.  =  134.89 (sigma  14.67)
+> PROJECTION-  solving linear system. =    5.14 (sigma   0.09)
+> Total                               =  723.11
+%
+O sea que tarda el doble. 
+%
+11:05:32: Pruebo a intercambiar los nodos 11 y 8 (deberian ser
+equivalentes). 
+%
+12:16:57: Aparentemente intercambiando los nodos el que sigue jodiendo
+es el nuevo 11 (o sea que el problema en principio no esta con el
+hardware). Le corro el nettest para ver si anda bien la placa,
+etc... y parece andar todo bien. (Da velocidades del orden de
+90Mbit/sec). 
+%
+12:26:02: Empiezo a correr con una malla de 60^3*5, para que no tarde
+tanto. 
+%
+% Sin el nodo 11
+%
+> PREDICTOR-  residual computation.   =  27.20 (sigma    0.72)
+> PREDICTOR-  solving linear system.  =   1.37 (sigma    0.00)
+> POISSON-  residual computation.     =   4.07 (sigma    0.00)
+> POISSON-  solving linear system.    =   8.94 (sigma    0.37)
+> PROJECTION-  matrix computation.    =  14.26 (sigma    0.03)
+> PROJECTION-  residual computation.  =  15.25 (sigma    0.01)
+> PROJECTION-  solving linear system. =   0.53 (sigma    0.00)
+> Total                               =  71.63
+%
+% Con el nodo 11
+%
+> PREDICTOR-  residual computation.   =   29.48 (sigma    0.89)
+> PREDICTOR-  solving linear system.  =	   3.83 (sigma    0.05)
+> POISSON-  residual computation.     =	   5.79 (sigma    0.12)
+> POISSON-  solving linear system.    =	  46.75 (sigma    2.66)
+> PROJECTION-  matrix computation.    =	  18.00 (sigma    0.26)
+> PROJECTION-  residual computation.  =	  19.87 (sigma    1.29)
+> PROJECTION-  solving linear system. =	   1.49 (sigma    0.01)
+> Total                               =  125.20          
+%
+% Sin el nodo 8:
+%
+> PREDICTOR-  residual computation.   =  32.92 (sigma    0.00)
+> PREDICTOR-  solving linear system.  =   5.16 (sigma    0.00)
+> POISSON-  residual computation.     =   6.06 (sigma    0.00)
+> POISSON-  solving linear system.    =  67.05 (sigma    0.00)
+> PROJECTION-  matrix computation.    =  17.25 (sigma    0.00)
+> PROJECTION-  residual computation.  =  19.93 (sigma    0.00)
+> PROJECTION-  solving linear system. =   1.31 (sigma    0.00)
+> Total                               = 149.69
+%
+% Con todos los nodos (el viejo 11 -> 8 ahora es el 5):
+%
+> PREDICTOR-  residual computation.   =  28.32 (sigma    0.11)
+> PREDICTOR-  solving linear system.  =   4.04 (sigma    0.02)
+> POISSON-  residual computation.     =   4.19 (sigma    0.01)
+> POISSON-  solving linear system.    =  50.85 (sigma    4.20)
+> PROJECTION-  matrix computation.    =  15.22 (sigma    0.05)
+> PROJECTION-  residual computation.  =  16.49 (sigma    0.03)
+> PROJECTION-  solving linear system. =   1.08 (sigma    0.00)
+> Total                               = 120.17
+%
+%
+17:14:45: Saco el nodo5 y vuelvo a los 72sec/iter. 
+%
+17:36:50: Le cambio la placa al nodo5 de forma de que ahora es el
+nodo6. Los tiempos vuelven a ser buenos (aunque no hay ganancia). 
+%
+> PREDICTOR-  residual computation.   =  25.51 (sigma    0.44)
+> PREDICTOR-  solving linear system.  =   1.57 (sigma    0.20)
+> POISSON-  residual computation.     =   3.89 (sigma    0.02)
+> POISSON-  solving linear system.    =  14.69 (sigma    0.00)
+> PROJECTION-  matrix computation.    =  13.61 (sigma    0.04)
+> PROJECTION-  residual computation.  =  14.74 (sigma    0.00)
+> PROJECTION-  solving linear system. =   0.49 (sigma    0.00)
+> Total                               =  74.50
+%
+%
+17:48:04: Vuelvo a correr sin el nodo 5 para ver si en realidad no se
+bajan los tiempos y obtengo:
+%
+> PREDICTOR-  residual computation.   =  28.57 (sigma    0.57)
+> PREDICTOR-  solving linear system.  =   1.64 (sigma    0.14)
+> POISSON-  residual computation.     =   4.11 (sigma    0.00)
+> POISSON-  solving linear system.    =  11.86 (sigma    4.57)
+> PROJECTION-  matrix computation.    =  15.28 (sigma    0.00)
+> PROJECTION-  residual computation.  =  16.70 (sigma    0.22)
+> PROJECTION-  solving linear system. =   0.26 (sigma    0.00)
+> Total                               =  78.42
+
 %===Sat Sep 14 10:36:35 ART 2002 mstorti@node1.beowulf.gtm
 %
 Resolviendo Poisson con CG en la malla de 2.2Melem tarda
@@ -5275,6 +5911,28 @@ Resolviendo Poisson con CG en la malla de 2.2Melem tarda
 > PROJECTION-  residual computation.  =  43.91 (sigma    0.03)           
 > PROJECTION-  solving linear system. =   1.04 (sigma    0.00)           
 > Total                               = 207.45 (number of steps: 4)
+%
+Lo cual es bastante menos que los 400 y pico que teniamos antes. Ahora
+voy a probar a bajar el rtol ya que como estamos usando CG no deberia
+haber problema con la memoria. 
+%
+13:42:32: Con rtol=1e-8 revienta pero el problema es que deberia poder
+poner la menor tolerancia solamente en el paso de poisson ya que en el
+predictor y proyeccion ahi es gmres y entonces si que con sume
+memoria. 
+
+%===Sat Sep 14 10:36:35 ART 2002 mstorti@node1.beowulf.gtm
+%
+Resolviendo Poisson con CG en la malla de 2.2Melem tarda
+%
+> PREDICTOR-  residual computation.   =  80.22 (sigma    1.20)           
+> PREDICTOR-  solving linear system.  =   6.02 (sigma    0.01)           
+> POISSON-  residual computation.     =  12.42 (sigma    0.00)           
+> POISSON-  solving linear system.    =  22.53 (sigma    0.04)           
+> PROJECTION-  matrix computation.    =  41.31 (sigma    0.01)           
+> PROJECTION-  residual computation.  =  43.91 (sigma    0.03)           
+> PROJECTION-  solving linear system. =   1.04 (sigma    0.00)           
+> Total                               =total  207.45 (number of steps: 4)
 %
 Lo cual es bastante menos que los 400 y pico que teniamos antes. Ahora
 voy a probar a bajar el rtol ya que como estamos usando CG no deberia
@@ -5331,6 +5989,11 @@ puedo correr 66^3*5  = 1.44 Melem.
 %
 Corriendo la cavidad cuadrada con Fractional Step: Converge bien y da
 cosas razonables pero a Re=1000 da diferencia con Ghia. 
+
+%===Mon, 16 Sep 2002 12:58:29 -0300 mstorti@minerva
+%
+Corriendo la cavidad cuadrada con Fractional Step: Converge bien y da
+cosas razonables pero a Re=1000 da dferencia con Ghia. 
 
 %===Tue, 17 Sep 2002 08:22:04 -0300 mstorti@minerva
 %
@@ -5729,6 +6392,94 @@ Parametros a tocar:
 * Parametros de integracion temporal, paso de tiempo
        parametros de acoplamiento potencial/inviscido
 
+%===Sun,  5 Jan 2003 09:35:37 -0300 mstorti@pider
+%
+Anda el acoplamiento con el potencial. El cylinder con la malla de
+Rext=4 da un Strouhal similar pero las velocidades son bastante
+menores, tal vez se debe a que el acoplamiento con el potencial puede
+estar un poco `laggeado' por la subrelajacion y el paso de tiempo de
+lag propio del acoplamiento explicito. De todas formas lo que yo tome
+son velocidades en y=Rext, x>0, las cuales en el caso de no acoplar
+puede ser que se amplifiquen bastante mas el ruido por efectos del
+entubamiento. Ademas hay que ver que en realidad el `acoplado' lo
+habia corrido con omega=0.1, lo cual tal vez es un poco demasiado
+filtrante. 
+%
+Por otra parte los perfiles de velocidad exterior son bastante mas
+bajos cuando acoplo, lo cual esta bien ya que no se produce el
+entubamiento. Las velocidades que se producen en x=5, y=4 oscilan
+alrededor de 1.6 para el no acoplado y de 1.25 para el acoplado. El
+acoplado parece estar francamente mejor en este sentido.
+%
+09:56:34: Lo que voy a hacer ahora es ver como cambia mejorando el
+acoplamiento, por ejemplo poniendo menos subrelajacion (si se la
+banca) o poniendo un filtro mejor. 
+%
+11:07:11: Con omega=0.5 y partiendo de la solucion no acoplada se va a
+a la mierda. 
+%
+13:10:26: Con omega=0.25 y saliendo de la solucion sin coupling anda
+bien. 
+%
+17:56:01: Con omega=0.5 saliendo de la solucion a 0.25 se hace
+inestable. 
+%
+19:41:06: Habia un error en el calculo del dphi_dn. Se terminaba
+poniendo el valor en otro `k'. 
+%
+21:15:47: Tomando la velocidad `v' (comp `y') en un punto a x=4.494,
+y=0 y midiendo los puntos de cruce por 0 da un periodo T de 37 pasos
+que a Dt=0.157, da un T=5.81, con lo cual el Strouhal = (omega*D/U) =
+2.16. Salvo los resultados de Octave en
+`cylin.filter.octave.tmp'. Ahora voy a probar a ver si tocando algun
+parametro del filtro se obtienen resultados diferentes.
+
+%===Sun,  5 Jan 2003 09:35:37 -0300 mstorti@pider
+%
+Anda el acoplamiento con el potencial. El cylinder con la malla de
+Rext=4 da un Strouhal similar pero las velocidades son bastante
+menores, tal vez se debe a que el acoplamiento con el potencial puede
+estar un poco `laggeado' por la subrelajacion y el paso de tiempo de
+lag propio del acoplamiento explicito. De todas formas lo que yo tome
+son velocidades en y=Rext, x>0, las cuales en el caso de no acoplar
+puede ser que se amplifiquen bastante mas el ruido por efectos del
+entubamiento. Ademas hay que ver que en realidad el `acoplado' lo
+habia corrido con omega=0.1, lo cual tal vez es un poco demasiado
+filtrante. 
+%
+Por otra parte los perfiles de velocidad exterior son bastante mas
+bajos cuando acoplo, lo cual esta bien ya que no se produce el
+entubamiento. Las velocidades que se producen en x=5, y=4 oscilan
+alrededor de 1.6 para el no acoplado y de 1.25 para el acoplado. El
+acoplado parece estar francamente mejor en este sentido.
+%
+09:56:34: Lo que voy a hacer ahora es ver como cambia mejorando el
+acoplamiento, por ejemplo poniendo menos subrelajacion (si se la
+banca) o poniendo un filtro mejor. 
+%
+11:07:11: Con omega=0.5 y partiendo de la solucion no acoplada se va a
+a la mierda. 
+%
+13:10:26: Con omega=0.25 y saliendo de la solucion sin coupling anda
+bien. 
+%
+17:56:01: Con omega=0.5 saliendo de la solucion a 0.25 se hace
+inestable. 
+%
+19:41:06: Habia un error en el calculo del dphi_dn. Se terminaba
+poniendo el valor en otro `k'. 
+%
+21:15:47: Tomando la velocidad `v' (comp `y') en un punto a x=4.494,
+y=0 y midiendo los puntos de cruce por 0 da un periodo T de 37 pasos
+que a Dt=0.157, da un T=5.81, con lo cual el Strouhal = (omega*D/U) =
+2.16. Salvo los resultados de Octave en `cylin.filter.octave.tmp'. 
+
+%===Tue,  7 Jan 2003 13:43:28 -0300 mstorti@minerva
+%
+Trabajando sobre el `gasflow' (NS compresible). Corro el ejemplo de
+Beto (flujo homogeneo con una perturbacion) parece andar bien. Voy a
+resolver ahora una tobera. 
+
 %===Tue,  7 Jan 2003 23:27:00 -0300 mstorti@spider
 %
 Ya esta!! Era un error: al tomar los puntos donde `v(x0,t)'  cambia de
@@ -5744,12 +6495,6 @@ creciendo y se hace muy intensa. (La verdad que no se si es demasiado
 o si cuando ponemos el acoplamiento esta dando demasiado poco). Si lo
 tomamos como una siunoside creciente en el tiempo y le calculamos el
 Strouhal da 0.2 (lo cual estaria mal). 
-
-%===Tue,  7 Jan 2003 13:43:28 -0300 mstorti@minerva
-%
-Trabajando sobre el `gasflow' (NS compresible). Corro el ejemplo de
-Beto (flujo homogeneo con una perturbacion) parece andar bien. Voy a
-resolver ahora una tobera. 
 
 %===Wed,  8 Jan 2003 10:12:52 -0300 mstorti@minerva
 %
@@ -5801,6 +6546,11 @@ inestable. Estoy probando con (omega=0.5; xif=1) y por ahora parece
 OK. Me pregunto la precision de todo esto. 
 %
 11:48:24: Efectivamente con (omega=0.5; xif=1) parece estable. 
+
+%===Thu,  9 Jan 2003 09:19:49 -0300 mstorti@minerva
+%
+Con Rext=2 y sin acoplamiento (v.n = v_inf.n) el sistema se estabiliza
+y el Strouhal (amortiguado!!) es del orden de 0.4. 
 
 %===Sat, 11 Jan 2003 10:38:42 -0300 mstorti@spider
 %
@@ -5938,6 +6688,70 @@ rotacion. Converge bien y parece llegar a un estacionario.
 sepracion de corrientes en incompresible. Ahora voy a probar a refinar
 mas. 
 
+<<<<<<< notes.txt
+
+%===Mon, 20 Jan 2003 10:54:30 -0300 mstorti@minerva
+%
+Sin entrada y salida de material, rotando a velocidad 200 diverge. Se
+pueden probar varias cosas: 
+* una velocidad mas baja (menos compresible). 
+* ir frenandolo mas despacio
+* que inicialmente este en reposo e ir acelerando la entrada. 
+Primero voy a probar usar la velocidad mas baja. 
+%
+11:00:58: Con L0=2*R0; y velocidad 20m/s, acanza unos cuantos pasos de
+tiempo pero detecto que el lazo de newton (nnwt=2) no converge asi que
+le pongo (nnwt=5) a ver si detecto algo. 
+%
+11:20:15: Con `u_circunf_in=20' y `nnwt=5' parece converger. Tambien por
+un error le estaba poniendo mal el ancho de la entrada Dz_in. 
+%
+11:32:56: Con `u_circunf_in=200' diverge. 
+%
+12:46:32: Con `u_circunf_in=40' converge mas o menos. Pero la
+velocidad en el anillo de entrada (pero con velocidad radial nula) no
+se propaga hacia adentro. Ahora voy a probar de nuevo a poner un poco
+de entrada y salida. 
+%
+12:51:24: Le agrego una componente radial de velocidad. Diverge. Voy a
+probar a correrlo en incompresible. 
+%
+13:19:20: En incompresible con `axisymmetric "z"' da pivote nulo. Sin
+el axisymmetric anda bien. En 10 Dt converge bien (u_rad_in=0). El
+perfil de velocidad tampoco penetra nada. 
+%
+13:23:39: Poniendo velocidad a la entrada anda bien, por supuesto se
+va todo al nodo con presion nula, por continuidad. Ahora voy a probar
+a ponerle presion en algun lado. 
+%
+13:33:13: Poniendo presion=0 en las salidas anda bien. Ahora voy a
+probar a subir el Re. 
+%
+20:55:52: Con Re=1e3 y u_rad=10, u_circ=40 parece mantenerse la
+rotacion. Converge bien y parece llegar a un estacionario.
+%
+22:36:33: Con presion=-160 en la salida fria se forma bien la
+sepracion de corrientes en incompresible. Ahora voy a probar a refinar
+mas. 
+
+<<<<<<< notes.txt
+
+%===Mon, 20 Jan 2003 10:54:30 -0300 mstorti@minerva
+%
+Sin entrada y salida de material, rotando a velocidad 200 diverge. Se
+pueden probar varias cosas: 
+* una velocidad mas baja (menos compresible). 
+* ir frenandolo mas despacio
+* que inicialmente este en reposo e ir acelerando la entrada. 
+Primero voy a probar usar la velocidad mas baja. 
+%
+11:00:58: Con L0=2*R0; y velocidad 20m/s, acanza unos cuantos pasos de
+tiempo pero detecto que el lazo de newton (nnwt=2) no converge asi que
+le pongo (nnwt=5) a ver si detecto algo. 
+%
+11:20:15: Con u_circunf_in=20 y nnwt=5 parece converger. Tambien por
+un error le estaba poniendo mal el ancho de la entrada Dz_in. 
+
 %===Tue, 21 Jan 2003 11:08:28 -0300 mstorti@minerva
 %
 Voy a mergear las cosas de BEto del Bubbly que habian quedado en
@@ -5955,11 +6769,60 @@ contiene lo mergeado
 `advdif_bubbly.cpp'. La idea es que va a haber dos main, pero lo demas
 seria compartido. 
 
+=======
+
+%===Tue, 21 Jan 2003 11:08:28 -0300 mstorti@minerva
+%
+Voy a mergear las cosas de BEto del Bubbly que habian quedado en
+advdif/NEW_VERSION. Basicamente esta el avance del bubbly por
+multi-steps y lo de los jobinfo-fields. Mi idea es que lo de los
+jobinfo-fields ya se podria mergear en la corriente principal y lo de
+las multiples etapas en el main podria quedar en una main aparte. 
+%
+Las correcciones hay que agregar las al branch
+`ns-comp-merge-branch'. La version `ns-comp-merge-old-version'
+contiene lo mergeado 
+%
+11:27:03: El `advdif_bubbly.cpp' lo borro (creo que era viejo) y al
+`advdif.cpp' que estaba en el NEW_VERSION pasa a ser el nuevo
+`advdif_bubbly.cpp'. La idea es que va a haber dos main, pero lo demas
+seria compartido. 
+
+=======
+
 %===Tue, 21 Jan 2003 22:23:24 -0300 mstorti@spider
 %
 Empiezo a correr el `vtube' en compresible. Con `refine=2' y
 `u_rad_in=20', y solo salida caliente converge bien y se forma un
 flujo saliente correcto. 
+%
+22:26:21: A `nstep=85' lo corto para relanzarlo con salida fria. 
+%
+22:43:34: Le largo la salida fria con p_c = 1.013e5 pero revienta. Le
+bajo el Dt de 1e4  a 5e-5 y le pongo una presion de salida fria mas
+alta 1.2e5. 
+%
+22:57:55: Sigue divirgiendo. El flujo se va todo hacia la salida
+fria, e incluso se invierte el sentido de la salida caliente. 
+%
+23:24:16: Con p_c=1.3e5 converge bien. Sale casi todo por la salida
+fria, asi que en realidad se deberia usar una p_c todavia mayor. 
+%
+08:40:05: Con 1.33e5 y 1.3e5 tambien diverge. 
+
+%===Tue, 21 Jan 2003 22:23:24 -0300 mstorti@spider
+%
+Empiezo a correr el `vtube' en compresible. Con `refine=2' y
+`u_rad_in=20', y solo salida caliente converge bien y se forma un
+flujo saliente correcto. 
+
+>>>>>>> 1.228.2.1
+
+%===Tue, 21 Jan 2003 22:23:24 -0300 mstorti@spider
+%
+Empiezo a correr el `vtube' en compresible. Con `refine=2' y
+`u_rad_in=20', y solo salida caliente converge bien y se forma un
+flujo saliente correcto. `vtube1.patch'
 %
 22:26:21: A `nstep=85' lo corto para relanzarlo con salida fria. 
 %
@@ -6027,6 +6890,13 @@ caliente OK. Cuando le agrego la salida fria a p_c=1.1e5 el flujo en
 la salida caliente se tiende a invertir asi que ahora voy a probar con
 p_c=1.15e5. 
 
+%===Tue, 28 Jan 2003 16:02:03 -0300 mstorti@node1.beowulf.gtm
+%
+Corro el ejemplo grande. Llega el estado estacionario con solo salida
+claiente OK. Cuando le agrego la salida fria a p_c=1.1e5 el flujo en
+la salida caliente se tiende a invertir asi que ahora voy a probar con
+p_c=1.15e5. 
+
 %===Wed, 29 Jan 2003 09:48:19 -0300 mstorti@node1.beowulf.gtm
 %
 Tambien se invierte voy a probar con 1.3e5.
@@ -6057,6 +6927,35 @@ step 140 con p_c=1.3e5.
 17:07:40: Se invierte la salida fria. Voy a probar con p_c=1.25e5. Se
 invierte la salida caliente. Lo arranco a partir del estado 70 con
 p_c=1.275e5. 
+
+%===Wed, 29 Jan 2003 09:48:19 -0300 mstorti@node1.beowulf.gtm
+%
+Tambien se invierte voy a probar con 1.3e5.
+%
+11:32:05: Se invierte la salida fria. Pruebo con 1.22e5. 
+%
+13:39:36: Con 1.22e5 se invierte la fria. Guarda que tambien modifique
+el paso de tiempo. (1e-5 -> 5e-5). 
+%
+14:11:28: Tambien diverge pero no es facil cual de las dos salidas da
+mal. Asumo que es la fria (como pasaba con el otro Dt.). 
+%
+14:49:14: Tambien diverge. No veo que se invierta. Voy a probar a bajarle mas el Dt. 
+%
+15:00:01: Veo que diverge cerca de la salida fria sobre el eje. Me
+pregunto si es por imponer condicion de pared solida sobre el eje. Una
+posibilidad podria ser poner condcion slip ahi. Es lo que voy a tratar
+ahora. 
+%
+15:45:54: Diverge porque en rho=Rin, z=L0 hay que imponer pared
+solida. Sino se puede meter flujo por ahi. 
+%
+16:56:42: Poniendo condicion slip anda mucho mejor pero de todas
+formas en un cierto momento con p_c=1.2e5 la velocidad se invierte en
+la salida caliente. Asi que lo corto y lo vuelvo a arrancar desde el
+step 140 con p_c=1.3e5. 
+%
+17:07:40: Se invierte la salida fria. Voy a probar con p_c=1.25e5. 
 
 %===Thu, 30 Jan 2003 09:58:06 -0300 mstorti@node1.beowulf.gtm
 %
@@ -6102,6 +7001,50 @@ estaba imponiendo la presion regulada en la salida fria.
 17:16:07: Ahora esta controlando bien. Tal vez le puede costar llegar
 al estacionario, pero no diverge. 
 
+%===Thu, 30 Jan 2003 09:58:06 -0300 mstorti@node1.beowulf.gtm
+%
+09:58:01: En realidad veo que en el paso 70 ya estaba el flujo
+invertido en la salida caliente. Revisando veo que la salida se
+invierte entre el paso 10 y el 20 asi que toda la corrida no sirve. 
+Voy a probar a relanzar desde la corrida anterior (RUN1) step=140 como
+antes pero con la nueva `p_c' (1.275e5). 
+%
+%
+11:09:49: Se invierte la caliente. Surge la idea de subir la
+viscosidad un poco mas. Segun el paper de vortex tube en IJHMT la
+correccion por turbulencia deberia andar en el orden de 1000 (yo estoy
+usando 100). De todas formas quiero hacer una pequenha pruebita
+primero de volver a correr con 1.3e5 (se deberia invertir la fria). 
+%
+11:39:06: Efectivamente se invierte la fria. Voy a probar a aumentarle
+el `flow_coef' (1e-2 -> 1e3). Vuelvo a p_c=1.275e5. 
+%
+13:35:55: Con el `flow_coef' y esa p_c parece andar bastante
+bien. Pero despues de un rato los dos flujos se van 0. 
+%
+14:18:53: Corrijo que directamente la correccion sea no en flujos
+relativos sino con respecto al caudal que quiero que entre por cada
+entrada. Despues eventualmente habria que agregarle una correccion por
+si hay perdidas. Tambien hay que agregarle una correccion por si el
+caudal se va a 0, pero por ahora no lo pongo. La ecuacion que estoy
+usando es, mas o menos
+%
+\dot p_j = -C (q_j(t) - cut_j * q_inlet(j))
+%
+donde p_j, q_j son la presion y caudal de la entrada j, my_cut es la
+fraccion que quiero que salga por la salida j, y q_inlet(t) es lo que
+esta entrando en este momento por la entrada. 
+%
+Lo arranco a partir del estado RUN3/120 e inicializo las presiones
+p_h, p_c a los valores que tenia en ese momento. 
+p_h = 133599, p_c=131901. 
+%
+16:01:03: Parece regular bien, pero por un error en el mkvtube.m, no
+estaba imponiendo la presion regulada en la salida fria. 
+%
+17:16:07: AHora esta controlando bien. Tal vez le puede costar llegar
+al estacionario, pero no diverge. 
+
 %===Fri, 31 Jan 2003 09:50:59 -0300 mstorti@node1.beowulf.gtm
 %
 A los 240 pasos mas o menos la velocidad se inviert en la salida fria
@@ -6132,7 +7075,6 @@ cuenta que el Mach en esa zona puede ser muy bajo.
 13:31:04: Voy a tratar de llevar los parametros a los parametros
 reales y aumentar un poco el radio interior. 
 
-
 %===Tue, 11 Feb 2003 10:53:35 -0300 mstorti@spider
 Tested splittings for 
 triangle
@@ -6146,6 +7088,16 @@ tetra:
   dx_indices 1 2 3 4 tetrahedra
 prism  (not conforming though)
   dx_indices 1  2  3  4   5  4  6  2   2  6  3  4 tetrahedra
+
+%===Tue, 11 Feb 2003 10:53:35 -0300 mstorti@spider
+Tested splittings for 
+cartesian2d: 
+  dx_indices 1 2 4 3 quads
+  dx_indices 1 2 3 3 4 1 triangles
+cartesian3d:
+  dx_indices 1 2 4 3 5 6 8 7 cubes
+tetra:
+  dx_indices 1 2 3 4 tetrahedra
 
 %===Sat, 22 Feb 2003 12:49:10 -0300 mstorti@spider
 %
@@ -6162,6 +7114,34 @@ cerca del 0.20 que tiene que ser). Resultados en plate.tgz
 Hizo 426 pasos de tiempo y en un cierto momento se corto la luz, pero 
 en realidad parece como si se hubiera empezado a diverger _antes_ de
 que se cortara la luz. 
+
+%===Sat, 22 Feb 2003 12:49:10 -0300 mstorti@spider
+%
+Retomo el tema del acoplamiento viscoso inviscido. Visualizo con DX el
+campo de velocidades viscoso junto con el potencial y  detecto gran
+diferencia entre ambos campos. Descrubro que esta mail inicializado el
+campo. EL uini en los nodos ficticios tiene que tener n_x en la
+componente 1 y lo demas no importa. Ademas habia un error por el cual
+no se calculaba bien el potencial. sobre la sup. de
+acoplamiento. Corro a Re=1000 y ahora se ve bastante bien. El Strouhal
+da 0.196, creo que si lo dejo mas tiempo puede subir un poco mas (mas
+cerca del 0.20 que tiene que ser). Resultados en plate.tgz
+%
+Hizo 426 pasos de tiempo y en un cierto momento se corto la luz, pero 
+en realidad parece como si se hubiera empezado a diverger _antes_ de
+que se cortara la luz. 
+
+%===Sat, 22 Feb 2003 12:49:10 -0300 mstorti@spider
+%
+Retomo el tema del acoplamiento viscoso inviscido. Visualizo con DX el
+campo de velocidades viscoso junto con el potencial y  detecto gran
+diferencia entre ambos campos. Descrubro que esta mail inicializado el
+campo. EL uini en los nodos ficticios tiene que tener n_x en la
+componente 1 y lo demas no importa. Ademas habia un error por el cual
+no se calculaba bien el potencial. sobre la sup. de
+acoplamiento. Corro a Re=1000 y ahora se ve bastante bien. El Strouhal
+da 0.196, creo que si lo dejo mas tiempo puede subir un poco mas (mas
+cerca del 0.20 que tiene que ser). 
 
 %===Mon, 24 Feb 2003 20:20:46 -0300 mstorti@spider
 %
@@ -6360,6 +7340,13 @@ enseguida con steady.
 14:17:42: Si no impongo la velocidad transversal entonces da una
 vorticidad muy alta. 
 
+%===Tue, 11 Mar 2003 17:51:45 -0300 mstorti@minerva
+%
+Enel `wave.epl', con el elmento de traccion en la interfase
+`inviscid_coupling', la vorticidad da un maximo de 0.6. 
+%
+17:55:40: Sin el `inviscid_coupling' da muy similar. 
+
 %===Thu, 13 Mar 2003 18:24:29 -0300 mstorti@node1.beowulf.gtm
 %
 Corregido una serie de errores con LES en la parte de generar la
@@ -6368,6 +7355,13 @@ funcion de amortiguamiento de van Driest. No estaba bien construido el
 a extenderlo a varios elemsets de pared. 
 %
 18:26:20: Verifique que da lo mismo con 1 y dos procesadores. 
+
+%===Thu, 20 Mar 2003 13:26:59 -0300 mstorti@node1.beowulf.gtm
+%
+Corre ejemplo spiller 300*(Dt=0.05), malla de 30x160 con
+fs_alpha=0.1. Termina divirgiendo la superficie libre. Ahora vamos a
+tratar de salir de la solucion estacionaria para superficie fija. 
+salvo: spiller.2003-03-20.tar.gz
 
 %===Thu, 20 Mar 2003 18:41:33 -0300 mstorti@spider
 %
@@ -6552,6 +7546,10 @@ converge casi en el limite y despues al correr el no estacionario con
 (Dt=0.05, nfilt=20, fs_smoothing_coef=0.1) diverge en un modo suave,
 para en el paso 18. 
 
+%===Tue,  8 Apr 2003 09:01:29 -0300 mstorti@minerva
+%
+Con Dt=0.02 
+
 %===Sun, 11 May 2003 14:11:42 -0300 mstorti@spider
 %
 Retomando el tema del spillway. No lo logro hacer andar sin
@@ -6666,6 +7664,10 @@ casos. Algunos faltan porque no termino de correr.
 %
 Aparentemente ahora _GNU_SOURCE viene definido por default. 
 
+%===Thu,  3 Jul 2003 09:47:31 -0300 mstorti@minerva
+%
+Aparentemente ahor _GNU_SOURCE viene definido por default. 
+
 %===Fri,  4 Jul 2003 16:32:53 -0300 mstorti@node1.beowulf.gtm
 %
 Eficiencia: Comparando los P4 actuales en el cluster con spider (P4
@@ -6675,6 +7677,19 @@ y despues baja a 170MFlops. Con PETSc-FEM, cavidad cubica para n=20
 0.57-0.65 secs para node1!!
 Resolucion: 6.7891 node15
             11.965 node1
+
+%===Fri,  4 Jul 2003 16:32:53 -0300 mstorti@node1.beowulf.gtm
+%
+Eficiencia: Comparando los P4 actuales en el cluster con spider (P4
+2.4Ghz, 512Mb RAM DDR 333). Tiene un pico de 920Mflops para n=20 con el dyntest
+y despues baja a 170MFlops. Con PETSc-FEM, cavidad cubica para n=20
+(40000 elementos, 8000 nodos) 
+
+%===Fri,  4 Jul 2003 16:32:53 -0300 mstorti@node1.beowulf.gtm
+%
+Eficiencia: Comparando los P4 actuales en el cluster con spider (P4
+2.4Ghz, 512Mb RAM DDR 333). Tiene un pico de 920Mflops para n=20 con el dyntest
+y despues baja a 170MFlops.
 
 %===Mon,  7 Jul 2003 17:07:41 -0300 mstorti@minerva
 %
@@ -6704,17 +7719,39 @@ largo se queda corto. Lo arregle con el siguiente parche.
        endif
 --------- ends here __plt2vm__.m patch ----------------------
 
+%===Mon,  7 Jul 2003 17:07:41 -0300 mstorti@minerva
+%
+Cuando compilo en minerva con la nueva versionde Newmat entonces da
+un SIGSEGV. Vuelvo a recompilar todo petscfem. 
+%
+19:26:58: Un fix para octave. EL plot en RH 8.0 (octave 2.1.36) no
+grafica, mas de 6 o 7 curvas. Aparentemente es un bug en sprintf, que
+va armando el gplot command y cuando tiene que imprimir un comando muy
+largo se queda corto. Lo arregle con el siguiente parche. 
+
+--------- cut here __plt2vm__.m patch ----------------------
+--- __plt2vm__.m.orig	2002-09-03 18:29:54.000000000 -0300
++++ __plt2vm__.m	2003-07-13 19:24:48.000000000 -0300
+@@ -64,8 +64,10 @@
+       k++;
+     endif
+     for i = 2:y_nc
+-      cmd = sprintf ("%s, tmp(:,%d:%d:%d) %s", cmd, 1, i, i+1,
+-                     deblank (fmt (k, :)));
++#      cmd = sprintf ("%s, tmp(:,%d:%d:%d) %s", cmd, 1, i, i+1,
++#                     deblank (fmt (k, :)));
++      cmd = [cmd, sprintf (", tmp(:,%d:%d:%d) %s", 1, i, i+1,
++                     deblank (fmt (k, :)))];
+       if (k < fmt_nr)
+         k++;
+       endif
+--------- ends here __plt2vm__.m patch ----------------------
+
 %===Thu, 24 Jul 2003 12:48:41 -0300 mstorti@node1.beowulf.gtm
 %
 En tempfun2.cpp `piecewise_linear' amplitude function, para verificar
 que el vector estuviera ordenado comparava con t_v[n-2] y yo creo que
 hay que comparar con t_v[n-1]. 
-
-%===Wed,  6 Aug 2003 16:57:15 -0300 mstorti@node1.beowulf.gtm
-%
-Modifier `fstack.cpp' so that now reads DOS files. It simply replaces
-the `\r' by a `\0'. 
-
 
 %===Fri, 25 Jul 2003 22:51:58 -0300 mstorti@spider
 %
@@ -6733,6 +7770,11 @@ habia agregado modificaciones para que
 %
 22:58:51: No queria linkeditar en spider por problemas con el
 ANN. Tuve que recompilar el ANN. 
+
+%===Wed,  6 Aug 2003 16:57:15 -0300 mstorti@node1.beowulf.gtm
+%
+Modifier `fstack.cpp' so that now reads DOS files. It simply replaces
+the `\r' by a `\0'. 
 
 %===Sun, 17 Aug 2003 10:29:56 -0300 mstorti@spider
 %
@@ -6913,6 +7955,30 @@ comentando la llamada en upload_vector().
 17:38:38: Se lleva poco. Aparentemente 0.9sec ya que al comentarlo
 pasa de 5 a 4.1sec. El target seria bajar estos 4.1sec. 
 
+%===Fri, 29 Aug 2003 12:20:11 -0300 mstorti@minerva
+%
+Estoy tratando de reemplazar las llamadas a MatSetValue por llamadas a
+MatSetValue*s*. Ya casi lo tengo escrito pero resulta que no se parece
+ganar demasiado. El calculo da bien, falta implementar el `A_LL_other'
+y el `isp_set_values'. 
+%
+13:39:07: Para la cubcav 20x20x20 el tiempo de upload baja de 7.6 a
+6.3. Si comento los MatSetValues baja a 5. Con lo cual quiere decir
+que tengo 5secs de ineficiencia en mi programacion y despues el
+MatSetValues se llevaba 2.6secs y con la historia del MatSetValues lo
+lleve a 1.3. Puedo cuantificar cuanto se lleva mi psmat->set_values()
+comentando la llamada en upload_vector().
+%
+17:38:38: Se lleva poco. Aparentemente 0.9sec ya que al comentarlo
+pasa de 5 a 4.1sec. El target seria bajar estos 4.1sec. 
+
+%===Fri, 29 Aug 2003 12:20:11 -0300 mstorti@minerva
+%
+Estoy tratando de reemplazar las llamadas a MatSetValue por llamadas a
+MatSetValues. Ya casi lo tengo escrito pero resulta que no se parece
+ganar demasiado. El calculo da bien, falta implementar el `A_LL_other'
+y el `isp_set_values'. 
+
 %===Fri, 29 Aug 2003 21:46:29 -0300 mstorti@spider
 %
 Quiere decir entonces que la principal ineficiencia mia esta en el
@@ -6998,6 +8064,35 @@ upload_vector:   1.secs
 pfmat->set_values:  1.15secs
 PETSc MatSetValues: 3.03secs
 
+%===Fri, 29 Aug 2003 21:46:29 -0300 mstorti@spider
+%
+Quiere decir entonces que la principal ineficiencia mia esta en el
+upload_vector mismo. 
+%
+10:36:55: Voy a estimar el tiempo que tarda el ensamble del vector y
+que esta mas abajo en upload_vector(). Es muy poco, baja de 3.5ec a
+3.4sec. 
+%
+10:41:29: La llamada a matrices ahora se esta llevando 1.4secs, es
+decir casi el 40% del upload_vector().
+%
+10:44:15: Con la vieja version PETSc esta en 4.3 secs. O sea que no
+hemos ganado demasiado. 
+%
+14:58:18: Usando vectores C en vez de dvector<int>::e() se bajan un
+poco mas los tiempos. Entotal pude bajar la parte de upload a la
+mitad. 
+%
+% -----------
+% Nueva version
+[0]   135000       15/ 67%(   0.11)      7.5/ 33%  0.00021/  0%   0.0044/  0%
+total       22.5secs
+% -----------
+% vieja version 
+[0]   135000       13/ 46%(  0.097)       15/ 54%  0.00024/  0%    0.012/  0%
+total       28.4secs
+% -----------
+
 %===Sun, 31 Aug 2003 09:19:57 -0300 mstorti@spider
 %
 De repente los tiempos subieron mucho, pruebo a volver atras e ir
@@ -7034,7 +8129,6 @@ total       18.2secs
 %
 13:26:36: Verificado que con nlay=1 da lo mismo que daba antes. Lo
 comparo con la version `petscfem-beta-3.19.pl47'. 
-
 
 %===Mon, 01 Sep 2003 07:40:00 -0300 mstorti@spider
 %
@@ -7093,6 +8187,12 @@ Corre la cavidad cubica con 2Mtet. Corre toda la noche, 16hs+ sin
 problemas. Lo corto y que le agrego mas memoria a un nodo y llego a
 2.4Mtet. 
 
+%===Tue,  2 Sep 2003 11:58:57 -0300 mstorti@node1.beowulf.gtm
+%
+Corre la cavidad cubica con 2Mtet. Corre toda la noche, 16hs+ sin
+problemas. Lo corto y que le agrego mas memoria a un nodo y lo quiero
+lanzar con 3Mtet. 
+
 %===Tue, 02 Sep 2003 23:59:20 -0300 mstorti@spider
 %
 Corre casi todos los tests. 
@@ -7106,6 +8206,24 @@ Con g_c++: falla en dos:
 Hay otro error similar, pero me parece ahora qye se debe a cierta
 dispersion que hay en los valores, es decir en algunos tests se puede
 producir una fluctuacion que haga que a veces el programa de mal. 
+Con O_c++ corre todos los test. 
+%
+> Start section: "All tests"
+> Summary: "All tests" -- OK: 162.  Not OK: 0. Couldn't open: 0. Total: 162
+
+%===Tue, 02 Sep 2003 23:59:20 -0300 mstorti@spider
+%
+Corre casi todos los tests. 
+Con g_c++: falla en dos:
+%
+> Start section: "All tests"
+> Summary: "All tests" -- OK: 160.  Not OK: 2. Couldn't open: 0. Total: 162
+%
+> Testing: "newff/test case reac_adv_dif_temp_y" on file "newff/reac_adv_dif_temp_y.vrf.tmp"...not OK.
+>         --->  Couldn't find "rel. max error  <tol\(.*\) OK\? 1"
+> Testing: "newff/test case reac_adv_dif_temp_y" on file "newff/reac_adv_dif_temp_y.vrf.tmp"...not OK.
+>         --->  Couldn't find "rel. max error  <tol\(.*\) OK\? 1"
+%
 Con O_c++ corre todos los test. 
 %
 > Start section: "All tests"
@@ -7207,6 +8325,15 @@ nulo. Voy a probar a correrlo con la beta-3.20.
 parece andar mal asi que decidamente parece tener que ver mas con la
 nueva versionde upload que con la nueva versiond e PETSc. 
 
+%===Wed, 10 Sep 2003 23:43:38 -0300 mstorti@spider
+%
+No corre el caso de la cavidad cuadrada con fractional step. Da pivote
+nulo. Voy a probar a correrlo con la beta-3.20. 
+%
+23:53:35: Con el viejo upload parece andar bien. Con la beta-3.20
+parece andar mal asi qued decidamente parece tener que ver mas con la
+nueva versionde upload que con la nueva versiond e PETSc. 
+
 %===Thu, 11 Sep 2003 10:26:21 -0300 mstorti@node1.beowulf.gtm
 %
 La cavidad cubica no queria andar porque le habia agregado el LES y no
@@ -7266,6 +8393,97 @@ Instructivo para hacer las nuevas tags con la utilidad `make tag':
 *./ Lo mismo en el directorio de la version `HEAD' 
 *./ Crear una version light 3.23.pl1 `administrativa' en `HEAD'
 
+%===Sun, 14 Sep 2003 10:32:53 -0300 mstorti@spider
+%
+Tengo mas decidido el sistema de versiones, de manera de mantener la
+convencion de que las impares son inestables y las pares
+estables. Hariamos algo asi
+%
+3.21=3.20 (stable branch) --> 3.20.pl1 --> 3.20.pl2 --> ...
+3.21.pl1
+3.21.pl2 
+...
+3.23=3.22 (stable branch) --> 3.22.pl1 --> 3.22.pl2 --> ...
+3.23.pl1
+3.23.pl2
+%
+O sea que en todo momento tenemos en el HEAD la version inestable con
+un tag `n.m' (m impar) y versiones `light' (n.m.pl1, n.m.pl2, n.m.pl3,
+...) mientras que tenemos una rama que es una version estable que nace
+a la misma altura `n.(m-1)' del HEAD y donde vamos arreglando solo
+fixes a los bugs, no nuevas features. 
+%
+11:06:06: El mecanismo deberia ser asi: 
+$ cvs tag beta--3-23
+$ cvs tag -b -r beta--3-23 beta--3-22
+%
+Instructivo para hacer las nuevas tags con la utilidad `make tag':
+*./ Salvar por si acaso $ tar czvf petscfem-cvsroot.tgz ~/cvsroot/petscfem
+*./ $ make tag --> 3.23
+*./ $ cvs tag -b -r beta--3-23 beta--3-22
+*./ Hacer un directorio con la version estable: 
+    $ cvs co -d petscfem-beta-3.22 -r beta--3-22
+*./ En ese directorio reemplazar en `stable.log' y en `save.log' el
+    tag no-estable por el estable 3.23 -> 3.22 y hacer commit. 
+*./ Lo mismo en el directorio de la version HEAD. 
+*./ Crear una version light 3.23.pl1 `administrativa'. 
+
+%===Sun, 14 Sep 2003 10:32:53 -0300 mstorti@spider
+%
+Tengo mas decidido el sistema de versiones, de manera de mantener la
+convencion de que las impares son inestables y las pares
+estables. Hariamos algo asi
+%
+3.21=3.20 (stable branch) --> 3.20.pl1 --> 3.20.pl2 --> ...
+3.21.pl1
+3.21.pl2 
+...
+3.23=3.22 (stable branch) --> 3.22.pl1 --> 3.22.pl2 --> ...
+3.23.pl1
+3.23.pl2
+%
+O sea que en todo momento tenemos en el HEAD la version inestable con
+un tag `n.m' (m impar) y versiones `light' (n.m.pl1, n.m.pl2, n.m.pl3,
+...) mientras que tenemos una rama que es una version estable que nace
+a la misma altura `n.(m-1)' del HEAD y donde vamos arreglando solo
+fixes a los bugs, no nuevas features. 
+%
+11:06:06: El mecanismo deberia ser asi: 
+$ cvs tag beta--3-23
+$ cvs tag -b -r beta--3-23 beta--3-22
+%
+Instructivo para hacer las nuevas tags con la utilidad `make tag':
+1./ $ make tag --> 3.23
+2./ $ cvs tag -b -r beta--3-23 beta--3-22
+3./ Hacer un directorio con la version estable: 
+    $ cvs co -d petscfem-beta-3.22 -r beta--3-22
+4./ En ese directorio reemplazar en `stable.log' y en `save.log' el
+    tag no-estable por el estable 3.23 -> 3.22 y hacer commit. 
+5./ Lo mismo en el directorio de la version HEAD. 
+6./ Crear una version light 3.23.pl1 `administrativa'. 
+
+%===Sun, 14 Sep 2003 10:32:53 -0300 mstorti@spider
+%
+Tengo mas decidido el sistema de versiones, de manera de mantener la
+convencion de que las impares son inestables y las pares
+estables. Hariamos algo asi
+%
+3.20 (estable) --> 3.20.pl1 --> 3.20.pl2 --> ...
+3.21(=3.20)
+3.21.pl1
+3.21.pl2 
+...
+3.22 (estable) --> 3.22.pl1 --> 3.22.pl2 --> ...
+3.22 (=3.23)
+3.23.pl1
+3.23.pl2
+%
+O sea que en todo momento tenemos en el HEAD la version inestable con
+un tag `n.m' (m impar) y versiones `light' (n.m.pl1, n.m.pl2, n.m.pl3,
+...) mientras que tenemos una rama que es una version estable que nace
+a la misma altura `n.(m-1)' del HEAD y donde vamos arreglando solo
+fixes a los bugs, no nuevas features. 
+
 %===Wed, 17 Sep 2003 07:18:02 -0300 mstorti@spider
 %
 Corre muchos tests. 162 en g_c++:
@@ -7275,6 +8493,17 @@ y en O_c++ reporta
 > Start section: "Navier-Stokes tests."
 > Summary: "Navier-Stokes tests." -- OK: 15.  Not OK: 0. Couldn't open: 1. Total: 16
 %
+lo cual es medio extranio ya que reporta un total de 16 asi que debe
+haber pasado algo extranio con las modificaciones a step.epl. 
+
+%===Wed, 17 Sep 2003 07:18:02 -0300 mstorti@spider
+%
+Corre muchos tests. 162 en g_c++:
+> Start section: "All tests"
+> Summary: "All tests" -- OK: 162.  Not OK: 3. Couldn't open: 1. Total: 166
+y en O_c++ reporta 
+> Start section: "Navier-Stokes tests."
+> Summary: "Navier-Stokes tests." -- OK: 15.  Not OK: 0. Couldn't open: 1. Total: 16
 lo cual es medio extranio ya que reporta un total de 16 asi que debe
 haber pasado algo extranio con las modificaciones a step.epl. 
 
@@ -7446,25 +8675,6 @@ tipo de overflow de enteros puede que se la banque mas.
 %
 Ahora voy a probar a correr sin optimizacion. 
 
-%===Fri, 26 Sep 2003 19:05:43 -0300 mstorti@node1.beowulf.gtm
-%
-Ahora corre bien con todos los nodos y con N=78 (2.4Mtet). 
-%
-19:23:21: Con N=80 da un error de 
-%
-> ns_O.bin: readmesh.cpp:995: int read_mesh (Mesh *&, char *, Dofmap *&,
-> int &, int, int): Assertion `0' failed.
-> node 601646, elems 32, range in node2elem 11689164 - 11689195
-> 2901815 2901817 2901818 2901819 2901821 2901822 2901823 2901824
-> 2902265 2902267 2902268 2902269 2902271 2902272 2902273 2902274
-> 2942315 2942316 2942317 2942319 2942320 2147483647 2942321 2942322
-> 2942324 2942765 2942766 2942768 2942769 2942770 2942771 2942773
-> rm_l_4_1001:  p4_error: net_recv read:  probable EOF on socket: 1
-%
-en node18!!. Saco el node18 y lo largo de nuevo. 
-%
-19:29:25: Sin el node18 pasa bien el punto de particionamiento. 
-
 %===Thu, 25 Sep 2003 21:00:51 -0300 mstorti@spider
 %
 Con O_c++ en spider con dos procs anda bien. Asi que el problema
@@ -7534,6 +8744,25 @@ entonces lo largo en 13 nodos. (ya estaba sacado el 18).
        nodos. Hacerle `chmod 600'. 
 2./ Agregar 'rsh' a los `/etc/securetty' de los nodos. 
 
+%===Fri, 26 Sep 2003 19:05:43 -0300 mstorti@node1.beowulf.gtm
+%
+Ahora corre bien con todos los nodos y con N=78 (2.4Mtet). 
+%
+19:23:21: Con N=80 da un error de 
+%
+> ns_O.bin: readmesh.cpp:995: int read_mesh (Mesh *&, char *, Dofmap *&,
+> int &, int, int): Assertion `0' failed.
+> node 601646, elems 32, range in node2elem 11689164 - 11689195
+> 2901815 2901817 2901818 2901819 2901821 2901822 2901823 2901824
+> 2902265 2902267 2902268 2902269 2902271 2902272 2902273 2902274
+> 2942315 2942316 2942317 2942319 2942320 2147483647 2942321 2942322
+> 2942324 2942765 2942766 2942768 2942769 2942770 2942771 2942773
+> rm_l_4_1001:  p4_error: net_recv read:  probable EOF on socket: 1
+%
+en node18!!. Saco el node18 y lo largo de nuevo. 
+%
+19:29:25: Sin el node18 pasa bien el punto de particionamiento. 
+
 %===Wed,  1 Oct 2003 12:47:02 -0300 mstorti@node1.beowulf.gtm
 %
 La corrida de cubcav se corto a los 148 Dt. (de las 13:00 hasta
@@ -7547,6 +8776,52 @@ un poco demasiado). Esta corriendo con 3.2Mtet (N=86).
 anteriormente. Guarda que aparentemente estaba corriendo
 simultaneamente con gburgener/genetico. Lo largo tranqui con N=82
 (2.8Mtet). 
+
+hi hi hi 
+
+hi hi hi desde rodrigop@astroboy
+
+hi hi hi desde rodrigop@astroboy en hydro2-branch
+
+%===Wed,  1 Oct 2003 12:47:02 -0300 mstorti@node1.beowulf.gtm
+%
+La corrida de cubcav se corto a los 148 Dt. (de las 13:00 hasta
+despues de las 21:00) y se quedo esperando. El nodo5 estaba apagado y
+no quiere arrancar, aparentemente tiene un problema electrico. Asi que
+no no esta en claro si fue un SEGV como en los otros
+casos. Aparentemente estaria tardando 1h para hacer 5 pasos (me parece
+un poco demasiado). Esta corriendo con 3.2Mtet (N=86). 
+%
+13:13:02: Suena por memoria. Con respecto a la eficiencia dicha
+anteriormente. Guarda que aparentemente estaba corriendo
+simultaneamente con gburgener/genetico. Lo largo tranqui con N=82
+(2.8Mtet). 
+
+hi hi hi 
+
+hi hi hi desde rodrigop@astroboy
+
+hi hi hi desde rodrigop@astroboy en hydro2-branch
+
+%===Wed,  1 Oct 2003 12:47:02 -0300 mstorti@node1.beowulf.gtm
+%
+La corrida de cubcav se corto a los 148 Dt. (de las 13:00 hasta
+despues de las 21:00) y se quedo esperando. El nodo5 estaba apagado y
+no quiere arrancar, aparentemente tiene un problema electrico. Asi que
+no no esta en claro si fue un SEGV como en los otros
+casos. Aparentemente estaria tardando 1h para hacer 5 pasos (me parece
+un poco demasiado). Esta corriendo con 3.2Mtet (N=86). 
+%
+13:13:02: Suena por memoria. Con respecto a la eficiencia dicha
+anteriormente. Guarda que aparentemente estaba corriendo
+simultaneamente con gburgener/genetico. Lo largo tranqui con N=82
+(2.8Mtet). 
+
+hi hi hi 
+
+hi hi hi desde rodrigop@astroboy
+
+hi hi hi desde rodrigop@astroboy en hydro2-branch
 
 %===Fri, 17 Oct 2003 07:03:49 -0300 mstorti@minerva
 %
@@ -7885,6 +9160,142 @@ relacion para gaschem es 39:1.5 o sea 26 veces mas lento sin cache.
 12:58:25: Tambien lo pongo para el `becconv'. Pasa de 0.06sec/ke a
 2.7sec/ke. Eso significa un incremento en un factor de 45. 
 
+%===Mon, 08 Dec 2003 08:04:10 -0300 mstorti@spider
+%
+La normal en `bccadvfm2.cpp' y el bug en `mydetsur': Cuando se hace
+`weak_form=1' en advdif se genera un termino de
+contorno. Aparentemente hay una serie de inconsistencias y vamos a
+escribir algo sobre eso. Si la ecuacion es
+%
+\dep Ut + \div F = \div D \nabla U + G
+%
+entonces al debilitar por parte queda, basicamente
+%
+\int N \dep Ut + \int N F.n 
+       -\int (\grad N) F = - \int (\grad N) D (\grad U) + \int N G
+%
+Pero en el programa normalmente pasamos todo al miembro derecho de
+manera que tenemos
+%
+R = residuo = - \int N \dep Ut - \int N F.n 
+		     + \int (\grad N) F - \int (\grad N) D (\grad U)
+		     + \int N G
+%
+Entonces esta bien que en todos esos elementos de BCCONV aparezca la
+normal invertida en signo. Habria que entonces eliminar el cartel 
+`fixme:= This is to compensate a bug in mydetsur' . 
+%
+Ahora la funcion `detsur' deberia retornar la normal exterior cuando
+se le pasa el jacobiano J de ndim x (ndim-1) de un elemento "correctamente
+numerado".  Esto es:
+%
+* En 2D si el segmento de frontera esta orientado en forma antihoraria
+* En 3D si los nodos estan numerados en forma antihoraria mirandolos
+     desde el exterior. 
+%
+En 2D el Jacobiano es un vector `J = t' paralelo a la frotnera
+orientado en sentido antihorario, esto quiere decir que `detsur' debe
+"rotar" al vector en sentido horario, es decir `e_z x t' donde `e_z'
+es el versor que sale del plano y `x' significa producto escalar.  En
+3D el Jacobiano son dos vectores `J = [t1 t2]' paralelos a la frontera
+de tal manera que [t1 x t2] da segun la normal exterior. Proponemos
+que `detsur' siga esa convencion. En este momento `detsur' estaria
+bien en 2D y mal en 3D.
+%
+Notar que esto se podria generalizar de la siguiente forma: si `J' es el
+Jacobiano entonces `n' es tal que `det([n J])' es positivo. Aqui va el
+parche (`detsur.patch'). 
+
+> This fixes an inconsistency between the computation of detsur between
+> 2D and 3D. With this fix we have always an exterior normal with the
+> usual orientation of elements. See further discussion in `notes.txt'. 
+> 
+> Index: src/fmat2ep.cpp
+> ===================================================================
+> RCS file: /home/mstorti/cvsroot/petscfem/src/fmat2ep.cpp,v
+> retrieving revision 1.21
+> diff -u -r1.21 fmat2ep.cpp
+> --- src/fmat2ep.cpp	2 Jul 2003 02:55:14 -0000	1.21
+> +++ src/fmat2ep.cpp	8 Dec 2003 11:41:38 -0000
+> @@ -1313,9 +1313,9 @@
+>        retval = sqrt(NN(0)*NN(0)+NN(1)*NN(1));
+>      } else {
+>  #define JACO(j,k) (*vv[((j)-1)*3+(k)-1])
+> -      NN(0) = -JACO(1,2)*JACO(2,3)+JACO(1,3)*JACO(2,2);
+> -      NN(1) = -JACO(1,3)*JACO(2,1)+JACO(1,1)*JACO(2,3);
+> -      NN(2) = -JACO(1,1)*JACO(2,2)+JACO(1,2)*JACO(2,1);
+> +      NN(0) = +JACO(1,2)*JACO(2,3)-JACO(1,3)*JACO(2,2);
+> +      NN(1) = +JACO(1,3)*JACO(2,1)-JACO(1,1)*JACO(2,3);
+> +      NN(2) = +JACO(1,1)*JACO(2,2)-JACO(1,2)*JACO(2,1);
+>        retval = sqrt(NN(0)*NN(0)+NN(1)*NN(1)+NN(2)*NN(2));
+>      }
+>    } else {
+> Index: src/utils.cpp
+> ===================================================================
+> RCS file: /home/mstorti/cvsroot/petscfem/src/utils.cpp,v
+> retrieving revision 1.16
+> diff -u -r1.16 utils.cpp
+> --- src/utils.cpp	2 Jul 2003 23:21:57 -0000	1.16
+> +++ src/utils.cpp	8 Dec 2003 11:43:40 -0000
+> @@ -82,9 +82,9 @@
+>      Jaco.rs();
+>      return sqrt(sx*sx+sy*sy);
+>    } else if (n==3) {
+> -    sx = -Jaco.get(1,2)*Jaco.get(2,3)+Jaco.get(1,3)*Jaco.get(2,2);
+> -    sy = -Jaco.get(1,3)*Jaco.get(2,1)+Jaco.get(1,1)*Jaco.get(2,3);
+> -    sz = -Jaco.get(1,1)*Jaco.get(2,2)+Jaco.get(1,2)*Jaco.get(2,1);
+> +    sx = +Jaco.get(1,2)*Jaco.get(2,3)-Jaco.get(1,3)*Jaco.get(2,2);
+> +    sy = +Jaco.get(1,3)*Jaco.get(2,1)-Jaco.get(1,1)*Jaco.get(2,3);
+> +    sz = +Jaco.get(1,1)*Jaco.get(2,2)-Jaco.get(1,2)*Jaco.get(2,1);
+>  
+>      S.setel(sx,1).setel(sy,2).setel(sz,3);
+>      return sqrt(sx*sx+sy*sy+sz*sz);
+
+%===Mon, 08 Dec 2003 08:04:10 -0300 mstorti@spider
+%
+La normal en `bccadvfm2.cpp' y el bug en `mydetsur': Cuando se hace
+`weak_form=1' en advdif se genera un termino de
+contorno. Aparentemente hay una serie de inconsistencias y vamos a
+escribir algo sobre eso. Si la ecuacion es
+%
+\dep Ut + \div F = \div D \nabla U + G
+%
+entonces al debilitar por parte queda, basicamente
+%
+\int N \dep Ut + \int N F.n 
+       -\int (\grad N) F = - \int (\grad N) D (\grad U) + \int N G
+%
+Pero en el programa normalmente pasamos todo al miembro derecho de
+manera que tenemos
+%
+R = residuo = - \int N \dep Ut - \int N F.n 
+		     + \int (\grad N) F - \int (\grad N) D (\grad U)
+		     + \int N G
+%
+Entonces esta bien que en todos esos elementos de BCCONV aparezca la
+normal invertida en signo. Habria que entonces eliminar el cartel 
+`fixme:= This is to compensate a bug in mydetsur' . 
+%
+Ahora la funcion `detsur' deberia retornar la normal exterior cuando
+se le pasa el jacobiano J de ndim x (ndim-1) de un elemento "correctamente
+numerado".  Esto es:
+%
+* En 2D si el segmento de frontera esta orientado en forma antihoraria
+* En 3D si los nodos estan numerados en forma antihoraria mirandolos
+     desde el exterior. 
+%
+En 2D el Jacobiano es un vector `J = t' paralelo a la frotnera
+orientado en sentido antihorario, esto quiere decir que `detsur' debe
+"rotar" al vector en sentido horario, es decir `e_z x t' donde `e_z'
+es el versor que sale del plano y `x' significa producto escalar.  En
+3D el Jacobiano son dos vectores `J = [t1 t2]' paralelos a la frontera
+de tal manera que [t1 x t2] da segun la normal exterior. Proponemos
+que `detsur' siga esa convencion. En este momento `detsur' estaria
+bien en 2D y mal en 3D.
+%
+Notar que esto se podria generalizar de la siguiente forma: si `J' es el
+Jacobiano entonces `n' es tal que `det([n J])' es positivo. 
+
 %===Mon, 08 Dec 2003 20:32:53 -0300 mstorti@spider
 %
 Removed ChangeLog file in main directory. I'm not used to maintain it
@@ -7992,6 +9403,39 @@ directorio plano.
 23:21:30: Corre OK todos los tests menos Testing: "Block uploading in
 cubcav" on file "cubcav/cubcav.plain-bupl.verif.tmp".
 
+hi hi hi desde rodrigop@astroboy en hydro2-branch
+
+%===Fri, 21 May 2004 17:37:57 -0300 mstorti@minerva
+%
+Estoy mergeando lo que hizo Beto con el bubbly. La version original
+era la beta-3.14.pl42 (corres ponde a fecha Tue, 21 Jan 2003 15:18:43
+-0300). Voy a crear un `tag' 
+%
+17:56:31: El `advdif.cpp' tiene modificaciones menores. Tendria que
+ver si no se puede sacar el jobinfo_fields. 
+%
+19:29:10: Mergeo los cambios a `advdif.cpp' en la version actual. Esta
+bastante diferente pero en el main es facil. 
+%
+20:18:31: Voy mergeando los diferentes archivos. 
+%
+Tengo:
+bubbly-root  --->   bubbly-branch   (trabajo de Beto)
+   |
+   |
+   |
+   v
+HEAD=bubbly-merge ----> bubbly-merge-branch 
+		  = bubbly-merge +(bubbly-branch - bubbly-root)
+%
+21:13:31: Logro que compile y linkedite y que corra los problemas del
+directorio plano. 
+%
+23:21:30: Corre OK todos los tests menos Testing: "Block uploading in
+cubcav" on file "cubcav/cubcav.plain-bupl.verif.tmp".
+
+hi hi hi desde rodrigop@astroboy en hydro2-branch
+
 %=== Fri Jul 30 18:24:36 2004 mstorti@node1.beowulf.gtm
 %
 18:24:36: 40000 elementos en 1 proc => ((comp 15sec 0.37secs/Ke) (upl 5sec)) 
@@ -8073,6 +9517,11 @@ diferente la resolucion. Ahora voy a probar a ver para NS con
 `sqcav'. 
 %
 13:52:03: Aparentemente con NS no da diferencia.  
+
+%=== Fri Sep 24 08:51:12 2004 mstorti@minerva
+%
+08:51:12: (beta-3.31.6)-(beta-3.31.5) lo voy a pasar a un branch
+`mpe-efficiency' o algo por el estilo. 
 
 %=== Sat Sep 25 05:11:13 2004 mstorti@spider
 %
@@ -8156,7 +9605,7 @@ diff -u -r1.5 graphdv.cpp
 --- src/graphdv.cpp	2 Jul 2003 23:22:19 -0000	1.5
 +++ src/graphdv.cpp	20 Oct 2004 08:59:14 -0000
 @@ -2,6 +2,7 @@
- //$Id: notes.txt,v 1.477 2005/05/12 21:34:15 mstorti Exp $
+ //$Id: notes.txt,v 1.478 2005/05/25 23:18:47 mstorti Exp $
  
  #include <src/graphdv.h>
 +#include <cassert>
@@ -8229,7 +9678,7 @@ diff -u -r1.12 util3.cpp
 --- src/util3.cpp	14 Sep 2003 00:23:22 -0000	1.12
 +++ src/util3.cpp	20 Oct 2004 09:09:51 -0000
 @@ -2,6 +2,7 @@
- // $Id: notes.txt,v 1.477 2005/05/12 21:34:15 mstorti Exp $
+ // $Id: notes.txt,v 1.478 2005/05/25 23:18:47 mstorti Exp $
  #include <cstring>
  #include <cstdio>
 +#include <cassert>
@@ -8278,6 +9727,44 @@ simetricas, tal vez se gane algo mas.
 %
 16:35:07: Con 40^3 y `symmetric' reporta 144MB. Da igual que sin
 `symmetric'. 
+
+%=== Sat Oct 23 09:11:06 2004 mstorti@spider
+%
+09:11:06: Corro cubcav 50x50x50 en spider con FS. Ocupa 380MB RAM y
+tarda 210secs/Dt. 
+%
+09:48:23: Con cubcav 54x54x54 787K-tetra la RAM hace picos donde pasa
+los 500MB, empezando a swappear. Pienso que es en los pasos de GMRES
+de predictor y projection. Pienso si tal vez se pueda usar BICGStab en
+esos pasos. Primero voy a correr con 40x40x40 y tomar bien lo que usa
+de memoria. 
+%
+10:32:06: Con bicgstab anda bien y consume menos memoria (no es
+notable pero puede hacer la diferencia para problemas mas grandes). 
+%
+10:45:01: Con BCGS la memoria anda bien pero el paso de projection
+diverge. voy a volver al problema de 40x40x40. 
+%
+10:54:40: Con 40x40x40 converge bien (al menos los dos primeros
+pasos). VOy a probar con 50x. 
+%
+11:45:20: Con 50x tambien diverge. Voy a probar a usar iisd con un
+iisd_subpart=400 (bajo). Asi deberia converger y no ocupar demasiado
+en espacio de kylov, pero si tal vez ocupe la factorizacion. Vamos a
+probar. Para N=20 anduvo bien. Ahora voy a probar con 50. 
+%
+11:53:34: Con iisd_subpart=400 pareceria como que de todas formas el
+espacio de Krylov es demasiado grande. Pruebo a llevarlo a 2000. 
+%
+11:57:18: Me pregunto si era el precondicionamiento de interface. Lo
+anulo. 
+%
+14:51:02: Con CG en la etapa de projection anda bien. Hay una opcion
+`reuse_mat' que permite elegir de no recalcular la matriz de
+projection (menos tiempo pero mas memoria). 
+%
+15:13:38: Para 56^3 elementos (878Ktetra), consume 475MB RAM y hace un
+estado cada 2min 10sec. 
 
 %=== Sun Oct 24 23:04:49 2004 mstorti@spider
 %
@@ -8478,7 +9965,7 @@ Estos que tiempos son?
 > +	    lnodr1++; dofr1++;
 >  	  }
 >  	}
- 
+
 %=== Thu Nov 11 13:14:36 2004 mstorti@minerva
 %
 13:14:36: Corriendo los tests, en pfmat da:
@@ -8656,6 +10143,21 @@ FastSumHasher:    348273        136      114       136     235   348273   12918
   Mejor Hasher: MD5Hasher o FastHsaher.
   Mejor SumHasher: FastSumHasher. 
 
+%=== Fri Dec  3 20:28:15 2004 mstorti@spider
+%
+20:28:15: Numero de colisiones, NN=1e6, N=20
+  M = 10, perfect: 116.41
+%
+%
+%                    M=10   M=10000
+%
+Hasher:              229        227	
+MD5Hasher:           133        127	
+FastHasher:         8536       2785	
+SumHasher:        999025     703433	
+MD5SumHasher:     348285        117	
+FastSumHasher:    348273        136    
+
 %=== Sat Dec  4 17:03:27 2004 mstorti@spider
 %
 17:03:27: Para secuencias con permutaciones el numero de permutaciones
@@ -8694,6 +10196,45 @@ memoria, ya que no quedarian huecos.
     tabla de hash (valor-de-hash)->iterator. 
 * Para hacer una representacion mas compacta habria que cambiar a
     cursores, en vez de punteros.
+
+%=== Sat Dec 25 19:15:59 2004 mstorti@spider
+%
+19:15:59: DIFERENCIA ENTRE USO DE PUNTEROS Y CURSORES. 
+=====================================================
+%
+(Ver tools/femref/trymem.cpp).
+El uso de cursores es mas eficiente en memoria. Aparentemente el uso
+de punteros requiere una memoria adicional de al menos 4bytes (1
+palabra) por celda, es decir por cada `new/malloc' que se hace. Usando
+un vector<> de celdas (o dvector<>, pero todavia no lo probe) esa
+sobrecarga no aparece. Ademas despues deberia ser mas facil recuperar
+memoria, ya que no quedarian huecos. 
+%
+22:02:31: 
+%
+* El iterator podria ser el puntero a la celda donde esta el splitter
+    y un numero de `subobjeto' con respecto a este Splitter. 
+* Hay que agregar el campo `father' al octree, ya que es necesario
+    para, dada una celda, reconstruir el camino a la raiz y recuperar
+    el objeto. 
+* De alguna forma hay que ser capaz de recuperar el numero de elemento
+    a partir de los links en el arbol. 
+* Una vez que tengamos el iterator, entonces habria que tener una
+    tabla de hash (valor-de-hash)->iterator. 
+* Para hacer una representacion mas compacta habria que cambiar a
+    cursores, en vez de punteros.
+
+%=== Sat Dec 25 19:15:59 2004 mstorti@spider
+%
+19:15:59: Diferencia entre uso de punteros y cursores. 
+          ===========================================
+%
+El uso de cursores es mas eficiente en memoria. Aparentemente el uso
+de punteros requiere una memoria adicional de al menos 4bytes (1
+palabra) por celda, es decir por cada `new/malloc' que se hace. Usando
+un vector<> de celdas (o dvector<>, pero todavia no lo probe) esa
+sobrecarga no aparece. Ademas despues deberia ser mas facil recuperar
+memoria, ya que no quedarian huecos. 
 
 %=== Mon Dec 27 14:45:53 2004 mstorti@minerva
 %
@@ -8971,6 +10512,16 @@ todos los nodos del eje de simetria, incluso los extremos.
 18:44:28: Pareceria que no hay problema en mezclar slip con
 absorbente, pero hay que probar mejor en el cilindro. 
 
+%=== Sat Jan 29 17:32:46 2005 mstorti@spider
+%
+17:32:46: Corre ejemplo 1D, con fuente variable (G_body) oscilatoria
+que produce ondas de choque. Finalmente se va perdiendo masa por los
+extremos y termina divirgiendo. `test/gfplate-ejemplo1d-2004-JAN-29.tgz'
+%
+17:56:14: Corro otro ejemplo 1D en el cual hay un flujo medio a
+Mach=0.9 y se aplica un `Gbody' variable. El flujo aguas abajo pasa de
+subsonico a supersonico sin problema. `test/gfplate-ejemplo1db-2004-JAN-29.tgz'
+
 %=== Fri Feb  4 08:44:41 2005 mstorti@spider
 %
 08:44:41: Uso de los multiplicadores de Lagrange en `gasflow_twall'
@@ -9023,6 +10574,16 @@ nodo, es decir el nodo de pared tiene una cierta inercai termica
 finita y tambien en la precision con la cual se resuelve la ecuacion
 de la energia. 
 
+%=== Sun Feb 13 09:59:42 2005 mstorti@spider
+%
+09:59:42: Voy a ver el tema de los jacobianos (del residuo) en
+`gasflow'. Aparentemente hasta ahora tenemos lo siguiente:
+%
+* Los jacobianos de los flujos advectivos parecen estar
+bien. (chequeado con `compute_fd_adv_jacobian'). 
+* Desactivando el shock capturing la convergencia no mejora. 
+* 
+
 %=== Wed Feb 16 23:02:51 2005 mstorti@spider
 %
 23:02:51: Corro los tests. Fallan muchos, se debe a 
@@ -9039,6 +10600,14 @@ cual es bastante extranho. Corriendo versiones anteriores (beta-3.36,
 beta-3.38, beta-3.40) pasa lo mismo. No se si puede ser la version de
 PETSc, pero tambien es raro porque eso se cambio `beta-3.30.pl5'
 (setiembre 2003). 
+
+%=== Fri Feb 18 06:14:10 2005 mstorti@spider
+%
+06:14:10: Para el test `tets_fs' se ve que la diferencia entre la
+version con debugger `g_c++' y la optimizada `O_c++' es O(1e-6), lo
+cual es bastante extranho. Corriendo versiones anteriores (beta-3.36,
+beta-3.38, beta-3.40) pasa lo mismo. No se si puede ser la version de
+PETSc, pero tambien es raro porque eso se cambio 
 
 %=== Fri Feb 25 22:31:32 2005 mstorti@spider
 %
@@ -9063,6 +10632,13 @@ empezar a bajar la presion a la salida. `pout=0.01*pin'.
 15:23:50: Llego a correr bien con `0.001*pin'. Uso
 `shocap=shocap_aniso=0.2' y `Co=1'. Ahora voy a probar con 143Pa. 
 
+%=== Sat Feb 26 14:25:07 2005 mstorti@spider
+%
+14:25:07: Con `0.2*pin' se forma una onda de choque
+estacionaria. Parece haber un rebote a la salida, pero finalmente se
+forma. Resultados en `gfplate-2005-FEB-26b'. AHora voy a probar a
+empezar a bajar la presion a la salida. `pout=0.01*pin'.  
+
 %=== Sun Feb 27 08:24:20 2005 mstorti@spider
 %
 08:24:20: Ahora voy a tratar de hacerlo axisimetico, con varias
@@ -9083,6 +10659,94 @@ interpolates 4000 points in a mesh of 500x500, in 82secs.
 > Averg. nbr of tries 1.218250
 > elapsed 82.535053
 > ||uana|| 0.249988, ||uinterp|| 0.249988, ||uana-uinterp|| 0.005570
+
+%=== Thu Mar 24 11:37:23 2005 mstorti@spider
+%
+11:37:23: Implemente un contador de operaciones para el producto de
+FastMat2 de manera que se pueden contar cuantos productos se hacen que
+son realmente no nulos para ver si eventualmente un producto sparse
+podria ser mas eficiente. En el caso advdife+gasflow da del orden de
+0.57%. O sea que a lo sumo usando un producto sparse se podria reducir
+el costo en un 43%. Ahora quiero ver que pasa en `nsitetlesfm2'. 
+
+%=== Thu Mar 24 11:37:23 2005 mstorti@spider
+%
+11:37:23: Implemente un contador de operaciones para el producto de
+FastMat2 de manera que se pueden contar cuantos productos se hacen que
+son realmente no nulos para ver si eventualmente un producto sparse
+podria ser mas eficiente. En el caso advdife+gasflow da del orden de
+0.57%. O sea que a lo sumo usando un producto sparse se podria reducir
+el costo en un 43%. 
+
+%=== Thu Mar 24 19:47:35 2005 mstorti@spider
+%
+19:47:35: Para gasflow/3D/hexa el numero de productos es de
+2.05e5/elemento
+%
+19:57:55: Para nsitetlesfm2/3D/hexa la cuenta es de
+2.4e4/elemento. Pareceria que ahi esta la ineficiencia. En
+`compute_flux()' tenemos 3.9080e+04prods/elemento (es mas o menos el
+20%). 
+%
+20:13:10: En `gasflow_ff::comp_grad_N_D_grad_N' tenemos 
+5e4prods/elemento. Que es un 25%. 
+%
+20:16:41: La linea   `Djac.prod(Djac_tmp,Cp,....);' representa unos
+2.6e4prods/elemento. Lo cual representa un poco mas del 10%. 
+
+%=== Fri Mar 25 20:19:20 2005 mstorti@spider
+%
+20:19:20: El producto `tmp20.prod(tmp19,A_grad_N,1,-1,2,-1,3);' que
+basicamente multiplica P_supg (de nel x ndof x ndof) por `A_grad_n'
+del mismo tamano contrayendo un indice ndof, de manera que se obtiene
+una matriz de nel x ndof x nel x ndof. 
+
+%=== Sat Mar 26 13:34:54 2005 mstorti@spider
+%
+13:34:54: Quiere decir que en hexas/3D son (nel*ndof)*ndof*(nel*ndof)
+= 8*5*5*8*5=8000 productos. De estos se hacen 8(npg) por elemento por
+cada evaluacion del residuo es decir que ahi nomas tenemos 64000
+productos que es casi dos veces el numero de productos que tenemos en
+`nsitetlesfm2'. 
+
+%=== Sun Mar 27 10:53:27 2005 mstorti@spider
+%
+10:53:27: Implemento una opcion `use_low_npg' en la cual se usa menos
+puntos de Gauss para ciertos terminos _en el Jacobiano_ (por ejemplo
+el termino SUPG y en el termino difusivo). Se baja una cierta cantidad
+(de 1.1sec/Ke a 0.85sec/Ke). Tambien pongo una opcion
+`comp_reactive_terms' que no calcula el termino `N_N_C' si no hay
+terminos reactivos involucrados. Comparando, `nsitetlesfm2' consume
+0.15sec/Ke(tetra), pero ahora dudo porque hace un momento parece que consumia
+mas. Tal vez haya sido que el chunk-size no era suficientemente grande
+para el cubcav (estaba usando 10x10x10 o se 1000 elementos). 
+%
+12:19:24: No, verifico que la version era la misma el mismo tamano de
+malla y de chunk size, pienso que en una de esas se debia a que habia
+otro proceso corriendo (el updatedb?). 
+%
+12:42:52: El cubcav con `nsitetlesfm2' para hexas da 1.2sec/Ke, por
+eso antes daba mucho menos que el gasflow (era para tetras versus
+hexas), el gasflow para hexas da 5.5sec/Ke. Ahora voy a probar a ver
+que pasa sin las modificaciones para optimizacion. 
+%
+13:08:20: Sin las modificaciones da 8.3sec/Ke. 
+%
+13:12:48: El conteo de operaciones: con use_low_npg=0, el producto 
+'p_supg*A_grad_N' se ejecuta 128000 veces para 2000 elementos, es
+decir unas 64 veces por elemento (esta en un lazo sobre npg y
+j=1:nel). Y da un conteo de operaciones de 1000 (8*5*5)*(5*5), es decir que en total
+representan unas 64000 ops/elemento. Con `use_low_npg' baja a 16000
+(el factor 8 del lazo sobre npg). El conteo total de operaciones es de
+1.4e5 ops/elem, 7.3sec/elem (con use_low_npg=1, comp_reactive_terms=0) y 
+2.7e5 ops/elem, 11sec/elem  (con use_low_npg=0,
+comp_reactive_terms=1).
+%
+18:15:12: Para comparar: con nsitetlesfm2(hexas) da 
+2.4e4 ops/elem y 1.2sec/elem. 
+%
+18:40:08: Se ve por lo tanto que el costo en tiempo de CPU es
+practicamente lineal con el numero de operaciones de productos. 
 
 %=== Mon Mar 28 22:45:19 2005 mstorti@spider
 %
@@ -9128,6 +10792,15 @@ poco mas de espacio a la salida (alejar la condicion de contorno).
 %
 14:12:38: Logro un resultado mas o menos con una malla gruesa. 
 
+%=== Sun Apr 10 09:24:51 2005 mstorti@spider
+%
+09:24:51: Corriendo un ejemplo de tobera con forma lineal a trozos y
+una expansion subita. Falta un poco mas de diferencia de presion y un
+poco mas de espacio a la salida (alejar la condicion de contorno). 
+%
+14:12:38: Logro un resultado mas o menos con una malla gruesa. Se hace
+estable bastante bien y se 
+
 %=== Thu Apr 14 17:41:45 2005 mstorti@minerva
 %
 17:41:45: Estoy tratando de implementar el `cond_wall' en el
@@ -9139,6 +10812,13 @@ resultado muy parecido al que se obtiene con restricciones.
 17:51:21: Da bien incluso despues de 20 pasos. En el caso de usando
 `cond_wall' en el paso de proyeccion termina dando inf el `Residual_norm'
 cuando itera. Pero despues da bien. 
+
+%=== Thu Apr 14 17:41:45 2005 mstorti@minerva
+%
+17:41:45: Estoy tratando de implementar el `cond_wall' en el
+Fractional Step. Primero considero el caso ON. En el caso simple de
+los cubos por lo menos esta haciendo un paso y da un resultado muy
+parecido al que se obtiene con restricciones. 
 
 %=== Thu Apr 14 20:14:48 2005 mstorti@spider
 %
@@ -9178,6 +10858,28 @@ dominio. Hay 500 elementos en el dominio de manera que h=0.01 y hay 100
 elementos por longitud de onda. El Courant es 0.2, de manera que el
 paso de tiempo es 0.0002, de manera que hay 500 pasos de tiempo en un
 periodo. De esa forma con alpha=1 la onda se amortigua un 
+%
+11:16:56: Ahora voy a probar a aumentar la 
+
+%=== Sun May  8 11:13:20 2005 mstorti@spider
+%
+11:13:20: Creo un elemset `nsi_tet_les_comp' que es para NS
+incompresible con un poco de compresibilidad lineal, es decir es
+practicamente la misma formulacion pero con agregada un termino
+(dp/dt+v\grad p)/c^2 en la ecuacion de continuidad que da cuenta de la
+compresibilidad a primer orden, en forma lineal.  Creo un caso test
+petscfem-cases/shaker2d/cstrip (compressible-strip) con condiciones de
+contorno p libre en todos lados y u impuesto a la entrada y a la
+salida. u varia sinusoidalmente a la entrada de manera que se observa
+en el limite una `standing wave' en el dominio. Se observa un poco
+disipativo. En un dominio de longitud 5, con c=10, y T=0.1. La
+longitud de onda es 1 y por lo tanto hay 5 longitudes de onda en el
+dominio. Hay 500 elementos en el dominio de manera que h=0.01 y hay 100
+elementos por longitud de onda. El Courant es 0.2, de manera que el
+paso de tiempo es 0.0002, de manera que hay 500 pasos de tiempo en un
+periodo. De esa forma con alpha=1 la onda se amortigua un 
+%
+11:16:56: Ahora voy a probar a aumentar la 
 
 %=== Tue May 10 20:56:52 2005 mstorti@spider
 %
@@ -9211,6 +10913,10 @@ hasta 0.06, y despues se estabiliza en 0.02.
 22:37:04: Con Dt=0.025 el Qout llega hasta 270, 165,-3 y despues se
 estaciona limpiamente en 6. Se pega despues unas excursiones tambien
 que van hasta valores de 10. El Qout tiende a 6.02. 
+
+%=== Tue May 10 20:56:52 2005 mstorti@spider
+%
+20:56:52: 
 
 %=== Wed May 11 15:54:25 2005 mstorti@minerva
 %
