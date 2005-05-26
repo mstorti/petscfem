@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: nsitetlesfm2.cpp,v 1.69 2005/05/08 15:19:39 mstorti Exp $
+//$Id: nsitetlesfm2.cpp,v 1.70 2005/05/26 22:07:29 mstorti Exp $
 
 #include <src/fem.h>
 #include <src/utils.h>
@@ -72,6 +72,11 @@ assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
 
   // Unpack nodedata
   int nu=nodedata->nu;
+
+  // Hloc stores the old mesh coordinates
+  int nH = nu-ndim;
+  FMatrix  Hloc(nel,nH),vloc_mesh(nel,ndim),v_mesh(ndim);
+
   if(nnod!=nodedata->nnod) {
     printf("nnod from dofmap and nodedata don't coincide\n");
     exit(1);
@@ -119,10 +124,17 @@ assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
   SGETOPTDEF(double,pressure_control_coef,0.);
   assert(pressure_control_coef>=0.);
 
+  //o ALE_flag : flag to ON ALE computation
+  SGETOPTDEF(int,ALE_flag,0);
+  //o indx_ALE_xold : pointer to old coordinates in
+  //  NODEDATA array excluding the first "ndim" values
+  SGETOPTDEF(int,indx_ALE_xold,1);
+
   // allocate local vecs
   int kdof;
   FastMat2 veccontr(2,nel,ndof),xloc(2,nel,ndim),locstate(2,nel,ndof), 
-         locstate2(2,nel,ndof),xpg,G_body(1,ndim);
+    locstate2(2,nel,ndof),xpg,G_body(1,ndim),
+    vrel;
 
   if (ndof != ndim+1) {
     PetscPrintf(PETSC_COMM_WORLD,"ndof != ndim+1\n"); CHKERRA(1);
@@ -220,7 +232,7 @@ assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
     ucols_star,pcol_star,pcol_new,pcol,fm_p_star,tmp1,tmp2,tmp3,tmp4,tmp5,tmp6,
     massm,tmp7,tmp8,tmp9,tmp10,tmp11,tmp13,tmp14,tmp15,dshapex_c,xc,
     wall_coords(ndim),dist_to_wall,tmp16,tmp162,tmp17,tmp18,tmp19;
-  FastMat2 tmp20(2,nel,nel),tmp21;
+  FastMat2 tmp20(2,nel,nel),tmp21,vel_supg;
 
   double tmp12;
   double tsf = temporal_stability_factor;
@@ -275,8 +287,10 @@ assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
     for (kloc=0; kloc<nel; kloc++) {
       node = ICONE(k,kloc);
       xloc.ir(1,kloc+1).set(&NODEDATA(node-1,0));
+      if(nH>0) Hloc.ir(1,kloc+1).set(&NODEDATA(node-1,0)+ndim);
     }
     xloc.rs();
+    Hloc.rs();
 
     if (get_nearest_wall_element && A_van_Driest>0.) {
       assert(LES);
@@ -352,6 +366,15 @@ assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
 	locstate.print("locstate (t_n+1):");
       }
 #endif
+    }
+
+    // nodal computation of mesh velocity
+    if (ALE_flag) {
+      assert(nH >= ndim);
+      assert(indx_ALE_xold >= nH+1-ndim);
+      Hloc.is(2,indx_ALE_xold,indx_ALE_xold+ndim-1);
+      vloc_mesh.set(xloc).rest(Hloc).scale(rec_Dt).rs();
+      Hloc.rs();
     }
     
     double shear_vel;
@@ -440,7 +463,6 @@ assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
 	p_star = double(tmp8.prod(SHAPE,pcol_star,-1,-1));
 	u_star.prod(SHAPE,ucols_star,-1,-1,1);
 
-
 	grad_u.prod(dshapex,ucols,1,-1,-1,2);
 	grad_u_star.prod(dshapex,ucols_star,1,-1,-1,2);
 	grad_p_star.prod(dshapex,pcol_star,1,-1,-1);
@@ -449,6 +471,11 @@ assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
 	grad_u_star.t();
 	strain_rate.add(grad_u_star).scale(0.5);
 	grad_u_star.rs();
+
+	v_mesh.set(0.0);
+	if (ALE_flag) {
+	  v_mesh.prod(SHAPE,vloc_mesh,-1,-1,1);
+	}
 
 	// Smagorinsky turbulence model
 	double nu_eff;
@@ -469,30 +496,32 @@ assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
 	  nu_eff = VISC;
 	}
 
-	u2 = u.sum_square_all();
-	//	uintri.prod(iJaco,u,1,-1,-1);
-	//	Uh = uintri.sum_square_all();
-	//	Uh = sqrt(Uh)/2;
+	vel_supg.set(u).rest(v_mesh).rs();
 
-        if(axi>0){
-          u_axi.set(u);
+	/*
+	  u2 = vel_supg.sum_square_all();
+	  
+	  if(axi>0){
+          u_axi.set(vel_supg);
           u_axi.setel(0.,axi);
           u2 = u_axi.sum_square_all();
+	  }
+	*/
+	
+        if(axi>0){
+          vel_supg.setel(0.,axi);
         }
-
+	u2 = vel_supg.sum_square_all();
+	
 #ifdef STANDARD_UPWIND
-
+	
 	velmod = sqrt(u2);
         tol=1.0e-16;
         h_supg=0;
 	FastMat2::branch();
         if(velmod>tol) {
 	  FastMat2::choose(0);
-	  if (axi>0){
-            svec.set(u_axi).scale(1./velmod);
-          } else {
-            svec.set(u).scale(1./velmod);
-          }
+	  svec.set(vel_supg).scale(1./velmod);
 	  h_supg = tmp9.prod(dshapex,svec,-1,1,-1).sum_abs_all();
           h_supg = (h_supg < tol ? tol : h_supg);
           h_supg = 2./h_supg;
@@ -502,8 +531,6 @@ assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
 	FastMat2::leave();
 
 	Peclet = velmod * h_supg / (2. * nu_eff);
-//	psi = 1./tanh(Peclet)-1/Peclet;
-//	tau_supg = psi*h_supg/(2.*velmod);
 
         tau_supg = tsf*SQ(2.*rec_Dt)+SQ(2.*velmod/h_supg)
 	  +9.*SQ(4.*nu_eff/SQ(h_supg));
@@ -546,7 +573,8 @@ assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
 	delta_supg *= shock_capturing_factor;
 	
 	// P_supg es un vector fila
-	P_supg.prod(u,dshapex,-1,-1,1).scale(tau_supg);
+	//	P_supg.prod(u,dshapex,-1,-1,1).scale(tau_supg);
+	P_supg.prod(vel_supg,dshapex,-1,-1,1).scale(tau_supg);
 
 	// Weight function 
 	W_supg.set(P_supg).add(SHAPE);
@@ -556,8 +584,10 @@ assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
 
 	// implicit version - General Trapezoidal rule - parameter alpha
 #ifdef ADD_GRAD_DIV_U_TERM
+	vrel.set(u_star).rest(v_mesh).rs();
 	dmatu.prod(u_star,grad_u_star,-1,-1,1);
 #else
+	vrel.set(u).rest(v_mesh).rs();
 	dmatu.prod(u,grad_u_star,-1,-1,1);
 #endif
 	
@@ -613,8 +643,10 @@ assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
 	matlocmom.prod(W_supg,massm,1,2).scale(rho);
 
 	//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+	vrel.set(u_star).rest(v_mesh).rs();
 
 	// diffusive part
+	vrel.set(u).rest(v_mesh).rs();
 	tmp7.prod(dshapex,dshapex,-1,1,-1,2);
 	matlocmom.axpy(tmp7,nu_eff);
 
