@@ -4390,3 +4390,6 @@ tag: bubbly12-merge-0.1.1 on Mon, 23 May 2005 18:55:25 -0300 by mstorti in spide
 tag: bubbly12-merge-0.1.2 on Tue, 24 May 2005 00:13:14 -0300 by mstorti in spider
      > Runs all tests, but with the old `advdife.cpp'. 
      > Newer `advdife.cpp' is renamed to `advdife-lowpg.cpp'. 
+----------
+tag: bubbly12-merge-0.1.3 on Wed, 25 May 2005 23:55:08 -0300 by mstorti in spider
+     > Fixed bug in merge from `bubbly12'
