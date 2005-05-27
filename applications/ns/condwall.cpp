@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-// $Id: condwall.cpp,v 1.15 2005/05/27 02:11:26 mstorti Exp $
+// $Id: condwall.cpp,v 1.16 2005/05/27 19:26:10 mstorti Exp $
 
 #include "./condwall.h"
 extern int MY_RANK,SIZE;
@@ -49,6 +49,8 @@ init() {
 }
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+#if 0
+//  NEW VERSION ( u1 = u2 = (p2-p1)/R)
 void cond_wall::
 res(int k,FastMat2 &U,FastMat2 &r,
     FastMat2 &w,FastMat2 &jac) { 
@@ -97,6 +99,69 @@ res(int k,FastMat2 &U,FastMat2 &r,
   jac.is(1,ndof+1,ndof+ndim).ir(2,2)
     .is(3,1,ndim).eye().rs();
 }
+
+#else
+//  OLD VERSION (R=0: open, R>0: totally closed)
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+void cond_wall::
+res(int k,FastMat2 &U,FastMat2 &r,
+    FastMat2 &w,FastMat2 &jac) { 
+  U.ir(1,1);
+  U1.set(U);
+  U.ir(1,2);
+  U2.set(U);
+  U.rs();
+  double alpha=-1.0;
+  if (data_p && data_p->Rv.size()>0) {
+    if (k==0) assert(data_p->Rv.size()==size());
+    R = data_p->Rv.ref(k);
+    // printf("[%d] elem %d R %f\n",MY_RANK,k,R);
+    // printf("k %d, R %f\n",k,R);
+  }
+  if (R>0) {
+    u1.set(0.0);
+    u2.set(0.0);
+    if (data_p && data_p->u1.size()>0) {
+      if (k==0) {
+	assert(data_p->u1.size()==ndim*size());
+	assert(data_p->u2.size()==ndim*size());
+      }
+      u1.set(&data_p->u1.e(k,0));
+      u2.set(&data_p->u2.e(k,0));
+      // printf("k %d, v1 %f, v2 %f\n",k,u1.get(2),u2.get(2));
+    }
+    // Closed
+    r.set(0.0);
+    U1.is(1,1,ndim);
+    r.is(1,1,ndim).set(U1).rest(u1).rs();
+    U1.rs();
+    U2.is(1,1,ndim);
+    r.rs().is(1,ndof+1,ndof+ndim)
+      .set(U2).rest(u2).rs();
+    U2.rs();
+
+    w.set(0.);
+    w.is(2,1,ndim).ir(1,1).is(3,1,ndim).eye().rs();
+    w.is(2,1,ndim).ir(1,2).is(3,ndof+1,ndof+ndim).eye().rs();
+
+    jac.set(0.).is(1,1,ndim).ir(2,1)
+      .is(3,1,ndim).eye().rs();
+    jac.is(1,ndof+1,ndof+ndim).ir(2,2)
+      .is(3,1,ndim).eye().rs();
+  } else {
+    // Open
+    r.set(0.).is(1,1,ndof).set(U1).rest(U2)
+      .rs().scale(alpha);
+    w.set(0.).is(3,1,ndof)
+      .ir(1,1).eye()
+      .ir(1,2).eye(-1.0).rs();
+    jac.set(0.)
+      .is(1,1,ndof).ir(2,1).eye()
+      .ir(2,2).eye(-1.)
+      .rs().scale(alpha);
+  }
+}
+#endif
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 void cond_wall::
