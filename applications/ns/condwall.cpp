@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-// $Id: condwall.cpp,v 1.16 2005/05/27 19:26:10 mstorti Exp $
+// $Id: condwall.cpp,v 1.17 2005/05/28 16:52:23 mstorti Exp $
 
 #include "./condwall.h"
 extern int MY_RANK,SIZE;
@@ -48,19 +48,25 @@ init() {
   }
 }
 
-//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
-#if 0
-//  NEW VERSION ( u1 = u2 = (p2-p1)/R)
 void cond_wall::
 res(int k,FastMat2 &U,FastMat2 &r,
     FastMat2 &w,FastMat2 &jac) { 
+  // res_old(k,U,r,w,jac);
+  res_new(k,U,r,w,jac);
+}
+
+void cond_wall::
+res_new(int k,FastMat2 &U,FastMat2 &r,
+	FastMat2 &w,FastMat2 &jac) { 
+  //  NEW VERSION ( u1 = u2 = (p2-p1)/R)
+  //  M1=0, M2=0
   U.ir(1,1);
   U1.set(U);
   U.ir(1,2);
   U2.set(U);
   U.rs();
   double alpha=-1.0;
-  if (data_p && data_p->Rv.size()>0) {
+  if (0 && data_p && data_p->Rv.size()>0) {
     if (k==0) assert(data_p->Rv.size()==size());
     R = data_p->Rv.ref(k);
     // printf("[%d] elem %d R %f\n",MY_RANK,k,R);
@@ -100,18 +106,15 @@ res(int k,FastMat2 &U,FastMat2 &r,
     .is(3,1,ndim).eye().rs();
 }
 
-#else
-//  OLD VERSION (R=0: open, R>0: totally closed)
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 void cond_wall::
-res(int k,FastMat2 &U,FastMat2 &r,
-    FastMat2 &w,FastMat2 &jac) { 
+res_old(int k,FastMat2 &U,FastMat2 &r,
+	FastMat2 &w,FastMat2 &jac) { 
   U.ir(1,1);
   U1.set(U);
   U.ir(1,2);
   U2.set(U);
   U.rs();
-  double alpha=-1.0;
   if (data_p && data_p->Rv.size()>0) {
     if (k==0) assert(data_p->Rv.size()==size());
     R = data_p->Rv.ref(k);
@@ -151,17 +154,16 @@ res(int k,FastMat2 &U,FastMat2 &r,
   } else {
     // Open
     r.set(0.).is(1,1,ndof).set(U1).rest(U2)
-      .rs().scale(alpha);
+      .rs().scale(-1.0);
     w.set(0.).is(3,1,ndof)
       .ir(1,1).eye()
       .ir(1,2).eye(-1.0).rs();
     jac.set(0.)
       .is(1,1,ndof).ir(2,1).eye()
       .ir(2,2).eye(-1.)
-      .rs().scale(alpha);
+      .rs().scale(-1.0);
   }
 }
-#endif
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 void cond_wall::
