@@ -1,5 +1,5 @@
 ///__INSERT_LICENSE__
-//$Id: fastmat2.cpp,v 1.21 2005/05/29 16:28:37 mstorti Exp $
+//$Id: fastmat2.cpp,v 1.22 2005/05/29 22:43:56 mstorti Exp $
 
 #include <cmath>
 #include <cstdio>
@@ -529,6 +529,27 @@ void FastMat2::print(const char *s) const {
     }
   }
   // return *this;
+}
+
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>
+void FastMat2::print(int rowsz,
+		     const char *s) const {
+  if (s!=NULL) printf("--- %s ----\n",s);
+  Indx fdims;
+  get_dims(fdims);
+  int nd = fdims.size();
+  Indx indx(nd,1);
+  int counter = 0;
+  assert(rowsz>0);
+  while (1) {
+    printf(" %g",*location(indx));
+    counter++;
+    if (counter==rowsz) {
+      printf("\n");
+      counter=0;
+    }
+    if (!inc(indx,fdims)) break;
+  }
 }
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 

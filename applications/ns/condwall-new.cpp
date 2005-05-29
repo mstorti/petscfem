@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-// $Id: condwall-new.cpp,v 1.1 2005/05/29 16:28:33 mstorti Exp $
+// $Id: condwall-new.cpp,v 1.2 2005/05/29 22:43:53 mstorti Exp $
 
 #include "./condwall.h"
 #include "./condwallpen.h"
@@ -33,11 +33,11 @@ res_new(int k,FastMat2 &U,FastMat2 & r,
     .rest(U1).rs();
   U1.rs();
   U2.rs();
-  jac.is(1,1,ndim).ir(2,1).is(3,1,ndim).eye(-1);
+  jac.is(1,1,ndim).ir(2,1).is(3,1,ndim).eye(-1).rs();
   jac.is(1,1,ndim).ir(2,2).is(3,1,ndim).eye(+1).rs();
 
-  w.is(3,1,ndim).ir(1,1).is(2,1,ndim).eye(-1);
-  w.is(3,1,ndim).ir(1,2).is(2,1,ndim).eye(+1);
+  w.is(3,1,ndim).ir(1,1).is(2,1,ndim).eye(-1).rs();
+  w.is(3,1,ndim).ir(1,2).is(2,1,ndim).eye(+1).rs();
 
   double 
     p1 = U1.get(ndof),
@@ -49,7 +49,8 @@ res_new(int k,FastMat2 &U,FastMat2 & r,
   jac.ir(1,ndof)
     .setel(-R/2,1,axi).setel(-1,1,ndof)
     .setel(-R/2,2,axi).setel(+1,2,ndof).rs();
-  w.ir(1,ndof).setel(-1,1,ndof).setel(+1,2,ndof).rs();
+  w.setel(-1,1,ndof,ndof)
+    .setel(+1,2,ndof,ndof);
 }
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>
