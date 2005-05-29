@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-// $Id: condwallpen.cpp,v 1.8 2005/05/23 02:53:16 mstorti Exp $
+// $Id: condwallpen.cpp,v 1.9 2005/05/29 16:28:33 mstorti Exp $
 
 #include "./condwallpen.h"
 
@@ -19,6 +19,10 @@ init(int nel_a,int ndof_a,
   TGETOPTDEF(thash,double,resistance,0.);
   //o Dimension of the problem
   TGETOPTDEF_ND(thash,int,ndim,0);
+  //o Use a continuous value for #R, i.e.
+  //  for #0<R<infty# we have a partial resistance
+  //  to the flow. 
+  TGETOPTDEF(thash,int,use_partial_resistance,0);
   assert(ndof==ndim+1); // Only NS incompressible so far
   R = resistance;
   u1.resize(1,ndim);
@@ -40,6 +44,15 @@ init(int nel_a,int ndof_a,
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 void CondWallRestriction::
 res(int k,FastMat2 &U,FastMat2 & r,
+    FastMat2 & w,FastMat2 & jac) {
+  if (use_partial_resistance)
+    res_new(k,U,r,w,jac);
+  else res_old(k,U,r,w,jac);
+}
+
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+void CondWallRestriction::
+res_old(int k,FastMat2 &U,FastMat2 & r,
     FastMat2 & w,FastMat2 & jac) {
   U.ir(1,1);
   U1.set(U);

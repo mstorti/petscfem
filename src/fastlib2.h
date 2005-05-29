@@ -1,6 +1,6 @@
 // -*- mode: C++ -*- 
 /*__INSERT_LICENSE__*/
-// $Id: fastlib2.h,v 1.3 2003/07/03 04:32:11 mstorti Exp $
+// $Id: fastlib2.h,v 1.4 2005/05/29 16:28:37 mstorti Exp $
 #ifndef FASTLIB2_H
 #define FASTLIB2_H
 
@@ -86,7 +86,7 @@ void FastVector <T,chunk_size>::print(const char *s) const {
   for (int jd=0; jd<ndims; jd++) {
     cout << (*this)[jd] << "  ";
   }
-  cout << endl;
+  if (s!=NULL) cout << endl;
 }
 
 #endif

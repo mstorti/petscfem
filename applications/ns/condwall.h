@@ -1,6 +1,6 @@
 // -*- mode: c++ -*-
 //__INSERT_LICENSE__
-// $Id: condwall.h,v 1.6 2005/04/01 06:25:18 mstorti Exp $
+// $Id: condwall.h,v 1.7 2005/05/29 16:28:33 mstorti Exp $
 #ifndef PETSCFEM_CONDWALL_H
 #define PETSCFEM_CONDWALL_H
 
@@ -35,6 +35,7 @@ class cond_wall : public NSLagrangeMult {
 private:
   int ndim,nel,ndof;
   int use_vector_resistance;
+  int use_partial_resistance;
   double R;			// Resistance of the membrane
   // Property normal_prop;
   FastMat2 U1,U2,u1,u2;
@@ -52,6 +53,10 @@ public:
   void init();
   void res(int k,FastMat2 &U,FastMat2 &r,
 	   FastMat2 &w,FastMat2 &jac);
+  void res_old(int k,FastMat2 &U,FastMat2 &r,
+	       FastMat2 &w,FastMat2 &jac);
+  void res_new(int k,FastMat2 &U,FastMat2 &r,
+	       FastMat2 &w,FastMat2 &jac);
   void close() {}
 };
 

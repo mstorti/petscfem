@@ -1,4 +1,4 @@
-$Id: notes.txt,v 1.480 2005/05/27 02:11:26 mstorti Exp $
+$Id: notes.txt,v 1.481 2005/05/29 16:28:29 mstorti Exp $
 OK. This is mostly in spanish...  Sorry :-)
 ================================================================
 
@@ -2464,13 +2464,13 @@ diff -c /home/mstorti/PETSC/petsc-2.0.24/bmake/linux/base_variables.bck /home/ms
 --- /home/mstorti/PETSC/petsc-2.0.24/bmake/linux/base_variables	Sun Jan 14 14:51:45 2001
 ***************
 *** 1,4 ****
-! # $Id: notes.txt,v 1.480 2005/05/27 02:11:26 mstorti Exp $ 
+! # $Id: notes.txt,v 1.481 2005/05/29 16:28:29 mstorti Exp $ 
   #
   #     See the file bmake/base_variables.defs for a complete explanation of all these fields
   #
 --- 1,5 ----
 ! # -*- mode: makefile -*-
-! # $Id: notes.txt,v 1.480 2005/05/27 02:11:26 mstorti Exp $ 
+! # $Id: notes.txt,v 1.481 2005/05/29 16:28:29 mstorti Exp $ 
   #
   #     See the file bmake/base_variables.defs for a complete explanation of all these fields
   #
@@ -2561,7 +2561,7 @@ diff -c /home/mstorti/PETSC/petsc-2.0.24/bmake/linux/base_variables.bck2 /home/m
 *** 1,3 ****
 --- 1,4 ----
 + # -*- mode: makefile -*-
-  # $Id: notes.txt,v 1.480 2005/05/27 02:11:26 mstorti Exp $ 
+  # $Id: notes.txt,v 1.481 2005/05/29 16:28:29 mstorti Exp $ 
   #
   #     See the file bmake/base_variables.defs for a complete explanation of all these fields
 ***************
@@ -2641,9 +2641,9 @@ diff -c /home/mstorti/PETSC/petsc-2.0.24/bmake/linux/base_variables.bck /home/ms
 ***************
 *** 1,4 ****
 <<<<<<< notes.txt
-! # $Id: notes.txt,v 1.480 2005/05/27 02:11:26 mstorti Exp $ 
+! # $Id: notes.txt,v 1.481 2005/05/29 16:28:29 mstorti Exp $ 
 =======
-! # $Id: notes.txt,v 1.480 2005/05/27 02:11:26 mstorti Exp $ 
+! # $Id: notes.txt,v 1.481 2005/05/29 16:28:29 mstorti Exp $ 
 >>>>>>> 1.228.2.1
   #
   #     See the file bmake/base_variables.defs for a complete explanation of all these fields
@@ -2651,9 +2651,9 @@ diff -c /home/mstorti/PETSC/petsc-2.0.24/bmake/linux/base_variables.bck /home/ms
 --- 1,5 ----
 ! # -*- mode: makefile -*-
 <<<<<<< notes.txt
-! # $Id: notes.txt,v 1.480 2005/05/27 02:11:26 mstorti Exp $ 
+! # $Id: notes.txt,v 1.481 2005/05/29 16:28:29 mstorti Exp $ 
 =======
-! # $Id: notes.txt,v 1.480 2005/05/27 02:11:26 mstorti Exp $ 
+! # $Id: notes.txt,v 1.481 2005/05/29 16:28:29 mstorti Exp $ 
 >>>>>>> 1.228.2.1
   #
   #     See the file bmake/base_variables.defs for a complete explanation of all these fields
@@ -2746,9 +2746,9 @@ diff -c /home/mstorti/PETSC/petsc-2.0.24/bmake/linux/base_variables.bck2 /home/m
 --- 1,4 ----
 + # -*- mode: makefile -*-
 <<<<<<< notes.txt
-  # $Id: notes.txt,v 1.480 2005/05/27 02:11:26 mstorti Exp $ 
+  # $Id: notes.txt,v 1.481 2005/05/29 16:28:29 mstorti Exp $ 
 =======
-  # $Id: notes.txt,v 1.480 2005/05/27 02:11:26 mstorti Exp $ 
+  # $Id: notes.txt,v 1.481 2005/05/29 16:28:29 mstorti Exp $ 
 >>>>>>> 1.228.2.1
   #
   #     See the file bmake/base_variables.defs for a complete explanation of all these fields
@@ -9605,7 +9605,7 @@ diff -u -r1.5 graphdv.cpp
 --- src/graphdv.cpp	2 Jul 2003 23:22:19 -0000	1.5
 +++ src/graphdv.cpp	20 Oct 2004 08:59:14 -0000
 @@ -2,6 +2,7 @@
- //$Id: notes.txt,v 1.480 2005/05/27 02:11:26 mstorti Exp $
+ //$Id: notes.txt,v 1.481 2005/05/29 16:28:29 mstorti Exp $
  
  #include <src/graphdv.h>
 +#include <cassert>
@@ -9678,7 +9678,7 @@ diff -u -r1.12 util3.cpp
 --- src/util3.cpp	14 Sep 2003 00:23:22 -0000	1.12
 +++ src/util3.cpp	20 Oct 2004 09:09:51 -0000
 @@ -2,6 +2,7 @@
- // $Id: notes.txt,v 1.480 2005/05/27 02:11:26 mstorti Exp $
+ // $Id: notes.txt,v 1.481 2005/05/29 16:28:29 mstorti Exp $
  #include <cstring>
  #include <cstdio>
 +#include <cassert>
@@ -10928,6 +10928,43 @@ conservatividad ni nada. Eso si tengo que correr con
 %
 20:12:12: Hice el merge de `bubbly12-merge-branch'. Pasa todos los
 tests aunque todavia hay que verificar un poco el `advdife.cpp'. 
+
+%=== Sat May 28 13:35:10 2005 mstorti@spider  beta-3.47.17
+%
+13:35:10: Estoy tratando de hacer el `condwall' para 0<R<infty, es
+decir parcialmente permeable. 
+%
+Siempre tenemos 4 incognitas (u1,p1,u2,p2) y debemos tener cuatro
+ecuaciones. Las ecuaciones que ensabmbla FEM las llamaremos
+(M1=0,C1=0,M2=0,C2=0) (ecuaciones de continuidad para los nodos 1 y
+2). 
+%
+Cuando R=0 (totalmente permeable), tenemos las ecuaciones u1=u2,
+p1=p2, M1+M2=0, C1+C2=0. 
+% 
+Cuando R=infty tenemos u1=0, u2=0, C1=0, C2=0. 
+%
+=========== NO, ESTA MAL ============
+Proponemos que, cuando 0 < R < infty poner u1=(p2-p1)/R, u2=(p2-p1)/R,
+M1=0, M2=0. M1 y M2 deben incluir el correspondiente termino `bcconv'
+si se usa `weak_form=1'. Ojo que esta ecuacion `degenera' para R->0,
+ya que en ese caso las dos primeras tienden a p1=p2, y falta una
+ecuacion. En ese caso hay que agregar la ecuacion de continuidad. 
+%
+18:58:23: 
+========= ESTE ES EL CORRECTO ============
+Proponemos que, cuando 0 < R < infty poner 
+u1=u2, 
+p2-p1 = R(u1+u2)/2, 
+M1+M2+BCC(p2-p1) = 0
+C1+C2=0. 
+%
+BCC es el termino correspondiente de la integral de superficie (creo
+que se puede calcular directamente con el `bcconv' actual. 
+Cuando R->0, tiende naturalmente a las condiciones transparentes. 
+para R->infty queda u1=u2=0, M1+M2+BBC=0, C1+C2=0, lo cual no es igual
+a lo que tenemos ahora. Deberia quedar C1=C2=0. No se si es
+equivalente o no. 
 
 # Current line ===========  %
 # Local Variables: $
