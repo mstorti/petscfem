@@ -4387,3 +4387,6 @@ tag: beta-3.47.17 on Thu, 26 May 2005 19:07:45 -0300 by mstorti in minerva.cerid
 tag: beta-3.47.18 on Sun, 29 May 2005 13:28:45 -0300 by mstorti in spider
      > Modified `Indx::print(char *s=NULL)' (now doesn't output a newline if
      > `s' is not passed. 
+----------
+tag: beta-3.47.19 on Sun, 29 May 2005 19:44:04 -0300 by mstorti in spider
+     > Added `print(rowsz,s)' to `fastmat2'. 
