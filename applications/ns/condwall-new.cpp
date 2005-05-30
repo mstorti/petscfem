@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-// $Id: condwall-new.cpp,v 1.2 2005/05/29 22:43:53 mstorti Exp $
+// $Id: condwall-new.cpp,v 1.3 2005/05/30 02:01:25 mstorti Exp $
 
 #include "./condwall.h"
 #include "./condwallpen.h"
@@ -12,6 +12,16 @@ res_new(int k,FastMat2 &U,FastMat2 & r,
   if (data_p && data_p->Rv.size()>0) {
     assert(k<data_p->Rv.size());
     R = data_p->Rv.ref(k);
+#if 1
+    // Prints `R' table 
+    static int flag=0;
+    dvector<double> &Rv = data_p->Rv;
+    if (!flag) {
+      for (int j=0; j<Rv.size(); j++) 
+	printf("j %d, R %g\n",j,Rv.ref(j));
+      flag=1;
+    }
+#endif
   }
 
   U.ir(1,1);
@@ -44,13 +54,13 @@ res_new(int k,FastMat2 &U,FastMat2 & r,
     p2 = U2.get(ndof),
     u1n = U1.get(axi),
     u2n = U2.get(axi);
-  double res_darcy = p2-p1-R*(u1n+u2n)/2;
+  double res_darcy = p1-p2-R*(u1n+u2n)/2;
   r.setel(res_darcy,ndof);
   jac.ir(1,ndof)
-    .setel(-R/2,1,axi).setel(-1,1,ndof)
-    .setel(-R/2,2,axi).setel(+1,2,ndof).rs();
-  w.setel(-1,1,ndof,ndof)
-    .setel(+1,2,ndof,ndof);
+    .setel(-R/2,1,axi).setel(+1,1,ndof)
+    .setel(-R/2,2,axi).setel(-1,2,ndof).rs();
+  w.setel(+1,1,ndof,ndof)
+    .setel(-1,2,ndof,ndof);
 }
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>

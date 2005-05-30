@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-/* $Id: lagmul.cpp,v 1.13 2005/05/23 02:54:12 mstorti Exp $ */
+/* $Id: lagmul.cpp,v 1.14 2005/05/30 02:01:28 mstorti Exp $ */
 
 #include <src/fem.h>
 #include <src/utils.h>
@@ -18,9 +18,10 @@ LagrangeMult::~LagrangeMult() {};
 
 void 
 read_double_array_options(NewElemset &elemset,
+			  const char *key,
 			  vector<double> &v) {
   const char *line;
-  elemset.get_entry("x0",line);
+  elemset.get_entry(key,line);
   if(line) {
     v.clear();
     read_double_array(v,line);
@@ -72,7 +73,9 @@ new_assemble(arg_data_list &arg_data_v,const Nodedata *nodedata,
   // would be non-consistent). See option
   // #lagrange_residual_factor# .
   //  _END
-  read_double_array_options(*this,lagrange_diagonal_factor);
+  read_double_array_options(*this,
+			    "lagrange_diagonal_factor",
+			    lagrange_diagonal_factor);
 
   //o The diagonal term proportional to   #lagrange_diagonal_factor#  
   // may be also entered in the residual. If this is so
@@ -218,7 +221,7 @@ new_assemble(arg_data_list &arg_data_v,const Nodedata *nodedata,
     d_res_fd_jac
       .set(jac).rest(res_fd_jac);
     double erro = d_res_fd_jac.sum_abs_all();
-    // printf("error %g\n",erro);
+    if (erro>1e-10) printf("error %g\n",erro);
 #endif	
 
   } catch (GenericError e) {

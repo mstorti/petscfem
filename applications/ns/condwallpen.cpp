@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-// $Id: condwallpen.cpp,v 1.9 2005/05/29 16:28:33 mstorti Exp $
+// $Id: condwallpen.cpp,v 1.10 2005/05/30 02:01:25 mstorti Exp $
 
 #include "./condwallpen.h"
 
@@ -107,7 +107,6 @@ res_old(int k,FastMat2 &U,FastMat2 & r,
 void CondWallRestriction::
 set_ldf(FastMat2 &ldf_user,
 	vector<double> &ldf) {
-  
 }
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
