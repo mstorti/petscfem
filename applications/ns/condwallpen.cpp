@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-// $Id: condwallpen.cpp,v 1.10 2005/05/30 02:01:25 mstorti Exp $
+// $Id: condwallpen.cpp,v 1.11 2005/05/30 22:32:28 mstorti Exp $
 
 #include "./condwallpen.h"
 
@@ -22,7 +22,7 @@ init(int nel_a,int ndof_a,
   //o Use a continuous value for #R, i.e.
   //  for #0<R<infty# we have a partial resistance
   //  to the flow. 
-  TGETOPTDEF(thash,int,use_partial_resistance,0);
+  TGETOPTDEF_ND(thash,int,use_partial_resistance,0);
   assert(ndof==ndim+1); // Only NS incompressible so far
   R = resistance;
   u1.resize(1,ndim);
