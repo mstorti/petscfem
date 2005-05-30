@@ -4390,3 +4390,6 @@ tag: beta-3.47.18 on Sun, 29 May 2005 13:28:45 -0300 by mstorti in spider
 ----------
 tag: beta-3.47.19 on Sun, 29 May 2005 19:44:04 -0300 by mstorti in spider
      > Added `print(rowsz,s)' to `fastmat2'. 
+----------
+tag: beta-3.47.20 on Sun, 29 May 2005 23:01:36 -0300 by mstorti in spider
+     > Trying to run example with variable resistance (condwall). 
