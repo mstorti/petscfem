@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: nsitetlesfm2.cpp,v 1.70 2005/05/26 22:07:29 mstorti Exp $
+//$Id: nsitetlesfm2.cpp,v 1.71 2005/06/02 16:31:22 mstorti Exp $
 
 #include <src/fem.h>
 #include <src/utils.h>
@@ -124,10 +124,10 @@ assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
   SGETOPTDEF(double,pressure_control_coef,0.);
   assert(pressure_control_coef>=0.);
 
-  //o ALE_flag : flag to ON ALE computation
+  //o Flag to *turn on* ALE computation
   SGETOPTDEF(int,ALE_flag,0);
-  //o indx_ALE_xold : pointer to old coordinates in
-  //  NODEDATA array excluding the first "ndim" values
+  //o Pointer to old coordinates in
+  //  #nodedata# array excluding the first #ndim# values
   SGETOPTDEF(int,indx_ALE_xold,1);
 
   // allocate local vecs
