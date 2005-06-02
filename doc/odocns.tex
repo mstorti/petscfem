@@ -236,7 +236,7 @@ Print the residual each  \verb+nsave+  steps.
  (found in file: \verb+ns.cpp+)
 %----<>----<>----<>----<>----<>----<>----<>----<>----<>----<>
 \index{print\_some\_file@\verb+print_some_file+}
-\item\verb+string print_some_file+ {\rm(default=\verb||)}:
+\item\verb+string print_some_file+ {\rm(default=\verb|<none>|)}:
 
 Name of file where to read the nodes for the ``print some'' 
 feature. 
@@ -308,7 +308,7 @@ Time to start computations
  (found in file: \verb+ns.cpp+)
 %----<>----<>----<>----<>----<>----<>----<>----<>----<>----<>
 \index{stdout\_file@\verb+stdout_file+}
-\item\verb+string stdout_file+ {\rm(default=\verb||)}:
+\item\verb+string stdout_file+ {\rm(default=\verb|none|)}:
 
 If set, redirect output to this file.
  (found in file: \verb+ns.cpp+)
@@ -320,6 +320,36 @@ Flag if steady solution or not (uses Dt=inf). If  \verb+steady+
 is set to 1, then the computations are as if $\Dt=\infty$. 
 The value of  \verb+Dt+  is used for printing etc... If  \verb+Dt+ 
 is not set and  \verb+steady+  is set then  \verb+Dt+  is set to one.
+ (found in file: \verb+ns.cpp+)
+%----<>----<>----<>----<>----<>----<>----<>----<>----<>----<>
+\index{stop\_mom@\verb+stop_mom+}
+\item\verb+int stop_mom+ {\rm(default=\verb|0|)}:
+
+After computing the linear system for the
+ predictor/momentum step print right hand side
+ and solution vector, and stops.
+ (found in file: \verb+ns.cpp+)
+%----<>----<>----<>----<>----<>----<>----<>----<>----<>----<>
+\index{stop\_on\_step@\verb+stop_on_step+}
+\item\verb+int stop_on_step+ {\rm(default=\verb|1|)}:
+
+After computing the linear system for the
+ predictor/momentum step print right hand side
+ and solution vector, and stops.
+ (found in file: \verb+ns.cpp+)
+%----<>----<>----<>----<>----<>----<>----<>----<>----<>----<>
+\index{stop\_poi@\verb+stop_poi+}
+\item\verb+int stop_poi+ {\rm(default=\verb|0|)}:
+
+After computing the linear system for the poisson step print
+right hand side and solution vector, and stops. 
+ (found in file: \verb+ns.cpp+)
+%----<>----<>----<>----<>----<>----<>----<>----<>----<>----<>
+\index{stop\_prj@\verb+stop_prj+}
+\item\verb+int stop_prj+ {\rm(default=\verb|0|)}:
+
+After computing the linear system for the projection step print
+right hand side and solution vector, and stops. 
  (found in file: \verb+ns.cpp+)
 %----<>----<>----<>----<>----<>----<>----<>----<>----<>----<>
 \index{tol\_newton@\verb+tol_newton+}

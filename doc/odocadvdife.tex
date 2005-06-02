@@ -6,13 +6,21 @@
 \index{ALE\_flag@\verb+ALE_flag+}
 \item\verb+int ALE_flag+ {\rm(default=\verb|0|)}:
 
-ALE_flag : flag to ON ALE computation
+Flag to turn on ALE (Arbitrary Lagrangian-Eulerian) computation. 
  (found in file: \verb+advdife.cpp+)
 %----<>----<>----<>----<>----<>----<>----<>----<>----<>----<>
 \index{axisymmetric@\verb+axisymmetric+}
 \item\verb+string axisymmetric+ {\rm(default=\verb|"none"|)}:
 
 Add axisymmetric version for this particular elemset.
+ (found in file: \verb+advdife.cpp+)
+%----<>----<>----<>----<>----<>----<>----<>----<>----<>----<>
+\index{compute\_dDdU\_term@\verb+compute_dDdU_term+}
+\item\verb+int compute_dDdU_term+ {\rm(default=\verb|1|)}:
+
+Compute the term non-symmetric term
+ correspoding to nonlinearities in the
+ diffusive Jacobian.
  (found in file: \verb+advdife.cpp+)
 %----<>----<>----<>----<>----<>----<>----<>----<>----<>----<>
 \index{compute\_fd\_adv\_jacobian@\verb+compute_fd_adv_jacobian+}
@@ -53,6 +61,12 @@ Report elements whose relative error in computing
  flux jacobians exceed these value.
  (found in file: \verb+advdife.cpp+)
 %----<>----<>----<>----<>----<>----<>----<>----<>----<>----<>
+\index{compute\_reactive\_terms@\verb+compute_reactive_terms+}
+\item\verb+int compute_reactive_terms+ {\rm(default=\verb|1|)}:
+
+key for computing reactive terms or not
+ (found in file: \verb+advdife.cpp+)
+%----<>----<>----<>----<>----<>----<>----<>----<>----<>----<>
 \index{geometry@\verb+geometry+}
 \item\verb+string geometry+ {\rm(default=\verb|cartesian2d|)}:
 
@@ -62,7 +76,8 @@ Type of element geometry to define Gauss Point data
 \index{indx\_ALE\_xold@\verb+indx_ALE_xold+}
 \item\verb+int indx_ALE_xold+ {\rm(default=\verb|1|)}:
 
-indx_ALE_xold : pointer to old coordinates in NODEDATA array excluding the first "ndim" values
+Pointer to old coordinates in
+ \verb+nodedata+ array excluding the first "ndim" values
  (found in file: \verb+advdife.cpp+)
 %----<>----<>----<>----<>----<>----<>----<>----<>----<>----<>
 \index{lumped\_mass@\verb+lumped_mass+}
@@ -88,7 +103,7 @@ Add an anisotropic shock capturing term
 
 Use the advective Jacobian in the previous time step
  for the SUPG stabilization term. This accelerates
- convergence of the Newton iteration. 
+ convergence of the Newton iteration.
  (found in file: \verb+advdife.cpp+)
 %----<>----<>----<>----<>----<>----<>----<>----<>----<>----<>
 \index{use\_fastmat2\_cache@\verb+use_fastmat2_cache+}
@@ -103,6 +118,14 @@ Uses operations caches for computations with the FastMat2
 \item\verb+int use_log_vars+ {\rm(default=\verb|0|)}:
 
 Use log-vars for $k$ and $\epsilon$
+ (found in file: \verb+advdife.cpp+)
+%----<>----<>----<>----<>----<>----<>----<>----<>----<>----<>
+\index{use\_low\_gpdata@\verb+use_low_gpdata+}
+\item\verb+int use_low_gpdata+ {\rm(default=\verb|0|)}:
+
+Use 1 Gauss point for some matrix terms.
+In this application for diffusive terms grad_N_D_grad_N
+and for stabilized advection terms P_supg_A_grad_N.
  (found in file: \verb+advdife.cpp+)
 %----<>----<>----<>----<>----<>----<>----<>----<>----<>----<>
 \index{weak\_form@\verb+weak_form+}
