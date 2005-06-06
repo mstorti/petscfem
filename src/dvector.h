@@ -1,6 +1,6 @@
 // -*- mode: C++ -*- 
 /*__INSERT_LICENSE__*/
-// $Id: dvector.h,v 1.28 2005/03/03 02:21:30 mstorti Exp $
+// $Id: dvector.h,v 1.29 2005/06/06 21:49:09 mstorti Exp $
 #ifndef DVECTOR_H
 #define DVECTOR_H
 #include <cstdarg>
@@ -204,8 +204,8 @@ public:
       @param t (input) element to find
       @param first (input) first position in range to search
       @param last (input) past to the end  position in range to search
-      @return position of first element greater of equal than the
-      searched element. */ 
+      @return position of first element greater or equal than the
+      searched element. (Assume a infty at end). */ 
   int bsearch(const T &t,int first=0, int last=-1);
 
   /** Finds whether a given element is or not in the vector.
