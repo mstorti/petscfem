@@ -1,6 +1,6 @@
 // -*- mode: c++ -*-
 /*__INSERT_LICENSE__*/
-//$Id: fastmat2.h,v 1.34 2005/05/29 18:00:12 mstorti Exp $
+//$Id: fastmat2.h,v 1.35 2005/06/10 21:34:29 mstorti Exp $
 
 #ifndef FASTMAT2_H
 #define FASTMAT2_H
@@ -859,7 +859,7 @@ public:
       @author M. Storti
       @return the result of the operation
   */ 
-  double norm_p_all(const int p) const;
+  double norm_p_all(const int p=2) const;
 
   //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
   /** Minimum  over all indices.
