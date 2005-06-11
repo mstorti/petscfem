@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: mmove.cpp,v 1.20 2003/09/15 01:18:02 mstorti Exp $
+//$Id: mmove.cpp,v 1.21 2005/06/11 12:04:46 mstorti Exp $
 
 #include <src/fem.h>
 #include <src/utils.h>
@@ -50,7 +50,7 @@ void mesh_move_eig_anal::init() {
       double cq[] = {-1,-1,1,-1,1,1,-1,1};
       C.resize(2,nel,ndim).set(cq).t();
       dNdxi.set(C);
-    } else PETSCFEM_ERROR("Only tringles ad quads in 2D: nel %d\n",nel);
+    } else PETSCFEM_ERROR("Only tringles and quads in 2D: nel %d\n",nel);
   } else {
     C.resize(2,nel,ndim).set(c).t();
     dNdxi.set(C);
