@@ -1,6 +1,6 @@
 // -*- mode: C++ -*-
 /*__INSERT_LICENSE__*/
-//$Id: mmove.h,v 1.18 2002/12/12 19:35:19 mstorti Exp $
+//$Id: mmove.h,v 1.19 2005/06/11 13:11:56 mstorti Exp $
 
 #ifndef MMOVE_H
 #define MMOVE_H
@@ -11,7 +11,7 @@
     At this time this can be done in PETSc-FEM only in a 
     separate run. In this run you enter the diplacements
     on the boundary as a fixation and using this elemenset 
-    the resulting field is the disaplcement in the internal nodes. 
+    the resulting field is the displacement in the internal nodes. 
     Unlike the elasticity problems, this elemsets treats the mesh 
     relocations problem as the minimization of a functional of the
     distortion of the element w.r.t. a ``master'' (regular) element,
