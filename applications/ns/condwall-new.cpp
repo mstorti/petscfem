@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-// $Id: condwall-new.cpp,v 1.3 2005/05/30 02:01:25 mstorti Exp $
+// $Id: condwall-new.cpp,v 1.4 2005/06/15 15:16:23 mstorti Exp $
 
 #include "./condwall.h"
 #include "./condwallpen.h"
@@ -54,11 +54,12 @@ res_new(int k,FastMat2 &U,FastMat2 & r,
     p2 = U2.get(ndof),
     u1n = U1.get(axi),
     u2n = U2.get(axi);
-  double res_darcy = p1-p2-R*(u1n+u2n)/2;
+  double uav = (u1n+u2n)/2;
+  double res_darcy = p1-p2-R*uav*uav;
   r.setel(res_darcy,ndof);
   jac.ir(1,ndof)
-    .setel(-R/2,1,axi).setel(+1,1,ndof)
-    .setel(-R/2,2,axi).setel(-1,2,ndof).rs();
+    .setel(-R*uav,1,axi).setel(+1,1,ndof)
+    .setel(-R*uav,2,axi).setel(-1,2,ndof).rs();
   w.setel(+1,1,ndof,ndof)
     .setel(-1,2,ndof,ndof);
 }
