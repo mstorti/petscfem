@@ -4396,3 +4396,6 @@ tag: beta-3.47.20 on Sun, 29 May 2005 23:01:36 -0300 by mstorti in spider
 ----------
 tag: beta-3.47.21 on Thu, 02 Jun 2005 13:31:47 -0300 by mstorti in minerva.ceride.gov.ar
      > Fixed bugs in doc for `ALE_flag' and `ALE_indx_old'. 
+----------
+tag: beta-3.47.22 on Sat, 18 Jun 2005 09:06:01 -0300 by mstorti in spider
+     > Working on new mesh-move formulation. 
