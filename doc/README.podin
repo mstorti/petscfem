@@ -11,19 +11,19 @@ programs.
 
 =head1 NAME
 
-PETSc-FEM - a general  purpose,  parallel, multi-physics  FEM program 
+PETSc-FEM - a general  purpose,  parallel, multi-physics FEM program 
 
 =head1 SYNOPSIS 
 
 This is PETSc-FEM, a general purpose, parallel, multi-physics FEM
-program for CFD applications based on PETSc. PETSc-FEM comprises both
-a library that allows the user to develop FEM (or FEM-like, i.e.
-non-structured mesh oriented) programs, and a suite of application
-programs.  It is written in the C++ language with an OOP (Object
-Oriented Programming) philosophy, keeping in mind the scope
-of efficiency. PETSc-FEM may run in parallel using the MPI standard on a
-variety of architectures, but currently it has been tested in Beowulf
-clusters only. 
+(Finite Element Method) program for CFD (Computational Fluid Dynamics)
+applications based on PETSc . PETSc-FEM comprises both a library that
+allows the user to develop FEM (or FEM-like, i.e.  non-structured mesh
+oriented) programs, and a suite of application programs.  It is
+written in the C++ language with an OOP (Object Oriented Programming)
+philosophy, keeping in mind the scope of efficiency. PETSc-FEM may run
+in parallel using the MPI standard on a variety of architectures, but
+currently it has been tested in Beowulf clusters only.
 
 PETSc-FEM is GPL, for further details read the file COPYING in the
 root directory of the distribution.
