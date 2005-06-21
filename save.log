@@ -4399,3 +4399,6 @@ tag: beta-3.47.21 on Thu, 02 Jun 2005 13:31:47 -0300 by mstorti in minerva.cerid
 ----------
 tag: beta-3.47.22 on Sat, 18 Jun 2005 09:06:01 -0300 by mstorti in spider
      > Working on new mesh-move formulation. 
+----------
+tag: beta-3.47.23 on Mon, 20 Jun 2005 22:36:23 -0300 by mstorti in spider
+     > Working on mesh_move/elast. 
