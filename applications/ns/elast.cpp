@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: elast.cpp,v 1.17 2005/05/26 22:07:29 mstorti Exp $
+//$Id: elast.cpp,v 1.18 2005/06/21 01:36:15 mstorti Exp $
 
 #include <src/fem.h>
 #include <src/utils.h>
@@ -110,7 +110,9 @@ void elasticity::element_connector(const FastMat2 &xloc,
 				   const FastMat2 &state_old,
 				   const FastMat2 &state_new,
 				   FastMat2 &res,FastMat2 &mat){
-
+  double E_fac = 1.0;
+  if (nelprops>0) E_fac = elemprops[elem];
+  
   B.reshape(3,ntens,nel,ndof);
   
   // Levi-Civita tensor generation
@@ -174,14 +176,14 @@ void elasticity::element_connector(const FastMat2 &xloc,
     // B.rs().reshape(2,ntens,nen);
     B.rs();
     strain.prod(B,state_new,1,-1,-2,-1,-2);
-    stress.prod(C,strain,1,-1,-1);
+    stress.prod(C,strain,1,-1,-1).scale(E_fac);
     
     // Residual computation
     res_pg.prod(B,stress,-1,1,2,-1);
     res.axpy(res_pg,-wpgdet);
 
     // Jacobian computation
-    mat_pg1.prod(C,B,1,-1,-1,2,3);
+    mat_pg1.prod(C,B,1,-1,-1,2,3).scale(E_fac);
     mat_pg2.prod(B,mat_pg1,-1,1,2,-1,3,4);
     mat.axpy(mat_pg2,wpgdet);
     
