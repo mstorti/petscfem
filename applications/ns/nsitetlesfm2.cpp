@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: nsitetlesfm2.cpp,v 1.71 2005/06/02 16:31:22 mstorti Exp $
+//$Id: nsitetlesfm2.cpp,v 1.72 2005/07/04 03:16:33 mstorti Exp $
 
 #include <src/fem.h>
 #include <src/utils.h>
@@ -196,7 +196,8 @@ assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
   //o _T: double[ndim] _N: G_body _D: null vector 
   // _DOC: Vector of gravity acceleration (must be constant). _END
   G_body.set(0.);
-  ierr = get_double(GLOBAL_OPTIONS,"G_body",G_body.storage_begin(),1,ndim);
+  ierr = get_double(thash,"G_body",
+		    G_body.storage_begin(),1,ndim);
 
   double pi = 4*atan(1.0);
 
