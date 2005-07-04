@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-/* $Id: penalize.cpp,v 1.12 2005/05/23 02:54:12 mstorti Exp $ */
+/* $Id: penalize.cpp,v 1.13 2005/07/04 02:12:05 mstorti Exp $ */
 
 #ifdef USE_DLEF
 #include <dlfcn.h>
@@ -45,7 +45,9 @@ new_assemble(arg_data_list &arg_data_v,const Nodedata *nodedata,
   int nelprops,ndof;
   elem_params(nel,ndof,nelprops);
   FastMat2 matloc_prof(4,nel,ndof,nel,ndof),
-    matloc(4,nel,ndof,nel,ndof), U(2,nel,ndof),R(2,nel,ndof);
+    matloc(4,nel,ndof,nel,ndof), 
+    U(2,nel,ndof), Uold(2,nel,ndof),
+    R(2,nel,ndof);
   // xloc_m.resize(2,nel,ndim);
   if (comp_mat) matloc_prof.set(1.);
 
@@ -80,7 +82,7 @@ new_assemble(arg_data_list &arg_data_v,const Nodedata *nodedata,
   int k_chunk;
   for (element = elemlist.begin();
        element!=elemlist.end(); element++) try {
-
+	 
     element.position(elem,k_chunk);
     FastMat2::reset_cache();
     ielh++;
@@ -92,6 +94,9 @@ new_assemble(arg_data_list &arg_data_v,const Nodedata *nodedata,
     }      
 
     U.set(element.vector_values(*staten));
+    Uold.set(element.vector_values(*stateo));
+    // pass Uold to restriction
+    restr->uold(Uold);
     matloc.set(0.);
     R.set(0.);
 
@@ -184,6 +189,7 @@ DLRestriction::init(int nel,int ndof,
   GET_FUN(InitFun,init_fun);
   GET_FUN(ResFun,res_fun);
   GET_FUN(CloseFun,close_fun);
+  GET_FUN(UoldFun,uold_fun);
 
   return (*init_fun)(nel,ndof,thash,name,fun_data);
 #else
@@ -195,4 +201,3 @@ DLRestriction::init(int nel,int ndof,
 		 name);
 #endif
 }
-

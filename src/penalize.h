@@ -1,13 +1,13 @@
 // -*- mode: c++ -*-
 //__INSERT_LICENSE__
-// $Id: penalize.h,v 1.13 2005/05/23 02:54:12 mstorti Exp $
+// $Id: penalize.h,v 1.14 2005/07/04 02:12:05 mstorti Exp $
 #ifndef PETSCFEM_PENALIZE_H
 #define PETSCFEM_PENALIZE_H
 
 /** Enforces a restriction by adding a large term
     to the equation. The term is added proportional to
     a column-wise vector (as in the Lagrange multiplier
-    formulation. */ 
+    formulation). */ 
 class Restriction {
 public:
   /** Initialize the object (maybe reads hash
@@ -31,7 +31,7 @@ public:
       @param dof (output) number of field for multiplier
   */ 
   virtual void lag_mul_dof(int jr,int &node,int &dof) { 
-    assert(0); 
+    assert(0); // force user to instantiate it
   }
   /** Computes the residual and jacobian of the function
       to be imposed. Usually you derive #NonLinearRes#
@@ -52,6 +52,7 @@ public:
 		   FastMat2 & w,FastMat2 & jac)=0;
   virtual void set_ldf(FastMat2 &ldf_user,
 		       vector<double> &ldf);
+  virtual void uold(const FastMat2 &Uold) { }
   /// Called after the loop over all elements
   virtual void close() {}
   /// Make it pure virtual. 
@@ -72,7 +73,9 @@ public:
 	      void *&fun_data_a);
   typedef
   void LagMulDofFun(int jr,int &node,
-		    int &dof,void *&fun_data_a);
+		    int &dof,void *fun_data_a);
+  typedef
+  void UoldFun(const FastMat2 &uold,void *fun_data_a);
   typedef 
   void ResFun(int k,FastMat2 &U,FastMat2 & r,
 	      FastMat2 & w,FastMat2 & jac,
@@ -83,6 +86,7 @@ private:
   void *fun_data;
   InitFun *init_fun;
   LagMulDofFun *lag_mul_dof_fun;
+  UoldFun *uold_fun;
   ResFun *res_fun;
   CloseFun *close_fun;
 public:
@@ -91,6 +95,9 @@ public:
   void lag_mul_dof(int jr,int &node,int &dof) {
     assert(lag_mul_dof_fun);
     (*lag_mul_dof_fun)(jr,node,dof,fun_data);
+  }
+  void uold(const FastMat2 &Uold) {
+    (*uold_fun)(Uold,fun_data);
   }
   void res(int k,FastMat2 &U,FastMat2 & r,
 	   FastMat2 & w,FastMat2 & jac) {
@@ -153,6 +160,8 @@ public:
 	   FastMat2 & w,FastMat2 & jac)=0;
   virtual
   void lag_mul_dof(int jr,int &node,int &dof) { assert(0); }
+  virtual 
+  void uold(const FastMat2 &Uold) { }
   virtual
   void close() { }
 };
@@ -185,7 +194,14 @@ extern "C" void						\
 prefix##_lag_mul_dof_fun(int jr,int &node,		\
 			 int &dof,void *fun_data) {	\
   dl_penal_convert_to_class;				\
-  obj->lag_mul_dof(jr,node,dof);					\
+  obj->lag_mul_dof(jr,node,dof);			\
+}							\
+							\
+extern "C" void						\
+prefix##_uold_fun(const FastMat2 &uold,			\
+		  void *fun_data) {			\
+  dl_penal_convert_to_class;				\
+  obj->uold(uold);					\
 }							\
 							\
 extern "C" void						\
