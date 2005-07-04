@@ -4405,3 +4405,6 @@ tag: beta-3.47.23 on Mon, 20 Jun 2005 22:36:23 -0300 by mstorti in spider
 ----------
 tag: beta-3.47.24 on Sun, 03 Jul 2005 23:12:12 -0300 by mstorti in spider
      > Added `uold()' yo penalize interface. 
+----------
+tag: beta-3.47.25 on Mon, 04 Jul 2005 00:16:41 -0300 by mstorti in spider
+     > Now `G_body' is taken `elemset-wise' in `nsitetlesfm2.cpp'. 
