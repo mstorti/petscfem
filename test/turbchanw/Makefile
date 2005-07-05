@@ -1,5 +1,7 @@
 #__INSERT_LICENSE__
-# $Id: Makefile,v 1.9 2003/01/08 15:54:26 mstorti Exp $ 
+# $Id: Makefile,v 1.10 2005/07/05 21:47:01 mstorti Exp $ 
+
+default: swturb
 
 CASE = turbchanw
 tests: heat swturb
