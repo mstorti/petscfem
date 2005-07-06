@@ -14,6 +14,16 @@
 		      (else 
 		       (list root left (abb-load1 right x))))))))
 
-(define 
+(define (abb-print abb)
+  (cond ((null? abb) (format #t "."))
+	(else (let ((root (car abb))
+		    (left (cadr abb))
+		    (right (caddr abb)))
+		(cond ((and (null? left) (null? right)) (format #t " ~A" root))
+		      (else (format #t "(~A" root)
+			    (abb-print left)
+			    (abb-print right)
+			    (format #t " )")))))))
 
-(format #t "abb ~A\n" (abb-load '() 3 4))
+(define abb (abb-load '() 3 4 5 6 7 8))
+(abb-print abb)
