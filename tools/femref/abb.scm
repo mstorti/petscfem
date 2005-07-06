@@ -25,5 +25,15 @@
 			    (abb-print right)
 			    (format #t " )")))))))
 
-(define abb (abb-load '() 3 4 5 6 7 8))
-(abb-print abb)
+(define (rand-list n m)
+  (let loop ((q '())
+	     (j 0))
+    (cond ((= j n) q)
+	  (else (loop (cons (random m) q) (+ j 1))))))
+
+;(define abb (abb-load '() 3 4 5 6 7 8))
+
+(define (tryme m n) 
+  (abb-print (apply abb-load '() (rand-list m n))))
+
+
