@@ -1,3 +1,5 @@
+(use-modules (ice-9 receive))
+
 (define (abb-load abb1 . elems)
   (let loop ((abb abb1)
 	     (q elems))
@@ -10,9 +12,9 @@
 		    (left (cadr q))
 		    (right (caddr q)))
 		(cond ((< x root) 
-		       (list root (abb-load1 left x) right))
-		      (else 
-		       (list root left (abb-load1 right x))))))))
+		       (values #t (list root (abb-load1 left x) right)))
+		      ((> x root) 
+		       (values (list root left (abb-load1 right x)))))))))
 
 (define (abb-print abb1)
   (let loop ((abb abb1))
@@ -39,4 +41,5 @@
 (define (tryme m n) 
   (abb-print (apply abb-load '() (rand-list m n))))
 
-
+(define (fun) (values 1 2 3))
+(receive (a b c) (fun) (format #t "a ~A, b ~A, c ~A\n" a b c))
