@@ -36,7 +36,10 @@
 			      (loop right)
 			      (format #t " )")))))))
   (newline))
-  
+
+(define (abb-size abb)
+  (cond ((null? abb) 0)
+	(else (+ 1 (abb-size (cadr abb)) (abb-size (caddr abb))))))
 
 (define (rand-list n m)
   (let loop ((q '())
@@ -82,6 +85,11 @@
 		      ((and (not (null? right)) (< (car right) root)) #f)
 		      (else #t))))))
 
+(define (abb-rand m n)
+  (let ((l (rand-list m n)))
+    (receive (ins abb) (apply abb-load '() l)
+	     abb)))
+
 (define (tryme m n) 
   (let ((l (rand-list m n)))
     (format #t "inserting ~A\n" l)
@@ -90,9 +98,9 @@
 	     (abb-print abb)))
   abb)
 
-(define (abb-rand m n)
-  (let ((l (rand-list m n)))
-    (receive (ins abb) (apply abb-load '() l)
-	     abb)))
+(define (tryme2 m n) 
+  (let ((abb (abb-rand m n)))
+    (abb-print abb)
+    (format #t "size ~A\n" (abb-size abb))))
 
 ;(tryme 5 4)
