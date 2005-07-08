@@ -120,7 +120,7 @@
 	((null? right) left)
 	(else
 	 (receive (min-right new-right) (abb-erase-min right)
-		  (list min-right left new-righ)))))
+		  (list min-right left new-right)))))
 
 ; (define (abb-erase-root abb)
 ;   (let ((root (car abb))
@@ -160,4 +160,17 @@
 		      (loop qq (+ j 1))))))))
   
 
-;(tryme 5 4)
+(define (tryme5 n)
+  (let loop ((abb '()))
+    (format #t "abb") (abb-print abb)
+    (let ((x1 (random n))
+	  (x2 (random n)))
+      (receive (ins new-abb) (abb-insert abb x1)
+	       (format #t "inserted ~A, " x1) (abb-print new-abb)
+	       (receive (new-abb2 er) (abb-erase new-abb x2)
+			(format #t "erased ~A, " x2)(abb-print new-abb2)
+			(format #t "-----------------\n")
+			(loop new-abb2))))))
+
+(tryme5 20)
+      
