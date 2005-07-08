@@ -1,5 +1,7 @@
 (use-modules (ice-9 receive))
 
+(define (t s) (format #t "trace ~A\n" s))
+
 (define (abb-insert1 q x)
   (cond ((null? q) (values 1 (list x '() '())))
 	(else (let ((root (car q))
@@ -100,7 +102,7 @@
 				     (values min (list root new-left right)))))))))
 
 (define (abb-erase abb x)
-  (cond ((null? abb) (values abb #f)
+  (cond ((null? abb) (values abb #f))
 	(else (let ((root (car abb))
 		    (left (cadr abb))
 		    (right (caddr abb)))
@@ -109,8 +111,9 @@
 		       (receive (new-right erased) (abb-erase right x)
 				(values (list root left new-right) erased)))
 		      (else
+;		       (format #t "left ~A erased ~A\n" left erased)
 		       (receive (new-left erased) (abb-erase left x)
-				(values (list root new-left right) erased)))))))))
+				(values (list root new-left right) erased))))))))
 
 (define (abb-erase-root-aux left right)
   (cond ((null? left) right)
