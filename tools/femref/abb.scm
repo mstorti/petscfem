@@ -1,28 +1,28 @@
 (use-modules (ice-9 receive))
 
-(define (abb-load abb1 . elems)
-  (let loop ((inserted 0)
-	     (abb abb1)
-	     (q elems))
-    (cond ((null? q) (values inserted abb))
-	  (else 
-	   (receive (ins1 abb-new) (abb-load1 abb (car q))
-;		    (format #t "inserting ~A, inserted ~A\n"
-;			    abb-new ins1)
-		    (loop (+ ins1 inserted) abb-new (cdr q)))))))
-
-(define (abb-load1 q x)
+(define (abb-insert1 q x)
   (cond ((null? q) (values 1 (list x '() '())))
 	(else (let ((root (car q))
 		    (left (cadr q))
 		    (right (caddr q)))
 		(cond ((< x root) 
-		       (receive (ins abb-new) (abb-load1 left x)
+		       (receive (ins abb-new) (abb-insert1 left x)
 				(values ins (list root  abb-new right))))
 		      ((> x root) 
-		       (receive (ins abb-new) (abb-load1 right x)
+		       (receive (ins abb-new) (abb-insert1 right x)
 				(values ins (list root left abb-new))))
 		      (else (values 0 q)))))))
+
+(define (abb-insert abb1 . elems)
+  (let loop ((inserted 0)
+	     (abb abb1)
+	     (q elems))
+    (cond ((null? q) (values inserted abb))
+	  (else 
+	   (receive (ins1 abb-new) (abb-insert1 abb (car q))
+;		    (format #t "inserting ~A, inserted ~A\n"
+;			    abb-new ins1)
+		    (loop (+ ins1 inserted) abb-new (cdr q)))))))
 
 (define (abb-print abb1)
   (let loop ((abb abb1))
@@ -87,13 +87,48 @@
 
 (define (abb-rand m n)
   (let ((l (rand-list m n)))
-    (receive (ins abb) (apply abb-load '() l)
+    (receive (ins abb) (apply abb-insert '() l)
 	     abb)))
+
+(define (abb-erase-min abb)
+  (cond ((null? abb) #t)
+	(else (let ((root (car abb))
+		    (left (cadr abb))
+		    (right (caddr abb)))
+		(cond ((null? left) (values root right))
+		      (else (receive (min new-left) (abb-erase-min left)
+				     (values min (list root new-left right)))))))))
+
+(define (abb-erase abb x)
+  (cond ((null? abb) (values abb #f)
+	(else (let ((root (car abb))
+		    (left (cadr abb))
+		    (right (caddr abb)))
+		(cond ((= x root) (values (abb-erase-root-aux left right) 1))
+		      ((> x root) 
+		       (receive (new-right erased) (abb-erase right x)
+				(values (list root left new-right) erased)))
+		      (else
+		       (receive (new-left erased) (abb-erase left x)
+				(values (list root new-left right) erased)))))))))
+
+(define (abb-erase-root-aux left right)
+  (cond ((null? left) right)
+	((null? right) left)
+	(else
+	 (receive (min-right new-right) (abb-erase-min right)
+		  (list min-right left new-righ)))))
+
+; (define (abb-erase-root abb)
+;   (let ((root (car abb))
+; 	(left (cadr abb))
+; 	(right (caddr abb)))
+;     (receive (min new-left) (erase-min abb)
 
 (define (tryme m n) 
   (let ((l (rand-list m n)))
     (format #t "inserting ~A\n" l)
-    (receive (ins abb) (apply abb-load '() l)
+    (receive (ins abb) (apply abb-insert '() l)
 	     (format #t "inserted ~A elements\n" ins)
 	     (abb-print abb)))
   abb)
@@ -102,5 +137,24 @@
   (let ((abb (abb-rand m n)))
     (abb-print abb)
     (format #t "size ~A\n" (abb-size abb))))
+
+(define (tryme3 n)
+  (let ((abb (abb-rand n n)))
+    (let loop ((q abb))
+      (cond ((not (null? q))
+	     (format #t "q ~A" q)
+	     (receive (min qq) (abb-erase-min q)
+		      (format #t ", min ~A\n" min)
+		      (loop qq)))))))
+
+(define (tryme4 n)
+  (let ((abb (abb-rand n n)))
+    (let loop ((q abb)
+	       (j 0))
+      (cond ((not (= j n))
+	     (format #t "erase j ~A from q " j) (abb-print q)
+	     (receive (qq erased) (abb-erase q j)
+		      (loop qq (+ j 1))))))))
+  
 
 ;(tryme 5 4)
