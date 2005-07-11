@@ -171,6 +171,3 @@
 			(format #t "erased ~A, " x2)(abb-print new-abb2)
 			(format #t "-----------------\n")
 			(loop new-abb2))))))
-
-(tryme5 20)
-      
