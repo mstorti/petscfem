@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-// $Id: condwall-new.cpp,v 1.4 2005/06/15 15:16:23 mstorti Exp $
+// $Id: condwall-new.cpp,v 1.5 2005/07/11 20:31:32 mstorti Exp $
 
 #include "./condwall.h"
 #include "./condwallpen.h"
@@ -12,7 +12,7 @@ res_new(int k,FastMat2 &U,FastMat2 & r,
   if (data_p && data_p->Rv.size()>0) {
     assert(k<data_p->Rv.size());
     R = data_p->Rv.ref(k);
-#if 1
+#if 0
     // Prints `R' table 
     static int flag=0;
     dvector<double> &Rv = data_p->Rv;
