@@ -51,6 +51,14 @@ int fracstep::ask(const char *jobinfo,int &skip_elemset) {
   return 0;
 }
 
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>
+static double smabs(double x) {
+  double y, tol=1e-7;
+  if (fabs(x)<tol) y = 1.0/(1.0-x*x/3.0);
+  else y = x/tanh(x);
+  return y;
+}
+
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 #undef __FUNC__
 #define __FUNC__ "fracstep::assemble"
@@ -192,12 +200,32 @@ int fracstep::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
 
   //o Add LES for this particular elemset.
   SGETOPTDEF(int,LES,0);
+
   //o Smagorinsky constant.
   SGETOPTDEF(double,C_smag,0.18); // Dijo Beto
+
   //o van Driest constant for the damping law.
   SGETOPTDEF(double,A_van_Driest,0); 
   assert(A_van_Driest>=0.);
 
+  //o Axis for selective Darcy term (damps incoming flow
+  //at outlet bdry's)
+  SGETOPTDEF(double,darcy_axi,0); 
+  double axi_sign = 1.0;
+  if (darcy_axi<0) {
+    axi_sign = -1.0;
+    darcy_axi = -darcy_axi;
+  }
+  assert(darcy_axi<=ndim);
+
+  //o Reference velocity for selectiv Darcy term. 
+  SGETOPTDEF(double,darcy_uref,-1.0); 
+  assert(darcy_uref>=0.);
+
+  //o Coefficient affecting selective Darcy term. 
+  SGETOPTDEF(double,darcy_coef,0.0); 
+  assert(darcy_coef>=0. && darcy_axi>0);
+  
   double alpha=0.5, gammap=0.0;
   ierr = get_double(thash,"alpha",&alpha,1); CHKERRA(ierr);
   ierr = get_double(thash,"gamma_pressure",&gammap,1); CHKERRA(ierr);
@@ -210,6 +238,8 @@ int fracstep::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
 
   DEFPROP(viscosity);
 #define VISC (*(propel+viscosity_indx))
+  DEFPROP(darcy_factor);
+#define DARCY (*(propel+darcy_factor_indx))
 
   int nprops=iprop;
 
@@ -530,6 +560,17 @@ int fracstep::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
 	// Fuerza de cuerpo
 	tmp71.prod(W,G_body,1,2);
 	resmom.axpy(tmp71,wpgdet);
+
+	// Selective Darcy term
+	if (darcy_axi) {
+	  // Velocity along `axi' direction
+	  double u = u.get(darcy_axi)*axi_sign;
+	  // Smoothed u^+
+	  double au = smabs(u/uref)*uref;
+	  // Force acting in direction positive when
+	  // velocity comes in negative direction. 
+	  double force = axi_sign*darcy_coef*(au-u)/2.0;
+	}
 
 	//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 	// JACOBIAN CALCULATION
