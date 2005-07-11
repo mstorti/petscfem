@@ -2,6 +2,11 @@
 TODO: [Mainly fixes go here...]
 =====
 
+* When in dx -hook mode, it should not crash if the state file is not
+  found. 
+> dx_hook: reading state from file curvjet.dx-state.tmp, record 0
+> dx_hook: Reading from formatted file.
+> dxhook.cpp:326: Can't read line.
 * In `FastMat2::is()' if the index is greater than the dimension of 
   the matrix, that index is discarded in the mask in place of throwing
   an error. Now I think that it should throw an error. 
