@@ -569,7 +569,8 @@ int fracstep::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
 	  double au = smabs(u/uref)*uref;
 	  // Force acting in direction positive when
 	  // velocity comes in negative direction. 
-	  double force = axi_sign*darcy_coef*(au-u)/2.0;
+	  double force = wpgdet*axi_sign*darcy_coef*(au-u)/2.0;
+	  resmom.ir(2,darcy_axi).axpy(W,force).rs();
 	}
 
 	//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
