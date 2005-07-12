@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: fstepfm2.cpp,v 1.29 2005/07/12 18:16:18 mstorti Exp $
+//$Id: fstepfm2.cpp,v 1.30 2005/07/12 19:58:54 mstorti Exp $
  
 #include <src/fem.h>
 #include <src/utils.h>
@@ -11,6 +11,7 @@
 #include "fracstep.h"
 
 #define MAXPROP 100
+extern int MY_RANK,SIZE;
 
 const double FIX = 1.0;
 /** Fixes all diagonal terms in matrix #A# so that they are #>0#, i.e.,
@@ -576,17 +577,17 @@ int fracstep::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
 	  double au = smabs(uu/darcy_uref)*darcy_uref;
 	  // Force acting in direction positive when
 	  // velocity comes in negative direction. 
-	  double force = axi_sign*DARCY
-	    *darcy_factor_global*(au-uu)/2.0;
+	  double darcy = DARCY*darcy_factor_global;
+	  double force = axi_sign*darcy*(au-uu)/2.0;
 	  resmom.ir(2,darcy_axi).axpy(W,wpgdet*force).rs();
 	  if (force>max_force) {
 	    max_force = force;
 	    max_u_neg = uu;
 	  }
-#if 1
+#if 0
 	  if (ipg==0 && k%100==0) 
 	    printf("k %d, uu %f, au %f, darcy %f, force %f, axi_sign %f\n",
-		   k,uu,au,DARCY,force,axi_sign);
+		   k,uu,au,darcy,force,axi_sign);
 #endif
 	}
 
@@ -711,10 +712,20 @@ int fracstep::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
   FastMat2::void_cache();
   FastMat2::deactivate_cache();
 #if 1
-  PetscSynchronizedPrintf(PETSC_COMM_WORLD,
-			  "[%d] max_u_neg %f, max_force %f\n",
-			  myrank,max_u_neg,max_force);
-  PetscSynchronizedFlush(PETSC_COMM_WORLD);
+  if (comp_res_mom) {
+    vector<double> maxunv(SIZE), maxfv(SIZE);
+    MPI_Gather(&max_force,1, MPI_DOUBLE,
+	       &maxfv[0],1,MPI_DOUBLE,0,PETSC_COMM_WORLD);
+    MPI_Gather(&max_u_neg,1,MPI_DOUBLE,
+	       &maxunv[0],1,MPI_DOUBLE,0,PETSC_COMM_WORLD);
+    if (!myrank) {
+      int jmax = 0;
+      for (int j=0; j<SIZE; j++) 
+	if (maxfv[j]>maxfv[jmax]) jmax=j;
+      printf("DARCY stat: max(-u) %f, max(force) %f\n",
+	     maxunv[jmax],maxfv[jmax]);
+    }
+  }
 #endif
   return 0;
 }
