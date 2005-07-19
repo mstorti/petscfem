@@ -1,10 +1,11 @@
 //__INSERT_LICENSE__
-//$Id: mpicookie.cpp,v 1.1 2005/07/19 10:59:55 mstorti Exp $
+//$Id: mpicookie.cpp,v 1.2 2005/07/19 19:09:33 mstorti Exp $
 
 // This is a test program for testing if setting an
 // environment variable from within a program is seen
 // from _outside_ the pogram, i.e. lookin at
-// /proc/<pid>/environ in Linux. 
+// /proc/<pid>/environ in Linux. With this example it
+// seems that it isn't possible. 
 
 #include <mpi.h>
 #include <cstdio>
