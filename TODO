@@ -2,6 +2,7 @@
 TODO: [Mainly fixes go here...]
 =====
 
+* Lacks of preco_type=jacobi for FS in ns.cpp?
 * When in dx -hook mode, it should not crash if the state file is not
   found. 
 > dx_hook: reading state from file curvjet.dx-state.tmp, record 0
