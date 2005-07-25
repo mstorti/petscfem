@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: blessf.cpp,v 1.24 2005/02/23 01:40:34 mstorti Exp $
+//$Id: blessf.cpp,v 1.25 2005/07/25 01:14:55 mstorti Exp $
 
 #include <set>
 
@@ -88,6 +88,7 @@ void bless_elemset(char *type,Elemset *& elemset) {
     SET_ELEMSET_TYPE(gasflow_abso2)
 
     SET_ELEMSET_TYPE(flow_rate_integrator)
+    SET_ELEMSET_TYPE(gasflow_force_integrator)
     SET_ELEMSET_TYPE(id)
 
     SET_ELEMSET_TYPE(smoke)
