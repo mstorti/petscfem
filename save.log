@@ -4411,3 +4411,6 @@ tag: beta-3.47.25 on Mon, 04 Jul 2005 00:16:41 -0300 by mstorti in spider
 ----------
 tag: beta-3.47.26 on Sun, 24 Jul 2005 22:17:04 -0300 by mstorti in spider
      > Added pressure force integrator for gasflow. 
+----------
+tag: beta-3.47.27 on Mon, 25 Jul 2005 15:29:44 -0300 by mstorti in node1.beowulf.gtm
+     > Added selective Darcy term to fracstep. 
