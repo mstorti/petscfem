@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: fstepfm2.cpp,v 1.30 2005/07/12 19:58:54 mstorti Exp $
+//$Id: fstepfm2.cpp,v 1.31 2005/07/25 18:31:58 mstorti Exp $
  
 #include <src/fem.h>
 #include <src/utils.h>
@@ -221,11 +221,11 @@ int fracstep::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
 
   //o Reference velocity for selectiv Darcy term. 
   SGETOPTDEF(double,darcy_uref,-1.0); 
-  assert(darcy_uref>=0.);
+  if (darcy_axi) { assert(darcy_uref>=0.); }
 
   //o Reference velocity for selectiv Darcy term. 
   SGETOPTDEF(double,darcy_factor_global,-1.0); 
-  assert(darcy_factor_global>=0.);
+  if (darcy_axi) { assert(darcy_factor_global>=0.); }
 
 #if 0
   //o Coefficient affecting selective Darcy term. 
@@ -711,7 +711,7 @@ int fracstep::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
   }
   FastMat2::void_cache();
   FastMat2::deactivate_cache();
-#if 1
+#if 0
   if (comp_res_mom) {
     vector<double> maxunv(SIZE), maxfv(SIZE);
     MPI_Gather(&max_force,1, MPI_DOUBLE,
