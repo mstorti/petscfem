@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: blessf.cpp,v 1.25 2005/07/25 01:14:55 mstorti Exp $
+//$Id: blessf.cpp,v 1.26 2005/07/25 01:16:56 mstorti Exp $
 
 #include <set>
 
@@ -34,6 +34,7 @@
 #include "gaschem.h"
 #include "./gftwall.h"
 #include "./gasflow.h"
+#include "./gasflwgth.h"
 
 #include <time.h>
 
