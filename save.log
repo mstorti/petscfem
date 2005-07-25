@@ -4408,3 +4408,6 @@ tag: beta-3.47.24 on Sun, 03 Jul 2005 23:12:12 -0300 by mstorti in spider
 ----------
 tag: beta-3.47.25 on Mon, 04 Jul 2005 00:16:41 -0300 by mstorti in spider
      > Now `G_body' is taken `elemset-wise' in `nsitetlesfm2.cpp'. 
+----------
+tag: beta-3.47.26 on Sun, 24 Jul 2005 22:17:04 -0300 by mstorti in spider
+     > Added pressure force integrator for gasflow. 
