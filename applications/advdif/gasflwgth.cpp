@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: gasflwgth.cpp,v 1.1 2005/07/25 01:14:55 mstorti Exp $
+//$Id: gasflwgth.cpp,v 1.2 2005/07/25 03:11:39 mstorti Exp $
 
 #include <src/fem.h>
 #include <src/utils.h>
@@ -21,7 +21,7 @@ gasflow_force_integrator
   //o Dimenson of the element
   TGETOPTDEF(thash,int,ndimel,ndim-1); 
   assert(ndimel==ndim-1);
-  assert(gather_length==3);
+  assert(gather_length==ndim);
   F.resize(1,ndim);
 }
 
@@ -31,7 +31,7 @@ gasflow_force_integrator
 ::set_pg_values(vector<double> &pg_values,FastMat2 &u,
 		FastMat2 &uold,FastMat2 &xpg,FastMat2 &n,
 		double wpgdet,double time) {
-  double p = u.get(ndim_m+1); 
+  double p = u.get(ndim_m+2); 
   F.set(n).scale(-p*wpgdet)
     .export_vals(&*pg_values.begin());
 }
