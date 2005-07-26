@@ -71,6 +71,29 @@ sub pr {
     print @text;
 }
 
+sub prv {
+    my $line = shift();
+    my @names = split " ",$line;
+    my @text = ();
+    foreach $name (@names) { 
+	my $elem = $ {$name};
+	push @text,"$name ";
+	## Deactivated since the trick is to pass the
+	## string with values to pr (not the reference
+	## to an array).
+	if (ref($elem) eq 'ARRAY') {
+	    for $q (@$elem) {
+		push @text," $q"; 
+	    }
+	} else {
+	    push @text," $elem"; 
+	}
+	push @text,"\n"; 
+    }
+    pop @text;
+    print @text;
+}
+
 sub prc {
     my $line = shift();
     my @names = split " ",$line;

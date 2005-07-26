@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: gasflwgth.cpp,v 1.3 2005/07/26 15:36:04 mstorti Exp $
+//$Id: gasflwgth.cpp,v 1.4 2005/07/26 18:41:30 mstorti Exp $
 
 #include <src/fem.h>
 #include <src/utils.h>
@@ -74,7 +74,7 @@ gasflow_force_integrator
       .export_vals(&pg_values[ndim_m]);
   }
 
-#if 1
+#if 0
   F.print("F: ");
   M.print("M: ");
 #endif
