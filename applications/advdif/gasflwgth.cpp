@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: gasflwgth.cpp,v 1.4 2005/07/26 18:41:30 mstorti Exp $
+//$Id: gasflwgth.cpp,v 1.5 2005/07/26 20:13:31 mstorti Exp $
 
 #include <src/fem.h>
 #include <src/utils.h>
@@ -70,11 +70,12 @@ gasflow_force_integrator
 
   if (comp_moments) {
     dx.set(xpg).rest(x0);
-    M.cross(F,dx)
+    M.cross(dx,F)
       .export_vals(&pg_values[ndim_m]);
   }
 
 #if 0
+  xpg.print("xpg: ");
   F.print("F: ");
   M.print("M: ");
 #endif
