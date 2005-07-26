@@ -4414,3 +4414,7 @@ tag: beta-3.47.26 on Sun, 24 Jul 2005 22:17:04 -0300 by mstorti in spider
 ----------
 tag: beta-3.47.27 on Mon, 25 Jul 2005 15:29:44 -0300 by mstorti in node1.beowulf.gtm
      > Added selective Darcy term to fracstep. 
+----------
+tag: beta-3.47.28 on Tue, 26 Jul 2005 12:36:15 -0300 by mstorti in minerva.ceride.gov.ar
+     > Implemented `gasflow_force_integrator' integrates 
+     > pressure force and moments. 
