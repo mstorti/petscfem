@@ -1,6 +1,7 @@
 //__INSERT_LICENSE__
-// $Id: advabso.cpp,v 1.9 2005/02/23 01:40:33 mstorti Exp $
+// $Id: advabso.cpp,v 1.10 2005/07/26 00:04:26 mstorti Exp $
 #include "./advabso.h"
+#include "./gasflow.h"
 
 static
 double msign(double x) {
@@ -26,6 +27,12 @@ init() {
   // boundary as reference for the linear absorbing
   // boundary condition.
   NSGETOPTDEF_ND(int,use_old_state_as_ref,0);
+  //o Use special combination for choosing reference state.
+  //  If velocity is outgoing ( #uref.n>0#, #n# is exterior
+  //  normal, #u# is the flow velocity), then the
+  //  #use_old_state_as_ref# strategy is used, otherwise the
+  //  state reference is used. 
+  NSGETOPTDEF_ND(int,switch_to_ref_on_incoming,0);
   flux.resize(2,ndof,ndim);
   fluxd.resize(2,ndof,ndim);
   A_grad_U.resize(1,ndof);
@@ -60,14 +67,36 @@ res(int k,FastMat2 &U,FastMat2 &r,
       lambda_max_pg=0.0;
   U.ir(1,1); Uo.set(U);
   U.ir(1,2); Ulambda.set(U);
-  if (use_old_state_as_ref) {
+  // As `use_old_state_as_ref' but
+  // for this element. 
+  int use_old_state_as_ref_elem;
+  if (switch_to_ref_on_incoming) {
+    // Check that `adv_diff_ff'is truly a
+    // gasflow_ff
+    assert(dynamic_cast<gasflow_ff*>(adv_diff_ff));
+    // U(3,:) contains the reference value
+    
+    U.rs().ir(1,3).is(2,2,ndim+1);
+    double un = unor.prod(U,normal,-1,-1);
+    use_old_state_as_ref_elem = un>0;
+    U.rs();
+  } else {
+    use_old_state_as_ref_elem 
+      = use_old_state_as_ref; 
+  }
+
+  FastMat2::branch();
+  if (use_old_state_as_ref_elem) {
+    FastMat2::choose(0);
     get_old_state(Uold);
     Uold.ir(1,1);
     Uref.set(Uold);
     Uold.rs();
   } else {
+    FastMat2::choose(1);
     U.ir(1,3); Uref.set(U);
   }
+  FastMat2::leave();
   U.rs();
   adv_diff_ff->set_state(Uref,grad_U);
   adv_diff_ff
@@ -107,8 +136,12 @@ res(int k,FastMat2 &U,FastMat2 &r,
   tmp1.prod(Cp,Pi_m,1,-1,-1,2);
   w.set(0.).ir(1,1).set(tmp1).rs();
   jac.ir(2,1).set(Pi_m);
-  if (!use_old_state_as_ref) 
+  FastMat2::branch();
+  if (!use_old_state_as_ref_elem) {
+    FastMat2::choose(0);
     jac.ir(2,3).set(Pi_m).scale(-1.0);
+  }
+  FastMat2::leave();
   jac.rs();
 }
 

@@ -1,6 +1,6 @@
 // -*- mode: c++ -*-
 //__INSERT_LICENSE__
-// $Id: advabso.h,v 1.8 2005/02/23 01:40:33 mstorti Exp $
+// $Id: advabso.h,v 1.9 2005/07/26 00:04:26 mstorti Exp $
 #ifndef PETSCFEM_ADVABSO_H
 #define PETSCFEM_ADVABSO_H
 
@@ -29,8 +29,9 @@ private:
   FastMat2 dummy,flux,fluxd,A_grad_U,
     grad_U,Uold,normal,A_jac,S,invS,c,
     Pi_m,Pi_p,Uref,tmp1,Ulambda,Uo,
-    dU,Cp,invCp;
-  int use_old_state_as_ref;
+    dU,Cp,invCp,unor;
+  int use_old_state_as_ref,
+    switch_to_ref_on_incoming;
   // Per node normal
   Property normal_prop;
 public:
