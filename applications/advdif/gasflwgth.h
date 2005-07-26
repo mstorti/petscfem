@@ -1,6 +1,6 @@
 // -*- mode: C++ -*-
 /*__INSERT_LICENSE__*/
-//$Id: gasflwgth.h,v 1.1 2005/07/25 01:14:55 mstorti Exp $
+//$Id: gasflwgth.h,v 1.2 2005/07/26 15:36:04 mstorti Exp $
 #ifndef PETSCFEM_ADVDIF_GASFLWGTH_H
 #define PETSCFEM_ADVDIF_GASFLWGTH_H
 
@@ -10,8 +10,8 @@
 */ 
 class gasflow_force_integrator : public gatherer {
 private:
-  FastMat2 F;
-  int ndim_m;
+  FastMat2 F,x0,M,dx;
+  int ndim_m, comp_moments, dim_mom;
 public:
   /// perform several checks and initialization
   void init();
