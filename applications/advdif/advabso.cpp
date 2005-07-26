@@ -1,11 +1,22 @@
 //__INSERT_LICENSE__
-// $Id: advabso.cpp,v 1.10 2005/07/26 00:04:26 mstorti Exp $
+// $Id: advabso.cpp,v 1.11 2005/07/26 12:18:57 mstorti Exp $
 #include "./advabso.h"
 #include "./gasflow.h"
 
 static
 double msign(double x) {
   return (x<0. ?  1. : 0.0);
+}
+
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>
+void 
+read_double_array(const NewElemset *e,
+		  const char *key,
+		  vector<double> &v) {
+  v.clear();
+  const char *line;
+  e->get_entry(key,line);
+  if(line) read_double_array(v,line);
 }
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
@@ -22,17 +33,38 @@ init() {
   elem_params(nel,ndof,nelprops);
   assert(nel==3);
   int ierr;
+
+  //o Dimension of the space.
   NSGETOPTDEF_ND(int,ndim,0);
+
   //o Flags whether to use the old state ad the
   // boundary as reference for the linear absorbing
   // boundary condition.
   NSGETOPTDEF_ND(int,use_old_state_as_ref,0);
+
   //o Use special combination for choosing reference state.
   //  If velocity is outgoing ( #uref.n>0#, #n# is exterior
   //  normal, #u# is the flow velocity), then the
   //  #use_old_state_as_ref# strategy is used, otherwise the
   //  state reference is used. 
   NSGETOPTDEF_ND(int,switch_to_ref_on_incoming,0);
+
+  // Reference position to take moments
+  x0.resize(1,ndim).set(0.);
+
+  vector<double> x0v;
+  //o _T: vector<int>  _N: x0 _D: 0 x ndim vector
+  // _DOC: Position from where to take moments. 
+  read_double_array(this,"x0",x0v);
+  if (x0v.size()) {
+    assert(x0v.size()==ndim);
+    x0.set(&x0v[0]);
+  }
+
+  x0.print("x0: ");
+  PetscFinalize();
+  exit(0);
+
   flux.resize(2,ndof,ndim);
   fluxd.resize(2,ndof,ndim);
   A_grad_U.resize(1,ndof);
