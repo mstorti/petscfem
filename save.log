@@ -4418,3 +4418,7 @@ tag: beta-3.47.27 on Mon, 25 Jul 2005 15:29:44 -0300 by mstorti in node1.beowulf
 tag: beta-3.47.28 on Tue, 26 Jul 2005 12:36:15 -0300 by mstorti in minerva.ceride.gov.ar
      > Implemented `gasflow_force_integrator' integrates 
      > pressure force and moments. 
+----------
+tag: beta-3.47.29 on Tue,  2 Aug 2005 15:18:04 -0300 by mstorti in node1.beowulf.gtm
+     > Added `wall law' elemset for LES turbulence computation 
+     > to `fracstep' solver. 
