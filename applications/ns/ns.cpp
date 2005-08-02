@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: ns.cpp,v 1.164 2005/07/25 13:48:28 mstorti Exp $
+//$Id: ns.cpp,v 1.165 2005/08/02 18:20:49 mstorti Exp $
 #include <src/debug.h>
 #include <malloc.h>
 
@@ -21,6 +21,7 @@
 static char help[] = "PETSc-FEM Navier Stokes module\n\n";
 
 extern int MY_RANK,SIZE;
+WallData *wall_data=NULL;
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 /** Creates hooks depending on the name. 
@@ -423,7 +424,6 @@ int main(int argc,char **args) {
   int update_jacobian_step=0;
   //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
   // Build octree for nearest neighbor calculation
-  WallData *wall_data=NULL;
   if (LES && A_van_Driest>0.) {
 #ifdef USE_ANN
     argl.clear();
@@ -699,11 +699,32 @@ int main(int argc,char **args) {
       }
 
     } else {
+    
       //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
       // FRACTIONAL STEP ALGORITHM
       // Inicializacion del paso
       ierr = VecCopy(x,dx_step);
       ierr = VecCopy(x,xold);
+
+      // Compute wall stresses
+      argl.clear();
+      argl.arg_add(&x,IN_VECTOR);
+      argl.arg_add(&xold,IN_VECTOR);
+      ierr = assemble(mesh,argl,dofmap,"comp_shear_vel",
+		      &time_star); CHKERRA(ierr);
+
+      // Communicate wall stresses amoung different processors
+      // This is obsolete. Now we control this from the loop
+      // over elements in the `wall' elemset. 
+
+	// Mon Oct 23 19:13:39 ART 2000. Now I think that I need this
+	// because the at each processor there is not a global version
+	// of the state.
+      if (LES && A_van_Driest>0. && SIZE>1) {
+	argl.clear();
+	ierr = assemble(mesh,argl,dofmap,"communicate_shear_vel",
+			&time_star); CHKERRA(ierr);
+      }
 
 #define PRE_STEP
 #define POI_STEP

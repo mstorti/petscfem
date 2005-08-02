@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: wall.cpp,v 1.20 2004/10/01 00:55:22 mstorti Exp $
+//$Id: wall.cpp,v 1.21 2005/08/02 18:20:49 mstorti Exp $
 
 #include <src/fem.h>
 #include <src/utils.h>
@@ -18,6 +18,10 @@ extern int TSTEP; //debug:=
 #define LOCST2(iele,j,k) VEC3(locst2,iele,j,nel,k,ndof)
 #define RETVAL(iele,j,k) VEC3(retval,iele,j,nel,k,ndof)
 #define RETVALMAT(iele,j,k,p,q) VEC5(retvalmat,iele,j,nel,k,ndof,p,nel,q,ndof)
+#define RETVALMAT_POI(iele,j,k,p,q) \
+              VEC5(retvalmat_poi,iele,j,nel,k,ndof,p,nel,q,ndof)
+#define RETVALMAT_PRJ(iele,j,k,p,q) \
+              VEC5(retvalmat_prj,iele,j,nel,k,ndof,p,nel,q,ndof)
 #define NODEDATA(j,k) VEC2(nodedata->nodedata,j,k,nu)
 #define ICONE(j,k) (icone[nel*(j)+(k)])
 #define ELEMPROPS(j,k) VEC2(elemprops,j,k,nelprops)
@@ -45,7 +49,9 @@ int wall::ask(const char *jobinfo,int &skip_elemset) {
   DONT_SKIP_JOBINFO(build_nneighbor_tree);
   DONT_SKIP_JOBINFO(comp_shear_vel);
   DONT_SKIP_JOBINFO(comp_mat_res);
+  DONT_SKIP_JOBINFO(comp_res_mom); // para FS
   DONT_SKIP_JOBINFO(comp_mat);
+  DONT_SKIP_JOBINFO(comp_mat_prof); // para FS
 
   // Initialize to 0. all shear_velocities
   if (!strcmp(jobinfo,"comp_shear_vel")) {
@@ -109,7 +115,11 @@ int wall::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
 
   // wait_from_console("entra a wall::assemble");
   GET_JOBINFO_FLAG(comp_mat);
+  GET_JOBINFO_FLAG(comp_mat_prof); 
+  comp_mat |= comp_mat_prof;  // para FS
   GET_JOBINFO_FLAG(comp_mat_res);
+  GET_JOBINFO_FLAG(comp_res_mom);
+  comp_mat_res |= comp_res_mom;  // para FS
   GET_JOBINFO_FLAG(comp_res);
   GET_JOBINFO_FLAG(build_nneighbor_tree);
   GET_JOBINFO_FLAG(comp_shear_vel);
@@ -126,7 +136,8 @@ int wall::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
   int nu=nodedata->nu;
 
   // Get arguments from arg_list
-  double *locst,*locst2,*retval,*retvalmat;
+  double *locst,*locst2,*retval,*retvalmat,
+    *retvalmat_poi,*retvalmat_prj;
 
   //o The $y^+$ coordinate of the computational boundary
   TGETOPTDEF(thash,double,y_wall_plus,25.);
@@ -144,6 +155,10 @@ int wall::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
 
   if (comp_mat) {
     retvalmat = arg_data_v[0].retval;
+    if (fractional_step) {
+      retvalmat_poi = arg_data_v[1].retval;
+      retvalmat_prj = arg_data_v[2].retval;
+    }
   }
 
   // allocate local vecs
@@ -178,7 +193,8 @@ int wall::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
   FMatrix grad_p_star(ndim),u,u_star,ucols,ucols_new,ucols_star,
     pcol_star,pcol_new,pcol;
 
-  FMatrix matloc_prof(nen,nen),uc(ndim),tmp1,tmp2,tmp3,tmp4,tmp5,seed(ndof,ndof);
+  FMatrix matloc_prof(nen,nen),uc(ndim),tmp1,tmp2,
+    tmp3,tmp4,tmp5,seed(ndof,ndof);
 
 //    if (comp_mat_res) {
 //      seed.eye().setel(0.,ndof,ndof);
@@ -186,7 +202,6 @@ int wall::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
   seed.set(0.);
   for (int j=1; j<=ndim; j++)
     seed.setel(1.,j,j);
-
   if (comp_mat) {
     matloc_prof.set(1.);
   }
@@ -234,6 +249,10 @@ int wall::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
 
     if(comp_mat) {
       matloc_prof.export_vals(&(RETVALMAT(ielh,0,0,0,0)));
+      if (fractional_step) {
+	matloc_prof.export_vals(&(RETVALMAT_POI(ielh,0,0,0,0)));
+	matloc_prof.export_vals(&(RETVALMAT_PRJ(ielh,0,0,0,0)));
+      }
       continue;
     }
 

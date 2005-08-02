@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: fstepfm2.cpp,v 1.31 2005/07/25 18:31:58 mstorti Exp $
+//$Id: fstepfm2.cpp,v 1.32 2005/08/02 18:20:49 mstorti Exp $
  
 #include <src/fem.h>
 #include <src/utils.h>
@@ -12,6 +12,8 @@
 
 #define MAXPROP 100
 extern int MY_RANK,SIZE;
+
+extern WallData *wall_data;
 
 const double FIX = 1.0;
 /** Fixes all diagonal terms in matrix #A# so that they are #>0#, i.e.,
@@ -115,7 +117,6 @@ int fracstep::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
 
   double *locst,*locst2,*retval,*retvalmat,*retvalmat_mom,*retvalmat_poi,
     *retvalmat_prj;
-  WallData *wall_data;
 
   // rec_Dt is the reciprocal of Dt (i.e. 1/Dt)
   // for steady solutions it is set to 0. (Dt=inf)
@@ -278,7 +279,7 @@ int fracstep::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
     resmom(2,nel,ndim), fi(1,ndof), grad_p(1,ndim), grad_p_star(1,ndim),
     u(1,ndim),u_star(1,ndim),uintri(1,ndim),rescont(1,nel);
   FastMat2 tmp1,tmp2,tmp3,tmp4,tmp5,tmp6,tmp7,tmp71,tmp8,tmp9,tmp10,
-    tmp11,tmp12,tmp13,tmp14,tmp15,tmp16,tmp17,xc,wall_coords(ndim),dist_to_wall;
+    tmp11,tmp12,tmp13,tmp14,tmp15,tmp16,tmp17,xc,wall_coords(1,ndim),dist_to_wall;
 
   FMatrix Jaco_axi(2,2),u_axi,strain_rate(ndim,ndim);
   int ind_axi_1, ind_axi_2;
@@ -381,6 +382,7 @@ int fracstep::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
 #ifdef USE_ANN
       xc.sum(xloc,-1,1).scale(1./double(nel));
       int nn;
+      assert(wall_data);
       wall_data->nearest(xc.storage_begin(),nn);
       NN_IDX(k) = nn;
       continue;
@@ -501,7 +503,8 @@ int fracstep::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
 	    double ywall = sqrt(dist_to_wall.sum_square_all());
 	    double y_plus = ywall*shear_vel/VISC;
 	    van_D = 1.-exp(-y_plus/A_van_Driest);
-	    if (k % 250==0) printf("van_D: %f\n",van_D);
+	    //	    if (k % 250==0) printf("van_D: %f\n",van_D);
+	    if (k % 499==0) printf("van_D: %f\n",van_D);
 	  } else van_D = 1.;
 	  
 	  double nu_t = SQ(C_smag*Delta*van_D)*sqrt(2*tr);
