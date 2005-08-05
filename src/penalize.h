@@ -1,6 +1,6 @@
 // -*- mode: c++ -*-
 //__INSERT_LICENSE__
-// $Id: penalize.h,v 1.14 2005/07/04 02:12:05 mstorti Exp $
+// $Id: penalize.h,v 1.15 2005/08/05 01:54:50 mstorti Exp $
 #ifndef PETSCFEM_PENALIZE_H
 #define PETSCFEM_PENALIZE_H
 
@@ -166,10 +166,13 @@ public:
   void close() { }
 };
 
-// Takes the generic pointer `fun_data' and
-// converts it to the objectm using RTTI (dynamic_cast<>)
-// This ensures that the proper object is loaded, and
-// also lets defining default behaviour for the objects. 
+// Takes the generic pointer `fun_data' and converts it to
+// the object.  WARNING: Can't use RTTI (dynamic_cast<>)
+// here because `DLBaseRestriction' is not a derived class
+// of `void'.  Using RTTI would ensure that the proper
+// object is loaded, and also would let defining default
+// behaviour for the objects.  `fun_data' should be declared
+// as a base class for `DLBaseRestriction'.
 #define dl_penal_convert_to_class		\
 DLBaseRestriction *obj =			\
 (DLBaseRestriction *)(fun_data);		\
