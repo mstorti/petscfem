@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: gasflwgth.cpp,v 1.5 2005/07/26 20:13:31 mstorti Exp $
+//$Id: gasflwgth.cpp,v 1.6 2005/08/13 14:40:02 mstorti Exp $
 
 #include <src/fem.h>
 #include <src/utils.h>
@@ -50,7 +50,8 @@ gasflow_force_integrator
 
   vector<double> x0v;
   //o _T: vector<int>  _N: x0 _D: 0 x ndim vector
-  // _DOC: Position from where to take moments. 
+  // _DOC: Position from where to take moments. _END
+  //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>
   read_double_array2(this,"x0",x0v);
   if (x0v.size()) {
     assert(x0v.size()==ndim);
