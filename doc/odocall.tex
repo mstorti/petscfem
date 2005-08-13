@@ -1445,6 +1445,12 @@ Is being PETSc-FEM called from ROSI?
 Scales friction term.
  (found in file: \verb+../applications/advdif/streamsw1d.cpp+)
 %----<>----<>----<>----<>----<>----<>----<>----<>----<>----<>
+\index{chard@\verb+chard+}
+\item\verb+double chard+ {\rm(default=\verb|10.|)}:
+
+Hardening coefficient for inverted element. 
+ (found in file: \verb+../applications/ns/mmove2.cpp+)
+%----<>----<>----<>----<>----<>----<>----<>----<>----<>----<>
 \index{check\_dofmap\_id@\verb+check_dofmap_id+}
 \item\verb+int check_dofmap_id+ {\rm(default=\verb|0|)}:
 
@@ -1557,6 +1563,24 @@ Assume problem is periodic
 
 Assume problem is periodic 
  (found in file: \verb+../test/spillway/alehook.cpp+)
+%----<>----<>----<>----<>----<>----<>----<>----<>----<>----<>
+\index{darcy\_coef@\verb+darcy_coef+}
+\item\verb+double darcy_coef+ {\rm(default=\verb|0.0|)}:
+
+Coefficient affecting selective Darcy term. 
+ (found in file: \verb+../applications/ns/fstepfm2.cpp+)
+%----<>----<>----<>----<>----<>----<>----<>----<>----<>----<>
+\index{darcy\_factor\_global@\verb+darcy_factor_global+}
+\item\verb+double darcy_factor_global+ {\rm(default=\verb|-1.0|)}:
+
+Reference velocity for selectiv Darcy term. 
+ (found in file: \verb+../applications/ns/fstepfm2.cpp+)
+%----<>----<>----<>----<>----<>----<>----<>----<>----<>----<>
+\index{darcy\_uref@\verb+darcy_uref+}
+\item\verb+double darcy_uref+ {\rm(default=\verb|-1.0|)}:
+
+Reference velocity for selectiv Darcy term. 
+ (found in file: \verb+../applications/ns/fstepfm2.cpp+)
 %----<>----<>----<>----<>----<>----<>----<>----<>----<>----<>
 \index{debug\_compute\_prof@\verb+debug_compute_prof+}
 \item\verb+int debug_compute_prof+ {\rm(default=\verb|0|)}:
@@ -3081,6 +3105,12 @@ Weight for computing performance
  Center of moments.  (found in file: \verb+../applications/ns/embgath.cpp+)
 %----<>----<>----<>----<>----<>----<>----<>----<>----<>----<>
 \index{ndim@\verb+ndim+}
+\item\verb+int ndim+ {\rm(default=\verb|0|)}:
+
+Dimension of the space.
+ (found in file: \verb+../applications/advdif/advabso.cpp+)
+%----<>----<>----<>----<>----<>----<>----<>----<>----<>----<>
+\index{ndim@\verb+ndim+}
 \item\verb+int ndim+ {\rm(default=\verb|none|)}:
 
 Dimension of the embedding space
@@ -3103,6 +3133,12 @@ Dimension of the problem
 
 Dimension of the problem. 
  (found in file: \verb+../applications/advdif/streamsw1d.cpp+)
+%----<>----<>----<>----<>----<>----<>----<>----<>----<>----<>
+\index{ndim@\verb+ndim+}
+\item\verb+int ndim+ {\rm(default=\verb|none|)}:
+
+Dimension of the embedding space
+ (found in file: \verb+../applications/advdif/gasflwgth.cpp+)
 %----<>----<>----<>----<>----<>----<>----<>----<>----<>----<>
 \index{ndim@\verb+ndim+}
 \item\verb+int ndim+ {\rm(default=\verb|none|)}:
@@ -3199,6 +3235,12 @@ The dimension of the element
 
 Dimenson of the element
  (found in file: \verb+../applications/advdif/advdfgth.cpp+)
+%----<>----<>----<>----<>----<>----<>----<>----<>----<>----<>
+\index{ndimel@\verb+ndimel+}
+\item\verb+int ndimel+ {\rm(default=\verb|ndim-1|)}:
+
+Dimenson of the element
+ (found in file: \verb+../applications/advdif/gasflwgth.cpp+)
 %----<>----<>----<>----<>----<>----<>----<>----<>----<>----<>
 \index{ndimel@\verb+ndimel+}
 \item\verb+int ndimel+ {\rm(default=\verb|ndim-1|)}:
@@ -4904,6 +4946,16 @@ Defines the geomtry of the element
 Defines the geomtry of the element
  (found in file: \verb+../src/srfgath.cpp+)
 %----<>----<>----<>----<>----<>----<>----<>----<>----<>----<>
+\index{switch\_to\_ref\_on\_incoming@\verb+switch_to_ref_on_incoming+}
+\item\verb+int switch_to_ref_on_incoming+ {\rm(default=\verb|0|)}:
+
+Use special combination for choosing reference state.
+ If velocity is outgoing ( #uref.n>0#, \verb+n+ is exterior
+ normal, \verb+u+ is the flow velocity), then the
+ \verb+use_old_state_as_ref+ strategy is used, otherwise the
+ state reference is used. 
+ (found in file: \verb+../applications/advdif/advabso.cpp+)
+%----<>----<>----<>----<>----<>----<>----<>----<>----<>----<>
 \index{symmetric@\verb+symmetric+}
 \item\verb+int symmetric+ {\rm(default=\verb|0|)}:
 
@@ -5730,6 +5782,9 @@ Threshold for wet aquifer width ( \verb+phi-eta+ )
 
 Threshold for wet aquifer width ( \verb+phi-eta+ )
  (found in file: \verb+../applications/advdif/aquifer.cpp+)
+%----<>----<>----<>----<>----<>----<>----<>----<>----<>----<>
+\item\verb+ vector<int>+ \verb+ x0+ {\rm(default=\verb| 0 x ndim vector|)}:
+ Position from where to take moments.  (found in file: \verb+../applications/advdif/gasflwgth.cpp+)
 %----<>----<>----<>----<>----<>----<>----<>----<>----<>----<>
 \index{y\_wall@\verb+y_wall+}
 \item\verb+double y_wall+ {\rm(default=\verb|0.|)}:
