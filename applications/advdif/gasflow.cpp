@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: gasflow.cpp,v 1.38 2005/05/26 22:07:26 mstorti Exp $
+//$Id: gasflow.cpp,v 1.39 2005/08/17 22:24:13 mstorti Exp $
 
 #include <src/fem.h>
 #include <src/texthash.h>
@@ -95,6 +95,8 @@ void gasflow_ff::start_chunk(int &ret_options) {
   GF_GETOPTDEF_ND(double,Tem_ref,0.0);
   // Sutherland law implicitly
   GF_GETOPTDEF_ND(int,sutherland_law_implicit,0);
+  // Thermal source
+  GF_GETOPTDEF_ND(double,Q_body,0.);
 
   //o _T: double[ndim] _N: G_body _D: null vector
   // _DOC: Vector of gravity acceleration (must be constant). _END
@@ -844,8 +846,7 @@ void gasflow_ff::compute_flux(const FastMat2 &U,
     // Bouyancy forces
     G_source.is(1,vl_indx,vl_indxe).set(G_body).scale(rho).rs();
     tmp00 = double(tmp05.prod(G_body,vel,-1,-1).scale(rho));
-    G_source.setel(tmp00,ndof);
-
+    G_source.setel(tmp00+Q_body,ndof);
   }
 }
 

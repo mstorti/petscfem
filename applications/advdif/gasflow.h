@@ -1,6 +1,6 @@
 // -*- mode: C++ -*-
 /*__INSERT_LICENSE__*/
-// $Id: gasflow.h,v 1.28 2005/05/26 22:07:26 mstorti Exp $
+// $Id: gasflow.h,v 1.29 2005/08/17 22:24:13 mstorti Exp $
 #ifndef PETSCFEM_GASFLOW_H
 #define PETSCFEM_GASFLOW_H
 
@@ -41,6 +41,7 @@ private:
   int tau_scheme,sutherland_law,sutherland_law_implicit;
   double shocap_beta,Tem_infty,Tem_ref,delta_sc_aniso;
   double shocap,h_rgn,r_dir_mod,r_switch;
+  double Q_body;
 
   double visco_l, visco_bar;
 
