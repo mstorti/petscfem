@@ -4425,3 +4425,6 @@ tag: beta-3.47.29 on Tue,  2 Aug 2005 15:18:04 -0300 by mstorti in node1.beowulf
 ----------
 tag: beta-3.47.30 on Wed, 17 Aug 2005 19:24:30 -0300 by mstorti in minerva.ceride.gov.ar
      > Added `Q_body' to gasflow. 
+----------
+tag: beta-3.47.31 on Thu, 18 Aug 2005 20:31:35 -0300 by mstorti in minerva.ceride.gov.ar
+     > Fixed bug eith `G_body_scale' in `gasflow'. 
