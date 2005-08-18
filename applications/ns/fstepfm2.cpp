@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: fstepfm2.cpp,v 1.32 2005/08/02 18:20:49 mstorti Exp $
+//$Id: fstepfm2.cpp,v 1.33 2005/08/18 23:30:09 mstorti Exp $
  
 #include <src/fem.h>
 #include <src/utils.h>
@@ -504,7 +504,7 @@ int fracstep::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
 	    double y_plus = ywall*shear_vel/VISC;
 	    van_D = 1.-exp(-y_plus/A_van_Driest);
 	    //	    if (k % 250==0) printf("van_D: %f\n",van_D);
-	    if (k % 499==0) printf("van_D: %f\n",van_D);
+	    //	    if (k % 499==0) printf("van_D: %f\n",van_D);
 	  } else van_D = 1.;
 	  
 	  double nu_t = SQ(C_smag*Delta*van_D)*sqrt(2*tr);

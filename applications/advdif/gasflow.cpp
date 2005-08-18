@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: gasflow.cpp,v 1.39 2005/08/17 22:24:13 mstorti Exp $
+//$Id: gasflow.cpp,v 1.40 2005/08/18 23:31:10 mstorti Exp $
 
 #include <src/fem.h>
 #include <src/texthash.h>
@@ -216,9 +216,11 @@ void gasflow_ff::element_hook(ElementIterator &element) {
     const double *G_body_p
       = new_adv_dif_elemset
       ->prop_array(element,G_body_prop);
-    G_body_scale = new_adv_dif_elemset
-      ->prop_val(element,G_body_scale_prop,
-		 new_adv_dif_elemset->time());
+    G_body_scale = 1.;
+    if (G_body_scale_prop.length) 
+      G_body_scale = new_adv_dif_elemset
+	->prop_val(element,G_body_scale_prop,
+		   new_adv_dif_elemset->time());
     if (G_body_prop.length>0)
       G_body.set(G_body_p).scale(G_body_scale);
     else G_body.set(0.);
