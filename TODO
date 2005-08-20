@@ -2,6 +2,8 @@
 TODO: [Mainly fixes go here...]
 =====
 
+* make `TextHashTable::add_entry()' warn _optionally_ when the
+  entry for an old key is modified. Now warns always. 
 * Lacks of preco_type=jacobi for FS in ns.cpp?
 * When in dx -hook mode, it should not crash if the state file is not
   found. 
