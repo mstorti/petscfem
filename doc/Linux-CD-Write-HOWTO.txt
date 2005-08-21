@@ -1,102 +1,4 @@
-# $Id: Linux-CD-Write-HOWTO.txt,v 1.9 2005/01/19 22:18:11 mstorti Exp $
-
- COMO GUARDAR DATOS GENERADOS EN LINUX EN UN CD USANDO UNA GRABADORA
-		 INSTALADA EN UNA MAQUINA CON WINDOWS
-  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-Para  aquellos  que  quieran  guardar  datos en  un  CD  desde  Linux,
-grabandolos en una grabadora que  esta en una maquina Windows, como la
-que esta en Orion, aca van unos pequenhos hints.
-
-USANDO TAR
-==========
-
-Una posibilidad (la mas evidente) es hacer un tar grande con todos los
-datos
-
-$ tar cvf MISDATOS.tar MISDATOS
-
-(suponiendo que queremos bajar todo el directorio MISDATOS).  moverlos
-a la maquina Windows y  grabarlos como un archivo comun. (Acordarse de
-hacer la transferencia con ftp  como `binary'). Esos datos despues los
-podes var  en una  Linux montando  el CDROM y  extrayendo o  viendo el
-contenido  con  `tar' o  en  una maquina  Windows  con  `WinZip' o  en
-cualquier  UNIX  donde se  pueda  montar el  CD  (por  ejemplo en  las
-Alpha). .  La desventaja de  esto es que  el acceso bajo Linux  de los
-datos a trves del tar es  medio hincha. Seria deseable poder montar el
-CD y  verlo como un disco  mas para poder  recorrer directorios, hacer
-`find' etc...
-
-COMO IMAGEN DE DISCO
-====================
-
-Existe entonces la siguiente posibilidad alternativa: crear una imagen
-del CD en un archivo y grabar  este archivo en el CD. Despues se monta
-el CD por  ejemplo en /cdrom y se monta el  archivo como un filesystem
-en otro lugar, por ejemplo /mnt.  Esto usa una propiedad (que no se si
-es  comun en  todos los  Unix)  que es  que podes  montar imagenes  de
-filesystems (podria ser  tambien una imagen de un  filesystem ext2 (el
-nativo de Linux, o un MSDOS o VFAT)) que residen en archivos.
-
-Los pasos a seguir son:
-
-1./ Crear la imagen del CD con
-
-	$ mkisofs  -r -o  MISDATOS.img  MISDATOS
-
-2./ Copiarlos a la maquina Windows (siempre en binario!!) con ftp o
-  similar. 
-
-3./ Hacer el copiado al CD de MISDATOS.img como un archivo estandar. 
-
-4./ Para ver los datos en Linux hay que hacer
-
-	$ mount /cdrom
-	$ mount -t iso9660 -o ro,loop=/dev/loop0 MISDATOS.img  /mnt
-
-y ves los datos en /mnt como si fuera un filesystem normal. 
-
-La desventaja de este metodo es que no se puede acceder a los datos
-sino es desde una Linux.
-
-Para despues chequear 
-
-COMO IMAGEN DE DISCO EXT2
-=========================
-
-Para crear una imagen ext2
-
-1./ Crea el archivo
-
-		$ dd if=/dev/zero of="BACKUP.img" bs=1024k count=350 
-
-2./ Da la estructura de filesystem
-
-		$ /sbin/mke2fs BACKUP.img 
-
-2./ Monta el fs
-
-		$ su -c 'mount -t ext2 -o loop=/dev/loop1 BACKUP.img
-		/mnt'
-
-3./ Copia con tar para preservar permisos estc...
-
-		$ cd /mnt ; tar -cvf - -C /x mstorti -X /x/scratch/mstorti/exclude \
-					| tar xvf - # copia 
-
-4./ Guardar un listado de lo que contiene el backup
-
-		$ ls -lR /mnt/mstorti/ >BACKUP_ls-lR.txt
-                $ find /mnt/mstorti/ >BACKUP_find.txt
-
-5./ Desmontar
-		$ su -c 'umount /mnt'
-
-6./ Copiar tambien este `Linux_Cd_Write_HOWTO.txt'
-
-7./ Para chequear el disco hacer 
-
-		$ /sbin/e2fsck -nf /cdrom/BACKUP.img 
+# $Id: Linux-CD-Write-HOWTO.txt,v 1.10 2005/08/21 16:38:00 mstorti Exp $
 
 Grabacion de CD's en Fedora Core 2
 ==================================
@@ -320,6 +222,99 @@ que usar la extension Joliet que se obtiene con la bandera `-J' para
 
    $ mkisofs -r -J -o mstorti.iso mstorti
 
+Para  aquellos  que  quieran  guardar  datos en  un  CD  desde  Linux,
+grabandolos en una grabadora que  esta en una maquina Windows, como la
+que esta en Orion, aca van unos pequenhos hints.
+
+USANDO TAR
+==========
+
+Una posibilidad (la mas evidente) es hacer un tar grande con todos los
+datos
+
+$ tar cvf MISDATOS.tar MISDATOS
+
+(suponiendo que queremos bajar todo el directorio MISDATOS).  moverlos
+a la maquina Windows y  grabarlos como un archivo comun. (Acordarse de
+hacer la transferencia con ftp  como `binary'). Esos datos despues los
+podes var  en una  Linux montando  el CDROM y  extrayendo o  viendo el
+contenido  con  `tar' o  en  una maquina  Windows  con  `WinZip' o  en
+cualquier  UNIX  donde se  pueda  montar el  CD  (por  ejemplo en  las
+Alpha). .  La desventaja de  esto es que  el acceso bajo Linux  de los
+datos a trves del tar es  medio hincha. Seria deseable poder montar el
+CD y  verlo como un disco  mas para poder  recorrer directorios, hacer
+`find' etc...
+
+COMO IMAGEN DE DISCO
+====================
+
+Existe entonces la siguiente posibilidad alternativa: crear una imagen
+del CD en un archivo y grabar  este archivo en el CD. Despues se monta
+el CD por  ejemplo en /cdrom y se monta el  archivo como un filesystem
+en otro lugar, por ejemplo /mnt.  Esto usa una propiedad (que no se si
+es  comun en  todos los  Unix)  que es  que podes  montar imagenes  de
+filesystems (podria ser  tambien una imagen de un  filesystem ext2 (el
+nativo de Linux, o un MSDOS o VFAT)) que residen en archivos.
+
+Los pasos a seguir son:
+
+1./ Crear la imagen del CD con
+
+	$ mkisofs  -r -o  MISDATOS.img  MISDATOS
+
+2./ Copiarlos a la maquina Windows (siempre en binario!!) con ftp o
+  similar. 
+
+3./ Hacer el copiado al CD de MISDATOS.img como un archivo estandar. 
+
+4./ Para ver los datos en Linux hay que hacer
+
+	$ mount /cdrom
+	$ mount -t iso9660 -o ro,loop=/dev/loop0 MISDATOS.img  /mnt
+
+y ves los datos en /mnt como si fuera un filesystem normal. 
+
+La desventaja de este metodo es que no se puede acceder a los datos
+sino es desde una Linux.
+
+Para despues chequear 
+
+COMO IMAGEN DE DISCO EXT2
+=========================
+
+Para crear una imagen ext2
+
+1./ Crea el archivo
+
+		$ dd if=/dev/zero of="BACKUP.img" bs=1024k count=350 
+
+2./ Da la estructura de filesystem
+
+		$ /sbin/mke2fs BACKUP.img 
+
+2./ Monta el fs
+
+		$ su -c 'mount -t ext2 -o loop=/dev/loop1 BACKUP.img
+		/mnt'
+
+3./ Copia con tar para preservar permisos estc...
+
+		$ cd /mnt ; tar -cvf - -C /x mstorti -X /x/scratch/mstorti/exclude \
+					| tar xvf - # copia 
+
+4./ Guardar un listado de lo que contiene el backup
+
+		$ ls -lR /mnt/mstorti/ >BACKUP_ls-lR.txt
+                $ find /mnt/mstorti/ >BACKUP_find.txt
+
+5./ Desmontar
+		$ su -c 'umount /mnt'
+
+6./ Copiar tambien este `Linux_Cd_Write_HOWTO.txt'
+
+7./ Para chequear el disco hacer 
+
+		$ /sbin/e2fsck -nf /cdrom/BACKUP.img 
 
 <mstorti@intec.unl.edu.ar>
 Mon Sep 25 18:37:15 ART 2000
