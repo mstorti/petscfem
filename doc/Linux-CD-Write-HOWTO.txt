@@ -1,4 +1,4 @@
-# $Id: Linux-CD-Write-HOWTO.txt,v 1.10 2005/08/21 16:38:00 mstorti Exp $
+# $Id: Linux-CD-Write-HOWTO.txt,v 1.11 2005/08/22 19:42:41 mstorti Exp $
 
 Grabacion de CD's en Fedora Core 2
 ==================================
@@ -95,6 +95,30 @@ La pag. web de `cdrecord' es
 
 http://www.fokus.gmd.de/research/cc/glone/employees/joerg.schilling/private/cdrecord.html
 
+
+Problemas al grabar
+===================
+
+[Sun Aug 21 14:40:54 2005.] Ultimamente he tenido problemas al
+grabar. En algunos casos me ha pasado que `dvdrecord' no quiere grabar
+directamente en el CD. En otros graba pero despues no lo puedo
+montar. He pensado en a) problemas de hardware, b) problemas con el
+`cdrecord-prodvd', c) problemas con la calidad de los DVD's virgenes y
+d) problemas con el mkisofs. 
+
+Inicialmente pense en c) pero despues parece que no. Tambien traje mi
+grabadora de casa y tuve problemas tambien, asi que no parece ser
+a). La version de `cdrecord-prodvd' es la ultima asi que no hay
+demasiado que hacer por ese lado. 
+
+Hoy estuve grabando y tuve problemas, en un momento incluse cree la
+imagen iso9660 con `mkisofs' y despues al montarla la veia mal. Probe
+a hacer un solo archivo `.tar' grande y meterlo en una imagen iso9660
+pero tambien hubo problemas. Asi que al final decidi crear una imagen
+`ext2' y ahi no tuve problemas, asi que a partir de ahora voy a usar
+imagenes EXT2 para grabar los DVD's. 
+
+
 Para instalar las grabadoras
 ============================
 
@@ -106,6 +130,10 @@ modprobe ide-scsi
 en `/etc/rc.local'. Ojo que de esa forma levanta todas las unidades de
 CD como `ide-scsi'. A partir de ahi las unidades se ven como `/dev/scd0',
 `/dev/scd1' ...
+
+[A partir de Fedora Core2 (al menos) esto ya no es asi se pueden ver
+diectamente como ATAPI. Ver 'Grabacion de CD's en Fedora Core 2' mas
+arriba. ]
 
 Grabando en multisesion
 =======================

@@ -1,6 +1,6 @@
 // -*- mode: C++ -*-
 /*__INSERT_LICENSE__*/
-//$Id: advdfgth.h,v 1.2 2005/02/23 01:40:33 mstorti Exp $
+//$Id: advdfgth.h,v 1.3 2005/08/22 19:42:41 mstorti Exp $
 #ifndef PETSCFEM_ADVDIF_GATHERER_H
 #define PETSCFEM_ADVDIF_GATHERER_H
 
@@ -11,7 +11,7 @@
 class flow_rate_integrator : public gatherer {
 private:
   FastMat2 Q;
-  int ndim_m;
+  int ndim_m, use_mass_rate;
 public:
   /// perform several checks and initialization
   void init();
