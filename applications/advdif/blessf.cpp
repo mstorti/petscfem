@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: blessf.cpp,v 1.26 2005/07/25 01:16:56 mstorti Exp $
+//$Id: blessf.cpp,v 1.27 2005/08/24 01:52:49 mstorti Exp $
 
 #include <set>
 
@@ -35,6 +35,7 @@
 #include "./gftwall.h"
 #include "./gasflow.h"
 #include "./gasflwgth.h"
+#include "./svenant1d.h"
 
 #include <time.h>
 
@@ -95,6 +96,11 @@ void bless_elemset(char *type,Elemset *& elemset) {
     SET_ELEMSET_TYPE(smoke)
     SET_ELEMSET_TYPE(gaschem)
     SET_ELEMSET_TYPE(gaschem_bcconv)
+
+    SET_ELEMSET_TYPE(svenant1d)
+    SET_ELEMSET_TYPE(svenant1d_bcconv)
+    SET_ELEMSET_TYPE(svenant1d_abso)
+    SET_ELEMSET_TYPE(svenant1d_abso2)
     {
       printf("not known elemset type: \"%s\"\n",type);
       exit(1);

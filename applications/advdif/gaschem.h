@@ -1,6 +1,6 @@
 // -*- mode: C++ -*-
 /*__INSERT_LICENSE__*/
-// $Id: gaschem.h,v 1.9 2004/01/22 21:34:00 mstorti Exp $
+// $Id: gaschem.h,v 1.10 2005/08/24 01:52:49 mstorti Exp $
 #ifndef PETSCFEM_GASCHEM_H
 #define PETSCFEM_GASCHEM_H
 
@@ -29,7 +29,7 @@ public:
 
   void set_profile(FastMat2 &seed);
 
-  /** This is called before any other in a loopnike and may help in
+  /** This is called before any other in a loop and may help in
       optimization
       @param ret_options (input/output) this is used by the flux
       function writer for returning some options. Currently the only
