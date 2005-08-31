@@ -1,6 +1,6 @@
 # mode: -*- makefile -*-
 #__INSERT_LICENSE__
-#$Id: Makefile,v 1.62 2005/01/26 12:29:35 mstorti Exp $
+#$Id: Makefile,v 1.63 2005/08/31 02:18:46 mstorti Exp $
 
 SHELL = /bin/bash
 
@@ -215,9 +215,16 @@ save:
 
 #w Count lines in `.cpp' and `.h' files
 line_count:
-	@echo -n 'Lines in source files: ' ; \
-	cat `find . -name '*.cpp'` `find . -name '*.h'` \
-	`find . -name '*.c'` `find . -name '*.f'` | wc -l
+	@echo -n 'Lines in source files: ' ;	\
+	cat					\
+	`find . -name '*.cpp'`			\
+	`find . -name '*.h'`			\
+	`find . -name '*.c'`			\
+	`find . -name '*.f'`			\
+	`find . -name '*.tex'`			\
+	`find . -name '*.pl'`			\
+	`find . -name '*.m'`			\
+	| wc -l
 
 #w Makes a new release
 tag:
