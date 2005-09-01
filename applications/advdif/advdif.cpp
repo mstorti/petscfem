@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: advdif.cpp,v 1.62 2005/03/28 21:06:34 mstorti Exp $
+//$Id: advdif.cpp,v 1.63 2005/09/01 02:49:41 mstorti Exp $
 
 #include <src/debug.h>
 #include <set>
@@ -291,6 +291,7 @@ int main(int argc,char **args) {
 
   Time time,time_star;
   time.set(start_time);
+  glob_param.time = &time;
 
   //o The pattern to generate the file name to save in for
   // the rotary save mechanism.
@@ -543,7 +544,6 @@ int main(int argc,char **args) {
     argl.arg_add(&x,IN_OUT_VECTOR);
     argl.arg_add(&xold,IN_VECTOR);
     ierr = assemble(mesh,argl,dofmap,"absorb_bc_proj",&time_star); CHKERRA(ierr);
-    glob_param.time = &time;
 
     double time_=time;
 

@@ -1,6 +1,6 @@
 // -*- mode: c++ -*-
 /*__INSERT_LICENSE__*/
-//$Id: advective.h,v 1.77 2005/05/26 22:07:26 mstorti Exp $
+//$Id: advective.h,v 1.78 2005/09/01 02:49:41 mstorti Exp $
  
 //#define CHECK_JAC // Computes also the FD Jacobian for debugging
  
@@ -619,6 +619,8 @@ struct GlobParam {
   /// Constructor
   GlobParam() : alpha(0), Dt(1.), steady(0) {}
 };
+
+extern GlobParam *GLOB_PARAM;
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 /** Transforms state vector from logarithmic. The indices of fields
