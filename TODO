@@ -2,6 +2,9 @@
 TODO: [Mainly fixes go here...]
 =====
 
+* Escape ! in options doc. For instance in line
+  TGETOPTDEF(go,int,dx_state_all_fields,!dx_split_state_flag);
+  in `dxhook.cpp'. It comes without the `d' in the PDF. 
 * when `fixa_amplitude' has no function name it givs segmentation
   violation. Ver `petyscfem-cases/gfabso-examples/gfabso.epl' 
   Tue Aug 23 11:45:09 2005. 
