@@ -1,4 +1,4 @@
-PETSCFEM_DIR := /u/mstorti/PETSC/petscfem-beta-3.30
+PETSCFEM_DIR := ../
 
 run:
 	octave -qH mksqcav.m

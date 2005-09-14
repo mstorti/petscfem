@@ -5,7 +5,6 @@ ndim 2
 
 nsave 1
 nstep 1000
-initial_state sqcav.state.tmp
 save_file "sqcav.state.tmp"
 
 # type of solver (may be "iisd", "petsc"...)
