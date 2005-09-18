@@ -1,6 +1,6 @@
 // -*- mode: C++ -*-
 /*__INSERT_LICENSE__*/
-//$Id: utils.h,v 1.18 2005/04/01 16:09:00 mstorti Exp $
+//$Id: utils.h,v 1.19 2005/09/18 20:34:09 mstorti Exp $
 
 #ifndef UTILS_H
 #define UTILS_H
@@ -171,17 +171,27 @@ inline int modulo(int k, int n, int *div=NULL) {
 /** Performs the modulo operation, in the sense of 
     number theory for doubles. 
     Given doubles #a# and #b>0#, we find #r# and #m# such that
-    #a = m * b + r# with #0 <= r < b#
+    #a = m * b + r# with #0 <= r < |b|#
     @param k (input) the number to take the modulo
     @param n (input) the modulo
     @param div (input) pointer to an integer where to put the divisor
     @return the result of the modulo operation */ 
 inline double modulo(double a, double b,int &m) {
   double r = fmod(a,b);
-  m = int((a-r)/b);
+  // I don't know which is the form to correctly convert
+  // here the double `x=(a-r)/b' to an `int'. `x' is almost an 
+  // integer, but due to rounding errors the conversion may be
+  // to the lowest integer. I then use the 0.5 extra in order to
+  // be sure to get the correct number. 
+  m = int((a-r)/b+0.5);
   if (r<0) {
-    r += b;
-    m -= 1;
+    if (b>0) {
+      r += b;
+      m -= 1;
+    } else {
+      r -= b;
+      m += 1;
+    }
   }
   return r;
 }
