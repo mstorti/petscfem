@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: fstepfm2.cpp,v 1.33 2005/08/18 23:30:09 mstorti Exp $
+//$Id: fstepfm2.cpp,v 1.34 2005/09/18 20:38:49 mstorti Exp $
  
 #include <src/fem.h>
 #include <src/utils.h>
@@ -209,6 +209,9 @@ int fracstep::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
   //o van Driest constant for the damping law.
   SGETOPTDEF(double,A_van_Driest,0); 
   assert(A_van_Driest>=0.);
+
+  //o print Van Driest factor
+  SGETOPTDEF(int,print_van_Driest,0); 
 
   //o Axis for selective Darcy term (damps incoming flow
   //at outlet bdry's)
@@ -489,6 +492,7 @@ int fracstep::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
 
 	// Smagorinsky turbulence model
 	double nu_eff;
+	double van_D,ywall;
 	if (LES) {
 
 	strain_rate.set(grad_u_star);
@@ -497,10 +501,11 @@ int fracstep::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
 	grad_u_star.rs();
 
 	  double tr = (double) tmp15.prod(strain_rate,strain_rate,-1,-2,-1,-2);
-	  double van_D;
+	  //	  double van_D;
 	  if (A_van_Driest>0.) {
 	    dist_to_wall.prod(SHAPE,xloc,-1,-1,1).rest(wall_coords);
-	    double ywall = sqrt(dist_to_wall.sum_square_all());
+	    //	    double ywall = sqrt(dist_to_wall.sum_square_all());
+	    ywall = sqrt(dist_to_wall.sum_square_all());
 	    double y_plus = ywall*shear_vel/VISC;
 	    van_D = 1.-exp(-y_plus/A_van_Driest);
 	    //	    if (k % 250==0) printf("van_D: %f\n",van_D);
@@ -512,6 +517,10 @@ int fracstep::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
 	} else {
 	  nu_eff = VISC;
 	}
+
+	//	if (print_van_Driest && (ywall<0.02)) 
+	if (print_van_Driest) 
+	  printf("element %d , y: %f,van_D: %f, nu_eff: %f\n",ielh, ywall, van_D,nu_eff);
 
         u2 = u.sum_square_all(); 
 

@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: nsitetlesfm2.cpp,v 1.72 2005/07/04 03:16:33 mstorti Exp $
+//$Id: nsitetlesfm2.cpp,v 1.73 2005/09/18 20:37:52 mstorti Exp $
 
 #include <src/fem.h>
 #include <src/utils.h>
@@ -488,7 +488,7 @@ assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
 	    double ywall = sqrt(dist_to_wall.sum_square_all());
 	    double y_plus = ywall*shear_vel/VISC;
 	    van_D = 1.-exp(-y_plus/A_van_Driest);
-	    if (k % 250==0) printf("van_D: %f\n",van_D);
+	    // if (k % 250==0) printf("van_D: %f\n",van_D);
 	  } else van_D = 1.;
 	  
 	  double nu_t = SQ(C_smag*Delta*van_D)*sqrt(2*tr);
