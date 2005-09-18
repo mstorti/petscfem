@@ -4428,3 +4428,6 @@ tag: beta-3.47.30 on Wed, 17 Aug 2005 19:24:30 -0300 by mstorti in minerva.cerid
 ----------
 tag: beta-3.47.31 on Thu, 18 Aug 2005 20:31:35 -0300 by mstorti in minerva.ceride.gov.ar
      > Fixed bug eith `G_body_scale' in `gasflow'. 
+----------
+tag: beta-3.47.32 on Sun, 18 Sep 2005 17:34:17 -0300 by mstorti in minerva.ceride.gov.ar
+     > Fixed bug in `modulo(double,double)'
