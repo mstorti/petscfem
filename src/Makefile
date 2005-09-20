@@ -1,5 +1,5 @@
 #__INSERT_LICENSE__
-# $Id: Makefile,v 1.100 2005/04/09 01:54:05 mstorti Exp $ 
+# $Id: Makefile,v 1.101 2005/09/20 13:31:22 mstorti Exp $ 
 
 .PHONY: all run lclean save compile default
 
@@ -62,10 +62,14 @@ fm2eperl2.cpp: fmat2ep2.cpp prep.pl fmat2.pl
 	if [ -e $@ ] ; then chmod +w $@ ; rm $@ ; fi
 	$(EPERL) -B '//<' -E '//>' $< > $@ ; chmod -w $@
 
-FSM = matFSM
+FSM := matFSM
 $(FSM).cpp $(FSM).h: sparse.sm
+ifneq ($(SMC),)
 	$(SMC) < $<
 	mv -f $(FSM).cc $(FSM).cpp
+else
+	@echo "warning: SMC not found"
+endif
 
 pfmat.sm: pfmat.sm.in
 	if [ -f $@ ] ; then chmod +w $@; fi ;	\
