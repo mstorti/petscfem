@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: fstepfm2.cpp,v 1.34 2005/09/18 20:38:49 mstorti Exp $
+//$Id: fstepfm2.cpp,v 1.35 2005/09/20 01:30:29 mstorti Exp $
  
 #include <src/fem.h>
 #include <src/utils.h>
@@ -109,7 +109,14 @@ int fracstep::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
 
   // Unpack nodedata
   int nu=nodedata->nu;
+
+  // Unpack Dofmap
   int nnod = dofmap->nnod;
+
+  // Hloc stores the old mesh coordinates
+  int nH = nu-ndim;
+  FMatrix  Hloc(nel,nH),vloc_mesh(nel,ndim),v_mesh(ndim);
+
   if(nnod!=nodedata->nnod) {
     printf("nnod from dofmap and nodedata don't coincide\n");
     exit(1);
@@ -121,7 +128,7 @@ int fracstep::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
   // rec_Dt is the reciprocal of Dt (i.e. 1/Dt)
   // for steady solutions it is set to 0. (Dt=inf)
   GlobParam *glob_param=NULL;
-  double Dt;
+  double Dt,rec_Dt;
   arg_data *A_mom_arg,*A_poi_arg,*A_prj_arg;
   if (comp_mat_prof) {
     int ja=0;
@@ -137,6 +144,8 @@ int fracstep::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
     retvalmat = arg_data_v[ja++].retval;
     glob_param = (GlobParam *)(arg_data_v[ja++].user_data);
     Dt = glob_param->Dt;
+    rec_Dt = 1./Dt;
+    if (glob_param->steady) rec_Dt=0.;
   } else if (comp_mat_poi) {
     int ja=0;
     A_poi_arg = &arg_data_v[ja];
@@ -170,7 +179,7 @@ int fracstep::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
 
   FastMat2 veccontr(2,nel,ndof),xloc(2,nel,ndim),
     locstate(2,nel,ndof),locstate2(2,nel,ndof),tmp(2,nel,ndof),
-    ustate2(2,nel,ndim),G_body(1,ndim);
+    ustate2(2,nel,ndim),G_body(1,ndim),vrel;
 
   if (ndof != ndim+1) {
     PetscPrintf(PETSC_COMM_WORLD,"ndof != ndim+1\n"); CHKERRA(1);
@@ -212,6 +221,13 @@ int fracstep::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
 
   //o print Van Driest factor
   SGETOPTDEF(int,print_van_Driest,0); 
+
+
+  //o ALE_flag : flag to ON ALE computation
+  SGETOPTDEF(int,ALE_flag,0);
+  //o indx_ALE_xold : pointer to old coordinates in
+  //  NODEDATA array excluding the first "ndim" values
+  SGETOPTDEF(int,indx_ALE_xold,1);
 
   //o Axis for selective Darcy term (damps incoming flow
   //at outlet bdry's)
@@ -271,7 +287,7 @@ int fracstep::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
   GPdata gp_data(geometry.c_str(),ndim,nel,npg,GP_FASTMAT2);
 
   // Definiciones para descargar el lazo interno
-  FastMat2 grad_fi,Uintri,P_supg,W;
+  FastMat2 grad_fi,P_supg,W;
   //  LogAndSign L;
   double detJaco, UU, u2, Peclet, psi, tau, div_u_star,
     wpgdet;
@@ -282,7 +298,9 @@ int fracstep::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
     resmom(2,nel,ndim), fi(1,ndof), grad_p(1,ndim), grad_p_star(1,ndim),
     u(1,ndim),u_star(1,ndim),uintri(1,ndim),rescont(1,nel);
   FastMat2 tmp1,tmp2,tmp3,tmp4,tmp5,tmp6,tmp7,tmp71,tmp8,tmp9,tmp10,
-    tmp11,tmp12,tmp13,tmp14,tmp15,tmp16,tmp17,xc,wall_coords(1,ndim),dist_to_wall;
+    tmp11,tmp12,tmp13,tmp14,tmp15,tmp16,tmp17,xc,
+    wall_coords(1,ndim),dist_to_wall;
+  FastMat2 vel_supg;
 
   FMatrix Jaco_axi(2,2),u_axi,strain_rate(ndim,ndim);
   int ind_axi_1, ind_axi_2;
@@ -377,8 +395,10 @@ int fracstep::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
     for (kloc=0; kloc<nel; kloc++) {
       node = ICONE(k,kloc);
       xloc.ir(1,kloc+1).set(&NODEDATA(node-1,0));
+      if(nH>0) Hloc.ir(1,kloc+1).set(&NODEDATA(node-1,0)+ndim);
     }
     xloc.rs();
+    Hloc.rs();
 
     if (get_nearest_wall_element && A_van_Driest>0.) {
       assert(LES);
@@ -405,6 +425,17 @@ int fracstep::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
     veccontr.set(0.);
     resmom.set(0.);
     rescont.set(0.);
+
+    if (comp_res_mom) {
+      // nodal computation of mesh velocity
+      if (ALE_flag) {
+	assert(nH >= ndim);
+	assert(indx_ALE_xold >= nH+1-ndim);
+	Hloc.is(2,indx_ALE_xold,indx_ALE_xold+ndim-1);
+	vloc_mesh.set(xloc).rest(Hloc).scale(rec_Dt).rs();
+	Hloc.rs();
+      }
+    }
 
     double shear_vel;
     if (comp_res_mom) {
@@ -490,6 +521,11 @@ int fracstep::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
 	grad_p.prod(dshapex,locstate2,1,-1,-1);
 	locstate2.rs();
 
+	v_mesh.set(0.0);
+	if (ALE_flag) {
+	  v_mesh.prod(SHAPE,vloc_mesh,-1,-1,1);
+	}
+
 	// Smagorinsky turbulence model
 	double nu_eff;
 	double van_D,ywall;
@@ -500,60 +536,108 @@ int fracstep::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
 	strain_rate.add(grad_u_star).scale(0.5);
 	grad_u_star.rs();
 
-	  double tr = (double) tmp15.prod(strain_rate,strain_rate,-1,-2,-1,-2);
-	  //	  double van_D;
-	  if (A_van_Driest>0.) {
-	    dist_to_wall.prod(SHAPE,xloc,-1,-1,1).rest(wall_coords);
-	    //	    double ywall = sqrt(dist_to_wall.sum_square_all());
-	    ywall = sqrt(dist_to_wall.sum_square_all());
-	    double y_plus = ywall*shear_vel/VISC;
-	    van_D = 1.-exp(-y_plus/A_van_Driest);
-	    //	    if (k % 250==0) printf("van_D: %f\n",van_D);
-	    //	    if (k % 499==0) printf("van_D: %f\n",van_D);
-	  } else van_D = 1.;
+#if 0
+	double tr = (double) tmp15.prod(strain_rate,strain_rate,-1,-2,-1,-2);
+	//	  double van_D;
+	if (A_van_Driest>0.) {
+	  dist_to_wall.prod(SHAPE,xloc,-1,-1,1).rest(wall_coords);
+	  //	    double ywall = sqrt(dist_to_wall.sum_square_all());
+	  ywall = sqrt(dist_to_wall.sum_square_all());
+	  double y_plus = ywall*shear_vel/VISC;
+	  van_D = 1.-exp(-y_plus/A_van_Driest);
+	  //	    if (k % 250==0) printf("van_D: %f\n",van_D);
+	  //	    if (k % 499==0) printf("van_D: %f\n",van_D);
+	} else van_D = 1.;
 	  
-	  double nu_t = SQ(C_smag*Delta*van_D)*sqrt(2*tr);
-	  nu_eff = VISC + nu_t;
+	double nu_t = SQ(C_smag*Delta*van_D)*sqrt(2*tr);
+	nu_eff = VISC + nu_t;
+#else
+	double tr = (double) tmp15.prod(strain_rate,strain_rate,-1,-2,-1,-2);
+	//	double van_D;
+	if (A_van_Driest>0.) {
+	  dist_to_wall.prod(SHAPE,xloc,-1,-1,1).rest(wall_coords);
+	  double ywall = sqrt(dist_to_wall.sum_square_all());
+	  double y_plus = ywall*shear_vel/VISC;
+	  van_D = 1.-exp(-y_plus/A_van_Driest);
+	  //	  if (k % 250==0) printf("van_D: %f\n",van_D);
+	} else van_D = 1.;
+	
+	double nu_t = SQ(C_smag*Delta*van_D)*sqrt(2*tr);
+	nu_eff = VISC + nu_t;
+#endif
 	} else {
 	  nu_eff = VISC;
 	}
 
 	//	if (print_van_Driest && (ywall<0.02)) 
 	if (print_van_Driest) 
-	  printf("element %d , y: %f,van_D: %f, nu_eff: %f\n",ielh, ywall, van_D,nu_eff);
+	  printf("element %d , y: %f,van_D: %f, nu_eff: %f\n",
+		 ielh, ywall, van_D,nu_eff);
 
-        u2 = u.sum_square_all(); 
+	if (0) {
+	  u2 = u.sum_square_all(); 
+	} else {
+	  vel_supg.set(u).rest(v_mesh).rs();
+	  if(axi>0){
+	    vel_supg.setel(0.,axi);
+	  }
+	  u2 = vel_supg.sum_square_all();
+	}
 
-        if(axi>0){
-          u_axi.set(u);
-          u_axi.setel(0.,axi);
-          u2 = u_axi.sum_square_all();
+	if(0) {	
+	  if(axi>0){
+	    u_axi.set(u);
+	    u_axi.setel(0.,axi);
+	    u2 = u_axi.sum_square_all();
+	    uintri.prod(iJaco,u_axi,1,-1,-1);
+	    Uh = sqrt(uintri.sum_square_all())/2.;
+	  } else {
+	    uintri.prod(iJaco,u,1,-1,-1);
+	    Uh = sqrt(uintri.sum_square_all())/2.;
+	  }
+	  
+	  if(u2<=1e-6*(2.*Uh*nu_eff)) {
+	    Peclet=0.;
+	    psi=0.;
+	    tau=0.;
+	  } else {
+	    //	  Peclet = u2 / (2. * Uh * VISC);
+	    Peclet = u2 / (2. * Uh * nu_eff);
+	    psi = 1./tanh(Peclet)-1/Peclet;
+	    tau = psi/(2.*Uh);
+	  }
+	  P_supg.prod(u,dshapex,-1,-1,1).scale(taufac * tau);
+	} else {
+
+	  u_axi.set(vel_supg);
 	  uintri.prod(iJaco,u_axi,1,-1,-1);
 	  Uh = sqrt(uintri.sum_square_all())/2.;
-        } else {
-	  uintri.prod(iJaco,u,1,-1,-1);
-	  Uh = sqrt(uintri.sum_square_all())/2.;
+	  
+	  if(u2<=1e-6*(2.*Uh*nu_eff)) {
+	    Peclet=0.;
+	    psi=0.;
+	    tau=0.;
+	  } else {
+	    Peclet = u2 / (2. * Uh * nu_eff);
+	    psi = 1./tanh(Peclet)-1/Peclet;
+	    tau = psi/(2.*Uh);
+	  }
+	  P_supg.prod(vel_supg,dshapex,-1,-1,1).scale(taufac * tau);
 	}
 
-	//	if(u2<=1e-6*(2.*Uh*VISC)) {
-	if(u2<=1e-6*(2.*Uh*nu_eff)) {
-	  Peclet=0.;
-	  psi=0.;
-	  tau=0.;
-	} else {
-	  //	  Peclet = u2 / (2. * Uh * VISC);
-	  Peclet = u2 / (2. * Uh * nu_eff);
-	  psi = 1./tanh(Peclet)-1/Peclet;
-	  tau = psi/(2.*Uh);
-	}
-	P_supg.prod(u,dshapex,-1,-1,1).scale(taufac * tau);
 	W.set(SHAPE).add(P_supg);
-
+	
 	//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 	// RESIDUE CALCULATION
-
+	if(0) {
 	tmp1.prod(u,grad_u,-1,-1,1).scale(-(1-alpha));
 	tmp2.prod(u_star,grad_u_star,-1,-1,1).scale(-alpha);
+	} else {
+	vrel.set(u).rest(v_mesh).rs();
+	tmp1.prod(vrel,grad_u,-1,-1,1).scale(-(1-alpha));
+	vrel.set(u_star).rest(v_mesh).rs();
+	tmp2.prod(vrel,grad_u_star,-1,-1,1).scale(-alpha);
+	}
 	tmp1.add(tmp2).axpy(grad_p,-(gammap/rho));
 	tmp3.prod(W,tmp1,1,2);
 	resmom.axpy(tmp3,wpgdet);
@@ -605,7 +689,11 @@ int fracstep::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
 
 	//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 	// JACOBIAN CALCULATION
-	tmp17.prod(u_star,dshapex,-1,-1,1);
+	if(0){
+	  tmp17.prod(u_star,dshapex,-1,-1,1);
+	} else {
+	  tmp17.prod(vrel,dshapex,-1,-1,1);
+	}
 	tmp8.prod(W,tmp17,1,2);
 	matlocmom.axpy(tmp8,alpha*wpgdet);
 

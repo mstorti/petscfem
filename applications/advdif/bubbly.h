@@ -1,6 +1,6 @@
 // -*- mode: C++ -*-
 /*__INSERT_LICENSE__*/
-// $Id: bubbly.h,v 1.15 2005/08/24 01:52:49 mstorti Exp $
+// $Id: bubbly.h,v 1.16 2005/09/20 01:30:29 mstorti Exp $
 
 #include "./advective.h"
 #include "./stream.h"
@@ -44,6 +44,7 @@ private:
   FastMat2 tmp15;
   double vslip, vslip_user, Sato_model_coef, vslip_m;
   double Sc_number;
+  int use_modified_slag_vslip;
 
   double tmp1_drag,tmp2_drag,tmp3_drag,tmp4_drag,C1_drag,v_slip,Rey_bubble;
   double dRedU,C_drag_ff,dCDdRe_ff,id_liq,id_gas;

@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: nsitetlesfm2.cpp,v 1.73 2005/09/18 20:37:52 mstorti Exp $
+//$Id: nsitetlesfm2.cpp,v 1.74 2005/09/20 01:30:29 mstorti Exp $
 
 #include <src/fem.h>
 #include <src/utils.h>
@@ -173,6 +173,8 @@ assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
   //o van Driest constant for the damping law.
   SGETOPTDEF(double,A_van_Driest,0); 
   assert(A_van_Driest>=0.);
+  //o print Van Driest factor
+  SGETOPTDEF(int,print_van_Driest,0); 
   //o Scale the SUPG and PSPG stabilization term. 
   SGETOPTDEF(double,tau_fac,1.);  // Scale upwind
   //o Scales the PSPG stabilization term. 
@@ -392,7 +394,6 @@ assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
       PETSCFEM_ERROR0("Not compiled with ANN library!!\n");
 #endif
     }
-
 #define DSHAPEXI (*gp_data.FM2_dshapexi[ipg])
 #define SHAPE    (*gp_data.FM2_shape[ipg])
 #define WPG      (gp_data.wpg[ipg])
@@ -479,16 +480,15 @@ assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
 	}
 
 	// Smagorinsky turbulence model
-	double nu_eff;
+	double nu_eff,van_D;
 	if (LES) {
 	  double tr = (double) tmp15.prod(strain_rate,strain_rate,-1,-2,-1,-2);
-	  double van_D;
+	  //	  double van_D;
 	  if (A_van_Driest>0.) {
 	    dist_to_wall.prod(SHAPE,xloc,-1,-1,1).rest(wall_coords);
 	    double ywall = sqrt(dist_to_wall.sum_square_all());
 	    double y_plus = ywall*shear_vel/VISC;
 	    van_D = 1.-exp(-y_plus/A_van_Driest);
-	    // if (k % 250==0) printf("van_D: %f\n",van_D);
 	  } else van_D = 1.;
 	  
 	  double nu_t = SQ(C_smag*Delta*van_D)*sqrt(2*tr);
@@ -496,6 +496,9 @@ assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
 	} else {
 	  nu_eff = VISC;
 	}
+
+	if (print_van_Driest && (k % 1==0)) 
+	  printf("element %d , van_D: %f, nu_eff: %f\n",ielh, van_D,nu_eff);
 
 	vel_supg.set(u).rest(v_mesh).rs();
 
@@ -586,10 +589,12 @@ assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
 	// implicit version - General Trapezoidal rule - parameter alpha
 #ifdef ADD_GRAD_DIV_U_TERM
 	vrel.set(u_star).rest(v_mesh).rs();
-	dmatu.prod(u_star,grad_u_star,-1,-1,1);
+	//	dmatu.prod(u_star,grad_u_star,-1,-1,1);
+	dmatu.prod(vrel,grad_u_star,-1,-1,1);
 #else
 	vrel.set(u).rest(v_mesh).rs();
-	dmatu.prod(u,grad_u_star,-1,-1,1);
+	//	dmatu.prod(u,grad_u_star,-1,-1,1);
+	dmatu.prod(vrel,grad_u_star,-1,-1,1);
 #endif
 	
 	du.set(u_star).rest(u);
@@ -636,25 +641,26 @@ assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
 
 	// temporal part + convective (Galerkin)
 #ifdef ADD_GRAD_DIV_U_TERM
-        massm.prod(u_star,dshapex,-1,-1,1);
+	//        massm.prod(u_star,dshapex,-1,-1,1);
+        massm.prod(vrel,dshapex,-1,-1,1);
 #else
-        massm.prod(u,dshapex,-1,-1,1);
+	//        massm.prod(u,dshapex,-1,-1,1);
+        massm.prod(vrel,dshapex,-1,-1,1);
 #endif
 	massm.axpy(SHAPE,rec_Dt/alpha);
 	matlocmom.prod(W_supg,massm,1,2).scale(rho);
 
 	//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
-	vrel.set(u_star).rest(v_mesh).rs();
+	//	vrel.set(u_star).rest(v_mesh).rs();
 
 	// diffusive part
-	vrel.set(u).rest(v_mesh).rs();
+	//	vrel.set(u).rest(v_mesh).rs();
 	tmp7.prod(dshapex,dshapex,-1,1,-1,2);
 	matlocmom.axpy(tmp7,nu_eff);
 
 	// dmatw =  rho * ((1/Dt)*SHAPE + u * dshapex);
 	dmatw.set(massm).scale(rho);
 
-	// assert(delta_supg==0); // para no poner shock-capturing despues
 	tmp13.prod(P_pspg,dshapex,-1,1,-1,2);
 	if (pressure_control_coef) {
 	  tmp20.prod(SHAPE,SHAPE,1,2);

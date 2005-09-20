@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: bubbly_asm_mix.cpp,v 1.5 2005/01/12 16:15:29 mstorti Exp $
+//$Id: bubbly_asm_mix.cpp,v 1.6 2005/09/20 01:30:29 mstorti Exp $
 //
 //
 // <<<<<<<<<<<<<<<<<< VERSION ASM >>>>>>>>>>>>>>>>>>>>>>>>
@@ -160,6 +160,10 @@ void bubbly_ff::start_chunk(int &ret_options) {
 
   // Schmidt number
   EGETOPTDEF_ND(elemset,double,Sc_number,1.0);
+
+  //o use_modified_slag_vslip : key to modify slag slip velocity 
+  //				as a function of slag void fraction 
+  EGETOPTDEF_ND(elemset,int,use_modified_slag_vslip,0);
 
   // key for using different drag model
   EGETOPTDEF_ND(elemset,int,drag_model,0);
@@ -412,8 +416,10 @@ void bubbly_ff::set_state(const FastMat2 &UU) {
   vslip_m_vp.set(vslip_vp);
 
   // modifico velocidad slip de la escoria por la diferencia de densidades con la mezcla
-  rho_g = rho_g_vp.get(nphases);
-  vslip_m_vp.ir(1,nphases).scale(1.-rho_g/rho_m).rs();
+  if(use_modified_slag_vslip) {
+    rho_g = rho_g_vp.get(nphases);
+    vslip_m_vp.ir(1,nphases).scale(1.-rho_g/rho_m).rs();
+  }
   
   // velocidad del gas
   v_g.set(v_l).addel(vslip_m,abs(g_dir));
@@ -791,22 +797,22 @@ void bubbly_ff::compute_flux(const FastMat2 &U,
 	}	
       }
     }    
-    
-    if(coupled) {	
-      // agregado termino del jacobiano por modificacion de la velocidad slip en la escoria
-      rho_g = rho_g_vp.get(nphases);
-      arho_g = arho_g_vp.get(nphases);
-      alpha_g = alpha_g_vp.get(nphases);
-      vslip = vslip_vp.get(nphases);
-      
-      if (disperse_eqs_without_rho==0) {
+    /*  
+	if(coupled && use_modified_slag_vslip) {	
+	// agregado termino del jacobiano por modificacion de la velocidad slip en la escoria
+	rho_g = rho_g_vp.get(nphases);
+	arho_g = arho_g_vp.get(nphases);
+	alpha_g = alpha_g_vp.get(nphases);
+	vslip = vslip_vp.get(nphases);
+	if (disperse_eqs_without_rho==0) {
 	vaux = arho_g*vslip*(rho_g-rho_l)*rho_g/rho_m/rho_m;
 	Ajac.ir(1,abs(g_dir)).ir(2,alpha_indx_vp[nphases-1]).ir(3,alpha_indx_vp[nphases-1]).add(vaux).rs();
-      } else {
+	} else {
 	vaux = alpha_g*vslip*(rho_g-rho_l)*rho_g/rho_m/rho_m;
 	Ajac.ir(1,abs(g_dir)).ir(2,alpha_indx_vp[nphases-1]).ir(3,alpha_indx_vp[nphases-1]).add(vaux).rs();
-      }
-    }
+	}
+	}
+    */
   }
   Ajac.scale(mask_Ajac);
   
@@ -1027,14 +1033,17 @@ void bubbly_ff::compute_flux(const FastMat2 &U,
       }
 
       tau_supg.setel(tau_supg_a,alpha_indx_vp[j-1],alpha_indx_vp[j-1]);
-      
+      /*      
       if (disperse_eqs_without_rho==0) {
 	//      delta_supg_vp.setel(delta_supg,j).scale(rho_g);
       delta_supg_vp.ir(1,j).set(delta_supg).scale(rho_g).rs();
 
       } else {
 	delta_supg_vp.setel(delta_supg,j);
-      }
+      //      printf(" delta_supg : phase # %d valor: %f \n",j,delta_supg);
+      */
+      delta_supg_vp.setel(delta_supg,j);
+      
       v_g_vp_old.rs();
 
     }
