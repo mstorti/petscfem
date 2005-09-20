@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: ns.cpp,v 1.165 2005/08/02 18:20:49 mstorti Exp $
+//$Id: ns.cpp,v 1.163.2.1 2005/09/20 00:58:38 mstorti Exp $
 #include <src/debug.h>
 #include <malloc.h>
 
@@ -365,13 +365,23 @@ int main(int argc,char **args) {
       A_mom->set_option("preco_type","jacobi");
       
       // A_poi = PFMat::dispatch(dofmap->neq,*dofmap,solver.c_str());
+#if 0
       A_poi = PFMat::dispatch(dofmap->neq,*dofmap,"petsc_symm");
       A_poi->set_option("KSP_method",KSPCG);
       A_poi->set_option("preco_type","jacobi");
       A_poi->set_option("block_uploading","0");
       // A_poi->set_option("preco_side","left");
       // A_poi->set_option("symmetric","1");
-      
+#else
+      if (!MY_RANK) 
+	printf("----Using IISD for Poisson.\n");
+      A_poi = PFMat::dispatch(dofmap->neq,*dofmap,"iisd");
+      A_poi->set_option("preco_type","jacobi");
+      A_poi->set_option("print_internal_loop_conv","1");
+      A_poi->set_option("block_uploading","0");
+      A_poi->set_option("iisdmat_print_statistics",1);
+      // A_poi->set_option("use_interface_full_preco_nlay",1);
+#endif
       // A_prj = PFMat::dispatch(dofmap->neq,*dofmap,"petsc");
       A_prj = PFMat::dispatch(dofmap->neq,*dofmap,"petsc_symm");
       A_prj->set_option("KSP_method",KSPCG);
@@ -699,7 +709,6 @@ int main(int argc,char **args) {
       }
 
     } else {
-    
       //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
       // FRACTIONAL STEP ALGORITHM
       // Inicializacion del paso

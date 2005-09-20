@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-/* $Id: blessf.cpp,v 1.34 2005/06/18 12:02:30 mstorti Exp $ */
+/* $Id: blessf.cpp,v 1.33.4.1 2005/09/20 00:58:38 mstorti Exp $ */
 
 #include <src/debug.h>
 #include <malloc.h>
@@ -27,7 +27,6 @@
 #include "./fracstep.h"
 #include "./nsid.h"
 #include "./mmove.h"
-#include "./mmove2.h"
 #include "./genload.h"
 #include "./invcoupl.h"
 #include "./nullvort.h"
@@ -61,14 +60,22 @@ void bless_elemset(char *type,Elemset *& elemset) {
     SET_ELEMSET_TYPE(nsi_tet_les_asm)
     SET_ELEMSET_TYPE(nsi_tet_keps)
     SET_ELEMSET_TYPE(nsi_tet_keps_rot)
+    SET_ELEMSET_TYPE(nsi_tet_asm)
+    SET_ELEMSET_TYPE(nsi_tet_asm_avgvol)
+    SET_ELEMSET_TYPE(ns_gasflow)
+
     SET_ELEMSET_TYPE(fracstep)
     SET_ELEMSET_TYPE(fracstep_fm2)
     SET_ELEMSET_TYPE(bcconv_fstep_fm2)
     SET_ELEMSET_TYPE(fracstep_fm2_cw)
 
     SET_ELEMSET_TYPE(bcconv_ns_fm2)
+    SET_ELEMSET_TYPE(bcconv_nsi_tet_asm)
+    SET_ELEMSET_TYPE(bcconv_nsi_tet_asm_avgvol)
     SET_ELEMSET_TYPE(bcconv_nsther_fm2)
     SET_ELEMSET_TYPE(bcconv_nsasm_fm2)
+    SET_ELEMSET_TYPE(bcconv_ns_gasflow)
+
     SET_ELEMSET_TYPE(wall)
     SET_ELEMSET_TYPE(wallke)
     SET_ELEMSET_TYPE(wall_law_res)
@@ -80,7 +87,6 @@ void bless_elemset(char *type,Elemset *& elemset) {
 
     SET_ELEMSET_TYPE_ALIAS(mesh_move,mesh_move_eig_anal)
     SET_ELEMSET_TYPE(mesh_move_eig_anal)
-    SET_ELEMSET_TYPE(mesh_move2)
 
     SET_ELEMSET_TYPE(inviscid_coupling)
 

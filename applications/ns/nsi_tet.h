@@ -1,6 +1,6 @@
 // -*- mode: C++ -*-
 /*__INSERT_LICENSE__*/
-//$Id: nsi_tet.h,v 1.49 2005/05/08 15:19:39 mstorti Exp $
+//$Id: nsi_tet.h,v 1.49.4.1 2005/09/20 00:58:38 mstorti Exp $
 #ifndef PETSCFEM_NSI_TET_H  
 #define PETSCFEM_NSI_TET_H
 
@@ -60,6 +60,24 @@ public:
 };
 
 //-------<*>-------<*>-------<*>-------<*>-------<*>------- 
+class nsi_tet_asm : public ns_volume_element { 
+public: 
+  ASSEMBLE_FUNCTION;
+};
+
+//-------<*>-------<*>-------<*>-------<*>-------<*>------- 
+class nsi_tet_asm_avgvol : public ns_volume_element { 
+public: 
+  ASSEMBLE_FUNCTION;
+};
+
+//-------<*>-------<*>-------<*>-------<*>-------<*>------- 
+class ns_gasflow : public ns_volume_element { 
+public: 
+  ASSEMBLE_FUNCTION;
+};
+
+//-------<*>-------<*>-------<*>-------<*>-------<*>------- 
 class nsi_tet_keps : public ns_volume_element { 
 public: 
   ASSEMBLE_FUNCTION;
@@ -79,6 +97,20 @@ public:
 };
 
 //-------<*>-------<*>-------<*>-------<*>-------<*>------- 
+class bcconv_nsi_tet_asm : public Elemset { 
+public: 
+  ASK_FUNCTION;
+  ASSEMBLE_FUNCTION;
+};
+
+//-------<*>-------<*>-------<*>-------<*>-------<*>------- 
+class bcconv_nsi_tet_asm_avgvol : public Elemset { 
+public: 
+  ASK_FUNCTION;
+  ASSEMBLE_FUNCTION;
+};
+
+//-------<*>-------<*>-------<*>-------<*>-------<*>------- 
 class bcconv_nsther_fm2 : public Elemset { 
 public: 
   ASK_FUNCTION;
@@ -87,6 +119,13 @@ public:
 
 //-------<*>-------<*>-------<*>-------<*>-------<*>------- 
 class bcconv_nsasm_fm2 : public Elemset { 
+public: 
+  ASK_FUNCTION;
+  ASSEMBLE_FUNCTION;
+};
+
+//-------<*>-------<*>-------<*>-------<*>-------<*>------- 
+class bcconv_ns_gasflow : public Elemset { 
 public: 
   ASK_FUNCTION;
   ASSEMBLE_FUNCTION;

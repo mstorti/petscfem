@@ -1,4 +1,4 @@
-//__INSERT_LICENSE__ $Id: fstepfm2.cpp,v 1.3 2002/07/26 00:57:31
+//__INSERT_LICENSE__ $Id: fstepfm2ther.cpp,v 1.3 2002/07/26 00:57:31
 //mstorti Exp $
  
 #include <src/fem.h>
@@ -11,9 +11,6 @@
 #include "fracstep.h"
 
 #define MAXPROP 100
-extern int MY_RANK,SIZE;
-
-extern WallData *wall_data;
 
 const double FIX = 1.0;
 /** Fixes all diagonal terms in matrix #A# so that they are #>0#, i.e.,
@@ -51,15 +48,9 @@ int fracstep::ask(const char *jobinfo,int &skip_elemset) {
   DONT_SKIP_JOBINFO(comp_res_poi);
   DONT_SKIP_JOBINFO(comp_mat_prj);
   DONT_SKIP_JOBINFO(comp_res_prj);
+  DONT_SKIP_JOBINFO(comp_mat_ther);
+  DONT_SKIP_JOBINFO(comp_res_ther);
   return 0;
-}
-
-//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>
-static double smabs(double x) {
-  double y, tol=1e-7;
-  if (fabs(x)<tol) y = 1.0/(1.0-x*x/3.0);
-  else y = x/tanh(x);
-  return y;
 }
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
@@ -80,6 +71,8 @@ int fracstep::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
   GET_JOBINFO_FLAG(comp_mat_prj);
   GET_JOBINFO_FLAG(comp_res_prj);
   GET_JOBINFO_FLAG(get_nearest_wall_element);
+  GET_JOBINFO_FLAG(comp_mat_ther);
+  GET_JOBINFO_FLAG(comp_res_ther);
 
 #define LOCST(iele,j,k) VEC3(locst,iele,j,nel,k,ndof)
 #define LOCST2(iele,j,k) VEC3(locst2,iele,j,nel,k,ndof)
@@ -123,19 +116,20 @@ int fracstep::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
   }
 
   double *locst,*locst2,*retval,*retvalmat,*retvalmat_mom,*retvalmat_poi,
-    *retvalmat_prj;
-  //  WallData *wall_data;  MODIFICADO 30/8/2005
+    *retvalmat_prj,*retvalmat_ther;
+  WallData *wall_data;
 
   // rec_Dt is the reciprocal of Dt (i.e. 1/Dt)
   // for steady solutions it is set to 0. (Dt=inf)
   GlobParam *glob_param=NULL;
   double Dt,rec_Dt;
-  arg_data *A_mom_arg,*A_poi_arg,*A_prj_arg;
+  arg_data *A_mom_arg,*A_poi_arg,*A_prj_arg,*A_ther_arg;
   if (comp_mat_prof) {
     int ja=0;
     retvalmat_mom = arg_data_v[ja++].retval;
     retvalmat_poi = arg_data_v[ja++].retval;
     retvalmat_prj = arg_data_v[ja++].retval;
+    retvalmat_ther = arg_data_v[ja++].retval;
   } else if (comp_res_mom) {
     int ja=0;
     locst = arg_data_v[ja++].locst;
@@ -176,14 +170,27 @@ int fracstep::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
     }
     glob_param = (GlobParam *)(arg_data_v[ja++].user_data);
     Dt = glob_param->Dt;
+  } else if (comp_mat_ther) {
+    int ja=0;
+    A_ther_arg = &arg_data_v[ja];
+    retvalmat_ther = arg_data_v[ja++].retval;
+    glob_param = (GlobParam *)(arg_data_v[ja++].user_data);
+    Dt = glob_param->Dt;
+  } else if (comp_res_ther) {
+    int ja=0;
+    locst = arg_data_v[ja++].locst;
+    locst2 = arg_data_v[ja++].locst;
+    retval = arg_data_v[ja++].retval;
+    glob_param = (GlobParam *)(arg_data_v[ja++].user_data);
+    Dt = glob_param->Dt;
   } else assert(0); // Not implemented yet!!
 
   FastMat2 veccontr(2,nel,ndof),xloc(2,nel,ndim),
     locstate(2,nel,ndof),locstate2(2,nel,ndof),tmp(2,nel,ndof),
     ustate2(2,nel,ndim),G_body(1,ndim),vrel;
 
-  if (ndof != ndim+1) {
-    PetscPrintf(PETSC_COMM_WORLD,"ndof != ndim+1\n"); CHKERRA(1);
+  if (ndof != ndim+2) {
+    PetscPrintf(PETSC_COMM_WORLD,"ndof != ndim+2\n"); CHKERRA(1);
   }
 
   nen = nel*ndof;
@@ -217,9 +224,6 @@ int fracstep::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
   //o van Driest constant for the damping law.
   SGETOPTDEF(double,A_van_Driest,0); 
   assert(A_van_Driest>=0.);
-
-  //o print Van Driest factor
-  SGETOPTDEF(int,print_van_Driest,0); 
 
   //o ALE_flag : flag to ON ALE computation
   SGETOPTDEF(int,ALE_flag,0);
@@ -271,7 +275,7 @@ int fracstep::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
     resmom(2,nel,ndim), fi(1,ndof), grad_p(1,ndim), grad_p_star(1,ndim),
     u(1,ndim),u_star(1,ndim),uintri(1,ndim),rescont(1,nel);
   FastMat2 tmp1,tmp2,tmp3,tmp4,tmp5,tmp6,tmp7,tmp71,tmp8,tmp9,tmp10,
-    tmp11,tmp12,tmp13,tmp14,tmp15,tmp16,tmp17,xc,wall_coords(1,ndim),dist_to_wall;
+    tmp11,tmp12,tmp13,tmp14,tmp15,tmp16,tmp17,xc,wall_coords(ndim),dist_to_wall;
   FastMat2 vel_supg;
 
   FMatrix Jaco_axi(2,2),u_axi,strain_rate(ndim,ndim);
@@ -377,7 +381,6 @@ int fracstep::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
 #ifdef USE_ANN
       xc.sum(xloc,-1,1).scale(1./double(nel));
       int nn;
-      assert(wall_data);
       wall_data->nearest(xc.storage_begin(),nn);
       NN_IDX(k) = nn;
       continue;
@@ -500,7 +503,6 @@ int fracstep::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
 
 	// Smagorinsky turbulence model
 	double nu_eff;
-	double van_D;
 	if (LES) {
 
 	strain_rate.set(grad_u_star);
@@ -509,13 +511,13 @@ int fracstep::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
 	grad_u_star.rs();
 
 	double tr = (double) tmp15.prod(strain_rate,strain_rate,-1,-2,-1,-2);
-	//	double van_D;
+	double van_D;
 	if (A_van_Driest>0.) {
 	  dist_to_wall.prod(SHAPE,xloc,-1,-1,1).rest(wall_coords);
 	  double ywall = sqrt(dist_to_wall.sum_square_all());
 	  double y_plus = ywall*shear_vel/VISC;
 	  van_D = 1.-exp(-y_plus/A_van_Driest);
-	  //	  if (k % 250==0) printf("van_D: %f\n",van_D);
+	  if (k % 250==0) printf("van_D: %f\n",van_D);
 	} else van_D = 1.;
 	
 	double nu_t = SQ(C_smag*Delta*van_D)*sqrt(2*tr);
@@ -523,9 +525,6 @@ int fracstep::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
 	} else {
 	  nu_eff = VISC;
 	}
-
-	if (print_van_Driest && (k % 1==0)) 
-	  printf("element %d , van_D: %f, nu_eff: %f\n",ielh, van_D,nu_eff);
 	
 	if (0) {
 	  u2 = u.sum_square_all(); 

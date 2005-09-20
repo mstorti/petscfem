@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: advdife.cpp,v 1.106 2005/06/02 16:31:19 mstorti Exp $
+//$Id: advdife.cpp,v 1.105.2.1 2005/09/20 00:58:34 mstorti Exp $
 extern int comp_mat_each_time_step_g,
   consistent_supg_matrix_g,
   local_time_step_g;
@@ -275,10 +275,10 @@ void NewAdvDif::new_assemble(arg_data_list &arg_data_v,const Nodedata *nodedata,
   NSGETOPTDEF(int,use_Ajac_old,0);
   //o Report jacobians on random elements (should be in range 0-1).
   NSGETOPTDEF(double,compute_fd_adv_jacobian_random,1.0);
-  //o Flag to turn on ALE (Arbitrary Lagrangian-Eulerian) computation. 
+  //o ALE_flag : flag to ON ALE computation
   NSGETOPTDEF(int,ALE_flag,0);
-  //o Pointer to old coordinates in
-  //  #nodedata# array excluding the first "ndim" values
+  //o indx_ALE_xold : pointer to old coordinates in
+  //  NODEDATA array excluding the first "ndim" values
   NSGETOPTDEF(int,indx_ALE_xold,1);
   //o Compute the term non-symmetric term
   //  correspoding to nonlinearities in the
@@ -548,8 +548,10 @@ void NewAdvDif::new_assemble(arg_data_list &arg_data_v,const Nodedata *nodedata,
       // DEBUG
       int kk,ielhh;
       element.position(kk,ielhh);
+      if(kk==10989) {
       printf("Element %d \n",kk);
       lstate.print("Estado :");
+      }
       // END DEBUG
     }
     

@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: gpdata.cpp,v 1.39 2004/04/30 22:52:00 mstorti Exp $
+//$Id: gpdata.cpp,v 1.39.50.1 2005/09/20 00:58:42 mstorti Exp $
 
 #include "petscsles.h"
 #include <math.h>
@@ -312,6 +312,7 @@ GPdata::GPdata(const char *geom,int ndimel,int nel,int npg_,int
     for (ipg=0; ipg<npg; ipg++) {
       if (npg==4) {
 	// Four points near  the side centers
+	/*
 	double a=(30.+sqrt(660.))/120.;
 	xipg = a; etapg=a; zetapg=a; 
 	if (ipg==0) {
@@ -321,13 +322,26 @@ GPdata::GPdata(const char *geom,int ndimel,int nel,int npg_,int
 	} else {
 	  zetapg=1-2*a;
 	}
-	wpg[ipg] =  master_volume/4.0;
+	*/
 
+	double a = 0.58541020;
+	double b = 0.13819660;
+	xipg = b; etapg = b; zetapg = b; 
+	if (ipg==0) {
+	  xipg = a; 
+	} else if (ipg==1) {
+	  etapg = a;
+	} else if (ipg==2) {
+	  zetapg = a;
+	} 
+	
+	wpg[ipg] =  master_volume/4.0;
+	
       } else if (npg==1) {
 	// One point in the center of the element
-	xipg=1./3.;
-	etapg=1./3.;
-	zetapg=1./3.;
+	xipg=1./4.;
+	etapg=1./4.;
+	zetapg=1./4.;
 	wpg[ipg] =  master_volume;
 
       } else {
