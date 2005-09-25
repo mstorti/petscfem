@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: petscmat.cpp,v 1.13 2004/10/24 16:25:21 mstorti Exp $
+//$Id: petscmat.cpp,v 1.13.42.1 2005/09/25 22:58:44 mstorti Exp $
 
 // fixme:= this may not work in all applications
 
@@ -43,7 +43,7 @@ int PETScMat::create_a() {
   TGETOPTDEF(&thash,int,debug_compute_prof,0);
   //o Pass option to underlying PETSc matrix. Gives an error if a new
   // element is added
-  TGETOPTDEF(&thash,int,mat_new_nonzero_allocation_err,1);
+  TGETOPTDEF(&thash,int,mat_new_nonzero_allocation_err,0);
   //o Is the matrix symmetric?
   TGETOPTDEF(&thash,int,symmetric,0);
   GSet ngbrs_v;
@@ -136,10 +136,10 @@ int PETScMat::create_a() {
 			  myrank,sumd,avd,sumo,avo);
   PetscSynchronizedFlush(comm);
   
-  // Create matrices
+  // Create matrices 
   ierr =  MatCreateMPIAIJ(comm,neqp,neqp,neq,neq,
-			  PETSC_NULL,d_nnz,PETSC_NULL,o_nnz,&A);
-  CHKERRQ(ierr); 
+			  PETSC_NULL,d_nnz,PETSC_NULL,o_nnz,&A);CHKERRQ(ierr); 
+  
   if (mat_new_nonzero_allocation_err) {
     ierr =  MatSetOption(A, MAT_NEW_NONZERO_ALLOCATION_ERR);
     CHKERRQ(ierr); 
@@ -164,7 +164,6 @@ void PETScMat::clear() {
   ierr = PFPETScMat::clear(); CHKERRQ(ierr); 
   // P is not destroyed, since P points to A
   int ierr = MatDestroy_maybe(A); CHKERRQ(ierr); 
-  CHKERRQ(ierr); 
 }
 #endif
 
@@ -172,7 +171,7 @@ void PETScMat::clear() {
 #undef __FUNC__
 #define __FUNC__ "PETScMat::factor_and_solve"
 int PETScMat::factor_and_solve_a(Vec &res,Vec &dx) {
-  ierr = build_sles(); CHKERRQ(ierr); 
+  ierr = build_ksp(); CHKERRQ(ierr); 
   ierr = solve_only_a(res,dx); CHKERRQ(ierr); 
   return 0;
 }
@@ -181,7 +180,8 @@ int PETScMat::factor_and_solve_a(Vec &res,Vec &dx) {
 #undef __FUNC__
 #define __FUNC__ "PETScMat::solve_only"
 int PETScMat::solve_only_a(Vec &res,Vec &dx) {
-  int ierr = SLESSolve(sles,res,dx,&its_); CHKERRQ(ierr); 
+  int ierr = KSPSolve(ksp,res,dx); CHKERRQ(ierr); 
+  ierr = KSPGetIterationNumber(ksp,&its_); CHKERRQ(ierr); 
   return 0;
 }
 
@@ -190,7 +190,7 @@ int PETScMat::solve_only_a(Vec &res,Vec &dx) {
 #define __FUNC__ "PETScMat::view"
 int PETScMat::view(PetscViewer viewer) {
   ierr = MatView(A,viewer); CHKERRQ(ierr); 
-//    ierr = SLESView(sles,PETSC_VIEWER_STDOUT_SELF); CHKERRQ(ierr); 
+//    ierr = KSPView(ksp,PETSC_VIEWER_STDOUT_SELF); CHKERRQ(ierr); 
   return 0;
 };
 

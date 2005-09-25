@@ -1,4 +1,4 @@
-# $Id: Makefile,v 1.86.22.1 2005/09/25 21:50:54 mstorti Exp $ 
+# $Id: Makefile,v 1.86.22.2 2005/09/25 22:59:14 mstorti Exp $ 
 
 .PHONY: all run  compile lclean laplace adv nso laplace_tests force	\
         ctest gprof dxhook dx_tests dx_hook_test_post_run dx		\
@@ -245,8 +245,7 @@ dx_hook_test_post_run_files: dx
 # Generates all states in a file 'sqcav.state_0.tmp'
 	$(MAKE) case=dx_file2 runs
 # Runs DX in background and PETSc-FEM 
-	dx -mdf ./epimport.mdf -cache off -memory 100 \
-			-script qq3.net > dx_output.file3.tmp &
+	$(dx_prog) -memory 100 -script qq3.net > dx_output.file3.tmp &
 	$(MAKE) case=dx_file3 runs
 	echo "------<snip>-----------" >> $(output_file3)
 	cat dx_output.file3.tmp >> $(output_file3)
@@ -262,8 +261,7 @@ dx_hook_test_synchro: dx
 # Clean files
 	-rm -f $(dx_output) $(output_synchro)
 # Runs DX in background and PETSc-FEM 
-	dx -mdf ./epimport.mdf -cache off -memory 100 \
-			-script qq_synchro.net > $(dx_output) &
+	$(dx_prog) -memory 100 -script qq_synchro.net > $(dx_output) &
 	$(MAKE) case=dx_synchro runs
 	echo "------<snip>-----------" >> $(output_synchro)
 	cat $(dx_output) >> $(output_synchro)
@@ -279,8 +277,7 @@ dx_hook_test_allf: dx
 # Clean files
 	-rm -f $(dx_output) $(output_allf)
 # Runs DX in background and PETSc-FEM 
-	dx -mdf ./epimport.mdf -cache off -memory 100 \
-			-script qq_synchro.net > $(dx_output) &
+	$(dx_prog) -memory 100 -script qq_synchro.net > $(dx_output) &
 	$(MAKE) case=dx_allf runs
 	echo "------<snip>-----------" >> $(output_allf)
 	cat $(dx_output) >> $(output_allf)

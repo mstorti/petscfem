@@ -1,11 +1,11 @@
 // -*- mode: C++ -*- 
 /*__INSERT_LICENSE__*/
-// $Id: sparse2.h,v 1.4 2002/11/02 15:11:26 mstorti Exp $
+// $Id: sparse2.h,v 1.4.82.1 2005/09/25 22:58:44 mstorti Exp $
 #ifndef SPARSE2_H
 #define SPARSE2_H
 
 #include <src/sparse.h>
-#include <petscsles.h>
+#include <petscksp.h>
 
 using namespace Random;
 
@@ -32,7 +32,6 @@ namespace Sparse {
   private:
     /// Factored matrix
     ::Mat A;
-    SLES sles;
     KSP ksp;
     PC pc;
   public:

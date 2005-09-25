@@ -1,5 +1,5 @@
 #__INSERT_LICENSE__
-# $Id: Makefile,v 1.21 2004/09/25 09:38:00 mstorti Exp $ 
+# $Id: Makefile,v 1.21.46.1 2005/09/25 22:58:55 mstorti Exp $ 
 
 .PHONY: force all run default skew parallel_cone skew_cone rotating_cone	\
 	skew_noise parallel_cone_noise skew_cone_noise rotating_cone_noise	\
@@ -26,7 +26,8 @@ PROG := $(ADVDIF)
 
 skew:
 	$(MAKE) case_name=$@ run
-	$(OCTAVE) verif_$@.m > $@.verif.tmp
+#	$(OCTAVE) verif_$@.m > $@.verif.tmp
+	$(OCTAVE) verif_$@.m
 
 skew_noise:
 	$(MAKE) case_name=$@ run
@@ -66,7 +67,7 @@ case := $(CASE_NAME)
 NP := $(shell procsel $(PETSCFEM_PROCTABLE))
 run: advec.depl
 	-$(MPIRUN) -np 2 -machinefile machi.dat $(PROG) \
-		-case $(case).depl  > advec.$(case_name).out.tmp
+		-case $(case).depl  # > advec.$(case_name).out.tmp
 
 runs: CASE_NAME := smoke
 runs: smoke.depl

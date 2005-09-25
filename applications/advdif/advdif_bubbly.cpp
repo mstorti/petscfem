@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: advdif_bubbly.cpp,v 1.13 2005/03/28 21:06:34 mstorti Exp $
+//$Id: advdif_bubbly.cpp,v 1.13.12.1 2005/09/25 22:58:31 mstorti Exp $
 
 #include <src/debug.h>
 #include <set>
@@ -324,7 +324,7 @@ int bubbly_main() {
   //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:
   // initialize state vectors
   scal=0;
-  ierr = VecSet(&scal,x); CHKERRA(ierr);
+  ierr = VecSet(x,scal); CHKERRA(ierr);
 
   arg_list argl,arglf;
 
@@ -412,8 +412,8 @@ int bubbly_main() {
       for (int kstage=0; kstage<nstage; kstage++) {
 	
 	scal=0;
-	ierr = VecSet(&scal,res_out); CHKERRA(ierr);
-	ierr = VecSet(&scal,dx_out); CHKERRA(ierr);
+	ierr = VecSet(res_out,scal); CHKERRA(ierr);
+	ierr = VecSet(dx_out,scal); CHKERRA(ierr);
 	
 	if (nstage==1) {
 	  jobinfo_fields = "gasliq";
@@ -445,8 +445,8 @@ int bubbly_main() {
 	  
 	  // Initializes res
 	  scal=0;
-	  ierr = VecSet(&scal,res); CHKERRA(ierr);
-	  ierr = VecSet(&scal,dx); CHKERRA(ierr);
+	  ierr = VecSet(res,scal); CHKERRA(ierr);
+	  ierr = VecSet(dx,scal); CHKERRA(ierr);
 	  
 	  if (comp_mat_each_time_step_g) {
 	    
@@ -538,8 +538,8 @@ int bubbly_main() {
 
 	if (inwt_in==0){
 	  scal=1;
-	  ierr = VecAXPY(&scal,res,res_out);
-	  ierr = VecAXPY(&scal,dx,dx_out);
+	  ierr = VecAXPY(res_out,scal,res);
+	  ierr = VecAXPY(dx_out,scal,dx);
 	}
 
 	ierr  = VecNorm(res,NORM_2,&normres); CHKERRA(ierr);
@@ -547,17 +547,12 @@ int bubbly_main() {
 		    "Newton subiter (inner) %d, stage  %d, norm_res  = %10.3e\n",
 		    inwt_in,kstage,normres);
 	scal=omega_newton_in/alpha;
-	ierr = VecAXPY(&scal,dx,x);
+	ierr = VecAXPY(x,scal,dx);
 	if (normres < tol_newton) break;
 
 	}  // end of inwt (inner) loop
 
 	} // end of kstage loop
-
-      // convergence check and update
-      //      scal=1;
-      //      ierr = VecAXPY(&scal,res_out,res);
-      //      ierr = VecAXPY(&scal,dx_out,dx);
 
       ierr = VecCopy(res_out,res);
 
@@ -567,7 +562,6 @@ int bubbly_main() {
 		  "Newton subiter (outer) %d, norm_res  = %10.3e\n",
 		  inwt,normres);
       //      scal=omega_newton;
-      //      ierr = VecAXPY(&scal,dx,x);
       if (normres < tol_newton) break;
     }  // end of inwt (outer) loop
 
@@ -596,7 +590,7 @@ int bubbly_main() {
     double delta_u;
     ierr = VecCopy(x,dx);
     scal=-1.;
-    ierr = VecAXPY(&scal,xold,dx);
+    ierr = VecAXPY(dx,scal,xold);
     ierr  = VecNorm(dx,NORM_2,&delta_u); CHKERRA(ierr);
 
     if (tstep % nsave == 0){

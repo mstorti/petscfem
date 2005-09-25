@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: iisdcr.cpp,v 1.52 2004/09/25 23:11:39 mstorti Exp $
+//$Id: iisdcr.cpp,v 1.52.42.1 2005/09/25 22:58:44 mstorti Exp $
 
 // fixme:= this may not work in all applications
 extern int MY_RANK,SIZE;
@@ -732,7 +732,7 @@ int IISDMat::create_a() {
   ierr =  MatSetOption(A_II, MAT_NEW_NONZERO_ALLOCATION_ERR);
   CHKERRQ(ierr); 
   
-  ierr = MatSetStashInitialSize(A_II,300000,0);
+  ierr = MatStashSetInitialSize(A_II,300000,0);
   CHKERRQ(ierr); 
 
   if (nlay>1) {
@@ -744,7 +744,7 @@ int IISDMat::create_a() {
 			   &A_II_isp); CHKERRQ(ierr); 
     ierr =  MatSetOption(A_II_isp, MAT_NEW_NONZERO_ALLOCATION_ERR);
     CHKERRQ(ierr); 
-    // ierr = MatSetStashInitialSize(A_II,300000,0);
+    // ierr = MatStashSetInitialSize(A_II,300000,0);
     // CHKERRQ(ierr); 
     // Create aux vectors for solving the band problem
     ierr = VecCreateMPI(comm,n_isp_here,PETSC_DETERMINE,&wb);

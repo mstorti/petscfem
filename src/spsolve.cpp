@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: spsolve.cpp,v 1.17 2003/07/02 23:22:19 mstorti Exp $
+//$Id: spsolve.cpp,v 1.17.74.1 2005/09/25 22:58:44 mstorti Exp $
 
 #include "sparse2.h"
 
@@ -197,12 +197,11 @@ namespace Sparse {
     nnz = size();
 #endif
 
-    // Create SLES and PETSc stuff
-    ierr = SLESCreate(PETSC_COMM_SELF,&sles); assert(!ierr); 
-    ierr = SLESSetOperators(sles,A,
+    // Create KSP and PETSc stuff
+    ierr = KSPCreate(PETSC_COMM_SELF,&ksp); assert(!ierr); 
+    ierr = KSPSetOperators(ksp,A,
 			    A,SAME_NONZERO_PATTERN); assert(!ierr); 
-    ierr = SLESGetKSP(sles,&ksp); assert(!ierr); 
-    ierr = SLESGetPC(sles,&pc); assert(!ierr); 
+    ierr = KSPGetPC(ksp,&pc); assert(!ierr); 
     
     ierr = KSPSetType(ksp,KSPPREONLY); assert(!ierr); 
     ierr = PCSetType(pc,PCLU); assert(!ierr); 
@@ -229,7 +228,8 @@ namespace Sparse {
     memcpy(bb,b,m*sizeof(double));
     ierr = VecRestoreArray(b_vec,&bb); assert(!ierr); 
     
-    ierr = SLESSolve(sles,b_vec,x_vec,&its); assert(!ierr); 
+    ierr = KSPSolve(ksp,b_vec,x_vec); assert(!ierr); 
+    ierr = KSPGetIterationNumber(ksp,&its); assert(!ierr);
 
     ierr = VecGetArray(x_vec,&xx); assert(!ierr); 
     memcpy(b,xx,m*sizeof(double));
@@ -245,7 +245,7 @@ namespace Sparse {
 
     int ierr;
     ierr = MatDestroy(A); assert(!ierr);
-    ierr = SLESDestroy(sles); assert(!ierr);
+    ierr = KSPDestroy(ksp); assert(!ierr);
 
   }
   

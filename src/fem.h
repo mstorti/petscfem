@@ -1,6 +1,6 @@
 // -*- mode: c++ -*-
 /*__INSERT_LICENSE__*/
-//$Id: fem.h,v 1.38 2005/02/21 18:50:28 mstorti Exp $
+//$Id: fem.h,v 1.38.20.1 2005/09/25 22:58:44 mstorti Exp $
 
 #ifndef FEM_H
 #define FEM_H
@@ -8,7 +8,7 @@
 using namespace std;
 
 #include <newmatio.h>
-#include <petscsles.h>
+#include <petscksp.h>
 #include <stdlib.h>
 
 // Libretto has some incompatibilities with recent versions

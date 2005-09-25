@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: adv.cpp,v 1.14 2003/11/25 01:13:36 mstorti Exp $
+//$Id: adv.cpp,v 1.14.58.1 2005/09/25 22:58:34 mstorti Exp $
  
 #include <src/fem.h>
 #include <src/readmesh.h>
@@ -67,7 +67,6 @@ int main(int argc,char **args) {
 
   Vec     x, dx, xold, res; /* approx solution, RHS, residual*/
   Mat     A_mass;                              /* linear system matrix */
-  SLES    sles_mass;     /* linear solver context */
   PC      pc_mass;           /* preconditioner context */
   KSP     ksp_mass;        /* Krylov subspace method context */
   double  norm, *sol, scal; /* norm of solution error */
@@ -210,7 +209,7 @@ int main(int argc,char **args) {
   //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
   // initialize state vectors
   scal=0;
-  ierr = VecSet(&scal,x); CHKERRA(ierr);
+  ierr = VecSet(x,scal); CHKERRA(ierr);
 
   arg_list argl;
 
@@ -243,14 +242,12 @@ int main(int argc,char **args) {
     ierr = assemble(mesh,argl,dofmap,"comp_mat_mass",&time); CHKERRA(ierr);
 
 	//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
-    ierr = SLESCreate(PETSC_COMM_WORLD,&sles_mass); CHKERRA(ierr);
-    ierr = SLESSetOperators(sles_mass,A_mass,A_mass,
-			    DIFFERENT_NONZERO_PATTERN); CHKERRA(ierr);
-    ierr = SLESGetKSP(sles_mass,&ksp_mass); CHKERRA(ierr);
-    ierr = SLESGetPC(sles_mass,&pc_mass); CHKERRA(ierr);
-
+    ierr = KSPCreate(PETSC_COMM_WORLD,&ksp_mass); CHKERRA(ierr);
     ierr = KSPSetType(ksp_mass,KSPCG); CHKERRA(ierr);
+    ierr = KSPGetPC(ksp_mass,&pc_mass); CHKERRA(ierr);
     ierr = PCSetType(pc_mass,PCJACOBI); CHKERRA(ierr);
+    ierr = KSPSetOperators(ksp_mass,A_mass,A_mass,
+			    DIFFERENT_NONZERO_PATTERN); CHKERRA(ierr);
     ierr = KSPSetTolerances(ksp_mass,tol_mass,PETSC_DEFAULT,PETSC_DEFAULT,
 			    PETSC_DEFAULT); CHKERRA(ierr);
     ierr = KSPSetMonitor(ksp_mass,MyKSPMonitor,PETSC_NULL,NULL);
@@ -294,20 +291,19 @@ int main(int argc,char **args) {
     ierr = VecCopy(x,xold);
 
     scal=0;
-    ierr = VecSet(&scal,res); CHKERRA(ierr);
+    ierr = VecSet(res,scal); CHKERRA(ierr);
 
 
     if (comp_mat_each_time_step_g) {
 
       //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
-      ierr = SLESCreate(PETSC_COMM_WORLD,&sles_mass); CHKERRA(ierr);
-      ierr = SLESSetOperators(sles_mass,A_mass,A_mass,
-			      DIFFERENT_NONZERO_PATTERN); CHKERRA(ierr);
-      ierr = SLESGetKSP(sles_mass,&ksp_mass); CHKERRA(ierr);
-      ierr = SLESGetPC(sles_mass,&pc_mass); CHKERRA(ierr);
-
+      ierr = KSPCreate(PETSC_COMM_WORLD,&ksp_mass); CHKERRA(ierr);
       ierr = KSPSetType(ksp_mass,KSPGMRES); CHKERRA(ierr);
+      ierr = KSPGetPC(ksp_mass,&pc_mass); CHKERRA(ierr);
       ierr = PCSetType(pc_mass,PCJACOBI); CHKERRA(ierr);
+      ierr = KSPSetOperators(ksp_mass,A_mass,A_mass,
+			      DIFFERENT_NONZERO_PATTERN); CHKERRA(ierr);
+
       // ierr = KSPSetTolerances(ksp_mass,tol_mass,PETSC_DEFAULT,PETSC_DEFAULT,
       // PETSC_DEFAULT); CHKERRA(ierr);
       ierr = KSPSetTolerances(ksp_mass,rtol,atol,dtol,maxits); CHKERRA(ierr);
@@ -344,8 +340,9 @@ int main(int argc,char **args) {
       }
       ierr = assemble(mesh,argl,dofmap,"comp_res",&time); CHKERRA(ierr);
 
-      ierr = SLESSolve(sles_mass,res,dx,&its); CHKERRA(ierr); 
-      ierr = SLESDestroy(sles_mass);
+      ierr = KSPSolve(ksp_mass,res,dx); CHKERRA(ierr); 
+      ierr = KSPGetIterationNumber(ksp_mass,&its); CHKERRA(ierr); 
+      ierr = KSPDestroy(ksp_mass);
 
     } else {
 
@@ -366,7 +363,8 @@ int main(int argc,char **args) {
       ierr = VecCopy(res,dx);
       vector_divide(dx,a_mass);
 #else
-      ierr = SLESSolve(sles_mass,res,dx,&its); CHKERRA(ierr); 
+      ierr = KSPSolve(ksp_mass,res,dx); CHKERRA(ierr); 
+      ierr = KSPGetIterationNumber(ksp_mass,&its); CHKERRA(ierr); 
 #endif
     }
 
@@ -399,7 +397,7 @@ int main(int argc,char **args) {
     time.inc(Dt);
 
     // Upgrade state vector.
-    ierr = VecAXPY(&Dt,dx,x);
+    ierr = VecAXPY(x,Dt,dx);
 
     VOID_IT(argl);
     argl.arg_add(&x,IN_OUT_VECTOR);
@@ -413,7 +411,7 @@ int main(int argc,char **args) {
     double delta_u;
     ierr = VecCopy(x,dx);
     scal=-1.;
-    ierr = VecAXPY(&scal,xold,dx);
+    ierr = VecAXPY(dx,scal,xold);
     ierr  = VecNorm(dx,NORM_2,&delta_u); CHKERRA(ierr);
 
     PetscPrintf(PETSC_COMM_WORLD,

@@ -1,6 +1,6 @@
 // -*- mode: C++ -*- 
 /*__INSERT_LICENSE__*/
-// $Id: spetscmat.h,v 1.4 2004/10/25 02:09:32 mstorti Exp $
+// $Id: spetscmat.h,v 1.4.42.1 2005/09/25 22:58:44 mstorti Exp $
 #ifndef PETSCFEM_SPETSCMAT_H
 #define PETSCFEM_SPETSCMAT_H
 
@@ -8,7 +8,7 @@
 #include <vector>
 
 #include <petsc.h>
-#include <petscsles.h>
+#include <petscksp.h>
 
 #include <src/iisdgraph.h>
 #include <src/graphdv.h>
@@ -39,7 +39,7 @@ public:
 
   int duplicate_a(MatDuplicateOption op,const PFMat &A) { assert(0); }
 
-  int build_sles();
+  int build_ksp();
 
 };
 
