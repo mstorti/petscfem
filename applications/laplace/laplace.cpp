@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: laplace.cpp,v 1.13 2002/09/05 20:25:50 mstorti Exp $
+//$Id: laplace.cpp,v 1.13.80.1 2005/09/25 18:46:53 mstorti Exp $
  
 #include <src/fem.h>
 #include <src/readmesh.h>
@@ -43,7 +43,6 @@ void bless_elemset(char *type,Elemset *& elemset) {
 int main(int argc,char **args) {
   Vec     x, res;
   Mat     A;                          /* linear system matrix */
-  SLES    sles;     /* linear solver context */
   PC      pc;           /* preconditioner context */
   KSP     ksp;        /* Krylov subspace method context */
   double  norm, *sol, scal; /* norm of solution error */
@@ -80,8 +79,8 @@ int main(int argc,char **args) {
   printf("retornado por get_string: \"%s\"\n",save_file.c_str());
 
   scal=0;
-  ierr = VecSet(&scal,x); CHKERRA(ierr);
-  ierr = VecSet(&scal,res); CHKERRA(ierr);
+  ierr = VecSet(x,scal); CHKERRA(ierr);
+  ierr = VecSet(res,scal); CHKERRA(ierr);
 
   ierr = opt_read_vector(mesh,x,dofmap,myrank);
 
@@ -93,15 +92,13 @@ int main(int argc,char **args) {
 
   ierr = MatZeroEntries(A); CHKERRA(ierr);
       
-  // SLES solver for the laplacian
-  ierr = SLESCreate(PETSC_COMM_WORLD,&sles); CHKERRA(ierr);
-  ierr = SLESSetOperators(sles,A,
-			  A,DIFFERENT_NONZERO_PATTERN); CHKERRA(ierr);
-  ierr = SLESGetKSP(sles,&ksp); CHKERRA(ierr);
-  ierr = SLESGetPC(sles,&pc); CHKERRA(ierr);
-
+  // KSP solver for the laplacian
+  ierr = KSPCreate(PETSC_COMM_WORLD,&ksp); CHKERRA(ierr);
   ierr = KSPSetType(ksp,KSPCG); CHKERRA(ierr);
+  ierr = KSPGetPC(ksp,&pc); CHKERRA(ierr);
   ierr = PCSetType(pc,PCJACOBI); CHKERRA(ierr);
+  ierr = KSPSetOperators(ksp,A,
+			  A,DIFFERENT_NONZERO_PATTERN); CHKERRA(ierr);
   ierr = KSPSetTolerances(ksp,tol,PETSC_DEFAULT,PETSC_DEFAULT,
          PETSC_DEFAULT); CHKERRA(ierr);
   ierr = KSPSetMonitor(ksp,MyKSPMonitor,PETSC_NULL,NULL);
@@ -126,7 +123,9 @@ int main(int argc,char **args) {
   ierr = assemble(mesh,argl,dofmap,"comp_res_mat"); CHKERRA(ierr);
 #endif
 
-  ierr = SLESSolve(sles,res,x,&its); CHKERRA(ierr); 
+  ierr = KSPSolve(ksp,res,x); CHKERRA(ierr);
+  ierr = KSPGetIterationNumber(ksp,&its); CHKERRA(ierr);
+
   print_vector(save_file.c_str(),x,dofmap);
 
   PetscFinalize();

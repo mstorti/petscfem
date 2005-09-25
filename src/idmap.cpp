@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: idmap.cpp,v 1.12 2005/02/20 15:25:07 mstorti Exp $
+//$Id: idmap.cpp,v 1.12.18.1 2005/09/25 18:47:03 mstorti Exp $
  
 #include <stdio.h>
 #include <map>
@@ -10,7 +10,7 @@
 #include <cassert>
 #include <math.h>
 
-#include <petscsles.h>
+#include <petscksp.h>
 
 #include "libretto.h"
 #include <libretto/darray.h>

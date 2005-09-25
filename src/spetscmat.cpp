@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: spetscmat.cpp,v 1.6 2004/11/10 02:06:34 mstorti Exp $
+//$Id: spetscmat.cpp,v 1.6.38.1 2005/09/25 18:47:03 mstorti Exp $
 
 #include <src/petscmat.h>
 #include <src/pfmat.h>
@@ -11,7 +11,7 @@ static int spetscmat_mult(Mat A,Vec x,Vec y);
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 #undef __FUNC__
-#define __FUNC__ "PETScSymmMat::build_sles"
+#define __FUNC__ "PETScSymmMat::build_ksp"
 PETScSymmMat
 ::PETScSymmMat(int MM,int NN,
 		 const DofPartitioner &part_a,
@@ -24,8 +24,8 @@ PETScSymmMat
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 #undef __FUNC__
-#define __FUNC__ "PETScSymmMat::build_sles"
-int PETScSymmMat::build_sles() {
+#define __FUNC__ "PETScSymmMat::build_ksp"
+int PETScSymmMat::build_ksp() {
 
   int ierr;
   //o Absolute tolerance to solve the monolithic linear
@@ -59,19 +59,16 @@ int PETScSymmMat::build_sles() {
   MatShellSetOperation(Asymm,MATOP_MULT_TRANSPOSE,
 		       (void (*)(void))(&spetscmat_mult));
 
-  ierr = SLESDestroy_maybe(sles); CHKERRQ(ierr);
-  ierr = SLESCreate(comm,&sles); CHKERRQ(ierr);
-  ierr = SLESSetOperators(sles,Asymm,P,SAME_NONZERO_PATTERN); 
-  CHKERRQ(ierr);
-  ierr = SLESGetKSP(sles,&ksp); CHKERRQ(ierr);
-  ierr = SLESGetPC(sles,&pc); CHKERRQ(ierr);
+  ierr = KSPDestroy_maybe(ksp); CHKERRQ(ierr);
+  ierr = KSPCreate(comm,&ksp); CHKERRQ(ierr);
+  ierr = KSPSetOperators(ksp,Asymm,P,SAME_NONZERO_PATTERN); CHKERRQ(ierr);
+  ierr = KSPGetPC(ksp,&pc); CHKERRQ(ierr);
 
   set_preco(preco_type);
 
-  ierr = KSPSetType(ksp,"cg"); CHKERRQ(ierr);
+  ierr = KSPSetType(ksp,KSPCG); CHKERRQ(ierr);
 
-  ierr = KSPSetTolerances(ksp,rtol,atol,dtol,maxits); 
-  CHKERRQ(ierr); 
+  ierr = KSPSetTolerances(ksp,rtol,atol,dtol,maxits);CHKERRQ(ierr); 
 
   ierr = KSPSetMonitor(ksp,PFPETScMat_default_monitor,
 		       this,NULL); CHKERRQ(ierr); 
@@ -85,7 +82,7 @@ int PETScSymmMat::mult(Vec x,Vec y) {
   ierr = MatMult(A,x,y); CHKERRQ(ierr); 
   ierr = MatMultTransposeAdd(A,x,y,y); CHKERRQ(ierr); 
   double scal=0.5;
-  ierr = VecScale(&scal,y); CHKERRQ(ierr); 
+  ierr = VecScale(y,scal); CHKERRQ(ierr); 
   return 0;
 }
 
@@ -110,8 +107,7 @@ int PETScSymmMat::insert_p2(int row,int col) {
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 #undef __FUNC__
 #define __FUNC__ "PETScSymmMat::set_profile_a"
-int PETScSymmMat
-::set_profile_a(int row,int col) {
+int PETScSymmMat::set_profile_a(int row,int col) {
   if (insert_p2(row,col)) lgraph->add(row,col);
   return 0;
 }
@@ -119,8 +115,7 @@ int PETScSymmMat
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 #undef __FUNC__
 #define __FUNC__ "PETScSymmMat::set_value_a"
-int PETScSymmMat
-::set_value_a(int row,int col,PetscScalar value,
+int PETScSymmMat::set_value_a(int row,int col,PetscScalar value,
 	      InsertMode mode) {
   int roww = row, coll = col;
   if (!insert_p2(row,col)) { roww=col; coll=row; }

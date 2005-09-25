@@ -1,6 +1,6 @@
 # mode: -*- makefile -*-
 #__INSERT_LICENSE__
-#$Id: Makefile.base,v 1.211 2005/03/03 02:21:27 mstorti Exp $
+#$Id: Makefile.base,v 1.211.14.1 2005/09/25 18:46:43 mstorti Exp $
 
 #p [in Makefile.base]
 #s General
@@ -45,7 +45,7 @@ GNU_C_COMPILER = gcc  # gcc or egcs
 # specify the version of PETSc needed through the variable
 # `PETSC_VERSION_USED_BY_PETSCFEM' and define their own `PETSC_DIR' variable. 
 ifneq ($(PETSC_ROOT_DIR),)
-PETSC_VERSION_USED_BY_PETSCFEM=2.1.6
+PETSC_VERSION_USED_BY_PETSCFEM=2.3.0
 PETSC_DIR=$(PETSC_ROOT_DIR)/petsc-$(PETSC_VERSION_USED_BY_PETSCFEM)
 endif
 
@@ -122,6 +122,8 @@ else
 LIBRETTO_INCLUDE_FLAGS = -I/$(LIBRETTO_I)
 endif
 
+MPICH2_CPPFLAG = -DMPICH_IGNORE_CXX_SEEK
+
 CPPFLAGS         := 					\
 		 $(PROF_FLAGS)        			\
                  -I$(PETSC_DIR)/include			\
@@ -132,7 +134,8 @@ CPPFLAGS         := 					\
                  -I$(PETSCFEM_DIR) -I$(MESCHACH)	\
                  $(LIBRETTO_INCLUDE_FLAGS)		\
 		 $(ANN_CPPFLAGS)			\
-                 $(SUPERLU_CPPFLAGS)
+                 $(SUPERLU_CPPFLAGS)                    \
+		 $(MPICH2_CPPFLAG)
 
 
 ifeq ($(USE_DYNAMICALLY_LOADED_EXTENDED_FUNCTIONS),yes) 
@@ -267,8 +270,11 @@ distclean:
 	$(MAKE) clean local_dist_clean &> /dev/null
 	for dir in $(CLEAN_DIRS) ; do $(MAKE) -C $$dir distclean  ; done
 
+
+CXX_CLINKER := ${CLINKER}
+
 ## PETSc Libraries used by most PETSc-FEM applications
-PETSCFEM_PETSC_LIBS := ${PETSC_SLES_LIB} -lpetscfortran
+PETSCFEM_PETSC_LIBS := ${PETSC_KSP_LIB} #-lpetscfortran
 
 LDFLAGS = -Wl,-E,-rpath,$(LD_LIBRARY_PATH)	\
           $(PROG_LIB)				\
@@ -414,3 +420,16 @@ compdate.o: CPPFLAGS += "-DPETSCFEM_HOSTNAME=\"$(shell uname -a)\""
 
 compdate.cpp:
 	perl -pe 's/__MODULE__/$(PETSCFEM_MODULE)/' < $(PETSCFEM_DIR)/tools/compdate.cppin > $@
+
+CXX := g++
+%.o: %.cpp
+	$(CXX) -c -o $@ ${COPTFLAGS} ${CFLAGS} ${CCPPFLAGS} $<
+
+ifeq ($(BOPT),O_c++)
+COPTFLAGS := -O2 -funroll-loops
+else
+COPTFLAGS := -g3
+endif
+
+qq:
+	@echo COPTFLAGS : ${COPTFLAGS}

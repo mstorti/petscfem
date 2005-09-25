@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: state.cpp,v 1.8 2002/09/05 19:24:01 mstorti Exp $
+//$Id: state.cpp,v 1.8.80.1 2005/09/25 18:47:03 mstorti Exp $
 
 #include "sttfilter.h"
  
@@ -7,11 +7,11 @@
 #undef __FUNC__
 #define __FUNC__ "State::axpy(double,const State &)"
 State & State::axpy(double alpha,const State &v) {
-  int ierr = VecAXPY(&alpha,*(v.vec),*vec);
+  int ierr = VecAXPY(*vec,alpha,*(v.vec));
   return *this;
 }
 
-
+
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 #undef __FUNC__
 #define __FUNC__ "State::State(const State &v)"
@@ -20,7 +20,6 @@ State::State(const State &v) : time(v.time) {
   int ierr = VecDuplicate(*v.vec,vec);
 }
 
-
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 #undef __FUNC__
 #define __FUNC__ "State::~State()" 
@@ -32,7 +31,6 @@ State::~State() {
   }
 }
 
-
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 #undef __FUNC__
 #define __FUNC__ "const State & State::print_some(const char *,Dofmap *,set<int> &) const"
@@ -42,27 +40,25 @@ const State & State::print_some(const char *filename,Dofmap *dofmap,
   return *this;
 }
 
-
+
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 #undef __FUNC__
 #define __FUNC__ "State & State::scale(double alpha)"
 State & State::scale(double alpha) {
-  double alpha_ = alpha;
-  int ierr = VecScale(&alpha_,*vec);
+  int ierr = VecScale(*vec,alpha);
   return *this;
 }
 
-
+
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 #undef __FUNC__
 #define __FUNC__ "State & State::set_cnst(double a)"
 State & State::set_cnst(double a) {
-  double a_ = a;
-  int ierr = VecSet(&a,*vec);
+  int ierr = VecSet(*vec,a);
   return *this;
 }
 
-
+
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 #undef __FUNC__
 #define __FUNC__ "const State & State::print() const"
@@ -73,7 +69,7 @@ const State & State::print() const {
   return *this;
 }
 
-
+
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 #undef __FUNC__
 #define __FUNC__ "const State & State::print(int n) const"

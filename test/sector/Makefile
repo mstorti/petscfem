@@ -1,5 +1,5 @@
 #__INSERT_LICENSE__
-# $Id: Makefile,v 1.11 2003/09/02 19:05:45 mstorti Exp $ 
+# $Id: Makefile,v 1.11.68.1 2005/09/25 18:47:29 mstorti Exp $ 
 
 .PHONY: constraint_bug chunk_size_process sector iprops triangle lap_per
 
@@ -42,7 +42,7 @@ chunk_size_process: $(LAPLACE)
 	$(EPERL) -P -d chunk_size=100 sector.epl >sector.depl
 	-$(MPIRUN) $(MCH) -np $(NP) $(LAPLACE) -case sector.depl >/dev/null
 	mv sector.sal sector_chunk100.sal
-	-rm machi.dat
+#	-rm machi.dat
 
 #----<*>----------<*>----------<*>----------<*>----------<*>----------<*>-----
 .PHONY: triangle triangle_npg3 triangle_npg4 triangle_npg7

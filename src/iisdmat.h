@@ -1,6 +1,6 @@
 // -*- mode: C++ -*- 
 /*__INSERT_LICENSE__*/
-// $Id: iisdmat.h,v 1.32 2004/10/24 16:25:21 mstorti Exp $
+// $Id: iisdmat.h,v 1.32.40.1 2005/09/25 18:47:03 mstorti Exp $
 #ifndef IISDMAT_H
 #define IISDMAT_H
 
@@ -108,14 +108,10 @@ class IISDMat : public PFPETScMat {
   /** Auxiliar sequential vector that contains local dof's in this
       processor */
   Vec y_loc_seq;
-  /// SLES for the interface preconditioning problem 
-  SLES sles_ii;
   /// PC for the for the interface preconditioning problem 
   PC pc_ii;
   /// KSP for the interface preconditioning problem 
   KSP ksp_ii;
-  /// SLES for local solution (en each processor)
-  SLES sles_ll;
   /// PC for local solution (en each processor)
   PC pc_ll;
   /// KSP for local solution (en each processor)

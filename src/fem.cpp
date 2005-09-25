@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: fem.cpp,v 1.13 2005/02/21 18:50:28 mstorti Exp $
+//$Id: fem.cpp,v 1.13.18.1 2005/09/25 18:47:03 mstorti Exp $
 
 #include <time.h>
 #include <stdarg.h>
@@ -20,8 +20,7 @@ int zeroe_mat(Mat A,int & ass_flag) {
     ass_flag=1;
     return 0;
   } else {
-    double scal = 0;
-    int ierr = MatScale(&scal,A);
+    int ierr = MatZeroEntries(A);
     return ierr;
   }
 }
@@ -149,8 +148,7 @@ int opt_read_vector(Mesh *mesh,Vec x, Dofmap *dofmap,int myrank) {
   if (ini_name!=NULL) {
     ierr = read_vector(ini_name,x,dofmap,myrank);
   } else {
-    double scal = 0.;
-    ierr = VecSet(&scal,x); CHKERRA(ierr);
+    ierr = VecSet(x,0.); CHKERRA(ierr);
   }
   return ierr;
 }
@@ -167,8 +165,7 @@ int opt_read_vector(Mesh *mesh,Vec x, Dofmap *dofmap,int myrank) {
   if (ini_name!=string("")) {
     ierr = read_vector(ini_name.c_str(),x,dofmap,myrank);
   } else {
-    double scal = 0.;
-    ierr = VecSet(&scal,x); CHKERRA(ierr);
+    ierr = VecSet(x,0.); CHKERRA(ierr);
   }
   return ierr;
 }

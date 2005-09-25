@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: pfmat.cpp,v 1.14 2004/10/25 02:09:32 mstorti Exp $
+//$Id: pfmat.cpp,v 1.14.40.1 2005/09/25 18:47:03 mstorti Exp $
 
 #include <petscmat.h>
 
@@ -170,7 +170,7 @@ int PFMat::assembly_begin(MatAssemblyType type) {
 #define __FUNC__ "PFMat::assembly_end"
 int PFMat::assembly_end(MatAssemblyType type) {
   fsm->assembly_end();
-  CHKERRQ(ierr); 
+  //  CHKERRQ(ierr); 
   
   ierr = assembly_end_a(type); CHKERRQ(ierr); 
   return 0;

@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: advdif.cpp,v 1.63 2005/09/01 02:49:41 mstorti Exp $
+//$Id: advdif.cpp,v 1.63.2.1 2005/09/25 18:46:46 mstorti Exp $
 
 #include <src/debug.h>
 #include <set>
@@ -322,7 +322,7 @@ int main(int argc,char **args) {
   //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
   // initialize state vectors
   scal=0;
-  ierr = VecSet(&scal,x); CHKERRA(ierr);
+  ierr = VecSet(x,scal); CHKERRA(ierr);
 
   arg_list argl,arglf;
 
@@ -384,12 +384,12 @@ int main(int argc,char **args) {
 
       // Initializes res
       scal=0;
-      ierr = VecSet(&scal,res); CHKERRA(ierr);
+      ierr = VecSet(res,scal); CHKERRA(ierr);
 
       if (comp_mat_each_time_step_g) {
 
 	//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
-	// ierr = A->build_sles(GLOBAL_OPTIONS); CHKERRA(ierr); 
+	// ierr = A->build_ksp(GLOBAL_OPTIONS); CHKERRA(ierr); 
 
 	ierr = A->clean_mat(); CHKERRA(ierr); 
 #ifdef CHECK_JAC
@@ -425,9 +425,6 @@ int main(int argc,char **args) {
 	  ierr = A->solve(res,dx); CHKERRA(ierr); 
 	  debug.trace("After solving linear system.");
 	}
-	// ierr = SLESDestroy(sles);
-	// ierr = A->destroy_sles(); CHKERRA(ierr); 
-      
       } else {
 
 	VOID_IT(argl);
@@ -445,7 +442,6 @@ int main(int argc,char **args) {
 
 	if (!print_linear_system_and_stop || solve_system) {
 	  ierr = A->solve(res,dx); CHKERRA(ierr); 
-	  // ierr = SLESSolve(sles,res,dx,&its); CHKERRA(ierr); 
 	}
       }
 
@@ -522,7 +518,7 @@ int main(int argc,char **args) {
 		  "Newton subiter %d, norm_res  = %10.3e\n",
 		  inwt,normres);
       scal=omega_newton/alpha;
-      ierr = VecAXPY(&scal,dx,x);
+      ierr = VecAXPY(x,scal,dx);
       if (normres < tol_newton) break;
     }
 
@@ -551,7 +547,7 @@ int main(int argc,char **args) {
     double delta_u;
     ierr = VecCopy(x,dx);
     scal=-1.;
-    ierr = VecAXPY(&scal,xold,dx);
+    ierr = VecAXPY(dx,scal,xold);
     ierr  = VecNorm(dx,NORM_2,&delta_u); CHKERRA(ierr);
 
     if (tstep % nsave == 0){

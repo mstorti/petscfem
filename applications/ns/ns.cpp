@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: ns.cpp,v 1.166 2005/09/20 01:30:29 mstorti Exp $
+//$Id: ns.cpp,v 1.166.2.1 2005/09/25 18:46:56 mstorti Exp $
 #include <src/debug.h>
 #include <malloc.h>
 
@@ -414,7 +414,7 @@ int main(int argc,char **args) {
   //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
   // initialize state vectors
   scal=0;
-  ierr = VecSet(&scal,x); CHKERRA(ierr);
+  ierr = VecSet(x,scal); CHKERRA(ierr);
 
   //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
   // Compute  profiles
@@ -548,7 +548,7 @@ int main(int argc,char **args) {
 	}
 
 	scal=0;
-	ierr = VecSet(&scal,res); CHKERRA(ierr);
+	ierr = VecSet(res,scal); CHKERRA(ierr);
 	if (update_jacobian_this_iter) {
 	  // ierr = A_tet->clean_mat(); CHKERRA(ierr); 
 	}
@@ -689,7 +689,7 @@ int main(int argc,char **args) {
 	if (relfac!=1.) PetscPrintf(PETSC_COMM_WORLD,
 				    "relaxation factor %f\n",relfac);
 	scal= relfac/alpha;
-	ierr = VecAXPY(&scal,dx,x);
+	ierr = VecAXPY(x,scal,dx);
 
 #if 0
 	ierr = VecView(x,PETSC_VIEWER_STDOUT_WORLD); CHKERRA(ierr);
@@ -786,7 +786,7 @@ int main(int argc,char **args) {
       debug.trace("-PREDICTOR- After solving linear system.");
 
       scal= 1.0;
-      ierr = VecAXPY(&scal,dx,x);
+      ierr = VecAXPY(x,scal,dx);
 
       if (do_stop && stop_mom) {
 	ierr = VecView(x,PETSC_VIEWER_STDOUT_WORLD); CHKERRA(ierr);
@@ -811,7 +811,7 @@ int main(int argc,char **args) {
       // SECOND STEP POISSON
       ierr = VecCopy(x,xp);
       scal=0;
-      ierr = VecSet(&scal,res); CHKERRA(ierr);
+      ierr = VecSet(res,scal); CHKERRA(ierr);
 
       if (tstep==1) {
 	argl.clear();
@@ -841,7 +841,7 @@ int main(int argc,char **args) {
       debug.trace("-POISSON- After solving linear system.");
 
       scal= 1.0;
-      ierr = VecAXPY(&scal,dx,x);
+      ierr = VecAXPY(x,scal,dx);
 #endif
 
       if (do_stop && stop_poi) {
@@ -870,7 +870,7 @@ int main(int argc,char **args) {
       // THIRD STEP PROJECTION
       ierr = VecCopy(x,xp);
       scal=0;
-      ierr = VecSet(&scal,res); CHKERRA(ierr);
+      ierr = VecSet(res,scal); CHKERRA(ierr);
       if (!reuse_mat || tstep==1) {
 	argl.clear();
 	statep.set_time(time);	// fixme:= what time?
@@ -924,13 +924,13 @@ int main(int argc,char **args) {
       }
 
       scal= 1.0;
-      ierr = VecAXPY(&scal,dx,x);
+      ierr = VecAXPY(x,scal,dx);
 #endif
     }
 
     // error difference
     scal = -1.0;
-    ierr = VecAXPY(&scal,x,dx_step);
+    ierr = VecAXPY(dx_step,scal,x);
     ierr  = VecNorm(dx_step,NORM_2,&norm); CHKERRA(ierr);
     PetscPrintf(PETSC_COMM_WORLD,"============= delta_u = %10.3e\n",norm);
     print_vector_rota(save_file_pattern.c_str(),x,dofmap,&time,

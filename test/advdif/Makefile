@@ -1,5 +1,5 @@
 #__INSERT_LICENSE__
-# $Id: Makefile,v 1.29 2003/03/23 20:52:43 mstorti Exp $ 
+# $Id: Makefile,v 1.29.72.1 2005/09/25 18:47:11 mstorti Exp $ 
 
 .PHONY: plano data run sine 
 
@@ -98,7 +98,7 @@ plano.con plano.nod: plano.m
 	$(OCTAVE) plano.m >/dev/null
 
 advec: advec.depl
-	-$(MPIRUN) -np 1 -machinefile machi.dat $(ADVDIF) \
+	-$(MPIRUN) -machinefile machi.dat -np 1 $(ADVDIF) \
 			-case advec.depl
 
 # .gdbinit:
@@ -145,7 +145,7 @@ sine.data: sine.data.epl
 #NP := $(shell procsel $(PETSCFEM_PROCTABLE))
 run: data
 	-rm -f dummy $(output_files_$(case))
-	-$(MPIRUN) -np 1 -machinefile machi.dat $(ADVDIF) \
+	-$(MPIRUN) -machinefile machi.dat -np 1 $(ADVDIF) \
 			-case $(case).depl > $(case).out
 
 # Tests to be done:

@@ -1,6 +1,6 @@
 // -*- mode: C++ -*- 
 /*__INSERT_LICENSE__*/
-// $Id: spdirect.h,v 1.5 2002/09/05 18:34:18 mstorti Exp $
+// $Id: spdirect.h,v 1.5.80.1 2005/09/25 18:47:03 mstorti Exp $
 #ifndef SPDIRECT_H
 #define SPDIRECT_H
 
@@ -43,7 +43,7 @@ class ThashPFMat : public PFMat {
 class SparseDirect : public ThashPFMat {
   TextHashTable thash;
   // Does nothing
-  int build_sles(TextHashTable *thash,char *name=NULL) {return 0;};
+  int build_ksp(TextHashTable *thash,char *name=NULL) {return 0;};
 public:
   SparseDirect(int N,char * opt = "PETSc") {
     A_p = Sparse::Mat::dispatch(opt,&thash);
