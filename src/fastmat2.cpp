@@ -1,5 +1,5 @@
 ///__INSERT_LICENSE__
-//$Id: fastmat2.cpp,v 1.22 2005/05/29 22:43:56 mstorti Exp $
+//$Id: fastmat2.cpp,v 1.23 2005/09/25 20:29:06 mstorti Exp $
 
 #include <cmath>
 #include <cstdio>
@@ -274,7 +274,7 @@ void Perm::print(const char *s) const {
   for (unsigned int j=0; j<this->size(); j++) {
     printf("%d -> %d, ",j+1,(*this)[j]+1);
   }
-  printf("\n");
+  if (s!=NULL) printf("\n");
 }
 
 #if 0
@@ -510,8 +510,9 @@ void FastMat2::print(const char *s) const {
     copy(&fdims[0],&fdims[nd-2],&ndprev[0]);
     indxp = Indx(nd-2,1);
     while (1) {
-      indxp.print("(");
-      printf(" * *)");
+      printf("(");
+      indxp.print();
+      printf(" * *)\n");
       print2(indxp,fdims);
       if (!inc(indxp,ndprev)) break;
     }
