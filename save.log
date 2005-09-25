@@ -4435,5 +4435,5 @@ tag: beta-3.47.32 on Sun, 18 Sep 2005 17:34:17 -0300 by mstorti in minerva.cerid
 tag: beta-3.47.33 on Mon, 19 Sep 2005 22:56:58 -0300 by mstorti in spider
      > Merged from Beto, compiles on HEAD. 
 ----------
-tag: beta-3.47.34 on Sun, 25 Sep 2005 15:47:52 -0300 by mstorti in spider
+tag: asm-petsc230-0.0.0 on Sun, 25 Sep 2005 15:47:52 -0300 by mstorti in spider
      > Adding ASM and PETSC 2.3.0 patches to the `asm-petsc230' branch. 
