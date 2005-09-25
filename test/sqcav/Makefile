@@ -1,4 +1,4 @@
-# $Id: Makefile,v 1.86 2005/02/18 09:18:21 mstorti Exp $ 
+# $Id: Makefile,v 1.86.22.1 2005/09/25 21:50:54 mstorti Exp $ 
 
 .PHONY: all run  compile lclean laplace adv nso laplace_tests force	\
         ctest gprof dxhook dx_tests dx_hook_test_post_run dx		\
@@ -212,6 +212,7 @@ test_triangle:
 
 ###--------<*>--------<*>--------<*>--------<*>--------<*>--------<*>--------<*> 
 output_file1 := output.CASE_sqcav.np_$(np).case_dx_file1.out.tmp
+dx_prog := DXMODULES=../../dx dx -mdf ../../dx/epimport.mdf -cache off
 #w Checks reading states from file in severa records. 
 dx_hook_test_post_run_file_record: dx
 #
@@ -224,7 +225,7 @@ dx_hook_test_post_run_file_record: dx
 # Generates all states in a file 'sqcav.state_0.tmp'
 	$(MAKE) case=dx_file0 runs
 # Runs DX in background and PETSc-FEM 
-	dx -mdf ./epimport.mdf -cache off -memory 100 \
+	$(dx_prog) -memory 100 \
 			-script qq1.net > dx_output.file1.tmp &
 	$(MAKE) case=dx_file1 runs
 	echo "------<snip>-----------" >> $(output_file1)
