@@ -4437,3 +4437,6 @@ tag: beta-3.47.33 on Mon, 19 Sep 2005 22:56:58 -0300 by mstorti in spider
 ----------
 tag: asm-petsc230-0.0.0 on Sun, 25 Sep 2005 15:47:52 -0300 by mstorti in spider
      > Adding ASM and PETSC 2.3.0 patches to the `asm-petsc230' branch. 
+----------
+tag: asm-petsc230-0.0.1 on Sun, 25 Sep 2005 16:02:36 -0300 by mstorti in spider
+     > Compiles with ASM+PETSC230 patch. 
