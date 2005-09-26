@@ -34,8 +34,9 @@ nnwt <:=($case eq 'locker' ? 5 : 1):>
 # newton_relaxation_factor 0.1 2 1.
 
 solver "iisd"
-iisd_subpart 40
 pc_lu_fill 10.
+iisd_subpart 2
+print_internal_loop_conv
 
 partitioning_method "metis"
 # partitioning_method "nearest_neighbor"

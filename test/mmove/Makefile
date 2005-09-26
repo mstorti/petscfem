@@ -1,5 +1,5 @@
 #__INSERT_LICENSE__
-# $Id: Makefile,v 1.20 2003/10/12 00:49:41 mstorti Exp $ 
+# $Id: Makefile,v 1.20.68.1 2005/09/26 02:45:48 mstorti Exp $ 
 
 .PHONY: force all run tests data
 
@@ -34,8 +34,8 @@ step3d:
 
 #w Deformation of square with a ramp on one side
 step:
-	$(MAKE) NAME=step OCT_SCRIPT=mkstep.m test_case > step.out.tmp
-	$(OCTAVE) proc.m > step.verif.tmp
+	$(MAKE) NAME=step OCT_SCRIPT=mkstep.m test_case # > step.out.tmp
+#	$(OCTAVE) proc.m > step.verif.tmp
 
 #w Check whether lockers are created correctly in adaptor
 locker:
