@@ -1,7 +1,7 @@
-$Id: Version-Policy-HOWTO.txt,v 1.15 2005/05/03 23:21:05 mstorti Exp $
+$Id: Version-Policy-HOWTO.txt,v 1.16 2005/09/26 10:03:46 mstorti Exp $
 
 ;;; usage (do-all-replace major new-unstable)
-(do-all-replace 3 47)
+(do-all-replace 3 49)
 (below mark0 is the pattern, and below mark1
 __GENERIC__
 
@@ -31,23 +31,23 @@ __ACTUAL__
 
 These are the steps for saving a new stable version of PETSc-FEM. The
 policy version herself is described in the doc. Say that we are
-working in unstable version 3.45, stable 3.44 and want to save a new
-stable version 3.46 (unstable 3.47)
+working in unstable version 3.47, stable 3.46 and want to save a new
+stable version 3.48 (unstable 3.49)
 
 *./ Save CVS repository (directory `cvsroot') in cvsroot-DATE.tgz
-*./ Make $ make tag with version=3.47
+*./ Make $ make tag with version=3.49
 *./ Make a branch tag starting on the newly created stable one with:
-         $ cvs tag -b -r beta--3-47 beta--3-46
+         $ cvs tag -b -r beta--3-49 beta--3-48
 *./ Make a new directory in PETSC/ with the new stable release
-    $ cvs co -d petscfem-beta-3.46 -r beta--3-46 petscfem
-*./ In that directory replace 3.47 by 3.46 in files `stable.log' and
+    $ cvs co -d petscfem-beta-3.48 -r beta--3-48 petscfem
+*./ In that directory replace 3.49 by 3.48 in files `stable.log' and
          `save.log'. Set BOPT to O_c++ in Makefile.base. Commit. 
 *./ Create a new administrative light tag in the stable version
-    (directory `petscfem-beta-3.46') with version `beta-3.46.1'. 
-*./ Replace 3.47 by 3.46 in files `stable.log' and `save.log' on 
+    (directory `petscfem-beta-3.48') with version `beta-3.48.1'. 
+*./ Replace 3.49 by 3.48 in files `stable.log' and `save.log' on 
 	    the HEAD branch (probably directory PETSC/petscfem)
 *./ Create a new `light' administrative version on the `HEAD' branch
-       with numbering 3.47.1 (WARNING: the script will suggest 3.46.1).
+       with numbering 3.49.1 (WARNING: the script will suggest 3.48.1).
 *./ Update `doc/versions-tree.fig'
-*./ Probably compile programs in directory `petscfem-beta-3.46'
+*./ Probably compile programs in directory `petscfem-beta-3.48'
 
