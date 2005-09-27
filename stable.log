@@ -591,7 +591,7 @@ tag: beta-3.46 on Mon May  2 21:54:38 GMT+3 2005, by mstorti in spider
      > Fixed bug in reading constraints. 
      > Now gives error if find a token that can't be read. 
 ----------
-tag: beta-3.49 on Tue Sep 27 11:46:16 -0300 2005, by mstorti in minerva.ceride.gov.ar
+tag: beta-3.48 on Tue Sep 27 11:46:16 -0300 2005, by mstorti in minerva.ceride.gov.ar
      > Worked on `dvector2.scm'. Ported many generic functions. 
      > Worked on `bjhash'. Generic Hash function. 
      > Merged from `bubbly12' (Beto). 
