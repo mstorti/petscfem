@@ -4438,3 +4438,23 @@ tag: beta-3.47.33 on Mon, 19 Sep 2005 22:56:58 -0300 by mstorti in spider
 tag: beta-3.47.34 on Sun, 25 Sep 2005 17:29:22 -0300 by mstorti in spider
      > Turned back on `mmove.cpp'. 
      > Doesn't know why I had uncommented the `inwt' line in mmove.cpp. 
+----------
+tag: beta-3.49 on Tue, 27 Sep 2005 11:46:16 -0300 by mstorti in minerva.ceride.gov.ar
+     > -- STABLE VERSION -- 
+     > Worked on `dvector2.scm'. Ported many generic functions. 
+     > Worked on `bjhash'. Generic Hash function. 
+     > Merged from `bubbly12' (Beto). 
+     > Added `print(rowsz,s)' to `fastmat2'. 
+     > Fixed bugs in doc for `ALE_flag' and `ALE_indx_old'. 
+     > Working on new mesh-move formulation. 
+     > Now `G_body' is taken `elemset-wise' in `nsitetlesfm2.cpp'. 
+     > Added pressure force integrator for gasflow. 
+     > Added selective Darcy term to fracstep. 
+     > Implemented `gasflow_force_integrator' integrates 
+     >         pressure force and moments. 
+     > Added `wall law' elemset for LES turbulence computation 
+     >         to `fracstep' solver. 
+     > Added `Q_body' to gasflow. 
+     > Fixed bug eith `G_body_scale' in `gasflow'. 
+     > Fixed bug in `modulo(double,double)'
+     > Merged from Beto (bubbly13), compiles on HEAD. 
