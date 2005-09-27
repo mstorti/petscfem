@@ -590,3 +590,22 @@ tag: beta-3.46 on Mon May  2 21:54:38 GMT+3 2005, by mstorti in spider
      > Fixed cache manipulation in the ExtProgImport DX module. 
      > Fixed bug in reading constraints. 
      > Now gives error if find a token that can't be read. 
+----------
+tag: beta-3.49 on Tue Sep 27 11:46:16 -0300 2005, by mstorti in minerva.ceride.gov.ar
+     > Worked on `dvector2.scm'. Ported many generic functions. 
+     > Worked on `bjhash'. Generic Hash function. 
+     > Merged from `bubbly12' (Beto). 
+     > Added `print(rowsz,s)' to `fastmat2'. 
+     > Fixed bugs in doc for `ALE_flag' and `ALE_indx_old'. 
+     > Working on new mesh-move formulation. 
+     > Now `G_body' is taken `elemset-wise' in `nsitetlesfm2.cpp'. 
+     > Added pressure force integrator for gasflow. 
+     > Added selective Darcy term to fracstep. 
+     > Implemented `gasflow_force_integrator' integrates 
+     >         pressure force and moments. 
+     > Added `wall law' elemset for LES turbulence computation 
+     >         to `fracstep' solver. 
+     > Added `Q_body' to gasflow. 
+     > Fixed bug eith `G_body_scale' in `gasflow'. 
+     > Fixed bug in `modulo(double,double)'
+     > Merged from Beto (bubbly13), compiles on HEAD. 

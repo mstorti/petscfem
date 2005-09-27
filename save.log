@@ -4439,7 +4439,7 @@ tag: beta-3.47.34 on Sun, 25 Sep 2005 17:29:22 -0300 by mstorti in spider
      > Turned back on `mmove.cpp'. 
      > Doesn't know why I had uncommented the `inwt' line in mmove.cpp. 
 ----------
-tag: beta-3.49 on Tue, 27 Sep 2005 11:46:16 -0300 by mstorti in minerva.ceride.gov.ar
+tag: beta-3.48 on Tue, 27 Sep 2005 11:46:16 -0300 by mstorti in minerva.ceride.gov.ar
      > -- STABLE VERSION -- 
      > Worked on `dvector2.scm'. Ported many generic functions. 
      > Worked on `bjhash'. Generic Hash function. 
@@ -4458,3 +4458,6 @@ tag: beta-3.49 on Tue, 27 Sep 2005 11:46:16 -0300 by mstorti in minerva.ceride.g
      > Fixed bug eith `G_body_scale' in `gasflow'. 
      > Fixed bug in `modulo(double,double)'
      > Merged from Beto (bubbly13), compiles on HEAD. 
+----------
+tag: beta-3.49.1 on Tue, 27 Sep 2005 11:50:46 -0300 by mstorti in minerva.ceride.gov.ar
+     > Administrative tag. 
