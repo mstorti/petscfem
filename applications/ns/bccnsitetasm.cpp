@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: bccnsitetasm.cpp,v 1.2 2005/09/20 01:56:43 mstorti Exp $
+//$Id: bccnsitetasm.cpp,v 1.3 2005/10/13 16:21:53 mstorti Exp $
 
 #include <src/fem.h>
 #include <src/utils.h>
@@ -420,7 +420,7 @@ int bcconv_nsi_tet_asm::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
 	matloc.set(0.);
       } else {
         veccontr.is(2,1,ndim).set(resmom).rs();
-        veccontr.ir(2,1).set(rescont).rs();
+        veccontr.ir(2,ndim+1).set(rescont).rs();
         veccontr.is(2,ndim+2,ndim+1+nphases).set(res_alpha_g).rs();
 
 	/*

@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: nsitetasm.cpp,v 1.2 2005/09/20 01:56:44 mstorti Exp $
+//$Id: nsitetasm.cpp,v 1.3 2005/10/13 16:21:53 mstorti Exp $
 
 #include <src/fem.h>
 #include <src/utils.h>
@@ -301,7 +301,8 @@ assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
   //o _T: double[ndim] _N: G_body _D: null vector 
   // _DOC: Vector of gravity acceleration (must be constant). _END
   G_body.set(0.);
-  ierr = get_double(GLOBAL_OPTIONS,"G_body",G_body.storage_begin(),1,ndim);
+  //  ierr = get_double(GLOBAL_OPTIONS,"G_body",G_body.storage_begin(),1,ndim);
+  ierr = get_double(thash,"G_body",G_body.storage_begin(),1,ndim);
 
   double pi = 4*atan(1.0);
 
@@ -397,7 +398,9 @@ assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
   //  source term vector
   alpha_source_vp.resize(1,nphases);
   // alpha_source_vp.set(alpha_source);
-  ierr = get_double(GLOBAL_OPTIONS,"alpha_source_phases",alpha_source_vp.storage_begin(),1,nphases);
+  //  ierr = get_double(GLOBAL_OPTIONS,"alpha_source_phases",alpha_source_vp.storage_begin(),1,nphases);
+  ierr = get_double(thash,"alpha_source_phases",alpha_source_vp.storage_begin(),1,nphases);
+
 
   //o Direction of gravity
   TGETOPTDEF(thash,int,g_dir,ndim);
@@ -927,12 +930,14 @@ assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
 	  tmp11_g.ir(2,j);
 	  dresmom_g.ir(2,j);
 
+	  double alpha_source = alpha_source_vp.get(j);
+
 	  // SUPG term
 	  double dmatu_g = double(tmp12_g.prod(v_g_vp,grad_vf_star,-1,-1));
-	  dmatu_g += double(du_g.get(j));
+	  dmatu_g += (double(du_g.get(j))-alpha_source);
 	  dresmom_g.set(P_supg_vp).scale(dmatu_g);
 	  // Galerkin terms
-	  dresmom_g.axpy(SHAPE,double(du_g.get(j)));
+	  dresmom_g.axpy(SHAPE,(double(du_g.get(j))-alpha_source));
 	  tmp1_g.prod(dshapex,v_g_vp,-1,1,-1).scale(double(alpha_g_vp.get(j)));
 	  dresmom_g.rest(tmp1_g);
 	  // Diffusion term

@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: dxhook.cpp,v 1.63 2004/11/26 21:25:20 mstorti Exp $
+//$Id: dxhook.cpp,v 1.64 2005/10/13 16:22:14 mstorti Exp $
 
 #include <src/debug.h>
 #include <src/fem.h>
@@ -218,6 +218,9 @@ void dx_hook::init(Mesh &mesh_a,Dofmap &dofmap_a,
 
   //o If true, then issue a #make dx_step=<step> dx_make_command#
   TGETOPTDEF_ND(go,int,dx_do_make_command,0);
+  if (dx_do_make_command && !MY_RANK) {
+    printf("dx_hook: will issue dx-make-command each step!\n");
+  }
 
   ndim = mesh->nodedata->ndim;
   nnod = mesh->nodedata->nnod;
@@ -417,6 +420,7 @@ void dx_hook::send_state(int step,build_state_fun_t build_state_fun) try {
     if (dx_do_make_command) {
       AutoString s;
       s.sprintf("/usr/bin/make dx_step=%d dx_make_command",dx_step);
+      printf("doing $ %s\n",s.str());
       system(s.str());
     }
     
