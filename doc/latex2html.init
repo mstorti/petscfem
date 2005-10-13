@@ -12,7 +12,7 @@ $petscfem_version=`cat ../VERSION`;
 chomp $petscfem_version;
 $ADDRESS = <<EOM;
 
-<i> Copyright (C) 1999-2004
+<i> Copyright (C) 1999-2005
 <a href=\"mailto:mstorti\@intec.unl.edu.ar\">Mario Storti</a>, 
 <a href=\"mailto:nnigro\@intec.unl.edu.ar\">Norberto Nigro</a>, 
 <a href=\"mailto:rodrigop\@intec.unl.edu.ar\">Rodrigo R.Paz</a>, 
