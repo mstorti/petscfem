@@ -4458,3 +4458,10 @@ tag: beta-3.48 on Tue, 27 Sep 2005 11:46:16 -0300 by mstorti in minerva.ceride.g
      > Fixed bug eith `G_body_scale' in `gasflow'. 
      > Fixed bug in `modulo(double,double)'
      > Merged from Beto (bubbly13), compiles on HEAD. 
+----------
+tag: beta-3.49.1 on Tue, 27 Sep 2005 11:50:46 -0300 by mstorti in minerva.ceride.gov.ar
+     > Administrative tag. 
+----------
+tag: beta-3.49.2 on Thu, 13 Oct 2005 13:48:58 -0300 by mstorti in minerva.ceride.gov.ar
+     > Fixed 2004 -> 2005 in copyrights.
+     > Added fixes to `ns/nsiteasm'. 
