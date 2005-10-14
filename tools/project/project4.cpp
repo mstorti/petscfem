@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-// $Id: project4.cpp,v 1.7 2005/05/12 21:34:15 mstorti Exp $
+// $Id: project4.cpp,v 1.8 2005/10/14 01:57:00 mstorti Exp $
 
 #include <cstdio>
 #include <src/fastmat2.h>
@@ -81,7 +81,7 @@ int main() {
 #define XNOD2  DATA_DIR "/test-points.dat"
 #endif
 
-#if 1
+#if 0
 #define DATA_DIR "/u/mstorti/PETSC/COMP-CORNER/viscous"
 #define XNOD1  DATA_DIR "/comp_corner_Ma_5_low_Rey_ref_3.nod.tmp"
 #define ICONE1 DATA_DIR "/comp_corner_Ma_5_low_Rey_ref_3.con-tri.tmp"
@@ -89,9 +89,18 @@ int main() {
 #define XNOD2  DATA_DIR "/xtest.dat"
 #endif
 
+#if 1
+#define DATA_DIR1 "/home/mstorti/PETSC/petscfem-cases/sqcav-ther-Ra1.6e9-N100"
+#define DATA_DIR "/home/mstorti/PETSC/petscfem-cases/sqcav-ther"
+#define XNOD1  DATA_DIR1 "/sqcav-ther.nod.tmp"
+#define ICONE1 DATA_DIR1 "/sqcav-ther.con.tmp"
+#define STATE1 DATA_DIR "/sqcav-ther.state-7418"
+#define XNOD2  DATA_DIR "/sqcav-ther.nod.tmp"
+#endif
+
   int ndim = 2;
   int ndimel = 2;
-  int nel = 3;
+  int nel = 4;
   int ndof = 4;
 
   dvector<double> xnod1, xnod2, u1, u2,
