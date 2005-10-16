@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-// $Id: project4.cpp,v 1.8 2005/10/14 01:57:00 mstorti Exp $
+// $Id: project4.cpp,v 1.9 2005/10/16 03:12:47 mstorti Exp $
 
 #include <cstdio>
 #include <src/fastmat2.h>
@@ -93,14 +93,14 @@ int main() {
 #define DATA_DIR1 "/home/mstorti/PETSC/petscfem-cases/sqcav-ther-Ra1.6e9-N100"
 #define DATA_DIR "/home/mstorti/PETSC/petscfem-cases/sqcav-ther"
 #define XNOD1  DATA_DIR1 "/sqcav-ther.nod.tmp"
-#define ICONE1 DATA_DIR1 "/sqcav-ther.con.tmp"
+#define ICONE1 DATA_DIR1 "/sqcav-ther.con-tri.tmp"
 #define STATE1 DATA_DIR "/sqcav-ther.state-7418"
 #define XNOD2  DATA_DIR "/sqcav-ther.nod.tmp"
 #endif
 
   int ndim = 2;
   int ndimel = 2;
-  int nel = 4;
+  int nel = ndim+1; // Only for simplices right now
   int ndof = 4;
 
   dvector<double> xnod1, xnod2, u1, u2,
