@@ -84,6 +84,7 @@ md5r.o: md5r.c
 
 bjhash.o: bjhash.c
 	gcc -c -o $@ $<
+
 myhash$(N).bin: myhash$(N).o hasher.o md5r.o bjhash.o
 	g++ $(OPT) -o $@ $^
 
@@ -111,9 +112,9 @@ endif
 
 ifeq (1,1)
 # LD_LIBRARY_PATH += ../../src/libpetscfem_g.a
-libfemref.so: getsurf.o $(CPP_FILES:=.o)
+libfemref.so: getsurf.o $(CPP_FILES:=.o) bjhash.o
 	${CXX_CLINKER} -g -shared				\
-		-o $@ getsurf.o $(CPP_FILES:=.o)		\
+		-o $@ getsurf.o bjhash.o $(CPP_FILES:=.o)	\
 		`guile-config link` $(LDFLAGS_NO_PROG_LIB)
 else
 libfemref.so: getsurf2.o

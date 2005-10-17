@@ -1,4 +1,4 @@
-;;; $Id: project.scm,v 1.1 2005/03/03 02:21:00 mstorti Exp $
+;;; $Id: project.scm,v 1.2 2005/10/17 02:51:37 mstorti Exp $
 (set! %load-path (cons "../femref" %load-path))
 
 ;(use-modules (femref))
@@ -14,7 +14,7 @@
 
 (define v (make-dvint))
 (do ((j 0 (+ j 1))) ((= j 4))
-  (dvint-set! indx j (+ j 1)))
+  (dv-set! indx j (+ j 1)))
 (idump "indx" indx)
 
-(dvdbl-slice-indx! w x indx 0)
+(dv-slice-indx! w x indx 0)

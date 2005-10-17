@@ -1,4 +1,4 @@
-;;; $Id: dvector.scm,v 1.23 2005/05/17 16:29:39 mstorti Exp $
+;;; $Id: dvector.scm,v 1.24 2005/10/17 02:51:37 mstorti Exp $
 (define-module (dvector))
 (use-modules (oop goops))
 (use-modules (ice-9 optargs))
@@ -10,7 +10,7 @@
  (search-path %load-path "libfemref.so") 
  "dvdbl_init")
 
-(define dv-version "$Id: dvector.scm,v 1.23 2005/05/17 16:29:39 mstorti Exp $")
+(define dv-version "$Id: dvector.scm,v 1.24 2005/10/17 02:51:37 mstorti Exp $")
 
 ;;; We first define the base class <dvector>
 ;;; and then add some functions that operate
@@ -336,4 +336,4 @@
 	dv-slice-indx! dv-slice! 
 	dv-apply! dv-add! dv-rand! dv-reduce dv-max-aux 
 	dv-max dv-min dv-clone! dv-slice!
-	dv-version dv-rand!)
+	dv-version dv-rand! make-dvint make-dvdbl)

@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-// $Id: project-wrp.cpp,v 1.2 2005/03/03 02:21:00 mstorti Exp $
+// $Id: project-wrp.cpp,v 1.3 2005/10/17 02:51:37 mstorti Exp $
 
 #include <cstdio>
 #include <src/fastmat2.h>
@@ -19,6 +19,7 @@ SCM_DEFINE(make_fem_interp,"make-fem-interp", 0, 0, 0,
 #define FUNC_NAME s_make_fem_interp
 {
   FemInterp *w = new FemInterp;
+  printf("created new FemInterp %p\n",w);
   SCM_RETURN_NEWSMOB(FemInterpTag,w);
 }
 #undef FUNC_NAME
@@ -31,6 +32,7 @@ free_fem_interp(SCM s_w) {
   SCM_ASSERT (SCM_SMOB_PREDICATE(FemInterpTag,s_w),
               s_w, SCM_ARG1, __FUN__);
   FemInterp *w = (FemInterp *)(SCM_SMOB_DATA(s_w));
+  printf("deleting FemInterp %p\n",w);
   delete w;
   return sizeof(FemInterp);
 }
