@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-// $Id: project-wrp.cpp,v 1.3 2005/10/17 02:51:37 mstorti Exp $
+// $Id: project-wrp.cpp,v 1.4 2005/10/18 02:42:25 mstorti Exp $
 
 #include <cstdio>
 #include <src/fastmat2.h>
@@ -9,6 +9,7 @@
 
 #include "./project.h"
 #include <libguile.h>
+#include "../femref/dvector.h"
 #include "../femref/guilemac.h"
 
 scm_t_bits FemInterpTag;
@@ -39,8 +40,9 @@ free_fem_interp(SCM s_w) {
 #undef FUNC_NAME
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
-SCM_DEFINE(fem_interp_init_aux,"fem-interp-init-aux", 5, 0, 0,
-	   (SCM s_knbr, 
+SCM_DEFINE(fem_interp_init_aux,"fem-interp-init-aux", 7, 0, 0,
+	   (SCM s_w,
+	    SCM s_knbr, 
 	    SCM s_ndof, 
 	    SCM s_ndimel,
 	    SCM s_xnod,
@@ -48,6 +50,13 @@ SCM_DEFINE(fem_interp_init_aux,"fem-interp-init-aux", 5, 0, 0,
 	   "Initializes FEM-interp object from mesh data.")
 #define FUNC_NAME s_fem_interp_init_aux
 {
+  MY_SCM_GET_ARG(w,FemInterpTag,FemInterp *,1);
+  MY_SCM_GET_INT(knbr,2);
+  MY_SCM_GET_INT(ndof,3);
+  MY_SCM_GET_INT(ndimel,4);
+  MY_SCM_GET_ARG(xnod,dvdbl_tag,dvector<double> *,5);
+  MY_SCM_GET_ARG(icone,dvint_tag,dvector<int> *,6);
+  // w->init(knbr,ndof,ndimel,*xnod,*icone);
   return SCM_UNSPECIFIED;
 }
 #undef FUNC_NAME
