@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-// $Id: advabso.cpp,v 1.12 2005/07/26 15:36:04 mstorti Exp $
+// $Id: advabso.cpp,v 1.13 2005/10/18 23:35:20 mstorti Exp $
 #include "./advabso.h"
 #include "./gasflow.h"
 
@@ -38,11 +38,16 @@ init() {
   //  state reference is used. 
   NSGETOPTDEF_ND(int,switch_to_ref_on_incoming,0);
 
+  //o Do correction for wave characteristic computation
+  //  do to mesh velocity (ALE).
+  NSGETOPTDEF_ND(int,ALE_flag,0);
+
   flux.resize(2,ndof,ndim);
   fluxd.resize(2,ndof,ndim);
   A_grad_U.resize(1,ndof);
   grad_U.resize(2,ndim,ndof).set(0.);
   normal.resize(1,ndim);
+  vmesh.resize(1,ndim);
   A_jac.resize(2,ndof,ndof);
   S.resize(2,ndof,ndof);
   invS.resize(2,ndof,ndof);
@@ -53,6 +58,12 @@ init() {
   Cp.resize(2,ndof,ndof);
   Uold.resize(2,nel,ndof);
   invCp.resize(2,ndof,ndof);
+
+  if (ALE_flag) {
+    get_prop(vmesh_prop,"vmesh");
+    assert(vmesh_prop.length == ndim);
+  }
+
   get_prop(normal_prop,"normal");
   assert(normal_prop.length == ndim);
   // The state on the reference node
@@ -110,6 +121,10 @@ res(int k,FastMat2 &U,FastMat2 &r,
 		   dummy, delta_sc, lambda_max_pg, dummy,
 		   dummy, dummy, dummy, 0);
   adv_diff_ff->comp_A_jac_n(A_jac,normal);
+  if (ALE_flag) {
+    vnor.prod(vmesh,normal,-1,-1);
+    A_jac.d(1,2).add(-double(vnor)).rs();
+  }
   adv_diff_ff->get_Cp(Cp);
   invCp.inv(Cp);
   // tmp1 = Cp \ A
@@ -154,4 +169,5 @@ res(int k,FastMat2 &U,FastMat2 &r,
 void AdvectiveAbso::
 element_hook(ElementIterator &element) {
   normal.set(prop_array(element,normal_prop));
+  vmesh.set(prop_array(element,vmesh_prop));
 }
