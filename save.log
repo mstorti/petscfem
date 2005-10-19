@@ -4465,3 +4465,6 @@ tag: beta-3.49.1 on Tue, 27 Sep 2005 11:50:46 -0300 by mstorti in minerva.ceride
 tag: beta-3.49.2 on Thu, 13 Oct 2005 13:48:58 -0300 by mstorti in minerva.ceride.gov.ar
      > Fixed 2004 -> 2005 in copyrights.
      > Added fixes to `ns/nsiteasm'. 
+----------
+tag: beta-3.49.3 on Wed, 19 Oct 2005 14:39:53 -0300 by mstorti in aquiles
+     > Now compiles with gcc-3.4.2
