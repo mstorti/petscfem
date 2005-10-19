@@ -4,7 +4,7 @@
 
 
 //__INSERT_LICENSE__
-//$Id: fm2eperl.cpp,v 1.29 2005/03/23 01:47:47 mstorti Exp $
+//$Id: fm2eperl.cpp,v 1.30 2005/10/19 17:40:33 mstorti Exp $
 #include <math.h>
 #include <stdio.h>
 
@@ -4265,9 +4265,9 @@ printf(" cache_list %p, cache %p, position_in_cache %d\n",
     ccache = new cross_cache();
     assert(ccache);
     ccache->ndim = ndim;
-    ccache->a = new (const double *)[ndim];
-    ccache->b = new (const double *)[ndim];
-    ccache->c = new (double *)[cps];
+    ccache->a = new const double *[ndim];
+    ccache->b = new const double *[ndim];
+    ccache->c = new double *[cps];
 
     Indx indx(1,0);
     for (int j=1; j<=ndim; j++) {

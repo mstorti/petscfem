@@ -1,6 +1,6 @@
 // -*- mode: c++ -*-
 //__INSERT_LICENSE__
-// $Id: syncbuff2.h,v 1.3 2004/01/21 18:37:39 mstorti Exp $
+// $Id: syncbuff2.h,v 1.4 2005/10/19 17:40:33 mstorti Exp $
 #ifndef PETSCFEM_SYNCBUFF2_H
 #define PETSCFEM_SYNCBUFF2_H
 
@@ -25,13 +25,13 @@ void TrivialPartitioner<T>
 template<typename T>
 void SyncBuffer<T>::print() { 
   // Does the scatter
-  scatter(); 
+  this->scatter(); 
   // Does the sorting
-  if (sort_by_key) sort();
+  if (sort_by_key) this->sort();
   // Prints all elements in master
   if (!MY_RANK) {
     typename list<T>::iterator q;
-    for (q=begin(); q!=end(); q++) { q->print(); }
+    for (q = this->begin(); q != this->end(); q++) { q->print(); }
   }
 }
 
@@ -52,7 +52,7 @@ void SyncBuffer<T>::check_pack() {
   // for all elements. 
   int bufsize = 0;
   typename list<T>::iterator q;
-  for (q=begin(); q!=end(); q++) 
+  for (q = this->begin(); q != this->end(); q++) 
     bufsize += q->size_of_pack();
 
   // Create the buffer
@@ -60,11 +60,11 @@ void SyncBuffer<T>::check_pack() {
   printf("%d elems in buffer\n",list<T>::size());
 
   // Pack all elements in buffer
-  for (q =begin(); q!=end(); q++) q->pack(p);
+  for (q = this->begin(); q != this->end(); q++) q->pack(p);
   assert(p == pe);
 
   // Clean the container
-  clear();
+  this->clear();
 
   // Unpacks all elements from the buffer into
   // the container. 
@@ -72,8 +72,8 @@ void SyncBuffer<T>::check_pack() {
   int nelems=0;
   while (pp<pe) {
     nelems++;
-    push_back();
-    back().unpack(pp);
+    this->push_back();
+    this->back().unpack(pp);
   }
   assert(pp==pe);
   print();

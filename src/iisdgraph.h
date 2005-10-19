@@ -1,6 +1,6 @@
 // -*- mode: C++ -*- 
 //__INSERT_LICENSE__
-//$Id: iisdgraph.h,v 1.9 2004/11/04 22:03:13 mstorti Exp $
+//$Id: iisdgraph.h,v 1.10 2005/10/19 17:40:33 mstorti Exp $
 #ifndef IISDGRAPH_H
 #define IISDGRAPH_H
 
@@ -34,12 +34,16 @@ public:
   virtual void scatter()=0;
 };
 
+template<>
 int DGMap::size_of_pack(const GRow &q) const;
 
+template<>
 void DGMap::pack(const GRow &p,char *&buff) const;
 
+template<>
 void DGMap::unpack(GRow &p,const char *&buff);
 
+template<>
 void DGMap::combine(const GRow &p);
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 

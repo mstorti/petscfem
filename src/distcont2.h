@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: distcont2.h,v 1.3 2003/07/02 23:22:19 mstorti Exp $
+//$Id: distcont2.h,v 1.4 2005/10/19 17:40:33 mstorti Exp $
 
 #ifndef DISTCONT2_H
 #define DISTCONT2_H
@@ -69,7 +69,7 @@ void DistCont<Container,ValueType,Partitioner>::scatter() {
   }
 
   // Compute the table `to_send'
-  for (iter = begin(); !(iter == end()); iter++) {
+  for (iter = this->begin(); !(iter == this->end()); iter++) {
     part->processor(*iter,nproc,plist);
     for (j=0; j<nproc; j++) 
       if (plist[j]!=myrank)
@@ -97,9 +97,9 @@ void DistCont<Container,ValueType,Partitioner>::scatter() {
 
   // allocate memory for auxiliary vectors
   // send_buff:= An array of buffers for sending
-  send_buff = new (char *)[size];
+  send_buff = new char *[size];
   // send_buff_pos:= an array of positions in each of the buffers
-  send_buff_pos = new (char *)[size];
+  send_buff_pos = new char *[size];
   // send_rq:= sendings and receives are non-blocking so that we
   // create a `MPI_Request' object for each of them. 
 
@@ -112,7 +112,7 @@ void DistCont<Container,ValueType,Partitioner>::scatter() {
   }
 
   // Fill send buffers
-  for (iter = begin(); !(iter == end()); iter++) {
+  for (iter = this->begin(); !(iter == this->end()); iter++) {
     part->processor(*iter,nproc,plist);
     for (j=0; j<nproc; j++) {
       k = plist[j];
@@ -124,7 +124,7 @@ void DistCont<Container,ValueType,Partitioner>::scatter() {
     //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
     // FOR NON-ASSOCIATIVE CONTAINERS (`erase()' doesn't remove the object,
     // i.e. random-access containers like vectors-deques.)
-    for (iter=begin(); iter!=end(); iter++) 
+    for (iter = this->begin(); iter != this->end(); iter++) 
       if (!belongs(iter,plist)) erase(iter);
   } else if (iter_mode == associative_iter_mode) {
     //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:
@@ -132,11 +132,11 @@ void DistCont<Container,ValueType,Partitioner>::scatter() {
     //for instance lists and maps), Advance until find the first
     //element that remains here
     while (1) {
-      iter = begin();
-      if (belongs(iter,plist) || iter == end()) break;
+      iter = this->begin();
+      if (belongs(iter,plist) || iter == this->end()) break;
       erase(iter);
     }
-    if (iter != end()) {
+    if (iter != this->end()) {
       // This implementation is very careful with respect to not reusing
       // iterators that have been deleted. (That may cause problems). 
 
@@ -146,7 +146,7 @@ void DistCont<Container,ValueType,Partitioner>::scatter() {
       while (1) {
 	next = iter;
 	next++;
-	if (next == end()) break; // Reaches container end
+	if (next == this->end()) break; // Reaches container end
 	if (belongs(next,plist)) {
 	  iter = next;		// advance iterator
 	} else {

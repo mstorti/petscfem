@@ -4,7 +4,7 @@
 
 
 //__INSERT_LICENSE__
-//$Id: fm2eperl2.cpp,v 1.14 2005/01/29 00:39:27 mstorti Exp $
+//$Id: fm2eperl2.cpp,v 1.15 2005/10/19 17:40:33 mstorti Exp $
 #include <math.h>
 #include <stdio.h>
 
@@ -116,14 +116,14 @@ printf(" cache_list %p, cache %p, position_in_cache %d\n",
     }
 
     sc->m = m;
-    sc->A = new (const double *)[m*m];
-    sc->W = new (double *)[2*m];
+    sc->A = new const double *[m*m];
+    sc->W = new double *[2*m];
     if (sc->clev) {
-      sc->VL = new (double *)[m*m];
+      sc->VL = new double *[m*m];
       sc->VL_c = new double[m*m];
     }
     if (sc->crev) {
-      sc->VR = new (double *)[m*m];
+      sc->VR = new double *[m*m];
       sc->VR_c = new double[m*m];
     }
     sc->A_c = new double[m*m];
@@ -274,9 +274,9 @@ printf(" cache_list %p, cache %p, position_in_cache %d\n",
     assert(!cache->sc);
     cache->sc = ecache;
 
-    ecache->A = new (const double *)[m*m];
-    ecache->W = new (double *)[m];
-    if (cev) ecache->V = new (double *)[m*m];
+    ecache->A = new const double *[m*m];
+    ecache->W = new double *[m];
+    if (cev) ecache->V = new double *[m*m];
     ecache->A_c = new double[m*m];
     ecache->W_c = new double[m];
     ecache->lwork = 5*m;

@@ -2,7 +2,7 @@
 //<=$warn_dont_modify //>
 
 //__INSERT_LICENSE__
-//$Id: fmat2ep.cpp,v 1.23 2005/03/23 01:47:47 mstorti Exp $
+//$Id: fmat2ep.cpp,v 1.24 2005/10/19 17:40:33 mstorti Exp $
 #include <math.h>
 #include <stdio.h>
 
@@ -1367,9 +1367,9 @@ FastMat2 & FastMat2::cross(const FastMat2 & a,const FastMat2 & b) {
     ccache = new cross_cache();
     assert(ccache);
     ccache->ndim = ndim;
-    ccache->a = new (const double *)[ndim];
-    ccache->b = new (const double *)[ndim];
-    ccache->c = new (double *)[cps];
+    ccache->a = new const double *[ndim];
+    ccache->b = new const double *[ndim];
+    ccache->c = new double *[cps];
 
     Indx indx(1,0);
     for (int j=1; j<=ndim; j++) {

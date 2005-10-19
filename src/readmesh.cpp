@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: readmesh.cpp,v 1.111 2005/05/01 18:38:35 mstorti Exp $
+//$Id: readmesh.cpp,v 1.112 2005/10/19 17:40:33 mstorti Exp $
 #ifndef _GNU_SOURCE 
 #define _GNU_SOURCE 
 #endif
@@ -1553,7 +1553,7 @@ if (!(bool_cond)) { PetscPrintf(PETSC_COMM_WORLD, 				\
     //o Defines a ``locker'' for each element
     TGETOPTDEF(elemset->thash,int,local_store,0);
     if (local_store) {
-      elemset->local_store = new (void *)[elemset->nelem_here];
+      elemset->local_store = new void *[elemset->nelem_here];
       for (int j=0; j<elemset->nelem_here; j++) {
 	elemset->local_store[j]=NULL;
       }

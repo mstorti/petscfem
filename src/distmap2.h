@@ -1,5 +1,6 @@
+// -*- mode: C++ -*-
 //__INSERT_LICENSE__
-//$Id: distmap2.h,v 1.11 2003/07/02 23:22:19 mstorti Exp $
+//$Id: distmap2.h,v 1.12 2005/10/19 17:40:33 mstorti Exp $
 
 #ifndef DISTMAP2_H
 #define DISTMAP2_H
@@ -59,7 +60,7 @@ void DistMap<Key,Val,Partitioner>::scatter() {
   }
 
   // Compute the table `to_send'
-  for (iter = begin(); iter != end(); iter++) {
+  for (iter = this->begin(); iter != this->end(); iter++) {
     k = processor(iter);
     assert(k>=0);
     assert(k<size);
@@ -87,9 +88,9 @@ void DistMap<Key,Val,Partitioner>::scatter() {
 
   // allocate memory for auxiliary vectors
   // send_buff:= An array of buffers for sending
-  send_buff = new (char *)[size];
+  send_buff = new char *[size];
   // send_buff_pos:= an array of positions in each of the buffers
-  send_buff_pos = new (char *)[size];
+  send_buff_pos = new char *[size];
   // send_rq:= sendings and receives are non-blocking so that we
   // create a `MPI_Request' object for each of them. 
 
@@ -102,14 +103,14 @@ void DistMap<Key,Val,Partitioner>::scatter() {
   }
 
   // Fill send buffers
-  for (iter = begin(); iter != end(); iter++) {
+  for (iter = this->begin(); iter != this->end(); iter++) {
     k = processor(iter);
     if (k!=myrank) 
       pack(iter->first,iter->second,send_buff_pos[k]);
   }
 
   // Erase members that do not belong to this processor.
-  for (iter = begin(); iter != end(); iter++) {
+  for (iter = this->begin(); iter != this->end(); iter++) {
     k = processor(iter);
     if (k!=myrank) erase(iter);
   }
