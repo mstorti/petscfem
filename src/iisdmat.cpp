@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: iisdmat.cpp,v 1.68 2004/11/18 21:04:39 mstorti Exp $
+//$Id: iisdmat.cpp,v 1.69 2005/10/20 21:27:57 mstorti Exp $
 // fixme:= this may not work in all applications
 #ifndef _GNU_SOURCE
 #define _GNU_SOURCE
@@ -1034,13 +1034,13 @@ int IISDMat::set_preco(const string & preco_type) {
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 #undef __FUNC__
 #define __FUNC__ "iisd_pc_apply"
-int iisd_pc_apply(void *ctx,Vec x ,Vec y) {
+int iisd_pc_apply(void *ctx,Vec x ,Vec w) {
   int ierr;
   PFMat *A = (PFMat *) ctx;
   IISDMat *AA;
   AA = dynamic_cast<IISDMat *> (A);
   ierr = (AA==NULL); CHKERRQ(ierr);
-  AA->pc_apply(x,y);
+  AA->pc_apply(x,w);
   return 0;
 }
   
