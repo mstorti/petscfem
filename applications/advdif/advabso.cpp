@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-// $Id: advabso.cpp,v 1.14 2005/10/24 00:12:18 mstorti Exp $
+// $Id: advabso.cpp,v 1.15 2005/10/24 02:22:13 mstorti Exp $
 #include "./advabso.h"
 #include "./gasflow.h"
 
@@ -127,7 +127,7 @@ res(int k,FastMat2 &U,FastMat2 &r,
     vnor.prod(vmesh,normal,-1,-1);
     // A_jac.d(1,2).add(-double(vnor)).rs();
     double vn = double(vnor);
-    A_jac.axpy(Cp,vn);
+    A_jac.axpy(Cp,-vn);
   }
   // tmp1 = Cp \ A
   tmp1.prod(invCp,A_jac,1,-1,-1,2);
