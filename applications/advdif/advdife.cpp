@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: advdife.cpp,v 1.106 2005/06/02 16:31:19 mstorti Exp $
+//$Id: advdife.cpp,v 1.107 2005/10/24 00:12:18 mstorti Exp $
 extern int comp_mat_each_time_step_g,
   consistent_supg_matrix_g,
   local_time_step_g;
@@ -940,7 +940,6 @@ void NewAdvDif::new_assemble(arg_data_list &arg_data_v,const Nodedata *nodedata,
 
 	  tmp_ALE_05.prod(tmp_ALE_03,tmp_ALE_01,1,2,4,3);
 	  matlocf.axpy(tmp_ALE_05,-wpgdet);
-
 	}
 
 	// Termino Galerkin

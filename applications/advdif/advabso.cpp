@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-// $Id: advabso.cpp,v 1.13 2005/10/18 23:35:20 mstorti Exp $
+// $Id: advabso.cpp,v 1.14 2005/10/24 00:12:18 mstorti Exp $
 #include "./advabso.h"
 #include "./gasflow.h"
 
@@ -121,12 +121,14 @@ res(int k,FastMat2 &U,FastMat2 &r,
 		   dummy, delta_sc, lambda_max_pg, dummy,
 		   dummy, dummy, dummy, 0);
   adv_diff_ff->comp_A_jac_n(A_jac,normal);
-  if (ALE_flag) {
-    vnor.prod(vmesh,normal,-1,-1);
-    A_jac.d(1,2).add(-double(vnor)).rs();
-  }
   adv_diff_ff->get_Cp(Cp);
   invCp.inv(Cp);
+  if (ALE_flag) {
+    vnor.prod(vmesh,normal,-1,-1);
+    // A_jac.d(1,2).add(-double(vnor)).rs();
+    double vn = double(vnor);
+    A_jac.axpy(Cp,vn);
+  }
   // tmp1 = Cp \ A
   tmp1.prod(invCp,A_jac,1,-1,-1,2);
   c.eig(tmp1,S);
@@ -169,5 +171,6 @@ res(int k,FastMat2 &U,FastMat2 &r,
 void AdvectiveAbso::
 element_hook(ElementIterator &element) {
   normal.set(prop_array(element,normal_prop));
-  vmesh.set(prop_array(element,vmesh_prop));
+  if (ALE_flag)
+    vmesh.set(prop_array(element,vmesh_prop));
 }
