@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: ffadvfm2.cpp,v 1.48 2003/11/25 01:13:36 mstorti Exp $
+//$Id: ffadvfm2.cpp,v 1.49 2005/10/24 22:47:29 mstorti Exp $
 
 #include <stdio.h>
 #include <string.h>
@@ -374,7 +374,7 @@ void newadvecfm2_ff_t::ScalarDifPerField
 ::comp_dif_per_field(FastMat2 &dif_per_field)"
 void newadvecfm2_ff_t::ScalarDifPerField
 ::comp_dif_per_field(FastMat2 &dif_per_field) {
-  dif_per_field.set(*(ff.difjac));
+  dif_per_field.set(ff.difjac);
 }  
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
