@@ -4468,3 +4468,6 @@ tag: beta-3.49.2 on Thu, 13 Oct 2005 13:48:58 -0300 by mstorti in minerva.ceride
 ----------
 tag: beta-3.49.3 on Wed, 19 Oct 2005 14:39:53 -0300 by mstorti in aquiles
      > Now compiles with gcc-3.4.2
+----------
+tag: beta-3.49.4 on Sun, 23 Oct 2005 23:22:21 -0300 by mstorti in spider
+     > Works absorbing boundary condition for alpha<1 and =1, With ALE. 
