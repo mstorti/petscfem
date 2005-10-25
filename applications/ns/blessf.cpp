@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-/* $Id: blessf.cpp,v 1.36 2005/09/20 01:56:43 mstorti Exp $ */
+/* $Id: blessf.cpp,v 1.37 2005/10/25 12:43:53 mstorti Exp $ */
 
 #include <src/debug.h>
 #include <malloc.h>
@@ -26,6 +26,7 @@
 #include "./nsikepsrot.h"
 #include "./fracstep.h"
 #include "./nsid.h"
+#include "./mmoveopt.h"
 #include "./mmove.h"
 #include "./mmove2.h"
 #include "./genload.h"
@@ -89,6 +90,7 @@ void bless_elemset(char *type,Elemset *& elemset) {
     SET_ELEMSET_TYPE_ALIAS(mesh_move,mesh_move_eig_anal)
     SET_ELEMSET_TYPE(mesh_move_eig_anal)
     SET_ELEMSET_TYPE(mesh_move2)
+    SET_ELEMSET_TYPE(mesh_move_opt)
 
     SET_ELEMSET_TYPE(inviscid_coupling)
 
