@@ -4475,3 +4475,6 @@ tag: beta-3.49.4 on Sun, 23 Oct 2005 23:22:21 -0300 by mstorti in spider
 tag: beta-3.49.5 on Tue, 25 Oct 2005 09:44:04 -0300 by mstorti in minerva.ceride.gov.ar
      > Added `mesh_move_opt' (Ezequiel). 
      > Added option `fractional_step_solver_combo'. 
+----------
+tag: beta-3.49.6 on Tue, 25 Oct 2005 09:58:25 -0300 by mstorti in minerva.ceride.gov.ar
+     > Added Ezequiel Lopez to Authors. 
