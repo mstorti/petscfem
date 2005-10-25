@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: fstepfm2.cpp,v 1.35 2005/09/20 01:30:29 mstorti Exp $
+//$Id: fstepfm2.cpp,v 1.36 2005/10/25 14:06:28 mstorti Exp $
  
 #include <src/fem.h>
 #include <src/utils.h>
@@ -113,9 +113,11 @@ int fracstep::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
   // Unpack Dofmap
   int nnod = dofmap->nnod;
 
-  // Hloc stores the old mesh coordinates
+  // Hloc stores:
+  // for ALE: the old mesh coordinates
+  // or scalar fields for other couplings
   int nH = nu-ndim;
-  FMatrix  Hloc(nel,nH),vloc_mesh(nel,ndim),v_mesh(ndim);
+  FMatrix  Hloc(nel,nH),vloc_mesh(nel,ndim),v_mesh(ndim),Tloc(nel),T_star;
 
   if(nnod!=nodedata->nnod) {
     printf("nnod from dofmap and nodedata don't coincide\n");
@@ -179,7 +181,7 @@ int fracstep::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
 
   FastMat2 veccontr(2,nel,ndof),xloc(2,nel,ndim),
     locstate(2,nel,ndof),locstate2(2,nel,ndof),tmp(2,nel,ndof),
-    ustate2(2,nel,ndim),G_body(1,ndim),vrel;
+    ustate2(2,nel,ndim),G_body(1,ndim),vrel,gravity(1,ndim);
 
   if (ndof != ndim+1) {
     PetscPrintf(PETSC_COMM_WORLD,"ndof != ndim+1\n"); CHKERRA(1);
@@ -228,6 +230,22 @@ int fracstep::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
   //o indx_ALE_xold : pointer to old coordinates in
   //  NODEDATA array excluding the first "ndim" values
   SGETOPTDEF(int,indx_ALE_xold,1);
+
+  //o Bouyancy_flag : coupling fractional step with thermal equation
+  SGETOPTDEF(int,BUOYANCY_flag,0);
+  //o indx_buoyancy_T : pointer to temperatures in
+  //  NODEDATA array excluding the first "ndim" values
+  SGETOPTDEF(int,indx_buoyancy_T,0);
+
+  if(BUOYANCY_flag>0)assert(indx_buoyancy_T>0);
+
+  //o buoyancy coefficient for Boussinesq term
+  SGETOPTDEF(double,betath,0.);
+  //o Reference temperature for thermal coupling Boussinesq term
+  SGETOPTDEF(double,Tinfty,0.);
+  //o Gravity acceleration for buoyancy terms
+  gravity.set(0.);
+  ierr = get_double(GLOBAL_OPTIONS,"gravity",gravity.storage_begin(),1,ndim);
 
   //o Axis for selective Darcy term (damps incoming flow
   //at outlet bdry's)
@@ -297,7 +315,7 @@ int fracstep::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
     grad_u(2,ndim,ndim),grad_u_star(2,ndim,ndim),dshapext(2,nel,ndim),
     resmom(2,nel,ndim), fi(1,ndof), grad_p(1,ndim), grad_p_star(1,ndim),
     u(1,ndim),u_star(1,ndim),uintri(1,ndim),rescont(1,nel);
-  FastMat2 tmp1,tmp2,tmp3,tmp4,tmp5,tmp6,tmp7,tmp71,tmp8,tmp9,tmp10,
+  FastMat2 tmp1,tmp2,tmp3,tmp4,tmp5,tmp6,tmp7,tmp71,tmp72,tmp73,tmp8,tmp9,tmp10,
     tmp11,tmp12,tmp13,tmp14,tmp15,tmp16,tmp17,xc,
     wall_coords(1,ndim),dist_to_wall;
   FastMat2 vel_supg;
@@ -434,6 +452,12 @@ int fracstep::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
 	Hloc.is(2,indx_ALE_xold,indx_ALE_xold+ndim-1);
 	vloc_mesh.set(xloc).rest(Hloc).scale(rec_Dt).rs();
 	Hloc.rs();
+      } else if (BUOYANCY_flag) {
+	assert(nH >= 1); // at least one field for temperature. 
+	assert(indx_buoyancy_T >= 1);
+	Hloc.ir(2,indx_buoyancy_T);
+	Tloc.set(Hloc).rs();
+	Hloc.rs();
       }
     }
 
@@ -524,6 +548,10 @@ int fracstep::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
 	v_mesh.set(0.0);
 	if (ALE_flag) {
 	  v_mesh.prod(SHAPE,vloc_mesh,-1,-1,1);
+	}
+
+	if (BUOYANCY_flag) {
+	  T_star.prod(SHAPE,Tloc,-1,-1);
 	}
 
 	// Smagorinsky turbulence model
@@ -665,6 +693,13 @@ int fracstep::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
 	tmp71.prod(W,G_body,1,2);
 	resmom.axpy(tmp71,wpgdet);
 
+	// Bouyancy force
+	if (BUOYANCY_flag) {	  
+	  tmp72.set(gravity).scale(rho*betath);
+          tmp73.prod(W,tmp72,1,2);
+          resmom.axpy(tmp73,-(double(T_star)-Tinfty)*wpgdet);
+	}
+	
 	// Selective Darcy term
 	if (darcy_axi) {
 	  // Velocity along `axi' direction

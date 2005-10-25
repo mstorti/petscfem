@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: nsilesther.cpp,v 1.32 2004/10/01 00:55:22 mstorti Exp $
+//$Id: nsilesther.cpp,v 1.33 2005/10/25 14:06:28 mstorti Exp $
 
 #include <src/fem.h>
 #include <src/utils.h>
@@ -189,7 +189,7 @@ int nsi_tet_les_ther::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
     }
   }
 
-  ierr = get_double(GLOBAL_OPTIONS,"gravity",gravity.storage_begin(),1,ndim);
+  //  ierr = get_double(GLOBAL_OPTIONS,"gravity",gravity.storage_begin(),1,ndim);
 
   //o Add axisymmetric version for this particular elemset.
   TGETOPTDEF_S(thash,string,axisymmetric,none);

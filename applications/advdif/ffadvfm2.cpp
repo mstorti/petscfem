@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: ffadvfm2.cpp,v 1.49 2005/10/24 22:47:29 mstorti Exp $
+//$Id: ffadvfm2.cpp,v 1.50 2005/10/25 14:06:25 mstorti Exp $
 
 #include <stdio.h>
 #include <string.h>
@@ -374,7 +374,8 @@ void newadvecfm2_ff_t::ScalarDifPerField
 ::comp_dif_per_field(FastMat2 &dif_per_field)"
 void newadvecfm2_ff_t::ScalarDifPerField
 ::comp_dif_per_field(FastMat2 &dif_per_field) {
-  dif_per_field.set(ff.difjac);
+  //  dif_per_field.set(*(ff.difjac));
+  dif_per_field.set((ff.difjac));
 }  
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
@@ -671,7 +672,9 @@ void newadvecfm2_ff_t::element_hook(ElementIterator &element_) {
   advjac = elemset->prop_array(element,advective_jacobians_prop);
   u.set(advjac);
 
+  difjac_mol = elemset->prop_array(element,diffusive_jacobians_mol_prop);
   difjac = elemset->prop_array(element,diffusive_jacobians_prop);
+  //  difjac = difjac_mol;
   d_jac->update(difjac);
 
   reacjac = elemset->prop_array(element,reactive_jacobians_prop);
@@ -698,6 +701,17 @@ void newadvecfm2_ff_t::start_chunk(int &ret_options) {
   new_adv_dif_elemset = dynamic_cast<const NewAdvDif *>(elemset); 
   EGETOPTDEF_ND(elemset,int,ndim,0); //nd
 
+  //o Add LES for this particular elemset.
+  EGETOPTDEF_ND(elemset,int,LES,0);
+  //o van Driest constant for the damping law.
+  EGETOPTDEF_ND(elemset,double,A_van_Driest,0);
+  assert(A_van_Driest==0.);
+  //o Smagorinsky constant.
+  EGETOPTDEF_ND(elemset,double,C_smag,0.18);
+  //o turbulent Prandtl
+  EGETOPTDEF_ND(elemset,double,Pr_t,1.0);
+
+
   //o Scale the SUPG upwind term. Set to 0 in order to
   //  not to include the upwind term. 
   EGETOPTDEF_ND(elemset,double,tau_fac,1.);
@@ -709,6 +723,8 @@ void newadvecfm2_ff_t::start_chunk(int &ret_options) {
   dif_per_field.resize(1,ndof);
   vel_per_field.resize(1,ndof);
   eye_ndof.resize(2,ndof,ndof).eye();
+
+  strain_rate.resize(2,ndim,ndim);
 
   ret_options &= !SCALAR_TAU; // tell the advective element routine
 
@@ -820,7 +836,13 @@ void newadvecfm2_ff_t::start_chunk(int &ret_options) {
   //  _N: diffusive_jacobians _D: no default  _DOC: 
   //i_tex ../../doc/advdifop.tex diffusive_jacobians
   //  _END
+  //
+  // molecular diffusive jacobians needed to add the turbulence correction afterwards
+  elemset->get_prop(diffusive_jacobians_mol_prop,"diffusive_jacobians_mol");
+  //
   elemset->get_prop(diffusive_jacobians_prop,"diffusive_jacobians");
+
+  assert(diffusive_jacobians_prop.length==diffusive_jacobians_mol_prop.length);
 
   //o Set diffusive jacobian to the desired type
   //  May be one of 
@@ -829,7 +851,7 @@ void newadvecfm2_ff_t::start_chunk(int &ret_options) {
   // `` #tensor_per_field# '', `` #scalar_per_field# ''
   //   or `` #null# ''
   // See documentation for the  #diffusive_jacobians#  option. 
-  EGETOPTDEF(elemset,string,diffusive_jacobians_type,string("undefined"));
+  EGETOPTDEF_ND(elemset,string,diffusive_jacobians_type,string("undefined"));
   string diffusive_jacobians_type_s=diffusive_jacobians_type;
 
   if (diffusive_jacobians_type==string("undefined")) {
@@ -980,6 +1002,12 @@ void newadvecfm2_ff_t::start_chunk(int &ret_options) {
 		source_term_prop.length);
     assert(0);
   }
+
+  if(LES) {      
+    assert(diffusive_jacobians_type==string("scalar_per_field")||
+	   diffusive_jacobians_type==string("global_scalar"));
+  }
+
 }
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
@@ -987,17 +1015,21 @@ void newadvecfm2_ff_t::compute_flux(COMPUTE_FLUX_ARGS) {
   int ierr;
   double tau_a, tau_delta, gU, A01v[9];
 
+  //  FastMat2 strain_rate(2,ndim,ndim);
+
   // Unfortunately we have to use copies of U and
   // iJaco due to const'ness restrictions.
 
   Ucpy.set(U);
   a_jac->comp_flux(flux,Ucpy);
-
+  
+  
   if (options & COMP_UPWIND) {
-
+    
     iJaco_cpy.set(iJaco);
-    d_jac->comp_fluxd(fluxd,grad_U);
 
+    // d_jac->comp_fluxd(fluxd,grad_U);
+    
     // A_grad_U es ndof x 1
     // A_grad_U.rs().prod(A_jac.rs(),grad_U,-1,1,-2,-1,-2);
     a_jac->comp_A_grad_U(A_grad_U,grad_U);
@@ -1008,8 +1040,44 @@ void newadvecfm2_ff_t::compute_flux(COMPUTE_FLUX_ARGS) {
     a_jac->comp_Uintri(Uintri,iJaco_cpy);
     a_jac->comp_vel_per_field(vel_per_field);
 
-    d_jac->comp_dif_per_field(dif_per_field);
+    // d_jac->comp_dif_per_field(dif_per_field);
 
+    double visco_t = 0.0;
+    if (LES){
+
+      advdf_e = dynamic_cast<const NewAdvDif *>(elemset);
+      assert(advdf_e);
+      
+      double Volume = advdf_e->volume();
+      double Delta;
+      if (ndim==2) Delta = sqrt(Volume);
+      if (ndim==3) Delta = cbrt(Volume);
+
+      strain_rate.set(grad_H);
+      grad_H.t();
+      strain_rate.add(grad_H).scale(0.5);
+      grad_H.rs();
+
+      double tr = (double) tmp15.prod(strain_rate,strain_rate,-1,-2,-1,-2);
+      double van_D = 1.0;  // fixme using Van Driest law
+      visco_t = SQ(C_smag*Delta*van_D)*sqrt(2*tr);
+
+       if(diffusive_jacobians_type==string("global_scalar")){
+	*(double *)difjac = *difjac_mol +  visco_t/Pr_t;
+      } else {
+	double *difjac_aux = (double *)difjac;
+	for (int k=1; k<=ndof; k++) {
+	  difjac_aux[k-1] = difjac_mol[k-1] + visco_t/Pr_t;	  
+	}
+      }
+
+      d_jac->update(difjac);
+
+      d_jac->comp_fluxd(fluxd,grad_U);
+      d_jac->comp_dif_per_field(dif_per_field);
+
+    }
+        
     for (int k=1; k<=ndof; k++) {
       
       Uintri.ir(1,k);

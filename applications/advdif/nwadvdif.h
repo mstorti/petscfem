@@ -46,13 +46,20 @@ private:
   FastMat2 u,u2,Uintri,AA,Ucpy,iJaco_cpy,
     tmp2,D_jac,dif_per_field,vel_per_field,
     tmp3,eye_ndof,C_jac,N_C,S_body;
+  int LES;
+  double C_smag,A_van_Driest,Pr_t;
+  string diffusive_jacobians_type;
+  FastMat2 strain_rate,tmp15;
+
+  const NewAdvDif *advdf_e;
+
   vector<double> djacv,cjacv;
   double *djacvp,*cjacvp;
   ElementIterator element;
   Property advective_jacobians_prop, 
-    diffusive_jacobians_prop, reactive_jacobians_prop,
+    diffusive_jacobians_prop, diffusive_jacobians_mol_prop, reactive_jacobians_prop,
     source_term_prop,enthalpy_jacobians_prop;
-  const double *advjac,*difjac,*reacjac,*s_body,*e_jac;
+  const double *advjac,*difjac,*difjac_mol,*reacjac,*s_body,*e_jac;
   int ndim,ndof,nel,nelprops;
   AJac *a_jac;
   DJac *d_jac;

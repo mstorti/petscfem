@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: bubbly_asm_mix.cpp,v 1.6 2005/09/20 01:30:29 mstorti Exp $
+//$Id: bubbly_asm_mix.cpp,v 1.7 2005/10/25 14:06:25 mstorti Exp $
 //
 //
 // <<<<<<<<<<<<<<<<<< VERSION ASM >>>>>>>>>>>>>>>>>>>>>>>>
@@ -876,6 +876,8 @@ void bubbly_ff::compute_flux(const FastMat2 &U,
 
   visco_t = SQ(C_smag*Delta*van_D)*sqrt(2*tr);
 
+  //  printf("rho_m: %f , visco_t: %f,alpha_l: %f \n",rho_m,visco_t,alpha_l);
+
   } else {
     visco_t = 0.;
   }
@@ -885,6 +887,7 @@ void bubbly_ff::compute_flux(const FastMat2 &U,
   if (Sato_model_coef>0) {
     visco_sato = Sato_model_coef*rho_l*alpha_g*d_bubble*vslip;
   }
+
 
   visco_m_eff = alpha_l*visco_l+alpha_g*visco_g + visco_sato + rho_m*visco_t;
   visco_g_eff = rho_g*visco_t/Sc_number;
