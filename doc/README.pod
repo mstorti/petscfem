@@ -39,7 +39,7 @@ root directory of the distribution.
 This file belongs to the PETSc - FEM package a library and application
 suite oriented to the Finite Element Method based on PETSc.  Copyright
 (C) 1999-2005, Mario Alberto Storti, Norberto Marcelo Nigro, Rodrigo
-Rafael Paz and Lisandro Dalcin, Centro Internacional de Metodos
+Rafael Paz, Lisandro Dalcin and Ezequiel Lopez, Centro Internacional de Metodos
 Numericos en Ingenieria (CIMEC-Argentina), Universidad Nacional del
 Litoral (UNL-Argentina), Consejo Nacional de Investigaciones
 Cientificas y Tecnicas (CONICET-Argentina).
@@ -355,6 +355,10 @@ AdvDif module, specially the hydrology module.
 =item Lisandro Dalcin* C<< <dalcinl@intec.unl.edu.ar> >>
 
 PETSc-FEM kernel, Python extension language project. 
+
+=item Ezequiel Lopez* C<< <ezequiellopez@hotmail.com> >>
+
+Mesh relocation algorithms. 
 
 =back 
 
