@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: advdif.cpp,v 1.63 2005/09/01 02:49:41 mstorti Exp $
+//$Id: advdif.cpp,v 1.64 2005/10/27 14:03:34 mstorti Exp $
 
 #include <src/debug.h>
 #include <set>
@@ -241,7 +241,13 @@ int main(int argc,char **args) {
     consistent_supg_matrix || local_time_step;
 
   //o Counts time from here.
-  GETOPTDEF(double,start_time,0.);
+  GETOPTDEF(double,start_comp_time,0.);
+  //o Counts time from here. (superseded by
+  //  #start_comp_time# for compatibility with Navier-Stokes
+  //  module). 
+  GETOPTDEF(double,start_time,NAN);
+  if (!isnan(start_time) && start_comp_time!=0.0)
+    start_comp_time = start_time;
   //o Tolerance when solving with the mass matrix. 
   GETOPTDEF(double,tol_mass,1e-3);
   //o Tolerance when solving the sublinear problem
