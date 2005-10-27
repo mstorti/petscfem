@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: advdif.cpp,v 1.64 2005/10/27 14:03:34 mstorti Exp $
+//$Id: advdif.cpp,v 1.65 2005/10/27 21:52:26 mstorti Exp $
 
 #include <src/debug.h>
 #include <set>
@@ -248,6 +248,7 @@ int main(int argc,char **args) {
   GETOPTDEF(double,start_time,NAN);
   if (!isnan(start_time) && start_comp_time!=0.0)
     start_comp_time = start_time;
+  
   //o Tolerance when solving with the mass matrix. 
   GETOPTDEF(double,tol_mass,1e-3);
   //o Tolerance when solving the sublinear problem
@@ -296,7 +297,7 @@ int main(int argc,char **args) {
   strcpy(preco_type_,preco_type.c_str());
 
   Time time,time_star;
-  time.set(start_time);
+  time.set(start_comp_time);
   glob_param.time = &time;
 
   //o The pattern to generate the file name to save in for
