@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: readmesh.cpp,v 1.112 2005/10/19 17:40:33 mstorti Exp $
+//$Id: readmesh.cpp,v 1.113 2005/10/28 15:07:17 mstorti Exp $
 #ifndef _GNU_SOURCE 
 #define _GNU_SOURCE 
 #endif
@@ -188,10 +188,6 @@ int read_mesh(Mesh *& mesh,char *fcase,Dofmap *& dofmap,
       da_destroy(xnod);
 
       TRACE(-5.1);
-      // calling dofmap constructor
-      dofmap->id = new idmap(nnod*ndof,NULL_MAP);
-      TRACE(-5.2);
-
       // calling dofmap constructor
       dofmap->id = new idmap(nnod*ndof,NULL_MAP);
 
