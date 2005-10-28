@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: readmesh.cpp,v 1.113 2005/10/28 15:07:17 mstorti Exp $
+//$Id: readmesh.cpp,v 1.114 2005/10/28 15:18:47 mstorti Exp $
 #ifndef _GNU_SOURCE 
 #define _GNU_SOURCE 
 #endif
@@ -690,9 +690,15 @@ int read_mesh(Mesh *& mesh,char *fcase,Dofmap *& dofmap,
 			fstack->line_number(),
 			fstack->line_read());
 	
-	dofmap->fixed.push_back(fixation_entry(dval));
-	dofmap->fixed_dofs[keq]=dofmap->fixed.size()-1;
-
+	map<int,int>::iterator q = dofmap->fixed_dofs.find(keq);
+	if (q!=dofmap->fixed_dofs.end()) {
+	  int j = q->second;
+	  // delete dofmap->fixed[j];
+	  dofmap->fixed[j] = fixation_entry(dval);
+	} else {
+	  dofmap->fixed.push_back(fixation_entry(dval));
+	  dofmap->fixed_dofs[keq]=dofmap->fixed.size()-1;
+	}
       }
       PetscPrintf(PETSC_COMM_WORLD,"Total fixations: %d\n",nfixa);
 
@@ -750,9 +756,15 @@ int read_mesh(Mesh *& mesh,char *fcase,Dofmap *& dofmap,
 			fstack->line_read());
 	
 	edof = dofmap->edof(node,kdof);
-	dofmap->fixed.push_back(fixation_entry(dval,amp,edof));
-	dofmap->fixed_dofs[keq]=dofmap->fixed.size()-1;
-
+	map<int,int>::iterator q = dofmap->fixed_dofs.find(keq);
+	if (q!=dofmap->fixed_dofs.end()) {
+	  int j = q->second;
+	  // delete dofmap->fixed[j];
+	  dofmap->fixed[j] = fixation_entry(dval,amp,edof);
+	} else {
+	  dofmap->fixed.push_back(fixation_entry(dval,amp,edof));
+	  dofmap->fixed_dofs[keq]=dofmap->fixed.size()-1;
+	}
       }
       PetscPrintf(PETSC_COMM_WORLD,
 		  "Total fixations with temporal amplitude: %d\n",nfixa);
