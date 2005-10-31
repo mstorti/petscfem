@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-// $Id: advabso.cpp,v 1.15 2005/10/24 02:22:13 mstorti Exp $
+// $Id: advabso.cpp,v 1.16 2005/10/31 00:20:14 mstorti Exp $
 #include "./advabso.h"
 #include "./gasflow.h"
 
@@ -173,4 +173,13 @@ element_hook(ElementIterator &element) {
   normal.set(prop_array(element,normal_prop));
   if (ALE_flag)
     vmesh.set(prop_array(element,vmesh_prop));
+#if 0
+  int ke,kc;
+  element.position(ke,kc);
+  if (ke%10==0) {
+    printf("element %d\n",ke);
+    normal.print("normal: ");
+    vmesh.print("vmesh: ");
+  }
+#endif
 }
