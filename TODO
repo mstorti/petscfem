@@ -2,6 +2,8 @@
 TODO: [Mainly fixes go here...]
 =====
 
+* Make `advdif' process hooks _before_ assembling profile and reading
+  initial vector
 * Escape ! in options doc. For instance in line
   TGETOPTDEF(go,int,dx_state_all_fields,!dx_split_state_flag);
   in `dxhook.cpp'. It comes without the `d' in the PDF. 
