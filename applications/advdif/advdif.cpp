@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: advdif.cpp,v 1.65 2005/10/27 21:52:26 mstorti Exp $
+//$Id: advdif.cpp,v 1.66 2005/11/02 19:40:57 mstorti Exp $
 
 #include <src/debug.h>
 #include <set>
@@ -334,6 +334,11 @@ int main(int argc,char **args) {
   arg_list argl,arglf;
 
   //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+  // Hook stuff
+  HookList hook_list;
+  hook_list.init(*mesh,*dofmap,advdif_hook_factory);
+
+  //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
   // Compute  profiles
   debug.trace("Computing profiles...");
   VOID_IT(argl);
@@ -349,11 +354,6 @@ int main(int argc,char **args) {
 
   //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
   ierr = opt_read_vector(mesh,x,dofmap,MY_RANK); CHKERRA(ierr);
-
-  //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
-  // Hook stuff
-  HookList hook_list;
-  hook_list.init(*mesh,*dofmap,advdif_hook_factory);
 
   //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:
   // This is for taking statistics of the
