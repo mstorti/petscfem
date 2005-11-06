@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: texthash.cpp,v 1.22 2005/02/21 03:57:09 mstorti Exp $
+//$Id: texthash.cpp,v 1.23 2005/11/06 15:53:20 mstorti Exp $
  
 #include <iostream>
 #include <sstream>
@@ -79,7 +79,9 @@ TextHashTable::TextHashTable () {
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 #undef __FUNC__
 #define __FUNC__ "void TextHashTable::add_entry"
-void TextHashTable::add_entry(const char * key,const char * value) {
+void TextHashTable
+::add_entry(const char * key,
+	    const char * value,int warn) {
   TextHashTableVal *vold,*vnew;
   char *orig_key, *keycp;
   void *orig_key_v, *vold_v;
@@ -91,10 +93,10 @@ void TextHashTable::add_entry(const char * key,const char * value) {
     vold = (TextHashTableVal *) vold_v;
     orig_key = (char *) orig_key_v;
     if (!strcmp(vold->s,value)) return;
-    printf("warning: redefining entry\n"
-	   "key: %s\n"
-	   "old value: %s\n"
-	   "new value: %s\n",key,vold->s,value);
+    if (warn) printf("warning: redefining entry\n"
+		     "key: %s\n"
+		     "old value: %s\n"
+		     "new value: %s\n",key,vold->s,value);
     delete vold;
     keycp = orig_key; // reuse old key
   } else keycp = local_copy(key);
