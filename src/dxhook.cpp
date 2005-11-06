@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: dxhook.cpp,v 1.64 2005/10/13 16:22:14 mstorti Exp $
+//$Id: dxhook.cpp,v 1.65 2005/11/06 23:06:14 mstorti Exp $
 
 #include <src/debug.h>
 #include <src/fem.h>
@@ -190,6 +190,11 @@ void dx_hook::init(Mesh &mesh_a,Dofmap &dofmap_a,
   PETSCFEM_ASSERT0(dx_read_state_from_file>=0 && dx_read_state_from_file<=2,
 		   "dx_read_state_from_file should be between 0 and 2.");
 
+  //o If #dx_read_state_from_file# is activated and
+  //  can't read from the given file, then stop.
+  //  Otherwise continue padding with zeros. 
+  TGETOPTDEF_ND(go,int,dx_stop_on_bad_file,0);
+
   //o Uses DX cache if possible in order to avoid sending the coordinates
   //  each time step or frame. Use only if coordinates are not changing
   //  in your problem. 
@@ -320,16 +325,24 @@ int dx_hook::build_state_from_file(double *state_p) {
       if (dx_read_state_from_file==1) {
 	printf("dx_hook: Reading from formatted file.\n");
 	// Formatted read
+	int flag=0;
 	for (int j=0; j<(recl+1)*nnod*ndof; j++) {
 	  double val=0.;
 	  int nread;
 	  nread = fscanf(fid,"%lf",&val);
 	  if(nread!=1) {
-	    fclose(fid);
-	    throw GenericError(__FILE__ ":%d: Can't read line.",__LINE__);
+	    if (dx_stop_on_bad_file) {
+	      fclose(fid);
+	      throw GenericError(__FILE__ ":%d: Can't read line.",__LINE__);
+	    } else {
+	      val = 0; flag=1;
+	    }
 	  }
 	  if (j>=base) state_p[j-base] = val;
 	}
+	if (flag) 
+	  printf("dx_hook: Cant't read enough values "
+		 "from file %s. Padding with 0\n",state_file.c_str());
       } else if (dx_read_state_from_file==2) {
 	printf("dx_hook: Reading from binary file.\n");
 	int count = fread (state_p,sizeof(double),nnod*ndof,fid);

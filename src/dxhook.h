@@ -1,6 +1,6 @@
 // -*- mode: C++ -*-
 /*__INSERT_LICENSE__*/
-//$Id: dxhook.h,v 1.19 2003/09/10 23:18:43 mstorti Exp $
+//$Id: dxhook.h,v 1.20 2005/11/06 23:06:14 mstorti Exp $
 
 #ifndef DXHOOK_H
 #define DXHOOK_H
@@ -65,6 +65,9 @@ private:
 
   /// Flags reading states from files
   int dx_read_state_from_file;
+  /// Flags error condition when can't reading state
+  /// from file. 
+  int dx_stop_on_bad_file;
   /// Flags sending coordinates each step or using cache
   int dx_cache_coords;
 
