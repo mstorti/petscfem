@@ -2,9 +2,6 @@
 TODO: [Mainly fixes go here...]
 =====
 
-* when `fixa_amplitude' has no function name it givs segmentation
-  violation. Ver `petyscfem-cases/gfabso-examples/gfabso.epl' 
-  Tue Aug 23 11:45:09 2005. 
 * make `TextHashTable::add_entry()' warn _optionally_ when the
   entry for an old key is modified. Now warns always. 
 * Lacks of preco_type=jacobi for FS in ns.cpp?
@@ -163,6 +160,11 @@ TODO: [Mainly fixes go here...]
 DONE:
 =====
 
+* when `fixa_amplitude' has no function name it givs segmentation
+  violation. Ver `petyscfem-cases/gfabso-examples/gfabso.epl' 
+  Tue Aug 23 11:45:09 2005. 
+  FIXED: Sun Nov  6 11:52:25 2005
+  Added controls to token, after calling strtok().
 * Escape ! in options doc. For instance in line
   TGETOPTDEF(go,int,dx_state_all_fields,!dx_split_state_flag);
   in `dxhook.cpp'. It comes without the `d' in the PDF. 
