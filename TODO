@@ -2,9 +2,6 @@
 TODO: [Mainly fixes go here...]
 =====
 
-* Escape ! in options doc. For instance in line
-  TGETOPTDEF(go,int,dx_state_all_fields,!dx_split_state_flag);
-  in `dxhook.cpp'. It comes without the `d' in the PDF. 
 * when `fixa_amplitude' has no function name it givs segmentation
   violation. Ver `petyscfem-cases/gfabso-examples/gfabso.epl' 
   Tue Aug 23 11:45:09 2005. 
@@ -166,6 +163,12 @@ TODO: [Mainly fixes go here...]
 DONE:
 =====
 
+* Escape ! in options doc. For instance in line
+  TGETOPTDEF(go,int,dx_state_all_fields,!dx_split_state_flag);
+  in `dxhook.cpp'. It comes without the `d' in the PDF. 
+  DONE: added escaping for `!'. Not well tested because all options
+  in `odocall.tex' are not processed in the main documentation file
+  `petscfem.pdf'. 
 * Make `advdif' process hooks _before_ assembling profile and reading
   initial vector
   DONE: Sun Nov  6 10:09:37 2005. Simply moved code as for NS. Seems
