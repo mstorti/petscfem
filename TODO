@@ -2,6 +2,8 @@
 TODO: [Mainly fixes go here...]
 =====
 
+* In advdif, make `CHECK_JAC' to be an option to be read from the data
+    file at run time. 
 * When in dx-hook mode, it should not crash if the state file is not
   found. 
 > dx_hook: reading state from file curvjet.dx-state.tmp, record 0
