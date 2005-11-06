@@ -4495,3 +4495,6 @@ tag: beta-3.49.10 on Sun, 06 Nov 2005 11:07:46 -0300 by mstorti in spider
 ----------
 tag: beta-3.49.11 on Sun, 06 Nov 2005 11:43:21 -0300 by mstorti in spider
      > Added checks for reading data file. 
+----------
+tag: beta-3.49.12 on Sun, 06 Nov 2005 12:53:28 -0300 by mstorti in spider
+     > Added `add-entry(....,warn)'
