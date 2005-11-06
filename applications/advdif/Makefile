@@ -1,5 +1,5 @@
 #__INSERT_LICENSE__
- # $Id: Makefile,v 1.55 2005/11/06 00:35:55 mstorti Exp $ 
+ # $Id: Makefile,v 1.56 2005/11/06 14:07:26 mstorti Exp $ 
 
 .PHONY: all run lclean save compile
 
@@ -33,9 +33,15 @@ advdif_bubbly.o : CCPPFLAGS += -O0
 dd := ../../doc
 
 # documentation of options with the script `odoc.pl'
-odocadvdif: $(dd)/odocadvdif.tex $(dd)/odocadvdif2.tex $(dd)/odocadvdife.tex \
-	$(dd)/odocadvfm2.tex $(dd)/odocburgers.tex \
-	$(dd)/odocswfm2t.tex $(dd)/odocgenl.tex 
+odocadvdif: $(dd)/odocadvdif.tex		\
+	$(dd)/odocadvdif2.tex			\
+	$(dd)/odocadvdife.tex			\
+	$(dd)/odocadvfm2.tex			\
+	$(dd)/odocburgers.tex			\
+	$(dd)/odocswfm2t.tex			\
+	$(dd)/odocgenl.tex			\
+	$(dd)/odocstream.tex  			\
+	$(dd)/odocdiff.tex  
 
 $(dd)/odocadvdif.tex: advdif.cpp $(dd)/advdif.tex
 	$(run_odoc)

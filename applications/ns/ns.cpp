@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: ns.cpp,v 1.167 2005/10/25 12:43:53 mstorti Exp $
+//$Id: ns.cpp,v 1.168 2005/11/06 14:07:29 mstorti Exp $
 #include <src/debug.h>
 #include <malloc.h>
 
@@ -214,7 +214,9 @@ int main(int argc,char **args) {
     double v = double(int(newton_relaxation_factor[j]));
     assert(v == newton_relaxation_factor[j]);
   }
-  
+
+  //o Computes jacobian of residuals and prints to a file.
+  //  May serve to debug computation of the analytic jacobians. 
   GETOPTDEF(int,verify_jacobian_with_numerical_one,0);
   //o After computing the linear system solves it and prints Jacobian,
   // right hand side and solution vector, and stops. 

@@ -34,7 +34,8 @@
 % \usepackage{showkeys}   %__COMMENT_IN_FINAL_VERSION__
 \usepackage{makeidx}
 \usepackage[colorlinks,linkcolor=blue,
-            urlcolor=red2,citecolor=green2]{hyperref}
+            urlcolor=red2,citecolor=green2,
+            plainpages=false,pdfpagelabels]{hyperref}
 \usepackage{nameref}
 \usepackage{html,htmllist,heqn}
 %<: if (!$html) { :>
@@ -177,11 +178,11 @@ http://venus.ceride.gov.ar/CIMEC, http://www.cimec.org.ar\\
 }
 \date{\today}
 \maketitle 
-%{\tiny\verb+$Id: petscfem.in.tex,v 1.44 2005/10/25 12:58:14 mstorti Exp $+}
+%{\tiny\verb+$Id: petscfem.in.tex,v 1.45 2005/11/06 14:07:07 mstorti Exp $+}
 %
 \begin{abstract}
 %fixme:= incluir referencia a PETSc
-This is the documentation for \pfem (current version 
+This is the documentation for \pfem{} (current version 
 {\tt petscfem-\petscfemversion}, a general purpose, parallel,
 multi-physics FEM program for CFD applications based on
 PETSc. \pfem{} comprises both a library that allows the user to

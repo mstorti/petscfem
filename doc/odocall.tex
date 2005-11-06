@@ -42,8 +42,39 @@ Parameter of the model
 \index{ALE\_flag@\verb+ALE_flag+}
 \item\verb+int ALE_flag+ {\rm(default=\verb|0|)}:
 
+Do correction for wave characteristic computation
+ do to mesh velocity (ALE).
+ (found in file: \verb+../applications/advdif/advabso.cpp+)
+%----<>----<>----<>----<>----<>----<>----<>----<>----<>----<>
+\index{ALE\_flag@\verb+ALE_flag+}
+\item\verb+int ALE_flag+ {\rm(default=\verb|0|)}:
+
 Flag to turn on ALE (Arbitrary Lagrangian-Eulerian) computation. 
  (found in file: \verb+../applications/advdif/advdife.cpp+)
+%----<>----<>----<>----<>----<>----<>----<>----<>----<>----<>
+\index{ALE\_flag@\verb+ALE_flag+}
+\item\verb+int ALE_flag+ {\rm(default=\verb|0|)}:
+
+ALE_flag : flag to ON ALE computation
+ (found in file: \verb+../applications/ns/bccns_gasflow.cpp+)
+%----<>----<>----<>----<>----<>----<>----<>----<>----<>----<>
+\index{ALE\_flag@\verb+ALE_flag+}
+\item\verb+int ALE_flag+ {\rm(default=\verb|0|)}:
+
+ALE_flag : flag to ON ALE computation
+ (found in file: \verb+../applications/ns/fstepfm2.cpp+)
+%----<>----<>----<>----<>----<>----<>----<>----<>----<>----<>
+\index{ALE\_flag@\verb+ALE_flag+}
+\item\verb+int ALE_flag+ {\rm(default=\verb|0|)}:
+
+ALE_flag : flag to ON ALE computation
+ (found in file: \verb+../applications/ns/fstepfm2ther.cpp+)
+%----<>----<>----<>----<>----<>----<>----<>----<>----<>----<>
+\index{ALE\_flag@\verb+ALE_flag+}
+\item\verb+int ALE_flag+ {\rm(default=\verb|0|)}:
+
+ALE_flag : flag to ON ALE computation
+ (found in file: \verb+../applications/ns/ns_gasflow.cpp+)
 %----<>----<>----<>----<>----<>----<>----<>----<>----<>----<>
 \index{ALE\_flag@\verb+ALE_flag+}
 \item\verb+int ALE_flag+ {\rm(default=\verb|0|)}:
@@ -94,19 +125,19 @@ van Driest constant for the damping law.
 \item\verb+double A_van_Driest+ {\rm(default=\verb|0|)}:
 
 van Driest constant for the damping law.
+ (found in file: \verb+../applications/advdif/ffadvfm2.cpp+)
+%----<>----<>----<>----<>----<>----<>----<>----<>----<>----<>
+\index{A\_van\_Driest@\verb+A_van_Driest+}
+\item\verb+double A_van_Driest+ {\rm(default=\verb|0|)}:
+
+van Driest constant for the damping law.
  (found in file: \verb+../applications/ns/fstepfm2.cpp+)
 %----<>----<>----<>----<>----<>----<>----<>----<>----<>----<>
 \index{A\_van\_Driest@\verb+A_van_Driest+}
 \item\verb+double A_van_Driest+ {\rm(default=\verb|0|)}:
 
 van Driest constant for the damping law.
- (found in file: \verb+../applications/ns/nsilesther.cpp+)
-%----<>----<>----<>----<>----<>----<>----<>----<>----<>----<>
-\index{A\_van\_Driest@\verb+A_van_Driest+}
-\item\verb+double A_van_Driest+ {\rm(default=\verb|0|)}:
-
-van Driest constant for the damping law.
- (found in file: \verb+../applications/ns/nsitetlesfm2.cpp+)
+ (found in file: \verb+../applications/ns/fstepfm2ther.cpp+)
 %----<>----<>----<>----<>----<>----<>----<>----<>----<>----<>
 \index{A\_van\_Driest@\verb+A_van_Driest+}
 \item\verb+int A_van_Driest+ {\rm(default=\verb|0|)}:
@@ -119,19 +150,49 @@ If {\tt A\_van\_Driest=0} then the van Driest
 \item\verb+double A_van_Driest+ {\rm(default=\verb|0|)}:
 
 van Driest constant for the damping law.
+ (found in file: \verb+../applications/ns/ns_gasflow.cpp+)
+%----<>----<>----<>----<>----<>----<>----<>----<>----<>----<>
+\index{A\_van\_Driest@\verb+A_van_Driest+}
+\item\verb+double A_van_Driest+ {\rm(default=\verb|0|)}:
+
+van Driest constant for the damping law.
  (found in file: \verb+../applications/ns/nsilesasm_2.cpp+)
 %----<>----<>----<>----<>----<>----<>----<>----<>----<>----<>
 \index{A\_van\_Driest@\verb+A_van_Driest+}
 \item\verb+double A_van_Driest+ {\rm(default=\verb|0|)}:
 
 van Driest constant for the damping law.
- (found in file: \verb+../applications/ns/pfcpp_temp.cpp+)
+ (found in file: \verb+../applications/ns/nsilesther.cpp+)
+%----<>----<>----<>----<>----<>----<>----<>----<>----<>----<>
+\index{A\_van\_Driest@\verb+A_van_Driest+}
+\item\verb+double A_van_Driest+ {\rm(default=\verb|0|)}:
+
+van Driest constant for the damping law.
+ (found in file: \verb+../applications/ns/nsitetasm.cpp+)
+%----<>----<>----<>----<>----<>----<>----<>----<>----<>----<>
+\index{A\_van\_Driest@\verb+A_van_Driest+}
+\item\verb+double A_van_Driest+ {\rm(default=\verb|0|)}:
+
+van Driest constant for the damping law.
+ (found in file: \verb+../applications/ns/nsitetasm_avgvol.cpp+)
 %----<>----<>----<>----<>----<>----<>----<>----<>----<>----<>
 \index{A\_van\_Driest@\verb+A_van_Driest+}
 \item\verb+double A_van_Driest+ {\rm(default=\verb|0|)}:
 
 van Driest constant for the damping law.
  (found in file: \verb+../applications/ns/nsitetlesc.cpp+)
+%----<>----<>----<>----<>----<>----<>----<>----<>----<>----<>
+\index{A\_van\_Driest@\verb+A_van_Driest+}
+\item\verb+double A_van_Driest+ {\rm(default=\verb|0|)}:
+
+van Driest constant for the damping law.
+ (found in file: \verb+../applications/ns/nsitetlesfm2.cpp+)
+%----<>----<>----<>----<>----<>----<>----<>----<>----<>----<>
+\index{BUOYANCY\_flag@\verb+BUOYANCY_flag+}
+\item\verb+int BUOYANCY_flag+ {\rm(default=\verb|0|)}:
+
+Bouyancy_flag : coupling fractional step with thermal equation
+ (found in file: \verb+../applications/ns/fstepfm2.cpp+)
 %----<>----<>----<>----<>----<>----<>----<>----<>----<>----<>
 \index{CN\_ctff@\verb+CN_ctff+}
 \item\verb+double CN_ctff+ {\rm(default=\verb|DBL_MAX|)}:
@@ -154,18 +215,6 @@ C_1
 \index{C\_1@\verb+C_1+}
 \item\verb+double C_1+ {\rm(default=\verb|1.44|)}:
 
-Coefficient for shallow water turbulent model
- (found in file: \verb+../applications/advdif/ffswfm2t.cpp+)
-%----<>----<>----<>----<>----<>----<>----<>----<>----<>----<>
-\index{C\_1@\verb+C_1+}
-\item\verb+double C_1+ {\rm(default=\verb|1.44|)}:
-
-Coefficient for shallow water turbulent model
- (found in file: \verb+../applications/advdif/ffswfm1t.cpp+)
-%----<>----<>----<>----<>----<>----<>----<>----<>----<>----<>
-\index{C\_1@\verb+C_1+}
-\item\verb+double C_1+ {\rm(default=\verb|1.44|)}:
-
 C_1
  (found in file: \verb+../applications/advdif/bubbly_asm.cpp+)
 %----<>----<>----<>----<>----<>----<>----<>----<>----<>----<>
@@ -180,6 +229,18 @@ C_1
 
 C_1
  (found in file: \verb+../applications/advdif/bubbly_full.cpp+)
+%----<>----<>----<>----<>----<>----<>----<>----<>----<>----<>
+\index{C\_1@\verb+C_1+}
+\item\verb+double C_1+ {\rm(default=\verb|1.44|)}:
+
+Coefficient for shallow water turbulent model
+ (found in file: \verb+../applications/advdif/ffswfm1t.cpp+)
+%----<>----<>----<>----<>----<>----<>----<>----<>----<>----<>
+\index{C\_1@\verb+C_1+}
+\item\verb+double C_1+ {\rm(default=\verb|1.44|)}:
+
+Coefficient for shallow water turbulent model
+ (found in file: \verb+../applications/advdif/ffswfm2t.cpp+)
 %----<>----<>----<>----<>----<>----<>----<>----<>----<>----<>
 \index{C\_1@\verb+C_1+}
 \item\verb+double C_1+ {\rm(default=\verb|1.44|)}:
@@ -202,18 +263,6 @@ C_2
 \index{C\_2@\verb+C_2+}
 \item\verb+double C_2+ {\rm(default=\verb|1.92|)}:
 
-Coefficient for shallow water turbulent model
- (found in file: \verb+../applications/advdif/ffswfm2t.cpp+)
-%----<>----<>----<>----<>----<>----<>----<>----<>----<>----<>
-\index{C\_2@\verb+C_2+}
-\item\verb+double C_2+ {\rm(default=\verb|1.92|)}:
-
-Coefficient for shallow water turbulent model
- (found in file: \verb+../applications/advdif/ffswfm1t.cpp+)
-%----<>----<>----<>----<>----<>----<>----<>----<>----<>----<>
-\index{C\_2@\verb+C_2+}
-\item\verb+double C_2+ {\rm(default=\verb|1.92|)}:
-
 C_2
  (found in file: \verb+../applications/advdif/bubbly_asm.cpp+)
 %----<>----<>----<>----<>----<>----<>----<>----<>----<>----<>
@@ -228,6 +277,18 @@ C_2
 
 C_2
  (found in file: \verb+../applications/advdif/bubbly_full.cpp+)
+%----<>----<>----<>----<>----<>----<>----<>----<>----<>----<>
+\index{C\_2@\verb+C_2+}
+\item\verb+double C_2+ {\rm(default=\verb|1.92|)}:
+
+Coefficient for shallow water turbulent model
+ (found in file: \verb+../applications/advdif/ffswfm1t.cpp+)
+%----<>----<>----<>----<>----<>----<>----<>----<>----<>----<>
+\index{C\_2@\verb+C_2+}
+\item\verb+double C_2+ {\rm(default=\verb|1.92|)}:
+
+Coefficient for shallow water turbulent model
+ (found in file: \verb+../applications/advdif/ffswfm2t.cpp+)
 %----<>----<>----<>----<>----<>----<>----<>----<>----<>----<>
 \index{C\_2@\verb+C_2+}
 \item\verb+double C_2+ {\rm(default=\verb|1.92|)}:
@@ -250,18 +311,6 @@ C_mu
 \index{C\_mu@\verb+C_mu+}
 \item\verb+double C_mu+ {\rm(default=\verb|0.09|)}:
 
-Coefficient for shallow water turbulent model
- (found in file: \verb+../applications/advdif/ffswfm2t.cpp+)
-%----<>----<>----<>----<>----<>----<>----<>----<>----<>----<>
-\index{C\_mu@\verb+C_mu+}
-\item\verb+double C_mu+ {\rm(default=\verb|0.09|)}:
-
-Coefficient for shallow water turbulent model
- (found in file: \verb+../applications/advdif/ffswfm1t.cpp+)
-%----<>----<>----<>----<>----<>----<>----<>----<>----<>----<>
-\index{C\_mu@\verb+C_mu+}
-\item\verb+double C_mu+ {\rm(default=\verb|0.09|)}:
-
 C_mu
  (found in file: \verb+../applications/advdif/bubbly_asm.cpp+)
 %----<>----<>----<>----<>----<>----<>----<>----<>----<>----<>
@@ -276,6 +325,18 @@ C_mu
 
 C_mu
  (found in file: \verb+../applications/advdif/bubbly_full.cpp+)
+%----<>----<>----<>----<>----<>----<>----<>----<>----<>----<>
+\index{C\_mu@\verb+C_mu+}
+\item\verb+double C_mu+ {\rm(default=\verb|0.09|)}:
+
+Coefficient for shallow water turbulent model
+ (found in file: \verb+../applications/advdif/ffswfm1t.cpp+)
+%----<>----<>----<>----<>----<>----<>----<>----<>----<>----<>
+\index{C\_mu@\verb+C_mu+}
+\item\verb+double C_mu+ {\rm(default=\verb|0.09|)}:
+
+Coefficient for shallow water turbulent model
+ (found in file: \verb+../applications/advdif/ffswfm2t.cpp+)
 %----<>----<>----<>----<>----<>----<>----<>----<>----<>----<>
 \index{C\_mu@\verb+C_mu+}
 \item\verb+double C_mu+ {\rm(default=\verb|0.09|)}:
@@ -302,12 +363,6 @@ Smagorinsky constant.
  (found in file: \verb+../applications/advdif/bubbly.cpp+)
 %----<>----<>----<>----<>----<>----<>----<>----<>----<>----<>
 \index{C\_smag@\verb+C_smag+}
-\item\verb+double C_smag+ {\rm(default=\verb|0.09|)}:
-
-C_smag
- (found in file: \verb+../applications/advdif/gasflow.cpp+)
-%----<>----<>----<>----<>----<>----<>----<>----<>----<>----<>
-\index{C\_smag@\verb+C_smag+}
 \item\verb+double C_smag+ {\rm(default=\verb|0.18|)}:
 
 Smagorinsky constant.
@@ -329,19 +384,31 @@ Smagorinsky constant.
 \item\verb+double C_smag+ {\rm(default=\verb|0.18|)}:
 
 Smagorinsky constant.
+ (found in file: \verb+../applications/advdif/ffadvfm2.cpp+)
+%----<>----<>----<>----<>----<>----<>----<>----<>----<>----<>
+\index{C\_smag@\verb+C_smag+}
+\item\verb+double C_smag+ {\rm(default=\verb|0.09|)}:
+
+C_smag
+ (found in file: \verb+../applications/advdif/gasflow.cpp+)
+%----<>----<>----<>----<>----<>----<>----<>----<>----<>----<>
+\index{C\_smag@\verb+C_smag+}
+\item\verb+double C_smag+ {\rm(default=\verb|0.18|)}:
+
+Smagorinsky constant.
  (found in file: \verb+../applications/ns/fstepfm2.cpp+)
 %----<>----<>----<>----<>----<>----<>----<>----<>----<>----<>
 \index{C\_smag@\verb+C_smag+}
 \item\verb+double C_smag+ {\rm(default=\verb|0.18|)}:
 
 Smagorinsky constant.
- (found in file: \verb+../applications/ns/nsilesther.cpp+)
+ (found in file: \verb+../applications/ns/fstepfm2ther.cpp+)
 %----<>----<>----<>----<>----<>----<>----<>----<>----<>----<>
 \index{C\_smag@\verb+C_smag+}
 \item\verb+double C_smag+ {\rm(default=\verb|0.18|)}:
 
 Smagorinsky constant.
- (found in file: \verb+../applications/ns/nsitetlesfm2.cpp+)
+ (found in file: \verb+../applications/ns/ns_gasflow.cpp+)
 %----<>----<>----<>----<>----<>----<>----<>----<>----<>----<>
 \index{C\_smag@\verb+C_smag+}
 \item\verb+double C_smag+ {\rm(default=\verb|0.18|)}:
@@ -353,13 +420,31 @@ Smagorinsky constant.
 \item\verb+double C_smag+ {\rm(default=\verb|0.18|)}:
 
 Smagorinsky constant.
- (found in file: \verb+../applications/ns/pfcpp_temp.cpp+)
+ (found in file: \verb+../applications/ns/nsilesther.cpp+)
+%----<>----<>----<>----<>----<>----<>----<>----<>----<>----<>
+\index{C\_smag@\verb+C_smag+}
+\item\verb+double C_smag+ {\rm(default=\verb|0.18|)}:
+
+Smagorinsky constant.
+ (found in file: \verb+../applications/ns/nsitetasm.cpp+)
+%----<>----<>----<>----<>----<>----<>----<>----<>----<>----<>
+\index{C\_smag@\verb+C_smag+}
+\item\verb+double C_smag+ {\rm(default=\verb|0.18|)}:
+
+Smagorinsky constant.
+ (found in file: \verb+../applications/ns/nsitetasm_avgvol.cpp+)
 %----<>----<>----<>----<>----<>----<>----<>----<>----<>----<>
 \index{C\_smag@\verb+C_smag+}
 \item\verb+double C_smag+ {\rm(default=\verb|0.18|)}:
 
 Smagorinsky constant.
  (found in file: \verb+../applications/ns/nsitetlesc.cpp+)
+%----<>----<>----<>----<>----<>----<>----<>----<>----<>----<>
+\index{C\_smag@\verb+C_smag+}
+\item\verb+double C_smag+ {\rm(default=\verb|0.18|)}:
+
+Smagorinsky constant.
+ (found in file: \verb+../applications/ns/nsitetlesfm2.cpp+)
 %----<>----<>----<>----<>----<>----<>----<>----<>----<>----<>
 \index{CdN\_ctff@\verb+CdN_ctff+}
 \item\verb+double CdN_ctff+ {\rm(default=\verb|DBL_MAX|)}:
@@ -377,13 +462,13 @@ Cutoff value for CdO
 \item\verb+double Chezy+ {\rm(default=\verb|110|)}:
 
 Chezy coefficient for bottom friction modelling
- (found in file: \verb+../applications/advdif/ffswfm2t.cpp+)
+ (found in file: \verb+../applications/advdif/ffswfm1t.cpp+)
 %----<>----<>----<>----<>----<>----<>----<>----<>----<>----<>
 \index{Chezy@\verb+Chezy+}
 \item\verb+double Chezy+ {\rm(default=\verb|110|)}:
 
 Chezy coefficient for bottom friction modelling
- (found in file: \verb+../applications/advdif/ffswfm1t.cpp+)
+ (found in file: \verb+../applications/advdif/ffswfm2t.cpp+)
 %----<>----<>----<>----<>----<>----<>----<>----<>----<>----<>
 \index{Courant@\verb+Courant+}
 \item\verb+double Courant+ {\rm(default=\verb|0.6|)}:
@@ -407,25 +492,25 @@ The Courant number.
 \item\verb+double Cp+ {\rm(default=\verb|1.|)}:
 
 Specific heat - constant pressure
- (found in file: \verb+../applications/ns/bccnstherfm2.cpp+)
-%----<>----<>----<>----<>----<>----<>----<>----<>----<>----<>
-\index{Cp@\verb+Cp+}
-\item\verb+double Cp+ {\rm(default=\verb|1.|)}:
-
-Specific heat - constant pressure
- (found in file: \verb+../applications/ns/nsilesther.cpp+)
-%----<>----<>----<>----<>----<>----<>----<>----<>----<>----<>
-\index{Cp@\verb+Cp+}
-\item\verb+double Cp+ {\rm(default=\verb|1.|)}:
-
-Specific heat - constant pressure
  (found in file: \verb+../applications/ns/bccnsasmfm2.cpp+)
 %----<>----<>----<>----<>----<>----<>----<>----<>----<>----<>
 \index{Cp@\verb+Cp+}
 \item\verb+double Cp+ {\rm(default=\verb|1.|)}:
 
 Specific heat - constant pressure
+ (found in file: \verb+../applications/ns/bccnstherfm2.cpp+)
+%----<>----<>----<>----<>----<>----<>----<>----<>----<>----<>
+\index{Cp@\verb+Cp+}
+\item\verb+double Cp+ {\rm(default=\verb|1.|)}:
+
+Specific heat - constant pressure
  (found in file: \verb+../applications/ns/nsilesasm_2.cpp+)
+%----<>----<>----<>----<>----<>----<>----<>----<>----<>----<>
+\index{Cp@\verb+Cp+}
+\item\verb+double Cp+ {\rm(default=\verb|1.|)}:
+
+Specific heat - constant pressure
+ (found in file: \verb+../applications/ns/nsilesther.cpp+)
 %----<>----<>----<>----<>----<>----<>----<>----<>----<>----<>
 \index{Cr@\verb+Cr+}
 \item\verb+double Cr+ {\rm(default=\verb|0.|)}:
@@ -437,13 +522,13 @@ Coefficient scaling the reaction
 \item\verb+double D+ {\rm(default=\verb|1.|)}:
 
 Coefficient for shallow water turbulent model
- (found in file: \verb+../applications/advdif/ffswfm2t.cpp+)
+ (found in file: \verb+../applications/advdif/ffswfm1t.cpp+)
 %----<>----<>----<>----<>----<>----<>----<>----<>----<>----<>
 \index{D@\verb+D+}
 \item\verb+double D+ {\rm(default=\verb|1.|)}:
 
 Coefficient for shallow water turbulent model
- (found in file: \verb+../applications/advdif/ffswfm1t.cpp+)
+ (found in file: \verb+../applications/advdif/ffswfm2t.cpp+)
 %----<>----<>----<>----<>----<>----<>----<>----<>----<>----<>
 \index{Dt@\verb+Dt+}
 \item\verb+double Dt+ {\rm(default=\verb|0.|)}:
@@ -497,9 +582,6 @@ Time step.
  Vector of gravity acceleration (must be constant).  (found in file: \verb+../applications/advdif/bubbly.cpp+)
 %----<>----<>----<>----<>----<>----<>----<>----<>----<>----<>
 \item\verb+ double[ndim]+ \verb+ G_body+ {\rm(default=\verb| null vector|)}:
- Vector of gravity acceleration (must be constant).  (found in file: \verb+../applications/advdif/gasflow.cpp+)
-%----<>----<>----<>----<>----<>----<>----<>----<>----<>----<>
-\item\verb+ double[ndim]+ \verb+ G_body+ {\rm(default=\verb| null vector|)}:
  Vector of gravity acceleration (must be constant).  (found in file: \verb+../applications/advdif/bubbly_asm.cpp+)
 %----<>----<>----<>----<>----<>----<>----<>----<>----<>----<>
 \item\verb+ double[ndim]+ \verb+ G_body+ {\rm(default=\verb| null vector|)}:
@@ -509,7 +591,16 @@ Time step.
  Vector of gravity acceleration (must be constant).  (found in file: \verb+../applications/advdif/bubbly_full.cpp+)
 %----<>----<>----<>----<>----<>----<>----<>----<>----<>----<>
 \item\verb+ double[ndim]+ \verb+ G_body+ {\rm(default=\verb| null vector|)}:
+ Vector of gravity acceleration (must be constant).  (found in file: \verb+../applications/advdif/gasflow.cpp+)
+%----<>----<>----<>----<>----<>----<>----<>----<>----<>----<>
+\item\verb+ double[ndim]+ \verb+ G_body+ {\rm(default=\verb| null vector|)}:
  Vector of gravity acceleration (must be constant).  (found in file: \verb+../applications/ns/fstepfm2.cpp+)
+%----<>----<>----<>----<>----<>----<>----<>----<>----<>----<>
+\item\verb+ double[ndim]+ \verb+ G_body+ {\rm(default=\verb| null vector|)}:
+ Vector of gravity acceleration (must be constant).  (found in file: \verb+../applications/ns/fstepfm2ther.cpp+)
+%----<>----<>----<>----<>----<>----<>----<>----<>----<>----<>
+\item\verb+ double[ndim]+ \verb+ G_body+ {\rm(default=\verb| null vector|)}:
+ Vector of gravity acceleration (must be constant).  (found in file: \verb+../applications/ns/ns_gasflow.cpp+)
 %----<>----<>----<>----<>----<>----<>----<>----<>----<>----<>
 \item\verb+ double[ndim]+ \verb+ G_body+ {\rm(default=\verb| null vector|)}:
  Vector of gravity acceleration (must be constant).  (found in file: \verb+../applications/ns/nsikeps.cpp+)
@@ -518,22 +609,25 @@ Time step.
  Vector of gravity acceleration (must be constant).  (found in file: \verb+../applications/ns/nsikepsrot.cpp+)
 %----<>----<>----<>----<>----<>----<>----<>----<>----<>----<>
 \item\verb+ double[ndim]+ \verb+ G_body+ {\rm(default=\verb| null vector|)}:
+ Vector of gravity acceleration (must be constant).  (found in file: \verb+../applications/ns/nsilesasm_2.cpp+)
+%----<>----<>----<>----<>----<>----<>----<>----<>----<>----<>
+\item\verb+ double[ndim]+ \verb+ G_body+ {\rm(default=\verb| null vector|)}:
  Vector of gravity acceleration (must be constant).  (found in file: \verb+../applications/ns/nsilesther.cpp+)
 %----<>----<>----<>----<>----<>----<>----<>----<>----<>----<>
 \item\verb+ double[ndim]+ \verb+ G_body+ {\rm(default=\verb| null vector|)}:
  Vector of gravity acceleration (must be constant).  (found in file: \verb+../applications/ns/nsirot.cpp+)
 %----<>----<>----<>----<>----<>----<>----<>----<>----<>----<>
 \item\verb+ double[ndim]+ \verb+ G_body+ {\rm(default=\verb| null vector|)}:
- Vector of gravity acceleration (must be constant).  (found in file: \verb+../applications/ns/nsitetlesfm2.cpp+)
+ Vector of gravity acceleration (must be constant).  (found in file: \verb+../applications/ns/nsitetasm.cpp+)
 %----<>----<>----<>----<>----<>----<>----<>----<>----<>----<>
 \item\verb+ double[ndim]+ \verb+ G_body+ {\rm(default=\verb| null vector|)}:
- Vector of gravity acceleration (must be constant).  (found in file: \verb+../applications/ns/nsilesasm_2.cpp+)
-%----<>----<>----<>----<>----<>----<>----<>----<>----<>----<>
-\item\verb+ double[ndim]+ \verb+ G_body+ {\rm(default=\verb| null vector|)}:
- Vector of gravity acceleration (must be constant).  (found in file: \verb+../applications/ns/pfcpp_temp.cpp+)
+ Vector of gravity acceleration (must be constant).  (found in file: \verb+../applications/ns/nsitetasm_avgvol.cpp+)
 %----<>----<>----<>----<>----<>----<>----<>----<>----<>----<>
 \item\verb+ double[ndim]+ \verb+ G_body+ {\rm(default=\verb| null vector|)}:
  Vector of gravity acceleration (must be constant).  (found in file: \verb+../applications/ns/nsitetlesc.cpp+)
+%----<>----<>----<>----<>----<>----<>----<>----<>----<>----<>
+\item\verb+ double[ndim]+ \verb+ G_body+ {\rm(default=\verb| null vector|)}:
+ Vector of gravity acceleration (must be constant).  (found in file: \verb+../applications/ns/nsitetlesfm2.cpp+)
 %----<>----<>----<>----<>----<>----<>----<>----<>----<>----<>
 \index{KN@\verb+KN+}
 \item\verb+double KN+ {\rm(default=\verb|0.6788e-5|)}:
@@ -569,12 +663,6 @@ Add LES for this particular elemset.
 \index{LES@\verb+LES+}
 \item\verb+int LES+ {\rm(default=\verb|0|)}:
 
-Activates LES turbulence model
- (found in file: \verb+../applications/advdif/gasflow.cpp+)
-%----<>----<>----<>----<>----<>----<>----<>----<>----<>----<>
-\index{LES@\verb+LES+}
-\item\verb+int LES+ {\rm(default=\verb|0|)}:
-
 Add LES for this particular elemset.
  (found in file: \verb+../applications/advdif/bubbly_asm.cpp+)
 %----<>----<>----<>----<>----<>----<>----<>----<>----<>----<>
@@ -594,7 +682,37 @@ Add LES for this particular elemset.
 \item\verb+int LES+ {\rm(default=\verb|0|)}:
 
 Add LES for this particular elemset.
+ (found in file: \verb+../applications/advdif/ffadvfm2.cpp+)
+%----<>----<>----<>----<>----<>----<>----<>----<>----<>----<>
+\index{LES@\verb+LES+}
+\item\verb+int LES+ {\rm(default=\verb|0|)}:
+
+Activates LES turbulence model
+ (found in file: \verb+../applications/advdif/gasflow.cpp+)
+%----<>----<>----<>----<>----<>----<>----<>----<>----<>----<>
+\index{LES@\verb+LES+}
+\item\verb+int LES+ {\rm(default=\verb|0|)}:
+
+Add LES for this particular elemset.
  (found in file: \verb+../applications/ns/fstepfm2.cpp+)
+%----<>----<>----<>----<>----<>----<>----<>----<>----<>----<>
+\index{LES@\verb+LES+}
+\item\verb+int LES+ {\rm(default=\verb|0|)}:
+
+Add LES for this particular elemset.
+ (found in file: \verb+../applications/ns/fstepfm2ther.cpp+)
+%----<>----<>----<>----<>----<>----<>----<>----<>----<>----<>
+\index{LES@\verb+LES+}
+\item\verb+int LES+ {\rm(default=\verb|0|)}:
+
+Use the LES/Smagorinsky turbulence model. 
+ (found in file: \verb+../applications/ns/ns.cpp+)
+%----<>----<>----<>----<>----<>----<>----<>----<>----<>----<>
+\index{LES@\verb+LES+}
+\item\verb+int LES+ {\rm(default=\verb|0|)}:
+
+Add LES for this particular elemset.
+ (found in file: \verb+../applications/ns/ns_gasflow.cpp+)
 %----<>----<>----<>----<>----<>----<>----<>----<>----<>----<>
 \index{LES@\verb+LES+}
 \item\verb+int LES+ {\rm(default=\verb|0|)}:
@@ -612,6 +730,12 @@ Add LES for this particular elemset.
 \item\verb+int LES+ {\rm(default=\verb|0|)}:
 
 Add LES for this particular elemset.
+ (found in file: \verb+../applications/ns/nsilesasm_2.cpp+)
+%----<>----<>----<>----<>----<>----<>----<>----<>----<>----<>
+\index{LES@\verb+LES+}
+\item\verb+int LES+ {\rm(default=\verb|0|)}:
+
+Add LES for this particular elemset.
  (found in file: \verb+../applications/ns/nsilesther.cpp+)
 %----<>----<>----<>----<>----<>----<>----<>----<>----<>----<>
 \index{LES@\verb+LES+}
@@ -619,6 +743,24 @@ Add LES for this particular elemset.
 
 Add LES for this particular elemset.
  (found in file: \verb+../applications/ns/nsirot.cpp+)
+%----<>----<>----<>----<>----<>----<>----<>----<>----<>----<>
+\index{LES@\verb+LES+}
+\item\verb+int LES+ {\rm(default=\verb|0|)}:
+
+Add LES for this particular elemset.
+ (found in file: \verb+../applications/ns/nsitetasm.cpp+)
+%----<>----<>----<>----<>----<>----<>----<>----<>----<>----<>
+\index{LES@\verb+LES+}
+\item\verb+int LES+ {\rm(default=\verb|0|)}:
+
+Add LES for this particular elemset.
+ (found in file: \verb+../applications/ns/nsitetasm_avgvol.cpp+)
+%----<>----<>----<>----<>----<>----<>----<>----<>----<>----<>
+\index{LES@\verb+LES+}
+\item\verb+int LES+ {\rm(default=\verb|0|)}:
+
+Add LES for this particular elemset.
+ (found in file: \verb+../applications/ns/nsitetlesc.cpp+)
 %----<>----<>----<>----<>----<>----<>----<>----<>----<>----<>
 \index{LES@\verb+LES+}
 \item\verb+int LES+ {\rm(default=\verb|0|)}:
@@ -637,30 +779,6 @@ Add LES for this particular elemset.
 
 Add LES for this particular elemset.
  (found in file: \verb+../applications/ns/nssupg.cpp+)
-%----<>----<>----<>----<>----<>----<>----<>----<>----<>----<>
-\index{LES@\verb+LES+}
-\item\verb+int LES+ {\rm(default=\verb|0|)}:
-
-Use the LES/Smagorinsky turbulence model. 
- (found in file: \verb+../applications/ns/ns.cpp+)
-%----<>----<>----<>----<>----<>----<>----<>----<>----<>----<>
-\index{LES@\verb+LES+}
-\item\verb+int LES+ {\rm(default=\verb|0|)}:
-
-Add LES for this particular elemset.
- (found in file: \verb+../applications/ns/nsilesasm_2.cpp+)
-%----<>----<>----<>----<>----<>----<>----<>----<>----<>----<>
-\index{LES@\verb+LES+}
-\item\verb+int LES+ {\rm(default=\verb|0|)}:
-
-Add LES for this particular elemset.
- (found in file: \verb+../applications/ns/pfcpp_temp.cpp+)
-%----<>----<>----<>----<>----<>----<>----<>----<>----<>----<>
-\index{LES@\verb+LES+}
-\item\verb+int LES+ {\rm(default=\verb|0|)}:
-
-Add LES for this particular elemset.
- (found in file: \verb+../applications/ns/nsitetlesc.cpp+)
 %----<>----<>----<>----<>----<>----<>----<>----<>----<>----<>
 \index{Nb\_ctff@\verb+Nb_ctff+}
 \item\verb+double Nb_ctff+ {\rm(default=\verb|DBL_MAX|)}:
@@ -687,22 +805,34 @@ Poisson ratio
  (found in file: \verb+../applications/ns/elast.cpp+)
 %----<>----<>----<>----<>----<>----<>----<>----<>----<>----<>
 \index{Pr\_t@\verb+Pr_t+}
+\item\verb+double Pr_t+ {\rm(default=\verb|1.0|)}:
+
+turbulent Prandtl
+ (found in file: \verb+../applications/advdif/ffadvfm2.cpp+)
+%----<>----<>----<>----<>----<>----<>----<>----<>----<>----<>
+\index{Pr\_t@\verb+Pr_t+}
 \item\verb+double Pr_t+ {\rm(default=\verb|1.|)}:
 
 Turbulent Prandtl number
  (found in file: \verb+../applications/advdif/gasflow.cpp+)
 %----<>----<>----<>----<>----<>----<>----<>----<>----<>----<>
 \index{Pr\_t@\verb+Pr_t+}
-\item\verb+double Pr_t+ {\rm(default=\verb|1.0|)}:
+\item\verb+double Pr_t+ {\rm(default=\verb|1.|)}:
 
-turbulent Prandtl number.
- (found in file: \verb+../applications/ns/nsilesther.cpp+)
+Turbulent Prandtl number
+ (found in file: \verb+../applications/ns/ns_gasflow.cpp+)
 %----<>----<>----<>----<>----<>----<>----<>----<>----<>----<>
 \index{Pr\_t@\verb+Pr_t+}
 \item\verb+double Pr_t+ {\rm(default=\verb|1.0|)}:
 
 turbulent Prandtl number.
  (found in file: \verb+../applications/ns/nsilesasm_2.cpp+)
+%----<>----<>----<>----<>----<>----<>----<>----<>----<>----<>
+\index{Pr\_t@\verb+Pr_t+}
+\item\verb+double Pr_t+ {\rm(default=\verb|1.0|)}:
+
+turbulent Prandtl number.
+ (found in file: \verb+../applications/ns/nsilesther.cpp+)
 %----<>----<>----<>----<>----<>----<>----<>----<>----<>----<>
 \index{Rgas@\verb+Rgas+}
 \item\verb+double Rgas+ {\rm(default=\verb|8.314|)}:
@@ -734,6 +864,18 @@ turbulence induced by bubble according to Sato model (constant)
 turbulence induced by bubble according to Sato model (constant)
  (found in file: \verb+../applications/advdif/bubbly_full.cpp+)
 %----<>----<>----<>----<>----<>----<>----<>----<>----<>----<>
+\index{Sato\_model\_coef@\verb+Sato_model_coef+}
+\item\verb+double Sato_model_coef+ {\rm(default=\verb|0.|)}:
+
+Sato coefficient
+ (found in file: \verb+../applications/ns/nsitetasm.cpp+)
+%----<>----<>----<>----<>----<>----<>----<>----<>----<>----<>
+\index{Sato\_model\_coef@\verb+Sato_model_coef+}
+\item\verb+double Sato_model_coef+ {\rm(default=\verb|0.|)}:
+
+Sato coefficient
+ (found in file: \verb+../applications/ns/nsitetasm_avgvol.cpp+)
+%----<>----<>----<>----<>----<>----<>----<>----<>----<>----<>
 \index{Sc@\verb+Sc+}
 \item\verb+double Sc+ {\rm(default=\verb|0.83|)}:
 
@@ -762,6 +904,12 @@ Gas temperature
 \item\verb+double Tinfty+ {\rm(default=\verb|0.|)}:
 
 Reference temperature for thermal coupling Boussinesq term
+ (found in file: \verb+../applications/ns/fstepfm2.cpp+)
+%----<>----<>----<>----<>----<>----<>----<>----<>----<>----<>
+\index{Tinfty@\verb+Tinfty+}
+\item\verb+double Tinfty+ {\rm(default=\verb|0.|)}:
+
+Reference temperature for thermal coupling Boussinesq term
  (found in file: \verb+../applications/ns/nsilesther.cpp+)
 %----<>----<>----<>----<>----<>----<>----<>----<>----<>----<>
 \index{U\_char@\verb+U_char+}
@@ -769,6 +917,12 @@ Reference temperature for thermal coupling Boussinesq term
 
 characteristic velocity for pressure stabilization 
  (found in file: \verb+../applications/ns/fstepfm2.cpp+)
+%----<>----<>----<>----<>----<>----<>----<>----<>----<>----<>
+\index{U\_char@\verb+U_char+}
+\item\verb+double U_char+ {\rm(default=\verb|0.|)}:
+
+characteristic velocity for pressure stabilization 
+ (found in file: \verb+../applications/ns/fstepfm2ther.cpp+)
 %----<>----<>----<>----<>----<>----<>----<>----<>----<>----<>
 \item\verb+ double[ndof]+ \verb+ Uref+ {\rm(default=\verb| <none>|)}:
  reference state for absorbing b.c.'s.  (found in file: \verb+../applications/advdif/gasflow.cpp+)
@@ -862,14 +1016,21 @@ Additional properties (used by the element routine)
 
 Add to the  \verb+tau_pspg+  term, so that you can stabilize with a term
  independently of $h$. (Mainly for debugging purposes). 
- (found in file: \verb+../applications/ns/nsitetlesfm2.cpp+)
+ (found in file: \verb+../applications/ns/ns_gasflow.cpp+)
 %----<>----<>----<>----<>----<>----<>----<>----<>----<>----<>
 \index{additional\_tau\_pspg@\verb+additional_tau_pspg+}
 \item\verb+double additional_tau_pspg+ {\rm(default=\verb|0.|)}:
 
-Add to the \verb+tau_pspg+ term, so that you can stabilize with a term
+Add to the  \verb+tau_pspg+  term, so that you can stabilize with a term
  independently of $h$. (Mainly for debugging purposes). 
- (found in file: \verb+../applications/ns/pfcpp_temp.cpp+)
+ (found in file: \verb+../applications/ns/nsitetasm.cpp+)
+%----<>----<>----<>----<>----<>----<>----<>----<>----<>----<>
+\index{additional\_tau\_pspg@\verb+additional_tau_pspg+}
+\item\verb+double additional_tau_pspg+ {\rm(default=\verb|0.|)}:
+
+Add to the  \verb+tau_pspg+  term, so that you can stabilize with a term
+ independently of $h$. (Mainly for debugging purposes). 
+ (found in file: \verb+../applications/ns/nsitetasm_avgvol.cpp+)
 %----<>----<>----<>----<>----<>----<>----<>----<>----<>----<>
 \index{additional\_tau\_pspg@\verb+additional_tau_pspg+}
 \item\verb+double additional_tau_pspg+ {\rm(default=\verb|0.|)}:
@@ -877,6 +1038,13 @@ Add to the \verb+tau_pspg+ term, so that you can stabilize with a term
 Add to the  \verb+tau_pspg+  term, so that you can stabilize with a term
  independently of $h$. (Mainly for debugging purposes). 
  (found in file: \verb+../applications/ns/nsitetlesc.cpp+)
+%----<>----<>----<>----<>----<>----<>----<>----<>----<>----<>
+\index{additional\_tau\_pspg@\verb+additional_tau_pspg+}
+\item\verb+double additional_tau_pspg+ {\rm(default=\verb|0.|)}:
+
+Add to the  \verb+tau_pspg+  term, so that you can stabilize with a term
+ independently of $h$. (Mainly for debugging purposes). 
+ (found in file: \verb+../applications/ns/nsitetlesfm2.cpp+)
 %----<>----<>----<>----<>----<>----<>----<>----<>----<>----<>
 \item\verb+ double[var_len]+ \verb+ advective_jacobians+ {\rm(default=\verb| no default|)}:
  
@@ -1150,12 +1318,6 @@ for temporal integration.
 \index{alpha@\verb+alpha+}
 \item\verb+double alpha+ {\rm(default=\verb|1.|)}:
 
-Parameter for the trapezoidal rule time integration method.
- (found in file: \verb+../applications/ns/nsilesther.cpp+)
-%----<>----<>----<>----<>----<>----<>----<>----<>----<>----<>
-\index{alpha@\verb+alpha+}
-\item\verb+double alpha+ {\rm(default=\verb|1.|)}:
-
 Trapezoidal method parameter.  \verb+alpha=1+ :
 Backward Euler.  \verb+alpha=0+ : Forward Euler.
  \verb+alpha=0.5+ : Crank-Nicholson. 
@@ -1166,6 +1328,12 @@ Backward Euler.  \verb+alpha=0+ : Forward Euler.
 
 Parameter for the trapezoidal rule time integration method.
  (found in file: \verb+../applications/ns/nsilesasm_2.cpp+)
+%----<>----<>----<>----<>----<>----<>----<>----<>----<>----<>
+\index{alpha@\verb+alpha+}
+\item\verb+double alpha+ {\rm(default=\verb|1.|)}:
+
+Parameter for the trapezoidal rule time integration method.
+ (found in file: \verb+../applications/ns/nsilesther.cpp+)
 %----<>----<>----<>----<>----<>----<>----<>----<>----<>----<>
 \index{aquifer\_phi\_dof@\verb+aquifer_phi_dof+}
 \item\verb+int aquifer_phi_dof+ {\rm(default=\verb|1|)}:
@@ -1232,19 +1400,37 @@ selected Courant number
 \item\verb+string axisymmetric+ {\rm(default=\verb|"none"|)}:
 
 Add axisymmetric version for this particular elemset.
- (found in file: \verb+../applications/advdif/advdife.cpp+)
+ (found in file: \verb+../applications/advdif/advdife-bubbly.cpp+)
 %----<>----<>----<>----<>----<>----<>----<>----<>----<>----<>
 \index{axisymmetric@\verb+axisymmetric+}
 \item\verb+string axisymmetric+ {\rm(default=\verb|"none"|)}:
 
 Add axisymmetric version for this particular elemset.
- (found in file: \verb+../applications/advdif/advdife-bubbly.cpp+)
+ (found in file: \verb+../applications/advdif/advdife.cpp+)
+%----<>----<>----<>----<>----<>----<>----<>----<>----<>----<>
+\index{axisymmetric@\verb+axisymmetric+}
+\item\verb+string axisymmetric+ {\rm(default=\verb|none|)}:
+
+Add axisymmetric version for this particular elemset.
+ (found in file: \verb+../applications/ns/bccns_gasflow.cpp+)
 %----<>----<>----<>----<>----<>----<>----<>----<>----<>----<>
 \index{axisymmetric@\verb+axisymmetric+}
 \item\verb+string axisymmetric+ {\rm(default=\verb|none|)}:
 
 Add axisymmetric version for this particular elemset.
  (found in file: \verb+../applications/ns/fstepfm2.cpp+)
+%----<>----<>----<>----<>----<>----<>----<>----<>----<>----<>
+\index{axisymmetric@\verb+axisymmetric+}
+\item\verb+string axisymmetric+ {\rm(default=\verb|none|)}:
+
+Add axisymmetric version for this particular elemset.
+ (found in file: \verb+../applications/ns/fstepfm2ther.cpp+)
+%----<>----<>----<>----<>----<>----<>----<>----<>----<>----<>
+\index{axisymmetric@\verb+axisymmetric+}
+\item\verb+string axisymmetric+ {\rm(default=\verb|none|)}:
+
+Add axisymmetric version for this particular elemset.
+ (found in file: \verb+../applications/ns/ns_gasflow.cpp+)
 %----<>----<>----<>----<>----<>----<>----<>----<>----<>----<>
 \index{axisymmetric@\verb+axisymmetric+}
 \item\verb+string axisymmetric+ {\rm(default=\verb|none|)}:
@@ -1262,6 +1448,12 @@ Add axisymmetric version for this particular elemset.
 \item\verb+string axisymmetric+ {\rm(default=\verb|none|)}:
 
 Add axisymmetric version for this particular elemset.
+ (found in file: \verb+../applications/ns/nsilesasm_2.cpp+)
+%----<>----<>----<>----<>----<>----<>----<>----<>----<>----<>
+\index{axisymmetric@\verb+axisymmetric+}
+\item\verb+string axisymmetric+ {\rm(default=\verb|none|)}:
+
+Add axisymmetric version for this particular elemset.
  (found in file: \verb+../applications/ns/nsilesther.cpp+)
 %----<>----<>----<>----<>----<>----<>----<>----<>----<>----<>
 \index{axisymmetric@\verb+axisymmetric+}
@@ -1274,25 +1466,25 @@ Axisymmetric flag
 \item\verb+string axisymmetric+ {\rm(default=\verb|none|)}:
 
 Add axisymmetric version for this particular elemset.
- (found in file: \verb+../applications/ns/nsitetlesfm2.cpp+)
+ (found in file: \verb+../applications/ns/nsitetasm.cpp+)
 %----<>----<>----<>----<>----<>----<>----<>----<>----<>----<>
 \index{axisymmetric@\verb+axisymmetric+}
 \item\verb+string axisymmetric+ {\rm(default=\verb|none|)}:
 
 Add axisymmetric version for this particular elemset.
- (found in file: \verb+../applications/ns/nsilesasm_2.cpp+)
-%----<>----<>----<>----<>----<>----<>----<>----<>----<>----<>
-\index{axisymmetric@\verb+axisymmetric+}
-\item\verb+string axisymmetric+ {\rm(default=\verb|none|)}:
-
-Add axisymmetric version for this particular elemset.
- (found in file: \verb+../applications/ns/pfcpp_temp.cpp+)
+ (found in file: \verb+../applications/ns/nsitetasm_avgvol.cpp+)
 %----<>----<>----<>----<>----<>----<>----<>----<>----<>----<>
 \index{axisymmetric@\verb+axisymmetric+}
 \item\verb+string axisymmetric+ {\rm(default=\verb|none|)}:
 
 Add axisymmetric version for this particular elemset.
  (found in file: \verb+../applications/ns/nsitetlesc.cpp+)
+%----<>----<>----<>----<>----<>----<>----<>----<>----<>----<>
+\index{axisymmetric@\verb+axisymmetric+}
+\item\verb+string axisymmetric+ {\rm(default=\verb|none|)}:
+
+Add axisymmetric version for this particular elemset.
+ (found in file: \verb+../applications/ns/nsitetlesfm2.cpp+)
 %----<>----<>----<>----<>----<>----<>----<>----<>----<>----<>
 \index{base@\verb+base+}
 \item\verb+double base+ {\rm(default=\verb|0.|)}:
@@ -1342,6 +1534,12 @@ Parameter to control the amount of SUPG perturbation
 \item\verb+double betath+ {\rm(default=\verb|0.|)}:
 
 buoyancy coefficient for Boussinesq term
+ (found in file: \verb+../applications/ns/fstepfm2.cpp+)
+%----<>----<>----<>----<>----<>----<>----<>----<>----<>----<>
+\index{betath@\verb+betath+}
+\item\verb+double betath+ {\rm(default=\verb|0.|)}:
+
+buoyancy coefficient for Boussinesq term
  (found in file: \verb+../applications/ns/nsilesther.cpp+)
 %----<>----<>----<>----<>----<>----<>----<>----<>----<>----<>
 \item\verb+ int+ \verb+ block_uploading+ {\rm(default=\verb| 0|)}:
@@ -1373,6 +1571,12 @@ Bubble volume. If set not set, then compute it from
 Scales distortion function
  (found in file: \verb+../applications/ns/mmove.cpp+)
 %----<>----<>----<>----<>----<>----<>----<>----<>----<>----<>
+\index{c\_distor@\verb+c_distor+}
+\item\verb+double c_distor+ {\rm(default=\verb|1.|)}:
+
+Scales distortion function
+ (found in file: \verb+../applications/ns/mmoveopt.cpp+)
+%----<>----<>----<>----<>----<>----<>----<>----<>----<>----<>
 \index{c\_relax@\verb+c_relax+}
 \item\verb+double c_relax+ {\rm(default=\verb|1.|)}:
 
@@ -1385,6 +1589,18 @@ Compute an initial ``predictor'' step with this relaxation scale.
 Adds a term $\propto {\tt c\_volume}\,{\rm volume}$ to the functionala. 
  (found in file: \verb+../applications/ns/mmove.cpp+)
 %----<>----<>----<>----<>----<>----<>----<>----<>----<>----<>
+\index{c\_volume@\verb+c_volume+}
+\item\verb+double c_volume+ {\rm(default=\verb|0.|)}:
+
+Adds a term $\propto {\tt c\_volume}\,{\rm volume}$ to the functional. 
+ (found in file: \verb+../applications/ns/mmoveopt.cpp+)
+%----<>----<>----<>----<>----<>----<>----<>----<>----<>----<>
+\index{cache\_grad\_div\_u@\verb+cache_grad_div_u+}
+\item\verb+int cache_grad_div_u+ {\rm(default=\verb|0|)}:
+
+Cache  \verb+grad_div_u+  matrix
+ (found in file: \verb+../applications/ns/ns_gasflow.cpp+)
+%----<>----<>----<>----<>----<>----<>----<>----<>----<>----<>
 \index{cache\_grad\_div\_u@\verb+cache_grad_div_u+}
 \item\verb+int cache_grad_div_u+ {\rm(default=\verb|0|)}:
 
@@ -1396,6 +1612,12 @@ Cache  \verb+grad_div_u+  matrix
 
 Cache  \verb+grad_div_u+  matrix
  (found in file: \verb+../applications/ns/nsikepsrot.cpp+)
+%----<>----<>----<>----<>----<>----<>----<>----<>----<>----<>
+\index{cache\_grad\_div\_u@\verb+cache_grad_div_u+}
+\item\verb+int cache_grad_div_u+ {\rm(default=\verb|0|)}:
+
+Cache \verb+grad_div_u+ matrix
+ (found in file: \verb+../applications/ns/nsilesasm_2.cpp+)
 %----<>----<>----<>----<>----<>----<>----<>----<>----<>----<>
 \index{cache\_grad\_div\_u@\verb+cache_grad_div_u+}
 \item\verb+int cache_grad_div_u+ {\rm(default=\verb|0|)}:
@@ -1413,25 +1635,25 @@ Cache  \verb+grad_div_u+  matrix
 \item\verb+int cache_grad_div_u+ {\rm(default=\verb|0|)}:
 
 Cache  \verb+grad_div_u+  matrix
- (found in file: \verb+../applications/ns/nsitetlesfm2.cpp+)
+ (found in file: \verb+../applications/ns/nsitetasm.cpp+)
 %----<>----<>----<>----<>----<>----<>----<>----<>----<>----<>
 \index{cache\_grad\_div\_u@\verb+cache_grad_div_u+}
 \item\verb+int cache_grad_div_u+ {\rm(default=\verb|0|)}:
 
-Cache \verb+grad_div_u+ matrix
- (found in file: \verb+../applications/ns/nsilesasm_2.cpp+)
-%----<>----<>----<>----<>----<>----<>----<>----<>----<>----<>
-\index{cache\_grad\_div\_u@\verb+cache_grad_div_u+}
-\item\verb+int cache_grad_div_u+ {\rm(default=\verb|0|)}:
-
-Cache \verb+grad_div_u+ matrix
- (found in file: \verb+../applications/ns/pfcpp_temp.cpp+)
+Cache  \verb+grad_div_u+  matrix
+ (found in file: \verb+../applications/ns/nsitetasm_avgvol.cpp+)
 %----<>----<>----<>----<>----<>----<>----<>----<>----<>----<>
 \index{cache\_grad\_div\_u@\verb+cache_grad_div_u+}
 \item\verb+int cache_grad_div_u+ {\rm(default=\verb|0|)}:
 
 Cache  \verb+grad_div_u+  matrix
  (found in file: \verb+../applications/ns/nsitetlesc.cpp+)
+%----<>----<>----<>----<>----<>----<>----<>----<>----<>----<>
+\index{cache\_grad\_div\_u@\verb+cache_grad_div_u+}
+\item\verb+int cache_grad_div_u+ {\rm(default=\verb|0|)}:
+
+Cache  \verb+grad_div_u+  matrix
+ (found in file: \verb+../applications/ns/nsitetlesfm2.cpp+)
 %----<>----<>----<>----<>----<>----<>----<>----<>----<>----<>
 \index{called\_from\_rosi@\verb+called_from_rosi+}
 \item\verb+int called_from_rosi+ {\rm(default=\verb|0|)}:
@@ -1444,6 +1666,12 @@ Is being PETSc-FEM called from ROSI?
 
 Scales friction term.
  (found in file: \verb+../applications/advdif/streamsw1d.cpp+)
+%----<>----<>----<>----<>----<>----<>----<>----<>----<>----<>
+\index{channel\_width@\verb+channel_width+}
+\item\verb+double channel_width+ {\rm(default=\verb|0.0|)}:
+
+Width of channel
+ (found in file: \verb+../applications/advdif/svenant1d.cpp+)
 %----<>----<>----<>----<>----<>----<>----<>----<>----<>----<>
 \index{chard@\verb+chard+}
 \item\verb+double chard+ {\rm(default=\verb|10.|)}:
@@ -1528,6 +1756,12 @@ Report elements whose relative error in computing
 key for computing reactive terms or not
  (found in file: \verb+../applications/advdif/advdife.cpp+)
 %----<>----<>----<>----<>----<>----<>----<>----<>----<>----<>
+\index{cond@\verb+cond+}
+\item\verb+double cond+ {\rm(default=\verb|0|)}:
+
+molecular conductivity
+ (found in file: \verb+../applications/ns/ns_gasflow.cpp+)
+%----<>----<>----<>----<>----<>----<>----<>----<>----<>----<>
 \index{conductivity@\verb+conductivity+}
 \item\verb+double conductivity+ {\rm(default=\verb|1.|)}:
 
@@ -1551,6 +1785,24 @@ Uses consistent SUPG matrix for the temporal term or not.
 
 Uses consistent SUPG matrix for the temporal term or not. 
  (found in file: \verb+../applications/advective/adv.cpp+)
+%----<>----<>----<>----<>----<>----<>----<>----<>----<>----<>
+\index{coupled@\verb+coupled+}
+\item\verb+int coupled+ {\rm(default=\verb|0|)}:
+
+Solve coupled
+ (found in file: \verb+../applications/ns/bccnsitetasm.cpp+)
+%----<>----<>----<>----<>----<>----<>----<>----<>----<>----<>
+\index{coupled@\verb+coupled+}
+\item\verb+int coupled+ {\rm(default=\verb|0|)}:
+
+Solve coupled
+ (found in file: \verb+../applications/ns/nsitetasm.cpp+)
+%----<>----<>----<>----<>----<>----<>----<>----<>----<>----<>
+\index{coupled@\verb+coupled+}
+\item\verb+int coupled+ {\rm(default=\verb|0|)}:
+
+Solve coupled
+ (found in file: \verb+../applications/ns/nsitetasm_avgvol.cpp+)
 %----<>----<>----<>----<>----<>----<>----<>----<>----<>----<>
 \index{cyclic\_fs@\verb+cyclic_fs+}
 \item\verb+int cyclic_fs+ {\rm(default=\verb|0|)}:
@@ -1746,6 +1998,14 @@ where $\phi_e = \sum_{i\neq j} (\lambda_i-\lambda_j)^2/Vol^{2/n_d}$,
 and $r={\tt distor\_exp}$. 
  (found in file: \verb+../applications/ns/mmove.cpp+)
 %----<>----<>----<>----<>----<>----<>----<>----<>----<>----<>
+\index{distor\_exp@\verb+distor_exp+}
+\item\verb+double distor_exp+ {\rm(default=\verb|1.|)}:
+
+The functional to be minimized is $\Phi = \sum_{e=1,...,Nel} \q_e^r$,
+where $\q_e = Vol/\sum_{i} l_i^{n_d}$,
+and $r={\tt distor\_exp}$.
+ (found in file: \verb+../applications/ns/mmoveopt.cpp+)
+%----<>----<>----<>----<>----<>----<>----<>----<>----<>----<>
 \index{double\_layer@\verb+double_layer+}
 \item\verb+int double_layer+ {\rm(default=\verb|0|)}:
 
@@ -1775,6 +2035,12 @@ Flag ehether to stop on dry aquifer
 
 Factor masking the fractional step stabilization term. 
  (found in file: \verb+../applications/ns/fstepfm2.cpp+)
+%----<>----<>----<>----<>----<>----<>----<>----<>----<>----<>
+\index{dt\_art\_fac@\verb+dt_art_fac+}
+\item\verb+double dt_art_fac+ {\rm(default=\verb|1.|)}:
+
+Factor masking the fractional step stabilization term. 
+ (found in file: \verb+../applications/ns/fstepfm2ther.cpp+)
 %----<>----<>----<>----<>----<>----<>----<>----<>----<>----<>
 \index{dtol@\verb+dtol+}
 \item\verb+double dtol+ {\rm(default=\verb|1e+3|)}:
@@ -1916,7 +2182,7 @@ Generates DX fields by combination of the input fields
  (found in file: \verb+../src/dxhook.cpp+)
 %----<>----<>----<>----<>----<>----<>----<>----<>----<>----<>
 \index{dx\_state\_all\_fields@\verb+dx_state_all_fields+}
-\item\verb+int dx_state_all_fields+ {\rm(default=\verb|!dx_split_state_flag|)}:
+\item\verb+int dx_state_all_fields+ {\rm(default=\verb|!!dx_split_state_flag|)}:
 
 Generates a DX field with the whole state (all ndof fields)
  (found in file: \verb+../src/dxhook.cpp+)
@@ -1963,13 +2229,13 @@ Cutoff value for $\epsilon$
 \item\verb+double eps_min+ {\rm(default=\verb|1e-6|)}:
 
 Threshold value for $\epsilon$ (clip below this)
- (found in file: \verb+../applications/advdif/ffswfm2t.cpp+)
+ (found in file: \verb+../applications/advdif/ffswfm1t.cpp+)
 %----<>----<>----<>----<>----<>----<>----<>----<>----<>----<>
 \index{eps\_min@\verb+eps_min+}
 \item\verb+double eps_min+ {\rm(default=\verb|1e-6|)}:
 
 Threshold value for $\epsilon$ (clip below this)
- (found in file: \verb+../applications/advdif/ffswfm1t.cpp+)
+ (found in file: \verb+../applications/advdif/ffswfm2t.cpp+)
 %----<>----<>----<>----<>----<>----<>----<>----<>----<>----<>
 \index{epsilon\_fdj@\verb+epsilon_fdj+}
 \item\verb+double epsilon_fdj+ {\rm(default=\verb|EPSILON_FDJ|)}:
@@ -2015,16 +2281,16 @@ The field to be used on the fictitious node as
  (found in file: \verb+../applications/ns/nullvort.cpp+)
 %----<>----<>----<>----<>----<>----<>----<>----<>----<>----<>
 \index{filename@\verb+filename+}
-\item\verb+string filename+ {\rm(default=\verb|piecewise_linear_data.dat|)}:
-
-The name of the file
- (found in file: \verb+../src/tempfun2.cpp+)
-%----<>----<>----<>----<>----<>----<>----<>----<>----<>----<>
-\index{filename@\verb+filename+}
 \item\verb+string filename+ {\rm(default=\verb|""|)}:
 
 Dimension of the problem
  (found in file: \verb+../src/penalize.cpp+)
+%----<>----<>----<>----<>----<>----<>----<>----<>----<>----<>
+\index{filename@\verb+filename+}
+\item\verb+string filename+ {\rm(default=\verb|piecewise_linear_data.dat|)}:
+
+The name of the file
+ (found in file: \verb+../src/tempfun2.cpp+)
 %----<>----<>----<>----<>----<>----<>----<>----<>----<>----<>
 \index{flux\_law\_coefficient@\verb+flux_law_coefficient+}
 \item\verb+double flux_law_coefficient+ {\rm(default=\verb|1.|)}:
@@ -2044,6 +2310,13 @@ is this coefficient.
 \item\verb+int fractional_step+ {\rm(default=\verb|0|)}:
 
 Use fractional step or TET algorithm
+ (found in file: \verb+../applications/ns/ns.cpp+)
+%----<>----<>----<>----<>----<>----<>----<>----<>----<>----<>
+\index{fractional\_step\_solver\_combo@\verb+fractional_step_solver_combo+}
+\item\verb+string fractional_step_solver_combo+ {\rm(default=\verb|"iisd"|)}:
+
+Solver combination for the fractional step method. May be \verb+iisd+, 
+ \verb+lu+, \verb+global_gmres+. 
  (found in file: \verb+../applications/ns/ns.cpp+)
 %----<>----<>----<>----<>----<>----<>----<>----<>----<>----<>
 \index{fractional\_step\_use\_petsc\_symm@\verb+fractional_step_use_petsc_symm+}
@@ -2155,12 +2428,6 @@ Name of extension function
 \item\verb+int g_dir+ {\rm(default=\verb|ndim|)}:
 
 Direction of gravity
- (found in file: \verb+../applications/advdif/gaschem.cpp+)
-%----<>----<>----<>----<>----<>----<>----<>----<>----<>----<>
-\index{g\_dir@\verb+g_dir+}
-\item\verb+int g_dir+ {\rm(default=\verb|ndim|)}:
-
-Direction of gravity
  (found in file: \verb+../applications/advdif/bubbly_asm.cpp+)
 %----<>----<>----<>----<>----<>----<>----<>----<>----<>----<>
 \index{g\_dir@\verb+g_dir+}
@@ -2168,6 +2435,30 @@ Direction of gravity
 
 Direction of gravity
  (found in file: \verb+../applications/advdif/bubbly_asm_mix.cpp+)
+%----<>----<>----<>----<>----<>----<>----<>----<>----<>----<>
+\index{g\_dir@\verb+g_dir+}
+\item\verb+int g_dir+ {\rm(default=\verb|ndim|)}:
+
+Direction of gravity
+ (found in file: \verb+../applications/advdif/gaschem.cpp+)
+%----<>----<>----<>----<>----<>----<>----<>----<>----<>----<>
+\index{g\_dir@\verb+g_dir+}
+\item\verb+int g_dir+ {\rm(default=\verb|ndim|)}:
+
+Direction of gravity
+ (found in file: \verb+../applications/ns/bccnsitetasm.cpp+)
+%----<>----<>----<>----<>----<>----<>----<>----<>----<>----<>
+\index{g\_dir@\verb+g_dir+}
+\item\verb+int g_dir+ {\rm(default=\verb|ndim|)}:
+
+Direction of gravity
+ (found in file: \verb+../applications/ns/nsitetasm.cpp+)
+%----<>----<>----<>----<>----<>----<>----<>----<>----<>----<>
+\index{g\_dir@\verb+g_dir+}
+\item\verb+int g_dir+ {\rm(default=\verb|ndim|)}:
+
+Direction of gravity
+ (found in file: \verb+../applications/ns/nsitetasm_avgvol.cpp+)
 %----<>----<>----<>----<>----<>----<>----<>----<>----<>----<>
 \index{gamma@\verb+gamma+}
 \item\verb+double gamma+ {\rm(default=\verb|1.4|)}:
@@ -2215,12 +2506,6 @@ Position in gather vector
 \item\verb+int gather_pos+ {\rm(default=\verb|0|)}:
 
 Position in gather vector
- (found in file: \verb+../src/pfcpp_temp.cpp+)
-%----<>----<>----<>----<>----<>----<>----<>----<>----<>----<>
-\index{gather\_pos@\verb+gather_pos+}
-\item\verb+int gather_pos+ {\rm(default=\verb|0|)}:
-
-Position in gather vector
  (found in file: \verb+../src/gatherer.cpp+)
 %----<>----<>----<>----<>----<>----<>----<>----<>----<>----<>
 \index{gather\_pos@\verb+gather_pos+}
@@ -2228,6 +2513,12 @@ Position in gather vector
 
 Position in gather vector
  (found in file: \verb+../src/srfgath.cpp+)
+%----<>----<>----<>----<>----<>----<>----<>----<>----<>----<>
+\index{geometry@\verb+geometry+}
+\item\verb+string geometry+ {\rm(default=\verb|cartesian2d|)}:
+
+Type of element geometry to define Gauss Point data
+ (found in file: \verb+../applications/advdif/advdife-bubbly.cpp+)
 %----<>----<>----<>----<>----<>----<>----<>----<>----<>----<>
 \index{geometry@\verb+geometry+}
 \item\verb+string geometry+ {\rm(default=\verb|cartesian2d|)}:
@@ -2257,6 +2548,12 @@ Type of element geometry to define Gauss Point data
 \item\verb+string geometry+ {\rm(default=\verb|cartesian2d|)}:
 
 Type of element geometry to define Gauss Point data
+ (found in file: \verb+../applications/advdif/bccbubbly.cpp+)
+%----<>----<>----<>----<>----<>----<>----<>----<>----<>----<>
+\index{geometry@\verb+geometry+}
+\item\verb+string geometry+ {\rm(default=\verb|cartesian2d|)}:
+
+Type of element geometry to define Gauss Point data
  (found in file: \verb+../applications/advdif/diff.cpp+)
 %----<>----<>----<>----<>----<>----<>----<>----<>----<>----<>
 \index{geometry@\verb+geometry+}
@@ -2269,25 +2566,13 @@ Type of element geometry to define Gauss Point data
 \item\verb+string geometry+ {\rm(default=\verb|cartesian2d|)}:
 
 Type of element geometry to define Gauss Point data
- (found in file: \verb+../applications/advdif/wallswt.cpp+)
-%----<>----<>----<>----<>----<>----<>----<>----<>----<>----<>
-\index{geometry@\verb+geometry+}
-\item\verb+string geometry+ {\rm(default=\verb|cartesian2d|)}:
-
-Type of element geometry to define Gauss Point data
- (found in file: \verb+../applications/advdif/bccbubbly.cpp+)
-%----<>----<>----<>----<>----<>----<>----<>----<>----<>----<>
-\index{geometry@\verb+geometry+}
-\item\verb+string geometry+ {\rm(default=\verb|cartesian2d|)}:
-
-Type of element geometry to define Gauss Point data
  (found in file: \verb+../applications/advdif/godunov.cpp+)
 %----<>----<>----<>----<>----<>----<>----<>----<>----<>----<>
 \index{geometry@\verb+geometry+}
 \item\verb+string geometry+ {\rm(default=\verb|cartesian2d|)}:
 
 Type of element geometry to define Gauss Point data
- (found in file: \verb+../applications/advdif/advdife-bubbly.cpp+)
+ (found in file: \verb+../applications/advdif/wallswt.cpp+)
 %----<>----<>----<>----<>----<>----<>----<>----<>----<>----<>
 \index{geometry@\verb+geometry+}
 \item\verb+string geometry+ {\rm(default=\verb|cartesian2d|)}:
@@ -2335,7 +2620,31 @@ Type of element geometry to define Gauss Point data
 \item\verb+string geometry+ {\rm(default=\verb|cartesian2d|)}:
 
 Type of element geometry to define Gauss Point data
+ (found in file: \verb+../applications/ns/bccfstep.cpp+)
+%----<>----<>----<>----<>----<>----<>----<>----<>----<>----<>
+\index{geometry@\verb+geometry+}
+\item\verb+string geometry+ {\rm(default=\verb|cartesian2d|)}:
+
+Type of element geometry to define Gauss Point data
+ (found in file: \verb+../applications/ns/bccns_gasflow.cpp+)
+%----<>----<>----<>----<>----<>----<>----<>----<>----<>----<>
+\index{geometry@\verb+geometry+}
+\item\verb+string geometry+ {\rm(default=\verb|cartesian2d|)}:
+
+Type of element geometry to define Gauss Point data
+ (found in file: \verb+../applications/ns/bccnsasmfm2.cpp+)
+%----<>----<>----<>----<>----<>----<>----<>----<>----<>----<>
+\index{geometry@\verb+geometry+}
+\item\verb+string geometry+ {\rm(default=\verb|cartesian2d|)}:
+
+Type of element geometry to define Gauss Point data
  (found in file: \verb+../applications/ns/bccnsfm2.cpp+)
+%----<>----<>----<>----<>----<>----<>----<>----<>----<>----<>
+\index{geometry@\verb+geometry+}
+\item\verb+string geometry+ {\rm(default=\verb|cartesian2d|)}:
+
+Type of element geometry to define Gauss Point data
+ (found in file: \verb+../applications/ns/bccnsitetasm.cpp+)
 %----<>----<>----<>----<>----<>----<>----<>----<>----<>----<>
 \index{geometry@\verb+geometry+}
 \item\verb+string geometry+ {\rm(default=\verb|cartesian2d|)}:
@@ -2371,6 +2680,24 @@ Type of element geometry to define Gauss Point data
 \item\verb+string geometry+ {\rm(default=\verb|cartesian2d|)}:
 
 Type of element geometry to define Gauss Point data
+ (found in file: \verb+../applications/ns/fstepfm2ther.cpp+)
+%----<>----<>----<>----<>----<>----<>----<>----<>----<>----<>
+\index{geometry@\verb+geometry+}
+\item\verb+string geometry+ {\rm(default=\verb|cartesian2d|)}:
+
+Type of element geometry to define Gauss Point data
+ (found in file: \verb+../applications/ns/genload.cpp+)
+%----<>----<>----<>----<>----<>----<>----<>----<>----<>----<>
+\index{geometry@\verb+geometry+}
+\item\verb+string geometry+ {\rm(default=\verb|cartesian2d|)}:
+
+Type of element geometry to define Gauss Point data
+ (found in file: \verb+../applications/ns/ns_gasflow.cpp+)
+%----<>----<>----<>----<>----<>----<>----<>----<>----<>----<>
+\index{geometry@\verb+geometry+}
+\item\verb+string geometry+ {\rm(default=\verb|cartesian2d|)}:
+
+Type of element geometry to define Gauss Point data
  (found in file: \verb+../applications/ns/nsikeps.cpp+)
 %----<>----<>----<>----<>----<>----<>----<>----<>----<>----<>
 \index{geometry@\verb+geometry+}
@@ -2383,6 +2710,12 @@ Type of element geometry to define Gauss Point data
 \item\verb+string geometry+ {\rm(default=\verb|cartesian2d|)}:
 
 Type of element geometry to define Gauss Point data
+ (found in file: \verb+../applications/ns/nsilesasm_2.cpp+)
+%----<>----<>----<>----<>----<>----<>----<>----<>----<>----<>
+\index{geometry@\verb+geometry+}
+\item\verb+string geometry+ {\rm(default=\verb|cartesian2d|)}:
+
+Type of element geometry to define Gauss Point data
  (found in file: \verb+../applications/ns/nsilesther.cpp+)
 %----<>----<>----<>----<>----<>----<>----<>----<>----<>----<>
 \index{geometry@\verb+geometry+}
@@ -2390,6 +2723,24 @@ Type of element geometry to define Gauss Point data
 
 Type of element geometry to define Gauss Point data
  (found in file: \verb+../applications/ns/nsirot.cpp+)
+%----<>----<>----<>----<>----<>----<>----<>----<>----<>----<>
+\index{geometry@\verb+geometry+}
+\item\verb+string geometry+ {\rm(default=\verb|cartesian2d|)}:
+
+Type of element geometry to define Gauss Point data
+ (found in file: \verb+../applications/ns/nsitetasm.cpp+)
+%----<>----<>----<>----<>----<>----<>----<>----<>----<>----<>
+\index{geometry@\verb+geometry+}
+\item\verb+string geometry+ {\rm(default=\verb|cartesian2d|)}:
+
+Type of element geometry to define Gauss Point data
+ (found in file: \verb+../applications/ns/nsitetasm_avgvol.cpp+)
+%----<>----<>----<>----<>----<>----<>----<>----<>----<>----<>
+\index{geometry@\verb+geometry+}
+\item\verb+string geometry+ {\rm(default=\verb|cartesian2d|)}:
+
+Type of element geometry to define Gauss Point data
+ (found in file: \verb+../applications/ns/nsitetlesc.cpp+)
 %----<>----<>----<>----<>----<>----<>----<>----<>----<>----<>
 \index{geometry@\verb+geometry+}
 \item\verb+string geometry+ {\rm(default=\verb|cartesian2d|)}:
@@ -2418,50 +2769,8 @@ Type of element geometry to define Gauss Point data
 \index{geometry@\verb+geometry+}
 \item\verb+string geometry+ {\rm(default=\verb|cartesian2d|)}:
 
-Type of element geometry to define Gauss Point data
- (found in file: \verb+../applications/ns/genload.cpp+)
-%----<>----<>----<>----<>----<>----<>----<>----<>----<>----<>
-\index{geometry@\verb+geometry+}
-\item\verb+string geometry+ {\rm(default=\verb|cartesian2d|)}:
-
-Type of element geometry to define Gauss Point data
- (found in file: \verb+../applications/ns/bccnsasmfm2.cpp+)
-%----<>----<>----<>----<>----<>----<>----<>----<>----<>----<>
-\index{geometry@\verb+geometry+}
-\item\verb+string geometry+ {\rm(default=\verb|cartesian2d|)}:
-
-Type of element geometry to define Gauss Point data
- (found in file: \verb+../applications/ns/nsilesasm_2.cpp+)
-%----<>----<>----<>----<>----<>----<>----<>----<>----<>----<>
-\index{geometry@\verb+geometry+}
-\item\verb+string geometry+ {\rm(default=\verb|cartesian2d|)}:
-
-Type of element geometry to define Gauss Point data
- (found in file: \verb+../applications/ns/bccfstep.cpp+)
-%----<>----<>----<>----<>----<>----<>----<>----<>----<>----<>
-\index{geometry@\verb+geometry+}
-\item\verb+string geometry+ {\rm(default=\verb|cartesian2d|)}:
-
-Type of element geometry to define Gauss Point data
- (found in file: \verb+../applications/ns/nsitetlesc.cpp+)
-%----<>----<>----<>----<>----<>----<>----<>----<>----<>----<>
-\index{geometry@\verb+geometry+}
-\item\verb+string geometry+ {\rm(default=\verb|<none>|)}:
-
-Defines the geomtry of the element
- (found in file: \verb+../src/pfcpp_temp.cpp+)
-%----<>----<>----<>----<>----<>----<>----<>----<>----<>----<>
-\index{geometry@\verb+geometry+}
-\item\verb+string geometry+ {\rm(default=\verb|cartesian2d|)}:
-
 Defines the geomtry of the element
  (found in file: \verb+../src/gatherer.cpp+)
-%----<>----<>----<>----<>----<>----<>----<>----<>----<>----<>
-\index{geometry@\verb+geometry+}
-\item\verb+string geometry+ {\rm(default=\verb|cartesian2d|)}:
-
-Type of element geometry to define Gauss Point data
- (found in file: \verb+../src/surf2vol.cpp+)
 %----<>----<>----<>----<>----<>----<>----<>----<>----<>----<>
 \index{geometry@\verb+geometry+}
 \item\verb+string geometry+ {\rm(default=\verb|"cartesian2d"|)}:
@@ -2474,6 +2783,12 @@ The geometry of the elemset
 
 Defines the geomtry of the element
  (found in file: \verb+../src/srfgath.cpp+)
+%----<>----<>----<>----<>----<>----<>----<>----<>----<>----<>
+\index{geometry@\verb+geometry+}
+\item\verb+string geometry+ {\rm(default=\verb|cartesian2d|)}:
+
+Type of element geometry to define Gauss Point data
+ (found in file: \verb+../src/surf2vol.cpp+)
 %----<>----<>----<>----<>----<>----<>----<>----<>----<>----<>
 \index{gmres\_orthogonalization@\verb+gmres_orthogonalization+}
 \item\verb+string gmres_orthogonalization+ {\rm(default=\verb|ir_orthog|)}:
@@ -2488,13 +2803,13 @@ See PETSc documentation.
 \item\verb+double gravity+ {\rm(default=\verb|1.|)}:
 
 Acceleration of gravity
- (found in file: \verb+../applications/advdif/ffswfm2t.cpp+)
+ (found in file: \verb+../applications/advdif/ffswfm1t.cpp+)
 %----<>----<>----<>----<>----<>----<>----<>----<>----<>----<>
 \index{gravity@\verb+gravity+}
 \item\verb+double gravity+ {\rm(default=\verb|1.|)}:
 
 Acceleration of gravity
- (found in file: \verb+../applications/advdif/ffswfm1t.cpp+)
+ (found in file: \verb+../applications/advdif/ffswfm2t.cpp+)
 %----<>----<>----<>----<>----<>----<>----<>----<>----<>----<>
 \index{gravity@\verb+gravity+}
 \item\verb+double gravity+ {\rm(default=\verb|1.|)}:
@@ -2507,6 +2822,12 @@ Acceleration of gravity.
 
 Gravity of the problem.
  (found in file: \verb+../applications/advdif/streamsw1d.cpp+)
+%----<>----<>----<>----<>----<>----<>----<>----<>----<>----<>
+\index{gravity@\verb+gravity+}
+\item\verb+double gravity+ {\rm(default=\verb|0.0|)}:
+
+Gravity acceleration
+ (found in file: \verb+../applications/advdif/svenant1d.cpp+)
 %----<>----<>----<>----<>----<>----<>----<>----<>----<>----<>
 \index{gravity@\verb+gravity+}
 \item\verb+double gravity+ {\rm(default=\verb|1.|)}:
@@ -2530,12 +2851,6 @@ Gravity acceleration.
 \item\verb+double h_min+ {\rm(default=\verb|1e-6|)}:
 
 Threshold value for $h$ while computing turbulence model.
- (found in file: \verb+../applications/advdif/ffswfm2t.cpp+)
-%----<>----<>----<>----<>----<>----<>----<>----<>----<>----<>
-\index{h\_min@\verb+h_min+}
-\item\verb+double h_min+ {\rm(default=\verb|1e-6|)}:
-
-Threshold value for $h$ while computing turbulence model.
  (found in file: \verb+../applications/advdif/ffswfm1t.cpp+)
 %----<>----<>----<>----<>----<>----<>----<>----<>----<>----<>
 \index{h\_min@\verb+h_min+}
@@ -2543,6 +2858,12 @@ Threshold value for $h$ while computing turbulence model.
 
 Threshold value for velocity while computing turbulence model.
  (found in file: \verb+../applications/advdif/ffswfm1t.cpp+)
+%----<>----<>----<>----<>----<>----<>----<>----<>----<>----<>
+\index{h\_min@\verb+h_min+}
+\item\verb+double h_min+ {\rm(default=\verb|1e-6|)}:
+
+Threshold value for $h$ while computing turbulence model.
+ (found in file: \verb+../applications/advdif/ffswfm2t.cpp+)
 %----<>----<>----<>----<>----<>----<>----<>----<>----<>----<>
 \index{h\_min@\verb+h_min+}
 \item\verb+double h_min+ {\rm(default=\verb|1e-6|)}:
@@ -2623,6 +2944,19 @@ Identify automatically the internal volume elements with a face
 on the surface
  (found in file: \verb+../src/surf2vol.cpp+)
 %----<>----<>----<>----<>----<>----<>----<>----<>----<>----<>
+\index{iisd\_subpart@\verb+iisd_subpart+}
+\item\verb+int iisd_subpart+ {\rm(default=\verb|1|)}:
+
+Number of subpartitions inside each processor. 
+ (found in file: \verb+../src/iisdcr.cpp+)
+%----<>----<>----<>----<>----<>----<>----<>----<>----<>----<>
+\index{iisd\_subpart\_auto@\verb+iisd_subpart_auto+}
+\item\verb+int iisd_subpart_auto+ {\rm(default=\verb|0|)}:
+
+Choose automatically the number of subdomains so as to
+have approximately this number of unknowns per subdomain. 
+ (found in file: \verb+../src/iisdcr.cpp+)
+%----<>----<>----<>----<>----<>----<>----<>----<>----<>----<>
 \index{iisdmat\_print\_statistics@\verb+iisdmat_print_statistics+}
 \item\verb+int iisdmat_print_statistics+ {\rm(default=\verb|0|)}:
 
@@ -2640,9 +2974,44 @@ Pointer to old coordinates in
 \index{indx\_ALE\_xold@\verb+indx_ALE_xold+}
 \item\verb+int indx_ALE_xold+ {\rm(default=\verb|1|)}:
 
+indx_ALE_xold : pointer to old coordinates in
+ NODEDATA array excluding the first "ndim" values
+ (found in file: \verb+../applications/ns/bccns_gasflow.cpp+)
+%----<>----<>----<>----<>----<>----<>----<>----<>----<>----<>
+\index{indx\_ALE\_xold@\verb+indx_ALE_xold+}
+\item\verb+int indx_ALE_xold+ {\rm(default=\verb|1|)}:
+
+indx_ALE_xold : pointer to old coordinates in
+ NODEDATA array excluding the first "ndim" values
+ (found in file: \verb+../applications/ns/fstepfm2.cpp+)
+%----<>----<>----<>----<>----<>----<>----<>----<>----<>----<>
+\index{indx\_ALE\_xold@\verb+indx_ALE_xold+}
+\item\verb+int indx_ALE_xold+ {\rm(default=\verb|1|)}:
+
+indx_ALE_xold : pointer to old coordinates in
+ NODEDATA array excluding the first "ndim" values
+ (found in file: \verb+../applications/ns/fstepfm2ther.cpp+)
+%----<>----<>----<>----<>----<>----<>----<>----<>----<>----<>
+\index{indx\_ALE\_xold@\verb+indx_ALE_xold+}
+\item\verb+int indx_ALE_xold+ {\rm(default=\verb|1|)}:
+
+indx_ALE_xold : pointer to old coordinates in
+ NODEDATA array excluding the first "ndim" values
+ (found in file: \verb+../applications/ns/ns_gasflow.cpp+)
+%----<>----<>----<>----<>----<>----<>----<>----<>----<>----<>
+\index{indx\_ALE\_xold@\verb+indx_ALE_xold+}
+\item\verb+int indx_ALE_xold+ {\rm(default=\verb|1|)}:
+
 Pointer to old coordinates in
  \verb+nodedata+ array excluding the first \verb+ndim+ values
  (found in file: \verb+../applications/ns/nsitetlesfm2.cpp+)
+%----<>----<>----<>----<>----<>----<>----<>----<>----<>----<>
+\index{indx\_buoyancy\_T@\verb+indx_buoyancy_T+}
+\item\verb+int indx_buoyancy_T+ {\rm(default=\verb|0|)}:
+
+indx_buoyancy_T : pointer to temperatures in
+ NODEDATA array excluding the first "ndim" values
+ (found in file: \verb+../applications/ns/fstepfm2.cpp+)
 %----<>----<>----<>----<>----<>----<>----<>----<>----<>----<>
 \index{interface\_full\_preco\_fill@\verb+interface_full_preco_fill+}
 \item\verb+double interface_full_preco_fill+ {\rm(default=\verb|1.|)}:
@@ -2692,19 +3061,31 @@ then print system in this Newton iteration
 \item\verb+double jacobian_factor+ {\rm(default=\verb|1.|)}:
 
 Scale the jacobian term. 
- (found in file: \verb+../applications/ns/nsitetlesfm2.cpp+)
+ (found in file: \verb+../applications/ns/ns_gasflow.cpp+)
 %----<>----<>----<>----<>----<>----<>----<>----<>----<>----<>
 \index{jacobian\_factor@\verb+jacobian_factor+}
 \item\verb+double jacobian_factor+ {\rm(default=\verb|1.|)}:
 
 Scale the jacobian term. 
- (found in file: \verb+../applications/ns/pfcpp_temp.cpp+)
+ (found in file: \verb+../applications/ns/nsitetasm.cpp+)
+%----<>----<>----<>----<>----<>----<>----<>----<>----<>----<>
+\index{jacobian\_factor@\verb+jacobian_factor+}
+\item\verb+double jacobian_factor+ {\rm(default=\verb|1.|)}:
+
+Scale the jacobian term. 
+ (found in file: \verb+../applications/ns/nsitetasm_avgvol.cpp+)
 %----<>----<>----<>----<>----<>----<>----<>----<>----<>----<>
 \index{jacobian\_factor@\verb+jacobian_factor+}
 \item\verb+double jacobian_factor+ {\rm(default=\verb|1.|)}:
 
 Scale the jacobian term. 
  (found in file: \verb+../applications/ns/nsitetlesc.cpp+)
+%----<>----<>----<>----<>----<>----<>----<>----<>----<>----<>
+\index{jacobian\_factor@\verb+jacobian_factor+}
+\item\verb+double jacobian_factor+ {\rm(default=\verb|1.|)}:
+
+Scale the jacobian term. 
+ (found in file: \verb+../applications/ns/nsitetlesfm2.cpp+)
 %----<>----<>----<>----<>----<>----<>----<>----<>----<>----<>
 \index{kap\_ctff\_val@\verb+kap_ctff_val+}
 \item\verb+double kap_ctff_val+ {\rm(default=\verb|1e-20|)}:
@@ -2728,13 +3109,13 @@ Equivalente a una difusifivad molecular del gas en el liquido
 \item\verb+double ket_min+ {\rm(default=\verb|1e-6|)}:
 
 Threshold value for $k$ while computing turbulence model.
- (found in file: \verb+../applications/advdif/ffswfm2t.cpp+)
+ (found in file: \verb+../applications/advdif/ffswfm1t.cpp+)
 %----<>----<>----<>----<>----<>----<>----<>----<>----<>----<>
 \index{ket\_min@\verb+ket_min+}
 \item\verb+double ket_min+ {\rm(default=\verb|1e-6|)}:
 
 Threshold value for $k$ while computing turbulence model.
- (found in file: \verb+../applications/advdif/ffswfm1t.cpp+)
+ (found in file: \verb+../applications/advdif/ffswfm2t.cpp+)
 %----<>----<>----<>----<>----<>----<>----<>----<>----<>----<>
 \index{lagrange\_diagonal\_factor@\verb+lagrange_diagonal_factor+}
 \item\verb+double lagrange_diagonal_factor+ {\rm(default=\verb|0.0|)}:
@@ -2970,6 +3351,12 @@ when looking for steady state solutions.
 \item\verb+int lumped_mass+ {\rm(default=\verb|0|)}:
 
 Use lumped mass (used mainly to avoid oscillations for small time steps).
+ (found in file: \verb+../applications/advdif/advdife-bubbly.cpp+)
+%----<>----<>----<>----<>----<>----<>----<>----<>----<>----<>
+\index{lumped\_mass@\verb+lumped_mass+}
+\item\verb+int lumped_mass+ {\rm(default=\verb|0|)}:
+
+Use lumped mass (used mainly to avoid oscillations for small time steps).
  (found in file: \verb+../applications/advdif/advdife.cpp+)
 %----<>----<>----<>----<>----<>----<>----<>----<>----<>----<>
 \index{lumped\_mass@\verb+lumped_mass+}
@@ -2989,12 +3376,6 @@ Use lumped mass (used mainly to avoid oscillations for small time steps).
 
 Use lumped mass (used mainly to avoid oscillations for small time steps).
  (found in file: \verb+../applications/advdif/godunov.cpp+)
-%----<>----<>----<>----<>----<>----<>----<>----<>----<>----<>
-\index{lumped\_mass@\verb+lumped_mass+}
-\item\verb+int lumped_mass+ {\rm(default=\verb|0|)}:
-
-Use lumped mass (used mainly to avoid oscillations for small time steps).
- (found in file: \verb+../applications/advdif/advdife-bubbly.cpp+)
 %----<>----<>----<>----<>----<>----<>----<>----<>----<>----<>
 \index{lumped\_mass@\verb+lumped_mass+}
 \item\verb+int lumped_mass+ {\rm(default=\verb|1|)}:
@@ -3099,10 +3480,10 @@ Weight for computing performance
  (found in file: \verb+../src/measperf.cpp+)
 %----<>----<>----<>----<>----<>----<>----<>----<>----<>----<>
 \item\verb+ double[ndim]+ \verb+ moment_center+ {\rm(default=\verb| null vector|)}:
- Center of moments.  (found in file: \verb+../applications/ns/nsgath.cpp+)
+ Center of moments.  (found in file: \verb+../applications/ns/embgath.cpp+)
 %----<>----<>----<>----<>----<>----<>----<>----<>----<>----<>
 \item\verb+ double[ndim]+ \verb+ moment_center+ {\rm(default=\verb| null vector|)}:
- Center of moments.  (found in file: \verb+../applications/ns/embgath.cpp+)
+ Center of moments.  (found in file: \verb+../applications/ns/nsgath.cpp+)
 %----<>----<>----<>----<>----<>----<>----<>----<>----<>----<>
 \index{ndim@\verb+ndim+}
 \item\verb+int ndim+ {\rm(default=\verb|0|)}:
@@ -3119,20 +3500,8 @@ Dimension of the embedding space
 \index{ndim@\verb+ndim+}
 \item\verb+int ndim+ {\rm(default=\verb|0|)}:
 
-Dimension of problem
- (found in file: \verb+../applications/advdif/smoke.cpp+)
-%----<>----<>----<>----<>----<>----<>----<>----<>----<>----<>
-\index{ndim@\verb+ndim+}
-\item\verb+int ndim+ {\rm(default=\verb|0|)}:
-
 Dimension of the problem
  (found in file: \verb+../applications/advdif/gaschem.cpp+)
-%----<>----<>----<>----<>----<>----<>----<>----<>----<>----<>
-\index{ndim@\verb+ndim+}
-\item\verb+int ndim+ {\rm(default=\verb|0|)}:
-
-Dimension of the problem. 
- (found in file: \verb+../applications/advdif/streamsw1d.cpp+)
 %----<>----<>----<>----<>----<>----<>----<>----<>----<>----<>
 \index{ndim@\verb+ndim+}
 \item\verb+int ndim+ {\rm(default=\verb|none|)}:
@@ -3141,46 +3510,16 @@ Dimension of the embedding space
  (found in file: \verb+../applications/advdif/gasflwgth.cpp+)
 %----<>----<>----<>----<>----<>----<>----<>----<>----<>----<>
 \index{ndim@\verb+ndim+}
-\item\verb+int ndim+ {\rm(default=\verb|none|)}:
-
-Dimension of the embedding space
- (found in file: \verb+../applications/ns/nsgath.cpp+)
-%----<>----<>----<>----<>----<>----<>----<>----<>----<>----<>
-\index{ndim@\verb+ndim+}
-\item\verb+int ndim+ {\rm(default=\verb|0|)}:
-
-Dimension of the embedding space
- (found in file: \verb+../applications/ns/nsgath.cpp+)
-%----<>----<>----<>----<>----<>----<>----<>----<>----<>----<>
-\index{ndim@\verb+ndim+}
-\item\verb+int ndim+ {\rm(default=\verb|none|)}:
-
-Dimension of the embedding space
- (found in file: \verb+../applications/ns/embgath.cpp+)
-%----<>----<>----<>----<>----<>----<>----<>----<>----<>----<>
-\index{ndim@\verb+ndim+}
-\item\verb+int ndim+ {\rm(default=\verb|none|)}:
-
-Dimension of the embedding space
- (found in file: \verb+../applications/ns/embgath.cpp+)
-%----<>----<>----<>----<>----<>----<>----<>----<>----<>----<>
-\index{ndim@\verb+ndim+}
 \item\verb+int ndim+ {\rm(default=\verb|0|)}:
 
 Dimension of problem
- (found in file: \verb+../applications/ns/nssupr.cpp+)
-%----<>----<>----<>----<>----<>----<>----<>----<>----<>----<>
-\index{ndim@\verb+ndim+}
-\item\verb+int ndim+ {\rm(default=\verb|3|)}:
-
-Dimension of the problem.
- (found in file: \verb+../applications/ns/ns.cpp+)
+ (found in file: \verb+../applications/advdif/smoke.cpp+)
 %----<>----<>----<>----<>----<>----<>----<>----<>----<>----<>
 \index{ndim@\verb+ndim+}
 \item\verb+int ndim+ {\rm(default=\verb|0|)}:
 
-The number of spatial dimensions
- (found in file: \verb+../applications/ns/nullvort.cpp+)
+Dimension of the problem. 
+ (found in file: \verb+../applications/advdif/streamsw1d.cpp+)
 %----<>----<>----<>----<>----<>----<>----<>----<>----<>----<>
 \index{ndim@\verb+ndim+}
 \item\verb+int ndim+ {\rm(default=\verb|0|)}:
@@ -3195,10 +3534,46 @@ Dimension of the problem
  (found in file: \verb+../applications/ns/condwallpen.cpp+)
 %----<>----<>----<>----<>----<>----<>----<>----<>----<>----<>
 \index{ndim@\verb+ndim+}
+\item\verb+int ndim+ {\rm(default=\verb|none|)}:
+
+Dimension of the embedding space
+ (found in file: \verb+../applications/ns/embgath.cpp+)
+%----<>----<>----<>----<>----<>----<>----<>----<>----<>----<>
+\index{ndim@\verb+ndim+}
+\item\verb+int ndim+ {\rm(default=\verb|none|)}:
+
+Dimension of the embedding space
+ (found in file: \verb+../applications/ns/embgath.cpp+)
+%----<>----<>----<>----<>----<>----<>----<>----<>----<>----<>
+\index{ndim@\verb+ndim+}
+\item\verb+int ndim+ {\rm(default=\verb|3|)}:
+
+Dimension of the problem.
+ (found in file: \verb+../applications/ns/ns.cpp+)
+%----<>----<>----<>----<>----<>----<>----<>----<>----<>----<>
+\index{ndim@\verb+ndim+}
+\item\verb+int ndim+ {\rm(default=\verb|none|)}:
+
+Dimension of the embedding space
+ (found in file: \verb+../applications/ns/nsgath.cpp+)
+%----<>----<>----<>----<>----<>----<>----<>----<>----<>----<>
+\index{ndim@\verb+ndim+}
 \item\verb+int ndim+ {\rm(default=\verb|0|)}:
 
-Dimension of embedding space
- (found in file: \verb+../src/pfcpp_temp.cpp+)
+Dimension of the embedding space
+ (found in file: \verb+../applications/ns/nsgath.cpp+)
+%----<>----<>----<>----<>----<>----<>----<>----<>----<>----<>
+\index{ndim@\verb+ndim+}
+\item\verb+int ndim+ {\rm(default=\verb|0|)}:
+
+Dimension of problem
+ (found in file: \verb+../applications/ns/nssupr.cpp+)
+%----<>----<>----<>----<>----<>----<>----<>----<>----<>----<>
+\index{ndim@\verb+ndim+}
+\item\verb+int ndim+ {\rm(default=\verb|0|)}:
+
+The number of spatial dimensions
+ (found in file: \verb+../applications/ns/nullvort.cpp+)
 %----<>----<>----<>----<>----<>----<>----<>----<>----<>----<>
 \index{ndim@\verb+ndim+}
 \item\verb+int ndim+ {\rm(default=\verb|none|)}:
@@ -3227,12 +3602,6 @@ Dimension of embedding space
 \index{ndimel@\verb+ndimel+}
 \item\verb+int ndimel+ {\rm(default=\verb|ndim-1|)}:
 
-The dimension of the element 
- (found in file: \verb+../applications/advdif/genload.cpp+)
-%----<>----<>----<>----<>----<>----<>----<>----<>----<>----<>
-\index{ndimel@\verb+ndimel+}
-\item\verb+int ndimel+ {\rm(default=\verb|ndim-1|)}:
-
 Dimenson of the element
  (found in file: \verb+../applications/advdif/advdfgth.cpp+)
 %----<>----<>----<>----<>----<>----<>----<>----<>----<>----<>
@@ -3241,6 +3610,12 @@ Dimenson of the element
 
 Dimenson of the element
  (found in file: \verb+../applications/advdif/gasflwgth.cpp+)
+%----<>----<>----<>----<>----<>----<>----<>----<>----<>----<>
+\index{ndimel@\verb+ndimel+}
+\item\verb+int ndimel+ {\rm(default=\verb|ndim-1|)}:
+
+The dimension of the element 
+ (found in file: \verb+../applications/advdif/genload.cpp+)
 %----<>----<>----<>----<>----<>----<>----<>----<>----<>----<>
 \index{ndimel@\verb+ndimel+}
 \item\verb+int ndimel+ {\rm(default=\verb|ndim-1|)}:
@@ -3411,6 +3786,18 @@ Number of Gauss points.
 \item\verb+int npg+ {\rm(default=\verb|none|)}:
 
 Number of Gauss points.
+ (found in file: \verb+../applications/ns/genload.cpp+)
+%----<>----<>----<>----<>----<>----<>----<>----<>----<>----<>
+\index{npg@\verb+npg+}
+\item\verb+int npg+ {\rm(default=\verb|none|)}:
+
+Number of Gauss points.
+ (found in file: \verb+../applications/ns/ns_gasflow.cpp+)
+%----<>----<>----<>----<>----<>----<>----<>----<>----<>----<>
+\index{npg@\verb+npg+}
+\item\verb+int npg+ {\rm(default=\verb|none|)}:
+
+Number of Gauss points.
  (found in file: \verb+../applications/ns/nsikeps.cpp+)
 %----<>----<>----<>----<>----<>----<>----<>----<>----<>----<>
 \index{npg@\verb+npg+}
@@ -3418,6 +3805,12 @@ Number of Gauss points.
 
 Number of Gauss points.
  (found in file: \verb+../applications/ns/nsikepsrot.cpp+)
+%----<>----<>----<>----<>----<>----<>----<>----<>----<>----<>
+\index{npg@\verb+npg+}
+\item\verb+int npg+ {\rm(default=\verb|none|)}:
+
+Number of Gauss points.
+ (found in file: \verb+../applications/ns/nsilesasm_2.cpp+)
 %----<>----<>----<>----<>----<>----<>----<>----<>----<>----<>
 \index{npg@\verb+npg+}
 \item\verb+int npg+ {\rm(default=\verb|none|)}:
@@ -3435,6 +3828,24 @@ Number of Gauss points.
 \item\verb+int npg+ {\rm(default=\verb|none|)}:
 
 Number of Gauss points.
+ (found in file: \verb+../applications/ns/nsitetasm.cpp+)
+%----<>----<>----<>----<>----<>----<>----<>----<>----<>----<>
+\index{npg@\verb+npg+}
+\item\verb+int npg+ {\rm(default=\verb|none|)}:
+
+Number of Gauss points.
+ (found in file: \verb+../applications/ns/nsitetasm_avgvol.cpp+)
+%----<>----<>----<>----<>----<>----<>----<>----<>----<>----<>
+\index{npg@\verb+npg+}
+\item\verb+int npg+ {\rm(default=\verb|none|)}:
+
+Number of Gauss points.
+ (found in file: \verb+../applications/ns/nsitetlesc.cpp+)
+%----<>----<>----<>----<>----<>----<>----<>----<>----<>----<>
+\index{npg@\verb+npg+}
+\item\verb+int npg+ {\rm(default=\verb|none|)}:
+
+Number of Gauss points.
  (found in file: \verb+../applications/ns/nsitetlesfm2.cpp+)
 %----<>----<>----<>----<>----<>----<>----<>----<>----<>----<>
 \index{npg@\verb+npg+}
@@ -3447,37 +3858,13 @@ Number of Gauss points.
 \item\verb+int npg+ {\rm(default=\verb|none|)}:
 
 Number of Gauss points.
- (found in file: \verb+../applications/ns/genload.cpp+)
-%----<>----<>----<>----<>----<>----<>----<>----<>----<>----<>
-\index{npg@\verb+npg+}
-\item\verb+int npg+ {\rm(default=\verb|none|)}:
-
-Number of Gauss points.
- (found in file: \verb+../applications/ns/nsilesasm_2.cpp+)
-%----<>----<>----<>----<>----<>----<>----<>----<>----<>----<>
-\index{npg@\verb+npg+}
-\item\verb+int npg+ {\rm(default=\verb|none|)}:
-
-Number of Gauss points.
- (found in file: \verb+../applications/ns/pfcpp_temp.cpp+)
-%----<>----<>----<>----<>----<>----<>----<>----<>----<>----<>
-\index{npg@\verb+npg+}
-\item\verb+int npg+ {\rm(default=\verb|none|)}:
-
-Number of Gauss points.
- (found in file: \verb+../applications/ns/nsitetlesc.cpp+)
-%----<>----<>----<>----<>----<>----<>----<>----<>----<>----<>
-\index{npg@\verb+npg+}
-\item\verb+int npg+ {\rm(default=\verb|none|)}:
-
-Number of Gauss points.
- (found in file: \verb+../src/pfcpp_temp.cpp+)
-%----<>----<>----<>----<>----<>----<>----<>----<>----<>----<>
-\index{npg@\verb+npg+}
-\item\verb+int npg+ {\rm(default=\verb|none|)}:
-
-Number of Gauss points.
  (found in file: \verb+../src/gatherer.cpp+)
+%----<>----<>----<>----<>----<>----<>----<>----<>----<>----<>
+\index{npg@\verb+npg+}
+\item\verb+int npg+ {\rm(default=\verb|none|)}:
+
+Number of Gauss points.
+ (found in file: \verb+../src/srfgath.cpp+)
 %----<>----<>----<>----<>----<>----<>----<>----<>----<>----<>
 \index{npg@\verb+npg+}
 \item\verb+int npg+ {\rm(default=\verb|none|)}:
@@ -3485,11 +3872,17 @@ Number of Gauss points.
 Number of Gauss points.
  (found in file: \verb+../src/surf2vol.cpp+)
 %----<>----<>----<>----<>----<>----<>----<>----<>----<>----<>
-\index{npg@\verb+npg+}
-\item\verb+int npg+ {\rm(default=\verb|none|)}:
+\index{nphases@\verb+nphases+}
+\item\verb+int nphases+ {\rm(default=\verb|1|)}:
 
-Number of Gauss points.
- (found in file: \verb+../src/srfgath.cpp+)
+number of diferent phases
+ (found in file: \verb+../applications/ns/nsitetasm.cpp+)
+%----<>----<>----<>----<>----<>----<>----<>----<>----<>----<>
+\index{nphases@\verb+nphases+}
+\item\verb+int nphases+ {\rm(default=\verb|1|)}:
+
+number of diferent phases
+ (found in file: \verb+../applications/ns/nsitetasm_avgvol.cpp+)
 %----<>----<>----<>----<>----<>----<>----<>----<>----<>----<>
 \index{nrec@\verb+nrec+}
 \item\verb+int nrec+ {\rm(default=\verb|1000000|)}:
@@ -3854,19 +4247,31 @@ Mask for pressure (normal) component of stress tensor
 \item\verb+double pressure_control_coef+ {\rm(default=\verb|0.|)}:
 
 Add pressure controlling term. 
- (found in file: \verb+../applications/ns/nsitetlesfm2.cpp+)
+ (found in file: \verb+../applications/ns/ns_gasflow.cpp+)
 %----<>----<>----<>----<>----<>----<>----<>----<>----<>----<>
 \index{pressure\_control\_coef@\verb+pressure_control_coef+}
 \item\verb+double pressure_control_coef+ {\rm(default=\verb|0.|)}:
 
 Add pressure controlling term. 
- (found in file: \verb+../applications/ns/pfcpp_temp.cpp+)
+ (found in file: \verb+../applications/ns/nsitetasm.cpp+)
+%----<>----<>----<>----<>----<>----<>----<>----<>----<>----<>
+\index{pressure\_control\_coef@\verb+pressure_control_coef+}
+\item\verb+double pressure_control_coef+ {\rm(default=\verb|0.|)}:
+
+Add pressure controlling term. 
+ (found in file: \verb+../applications/ns/nsitetasm_avgvol.cpp+)
 %----<>----<>----<>----<>----<>----<>----<>----<>----<>----<>
 \index{pressure\_control\_coef@\verb+pressure_control_coef+}
 \item\verb+double pressure_control_coef+ {\rm(default=\verb|0.|)}:
 
 Add pressure controlling term. 
  (found in file: \verb+../applications/ns/nsitetlesc.cpp+)
+%----<>----<>----<>----<>----<>----<>----<>----<>----<>----<>
+\index{pressure\_control\_coef@\verb+pressure_control_coef+}
+\item\verb+double pressure_control_coef+ {\rm(default=\verb|0.|)}:
+
+Add pressure controlling term. 
+ (found in file: \verb+../applications/ns/nsitetlesfm2.cpp+)
 %----<>----<>----<>----<>----<>----<>----<>----<>----<>----<>
 \index{print\_Schur\_matrix@\verb+print_Schur_matrix+}
 \item\verb+int print_Schur_matrix+ {\rm(default=\verb|0|)}:
@@ -4004,6 +4409,18 @@ feature.
 Name of file where to read the nodes for the ``print some'' 
 feature. 
  (found in file: \verb+../applications/ns/ns.cpp+)
+%----<>----<>----<>----<>----<>----<>----<>----<>----<>----<>
+\index{print\_van\_Driest@\verb+print_van_Driest+}
+\item\verb+int print_van_Driest+ {\rm(default=\verb|0|)}:
+
+print Van Driest factor
+ (found in file: \verb+../applications/ns/fstepfm2.cpp+)
+%----<>----<>----<>----<>----<>----<>----<>----<>----<>----<>
+\index{print\_van\_Driest@\verb+print_van_Driest+}
+\item\verb+int print_van_Driest+ {\rm(default=\verb|0|)}:
+
+print Van Driest factor
+ (found in file: \verb+../applications/ns/nsitetlesfm2.cpp+)
 %----<>----<>----<>----<>----<>----<>----<>----<>----<>----<>
 \index{pspg\_advection\_factor@\verb+pspg_advection_factor+}
 \item\verb+double pspg_advection_factor+ {\rm(default=\verb|1.|)}:
@@ -4153,19 +4570,31 @@ was accessed. Useful for detecting if an option was used or not.
 \item\verb+double residual_factor+ {\rm(default=\verb|1.|)}:
 
 Scale the residual term. 
- (found in file: \verb+../applications/ns/nsitetlesfm2.cpp+)
+ (found in file: \verb+../applications/ns/ns_gasflow.cpp+)
 %----<>----<>----<>----<>----<>----<>----<>----<>----<>----<>
 \index{residual\_factor@\verb+residual_factor+}
 \item\verb+double residual_factor+ {\rm(default=\verb|1.|)}:
 
 Scale the residual term. 
- (found in file: \verb+../applications/ns/pfcpp_temp.cpp+)
+ (found in file: \verb+../applications/ns/nsitetasm.cpp+)
+%----<>----<>----<>----<>----<>----<>----<>----<>----<>----<>
+\index{residual\_factor@\verb+residual_factor+}
+\item\verb+double residual_factor+ {\rm(default=\verb|1.|)}:
+
+Scale the residual term. 
+ (found in file: \verb+../applications/ns/nsitetasm_avgvol.cpp+)
 %----<>----<>----<>----<>----<>----<>----<>----<>----<>----<>
 \index{residual\_factor@\verb+residual_factor+}
 \item\verb+double residual_factor+ {\rm(default=\verb|1.|)}:
 
 Scale the residual term. 
  (found in file: \verb+../applications/ns/nsitetlesc.cpp+)
+%----<>----<>----<>----<>----<>----<>----<>----<>----<>----<>
+\index{residual\_factor@\verb+residual_factor+}
+\item\verb+double residual_factor+ {\rm(default=\verb|1.|)}:
+
+Scale the residual term. 
+ (found in file: \verb+../applications/ns/nsitetlesfm2.cpp+)
 %----<>----<>----<>----<>----<>----<>----<>----<>----<>----<>
 \index{resistance@\verb+resistance+}
 \item\verb+double resistance+ {\rm(default=\verb|0.|)}:
@@ -4238,6 +4667,12 @@ Reverse sense of normal. Useful if, for instance,
 \item\verb+double rho+ {\rm(default=\verb|1.|)}:
 
 Density
+ (found in file: \verb+../applications/ns/bccnsasmfm2.cpp+)
+%----<>----<>----<>----<>----<>----<>----<>----<>----<>----<>
+\index{rho@\verb+rho+}
+\item\verb+double rho+ {\rm(default=\verb|1.|)}:
+
+Density
  (found in file: \verb+../applications/ns/bccnstherfm2.cpp+)
 %----<>----<>----<>----<>----<>----<>----<>----<>----<>----<>
 \index{rho@\verb+rho+}
@@ -4251,6 +4686,12 @@ Density
 
 Density
  (found in file: \verb+../applications/ns/fstepfm2.cpp+)
+%----<>----<>----<>----<>----<>----<>----<>----<>----<>----<>
+\index{rho@\verb+rho+}
+\item\verb+double rho+ {\rm(default=\verb|1.|)}:
+
+Density
+ (found in file: \verb+../applications/ns/fstepfm2ther.cpp+)
 %----<>----<>----<>----<>----<>----<>----<>----<>----<>----<>
 \index{rho@\verb+rho+}
 \item\verb+double rho+ {\rm(default=\verb|1.|)}:
@@ -4273,6 +4714,12 @@ Density
 \index{rho@\verb+rho+}
 \item\verb+double rho+ {\rm(default=\verb|1.|)}:
 
+Liquid density
+ (found in file: \verb+../applications/ns/nsilesasm_2.cpp+)
+%----<>----<>----<>----<>----<>----<>----<>----<>----<>----<>
+\index{rho@\verb+rho+}
+\item\verb+double rho+ {\rm(default=\verb|1.|)}:
+
 Density
  (found in file: \verb+../applications/ns/nsilesther.cpp+)
 %----<>----<>----<>----<>----<>----<>----<>----<>----<>----<>
@@ -4281,6 +4728,24 @@ Density
 
 Density
  (found in file: \verb+../applications/ns/nsirot.cpp+)
+%----<>----<>----<>----<>----<>----<>----<>----<>----<>----<>
+\index{rho@\verb+rho+}
+\item\verb+double rho+ {\rm(default=\verb|1.|)}:
+
+Density (should be changed for rho_m)
+ (found in file: \verb+../applications/ns/nsitetasm.cpp+)
+%----<>----<>----<>----<>----<>----<>----<>----<>----<>----<>
+\index{rho@\verb+rho+}
+\item\verb+double rho+ {\rm(default=\verb|1.|)}:
+
+Density (should be changed for rho_m)
+ (found in file: \verb+../applications/ns/nsitetasm_avgvol.cpp+)
+%----<>----<>----<>----<>----<>----<>----<>----<>----<>----<>
+\index{rho@\verb+rho+}
+\item\verb+double rho+ {\rm(default=\verb|1.|)}:
+
+Density
+ (found in file: \verb+../applications/ns/nsitetlesc.cpp+)
 %----<>----<>----<>----<>----<>----<>----<>----<>----<>----<>
 \index{rho@\verb+rho+}
 \item\verb+double rho+ {\rm(default=\verb|1.|)}:
@@ -4306,29 +4771,23 @@ Density
 Density
  (found in file: \verb+../applications/ns/wallke.cpp+)
 %----<>----<>----<>----<>----<>----<>----<>----<>----<>----<>
-\index{rho@\verb+rho+}
-\item\verb+double rho+ {\rm(default=\verb|1.|)}:
-
-Density
- (found in file: \verb+../applications/ns/bccnsasmfm2.cpp+)
-%----<>----<>----<>----<>----<>----<>----<>----<>----<>----<>
-\index{rho@\verb+rho+}
-\item\verb+double rho+ {\rm(default=\verb|1.|)}:
-
-Liquid density
- (found in file: \verb+../applications/ns/nsilesasm_2.cpp+)
-%----<>----<>----<>----<>----<>----<>----<>----<>----<>----<>
-\index{rho@\verb+rho+}
-\item\verb+double rho+ {\rm(default=\verb|1.|)}:
-
-Density
- (found in file: \verb+../applications/ns/nsitetlesc.cpp+)
-%----<>----<>----<>----<>----<>----<>----<>----<>----<>----<>
 \index{rho\_Cp@\verb+rho_Cp+}
 \item\verb+double rho_Cp+ {\rm(default=\verb|1.|)}:
 
 Specific heat
  (found in file: \verb+../applications/ns/qharm.cpp+)
+%----<>----<>----<>----<>----<>----<>----<>----<>----<>----<>
+\index{rho\_l@\verb+rho_l+}
+\item\verb+double rho_l+ {\rm(default=\verb|0.|)}:
+
+Density
+ (found in file: \verb+../applications/ns/nsitetasm.cpp+)
+%----<>----<>----<>----<>----<>----<>----<>----<>----<>----<>
+\index{rho\_l@\verb+rho_l+}
+\item\verb+double rho_l+ {\rm(default=\verb|0.|)}:
+
+Density
+ (found in file: \verb+../applications/ns/nsitetasm_avgvol.cpp+)
 %----<>----<>----<>----<>----<>----<>----<>----<>----<>----<>
 \index{rho\_thrsh@\verb+rho_thrsh+}
 \item\verb+double rho_thrsh+ {\rm(default=\verb|0.|)}:
@@ -4496,19 +4955,6 @@ shocap
  (found in file: \verb+../applications/advdif/bubbly.cpp+)
 %----<>----<>----<>----<>----<>----<>----<>----<>----<>----<>
 \index{shocap@\verb+shocap+}
-\item\verb+double shocap+ {\rm(default=\verb|0.0|)}:
-
-Add a shock capturing term 
-(copy from advdife.cpp)
- (found in file: \verb+../applications/advdif/gasflow.cpp+)
-%----<>----<>----<>----<>----<>----<>----<>----<>----<>----<>
-\index{shocap@\verb+shocap+}
-\item\verb+double shocap+ {\rm(default=\verb|0.0|)}:
-
-Add a shock capturing term
- (found in file: \verb+../applications/advdif/godunov.cpp+)
-%----<>----<>----<>----<>----<>----<>----<>----<>----<>----<>
-\index{shocap@\verb+shocap+}
 \item\verb+double shocap+ {\rm(default=\verb|1.|)}:
 
 shocap
@@ -4526,6 +4972,38 @@ shocap
 shocap
  (found in file: \verb+../applications/advdif/bubbly_full.cpp+)
 %----<>----<>----<>----<>----<>----<>----<>----<>----<>----<>
+\index{shocap@\verb+shocap+}
+\item\verb+double shocap+ {\rm(default=\verb|0.0|)}:
+
+Add a shock capturing term 
+(copy from advdife.cpp)
+ (found in file: \verb+../applications/advdif/gasflow.cpp+)
+%----<>----<>----<>----<>----<>----<>----<>----<>----<>----<>
+\index{shocap@\verb+shocap+}
+\item\verb+double shocap+ {\rm(default=\verb|0.0|)}:
+
+Add a shock capturing term
+ (found in file: \verb+../applications/advdif/godunov.cpp+)
+%----<>----<>----<>----<>----<>----<>----<>----<>----<>----<>
+\index{shocap@\verb+shocap+}
+\item\verb+double shocap+ {\rm(default=\verb|0.0|)}:
+
+Add a shock capturing term 
+(copy from advdife.cpp)
+ (found in file: \verb+../applications/ns/ns_gasflow.cpp+)
+%----<>----<>----<>----<>----<>----<>----<>----<>----<>----<>
+\index{shocap@\verb+shocap+}
+\item\verb+double shocap+ {\rm(default=\verb|0.|)}:
+
+Add shock-capturing term.
+ (found in file: \verb+../applications/ns/nsitetasm.cpp+)
+%----<>----<>----<>----<>----<>----<>----<>----<>----<>----<>
+\index{shocap@\verb+shocap+}
+\item\verb+double shocap+ {\rm(default=\verb|0.|)}:
+
+Add shock-capturing term.
+ (found in file: \verb+../applications/ns/nsitetasm_avgvol.cpp+)
+%----<>----<>----<>----<>----<>----<>----<>----<>----<>----<>
 \index{shocap\_aniso@\verb+shocap_aniso+}
 \item\verb+double shocap_aniso+ {\rm(default=\verb|0.0|)}:
 
@@ -4536,13 +5014,13 @@ Add an anisotropic shock capturing term
 \item\verb+int shock_capturing+ {\rm(default=\verb|0|)}:
 
 Add shock-capturing term.
- (found in file: \verb+../applications/advdif/ffswfm2t.cpp+)
+ (found in file: \verb+../applications/advdif/ffswfm1t.cpp+)
 %----<>----<>----<>----<>----<>----<>----<>----<>----<>----<>
 \index{shock\_capturing@\verb+shock_capturing+}
 \item\verb+int shock_capturing+ {\rm(default=\verb|0|)}:
 
 Add shock-capturing term.
- (found in file: \verb+../applications/advdif/ffswfm1t.cpp+)
+ (found in file: \verb+../applications/advdif/ffswfm2t.cpp+)
 %----<>----<>----<>----<>----<>----<>----<>----<>----<>----<>
 \index{shock\_capturing@\verb+shock_capturing+}
 \item\verb+int shock_capturing+ {\rm(default=\verb|0|)}:
@@ -4563,6 +5041,12 @@ Add shock-capturing term.
  (found in file: \verb+../applications/advective/ffswfm2t.cpp+)
 %----<>----<>----<>----<>----<>----<>----<>----<>----<>----<>
 \index{shock\_capturing\_factor@\verb+shock_capturing_factor+}
+\item\verb+double shock_capturing_factor+ {\rm(default=\verb|0|)}:
+
+Add shock-capturing term.
+ (found in file: \verb+../applications/ns/ns_gasflow.cpp+)
+%----<>----<>----<>----<>----<>----<>----<>----<>----<>----<>
+\index{shock\_capturing\_factor@\verb+shock_capturing_factor+}
 \item\verb+double shock_capturing_factor+ {\rm(default=\verb|1|)}:
 
 Add shock-capturing term.
@@ -4578,6 +5062,12 @@ Add shock-capturing term.
 \item\verb+double shock_capturing_factor+ {\rm(default=\verb|0|)}:
 
 Add shock-capturing term.
+ (found in file: \verb+../applications/ns/nsilesasm_2.cpp+)
+%----<>----<>----<>----<>----<>----<>----<>----<>----<>----<>
+\index{shock\_capturing\_factor@\verb+shock_capturing_factor+}
+\item\verb+double shock_capturing_factor+ {\rm(default=\verb|0|)}:
+
+Add shock-capturing term.
  (found in file: \verb+../applications/ns/nsilesther.cpp+)
 %----<>----<>----<>----<>----<>----<>----<>----<>----<>----<>
 \index{shock\_capturing\_factor@\verb+shock_capturing_factor+}
@@ -4587,28 +5077,28 @@ Add shock-capturing term.
  (found in file: \verb+../applications/ns/nsirot.cpp+)
 %----<>----<>----<>----<>----<>----<>----<>----<>----<>----<>
 \index{shock\_capturing\_factor@\verb+shock_capturing_factor+}
-\item\verb+double shock_capturing_factor+ {\rm(default=\verb|0|)}:
+\item\verb+double shock_capturing_factor+ {\rm(default=\verb|0.|)}:
 
 Add shock-capturing term.
- (found in file: \verb+../applications/ns/nsitetlesfm2.cpp+)
+ (found in file: \verb+../applications/ns/nsitetasm.cpp+)
 %----<>----<>----<>----<>----<>----<>----<>----<>----<>----<>
 \index{shock\_capturing\_factor@\verb+shock_capturing_factor+}
-\item\verb+double shock_capturing_factor+ {\rm(default=\verb|0|)}:
+\item\verb+double shock_capturing_factor+ {\rm(default=\verb|0.|)}:
 
 Add shock-capturing term.
- (found in file: \verb+../applications/ns/nsilesasm_2.cpp+)
-%----<>----<>----<>----<>----<>----<>----<>----<>----<>----<>
-\index{shock\_capturing\_factor@\verb+shock_capturing_factor+}
-\item\verb+double shock_capturing_factor+ {\rm(default=\verb|0|)}:
-
-Add shock-capturing term.
- (found in file: \verb+../applications/ns/pfcpp_temp.cpp+)
+ (found in file: \verb+../applications/ns/nsitetasm_avgvol.cpp+)
 %----<>----<>----<>----<>----<>----<>----<>----<>----<>----<>
 \index{shock\_capturing\_factor@\verb+shock_capturing_factor+}
 \item\verb+double shock_capturing_factor+ {\rm(default=\verb|0|)}:
 
 Add shock-capturing term.
  (found in file: \verb+../applications/ns/nsitetlesc.cpp+)
+%----<>----<>----<>----<>----<>----<>----<>----<>----<>----<>
+\index{shock\_capturing\_factor@\verb+shock_capturing_factor+}
+\item\verb+double shock_capturing_factor+ {\rm(default=\verb|0|)}:
+
+Add shock-capturing term.
+ (found in file: \verb+../applications/ns/nsitetlesfm2.cpp+)
 %----<>----<>----<>----<>----<>----<>----<>----<>----<>----<>
 \index{shock\_capturing\_threshold@\verb+shock_capturing_threshold+}
 \item\verb+double shock_capturing_threshold+ {\rm(default=\verb|0.1|)}:
@@ -4646,18 +5136,6 @@ sigma_e
 \index{sigma\_e@\verb+sigma_e+}
 \item\verb+double sigma_e+ {\rm(default=\verb|1.3|)}:
 
-Correcting factor for diffusion in the $\epsilon$ transport equation
- (found in file: \verb+../applications/advdif/ffswfm2t.cpp+)
-%----<>----<>----<>----<>----<>----<>----<>----<>----<>----<>
-\index{sigma\_e@\verb+sigma_e+}
-\item\verb+double sigma_e+ {\rm(default=\verb|1.3|)}:
-
-Correcting factor for diffusion in the $\epsilon$ transport equation
- (found in file: \verb+../applications/advdif/ffswfm1t.cpp+)
-%----<>----<>----<>----<>----<>----<>----<>----<>----<>----<>
-\index{sigma\_e@\verb+sigma_e+}
-\item\verb+double sigma_e+ {\rm(default=\verb|1.3|)}:
-
 sigma_e
  (found in file: \verb+../applications/advdif/bubbly_asm.cpp+)
 %----<>----<>----<>----<>----<>----<>----<>----<>----<>----<>
@@ -4672,6 +5150,18 @@ sigma_e
 
 sigma_e
  (found in file: \verb+../applications/advdif/bubbly_full.cpp+)
+%----<>----<>----<>----<>----<>----<>----<>----<>----<>----<>
+\index{sigma\_e@\verb+sigma_e+}
+\item\verb+double sigma_e+ {\rm(default=\verb|1.3|)}:
+
+Correcting factor for diffusion in the $\epsilon$ transport equation
+ (found in file: \verb+../applications/advdif/ffswfm1t.cpp+)
+%----<>----<>----<>----<>----<>----<>----<>----<>----<>----<>
+\index{sigma\_e@\verb+sigma_e+}
+\item\verb+double sigma_e+ {\rm(default=\verb|1.3|)}:
+
+Correcting factor for diffusion in the $\epsilon$ transport equation
+ (found in file: \verb+../applications/advdif/ffswfm2t.cpp+)
 %----<>----<>----<>----<>----<>----<>----<>----<>----<>----<>
 \index{sigma\_e@\verb+sigma_e+}
 \item\verb+double sigma_e+ {\rm(default=\verb|1.3|)}:
@@ -4694,18 +5184,6 @@ sigma_k
 \index{sigma\_k@\verb+sigma_k+}
 \item\verb+double sigma_k+ {\rm(default=\verb|1.|)}:
 
-Correcting factor for diffusion in the $k$ transport equation
- (found in file: \verb+../applications/advdif/ffswfm2t.cpp+)
-%----<>----<>----<>----<>----<>----<>----<>----<>----<>----<>
-\index{sigma\_k@\verb+sigma_k+}
-\item\verb+double sigma_k+ {\rm(default=\verb|1.|)}:
-
-Correcting factor for diffusion in the $k$ transport equation
- (found in file: \verb+../applications/advdif/ffswfm1t.cpp+)
-%----<>----<>----<>----<>----<>----<>----<>----<>----<>----<>
-\index{sigma\_k@\verb+sigma_k+}
-\item\verb+double sigma_k+ {\rm(default=\verb|1.|)}:
-
 sigma_k
  (found in file: \verb+../applications/advdif/bubbly_asm.cpp+)
 %----<>----<>----<>----<>----<>----<>----<>----<>----<>----<>
@@ -4720,6 +5198,18 @@ sigma_k
 
 sigma_k
  (found in file: \verb+../applications/advdif/bubbly_full.cpp+)
+%----<>----<>----<>----<>----<>----<>----<>----<>----<>----<>
+\index{sigma\_k@\verb+sigma_k+}
+\item\verb+double sigma_k+ {\rm(default=\verb|1.|)}:
+
+Correcting factor for diffusion in the $k$ transport equation
+ (found in file: \verb+../applications/advdif/ffswfm1t.cpp+)
+%----<>----<>----<>----<>----<>----<>----<>----<>----<>----<>
+\index{sigma\_k@\verb+sigma_k+}
+\item\verb+double sigma_k+ {\rm(default=\verb|1.|)}:
+
+Correcting factor for diffusion in the $k$ transport equation
+ (found in file: \verb+../applications/advdif/ffswfm2t.cpp+)
 %----<>----<>----<>----<>----<>----<>----<>----<>----<>----<>
 \index{sigma\_k@\verb+sigma_k+}
 \item\verb+double sigma_k+ {\rm(default=\verb|1.|)}:
@@ -4833,13 +5323,21 @@ See documentation for the `` \verb+source_term+ '' option.
 \index{start\_comp\_time@\verb+start_comp_time+}
 \item\verb+double start_comp_time+ {\rm(default=\verb|0.|)}:
 
+Counts time from here.
+ (found in file: \verb+../applications/advdif/advdif.cpp+)
+%----<>----<>----<>----<>----<>----<>----<>----<>----<>----<>
+\index{start\_comp\_time@\verb+start_comp_time+}
+\item\verb+double start_comp_time+ {\rm(default=\verb|0.|)}:
+
 Time to start computations
  (found in file: \verb+../applications/ns/ns.cpp+)
 %----<>----<>----<>----<>----<>----<>----<>----<>----<>----<>
 \index{start\_time@\verb+start_time+}
-\item\verb+double start_time+ {\rm(default=\verb|0.|)}:
+\item\verb+double start_time+ {\rm(default=\verb|NAN|)}:
 
-Counts time from here.
+Counts time from here. (superseded by
+ \verb+start_comp_time+ for compatibility with Navier-Stokes
+ module). 
  (found in file: \verb+../applications/advdif/advdif.cpp+)
 %----<>----<>----<>----<>----<>----<>----<>----<>----<>----<>
 \index{start\_time@\verb+start_time+}
@@ -4938,19 +5436,13 @@ right hand side and solution vector, and stops.
 \item\verb+string surf_fun_type+ {\rm(default=\verb|<none>|)}:
 
 Defines the geomtry of the element
- (found in file: \verb+../src/pfcpp_temp.cpp+)
-%----<>----<>----<>----<>----<>----<>----<>----<>----<>----<>
-\index{surf\_fun\_type@\verb+surf_fun_type+}
-\item\verb+string surf_fun_type+ {\rm(default=\verb|<none>|)}:
-
-Defines the geomtry of the element
  (found in file: \verb+../src/srfgath.cpp+)
 %----<>----<>----<>----<>----<>----<>----<>----<>----<>----<>
 \index{switch\_to\_ref\_on\_incoming@\verb+switch_to_ref_on_incoming+}
 \item\verb+int switch_to_ref_on_incoming+ {\rm(default=\verb|0|)}:
 
 Use special combination for choosing reference state.
- If velocity is outgoing ( #uref.n>0#, \verb+n+ is exterior
+ If velocity is outgoing ( \verb+uref.n>0+, \verb+n+ is exterior
  normal, \verb+u+ is the flow velocity), then the
  \verb+use_old_state_as_ref+ strategy is used, otherwise the
  state reference is used. 
@@ -4992,8 +5484,20 @@ stabilization factor (tau_fac)
 \index{tau\_fac@\verb+tau_fac+}
 \item\verb+double tau_fac+ {\rm(default=\verb|1.|)}:
 
-Mask for stabilization term
- (found in file: \verb+../applications/advdif/gasflow.cpp+)
+stabilization factor (tau_fac)
+ (found in file: \verb+../applications/advdif/bubbly_asm.cpp+)
+%----<>----<>----<>----<>----<>----<>----<>----<>----<>----<>
+\index{tau\_fac@\verb+tau_fac+}
+\item\verb+double tau_fac+ {\rm(default=\verb|1.|)}:
+
+stabilization factor (tau_fac)
+ (found in file: \verb+../applications/advdif/bubbly_asm_mix.cpp+)
+%----<>----<>----<>----<>----<>----<>----<>----<>----<>----<>
+\index{tau\_fac@\verb+tau_fac+}
+\item\verb+double tau_fac+ {\rm(default=\verb|1.|)}:
+
+stabilization factor (tau_fac)
+ (found in file: \verb+../applications/advdif/bubbly_full.cpp+)
 %----<>----<>----<>----<>----<>----<>----<>----<>----<>----<>
 \index{tau\_fac@\verb+tau_fac+}
 \item\verb+double tau_fac+ {\rm(default=\verb|1.|)}:
@@ -5031,37 +5535,25 @@ Scale the SUPG upwind term.
 \item\verb+double tau_fac+ {\rm(default=\verb|1.|)}:
 
 Scale the SUPG upwind term. 
- (found in file: \verb+../applications/advdif/ffswfm2t.cpp+)
-%----<>----<>----<>----<>----<>----<>----<>----<>----<>----<>
-\index{tau\_fac@\verb+tau_fac+}
-\item\verb+double tau_fac+ {\rm(default=\verb|1.|)}:
-
-Scale the SUPG upwind term. 
  (found in file: \verb+../applications/advdif/ffswfm1t.cpp+)
 %----<>----<>----<>----<>----<>----<>----<>----<>----<>----<>
 \index{tau\_fac@\verb+tau_fac+}
 \item\verb+double tau_fac+ {\rm(default=\verb|1.|)}:
 
 Scale the SUPG upwind term. 
+ (found in file: \verb+../applications/advdif/ffswfm2t.cpp+)
+%----<>----<>----<>----<>----<>----<>----<>----<>----<>----<>
+\index{tau\_fac@\verb+tau_fac+}
+\item\verb+double tau_fac+ {\rm(default=\verb|1.|)}:
+
+Mask for stabilization term
+ (found in file: \verb+../applications/advdif/gasflow.cpp+)
+%----<>----<>----<>----<>----<>----<>----<>----<>----<>----<>
+\index{tau\_fac@\verb+tau_fac+}
+\item\verb+double tau_fac+ {\rm(default=\verb|1.|)}:
+
+Scale the SUPG upwind term. 
  (found in file: \verb+../applications/advdif/streamsw1d.cpp+)
-%----<>----<>----<>----<>----<>----<>----<>----<>----<>----<>
-\index{tau\_fac@\verb+tau_fac+}
-\item\verb+double tau_fac+ {\rm(default=\verb|1.|)}:
-
-stabilization factor (tau_fac)
- (found in file: \verb+../applications/advdif/bubbly_asm.cpp+)
-%----<>----<>----<>----<>----<>----<>----<>----<>----<>----<>
-\index{tau\_fac@\verb+tau_fac+}
-\item\verb+double tau_fac+ {\rm(default=\verb|1.|)}:
-
-stabilization factor (tau_fac)
- (found in file: \verb+../applications/advdif/bubbly_asm_mix.cpp+)
-%----<>----<>----<>----<>----<>----<>----<>----<>----<>----<>
-\index{tau\_fac@\verb+tau_fac+}
-\item\verb+double tau_fac+ {\rm(default=\verb|1.|)}:
-
-stabilization factor (tau_fac)
- (found in file: \verb+../applications/advdif/bubbly_full.cpp+)
 %----<>----<>----<>----<>----<>----<>----<>----<>----<>----<>
 \index{tau\_fac@\verb+tau_fac+}
 \item\verb+double tau_fac+ {\rm(default=\verb|1.|)}:
@@ -5084,6 +5576,12 @@ Scale the SUPG upwind term.
 \index{tau\_fac@\verb+tau_fac+}
 \item\verb+double tau_fac+ {\rm(default=\verb|1.|)}:
 
+Scale the SUPG and PSPG stabilization term. 
+ (found in file: \verb+../applications/ns/ns_gasflow.cpp+)
+%----<>----<>----<>----<>----<>----<>----<>----<>----<>----<>
+\index{tau\_fac@\verb+tau_fac+}
+\item\verb+double tau_fac+ {\rm(default=\verb|1.|)}:
+
 Scale the SUPG upwind term. 
  (found in file: \verb+../applications/ns/nsikeps.cpp+)
 %----<>----<>----<>----<>----<>----<>----<>----<>----<>----<>
@@ -5092,6 +5590,12 @@ Scale the SUPG upwind term.
 
 Scale the SUPG upwind term. 
  (found in file: \verb+../applications/ns/nsikepsrot.cpp+)
+%----<>----<>----<>----<>----<>----<>----<>----<>----<>----<>
+\index{tau\_fac@\verb+tau_fac+}
+\item\verb+double tau_fac+ {\rm(default=\verb|1.|)}:
+
+Scale the SUPG upwind term.
+ (found in file: \verb+../applications/ns/nsilesasm_2.cpp+)
 %----<>----<>----<>----<>----<>----<>----<>----<>----<>----<>
 \index{tau\_fac@\verb+tau_fac+}
 \item\verb+double tau_fac+ {\rm(default=\verb|1.|)}:
@@ -5109,19 +5613,13 @@ Scale the SUPG upwind term.
 \item\verb+double tau_fac+ {\rm(default=\verb|1.|)}:
 
 Scale the SUPG and PSPG stabilization term. 
- (found in file: \verb+../applications/ns/nsitetlesfm2.cpp+)
+ (found in file: \verb+../applications/ns/nsitetasm.cpp+)
 %----<>----<>----<>----<>----<>----<>----<>----<>----<>----<>
 \index{tau\_fac@\verb+tau_fac+}
 \item\verb+double tau_fac+ {\rm(default=\verb|1.|)}:
 
-Scale the SUPG upwind term.
- (found in file: \verb+../applications/ns/nsilesasm_2.cpp+)
-%----<>----<>----<>----<>----<>----<>----<>----<>----<>----<>
-\index{tau\_fac@\verb+tau_fac+}
-\item\verb+double tau_fac+ {\rm(default=\verb|1.|)}:
-
-Scale the SUPG upwind term. 
- (found in file: \verb+../applications/ns/pfcpp_temp.cpp+)
+Scale the SUPG and PSPG stabilization term. 
+ (found in file: \verb+../applications/ns/nsitetasm_avgvol.cpp+)
 %----<>----<>----<>----<>----<>----<>----<>----<>----<>----<>
 \index{tau\_fac@\verb+tau_fac+}
 \item\verb+double tau_fac+ {\rm(default=\verb|1.|)}:
@@ -5129,17 +5627,41 @@ Scale the SUPG upwind term.
 Scale the SUPG and PSPG stabilization term. 
  (found in file: \verb+../applications/ns/nsitetlesc.cpp+)
 %----<>----<>----<>----<>----<>----<>----<>----<>----<>----<>
-\index{tau\_pspg\_fac@\verb+tau_pspg_fac+}
-\item\verb+double tau_pspg_fac+ {\rm(default=\verb|1.|)}:
+\index{tau\_fac@\verb+tau_fac+}
+\item\verb+double tau_fac+ {\rm(default=\verb|1.|)}:
 
-Scales the PSPG stabilization term. 
+Scale the SUPG and PSPG stabilization term. 
  (found in file: \verb+../applications/ns/nsitetlesfm2.cpp+)
 %----<>----<>----<>----<>----<>----<>----<>----<>----<>----<>
 \index{tau\_pspg\_fac@\verb+tau_pspg_fac+}
 \item\verb+double tau_pspg_fac+ {\rm(default=\verb|1.|)}:
 
 Scales the PSPG stabilization term. 
+ (found in file: \verb+../applications/ns/ns_gasflow.cpp+)
+%----<>----<>----<>----<>----<>----<>----<>----<>----<>----<>
+\index{tau\_pspg\_fac@\verb+tau_pspg_fac+}
+\item\verb+double tau_pspg_fac+ {\rm(default=\verb|1.|)}:
+
+Scales the PSPG stabilization term. 
+ (found in file: \verb+../applications/ns/nsitetasm.cpp+)
+%----<>----<>----<>----<>----<>----<>----<>----<>----<>----<>
+\index{tau\_pspg\_fac@\verb+tau_pspg_fac+}
+\item\verb+double tau_pspg_fac+ {\rm(default=\verb|1.|)}:
+
+Scales the PSPG stabilization term. 
+ (found in file: \verb+../applications/ns/nsitetasm_avgvol.cpp+)
+%----<>----<>----<>----<>----<>----<>----<>----<>----<>----<>
+\index{tau\_pspg\_fac@\verb+tau_pspg_fac+}
+\item\verb+double tau_pspg_fac+ {\rm(default=\verb|1.|)}:
+
+Scales the PSPG stabilization term. 
  (found in file: \verb+../applications/ns/nsitetlesc.cpp+)
+%----<>----<>----<>----<>----<>----<>----<>----<>----<>----<>
+\index{tau\_pspg\_fac@\verb+tau_pspg_fac+}
+\item\verb+double tau_pspg_fac+ {\rm(default=\verb|1.|)}:
+
+Scales the PSPG stabilization term. 
+ (found in file: \verb+../applications/ns/nsitetlesfm2.cpp+)
 %----<>----<>----<>----<>----<>----<>----<>----<>----<>----<>
 \index{temporal\_stability\_factor@\verb+temporal_stability_factor+}
 \item\verb+double temporal_stability_factor+ {\rm(default=\verb|1.|)}:
@@ -5149,15 +5671,6 @@ the time step. If the \verb+steady+ option is in effect,
 (which is equivalent to $\Dt=\infty$) then
 \verb+temporal_stability_factor+ is set to 0.
  (found in file: \verb+../applications/advdif/bubbly.cpp+)
-%----<>----<>----<>----<>----<>----<>----<>----<>----<>----<>
-\index{temporal\_stability\_factor@\verb+temporal_stability_factor+}
-\item\verb+double temporal_stability_factor+ {\rm(default=\verb|1.|)}:
-
-Adjust the stability parameters, taking into account
-the time step. If the \verb+steady+ option is in effect,
-(which is equivalent to $\Dt=\infty$) then
-\verb+temporal_stability_factor+ is set to 0.
- (found in file: \verb+../applications/advdif/gasflow.cpp+)
 %----<>----<>----<>----<>----<>----<>----<>----<>----<>----<>
 \index{temporal\_stability\_factor@\verb+temporal_stability_factor+}
 \item\verb+double temporal_stability_factor+ {\rm(default=\verb|1.|)}:
@@ -5187,6 +5700,24 @@ the time step. If the \verb+steady+ option is in effect,
  (found in file: \verb+../applications/advdif/bubbly_full.cpp+)
 %----<>----<>----<>----<>----<>----<>----<>----<>----<>----<>
 \index{temporal\_stability\_factor@\verb+temporal_stability_factor+}
+\item\verb+double temporal_stability_factor+ {\rm(default=\verb|1.|)}:
+
+Adjust the stability parameters, taking into account
+the time step. If the \verb+steady+ option is in effect,
+(which is equivalent to $\Dt=\infty$) then
+\verb+temporal_stability_factor+ is set to 0.
+ (found in file: \verb+../applications/advdif/gasflow.cpp+)
+%----<>----<>----<>----<>----<>----<>----<>----<>----<>----<>
+\index{temporal\_stability\_factor@\verb+temporal_stability_factor+}
+\item\verb+double temporal_stability_factor+ {\rm(default=\verb|0.|)}:
+
+Adjust the stability parameters, taking into account
+the time step. If the  \verb+steady+  option is in effect,
+(which is equivalent to $\Dt=\infty$) then
+ \verb+temporal_stability_factor+  is set to 0.
+ (found in file: \verb+../applications/ns/ns_gasflow.cpp+)
+%----<>----<>----<>----<>----<>----<>----<>----<>----<>----<>
+\index{temporal\_stability\_factor@\verb+temporal_stability_factor+}
 \item\verb+double temporal_stability_factor+ {\rm(default=\verb|0.|)}:
 
 Adjust the stability parameters, taking into account
@@ -5199,6 +5730,13 @@ the time step.
 Adjust the stability parameters, taking into account
 the time step. 
  (found in file: \verb+../applications/ns/nsikepsrot.cpp+)
+%----<>----<>----<>----<>----<>----<>----<>----<>----<>----<>
+\index{temporal\_stability\_factor@\verb+temporal_stability_factor+}
+\item\verb+double temporal_stability_factor+ {\rm(default=\verb|0.|)}:
+
+Adjust the stability parameters, taking into account
+the time step.
+ (found in file: \verb+../applications/ns/nsilesasm_2.cpp+)
 %----<>----<>----<>----<>----<>----<>----<>----<>----<>----<>
 \index{temporal\_stability\_factor@\verb+temporal_stability_factor+}
 \item\verb+double temporal_stability_factor+ {\rm(default=\verb|0.|)}:
@@ -5221,23 +5759,16 @@ Adjust the stability parameters, taking into account
 the time step. If the  \verb+steady+  option is in effect,
 (which is equivalent to $\Dt=\infty$) then
  \verb+temporal_stability_factor+  is set to 0.
- (found in file: \verb+../applications/ns/nsitetlesfm2.cpp+)
+ (found in file: \verb+../applications/ns/nsitetasm.cpp+)
 %----<>----<>----<>----<>----<>----<>----<>----<>----<>----<>
 \index{temporal\_stability\_factor@\verb+temporal_stability_factor+}
 \item\verb+double temporal_stability_factor+ {\rm(default=\verb|0.|)}:
 
 Adjust the stability parameters, taking into account
-the time step.
- (found in file: \verb+../applications/ns/nsilesasm_2.cpp+)
-%----<>----<>----<>----<>----<>----<>----<>----<>----<>----<>
-\index{temporal\_stability\_factor@\verb+temporal_stability_factor+}
-\item\verb+double temporal_stability_factor+ {\rm(default=\verb|0.|)}:
-
-Adjust the stability parameters, taking into account
-the time step. If the \verb+steady+ option is in effect,
+the time step. If the  \verb+steady+  option is in effect,
 (which is equivalent to $\Dt=\infty$) then
-\verb+temporal_stability_factor+ is set to 0.
- (found in file: \verb+../applications/ns/pfcpp_temp.cpp+)
+ \verb+temporal_stability_factor+  is set to 0.
+ (found in file: \verb+../applications/ns/nsitetasm_avgvol.cpp+)
 %----<>----<>----<>----<>----<>----<>----<>----<>----<>----<>
 \index{temporal\_stability\_factor@\verb+temporal_stability_factor+}
 \item\verb+double temporal_stability_factor+ {\rm(default=\verb|0.|)}:
@@ -5247,6 +5778,15 @@ the time step. If the  \verb+steady+  option is in effect,
 (which is equivalent to $\Dt=\infty$) then
  \verb+temporal_stability_factor+  is set to 0.
  (found in file: \verb+../applications/ns/nsitetlesc.cpp+)
+%----<>----<>----<>----<>----<>----<>----<>----<>----<>----<>
+\index{temporal\_stability\_factor@\verb+temporal_stability_factor+}
+\item\verb+double temporal_stability_factor+ {\rm(default=\verb|0.|)}:
+
+Adjust the stability parameters, taking into account
+the time step. If the  \verb+steady+  option is in effect,
+(which is equivalent to $\Dt=\infty$) then
+ \verb+temporal_stability_factor+  is set to 0.
+ (found in file: \verb+../applications/ns/nsitetlesfm2.cpp+)
 %----<>----<>----<>----<>----<>----<>----<>----<>----<>----<>
 \index{time\_step\_stop@\verb+time_step_stop+}
 \item\verb+int time_step_stop+ {\rm(default=\verb|1|)}:
@@ -5509,6 +6049,12 @@ Number of layers in the preconditioning band (should
 \item\verb+int use_log_vars+ {\rm(default=\verb|0|)}:
 
 Use log-vars for $k$ and $\epsilon$
+ (found in file: \verb+../applications/advdif/advdife-bubbly.cpp+)
+%----<>----<>----<>----<>----<>----<>----<>----<>----<>----<>
+\index{use\_log\_vars@\verb+use_log_vars+}
+\item\verb+int use_log_vars+ {\rm(default=\verb|0|)}:
+
+Use log-vars for $k$ and $\epsilon$
  (found in file: \verb+../applications/advdif/advdife.cpp+)
 %----<>----<>----<>----<>----<>----<>----<>----<>----<>----<>
 \index{use\_log\_vars@\verb+use_log_vars+}
@@ -5523,12 +6069,6 @@ Use log-vars for $k$ and $\epsilon$
 Use log-vars for $k$ and $\epsilon$
  (found in file: \verb+../applications/advdif/godunov.cpp+)
 %----<>----<>----<>----<>----<>----<>----<>----<>----<>----<>
-\index{use\_log\_vars@\verb+use_log_vars+}
-\item\verb+int use_log_vars+ {\rm(default=\verb|0|)}:
-
-Use log-vars for $k$ and $\epsilon$
- (found in file: \verb+../applications/advdif/advdife-bubbly.cpp+)
-%----<>----<>----<>----<>----<>----<>----<>----<>----<>----<>
 \index{use\_low\_gpdata@\verb+use_low_gpdata+}
 \item\verb+int use_low_gpdata+ {\rm(default=\verb|0|)}:
 
@@ -5542,6 +6082,12 @@ and for stabilized advection terms P_supg_A_grad_N.
 
 Key for Using lumping only for gas phase
  (found in file: \verb+../applications/advdif/advdife-bubbly.cpp+)
+%----<>----<>----<>----<>----<>----<>----<>----<>----<>----<>
+\index{use\_mass\_rate@\verb+use_mass_rate+}
+\item\verb+int use_mass_rate+ {\rm(default=\verb|1|)}:
+
+Give mass rate or volumetric rate
+ (found in file: \verb+../applications/advdif/advdfgth.cpp+)
 %----<>----<>----<>----<>----<>----<>----<>----<>----<>----<>
 \index{use\_old\_state\_as\_ref@\verb+use_old_state_as_ref+}
 \item\verb+int use_old_state_as_ref+ {\rm(default=\verb|0|)}:
@@ -5564,12 +6110,6 @@ Use a continuous value for #R, i.e.
  for \verb+0<R<infty+ we have a partial resistance
  to the flow. 
  (found in file: \verb+../applications/ns/condwallpen.cpp+)
-%----<>----<>----<>----<>----<>----<>----<>----<>----<>----<>
-\index{vals\_per\_plane@\verb+vals_per_plane+}
-\item\verb+int vals_per_plane+ {\rm(default=\verb|0|)}:
-
-How many gather values will be contributed by this elemset per surface. 
- (found in file: \verb+../src/pfcpp_temp.cpp+)
 %----<>----<>----<>----<>----<>----<>----<>----<>----<>----<>
 \index{vb\_max@\verb+vb_max+}
 \item\verb+double vb_max+ {\rm(default=\verb|1.0|)}:
@@ -5595,6 +6135,38 @@ Threshold value for velocity while computing turbulence model.
 Threshold value for velocity.
  (found in file: \verb+../applications/advdif/streamsw1d.cpp+)
 %----<>----<>----<>----<>----<>----<>----<>----<>----<>----<>
+\index{verify\_jacobian\_with\_numerical\_one@\verb+verify_jacobian_with_numerical_one+}
+\item\verb+int verify_jacobian_with_numerical_one+ {\rm(default=\verb|0|)}:
+
+Computes jacobian of residuals and prints to a file.
+ May serve to debug computation of the analytic jacobians. 
+ (found in file: \verb+../applications/advdif/advdif.cpp+)
+%----<>----<>----<>----<>----<>----<>----<>----<>----<>----<>
+\index{verify\_jacobian\_with\_numerical\_one@\verb+verify_jacobian_with_numerical_one+}
+\item\verb+int verify_jacobian_with_numerical_one+ {\rm(default=\verb|0|)}:
+
+Computes jacobian of residuals and prints to a file.
+ May serve to debug computation of the analytic jacobians. 
+ (found in file: \verb+../applications/ns/ns.cpp+)
+%----<>----<>----<>----<>----<>----<>----<>----<>----<>----<>
+\index{visco@\verb+visco+}
+\item\verb+double visco+ {\rm(default=\verb|0|)}:
+
+molecular dynamic viscosity 
+ (found in file: \verb+../applications/ns/ns_gasflow.cpp+)
+%----<>----<>----<>----<>----<>----<>----<>----<>----<>----<>
+\index{visco\_l@\verb+visco_l+}
+\item\verb+double visco_l+ {\rm(default=\verb|VISC|)}:
+
+viscosity
+ (found in file: \verb+../applications/ns/nsitetasm.cpp+)
+%----<>----<>----<>----<>----<>----<>----<>----<>----<>----<>
+\index{visco\_l@\verb+visco_l+}
+\item\verb+double visco_l+ {\rm(default=\verb|VISC|)}:
+
+viscosity
+ (found in file: \verb+../applications/ns/nsitetasm_avgvol.cpp+)
+%----<>----<>----<>----<>----<>----<>----<>----<>----<>----<>
 \index{viscosity@\verb+viscosity+}
 \item\verb+double viscosity+ {\rm(default=\verb|1|)}:
 
@@ -5608,16 +6180,16 @@ Viscosity of the fluid
  (found in file: \verb+../applications/ns/embgath.cpp+)
 %----<>----<>----<>----<>----<>----<>----<>----<>----<>----<>
 \index{viscosity@\verb+viscosity+}
-\item\verb+double viscosity+ {\rm(default=\verb|1.|)}:
-
-viscosity of the fluid
- (found in file: \verb+../applications/ns/nonlr.cpp+)
-%----<>----<>----<>----<>----<>----<>----<>----<>----<>----<>
-\index{viscosity@\verb+viscosity+}
 \item\verb+double viscosity+ {\rm(default=\verb|0.|)}:
 
 Dynamic viscosity
  (found in file: \verb+../applications/ns/invcoupl.cpp+)
+%----<>----<>----<>----<>----<>----<>----<>----<>----<>----<>
+\index{viscosity@\verb+viscosity+}
+\item\verb+double viscosity+ {\rm(default=\verb|1.|)}:
+
+viscosity of the fluid
+ (found in file: \verb+../applications/ns/nonlr.cpp+)
 %----<>----<>----<>----<>----<>----<>----<>----<>----<>----<>
 \index{volume\_elemset@\verb+volume_elemset+}
 \item\verb+string volume_elemset+ {\rm(default=\verb||)}:
@@ -5667,6 +6239,12 @@ von Karman constant (law of the wall - turbulence model)
 \item\verb+int weak_form+ {\rm(default=\verb|1|)}:
 
 Use the weak form for the Galerkin part of the advective term.
+ (found in file: \verb+../applications/advdif/advdife-bubbly.cpp+)
+%----<>----<>----<>----<>----<>----<>----<>----<>----<>----<>
+\index{weak\_form@\verb+weak_form+}
+\item\verb+int weak_form+ {\rm(default=\verb|1|)}:
+
+Use the weak form for the Galerkin part of the advective term.
  (found in file: \verb+../applications/advdif/advdife.cpp+)
 %----<>----<>----<>----<>----<>----<>----<>----<>----<>----<>
 \index{weak\_form@\verb+weak_form+}
@@ -5684,12 +6262,6 @@ Use the weak form for the Galerkin part of the advective term.
 \index{weak\_form@\verb+weak_form+}
 \item\verb+int weak_form+ {\rm(default=\verb|1|)}:
 
-Use the weak form for the Galerkin part of the advective term.
- (found in file: \verb+../applications/advdif/advdife-bubbly.cpp+)
-%----<>----<>----<>----<>----<>----<>----<>----<>----<>----<>
-\index{weak\_form@\verb+weak_form+}
-\item\verb+int weak_form+ {\rm(default=\verb|1|)}:
-
 Use the weak form for the Galerkin part of the advective term. 
  (found in file: \verb+../applications/advective/advecfm2.cpp+)
 %----<>----<>----<>----<>----<>----<>----<>----<>----<>----<>
@@ -5703,13 +6275,37 @@ Use the weak form for the Galerkin part of the advective term.
 \item\verb+int weak_form+ {\rm(default=\verb|1|)}:
 
 Use a weak form for the gradient of pressure term. 
+ (found in file: \verb+../applications/ns/bccfstep.cpp+)
+%----<>----<>----<>----<>----<>----<>----<>----<>----<>----<>
+\index{weak\_form@\verb+weak_form+}
+\item\verb+int weak_form+ {\rm(default=\verb|1|)}:
+
+Use a weak form for the gradient of pressure term and transport equation
+ (found in file: \verb+../applications/ns/bccnsasmfm2.cpp+)
+%----<>----<>----<>----<>----<>----<>----<>----<>----<>----<>
+\index{weak\_form@\verb+weak_form+}
+\item\verb+int weak_form+ {\rm(default=\verb|1|)}:
+
+Use a weak form for the gradient of pressure term. 
  (found in file: \verb+../applications/ns/bccnsfm2.cpp+)
+%----<>----<>----<>----<>----<>----<>----<>----<>----<>----<>
+\index{weak\_form@\verb+weak_form+}
+\item\verb+int weak_form+ {\rm(default=\verb|1|)}:
+
+Use a weak form for the gradient of pressure term.
+ (found in file: \verb+../applications/ns/bccnsitetasm.cpp+)
 %----<>----<>----<>----<>----<>----<>----<>----<>----<>----<>
 \index{weak\_form@\verb+weak_form+}
 \item\verb+int weak_form+ {\rm(default=\verb|1|)}:
 
 Use a weak form for the gradient of pressure term and thermal equation.
  (found in file: \verb+../applications/ns/bccnstherfm2.cpp+)
+%----<>----<>----<>----<>----<>----<>----<>----<>----<>----<>
+\index{weak\_form@\verb+weak_form+}
+\item\verb+int weak_form+ {\rm(default=\verb|1|)}:
+
+Use a weak form for the gradient of pressure term.
+ (found in file: \verb+../applications/ns/ns_gasflow.cpp+)
 %----<>----<>----<>----<>----<>----<>----<>----<>----<>----<>
 \index{weak\_form@\verb+weak_form+}
 \item\verb+int weak_form+ {\rm(default=\verb|1|)}:
@@ -5727,6 +6323,12 @@ Use a weak form for the gradient of pressure term.
 \item\verb+int weak_form+ {\rm(default=\verb|1|)}:
 
 Use a weak form for the gradient of pressure term.
+ (found in file: \verb+../applications/ns/nsilesasm_2.cpp+)
+%----<>----<>----<>----<>----<>----<>----<>----<>----<>----<>
+\index{weak\_form@\verb+weak_form+}
+\item\verb+int weak_form+ {\rm(default=\verb|1|)}:
+
+Use a weak form for the gradient of pressure term.
  (found in file: \verb+../applications/ns/nsilesther.cpp+)
 %----<>----<>----<>----<>----<>----<>----<>----<>----<>----<>
 \index{weak\_form@\verb+weak_form+}
@@ -5739,37 +6341,25 @@ Use a weak form for the gradient of pressure term.
 \item\verb+int weak_form+ {\rm(default=\verb|1|)}:
 
 Use a weak form for the gradient of pressure term.
- (found in file: \verb+../applications/ns/nsitetlesfm2.cpp+)
-%----<>----<>----<>----<>----<>----<>----<>----<>----<>----<>
-\index{weak\_form@\verb+weak_form+}
-\item\verb+int weak_form+ {\rm(default=\verb|1|)}:
-
-Use a weak form for the gradient of pressure term and transport equation
- (found in file: \verb+../applications/ns/bccnsasmfm2.cpp+)
+ (found in file: \verb+../applications/ns/nsitetasm.cpp+)
 %----<>----<>----<>----<>----<>----<>----<>----<>----<>----<>
 \index{weak\_form@\verb+weak_form+}
 \item\verb+int weak_form+ {\rm(default=\verb|1|)}:
 
 Use a weak form for the gradient of pressure term.
- (found in file: \verb+../applications/ns/nsilesasm_2.cpp+)
-%----<>----<>----<>----<>----<>----<>----<>----<>----<>----<>
-\index{weak\_form@\verb+weak_form+}
-\item\verb+int weak_form+ {\rm(default=\verb|1|)}:
-
-Use a weak form for the gradient of pressure term. 
- (found in file: \verb+../applications/ns/bccfstep.cpp+)
-%----<>----<>----<>----<>----<>----<>----<>----<>----<>----<>
-\index{weak\_form@\verb+weak_form+}
-\item\verb+int weak_form+ {\rm(default=\verb|1|)}:
-
-Use a weak form for the gradient of pressure term.
- (found in file: \verb+../applications/ns/pfcpp_temp.cpp+)
+ (found in file: \verb+../applications/ns/nsitetasm_avgvol.cpp+)
 %----<>----<>----<>----<>----<>----<>----<>----<>----<>----<>
 \index{weak\_form@\verb+weak_form+}
 \item\verb+int weak_form+ {\rm(default=\verb|1|)}:
 
 Use a weak form for the gradient of pressure term.
  (found in file: \verb+../applications/ns/nsitetlesc.cpp+)
+%----<>----<>----<>----<>----<>----<>----<>----<>----<>----<>
+\index{weak\_form@\verb+weak_form+}
+\item\verb+int weak_form+ {\rm(default=\verb|1|)}:
+
+Use a weak form for the gradient of pressure term.
+ (found in file: \verb+../applications/ns/nsitetlesfm2.cpp+)
 %----<>----<>----<>----<>----<>----<>----<>----<>----<>----<>
 \index{wet\_aquifer\_width\_min@\verb+wet_aquifer_width_min+}
 \item\verb+double wet_aquifer_width_min+ {\rm(default=\verb|0.|)}:

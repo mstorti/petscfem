@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: advdif.cpp,v 1.66 2005/11/02 19:40:57 mstorti Exp $
+//$Id: advdif.cpp,v 1.67 2005/11/06 14:07:26 mstorti Exp $
 
 #include <src/debug.h>
 #include <set>
@@ -261,9 +261,10 @@ int main(int argc,char **args) {
   GETOPTDEF(double,tol_steady,0.);
   //o Relaxation factor for the Newton iteration
   GETOPTDEF(double,omega_newton,1.);
-  //
+  //o Computes jacobian of residuals and prints to a file.
+  //  May serve to debug computation of the analytic jacobians. 
   GETOPTDEF(int,verify_jacobian_with_numerical_one,0);
-  //
+
 #define INF INT_MAX
   //o Update jacobian each $n$-th time step. 
   GETOPTDEF(int,update_jacobian_start_steps,INF);

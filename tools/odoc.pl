@@ -1,6 +1,6 @@
 #!/usr/bin/perl
 #__INSERT_LICENSE__
-# $Id: odoc.pl,v 1.24 2003/11/25 02:07:05 mstorti Exp $
+# $Id: odoc.pl,v 1.25 2005/11/06 14:07:37 mstorti Exp $
 
 @odoc=();
 
@@ -50,13 +50,13 @@ sub wiki2 {
     my ($ref,$wc,$pre,$post) = @_;
     my $text = $$ref;
     my $processed = "";
-    while ($text =~ /(\s)$wc(\S)$wc(\s)/) {
+    while ($text =~ /(\s)$wc(\S)$wc(\s|[,.])/) {
 	$processed .= "$`$1$pre$2$post";
 	$text = "$3$'";
     }
     $text = "$processed$text";
     $processed = "";
-    while ($text =~ /(\s)$wc(\S.*?\S)$wc(\s)/) {
+    while ($text =~ /(\s)$wc(\S.*?\S)$wc(\s|[,.])/) {
 	$processed .= "$`$1$pre$2$post";
 	$text = "$3$'";
     }
@@ -153,17 +153,19 @@ while (<>) {
 	    $default=$3;
 	    $tname=$name;
 	    $tname =~ s/_/\\_/g;
+	    $tdefault = $default;
+	    $tdefault =~ s/!/!!/;
 	    /`/;
      my $header = <<EOT;
 \\index{$tname@\\verb+$name+}
-\\item\\verb+$type $name+ {\\rm(default=\\verb|$default|)}:\n
+\\item\\verb+$type $name+ {\\rm(default=\\verb|$tdefault|)}:\n
 EOT
 /`/;
 	    $doc = join("",@doc);
 	    $text = join("",$header,$doc,
 			 " (found in file: \\verb+$ARGV+)\n",$sep);
 	    $name = $1 if $name =~ /^\s*(.*)\s*$/;
-	    push @doclist,[$name,$type,$default,$text,$ARGV,$doc,
+	    push @doclist,[$name,$type,$tdefault,$text,$ARGV,$doc,
 			   $wiki_syntax];
 #  	    print "doc: ",join("\n",@doc),"\n";
 #  	    print "type: $type, name: $name, def: $default\n\n";

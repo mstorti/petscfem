@@ -60,6 +60,13 @@ Scales displacement for ALE-like mesh relocation.
 Use fractional step or TET algorithm
  (found in file: \verb+ns.cpp+)
 %----<>----<>----<>----<>----<>----<>----<>----<>----<>----<>
+\index{fractional\_step\_solver\_combo@\verb+fractional_step_solver_combo+}
+\item\verb+string fractional_step_solver_combo+ {\rm(default=\verb|"iisd"|)}:
+
+Solver combination for the fractional step method. May be \verb+iisd+, 
+ \verb+lu+, \verb+global_gmres+. 
+ (found in file: \verb+ns.cpp+)
+%----<>----<>----<>----<>----<>----<>----<>----<>----<>----<>
 \index{fractional\_step\_use\_petsc\_symm@\verb+fractional_step_use_petsc_symm+}
 \item\verb+int fractional_step_use_petsc_symm+ {\rm(default=\verb|1|)}:
 
@@ -387,6 +394,13 @@ Update jacobian each $n$-th time step.
 \item\verb+int use_iisd+ {\rm(default=\verb|0|)}:
 
 Use IISD (Interface Iterative Subdomain Direct) or not.
+ (found in file: \verb+ns.cpp+)
+%----<>----<>----<>----<>----<>----<>----<>----<>----<>----<>
+\index{verify\_jacobian\_with\_numerical\_one@\verb+verify_jacobian_with_numerical_one+}
+\item\verb+int verify_jacobian_with_numerical_one+ {\rm(default=\verb|0|)}:
+
+Computes jacobian of residuals and prints to a file.
+ May serve to debug computation of the analytic jacobians. 
  (found in file: \verb+ns.cpp+)
 %----<>----<>----<>----<>----<>----<>----<>----<>----<>----<>
 %-----<>-----<>-----<>-----<>-----<>-----<>-----<>-----<>-----<>-----<>

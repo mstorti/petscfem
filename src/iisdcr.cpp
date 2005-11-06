@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: iisdcr.cpp,v 1.52 2004/09/25 23:11:39 mstorti Exp $
+//$Id: iisdcr.cpp,v 1.53 2005/11/06 14:07:33 mstorti Exp $
 
 // fixme:= this may not work in all applications
 extern int MY_RANK,SIZE;
@@ -212,10 +212,10 @@ int IISDMat::create_a() {
   // sub-partitioning the dof graph in the IISD matrix. 
   TGETOPTDEF_ND_PFMAT(&thash,int,max_partgraph_vertices_proc,INF);
 #undef INF
-  // o Number of subpartitions inside each processor. 
+  //o Number of subpartitions inside each processor. 
   TGETOPTDEF_ND_PFMAT(&thash,int,iisd_subpart,1);
   int iisd_subpart_auto;
-  // o Choose automatically the number of subdomains so as to
+  //o Choose automatically the number of subdomains so as to
   // have approximately this number of unknowns per subdomain. 
   TGETOPTDEF_ND_PFMAT(&thash,int,iisd_subpart_auto,0);
   //o Chooses the preconditioning operator. 
