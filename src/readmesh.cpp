@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: readmesh.cpp,v 1.114 2005/10/28 15:18:47 mstorti Exp $
+//$Id: readmesh.cpp,v 1.115 2005/11/06 14:43:12 mstorti Exp $
 #ifndef _GNU_SOURCE 
 #define _GNU_SOURCE 
 #endif
@@ -268,6 +268,7 @@ int read_mesh(Mesh *& mesh,char *fcase,Dofmap *& dofmap,
     } else if (!strcmp(token,"table")) {
 
       token = strtok(NULL,bsp);
+      PETSCFEM_ASSERT0(token,"Couldn't find name for table section");  
       string name(token);
       read_hash_table(fstack,thash);
       thash->register_name(name);
@@ -284,11 +285,14 @@ int read_mesh(Mesh *& mesh,char *fcase,Dofmap *& dofmap,
       // Now read elemset's
       fat_flag=0;
       token = strtok(NULL,bsp);
+      PETSCFEM_ASSERT0(token,"Couldn't find elemset name.");  
       type = new char[strlen(token)+1];
       strcpy(type,token);
       PetscPrintf(PETSC_COMM_WORLD,"\n -- Reading elemset type \"%s\"\n",type);
-      sscanf(strtok(NULL,bsp),"%d",&nel);
-      token = strtok(NULL,bsp);
+      token = strtok(NULL,bsp); 
+      PETSCFEM_ASSERT0(token,"Couldn't find elemset `nel' parameter.");  
+      int nread = sscanf(token,"%d",&nel);
+      PETSCFEM_ASSERT0(nread==1,"Couldn't convert `nel' parameter to an integer.");  
 
       // Reads hash table for the elemset
       read_hash_table(fstack,thash);
@@ -707,6 +711,7 @@ int read_mesh(Mesh *& mesh,char *fcase,Dofmap *& dofmap,
       PetscPrintf(PETSC_COMM_WORLD," -- Reading fixa_amplitude section\n"); 
       // next token is the identifier of the amplitude function
       token = strtok(NULL,bsp);
+      PETSCFEM_ASSERT0(token,"Couldn't find name for fixa_amplitude section");  
       char *label = new char[strlen(token)+1];
       strcpy(label,token);
 
