@@ -4485,3 +4485,6 @@ tag: beta-3.49.7 on Tue, 25 Oct 2005 11:06:36 -0300 by mstorti in minerva.ceride
 tag: beta-3.49.8 on Wed, 02 Nov 2005 16:41:08 -0300 by mstorti in minerva.ceride.gov.ar
      > Now `hook.init()' list is processed before computing 
      > profile and reading initial vector, as for NS. 
+----------
+tag: beta-3.49.9 on Sat, 05 Nov 2005 21:36:03 -0300 by mstorti in spider
+     > Added `dl_penalize' to Advdif.
