@@ -1,6 +1,6 @@
 // -*- mode: c++ -*-
 /*__INSERT_LICENSE__*/
-//$Id: texthash.h,v 1.12 2004/01/26 20:22:34 mstorti Exp $
+//$Id: texthash.h,v 1.13 2005/11/06 15:15:38 mstorti Exp $
 
 #ifndef __TEXTHASH_H__
 #define __TEXTHASH_H__
@@ -80,7 +80,7 @@ public:
       @param key (input) key of the entry
       @param value (input) value of the entry
   */ 
-  void add_entry(const char *key,const char *value);
+  void add_entry(const char *key,const char *value,int warn=1);
 
   /** Adds an entry to the hash.
       @author M. Storti

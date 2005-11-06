@@ -4,8 +4,7 @@ TODO: [Mainly fixes go here...]
 
 * make `TextHashTable::add_entry()' warn _optionally_ when the
   entry for an old key is modified. Now warns always. 
-* Lacks of preco_type=jacobi for FS in ns.cpp?
-* When in dx -hook mode, it should not crash if the state file is not
+* When in dx-hook mode, it should not crash if the state file is not
   found. 
 > dx_hook: reading state from file curvjet.dx-state.tmp, record 0
 > dx_hook: Reading from formatted file.
@@ -160,6 +159,9 @@ TODO: [Mainly fixes go here...]
 DONE:
 =====
 
+* Lacks of preco_type=jacobi for FS in ns.cpp?
+  Apparently fixed with the addition of `fractional_step_solver_combo'
+  option. 
 * when `fixa_amplitude' has no function name it givs segmentation
   violation. Ver `petyscfem-cases/gfabso-examples/gfabso.epl' 
   Tue Aug 23 11:45:09 2005. 
