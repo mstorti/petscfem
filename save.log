@@ -4488,3 +4488,7 @@ tag: beta-3.49.8 on Wed, 02 Nov 2005 16:41:08 -0300 by mstorti in minerva.ceride
 ----------
 tag: beta-3.49.9 on Sat, 05 Nov 2005 21:36:03 -0300 by mstorti in spider
      > Added `dl_penalize' to Advdif.
+----------
+tag: beta-3.49.10 on Sun, 06 Nov 2005 11:07:46 -0300 by mstorti in spider
+     > Fixed generation of documentation.
+     > Escaped ! in generation of doc with `odoc.pl'
