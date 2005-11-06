@@ -4492,3 +4492,6 @@ tag: beta-3.49.9 on Sat, 05 Nov 2005 21:36:03 -0300 by mstorti in spider
 tag: beta-3.49.10 on Sun, 06 Nov 2005 11:07:46 -0300 by mstorti in spider
      > Fixed generation of documentation.
      > Escaped ! in generation of doc with `odoc.pl'
+----------
+tag: beta-3.49.11 on Sun, 06 Nov 2005 11:43:21 -0300 by mstorti in spider
+     > Added checks for reading data file. 
