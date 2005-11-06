@@ -1,30 +1,21 @@
 //__INSERT_LICENSE__
-/* $Id: lagmul.cpp,v 1.5 2005/11/06 00:35:55 mstorti Exp $ */
+/* $Id: advpenal.cpp,v 1.1 2005/11/06 00:35:55 mstorti Exp $ */
 
-#include <src/fem.h>
-#include <src/utils.h>
-#include <src/util2.h>
-#include <src/readmesh.h>
-#include <src/getprop.h>
-#include <src/fastmat2.h>
-
-#include <src/lagmul.h>
-#include "./lagmul.h"
-
-extern TextHashTable *GLOBAL_OPTIONS;
+#include "./advpenal.h"
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 #undef __FUNC__
-#define __FUNC__ "int advective::ask(char *,int &)"
-int AdvdifLagrangeMult::ask(const char *jobinfo,int &skip_elemset) {
+#define __FUNC__ "AdvdifPenalize::ask"
+int AdvdifPenalize::ask(const char *jobinfo,int &skip_elemset) {
    skip_elemset = 1;
    DONT_SKIP_JOBINFO(comp_res);
    DONT_SKIP_JOBINFO(comp_prof);
    return 0;
 }
 
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 void 
-AdvdifLagrangeMult::
+AdvdifPenalize::
 get_comp_flags(const char *jobinfo,
 	       int &comp_mat,int &comp_mat_res) {
   GET_JOBINFO_FLAG(comp_res);
@@ -33,8 +24,9 @@ get_comp_flags(const char *jobinfo,
   comp_mat_res = comp_res;
 }
 
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 void
-AdvdifLagrangeMult::
+AdvdifPenalize::
 get_data(arg_data_list &arg_data_v,
 	   arg_data *&stateo,
 	   arg_data *&staten,
@@ -54,8 +46,9 @@ get_data(arg_data_list &arg_data_v,
 #endif
 }
 
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 void
-AdvdifLagrangeMult::
+AdvdifPenalize::
 get_data(arg_data_list &arg_data_v,
 	 arg_data *&retvalmat) {
   retvalmat = &arg_data_v[0];

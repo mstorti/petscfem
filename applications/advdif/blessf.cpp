@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: blessf.cpp,v 1.27 2005/08/24 01:52:49 mstorti Exp $
+//$Id: blessf.cpp,v 1.28 2005/11/06 00:35:55 mstorti Exp $
 
 #include <set>
 
@@ -36,6 +36,7 @@
 #include "./gasflow.h"
 #include "./gasflwgth.h"
 #include "./svenant1d.h"
+#include "./advpenal.h"
 
 #include <time.h>
 
@@ -101,6 +102,9 @@ void bless_elemset(char *type,Elemset *& elemset) {
     SET_ELEMSET_TYPE(svenant1d_bcconv)
     SET_ELEMSET_TYPE(svenant1d_abso)
     SET_ELEMSET_TYPE(svenant1d_abso2)
+
+    SET_ELEMSET_TYPE(dl_penalize)
+
     {
       printf("not known elemset type: \"%s\"\n",type);
       exit(1);
