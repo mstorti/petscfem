@@ -4,12 +4,8 @@ TODO: [Mainly fixes go here...]
 
 * In advdif, make `CHECK_JAC' to be an option to be read from the data
     file at run time. 
-* In `FastMat2::is()' if the index is greater than the dimension of 
-  the matrix, that index is discarded in the mask in place of throwing
-  an error. Now I think that it should throw an error. 
 * When using `ndim=2' in global options and 'ndim=3' in an elemset
    some things go wrong. (reported by Beto).
-* Check that absorbing b.c.'a options are included in the doc. 
 * Set `node=nel-2' in nonlres.cpp:250?
 * Read  `sqcav', `cubcav', `pfmat2' to test/Makefile
 * USE_DX should be tied to USE_PTHREADS. Also it gives an error with
@@ -152,6 +148,13 @@ TODO: [Mainly fixes go here...]
 DONE:
 =====
 
+* Check that absorbing b.c.'a options are included in the doc. 
+  DONE: they are added and now we have the papers. Sun Nov 13 20:28:32 2005
+* In `FastMat2::is()' if the index is greater than the dimension of 
+  the matrix, that index is discarded in the mask in place of throwing
+  an error. Now I think that it should throw an error. 
+  DONE: seems that has been fixed in 1.20 of `fastmat2.cpp'
+  on  2005/05/02 00:35:12. But the bug was reported on aug 2005. 
 * Add to FastMat2 documentation that maskes `ir()', `is()' should not
     traverse `branch()', `choose()' boundaries. 
   DONE: added a section. Sun Nov 13 20:21:30 2005
