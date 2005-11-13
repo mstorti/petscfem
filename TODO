@@ -11,7 +11,6 @@ TODO: [Mainly fixes go here...]
 * USE_DX should be tied to USE_PTHREADS. Also it gives an error with
     `make depend' if DXARCH is not set and USE_SSL is set (Or
     something like that). 
-* make `epsilon' relative in `srfgath' 
 * `advdif/id' elemset does some `proj' task or something. We should write
     an `ask' function for it. 
 * Add `start_step' feature. 
@@ -23,13 +22,6 @@ TODO: [Mainly fixes go here...]
 * There is a conflict between the computation of residual jacobians 
 	  in advdif and the use of masks/profiles for element
 	  uploading. 
-* Sends multiple messages (from all processors) when can't open file
-    in 
-    > Couldn't open file "spillwgc.bcconv-all.tmp"!!
-    > Couldn't open file "spillwgc.bcconv-all.tmp"!!
-    > Assertion failed: "ierr==0"
-    > Couldn't find __END_ELEMSET__ tag
-    Sat, 06 Dec 2003 13:15:41 -0300: Can't reproduce
 * Check the `advdif/bcconv' elemset in 3D. Seems that there is a sign
      problem. 
   Mon, 08 Dec 2003 08:56:00 -0300: See discussion and patch in
@@ -148,6 +140,13 @@ TODO: [Mainly fixes go here...]
 DONE:
 =====
 
+* Sends multiple messages (from all processors) when can't open file
+    in 
+    > Couldn't open file "spillwgc.bcconv-all.tmp"!!
+    > Couldn't open file "spillwgc.bcconv-all.tmp"!!
+    > Assertion failed: "ierr==0"
+    > Couldn't find __END_ELEMSET__ tag
+  DISCARDED: Sat, 06 Dec 2003 13:15:41 -0300: Can't reproduce
 * Check that absorbing b.c.'a options are included in the doc. 
   DONE: they are added and now we have the papers. Sun Nov 13 20:28:32 2005
 * In `FastMat2::is()' if the index is greater than the dimension of 

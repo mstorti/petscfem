@@ -448,6 +448,54 @@ Off course, if the number of times the inner loop is executed is very
 large, and the most time consuming part is the execution of this loop,
 then it may be convenient to choose this loop as the ``outer'' one. 
 
+%<*>---<*>---<*>---<*>---<*>---<*>---<*>---<*>---<*>---<*>---<*>
+\SSSection{Masks can't traverse branches} 
+
+Another restriction is that if branching is used, the mask that is
+active at a certain \verb+FastMat2+ cached operation must be the same
+independently of the path that the code have followed, for instance 
+consider the following code
+%
+\begin{verbatim}
+FastMat2 a,b,c;
+// resize and set `a,b,c'
+for (int j=0; j<N; j++) {
+  FastMat2::branch();
+  if (condition) {
+    FastMat2::choose(0);
+    a.is(...).ir(...);      // (B)
+    // operate on masked `a'
+  }
+  FastMat2::leave();
+  c.prod(a,b);              // (A) Wrong!! `a' may have or
+                            // not the mask set
+}
+\end{verbatim}
+%
+When the code reaches the \verb+prod()+ method at line \verb+(A)+, it
+can have executed or not the block inside the \verb+if+, so that the
+mask set in line \verb+(B)+ may or may not be active at line
+\verb+(A)+. This is clearly an error, and to avoid it the safest way is to
+always reset the masks at the outlet of a branched block like in line
+\verb+(C)+ as follows. 
+%
+\begin{verbatim}
+FastMat2 a,b,c;
+// resize and set `a,b,c'
+for (int j=0; j<N; j++) {
+  FastMat2::branch();
+  if (condition) {
+    FastMat2::choose(0);
+    a.is(...).ir(...);      // (B)
+    // operate on masked `a'
+    a.rs();                 // (C)
+  }
+  FastMat2::leave();
+  c.prod(a,b);              // (A) OK!! `a' has not mask. 
+}
+\end{verbatim}
+
+%<*>---<*>---<*>---<*>---<*>---<*>---<*>---<*>---<*>---<*>---<*>
 \SSSection{Efficiency} 
 
 %Efficiency, memory required by the caches...
