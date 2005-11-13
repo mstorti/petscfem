@@ -4,18 +4,11 @@ TODO: [Mainly fixes go here...]
 
 * In advdif, make `CHECK_JAC' to be an option to be read from the data
     file at run time. 
-* When in dx-hook mode, it should not crash if the state file is not
-  found. 
-> dx_hook: reading state from file curvjet.dx-state.tmp, record 0
-> dx_hook: Reading from formatted file.
-> dxhook.cpp:326: Can't read line.
 * In `FastMat2::is()' if the index is greater than the dimension of 
   the matrix, that index is discarded in the mask in place of throwing
   an error. Now I think that it should throw an error. 
 * When using `ndim=2' in global options and 'ndim=3' in an elemset
    some things go wrong. (reported by Beto).
-* Add to FastMat2 documentation that maskes `ir()', `is()' should not
-    traverse `branch()', `choose()' boundaries. 
 * Check that absorbing b.c.'a options are included in the doc. 
 * Set `node=nel-2' in nonlres.cpp:250?
 * Read  `sqcav', `cubcav', `pfmat2' to test/Makefile
@@ -159,6 +152,15 @@ TODO: [Mainly fixes go here...]
 DONE:
 =====
 
+* Add to FastMat2 documentation that maskes `ir()', `is()' should not
+    traverse `branch()', `choose()' boundaries. 
+  DONE: added a section. Sun Nov 13 20:21:30 2005
+* When in dx-hook mode, it should not crash if the state file is not
+  found. 
+  > dx_hook: reading state from file curvjet.dx-state.tmp, record 0
+  > dx_hook: Reading from formatted file.
+  > dxhook.cpp:326: Can't read line.
+  DONE:= now sends 0 if file is not found. Sun Nov 13 20:21:30 2005
 * make `TextHashTable::add_entry()' warn _optionally_ when the
   entry for an old key is modified. Now warns always. 
   DONE: Sun Nov  6 13:01:11 2005
