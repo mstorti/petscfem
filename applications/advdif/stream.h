@@ -1,6 +1,6 @@
 // -*- mode: C++ -*- 
 /*__INSERT_LICENSE__*/
-// $Id: stream.h,v 1.23 2005/11/06 14:07:26 mstorti Exp $
+// $Id: stream.h,v 1.24 2005/11/13 23:13:10 mstorti Exp $
 #ifndef PETSCFEM_STREAM_H
 #define PETSCFEM_STREAM_H
 
@@ -151,7 +151,7 @@ public:
 
   /// Initializes the object
   void init() { 
-    //o Width & Height of the channel
+    //o Width and height of the channel
     GETOPT_PROP(double,wall_angle,<required>);
     elemset->get_prop(wall_angle_prop,"wall_angle"); 
   }
