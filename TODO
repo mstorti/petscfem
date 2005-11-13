@@ -11,6 +11,7 @@ TODO: [Mainly fixes go here...]
 * USE_DX should be tied to USE_PTHREADS. Also it gives an error with
     `make depend' if DXARCH is not set and USE_SSL is set (Or
     something like that). 
+* make `epsilon' relative in `srfgath' 
 * `advdif/id' elemset does some `proj' task or something. We should write
     an `ask' function for it. 
 * Add `start_step' feature. 
