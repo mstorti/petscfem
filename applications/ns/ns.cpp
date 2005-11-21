@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: ns.cpp,v 1.168 2005/11/06 14:07:29 mstorti Exp $
+//$Id: ns.cpp,v 1.169 2005/11/21 02:18:21 mstorti Exp $
 #include <src/debug.h>
 #include <malloc.h>
 
@@ -134,7 +134,7 @@ int main(int argc,char **args) {
   TGETOPTDEF(GLOBAL_OPTIONS,int,fractional_step_use_petsc_symm,1);
   //o Solver combination for the fractional step method. May be #iisd#, 
   //  #lu#, #global_gmres#. 
-  TGETOPTDEF_S(GLOBAL_OPTIONS,string,fractional_step_solver_combo,"iisd");
+  TGETOPTDEF_S(GLOBAL_OPTIONS,string,fractional_step_solver_combo,iisd);
 
   //o After computing the linear system for the
   //  predictor/momentum step print right hand side
@@ -335,13 +335,15 @@ int main(int argc,char **args) {
     A_tet = PFMat::dispatch(dofmap->neq,*dofmap,solver.c_str());
     A_tet_c = PFMat::dispatch(dofmap->neq,*dofmap,solver.c_str());
   } else {
-    A_mom = PFMat::dispatch(dofmap->neq,*dofmap,solver_mom.c_str());
     if (!fractional_step_use_petsc_symm) {
+      A_mom = PFMat::dispatch(dofmap->neq,*dofmap,solver_mom.c_str());
       A_poi = PFMat::dispatch(dofmap->neq,*dofmap,solver.c_str());
       A_poi->set_option("KSP_method","cg");
       A_poi->set_option("preco_side","left");
       A_prj = PFMat::dispatch(dofmap->neq,*dofmap,solver_mom.c_str());
     } else {
+      //      if (fractional_step_solver_combo=="") 
+      // fractional_step_solver_combo=="iisd";
       if (fractional_step_solver_combo=="iisd") {
 	// IISD (Domain decomposition) iteration
 	A_mom = PFMat::dispatch(dofmap->neq,*dofmap,"iisd");
@@ -349,52 +351,40 @@ int main(int argc,char **args) {
 	A_mom->set_option("print_internal_loop_conv","1");
 	A_mom->set_option("iisdmat_print_statistics",1);
 	A_mom->set_option("use_interface_full_preco_nlay",1);
+	A_mom->set_option("block_uploading","0");
+
 	A_poi = PFMat::dispatch(dofmap->neq,*dofmap,"iisd");
 	A_poi->set_option("preco_type","jacobi");
 	A_poi->set_option("print_internal_loop_conv","1");
 	A_poi->set_option("block_uploading","0");
 	A_poi->set_option("iisdmat_print_statistics",1);
 	A_poi->set_option("use_interface_full_preco_nlay",1);
-	A_prj = PFMat::dispatch(dofmap->neq,*dofmap,"iisd");
+
+	A_prj = PFMat::dispatch(dofmap->neq,*dofmap,"petsc");
 	A_prj->set_option("preco_type","jacobi");
 	A_prj->set_option("print_internal_loop_conv","1");
 	A_prj->set_option("block_uploading","0");
-	A_prj->set_option("iisdmat_print_statistics",1);
-	A_prj->set_option("use_interface_full_preco_nlay",1);
 
       } else if (fractional_step_solver_combo=="global_gmres") {
 
 	// Global PETSc iteration
 	// A_mom->set_option("KSP_method",KSPBCGS);
+	A_mom = PFMat::dispatch(dofmap->neq,*dofmap,"petsc");
 	A_mom->set_option("KSP_method",KSPGMRES);
 	A_mom->set_option("preco_side","left");
 	A_mom->set_option("preco_type","jacobi");
-	A_mom->set_option("preco_type","jacobi");
       
-	// A_poi = PFMat::dispatch(dofmap->neq,*dofmap,solver.c_str());
-#if 0
-	A_poi = PFMat::dispatch(dofmap->neq,*dofmap,"petsc_symm");
-	A_poi->set_option("KSP_method",KSPCG);
-	A_poi->set_option("preco_type","jacobi");
-	A_poi->set_option("block_uploading","0");
-	// A_poi->set_option("preco_side","left");
-	// A_poi->set_option("symmetric","1");
-#else
-	if (!MY_RANK) 
-	  printf("----Using IISD for Poisson.\n");
 	A_poi = PFMat::dispatch(dofmap->neq,*dofmap,"iisd");
 	A_poi->set_option("preco_type","jacobi");
 	A_poi->set_option("print_internal_loop_conv","1");
 	A_poi->set_option("block_uploading","0");
 	A_poi->set_option("iisdmat_print_statistics",1);
-	// A_poi->set_option("use_interface_full_preco_nlay",1);
-#endif
-	// A_prj = PFMat::dispatch(dofmap->neq,*dofmap,"petsc");
+
 	A_prj = PFMat::dispatch(dofmap->neq,*dofmap,"petsc_symm");
 	A_prj->set_option("KSP_method",KSPCG);
 	A_prj->set_option("preco_type","jacobi");
 	A_prj->set_option("block_uploading","0");
-	// A_prj->set_option("symmetric","1");
+
       } else if (fractional_step_solver_combo=="lu") {
 #define SET_SOLVER_OPTIONS(solv)				\
     solv = PFMat::dispatch(dofmap->neq,*dofmap,"petsc");	\
