@@ -4502,3 +4502,6 @@ tag: beta-3.49.12 on Sun, 06 Nov 2005 12:53:28 -0300 by mstorti in spider
 tag: beta-3.49.13 on Sun, 13 Nov 2005 20:34:51 -0300 by mstorti in spider
      > Added doc for `masks can't cross branches' problem. 
      > Fixed bug in stream doc.
+----------
+tag: beta-3.49.14 on Sun, 20 Nov 2005 23:18:43 -0300 by mstorti in spider
+     > Working on `block_uploading=2' for Fractional Step/predictor. 
