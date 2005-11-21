@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: ns.cpp,v 1.170 2005/11/21 02:43:08 mstorti Exp $
+//$Id: ns.cpp,v 1.171 2005/11/21 21:40:49 mstorti Exp $
 #include <src/debug.h>
 #include <malloc.h>
 
@@ -342,8 +342,6 @@ int main(int argc,char **args) {
       A_poi->set_option("preco_side","left");
       A_prj = PFMat::dispatch(dofmap->neq,*dofmap,solver_mom.c_str());
     } else {
-      //      if (fractional_step_solver_combo=="") 
-      // fractional_step_solver_combo=="iisd";
       if (fractional_step_solver_combo=="iisd") {
 	// IISD (Domain decomposition) iteration
 	A_mom = PFMat::dispatch(dofmap->neq,*dofmap,"iisd");
