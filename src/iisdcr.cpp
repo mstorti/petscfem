@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: iisdcr.cpp,v 1.53 2005/11/06 14:07:33 mstorti Exp $
+//$Id: iisdcr.cpp,v 1.54 2005/11/30 17:31:04 mstorti Exp $
 
 // fixme:= this may not work in all applications
 extern int MY_RANK,SIZE;
@@ -91,7 +91,7 @@ int IISDMat::create_a() {
   int myrank,size,max_partgraph_vertices_proc,proc_l;
   int k,pos,keq,leq,jj,row,row_type,col_type,od,
     d_nz,o_nz,nrows,ierr,n_loc_h,n_int_h,k1h,k2h,rank,
-    n_loc_pre,loc,dof,subdoj,subdok,vrtx_k;
+    n_loc_pre,loc,dof,subdoj,subdok,vrtx_k,ierro=0;
   vector<int> dof2loc,loc2dof;
   GSet ngbrs_v;
   GSet::iterator q,qe;
@@ -640,7 +640,9 @@ int IISDMat::create_a() {
     
   // For each dof in this processor we scan all connected dof's and
   // add the corresponding element in the `d_nnz' or `o_nnz' vectors. 
-  for (k = 0; k < neqp; k++) {
+  ierro = 0;
+
+  for (k = 0; k < neqp; k++) try {
     // keq:= number of dof
     keq = dofs_proc_v[k];
     // type of dof (local or interface)
@@ -668,14 +670,13 @@ int IISDMat::create_a() {
       // diagonal part
       assert(!(od==O && row_type==L && col_type==L));
       // count 
-      if (!(row>=0 && row < nnz[od][row_type][col_type].size())) {
-	printf("row %d, size: %d\n",row,nnz[od][row_type][col_type].size());
-	MPI_Abort(comm,1);
-      }
+      int size = nnz[od][row_type][col_type].size();
+      PETSCFEM_ASSERT_GE(row>=0 && row<size,
+			 "IISD internal error, row %d, size %d.",
+			 row,size);
       nnz[od][row_type][col_type][row]++;
     }
-
-  }
+  } CHECK_PAR_ERR_GE;
 
   // deallocate profile (graph)
   lgraph->clear();
