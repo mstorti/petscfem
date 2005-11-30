@@ -5,7 +5,6 @@ TODO: [Mainly fixes go here...]
 * Running large problem FS with (procsel -l) (0 weight in server) leads
   to dead-lock apparently in `iisdcr.cpp'   
   block: if  (iisdmat_print_statistics) {...}
-  
 * In advdif, make `CHECK_JAC' to be an option to be read from the data
     file at run time. 
 * When using `ndim=2' in global options and 'ndim=3' in an elemset
