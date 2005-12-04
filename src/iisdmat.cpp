@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: iisdmat.cpp,v 1.69 2005/10/20 21:27:57 mstorti Exp $
+//$Id: iisdmat.cpp,v 1.70 2005/12/04 10:03:19 mstorti Exp $
 // fixme:= this may not work in all applications
 #ifndef _GNU_SOURCE
 #define _GNU_SOURCE
@@ -22,6 +22,7 @@ extern int MY_RANK,SIZE;
 #include <src/distmap2.h>
 #include <src/distcont2.h>
 #include <src/debug.h>
+#include <src/iisdmatstat.h>
 
 //#define PF_CHKERRQ(ierr) assert(ierr)
 #define PF_CHKERRQ(ierr) CHKERRQ(ierr)
@@ -364,6 +365,7 @@ int IISDMat::local_solve(Vec x_loc,Vec y_loc,int trans,double c) {
 #define __FUNC__ "IISDMat::mult"
 int IISDMat::mult(Vec x,Vec y) {
 
+  double now, interf, local, start = MPI_Wtime();
   int myrank;
   MPI_Comm_rank(comm, &myrank);
   // const int &neqp = dofmap->neqproc[myrank];
@@ -378,14 +380,22 @@ int IISDMat::mult(Vec x,Vec y) {
 
   // x_loc <- A_LI * XI
   ierr = MatMult(A_LI,x,x_loc); CHKERRQ(ierr); 
+  now = MPI_Wtime();
+  interf = now-start;
+  start = now;
   if (local_solver == PETSc) {
     ierr = local_solve(x_loc,x_loc,0,-1.); CHKERRQ(ierr); 
   } else {
     ierr = local_solve_SLU(x_loc,x_loc,0,-1.); CHKERRQ(ierr); 
   }
-    
+  now = MPI_Wtime();
+  local = now-start;
+
   ierr = MatMult(A_II,x,y); CHKERRQ(ierr); 
   ierr = MatMultAdd(A_IL,x_loc,y,y); CHKERRQ(ierr); 
+  now = MPI_Wtime();
+  interf += now-start;
+  // iisdmat_stat.stat(local,interf);
   return 0;
 }
 
@@ -1119,4 +1129,42 @@ int IISDMat::pc_apply(Vec x,Vec w) {
     ierr = VecPointwiseDivide(x,A_II_diag,w); CHKERRQ(ierr);  
   }
   return 0;
+}
+
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>
+iisdmat_stat_t iisdmat_stat;
+
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>
+void iisdmat_stat_t::report() {
+  PetscPrintf(PETSC_COMM_WORLD,"iters %d\n",count);
+  local[0] /= count;
+  interf[0] /= count;
+  PetscSynchronizedPrintf(PETSC_COMM_WORLD,
+			  "[%d] count %d, local: averg %f, min %f, max %f "
+			  "interf: averg %f, min %f, max %f\n",
+			  MY_RANK, count, local[0],local[1],local[2],
+			  interf[0],interf[1],interf[2]);
+  PetscSynchronizedFlush(PETSC_COMM_WORLD); 
+  reset();
+}
+
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>
+iisdmat_stat_t::iisdmat_stat_t() { reset(); }
+
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>
+void iisdmat_stat_t::reset() {
+  count=0; 
+  local[0] = 0.0;
+  interf[0] = 0.0;
+}
+
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>
+void iisdmat_stat_t::stat(double local_a,double interf_a) {
+  local[0] += local_a;
+  interf[0] += interf_a;
+  if (count==0 || local_a>local[2])
+    local[2] = local_a;
+  if (count==0 || interf_a>interf[2])
+    interf[2] = interf_a;
+  count++;
 }

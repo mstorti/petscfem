@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: fem.cpp,v 1.13 2005/02/21 18:50:28 mstorti Exp $
+//$Id: fem.cpp,v 1.14 2005/12/04 10:03:19 mstorti Exp $
 
 #include <time.h>
 #include <stdarg.h>
@@ -175,7 +175,7 @@ int opt_read_vector(Mesh *mesh,Vec x, Dofmap *dofmap,int myrank) {
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 void petscfem_check_par_err(int ierro,GenericError &ge,int myrank) {
-  int ierr = MPI_Bcast (&ierro,1,MPI_INT,0,PETSC_COMM_WORLD);	
+  int ierr = MPI_Bcast(&ierro,1,MPI_INT,0,PETSC_COMM_WORLD);	
   PETSCFEM_ASSERT(!ierro,"%s",ge.c_str());
 }
 
