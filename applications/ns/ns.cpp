@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: ns.cpp,v 1.171 2005/11/21 21:40:49 mstorti Exp $
+//$Id: ns.cpp,v 1.172 2005/12/04 10:05:45 mstorti Exp $
 #include <src/debug.h>
 #include <malloc.h>
 
@@ -11,6 +11,7 @@
 #include <src/sttfilter.h>
 #include <src/pfmat.h>
 #include <src/hook.h>
+#include <src/iisdmatstat.h>
 
 // PETSc now doesn't have the string argument that represents the variable name
 // so that I will use this wrapper until I find how to set names in Ascii matlab viewers.
@@ -371,12 +372,19 @@ int main(int argc,char **args) {
 	A_mom->set_option("KSP_method",KSPGMRES);
 	A_mom->set_option("preco_side","left");
 	A_mom->set_option("preco_type","jacobi");
-      
+
+#if 1      
+	A_poi = PFMat::dispatch(dofmap->neq,*dofmap,"petsc");
+	A_poi->set_option("KSP_method",KSPCG);
+	A_poi->set_option("preco_type","jacobi");
+#else
 	A_poi = PFMat::dispatch(dofmap->neq,*dofmap,"iisd");
 	A_poi->set_option("preco_type","jacobi");
 	A_poi->set_option("print_internal_loop_conv","1");
 	A_poi->set_option("block_uploading","0");
 	A_poi->set_option("iisdmat_print_statistics",1);
+	A_poi->set_option("use_interface_full_preco_nlay",1);
+#endif
 
 	A_prj = PFMat::dispatch(dofmap->neq,*dofmap,"petsc_symm");
 	A_prj->set_option("KSP_method",KSPCG);
@@ -832,7 +840,9 @@ int main(int argc,char **args) {
 #define POI_SOLVE
 #ifdef POI_SOLVE
       debug.trace("-POISSON- Before solving linear system...");
+      // iisdmat_stat.reset();
       ierr = A_poi->solve(res,dx); CHKERRA(ierr); 
+      // iisdmat_stat.report();
       debug.trace("-POISSON- After solving linear system.");
 
       scal= 1.0;
