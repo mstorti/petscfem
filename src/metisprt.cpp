@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: metisprt.cpp,v 1.23 2005/12/05 02:20:43 mstorti Exp $
+//$Id: metisprt.cpp,v 1.24 2005/12/05 20:56:43 mstorti Exp $
 
 #include "fem.h"
 #include "utils.h"
@@ -320,7 +320,7 @@ void metis_part(int nelemfat,Mesh *mesh,
 	METIS_WPartGraphKway(&nvrtx,xadj,adjncy,vwgt, 
 			     NULL,&wgtflag,&numflag,&nvsubdo, 
 			     tpwgts_d,&options,&edgecut,vpart);
-      
+	if (myrank==0) printf("     edgecut %d\n",edgecut);
       } else { // partflag=2
 	assert(0);
 #if 0
