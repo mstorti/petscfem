@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: metisprt.cpp,v 1.22 2003/09/13 18:01:23 mstorti Exp $
+//$Id: metisprt.cpp,v 1.23 2005/12/05 02:20:43 mstorti Exp $
 
 #include "fem.h"
 #include "utils.h"
@@ -103,7 +103,7 @@ void metis_part(int nelemfat,Mesh *mesh,
 	   "Using %d graph vertices\n",nvrtx);
 
   // Create adjacency table for partitioning with Metis. In the
-  // adjacency graph the nodes are elements or group of elments of the
+  // adjacency graph the nodes are elements or group of elements of the
   // FEM mesh. Two nodes of the graph (elements of the mesh) have are
   // linked if they share a node.
 
