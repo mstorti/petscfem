@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: ns.cpp,v 1.172 2005/12/04 10:05:45 mstorti Exp $
+//$Id: ns.cpp,v 1.173 2005/12/06 21:45:32 mstorti Exp $
 #include <src/debug.h>
 #include <malloc.h>
 
@@ -82,7 +82,14 @@ int main(int argc,char **args) {
   Debug debug(0,PETSC_COMM_WORLD);
   GLOBAL_DEBUG = &debug;
 
-  //  if (size != 1) SETERRA(1,0,"This is a uniprocessor example only!");
+  int activate_debug=0;
+  ierr = PetscOptionsGetInt(PETSC_NULL,"-activate_debug",
+			    &activate_debug,&flg);
+
+  if (activate_debug) {
+    debug.activate();
+    Debug::init();
+  }
   ierr = PetscOptionsGetString(PETSC_NULL,"-case",fcase,FLEN,&flg);
   CHKERRA(ierr);
   if (!flg) {
@@ -108,8 +115,9 @@ int main(int argc,char **args) {
   }
 
   // Read the mesh
+  debug.trace("Before readmesh.");
   ierr = read_mesh(mesh,fcase,dofmap,neq,SIZE,MY_RANK); CHKERRA(ierr); 
-  PetscPrintf(PETSC_COMM_WORLD,"After readmesh...\n");
+  debug.trace("After readmesh.");
 
   GLOBAL_OPTIONS = mesh->global_options;
 
@@ -154,11 +162,12 @@ int main(int argc,char **args) {
   int do_stop;
 
   //o Activate debugging
-  GETOPTDEF(int,activate_debug,0);
+  TGETOPTDEF_ND(GLOBAL_OPTIONS,int,activate_debug,0);
   if (activate_debug) {
     debug.activate();
     Debug::init();
   }
+
   //o Activate printing in debugging
   GETOPTDEF(int,activate_debug_print,0);
   if (activate_debug_print) debug.activate("print");

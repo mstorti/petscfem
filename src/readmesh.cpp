@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: readmesh.cpp,v 1.115 2005/11/06 14:43:12 mstorti Exp $
+//$Id: readmesh.cpp,v 1.116 2005/12/06 21:45:32 mstorti Exp $
 #ifndef _GNU_SOURCE 
 #define _GNU_SOURCE 
 #endif
@@ -1155,34 +1155,40 @@ if (!(bool_cond)) { PetscPrintf(PETSC_COMM_WORLD, 				\
 		 &print_nodal_partitioning,1); CHKERRQ(ierr);
   int counter=0;
 #define II_STAT(j,k) VEC2(ii_stat,j,k,size)
-  int *ii_stat = new int[size*size];
+#define II_STAT2(j,k) VEC2(ii_stat2,j,k,size)
+  dvector<double> ii_stat, ii_stat2;
+  ii_stat.a_resize(2,size,size);
+  ii_stat2.a_resize(1,size);
   if (print_nodal_partitioning)
     PetscPrintf(PETSC_COMM_WORLD,"\nNodal partitioning (node/processor): \n");
 
   TRACE(-3.1);
   // Node interface between processor statistics
   int c1,c2,P1,P2;
-  for (P1=0; P1<size; P1++) 
-    for (P2=0; P2<size; P2++) 
-      II_STAT(P1,P2)=0;
+  ii_stat.set(0.0);
   for (node=0; node<nnod; node++) {
-    for (c1 = n2eptr[node]; c1 < n2eptr[node+1]-1; c1++) {
+    ii_stat2.set(0.0);
+    for (c1 = n2eptr[node]; c1 < n2eptr[node+1]; c1++) {
       P1 = vpart[node2elem[c1]];
-      for (c2 = c1+1; c2 < n2eptr[node+1]; c2++) {
-	P2 = vpart[node2elem[c2]];
-	if (P1<=P2) II_STAT(P1,P2)++;
-	else II_STAT(P2,P1)++;
-      }
+      ii_stat2.e(P1) += 1.0;
     }
+    double mass = n2eptr[node+1]-n2eptr[node];
+    if (mass!=0.0) 
+      for (int p=0; p<size; p++) ii_stat2.e(p) /= mass;
+    for (P1=0; P1<size; P1++)
+      for (P2=0; P2<size; P2++) 
+	ii_stat.e(P1,P2) += ii_stat2.e(P1)*ii_stat2.e(P2);
   }
   TRACE(-3.2);
   if (myrank == 0 && size > 1) {
     PetscPrintf(PETSC_COMM_WORLD,"---\nInter-processor node connections\n");
     for (P1=0; P1<size; P1++) 
       for (P2=0; P2<size; P2++) 
-	printf("[%d]-[%d] %d\n",P1,P2,II_STAT(P1,P2));
+	printf("[%d]-[%d] %.2f\n",P1,P2,ii_stat.e(P1,P2));
     PetscPrintf(PETSC_COMM_WORLD,"\n");
   }
+  ii_stat.clear();
+  ii_stat2.clear();
   TRACE(-3.3);
   for (node=0; node<nnod; node++) {
     if (n2eptr[node]==n2eptr[node+1]) {
