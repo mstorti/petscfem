@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: ffadvfm2.cpp,v 1.50 2005/10/25 14:06:25 mstorti Exp $
+//$Id: ffadvfm2.cpp,v 1.51 2005/12/18 23:11:43 mstorti Exp $
 
 #include <stdio.h>
 #include <string.h>
@@ -1028,8 +1028,6 @@ void newadvecfm2_ff_t::compute_flux(COMPUTE_FLUX_ARGS) {
     
     iJaco_cpy.set(iJaco);
 
-    // d_jac->comp_fluxd(fluxd,grad_U);
-    
     // A_grad_U es ndof x 1
     // A_grad_U.rs().prod(A_jac.rs(),grad_U,-1,1,-2,-1,-2);
     a_jac->comp_A_grad_U(A_grad_U,grad_U);
@@ -1039,8 +1037,6 @@ void newadvecfm2_ff_t::compute_flux(COMPUTE_FLUX_ARGS) {
 
     a_jac->comp_Uintri(Uintri,iJaco_cpy);
     a_jac->comp_vel_per_field(vel_per_field);
-
-    // d_jac->comp_dif_per_field(dif_per_field);
 
     double visco_t = 0.0;
     if (LES){
@@ -1072,11 +1068,9 @@ void newadvecfm2_ff_t::compute_flux(COMPUTE_FLUX_ARGS) {
       }
 
       d_jac->update(difjac);
-
-      d_jac->comp_fluxd(fluxd,grad_U);
-      d_jac->comp_dif_per_field(dif_per_field);
-
     }
+    d_jac->comp_fluxd(fluxd,grad_U);
+    d_jac->comp_dif_per_field(dif_per_field);
         
     for (int k=1; k<=ndof; k++) {
       
