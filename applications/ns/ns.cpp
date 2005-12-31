@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: ns.cpp,v 1.173 2005/12/06 21:45:32 mstorti Exp $
+//$Id: ns.cpp,v 1.174 2005/12/31 22:36:55 mstorti Exp $
 #include <src/debug.h>
 #include <malloc.h>
 
@@ -357,7 +357,7 @@ int main(int argc,char **args) {
 	A_mom = PFMat::dispatch(dofmap->neq,*dofmap,"iisd");
 	A_mom->set_option("preco_type","jacobi");
 	A_mom->set_option("print_internal_loop_conv","1");
-	A_mom->set_option("iisdmat_print_statistics",1);
+	// A_mom->set_option("iisdmat_print_statistics",1);
 	A_mom->set_option("use_interface_full_preco_nlay",1);
 	A_mom->set_option("block_uploading","2");
 
@@ -365,7 +365,7 @@ int main(int argc,char **args) {
 	A_poi->set_option("preco_type","jacobi");
 	A_poi->set_option("print_internal_loop_conv","1");
 	A_poi->set_option("block_uploading","0");
-	A_poi->set_option("iisdmat_print_statistics",1);
+	// A_poi->set_option("iisdmat_print_statistics",1);
 	A_poi->set_option("use_interface_full_preco_nlay",1);
 
 	A_prj = PFMat::dispatch(dofmap->neq,*dofmap,"petsc");

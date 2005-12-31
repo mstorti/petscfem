@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: iisdcr.cpp,v 1.54 2005/11/30 17:31:04 mstorti Exp $
+//$Id: iisdcr.cpp,v 1.55 2005/12/31 22:38:53 mstorti Exp $
 
 // fixme:= this may not work in all applications
 extern int MY_RANK,SIZE;
@@ -522,7 +522,7 @@ int IISDMat::create_a() {
   PetscSynchronizedFlush(PETSC_COMM_WORLD);
 #endif
 
-  if (iisdmat_print_statistics) {
+  if (0 && iisdmat_print_statistics) {
     PetscPrintf(comm,"IISDMat -- dof statistics:\n");
     if (iisd_subpart_auto) {
       PetscPrintf(comm,
