@@ -4508,4 +4508,8 @@ tag: beta-3.49.14 on Sun, 20 Nov 2005 23:18:43 -0300 by mstorti in spider
 ----------
 tag: beta-3.49.15 on Sun, 18 Dec 2005 20:12:28 -0300 by mstorti in spider
      > Running 3D square cavity example. 
-     > Fixed a bug in `ffadvfm2.cpp'.  
+     > Fixed a bug in `ffadvfm2.cpp'.  ----------
+tag: beta-3.49.16 on Sat, 31 Dec 2005 19:35:42 -0300 by mstorti in aquiles
+     > Detected problem with iisdmat_print_statistiscs, produces
+     > deadlock. As a workaround it is disabled it is disabled. 
+     > Ported to MPICH2. 
