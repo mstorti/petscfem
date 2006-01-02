@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: iisdcr.cpp,v 1.55 2005/12/31 22:38:53 mstorti Exp $
+//$Id: iisdcr.cpp,v 1.56 2006/01/02 10:47:58 mstorti Exp $
 
 // fixme:= this may not work in all applications
 extern int MY_RANK,SIZE;
@@ -21,6 +21,13 @@ extern int MY_RANK,SIZE;
 #include <src/iisdgraph.h>
 #include <src/distmap2.h>
 #include <src/distcont2.h>
+
+#if 0
+void trace(const char *label) {
+  MPI_Barrier(PETSC_COMM_WORLD);
+  if (!MY_RANK) printf("TRACE -- \"%s\"\n",label);
+}
+#endif
 
 //---:---<*>---:---<*>---:a---<*>---:---<*>---:---<*>---:---<*>---: 
 #undef __FUNC__
@@ -522,7 +529,7 @@ int IISDMat::create_a() {
   PetscSynchronizedFlush(PETSC_COMM_WORLD);
 #endif
 
-  if (0 && iisdmat_print_statistics) {
+  if (iisdmat_print_statistics) {
     PetscPrintf(comm,"IISDMat -- dof statistics:\n");
     if (iisd_subpart_auto) {
       PetscPrintf(comm,
