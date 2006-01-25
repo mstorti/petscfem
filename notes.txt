@@ -1,4 +1,4 @@
-$Id: notes.txt,v 1.489 2006/01/05 01:12:06 mstorti Exp $
+$Id: notes.txt,v 1.490 2006/01/25 18:20:44 mstorti Exp $
 OK. This is mostly in spanish...  Sorry :-)
 ================================================================
 
@@ -2464,13 +2464,13 @@ diff -c /home/mstorti/PETSC/petsc-2.0.24/bmake/linux/base_variables.bck /home/ms
 --- /home/mstorti/PETSC/petsc-2.0.24/bmake/linux/base_variables	Sun Jan 14 14:51:45 2001
 ***************
 *** 1,4 ****
-! # $Id: notes.txt,v 1.489 2006/01/05 01:12:06 mstorti Exp $ 
+! # $Id: notes.txt,v 1.490 2006/01/25 18:20:44 mstorti Exp $ 
   #
   #     See the file bmake/base_variables.defs for a complete explanation of all these fields
   #
 --- 1,5 ----
 ! # -*- mode: makefile -*-
-! # $Id: notes.txt,v 1.489 2006/01/05 01:12:06 mstorti Exp $ 
+! # $Id: notes.txt,v 1.490 2006/01/25 18:20:44 mstorti Exp $ 
   #
   #     See the file bmake/base_variables.defs for a complete explanation of all these fields
   #
@@ -2561,7 +2561,7 @@ diff -c /home/mstorti/PETSC/petsc-2.0.24/bmake/linux/base_variables.bck2 /home/m
 *** 1,3 ****
 --- 1,4 ----
 + # -*- mode: makefile -*-
-  # $Id: notes.txt,v 1.489 2006/01/05 01:12:06 mstorti Exp $ 
+  # $Id: notes.txt,v 1.490 2006/01/25 18:20:44 mstorti Exp $ 
   #
   #     See the file bmake/base_variables.defs for a complete explanation of all these fields
 ***************
@@ -2641,9 +2641,9 @@ diff -c /home/mstorti/PETSC/petsc-2.0.24/bmake/linux/base_variables.bck /home/ms
 ***************
 *** 1,4 ****
 <<<<<<< notes.txt
-! # $Id: notes.txt,v 1.489 2006/01/05 01:12:06 mstorti Exp $ 
+! # $Id: notes.txt,v 1.490 2006/01/25 18:20:44 mstorti Exp $ 
 =======
-! # $Id: notes.txt,v 1.489 2006/01/05 01:12:06 mstorti Exp $ 
+! # $Id: notes.txt,v 1.490 2006/01/25 18:20:44 mstorti Exp $ 
 >>>>>>> 1.228.2.1
   #
   #     See the file bmake/base_variables.defs for a complete explanation of all these fields
@@ -2651,9 +2651,9 @@ diff -c /home/mstorti/PETSC/petsc-2.0.24/bmake/linux/base_variables.bck /home/ms
 --- 1,5 ----
 ! # -*- mode: makefile -*-
 <<<<<<< notes.txt
-! # $Id: notes.txt,v 1.489 2006/01/05 01:12:06 mstorti Exp $ 
+! # $Id: notes.txt,v 1.490 2006/01/25 18:20:44 mstorti Exp $ 
 =======
-! # $Id: notes.txt,v 1.489 2006/01/05 01:12:06 mstorti Exp $ 
+! # $Id: notes.txt,v 1.490 2006/01/25 18:20:44 mstorti Exp $ 
 >>>>>>> 1.228.2.1
   #
   #     See the file bmake/base_variables.defs for a complete explanation of all these fields
@@ -2746,9 +2746,9 @@ diff -c /home/mstorti/PETSC/petsc-2.0.24/bmake/linux/base_variables.bck2 /home/m
 --- 1,4 ----
 + # -*- mode: makefile -*-
 <<<<<<< notes.txt
-  # $Id: notes.txt,v 1.489 2006/01/05 01:12:06 mstorti Exp $ 
+  # $Id: notes.txt,v 1.490 2006/01/25 18:20:44 mstorti Exp $ 
 =======
-  # $Id: notes.txt,v 1.489 2006/01/05 01:12:06 mstorti Exp $ 
+  # $Id: notes.txt,v 1.490 2006/01/25 18:20:44 mstorti Exp $ 
 >>>>>>> 1.228.2.1
   #
   #     See the file bmake/base_variables.defs for a complete explanation of all these fields
@@ -9605,7 +9605,7 @@ diff -u -r1.5 graphdv.cpp
 --- src/graphdv.cpp	2 Jul 2003 23:22:19 -0000	1.5
 +++ src/graphdv.cpp	20 Oct 2004 08:59:14 -0000
 @@ -2,6 +2,7 @@
- //$Id: notes.txt,v 1.489 2006/01/05 01:12:06 mstorti Exp $
+ //$Id: notes.txt,v 1.490 2006/01/25 18:20:44 mstorti Exp $
  
  #include <src/graphdv.h>
 +#include <cassert>
@@ -9678,7 +9678,7 @@ diff -u -r1.12 util3.cpp
 --- src/util3.cpp	14 Sep 2003 00:23:22 -0000	1.12
 +++ src/util3.cpp	20 Oct 2004 09:09:51 -0000
 @@ -2,6 +2,7 @@
- // $Id: notes.txt,v 1.489 2006/01/05 01:12:06 mstorti Exp $
+ // $Id: notes.txt,v 1.490 2006/01/25 18:20:44 mstorti Exp $
  #include <cstring>
  #include <cstdio>
 +#include <cassert>
@@ -11067,6 +11067,369 @@ desde 270 a 300 y despues de 392 a 410.
 %
 06:50:52: Con gmres global se ralentiza cerca de 208-230, y despues de
 las 400 un poco pero no es tan notable. 
+
+%=== Sun Nov 20 18:00:46 2005 mstorti@spider  cubcav-0.1.0
+%
+18:00:46: Corro la cavidad cubica en `spider' con N=45, son 455625
+elementos, 97336 nodos. Tarda por paso de tiempo 77~secs. 
+Datos de spider:
+> vendor_id	: GenuineIntel
+> cpu family	: 15
+> model		: 2
+> model name	: Intel(R) Pentium(R) 4 CPU 2.40GHz
+> stepping	: 7
+> cpu MHz		: 2401.001
+> cache size	: 512 KB
+T = [ 46.4035   3.7305   6.7055  11.0895   7.6935   1.3615]
+%
+18:15:29: para N=58 (975560 elements, 205379 nodes). 
+tenemos un tiempo total de 173.48. 
+Tenemos una relacion T(58)/T(45)=2.28secs y una relacion de elementos
+de 2.14. O sea que la aceleracion es de 1.0654. 
+%
+18:21:17: Si lo miramos en terminos de grados de libertad el
+incremento es de 760957/352887 = 2.1564. La relacion en nodos es
+205379/97336 = 2.1100. 
+%
+18:28:32: Para N=58 tenemos
+Pred ass    101.1735,    
+pred sol      7.8774   
+Poiss ass    14.2945   
+Poiss solv   30.7976   
+Proj ass     16.4357
+Proj solv.    2.9008
+%
+18:52:08: Con N=58 usa 537~MB. 
+%
+19:13:35: Con combo="global_gmres" da lo siguiente
+%
+T=[ 85.7600   3.1102  14.4116  30.1913  16.5706   1.3971]
+sum(T) = 151.44
+%
+Lo cual da una reduccion importante en el ensamblaje del predictor. 
+%
+19:23:39: Descubro un error, en el combo `iisd' estaba seteado el
+proyector a iisd, lo cual no conviene ya que ese converje muy bien. 
+%
+19:43:56: Efectivamente para N=45, pasando el projector a PETSC se
+gana un poco
+%
+T = [ 41.24167   1.11400   6.90233  10.37867   7.83800   0.65200]
+%
+En realidad la ganancia viene porque se habria ganado en el
+predictor. Todavia no se muy bien porque. 
+%
+19:50:17: 
+%
+T=[40.33500   1.12950   6.78288  10.34125   7.70225   0.66663]
+sum(T) = 66.957
+%
+20:32:42: Efectivamente tambien para N=58 se obtiene una ganancia
+%
+T=[83.9106   3.2674  14.6636  30.2967  16.3903   1.4651]
+sum(T) = 149.99;
+----------
+[tag: cubcav-0.1.1 on Sun, 20 Nov 2005 20:34:46 -0300 by mstorti in spider]
+%=== Sun Nov 20 23:39:01 2005 mstorti@spider  cubcav-0.1.1
+%
+23:39:01: Con `block_uploading=2'
+%
+T = [39.56925   1.15300   6.73362  10.56375   7.64950   0.72950];
+sum(T) = 66.399
+%
+Con `block_uploading=0':
+%
+23:41:26:   
+T = [48.13112   1.19525   7.45338  10.90075   8.20412   0.84337];
+sum(T) = 76.728
+%
+23:43:14: Queda por defecto `block_uploading=2' en fractional step. 
+%=== Mon Nov 21 13:43:11 2005 mstorti@node1.beowulf.gtm  cubcav-0.1.1
+%
+13:43:11: En node9:
+> vendor_id	: GenuineIntel
+> cpu family	: 15
+> model		: 3
+> model name	: Intel(R) Pentium(R) 4 CPU 2.80GHz
+> stepping	: 3
+> cpu MHz		: 2793.240
+> cache size	: 1024 KB
+%
+Tenemos para N=45: 455625 elem, 97336 nodes, 352887 dofs,
+%
+np=1 tenemos
+avrg: 41.23 0.60 5.70 5.93 6.76 0.40 
+Total: 60.631875
+%
+14:03:58: para N=58, elem=975560, 205379 nodes, 760957 dofs, 
+np=2 tenemos
+avrg: 48.45 1.15 6.74 10.38 7.87 0.85 
+Total: 75.4355
+%
+16:57:04: N=71, elem=1789555, 373248 nodes, 1402247dofs, 
+np=4,
+avrg: 50.225 1.954 6.878 13.994 8.070 1.123 
+Total: 82.243
+%
+17:26:42: N=92, elem=3893440, 804357 nodes, 3065069dofs, 
+np=8, 
+avrg: 61.500 2.823 8.682 22.958 9.840 1.560 
+Total: 107.363
+%
+avrg: 68.395 4.773 11.418 44.188 12.534 2.193 
+Total: 143.501
+----------
+[tag: cubcav-0.1.2 on Mon, 21 Nov 2005 18:35:47 -0300 by mstorti in node1.beowulf.gtm]
+
+[tag: cubcav-0.1.2 on Mon, 22 Nov 2005 12:32:40 -0300 by mstorti in node1.beowulf.gtm]
+%%%%Rodrigo
+#%#%# Comienzo con ver si escalea en seq
+#%#%# empiezo con N=10, N=15, N=20, N=25, N=30, N=35, N=40, N=45
+#%#%# dejo cte subpart_auto = 1000
+
+N=10, neq=3517
+avrg: 0.439 0.011 0.064 0.019 0.076 0.057 
+Total: 0.666
+poiss iter: 29-30
+
+N=15, neq=12327
+avrg: 1.472 0.034 0.210 0.065 0.247 0.064 
+Total: 2.092
+poiss-iter: 29
+
+N=20, neq=29837
+avrg: 3.495 0.075 0.496 0.186 0.587 0.080 
+Total: 4.918
+poiss-iter: 35-37
+
+N=25, neq=59047
+avrg: 6.941 0.135 0.966 0.476 1.147 0.112 
+Total: 9.776
+poiss-iter: 46
+
+N=30, neq=102957
+avrg: 12.128 0.205 1.690 1.111 2.007 0.158 
+Total: 17.299
+poiss-iter: 59-61
+
+N=35, neq=164567
+avrg: 19.242 0.279 2.685 2.020 3.198 0.221 
+Total: 27.644
+poiss-iter: 65-66
+
+N=40, neq=246877
+avrg: 28.974 0.428 4.018 3.353 4.750 0.304 
+Total: 41.827
+poiss-iter: 69-72
+
+N=45, neq=352887
+avrg: 41.235 0.605 5.704 5.930 6.755 0.403 
+Total: 60.632
+poiss iter: 80-81
+
+O sea que tenes un incremento de un factor 91 en tamano del problema y
+un incremento de menos de 3 en el numero de iteraciones. 
+
+%=== Tue Nov 22 17:50:18 2005 mstorti@minerva  cubcav-0.1.2
+%
+17:50:18: Pruebo en secuencial cambiando los parametros
+`max_partgraph_vertices' y `max_partgraph_vertices_proc'. Voy a probar
+con N=30 y los `max_partgraph_vertices' en 4000 y 10000 en minerva.
+Guarda que corre compitiendo con `langhi' (advdif). 
+%
+17:53:53: Con 10000 tarda 
+avrg: 22.806 0.561 3.363 2.671 3.884 0.600 
+Total: 33.884
+%
+17:55:25: Con 4000 tarda
+avrg: 23.118 0.600 3.533 3.169 4.050 0.661 
+Total: 35.131
+%
+18:14:13: Todos los tiempos de resolucion bajan un poco al ir de 4000
+a 10000. Vamos entonces a probar con un problema un poco mas grande
+(500Ktetra) e ir subiendo el `max_partgraph_vertices' para cuanto se
+puede bajar. 
+
+%=== Wed Nov 23 17:22:25 2005 mstorti@minerva  cubcav-0.1.2
+%
+17:22:25:  
+%-----
+np=1, N=45
+CG: avrg:   41.034 0.619 5.722 4.112 6.760 0.388 Total: 58.634 
+    niter=120  secs/iter=0.034267
+longcg: avrg: 41.104 0.587 5.735 3.655 6.765 0.392 Total: 58.238
+    niter=110  secs/iter= 0.03322
+IISD: avrg: 41.23  0.60  5.70  5.93  6.76  0.40  Total: 60.631875
+longiisd:avrg: 44.406 2.682 5.712 5.405 6.761 0.474  Total: 65.439
+    niter=73  secs/iter= 0.07404
+
+%-----
+np=2, N=58  secs/iter=0.046882
+CG: avrg:  47.785 1.197 6.667  7.923 7.809 0.903  Total: 72.284 
+    niter=169  secs/iter=0.046882
+longcg: avrg: 44.150 0.817 6.100 4.417 7.194 0.648 Total: 63.326
+    niter=110 secs/iter=0.040155
+IISD: avrg: 48.45 1.15  6.74  10.38  7.87  0.85   Total: 75.4355
+longiisd avrg: 46.772 2.796 6.078 6.132 7.117 0.703  Total: 69.598
+    niter=75  secs/iter= 0.08176
+
+%-----
+np=4, N=71 
+CG:   avrg: 47.210 1.713 6.819  9.691 7.916 1.159 Total: 74.507 
+      niter=195, secs/iter=0.049697
+longcg: avrg: 49.556 1.009 6.865 5.043 7.927 0.852 Total: 71.252
+      niter=105, 0.04802 secs/iter
+iisd: avrg: 50.225 1.954 6.878 13.994 8.070 1.123 Total: 82.243
+      niter=123, 0.11377
+longiisd: avrg: 50.408 3.081 6.917 7.276 7.969 0.898 Total: 76.549
+    niter=75  secs/iter= 0.097013
+% En Aquiles con IISD:
+avrg: 43.519 2.756 5.804 10.036 6.645 0.609 Total: 69.371
+    niter=110, 0.09125 secs/iter
+
+%-----
+np=8, N=92
+CG:   avrg: 58.251 2.511 8.617 14.267 9.663 1.312 Total: 94.621
+      niter=263, secs/iter=0.054259
+longcg: avrg: 57.435 1.293 7.780 5.624 8.735 1.234 Total: 82.101
+      niter=105, secs/iter=0.05356
+longiisd: avrg: 53.620 3.309 7.794 8.044 8.753 1.183 Total: 82.703
+    niter=75  secs/iter= 0.10725
+avrg: 49.213 3.345 6.887 21.382 7.732 0.758 
+Total: 89.316 
+
+%-----
+np=14, N=112
+CG: avrg: 70.763 4.737 12.054 25.435 13.072 2.045 Total: 128.106
+niter=300, secs/iter=0.08478
+
+%=== Wed Nov 30 15:44:54 2005 mstorti@minerva  cubcav-0.1.2
+%
+15:44:54: Usando combo=global, en aquiles
+%
+np=4, N=71,
+avrg: 41.766 1.390 6.014 6.595 6.915 0.540 Total: 63.219
+np=8, N=92
+avrg: 48.919 1.865 7.030 10.573 8.034 0.854 Total: 77.275
+np=11, N=106
+avrg: 51.922 2.636 8.308 10.565 9.426 1.572 Total: 84.429
+secs/iter = 0.053900
+
+%=== Thu Dec  1 09:22:54 2005 mstorti@minerva  cubcav-0.1.2
+%
+09:22:54: Usando combo=iisd
+%
+poisson iters 149, 0.1402 secs/iter
+avrg: 70.070 3.769 7.954 21.778 8.962 0.889 Total: 113.421
+
+%=== Mon Dec  5 12:06:38 2005 mstorti@minerva  cubcav-0.1.2
+%
+12:06:38: Vuelvo a correr los tests de combo=global en aquiles con
+1,2,4,8,12 procs. 
+%
+np=1, N=45, poisson iters 102, 0.0217 secs/iter,elems=  455625
+avrg: 36.086 0.934 5.173 2.235 6.057 0.375, Total: 50.860
+%
+np=2, N=58, poisson iters 133, 0.0332 secs/iter,elems=  975560
+avrg: 41.155 1.350 5.804 4.400 6.776 0.762, Total: 60.248
+%
+np=4, N=71, poisson iters 165, 0.035 secs/iter,elems=  1789555
+avrg: 35.909 1.717 5.774 5.653 6.692 0.785 , Total: 56.530
+%
+np=8, N=92: poisson iters 216, 0.052 secs/iter, elems=  3893440
+avrg: 48.683 1.565 7.004 11.035 8.019 1.021, Total: 77.326
+%
+np=12, N=106, : poisson iters 282, 0.0565 secs/iter, elems=  5955080
+avrg: 50.506 4.421 8.108 15.392 9.343 1.203, Total: 88.974
+(expt 12 (/ 1.0 6.0))
+%
+Se observa que el numero de iteraciones va lineal con el numero de
+nodos en una direccion (deberia ir como sqrt(N)). 
+% 
+El tiempo por iteracion crece con N (deberia ser constante). 
+
+%=== Mon Dec  5 15:52:46 2005 mstorti@minerva  cubcav-0.1.2
+%
+15:52:46: Como varia el edgecut en funcion del numero de vertices?
+%
+Con max_partgraph_vertices: 4000
+run-np2.log:      edgecut 2021
+run-np4.log:      edgecut 3944
+run-np8.log:      edgecut 5973
+run-np12.log:     edgecut 7682
+%
+Con max_partgraph_vertices: 40000
+run-np2.log:      edgecut 11630
+run-np4.log:      edgecut 21939
+run-np8.log:      edgecut 35646
+run-np12.log:     edgecut 44830
+%
+Con max_partgraph_vertices: 200000
+run-np2.log:      edgecut  82144
+run-np4.log:      edgecut 155655
+run-np8.log:      edgecut 231983
+run-np12.log:     edgecut 308599
+
+%=== Mon Dec  5 17:44:20 2005 mstorti@minerva  cubcav-0.1.2
+%
+17:44:20: particionando con 400,000 vertices. 
+poisson iters 233, 0.0468 secs/iter
+avrg: 47.032 1.908 7.866 11.405 9.033 1.177, Total: 78.421
+
+%=== Tue Dec  6 13:48:41 2005 mstorti@aquiles  cases-0.1.22
+%
+13:48:41: La pregunta es si bajar los tiempos se debe realmente a una
+baja en el edgecut o mirando la matriz de `Inter-processor node
+connections'. 
+%
+Con `max_partgraph_vertices=2e5' da:
+      edgecut 130986
+%
+total 307483524, diag 298382063, 
+Con max_partgraph_vertices=2e5:   
+      diag 298382063, off-diag  9101461, ratio 0.029600
+      max off-diag: 597876 
+Con max_partgraph_vertices=4000:  
+      diag 296958906, off-diag 10524618, ratio 0.034228, 
+      max off-diag: 618682
+%
+diag 298382063, off-diag 9101461, ratio 0.029600
+octave> getpartstat
+total 307483524, diag 296958906, 
+
+%=== Sun Jan  1 13:28:09 2006 mstorti@aquiles  cases-0.1.23
+%
+13:28:09: Voy a volver a correr los tests con combo=global en
+aquiles, despues de haber migrado a MPICH2. 
+%
+Antes:
+np=12, N=106, : poisson iters 282, 0.0565 secs/iter, elems=  5955080
+avrg: 50.506 4.421 8.108 15.392 9.343 1.203, Total: 88.974
+Ahora:
+poisson iters 240, 0.0386 secs/iter
+avrg: 45.321 1.681 7.666 9.309 8.739 1.067, Total: 73.782
+%
+Todo bajo bastante, resultando en una baja del 20%. Sobre todo bajaron
+los tiempos de resolucion. 
+
+%=== Tue Jan 24 18:53:05 2006 mstorti@aquiles  cubcav-0.1.2
+%
+18:53:05: Voy a volver a correr los tests con combo global en aquiles
+despues de haber resuelto el proma del rx-polling. 
+%
+Los nuevos resultados son
+%
+poisson iters 240, 0.0375 secs/iter
+avrg: 45.897 2.783 7.612 9.146 8.803 0.658 
+Total: 74.900
+%
+Con lo cual no cambia mucho con respecto a lo que teniamos antes. Esto
+se debe a que CG no era demasiado afectado por el bug rx-polling. 
+
+%=== Tue Jan 24 19:12:30 2006 mstorti@aquiles  cubcav-0.1.2
+%
+19:12:30: En cuanto a la corrida de Beto en AHMED/COARSE con
+monolitico, los tiempos bajaron de 270secs, a 186secs. 
 
 # Current line ===========  %
 # Local Variables: $
