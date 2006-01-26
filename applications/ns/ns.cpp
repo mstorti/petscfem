@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: ns.cpp,v 1.176 2006/01/26 23:50:00 mstorti Exp $
+//$Id: ns.cpp,v 1.177 2006/01/26 23:51:43 mstorti Exp $
 #include <src/debug.h>
 #include <malloc.h>
 
@@ -358,7 +358,7 @@ int main(int argc,char **args) {
 	A_mom->set_option("preco_type","jacobi");
 	A_mom->set_option("print_internal_loop_conv","1");
 	A_mom->set_option("iisdmat_print_statistics",1);
-	// A_mom->set_option("use_interface_full_preco_nlay",1);
+	A_mom->set_option("use_interface_full_preco_nlay",1);
 	A_mom->set_option("block_uploading","2");
 
 	A_poi = PFMat::dispatch(dofmap->neq,*dofmap,"iisd");
@@ -366,7 +366,7 @@ int main(int argc,char **args) {
 	A_poi->set_option("print_internal_loop_conv","1");
 	A_poi->set_option("block_uploading","0");
 	A_poi->set_option("iisdmat_print_statistics",1);
-	// A_poi->set_option("use_interface_full_preco_nlay",1);
+	A_poi->set_option("use_interface_full_preco_nlay",1);
 
 	A_prj = PFMat::dispatch(dofmap->neq,*dofmap,"petsc");
 	A_prj->set_option("preco_type","jacobi");
@@ -381,18 +381,18 @@ int main(int argc,char **args) {
 	A_mom->set_option("KSP_method",KSPGMRES);
 	A_mom->set_option("preco_side","left");
 	A_mom->set_option("preco_type","jacobi");
-	
-#if 1
-        A_poi = PFMat::dispatch(dofmap->neq,*dofmap,"petsc");
-        A_poi->set_option("KSP_method",KSPCG);
-        A_poi->set_option("preco_type","jacobi");
+
+#if 1      
+	A_poi = PFMat::dispatch(dofmap->neq,*dofmap,"petsc");
+	A_poi->set_option("KSP_method",KSPCG);
+	A_poi->set_option("preco_type","jacobi");
 #else
-        A_poi = PFMat::dispatch(dofmap->neq,*dofmap,"iisd");
-        A_poi->set_option("preco_type","jacobi");
-        A_poi->set_option("print_internal_loop_conv","1");
-        A_poi->set_option("block_uploading","0");
-        A_poi->set_option("iisdmat_print_statistics",1);
-        A_poi->set_option("use_interface_full_preco_nlay",1);
+	A_poi = PFMat::dispatch(dofmap->neq,*dofmap,"iisd");
+	A_poi->set_option("preco_type","jacobi");
+	A_poi->set_option("print_internal_loop_conv","1");
+	A_poi->set_option("block_uploading","0");
+	A_poi->set_option("iisdmat_print_statistics",1);
+	A_poi->set_option("use_interface_full_preco_nlay",1);
 #endif
 
 	A_prj = PFMat::dispatch(dofmap->neq,*dofmap,"petsc_symm");
@@ -856,24 +856,6 @@ int main(int argc,char **args) {
 
       scal= 1.0;
       ierr = VecAXPY(&scal,dx,x);
-#endif
-
-#if 0
-      PetscViewer vw;
-      
-      if (tstep==1){
-      	ierr = PetscViewerBinaryOpen(PETSC_COMM_WORLD, "A.dat", 
-				     PETSC_BINARY_CREATE, &vw); CHKERRA(ierr);
-	ierr = A_poi->view(vw);
-	ierr = PetscViewerDestroy(vw);
-      }
-      
-      char filename[128];
-      sprintf(filename, "b_%d.dat", tstep);
-      ierr = PetscViewerBinaryOpen(PETSC_COMM_WORLD, filename,
-				   PETSC_BINARY_CREATE, &vw); CHKERRA(ierr);
-      ierr = VecView(res,vw);
-      ierr = PetscViewerDestroy(vw);
 #endif
 
       if (do_stop && stop_poi) {
