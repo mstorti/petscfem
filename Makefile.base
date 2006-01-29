@@ -1,6 +1,6 @@
 # mode: -*- makefile -*-
 #__INSERT_LICENSE__
-#$Id: Makefile.base,v 1.212 2005/12/30 17:13:34 mstorti Exp $
+#$Id: Makefile.base,v 1.213 2006/01/29 14:34:47 mstorti Exp $
 
 #p [in Makefile.base]
 #s General
@@ -45,7 +45,7 @@ GNU_C_COMPILER = gcc  # gcc or egcs
 # specify the version of PETSc needed through the variable
 # `PETSC_VERSION_USED_BY_PETSCFEM' and define their own `PETSC_DIR' variable. 
 ifneq ($(PETSC_ROOT_DIR),)
-PETSC_VERSION_USED_BY_PETSCFEM=2.1.6-with-mpich2
+PETSC_VERSION_USED_BY_PETSCFEM=2.1.6
 PETSC_DIR=$(PETSC_ROOT_DIR)/petsc-$(PETSC_VERSION_USED_BY_PETSCFEM)
 endif
 
