@@ -28,7 +28,7 @@ SYNOPSIS
 LICENSE
        This file belongs to the PETSc - FEM package a library and application
        suite oriented to the Finite Element Method based on PETSc.  Copyright
-       (C) 1999-2005, Mario Alberto Storti, Norberto Marcelo Nigro, Rodrigo
+       (C) 1999-2006, Mario Alberto Storti, Norberto Marcelo Nigro, Rodrigo
        Rafael Paz, Lisandro Dalcin and Ezequiel Lopez, Centro Internacional de
        Metodos Numericos en Ingenieria (CIMEC-Argentina), Universidad Nacional
        del Litoral (UNL-Argentina), Consejo Nacional de Investigaciones Cien-
@@ -303,4 +303,4 @@ AUTHORS
 
 
 
-perl v5.8.3                       2005-12-30                         README(1)
+perl v5.8.3                       2006-01-29                         README(1)
