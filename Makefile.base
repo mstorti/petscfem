@@ -1,6 +1,6 @@
 # mode: -*- makefile -*-
 #__INSERT_LICENSE__
-#$Id: Makefile.base,v 1.213 2006/01/29 14:34:47 mstorti Exp $
+#$Id: Makefile.base,v 1.214 2006/02/02 14:57:21 mstorti Exp $
 
 #p [in Makefile.base]
 #s General
@@ -270,7 +270,7 @@ distclean:
 ## PETSc Libraries used by most PETSc-FEM applications
 PETSCFEM_PETSC_LIBS := ${PETSC_SLES_LIB} -lpetscfortran
 
-LD_LIBRARY_PATH += -Wl,-rpath -Wl,/usr/local/mpich2-1.0.3/lib
+LD_LIBRARY_PATH += -Wl,-rpath -Wl,$(MPI_HOME)/lib
 MPI_LDFLAGS := -lmpichcxx -lmpich -lpthread -lrt
 
 LDFLAGS = -Wl,-E,-rpath,$(LD_LIBRARY_PATH)	\
