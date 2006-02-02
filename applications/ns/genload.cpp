@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: genload.cpp,v 1.12 2003/09/11 17:47:14 mstorti Exp $
+//$Id: genload.cpp,v 1.13 2006/02/02 19:26:37 mstorti Exp $
 #include <src/fem.h>
 #include <src/utils.h>
 #include <src/readmesh.h>
@@ -35,6 +35,8 @@ void GenLoad::q(FastMat2 &uin,FastMat2 &flux,FastMat2 &jacin) {
   // Ditto
   PETSCFEM_ERROR0("Not defined double layer flux function!\n");
 }
+
+#define ELEMPROPS(j,k) VEC2(elemprops,j,k,nelprops)
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 #undef __FUNC__
@@ -169,6 +171,7 @@ int GenLoad::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
     FastMat2::reset_cache();
     ielh++;
     int elem = k;
+    load_props(propel,elprpsindx,nprops,&(ELEMPROPS(k,0)));
     // Call user callback function
     element_hook(k);
 
@@ -325,17 +328,22 @@ void lin_gen_load::start_chunk_c() {
   // _END
   read_cond_matrix(thash,"h_film",ndof,h_film);
 
-  vector<double> v;
   const char *line;
+  vector<double> v;
+#if 0
   thash->get_entry("const_flux",line);
   if (line) {
     read_double_array(v,line);
     assert(v.size()==ndof);
   } else v.resize(ndof,0);
 
-  const_flux.resize(1,ndof).set(&*v.begin());
+  const_flux.resize(1,ndof);
 
   v.clear();
+#else
+  const_flux.resize(1,ndof);
+#endif
+
   line = NULL;
   thash->get_entry("u_out",line);
   if (line) {
@@ -344,11 +352,17 @@ void lin_gen_load::start_chunk_c() {
   } else v.resize(ndof,0);
 
   U_out_sl.resize(1,ndof).set(&*v.begin());
+  int iprop=0;
+  const_flux_indx = iprop; 
+  ierr = get_prop(iprop,elem_prop_names,thash,elprpsindx,propel, 
+		  "const_flux",ndof);
+  nprops = iprop;
 }
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 void lin_gen_load::q(FastMat2 &U_in,FastMat2 &U_out,
 		     FastMat2 &flux_in,FastMat2 &jac) {
+  const_flux.set(propel+const_flux_indx);
   // Compute state difference at the Gauss point
   tmp1.set(U_out).rest(U_in);
   // Scale by film coefficient matrix. 
@@ -360,6 +374,7 @@ void lin_gen_load::q(FastMat2 &U_in,FastMat2 &U_out,
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 void lin_gen_load::q(FastMat2 &U_in,FastMat2 &flux_in,FastMat2 &jac) {
+  const_flux.set(propel+const_flux_indx);
   // Compute state difference at the Gauss point
   tmp1.set(U_out_sl).rest(U_in);
   // Scale by film coefficient matrix. 

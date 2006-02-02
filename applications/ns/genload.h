@@ -1,8 +1,10 @@
 // -*- mode: C++ -*-
 /*__INSERT_LICENSE__*/
-//$Id: genload.h,v 1.5 2003/06/26 22:27:23 mstorti Exp $
+//$Id: genload.h,v 1.6 2006/02/02 19:26:37 mstorti Exp $
 #ifndef GENLOAD_H
 #define GENLOAD_H
+
+#define MAXPROP 100
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 /** Generic surface flux element. See documentation 
@@ -15,6 +17,10 @@ public:
   FastMat2 H_m,H_out_m;
 protected:
   int nel2;
+  // Physical properties
+  int elprpsindx[MAXPROP]; 
+  int nprops;
+  double propel[MAXPROP];
 public: 
   const FastMat2 &H,&H_out,&H_in;
   GenLoad() : H_in(H_m), H(H_m), H_out(H_out_m) {}
@@ -99,6 +105,8 @@ private:
   FastMat2 h_film, const_flux, U_out_sl;
   /// Temporary variable
   FastMat2 tmp1;
+  int const_flux_indx;
+  
 public:
   /** Two layer callback flux function. 
       @param u_in (input) state at the internal surface (size #ndof#)
