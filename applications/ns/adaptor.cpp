@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: adaptor.cpp,v 1.9 2003/10/11 14:08:10 mstorti Exp $
+//$Id: adaptor.cpp,v 1.10 2006/02/03 22:11:47 mstorti Exp $
 
 #include <src/fem.h>
 #include <src/utils.h>
@@ -90,8 +90,12 @@ int adaptor::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
 
   // allocate local vecs
   nen = nel*ndof;
-  FastMat2 veccontr(2,nel,ndof),xloc(2,nel,ndim),locstate(2,nel,ndof), 
-    locstate2(2,nel,ndof), matlocf(4,nel,ndof,nel,ndof),
+  FastMat2 veccontr(2,nel,ndof),veccontrp(2,nel,ndof),
+    xloc(2,nel,ndim),
+    locstate(2,nel,ndof), locstatep(2,nel,ndof), 
+    locstate2(2,nel,ndof), 
+    matlocf(4,nel,ndof,nel,ndof),
+    matlocf_fdj(4,nel,ndof,nel,ndof),
     matloc_prof(4,nel,ndof,nel,ndof);
 
   // Physical properties
@@ -104,6 +108,15 @@ int adaptor::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
   //GPdata gp_data(geom,ndim,nel,npg);
   GPdata gp_data(geometry.c_str(),ndimel,nel,npg,GP_FASTMAT2);
 
+  //o Compute a Finite Difference Jacobian (FDJ) for each element. 
+  TGETOPTDEF_S(thash,int,compute_jacobian_fdj,0);
+  
+  //o Scale of perturbation for computation of FDJ's. 
+  TGETOPTDEF_S(thash,double,compute_jacobian_fdj_epsilon,1e-3);
+  
+  //o Print computed FDJ for comparison with analytic Jacobian. 
+  TGETOPTDEF_S(thash,int,compute_jacobian_fdj_print,1);
+  
 #define DSHAPEXI (*gp_data.FM2_dshapexi[ipg])
 #define SHAPE    (*gp_data.FM2_shape[ipg])
 #define WPG      (gp_data.wpg[ipg])
@@ -170,6 +183,18 @@ int adaptor::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
       element_connector(xloc,locstate2,locstate,veccontr,matlocf);
       veccontr.export_vals(&(RETVAL(ielh,0,0)));
       matlocf.export_vals(&(RETVALMAT(ielh,0,0,0,0)));
+
+      if (compute_jacobian_fdj) {
+	double epsil = compute_jacobian_fdj_epsilon;
+	matlocf_fdj.set(0.).reshape(2,nen,nen);
+	for (int j=1; j<=nen; j++) {
+	  locstatep.set(locstate);
+	  locstatep.reshape(1,nen).addel(epsil,j);
+	    element_connector(xloc,locstate2,locstatep,veccontrp,matlocf);
+	    matlocf_fdj.ir(2,j).set(veccontrp)
+	      .rest(veccontr).scale(1./epsil).rs();
+	}
+      }
     }
   }
   FastMat2::void_cache();
