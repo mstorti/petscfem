@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: elast2.cpp,v 1.1 2006/02/02 22:04:31 mstorti Exp $
+//$Id: elast2.cpp,v 1.2 2006/02/03 02:32:08 mstorti Exp $
 
 #include <src/fem.h>
 #include <src/utils.h>
@@ -41,6 +41,8 @@ void elasticity2::init() {
   C.resize(2,ntens,ntens).set(0.);
   Jaco.resize(2,ndim,ndim);
   dshapex.resize(2,ndim,nel);  
+  mass_pg.resize(2,nel,nel);
+  du.resize(2,nel,ndof);
 
   // Plane strain
   if (ndim==2) {
@@ -118,7 +120,19 @@ void elasticity2::element_connector(const FastMat2 &xloc,
     strain.prod(B,state_new,1,-1,-2,-1,-2);
     
     stress.prod(C,strain,1,-1,-1);
-    
+
+    shape.ir(2,ipg+1);
+    // Inertia term
+    du.set(state_new).rest(state_old);
+    tmp.prod(shape,du,-1,-1,1);
+    tmp2.prod(shape,tmp,1,2);
+    res.axpy(tmp2,-wpgdet*rec_Dt*rho);
+
+    mass_pg.prod(shape,shape,1,2).scale(wpgdet*rec_Dt*rho);
+    for (int k=1; k<=ndim; k++) 
+      mat.ir(2,k).ir(4,k).add(mass_pg);
+    mat.rs();
+
     // Residual computation
     res_pg.prod(B,stress,-1,1,2,-1);
     res.axpy(res_pg,-wpgdet);
@@ -129,5 +143,6 @@ void elasticity2::element_connector(const FastMat2 &xloc,
     mat.axpy(mat_pg2,wpgdet);
     
   }
+  shape.rs();
     
 }
