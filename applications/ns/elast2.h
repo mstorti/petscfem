@@ -1,6 +1,6 @@
 // -*- mode: C++ -*-
 /*__INSERT_LICENSE__*/
-//$Id: elast2.h,v 1.2 2006/02/03 02:32:08 mstorti Exp $
+//$Id: elast2.h,v 1.3 2006/02/03 13:19:17 mstorti Exp $
 
 #ifndef ELASTICITY2_H
 #define ELASTICITY2_H
@@ -12,7 +12,8 @@ public:
   double rho,E,nu;
   int ntens,nen;
   FastMat2 B,C,Jaco,iJaco,strain,stress,
-    res_pg,mat_pg1,mat_pg2,mass_pg,du,tmp,tmp2;
+    res_pg,mat_pg1,mat_pg2,mass_pg,dv,a,tmp,tmp2,
+    xnew,xold,vnew,vold,tmp3,tmp4;
   void init();
   void element_connector(const FastMat2 &xloc,
 			 const FastMat2 &state_old,
