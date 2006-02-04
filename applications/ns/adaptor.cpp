@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: adaptor.cpp,v 1.10 2006/02/03 22:11:47 mstorti Exp $
+//$Id: adaptor.cpp,v 1.11 2006/02/04 12:55:57 mstorti Exp $
 
 #include <src/fem.h>
 #include <src/utils.h>
@@ -96,7 +96,8 @@ int adaptor::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
     locstate2(2,nel,ndof), 
     matlocf(4,nel,ndof,nel,ndof),
     matlocf_fdj(4,nel,ndof,nel,ndof),
-    matloc_prof(4,nel,ndof,nel,ndof);
+    matloc_prof(4,nel,ndof,nel,ndof), tmp;
+    
 
   // Physical properties
   int iprop=0, elprpsindx[MAXPROP]; double propel[MAXPROP];
@@ -104,18 +105,19 @@ int adaptor::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
   
   //o Type of element geometry to define Gauss Point data
   TGETOPTDEF_S(thash,string,geometry,cartesian2d);
-  
   //GPdata gp_data(geom,ndim,nel,npg);
   GPdata gp_data(geometry.c_str(),ndimel,nel,npg,GP_FASTMAT2);
-
   //o Compute a Finite Difference Jacobian (FDJ) for each element. 
-  TGETOPTDEF_S(thash,int,compute_jacobian_fdj,0);
-  
+  TGETOPTDEF(thash,int,jacobian_fdj_compute,0);
   //o Scale of perturbation for computation of FDJ's. 
-  TGETOPTDEF_S(thash,double,compute_jacobian_fdj_epsilon,1e-3);
-  
+  TGETOPTDEF(thash,double,jacobian_fdj_epsilon,1e-3);
   //o Print computed FDJ for comparison with analytic Jacobian. 
-  TGETOPTDEF_S(thash,int,compute_jacobian_fdj_print,1);
+  TGETOPTDEF(thash,int,jacobian_fdj_print,1);
+  //o Use FDJ for computations. 
+  TGETOPTDEF(thash,int,use_jacobian_fdj,0);
+
+  if (use_jacobian_fdj) 
+    jacobian_fdj_compute = 1;
   
 #define DSHAPEXI (*gp_data.FM2_dshapexi[ipg])
 #define SHAPE    (*gp_data.FM2_shape[ipg])
@@ -184,16 +186,36 @@ int adaptor::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
       veccontr.export_vals(&(RETVAL(ielh,0,0)));
       matlocf.export_vals(&(RETVALMAT(ielh,0,0,0,0)));
 
-      if (compute_jacobian_fdj) {
-	double epsil = compute_jacobian_fdj_epsilon;
+      if (jacobian_fdj_compute) {
+	double epsil = jacobian_fdj_epsilon;
 	matlocf_fdj.set(0.).reshape(2,nen,nen);
+	veccontr.reshape(1,nen);
+	locstate.reshape(1,nen);
 	for (int j=1; j<=nen; j++) {
-	  locstatep.set(locstate);
-	  locstatep.reshape(1,nen).addel(epsil,j);
-	    element_connector(xloc,locstate2,locstatep,veccontrp,matlocf);
-	    matlocf_fdj.ir(2,j).set(veccontrp)
-	      .rest(veccontr).scale(1./epsil).rs();
+	  locstatep.reshape(1,nen).set(locstate)
+	    .addel(epsil,j).reshape(2,nel,ndof);
+	  veccontrp.reshape(2,nel,ndof);
+	  element_connector(xloc,locstate2,locstatep,veccontrp,matlocf);
+	  veccontrp.reshape(1,nen);
+	  matlocf_fdj.ir(2,j).set(veccontrp)
+	    .rest(veccontr).scale(-1./epsil).rs();
 	}
+	veccontr.reshape(2,nel,ndof);
+	locstate.reshape(2,nel,ndof);
+	if (jacobian_fdj_print) {
+	  matlocf.reshape(4,nel,ndof,nel,ndof);
+	  tmp.ctr(matlocf,2,1,4,3);
+	  tmp.print(nen,"analytic jacobian: ");
+	  matlocf_fdj.reshape(4,nel,ndof,nel,ndof);
+	  tmp.ctr(matlocf_fdj,2,1,4,3);
+	  tmp.print(nen,"FD jacobian: ");
+	  matlocf.rs();
+	  matlocf_fdj.rs();
+	}
+	if (use_jacobian_fdj) 
+	  matlocf_fdj.reshape(4,nel,ndof,nel,ndof);
+	  matlocf.set(matlocf_fdj);
+	  matlocf_fdj.rs();
       }
     }
   }

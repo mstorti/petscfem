@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: elast2.cpp,v 1.3 2006/02/03 13:19:17 mstorti Exp $
+//$Id: elast2.cpp,v 1.4 2006/02/04 12:55:57 mstorti Exp $
 
 #include <src/fem.h>
 #include <src/utils.h>
@@ -71,6 +71,8 @@ void elasticity2::element_connector(const FastMat2 &xloc,
 				   const FastMat2 &state_new,
 				   FastMat2 &res,FastMat2 &mat){
   B.reshape(3,ntens,nel,ndim);
+  res.set(0.0);
+  mat.set(0.0);
 
   // loop over Gauss points
   for (int ipg=0; ipg<npg; ipg++) {
@@ -111,7 +113,7 @@ void elasticity2::element_connector(const FastMat2 &xloc,
     }
     B.rs();
     dshapex.rs();
-    res.rs().set(0.0);
+    res.rs();
 
     tmp3.set(state_new);
     tmp3.is(2,1,ndim);
