@@ -1,6 +1,6 @@
 // -*- mode: C++ -*-
 /*__INSERT_LICENSE__*/
-//$Id: adaptor.h,v 1.12 2003/10/11 14:08:10 mstorti Exp $
+//$Id: adaptor.h,v 1.13 2006/02/04 14:25:07 mstorti Exp $
 #ifndef ADAPTOR_H
 #define ADAPTOR_H
 
@@ -19,6 +19,8 @@ public:
   ASSEMBLE_FUNCTION;
   /// the reciprocal of the time step. (May be null for steady problems)
   double rec_Dt;
+  /// The trapezoidal rule parameter.
+  double alpha;
   /// The number of Gauss points
   int npg;
   /// The dimension of the space

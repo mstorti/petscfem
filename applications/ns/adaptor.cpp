@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: adaptor.cpp,v 1.11 2006/02/04 12:55:57 mstorti Exp $
+//$Id: adaptor.cpp,v 1.12 2006/02/04 14:25:07 mstorti Exp $
 
 #include <src/fem.h>
 #include <src/utils.h>
@@ -85,6 +85,7 @@ int adaptor::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
     ja_hmin=ja;
     glob_param = (GlobParam *)(arg_data_v[ja++].user_data);
     rec_Dt = 1./glob_param->Dt;
+    alpha = glob_param->alpha;
     if (glob_param->steady) rec_Dt=0.;
   } 
 

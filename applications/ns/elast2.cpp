@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: elast2.cpp,v 1.4 2006/02/04 12:55:57 mstorti Exp $
+//$Id: elast2.cpp,v 1.5 2006/02/04 14:25:07 mstorti Exp $
 
 #include <src/fem.h>
 #include <src/utils.h>
@@ -129,16 +129,20 @@ void elasticity2::element_connector(const FastMat2 &xloc,
     vold.set(tmp3);
     tmp3.rs();
 
-    strain.prod(B,xnew,1,-1,-2,-1,-2);
+    xstar.set(xnew).scale(alpha).axpy(xold,1-alpha);
+    vstar.set(vnew).scale(alpha).axpy(vold,1-alpha);
+
+    strain.prod(B,xstar,1,-1,-2,-1,-2);
     stress.prod(C,strain,1,-1,-1);
 
     shape.ir(2,ipg+1);
 
     // Eq. for velocity (dofs=[ndim+1,2*ndim])
-    // res = [ -M*(xnew-xold)/dt+vnew;
-    //         -M*rho*(vnew-vold)/dt - K*xnew 
-    // jac = -D(res)/DU = [M/Dt     -M;
-    //                     K         M*rho/Dt]
+    // Res = [ -M*(xnew-xold)/dt + M*vstar;
+    //         -M*rho*(vnew-vold)/dt - K*xstar
+    // Jac = -D(res)/DU = [M/(Dt*alpha) -M;
+    //                     K             M*rho/(Dt*alpha)]
+    // (recordar que Jac debe ser -1/alpha*d(Res)/d(X) 
 
     // Inertia term
     a.set(vnew).rest(vold);
@@ -150,7 +154,7 @@ void elasticity2::element_connector(const FastMat2 &xloc,
     res_pg.prod(B,stress,-1,1,2,-1);
     res.axpy(res_pg,-wpgdet).rs();
     
-    mass_pg.prod(shape,shape,1,2).scale(wpgdet*rec_Dt*rho);
+    mass_pg.prod(shape,shape,1,2).scale(wpgdet*rec_Dt*rho/alpha);
     for (int k=1; k<=ndim; k++) 
       mat.ir(2,ndim+k).ir(4,ndim+k).add(mass_pg);
     mat.rs();
@@ -158,17 +162,18 @@ void elasticity2::element_connector(const FastMat2 &xloc,
     // Jacobian computation
     mat_pg1.prod(C,B,1,-1,-1,2,3);
     mat_pg2.prod(B,mat_pg1,-1,1,2,-1,3,4);
-    mat.is(2,ndim+1,2*ndim).is(4,1,ndim).axpy(mat_pg2,wpgdet).rs();
+    mat.is(2,ndim+1,2*ndim).is(4,1,ndim)
+      .axpy(mat_pg2,wpgdet).rs();
     
-    // Eqs. for displacements: (xnew-xold)/dt - v = 0
-    dv.set(xnew).rest(xold).scale(rec_Dt).rest(vnew);
+    // Eqs. for displacements: (xnew-xold)/dt - vstar = 0
+    dv.set(xnew).rest(xold).scale(rec_Dt).rest(vstar);
     tmp.prod(shape,dv,-1,-1,1);
     tmp2.prod(shape,tmp,1,2);
     res.is(2,1,ndim).axpy(tmp2,-wpgdet);
 
     mass_pg.prod(shape,shape,1,2).scale(wpgdet);
     for (int k=1; k<=ndim; k++) {
-      mat.ir(2,k).ir(4,k).axpy(mass_pg,rec_Dt);
+      mat.ir(2,k).ir(4,k).axpy(mass_pg,rec_Dt/alpha);
       mat.ir(2,k).ir(4,ndim+k).axpy(mass_pg,-1.0);
     }
     mat.rs();
