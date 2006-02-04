@@ -4513,3 +4513,7 @@ tag: beta-3.49.16 on Sat, 31 Dec 2005 19:35:42 -0300 by mstorti in aquiles
      > Detected problem with iisdmat_print_statistiscs, produces
      > deadlock. As a workaround it is disabled it is disabled. 
      > Ported to MPICH2. 
+----------
+tag: beta-3.49.17 on Sat, 04 Feb 2006 09:56:06 -0300 by mstorti in spider
+     > True elasticity element implemented (elast2.cpp). 
+     > Computation of FD Jacobians for adaptor class implemented. 
