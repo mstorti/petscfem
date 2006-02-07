@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-/* $Id: penalize.cpp,v 1.13 2005/07/04 02:12:05 mstorti Exp $ */
+/* $Id: penalize.cpp,v 1.14 2006/02/07 15:02:02 mstorti Exp $ */
 
 #ifdef USE_DLEF
 #include <dlfcn.h>
@@ -41,12 +41,14 @@ new_assemble(arg_data_list &arg_data_v,const Nodedata *nodedata,
   NSGETOPTDEF(int,ndim,0); //nd
   // Use or not caches for the FastMat2 libray
   NSGETOPTDEF(int,use_fastmat2_cache,1);
+  // alpha ,  temporal accuracy parameter
+  NSGETOPTDEF(double,alpha,1.0); 
 
   int nelprops,ndof;
   elem_params(nel,ndof,nelprops);
   FastMat2 matloc_prof(4,nel,ndof,nel,ndof),
     matloc(4,nel,ndof,nel,ndof), 
-    U(2,nel,ndof), Uold(2,nel,ndof),
+    U(2,nel,ndof), Uold(2,nel,ndof),Ualpha(2,nel,ndof),
     R(2,nel,ndof);
   // xloc_m.resize(2,nel,ndim);
   if (comp_mat) matloc_prof.set(1.);
@@ -95,13 +97,17 @@ new_assemble(arg_data_list &arg_data_v,const Nodedata *nodedata,
 
     U.set(element.vector_values(*staten));
     Uold.set(element.vector_values(*stateo));
+    Ualpha.set(0.).axpy(U,alpha).axpy(Uold,(1-alpha));
+
+    //    printf("alpha en penalize %g \n",alpha);
+
     // pass Uold to restriction
     restr->uold(Uold);
     matloc.set(0.);
     R.set(0.);
 
     if (comp_mat_res) {
-      restr->res(elem,U,r,w,jac);
+      restr->res(elem,Ualpha,r,w,jac);
       R.prod(w,r,1,2,-1,-1).scale(-K);
       matloc.prod(w,jac,1,2,-1,-1,3,4).scale(K);
       R.rs()

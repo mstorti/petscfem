@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: bccadvfm2.cpp,v 1.28 2004/12/21 12:20:37 mstorti Exp $
+//$Id: bccadvfm2.cpp,v 1.29 2006/02/07 15:01:59 mstorti Exp $
 
 extern int comp_mat_each_time_step_g,
   consistent_supg_matrix_g,
@@ -279,7 +279,8 @@ void NewBcconv::new_assemble(arg_data_list &arg_data_v,const Nodedata *nodedata,
       // A_jac_n.prod(A_jac,normal,-1,1,2,-1); // A_jac_n = (A_jac)_j n_j
       tmp2.prod(SHAPE,A_jac_n,1,2,3); //
       tmp3.prod(tmp2,SHAPE,1,2,4,3);
-      matlocf.axpy(tmp3,-ALPHA*WPG);
+      //      matlocf.axpy(tmp3,-ALPHA*WPG);
+      matlocf.axpy(tmp3,-WPG);
 
     }
 
