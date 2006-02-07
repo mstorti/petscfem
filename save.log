@@ -4521,3 +4521,7 @@ tag: beta-3.49.17 on Sat, 04 Feb 2006 09:56:06 -0300 by mstorti in spider
 tag: beta-3.49.18 on Sat, 04 Feb 2006 11:25:19 -0300 by mstorti in spider
      > Included alpha in `adaptor' class. 
      > `elasticity2' now is second order.  
+----------
+tag: beta-3.49.19 on Tue, 07 Feb 2006 12:02:11 -0300 by mstorti in minerva.ceride.gov.ar
+     > Fixed bug in computation of Jacobians for 
+     > `penalize' and `bccadvfm2'. 
