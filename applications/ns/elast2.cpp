@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: elast2.cpp,v 1.5 2006/02/04 14:25:07 mstorti Exp $
+//$Id: elast2.cpp,v 1.6 2006/02/13 03:47:46 mstorti Exp $
 
 #include <src/fem.h>
 #include <src/utils.h>
@@ -63,7 +63,6 @@ void elasticity2::init() {
     PetscPrintf(PETSC_COMM_WORLD,"wrong dimension: %d\n",ndim);
     assert(0);
   }
-
 }
 
 void elasticity2::element_connector(const FastMat2 &xloc,
