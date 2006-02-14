@@ -2,6 +2,9 @@
 TODO: [Mainly fixes go here...]
 =====
 
+* In `gatherer.cpp' default value for `ndimel' should be `ndim', not
+  `ndim-1'. In `set_pg_values' we should pass `Jaco' alqways, and `n'
+  (the normal) should be passed as a public member in the class. 
 * Running large problem FS with (procsel -l) (0 weight in server) leads
   to dead-lock apparently in `iisdcr.cpp'   
   block: if  (iisdmat_print_statistics) {...}
