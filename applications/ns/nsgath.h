@@ -1,8 +1,11 @@
 // -*- mode: C++ -*-
 /*__INSERT_LICENSE__*/
-//$Id: nsgath.h,v 1.3 2004/08/22 23:00:50 mstorti Exp $
+//$Id: nsgath.h,v 1.4 2006/02/14 23:48:30 mstorti Exp $
 #ifndef NS_GATHERER_H
 #define NS_GATHERER_H
+
+#include <src/gatherer.h>
+#include <src/fastmat2.h>
 
 extern int MY_RANK;
 

@@ -1,6 +1,6 @@
 // -*- mode: C++ -*-
 /*__INSERT_LICENSE__*/
-//$Id: gatherer.h,v 1.3 2003/01/25 15:28:58 mstorti Exp $
+//$Id: gatherer.h,v 1.4 2006/02/14 23:48:33 mstorti Exp $
 #ifndef GATHERER_H
 #define GATHERER_H
 
@@ -11,6 +11,7 @@
 class gatherer : public Elemset { 
 public: 
   int gather_length;
+  FastMat2 grad_u_old, grad_u, n;
   /// This should not be defined by the user
   ASSEMBLE_FUNCTION;
   /// Return which "jobinfos" will process

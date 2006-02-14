@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: gatherer.cpp,v 1.4 2005/02/21 18:50:28 mstorti Exp $
+//$Id: gatherer.cpp,v 1.5 2006/02/14 23:48:33 mstorti Exp $
 
 #include <src/fem.h>
 #include <src/utils.h>
@@ -40,7 +40,7 @@ int gatherer::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
   //o Dimension of the embedding space
   TGETOPTNDEF(thash,int,ndim,none);
   //o Dimenson of the element
-  TGETOPTDEF(thash,int,ndimel,ndim-1); 
+  TGETOPTDEF(thash,int,ndimel,ndim); 
   //o Defines the geomtry of the element
   TGETOPTDEF_S(thash,string,geometry,cartesian2d);
 
@@ -74,7 +74,11 @@ int gatherer::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
 
   FastMat2 Jaco(2,ndimel,ndim),staten(2,nel,ndof), 
     stateo(2,nel,ndof),u_old(1,ndof),u(1,ndof),
-    n(1,ndim),xpg(1,ndim);
+    xpg(1,ndim), iJaco(2,ndimel,ndim),
+    dshapex(2,ndim,nel);
+  n.resize(1,ndim);
+  grad_u_old.resize(2,ndim,ndof);
+  grad_u.resize(2,ndim,ndof);
 
   Time * time_c = (Time *)time;
   double t = time_c->time();
@@ -127,7 +131,15 @@ int gatherer::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
       u.prod(SHAPE,staten,-1,-1,1);
       u_old.prod(SHAPE,stateo,-1,-1,1);
 
-      set_pg_values(pg_values,u,u_old,xpg,n,wpgdet,t);
+      iJaco.inv(Jaco);
+      dshapex.prod(iJaco,DSHAPEXI,1,-1,-1,2);
+      
+      //u.is(1,1,ndim);
+      grad_u.prod(dshapex,staten,1,-1,-1,2);
+      //      u.rs();
+      grad_u_old.prod(dshapex,stateo,1,-1,-1,2) ;
+
+      set_pg_values(pg_values,u,u_old,xpg,Jaco,wpgdet,t);
       if (options & VECTOR_ADD) {
 	for (int j=0; j<gather_length; j++) {
 	  (*values)[gather_pos+j] += pg_values[j];

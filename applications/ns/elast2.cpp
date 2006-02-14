@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: elast2.cpp,v 1.7 2006/02/14 20:47:23 mstorti Exp $
+//$Id: elast2.cpp,v 1.8 2006/02/14 23:48:30 mstorti Exp $
 
 #include <src/fem.h>
 #include <src/utils.h>
@@ -9,6 +9,7 @@
 
 #include "nsi_tet.h"
 #include "adaptor.h"
+#include "nsgath.h"
 #include "elast2.h"
 
 void elasticity2::init() {
@@ -185,6 +186,8 @@ void elasticity2::element_connector(const FastMat2 &xloc,
     res.is(2,1,ndim).axpy(tmp2,-wpgdet);
 
     mass_pg.prod(shape,shape,1,2).scale(wpgdet);
+
+
     for (int k=1; k<=ndim; k++) {
       mat.ir(2,k).ir(4,k).axpy(mass_pg,rec_Dt/alpha);
       mat.ir(2,k).ir(4,ndim+k).axpy(mass_pg,-1.0);
@@ -197,4 +200,100 @@ void elasticity2::element_connector(const FastMat2 &xloc,
   // tmp4.ctr(mat,2,1,4,3);
   // tmp4.print(nel*ndof);
     
+}
+
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>
+void elast_energy_integrator::init(){
+  int ierr;
+  assert(gather_length==1 || gather_length==2);
+  TGETOPTDEF(thash,double,Young_modulus,0.);
+  E=Young_modulus;
+  assert(Young_modulus>0.);
+  //o Poisson ratio
+  TGETOPTDEF(thash,double,Poisson_ratio,0.);
+  nu=Poisson_ratio;
+  assert(nu>=0. && nu<0.5);
+  //o Density
+  TGETOPTDEF(thash,double,density,0.);
+  rho=density;
+  assert(rho>0.);
+  //o ndim
+  TGETOPTDEF_ND(thash,int,ndim,0);
+  assert(ndim>0);
+  assert(ndof==2*ndim);
+
+  TGETOPTDEF(thash,int,ndimel,ndim);
+  
+  e_total.resize(0).set(0.);
+  e_kin.resize(0).set(0.);
+  e_pot.resize(0).set(0.);
+  ntens = ndim*(ndim+1)/2;
+  C.resize(2,ntens,ntens).set(0.);
+  stress.resize(1,ntens);
+  strain.resize(1,ntens);
+  // Plane strain
+  if (ndim==2) {
+    double c1=E*(1.-nu)/((1.+nu)*(1.-2.*nu)), c2=E/(2.*(1.+nu)),
+      c3=nu/(1.-nu);
+    C.setel(c1,1,1)
+      .setel(c1*c3,1,2)
+      .setel(c1*c3,2,1)
+      .setel(c1,2,2)
+      .setel(c2,3,3);
+  } else if (ndim==3) {
+    double c1=E*(1.-nu)/((1.+nu)*(1.-2.*nu)), 
+      c2 = (1-2*nu)/2./(1-nu),
+      c3=nu/(1.-nu);
+    C.is(1,1,3).is(2,1,3).set(c3)
+      .rs().d(1,2).is(1,1,3).set(1.)
+      .rs().d(1,2).is(1,4,6).set(c2)
+      .rs().scale(c1);
+  } else {
+    PetscPrintf(PETSC_COMM_WORLD,"wrong dimension: %d\n",ndim);
+    assert(0);
+  }
+}
+
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>
+void elast_energy_integrator
+::set_pg_values(vector<double> &pg_values,FastMat2 &u,
+		FastMat2 &uold,FastMat2 &xpg,FastMat2 &Jaco,
+		double wpgdet,double time) {
+  int ierr;
+  if (ndim==2){
+    double eps_xx = grad_u.get(1,1);
+    strain.setel(eps_xx,1);
+    double eps_yy = grad_u.get(2,2);
+    strain.setel(eps_yy,2);
+    double eps_xy = (grad_u.get(1,2) + grad_u.get(2,1));
+    strain.setel(eps_xy,3);
+    stress.prod(C,strain,1,-1,-1);
+    e_pot.prod(strain,stress,-1,-1).scale(0.5);
+  } else if (ndim==3){
+    double eps_xx = grad_u.get(1,1); strain.setel(eps_xx,1);
+    double eps_yy = grad_u.get(2,2); strain.setel(eps_yy,2);
+    double eps_zz = grad_u.get(3,3); strain.setel(eps_zz,3);
+    double eps_xy = (grad_u.get(1,2) + grad_u.get(2,1));
+    double eps_xz = (grad_u.get(1,3) + grad_u.get(3,1));
+    double eps_yz = (grad_u.get(2,3) + grad_u.get(3,2));
+    strain.setel(eps_xy,4);
+    strain.setel(eps_xz,5);
+    strain.setel(eps_yz,6);
+    stress.prod(C,strain,1,-1,-1);
+    e_pot.prod(strain,stress,-1,-1).scale(0.5);
+  } else {
+    PetscPrintf(PETSC_COMM_WORLD,"wrong dimension: %d\n",ndim);
+    assert(0);
+  }
+  tmp1.set(u.is(1,ndim+1,ndof));
+  u.rs();
+  e_kin.prod(tmp1,tmp1,-1,-1).scale(rho).scale(0.5);
+  e_total.set(e_pot).add(e_kin);  
+  
+  if (gather_length==1) {
+    pg_values[0] = double(e_total)*wpgdet;    
+  } else {
+    pg_values[0] = double(e_kin)*wpgdet;    
+    pg_values[1] = double(e_pot)*wpgdet;    
+  } 
 }

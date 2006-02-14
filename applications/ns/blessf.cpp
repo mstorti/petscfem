@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-/* $Id: blessf.cpp,v 1.38 2006/02/02 22:04:31 mstorti Exp $ */
+/* $Id: blessf.cpp,v 1.39 2006/02/14 23:48:30 mstorti Exp $ */
 
 #include <src/debug.h>
 #include <malloc.h>
@@ -12,6 +12,7 @@
 #include <src/sttfilter.h>
 #include <src/pfmat.h>
 #include <src/pfobject.h>
+#include <src/gatherer.h>
 
 #include "./nsi_tet.h"
 
@@ -20,7 +21,6 @@
 #include "./elast2.h"
 #include "./qharm.h"
 #include "./qharmm.h"
-#include <src/gatherer.h>
 #include "./nsgath.h"
 #include "./embgath.h"
 #include "./nssup.h"
@@ -88,6 +88,7 @@ void bless_elemset(char *type,Elemset *& elemset) {
     SET_ELEMSET_TYPE(flow_rate_integrator)
     SET_ELEMSET_TYPE(free_surface_level_integrator)
     SET_ELEMSET_TYPE(volume_integrator)
+    SET_ELEMSET_TYPE(elast_energy_integrator)
 
     SET_ELEMSET_TYPE_ALIAS(mesh_move,mesh_move_eig_anal)
     SET_ELEMSET_TYPE(mesh_move_eig_anal)
