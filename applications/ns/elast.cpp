@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: elast.cpp,v 1.18 2005/06/21 01:36:15 mstorti Exp $
+//$Id: elast.cpp,v 1.19 2006/02/14 20:47:23 mstorti Exp $
 
 #include <src/fem.h>
 #include <src/utils.h>
@@ -91,6 +91,20 @@ void elasticity::init() {
       .setel(c1*c3,2,1)
       .setel(c1,2,2)
       .setel(c2,3,3);
+#if 0
+    // From RAPPORT SF-101, LTAS, Godinas A., Jetteur P., Laschet G.
+    // This modification of the constitutive relation should avoid
+    // blockage of thin elements for plate model. 
+    int plate_model = 1;
+    if (plate_model) {
+      printf("using plate model\n");
+      C.set(0.0);
+      double c1 = E/(1.0-nu*nu);
+      C.setel(c1,1,1);
+      C.setel(E,2,2);
+      C.setel(c1*(5.0/6.0)*(1.0-nu)/2.0,3,3);
+    }
+#endif
   } else if (ndim==3) {
     double c1=E*(1.-nu)/((1.+nu)*(1.-2.*nu)), 
       c2 = (1-2*nu)/2./(1-nu),
