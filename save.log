@@ -4531,3 +4531,6 @@ tag: beta-3.49.20 on Tue, 14 Feb 2006 20:48:41 -0300 by mstorti in spider
 ----------
 tag: beta-3.49.21 on Sat, 18 Feb 2006 18:03:47 -0300 by mstorti in spider
      > Added files by Beto to compute advdif/ns FSI `etagee'. 
+----------
+tag: beta-3.49.22 on Sat, 18 Feb 2006 19:40:58 -0300 by mstorti in spider
+     > Changes from `petscfem-bubbly15' branch applied and compiles. 
