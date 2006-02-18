@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: ns.cpp,v 1.178 2006/02/18 21:03:12 mstorti Exp $
+//$Id: ns_fsi.cpp,v 1.1 2006/02/18 21:03:39 mstorti Exp $
 #include <src/debug.h>
 #include <malloc.h>
 
@@ -21,9 +21,7 @@
 static char help[] = "PETSc-FEM Navier Stokes module\n\n";
 
 extern int MY_RANK,SIZE;
-WallData wall_data;
-
-int fsi_main();
+extern WallData wall_data;
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 /** Creates hooks depending on the name. 
@@ -31,21 +29,21 @@ int fsi_main();
     @return a pointer to the hook. */ 
 Hook *ns_hook_factory(const char *name);
 
-vector<double> data_pts;
-vector<ElemToPtr> elemset_pointer;
+extern vector<double> data_pts;
+extern vector<ElemToPtr> elemset_pointer;
 
 //debug:=
-int TSTEP=0;
-int fractional_step;
-int reuse_mat;
+extern int TSTEP;
+extern int fractional_step;
+extern int reuse_mat;
 
 //-------<*>-------<*>-------<*>-------<*>-------<*>------- 
 #undef __FUNC__
-GlobParam *GLOB_PARAM;
+extern GlobParam *GLOB_PARAM;
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 #define __FUNC__ "main"
-int main(int argc,char **args) {
+int fsi_main() {
 
   Vec x, xp, dx, xold, dx_step, res; // approx solution, RHS, residual
   PetscViewer matlab;
@@ -72,22 +70,13 @@ int main(int argc,char **args) {
   vector<double> hmin;
   hmin.resize(1);
 
-  PetscInitialize(&argc,&args,(char *)0,help);
-
-  int fsi=0;
-  if (MY_RANK==0 && argc>=2 && !strcmp(args[1],"-fsi")) fsi=1;
-  MPI_Bcast(&fsi,1,MPI_INT,0,PETSC_COMM_WORLD);
-
-  if (fsi) return fsi_main();
-
+  //  PetscInitialize(&argc,&args,(char *)0,help);
   // Get MPI info
   MPI_Comm_size(PETSC_COMM_WORLD,&SIZE);
   MPI_Comm_rank(PETSC_COMM_WORLD,&MY_RANK);
 
-  if (argc>1 && !strcmp(args[1],"-fsi")) return fsi_main();
-
   print_copyright();
-  PetscPrintf(PETSC_COMM_WORLD,"-------- Navier-Stokes module ---------\n");
+  PetscPrintf(PETSC_COMM_WORLD,"-------- Navier-Stokes - Fluid Structure Interaction module ---------\n");
 
   Debug debug(0,PETSC_COMM_WORLD);
   GLOBAL_DEBUG = &debug;
@@ -137,6 +126,8 @@ int main(int argc,char **args) {
   }
 #endif
 
+  //o The number of outer stages for convergence in coupled problems.
+  TGETOPTDEF(GLOBAL_OPTIONS,int,nstage,1);
   //o Use fractional step or TET algorithm
   TGETOPTDEF_ND(GLOBAL_OPTIONS,int,fractional_step,0);
   //o Use fractional step or TET algorithm
@@ -257,6 +248,7 @@ int main(int argc,char **args) {
   // mechanism. 
   //i_tex ../../doc/nsdoc.tex print_some
   GETOPTDEF(int,nsome,10000);
+
   //o The number of time steps. 
   GETOPTDEF(int,nstep,10000);
   //o The time step.
@@ -534,6 +526,17 @@ int main(int argc,char **args) {
 #endif
 
     hook_list.time_step_pre(time_star.time(),tstep);
+
+    for (int stage=0; stage<nstage; stage++) {
+      
+      PetscPrintf(PETSC_COMM_WORLD,
+		  " --------------------------------------\n"
+		  "Stage in Navier-Stokes #: %d / %d \n"
+		  " --------------------------------------\n",
+		  stage,nstage);
+      
+      hook_list.stage("stage_pre",stage,time_star.time());
+
     // Jacobian update logic
     update_jacobian_this_step = (tstep < update_jacobian_start_steps) 
       || ((tstep-update_jacobian_start_steps) % update_jacobian_steps == 0);
@@ -990,6 +993,11 @@ int main(int argc,char **args) {
       ierr = assemble(mesh,arglf,dofmap,"gather",&time_star);
       CHKERRA(ierr);
     }
+
+      hook_list.stage("stage_post",stage,time_star.time());
+      
+    } // end for stage
+    
 
     hook_list.time_step_post(time_star.time(),tstep,gather_values);
 

@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: advdif.cpp,v 1.68 2006/02/18 21:03:09 mstorti Exp $
+//$Id: advdif_fsi.cpp,v 1.1 2006/02/18 21:03:36 mstorti Exp $
 
 #include <src/debug.h>
 #include <set>
@@ -18,13 +18,20 @@
 
 static char help[] = "Basic finite element program.\n\n";
 
-GlobParam *GLOB_PARAM;
+extern GlobParam *GLOB_PARAM;
 
 extern int MY_RANK,SIZE;
-int print_internal_loop_conv_g=0,
+/*
+extern int print_internal_loop_conv_g=0,
   consistent_supg_matrix_g=0,
   local_time_step_g=0,
   comp_mat_each_time_step_g=0,
+  verify_jacobian_with_numerical_one;
+*/
+extern int print_internal_loop_conv_g,
+  consistent_supg_matrix_g,
+  local_time_step_g,
+  comp_mat_each_time_step_g,
   verify_jacobian_with_numerical_one;
 
 #define VECVIEW(name,label) \
@@ -37,33 +44,12 @@ ierr = VecView(name,matlab); CHKERRA(ierr)
 #define PetscViewerSetFormat_WRAPPER(viewer,format,name) \
           PetscViewerSetFormat(viewer,format)
 
-int bubbly_main();
-int fsi_main();
-
 Hook *advdif_hook_factory(const char *name);
 
 //-------<*>-------<*>-------<*>-------<*>-------<*>------- 
 #undef __FUNC__
 #define __FUNC__ "main"
-int main(int argc,char **args) {
-
-  PetscInitialize(&argc,&args,(char *)0,help);
-  int bubbly=0;
-  int fsi=0;
-  if (MY_RANK==0 && argc>=2 && !strcmp(args[1],"-bubbly")) bubbly=1;
-  MPI_Bcast(&bubbly,1,MPI_INT,0,PETSC_COMM_WORLD);
-  if (MY_RANK==0 && argc>=2 && !strcmp(args[1],"-fsi")) fsi=1;
-  MPI_Bcast(&fsi,1,MPI_INT,0,PETSC_COMM_WORLD);
-
-  if (bubbly) return bubbly_main();
-  if (fsi) return fsi_main();
-
-  // Get MPI info
-  MPI_Comm_size(PETSC_COMM_WORLD,&SIZE);
-  MPI_Comm_rank(PETSC_COMM_WORLD,&MY_RANK);
-
-  if (argc>1 && !strcmp(args[1],"-bubbly")) return bubbly_main();
-  if (argc>1 && !strcmp(args[1],"-fsi")) return fsi_main();
+int fsi_main() {
   
   Vec     x, dx, xold, res; /* approx solution, RHS, residual*/
   PFMat *A,*AA;			// linear system matrix 
@@ -95,7 +81,11 @@ int main(int argc,char **args) {
   // elemsetlist =  da_create(sizeof(Elemset *));
   print_copyright();
   PetscPrintf(PETSC_COMM_WORLD,
-	      "-------- Generic Advective-Diffusive  module ---------\n");
+	      "-------- Generic Advective-Diffusive / Fluid Structure Interaction module ---------\n");
+
+  // Get MPI info
+  MPI_Comm_size(PETSC_COMM_WORLD,&SIZE);
+  MPI_Comm_rank(PETSC_COMM_WORLD,&MY_RANK);
 
   Debug debug(0,PETSC_COMM_WORLD);
   GLOBAL_DEBUG = &debug;
@@ -153,6 +143,7 @@ int main(int argc,char **args) {
 
   //o The number of time steps. 
   GETOPTDEF(int,nstep,10000);
+
   //o Output CPU time statistics for frequency in time steps. 
   GETOPTDEF(int,nstep_cpu_stat,10);
   //o After computing the linear system prints Jacobian and
@@ -191,6 +182,9 @@ int main(int argc,char **args) {
   //o Type of solver. May be  #iisd#  or  #petsc# . 
   TGETOPTDEF_S(GLOBAL_OPTIONS,string,solver,petsc);
   if (use_iisd) solver = string("iisd");
+
+  //o The number of outer stages for convergence in coupled problems.
+  TGETOPTDEF(GLOBAL_OPTIONS,int,nstage,1);
 
   // Use IISD (Interface Iterative Subdomain Direct) or not.
   // A_tet = (use_iisd ? &IISD_A_tet : &PETSc_A_tet);
@@ -361,6 +355,9 @@ int main(int argc,char **args) {
 #define STAT_STEPS 5
   double cpu[STAT_STEPS],cpuav;
   int update_jacobian_this_step,update_jacobian_this_iter;
+
+  double time_, delta_u;
+
   for (int tstep=1; tstep<=nstep; tstep++) {
     time_star.set(time.time()+alpha*Dt);
     // Take cputime statistics
@@ -385,78 +382,88 @@ int main(int argc,char **args) {
     chrono.start();
     ierr = VecCopy(x,xold);
     hook_list.time_step_pre(time_star.time(),tstep);
-
-    for (int inwt=0; inwt<nnwt; inwt++) {
-
-      // Initializes res
-      scal=0;
-      ierr = VecSet(&scal,res); CHKERRA(ierr);
-
-      if (comp_mat_each_time_step_g) {
-
-	//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
-	// ierr = A->build_sles(GLOBAL_OPTIONS); CHKERRA(ierr); 
-
-	ierr = A->clean_mat(); CHKERRA(ierr); 
-#ifdef CHECK_JAC
-	ierr = AA->clean_mat(); CHKERRA(ierr);
-#endif
-	VOID_IT(argl);
-	argl.arg_add(&xold,IN_VECTOR);
-#ifndef CHECK_JAC
-	argl.arg_add(&x,IN_VECTOR);
-#else
-	argl.arg_add(&x,PERT_VECTOR);
-#endif
-	argl.arg_add(&res,OUT_VECTOR);
-	argl.arg_add(&dtmin,VECTOR_MIN);
-	argl.arg_add(A,OUT_MATRIX|PFMAT);
-	argl.arg_add(&glob_param,USER_DATA);
-#ifdef CHECK_JAC
-	argl.arg_add(AA,OUT_MATRIX_FDJ|PFMAT);
-#endif
-
-	if (measure_performance) {
-	  ierr = measure_performance_fun(mesh,argl,dofmap,"comp_res",
-					 &time_star); CHKERRA(ierr);
-	  PetscFinalize();
-	  exit(0);
-	}
-	debug.trace("Before residual computation...");
-	ierr = assemble(mesh,argl,dofmap,"comp_res",&time_star); CHKERRA(ierr);
-	debug.trace("After residual computation.");
-
-	if (!print_linear_system_and_stop || solve_system) {
-	  debug.trace("Before solving linear system...");
-	  ierr = A->solve(res,dx); CHKERRA(ierr); 
-	  debug.trace("After solving linear system.");
-	}
-	// ierr = SLESDestroy(sles);
-	// ierr = A->destroy_sles(); CHKERRA(ierr); 
+    
+    for (int stage=0; stage<nstage; stage++) {
       
-      } else {
+      PetscPrintf(PETSC_COMM_WORLD,
+		  " --------------------------------------\n"
+		  "Stage in Advdif #: %d / %d \n"
+		  " --------------------------------------\n",
+		  stage,nstage);
+      
+      hook_list.stage("stage_pre",stage,time_star.time());
+      
+      for (int inwt=0; inwt<nnwt; inwt++) {
+	
+	// Initializes res
+	scal=0;
+	ierr = VecSet(&scal,res); CHKERRA(ierr);
+	
+	if (comp_mat_each_time_step_g) {
+	  
+	  //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+	  // ierr = A->build_sles(GLOBAL_OPTIONS); CHKERRA(ierr); 
+	  
+	  ierr = A->clean_mat(); CHKERRA(ierr); 
+#ifdef CHECK_JAC
+	  ierr = AA->clean_mat(); CHKERRA(ierr);
+#endif
+	  VOID_IT(argl);
+	  argl.arg_add(&xold,IN_VECTOR);
+#ifndef CHECK_JAC
+	  argl.arg_add(&x,IN_VECTOR);
+#else
+	  argl.arg_add(&x,PERT_VECTOR);
+#endif
+	  argl.arg_add(&res,OUT_VECTOR);
+	  argl.arg_add(&dtmin,VECTOR_MIN);
+	  argl.arg_add(A,OUT_MATRIX|PFMAT);
+	  argl.arg_add(&glob_param,USER_DATA);
+#ifdef CHECK_JAC
+	  argl.arg_add(AA,OUT_MATRIX_FDJ|PFMAT);
+#endif
+	  
+	  if (measure_performance) {
+	    ierr = measure_performance_fun(mesh,argl,dofmap,"comp_res",
+					   &time_star); CHKERRA(ierr);
+	    PetscFinalize();
+	    exit(0);
+	  }
+	  debug.trace("Before residual computation...");
+	  ierr = assemble(mesh,argl,dofmap,"comp_res",&time_star); CHKERRA(ierr);
+	  debug.trace("After residual computation.");
+	  
+	  if (!print_linear_system_and_stop || solve_system) {
+	    debug.trace("Before solving linear system...");
+	    ierr = A->solve(res,dx); CHKERRA(ierr); 
+	    debug.trace("After solving linear system.");
+	  }
+	  // ierr = SLESDestroy(sles);
+	  // ierr = A->destroy_sles(); CHKERRA(ierr); 
+	  
+	} else {
+	  
+	  VOID_IT(argl);
+	  argl.arg_add(&x,IN_VECTOR);
+	  argl.arg_add(&res,OUT_VECTOR);
+	  argl.arg_add(&dtmin,VECTOR_MIN);
+	  
+	  if (measure_performance) {
+	    ierr = measure_performance_fun(mesh,argl,dofmap,"comp_res",
+					   &time_star); CHKERRA(ierr);
+	    PetscFinalize();
+	    exit(0);
+	  }
+	  ierr = assemble(mesh,argl,dofmap,"comp_res",&time_star); CHKERRA(ierr);
 
-	VOID_IT(argl);
-	argl.arg_add(&x,IN_VECTOR);
-	argl.arg_add(&res,OUT_VECTOR);
-	argl.arg_add(&dtmin,VECTOR_MIN);
-
-	if (measure_performance) {
-	  ierr = measure_performance_fun(mesh,argl,dofmap,"comp_res",
-					 &time_star); CHKERRA(ierr);
-	  PetscFinalize();
-	  exit(0);
+	  if (!print_linear_system_and_stop || solve_system) {
+	    ierr = A->solve(res,dx); CHKERRA(ierr); 
+	    // ierr = SLESSolve(sles,res,dx,&its); CHKERRA(ierr); 
+	  }
 	}
-	ierr = assemble(mesh,argl,dofmap,"comp_res",&time_star); CHKERRA(ierr);
-
-	if (!print_linear_system_and_stop || solve_system) {
-	  ierr = A->solve(res,dx); CHKERRA(ierr); 
-	  // ierr = SLESSolve(sles,res,dx,&its); CHKERRA(ierr); 
-	}
-      }
-
-      //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:
-      // FEM matrix jacobian debug  (perturbation)
+	
+	//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:
+	// FEM matrix jacobian debug  (perturbation)
 #if 0
 	PetscViewer matlab;
 	if (verify_jacobian_with_numerical_one) {
@@ -493,98 +500,105 @@ int main(int argc,char **args) {
 	  exit(0);
 	}
 #endif
-      
-      if (print_linear_system_and_stop && 
-	  inwt==inwt_stop && tstep==time_step_stop) {
-	PetscPrintf(PETSC_COMM_WORLD,
-		    "Printing residual and matrix for debugging and stopping..\n");
-	PetscViewer matlab;
-	ierr = PetscViewerASCIIOpen(PETSC_COMM_WORLD,
-			       "mat.output",&matlab); CHKERRA(ierr);
-	ierr = PetscViewerSetFormat_WRAPPER(matlab, 
-			       PETSC_VIEWER_ASCII_MATLAB,"res");
-	ierr = VecView(res,matlab);
-	if (solve_system) {
+	
+	if (print_linear_system_and_stop && 
+	    inwt==inwt_stop && tstep==time_step_stop) {
+	  PetscPrintf(PETSC_COMM_WORLD,
+		      "Printing residual and matrix for debugging and stopping..\n");
+	  PetscViewer matlab;
+	  ierr = PetscViewerASCIIOpen(PETSC_COMM_WORLD,
+				      "mat.output",&matlab); CHKERRA(ierr);
 	  ierr = PetscViewerSetFormat_WRAPPER(matlab, 
-				 PETSC_VIEWER_ASCII_MATLAB,"dx");
-	  ierr = VecView(dx,matlab);
-	}
-	ierr = PetscViewerSetFormat_WRAPPER(matlab, 
-			       PETSC_VIEWER_ASCII_MATLAB,"A");
-	ierr = A->view(matlab);
-	print_vector(save_file_res.c_str(),res,dofmap,&time); // debug:=
+					      PETSC_VIEWER_ASCII_MATLAB,"res");
+	  ierr = VecView(res,matlab);
+	  if (solve_system) {
+	    ierr = PetscViewerSetFormat_WRAPPER(matlab, 
+						PETSC_VIEWER_ASCII_MATLAB,"dx");
+	    ierr = VecView(dx,matlab);
+	  }
+	  ierr = PetscViewerSetFormat_WRAPPER(matlab, 
+					      PETSC_VIEWER_ASCII_MATLAB,"A");
+	  ierr = A->view(matlab);
+	  print_vector(save_file_res.c_str(),res,dofmap,&time); // debug:=
 #ifdef CHECK_JAC
-	ierr = PetscViewerSetFormat_WRAPPER(matlab, 
-			       PETSC_VIEWER_ASCII_MATLAB,"AA");
-	ierr = AA->view(matlab);
+	  ierr = PetscViewerSetFormat_WRAPPER(matlab, 
+					      PETSC_VIEWER_ASCII_MATLAB,"AA");
+	  ierr = AA->view(matlab);
 #endif
-	PetscFinalize();
-	exit(0);
+	  PetscFinalize();
+	  exit(0);
+	}
+	
+	ierr  = VecNorm(res,NORM_2,&normres); CHKERRA(ierr);
+	if (inwt==0) normres_ext = normres;
+	PetscPrintf(PETSC_COMM_WORLD,
+		    "Newton subiter %d, norm_res  = %10.3e\n",
+		    inwt,normres);
+	scal=omega_newton/alpha;
+	ierr = VecAXPY(&scal,dx,x);
+	if (normres < tol_newton) break;
+      }   // loop newton
+      
+      
+      // Prints residual and mass matrix in Matlab format
+      // Define time step depending on strategy. Automatic time step,
+      // local time step, etc... 
+      if (auto_time_step) Dt = Courant*dtmin[0];
+      if (local_time_step) Dt = Courant;
+      if (Dt<=0.) {
+	PFEMERRQ("error: Dt<=0. You have to set Dt>0 or use "
+		 "the auto_time_step flag.\n");
       }
+      // SHV(Dt);
+      time.inc(Dt);
+      
+      // Upgrade state vector.
+      
+      VOID_IT(argl);
+      argl.arg_add(&x,IN_OUT_VECTOR);
+      argl.arg_add(&xold,IN_VECTOR);
+      ierr = assemble(mesh,argl,dofmap,"absorb_bc_proj",&time_star); CHKERRA(ierr);
+      
+      //      double time_=time;
+      time_=time;
+      
+      // Reuse dx for computing the delta state vector after re-projecting
+      //      double delta_u;
 
-      ierr  = VecNorm(res,NORM_2,&normres); CHKERRA(ierr);
-      if (inwt==0) normres_ext = normres;
-      PetscPrintf(PETSC_COMM_WORLD,
-		  "Newton subiter %d, norm_res  = %10.3e\n",
-		  inwt,normres);
-      scal=omega_newton/alpha;
-      ierr = VecAXPY(&scal,dx,x);
-      if (normres < tol_newton) break;
-    }
-
-    // Prints residual and mass matrix in Matlab format
-    // Define time step depending on strategy. Automatic time step,
-    // local time step, etc... 
-    if (auto_time_step) Dt = Courant*dtmin[0];
-    if (local_time_step) Dt = Courant;
-    if (Dt<=0.) {
-      PFEMERRQ("error: Dt<=0. You have to set Dt>0 or use "
-	       "the auto_time_step flag.\n");
-    }
-    // SHV(Dt);
-    time.inc(Dt);
-
-    // Upgrade state vector.
-
-    VOID_IT(argl);
-    argl.arg_add(&x,IN_OUT_VECTOR);
-    argl.arg_add(&xold,IN_VECTOR);
-    ierr = assemble(mesh,argl,dofmap,"absorb_bc_proj",&time_star); CHKERRA(ierr);
-
-    double time_=time;
-
-    // Reuse dx for computing the delta state vector after re-projecting
-    double delta_u;
-    ierr = VecCopy(x,dx);
-    scal=-1.;
-    ierr = VecAXPY(&scal,xold,dx);
-    ierr  = VecNorm(dx,NORM_2,&delta_u); CHKERRA(ierr);
-
-    if (tstep % nsave == 0){
-      PetscPrintf(PETSC_COMM_WORLD,
-		  " --------------------------------------\n"
-		  "Time step: %d\n"
-		  " --------------------------------------\n",
-		  tstep);
-
-      print_vector(save_file.c_str(),x,dofmap,&time);
-      if (print_residual)
-	print_vector(save_file_res.c_str(),res,dofmap,&time);
-    }
-
-    if (ngather>0) {
-      gather_values.resize(ngather,0.);
-      for (int j=0; j<ngather; j++) gather_values[j] = 0.;
-      arglf.clear();
-      arglf.arg_add(&x,IN_VECTOR);
-      arglf.arg_add(&xold,IN_VECTOR);
-      arglf.arg_add(&gather_values,VECTOR_ADD);
-      ierr = assemble(mesh,arglf,dofmap,"gather",&time);
-      CHKERRA(ierr);
-    }
-
+      ierr = VecCopy(x,dx);
+      scal=-1.;
+      ierr = VecAXPY(&scal,xold,dx);
+      ierr  = VecNorm(dx,NORM_2,&delta_u); CHKERRA(ierr);
+      
+      if (tstep % nsave == 0){
+	PetscPrintf(PETSC_COMM_WORLD,
+		    " --------------------------------------\n"
+		    "Time step: %d\n"
+		    " --------------------------------------\n",
+		    tstep);
+	
+	print_vector(save_file.c_str(),x,dofmap,&time);
+	if (print_residual)
+	  print_vector(save_file_res.c_str(),res,dofmap,&time);
+      }
+      
+      if (ngather>0) {
+	gather_values.resize(ngather,0.);
+	for (int j=0; j<ngather; j++) gather_values[j] = 0.;
+	arglf.clear();
+	arglf.arg_add(&x,IN_VECTOR);
+	arglf.arg_add(&xold,IN_VECTOR);
+	arglf.arg_add(&gather_values,VECTOR_ADD);
+	ierr = assemble(mesh,arglf,dofmap,"gather",&time);
+	CHKERRA(ierr);
+      }
+      
+      hook_list.stage("stage_post",stage,time_star.time());
+      
+    } // end for stage
+    
     hook_list.time_step_post(time_star.time(),tstep,gather_values);
-
+    
     if (ngather>0) {
       // Print gathered values
       if (MY_RANK==0) {
@@ -614,7 +628,7 @@ int main(int argc,char **args) {
     
     if (normres_ext < tol_steady) break;
       
-  }
+  }  // loop time
   hook_list.close();
 
   print_vector(save_file.c_str(),x,dofmap,&time);

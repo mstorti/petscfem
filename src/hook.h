@@ -1,6 +1,6 @@
 // -*- mode: C++ -*-
 /*__INSERT_LICENSE__*/
-//$Id: hook.h,v 1.2 2003/02/04 23:28:47 mstorti Exp $
+//$Id: hook.h,v 1.3 2006/02/18 21:03:15 mstorti Exp $
 
 #ifndef HOOK_H
 #define HOOK_H
@@ -28,6 +28,9 @@ public:
       @param gather_values (input) the values gathered at this time step  */ 
   virtual void time_step_post(double time,int step,
 			      const vector<double> &gather_values) {}
+  /** This is executed inside each stage in a time step 
+      It is an outer loop to guarantee convergence for coupled problems */
+  virtual void stage(const char *jobinfo,int stage, double time) {}
   /** This is executed after the finalization of the program */ 
   virtual void close() {}
 };
@@ -53,6 +56,8 @@ public:
   void time_step_post(double time,int step,
 		      const vector<double> &gather_values);
   /** This is executed after the finalization of the program */ 
+  void stage(const char *jobinfo,int stage, double time);
+  /** For convergence in an outer loop over the coupled problem */
   virtual void close();
   /// Dtor.
   ~HookList();

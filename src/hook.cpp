@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: hook.cpp,v 1.9 2003/07/02 23:22:19 mstorti Exp $
+//$Id: hook.cpp,v 1.10 2006/02/18 21:03:15 mstorti Exp $
 
 #include <src/fem.h>
 #include <src/readmesh.h>
@@ -72,6 +72,13 @@ void HookList::time_step_post(double time,int step,
   HookList::iterator q;
   for (q=begin(); q!=end(); q++) 
     (*q)->time_step_post(time,step,gather_values);
+}
+
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+void HookList::stage(const char *jobinfo,int stage, double time) {
+  HookList::iterator q;
+  for (q=begin(); q!=end(); q++) 
+    (*q)->stage(jobinfo,stage,time);
 }
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
