@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: nsitetasm.cpp,v 1.3 2005/10/13 16:21:53 mstorti Exp $
+//$Id: nsitetasm.cpp,v 1.4 2006/02/18 22:40:47 mstorti Exp $
 
 #include <src/fem.h>
 #include <src/utils.h>
@@ -95,13 +95,13 @@ void compute_vel_g(const FastMat2 &v_m, FastMat2 &vslip_vp, const FastMat2 &vsli
   // modifico velocidad slip de la escoria por la diferencia de densidades con la mezcla
   double factor,tmp;
   if (use_modified_slag_vslip) {
-    if(1){      
+    if(0){      
       double rho_g = rho_g_vp.get(nphases);
       tmp = double(vslip_m_vp.get(nphases))*(1.-rho_g/rho_m);
     } else {
       double alpha_g = alpha_g_vp.get(nphases);
-      if(0){
-	factor = 1.0-tanh(alpha_g/0.3);
+      if(1){
+	factor = -tanh((alpha_g-1.0)/0.05);
       } else {
 	factor = pow((1.0-alpha_g),3.0);
       }

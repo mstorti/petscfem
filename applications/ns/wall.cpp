@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: wall.cpp,v 1.21 2005/08/02 18:20:49 mstorti Exp $
+//$Id: wall.cpp,v 1.22 2006/02/18 22:40:47 mstorti Exp $
 
 #include <src/fem.h>
 #include <src/utils.h>
@@ -76,12 +76,20 @@ void wall::initialize() {
   ierr = get_int(thash,"ndim",&ndim);
   assert(!ierr);
   // convert pointers
-  data_pts.resize(ndim*nelem); // Not implemented yet
-				// Number of wall elemsets >1
   elemset_pointer.push_back(ElemToPtr(nelem,this));
   assert(elemset_pointer.size()==1); // Not implemented yet
 				// Number of wall elemsets >1
 				// see above!!
+}
+
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:
+void wall
+::before_assemble(arg_data_list &arg_datav,Nodedata *nodedata,
+		  Dofmap *dofmap, const char *jobinfo,int myrank,
+		  int el_start,int el_last,int iter_mode,
+		  const TimeData *time_data) {
+  data_pts.resize(ndim*nelem); // fixme:= Not implemented yet
+				// case with number of wall elemsets >1
 }
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:

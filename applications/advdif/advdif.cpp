@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: advdif.cpp,v 1.68 2006/02/18 21:03:09 mstorti Exp $
+//$Id: advdif.cpp,v 1.69 2006/02/18 22:40:44 mstorti Exp $
 
 #include <src/debug.h>
 #include <set>
@@ -247,7 +247,14 @@ int main(int argc,char **args) {
     consistent_supg_matrix || local_time_step;
 
   //o Counts time from here.
-  GETOPTDEF(double,start_time,0.);
+  GETOPTDEF(double,start_comp_time,0.);
+  //o Counts time from here. (superseded by
+  //  #start_comp_time# for compatibility with Navier-Stokes
+  //  module). 
+  GETOPTDEF(double,start_time,NAN);
+  if (!isnan(start_time) && start_comp_time!=0.0)
+    start_comp_time = start_time;
+  
   //o Tolerance when solving with the mass matrix. 
   GETOPTDEF(double,tol_mass,1e-3);
   //o Tolerance when solving the sublinear problem
@@ -260,9 +267,10 @@ int main(int argc,char **args) {
   GETOPTDEF(double,tol_steady,0.);
   //o Relaxation factor for the Newton iteration
   GETOPTDEF(double,omega_newton,1.);
-  //
+  //o Computes jacobian of residuals and prints to a file.
+  //  May serve to debug computation of the analytic jacobians. 
   GETOPTDEF(int,verify_jacobian_with_numerical_one,0);
-  //
+
 #define INF INT_MAX
   //o Update jacobian each $n$-th time step. 
   GETOPTDEF(int,update_jacobian_start_steps,INF);
@@ -296,7 +304,7 @@ int main(int argc,char **args) {
   strcpy(preco_type_,preco_type.c_str());
 
   Time time,time_star;
-  time.set(start_time);
+  time.set(start_comp_time);
   glob_param.time = &time;
 
   //o The pattern to generate the file name to save in for
@@ -333,6 +341,11 @@ int main(int argc,char **args) {
   arg_list argl,arglf;
 
   //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+  // Hook stuff
+  HookList hook_list;
+  hook_list.init(*mesh,*dofmap,advdif_hook_factory);
+
+  //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
   // Compute  profiles
   debug.trace("Computing profiles...");
   VOID_IT(argl);
@@ -348,11 +361,6 @@ int main(int argc,char **args) {
 
   //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
   ierr = opt_read_vector(mesh,x,dofmap,MY_RANK); CHKERRA(ierr);
-
-  //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
-  // Hook stuff
-  HookList hook_list;
-  hook_list.init(*mesh,*dofmap,advdif_hook_factory);
 
   //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:
   // This is for taking statistics of the

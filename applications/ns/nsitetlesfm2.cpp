@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: nsitetlesfm2.cpp,v 1.74 2005/09/20 01:30:29 mstorti Exp $
+//$Id: nsitetlesfm2.cpp,v 1.75 2006/02/18 22:40:47 mstorti Exp $
 
 #include <src/fem.h>
 #include <src/utils.h>
@@ -175,6 +175,10 @@ assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
   assert(A_van_Driest>=0.);
   //o print Van Driest factor
   SGETOPTDEF(int,print_van_Driest,0); 
+
+  SGETOPTDEF(int,update_wall_data,0);
+  assert(!((A_van_Driest>0)&&(update_wall_data==0)));
+
   //o Scale the SUPG and PSPG stabilization term. 
   SGETOPTDEF(double,tau_fac,1.);  // Scale upwind
   //o Scales the PSPG stabilization term. 
@@ -295,7 +299,7 @@ assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
     xloc.rs();
     Hloc.rs();
 
-    if (get_nearest_wall_element && A_van_Driest>0.) {
+    if ( A_van_Driest>0.&& get_nearest_wall_element ) {
       assert(LES);
 #ifdef USE_ANN
       xc.sum(xloc,-1,1).scale(1./double(nel));
@@ -390,6 +394,10 @@ assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
       wall_data->nearest_elem_info(NN_IDX(k),wall_elemset,wall_elem,wall_coords_);
       wall_coords.set(wall_coords_);
       shear_vel = wall_elemset->elemprops_add[wall_elem];
+
+      xc.sum(xloc,-1,1).scale(1./double(nel));
+      dist_to_wall.set(xc).rest(wall_coords);
+
 #else
       PETSCFEM_ERROR0("Not compiled with ANN library!!\n");
 #endif
@@ -480,13 +488,13 @@ assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
 	}
 
 	// Smagorinsky turbulence model
-	double nu_eff,van_D;
+	double nu_eff,van_D,ywall;
 	if (LES) {
 	  double tr = (double) tmp15.prod(strain_rate,strain_rate,-1,-2,-1,-2);
 	  //	  double van_D;
 	  if (A_van_Driest>0.) {
-	    dist_to_wall.prod(SHAPE,xloc,-1,-1,1).rest(wall_coords);
-	    double ywall = sqrt(dist_to_wall.sum_square_all());
+	    //	    dist_to_wall.prod(SHAPE,xloc,-1,-1,1).rest(wall_coords);
+	    ywall = sqrt(dist_to_wall.sum_square_all());
 	    double y_plus = ywall*shear_vel/VISC;
 	    van_D = 1.-exp(-y_plus/A_van_Driest);
 	  } else van_D = 1.;
@@ -498,7 +506,9 @@ assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
 	}
 
 	if (print_van_Driest && (k % 1==0)) 
-	  printf("element %d , van_D: %f, nu_eff: %f\n",ielh, van_D,nu_eff);
+	  printf("element %d , y: %f,van_D: %f, nu_eff: %f\n",
+		 ielh, ywall, van_D,nu_eff);
+
 
 	vel_supg.set(u).rest(v_mesh).rs();
 

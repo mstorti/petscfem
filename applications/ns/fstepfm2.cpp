@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: fstepfm2.cpp,v 1.36 2005/10/25 14:06:28 mstorti Exp $
+//$Id: fstepfm2.cpp,v 1.37 2006/02/18 22:40:47 mstorti Exp $
  
 #include <src/fem.h>
 #include <src/utils.h>
@@ -13,7 +13,7 @@
 #define MAXPROP 100
 extern int MY_RANK,SIZE;
 
-extern WallData *wall_data;
+// extern WallData wall_data;
 
 const double FIX = 1.0;
 /** Fixes all diagonal terms in matrix #A# so that they are #>0#, i.e.,
@@ -127,6 +127,16 @@ int fracstep::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
   double *locst,*locst2,*retval,*retvalmat,*retvalmat_mom,*retvalmat_poi,
     *retvalmat_prj;
 
+  WallData *wall_data_p=NULL;
+  if (get_nearest_wall_element) {
+    wall_data_p = (WallData *)arg_data_v[0].user_data;
+    if(!wall_data_p) {
+      printf("Null 'wall_data' object found.\n");
+      set_error(2);
+      return 1;
+    }
+  }
+    
   // rec_Dt is the reciprocal of Dt (i.e. 1/Dt)
   // for steady solutions it is set to 0. (Dt=inf)
   GlobParam *glob_param=NULL;
@@ -148,6 +158,7 @@ int fracstep::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
     Dt = glob_param->Dt;
     rec_Dt = 1./Dt;
     if (glob_param->steady) rec_Dt=0.;
+    wall_data_p = (WallData *)(arg_data_v[ja++].user_data);
   } else if (comp_mat_poi) {
     int ja=0;
     A_poi_arg = &arg_data_v[ja];
@@ -423,8 +434,7 @@ int fracstep::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
 #ifdef USE_ANN
       xc.sum(xloc,-1,1).scale(1./double(nel));
       int nn;
-      assert(wall_data);
-      wall_data->nearest(xc.storage_begin(),nn);
+      wall_data_p->nearest(xc.storage_begin(),nn);
       NN_IDX(k) = nn;
       continue;
 #else
@@ -466,12 +476,16 @@ int fracstep::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
       int wall_elem;
       if (LES && A_van_Driest>0.) {
 #ifdef USE_ANN
-	if (!wall_data) { set_error(2); return 1; }
+	if (!wall_data_p) { set_error(2); return 1; }
 	Elemset *wall_elemset;
 	const double *wall_coords_;
-	wall_data->nearest_elem_info(NN_IDX(k),wall_elemset,wall_elem,wall_coords_);
+	wall_data_p->nearest_elem_info(NN_IDX(k),wall_elemset,wall_elem,wall_coords_);
 	wall_coords.set(wall_coords_);
 	shear_vel = wall_elemset->elemprops_add[wall_elem];
+
+	xc.sum(xloc,-1,1).scale(1./double(nel));
+	dist_to_wall.set(xc).rest(wall_coords);
+	
 #else
 	PETSCFEM_ERROR0("Not compiled with ANN library!!\n");
 #endif
@@ -568,7 +582,7 @@ int fracstep::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
 	double tr = (double) tmp15.prod(strain_rate,strain_rate,-1,-2,-1,-2);
 	//	  double van_D;
 	if (A_van_Driest>0.) {
-	  dist_to_wall.prod(SHAPE,xloc,-1,-1,1).rest(wall_coords);
+	  //	  dist_to_wall.prod(SHAPE,xloc,-1,-1,1).rest(wall_coords);
 	  //	    double ywall = sqrt(dist_to_wall.sum_square_all());
 	  ywall = sqrt(dist_to_wall.sum_square_all());
 	  double y_plus = ywall*shear_vel/VISC;
@@ -583,8 +597,8 @@ int fracstep::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
 	double tr = (double) tmp15.prod(strain_rate,strain_rate,-1,-2,-1,-2);
 	//	double van_D;
 	if (A_van_Driest>0.) {
-	  dist_to_wall.prod(SHAPE,xloc,-1,-1,1).rest(wall_coords);
-	  double ywall = sqrt(dist_to_wall.sum_square_all());
+	  // dist_to_wall.prod(SHAPE,xloc,-1,-1,1).rest(wall_coords);
+	  ywall = sqrt(dist_to_wall.sum_square_all());
 	  double y_plus = ywall*shear_vel/VISC;
 	  van_D = 1.-exp(-y_plus/A_van_Driest);
 	  //	  if (k % 250==0) printf("van_D: %f\n",van_D);

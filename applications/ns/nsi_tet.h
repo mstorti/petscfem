@@ -1,6 +1,6 @@
 // -*- mode: C++ -*-
 /*__INSERT_LICENSE__*/
-//$Id: nsi_tet.h,v 1.51 2005/09/20 01:56:43 mstorti Exp $
+//$Id: nsi_tet.h,v 1.52 2006/02/18 22:40:47 mstorti Exp $
 #ifndef PETSCFEM_NSI_TET_H  
 #define PETSCFEM_NSI_TET_H
 
@@ -103,7 +103,7 @@ public:
   ASSEMBLE_FUNCTION;
 };
 
-#if 0
+#if 1
 //-------<*>-------<*>-------<*>-------<*>-------<*>------- 
 class bcconv_nsi_tet_asm_avgvol : public Elemset { 
 public: 
@@ -139,6 +139,10 @@ private:
   int ndim;
 public: 
   void initialize();
+  void before_assemble(arg_data_list &arg_datav,Nodedata *nodedata,
+		       Dofmap *dofmap, const char *jobinfo,int myrank,
+		       int el_start,int el_last,int iter_mode,
+		       const TimeData *time_data);
   ASK_FUNCTION;
   ASSEMBLE_FUNCTION;
 };
@@ -154,7 +158,7 @@ private:
   /// The octree
   ANNkd_tree *kd_tree;                 // search structure
   /// The position of the points
-  ANNpointArray	data_pts;		// data points
+  ANNpointArray data_pts;
 #endif
   /// Number of points
   int npoints;
@@ -166,8 +170,16 @@ private:
   int nelemset;
 public:
   /// constructor from a vector of coordinates, pointers and dimensions
-  WallData(vector<double> *data_pts_,vector<ElemToPtr>
-	   *elemset_pointer,int ndim_);
+  WallData();
+
+  /// Dtor. 
+  ~WallData();
+
+  void init(vector<double> *data_pts_,vector<ElemToPtr>
+	    *elemset_pointer,int ndim_);
+
+  void clear();
+
 #if USE_ANN
   /// find the nearest neighbor
   void nearest(const ANNpoint &point, Elemset *& elemset, int &elem, ANNidx &nn_idx,

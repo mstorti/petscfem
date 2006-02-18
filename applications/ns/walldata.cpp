@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: walldata.cpp,v 1.12 2004/10/01 00:55:22 mstorti Exp $
+//$Id: walldata.cpp,v 1.13 2006/02/18 22:40:47 mstorti Exp $
  
 #include <src/fem.h>
 //  #include <src/readmesh.h>
@@ -15,29 +15,50 @@ extern int MY_RANK,SIZE;
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 #undef __FUNC__
 #define __FUNC__ "WallData::WallData()"
-WallData::WallData(vector<double> *data_pts_,vector<ElemToPtr>
-		   *elemset_pointer_,int ndim_) {
+WallData::WallData() 
+  : kd_tree(NULL), data_pts(NULL) { }
+
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+void WallData
+::init(vector<double> *data_pts_a,
+       vector<ElemToPtr> *elemset_pointer_a,int ndim_) {
+  clear();
 #ifdef USE_ANN
   ndim=ndim_;
-  npoints = data_pts_->size()/ndim;
+
+  /// The position of the points
+  npoints = data_pts_a->size()/ndim;
   data_pts = annAllocPts(npoints,ndim);
 
   for (int k=0; k<npoints; k++) {
     for (int j=0; j<ndim; j++) {
-      data_pts[k][j] = (*data_pts_)[k*ndim+j];
+      data_pts[k][j] = (*data_pts_a)[k*ndim+j];
     }
   }
-  data_pts_->resize(0);
+  // This should go to wall::after_assemble()
+  data_pts_a->resize(0);
   kd_tree = new ANNkd_tree(data_pts,npoints,ndim);
 
   // copies temporary vector<ElemToPtr> to ElemToPtr[]
   // This is tricky?
-  nelemset = elemset_pointer_->size();
-  elemset_pointer = &*elemset_pointer_->begin();
+  nelemset = elemset_pointer_a->size();
+  elemset_pointer = &*elemset_pointer_a->begin();
 #else
   PETSCFEM_ERROR0("Not compiled with ANN library!!\n");
 #endif
 }
+
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+void WallData::clear() {
+  if (kd_tree) delete kd_tree;
+  kd_tree = NULL;
+  // fixme:= hmmmmm.... who deletes data_pts???
+}
+
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+#undef __FUNC__
+#define __FUNC__ "WallData::WallData()"
+WallData::~WallData() { clear(); }
 
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 

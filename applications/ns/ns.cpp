@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: ns.cpp,v 1.178 2006/02/18 21:03:12 mstorti Exp $
+//$Id: ns.cpp,v 1.179 2006/02/18 22:40:47 mstorti Exp $
 #include <src/debug.h>
 #include <malloc.h>
 
@@ -11,6 +11,7 @@
 #include <src/sttfilter.h>
 #include <src/pfmat.h>
 #include <src/hook.h>
+#include <src/iisdmatstat.h>
 
 // PETSc now doesn't have the string argument that represents the variable name
 // so that I will use this wrapper until I find how to set names in Ascii matlab viewers.
@@ -92,7 +93,14 @@ int main(int argc,char **args) {
   Debug debug(0,PETSC_COMM_WORLD);
   GLOBAL_DEBUG = &debug;
 
-  //  if (size != 1) SETERRA(1,0,"This is a uniprocessor example only!");
+  int activate_debug=0;
+  ierr = PetscOptionsGetInt(PETSC_NULL,"-activate_debug",
+			    &activate_debug,&flg);
+
+  if (activate_debug) {
+    debug.activate();
+    Debug::init();
+  }
   ierr = PetscOptionsGetString(PETSC_NULL,"-case",fcase,FLEN,&flg);
   CHKERRA(ierr);
   if (!flg) {
@@ -118,8 +126,9 @@ int main(int argc,char **args) {
   }
 
   // Read the mesh
+  debug.trace("Before readmesh.");
   ierr = read_mesh(mesh,fcase,dofmap,neq,SIZE,MY_RANK); CHKERRA(ierr); 
-  PetscPrintf(PETSC_COMM_WORLD,"After readmesh...\n");
+  debug.trace("After readmesh.");
 
   GLOBAL_OPTIONS = mesh->global_options;
 
@@ -145,7 +154,7 @@ int main(int argc,char **args) {
   TGETOPTDEF(GLOBAL_OPTIONS,int,fractional_step_use_petsc_symm,1);
   //o Solver combination for the fractional step method. May be #iisd#, 
   //  #lu#, #global_gmres#. 
-  TGETOPTDEF_S(GLOBAL_OPTIONS,string,fractional_step_solver_combo,"iisd");
+  TGETOPTDEF_S(GLOBAL_OPTIONS,string,fractional_step_solver_combo,iisd);
 
   //o After computing the linear system for the
   //  predictor/momentum step print right hand side
@@ -164,11 +173,12 @@ int main(int argc,char **args) {
   int do_stop;
 
   //o Activate debugging
-  GETOPTDEF(int,activate_debug,0);
+  TGETOPTDEF_ND(GLOBAL_OPTIONS,int,activate_debug,0);
   if (activate_debug) {
     debug.activate();
     Debug::init();
   }
+
   //o Activate printing in debugging
   GETOPTDEF(int,activate_debug_print,0);
   if (activate_debug_print) debug.activate("print");
@@ -229,7 +239,9 @@ int main(int argc,char **args) {
     double v = double(int(newton_relaxation_factor[j]));
     assert(v == newton_relaxation_factor[j]);
   }
-  
+
+  //o Computes jacobian of residuals and prints to a file.
+  //  May serve to debug computation of the analytic jacobians. 
   GETOPTDEF(int,verify_jacobian_with_numerical_one,0);
   //o After computing the linear system solves it and prints Jacobian,
   // right hand side and solution vector, and stops. 
@@ -353,8 +365,8 @@ int main(int argc,char **args) {
     A_tet = PFMat::dispatch(dofmap->neq,*dofmap,solver.c_str());
     A_tet_c = PFMat::dispatch(dofmap->neq,*dofmap,solver.c_str());
   } else {
-    A_mom = PFMat::dispatch(dofmap->neq,*dofmap,solver_mom.c_str());
     if (!fractional_step_use_petsc_symm) {
+      A_mom = PFMat::dispatch(dofmap->neq,*dofmap,solver_mom.c_str());
       A_poi = PFMat::dispatch(dofmap->neq,*dofmap,solver.c_str());
       A_poi->set_option("KSP_method","cg");
       A_poi->set_option("preco_side","left");
@@ -367,52 +379,47 @@ int main(int argc,char **args) {
 	A_mom->set_option("print_internal_loop_conv","1");
 	A_mom->set_option("iisdmat_print_statistics",1);
 	A_mom->set_option("use_interface_full_preco_nlay",1);
+	A_mom->set_option("block_uploading","2");
+
 	A_poi = PFMat::dispatch(dofmap->neq,*dofmap,"iisd");
 	A_poi->set_option("preco_type","jacobi");
 	A_poi->set_option("print_internal_loop_conv","1");
 	A_poi->set_option("block_uploading","0");
 	A_poi->set_option("iisdmat_print_statistics",1);
 	A_poi->set_option("use_interface_full_preco_nlay",1);
-	A_prj = PFMat::dispatch(dofmap->neq,*dofmap,"iisd");
+
+	A_prj = PFMat::dispatch(dofmap->neq,*dofmap,"petsc");
 	A_prj->set_option("preco_type","jacobi");
 	A_prj->set_option("print_internal_loop_conv","1");
 	A_prj->set_option("block_uploading","0");
-	A_prj->set_option("iisdmat_print_statistics",1);
-	A_prj->set_option("use_interface_full_preco_nlay",1);
 
       } else if (fractional_step_solver_combo=="global_gmres") {
 
 	// Global PETSc iteration
 	// A_mom->set_option("KSP_method",KSPBCGS);
+	A_mom = PFMat::dispatch(dofmap->neq,*dofmap,"petsc");
 	A_mom->set_option("KSP_method",KSPGMRES);
 	A_mom->set_option("preco_side","left");
 	A_mom->set_option("preco_type","jacobi");
-	A_mom->set_option("preco_type","jacobi");
-      
-	// A_poi = PFMat::dispatch(dofmap->neq,*dofmap,solver.c_str());
-#if 0
-	A_poi = PFMat::dispatch(dofmap->neq,*dofmap,"petsc_symm");
+
+#if 1      
+	A_poi = PFMat::dispatch(dofmap->neq,*dofmap,"petsc");
 	A_poi->set_option("KSP_method",KSPCG);
 	A_poi->set_option("preco_type","jacobi");
-	A_poi->set_option("block_uploading","0");
-	// A_poi->set_option("preco_side","left");
-	// A_poi->set_option("symmetric","1");
 #else
-	if (!MY_RANK) 
-	  printf("----Using IISD for Poisson.\n");
 	A_poi = PFMat::dispatch(dofmap->neq,*dofmap,"iisd");
 	A_poi->set_option("preco_type","jacobi");
 	A_poi->set_option("print_internal_loop_conv","1");
 	A_poi->set_option("block_uploading","0");
 	A_poi->set_option("iisdmat_print_statistics",1);
-	// A_poi->set_option("use_interface_full_preco_nlay",1);
+	A_poi->set_option("use_interface_full_preco_nlay",1);
 #endif
-	// A_prj = PFMat::dispatch(dofmap->neq,*dofmap,"petsc");
+
 	A_prj = PFMat::dispatch(dofmap->neq,*dofmap,"petsc_symm");
 	A_prj->set_option("KSP_method",KSPCG);
 	A_prj->set_option("preco_type","jacobi");
 	A_prj->set_option("block_uploading","0");
-	// A_prj->set_option("symmetric","1");
+
       } else if (fractional_step_solver_combo=="lu") {
 #define SET_SOLVER_OPTIONS(solv)				\
     solv = PFMat::dispatch(dofmap->neq,*dofmap,"petsc");	\
@@ -873,7 +880,9 @@ int main(int argc,char **args) {
 #define POI_SOLVE
 #ifdef POI_SOLVE
       debug.trace("-POISSON- Before solving linear system...");
+      // iisdmat_stat.reset();
       ierr = A_poi->solve(res,dx); CHKERRA(ierr); 
+      // iisdmat_stat.report();
       debug.trace("-POISSON- After solving linear system.");
 
       scal= 1.0;

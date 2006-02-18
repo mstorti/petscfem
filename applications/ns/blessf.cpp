@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-/* $Id: blessf.cpp,v 1.39 2006/02/14 23:48:30 mstorti Exp $ */
+/* $Id: blessf.cpp,v 1.40 2006/02/18 22:40:47 mstorti Exp $ */
 
 #include <src/debug.h>
 #include <malloc.h>
@@ -75,7 +75,7 @@ void bless_elemset(char *type,Elemset *& elemset) {
 
     SET_ELEMSET_TYPE(bcconv_ns_fm2)
     SET_ELEMSET_TYPE(bcconv_nsi_tet_asm)
-      // SET_ELEMSET_TYPE(bcconv_nsi_tet_asm_avgvol)
+    SET_ELEMSET_TYPE(bcconv_nsi_tet_asm_avgvol)
     SET_ELEMSET_TYPE(bcconv_nsther_fm2)
     SET_ELEMSET_TYPE(bcconv_nsasm_fm2)
     SET_ELEMSET_TYPE(bcconv_ns_gasflow)
