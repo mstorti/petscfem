@@ -1,6 +1,6 @@
 // -*- mode: C++ -*-
 /*__INSERT_LICENSE__*/
-//$Id: dlhook.h,v 1.2 2003/02/09 22:39:57 mstorti Exp $
+//$Id: dlhook.h,v 1.3 2006/02/19 01:33:15 mstorti Exp $
 
 #ifndef DLHOOK_H
 #define DLHOOK_H
@@ -11,7 +11,12 @@
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 class dl_generic_hook : public Hook {
 public:
-  dl_generic_hook() : options(NULL) {}
+  dl_generic_hook() : 
+    options(NULL), handle(NULL), 
+    fun_data(NULL), init_fun(NULL),
+    time_step_post_fun(NULL),
+    time_step_pre_fun(NULL),
+    stage_fun(NULL), close_fun(NULL) {}
   ~dl_generic_hook() { delete options; }
   typedef void InitFun(Mesh &mesh,Dofmap &dofmap,
 		       const char *name,TextHashTableFilter *options,
@@ -21,6 +26,8 @@ public:
 			       void *fun_data);
   typedef void TimeStepPreFun(double time,int step,
 			      void *fun_data);
+  typedef void StageFun(const char *jobinfo,int stage, 
+			double time, void *fun_data);
   typedef void CloseFun(void *fun_data);
 private:
   void *handle;
@@ -28,6 +35,7 @@ private:
   InitFun *init_fun;
   TimeStepPostFun *time_step_post_fun;
   TimeStepPreFun *time_step_pre_fun;
+  StageFun *stage_fun;
   CloseFun *close_fun;
 protected:
   string name;
@@ -40,6 +48,10 @@ public:
   void time_step_post(double time,int step,
 		      const vector<double> &gather_values) {
     (*time_step_post_fun)(time,step,gather_values,fun_data);
+  }
+  void stage(const char *jobinfo,
+	     int stage, double time) {
+    (*stage_fun)(jobinfo,stage,time,fun_data);
   }
   void close() { (*close_fun)(fun_data); }
 };
@@ -64,6 +76,12 @@ prefix##_time_step_post_fun(double time,int step,			\
 			    void *fun_data) {				\
   ((prefix *)fun_data)							\
     ->time_step_post(time,step,gather_values);				\
+}									\
+									\
+extern "C" void								\
+prefix##_stage_fun(const char *jobinfo,int stage,			\
+                   double time, void *fun_data) {			\
+  ((prefix *)fun_data)->stage(jobinfo,stage,time);			\
 }									\
 									\
 extern "C" void								\

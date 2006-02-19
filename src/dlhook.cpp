@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: dlhook.cpp,v 1.2 2003/02/09 22:39:57 mstorti Exp $
+//$Id: dlhook.cpp,v 1.3 2006/02/19 01:33:15 mstorti Exp $
 
 #ifdef USE_DLEF
 #include <src/fem.h>
@@ -45,6 +45,7 @@ void dl_generic_hook::init(Mesh &mesh,Dofmap &dofmap,
   GET_FUN(InitFun,init_fun);
   GET_FUN(TimeStepPostFun,time_step_post_fun);
   GET_FUN(TimeStepPreFun,time_step_pre_fun);
+  GET_FUN(StageFun,stage_fun);
   GET_FUN(CloseFun,close_fun);
 
   (*init_fun)(mesh,dofmap,name_a,options,fun_data);
