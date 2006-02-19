@@ -1,6 +1,6 @@
 # mode: -*- makefile -*-
 #__INSERT_LICENSE__
-#$Id: Makefile,v 1.63 2005/08/31 02:18:46 mstorti Exp $
+#$Id: Makefile,v 1.64 2006/02/19 01:26:13 mstorti Exp $
 
 SHELL = /bin/bash
 
@@ -60,6 +60,10 @@ apps_all:
 #w Make all `new' (NS and Advdif) applications
 napps_all: 
 	$(MAKE) advdif_all ns_all
+
+#w Make `new' (NS and Advdif) applications
+napps: 
+	$(MAKE) advdif ns
 
 #w Builds a package + doc + applications 
 bin_distrib: license sw finaldoc pflib applications
