@@ -4537,3 +4537,6 @@ tag: beta-3.49.22 on Sat, 18 Feb 2006 19:40:58 -0300 by mstorti in spider
 ----------
 tag: beta-3.49.23 on Sat, 18 Feb 2006 22:33:25 -0300 by mstorti in spider
      > Fixed bugs in loading `stage' functions for hooks. 
+----------
+tag: beta-3.49.24 on Sun, 19 Feb 2006 20:31:10 -0300 by mstorti in spider
+     > In staged mains (<prog>_fsi) now restores state at beginning of stage. 
