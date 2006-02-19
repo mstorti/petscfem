@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: advdif_fsi.cpp,v 1.1 2006/02/18 21:03:36 mstorti Exp $
+//$Id: advdif_fsi.cpp,v 1.2 2006/02/19 23:30:54 mstorti Exp $
 
 #include <src/debug.h>
 #include <set>
@@ -392,6 +392,7 @@ int fsi_main() {
 		  stage,nstage);
       
       hook_list.stage("stage_pre",stage,time_star.time());
+      if (stage>0) ierr = VecCopy(xold,x);
       
       for (int inwt=0; inwt<nnwt; inwt++) {
 	

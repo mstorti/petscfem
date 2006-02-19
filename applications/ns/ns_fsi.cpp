@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: ns_fsi.cpp,v 1.1 2006/02/18 21:03:39 mstorti Exp $
+//$Id: ns_fsi.cpp,v 1.2 2006/02/19 23:31:01 mstorti Exp $
 #include <src/debug.h>
 #include <malloc.h>
 
@@ -526,7 +526,8 @@ int fsi_main() {
 #endif
 
     hook_list.time_step_pre(time_star.time(),tstep);
-
+    ierr = VecCopy(x,xold);
+    
     for (int stage=0; stage<nstage; stage++) {
       
       PetscPrintf(PETSC_COMM_WORLD,
@@ -542,8 +543,8 @@ int fsi_main() {
       || ((tstep-update_jacobian_start_steps) % update_jacobian_steps == 0);
     
     // Inicializacion del paso
+    if (stage>0) ierr = VecCopy(xold,x);
     ierr = VecCopy(x,dx_step);
-    ierr = VecCopy(x,xold);
     
     if (!fractional_step) {
       //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
