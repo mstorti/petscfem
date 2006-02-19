@@ -4534,3 +4534,6 @@ tag: beta-3.49.21 on Sat, 18 Feb 2006 18:03:47 -0300 by mstorti in spider
 ----------
 tag: beta-3.49.22 on Sat, 18 Feb 2006 19:40:58 -0300 by mstorti in spider
      > Changes from `petscfem-bubbly15' branch applied and compiles. 
+----------
+tag: beta-3.49.23 on Sat, 18 Feb 2006 22:33:25 -0300 by mstorti in spider
+     > Fixed bugs in loading `stage' functions for hooks. 
