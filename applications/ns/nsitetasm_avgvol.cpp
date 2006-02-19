@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: nsitetasm_avgvol.cpp,v 1.2 2005/09/20 01:56:44 mstorti Exp $
+//$Id: nsitetasm_avgvol.cpp,v 1.3 2006/02/19 23:59:47 mstorti Exp $
 
 //
 // This elemset uses the volume average velocity model 
