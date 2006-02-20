@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: ns_fsi.cpp,v 1.2 2006/02/19 23:31:01 mstorti Exp $
+//$Id: ns_fsi.cpp,v 1.3 2006/02/20 18:19:19 mstorti Exp $
 #include <src/debug.h>
 #include <malloc.h>
 
@@ -543,7 +543,7 @@ int fsi_main() {
       || ((tstep-update_jacobian_start_steps) % update_jacobian_steps == 0);
     
     // Inicializacion del paso
-    if (stage>0) ierr = VecCopy(xold,x);
+    // if (stage>0) ierr = VecCopy(xold,x);
     ierr = VecCopy(x,dx_step);
     
     if (!fractional_step) {

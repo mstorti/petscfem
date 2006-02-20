@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: advdif_fsi.cpp,v 1.2 2006/02/19 23:30:54 mstorti Exp $
+//$Id: advdif_fsi.cpp,v 1.3 2006/02/20 18:19:19 mstorti Exp $
 
 #include <src/debug.h>
 #include <set>
@@ -51,7 +51,7 @@ Hook *advdif_hook_factory(const char *name);
 #define __FUNC__ "main"
 int fsi_main() {
   
-  Vec     x, dx, xold, res; /* approx solution, RHS, residual*/
+  Vec     x, dx, dx_step, xold, res; /* approx solution, RHS, residual*/
   PFMat *A,*AA;			// linear system matrix 
   PFMat *A_tet, *A_tet_c;
   double  *sol, scal, normres, normres_ext;    /* norm of solution error */
@@ -313,6 +313,7 @@ int fsi_main() {
   // initialize vectors
   ierr = VecDuplicate(x,&xold); CHKERRA(ierr);
   ierr = VecDuplicate(x,&dx); CHKERRA(ierr);
+  ierr = VecDuplicate(x,&dx_step); CHKERRA(ierr);
   ierr = VecDuplicate(x,&res); CHKERRA(ierr);
 
   // Set pointers in glob_param
@@ -392,7 +393,8 @@ int fsi_main() {
 		  stage,nstage);
       
       hook_list.stage("stage_pre",stage,time_star.time());
-      if (stage>0) ierr = VecCopy(xold,x);
+      // if (stage>0) ierr = VecCopy(xold,x);
+      ierr = VecCopy(x,dx_step);
       
       for (int inwt=0; inwt<nnwt; inwt++) {
 	
@@ -566,10 +568,9 @@ int fsi_main() {
       // Reuse dx for computing the delta state vector after re-projecting
       //      double delta_u;
 
-      ierr = VecCopy(x,dx);
       scal=-1.;
-      ierr = VecAXPY(&scal,xold,dx);
-      ierr  = VecNorm(dx,NORM_2,&delta_u); CHKERRA(ierr);
+      ierr = VecAXPY(&scal,x,dx_step);
+      ierr  = VecNorm(dx_step,NORM_2,&delta_u); CHKERRA(ierr);
       
       if (tstep % nsave == 0){
 	PetscPrintf(PETSC_COMM_WORLD,
@@ -596,6 +597,10 @@ int fsi_main() {
       
       hook_list.stage("stage_post",stage,time_star.time());
       
+      PetscPrintf(PETSC_COMM_WORLD,
+		  "time_step %d, time: %g, stage %d, delta_u = %10.3e\n",
+		  tstep,time_,stage,delta_u);
+
     } // end for stage
     
     hook_list.time_step_post(time_star.time(),tstep,gather_values);
@@ -616,10 +621,6 @@ int fsi_main() {
 	}
       }
     }
-
-    PetscPrintf(PETSC_COMM_WORLD,
-		"time_step %d, time: %g, delta_u = %10.3e\n",
-		tstep,time_,delta_u);
 
     print_vector_rota(save_file_pattern.c_str(),x,dofmap,
 		      &time,tstep-1,nsaverot,nrec,nfile);
