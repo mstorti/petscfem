@@ -29,6 +29,11 @@ sub get_var_env {
     ${$name} = $def unless ${$name};
 }
 
+## Gets a variable from the environment. If it was
+## not set, set it to the default value. Equivalent
+## to `get_var_env' but cleaner. `default' my be the
+## `undef' value. 
+## usage: get_var_env2(name,default)
 sub get_var_env2 {
     my ($name,$def) = @_;
     ${$name} = (exists($ENV{"$name"}) ? $ENV{"$name"} : $def);
