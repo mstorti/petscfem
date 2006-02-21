@@ -1,6 +1,6 @@
 // -*- mode: C++ -*-
 /*__INSERT_LICENSE__*/
-//$Id: dlhook.h,v 1.3 2006/02/19 01:33:15 mstorti Exp $
+//$Id: dlhook.h,v 1.4 2006/02/21 11:00:33 mstorti Exp $
 
 #ifndef DLHOOK_H
 #define DLHOOK_H
@@ -27,7 +27,7 @@ public:
   typedef void TimeStepPreFun(double time,int step,
 			      void *fun_data);
   typedef void StageFun(const char *jobinfo,int stage, 
-			double time, void *fun_data);
+			double time,void *data,void *fun_data);
   typedef void CloseFun(void *fun_data);
 private:
   void *handle;
@@ -50,8 +50,8 @@ public:
     (*time_step_post_fun)(time,step,gather_values,fun_data);
   }
   void stage(const char *jobinfo,
-	     int stage, double time) {
-    (*stage_fun)(jobinfo,stage,time,fun_data);
+	     int stage,double time,void *data) {
+    (*stage_fun)(jobinfo,stage,time,data,fun_data);
   }
   void close() { (*close_fun)(fun_data); }
 };
@@ -80,8 +80,8 @@ prefix##_time_step_post_fun(double time,int step,			\
 									\
 extern "C" void								\
 prefix##_stage_fun(const char *jobinfo,int stage,			\
-                   double time, void *fun_data) {			\
-  ((prefix *)fun_data)->stage(jobinfo,stage,time);			\
+                   double time,void *data,void *fun_data) {		\
+  ((prefix *)fun_data)->stage(jobinfo,stage,time,data);			\
 }									\
 									\
 extern "C" void								\

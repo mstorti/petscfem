@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: ns_fsi.cpp,v 1.3 2006/02/20 18:19:19 mstorti Exp $
+//$Id: ns_fsi.cpp,v 1.4 2006/02/21 11:00:33 mstorti Exp $
 #include <src/debug.h>
 #include <malloc.h>
 
@@ -536,35 +536,225 @@ int fsi_main() {
 		  " --------------------------------------\n",
 		  stage,nstage);
       
-      hook_list.stage("stage_pre",stage,time_star.time());
+      hook_list.stage("stage_pre",stage,time_star.time(),NULL);
 
-    // Jacobian update logic
-    update_jacobian_this_step = (tstep < update_jacobian_start_steps) 
-      || ((tstep-update_jacobian_start_steps) % update_jacobian_steps == 0);
+      // Jacobian update logic
+      update_jacobian_this_step = (tstep < update_jacobian_start_steps) 
+	|| ((tstep-update_jacobian_start_steps) % update_jacobian_steps == 0);
     
-    // Inicializacion del paso
-    // if (stage>0) ierr = VecCopy(xold,x);
-    ierr = VecCopy(x,dx_step);
+      // Inicializacion del paso
+      // if (stage>0) ierr = VecCopy(xold,x);
+      ierr = VecCopy(x,dx_step);
     
-    if (!fractional_step) {
-      //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
-      // TET ALGORITHM
+      if (!fractional_step) {
+	//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+	// TET ALGORITHM
       
-      double normres_external;
-      for (int inwt=0; inwt<nnwt; inwt++) {
+	double normres_external;
+	for (int inwt=0; inwt<nnwt; inwt++) {
 
-	glob_param.inwt = inwt;
-	// Initialize step
+	  glob_param.inwt = inwt;
+	  // Initialize step
 
-	// update_jacobian_this_iter:= flags whether the Jacobian is
-	// factored in this iter or not Jacobian update logic
-	update_jacobian_this_iter = update_jacobian_this_step &&
-	  ( (inwt < update_jacobian_start_iters) 
-	    || ((inwt - update_jacobian_start_iters) % update_jacobian_iters == 0) );
+	  // update_jacobian_this_iter:= flags whether the Jacobian is
+	  // factored in this iter or not Jacobian update logic
+	  update_jacobian_this_iter = update_jacobian_this_step &&
+	    ( (inwt < update_jacobian_start_iters) 
+	      || ((inwt - update_jacobian_start_iters) % update_jacobian_iters == 0) );
 
-	if (update_jacobian_this_iter) {
-	  ierr = A_tet->clean_mat(); CHKERRA(ierr); 
+	  if (update_jacobian_this_iter) {
+	    ierr = A_tet->clean_mat(); CHKERRA(ierr); 
+	  }
+
+	  // Compute wall stresses
+	  argl.clear();
+	  argl.arg_add(&x,IN_VECTOR);
+	  argl.arg_add(&xold,IN_VECTOR);
+	  ierr = assemble(mesh,argl,dofmap,"comp_shear_vel",
+			  &time_star); CHKERRA(ierr);
+
+	  // Communicate wall stresses amoung different processors
+	  // This is obsolete. Now we control this from the loop
+	  // over elements in the `wall' elemset. 
+
+	  // Mon Oct 23 19:13:39 ART 2000. Now I think that I need this
+	  // because the at each processor there is not a global version
+	  // of the state.
+	  if (LES && A_van_Driest>0. && SIZE>1) {
+	    argl.clear();
+	    ierr = assemble(mesh,argl,dofmap,"communicate_shear_vel",
+			    &time_star); CHKERRA(ierr);
+	  }
+
+	  scal=0;
+	  ierr = VecSet(&scal,res); CHKERRA(ierr);
+	  if (update_jacobian_this_iter) {
+	    // ierr = A_tet->clean_mat(); CHKERRA(ierr); 
+	  }
+
+	  argl.clear();
+	  state.set_time(time);
+	  state_old.set_time(time_old);
+	  argl.arg_add(&state,IN_VECTOR|USE_TIME_DATA);
+	  argl.arg_add(&state_old,IN_VECTOR|USE_TIME_DATA);
+	  argl.arg_add(&res,OUT_VECTOR);
+	  if (update_jacobian_this_iter) argl.arg_add(A_tet,OUT_MATRIX|PFMAT);
+	  argl.arg_add(&hmin,VECTOR_MIN);
+	  argl.arg_add(&glob_param,USER_DATA);
+	  argl.arg_add(&wall_data,USER_DATA);
+
+	  const char *jobinfo = (update_jacobian_this_iter ? "comp_mat_res" : "comp_res");
+
+	  // In order to measure performance
+	  if (measure_performance) {
+	    ierr = measure_performance_fun(mesh,argl,dofmap,jobinfo,
+					   &time_star); CHKERRA(ierr);
+	    PetscFinalize();
+	    exit(0);
+	  }
+
+	  debug.trace("Before residual computation...");
+	  ierr = assemble(mesh,argl,dofmap,jobinfo,&time_star);
+	  CHKERRA(ierr);
+	  debug.trace("After residual computation.");
+
+#if 0
+	  ierr = PetscViewerASCIIOpen(PETSC_COMM_WORLD,
+				      "system.dat",&matlab); CHKERRA(ierr);
+	  ierr = PetscViewerSetFormat(matlab,
+				      PETSC_VIEWER_ASCII_MATLAB); CHKERRA(ierr);
+	  // ierr = PetscViewerSetFilename(matlab,"a_tet"); CHKERRA(ierr);
+	  ierr = A_tet->view(matlab); CHKERRA(ierr); 
+#endif
+
+#if 0 //debug:=
+	  ierr = PetscViewerASCIIOpen(PETSC_COMM_WORLD,
+				      "system.dat",&matlab); CHKERRA(ierr);
+	  ierr = PetscViewerSetFormat_WRAPPER(matlab,
+					      PETSC_VIEWER_ASCII_MATLAB,"x"); CHKERRA(ierr);
+	  ierr = VecView(x,matlab);
+	  ierr = PetscViewerSetFormat_WRAPPER(matlab,
+					      PETSC_VIEWER_ASCII_MATLAB,"res"); CHKERRA(ierr);
+	  ierr = VecView(res,matlab);
+	  PetscFinalize();
+	  exit(0);
+#endif
+
+	  PetscViewer matlab;
+	  if (verify_jacobian_with_numerical_one) {
+	    ierr = PetscViewerASCIIOpen(PETSC_COMM_WORLD,
+					"system.dat.tmp",&matlab); CHKERRA(ierr);
+	    ierr = PetscViewerSetFormat_WRAPPER(matlab,
+						PETSC_VIEWER_ASCII_MATLAB,
+						"atet"); CHKERRA(ierr);
+
+	    ierr = A_tet->view(matlab); CHKERRQ(ierr); 
+	
+	    ierr = A_tet_c->duplicate(MAT_DO_NOT_COPY_VALUES,*A_tet); CHKERRA(ierr);
+	    ierr = A_tet->clean_mat(); CHKERRA(ierr); 
+	    ierr = A_tet_c->clean_mat(); CHKERRA(ierr); 
+
+	    argl.clear();
+	    argl.arg_add(&x,PERT_VECTOR);
+	    argl.arg_add(&xold,IN_VECTOR);
+	    argl.arg_add(A_tet_c,OUT_MATRIX_FDJ|PFMAT);
+
+	    update_jacobian_step++;
+	    if (update_jacobian_step >= update_jacobian_steps) 
+	      update_jacobian_step =0;
+	    if (update_jacobian_this_iter) argl.arg_add(A_tet,OUT_MATRIX|PFMAT);
+	    argl.arg_add(&hmin,VECTOR_MIN);
+	    argl.arg_add(&glob_param,USER_DATA);
+	    argl.arg_add(&wall_data,USER_DATA);
+	    ierr = assemble(mesh,argl,dofmap,jobinfo,
+			    &time_star); CHKERRA(ierr);
+
+	    ierr = PetscViewerSetFormat_WRAPPER(matlab,
+						PETSC_VIEWER_ASCII_MATLAB,"atet_fdj"); CHKERRA(ierr);
+	    ierr = A_tet_c->view(matlab); CHKERRQ(ierr); 
+
+	    PetscFinalize();
+	    exit(0);
+	  }
+
+	  if (!print_linear_system_and_stop || solve_system) {
+	    debug.trace("Before solving linear system...");
+	    ierr = A_tet->solve(res,dx); CHKERRA(ierr); 
+	    debug.trace("After solving linear system.");
+	  }
+
+	  if (print_linear_system_and_stop) {
+	    PetscPrintf(PETSC_COMM_WORLD,
+			"Printing residual and matrix for"
+			" debugging and stopping.\n");
+	    ierr = PetscViewerASCIIOpen(PETSC_COMM_WORLD,
+					"system.dat",&matlab); CHKERRA(ierr);
+	    ierr = PetscViewerSetFormat_WRAPPER(matlab,
+						PETSC_VIEWER_ASCII_MATLAB,"atet"); CHKERRA(ierr);
+	    ierr = A_tet->view(matlab);
+	    ierr = PetscViewerSetFormat_WRAPPER(matlab,
+						PETSC_VIEWER_ASCII_MATLAB,"res"); CHKERRA(ierr);
+	    ierr = VecView(res,matlab);
+
+	    if (solve_system) {
+	      ierr = PetscViewerSetFormat_WRAPPER(matlab,
+						  PETSC_VIEWER_ASCII_MATLAB,"dx");
+	      CHKERRA(ierr);
+	      ierr = VecView(dx,matlab);
+	    }
+	
+	    PetscFinalize();
+	    exit(0);
+
+	  }	
+
+	  double normres;
+	  ierr  = VecNorm(res,NORM_2,&normres); CHKERRA(ierr);
+	  if (inwt==0) normres_external = normres;
+	  PetscPrintf(PETSC_COMM_WORLD,
+		      "Newton subiter %d, norm_res  = %10.3e, update Jac. %d\n",
+		      inwt,normres,update_jacobian_this_iter);
+
+	  // update del subpaso
+	  double relfac;
+	  int inwt_cum=0,nrf_indx=1;
+	  while (1) {
+	    if (nrf_indx >= newton_relaxation_factor.size()) break;
+	    inwt_cum += int(newton_relaxation_factor[nrf_indx]);
+	    if (inwt_cum > inwt) break;
+	    nrf_indx += 2;
+	  }
+	  relfac = newton_relaxation_factor[nrf_indx-1];
+	  if (relfac!=1.) PetscPrintf(PETSC_COMM_WORLD,
+				      "relaxation factor %f\n",relfac);
+	  scal= relfac/alpha;
+	  ierr = VecAXPY(&scal,dx,x);
+
+#if 0
+	  ierr = VecView(x,PETSC_VIEWER_STDOUT_WORLD); CHKERRA(ierr);
+	  PetscFinalize();
+	  exit(0);
+#endif
+
+	  // fixme:= SHOULD WE CHECK HERE FOR NEWTON CONVERGENCE?
+
+	} // end of loop over Newton subiteration (inwt)
+
+	if (normres_external < tol_newton) {
+	  PetscPrintf(PETSC_COMM_WORLD,
+		      "Tolerance on newton loop reached:  "
+		      "|| R ||_0,  norm_res =%g < tol = %g\n",
+		      normres_external,tol_newton);
+	  break;
 	}
+
+      } else {
+    
+	//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+	// FRACTIONAL STEP ALGORITHM
+	// Inicializacion del paso
+	ierr = VecCopy(x,dx_step);
+	ierr = VecCopy(x,xold);
 
 	// Compute wall stresses
 	argl.clear();
@@ -586,416 +776,229 @@ int fsi_main() {
 			  &time_star); CHKERRA(ierr);
 	}
 
-	scal=0;
-	ierr = VecSet(&scal,res); CHKERRA(ierr);
-	if (update_jacobian_this_iter) {
-	  // ierr = A_tet->clean_mat(); CHKERRA(ierr); 
-	}
+#define PRE_STEP
+#define POI_STEP
+#define PRJ_STEP
 
+#ifdef PRE_STEP
+	//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+	// FIRST (PREDICTOR) STEP
 	argl.clear();
 	state.set_time(time);
 	state_old.set_time(time_old);
 	argl.arg_add(&state,IN_VECTOR|USE_TIME_DATA);
 	argl.arg_add(&state_old,IN_VECTOR|USE_TIME_DATA);
 	argl.arg_add(&res,OUT_VECTOR);
-	if (update_jacobian_this_iter) argl.arg_add(A_tet,OUT_MATRIX|PFMAT);
-	argl.arg_add(&hmin,VECTOR_MIN);
+	argl.arg_add(A_mom,OUT_MATRIX|PFMAT);
 	argl.arg_add(&glob_param,USER_DATA);
 	argl.arg_add(&wall_data,USER_DATA);
-
-	const char *jobinfo = (update_jacobian_this_iter ? "comp_mat_res" : "comp_res");
-
-	// In order to measure performance
-	if (measure_performance) {
-	  ierr = measure_performance_fun(mesh,argl,dofmap,jobinfo,
-					 &time_star); CHKERRA(ierr);
-	  PetscFinalize();
-	  exit(0);
-	}
-
-	debug.trace("Before residual computation...");
-	ierr = assemble(mesh,argl,dofmap,jobinfo,&time_star);
+	debug.trace("-PREDICTOR- Before residual computation...");
+	ierr = assemble(mesh,argl,dofmap,"comp_res_mom",&time_star);
 	CHKERRA(ierr);
-	debug.trace("After residual computation.");
+	debug.trace("-PREDICTOR- After residual computation.");
 
-#if 0
-	ierr = PetscViewerASCIIOpen(PETSC_COMM_WORLD,
-			       "system.dat",&matlab); CHKERRA(ierr);
-	ierr = PetscViewerSetFormat(matlab,
-			       PETSC_VIEWER_ASCII_MATLAB); CHKERRA(ierr);
-	// ierr = PetscViewerSetFilename(matlab,"a_tet"); CHKERRA(ierr);
-	ierr = A_tet->view(matlab); CHKERRA(ierr); 
-#endif
-
-#if 0 //debug:=
-	ierr = PetscViewerASCIIOpen(PETSC_COMM_WORLD,
-			       "system.dat",&matlab); CHKERRA(ierr);
-	ierr = PetscViewerSetFormat_WRAPPER(matlab,
-			       PETSC_VIEWER_ASCII_MATLAB,"x"); CHKERRA(ierr);
-	ierr = VecView(x,matlab);
-	ierr = PetscViewerSetFormat_WRAPPER(matlab,
-			       PETSC_VIEWER_ASCII_MATLAB,"res"); CHKERRA(ierr);
-	ierr = VecView(res,matlab);
-	PetscFinalize();
-	exit(0);
-#endif
-
-	PetscViewer matlab;
-	if (verify_jacobian_with_numerical_one) {
+	do_stop = print_linear_system_and_stop && stop_on_step==tstep;
+	if (do_stop && stop_mom) {
 	  ierr = PetscViewerASCIIOpen(PETSC_COMM_WORLD,
-				 "system.dat.tmp",&matlab); CHKERRA(ierr);
+				      "system.dat",&matlab); CHKERRA(ierr);
 	  ierr = PetscViewerSetFormat_WRAPPER(matlab,
-				 PETSC_VIEWER_ASCII_MATLAB,
- 				 "atet"); CHKERRA(ierr);
-
-	  ierr = A_tet->view(matlab); CHKERRQ(ierr); 
-	
-	  ierr = A_tet_c->duplicate(MAT_DO_NOT_COPY_VALUES,*A_tet); CHKERRA(ierr);
-	  ierr = A_tet->clean_mat(); CHKERRA(ierr); 
-	  ierr = A_tet_c->clean_mat(); CHKERRA(ierr); 
-
-	  argl.clear();
-	  argl.arg_add(&x,PERT_VECTOR);
-	  argl.arg_add(&xold,IN_VECTOR);
-	  argl.arg_add(A_tet_c,OUT_MATRIX_FDJ|PFMAT);
-
-	  update_jacobian_step++;
-	  if (update_jacobian_step >= update_jacobian_steps) 
-	    update_jacobian_step =0;
-	  if (update_jacobian_this_iter) argl.arg_add(A_tet,OUT_MATRIX|PFMAT);
-	  argl.arg_add(&hmin,VECTOR_MIN);
-	  argl.arg_add(&glob_param,USER_DATA);
-	  argl.arg_add(&wall_data,USER_DATA);
-	  ierr = assemble(mesh,argl,dofmap,jobinfo,
-			  &time_star); CHKERRA(ierr);
-
+					      PETSC_VIEWER_ASCII_MATLAB,"amom"); 
+	  CHKERRA(ierr);
+	  ierr = A_mom->view(matlab);
 	  ierr = PetscViewerSetFormat_WRAPPER(matlab,
-				 PETSC_VIEWER_ASCII_MATLAB,"atet_fdj"); CHKERRA(ierr);
-	  ierr = A_tet_c->view(matlab); CHKERRQ(ierr); 
-
-	  PetscFinalize();
-	  exit(0);
-	}
-
-	if (!print_linear_system_and_stop || solve_system) {
-	  debug.trace("Before solving linear system...");
-	  ierr = A_tet->solve(res,dx); CHKERRA(ierr); 
-	  debug.trace("After solving linear system.");
-	}
-
-	if (print_linear_system_and_stop) {
-	  PetscPrintf(PETSC_COMM_WORLD,
-		      "Printing residual and matrix for"
-		      " debugging and stopping.\n");
-	  ierr = PetscViewerASCIIOpen(PETSC_COMM_WORLD,
-				 "system.dat",&matlab); CHKERRA(ierr);
-	  ierr = PetscViewerSetFormat_WRAPPER(matlab,
-				 PETSC_VIEWER_ASCII_MATLAB,"atet"); CHKERRA(ierr);
-	  ierr = A_tet->view(matlab);
-	  ierr = PetscViewerSetFormat_WRAPPER(matlab,
-				 PETSC_VIEWER_ASCII_MATLAB,"res"); CHKERRA(ierr);
+					      PETSC_VIEWER_ASCII_MATLAB,"res"); 
+	  CHKERRA(ierr);
 	  ierr = VecView(res,matlab);
-
-	  if (solve_system) {
-	    ierr = PetscViewerSetFormat_WRAPPER(matlab,
-				   PETSC_VIEWER_ASCII_MATLAB,"dx");
-	    CHKERRA(ierr);
-	    ierr = VecView(dx,matlab);
+	  ierr = PetscViewerSetFormat_WRAPPER(matlab,
+					      PETSC_VIEWER_ASCII_MATLAB,"dx"); 
+	  CHKERRA(ierr);
+	  ierr = VecView(dx,matlab);
+	  if (!solve_system) {
+	    PetscFinalize();
+	    exit(0);
 	  }
-	
-	  PetscFinalize();
-	  exit(0);
-
-	}	
-
-	double normres;
-	ierr  = VecNorm(res,NORM_2,&normres); CHKERRA(ierr);
-	if (inwt==0) normres_external = normres;
-	PetscPrintf(PETSC_COMM_WORLD,
-		    "Newton subiter %d, norm_res  = %10.3e, update Jac. %d\n",
-		    inwt,normres,update_jacobian_this_iter);
-
-	// update del subpaso
-	double relfac;
-	int inwt_cum=0,nrf_indx=1;
-	while (1) {
-	  if (nrf_indx >= newton_relaxation_factor.size()) break;
-	  inwt_cum += int(newton_relaxation_factor[nrf_indx]);
-	  if (inwt_cum > inwt) break;
-	  nrf_indx += 2;
 	}
-	relfac = newton_relaxation_factor[nrf_indx-1];
-	if (relfac!=1.) PetscPrintf(PETSC_COMM_WORLD,
-				    "relaxation factor %f\n",relfac);
-	scal= relfac/alpha;
+
+	debug.trace("-PREDICTOR- Before solving linear system...");
+	ierr = A_mom->solve(res,dx); CHKERRA(ierr); 
+	// Frees memory 
+	ierr = A_mom->clean_mat(); CHKERRA(ierr); 
+	debug.trace("-PREDICTOR- After solving linear system.");
+
+	scal= 1.0;
 	ierr = VecAXPY(&scal,dx,x);
 
+	if (do_stop && stop_mom) {
+	  ierr = VecView(x,PETSC_VIEWER_STDOUT_WORLD); CHKERRA(ierr);
+	  PetscFinalize();
+	  exit(0);
+	}
+
 #if 0
-	ierr = VecView(x,PETSC_VIEWER_STDOUT_WORLD); CHKERRA(ierr);
-	PetscFinalize();
-	exit(0);
-#endif
-
-	// fixme:= SHOULD WE CHECK HERE FOR NEWTON CONVERGENCE?
-
-      } // end of loop over Newton subiteration (inwt)
-
-      if (normres_external < tol_newton) {
-	PetscPrintf(PETSC_COMM_WORLD,
-		    "Tolerance on newton loop reached:  "
-		    "|| R ||_0,  norm_res =%g < tol = %g\n",
-		    normres_external,tol_newton);
-	break;
-      }
-
-    } else {
-    
-      //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
-      // FRACTIONAL STEP ALGORITHM
-      // Inicializacion del paso
-      ierr = VecCopy(x,dx_step);
-      ierr = VecCopy(x,xold);
-
-      // Compute wall stresses
-      argl.clear();
-      argl.arg_add(&x,IN_VECTOR);
-      argl.arg_add(&xold,IN_VECTOR);
-      ierr = assemble(mesh,argl,dofmap,"comp_shear_vel",
-		      &time_star); CHKERRA(ierr);
-
-      // Communicate wall stresses amoung different processors
-      // This is obsolete. Now we control this from the loop
-      // over elements in the `wall' elemset. 
-
-	// Mon Oct 23 19:13:39 ART 2000. Now I think that I need this
-	// because the at each processor there is not a global version
-	// of the state.
-      if (LES && A_van_Driest>0. && SIZE>1) {
-	argl.clear();
-	ierr = assemble(mesh,argl,dofmap,"communicate_shear_vel",
-			&time_star); CHKERRA(ierr);
-      }
-
-#define PRE_STEP
-#define POI_STEP
-#define PRJ_STEP
-
-#ifdef PRE_STEP
-      //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
-      // FIRST (PREDICTOR) STEP
-      argl.clear();
-      state.set_time(time);
-      state_old.set_time(time_old);
-      argl.arg_add(&state,IN_VECTOR|USE_TIME_DATA);
-      argl.arg_add(&state_old,IN_VECTOR|USE_TIME_DATA);
-      argl.arg_add(&res,OUT_VECTOR);
-      argl.arg_add(A_mom,OUT_MATRIX|PFMAT);
-      argl.arg_add(&glob_param,USER_DATA);
-      argl.arg_add(&wall_data,USER_DATA);
-      debug.trace("-PREDICTOR- Before residual computation...");
-      ierr = assemble(mesh,argl,dofmap,"comp_res_mom",&time_star);
-      CHKERRA(ierr);
-      debug.trace("-PREDICTOR- After residual computation.");
-
-      do_stop = print_linear_system_and_stop && stop_on_step==tstep;
-      if (do_stop && stop_mom) {
 	ierr = PetscViewerASCIIOpen(PETSC_COMM_WORLD,
 				    "system.dat",&matlab); CHKERRA(ierr);
 	ierr = PetscViewerSetFormat_WRAPPER(matlab,
-					    PETSC_VIEWER_ASCII_MATLAB,"amom"); 
-	CHKERRA(ierr);
-	ierr = A_mom->view(matlab);
-	ierr = PetscViewerSetFormat_WRAPPER(matlab,
-					    PETSC_VIEWER_ASCII_MATLAB,"res"); 
-	CHKERRA(ierr);
-	ierr = VecView(res,matlab);
-	ierr = PetscViewerSetFormat_WRAPPER(matlab,
-					    PETSC_VIEWER_ASCII_MATLAB,"dx"); 
-	CHKERRA(ierr);
-	ierr = VecView(dx,matlab);
-	if (!solve_system) {
-	  PetscFinalize();
-	  exit(0);
-	}
-      }
-
-      debug.trace("-PREDICTOR- Before solving linear system...");
-      ierr = A_mom->solve(res,dx); CHKERRA(ierr); 
-      // Frees memory 
-      ierr = A_mom->clean_mat(); CHKERRA(ierr); 
-      debug.trace("-PREDICTOR- After solving linear system.");
-
-      scal= 1.0;
-      ierr = VecAXPY(&scal,dx,x);
-
-      if (do_stop && stop_mom) {
-	ierr = VecView(x,PETSC_VIEWER_STDOUT_WORLD); CHKERRA(ierr);
+					    PETSC_VIEWER_ASCII_MATLAB,"x"); CHKERRA(ierr);
+	ierr = VecView(x,matlab);
 	PetscFinalize();
 	exit(0);
-      }
-
-#if 0
-      ierr = PetscViewerASCIIOpen(PETSC_COMM_WORLD,
-			     "system.dat",&matlab); CHKERRA(ierr);
-      ierr = PetscViewerSetFormat_WRAPPER(matlab,
-			     PETSC_VIEWER_ASCII_MATLAB,"x"); CHKERRA(ierr);
-      ierr = VecView(x,matlab);
-      PetscFinalize();
-      exit(0);
 #endif
 
 #endif
 
 #ifdef POI_STEP
-      //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
-      // SECOND STEP POISSON
-      ierr = VecCopy(x,xp);
-      scal=0;
-      ierr = VecSet(&scal,res); CHKERRA(ierr);
+	//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+	// SECOND STEP POISSON
+	ierr = VecCopy(x,xp);
+	scal=0;
+	ierr = VecSet(&scal,res); CHKERRA(ierr);
 
-      if (tstep==1) {
+	if (tstep==1) {
+	  argl.clear();
+	  argl.arg_add(A_poi,OUT_MATRIX|PFMAT);
+	  argl.arg_add(&glob_param,USER_DATA);
+	  debug.trace("-POISSON- Before matrix computation...");
+	  ierr = assemble(mesh,argl,dofmap,"comp_mat_poi",&time_star);
+	  CHKERRA(ierr);
+	  debug.trace("-POISSON- After matrix computation.");
+	}
+
 	argl.clear();
-	argl.arg_add(A_poi,OUT_MATRIX|PFMAT);
+	statep.set_time(time);	// fixme:= what time?
+	argl.arg_add(&statep,IN_VECTOR|USE_TIME_DATA);
+	argl.arg_add(&state,IN_VECTOR|USE_TIME_DATA);
+	argl.arg_add(&res,OUT_VECTOR);
 	argl.arg_add(&glob_param,USER_DATA);
-	debug.trace("-POISSON- Before matrix computation...");
-	ierr = assemble(mesh,argl,dofmap,"comp_mat_poi",&time_star);
+	debug.trace("-POISSON- Before residual computation...");
+	ierr = assemble(mesh,argl,dofmap,"comp_res_poi",&time_star);
 	CHKERRA(ierr);
-	debug.trace("-POISSON- After matrix computation.");
-      }
-
-      argl.clear();
-      statep.set_time(time);	// fixme:= what time?
-      argl.arg_add(&statep,IN_VECTOR|USE_TIME_DATA);
-      argl.arg_add(&state,IN_VECTOR|USE_TIME_DATA);
-      argl.arg_add(&res,OUT_VECTOR);
-      argl.arg_add(&glob_param,USER_DATA);
-      debug.trace("-POISSON- Before residual computation...");
-      ierr = assemble(mesh,argl,dofmap,"comp_res_poi",&time_star);
-      CHKERRA(ierr);
-      debug.trace("-POISSON- After residual computation.");
+	debug.trace("-POISSON- After residual computation.");
 
 #define POI_SOLVE
 #ifdef POI_SOLVE
-      debug.trace("-POISSON- Before solving linear system...");
-      ierr = A_poi->solve(res,dx); CHKERRA(ierr); 
-      debug.trace("-POISSON- After solving linear system.");
+	debug.trace("-POISSON- Before solving linear system...");
+	ierr = A_poi->solve(res,dx); CHKERRA(ierr); 
+	debug.trace("-POISSON- After solving linear system.");
 
-      scal= 1.0;
-      ierr = VecAXPY(&scal,dx,x);
+	scal= 1.0;
+	ierr = VecAXPY(&scal,dx,x);
 #endif
 
-      if (do_stop && stop_poi) {
-	ierr = PetscViewerASCIIOpen(PETSC_COMM_WORLD,
-				    "system.dat",&matlab); CHKERRA(ierr);
-	ierr = PetscViewerSetFormat_WRAPPER(matlab,
-					    PETSC_VIEWER_ASCII_MATLAB,"apoi"); 
-	CHKERRA(ierr);
-	ierr = A_poi->view(matlab);
-	ierr = PetscViewerSetFormat_WRAPPER(matlab,
-					    PETSC_VIEWER_ASCII_MATLAB,"res"); 
-	CHKERRA(ierr);
-	ierr = VecView(res,matlab);
-	ierr = PetscViewerSetFormat_WRAPPER(matlab,
-					    PETSC_VIEWER_ASCII_MATLAB,"dx"); 
-	CHKERRA(ierr);
-	ierr = VecView(dx,matlab);
-	PetscFinalize();
-	exit(0);
-      }
+	if (do_stop && stop_poi) {
+	  ierr = PetscViewerASCIIOpen(PETSC_COMM_WORLD,
+				      "system.dat",&matlab); CHKERRA(ierr);
+	  ierr = PetscViewerSetFormat_WRAPPER(matlab,
+					      PETSC_VIEWER_ASCII_MATLAB,"apoi"); 
+	  CHKERRA(ierr);
+	  ierr = A_poi->view(matlab);
+	  ierr = PetscViewerSetFormat_WRAPPER(matlab,
+					      PETSC_VIEWER_ASCII_MATLAB,"res"); 
+	  CHKERRA(ierr);
+	  ierr = VecView(res,matlab);
+	  ierr = PetscViewerSetFormat_WRAPPER(matlab,
+					      PETSC_VIEWER_ASCII_MATLAB,"dx"); 
+	  CHKERRA(ierr);
+	  ierr = VecView(dx,matlab);
+	  PetscFinalize();
+	  exit(0);
+	}
 
 #endif
 
 #ifdef PRJ_STEP
-      //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
-      // THIRD STEP PROJECTION
-      ierr = VecCopy(x,xp);
-      scal=0;
-      ierr = VecSet(&scal,res); CHKERRA(ierr);
-      if (!reuse_mat || tstep==1) {
+	//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+	// THIRD STEP PROJECTION
+	ierr = VecCopy(x,xp);
+	scal=0;
+	ierr = VecSet(&scal,res); CHKERRA(ierr);
+	if (!reuse_mat || tstep==1) {
+	  argl.clear();
+	  statep.set_time(time);	// fixme:= what time?
+	  argl.arg_add(A_prj,OUT_MATRIX|PFMAT);
+	  debug.trace("-PROJECTION- Before matrix computation...");
+	  ierr = assemble(mesh,argl,dofmap,"comp_mat_prj",&time_star);
+	  CHKERRA(ierr);
+	  debug.trace("-PROJECTION- After matrix computation.");
+	}
+#if 0
+	ierr = A_prj->view(PETSC_VIEWER_STDOUT_SELF);
+#endif
+
 	argl.clear();
 	statep.set_time(time);	// fixme:= what time?
-	argl.arg_add(A_prj,OUT_MATRIX|PFMAT);
-	debug.trace("-PROJECTION- Before matrix computation...");
-	ierr = assemble(mesh,argl,dofmap,"comp_mat_prj",&time_star);
+	argl.arg_add(&statep,IN_VECTOR|USE_TIME_DATA);
+	argl.arg_add(&state,IN_VECTOR|USE_TIME_DATA);
+	argl.arg_add(&res,OUT_VECTOR);
+	if (!reuse_mat) argl.arg_add(A_prj,OUT_MATRIX|PFMAT);
+	argl.arg_add(&glob_param,USER_DATA);
+	debug.trace("-PROJECTION- Before residual computation...");
+	ierr = assemble(mesh,argl,dofmap,"comp_res_prj",&time_star);
 	CHKERRA(ierr);
-	debug.trace("-PROJECTION- After matrix computation.");
-       }
-#if 0
-      ierr = A_prj->view(PETSC_VIEWER_STDOUT_SELF);
-#endif
-
-      argl.clear();
-      statep.set_time(time);	// fixme:= what time?
-      argl.arg_add(&statep,IN_VECTOR|USE_TIME_DATA);
-      argl.arg_add(&state,IN_VECTOR|USE_TIME_DATA);
-      argl.arg_add(&res,OUT_VECTOR);
-      if (!reuse_mat) argl.arg_add(A_prj,OUT_MATRIX|PFMAT);
-      argl.arg_add(&glob_param,USER_DATA);
-      debug.trace("-PROJECTION- Before residual computation...");
-      ierr = assemble(mesh,argl,dofmap,"comp_res_prj",&time_star);
-      CHKERRA(ierr);
-      debug.trace("-PROJECTION- After residual computation.");
-      if (do_stop && stop_prj) {
-	ierr = PetscViewerASCIIOpen(PETSC_COMM_WORLD,
-				    "system.dat",&matlab); 
-	CHKERRA(ierr);
-	ierr = PetscViewerSetFormat_WRAPPER(matlab,
-					    PETSC_VIEWER_ASCII_MATLAB,"aprj"); 
-	CHKERRA(ierr);
-      }
+	debug.trace("-PROJECTION- After residual computation.");
+	if (do_stop && stop_prj) {
+	  ierr = PetscViewerASCIIOpen(PETSC_COMM_WORLD,
+				      "system.dat",&matlab); 
+	  CHKERRA(ierr);
+	  ierr = PetscViewerSetFormat_WRAPPER(matlab,
+					      PETSC_VIEWER_ASCII_MATLAB,"aprj"); 
+	  CHKERRA(ierr);
+	}
       
-      debug.trace("-PROJECTION- Before solving linear system...");
-      ierr = A_prj->solve(res,dx); CHKERRA(ierr); 
-      if (!reuse_mat) { ierr = A_prj->clean_mat(); CHKERRA(ierr); }
-      debug.trace("-PROJECTION- After solving linear system.");
+	debug.trace("-PROJECTION- Before solving linear system...");
+	ierr = A_prj->solve(res,dx); CHKERRA(ierr); 
+	if (!reuse_mat) { ierr = A_prj->clean_mat(); CHKERRA(ierr); }
+	debug.trace("-PROJECTION- After solving linear system.");
 
-      if (do_stop && stop_prj) {
-	ierr = A_prj->view(matlab);
-	ierr = PetscViewerSetFormat_WRAPPER(matlab,
-					    PETSC_VIEWER_ASCII_MATLAB,"res"); 
-	CHKERRA(ierr);
-	ierr = VecView(res,matlab);
-	ierr = PetscViewerSetFormat_WRAPPER(matlab,
-					    PETSC_VIEWER_ASCII_MATLAB,"dx"); 
-	CHKERRA(ierr);
-	ierr = VecView(dx,matlab);
-	PetscFinalize();
-	exit(0);
+	if (do_stop && stop_prj) {
+	  ierr = A_prj->view(matlab);
+	  ierr = PetscViewerSetFormat_WRAPPER(matlab,
+					      PETSC_VIEWER_ASCII_MATLAB,"res"); 
+	  CHKERRA(ierr);
+	  ierr = VecView(res,matlab);
+	  ierr = PetscViewerSetFormat_WRAPPER(matlab,
+					      PETSC_VIEWER_ASCII_MATLAB,"dx"); 
+	  CHKERRA(ierr);
+	  ierr = VecView(dx,matlab);
+	  PetscFinalize();
+	  exit(0);
+	}
+
+	scal= 1.0;
+	ierr = VecAXPY(&scal,dx,x);
+#endif
       }
 
-      scal= 1.0;
-      ierr = VecAXPY(&scal,dx,x);
-#endif
-    }
-
-    // error difference
-    scal = -1.0;
-    ierr = VecAXPY(&scal,x,dx_step);
-    ierr  = VecNorm(dx_step,NORM_2,&norm); CHKERRA(ierr);
-    PetscPrintf(PETSC_COMM_WORLD,"============= delta_u = %10.3e\n",norm);
-    print_vector_rota(save_file_pattern.c_str(),x,dofmap,&time,
-		      tstep-1,nsaverot,nrec,nfile);
+      // error difference
+      scal = -1.0;
+      ierr = VecAXPY(&scal,x,dx_step);
+      ierr  = VecNorm(dx_step,NORM_2,&norm); CHKERRA(ierr);
+      PetscPrintf(PETSC_COMM_WORLD,"============= delta_u = %10.3e\n",norm);
+      print_vector_rota(save_file_pattern.c_str(),x,dofmap,&time,
+			tstep-1,nsaverot,nrec,nfile);
   
-    if (nsave && tstep % nsave == 0) {
-      print_vector(save_file.c_str(),x,dofmap,&time);
-      if (print_residual) 
-	print_vector(save_file_res.c_str(),res,dofmap,&time);
-    }
+      if (nsave && tstep % nsave == 0) {
+	print_vector(save_file.c_str(),x,dofmap,&time);
+	if (print_residual) 
+	  print_vector(save_file_res.c_str(),res,dofmap,&time);
+      }
 
 
-    // Compute gathered quantities, for instance total force on walls
-    if (ngather>0) {
-      gather_values.resize(ngather,0.);
-      for (int j=0; j<ngather; j++) gather_values[j] = 0.;
-      arglf.clear();
-      arglf.arg_add(&state,IN_VECTOR|USE_TIME_DATA);
-      arglf.arg_add(&state_old,IN_VECTOR|USE_TIME_DATA);
-      arglf.arg_add(&gather_values,VECTOR_ADD);
-      ierr = assemble(mesh,arglf,dofmap,"gather",&time_star);
-      CHKERRA(ierr);
-    }
+      // Compute gathered quantities, for instance total force on walls
+      if (ngather>0) {
+	gather_values.resize(ngather,0.);
+	for (int j=0; j<ngather; j++) gather_values[j] = 0.;
+	arglf.clear();
+	arglf.arg_add(&state,IN_VECTOR|USE_TIME_DATA);
+	arglf.arg_add(&state_old,IN_VECTOR|USE_TIME_DATA);
+	arglf.arg_add(&gather_values,VECTOR_ADD);
+	ierr = assemble(mesh,arglf,dofmap,"gather",&time_star);
+	CHKERRA(ierr);
+      }
 
-      hook_list.stage("stage_post",stage,time_star.time());
+      int converged = 0;
+      hook_list.stage("stage_post",stage,
+		      time_star.time(),&converged);
+      if (converged) break;
       
     } // end for stage
     

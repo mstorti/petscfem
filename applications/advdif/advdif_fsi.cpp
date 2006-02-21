@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: advdif_fsi.cpp,v 1.3 2006/02/20 18:19:19 mstorti Exp $
+//$Id: advdif_fsi.cpp,v 1.4 2006/02/21 11:00:33 mstorti Exp $
 
 #include <src/debug.h>
 #include <set>
@@ -392,7 +392,7 @@ int fsi_main() {
 		  " --------------------------------------\n",
 		  stage,nstage);
       
-      hook_list.stage("stage_pre",stage,time_star.time());
+      hook_list.stage("stage_pre",stage,time_star.time(),NULL);
       // if (stage>0) ierr = VecCopy(xold,x);
       ierr = VecCopy(x,dx_step);
       
@@ -595,11 +595,13 @@ int fsi_main() {
 	CHKERRA(ierr);
       }
       
-      hook_list.stage("stage_post",stage,time_star.time());
+      int converged = 0;
+      hook_list.stage("stage_post",stage,time_star.time(),&converged);
       
       PetscPrintf(PETSC_COMM_WORLD,
 		  "time_step %d, time: %g, stage %d, delta_u = %10.3e\n",
 		  tstep,time_,stage,delta_u);
+      if (converged) break;
 
     } // end for stage
     

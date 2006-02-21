@@ -1,6 +1,6 @@
 // -*- mode: C++ -*-
 /*__INSERT_LICENSE__*/
-//$Id: hook.h,v 1.3 2006/02/18 21:03:15 mstorti Exp $
+//$Id: hook.h,v 1.4 2006/02/21 11:00:33 mstorti Exp $
 
 #ifndef HOOK_H
 #define HOOK_H
@@ -30,7 +30,8 @@ public:
 			      const vector<double> &gather_values) {}
   /** This is executed inside each stage in a time step 
       It is an outer loop to guarantee convergence for coupled problems */
-  virtual void stage(const char *jobinfo,int stage, double time) {}
+  virtual void stage(const char *jobinfo,int stage,
+		     double time,void *data) {}
   /** This is executed after the finalization of the program */ 
   virtual void close() {}
 };
@@ -56,7 +57,8 @@ public:
   void time_step_post(double time,int step,
 		      const vector<double> &gather_values);
   /** This is executed after the finalization of the program */ 
-  void stage(const char *jobinfo,int stage, double time);
+  void stage(const char *jobinfo,int stage, 
+	     double time,void *data);
   /** For convergence in an outer loop over the coupled problem */
   virtual void close();
   /// Dtor.
