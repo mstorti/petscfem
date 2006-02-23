@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: advdif_fsi.cpp,v 1.4 2006/02/21 11:00:33 mstorti Exp $
+//$Id: advdif_fsi.cpp,v 1.5 2006/02/23 20:56:25 mstorti Exp $
 
 #include <src/debug.h>
 #include <set>
@@ -552,37 +552,20 @@ int fsi_main() {
 	PFEMERRQ("error: Dt<=0. You have to set Dt>0 or use "
 		 "the auto_time_step flag.\n");
       }
-      // SHV(Dt);
-      time.inc(Dt);
+
+      time_=time;
       
-      // Upgrade state vector.
-      
+      // absorbing boundary condition
       VOID_IT(argl);
       argl.arg_add(&x,IN_OUT_VECTOR);
       argl.arg_add(&xold,IN_VECTOR);
       ierr = assemble(mesh,argl,dofmap,"absorb_bc_proj",&time_star); CHKERRA(ierr);
       
-      //      double time_=time;
-      time_=time;
-      
       // Reuse dx for computing the delta state vector after re-projecting
       //      double delta_u;
-
       scal=-1.;
       ierr = VecAXPY(&scal,x,dx_step);
       ierr  = VecNorm(dx_step,NORM_2,&delta_u); CHKERRA(ierr);
-      
-      if (tstep % nsave == 0){
-	PetscPrintf(PETSC_COMM_WORLD,
-		    " --------------------------------------\n"
-		    "Time step: %d\n"
-		    " --------------------------------------\n",
-		    tstep);
-	
-	print_vector(save_file.c_str(),x,dofmap,&time);
-	if (print_residual)
-	  print_vector(save_file_res.c_str(),res,dofmap,&time);
-      }
       
       if (ngather>0) {
 	gather_values.resize(ngather,0.);
@@ -604,6 +587,21 @@ int fsi_main() {
       if (converged) break;
 
     } // end for stage
+    
+      // SHV(Dt);
+    time.inc(Dt);    
+    
+    if (tstep % nsave == 0){
+      PetscPrintf(PETSC_COMM_WORLD,
+		  " --------------------------------------\n"
+		  "Time step: %d\n"
+		  " --------------------------------------\n",
+		  tstep);
+      
+      print_vector(save_file.c_str(),x,dofmap,&time);
+      if (print_residual)
+	print_vector(save_file_res.c_str(),res,dofmap,&time);
+    }
     
     hook_list.time_step_post(time_star.time(),tstep,gather_values);
     

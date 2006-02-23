@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: gatherer.cpp,v 1.5 2006/02/14 23:48:33 mstorti Exp $
+//$Id: gatherer.cpp,v 1.6 2006/02/23 20:56:29 mstorti Exp $
 
 #include <src/fem.h>
 #include <src/utils.h>
@@ -114,12 +114,16 @@ int gatherer::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
       Jaco.prod(DSHAPEXI,xloc,1,-1,-1,2);
 
       double detJaco;
+      FastMat2 *norjac;
       if (ndimel==ndim) {
 	detJaco = Jaco.det();
+	norjac = &Jaco;
       } else if (ndimel==ndim-1) {
 	detJaco = Jaco.detsur(&n);
 	n.scale(1./detJaco);
-	n.scale(-1.);		// fixme:= This is to compensate a bug in mydetsur
+	// fixme:= This is to compensate a bug in mydetsur
+	n.scale(-1.);
+	norjac = &n;
       }
       if (detJaco <= 0.) {
 	detj_error(detJaco,k);
@@ -131,15 +135,18 @@ int gatherer::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
       u.prod(SHAPE,staten,-1,-1,1);
       u_old.prod(SHAPE,stateo,-1,-1,1);
 
-      iJaco.inv(Jaco);
-      dshapex.prod(iJaco,DSHAPEXI,1,-1,-1,2);
+      if (ndimel==ndim) {
+	iJaco.inv(Jaco);
+	dshapex.prod(iJaco,DSHAPEXI,1,-1,-1,2);
+      }
       
       //u.is(1,1,ndim);
       grad_u.prod(dshapex,staten,1,-1,-1,2);
       //      u.rs();
       grad_u_old.prod(dshapex,stateo,1,-1,-1,2) ;
 
-      set_pg_values(pg_values,u,u_old,xpg,Jaco,wpgdet,t);
+      set_pg_values(pg_values,u,u_old,xpg,
+		    *norjac,wpgdet,t);
       if (options & VECTOR_ADD) {
 	for (int j=0; j<gather_length; j++) {
 	  (*values)[gather_pos+j] += pg_values[j];
