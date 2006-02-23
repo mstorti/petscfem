@@ -4546,4 +4546,6 @@ tag: beta-3.49.25 on Sun, 19 Feb 2006 20:59:59 -0300 by mstorti in spider
 ----------
 tag: beta-3.49.26 on Mon, 20 Feb 2006 16:18:57 -0300 by mstorti in spider
      > Now computes delta_u=||u^{n+1,i+1}-u^{n+1,i}|| in 
-     > `ns_fsi.cpp' and `advdif_fsi.cpp'. 
+     > `ns_fsi.cpp' and `advdif_fsi.cpp'. ----------
+tag: beta-3.49.27 on Thu, 23 Feb 2006 17:56:36 -0300 by mstorti in minerva.ceride.gov.ar
+     > Fixed bug in `gatherer' for `ndimel!=ndim'. 
