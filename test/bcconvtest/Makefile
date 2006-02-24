@@ -1,5 +1,5 @@
 #__INSERT_LICENSE__
-# $Id: Makefile,v 1.3 2003/01/08 15:54:26 mstorti Exp $ 
+# $Id: Makefile,v 1.3.80.1 2006/02/24 12:26:57 rodrigop Exp $ 
 
 .PHONY: force all run runo tests data
 
@@ -61,7 +61,7 @@ $(NAME).depl: force
 test_case: test_case_data
 	-rm -f slosh.some_rslt.tmp
 	if [ -e save.state ] ; then cp save.state save.state.tmp ; fi
-	-$(MPIRUN) -np $(NP) -machinefile machi.dat $(PROG) \
+	-$(MPIRUN) -np $(NP)     $(PROG) \
 			-case $(NAME).depl # | tee output..tmp
 
 local_clean::

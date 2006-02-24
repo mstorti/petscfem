@@ -1,5 +1,5 @@
 #__INSERT_LICENSE__
-# $Id: Makefile,v 1.101.4.1 2005/09/25 22:58:44 mstorti Exp $ 
+# $Id: Makefile,v 1.101.4.2 2006/02/24 12:26:57 rodrigop Exp $ 
 
 .PHONY: all run lclean save compile default
 
@@ -156,3 +156,5 @@ $(DOC_DIR)/odocdxhook.tex: dxhook.cpp
 
 pp:
 	@echo CC: $(CC)
+	@echo CFLAGS: $(CFLAGS)
+

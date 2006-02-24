@@ -1,4 +1,4 @@
-# $Id: Makefile,v 1.9 2003/01/08 13:09:11 mstorti Exp $ 
+# $Id: Makefile,v 1.9.80.1 2006/02/24 12:26:57 rodrigop Exp $ 
 
 .PHONY: all run  compile lclean laplace adv nso laplace_tests force \
         ctest gprof
@@ -30,7 +30,7 @@ CASE := $(CASE_NAME)
 ################################################################
 NP = 1
 
-MCH = -machinefile ./machi.dat
+MCH =    
 
 NP := $(shell procsel $(PETSCFEM_PROCTABLE))
 ifeq ($(np),)

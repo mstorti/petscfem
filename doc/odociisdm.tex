@@ -16,6 +16,30 @@ Krylov space dimension in solving the monolithic linear
 system (Newton linear subiteration) by GMRES.
  (found in file: \verb+iisdmat.cpp+)
 %----<>----<>----<>----<>----<>----<>----<>----<>----<>----<>
+\index{asm\_define\_sub\_problems@\verb+asm_define_sub_problems+}
+\item\verb+int asm_define_sub_problems+ {\rm(default=\verb|0|)}:
+
+define subproblems in Additive Schwarz prec.
+ (found in file: \verb+iisdmat.cpp+)
+%----<>----<>----<>----<>----<>----<>----<>----<>----<>----<>
+\index{asm\_lblocks@\verb+asm_lblocks+}
+\item\verb+int asm_lblocks+ {\rm(default=\verb|1|)}:
+
+Chooses the number of local blocks in ASM
+ (found in file: \verb+iisdmat.cpp+)
+%----<>----<>----<>----<>----<>----<>----<>----<>----<>----<>
+\index{asm\_overlap@\verb+asm_overlap+}
+\item\verb+int asm_overlap+ {\rm(default=\verb|1|)}:
+
+Chooses the overlap of blocks in ASM
+ (found in file: \verb+iisdmat.cpp+)
+%----<>----<>----<>----<>----<>----<>----<>----<>----<>----<>
+\index{asm\_sub\_preco\_type@\verb+asm_sub_preco_type+}
+\item\verb+string asm_sub_preco_type+ {\rm(default=\verb|ilu|)}:
+
+Chooses the preconditioning for block problems in ASM method.
+ (found in file: \verb+iisdmat.cpp+)
+%----<>----<>----<>----<>----<>----<>----<>----<>----<>----<>
 \index{atol@\verb+atol+}
 \item\verb+double atol+ {\rm(default=\verb|1e-6|)}:
 
@@ -38,7 +62,7 @@ system (Newton linear subiteration).
  (found in file: \verb+iisdmat.cpp+)
 %----<>----<>----<>----<>----<>----<>----<>----<>----<>----<>
 \index{gmres\_orthogonalization@\verb+gmres_orthogonalization+}
-\item\verb+string gmres_orthogonalization+ {\rm(default=\verb|ir_orthog|)}:
+\item\verb+string gmres_orthogonalization+ {\rm(default=\verb|modified_gram_schmidt|)}:
 
 Orthogonalization method used in conjunction with GMRES. 
 May be  {\tt unmodified\_gram\_schmidt},

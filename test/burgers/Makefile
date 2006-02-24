@@ -1,5 +1,5 @@
 #__INSERT_LICENSE__
-# $Id: Makefile,v 1.11 2003/11/16 15:37:36 mstorti Exp $ 
+# $Id: Makefile,v 1.11.60.1 2006/02/24 12:26:57 rodrigop Exp $ 
 
 .PHONY: force all run tests data
 
@@ -33,7 +33,7 @@ fd_jac: fd_jac_1 fd_jac_2 fd_jac_3
 fd_jac_1:
 	$(MAKE) CASE=fd_jac_1_ref run
 	$(MAKE) CASE=fd_jac_1 run
-	octave -qH verif_fd_jac_1.m > fd_jac_1.check.tmp
+	$(OCTAVE) verif_fd_jac_1.m > fd_jac_1.check.tmp
 
 #w Test `compute_fd_adv_jacobian' feature with
 #w printing of jacobians and higher threshold
@@ -67,7 +67,7 @@ burgers.depl: burgers.epl data.m force
 NP := $(shell procsel $(PETSCFEM_PROCTABLE))
 run: 
 	make-depl burgers.epl burgers.depl 
-	-$(MPIRUN) -np 1 -machinefile machi.dat $(ADVDIF)		\
+	-$(MPIRUN)  -np 1  $(ADVDIF)		\
 			-case burgers.depl > burgers.$(CASE).out.tmp
 	if [ -f save.state.tmp ] ;					\
 		then mv -f save.state.tmp save.state.$(CASE).tmp ;	\

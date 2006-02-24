@@ -20,7 +20,7 @@ $weak_form = 0 if $CASE=~/_nwf/;
 $weak_form = 1 if $fd_jac;
 $weak_form = 1 unless defined $weak_form;
 octave_export_vars(">data.m.tmp",qw(N));
-system "octave -qH mmesh.m";
+system "octave -qH mmesh.m > /dev/null";
 :>//
 
 # <:prc('CASE fd_jac ref'):>

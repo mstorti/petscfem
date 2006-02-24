@@ -19,7 +19,7 @@ ifeq ($(run_mode),cluster)
 ifeq ($(nolocal),)
 NL := 
 else
-NL := -nolocal
+NL :=  
 endif
 endif
 

@@ -1,5 +1,5 @@
 #__INSERT_LICENSE__
-# $Id: Makefile,v 1.21 2005/02/17 11:50:44 mstorti Exp $ 
+# $Id: Makefile,v 1.21.22.1 2006/02/24 12:26:57 rodrigop Exp $ 
 
 tests = nutcyl test_rigid test_strip \
 	test_strip_prism test_strip_prism_inv test_strip2d test_strip2d_inv
@@ -18,7 +18,7 @@ endif
 NP := 1
 
 ifeq ($(NP),1)
-MACHI = -machinefile machi.dat
+MACHI =    
 endif
 
 export CASE_NAME NP use_en use_prisms use_en

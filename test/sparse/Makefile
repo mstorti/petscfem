@@ -1,5 +1,5 @@
 #__INSERT_LICENSE__
-# $Id: Makefile,v 1.24 2005/01/26 10:54:51 mstorti Exp $ 
+# $Id: Makefile,v 1.24.28.1 2006/02/24 12:26:58 rodrigop Exp $ 
 
 #s Local Targets
 #w all tests
@@ -31,7 +31,7 @@ sparse: sp.bin
 ifneq ($(SUPERLU),)
 	sp.bin SuperLU > output.sparse.superlu.tmp
 else
-	grep -v '^__' ../sparse.test > output.sparse.superlu.tmp
+	grep -v '^__' ./sparse.test > output.sparse.superlu.tmp
 endif
 
 tryme.bin: tryme.o

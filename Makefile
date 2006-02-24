@@ -1,6 +1,6 @@
 # mode: -*- makefile -*-
 #__INSERT_LICENSE__
-#$Id: Makefile,v 1.63 2005/08/31 02:18:46 mstorti Exp $
+#$Id: Makefile,v 1.63.4.1 2006/02/24 12:26:57 rodrigop Exp $
 
 SHELL = /bin/bash
 
@@ -249,3 +249,5 @@ sync:
 	cvs up .
 
 #s
+pp:
+	echo $(BS_INCLUDE)

@@ -1,5 +1,5 @@
 #__INSERT_LICENSE__
-# $Id: Makefile,v 1.4 2001/07/28 20:04:24 mstorti Exp $ 
+# $Id: Makefile,v 1.4.98.1 2006/02/24 12:26:57 rodrigop Exp $ 
 
 .PHONY: force all run tests data
 
@@ -21,7 +21,7 @@ NP := $(shell procsel $(PETSCFEM_PROCTABLE))
 test_case_%: 
 	-if [ ! "$(cont)" = "y" ] ; then rm -f *.tmp ; fi 
 	$(MAKE) EPERLFLAGS='-d case=$* -d cont=$(cont)' data
-	-$(MPIRUN) -np 1 -machinefile machi.dat $(PROG) \
+	-$(MPIRUN) -np 1     $(PROG) \
 			-case $(NAME).depl #> output.case_$*.tmp
 #	if [ -e save.state.tmp ] ; then mv save.state.tmp save.case_$*.tmp ; fi
 

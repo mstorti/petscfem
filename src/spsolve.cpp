@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: spsolve.cpp,v 1.17.74.1 2005/09/25 22:58:44 mstorti Exp $
+//$Id: spsolve.cpp,v 1.17.74.2 2006/02/24 12:26:57 rodrigop Exp $
 
 #include "sparse2.h"
 
@@ -205,7 +205,7 @@ namespace Sparse {
     
     ierr = KSPSetType(ksp,KSPPREONLY); assert(!ierr); 
     ierr = PCSetType(pc,PCLU); assert(!ierr); 
-    ierr = PCLUSetUseInPlace(pc); assert(!ierr);
+    ierr = PCFactorSetUseInPlace(pc); assert(!ierr);
 
     solve_only();
 

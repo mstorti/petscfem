@@ -1,4 +1,4 @@
-# $Id: Makefile,v 1.86.22.2 2005/09/25 22:59:14 mstorti Exp $ 
+# $Id: Makefile,v 1.86.22.3 2006/02/24 12:26:58 rodrigop Exp $ 
 
 .PHONY: all run  compile lclean laplace adv nso laplace_tests force	\
         ctest gprof dxhook dx_tests dx_hook_test_post_run dx		\
@@ -76,7 +76,7 @@ PROG := $(NS)
 ###--------<*>--------<*>--------<*>--------<*>--------<*>--------<*>--------<*> 
 NP = 1
 
-MCH = -machinefile ./machi.dat
+MCH =    
 
 NP := $(shell procsel $(PETSCFEM_PROCTABLE))
 ifeq ($(np),)
@@ -148,16 +148,14 @@ test_zero_w_proc:
 #
 #	One process:
 	$(MAKE) case=zwproc_ref np=1 data
-	echo $(HOSTNAME) > machi.dat
 	echo 1. > weights.dat
-	-${MPIRUN} -np 1 -machinefile ./machi.dat $(PROG) -case $(CASE).depl \
+	-${MPIRUN} -np 1     $(PROG) -case $(CASE).depl \
 	$(REDIR) output.zwproc_ref.out.tmp
 #	Two process:
 	$(MAKE) case=zwproc np=2 data
-	echo $(HOSTNAME) > machi.dat
 	echo 0. > weights.dat
 	echo 1. >> weights.dat
-	-${MPIRUN} -np 2 -machinefile ./machi.dat $(PROG) -case $(CASE).depl \
+	-${MPIRUN} -np 2     $(PROG) -case $(CASE).depl \
 	$(REDIR) output.zwproc.out.tmp
 #
 	$(OCTAVE) check_zwproc.m > check.zwproc.tmp
@@ -170,17 +168,15 @@ test_zero_w_proc2:
 #
 #	One process:
 	$(MAKE) case=zwproc2_ref np=1 data
-	echo $(HOSTNAME) > machi.dat
 	echo 1. >> weights.dat
-	-${MPIRUN} -np 1 -machinefile ./machi.dat $(PROG) -case $(CASE).depl \
+	-${MPIRUN} -np 1     $(PROG) -case $(CASE).depl \
 	$(REDIR) output.zwproc2_ref.out.tmp
 #
 #	Two process:
 	$(MAKE) case=zwproc2 np=2 data
-	echo $(HOSTNAME) > machi.dat
 	echo 0. > weights.dat
 	echo 1. >> weights.dat
-	-${MPIRUN} -np 2 -machinefile ./machi.dat $(PROG) -case $(CASE).depl \
+	-${MPIRUN} -np 2     $(PROG) -case $(CASE).depl \
 	$(REDIR) output.zwproc2.out.tmp
 #
 	$(OCTAVE) check_zwproc2.m > check.zwproc2.tmp

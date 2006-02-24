@@ -1,4 +1,4 @@
-# $Id: Makefile,v 1.12 2005/05/19 16:50:31 mstorti Exp $ 
+# $Id: Makefile,v 1.12.8.1 2006/02/24 12:26:57 rodrigop Exp $ 
 
 default: condwall
 
@@ -11,7 +11,7 @@ LOC_PROG := ns
 PROG := $(NS)
 CASE := condwall
 
-MCH = -nolocal -machinefile ./machi.dat
+MCH =      
 NP := $(shell procsel -n ./proctable)
 
 .PHONY: default condwall

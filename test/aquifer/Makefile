@@ -1,4 +1,4 @@
-# $Id: Makefile,v 1.30 2003/09/14 21:48:57 mstorti Exp $ 
+# $Id: Makefile,v 1.30.68.1 2006/02/24 12:26:57 rodrigop Exp $ 
 
 .PHONY:  force data test_plain test_var_eta test_transient rung run runs
 
@@ -39,7 +39,7 @@ include $(PETSCFEM_DIR)/test/Makefile.base.test
 NP = 1
 
 PROG := $(ADVDIF)
-MCH = -machinefile ./machi.dat
+MCH =    
 
 NP := $(shell procsel $(PETSCFEM_PROCTABLE))
 ifeq ($(np),)

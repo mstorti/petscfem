@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: iisdmat.cpp,v 1.68.36.1 2005/09/25 22:58:44 mstorti Exp $
+//$Id: iisdmat.cpp,v 1.68.36.2 2006/02/24 12:26:57 rodrigop Exp $
 // fixme:= this may not work in all applications
 #ifndef _GNU_SOURCE
 #define _GNU_SOURCE
@@ -831,7 +831,7 @@ int IISDMat::maybe_factor_and_solve(Vec &res,Vec &dx,int factored=0) {
 
       ierr = KSPSetType(ksp_ll,KSPPREONLY); PF_CHKERRQ(ierr); 
       ierr = PCSetType(pc_ll,PCLU); PF_CHKERRQ(ierr); 
-      ierr = PCLUSetFill(pc_ll,pc_lu_fill); PF_CHKERRQ(ierr); 
+      ierr = PCFactorSetFill(pc_ll,pc_lu_fill); PF_CHKERRQ(ierr); 
       // ierr = PCLUSetMatOrdering(pc_ll,MATORDERING_RCM);
 
       if (use_interface_full_preco) {

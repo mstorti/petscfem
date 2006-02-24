@@ -1,5 +1,5 @@
 #__INSERT_LICENSE__
-# $Id: Makefile,v 1.33 2003/03/23 20:52:43 mstorti Exp $ 
+# $Id: Makefile,v 1.33.74.1 2006/02/24 12:26:57 rodrigop Exp $ 
 
 .PHONY: force all run tests data viscous inviscid sphere
 
@@ -54,7 +54,7 @@ PROG := $(NS)
 # endif
 NP := 1
 run: $(CASE_NAME).depl
-	-$(MPIRUN) -np $(NP) -machinefile machi.dat $(PROG) -case $< 
+	-$(MPIRUN) -np $(NP)     $(PROG) -case $< 
 
 $(CASE_NAME).depl: force
 

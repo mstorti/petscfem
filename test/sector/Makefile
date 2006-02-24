@@ -1,5 +1,5 @@
 #__INSERT_LICENSE__
-# $Id: Makefile,v 1.11.70.1 2005/09/25 22:59:11 mstorti Exp $ 
+# $Id: Makefile,v 1.11.70.2 2006/02/24 12:26:57 rodrigop Exp $ 
 
 .PHONY: constraint_bug chunk_size_process sector iprops triangle lap_per
 
@@ -20,11 +20,9 @@ sector: sector.depl $(LAPLACE)
 
 #----<*>----------<*>----------<*>----------<*>----------<*>----------<*>-----
 NP := 2
-MCH := -machinefile machi.dat 
+MCH :=     
 #w Test chunk_size with the new chunk processing
 chunk_size_process: $(LAPLACE)
-	echo `uname -n` >machi.dat
-	echo `uname -n` >>machi.dat
 #
 # 	Try with different chunk sizes and number of processors
 #
@@ -42,7 +40,7 @@ chunk_size_process: $(LAPLACE)
 	$(EPERL) -P -d chunk_size=100 sector.epl >sector.depl
 	-$(MPIRUN) $(MCH) -np $(NP) $(LAPLACE) -case sector.depl >/dev/null
 	mv sector.sal sector_chunk100.sal
-#	-rm machi.dat
+#	-rm  
 
 #----<*>----------<*>----------<*>----------<*>----------<*>----------<*>-----
 .PHONY: triangle triangle_npg3 triangle_npg4 triangle_npg7

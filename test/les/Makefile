@@ -1,5 +1,5 @@
 #__INSERT_LICENSE__
-# $Id: Makefile,v 1.16 2003/03/19 21:28:07 mstorti Exp $ 
+# $Id: Makefile,v 1.16.74.1 2006/02/24 12:26:57 rodrigop Exp $ 
 
 .PHONY: fstack force les_data
 
@@ -16,7 +16,7 @@ SRCS =
 LES_DATA_FILES = les.nod.tmp  les.con.tmp les.fixa.tmp \
 		les.peri.tmp les.wall.tmp les.ini.tmp
 
-MCH = -machinefile ./machi.dat
+MCH =    
 #NP := $(shell procsel ./proctable)
 PROG := $(NS)
 

@@ -5,7 +5,10 @@ BASE = /usr/local/dx
 default: epimport
 
 # need arch set, e.g. by
-# setenv DXARCH `dx -whicharch`
+# setenv DXARCH=`dx -whicharch`
+
+DXARCH=linux
+
 include $(BASE)/lib_$(DXARCH)/arch.mak
 DX_RTL_LDFLAGS := -shared
 OBJEXT := o

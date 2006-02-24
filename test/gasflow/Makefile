@@ -1,4 +1,4 @@
-# $Id: Makefile,v 1.33 2003/10/11 23:57:17 mstorti Exp $ 
+# $Id: Makefile,v 1.33.68.1 2006/02/24 12:26:57 rodrigop Exp $ 
 
 .PHONY: force all run tests default strip gasflow nozzle  vtubei
 
@@ -47,8 +47,8 @@ nolocal := yes
 include ../les/stabi3d/Makefile.parproc
 # NP := 2
 run: $(CASE_NAME).depl
-	-$(MPIRUN) $(NL) -np $(NP) -machinefile \
-		machi.dat $(PROG) -case $< 2>&1
+	-$(MPIRUN) $(NL) -np $(NP)   \
+		  $(PROG) -case $< 2>&1
 
 $(CASE_NAME).depl: force
 

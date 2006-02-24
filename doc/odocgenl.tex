@@ -18,15 +18,15 @@ Type of element geometry to define Gauss Point data
 \item\verb+ double[var_len]+ \verb+ hfilm_coeff+ {\rm(default=\verb| no default|)}:
  
 Defines coeffcients for the film flux function. May be 
-\verb+var_len=0+ (no $\Delta T$ driven load) or
-\verb+var_len=ndof*ndof+ a full matrix of relating the flux with
+ \verb+var_len=0+  (no $\Delta T$ driven load) or
+ \verb+var_len=ndof*ndof+  a full matrix of relating the flux with
 $\Delta !U$. 
   (found in file: \verb+linhff.cpp+)
 %----<>----<>----<>----<>----<>----<>----<>----<>----<>----<>
 \item\verb+ double[var_len]+ \verb+ hfilm_source+ {\rm(default=\verb| no default|)}:
  
 Defines constant source term for the generic load on
-surfaces. May be of length 0 (null load) or \verb+ndof+
+surfaces. May be of length 0 (null load) or  \verb+ndof+ 
 which represents a geven load per field. 
   (found in file: \verb+linhff.cpp+)
 %----<>----<>----<>----<>----<>----<>----<>----<>----<>----<>

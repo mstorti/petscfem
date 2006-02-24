@@ -1,4 +1,4 @@
-# $Id: Makefile,v 1.112 2005/02/21 03:57:14 mstorti Exp $ 
+# $Id: Makefile,v 1.112.20.1 2006/02/24 12:26:57 rodrigop Exp $ 
 
 .PHONY: all run  compile lclean laplace adv nso laplace_tests force \
         ctest gprof srfgath
@@ -28,12 +28,12 @@ CASE := $(CASE_NAME)
 ################################################################
 ifeq ($(HOSTNAME),node1.beowulf.gtm)
 NP := $(shell procsel -n ./proctable.geronimo)
-NL := -nolocal
-MCH := -machinefile ./machi.dat
+NL :=  
+MCH :=    
 else
 NP := $(shell procsel ./proctable.mono)
 NL :=
-MCH := -machinefile ./machi.dat
+MCH :=    
 NP := 1
 endif
 
@@ -73,7 +73,7 @@ nettest = $(PETSCFEM_DIR)/tools/nettest.bin
 .PHONY: nettest
 nettest:
 	NP=`procsel -n ./proctable.geronimo` ;  \
-	$(MPIRUN) -np $$NP -machinefile machi.dat $(nettest)
+	$(MPIRUN) -np $$NP     $(nettest)
 
 dxo: viewer.dx.tmp
 

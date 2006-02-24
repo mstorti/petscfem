@@ -1,5 +1,5 @@
 #__INSERT_LICENSE__
-# $Id: Makefile,v 1.11 2004/09/25 11:32:33 mstorti Exp $ 
+# $Id: Makefile,v 1.11.46.1 2006/02/24 12:26:58 rodrigop Exp $ 
 
 default: igrec
 #default: test_abso
@@ -30,7 +30,7 @@ DEPEND_DIRS = $(CLEAN_DIRS)
 test_abso:
 	$(MAKE) $(CASE).depl
 	$(OCTAVE) $(CASE).m
-	-$(MPIRUN) -np $(NP)  -machinefile ./machi.dat $(ADVDIF) -case $(CASE).depl
+	-$(MPIRUN) -np $(NP)      $(ADVDIF) -case $(CASE).depl
 	$(OCTAVE)  check_test_abso.m
 
 chiquito:

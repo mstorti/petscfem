@@ -4441,3 +4441,285 @@ tag: beta-3.47.34 on Sun, 25 Sep 2005 17:29:22 -0300 by mstorti in spider
 ----------
 tag: beta-3.47.35 on Sun, 25 Sep 2005 19:59:41 -0300 by mstorti in spider
      > Runs almost all tests. 
+
+Verifying results...
+--------
+Start section: "FastMat2"
+Testing: "FastMat2 library" on file "fastmat2/fastmat2a.out.tmp"...OK. 
+Testing: "FastMat2 library with caches" on file "fastmat2/fastmat2.out.tmp"...OK. 
+Testing: "FastMat2 library. FEM problem." on file "fastmat2/fastmat2c.out.tmp"...OK. 
+Summary: "FastMat2" -- OK: 3.  Not OK: 0. Couldn't open: 0. Total: 3
+--------
+Start section: "Laplace boundary conditions"
+Testing: "Periodic boundary conditions (1)" on file "sector/sector0.sal"...OK. 
+Testing: "Periodic boundary conditions (2)" on file "sector/lap_per.sal"...OK. 
+Summary: "Laplace boundary conditions" -- OK: 2.  Not OK: 0. Couldn't open: 0. Total: 2
+--------
+Start section: "Oscplate tests. Time dep. b.c.s and N.S."
+Testing: "Time dependent boundary conditions" on file "oscplate/oscplate1.sal"...OK. 
+Testing: "Time dependent boundary conditions (2)" on file "oscplate/oscplate2o.sal"...OK. 
+Testing: "Time dep. b.c./Crank-Nicholson " on file "oscplate/oscplate3o.sal"...OK. 
+Testing: "Time dep. b.c., spline_periodic function/sin" on file "oscplate/oscplate4o.sal"...OK. 
+Testing: "Time dep. b.c., spline_periodic function/cos" on file "oscplate/oscplate4co.sal"...OK. 
+Testing: "Time dep. b.c., spline_periodic function/sin shift" on file "oscplate/oscplate4_30dego.sal"...OK. 
+Summary: "Oscplate tests. Time dep. b.c.s and N.S." -- OK: 6.  Not OK: 0. Couldn't open: 0. Total: 6
+--------
+Start section: "Plano tests on advdif"
+Testing: "Adv/Sh.Water FastMat2/local_time_step" on file "plano/plano_local.sal"...OK. 
+Testing: "Adv/Sh.Water FastMat2/auto_time_step" on file "plano/plano_auto.sal"...OK. 
+Testing: "Adv/Sh.Water Newmat/local_time_step" on file "plano/plano_local_nm.sal"...OK. 
+Testing: "Adv/Sh.Water FastMat2/cons_supg" on file "plano/plano_cons.sal"...OK. 
+Testing: "Adv/Sh.Water FastMat2/cons_supg/auto" on file "plano/plano_cons_auto.sal"...OK. 
+Testing: "Adv/Sh.Water FastMat2/local_step/auto" on file "plano/plano_local_weak.sal"...OK. 
+Testing: "Adv/Sh.Water FastMat2/weak/bcconv_adv_fm2" on file "plano/plano_fm2_weak.sal"...OK. 
+Summary: "Plano tests on advdif" -- OK: 7.  Not OK: 0. Couldn't open: 0. Total: 7
+--------
+Start section: "Generic load for NS elemset"
+Testing: "Square cavity, Re1000, N=20" on file "sqcav/check.re1000.verif.tmp"...OK. 
+Testing: "Square cavity with fract. step, Re1000, N=20" on file "sqcav/check.fs.verif.tmp"...OK. 
+Testing: "Sqcav 0weight processor" on file "sqcav/check.zwproc.tmp"...OK. 
+Testing: "Sqcav 0weight processor (iisd_subpart=2)" on file "sqcav/check.zwproc2.tmp"...OK. 
+Testing: "Nutating cylinder" on file "nutatcyl/checknutcyl.verif.tmp"...OK. 
+Testing: "Viscous force intgrator on rigid cylinder" on file "nutatcyl/rigid.verif.tmp"...OK. 
+Testing: "Viscous force intgrator on linear 3D strip" on file "nutatcyl/strip.verif.tmp"...OK. 
+Testing: "Viscous force intgrator on linear 3D strip (prisms)" on file "nutatcyl/stripp.verif.tmp"...OK. 
+Testing: "Viscous force intgrator on linear 3D strip (prisms inv.norm.)" on file "nutatcyl/strippi.verif.tmp"...OK. 
+Testing: "Viscous force intgrator on linear 2D strip" on file "nutatcyl/strip2d.verif.tmp"...OK. 
+Testing: "Viscous force intgrator on linear 2D strip (inv. normal)" on file "nutatcyl/strip2di.verif.tmp"...OK. 
+Testing: "Max volume ratio large deformation mesh mov." on file "mmove/step.verif.tmp"...not OK.
+        --->  Couldn't find "Mesh OK \(all areas >0\) \? 1"
+Testing: "Max volume ratio large deformation mesh mov." on file "mmove/step3d.verif.tmp"...OK. 
+Testing: "Generic load film elemset (scalar) " on file "nsgenload/verif.scalar.tmp"...OK. 
+Testing: "Generic load film elemset (diag) " on file "nsgenload/verif.diag.tmp"...OK. 
+Testing: "Generic load film elemset (full) " on file "nsgenload/verif.full.tmp"...OK. 
+Summary: "Generic load for NS elemset" -- OK: 3.  Not OK: 0. Couldn't open: 0. Total: 3
+--------
+Start section: "Navier-Stokes tests."
+Summary: "Navier-Stokes tests." -- OK: 15.  Not OK: 1. Couldn't open: 0. Total: 16
+--------
+Start section: "Misc tests."
+Testing: "Surface gatherers" on file "cubcav/verif-srfgath.tmp"...OK. 
+Testing: "Block uploading in cubcav" on file "cubcav/cubcav.plain-bupl.verif.tmp"...OK. 
+Testing: "Exception handling in `advdif'" on file "aquifer/output.stream2.out.tmp"...OK. 
+Testing: "Exception handling in `advdif' 2 procs." on file "aquifer/output.stream2-np2.out.tmp"...OK. 
+Testing: "Least squares coeff. for derivs. in 3x3 grid" on file "sparse/verif.cloud.tmp"...OK. 
+Testing: "Square cavity, IISD part. in 1 proc." on file "sqcav/check.iisd.verif.np1.tmp"...not OK.
+        --->  Couldn't find "IISD iisd_subpart=2. error < tol OK \? 1 "
+Testing: "Square cavity, test G_body term." on file "sqcav/check.g_body.verif.tmp"...OK. 
+Testing: "Square cavity, IISD part. in 2 proc." on file "sqcav/check.iisd.verif.np2.tmp"...not OK.
+        --->  Couldn't find "IISD iisd_subpart=1. error < tol OK \? 1 "
+Testing: "Graph partitioning" on file "graph/output.graph.tmp"...OK. 
+Testing: "FastVector library" on file "fastmat2/tfastvec.out.tmp"...OK. 
+Testing: "Idmap class" on file "idmap/tidmap.sal"...OK. 
+Testing: "Constraint bug, cant have null rows in idmap class" on file "circ/check_circ.sal"...OK. 
+Testing: "Advdif check bug100 is fixed" on file "bug100/save.state.tmp"...OK. 
+Testing: "Check fields<ndof in constraints" on file "newff/newff.check_fields.out"...OK. 
+Testing: "Check node<nnod in constraints" on file "newff/newff.check_nodes.out"...OK. 
+Testing: "Partitioning test" on file "lupart/check_part.verif.tmp"...OK. 
+Testing: "Distributed map<int,double>, sched alg NOT GROUPED" on file "distmap/distmaps.sal.tmp"...OK. 
+Testing: "Distributed container class." on file "distmap/distcont.sal.tmp"...OK. 
+Testing: "Distributed map<int,double>, sched alg GROUPED" on file "distmap/distmapg.sal.tmp"...OK. 
+Testing: "Distributed matrix<int,int,double>" on file "distmap/distmat.sal.tmp"...OK. 
+Testing: "SuperLU direct solver (SparseDirect class)" on file "lupart/check_direct_superlu.verif.tmp"...OK. 
+Testing: "PETSc direct solver (SparseDirect class)" on file "lupart/check_direct_petsc.verif.tmp"...OK. 
+Testing: "Measure performance test." on file "sqcav/output.CASE_sqcav.np_1.case_lu1.out.tmp"...OK. 
+Testing: "Cyclic reference constraints " on file "nsgenload/verif.constraint.tmp"...OK. 
+Testing: "Adaptor_pg for surfaces. Plane at various angles" on file "sqcav/verif.g3d.tmp"...OK. 
+Summary: "Misc tests." -- OK: 23.  Not OK: 2. Couldn't open: 0. Total: 25
+--------
+Start section: "Laplace tests. "
+Testing: "Periodic case with chunk_size = 1 " on file "sector/sector_chunk1.sal"...OK. 
+Testing: "Periodic case with chunk_size = 10 " on file "sector/sector_chunk10.sal"...OK. 
+Testing: "Periodic case with chunk_size = 100 " on file "sector/sector_chunk100.sal"...OK. 
+Testing: "Periodic case with triangles npg=3 " on file "sector/sector_triangle_npg3.sal"...OK. 
+Testing: "Periodic case with triangles npg=4 " on file "sector/sector_triangle_npg4.sal"...OK. 
+Testing: "Periodic case with triangles npg=7 " on file "sector/sector_triangle_npg7.sal"...OK. 
+Summary: "Laplace tests. " -- OK: 6.  Not OK: 0. Couldn't open: 0. Total: 6
+--------
+Start section: "Misc tests."
+Testing: "Disconnected graph bug in metis_part()" on file "sqcav/simple.state.tmp"...OK. 
+Testing: "FileStack class" on file "fstack/tfstack.out"...OK. 
+Testing: "FileStack class reads length one lines" on file "fstack/fstack3.out.tmp"...OK. 
+Testing: "FileStack class, file name and line pos." on file "fstack/fstack2.verif.tmp"...OK. 
+Testing: "AutoString class." on file "fstack/test_autostr.output.tmp"...OK. 
+Testing: "Shell hook with make." on file "sqcav/output.CASE_qharm.np_1.case_shell_hook.out.tmp"...not OK.
+        --->  Couldn't find "Time step: 2, time: 0.02 "
+Testing: "Shell hook with shell script." on file "sqcav/output.CASE_qharm.np_1.case_shell_hook2.out.tmp"...not OK.
+        --->  Couldn't find "Time step: 2, time: 0.02 "
+Testing: "TextHashTable class" on file "texthash/tthash.sal"...OK. 
+Testing: "TextHashTable::find" on file "texthash/thash2.output.tmp"...OK. 
+Testing: "Report error for bad number of nodes in conn. line" on file "genload/output.case_fstack.tmp"...OK. 
+Testing: "Sparse Mat/Vec classes, SuperLU version" on file "sparse/output.sparse.superlu.tmp"...OK. 
+Testing: "Sparse Mat/Vec classes, PETSc version" on file "sparse/output.sparse.petsc.tmp"...OK. 
+Testing: "Read dvectors from files." on file "sparse/test10_verif.tmp"...OK. 
+Testing: "Resize of non-empty dvectors." on file "sparse/tryme8.output.tmp"...OK. 
+Testing: "Read_vector function." on file "sqcav/verif.read_ini.tmp"...OK. 
+Summary: "Misc tests." -- OK: 13.  Not OK: 2. Couldn't open: 0. Total: 15
+--------
+Start section: "Advdif tests"
+Testing: "Advdif // conv. to analytic in fine mesh" on file "advdif/sine_fine_mesh.out"...OK. 
+Testing: "Advdif // quad. conv. for Crank Nic." on file "advdif/sine_crank_nic.out"...OK. 
+Testing: "Readmesh complains about bad file inclusion" on file "nsgenload/output.fstack_global.tmp"...OK. 
+Testing: "Readmesh complains bad file inclusion in nodes" on file "nsgenload/output.fstack_nodes.tmp"...not OK.
+        --->  Couldn't find "genload.depl"
+Testing: "Readmesh complains bad file inclusion in nodes(2)" on file "nsgenload/output.fstack_nodes2.tmp"...OK. 
+Summary: "Advdif tests" -- OK: 4.  Not OK: 1. Couldn't open: 0. Total: 5
+--------
+Start section: "Turbchan tests."
+Testing: "Advdif/Shallw Water Turb. // flow in a channel" on file "turbchan/turbchan.ver.tmp"...OK. 
+Testing: "Advdif/Shallw Water Turb. // log vars // heat eq." on file "turbchanw/heat.out.tmp"...OK. 
+Testing: "Advdif/Shallw Water Turb. // log vars // shallow w. eq." on file "turbchanw/check.swturb.verif.tmp"...OK. 
+Summary: "Turbchan tests." -- OK: 3.  Not OK: 0. Couldn't open: 0. Total: 3
+--------
+Start section: "New flux function tests."
+Testing: "newff/test case adv_dif_stdy_bcconv" on file "newff/adv_dif_stdy_bcconv.vrf.tmp"...OK. 
+Testing: "newff/test case adv_dif_temp" on file "newff/adv_dif_temp.vrf.tmp"...OK. 
+Testing: "newff/test case adv_temp_cp" on file "newff/adv_temp_cp.vrf.tmp"...OK. 
+Testing: "newff/test case dif_temp" on file "newff/dif_temp.vrf.tmp"...OK. 
+Testing: "newff/test case dif_temp_cp" on file "newff/dif_temp_cp.vrf.tmp"...OK. 
+Testing: "newff/test case full_full_jacs" on file "newff/full_full_jacs.vrf.tmp"...OK. 
+Testing: "newff/test case full_full_jacs_cp" on file "newff/full_full_jacs_cp.vrf.tmp"...OK. 
+Testing: "newff/test case full_full_jacs_adv_cp" on file "newff/full_full_jacs_adv_cp.vrf.tmp"...OK. 
+Testing: "newff/test case full_full_jacs_t" on file "newff/full_full_jacs_t.vrf.tmp"...OK. 
+Testing: "newff/test case full_full_jacs_tr" on file "newff/full_full_jacs_tr.vrf.tmp"...OK. 
+Testing: "newff/test case full_full_jacs_wf" on file "newff/full_full_jacs_wf.vrf.tmp"...OK. 
+Testing: "newff/test case full_jacs" on file "newff/full_jacs.vrf.tmp"...OK. 
+Testing: "newff/test case full_jacs_cp" on file "newff/full_jacs_cp.vrf.tmp"...OK. 
+Testing: "newff/test case pure_adv" on file "newff/pure_adv.vrf.tmp"...OK. 
+Testing: "newff/test case reac_adv_dif_temp_y" on file "newff/reac_adv_dif_temp_y.vrf.tmp"...OK. 
+Testing: "newff/test case reac_dif_temp" on file "newff/reac_dif_temp.vrf.tmp"...OK. 
+Testing: "newff/test case reac_steady" on file "newff/reac_steady.vrf.tmp"...OK. 
+Testing: "newff/test case std_ard_x_y" on file "newff/std_ard_x_y.vrf.tmp"...OK. 
+Testing: "newff/test case stdy_dif" on file "newff/stdy_dif.vrf.tmp"...OK. 
+Testing: "newff/test case dont_use_fastmat2_cache" on file "newff/dont_use_fastmat2_cache.vrf.tmp"...OK. 
+Summary: "New flux function tests." -- OK: 20.  Not OK: 0. Couldn't open: 0. Total: 20
+--------
+Start section: "Advdif compute_fd_adv_jacobian"
+Testing: "compute_fd_adv_jacobian verbose print + threshold" on file "burgers/burgers.fd_jac_1.out.tmp"...OK. 
+Testing: "compute_fd_adv_jacobian print matrices" on file "burgers/burgers.fd_jac_2.out.tmp"...OK. 
+Testing: "compute_fd_adv_jacobian random elements" on file "burgers/burgers.fd_jac_3.out.tmp"...OK. 
+Summary: "Advdif compute_fd_adv_jacobian" -- OK: 3.  Not OK: 0. Couldn't open: 0. Total: 3
+--------
+Start section: "Burgers/advdif tests."
+Testing: "Advdif/Burgers with weak form+bcconv, d=0.1" on file "burgers/save.state._d01_wf.tmp"...OK. 
+Testing: "Advdif/Burgers with no weak form, d=0.1" on file "burgers/save.state._d01_nwf.tmp"...OK. 
+Testing: "Advdif/Burgers coincidence weak/no weak form, d=0.1" on file "burgers/test__d01.out.tmp"...OK. 
+Testing: "Advdif/Burgers with weak form+bcconv, d=0.01" on file "burgers/save.state._d001_wf.tmp"...OK. 
+Testing: "Advdif/Burgers with no weak form, d=0.01" on file "burgers/save.state._d001_nwf.tmp"...OK. 
+Testing: "Advdif/Burgers coincidence weak/no weak form, d=0.01" on file "burgers/test__d001.out.tmp"...OK. 
+Summary: "Burgers/advdif tests." -- OK: 6.  Not OK: 0. Couldn't open: 0. Total: 6
+--------
+Start section: "Linear advection (advdif) tests."
+Testing: "Steady advection skew to the mesh" on file "advec/skew.verif.tmp"...not OK.
+        --->  Couldn't find "Number of nodes with error > tol OK \? 1"
+Testing: "Unsteady advection of cone parallel to mesh" on file "advec/parallel_cone.verif.tmp"...not OK.
+        --->  Couldn't find "Error in x position < tol OK \? 1"
+Testing: "Unsteady advection of cone skew to mesh" on file "advec/skew_cone.verif.tmp"...not OK.
+        --->  Couldn't find "Error in x position < tol OK \? 1"
+Testing: "Unsteady advection of rotating cone" on file "advec/rotating_cone.verif.tmp"...not OK.
+        --->  Couldn't find "Error in x position < tol OK \? 1"
+Testing: "Steady advection skew to the mesh" on file "advec/skew_noise.verif.tmp"...not OK.
+        --->  Couldn't find "Number of nodes with error > tol OK \? 1"
+Testing: "Unsteady advection of cone parallel to mesh" on file "advec/parallel_cone_noise.verif.tmp"...not OK.
+        --->  Couldn't find "Error in x position < tol OK \? 1"
+Testing: "Unsteady advection of cone skew to mesh" on file "advec/skew_cone_noise.verif.tmp"...not OK.
+        --->  Couldn't find "Error in x position < tol OK \? 1"
+Testing: "Unsteady advection of rotating cone" on file "advec/rotating_cone_noise.verif.tmp"...not OK.
+        --->  Couldn't find "Error in x position < tol OK \? 1"
+Summary: "Linear advection (advdif) tests." -- OK: 0.  Not OK: 8. Couldn't open: 0. Total: 8
+--------
+Start section: "Generic Load element"
+Testing: "Generic Load element one gen.load.- double layer hfilm elem. at the end" on file "genload/save.case_1.tmp"...OK. 
+Testing: "Generic Load element one gen.load.- double layer with source elem. at the end" on file "genload/save.case_2a.tmp"...OK. 
+Testing: "Generic Load element one gen.load.- single layer with source elem. at the end" on file "genload/save.case_2b.tmp"...OK. 
+Testing: "Generic Load, 0d element with source term" on file "genload/save.case_genl1d.tmp"...OK. 
+Testing: "Generic Load, 0d element with hfilm coeff" on file "genload/save.case_genl1dh.tmp"...OK. 
+Summary: "Generic Load element" -- OK: 5.  Not OK: 0. Couldn't open: 0. Total: 5
+--------
+Start section: "IISD solver"
+Testing: "IISD solver" on file "lupart/check_iisd.verif.tmp"...OK. 
+Testing: "IISD solver" on file "lupart/check_peri.verif.tmp"...OK. 
+Testing: "IISD/SubPartitioning solver" on file "lupart/check_subpart.verif.tmp"...OK. 
+Testing: "PFMat/case1/(local_solver=petsc)" on file "pfmat/output.case1iip.tmp"...not OK.
+        --->  Couldn't find "All tests OK.*1"
+Testing: "PFMat/case2/(local_solver=petsc)" on file "pfmat/output.case2iip.tmp"...not OK.
+        --->  Couldn't find "All tests OK.*1"
+Testing: "PFMat/case3/(local_solver=petsc)" on file "pfmat/output.case3iip.tmp"...not OK.
+        --->  Couldn't find "All tests OK.*1"
+Testing: "PFMat/case4/(local_solver=petsc)" on file "pfmat/output.case4iip.tmp"...not OK.
+        --->  Couldn't find "All tests OK.*1"
+Testing: "PETScMat/case1" on file "pfmat/output.case1iip.tmp"...not OK.
+        --->  Couldn't find "All tests OK.*1"
+Testing: "PETScMat/case2" on file "pfmat/output.case2iip.tmp"...not OK.
+        --->  Couldn't find "All tests OK.*1"
+Testing: "SparseDirect(solver PETSc)" on file "pfmat/output.case1sdp.tmp"...not OK.
+        --->  Couldn't find "All tests OK.*1"
+Testing: "SparseDirect(solver SuperLU)" on file "pfmat/output.case1sds.tmp"...not OK.
+        --->  Couldn't find "All tests OK.*1"
+Summary: "IISD solver" -- OK: 3.  Not OK: 8. Couldn't open: 0. Total: 11
+--------
+Start section: "IISD solver. Checking with advdif"
+Testing: "newff/test case adv_dif_temp_iisd" on file "newff/adv_dif_temp_iisd.vrf.tmp"...OK. 
+Testing: "newff/test case adv_temp_cp_iisd" on file "newff/adv_temp_cp_iisd.vrf.tmp"...OK. 
+Testing: "newff/test case dif_temp_iisd" on file "newff/dif_temp_iisd.vrf.tmp"...OK. 
+Testing: "newff/test case full_full_jacs_iisd" on file "newff/full_full_jacs_iisd.vrf.tmp"...OK. 
+Testing: "newff/test case full_jacs_iisd" on file "newff/full_jacs_iisd.vrf.tmp"...OK. 
+Testing: "newff/test case full_jacs_cp_iisd" on file "newff/full_jacs_cp_iisd.vrf.tmp"...OK. 
+Testing: "newff/test case pure_adv_iisd" on file "newff/pure_adv_iisd.vrf.tmp"...OK. 
+Testing: "newff/test case reac_adv_dif_temp_y_iisd" on file "newff/reac_adv_dif_temp_y_iisd.vrf.tmp"...OK. 
+Testing: "newff/test case std_ard_x_y_iisd" on file "newff/std_ard_x_y_iisd.vrf.tmp"...OK. 
+Summary: "IISD solver. Checking with advdif" -- OK: 9.  Not OK: 0. Couldn't open: 0. Total: 9
+--------
+Start section: "Graph Partitioning"
+Testing: "Distributed graph 1proc." on file "distmap/dist_graph.np1.out.tmp"...OK. 
+Testing: "Distributed graph 2proc." on file "distmap/dist_graph.np2.out.tmp"...OK. 
+Testing: "Distributed graph 3proc." on file "distmap/dist_graph.np3.out.tmp"...OK. 
+Summary: "Graph Partitioning" -- OK: 3.  Not OK: 0. Couldn't open: 0. Total: 3
+--------
+Start section: "Advective/Hydrology module"
+Testing: "Flat aquifer bottom" on file "aquifer/plain.verif.tmp"...OK. 
+Testing: "Flat aquifer bottom as varying elem prop." on file "aquifer/var_eta0.verif.tmp"...OK. 
+Testing: "Flat aquifer bottom coincide." on file "aquifer/const.verif.tmp"...OK. 
+Testing: "Variable aquifer bottom" on file "aquifer/var_eta1.verif.tmp"...OK. 
+Testing: "Transient - Constant aquifer bottom" on file "aquifer/transient.verif.tmp"...OK. 
+Testing: "Stream elemset" on file "aquifer/stream.verif.tmp"...OK. 
+Testing: "aquifer+stream coupling" on file "aquifer/aquist.verif.tmp"...OK. 
+Summary: "Advective/Hydrology module" -- OK: 7.  Not OK: 0. Couldn't open: 0. Total: 7
+--------
+Start section: "Dynamically loadable amplitude functions"
+Testing: "Linear ramp Dirichlet b.c." on file "aquifer/output.dl_fun1.verif.tmp"...OK. 
+Testing: "Smooth ramp Dirichlet b.c." on file "aquifer/output.dl_fun2.verif.tmp"...OK. 
+Testing: "Tanh ramp Dirichlet b.c." on file "aquifer/output.dl_fun3.verif.tmp"...OK. 
+Testing: "Variable test rain." on file "aquifer/var_rain.verif.tmp"...OK. 
+Summary: "Dynamically loadable amplitude functions" -- OK: 4.  Not OK: 0. Couldn't open: 0. Total: 4
+--------
+Start section: "PETSc-FEM / DX coupling"
+Testing: "Reading states as records from a file" on file "sqcav/output.CASE_sqcav.np_1.case_dx_file1.out.tmp"...OK. 
+Testing: "Reading states from several files" on file "sqcav/output.CASE_sqcav.np_1.case_dx_file3.out.tmp"...OK. 
+Testing: "Processing states synchronously" on file "sqcav/output.CASE_sqcav.np_1.case_dx_synchro.out.tmp"...OK. 
+Testing: "Processing states synchronously. Sends only one field array." on file "sqcav/output.CASE_sqcav.np_1.case_dx_allf.out.tmp"...OK. 
+Testing: "Reading states as records from a file (NP=2)" on file "sqcav/output.CASE_sqcav.np_2.case_dx_file1.out.tmp"...OK. 
+Testing: "Reading states from several files (NP=2)" on file "sqcav/output.CASE_sqcav.np_2.case_dx_file3.out.tmp"...OK. 
+Testing: "Processing states synchronously (NP=2)" on file "sqcav/output.CASE_sqcav.np_2.case_dx_synchro.out.tmp"...OK. 
+Testing: "Processing states synchronously. Sends only one field array. (NP=2)" on file "sqcav/output.CASE_sqcav.np_2.case_dx_allf.out.tmp"...OK. 
+Summary: "PETSc-FEM / DX coupling" -- OK: 8.  Not OK: 0. Couldn't open: 0. Total: 8
+--------
+Start section: "Synchronized output on. SyncBuffer and KeyedOutputBuffer classes. "
+Testing: "Test for the `SyncBuffer' class" on file "distmap/test_sync_buffer.output.tmp"...OK. 
+Testing: "Test for the `KeyedOutputBuffer' class plain" on file "distmap/test_kob_plain.output.tmp"...not OK.
+        --->  Couldn't find "1: 1 2 3 4 5 6 "
+Testing: "Test for the `KeyedOutputBuffer' class with no sorting" on file "distmap/test_kob_no_sort.output.tmp"...not OK.
+        --->  Couldn't find "3: 3 4 5 6 "
+Testing: "Test for the `KeyedOutputBuffer' class with no key printing" on file "distmap/test_kob_no_key_print.output.tmp"...not OK.
+        --->  Couldn't find "1 2 3 4 5 6 "
+Testing: "Test for the `KeyedOutputBuffer' class with no newlines" on file "distmap/test_kob_no_newline.output.tmp"...not OK.
+        --->  Couldn't find "0: 0 1 2 3 4 5 6  (explicit new-line)"
+Summary: "Synchronized output on. SyncBuffer and KeyedOutputBuffer classes. " -- OK: 1.  Not OK: 4. Couldn't open: 0. Total: 5
+
+--------------------------------------------------
+
+--------
+Start section: "All tests"
+Summary: "All tests" -- OK: 151.  Not OK: 26. Couldn't open: 0. Total: 177
+Done.
+make[1]: Leaving directory `/u/rodrigop/PETSC/petscfem-petsc231/test'

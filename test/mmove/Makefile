@@ -1,5 +1,5 @@
 #__INSERT_LICENSE__
-# $Id: Makefile,v 1.20.68.1 2005/09/26 02:45:48 mstorti Exp $ 
+# $Id: Makefile,v 1.20.68.2 2006/02/24 12:26:57 rodrigop Exp $ 
 
 .PHONY: force all run tests data
 
@@ -34,7 +34,7 @@ step3d:
 
 #w Deformation of square with a ramp on one side
 step:
-	$(MAKE) NAME=step OCT_SCRIPT=mkstep.m test_case # > step.out.tmp
+	$(MAKE) NAME=step OCT_SCRIPT=mkstep.m test_case  #> step.out.tmp
 #	$(OCTAVE) proc.m > step.verif.tmp
 
 #w Check whether lockers are created correctly in adaptor
@@ -53,8 +53,8 @@ NPP := $(shell procsel $(PETSCFEM_PROCTABLE))
 NP := 1 
 test_case: test_case_data
 	if [ ! "$(OCT_SCRIPT)" = "" ] ; then $(OCTAVE) $(OCT_SCRIPT) ; fi
-	-$(MPIRUN) -np $(NP) -machinefile machi.dat $(PROG) \
-			-case $(NAME).depl
+	-$(MPIRUN) -np $(NP)     $(PROG) \
+			-case $(NAME).depl > $(NAME).verif.tmp
 
 local_clean::
 	-rm -rf mat.output system.dat save.state data.m \

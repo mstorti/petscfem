@@ -1,5 +1,5 @@
 #__INSERT_LICENSE__
-# $Id: Makefile,v 1.29.74.1 2005/09/25 22:58:52 mstorti Exp $ 
+# $Id: Makefile,v 1.29.74.2 2006/02/24 12:26:57 rodrigop Exp $ 
 
 .PHONY: plano data run sine 
 
@@ -98,7 +98,7 @@ plano.con plano.nod: plano.m
 	$(OCTAVE) plano.m >/dev/null
 
 advec: advec.depl
-	-$(MPIRUN) -machinefile machi.dat -np 1 $(ADVDIF) \
+	-$(MPIRUN)     -np 1 $(ADVDIF) \
 			-case advec.depl
 
 # .gdbinit:
@@ -133,7 +133,7 @@ sine.data: sine.data.epl
 # 	$(OCTAVE) sine_new.m
 
 # per_elem_prop: .gdbinit advdif.link $(DF) $(OF)
-# 	-$(MPIRUN) -np 1 -machinefile machi.dat $(ADVDIF) \
+# 	-$(MPIRUN) -np 1     $(ADVDIF) \
 # 			-case $(DF) > per_elem_prop.out.tmp
 
 # lclean:
@@ -143,9 +143,9 @@ sine.data: sine.data.epl
 #include makefile.d
 
 #NP := $(shell procsel $(PETSCFEM_PROCTABLE))
-run: data
+run: data  
 	-rm -f dummy $(output_files_$(case))
-	-$(MPIRUN) -machinefile machi.dat -np 1 $(ADVDIF) \
+	-$(MPIRUN)     -np 1 $(ADVDIF) \
 			-case $(case).depl > $(case).out
 
 # Tests to be done:
@@ -160,7 +160,7 @@ run: data
 # # For Dt
 # 	-rm $(case).some sine_anal_test.sal sine.depl
 # 	$(MAKE) data
-# 	-$(MPIRUN) -np 1 -machinefile machi.dat $(ADVDIF) \
+# 	-$(MPIRUN) -np 1     $(ADVDIF) \
 # 		 -case $(case).depl >/dev/null
 # 	cp save.state save.state.anal.tmp
 # 	cp sine.some sine.some.anal.tmp

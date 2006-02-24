@@ -1,5 +1,5 @@
 #__INSERT_LICENSE__
-# $Id: Makefile,v 1.26 2004/01/18 22:53:31 mstorti Exp $ 
+# $Id: Makefile,v 1.26.56.1 2006/02/24 12:26:57 rodrigop Exp $ 
 
 .PHONY: distcont distmap distmat dist_graph
 
@@ -9,23 +9,23 @@ tests: distcont distmap distmat dist_graph tests_sb
 
 #w Tests the distributed container class
 distcont: distcont.bin
-	$(MPIRUN) -np 2 -machinefile machi.dat distcont.bin \
+	$(MPIRUN) -np 2     distcont.bin \
 		10 100 1e-12   > distcont.sal.tmp
 
 dm2: distmat.bin
-	$(MPIRUN) -np 2 -machinefile machi.dat distmat.bin \
+	$(MPIRUN) -np 2     distmat.bin \
 		4 4 1e-12 0
 
 #w check basic template (map<int,double>)
 distmap: distmap.bin
-	$(MPIRUN) -np 3 -machinefile machi.dat distmap.bin \
+	$(MPIRUN) -np 3     distmap.bin \
 		100 10000 1e-12 g > distmapg.sal.tmp
-	$(MPIRUN) -np 3 -machinefile machi.dat distmap.bin \
+	$(MPIRUN) -np 3     distmap.bin \
 		100 10000 1e-12 s > distmaps.sal.tmp
 
 #w check DistMatrix class
 distmat: distmat.bin
-	$(MPIRUN) -np 3 -machinefile machi.dat distmat.bin \
+	$(MPIRUN) -np 3     distmat.bin \
 		100 10000 1e-12 0 > distmat.sal.tmp
 
 SRCS = $(wildcard *.cpp)
@@ -90,8 +90,8 @@ tryme7.bin: tryme7.o $(LIB_OBJS_LIB)
 #w Checks distributed graph class 'StoreGraph'
 dist_graph: tryme7.bin
 	tryme7.bin 20 > dist_graph.np1.out.tmp
-	$(MPIRUN) -np 2 -machinefile machi.dat tryme7.bin 20 > dist_graph.np2.out.tmp
-	$(MPIRUN) -np 3 -machinefile machi.dat tryme7.bin 20 > dist_graph.np3.out.tmp
+	$(MPIRUN) -np 2     tryme7.bin 20 > dist_graph.np2.out.tmp
+	$(MPIRUN) -np 3     tryme7.bin 20 > dist_graph.np3.out.tmp
 
 #w
 testsb.bin: testsb.o
@@ -100,11 +100,11 @@ testsb.bin: testsb.o
 	${CXX_CLINKER} -o $@ testsb.o $(LDFLAGS_NO_PROG_LIB)
 
 machi:
-	echo minerva > machi.dat
-	echo minerva >> machi.dat
-	echo minerva >> machi.dat
-	echo minerva >> machi.dat
-	echo minerva >> machi.dat
+	echo minerva >  
+	echo minerva >>  
+	echo minerva >>  
+	echo minerva >>  
+	echo minerva >>  
 
 NPSB := 3
 #w Tests for `SyncBuffer' and `KeyedOutputBuffer' classes

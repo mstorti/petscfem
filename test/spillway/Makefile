@@ -1,5 +1,5 @@
 #__INSERT_LICENSE__
-# $Id: Makefile,v 1.15 2003/06/08 13:12:38 mstorti Exp $ 
+# $Id: Makefile,v 1.15.74.1 2006/02/24 12:26:58 rodrigop Exp $ 
 
 .PHONY: force all run tests data viscous inviscid sphere spillway_mmv
 
@@ -53,7 +53,7 @@ NP := $(shell procsel -l $(PETSCFEM_PROCTABLE))
 NP := 1
 run: $(CASE_NAME).depl alehook.efn
 #	../../tools/eperl_min -P $(CASE_NAME).epl > $(CASE_NAME).depl
-	-$(MPIRUN) -np $(NP) -machinefile machi.dat $(PROG) -case $< 
+	-$(MPIRUN) -np $(NP)     $(PROG) -case $< 
 
 $(CASE_NAME).depl: force
 

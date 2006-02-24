@@ -1,5 +1,5 @@
 #__INSERT_LICENSE__
-# $Id: Makefile,v 1.20 2004/07/26 19:54:48 mstorti Exp $ 
+# $Id: Makefile,v 1.20.46.1 2006/02/24 12:26:57 rodrigop Exp $ 
 
 .PHONY: force tangent stabi data auxi
 
@@ -17,7 +17,7 @@ stabi:
 	saverot stabi.some_rslt%d.tmp
 	$(MAKE) $(CASE).depl
 	$(OCTAVE) < mkmesh.m 
-	-$(MPIRUN) -machinefile ./machi.dat -np $(NP) -nolocal $(PROG) -case stabi.depl
+	-$(MPIRUN)     -np $(NP)   $(PROG) -case stabi.depl
 
 stabi.con-tet.tmp: stabi.con.tmp
 	$(MAKE) -C $(PETSCFEM_DIR)/tools/ hexasplit.bin

@@ -37,7 +37,7 @@ $(ADVDIF): force
 
 local_clean::
 	-rm -f *.o *.sal tmp_file_*.tmp *.bin *~ *.tmp \
-		machi.dat weights.dat *.depl .gdbinit
+		  weights.dat *.depl .gdbinit
 
 SRC_DIR = $(PETSCFEM_DIR)/src
 LIB := $(SRC_DIR)/libpetscfem$(osfx).a
@@ -60,4 +60,3 @@ $(LIB)(%.o):
 lk:
 	$(MAKE) -C $(PETSCFEM_DIR) $(LOC_PROG)
 	ln -f $(PROG) $(LOC_PROG)
-

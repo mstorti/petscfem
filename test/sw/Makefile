@@ -24,7 +24,7 @@ DEPEND_DIRS = $(CLEAN_DIRS)
 test_flux:
 	$(MAKE) $(CASE).depl
 	$(OCTAVE) $(CASE).m
-	-$(MPIRUN) -np $(NP) -machinefile machi.dat $(ADVDIF) -case $(CASE).depl
+	-$(MPIRUN) -np $(NP)     $(ADVDIF) -case $(CASE).depl
 #	$(OCTAVE)  check_test_abso.m
 
 local_clean::

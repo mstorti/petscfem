@@ -1,4 +1,4 @@
-# $Id: Makefile,v 1.1 2005/01/07 01:44:20 mstorti Exp $ 
+# $Id: Makefile,v 1.1.30.1 2006/02/24 12:26:57 rodrigop Exp $ 
 
 PETSCFEM_DIR = ../..
 include $(PETSCFEM_DIR)/Makefile.base
@@ -12,7 +12,7 @@ PROG := $(NS)
 
 ###--------<*>--------<*>--------<*>--------<*>--------<*>--------<*>--------<*> 
 NP = 1
-MCH = -machinefile ./machi.dat
+MCH =    
 
 #w Runs program
 run:

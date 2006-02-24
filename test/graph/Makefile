@@ -1,5 +1,5 @@
 #__INSERT_LICENSE__
-# $Id: Makefile,v 1.10 2002/11/03 01:35:12 mstorti Exp $ 
+# $Id: Makefile,v 1.10.82.1 2006/02/24 12:26:57 rodrigop Exp $ 
 
 #s Local Targets
 #w all tests
@@ -43,6 +43,6 @@ tryme3.bin: tryme3.o
 
 run3:
 	procsel $(PROCTABLE)
-	mpirun -np 2 -machinefile machi.dat tryme3.bin
+	mpirun -np 2     tryme3.bin
 
 #s

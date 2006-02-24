@@ -1,4 +1,4 @@
-# $Id: Makefile,v 1.71 2005/05/13 21:33:06 mstorti Exp $ 
+# $Id: Makefile,v 1.71.8.1 2006/02/24 12:26:57 rodrigop Exp $ 
 
 .PHONY: force all run tests default strip gasflow nozzle  vtubei
 
@@ -36,8 +36,8 @@ run_shock:
 	$(MAKE) CASE_NAME=gfshock run
 
 run_adre:
-	$(MPIRUN) $(NL) -np $(NP) -machinefile		\
-	machi.dat $(PROG) -case adre.epl
+	$(MPIRUN) $(NL) -np $(NP)  		\
+	  $(PROG) -case adre.epl
 
 run2d:
 	$(MAKE) CASE_NAME=gfabso2d run
@@ -82,8 +82,8 @@ mesh:
 
 run:
 	make-depl $(CASE_NAME).epl $(CASE_NAME).depl
-	$(MPIRUN) $(NL) -np $(NP) -machinefile			\
-	machi.dat $(PROG) -case $(CASE_NAME).depl 
+	$(MPIRUN) $(NL) -np $(NP)  			\
+	  $(PROG) -case $(CASE_NAME).depl 
 
 # STEPS_DIR := ./STEPS
 STEPS_DIR := /u/nnigro/PETSC/RUN/COMPRESSION_CORNER/Tuyere/gfplate/RUN_CRANK-NICHOLSON/STEPS
@@ -117,8 +117,8 @@ endif
 
 dx: 
 	make-depl $(CASE_NAME).epl $(CASE_NAME)-dx.depl -d dx=1
-	-$(MPIRUN) $(NL) -np $(NP) -machinefile		\
-	machi.dat $(PROG) -case $(CASE_NAME)-dx.depl # > $(CASE_NAME).log
+	-$(MPIRUN) $(NL) -np $(NP)  		\
+	  $(PROG) -case $(CASE_NAME)-dx.depl # > $(CASE_NAME).log
 
 yuv_compress:
 	yuv=YUV/tuyere.$$dx_step.yuv ;		\
