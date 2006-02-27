@@ -116,3 +116,10 @@ void PyPF::Elemset::setNDof(int ndof)
 {
   (*this)->ndof = ndof;
 }
+
+
+void
+PyPF::Elemset::print()
+{
+  (*this)->print();
+}

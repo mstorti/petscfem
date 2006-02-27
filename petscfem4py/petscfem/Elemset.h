@@ -32,6 +32,8 @@ PYPF_CLASS(Elemset)
   void setNDof(int ndof);
   int  getNDof();
 
+  void print();
+
 };
 
 

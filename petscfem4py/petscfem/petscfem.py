@@ -93,6 +93,7 @@ class Elemset(_object):
     def getSize(*args): return _petscfem.Elemset_getSize(*args)
     def setNDof(*args): return _petscfem.Elemset_setNDof(*args)
     def getNDof(*args): return _petscfem.Elemset_getNDof(*args)
+    def view(*args): return _petscfem.Elemset_view(*args)
 
 class ElemsetPtr(Elemset):
     def __init__(self, this):

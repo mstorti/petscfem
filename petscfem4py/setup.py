@@ -52,9 +52,9 @@ def ext_modules(Extension):
 			     ]
 			   ] + config['include_dirs']
     
-    PETSCFEM_LIBRARY = ['ns_g', 'petscfem_g', 'ns_g', 'petscfem_g'] + config['libraries']
+    PETSCFEM_LIBRARY = ['advdif_g', 'petscfem_g'] * 2 + config['libraries']
     PETSCFEM_LIBRARY_DIR = [join(PETSCFEM_DIR, 'src'),
-                            join(PETSCFEM_DIR, 'applications/ns'),
+                            join(PETSCFEM_DIR, 'applications/advdif'),
                             ] + config['library_dirs']
     from glob import glob
     sources = glob('petscfem/petscfem.i') + glob('petscfem/*.cpp')
