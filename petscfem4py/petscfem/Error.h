@@ -1,4 +1,5 @@
 // -*- c++ -*-
+// $Id: Error.h,v 1.1.2.2 2006/03/02 21:37:12 rodrigop Exp $
 
 #ifndef PYPF_ERROR_H
 #define PYPF_ERROR_H
@@ -8,7 +9,7 @@
 
 PYPF_NAMESPACE_BEGIN
 
-class Error 
+class Error
 {
  protected:
   std::string message;

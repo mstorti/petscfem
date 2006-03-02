@@ -7,7 +7,8 @@ xnod  = [[0,0],
 
 icone = [[0, 1, 2, 3]]
 
-nodedata = Nodedata(xnod)
+nodedata = Nodedata()
+nodedata.setArray(xnod)
 
 elemset1 = Elemset('nsi_tet_les_fm2', 'e0')
 elemset1.setConnectivity(icone)

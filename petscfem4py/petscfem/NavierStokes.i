@@ -1,0 +1,3 @@
+// -*- c++ -*-
+
+%include "NavierStokes.h"

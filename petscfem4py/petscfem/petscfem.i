@@ -1,22 +1,40 @@
 // -*- c++ -*-
-
 %module petscfem
 
+%{
+#include "petscfem4py.h"
+#include "Nodedata.h"
+#include "Elemset.h"
+#include "Mesh.h"
+#include "DofMap.h"
+#include "Problem.h"
+#include "NavierStokes.h"
+%}
 
-%include typemaps.i
+%pythoncode %{
+__all__  = ['Int', 'Float']
+__all__ += ['Nodedata',
+            'Elemset',
+            'Mesh',
+            'DofMap',
+            'Problem',
+            'NavierStokes']
+%}
+
+%include macros.i
 %include array.i
-%rename(view) print;
 %include stl.i
 
 %import  namespace.h
-
-%include init.i
-
 %include Error.i
 %include SmartPtr.i
+
 %include Nodedata.i
 %include Elemset.i
 %include Mesh.i
-%include Constraint.i
 %include DofMap.i
-%include Fixation.i
+
+%include Problem.i
+%include NavierStokes.i
+
+%include petscinit.i

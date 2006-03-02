@@ -1,9 +1,5 @@
 // -*- c++ -*-
-
-%{
-#include <exception>
-#include "Error.h"
-%}
+// $Id: Error.i,v 1.1.2.2 2006/03/02 21:37:12 rodrigop Exp $
 
 %include exception.i
 
@@ -18,6 +14,6 @@
     SWIG_exception(SWIG_RuntimeError, exc.what());
   }
   catch(...) {
-    SWIG_exception(SWIG_RuntimeError,"Unknown exception");
+    SWIG_exception(SWIG_UnknownError, "unknown exception");
   }
 }

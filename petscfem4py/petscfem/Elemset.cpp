@@ -1,6 +1,7 @@
+// $Id: Elemset.cpp,v 1.1.2.3 2006/03/02 21:37:12 rodrigop Exp $
+
 #include "Elemset.h"
 
-#include <cstring>
 #include <fem.h>
 #include <readmesh.h>
 
@@ -14,7 +15,7 @@ PyPF::Elemset::~Elemset()
 }
 
 
-PyPF::Elemset::Elemset(const std::string& type, 
+PyPF::Elemset::Elemset(const std::string& type,
 		       const std::string& name)
   : Ptr(0)
 {
@@ -54,18 +55,21 @@ PyPF::Elemset::Elemset(const std::string& type,
 
 }
 
-std::string PyPF::Elemset::getType()
+std::string 
+PyPF::Elemset::getType()
 {
   return (*this)->type;
 }
 
-std::string PyPF::Elemset::getName()
+std::string 
+PyPF::Elemset::getName()
 {
   return (*this)->name();
 }
 
 
-void PyPF::Elemset::setUp()
+void 
+PyPF::Elemset::setUp()
 {
   (*this)->initialize();
 }
@@ -73,8 +77,12 @@ void PyPF::Elemset::setUp()
 std::string
 PyPF::Elemset::getOption(const std::string& key)
 {
+  if ((*this)->thash == NULL) {
+    throw Error("null option table");
+  }
   const char* value = NULL;
   (*this)->thash->get_entry(key.c_str(), value);
+  if (value == NULL) throw Error("option not found");
   return value;
 }
 
@@ -82,10 +90,14 @@ void
 PyPF::Elemset::setOption(const std::string& key,
 			  const std::string& value)
 {
+  if ((*this)->thash == NULL) {
+    throw Error("null option table");
+  }
   (*this)->thash->add_entry(key.c_str(), value.c_str());
 }
 
-void PyPF::Elemset::setConnectivity(int nelem, int nel, int icone[]) 
+void 
+PyPF::Elemset::setConnectivity(int nelem, int nel, int icone[]) 
 {
   (*this)->nelem = nelem;
   (*this)->nel   = nel; 
@@ -95,31 +107,37 @@ void PyPF::Elemset::setConnectivity(int nelem, int nel, int icone[])
   (*this)->ndof = 0;
 }
 
-void PyPF::Elemset::getConnectivity(int* nelem, int* nel, int* icone[]) 
+void 
+PyPF::Elemset::getConnectivity(int* nelem, int* nel, int* icone[]) 
 {
   *nelem = (*this)->nelem;
   *nel   = (*this)->nel;
   *icone = (*this)->icone;
 }
 
-int PyPF::Elemset::getSize()
+void 
+PyPF::Elemset::getSize(int* nelem, int* nel)
 {
-  return (*this)->nelem;
+  *nelem = (*this)->nelem;
+  *nel   = (*this)->nel;
 }
 
-int PyPF::Elemset::getNDof() 
+int 
+PyPF::Elemset::getNDof() 
 {
   return (*this)->ndof;
 }
 
-void PyPF::Elemset::setNDof(int ndof)
+void 
+PyPF::Elemset::setNDof(int ndof)
 {
   (*this)->ndof = ndof;
 }
 
 
 void
-PyPF::Elemset::print()
+PyPF::Elemset::view()
 {
+  if ((*this) == NULL) return;
   (*this)->print();
 }

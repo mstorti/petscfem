@@ -52,12 +52,13 @@ def ext_modules(Extension):
 			     ]
 			   ] + config['include_dirs']
     
-    PETSCFEM_LIBRARY = ['advdif_g', 'petscfem_g'] * 2 + config['libraries']
+    PETSCFEM_LIBRARY = ['ns_g', 'petscfem_g'] * 2 + config['libraries']
     PETSCFEM_LIBRARY_DIR = [join(PETSCFEM_DIR, 'src'),
-                            join(PETSCFEM_DIR, 'applications/advdif'),
+                            join(PETSCFEM_DIR, 'applications/ns'),
                             ] + config['library_dirs']
     from glob import glob
     sources = glob('petscfem/petscfem.i') + glob('petscfem/*.cpp')
+    #sources = glob('petscfem/petscfem.i') + glob('petscfem/NavierStokes.cpp')
     if 'petscfem/petscfem_wrap.cpp' in sources: 
         sources.remove('petscfem/petscfem_wrap.cpp')
     depends = glob('petscfem/*.i') + glob('petscfem/*.h')
@@ -88,6 +89,7 @@ def setup():
         def finalize_options(self):
             _build_src.finalize_options(self)
             self.inplace = True
+            self.swigflags.append('-modern')
             
     setup(packages     = ['petscfem4py'],
     	  package_dir  = {'petscfem4py' : 'petscfem'},
@@ -97,6 +99,12 @@ def setup():
 
     
 if __name__ == '__main__':
+
+    from distutils import sysconfig
+    cvars = sysconfig.get_config_vars()
+    cflags = cvars['OPT'].split()
+    cflags.remove('-Wall')
+    cvars['OPT'] = str.join(' ', cflags) 
     setup()
 
 # --------------------------------------------------------------------

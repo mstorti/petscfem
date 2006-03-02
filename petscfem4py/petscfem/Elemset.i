@@ -1,8 +1,5 @@
 // -*- c++ -*-
-
-%{
-#include "Elemset.h"
-%}
+// $Id: Elemset.i,v 1.1.2.2 2006/03/02 21:37:12 rodrigop Exp $
 
 ARRAY_2D(int nelem, int nel, int icone[],
 	 ARRAY_INPUT, PyPF_INT)
@@ -19,6 +16,6 @@ ARRAY_TYPECHECK_SEQUENCE((int nelem, int nel, int icone[]),
 
 ARRAY_2D_NEW(int* nelem, int* nel, int* icone[], PyPF_INT)
 
-//%apply int* OUTPUT {int* size, int* nel};
+%apply int* OUTPUT {int* nelem, int* nel};
 
 %include "Elemset.h"
