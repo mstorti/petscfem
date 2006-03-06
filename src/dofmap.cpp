@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: dofmap.cpp,v 1.21 2004/09/25 23:11:39 mstorti Exp $
+//$Id: dofmap.cpp,v 1.21.42.1 2006/03/06 20:54:10 rodrigop Exp $
 
 #include <cassert>
 #include <algorithm>
@@ -307,10 +307,10 @@ int Dofmap::processor(int j) const {
 }
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
-Dofmap::Dofmap() : id(NULL), tpwgts(NULL) { }
+Dofmap::Dofmap() : comm(PETSC_COMM_WORLD), id(NULL), tpwgts(NULL) { }
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
-Dofmap::~Dofmap() { 
+Dofmap::~Dofmap() {
   DELETE_SCLR(id);
   DELETE_VCTR(tpwgts);
 }

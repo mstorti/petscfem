@@ -1,6 +1,6 @@
 // -*- mode: c++ -*-
 /*__INSERT_LICENSE__*/
-//$Id: dofmap.h,v 1.21 2005/02/20 15:25:07 mstorti Exp $
+//$Id: dofmap.h,v 1.21.20.1 2006/03/06 20:54:10 rodrigop Exp $
  
 #ifndef DOFMAP_H
 #define DOFMAP_H
@@ -188,6 +188,9 @@ private:
   double one_coef;
 
 public:
+  /// MPI communicator (default: PETSC_COMM_WORLD)
+  MPI_Comm comm;
+
   /// number of nodes
   int nnod;
 
