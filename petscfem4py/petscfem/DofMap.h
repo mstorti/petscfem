@@ -1,5 +1,5 @@
 // -*- c++ -*-
-// $Id: DofMap.h,v 1.1.2.2 2006/03/02 21:37:12 rodrigop Exp $
+// $Id: DofMap.h,v 1.1.2.3 2006/03/06 16:56:04 rodrigop Exp $
 
 #ifndef PYPF_DOFMAP_H
 #define PYPF_DOFMAP_H
@@ -8,10 +8,11 @@
 
 PYPF_NAMESPACE_BEGIN
 
+
 PYPF_CLASS(DofMap)
 {
-
-  PYPF_CTOR(DofMap)
+  PYPF_CTOR_FROM_PTR(DofMap)
+  PYPF_OBJ_GETOPTTBL_DECL
 
  public:
   

@@ -1,7 +1,7 @@
 // -*- c++ -*-
-// $Id: config.h,v 1.1.2.2 2006/03/02 21:37:12 rodrigop Exp $
+// $Id: config.h,v 1.1.2.3 2006/03/06 16:56:04 rodrigop Exp $
 
-#ifndef PYPF_DEFINES_H
-#define PYPF_DEFINES_H
+#ifndef PYPF_CONFIG_H
+#define PYPF_CONFIG_H
 
 #endif // PYPF_DEFINES_H

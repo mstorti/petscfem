@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: texthash.cpp,v 1.22 2005/02/21 03:57:09 mstorti Exp $
+//$Id: texthash.cpp,v 1.22.20.1 2006/03/06 16:54:48 rodrigop Exp $
  
 #include <iostream>
 #include <sstream>
@@ -77,6 +77,29 @@ TextHashTable::TextHashTable () {
 
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+#undef __FUNC__
+#define __FUNC__ "void TextHashTable::set_entry"
+void TextHashTable::set_entry(const char * key,const char * value) {
+  TextHashTableVal *vold,*vnew;
+  char *orig_key, *keycp;
+  void *orig_key_v, *vold_v;
+  int keylen, exists;
+  keylen=strlen(key);
+  exists = g_hash_table_lookup_extended (hash,key,&orig_key_v,&vold_v);
+  // vold = (TextHashTableVal *)g_hash_table_lookup(hash,key);
+  if (exists) {
+    vold = (TextHashTableVal *) vold_v;
+    orig_key = (char *) orig_key_v;
+    if (!strcmp(vold->s,value)) return;
+    delete vold;
+    keycp = orig_key; // reuse old key
+  } else keycp = local_copy(key);
+
+  vnew = new TextHashTableVal(value);
+  // copy strings on new 
+  g_hash_table_insert (hash,keycp,vnew);
+}
+
 #undef __FUNC__
 #define __FUNC__ "void TextHashTable::add_entry"
 void TextHashTable::add_entry(const char * key,const char * value) {
@@ -322,4 +345,24 @@ const TextHashTable * TextHashTable::find(const string &name) {
   const TextHashTable *table = NULL;
   if (k!=thash_table.end()) table = k->second;
   return table;
+}
+
+
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+
+static void 
+fill_std_map(void *p, void *q, void *m) {
+  typedef TextHashTableVal THTVal;
+  typedef std::map<std::string,std::string> MapStr;
+  THTVal* thtval = reinterpret_cast<THTVal*>(q);
+  MapStr& mapstr = *(reinterpret_cast<MapStr*>(m));
+  const char* key = reinterpret_cast<const char*>(p);
+  const char* val = reinterpret_cast<const char*>(thtval->s);
+  mapstr[key] = val;
+}
+
+void TextHashTable::
+get_entries(std::map<std::string,std::string>& M) const {
+  void* m = reinterpret_cast<void*>(&M);
+  g_hash_table_foreach (this->hash, &fill_std_map, m);
 }

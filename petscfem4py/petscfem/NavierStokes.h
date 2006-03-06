@@ -15,7 +15,8 @@ class NavierStokes: public Problem
 {
 
 public:
-  NavierStokes(int nnod, int ndim, int ndof);
+  NavierStokes();
+  NavierStokes(int nnod, int ndim);
   ~NavierStokes();
   
   void computeResidual();

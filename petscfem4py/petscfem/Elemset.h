@@ -1,5 +1,5 @@
 // -*- c++ -*-
-// $Id: Elemset.h,v 1.1.2.3 2006/03/02 21:37:12 rodrigop Exp $
+// $Id: Elemset.h,v 1.1.2.4 2006/03/06 16:56:04 rodrigop Exp $
 
 #ifndef PYPF_ELEMSET_H
 #define PYPF_ELEMSET_H
@@ -11,18 +11,17 @@ PYPF_NAMESPACE_BEGIN
 
 PYPF_CLASS(Elemset) 
 {
-  PYPF_CTOR(Elemset)
+  PYPF_CTOR_FROM_PTR(Elemset)
+  PYPF_OBJ_GETOPTTBL_DECL
 
  public:
+  ~Elemset();
+  Elemset();
+
   Elemset(const std::string& type,
 	  const std::string& name="");
-  ~Elemset();
   
   void setUp();
-
-  std::string getOption(const std::string& key);
-  void        setOption(const std::string& name,
-			const std::string& value);
 
   std::string getType();
   std::string getName();
@@ -37,6 +36,7 @@ PYPF_CLASS(Elemset)
 
   void view();
 
+  friend class Mesh;
 };
 
 

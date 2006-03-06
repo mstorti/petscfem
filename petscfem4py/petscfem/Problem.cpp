@@ -1,4 +1,4 @@
-// $Id: Problem.cpp,v 1.1.2.1 2006/03/02 21:37:12 rodrigop Exp $
+// $Id: Problem.cpp,v 1.1.2.2 2006/03/06 16:56:04 rodrigop Exp $
 
 #include "Problem.h"
 
@@ -12,14 +12,23 @@
 //#include <pfmat.h>
 //#include <hook.h>
 
-PyPF::Problem::~Problem() { }
+PyPF::Problem::~Problem() 
+{ 
+  Mesh::Base* mesh = this->mesh;
+  this->mesh = NULL;
+  delete mesh;
+  
+  DofMap::Base* dofmap = this->dofmap;
+  this->dofmap = NULL;
+  delete dofmap;
+}
 
 PyPF::Problem::Problem() 
-  : nnod(0), ndim(0), ndof(0),
-    comm(MPI_COMM_NULL), mesh(NULL), dofmap(NULL),
+  : comm(MPI_COMM_NULL),
+    nnod(0), ndim(0), ndof(0),
+    mesh(), dofmap(),
     setupcalled(false)
-{ 
-}
+{ }
 
 PyPF::Problem::Problem(int nnod, int ndim, int ndof)
 { 
@@ -37,16 +46,16 @@ PyPF::Problem::Problem(int nnod, int ndim, int ndof)
   MPI_Comm_rank(comm, &comm_rank);
 
   // build mesh
-  ::Mesh* mesh = new ::Mesh;
-  mesh->global_options = new ::TextHashTable;
-  mesh->nodedata       = new ::Nodedata;
-  mesh->elemsetlist    = da_create(sizeof(::Elemset *));
+  Mesh::Base* mesh = new Mesh::Base;
+  mesh->global_options = new OptionTable;
+  mesh->nodedata       = new Nodedata::Base;
+  mesh->elemsetlist    = da_create(sizeof(Elemset::Base *));
   
   // build nodedata
   double* xyz     = new double[nnod*ndim];
-  for (int i=0; i<nnod*ndim; i++) xyz[i] = 0.0;
-  ::Nodedata* ndata = mesh->nodedata;
-  ndata->options  = new ::TextHashTable;
+  memset(xyz, 0, nnod*ndim*sizeof(double));
+  Nodedata::Base* ndata = mesh->nodedata;
+  ndata->options  = new OptionTable;
   ndata->nodedata = xyz;
   ndata->nnod     = nnod;
   ndata->ndim     = ndim;
@@ -56,12 +65,12 @@ PyPF::Problem::Problem(int nnod, int ndim, int ndof)
   float* tpwgts  = new float[comm_size];
   for (int i=0; i<comm_size; i++) 
     tpwgts[i] = 1.0/float(comm_size);
-  ::DofMap* dofmap = new ::DofMap;
+  DofMap::Base* dofmap = new DofMap::Base;
   dofmap->nnod   = nnod;
   dofmap->ndof   = ndof;
   dofmap->size   = comm_size;
   dofmap->tpwgts = tpwgts;
-  dofmap->id     = new idmap(nnod*ndof, NULL_MAP);
+  dofmap->id     = new ::idmap(nnod*ndof, NULL_MAP);
   for (int i=1; i<=nnod; i++)
     for (int j=1; j<=ndof; j++) {
       int idx = dofmap->edof(i, j);
@@ -83,10 +92,14 @@ PyPF::Problem::Problem(int nnod, int ndim, int ndof)
 void PyPF::Problem::fromFile(const std::string& filename) 
 {
   if (this->mesh) { 
-    delete this->mesh; this->mesh = NULL;
+    Mesh::Base* mesh = this->mesh;
+    this->mesh = NULL;
+    delete mesh;
   }
   if (this->dofmap) { 
-    delete this->dofmap; this->dofmap = NULL;
+    DofMap::Base* dofmap = this->dofmap;
+    this->dofmap = NULL;
+    delete dofmap;
   }
 
   char* fcase = const_cast<char*>(filename.c_str());
@@ -103,10 +116,10 @@ void PyPF::Problem::fromFile(const std::string& filename)
   this->setupcalled = true;
 }
 
-MPI_Comm* 
+MPI_Comm&
 PyPF::Problem::getComm() 
 {
-  return &(this->comm);
+  return this->comm;
 }
 
 // PyPF::Nodedata
@@ -121,8 +134,8 @@ PyPF::Mesh
 PyPF::Problem::getMesh()
 {
   /* test */
-  if (!this->mesh) throw Error("null mesh");
-
+  if (!this->mesh) throw Error("null Mesh");
+  
   return this->mesh;
 }
 
@@ -130,8 +143,8 @@ PyPF::DofMap
 PyPF::Problem::getDofMap()
 {
   /* test */
-  if (!this->dofmap) throw Error("null dofmap");
-
+  if (!this->dofmap) throw Error("null DofMap");
+  
   return this->dofmap;
 }
 
@@ -140,10 +153,10 @@ PyPF::Problem::setUp()
 {
   /* test */
   if (this->comm == MPI_COMM_NULL) throw Error("null communicator");
-  if (!this->dofmap)               throw Error("null dofmap");
   if (!this->mesh)                 throw Error("null mesh");
   if (!this->mesh->nodedata)       throw Error("null node data");
   if (!this->mesh->elemsetlist)    throw Error("null elemset list");
+  if (!this->dofmap)               throw Error("null dofmap");
   
   /* setup */
   if (this->setupcalled) return;

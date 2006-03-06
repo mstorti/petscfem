@@ -1,6 +1,6 @@
 // -*- mode: c++ -*-
 /*__INSERT_LICENSE__*/
-//$Id: texthash.h,v 1.12 2004/01/26 20:22:34 mstorti Exp $
+//$Id: texthash.h,v 1.12.54.1 2006/03/06 16:54:48 rodrigop Exp $
 
 #ifndef __TEXTHASH_H__
 #define __TEXTHASH_H__
@@ -75,6 +75,13 @@ public:
   */ 
   void print(const char * = NULL) const;
 
+  /** Sets an entry to the hash (no warn if already there).
+      @author L. Dalcin
+      @param key (input) key of the entry
+      @param value (input) value of the entry
+  */ 
+  void set_entry(const char *key,const char *value);
+
   /** Adds an entry to the hash.
       @author M. Storti
       @param key (input) key of the entry
@@ -114,6 +121,15 @@ public:
       @author M. Storti
   */
   void set_as_global() {global_options=this;};
+
+  /** Fills a map<string,string> with hash table contents.  Read
+      values are appended to the map so you perhaps have to clear() it
+      before calling this method. Access counter for entries are not
+      incremented.
+      @author L. Dalcin
+      @param M (output) value of the entry
+  */ 
+  void get_entries(std::map<std::string,std::string>&) const;
 
   /** Searches an entry in the hash. 
       @author M. Storti

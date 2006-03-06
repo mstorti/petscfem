@@ -1,3 +1,5 @@
+# $Id: Makefile,v 1.1.2.2 2006/03/06 16:56:04 rodrigop Exp $
+
 .PHONY:  default all seq mpi
 
 export PYTHONPATH=${HOME}/lib/python

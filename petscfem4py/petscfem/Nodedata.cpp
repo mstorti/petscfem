@@ -1,113 +1,78 @@
-// $Id: Nodedata.cpp,v 1.1.2.2 2006/03/02 21:37:12 rodrigop Exp $
+// $Id: Nodedata.cpp,v 1.1.2.3 2006/03/06 16:56:04 rodrigop Exp $
 
 #include "Nodedata.h"
 
 #include <fem.h>
 
-PyPF::Nodedata::Nodedata() : Ptr(new ::Nodedata)
-{ 
-#if 0
-  (*this)->nnod = 0;
-  (*this)->ndim = 0;
-  (*this)->nu   = 0;
-  (*this)->nodedata = NULL;
-  (*this)->options  = NULL;
-#else
-  
-#endif
-}
-
 PyPF::Nodedata::~Nodedata()
-{ 
-#if 0
-  if ((*this)->options != NULL) {
-    delete (*this)->options; (*this)->options = NULL;
-  }
-  if (this->ptr != NULL) {
-    delete this->ptr;
-  }
-#else
+{ }
 
-#endif
+PyPF::Nodedata::Nodedata()
+{ }
+
+PyPF::OptionTable*
+PyPF::Nodedata::get_opt_table(bool create)
+{
+  OptionTable*& options = (*this)->options;
+  if(options == NULL && create) options = new OptionTable;
+  return options;
 }
-
 
 void
 PyPF::Nodedata::getData(int* nnod, int* ndim, double* xyz[])
 {
-  if ((*this)->nodedata == NULL) {
-    throw Error("node data not set");
-  }
-  *nnod = (*this)->nnod;
-  *ndim = (*this)->ndim;
-  *xyz  = (*this)->nodedata;
+  /* test */
+  if ((*this)->nodedata == NULL) throw Error("data not set");
+
+  Nodedata::Base* nodedata = *this;
+  *nnod = nodedata->nnod;
+  *ndim = nodedata->ndim;
+  *xyz  = nodedata->nodedata;
 }
 
 void
 PyPF::Nodedata::setData(int nnod, int ndim, double xyz[])
 {
-  if ((*this)->nodedata == NULL) {
-    throw Error("null node data");
-    if (ndim < 1 || ndim > 3) throw Error("invalid number of dimensions");
-    (*this)->nnod = nnod;
-    (*this)->ndim = ndim;
-    (*this)->nu   = ndim;
-    (*this)->nodedata = new double[nnod*ndim];
-    this->setData(nnod, ndim, xyz);
+  /* test */
+  if (nnod < 1) throw Error("invalid number of nodes (nnod < 1)");
+  if (ndim < 1) throw Error("invalid number of dimensions (ndim < 1)");
+  if (ndim > 3) throw Error("invalid number of dimensions (ndim > 3)");
+  
+  Nodedata::Base*& nodedata = *this;
+  if (nodedata == NULL) nodedata = new Nodedata::Base;
+
+  if (nodedata->nodedata == NULL) {
+    nodedata->nnod = nnod;
+    nodedata->ndim = ndim;
+    nodedata->nu   = ndim;
+    nodedata->nodedata = new double[nnod*ndim];
   } else {
-    int N = (*this)->nnod; 
-    int D = (*this)->ndim;
-    if (N != nnod) throw Error("invalid number of nodes");
-    if (D != ndim) throw Error("invalid number of dimensions");
-    double* _xyz = (*this)->nodedata;
-    for (int n=0; n<N; n++)
-      for (int d=0; d<D; d++)
-	_xyz[n*D+d] = xyz[n*D+d];
+    if (nodedata->nnod != nnod) throw Error("invalid number of nodes");
+    if (nodedata->ndim != ndim) throw Error("invalid number of dimensions");
   }
+  memcpy(nodedata->nodedata, xyz, nnod*ndim*sizeof(double));
 }
 
 void
-PyPF::Nodedata::getSize(int* nnod, int* ndim) 
+PyPF::Nodedata::getSize(int* nnod, int* ndim)
 {
-  if ((*this)->nodedata == NULL) {
-    throw Error("node data not set");
-  }
-  *nnod = (*this)->nnod;
-  *ndim = (*this)->ndim;
-}
-
-
-std::string
-PyPF::Nodedata::getOption(const std::string& key)
-{
-  if ((*this)->options == NULL) {
-    throw Error("null option table");
-  }
-  const char* value = NULL;
-  (*this)->options->get_entry(key.c_str(), value);
-  if (value == NULL) throw Error("option not found");
-  return value;
-}
-
-void 
-PyPF::Nodedata::setOption(const std::string& key,
-			  const std::string& value)
-{
-  if ((*this)->options == NULL) {
-    throw Error("null option table");
-    (*this)->options = new TextHashTable;
-  }
-  (*this)->options->add_entry(key.c_str(), value.c_str());
+  /* test */
+  if ((*this)->nodedata == NULL) throw Error("data not set");
+  
+  Nodedata::Base* nodedata = *this;
+  *nnod = nodedata->nnod;
+  *ndim = nodedata->ndim;
 }
 
 void
 PyPF::Nodedata::view()
 {
-  if ((*this) == NULL) return;
-  if ((*this)->nodedata == NULL) return;
-  int     nnod = (*this)->nnod;
-  int     ndim = (*this)->ndim;
-  double* data = (*this)->nodedata;
+  Nodedata::Base* nodedata = *this;
+  if (nodedata == NULL || nodedata->nodedata == NULL) return;
+
+  int     nnod = nodedata->nnod;
+  int     ndim = nodedata->ndim;
+  double* data = nodedata->nodedata;
   for (int i=0; i<nnod; i++) {
     printf("%7d:", i);
     for (int j=0; j<ndim; j++) {

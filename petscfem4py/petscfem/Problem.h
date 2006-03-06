@@ -1,5 +1,5 @@
 // -*- c++ -*-
-// $Id: Problem.h,v 1.1.2.1 2006/03/02 21:37:12 rodrigop Exp $
+// $Id: Problem.h,v 1.1.2.2 2006/03/06 16:56:04 rodrigop Exp $
 
 #ifndef PYPF_PROBLEM_H
 #define PYPF_PROBLEM_H
@@ -20,25 +20,20 @@ class Problem
 {
 protected:
 
-  int nnod;
-  int ndim;
-  int ndof;
-
   MPI_Comm  comm;
-  ::Mesh*   mesh;
-  ::DofMap* dofmap;
-
+  int nnod, ndim, ndof;
+  Mesh::Base*   mesh;
+  DofMap::Base* dofmap;
   bool setupcalled;
 
 public:
-  Problem();
   virtual ~Problem();
-  
+  Problem();
   Problem(int nnod, int ndim, int ndof);
 
   void fromFile(const std::string& filename);
 
-  MPI_Comm* getComm();
+  MPI_Comm& getComm();
   Mesh      getMesh();
   DofMap    getDofMap();
   /*

@@ -1,4 +1,4 @@
-// $Id: Elemset.cpp,v 1.1.2.3 2006/03/02 21:37:12 rodrigop Exp $
+// $Id: Elemset.cpp,v 1.1.2.4 2006/03/06 16:56:04 rodrigop Exp $
 
 #include "Elemset.h"
 
@@ -10,48 +10,56 @@
 //PyPF::Elemset::Elemset(const PyPF::Elemset & es) : Ptr(es) { }
 
 PyPF::Elemset::~Elemset()
-{ 
-  /* delete[] this->ptr; */
+{ }
+
+PyPF::Elemset::Elemset()
+{ }
+
+PyPF::OptionTable*
+PyPF::Elemset::get_opt_table(bool create)
+{
+  OptionTable*& options = (*this)->thash;
+  if(options == NULL && create) options = new OptionTable;
+  return options;
 }
 
 
 PyPF::Elemset::Elemset(const std::string& type,
 		       const std::string& name)
-  : Ptr(0)
+  : Ptr(NULL)
 {
-  // type
+  // create
+  Elemset::Base*& elemset = *this;
   char* _type = new char[type.size()+1];
   strcpy(_type, type.c_str());
-  bless_elemset(_type, this->ptr);
-  if (! (this->ptr)) {
-    delete[] _type;
-    throw Error("unknown elemset type");
+  bless_elemset(_type, elemset);
+  if (elemset == NULL) {
+    delete[] _type; throw Error("unknown elemset type");
   }
-  (*this)->type = _type;
-  // name
-  const std::string& _name =  (name.size()) ? name : (::Elemset::anon);
-  (*this)->register_name(_name, (*this)->type);
+  elemset->type = _type;
+  const std::string& _name =  (name.size()) ? name : (Elemset::Base::anon);
+  elemset->register_name(_name, elemset->type);
 
   // options
-  (*this)->thash = new TextHashTable;
+  elemset->thash = new OptionTable;
 
-  (*this)->ndof  = 0; 
-  (*this)->epart = NULL;
-  (*this)->isfat = 0;
+  elemset->ndof  = 0; 
+  elemset->epart = NULL;
+  elemset->isfat = 0;
 
   // int props
-  (*this)->neliprops        = 0; 
-  (*this)->elemiprops       = NULL; 
-  (*this)->elem_iprop_names = g_hash_table_new(&g_str_hash,&g_str_equal); 
-  (*this)->neliprops_add = 0; 
-  (*this)->elemiprops_add = NULL; 
+  elemset->neliprops        = 0; 
+  elemset->elemiprops       = NULL; 
+  elemset->elem_iprop_names = g_hash_table_new(&g_str_hash,&g_str_equal); 
+  elemset->neliprops_add = 0; 
+  elemset->elemiprops_add = NULL; 
 
   // double props
-  (*this)->nelprops         = 0; 
-  (*this)->elemprops        = NULL; 
-  (*this)->elem_prop_names  = g_hash_table_new(&g_str_hash,&g_str_equal); 
-  (*this)->nelprops_add = 0; 
-  (*this)->elemprops_add  = NULL; 
+  elemset->nelprops         = 0; 
+  elemset->elemprops        = NULL; 
+  elemset->elem_prop_names  = g_hash_table_new(&g_str_hash,&g_str_equal); 
+  elemset->nelprops_add = 0; 
+  elemset->elemprops_add  = NULL; 
 
 }
 
@@ -74,52 +82,55 @@ PyPF::Elemset::setUp()
   (*this)->initialize();
 }
 
-std::string
-PyPF::Elemset::getOption(const std::string& key)
-{
-  if ((*this)->thash == NULL) {
-    throw Error("null option table");
-  }
-  const char* value = NULL;
-  (*this)->thash->get_entry(key.c_str(), value);
-  if (value == NULL) throw Error("option not found");
-  return value;
-}
-
-void 
-PyPF::Elemset::setOption(const std::string& key,
-			  const std::string& value)
-{
-  if ((*this)->thash == NULL) {
-    throw Error("null option table");
-  }
-  (*this)->thash->add_entry(key.c_str(), value.c_str());
-}
-
 void 
 PyPF::Elemset::setConnectivity(int nelem, int nel, int icone[]) 
 {
-  (*this)->nelem = nelem;
-  (*this)->nel   = nel; 
-  (*this)->icone = new int[nelem*nel];
-  memcpy((*this)->icone, icone, nelem*nel*sizeof(int));
-  (*this)->elem_conne = new int[nel];
-  (*this)->ndof = 0;
+  if ((*this)->icone == NULL) {
+    Elemset::Base* elemset = *this;
+    elemset->icone      = new int[nelem*nel];
+    if (elemset->elem_conne) delete[] elemset->elem_conne;
+    elemset->elem_conne = new int[nel];
+  } 
+  else {
+    Elemset::Base* elemset = *this;
+    if (elemset->nelem*elemset->nel != nelem*nel) {
+      delete[] elemset->icone; elemset->icone = new int[nelem*nel];
+    }
+    if (elemset->nel != nel || !elemset->elem_conne) {
+      if (elemset->elem_conne) delete[] elemset->elem_conne;
+      elemset->elem_conne = new int[nel];
+    }
+  }
+
+  Elemset::Base* elemset = *this;
+  elemset->nelem = nelem;
+  elemset->nel   = nel;
+  memcpy(elemset->icone, icone, nelem*nel*sizeof(int));
+  memset(elemset->elem_conne, 0, nel*sizeof(int));
+  elemset->ndof = 0;
 }
 
 void 
 PyPF::Elemset::getConnectivity(int* nelem, int* nel, int* icone[]) 
 {
-  *nelem = (*this)->nelem;
-  *nel   = (*this)->nel;
-  *icone = (*this)->icone;
+  if ((*this)->icone == NULL) {
+    throw Error("connectivity not set");
+  }
+  Elemset::Base* elemset = *this;
+  *nelem = elemset->nelem;
+  *nel   = elemset->nel;
+  *icone = elemset->icone;
 }
 
 void 
 PyPF::Elemset::getSize(int* nelem, int* nel)
 {
-  *nelem = (*this)->nelem;
-  *nel   = (*this)->nel;
+  if ((*this)->icone == NULL) {
+    throw Error("connectivity not set");
+  }
+  Elemset::Base* elemset = *this;
+  *nelem = elemset->nelem;
+  *nel   = elemset->nel;
 }
 
 int 
@@ -138,6 +149,5 @@ PyPF::Elemset::setNDof(int ndof)
 void
 PyPF::Elemset::view()
 {
-  if ((*this) == NULL) return;
   (*this)->print();
 }

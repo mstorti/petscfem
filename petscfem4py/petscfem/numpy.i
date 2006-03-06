@@ -5,7 +5,7 @@
  *
  * This SWIG file provides typemaps for NumPy
  *
- * $Id: numpy.i,v 1.1.2.1 2006/02/27 21:38:58 rodrigop Exp $
+ * $Id: numpy.i,v 1.1.2.2 2006/03/06 16:56:04 rodrigop Exp $
  * -----------------------------------------------------------------*/
 
 %{
@@ -100,11 +100,8 @@ _PyArray_TypeObjectFromType(int type)
 
 %include exception.i
 
-%define ARRAY_arg_fail(SYMNAME, ARGNUM)
-if (PyErr_Occurred()) {
-  SWIG_preppend_errmsg("SYMNAME(), argument number ARGNUM: ");
-  SWIG_fail;
-}
+%define ARRAY_arg_fail(SYMNAME, ARGNUM) 
+if (SWIG_arg_fail(ARGNUM)) SWIG_fail
 %enddef
 
 %define ARRAY_exception(EXC, MESG)
@@ -112,7 +109,7 @@ SWIG_exception(EXC, "$symname(), argument number $argnum: "##MESG)
 %enddef
 
 %define ARRAY_assert(condition, message)
-if (!(condition)) ARRAY_exception(SWIG_ValueError, message)
+if (!(condition)) ARRAY_exception(SWIG_ValueError, message);
 %enddef
 
 /* ---------------------------------------------------------------- */
@@ -668,12 +665,12 @@ ARRAY_PAIR_TYPECHECK(SIZE, INDEX, VALUE, PRECEDENCE)
   size  = ($*1_ltype) 0; $1 = &size; 
   value = ($*2_ltype) 0; $2 = &value;
 }
-%typemap(argout, fragment="t_output_helper") (SIZE, VALUE)
+%typemap(argout) (SIZE, VALUE)
 {
   PyObject* o = NULL;
   o = ARRAY_NEW(*$2, VALUE_T, 1, *$1);
   ARRAY_arg_fail($symname, $argnum);
-  $result = t_output_helper($result, o);
+  %append_output(o);
 }
 %enddef
 
@@ -701,12 +698,12 @@ ARRAY_PAIR_TYPECHECK(SIZE, INDEX, VALUE, PRECEDENCE)
   val = ($*3_ltype) 0; $3 = &val;
 }
 
-%typemap(argout, fragment="t_output_helper") (ROW, COL, VALUE)
+%typemap(argout) (ROW, COL, VALUE)
 {
   PyObject* o = NULL;
   o = ARRAY_NEW(*$3, VALUE_T, 2, *$1, *$2);
   ARRAY_arg_fail($symname, $argnum);
-  $result = t_output_helper($result, o);
+  %append_output(o);
 }
 
 %enddef
@@ -738,12 +735,12 @@ ARRAY_PAIR_TYPECHECK(SIZE, INDEX, VALUE, PRECEDENCE)
   vl = ($*4_ltype) 0; $4 = &vl;
 }
 
-%typemap(argout, fragment="t_output_helper") (D1, D2, D3, VALUE)
+%typemap(argout) (D1, D2, D3, VALUE)
 {
   PyObject* o = NULL;
   o = ARRAY_NEW(*$4, VALUE_T, 3, *$1, *$2,*$3);
   ARRAY_arg_fail($symname, $argnum);
-  $result = t_output_helper($result, o);
+  %append_output(o);
 }
 
 %enddef
