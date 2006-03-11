@@ -4549,3 +4549,6 @@ tag: beta-3.49.26 on Mon, 20 Feb 2006 16:18:57 -0300 by mstorti in spider
      > `ns_fsi.cpp' and `advdif_fsi.cpp'. ----------
 tag: beta-3.49.27 on Thu, 23 Feb 2006 17:56:36 -0300 by mstorti in minerva.ceride.gov.ar
      > Fixed bug in `gatherer' for `ndimel!=ndim'. 
+----------
+tag: beta-3.49.28 on Sat, 11 Mar 2006 18:49:54 -0300 by mstorti in spider
+     > Adding large deformation elasticity elment. 
