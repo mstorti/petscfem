@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-/* $Id: blessf.cpp,v 1.40 2006/02/18 22:40:47 mstorti Exp $ */
+/* $Id: blessf.cpp,v 1.41 2006/03/11 21:49:34 mstorti Exp $ */
 
 #include <src/debug.h>
 #include <malloc.h>
@@ -19,6 +19,7 @@
 #include "./adaptor.h"
 #include "./elast.h"
 #include "./elast2.h"
+#include "./elastld.h"
 #include "./qharm.h"
 #include "./qharmm.h"
 #include "./nsgath.h"
