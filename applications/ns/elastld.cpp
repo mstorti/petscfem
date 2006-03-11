@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: elastld.cpp,v 1.1 2006/03/11 21:49:34 mstorti Exp $
+//$Id: elastld.cpp,v 1.2 2006/03/11 23:11:19 mstorti Exp $
 
 #include <src/fem.h>
 #include <src/utils.h>
@@ -10,7 +10,7 @@
 #include "nsi_tet.h"
 #include "adaptor.h"
 #include "nsgath.h"
-#include "elast2.h"
+#include "elastld.h"
 
 void ld_elasticity::init() {
 
@@ -25,7 +25,7 @@ void ld_elasticity::init() {
   nu=Poisson_ratio;
   assert(nu>=0. && nu<0.5);
 
-  lambda = nu*E*/((1+nu)*(1-2*nu));
+  lambda = nu*E/((1+nu)*(1-2*nu));
   mu = E/2/(1+nu);
 
   //o Density
@@ -64,6 +64,10 @@ void ld_elasticity::element_connector(const FastMat2 &xloc,
   // loop over Gauss points
   for (int ipg=0; ipg<npg; ipg++) {
     
+    dshapex.rs();
+    res.rs();
+
+    shape.ir(2,ipg+1);
     dshapexi.ir(3,ipg+1); // restriccion del indice 3 a ipg+1
     Jaco.prod(dshapexi,xloc,1,-1,-1,2);
     
@@ -95,13 +99,13 @@ void ld_elasticity::element_connector(const FastMat2 &xloc,
     ustar.set(xnew).scale(alpha).axpy(xold,1-alpha);
     vstar.set(vnew).scale(alpha).axpy(vold,1-alpha);
 
-    grad_u.prod(ustar,dshapex,-1,1,-1,2);
+    grad_u.prod(ustar,dshapex,-1,1,2,-1);
     F.set(Id).add(grad_u);
     strain.prod(F,F,-1,1,-1,2).rest(Id).scale(0.5);
-    tmp2.ctr(strain,-1,-1);
-    double trE = tmp2;
-    tmp3.set(Id).scale(trE*lambda).axpy(strain,2*mu);
-    stress.prod(F,tmp3,1,-1,-1,2);
+    tmp5.ctr(strain,-1,-1);
+    double trE = tmp5;
+    tmp4.set(Id).scale(trE*lambda).axpy(strain,2*mu);
+    stress.prod(F,tmp4,1,-1,-1,2);
 
     // Inertia term
     a.set(vnew).rest(vold);
@@ -110,7 +114,7 @@ void ld_elasticity::element_connector(const FastMat2 &xloc,
     res.is(2,ndim+1,2*ndim).axpy(tmp2,-wpgdet*rec_Dt*rho);
 
     // Elastic force residual computation
-    res_pg.prod(dshapex,stress,1,-1,-1,2);
+    res_pg.prod(dshapex,stress,-1,1,-1,2);
     res.axpy(res_pg,-wpgdet).rs();
     
     mass_pg.prod(shape,shape,1,2).scale(wpgdet*rec_Dt*rho/alpha);
