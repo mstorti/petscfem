@@ -4552,3 +4552,6 @@ tag: beta-3.49.27 on Thu, 23 Feb 2006 17:56:36 -0300 by mstorti in minerva.cerid
 ----------
 tag: beta-3.49.28 on Sat, 11 Mar 2006 18:49:54 -0300 by mstorti in spider
      > Adding large deformation elasticity elment. 
+----------
+tag: beta-3.49.29 on Sat, 11 Mar 2006 20:12:00 -0300 by mstorti in spider
+     > Large deformation elasticity element `elastld' compiles and runs.
