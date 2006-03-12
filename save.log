@@ -4558,3 +4558,6 @@ tag: beta-3.49.29 on Sat, 11 Mar 2006 20:12:00 -0300 by mstorti in spider
 ----------
 tag: beta-3.49.30 on Sun, 12 Mar 2006 00:32:14 -0300 by mstorti in spider
      > Fixed bug in finite difference jacobian for `adaptor.cpp'. 
+----------
+tag: beta-3.49.31 on Sun, 12 Mar 2006 09:02:12 -0300 by mstorti in spider
+     > Fixed bug in `elastld' (bud index contraction)
