@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: elastld.cpp,v 1.3 2006/03/12 03:32:06 mstorti Exp $
+//$Id: elastld.cpp,v 1.4 2006/03/12 12:02:03 mstorti Exp $
 
 #include <src/fem.h>
 #include <src/utils.h>
@@ -115,7 +115,7 @@ void ld_elasticity::element_connector(const FastMat2 &xloc,
 
     // Elastic force residual computation
 #if 1
-    res_pg.prod(dshapex,stress,-1,1,-1,2);
+    res_pg.prod(dshapex,stress,-1,1,2,-1);
     res.axpy(res_pg,-wpgdet).rs();
 #else
     tmp6.prod(ustar,shape,-1,1,-1);
