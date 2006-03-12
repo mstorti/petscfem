@@ -4555,3 +4555,6 @@ tag: beta-3.49.28 on Sat, 11 Mar 2006 18:49:54 -0300 by mstorti in spider
 ----------
 tag: beta-3.49.29 on Sat, 11 Mar 2006 20:12:00 -0300 by mstorti in spider
      > Large deformation elasticity element `elastld' compiles and runs.
+----------
+tag: beta-3.49.30 on Sun, 12 Mar 2006 00:32:14 -0300 by mstorti in spider
+     > Fixed bug in finite difference jacobian for `adaptor.cpp'. 
