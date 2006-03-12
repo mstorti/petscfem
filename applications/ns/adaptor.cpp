@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: adaptor.cpp,v 1.12 2006/02/04 14:25:07 mstorti Exp $
+//$Id: adaptor.cpp,v 1.13 2006/03/12 03:32:06 mstorti Exp $
 
 #include <src/fem.h>
 #include <src/utils.h>
@@ -185,7 +185,6 @@ int adaptor::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
       // the problem.
       element_connector(xloc,locstate2,locstate,veccontr,matlocf);
       veccontr.export_vals(&(RETVAL(ielh,0,0)));
-      matlocf.export_vals(&(RETVALMAT(ielh,0,0,0,0)));
 
       if (jacobian_fdj_compute) {
 	double epsil = jacobian_fdj_epsilon;
@@ -218,6 +217,7 @@ int adaptor::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
 	  matlocf.set(matlocf_fdj);
 	  matlocf_fdj.rs();
       }
+      matlocf.export_vals(&(RETVALMAT(ielh,0,0,0,0)));
     }
   }
   FastMat2::void_cache();

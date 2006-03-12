@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: elastld.cpp,v 1.2 2006/03/11 23:11:19 mstorti Exp $
+//$Id: elastld.cpp,v 1.3 2006/03/12 03:32:06 mstorti Exp $
 
 #include <src/fem.h>
 #include <src/utils.h>
@@ -58,8 +58,8 @@ void ld_elasticity::element_connector(const FastMat2 &xloc,
 				   const FastMat2 &state_old,
 				   const FastMat2 &state_new,
 				   FastMat2 &res,FastMat2 &mat){
-  res.set(0.0);
-  mat.set(0.0);
+  res.set(0.);
+  mat.set(0.);
 
   // loop over Gauss points
   for (int ipg=0; ipg<npg; ipg++) {
@@ -114,8 +114,14 @@ void ld_elasticity::element_connector(const FastMat2 &xloc,
     res.is(2,ndim+1,2*ndim).axpy(tmp2,-wpgdet*rec_Dt*rho);
 
     // Elastic force residual computation
+#if 1
     res_pg.prod(dshapex,stress,-1,1,-1,2);
     res.axpy(res_pg,-wpgdet).rs();
+#else
+    tmp6.prod(ustar,shape,-1,1,-1);
+    res_pg.prod(shape,tmp6,1,2);
+    res.axpy(res_pg,1.0).rs();
+#endif
     
     mass_pg.prod(shape,shape,1,2).scale(wpgdet*rec_Dt*rho/alpha);
     for (int k=1; k<=ndim; k++) 
