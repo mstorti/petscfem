@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: elastld.cpp,v 1.4 2006/03/12 12:02:03 mstorti Exp $
+//$Id: elastld.cpp,v 1.5 2006/03/13 20:22:19 mstorti Exp $
 
 #include <src/fem.h>
 #include <src/utils.h>
@@ -31,6 +31,17 @@ void ld_elasticity::init() {
   //o Density
   TGETOPTDEF(thash,double,density,0.);
   rho=density;
+
+  G_body.resize(1,ndim).set(0.);
+  const char *line;
+  vector<double> G_body_v;
+  thash->get_entry("G_body",line);
+  if(line) {
+    read_double_array(G_body_v,line);
+    assert(G_body_v.size()==ndim);
+    G_body.set(&G_body_v[0]);
+  }
+
   // Dos opciones para imprimir
   // printf("rec_Dt: %d\n",rec_Dt);
   // SHV(rec_Dt);
@@ -108,10 +119,10 @@ void ld_elasticity::element_connector(const FastMat2 &xloc,
     stress.prod(F,tmp4,1,-1,-1,2);
 
     // Inertia term
-    a.set(vnew).rest(vold);
-    tmp.prod(shape,a,-1,-1,1);
+    a.set(vnew).rest(vold).scale(rec_Dt);
+    tmp.prod(shape,a,-1,-1,1).rest(G_body);
     tmp2.prod(shape,tmp,1,2);
-    res.is(2,ndim+1,2*ndim).axpy(tmp2,-wpgdet*rec_Dt*rho);
+    res.is(2,ndim+1,2*ndim).axpy(tmp2,-wpgdet*rho);
 
     // Elastic force residual computation
 #if 1
