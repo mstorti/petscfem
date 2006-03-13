@@ -4561,3 +4561,6 @@ tag: beta-3.49.30 on Sun, 12 Mar 2006 00:32:14 -0300 by mstorti in spider
 ----------
 tag: beta-3.49.31 on Sun, 12 Mar 2006 09:02:12 -0300 by mstorti in spider
      > Fixed bug in `elastld' (bud index contraction)
+----------
+tag: beta-3.49.32 on Sun, 12 Mar 2006 23:12:33 -0300 by mstorti in spider
+     > Fixed computation of FD Jacobian for adaptor class, for alpha!=1
