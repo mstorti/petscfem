@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: adaptor.cpp,v 1.13 2006/03/12 03:32:06 mstorti Exp $
+//$Id: adaptor.cpp,v 1.14 2006/03/13 02:12:25 mstorti Exp $
 
 #include <src/fem.h>
 #include <src/utils.h>
@@ -191,6 +191,7 @@ int adaptor::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
 	matlocf_fdj.set(0.).reshape(2,nen,nen);
 	veccontr.reshape(1,nen);
 	locstate.reshape(1,nen);
+	double afact = -1./(alpha*epsil);
 	for (int j=1; j<=nen; j++) {
 	  locstatep.reshape(1,nen).set(locstate)
 	    .addel(epsil,j).reshape(2,nel,ndof);
@@ -198,7 +199,7 @@ int adaptor::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
 	  element_connector(xloc,locstate2,locstatep,veccontrp,matlocf);
 	  veccontrp.reshape(1,nen);
 	  matlocf_fdj.ir(2,j).set(veccontrp)
-	    .rest(veccontr).scale(-1./epsil).rs();
+	    .rest(veccontr).scale(afact).rs();
 	}
 	veccontr.reshape(2,nel,ndof);
 	locstate.reshape(2,nel,ndof);
