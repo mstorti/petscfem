@@ -4567,3 +4567,6 @@ tag: beta-3.49.32 on Sun, 12 Mar 2006 23:12:33 -0300 by mstorti in spider
 ----------
 tag: beta-3.49.33 on Mon, 13 Mar 2006 17:22:53 -0300 by mstorti in minerva.ceride.gov.ar
      > Added gravity to `elastld'. 
+----------
+tag: beta-3.49.34 on Wed, 15 Mar 2006 07:13:25 -0300 by mstorti in spider
+     > Adding additional states to NS. 
