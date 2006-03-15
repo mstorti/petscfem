@@ -1,6 +1,6 @@
 // -*- mode: C++ -*-
 /*__INSERT_LICENSE__*/
-//$Id: nsi_tet.h,v 1.52 2006/02/18 22:40:47 mstorti Exp $
+//$Id: nsi_tet.h,v 1.53 2006/03/15 10:13:04 mstorti Exp $
 #ifndef PETSCFEM_NSI_TET_H  
 #define PETSCFEM_NSI_TET_H
 
@@ -424,5 +424,11 @@ BasicObject_factory_t BasicObject_ns_factory;
 
 /// Fixes the jacobian of the element. 
 void detj_error(double &detJaco,int elem);
+
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+/** Creates hooks depending on the name. 
+    @param name (input) the name of the hook. 
+    @return a pointer to the hook. */ 
+Hook *ns_hook_factory(const char *name);
 
 #endif

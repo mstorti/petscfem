@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: nsstruct.cpp,v 1.1 2006/03/15 01:13:44 mstorti Exp $
+//$Id: nsstruct.cpp,v 1.2 2006/03/15 10:13:04 mstorti Exp $
 #include <src/debug.h>
 #include <malloc.h>
 
@@ -113,7 +113,7 @@ int struct_main() {
   //o Time to start computations
   TGETOPTDEF(GLOBAL_OPTIONS,double,start_comp_time,0.);
   time.set(start_comp_time);
-  time_old.set(start_comp_time-Dt);
+  // time_old.set(start_comp_time-Dt); // we should do this!!
   State state(x,time),statep(xp,time),state_old(xold,time_old);
   vector<State *> add_states;
 
