@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: nsstruct.cpp,v 1.2 2006/03/15 10:13:04 mstorti Exp $
+//$Id: nsstruct.cpp,v 1.3 2006/03/15 21:19:36 mstorti Exp $
 #include <src/debug.h>
 #include <malloc.h>
 
@@ -127,7 +127,7 @@ int struct_main() {
 #endif
 
   //o Additional states to be used by modules
-  TGETOPTDEF_ND(GLOBAL_OPTIONS,int,additional_states,0);
+  TGETOPTDEF(GLOBAL_OPTIONS,int,additional_states,0);
   //o Use fractional step or TET algorithm
   TGETOPTDEF_ND(GLOBAL_OPTIONS,int,fractional_step,0);
   //o Use fractional step or TET algorithm
@@ -424,13 +424,13 @@ int struct_main() {
   ierr = VecDuplicate(x,&dx_step); CHKERRA(ierr);
   ierr = VecDuplicate(x,&dx); CHKERRA(ierr);
   ierr = VecDuplicate(x,&res); CHKERRA(ierr);
-  add_states.resize(additional_states);
+  add_states.resize(additional_states,NULL);
   for (int j=0; j<additional_states; j++) {
     Vec xj;
     Time timej;
     ierr = VecDuplicate(x,&xj); CHKERRA(ierr);
     timej.set(start_comp_time-(2.0+j)*Dt);
-    additional_states = new State(xj,timej);
+    add_states[j] = new State(xj,timej);
   }
 
   //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
