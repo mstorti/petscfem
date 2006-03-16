@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: nsstruct.cpp,v 1.3 2006/03/15 21:19:36 mstorti Exp $
+//$Id: nsstruct.cpp,v 1.4 2006/03/16 20:39:57 mstorti Exp $
 #include <src/debug.h>
 #include <malloc.h>
 
@@ -22,6 +22,12 @@ static char help[] = "PETSc-FEM Navier Stokes module\n\n";
 
 extern int MY_RANK,SIZE;
 extern WallData wall_data;
+
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+/** Creates hooks depending on the name. 
+    @param name (input) the name of the hook. 
+    @return a pointer to the hook. */ 
+Hook *ns_hook_factory(const char *name);
 
 extern vector<double> data_pts;
 extern vector<ElemToPtr> elemset_pointer;

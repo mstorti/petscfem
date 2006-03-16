@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: ns.cpp,v 1.180 2006/03/15 10:13:04 mstorti Exp $
+//$Id: ns.cpp,v 1.181 2006/03/16 20:39:57 mstorti Exp $
 #include <src/debug.h>
 #include <malloc.h>
 
@@ -82,11 +82,11 @@ int main(int argc,char **args) {
 
   if (fsi) return fsi_main();
 
-  int struct=0;
-  if (MY_RANK==0 && argc>=2 && !strcmp(args[1],"-struct")) struct=1;
-  MPI_Bcast(&struct,1,MPI_INT,0,PETSC_COMM_WORLD);
+  int structc=0;
+  if (MY_RANK==0 && argc>=2 && !strcmp(args[1],"-struct")) structc=1;
+  MPI_Bcast(&structc,1,MPI_INT,0,PETSC_COMM_WORLD);
 
-  if (struct) return struct_main();
+  if (structc) return struct_main();
 
   // Get MPI info
   MPI_Comm_size(PETSC_COMM_WORLD,&SIZE);

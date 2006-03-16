@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: mainutl.cpp,v 1.23 2005/05/01 18:38:35 mstorti Exp $
+//$Id: mainutl.cpp,v 1.24 2006/03/16 20:39:57 mstorti Exp $
  
 #include "fem.h"
 #include "utils.h"
@@ -8,6 +8,7 @@
 #include "idmap.h"
 #include "elemset.h"
 #include "generror.h"
+#include <src/debug.h>
 #include <src/dvector.h>
 
 extern int MY_RANK,SIZE;
@@ -254,10 +255,12 @@ int read_vector(const char *filename,Vec x,Dofmap *dofmap,int myrank) {
 
   PetscPrintf(PETSC_COMM_WORLD,"Reading vector from file \"%s\"\n",filename);
   dvector<double> xdof(dofmap->neqtot);
-  xdof.resize(dofmap->neqtot);
+  xdof.defrag();
+  GLOBAL_DEBUG->trace("en read_vector trace 0");
   if (myrank==0) {
-    dvector<double> xext(dofmap->nnod*ndof);
-    xext.a_resize(2,dofmap->nnod,ndof);
+    dvector<double> xext;
+    xext.a_resize(2,dofmap->nnod,ndof).defrag();
+#if 0
     FILE *fid;
     fid = fopen(filename,"r");
     if (fid==NULL) {
@@ -278,29 +281,36 @@ int read_vector(const char *filename,Vec x,Dofmap *dofmap,int myrank) {
       }
     }
     fclose(fid);
-    // printf("%d node values read...\n",dofmap->nnod);
     if (warn_flag) 
       PetscPrintf(PETSC_COMM_WORLD,
 		  "PETScFEM warning: not enough values"
 		  " read while reading vector. Filling with 0's.\n");
+#endif
+    xext.read(filename);
     dofmap->solve(xdof.buff(),xext.buff());
     xext.clear();
   } 
   CHECK_PAR_ERR(ierro,"Error reading vector from file.");
+  GLOBAL_DEBUG->trace("en read_vector trace 1");
 
   ierr = MPI_Bcast (xdof.buff(),dofmap->neqtot,
 		    MPI_DOUBLE,0,PETSC_COMM_WORLD);
+  GLOBAL_DEBUG->trace("en read_vector trace 2");
 
   for (int k=0; k<dofmap->neq; k++) {
     if (dofmap->dof1 <= k+1 <= dofmap->dof2) {
       VecSetValue(x,k,xdof.e(k),INSERT_VALUES);
     }
   }
+  GLOBAL_DEBUG->trace("en read_vector trace 3");
   xdof.clear();
+  GLOBAL_DEBUG->trace("en read_vector trace 4");
   // PetscPrintf(PETSC_COMM_WORLD,"Values set.\n",dofmap->nnod);
   ierr = VecAssemblyBegin(x); CHKERRQ(ierr);
   ierr = VecAssemblyEnd(x); CHKERRQ(ierr);
+  GLOBAL_DEBUG->trace("en read_vector trace 5");
   PetscPrintf(PETSC_COMM_WORLD,"Done.\n",filename);
+  GLOBAL_DEBUG->trace("en read_vector trace 6");
   return ierr;
 }
 
