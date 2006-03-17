@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: mainutl.cpp,v 1.24 2006/03/16 20:39:57 mstorti Exp $
+//$Id: mainutl.cpp,v 1.25 2006/03/17 00:58:38 mstorti Exp $
  
 #include "fem.h"
 #include "utils.h"
@@ -254,12 +254,13 @@ int read_vector(const char *filename,Vec x,Dofmap *dofmap,int myrank) {
   int ierr,code,warn_flag=0,ierro=0;
 
   PetscPrintf(PETSC_COMM_WORLD,"Reading vector from file \"%s\"\n",filename);
-  dvector<double> xdof(dofmap->neqtot);
-  xdof.defrag();
+  dvector<double> xdof;
+  xdof.mono(dofmap->neqtot);
   GLOBAL_DEBUG->trace("en read_vector trace 0");
   if (myrank==0) {
     dvector<double> xext;
-    xext.a_resize(2,dofmap->nnod,ndof).defrag();
+    xext.mono(dofmap->nnod*ndof);
+    xext.a_resize(2,dofmap->nnod,ndof);
 #if 0
     FILE *fid;
     fid = fopen(filename,"r");
