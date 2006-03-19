@@ -1,6 +1,6 @@
 // -*- mode: C++ -*-
 /*__INSERT_LICENSE__*/
-//$Id: elastld.h,v 1.6 2006/03/19 18:19:16 mstorti Exp $
+//$Id: elastld.h,v 1.7 2006/03/19 21:06:13 mstorti Exp $
 
 #ifndef ELASTLD_H
 #define ELASTLD_H
@@ -9,7 +9,7 @@
 /// 
 class  ld_elasticity : public adaptor { 
 public: 
-  double rho,E,nu,lambda,mu;
+  double rho,E,nu,lambda,mu,cdamp;
   int ntens,nen;
 
   FastMat2 strain, stress, Jaco, iJaco, grad_u, F, 

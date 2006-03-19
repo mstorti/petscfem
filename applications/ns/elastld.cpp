@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: elastld.cpp,v 1.8 2006/03/19 18:19:16 mstorti Exp $
+//$Id: elastld.cpp,v 1.9 2006/03/19 21:06:13 mstorti Exp $
 
 #include <src/fem.h>
 #include <src/utils.h>
@@ -32,6 +32,9 @@ void ld_elasticity::init() {
   //o Density
   TGETOPTDEF(thash,double,density,0.);
   rho=density;
+
+  //o Damping coefficient
+  TGETOPTDEF_ND(thash,double,cdamp,0.);
 
   G_body.resize(1,ndim).set(0.);
   const char *line;
@@ -121,7 +124,8 @@ void ld_elasticity::element_connector(const FastMat2 &xloc,
     stress.prod(F,tmp4,1,-1,-1,2);
 
     // Inertia term
-    a.set(vnew).rest(vold).scale(rec_Dt);
+    a.set(vnew).rest(vold).scale(rec_Dt)
+      .axpy(vstar,cdamp);
     tmp.prod(shape,a,-1,-1,1).rest(G_body);
     tmp2.prod(shape,tmp,1,2);
     res.is(2,ndim+1,2*ndim).axpy(tmp2,-wpgdet*rho);
