@@ -4570,3 +4570,6 @@ tag: beta-3.49.33 on Mon, 13 Mar 2006 17:22:53 -0300 by mstorti in minerva.cerid
 ----------
 tag: beta-3.49.34 on Wed, 15 Mar 2006 07:13:25 -0300 by mstorti in spider
      > Adding additional states to NS. 
+----------
+tag: beta-3.49.35 on Sun, 19 Mar 2006 13:04:28 -0300 by mstorti in spider
+     > Elemset `ld_elasticity_load' gets `pressure' prop OK. 
