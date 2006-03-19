@@ -4576,3 +4576,6 @@ tag: beta-3.49.35 on Sun, 19 Mar 2006 13:04:28 -0300 by mstorti in spider
 ----------
 tag: beta-3.49.36 on Sun, 19 Mar 2006 15:19:24 -0300 by mstorti in spider
      > Starts running with pressure on one side of the membrane. 
+----------
+tag: beta-3.49.37 on Sun, 19 Mar 2006 18:06:20 -0300 by mstorti in spider
+     > Works example with damping. 
