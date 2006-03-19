@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-/* $Id: blessf.cpp,v 1.42 2006/03/11 23:11:19 mstorti Exp $ */
+/* $Id: blessf.cpp,v 1.43 2006/03/19 16:04:20 mstorti Exp $ */
 
 #include <src/debug.h>
 #include <malloc.h>
@@ -60,6 +60,8 @@ void bless_elemset(char *type,Elemset *& elemset) {
     SET_ELEMSET_TYPE(elasticity)
     SET_ELEMSET_TYPE(elasticity2)
     SET_ELEMSET_TYPE(ld_elasticity)
+    SET_ELEMSET_TYPE(ld_elasticity_load)
+
     SET_ELEMSET_TYPE(nsi_tet_les_fm2)
     SET_ELEMSET_TYPE(nsi_tet_les_comp)
     SET_ELEMSET_TYPE(nsi_tet_les_ther)

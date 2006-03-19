@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: elastld.cpp,v 1.5 2006/03/13 20:22:19 mstorti Exp $
+//$Id: elastld.cpp,v 1.6 2006/03/19 16:04:20 mstorti Exp $
 
 #include <src/fem.h>
 #include <src/utils.h>
@@ -12,6 +12,7 @@
 #include "nsgath.h"
 #include "elastld.h"
 
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>
 void ld_elasticity::init() {
 
   int ierr;
@@ -65,6 +66,7 @@ void ld_elasticity::init() {
 
 }
 
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>
 void ld_elasticity::element_connector(const FastMat2 &xloc,
 				   const FastMat2 &state_old,
 				   const FastMat2 &state_new,
@@ -159,4 +161,35 @@ void ld_elasticity::element_connector(const FastMat2 &xloc,
   // tmp4.ctr(mat,2,1,4,3);
   // tmp4.print(nel*ndof);
     
+}
+
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>
+void ld_elasticity_load
+::init() {
+  
+#define MAXPROPS 100
+  elprpsindx.mono(MAXPROPS);
+  propel.mono(MAXPROPS);
+  
+  int ierr, iprop=0;
+  pressure_indx = iprop; 
+  ierr = get_prop(iprop,elem_prop_names,
+		  thash,elprpsindx.buff(),propel.buff(), 
+		  "pressure",1);
+  nprops = iprop;
+}
+
+#define ELEMPROPS(j,k) VEC2(elemprops,j,k,nelprops)
+
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>
+void ld_elasticity_load
+::element_connector(const FastMat2 &xloc,
+		    const FastMat2 &state_old,
+		    const FastMat2 &state_new,
+		    FastMat2 &res,FastMat2 &mat){
+  res.set(0.);
+  mat.set(0.);
+  load_props(propel.buff(),elprpsindx.buff(),nprops,
+	     &(ELEMPROPS(elem,0)));
+  printf("elem %d, pressure %f\n",elem,*(propel.buff()+pressure_indx));
 }
