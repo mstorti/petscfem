@@ -1,6 +1,6 @@
 // -*- mode: C++ -*-
 /*__INSERT_LICENSE__*/
-//$Id: elastld.h,v 1.5 2006/03/19 16:04:20 mstorti Exp $
+//$Id: elastld.h,v 1.6 2006/03/19 18:19:16 mstorti Exp $
 
 #ifndef ELASTLD_H
 #define ELASTLD_H
@@ -25,11 +25,13 @@ public:
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>
 class  ld_elasticity_load : public adaptor { 
-public: 
+private:
   dvector<int> elprpsindx; 
   int nprops;
   dvector<double> propel;
   int pressure_indx;
+  FastMat2 nor, Jaco, tmp;
+public: 
   void init();
   void element_connector(const FastMat2 &xloc,
 			 const FastMat2 &state_old,

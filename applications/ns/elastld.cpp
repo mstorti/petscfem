@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: elastld.cpp,v 1.7 2006/03/19 18:09:55 mstorti Exp $
+//$Id: elastld.cpp,v 1.8 2006/03/19 18:19:16 mstorti Exp $
 
 #include <src/fem.h>
 #include <src/utils.h>
@@ -181,6 +181,7 @@ void ld_elasticity_load
   nprops = iprop;
   nor.resize(1,ndim);
   Jaco.resize(2,ndimel,ndim);
+  tmp.resize(2,nel,ndim);
 }
 
 #define ELEMPROPS(j,k) VEC2(elemprops,j,k,nelprops)
@@ -196,21 +197,27 @@ void ld_elasticity_load
   load_props(propel.buff(),elprpsindx.buff(),nprops,
 	     &(ELEMPROPS(elem,0)));
   double pressure = *(propel.buff()+pressure_indx);
+  res.is(2,ndim+1,2*ndim);
 
   for (int ipg=0; ipg<npg; ipg++) {
 
     dshapexi.ir(3,ipg+1); // restriccion del indice 3 a ipg+1
+    shape.ir(2,ipg+1);
     Jaco.prod(dshapexi,xloc,1,-1,-1,2);
     double detJaco = Jaco.detsur(&nor);
     if (detJaco<=0.) {
       detj_error(detJaco,elem);
       set_error(1);
     }
-    double wpgdet = detJaco*wpg.get(ipg+1);;
-    res.is(2,ndim+1,2*ndim).axpy(nor,-pressure);
+    double wpgdet = detJaco*wpg.get(ipg+1);
+    tmp.prod(shape,nor,1,2);
+    res.axpy(tmp,-pressure);
 #if 0
     printf("elem %d, wpgdet %f\n",elem,wpgdet);
     nor.print("nor: ");
 #endif
-  }  
+  }
+  dshapexi.rs();
+  shape.rs();
+  res.rs();
 }
