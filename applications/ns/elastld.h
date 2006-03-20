@@ -1,6 +1,6 @@
 // -*- mode: C++ -*-
 /*__INSERT_LICENSE__*/
-//$Id: elastld.h,v 1.7 2006/03/19 21:06:13 mstorti Exp $
+//$Id: elastld.h,v 1.8 2006/03/20 02:02:53 mstorti Exp $
 
 #ifndef ELASTLD_H
 #define ELASTLD_H
@@ -30,7 +30,7 @@ private:
   int nprops;
   dvector<double> propel;
   int pressure_indx;
-  FastMat2 nor, Jaco, tmp;
+  FastMat2 nor, Jaco, tmp, xstar, state;
 public: 
   void init();
   void element_connector(const FastMat2 &xloc,

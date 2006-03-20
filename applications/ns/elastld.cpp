@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: elastld.cpp,v 1.9 2006/03/19 21:06:13 mstorti Exp $
+//$Id: elastld.cpp,v 1.10 2006/03/20 02:02:53 mstorti Exp $
 
 #include <src/fem.h>
 #include <src/utils.h>
@@ -203,11 +203,23 @@ void ld_elasticity_load
   double pressure = *(propel.buff()+pressure_indx);
   res.is(2,ndim+1,2*ndim);
 
+  xstar.set(xloc);
+
+  state.set(state_old);
+  state.is(2,1,ndim);
+  xstar.axpy(state,1-alpha);
+  state.rs();
+
+  state.set(state_new);
+  state.is(2,1,ndim);
+  xstar.axpy(state,alpha);
+  state.rs();
+
   for (int ipg=0; ipg<npg; ipg++) {
 
     dshapexi.ir(3,ipg+1); // restriccion del indice 3 a ipg+1
     shape.ir(2,ipg+1);
-    Jaco.prod(dshapexi,xloc,1,-1,-1,2);
+    Jaco.prod(dshapexi,xstar,1,-1,-1,2);
     double detJaco = Jaco.detsur(&nor);
     if (detJaco<=0.) {
       detj_error(detJaco,elem);
