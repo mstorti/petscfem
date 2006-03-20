@@ -1,5 +1,9 @@
 // -*- c++ -*-
-// $Id: Elemset.i,v 1.1.2.2 2006/03/02 21:37:12 rodrigop Exp $
+// $Id: Elemset.i,v 1.1.2.3 2006/03/20 16:06:00 rodrigop Exp $
+
+
+%include Object.i
+
 
 ARRAY_2D(int nelem, int nel, int icone[],
 	 ARRAY_INPUT, PyPF_INT)
@@ -7,7 +11,6 @@ ARRAY_2D(int nelem, int nel, int icone[],
 %typemap(check) (int nelem, int nel, int icone[])
 {
   ARRAY_check_ndim(array$argnum, 2)
-    //ARRAY_check_dim(array$argnum, 1, 3)
 }
 
 ARRAY_TYPECHECK_SEQUENCE((int nelem, int nel, int icone[]),
@@ -19,3 +22,7 @@ ARRAY_2D_NEW(int* nelem, int* nel, int* icone[], PyPF_INT)
 %apply int* OUTPUT {int* nelem, int* nel};
 
 %include "Elemset.h"
+
+%clear (int  nelem, int  nel, int  icone[]);
+%clear (int* nelem, int* nel, int* icone[]);
+%clear  int* nelem, int* nel;

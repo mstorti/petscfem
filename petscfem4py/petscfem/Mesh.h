@@ -1,5 +1,5 @@
 // -*- c++ -*-
-// $Id: Mesh.h,v 1.1.2.3 2006/03/06 16:56:04 rodrigop Exp $
+// $Id: Mesh.h,v 1.1.2.4 2006/03/20 16:06:00 rodrigop Exp $
 
 #ifndef PYPF_MESH_H
 #define PYPF_MESH_H
@@ -7,41 +7,49 @@
 #include <string>
 #include <vector>
 #include "petscfem4py.h"
+#include "Object.h"
 #include "Nodedata.h"
 #include "Elemset.h"
 
 PYPF_NAMESPACE_BEGIN
 
-PYPF_CLASS(Mesh)
+class Mesh : SMARTPTR(Mesh)
+  public Object
 {
-  PYPF_CTOR_FROM_PTR(Mesh)
-  PYPF_OBJ_GETOPTTBL_DECL
-
+  friend class Problem;
+  
  protected:
+  OptionTable* get_opt_table() const; 
+  
+ protected:
+  Nodedata* nodedata;
+  std::vector<Elemset*> elemsetlist;
+
+#if !defined(SWIG)
+ public:
+  Mesh(Mesh::Base*);
+#endif
 
  public:
   ~Mesh();
   Mesh();
+  Mesh(const Mesh&);
+  Mesh(Nodedata*, const std::vector<Elemset*>&);
   
-//   std::string getOption(const std::string& key);
-//   void        setOption(const std::string& key,
-// 			const std::string& value);
-
-  Nodedata getNodeData();
+  Nodedata* getNodedata() const;
+  void      setNodedata(Nodedata*);
   
-  Elemset  getElemset(int i);
-  Elemset  getElemset(const std::string& name);
+  int      getSize() const;
+  Elemset* getElemset(int) const;
+  void     setElemset(int, Elemset*);
+  void     addElemset(Elemset*);
+
+ public:
+  void setUp();
+  void clear();
+  void view() const;
   
-  Elemset  addElemset(const std::string& name,
-		      const std::string& type);
 
-//   void    addElemset(Elemset& elemset);
-//   bool    hasElemset(const std::string& name);
-//   Elemset findElemset(const std::string& name);
-
-  int getSize();
-
-  friend class Problem;
 };
 
 PYPF_NAMESPACE_END

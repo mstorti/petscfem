@@ -5,26 +5,39 @@
 
 #include <string>
 #include "petscfem4py.h"
+#include "Object.h"
 
 PYPF_NAMESPACE_BEGIN
 
-PYPF_CLASS(Nodedata)
+class Nodedata : SMARTPTR(Nodedata)
+  public Object
 {
-  PYPF_CTOR_FROM_PTR(Nodedata)
-  PYPF_OBJ_GETOPTTBL_DECL
+  friend class Mesh;
+
+protected: 
+  OptionTable* get_opt_table() const;
+
+#if !defined(SWIG)
+ public:
+  Nodedata(Nodedata::Base*);
+#endif
 
  public:
-  
   ~Nodedata();
   Nodedata();
+  Nodedata(const Nodedata&);
+  Nodedata(int nnod, int ndim);
+  Nodedata(int nnod, int ndim, double xyz[]);
 
-  void getData(int* nnod, int* ndim, double* xyz[]);
+  void getSize(int* nnod, int* ndim) const;
+  void getData(int* nnod, int* ndim, double* xyz[]) const;
   void setData(int  nnod, int  ndim, double  xyz[]);
-  void getSize(int* nnod, int* ndim);
+  void delData();
 
-  void view();
+  void setUp();
+  void clear();
+  void view() const;
   
-  friend class Mesh;
 };
 
 

@@ -1,23 +1,54 @@
-// $Id: Object.cpp,v 1.1.2.1 2006/03/06 16:56:04 rodrigop Exp $
+// $Id: Object.cpp,v 1.1.2.2 2006/03/20 16:06:00 rodrigop Exp $
 
 #include "Object.h"
+
+#include <petsc.h>
 #include <texthash.h>
 
+
+PYPF_NAMESPACE_BEGIN
+
+OptionTable*
+Object::get_opt_table() const
+{ 
+  return NULL; 
+}
+
+Object::~Object() 
+{ 
+  //PYPF_DELETE_SCLR(this->options);
+}
+
+Object::Object()
+  : refcnt(0), comm(PETSC_COMM_WORLD), options()
+{ }
+
+Object::Object(const Object& obj)
+  : refcnt(0), comm(PETSC_COMM_WORLD), options(obj.options)
+{ }
+
+
+MPI_Comm&
+Object::getComm() const 
+{
+  return const_cast<MPI_Comm&>(this->comm);
+}
+
 bool
-PyPF::Object::hasOption(const std::string& key)
+Object::hasOption(const std::string& key) const
 {
   OptionTable* options = this->get_opt_table();
-  if (options == NULL) throw Error("null option table");
+  if (options == NULL) throw Error("null pointer for option table");
   const char* value = NULL;
   options->get_entry(key.c_str(), value);
   return (value == NULL) ? false : true;
 }
 
 std::string 
-PyPF::Object::getOption(const std::string& key) 
+Object::getOption(const std::string& key) const
 {
   OptionTable* options = this->get_opt_table();
-  if (options == NULL) throw Error("null option table");
+  if (options == NULL) throw Error("null pointer for option table");
   const char* value = NULL;
   options->get_entry(key.c_str(), value);
   if (value == NULL) throw Error("option not found");
@@ -25,19 +56,19 @@ PyPF::Object::getOption(const std::string& key)
 }
 
 void
-PyPF::Object::setOption(const std::string& key,
+Object::setOption(const std::string& key,
 			const std::string& value)
 {
-  OptionTable* options = this->get_opt_table(true);
-  if (options == NULL) throw Error("null option table");
+  OptionTable* options = this->get_opt_table();
+  if (options == NULL) throw Error("null pointer for option table");
   options->set_entry(key.c_str(), value.c_str());
 }
 
 void        
-PyPF::Object::setOptions(const std::map<std::string,std::string>& M)
+Object::setOptions(const std::map<std::string,std::string>& M)
 {
-  OptionTable* options = this->get_opt_table(true);
-  if (options == NULL) throw Error("null option table");
+  OptionTable* options = this->get_opt_table();
+  if (options == NULL) throw Error("null pointer for option table");
   std::map<std::string,std::string>::const_iterator m = M.begin();
   while (m != M.end()) {
     const char* key = m->first.c_str();
@@ -48,11 +79,13 @@ PyPF::Object::setOptions(const std::map<std::string,std::string>& M)
 }
 
 std::map<std::string,std::string>
-PyPF::Object::getOptions()
+Object::getOptions() const
 {
-  OptionTable* options = this->get_opt_table(true);
-  if (options == NULL) throw Error("null option table");
+  OptionTable* options = this->get_opt_table();
+  if (options == NULL) throw Error("null pointer for option table");
   std::map<std::string,std::string> M;
   options->get_entries(M);
   return M;
 }
+
+PYPF_NAMESPACE_END

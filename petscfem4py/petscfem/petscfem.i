@@ -1,12 +1,11 @@
 // -*- c++ -*-
-// $Id: petscfem.i,v 1.1.2.3 2006/03/06 16:56:04 rodrigop Exp $ 
+// $Id: petscfem.i,v 1.1.2.4 2006/03/20 16:06:00 rodrigop Exp $ 
 
 #if 0
 %module petscfem
 #else
-%define DOCSTRING
-"PESTSc-FEM for Python" %enddef
-%module(docstring=DOCSTRING) petscfem
+%define DOCSTRING "PESTSc-FEM for Python" %enddef
+%module(package="petscfem4py",docstring=DOCSTRING) petscfem
 #endif
 
 %{
@@ -20,14 +19,13 @@
 %}
 
 %pythoncode %{
-__all__  = ['Int', 'Float']
-__all__ += ['Object',
-	    'Nodedata',
-            'Elemset',
-            'Mesh',
-            'DofMap',
-            'Problem',
-            'NavierStokes']
+__all__ = ['Object',
+	   'Nodedata',
+	   'Elemset',
+	   'Mesh',
+	   'DofMap',
+	   'Problem',
+	   'NavierStokes']
 %}
 
 %include macros.i
@@ -36,9 +34,9 @@ __all__ += ['Object',
 
 %import  namespace.h
 %include Error.i
+
 %include Base.i
 %include Object.i
-
 %include Nodedata.i
 %include Elemset.i
 %include Mesh.i

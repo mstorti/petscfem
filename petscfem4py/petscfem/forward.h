@@ -1,10 +1,18 @@
 // -*- c++ -*-
-// $Id: forward.h,v 1.1.2.3 2006/03/06 16:56:04 rodrigop Exp $
+// $Id: forward.h,v 1.1.2.4 2006/03/20 16:06:00 rodrigop Exp $
 
 #ifndef PYPF_FORWARD_H
 #define PYPF_FORWARD_H
 
-#include "namespace.h"
+// PETSc
+// -----
+
+typedef struct _p_Vec* Vec;
+typedef struct _p_Mat* Mat;
+
+
+// PETScFEM
+// --------
 
 class TextHashTable;
 class Nodedata;
@@ -14,7 +22,14 @@ class Constraint;
 class Dofmap;
 
 typedef TextHashTable OptionTable;
-typedef Dofmap DofMap;
+typedef Nodedata      NodeData;
+typedef Dofmap        DofMap;
+
+
+// PETScFEM for Python
+// -------------------
+
+#include "namespace.h"
 
 PYPF_NAMESPACE_BEGIN
 

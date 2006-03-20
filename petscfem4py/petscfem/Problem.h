@@ -1,13 +1,15 @@
 // -*- c++ -*-
-// $Id: Problem.h,v 1.1.2.2 2006/03/06 16:56:04 rodrigop Exp $
+// $Id: Problem.h,v 1.1.2.3 2006/03/20 16:06:00 rodrigop Exp $
 
 #ifndef PYPF_PROBLEM_H
 #define PYPF_PROBLEM_H
 
 
 #include <string>
+#include <map>
 #include <mpi.h>
 #include "petscfem4py.h"
+#include "Object.h"
 #include "Nodedata.h"
 #include "Elemset.h"
 #include "Mesh.h"
@@ -16,36 +18,41 @@
 
 PYPF_NAMESPACE_BEGIN
 
-class Problem
+class Problem : 
+  public Object
 {
-protected:
 
-  MPI_Comm  comm;
+protected:
+  virtual OptionTable* get_opt_table() const;
+
+private:
+  //Problem();
+  Problem(const Problem &);
+
+protected:
+  MPI_Comm comm;
   int nnod, ndim, ndof;
-  Mesh::Base*   mesh;
-  DofMap::Base* dofmap;
+  Mesh*   mesh;
+  DofMap* dofmap;
   bool setupcalled;
 
 public:
-  virtual ~Problem();
-  Problem();
+  ~Problem();
   Problem(int nnod, int ndim, int ndof);
 
+  Mesh*      getMesh()   const;
+  DofMap*    getDofMap() const;
+
+  Problem();
   void fromFile(const std::string& filename);
 
-  MPI_Comm& getComm();
-  Mesh      getMesh();
-  DofMap    getDofMap();
-  /*
-  Nodedata  getNodeData();
-  */
+  void buildState(Vec solution, Vec state);
+  void buildSolution(Vec state, Vec solution);
 
-  virtual void setUp();
+  void setUp();
+  void clear();
+  
 
-  /*
-  virtual void computeResidual() = 0;
-  virtual void computeJacobian() = 0;
-  */
 };
 
 
