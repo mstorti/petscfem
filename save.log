@@ -4579,3 +4579,8 @@ tag: beta-3.49.36 on Sun, 19 Mar 2006 15:19:24 -0300 by mstorti in spider
 ----------
 tag: beta-3.49.37 on Sun, 19 Mar 2006 18:06:20 -0300 by mstorti in spider
      > Works example with damping. 
+----------
+tag: beta-3.49.38 on Sun, 19 Mar 2006 23:03:03 -0300 by mstorti in spider
+     > Fixed bug in `ld_elasticity_load'. 
+     > Forces qre not computed on actual geometry. 
+     > Now example with inflation works OK. 
