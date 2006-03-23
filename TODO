@@ -1,8 +1,9 @@
 ################################################################
-# $Id: TODO,v 1.248 2006/02/14 13:22:57 mstorti Exp $
+# $Id: TODO,v 1.249 2006/03/23 19:47:44 mstorti Exp $
 TODO: [Mainly fixes go here...]
 =====
 
+* `$ make sw' crash if `DX' not installed
 * In `gatherer.cpp' default value for `ndimel' should be `ndim', not
   `ndim-1'. In `set_pg_values' we should pass `Jaco' alqways, and `n'
   (the normal) should be passed as a public member in the class. 
