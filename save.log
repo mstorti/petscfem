@@ -4584,3 +4584,6 @@ tag: beta-3.49.38 on Sun, 19 Mar 2006 23:03:03 -0300 by mstorti in spider
      > Fixed bug in `ld_elasticity_load'. 
      > Forces qre not computed on actual geometry. 
      > Now example with inflation works OK. 
+----------
+tag: beta-3.49.39 on Mon, 27 Mar 2006 16:43:30 -0300 by mstorti in minerva.ceride.gov.ar
+     > Merged corrections from Beto (bubbly16). 
