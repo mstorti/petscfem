@@ -1,6 +1,6 @@
 // -*- mode: c++ -*-
 /*__INSERT_LICENSE__*/
-//$Id: texthash.h,v 1.12.54.1 2006/03/06 16:54:48 rodrigop Exp $
+//$Id: texthash.h,v 1.12.54.2 2006/03/27 20:16:40 rodrigop Exp $
 
 #ifndef __TEXTHASH_H__
 #define __TEXTHASH_H__
@@ -74,6 +74,12 @@ public:
       @param s (input) optional string
   */ 
   void print(const char * = NULL) const;
+
+  /** Sets many entries to the hash (no warn if already there).
+      @author L. Dalcin
+      @param entries (input) map : key->value
+  */ 
+  void set_entries(const std::map<std::string,std::string>& entries);
 
   /** Sets an entry to the hash (no warn if already there).
       @author L. Dalcin

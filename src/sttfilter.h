@@ -1,6 +1,6 @@
 // -*-mode: c++ -*-
 /*__INSERT_LICENSE__*/
-//$Id: sttfilter.h,v 1.10 2002/11/05 19:59:36 mstorti Exp $
+//$Id: sttfilter.h,v 1.10.82.1 2006/03/27 20:16:40 rodrigop Exp $
  
 #ifndef STTFILTER_H
 #define STTFILTER_H
@@ -23,6 +23,7 @@
     @author M. Storti
 */
 class State {
+protected:
   /// The state vector
   Vec *vec;
   /// The time corresponding to this state vector. Values on Dirichlet
@@ -34,7 +35,7 @@ public:
   /// Constructor from another state
   State(const State &v);
   /// Destructor
-  ~State();
+  virtual ~State();
 
   /**@name Operations on the time part */
   //@{

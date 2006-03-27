@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: texthash.cpp,v 1.22.20.1 2006/03/06 16:54:48 rodrigop Exp $
+//$Id: texthash.cpp,v 1.22.20.2 2006/03/27 20:16:40 rodrigop Exp $
  
 #include <iostream>
 #include <sstream>
@@ -75,6 +75,21 @@ TextHashTable::TextHashTable () {
   hash = g_hash_table_new(&g_str_hash,&g_str_equal);
 };
 
+
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+#undef __FUNC__
+#define __FUNC__ "void TextHashTable::set_entries"
+void TextHashTable
+::set_entries(const std::map<std::string,std::string>& M) {
+  using namespace std;
+  map<string,string>::const_iterator m = M.begin();
+  while (m != M.end()) {
+    const char* key = m->first.c_str();
+    const char* val = m->second.c_str(); 
+    this->set_entry(key,val);
+    m++;
+  }
+}
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 #undef __FUNC__

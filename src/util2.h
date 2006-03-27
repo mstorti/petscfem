@@ -1,6 +1,6 @@
 // -*- mode: c++ -*-
 /*__INSERT_LICENSE__*/
-//$Id: util2.h,v 1.15.10.1 2005/09/25 22:58:44 mstorti Exp $
+//$Id: util2.h,v 1.15.10.2 2006/03/27 20:16:40 rodrigop Exp $
 #ifndef UTIL2_H
 #define UTIL2_H
 
@@ -140,6 +140,9 @@ int KSPDestroy_maybe(KSP &v);
 
 #define DELETE_VCTR(name)			\
   if (name) { delete[] name; name=NULL; }
+
+#define DELETE_FUNC(delfunc, name)		\
+  if (name) { delfunc(name); name=NULL; }
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 class MakeTangentSpace {

@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: elemset.cpp,v 1.93 2005/04/09 10:31:35 mstorti Exp $
+//$Id: elemset.cpp,v 1.93.10.1 2006/03/27 20:16:40 rodrigop Exp $
 
 #ifndef _GNU_SOURCE
 #define _GNU_SOURCE
@@ -961,8 +961,10 @@ int NewElemset::get_vec_double(const char *name,
 }
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
-Mesh::Mesh() : elemsetlist(NULL), nodedata(NULL), 
-  global_options(NULL) {}
+Mesh::Mesh() : 
+  elemsetlist(NULL), 
+  nodedata(NULL), 
+  global_options(NULL) { }
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 Elemset *Mesh::find(const string &name) {
@@ -980,14 +982,16 @@ Elemset *Mesh::find(const string &name) {
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 Mesh::~Mesh() {
-  if (nodedata) delete nodedata;
-  nodedata=NULL;
-  for (int j=0; j<da_length(elemsetlist); j++) {
-    Elemset *elemset  = *(Elemset **)da_ref(elemsetlist,j);
-    delete elemset;
+  DELETE_SCLR(nodedata);
+  if (elemsetlist) {
+    int size = int(da_length(elemsetlist));
+    for (int j=0; j<size; j++) {
+      Elemset *elemset  = *(Elemset **)da_ref(elemsetlist,j);
+      DELETE_SCLR(elemset);
+    }
   }
-  da_destroy(elemsetlist);
-  elemsetlist=NULL;
+  DELETE_FUNC(da_destroy, elemsetlist);
+  DELETE_SCLR(global_options);
 }
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
@@ -1031,10 +1035,17 @@ int Elemset::size() { return nelem; }
 void Elemset::read(FileStack *fstack) {}
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
-Elemset::Elemset() : type(NULL), icone(NULL), elemprops(NULL),
-		     elemiprops(NULL), elemprops_add(NULL),
-		     elemiprops_add(NULL), thash(NULL),
-                     elem_conne(NULL), error_code_m(0) { }
+Elemset::Elemset() : type(NULL),
+		     icone(NULL),
+		     epart(NULL), epart2(NULL),
+		     elemprops(NULL), elemiprops(NULL), 
+		     elemprops_add(NULL), elemiprops_add(NULL),
+		     local_store(NULL),
+		     thash(NULL),
+		     elem_prop_names(NULL), elem_iprop_names(NULL),
+		     ghost_elems(NULL),
+                     elem_conne(NULL),
+		     error_code_m(0) { }
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 TextHashTable* 
@@ -1044,16 +1055,30 @@ Elemset::option_table() { return thash; }
 Elemset::~Elemset() {
   DELETE_VCTR(type);
   DELETE_VCTR(icone);
+  DELETE_VCTR(epart);
+  DELETE_VCTR(epart2);
   DELETE_VCTR(elemprops);
   DELETE_VCTR(elemiprops);
   DELETE_VCTR(elemprops_add);
   DELETE_VCTR(elemiprops_add);
+  // XXX local_store fixme: what to do?
   DELETE_SCLR(thash);
+  DELETE_FUNC(g_hash_table_destroy,elem_iprop_names);
+  DELETE_FUNC(g_hash_table_destroy,elem_prop_names);
+  DELETE_FUNC(da_destroy, ghost_elems);
   DELETE_VCTR(elem_conne);
 }
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
-Nodedata::Nodedata() : nodedata(NULL) { }
+Nodedata::Nodedata() : 
+  nodedata(NULL), 
+  nnod(0), ndim(0), nu(0),
+  options(NULL)
+{ }
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
-Nodedata::~Nodedata() { DELETE_VCTR(nodedata); }
+Nodedata::~Nodedata() {
+  DELETE_VCTR(nodedata);
+  DELETE_SCLR(options);
+}
+

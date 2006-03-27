@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: dofmap.cpp,v 1.21.42.1 2006/03/06 20:54:10 rodrigop Exp $
+//$Id: dofmap.cpp,v 1.21.42.2 2006/03/27 20:16:40 rodrigop Exp $
 
 #include <cassert>
 #include <algorithm>
@@ -307,7 +307,14 @@ int Dofmap::processor(int j) const {
 }
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
-Dofmap::Dofmap() : comm(PETSC_COMM_WORLD), id(NULL), tpwgts(NULL) { }
+Dofmap::Dofmap() : 
+  idmap2(NULL), special_ptr(NULL), sp_eq(NULL), coefs(NULL),
+  comm(PETSC_COMM_WORLD),
+  nnod(0), neq(0), dof1(0), dof2(0), neqf(0), neqtot(0), ndof(0),
+  ident(NULL), ghost_dofs(NULL), id(NULL),  fixa(NULL), q(NULL),
+  startproc(NULL), neqproc(NULL), size(0), tpwgts(NULL), npart(NULL),
+  ghost_scatter(NULL), scatter_print(NULL)
+{ }
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 Dofmap::~Dofmap() {
