@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: advdif_fsi.cpp,v 1.6 2006/03/27 19:43:18 mstorti Exp $
+//$Id: advdif_fsi.cpp,v 1.7 2006/03/27 21:19:42 mstorti Exp $
 
 #include <src/debug.h>
 #include <set>
@@ -78,14 +78,14 @@ int fsi_main() {
   // euler_volume::set_flux_fun(&flux_fun_euler);
   // euler_absorb::flux_fun = &flux_fun_euler;
 
+  // Get MPI info
+  MPI_Comm_size(PETSC_COMM_WORLD,&SIZE);
+  MPI_Comm_rank(PETSC_COMM_WORLD,&MY_RANK);
+
   // elemsetlist =  da_create(sizeof(Elemset *));
   print_copyright();
   PetscPrintf(PETSC_COMM_WORLD,
 	      "-------- Generic Advective-Diffusive / Fluid Structure Interaction module ---------\n");
-
-  // Get MPI info
-  MPI_Comm_size(PETSC_COMM_WORLD,&SIZE);
-  MPI_Comm_rank(PETSC_COMM_WORLD,&MY_RANK);
 
   Debug debug(0,PETSC_COMM_WORLD);
   GLOBAL_DEBUG = &debug;
@@ -578,13 +578,6 @@ int fsi_main() {
 	CHKERRA(ierr);
       }
       
-      int converged = 0;
-      hook_list.stage("stage_post",stage,time_star.time(),&converged);
-      
-      PetscPrintf(PETSC_COMM_WORLD,
-		  "time_step %d, time: %g, stage %d, delta_u = %10.3e\n",
-		  tstep,time_,stage,delta_u);
-
       if (tstep % nsave == 0){
 	PetscPrintf(PETSC_COMM_WORLD,
 		    " --------------------------------------\n"
@@ -596,6 +589,13 @@ int fsi_main() {
 	if (print_residual)
 	  print_vector(save_file_res.c_str(),res,dofmap,&time);
       }
+
+      int converged = 0;
+      hook_list.stage("stage_post",stage,time_star.time(),&converged);
+      
+      PetscPrintf(PETSC_COMM_WORLD,
+		  "time_step %d, time: %g, stage %d, delta_u = %10.3e\n",
+		  tstep,time_,stage,delta_u);
 
       if (converged) break;
 
