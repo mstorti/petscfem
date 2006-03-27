@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: ns_fsi.cpp,v 1.4 2006/02/21 11:00:33 mstorti Exp $
+//$Id: ns_fsi.cpp,v 1.5 2006/03/27 19:43:22 mstorti Exp $
 #include <src/debug.h>
 #include <malloc.h>
 
@@ -736,17 +736,15 @@ int fsi_main() {
 	  exit(0);
 #endif
 
-	  // fixme:= SHOULD WE CHECK HERE FOR NEWTON CONVERGENCE?
-
+	  // fixme:= SHOULD WE CHECK HERE FOR NEWTON CONVERGENCE?	
+	  if (normres_external < tol_newton) {
+	    PetscPrintf(PETSC_COMM_WORLD,
+			"Tolerance on newton loop reached:  "
+			"|| R ||_0,  norm_res =%g < tol = %g\n",
+			normres_external,tol_newton);
+	    break;
+	  }	
 	} // end of loop over Newton subiteration (inwt)
-
-	if (normres_external < tol_newton) {
-	  PetscPrintf(PETSC_COMM_WORLD,
-		      "Tolerance on newton loop reached:  "
-		      "|| R ||_0,  norm_res =%g < tol = %g\n",
-		      normres_external,tol_newton);
-	  break;
-	}
 
       } else {
     

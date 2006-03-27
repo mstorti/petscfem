@@ -1,6 +1,6 @@
 // -*- mode: C++ -*-
 /*__INSERT_LICENSE__*/
-//$Id: embgath.h,v 1.21 2003/03/21 20:29:27 mstorti Exp $
+//$Id: embgath.h,v 1.22 2006/03/27 19:43:22 mstorti Exp $
 #ifndef EMBGATH_H
 #define EMBGATH_H
 
@@ -78,7 +78,7 @@ class visc_force_integrator : public embedded_gatherer {
 private:
   /// Auxiliary matrix, contains the force on the Gauss point. 
   FastMat2 force, moment, x_center, dx, strain_rate,
-    sigma, Omega, rigid_grad_u;
+    sigma, sigma_old, Omega, rigid_grad_u;
   /// Flag to compute moments or not, number of dimensions
   int compute_moment, ndim_m;
   /// Viscosity
@@ -87,6 +87,8 @@ private:
   double dev_comp_mask;
   /// Mask for pressure (normal) component of stress tensor 
   double pressure_comp_mask;
+  /// alpha for time rule integration
+  double alpha;
 public:
   /// Get dimension number, define #compute_moment#, viscosity
   void init();

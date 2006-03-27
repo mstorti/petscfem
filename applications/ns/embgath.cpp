@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: embgath.cpp,v 1.40 2003/09/11 17:47:14 mstorti Exp $
+//$Id: embgath.cpp,v 1.41 2006/03/27 19:43:22 mstorti Exp $
 
 #include <src/fem.h>
 #include <src/utils.h>
@@ -286,6 +286,7 @@ void visc_force_integrator::init() {
   dx.resize(1,ndim);
   strain_rate.resize(2,ndim,ndim);
   sigma.resize(2,ndim,ndim);
+  sigma_old.resize(2,ndim,ndim);
   //o Viscosity of the fluid
   TGETOPTDEF_ND(thash,double,viscosity,0.);
   //o Mask for deviatoric component of stress tensor 
@@ -293,6 +294,10 @@ void visc_force_integrator::init() {
   //o Mask for pressure (normal) component of stress tensor 
   TGETOPTDEF_ND(thash,double,pressure_comp_mask,1.);
   PETSCFEM_ASSERT0(viscosity>0.,"Viscosity should be positive.");  
+
+  //o alpha for time rule integration
+  TGETOPTDEF_ND(thash,double,alpha,1.0);
+
   if (0) {
     //o _T: double[ndim] _N: moment_center _D: null vector 
     // _DOC: Center of moments. _END
@@ -320,6 +325,15 @@ void visc_force_integrator
 
 #undef SHV
 #define SHV(pp) {}
+  grad_uold.is(2,1,ndim_m).rest(rigid_grad_u);
+  strain_rate.set(grad_uold);
+  grad_uold.t();
+  strain_rate.add(grad_uold).scale(0.5);
+  grad_uold.rs();
+  SHV(strain_rate);
+  sigma_old.set(strain_rate).scale(2.*viscosity*dev_comp_mask);
+  sigma_old.d(1,2).add(-uold.get(ndim_m+1)*pressure_comp_mask).rs();
+
   SHV(grad_u);
   grad_u.is(2,1,ndim_m).rest(rigid_grad_u);
   strain_rate.set(grad_u);
@@ -331,6 +345,11 @@ void visc_force_integrator
   sigma.d(1,2).add(-u.get(ndim_m+1)*pressure_comp_mask).rs();
   SHV(sigma);
   
+  // sigma at time t(n+alpha)
+  sigma.scale(alpha).axpy(sigma_old,1.0-alpha).rs();
+
+  //  printf("alpha at integrator = %f \n",alpha);
+
   // Force contribution = normal * pressure * weight of Gauss point
   force.prod(sigma,n,1,-1,-1).scale(wpgdet);
   // export forces to return vector
