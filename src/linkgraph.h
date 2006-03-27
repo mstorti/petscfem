@@ -1,6 +1,6 @@
 // -*- mode: C++ -*- 
 /*__INSERT_LICENSE__*/
-// $Id: linkgraph.h,v 1.14 2003/07/02 23:22:19 mstorti Exp $
+// $Id: linkgraph.h,v 1.15 2006/03/27 19:12:06 mstorti Exp $
 #ifndef LINKGRAPH_H
 #define LINKGRAPH_H
 
@@ -142,7 +142,7 @@ class LinkGraphWrapper : public StoreGraph {
   ~LinkGraphWrapper() { lgd.clear(); };
   /// Constructor
   LinkGraphWrapper(int N=0,const DofPartitioner *dp=NULL,
-		   MPI_Comm comm_a=MPI_COMM_WORLD) :
+		   MPI_Comm comm_a=PETSC_COMM_WORLD) :
     lg_part(dp),
     lgd(&lg_part,comm_a,LinkGraphDis::random_iter_mode) { init(N); }
   /// perform the scatter of elements to its corresponding processor. 

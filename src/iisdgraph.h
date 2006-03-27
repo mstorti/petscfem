@@ -1,6 +1,6 @@
 // -*- mode: C++ -*- 
 //__INSERT_LICENSE__
-//$Id: iisdgraph.h,v 1.10 2005/10/19 17:40:33 mstorti Exp $
+//$Id: iisdgraph.h,v 1.11 2006/03/27 19:12:06 mstorti Exp $
 #ifndef IISDGRAPH_H
 #define IISDGRAPH_H
 
@@ -70,7 +70,7 @@ class StoreGraph1 : public StoreGraph {
   ~StoreGraph1() { lgraph.clear(); };
   /// Constructor
   StoreGraph1(int N=0,const DofPartitioner *dp=NULL,
-	     MPI_Comm comm_=MPI_COMM_WORLD) :
+	     MPI_Comm comm_=PETSC_COMM_WORLD) :
     g_part(dp),
     lgraph(&g_part,comm_), comm(comm_) { init(N); }
   // void print() { lgraph.print(); }
@@ -84,7 +84,7 @@ class StoreGraph1 : public StoreGraph {
 class StoreGraph2 : public GMap {
 public:
   StoreGraph2(int N=0,const DofPartitioner *pp=NULL,
-    MPI_Comm comm_=MPI_COMM_WORLD) {}
+    MPI_Comm comm_=PETSC_COMM_WORLD) {}
   void add(int i,int j) { (*this)[i].insert(j); }
   void set_ngbrs(int j,GSet &ngbrs_v) {}
   ~StoreGraph2() { clear(); };

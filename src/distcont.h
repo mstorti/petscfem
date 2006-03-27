@@ -1,12 +1,13 @@
 // -*- mode: C++ -*- 
 /*__INSERT_LICENSE__*/
-// $Id: distcont.h,v 1.13 2002/08/28 00:48:18 mstorti Exp $
+// $Id: distcont.h,v 1.14 2006/03/27 19:12:06 mstorti Exp $
 #ifndef DISTCONT_H
 #define DISTCONT_H
 
 #include <cstdio>
 #include <vector>
 #include <mpi.h>
+#include <petsc.h>
 #include <src/vecmacros.h>
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
@@ -45,7 +46,7 @@ public:
   */ 
   DistCont<Container,
     ValueType,Partitioner>(Partitioner *part=NULL,
-			   MPI_Comm comm_=MPI_COMM_WORLD,
+			   MPI_Comm comm_=PETSC_COMM_WORLD,
 			   iter_mode_t iter_mode = associative_iter_mode);
   /** Computes the size of data needed to pack this entry 
       @param k (input) iterator to the entry

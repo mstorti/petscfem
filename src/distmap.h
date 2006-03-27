@@ -1,6 +1,6 @@
 // -*- mode: C++ -*- 
 /*__INSERT_LICENSE__*/
-// $Id: distmap.h,v 1.28 2003/07/02 02:32:47 mstorti Exp $
+// $Id: distmap.h,v 1.29 2006/03/27 19:12:06 mstorti Exp $
 #ifndef DISTMAP_H
 #define DISTMAP_H
 
@@ -36,7 +36,7 @@ protected:
       @param comm_ (input) MPI communicator
       @return a reference to the matrix.
   */ 
-  DistMap<Key,Val,Partitioner>(Partitioner *pp=NULL,MPI_Comm comm_=MPI_COMM_WORLD);
+  DistMap<Key,Val,Partitioner>(Partitioner *pp=NULL,MPI_Comm comm_=PETSC_COMM_WORLD);
   /** User defines this function that determine to which processor
       belongs each entry
       @param k (input) iterator to the considered entry. 

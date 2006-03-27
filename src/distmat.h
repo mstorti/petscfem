@@ -1,6 +1,6 @@
 // -*- mode: C++ -*- 
 /*__INSERT_LICENSE__*/
-// $Id: distmat.h,v 1.11 2003/07/02 20:00:42 mstorti Exp $
+// $Id: distmat.h,v 1.12 2006/03/27 19:12:06 mstorti Exp $
 #ifndef DISTMAT_H
 #define DISTMAT_H
 
@@ -34,7 +34,7 @@ public:
   void insert_val(int i,int j,double v);
   /// Specific function for retrieving values. 
   double val(int i,int j);
-  DistMatrix(IntRowPartitioner *pp=NULL,MPI_Comm comm_=MPI_COMM_WORLD) :
+  DistMatrix(IntRowPartitioner *pp=NULL,MPI_Comm comm_=PETSC_COMM_WORLD) :
     DistMat(pp,comm_) {};
 };
 
