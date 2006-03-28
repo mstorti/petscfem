@@ -1,5 +1,5 @@
 // -*- c++ -*-
-// $Id: macros.h,v 1.1.2.2 2006/03/20 16:06:00 rodrigop Exp $
+// $Id: macros.h,v 1.1.2.3 2006/03/28 22:13:25 rodrigop Exp $
 
 #ifndef PYPF_MACROS_H
 #define PYPF_MACROS_H
@@ -13,6 +13,9 @@
 #define SMARTPTR(CLASS) public SmartPtr< ::CLASS >,
 
 #define  PYPF_DELETE(delop, member) \
+do {if ((member) != NULL) { delop ((member)); (member) = NULL; }} while(0)
+
+#define  PYPF_DELETE_FUNC(delop, member) \
 do {if ((member) != NULL) { delop ((member)); (member) = NULL; }} while(0)
 
 #define  PYPF_DELETE_SCLR(member) PYPF_DELETE(delete,   member)

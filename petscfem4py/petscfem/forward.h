@@ -1,5 +1,5 @@
 // -*- c++ -*-
-// $Id: forward.h,v 1.1.2.4 2006/03/20 16:06:00 rodrigop Exp $
+// $Id: forward.h,v 1.1.2.5 2006/03/28 22:13:25 rodrigop Exp $
 
 #ifndef PYPF_FORWARD_H
 #define PYPF_FORWARD_H
@@ -33,6 +33,8 @@ typedef Dofmap        DofMap;
 
 PYPF_NAMESPACE_BEGIN
 
+class Options;
+class Object;
 class Nodedata;
 class Elemset;
 class Mesh;

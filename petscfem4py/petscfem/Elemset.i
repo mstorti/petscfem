@@ -1,5 +1,5 @@
 // -*- c++ -*-
-// $Id: Elemset.i,v 1.1.2.3 2006/03/20 16:06:00 rodrigop Exp $
+// $Id: Elemset.i,v 1.1.2.4 2006/03/28 22:13:25 rodrigop Exp $
 
 
 %include Object.i
@@ -20,6 +20,37 @@ ARRAY_TYPECHECK_SEQUENCE((int nelem, int nel, int icone[]),
 ARRAY_2D_NEW(int* nelem, int* nel, int* icone[], PyPF_INT)
 
 %apply int* OUTPUT {int* nelem, int* nel};
+
+
+PYPF_NAMESPACE_BEGIN
+
+%template() ::std::vector<int>;
+
+%pythonappend  Elemset::getConnectivity %{val-=1%}
+
+%extend Elemset {
+  int __len__() { 
+    int nelem;
+    self->getSize(&nelem, NULL);
+    return nelem;
+  }
+  Elem __getitem__(int n) { 
+    return self->getElem(n); 
+  }
+  void __setitem__(int n, const Elem& elem) {
+    self->setElem(n, elem); 
+  }
+}
+%feature("shadow") Elemset::__iter__ %{
+def __iter__(self):
+    for i in xrange(len(self)):
+        yield self[i]
+%}
+%extend Elemset { void __iter__() { } }
+
+
+PYPF_NAMESPACE_END
+
 
 %include "Elemset.h"
 

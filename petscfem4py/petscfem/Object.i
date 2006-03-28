@@ -3,11 +3,11 @@
 
 PYPF_NAMESPACE_BEGIN
 
-%ignore ~Object;
-%ignore get_opt_table;
-%ignore getref;
-%ignore incref;
-%ignore decref;
+%ignore Object::~Object;
+%ignore Object::get_opt_table;
+%ignore Object::getref;
+%ignore Object::incref;
+%ignore Object::decref;
   
 %feature("ref")   Object "$this->incref();"
 %feature("unref") Object "$this->decref();"
@@ -22,5 +22,12 @@ PYPF_NAMESPACE_END
 
 %template() std::pair<std::string, std::string>;
 %template() std::map<std::string, std::string>;
+
+%init {
+  TextHashTable* global_options = PyPF_NAMESPACE::Options::GLOBAL;
+  global_options->register_name("global_options");
+  global_options->set_as_global();
+  GLOBAL_OPTIONS = global_options;
+}
 
 %include "Object.h"

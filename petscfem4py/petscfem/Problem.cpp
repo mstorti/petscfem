@@ -1,4 +1,4 @@
-// $Id: Problem.cpp,v 1.1.2.3 2006/03/20 16:06:00 rodrigop Exp $
+// $Id: Problem.cpp,v 1.1.2.4 2006/03/28 22:13:25 rodrigop Exp $
 
 #include "Problem.h"
 
@@ -11,17 +11,12 @@
 //#include <sttfilter.h>
 //#include <pfmat.h>
 //#include <hook.h>
+extern Mesh* GLOBAL_MESH;
+int my_mesh_part(MPI_Comm comm, Mesh* mesh, Dofmap* dofmap);
 
 
 PYPF_NAMESPACE_BEGIN
 
-
-OptionTable*
-Problem::get_opt_table() const
-{
-  throw Error("no options for Problem");
-  return NULL;
-}
 
 Problem::~Problem() 
 { 
@@ -29,8 +24,8 @@ Problem::~Problem()
   this->dofmap->decref();
 }
 
-Problem::Problem() 
-  : comm(MPI_COMM_NULL),
+Problem::Problem()
+  : Object(),
     nnod(0), ndim(0), ndof(0),
     mesh(new Mesh), dofmap(new DofMap),
     setupcalled(false)
@@ -39,69 +34,29 @@ Problem::Problem()
   this->dofmap->incref();
 }
 
-Problem::Problem(int nnod, int ndim, int ndof) 
-  : comm(PETSC_COMM_WORLD), 
-    nnod(0), ndim(0), ndof(0),
-    mesh(new Mesh), dofmap(new DofMap),
-    setupcalled(false)
-
+Problem::Problem(const Problem& p) 
+  : Object(p),
+    nnod(p.nnod), ndim(p.ndim), ndof(p.ndof),
+    mesh(p.mesh), dofmap(p.dofmap),
+    setupcalled(p.setupcalled)
 { 
-//   MPI_Comm comm = this->comm;
+  this->mesh->incref();
+  this->dofmap->incref();
+}
 
-//   // check arguments
-//   if (comm == MPI_COMM_NULL) throw Error("null communicator");
-//   if (nnod < 1)              throw Error("invalid number of nodes");
-//   if (ndim < 1)              throw Error("invalid number of dimensions");
-//   if (ndim > 3)              throw Error("invalid number of dimensions");
-//   if (ndof < 1)              throw Error("invalid number of degree of fredom");
+
+Problem::Problem(Mesh* mesh, DofMap* dofmap)
+  : Object(),
+    nnod(0), ndim(0), ndof(0),
+    mesh(mesh), dofmap(dofmap),
+    setupcalled(false)
+{
+  this->mesh->incref();
+  this->dofmap->incref();
   
-//   int comm_size, comm_rank;
-//   MPI_Comm_size(comm, &comm_size);
-//   MPI_Comm_rank(comm, &comm_rank);
-
-//   // build mesh
-//   Mesh::Base* mesh = new Mesh::Base;
-//   mesh->global_options = new OptionTable;
-//   mesh->nodedata       = new Nodedata::Base;
-//   mesh->elemsetlist    = da_create(sizeof(Elemset::Base*));
-  
-//   // build nodedata
-//   double* xyz     = new double[nnod*ndim];
-//   memset(xyz, 0, nnod*ndim*sizeof(double));
-//   Nodedata::Base* ndata = mesh->nodedata;
-//   ndata->options  = new OptionTable;
-//   ndata->nodedata = xyz;
-//   ndata->nnod     = nnod;
-//   ndata->ndim     = ndim;
-//   ndata->nu       = ndim;
-
-//   // build dofmap
-//   float* tpwgts  = new float[comm_size];
-//   for (int i=0; i<comm_size; i++) 
-//     tpwgts[i] = 1.0/float(comm_size);
-//   DofMap::Base* dofmap = new DofMap::Base;
-//   dofmap->comm   = comm;
-//   dofmap->nnod   = nnod;
-//   dofmap->ndof   = ndof;
-//   dofmap->size   = comm_size;
-//   dofmap->tpwgts = tpwgts;
-//   dofmap->id     = new ::idmap(nnod*ndof, NULL_MAP);
-//   for (int i=1; i<=nnod; i++)
-//     for (int j=1; j<=ndof; j++) {
-//       int idx = dofmap->edof(i, j);
-//       dofmap->id->set_elem(idx, idx, 1.0);
-//     }
-  
-//   // set objects
-//   this->nnod   = nnod;
-//   this->ndim   = ndim;
-//   this->ndof   = ndof;
-//   this->comm   = comm;
-//   this->mesh   = mesh;
-//   this->dofmap = dofmap;
-
-//   // setup flag
-//   this->setupcalled = false;
+  this->nnod = (*this->mesh)->nodedata->nnod;
+  this->ndim = (*this->mesh)->nodedata->ndim;
+  this->ndof = (*this->dofmap)->ndof;
 }
 
 Mesh*
@@ -116,7 +71,7 @@ Problem::getDofMap() const
   return this->dofmap;
 }
 
-void Problem::fromFile(const std::string& filename) 
+void Problem::read(const std::string& filename)
 {
 
   char* fcase = const_cast<char*>(filename.c_str());
@@ -217,12 +172,32 @@ Problem::buildSolution(Vec state, Vec solution)
 void
 Problem::setUp()
 {
+#if 0
   /* setup */
   if (this->setupcalled) return;
   /* ------ */
-
+  this->mesh->setUp();
+  this->dofmap->setUp();
   /* ------ */
   this->setupcalled = true;
+#else
+
+  if (this->setupcalled) return;
+
+  Mesh::Base*   mesh    = *this->mesh;
+  DofMap::Base* dofmap  = *this->dofmap;
+
+  GLOBAL_MESH = mesh;
+
+  my_mesh_part(this->comm, mesh, dofmap);
+
+  this->dofmap->frozen = true;
+
+  this->setupcalled = true;
+  //for (int i=0; i<this->mesh->elemsetlist.size(); 
+  //     (*this->mesh->elemsetlist[i++])->initialize());
+#endif
+
 }
 
 void
@@ -230,11 +205,11 @@ Problem::clear()
 {
   /* mesh */
   this->mesh->decref();
-  this->mesh = new Mesh(mesh);
+  this->mesh = new Mesh();
   this->mesh->incref();
   /* dofmap */
   this->dofmap->decref();
-  this->dofmap = new DofMap(dofmap);
+  this->dofmap = new DofMap();
   this->dofmap->incref();
 }
 

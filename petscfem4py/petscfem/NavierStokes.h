@@ -14,18 +14,18 @@ PYPF_NAMESPACE_BEGIN
 class NavierStokes: public Problem
 {
 
-private:
-  //NavierStokes();
-  NavierStokes(const NavierStokes &);
-
 protected:
   void* nsargs;
 
 public:
   ~NavierStokes();
   NavierStokes();
-  NavierStokes(int nnod, int ndim);
-  
+  NavierStokes(const NavierStokes&);
+  NavierStokes(Mesh* mesh, DofMap* dofmap);
+
+
+  static NavierStokes* fromFile(const std::string& filename);
+
   // steady problems
   void assemble(Vec x, double t,
 		Vec r, Mat J);

@@ -1,4 +1,4 @@
-// $Id: Elemset.cpp,v 1.1.2.5 2006/03/20 16:06:00 rodrigop Exp $
+// $Id: Elemset.cpp,v 1.1.2.6 2006/03/28 22:13:25 rodrigop Exp $
 
 #include "Elemset.h"
 
@@ -6,14 +6,6 @@
 #include <readmesh.h>
 
 PYPF_NAMESPACE_BEGIN
-
-OptionTable*
-Elemset::get_opt_table() const
-{ 
-  Elemset::Base* elemset = *this;
-  if (elemset->thash == NULL) elemset->thash = new OptionTable;
-  return elemset->thash;
-}
 
 Elemset::~Elemset()
 { 
@@ -26,15 +18,17 @@ Elemset::~Elemset()
   PYPF_DELETE_VCTR(elemset->elemiprops);
   PYPF_DELETE_VCTR(elemset->elemprops_add);
   PYPF_DELETE_VCTR(elemset->elemiprops_add);
-  PYPF_DELETE_SCLR(elemset->thash);
-  PYPF_DELETE(g_hash_table_destroy,elemset->elem_iprop_names);
-  PYPF_DELETE(g_hash_table_destroy,elemset->elem_prop_names);
+  elemset->thash = NULL;
+  PYPF_DELETE_FUNC(g_hash_table_destroy,elemset->elem_prop_names);
+  PYPF_DELETE_FUNC(g_hash_table_destroy,elemset->elem_iprop_names);
+  PYPF_DELETE_FUNC(da_destroy, elemset->ghost_elems);
+  PYPF_DELETE_VCTR(elemset->local_store);
   PYPF_DELETE_VCTR(elemset->elem_conne);
-  PYPF_DELETE_SCLR(elemset);
+  delete elemset;
 }
 
 Elemset::Elemset()
-  : Ptr(NULL, false), Object()
+  : Handle(NULL, false), Object()
 { 
 #if 0
   Elemset::Base* elemset = *this;
@@ -53,77 +47,131 @@ Elemset::Elemset()
 #endif
 }
 
-Elemset::Elemset(const Elemset& _elemset)
-  : Ptr(NULL, false), Object(_elemset)
+Elemset::Elemset(const Elemset& elset)
+  : Handle(NULL, false), Object(elset)
 { 
   
-  Elemset::Base* input = _elemset;
+  Elemset::Base* input = elset;
 
-  // create
+  // creation
   Elemset::Base* elemset = NULL;
-  char* type = new char[strlen(input->type)+1];
-  strcpy(type, input->type);
-  bless_elemset(type, elemset);
-  if (elemset == NULL) 
-    { delete[] type; throw Error("unknown elemset type"); }
-  elemset->type = type;
+  bless_elemset(input->type, elemset);
+  if (elemset == NULL) throw Error("unknown elemset type");
+  elemset->type = new char[strlen(input->type)+1];
+  strcpy(elemset->type, input->type);
   const std::string& name = (Elemset::Base::anon);
   elemset->register_name(name, elemset->type);
   
-  this->ptr = elemset;
+  Elemset::Base*& handle = *this;
+  handle = elemset;
 
   // connectivity
-  int nelem, nel; int* icone;
-  _elemset.getConnectivity(&nelem, &nel, &icone);
-  this->setConnectivity(nelem, nel, icone);
+  int nelem = elemset->nelem = input->nelem;
+  int nel   = elemset->nel   = input->nel;
+  elemset->icone  = new int[nelem*nel];
+  memcpy(elemset->icone,  input->icone,  sizeof(int)*nelem*nel);
+  elemset->elem_conne = new int[nel];
+  memset(elemset->elem_conne, 0, nel*sizeof(int));
+
+  elemset->ndof = input->ndof;
 
   // partitioning
-  elemset->ndof  = input->ndof;
-  elemset->isfat = input->isfat;
-  memcpy(elemset->epart, input->epart, elemset->nelem * sizeof(int));
+  elemset->epart       = new int[nelem];
+  memcpy(elemset->epart, input->epart,  sizeof(int)*nelem);
+  elemset->epart2      = new int[nelem];
+  memcpy(elemset->epart2, input->epart2, sizeof(int)*nelem);
+  elemset->epart_p     = input->epart_p;
+  elemset->e1          = input->e1;
+  elemset->e2          = input->e2;
+  elemset->isfat       = input->isfat;
+  elemset->nelem_here  = input->nelem_here;
+  elemset->ghost_elems = da_create(sizeof(int));
+  da_concat_da(elemset->ghost_elems, input->ghost_elems);
+  elemset->local_store = new (void*)[input->nelem_here];
 
   // options
-  elemset->thash = new OptionTable;
-  this->setOptions(_elemset.getOptions());
+  elemset->thash = this->options;
+
+  // double properties
+  int nelprops = elemset->nelprops = input->nelprops;
+  elemset->elemprops = new double[nelem*nelprops];
+  memcpy(elemset->elemprops, input->elemprops, sizeof(double)*nelem*nelprops);
+  elemset->elem_prop_names  = g_hash_table_new(&g_str_hash,&g_str_equal);
+  
+  int nelprops_add = elemset->nelprops_add = input->nelprops_add;
+  elemset->elemprops_add = new double[elemset->nelem*nelprops_add];
+  memcpy(elemset->elemprops_add, input->elemprops_add, sizeof(double)*nelem*nelprops_add);
+
+  // int properties
+  int neliprops = elemset->neliprops = input->neliprops;
+  elemset->elemiprops = new int[nelem*neliprops];
+  memcpy(elemset->elemiprops, input->elemiprops, sizeof(int)*nelem*neliprops);
+  elemset->elem_iprop_names = g_hash_table_new(&g_str_hash,&g_str_equal);
+
+  int neliprops_add = elemset->neliprops_add = input->neliprops_add;
+  elemset->elemiprops_add = new int[elemset->nelem*neliprops_add];
+  memcpy(elemset->elemiprops_add, input->elemiprops_add, sizeof(int)*nelem*neliprops_add);
+
+  
+  elemset->initialize();
+  
 }
 
 
-Elemset::Elemset(Elemset::Base* _elemset)
-  : Ptr(_elemset), Object()
-{ }
+Elemset::Elemset(Elemset::Base* base)
+  : Handle(base), Object()
+{ 
+  Elemset::Base* elemset = *this;
+  // options
+  if (elemset->thash == NULL) 
+    elemset->thash = this->options;
+  else 
+    this->options = elemset->thash;
+}
 
 Elemset::Elemset(const std::string& type,
 		 const std::string& name)
-  : Ptr(NULL, false), Object()
+  : Handle(NULL, false), Object()
 {
   // create
   Elemset::Base* elemset = NULL;
-  char* _type = new char[type.size()+1];
-  strcpy(_type, type.c_str());
-  bless_elemset(_type, elemset);
-  if (elemset == NULL) {
-    delete[] _type; throw Error("unknown elemset type");
-  }
-  elemset->type = _type;
+  bless_elemset(const_cast<char*>(type.c_str()), elemset);
+  if (elemset == NULL) throw Error("unknown elemset type");
+  elemset->type = new char[type.size()+1];
+  strcpy(elemset->type, type.c_str());
   const std::string& _name =  (name.size()) ? name : (Elemset::Base::anon);
   elemset->register_name(_name, elemset->type);
 
-  this->ptr = elemset;
+  Elemset::Base*& handle = *this;
+  handle = elemset;
 
-  elemset->ndof  = 0;
-  elemset->isfat = 0;
-  
   //  connectivity
   elemset->nelem      = 0;
   elemset->nel        = 0;
   elemset->icone      = NULL;
   elemset->elem_conne = NULL;
 
+  elemset->ndof  = 0;
+  
   // partitioning
-  elemset->epart = NULL;
+  elemset->epart       = NULL;
+  elemset->epart2      = NULL;
+  elemset->e1          = 0;
+  elemset->e2          = 0;
+  elemset->isfat       = 1;
+  elemset->nelem_here  = 0;
+  elemset->ghost_elems = da_create(sizeof(int));
+  elemset->local_store = NULL;
 
   // options
-  elemset->thash = new OptionTable;
+  elemset->thash = this->options;
+
+  // double props
+  elemset->nelprops         = 0;
+  elemset->elemprops        = NULL;
+  elemset->elem_prop_names  = g_hash_table_new(&g_str_hash,&g_str_equal); 
+  elemset->nelprops_add     = 0;
+  elemset->elemprops_add    = NULL;
 
   // int props
   elemset->neliprops        = 0; 
@@ -132,12 +180,6 @@ Elemset::Elemset(const std::string& type,
   elemset->neliprops_add    = 0; 
   elemset->elemiprops_add   = NULL; 
 
-  // double props
-  elemset->nelprops         = 0; 
-  elemset->elemprops        = NULL;
-  elemset->elem_prop_names  = g_hash_table_new(&g_str_hash,&g_str_equal); 
-  elemset->nelprops_add     = 0; 
-  elemset->elemprops_add    = NULL; 
 }
 
 std::string 
@@ -155,54 +197,77 @@ Elemset::getName() const
 }
 
 void 
-Elemset::getConnectivity(int* nelem, int* nel, int* icone[]) const
-{
-  Elemset::Base* elemset = *this;
-  *nelem = elemset->nelem;
-  *nel   = elemset->nel;
-  *icone = elemset->icone;
-}
-
-void 
-Elemset::setConnectivity(int nelem, int nel, int icone[]) 
-{
-
-  Elemset::Base* elemset = *this;
-
-  if (elemset->icone == NULL) {
-    elemset->icone = new int[nelem*nel];
-  }
-  else if (elemset->nelem*elemset->nel != nelem*nel) {
-    delete[] elemset->icone; 
-    elemset->icone = new int[nelem*nel];
-  }
-  if (elemset->elem_conne == NULL) {
-    elemset->elem_conne = new int[nel];
-  } 
-  else if (elemset->nel != nel) {
-    delete[] elemset->elem_conne;
-    elemset->elem_conne = new int[nel];
-  }
-  if (elemset->epart == NULL) {
-    elemset->epart = new int[nelem];
-  } else if (elemset->nelem != nelem) {
-    delete[] elemset->epart;
-    elemset->epart = new int[nelem];
-  }
-  
-  elemset->nelem = nelem;
-  elemset->nel   = nel;
-  memcpy(elemset->icone,      icone, nelem*nel * sizeof(int));
-  memset(elemset->elem_conne,     0, nel       * sizeof(int));
-  memset(elemset->epart,          0, nelem     * sizeof(int));
-}
-
-void 
 Elemset::getSize(int* nelem, int* nel) const
 {
   Elemset::Base* elemset = *this;
-  *nelem = elemset->nelem;
-  *nel   = elemset->nel;
+  if (nelem) *nelem = elemset->nelem;
+  if (nel)   *nel   = elemset->nel;
+}
+
+void 
+Elemset::getConnectivity(int* nelem, int* nel, int* icone[]) const
+{
+  Elemset::Base* elemset = *this;
+  if (nelem) *nelem = elemset->nelem;
+  if (nel)   *nel   = elemset->nel;
+  if (icone) *icone = elemset->icone;
+}
+
+#undef  PYPF_NEW_ARRAY
+#define PYPF_NEW_ARRAY(array, old_size, new_size)       \
+do {                                                    \
+    if ((array) == NULL) {                              \
+      (array) = new int[(new_size)];                    \
+    } else if ((old_size) != (new_size)) {              \
+      delete[] (array); (array) = new int[(new_size)];  \
+    }                                                   \
+} while(0)
+
+void 
+Elemset::setConnectivity(int nelem, int nel, int icone[])
+{
+  Elemset::Base* elemset = *this;
+
+  PYPF_NEW_ARRAY(elemset->icone,      elemset->nelem*elemset->nel, nelem*nel);
+  PYPF_NEW_ARRAY(elemset->elem_conne, elemset->nel,                nel);
+  PYPF_NEW_ARRAY(elemset->epart,      elemset->nelem,              nelem);
+  PYPF_NEW_ARRAY(elemset->epart2,     elemset->nelem,              nelem);
+
+  elemset->nelem = nelem;
+  elemset->nel   = nel;
+  memcpy(elemset->icone, icone, sizeof(int)*nelem*nel);
+  for (int i=0; i<nelem*nel; elemset->icone[i++]+=1);
+  memset(elemset->elem_conne, 0, sizeof(int)*nel);
+  memset(elemset->epart,      0, sizeof(int)*nelem);
+  memset(elemset->epart2,     0, sizeof(int)*nelem);
+
+  PYPF_DELETE_FUNC(da_destroy, elemset->ghost_elems);
+  elemset->ghost_elems = da_create(sizeof(int));
+}
+
+#undef PYPF_NEW_ARRAY
+
+std::vector<int> 
+Elemset::getElem(int n) const 
+{
+  int nelem, nel; int* icone;
+  this->getConnectivity(&nelem, &nel, &icone);
+  if (n<0 || n>=nelem) throw Error("index out of range");
+  const int* data = &icone[n*nel];
+  std::vector<int> elem(nel);
+  for (int i=0; i<nel; i++) elem[i] = data[i]-1;
+  return elem;
+}
+
+void 
+Elemset::setElem(int n, const std::vector<int>& elem)
+{
+  int nelem, nel; int* icone;
+  this->getConnectivity(&nelem, &nel, &icone);
+  if (n<0 || n>=nelem) throw Error("index out of range");
+  if (elem.size() != nel) throw Error("invalid number of dimensions");
+  int* data = &icone[n*nel];
+  for (int i=0; i<nel; i++) data[i] = elem[i];
 }
 
 int 
@@ -221,28 +286,49 @@ Elemset::setNDof(int ndof)
 
 void 
 Elemset::setUp()
-{
-  Elemset::Base* elemset = *this;
-  elemset->initialize();
-}
+{ }
 
 void
 Elemset::clear()
 {
   Elemset::Base* elemset = *this;
-  //PYPF_DELETE_VCTR(elemset->type);
+
+  // options
+  this->options.clear();
+  elemset->thash = this->options;
+
+  // connectivity
+  elemset->nelem = 0;
+  elemset->nel   = 0;
   PYPF_DELETE_VCTR(elemset->icone);
+  PYPF_DELETE_VCTR(elemset->elem_conne);
+
+  elemset->ndof  = 0;
+  
+  // partition
   PYPF_DELETE_VCTR(elemset->epart);
   PYPF_DELETE_VCTR(elemset->epart2);
+  elemset->e1          = 0;
+  elemset->e2          = 0;
+  elemset->isfat       = 1;
+  elemset->nelem_here  = 0;
+  PYPF_DELETE_VCTR(elemset->local_store);
+  PYPF_DELETE_FUNC(da_destroy, elemset->ghost_elems);
+  elemset->ghost_elems = da_create(sizeof(int));
+  
+  // properties
+  elemset->nelprops      = 0;
+  elemset->neliprops     = 0;
+  elemset->nelprops_add  = 0;
+  elemset->neliprops_add = 0;
   PYPF_DELETE_VCTR(elemset->elemprops);
   PYPF_DELETE_VCTR(elemset->elemiprops);
   PYPF_DELETE_VCTR(elemset->elemprops_add);
   PYPF_DELETE_VCTR(elemset->elemiprops_add);
-  PYPF_DELETE_SCLR(elemset->thash);
-  PYPF_DELETE(g_hash_table_destroy,elemset->elem_iprop_names);
-  PYPF_DELETE(g_hash_table_destroy,elemset->elem_prop_names);
-  PYPF_DELETE_VCTR(elemset->elem_conne);
-  //PYPF_DELETE_SCLR(elemset);
+  PYPF_DELETE_FUNC(g_hash_table_destroy, elemset->elem_prop_names);
+  PYPF_DELETE_FUNC(g_hash_table_destroy, elemset->elem_iprop_names);
+  elemset->elem_prop_names = g_hash_table_new(&g_str_hash,&g_str_equal); 
+  elemset->elem_prop_names = g_hash_table_new(&g_str_hash,&g_str_equal); 
 }
 
 void

@@ -1,5 +1,5 @@
 // -*- c++ -*-
-// $Id: petscinit.i,v 1.1.2.2 2006/03/20 16:06:00 rodrigop Exp $
+// $Id: init.i,v 1.1.2.3 2006/03/28 22:13:25 rodrigop Exp $
 
 %{
 #include <petsc.h>

@@ -1,5 +1,5 @@
 // -*- c++ -*-
-// $Id: DofMap.i,v 1.1.2.3 2006/03/20 16:06:00 rodrigop Exp $
+// $Id: DofMap.i,v 1.1.2.4 2006/03/28 22:13:25 rodrigop Exp $
 
 ARRAY_TRIAD(int n, int node[], int field[], double value[],
 	    ARRAY_INPUT, PyPF_INT,
@@ -26,7 +26,7 @@ PYPF_NAMESPACE_END
 %apply int* OUTPUT {int* local,  int* global};
 %apply int* OUTPUT {int* start,  int* end};
 
-%apply int* OUTPUT {int* nnod};
+%apply int* OUTPUT {int* nnod, int* ndof};
 %apply int* OUTPUT {int* neq_fix, int* neq_tot};
 
 %include "DofMap.h"
@@ -38,5 +38,5 @@ PYPF_NAMESPACE_END
 %clear int* local, int* global;
 %clear int* start, int* end;
 
-%clear int* nnod;
+%clear int* nnod, int* ndof;
 %clear int* neq_fix, int* neq_tot;

@@ -1,4 +1,4 @@
-// $Id: NavierStokes.cpp,v 1.1.2.3 2006/03/20 16:06:00 rodrigop Exp $
+// $Id: NavierStokes.cpp,v 1.1.2.4 2006/03/28 22:13:25 rodrigop Exp $
 
 #include "NavierStokes.h"
 
@@ -9,6 +9,9 @@
 
 #include <applications/ns/nsi_tet.h>
 
+
+//extern Mesh*          GLOBAL_MESH;
+//extern TextHashTable* GLOBAL_OPTIONS;
 
 PYPF_NAMESPACE_BEGIN
 
@@ -92,19 +95,35 @@ struct NSArgs {
 
 NavierStokes::~NavierStokes() 
 { 
-  //delete reinterpret_cast<NSArgs*>(this->nsargs);
-  //this->nsargs = NULL;
   NSArgs*& nsargs = reinterpret_cast<NSArgs*&>(this->nsargs);
   PYPF_DELETE_SCLR(nsargs);
 }
 
 NavierStokes::NavierStokes()
-  : Problem(), nsargs(reinterpret_cast<void*>(new NSArgs))
+  : Problem(), 
+    nsargs(reinterpret_cast<void*>(new NSArgs))
 { }
 
-NavierStokes::NavierStokes(int nnod, int ndim)
-  : Problem(nnod, ndim, ndim+1), nsargs(reinterpret_cast<void*>(new NSArgs))
+NavierStokes::NavierStokes(const NavierStokes& ns)
+  : Problem(ns),
+    nsargs(reinterpret_cast<void*>(new NSArgs))
 { }
+
+
+NavierStokes::NavierStokes(Mesh* mesh, DofMap* dofmap) 
+  : Problem(mesh, dofmap),
+    nsargs(reinterpret_cast<void*>(new NSArgs))
+{ }
+
+
+NavierStokes* 
+NavierStokes::fromFile(const std::string& filename)
+{
+  NavierStokes* problem = new NavierStokes();
+  problem->read(filename);
+  return problem;
+}
+
 
 void
 NavierStokes::assemble(Vec x, double t, Vec r, Mat J)
@@ -114,6 +133,8 @@ NavierStokes::assemble(Vec x, double t, Vec r, Mat J)
   Mesh::Base*   mesh   = *this->mesh;
   DofMap::Base* dofmap = *this->dofmap;
   NSArgs* args = reinterpret_cast<NSArgs*>(this->nsargs);
+
+  //GLOBAL_MESH = mesh;
   
   args->pack(x, t, x, t, r, J, 1.0, 1);
   int ierr = ::assemble(mesh, args->argl, dofmap, "comp_mat_res", &args->time_star);
@@ -124,7 +145,7 @@ NavierStokes::assemble(Vec x, double t, Vec r, Mat J)
 
 void
 NavierStokes::assemble(Vec x0, double t0, Vec x1, double t1,
-			     Vec r, Mat J, double alpha)
+		       Vec r, Mat J, double alpha)
 {
   // XXX test vector and matrix sizes against dofmap !!!
 
@@ -136,6 +157,8 @@ NavierStokes::assemble(Vec x0, double t0, Vec x1, double t1,
   Mesh::Base*   mesh   = *this->mesh;
   DofMap::Base* dofmap = *this->dofmap;
   NSArgs* args = reinterpret_cast<NSArgs*>(this->nsargs);
+
+  //GLOBAL_MESH = mesh;
   
   args->pack(x0, t0, x1, t1, r, J, alpha, 0);
   int ierr = ::assemble(mesh, args->argl, dofmap, "comp_mat_res", &args->time_star);

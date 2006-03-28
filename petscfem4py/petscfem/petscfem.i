@@ -1,5 +1,5 @@
 // -*- c++ -*-
-// $Id: petscfem.i,v 1.1.2.4 2006/03/20 16:06:00 rodrigop Exp $ 
+// $Id: petscfem.i,v 1.1.2.5 2006/03/28 22:13:25 rodrigop Exp $ 
 
 #if 0
 %module petscfem
@@ -32,6 +32,8 @@ __all__ = ['Object',
 %include array.i
 %include stl.i
 
+%include init.i
+
 %import  namespace.h
 %include Error.i
 
@@ -44,5 +46,3 @@ __all__ = ['Object',
 
 %include Problem.i
 %include NavierStokes.i
-
-%include petscinit.i

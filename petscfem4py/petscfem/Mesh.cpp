@@ -1,4 +1,4 @@
-// $Id: Mesh.cpp,v 1.1.2.4 2006/03/20 16:06:00 rodrigop Exp $
+// $Id: Mesh.cpp,v 1.1.2.5 2006/03/28 22:13:25 rodrigop Exp $
 
 #include "Nodedata.h"
 #include "Elemset.h"
@@ -10,75 +10,53 @@
 PYPF_NAMESPACE_BEGIN
 
 
-OptionTable*
-Mesh::get_opt_table() const
-{ 
-  Mesh::Base* mesh = *this;
-  if (mesh->global_options == NULL) mesh->global_options = new OptionTable;
-  return mesh->global_options;
-}
-
-
 Mesh::~Mesh() 
 { 
-  Mesh::Base* mesh = *this;
-  /* nodedata */
   this->nodedata->decref();
-  mesh->nodedata = NULL;
-  /* elemset list */
-  for (int i=0; i<this->elemsetlist.size(); i++)
-    this->elemsetlist[i]->decref();
-  PYPF_DELETE(da_destroy, mesh->elemsetlist);
-  /* options */
-  PYPF_DELETE_SCLR(mesh->global_options);
-  /* base object */
-  PYPF_DELETE_SCLR(mesh);
+  for (int i=0; i<this->elemsetlist.size();
+       this->elemsetlist[i++]->decref());
+  /* base pointer */ Mesh::Base* mesh = *this;
+  /* options      */ mesh->global_options = NULL;
+  /* nodedata     */ mesh->nodedata = NULL;
+  /* elemset list */ PYPF_DELETE(da_destroy, mesh->elemsetlist);
+  /* base object  */ delete mesh;
 }
 
 Mesh::Mesh() 
-  : Ptr(new Mesh::Base), Object(),
+  : Handle(new Mesh::Base), Object(),
     nodedata(new Nodedata), elemsetlist(0)
 { 
-  Mesh::Base* mesh = *this;
-  /* nodedata */
   this->nodedata->incref();
-  mesh->nodedata = *(this->nodedata);
-  /* elemset list */
-  mesh->elemsetlist = da_create(sizeof(Elemset::Base*));
-  /* options */
-  mesh->global_options = new OptionTable;
+  /* base pointer */ Mesh::Base* mesh = *this;
+  /* options      */ mesh->global_options = this->options;
+  /* nodedata     */ mesh->nodedata = *(this->nodedata); 
+  /* elemset list */ mesh->elemsetlist = da_create(sizeof(Elemset::Base*));
 }
 
-Mesh::Mesh(const Mesh& _mesh) 
-  : Ptr(new Mesh::Base), Object(_mesh),
-    nodedata(_mesh.nodedata), elemsetlist(_mesh.elemsetlist)
+Mesh::Mesh(const Mesh& msh) 
+  : Handle(new Mesh::Base), Object(msh),
+    nodedata(msh.nodedata), elemsetlist(msh.elemsetlist)
 { 
-  Mesh::Base* mesh = *this;
-  /* nodedata */
   this->nodedata->incref();
-  mesh->nodedata = *(this->nodedata);
-  /* elemset list */
-  mesh->elemsetlist = da_create_len(sizeof(Elemset::Base*),
-				    this->elemsetlist.size());
-  for (int i=0; i<this->elemsetlist.size(); i++) {
-    Elemset* elemset = this->elemsetlist[i];
-    elemset->incref();
-    Elemset::Base* e = *elemset;
-    da_set(mesh->elemsetlist, i, &e);
-  }
-  /* options */
-  mesh->global_options = new OptionTable;
-  this->setOptions(_mesh.getOptions());
+  for (int i=0; i<this->elemsetlist.size(); 
+       this->elemsetlist[i++]->incref());
+  /* base pointer */ Mesh::Base* mesh = *this;
+  /* options      */ mesh->global_options = this->options;
+  /* nodedata     */ mesh->nodedata = *(this->nodedata);
+  /* elemset list */ mesh->elemsetlist = 
+  /*              */    da_create_len(sizeof(Elemset::Base*),
+  /*              */ 		      this->elemsetlist.size());
+  /*              */ for (int i=0; i<this->elemsetlist.size(); i++) {
+  /*              */   Elemset::Base* e = *this->elemsetlist[i];
+  /*              */   da_set(mesh->elemsetlist, i, &e);
+  /*              */ }
 }
 
-Mesh::Mesh(Mesh::Base* _mesh)
-  : Ptr(_mesh), Object(),
-    nodedata(new Nodedata(_mesh->nodedata)), elemsetlist(0)
+Mesh::Mesh(Mesh::Base* msh)
+  : Handle(msh), Object(),
+    nodedata(new Nodedata(msh->nodedata)), elemsetlist(0)
 {  
   Mesh::Base* mesh = *this;
-  /* nodedata */
-  this->nodedata->incref();
-  /* elemset list */
   if (mesh->elemsetlist == NULL) {
     mesh->elemsetlist = da_create(sizeof(Elemset::Base*));
   }
@@ -89,36 +67,37 @@ Mesh::Mesh(Mesh::Base* _mesh)
       Elemset::Base** e;
       e = reinterpret_cast<Elemset::Base**>(da_ref(mesh->elemsetlist, i));
       Elemset* elemset = new Elemset(*e);
-      elemset->incref();
       this->elemsetlist[i] = elemset;
     }
   }
-  /* options */
-  if (mesh->global_options == NULL) {
-    mesh->global_options = new OptionTable;
-  }
+  if (mesh->global_options == NULL) 
+    mesh->global_options = this->options;
+  else
+    this->options = mesh->global_options;
+
+  this->nodedata->incref();
+  for (int i=0; i<this->elemsetlist.size(); 
+       this->elemsetlist[i++]->incref());
 }
 
 Mesh::Mesh(Nodedata* _nodedata,
 	   const std::vector<Elemset*>& _elemsetlist) 
-  : Ptr(new Mesh::Base), Object(),
+  : Handle(new Mesh::Base), Object(),
     nodedata(_nodedata), elemsetlist(_elemsetlist)
 { 
-  Mesh::Base* mesh = *this;
-  /* nodedata */
   this->nodedata->incref();
-  mesh->nodedata = *(this->nodedata);
-  /* elemset list */
-  mesh->elemsetlist = da_create_len(sizeof(Elemset::Base*),
-				    this->elemsetlist.size());
-  for (int i=0; i<this->elemsetlist.size(); i++) {
-    Elemset* elemset = this->elemsetlist[i];
-    elemset->incref();
-    Elemset::Base* e = *elemset;
-    da_set(mesh->elemsetlist, i, &e);
-  }
-  /* options */
-  mesh->global_options = new OptionTable;
+  for (int i=0; i<this->elemsetlist.size(); 
+       this->elemsetlist[i++]->incref());
+  /* base pointer */ Mesh::Base* mesh = *this;
+  /* nodedata     */ mesh->nodedata = *(this->nodedata);
+  /* elemset list */ mesh->elemsetlist = 
+  /*              */   da_create_len(sizeof(Elemset::Base*),
+  /*              */	             this->elemsetlist.size());
+  /*              */ for (int i=0; i<this->elemsetlist.size(); i++) {
+  /*              */    Elemset::Base* e = *this->elemsetlist[i];
+  /*              */    da_set(mesh->elemsetlist, i, &e);
+  /*              */ }
+  /* options      */ mesh->global_options = this->options;
 }
 
 
@@ -131,11 +110,11 @@ Mesh::getNodedata() const
 void
 Mesh::setNodedata(Nodedata* nodedata)
 {
-  Mesh::Base* mesh = *this;
   nodedata->incref();
   this->nodedata->decref();
   this->nodedata = nodedata;
-  mesh->nodedata = *nodedata;
+  /* base pointer */ Mesh::Base* mesh = *this;
+  /* nodedata     */ mesh->nodedata = *(this->nodedata);
 }
 
 
@@ -149,8 +128,8 @@ Elemset*
 Mesh::getElemset(int i) const
 {
   int n = this->elemsetlist.size();
-  if (n == 0)      throw Error("empty elemset list");
-  if (i<0 || i>=n) throw Error("index out of range");
+  if (n==0)      throw Error("empty elemset list");
+  if (i<0||i>=n) throw Error("index out of range");
   return this->elemsetlist[i];
 }
 
@@ -158,26 +137,28 @@ void
 Mesh::setElemset(int i, Elemset* elemset)
 {
   int n = this->elemsetlist.size();
-  if (n == 0)      throw Error("empty elemset list");
-  if (i<0 || i>=n) throw Error("index out of range");
-  /**/
-  Mesh::Base* mesh = *this;
+  if (n==0)      throw Error("empty elemset list");
+  if (i<0||i>=n) throw Error("index out of range");
+
   elemset->incref();
   this->elemsetlist[i]->decref();
   this->elemsetlist[i] = elemset;
-  Elemset::Base* e = *elemset;
-  da_set(mesh->elemsetlist, i, &e);
+
+  /* base pointer */ Mesh::Base* mesh = *this;
+  /* base pointer */ Elemset::Base* e = *elemset;
+  /* elemset list */ da_set(mesh->elemsetlist, i, &e);
 }
 
 
 void
 Mesh::addElemset(Elemset* elemset)
 {
-  Mesh::Base* mesh = *this;
   elemset->incref();
   this->elemsetlist.push_back(elemset);
-  Elemset::Base* e = *elemset;
-  da_append(mesh->elemsetlist, &e);
+
+  /* base pointer */ Mesh::Base* mesh = *this;
+  /* base pointer */ Elemset::Base* e = *elemset;
+  /* elemset list */ da_append(mesh->elemsetlist, &e);
 }
 
 void
@@ -191,21 +172,20 @@ Mesh::setUp()
 void
 Mesh::clear()
 {
-  Mesh::Base* mesh = *this;
-  /* nodedata */
+  this->options.clear();
   this->nodedata->decref();
   this->nodedata = new Nodedata;
   this->nodedata->incref();
-  mesh->nodedata = *(this->nodedata);
-  /* elemset list */
-  for (int i=0; i<this->elemsetlist.size(); i++)
-    this->elemsetlist[i]->decref();
+  for (int i=0; i<this->elemsetlist.size(); 
+       this->elemsetlist[i++]->decref());
   this->elemsetlist.resize(0);
-  PYPF_DELETE(da_destroy, mesh->elemsetlist);
-  mesh->elemsetlist = da_create(sizeof(Elemset::Base*));
-  /* options */
-  PYPF_DELETE_SCLR(mesh->global_options);
-  mesh->global_options = new OptionTable;
+
+  /* base pointer */ Mesh::Base* mesh = *this;
+  /* options      */ mesh->global_options = this->options;
+  /* nodedata     */ mesh->nodedata = *(this->nodedata);
+  /* elemset list */ PYPF_DELETE(da_destroy, mesh->elemsetlist);
+  /*              */ mesh->elemsetlist = da_create(sizeof(Elemset::Base*));
+
 }
 
 void
