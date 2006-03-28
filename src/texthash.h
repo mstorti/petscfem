@@ -1,6 +1,6 @@
 // -*- mode: c++ -*-
 /*__INSERT_LICENSE__*/
-//$Id: texthash.h,v 1.12.54.2 2006/03/27 20:16:40 rodrigop Exp $
+//$Id: texthash.h,v 1.12.54.3 2006/03/28 22:16:18 rodrigop Exp $
 
 #ifndef __TEXTHASH_H__
 #define __TEXTHASH_H__
@@ -152,6 +152,13 @@ public:
       it before calling this method. 
   */ 
   void get_entry(const char *,vector<double> &v);
+
+
+  /** Removes all entries in the hash
+      @author L. Dalcin
+  */ 
+  void del_entries();
+
 
   /** Returns the number of times a particular key was accessed.
       @author M. Storti

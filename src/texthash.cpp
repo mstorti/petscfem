@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: texthash.cpp,v 1.22.20.2 2006/03/27 20:16:40 rodrigop Exp $
+//$Id: texthash.cpp,v 1.22.20.3 2006/03/28 22:16:18 rodrigop Exp $
  
 #include <iostream>
 #include <sstream>
@@ -380,4 +380,25 @@ void TextHashTable::
 get_entries(std::map<std::string,std::string>& M) const {
   void* m = reinterpret_cast<void*>(&M);
   g_hash_table_foreach (this->hash, &fill_std_map, m);
+}
+
+
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+#undef __FUNC__
+#define __FUNC__ "int remove_hash_entry(void *p, void *q, void *u)"
+static int remove_hash_entry(void *p, void *q, void *u) {
+  char *pp; TextHashTableVal *qq;
+  pp = (char*) p;
+  delete[] pp;
+  qq = (TextHashTableVal*) q;
+  delete qq;
+  return 1;
+}
+
+#undef __FUNC__
+#define __FUNC__ "TextHashTable::del_entries()"
+void TextHashTable::del_entries() {
+  g_hash_table_foreach_remove (hash, &remove_hash_entry, NULL);
+  included_tables.resize(0);
+  included_tables_names.resize(0);
 }
