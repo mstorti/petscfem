@@ -61,7 +61,7 @@ Use fractional step or TET algorithm
  (found in file: \verb+ns.cpp+)
 %----<>----<>----<>----<>----<>----<>----<>----<>----<>----<>
 \index{fractional\_step\_solver\_combo@\verb+fractional_step_solver_combo+}
-\item\verb+string fractional_step_solver_combo+ {\rm(default=\verb|"iisd"|)}:
+\item\verb+string fractional_step_solver_combo+ {\rm(default=\verb|iisd|)}:
 
 Solver combination for the fractional step method. May be \verb+iisd+, 
  \verb+lu+, \verb+global_gmres+. 
@@ -388,6 +388,13 @@ Update jacobian each $n$-th time step.
 \item\verb+int update_jacobian_steps+ {\rm(default=\verb|0|)}:
 
 Update jacobian each $n$-th time step. 
+ (found in file: \verb+ns.cpp+)
+%----<>----<>----<>----<>----<>----<>----<>----<>----<>----<>
+\index{update\_wall\_data@\verb+update_wall_data+}
+\item\verb+int update_wall_data+ {\rm(default=\verb|0|)}:
+
+If 0: compute \verb+wall_data+ info only once. Otherwise
+  refresh each \verb+update_wall_data+ steps. 
  (found in file: \verb+ns.cpp+)
 %----<>----<>----<>----<>----<>----<>----<>----<>----<>----<>
 \index{use\_iisd@\verb+use_iisd+}
