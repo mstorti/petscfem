@@ -1,6 +1,6 @@
 // -*- mode: c++ -*-
 //__INSERT_LICENSE__
-// $Id: advabso.h,v 1.10 2005/10/18 23:35:20 mstorti Exp $
+// $Id: advabso.h,v 1.11 2006/03/29 14:25:35 mstorti Exp $
 #ifndef PETSCFEM_ADVABSO_H
 #define PETSCFEM_ADVABSO_H
 
@@ -26,11 +26,11 @@ private:
   double Rgas;
   // Pointer to adv-diff flux fun
   NewAdvDifFF *adv_diff_ff;
-  FastMat2 dummy,flux,fluxd,A_grad_U,
+  FastMat2 dummy,flux,fluxd,A_grad_U,Uref_glob,
     grad_U,Uold,normal,vmesh,vnor,A_jac,S,invS,c,
     Pi_m,Pi_p,Uref,tmp1,Ulambda,Uo,
     dU,Cp,invCp,unor;
-  int use_old_state_as_ref;
+  int use_old_state_as_ref, use_uref_glob;
   int switch_to_ref_on_incoming;
   int ALE_flag;			
   // Per node normal

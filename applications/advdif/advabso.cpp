@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-// $Id: advabso.cpp,v 1.16 2005/10/31 00:20:14 mstorti Exp $
+// $Id: advabso.cpp,v 1.17 2006/03/29 14:25:35 mstorti Exp $
 #include "./advabso.h"
 #include "./gasflow.h"
 
@@ -41,6 +41,17 @@ init() {
   //o Do correction for wave characteristic computation
   //  do to mesh velocity (ALE).
   NSGETOPTDEF_ND(int,ALE_flag,0);
+
+  vector<double> urefv;
+  const char *line;
+  get_entry("Uref",line);
+  if(line) {
+    read_double_array(urefv,line);
+    PETSCFEM_ASSERT0(urefv.size() == ndof,
+		     "Uref needs ndof values \n");
+    Uref_glob.resize(1,ndof);
+    Uref_glob.set(&*urefv.begin());
+  } 
 
   flux.resize(2,ndof,ndim);
   fluxd.resize(2,ndof,ndim);
@@ -110,7 +121,8 @@ res(int k,FastMat2 &U,FastMat2 &r,
     Uold.rs();
   } else {
     FastMat2::choose(1);
-    U.ir(1,3); Uref.set(U);
+    if (use_uref_glob) Uref.set(Uref_glob);
+    else { U.ir(1,3); Uref.set(U); }
   }
   FastMat2::leave();
   U.rs();
