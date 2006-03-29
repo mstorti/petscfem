@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-// $Id: advabso.cpp,v 1.17 2006/03/29 14:25:35 mstorti Exp $
+// $Id: advabso.cpp,v 1.18 2006/03/29 17:46:53 mstorti Exp $
 #include "./advabso.h"
 #include "./gasflow.h"
 
@@ -45,7 +45,9 @@ init() {
   vector<double> urefv;
   const char *line;
   get_entry("Uref",line);
+  use_uref_glob = 0;
   if(line) {
+    use_uref_glob = 1;
     read_double_array(urefv,line);
     PETSCFEM_ASSERT0(urefv.size() == ndof,
 		     "Uref needs ndof values \n");

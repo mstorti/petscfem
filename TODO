@@ -1,8 +1,11 @@
 ################################################################
-# $Id: TODO,v 1.249 2006/03/23 19:47:44 mstorti Exp $
+# $Id: TODO,v 1.250 2006/03/29 17:49:06 mstorti Exp $
 TODO: [Mainly fixes go here...]
 =====
 
+* Absorbing b.c.'s: 
+    Make emphasis in the doc that the normal is the exterior normal to
+    the fluid. 
 * `$ make sw' crash if `DX' not installed
 * In `gatherer.cpp' default value for `ndimel' should be `ndim', not
   `ndim-1'. In `set_pg_values' we should pass `Jaco' alqways, and `n'
