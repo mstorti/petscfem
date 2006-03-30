@@ -1,5 +1,5 @@
 // -*- c++ -*-
-// $Id: Problem.h,v 1.1.2.5 2006/03/30 15:18:14 rodrigop Exp $
+// $Id: Problem.h,v 1.1.2.6 2006/03/30 15:40:05 rodrigop Exp $
 
 #ifndef PYPF_PROBLEM_H
 #define PYPF_PROBLEM_H
@@ -10,7 +10,7 @@
 #include <mpi.h>
 #include "petscfem4py.h"
 #include "Object.h"
-#include "Nodedata.h"
+#include "Nodeset.h"
 #include "Elemset.h"
 #include "Mesh.h"
 #include "DofMap.h"

@@ -1,5 +1,5 @@
 // -*- c++ -*-
-// $Id: petscfem.i,v 1.1.2.5 2006/03/28 22:13:25 rodrigop Exp $ 
+// $Id: petscfem.i,v 1.1.2.6 2006/03/30 15:40:05 rodrigop Exp $ 
 
 #if 0
 %module petscfem
@@ -10,7 +10,7 @@
 
 %{
 #include "petscfem4py.h"
-#include "Nodedata.h"
+#include "Nodeset.h"
 #include "Elemset.h"
 #include "Mesh.h"
 #include "DofMap.h"
@@ -20,7 +20,7 @@
 
 %pythoncode %{
 __all__ = ['Object',
-	   'Nodedata',
+	   'Nodeset',
 	   'Elemset',
 	   'Mesh',
 	   'DofMap',
@@ -39,7 +39,7 @@ __all__ = ['Object',
 
 %include Base.i
 %include Object.i
-%include Nodedata.i
+%include Nodeset.i
 %include Elemset.i
 %include Mesh.i
 %include DofMap.i

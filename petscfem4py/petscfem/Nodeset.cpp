@@ -1,26 +1,26 @@
-// $Id: Nodedata.cpp,v 1.1.2.6 2006/03/30 15:18:14 rodrigop Exp $
+// $Id: Nodeset.cpp,v 1.1.2.1 2006/03/30 15:40:05 rodrigop Exp $
 
-#include "Nodedata.h"
+#include "Nodeset.h"
 
 #include <fem.h>
 
 
 PYPF_NAMESPACE_BEGIN
 
-Nodedata::~Nodedata()
+Nodeset::~Nodeset()
 { 
-  Nodedata::Base* nodedata = *this;
+  Nodeset::Base* nodedata = *this;
   nodedata->nodedata = NULL;
   nodedata->options  = NULL;
   delete nodedata;
 }
 
-Nodedata::Nodedata()
-  : Handle(new Nodedata::Base), Object(),
+Nodeset::Nodeset()
+  : Handle(new Nodeset::Base), Object(),
     nnod(0), ndim(0), nodedata()
 { 
   // base pointer
-  Nodedata::Base* nodedata = *this;
+  Nodeset::Base* nodedata = *this;
   // options
   nodedata->options  = this->options;
   // nodedata
@@ -30,11 +30,11 @@ Nodedata::Nodedata()
   nodedata->nodedata = &this->nodedata[0];
 }
 
-Nodedata::Nodedata(const Nodedata& nd)
-  : Handle(new Nodedata::Base), Object(nd),
+Nodeset::Nodeset(const Nodeset& nd)
+  : Handle(new Nodeset::Base), Object(nd),
     nnod(nd.nnod), ndim(nd.ndim), nodedata(nd.nodedata)
 { 
-  Nodedata::Base* nodedata = *this;
+  Nodeset::Base* nodedata = *this;
   // options
   nodedata->options  = this->options;
   // nodedata
@@ -44,7 +44,7 @@ Nodedata::Nodedata(const Nodedata& nd)
   nodedata->nodedata = &this->nodedata[0];
 }
 
-Nodedata::Nodedata(Nodedata::Base* base)
+Nodeset::Nodeset(Nodeset::Base* base)
   : Handle(base), Object(),
     nnod(base->nnod), ndim(base->ndim), nodedata(nnod*ndim)
 {  
@@ -55,7 +55,7 @@ Nodedata::Nodedata(Nodedata::Base* base)
     delete[] base->nodedata;
   }
   // base pointer
-  Nodedata::Base* nodedata = *this;
+  Nodeset::Base* nodedata = *this;
   // nodedata
   nodedata->nnod     = this->nnod;
   nodedata->ndim     = this->ndim;
@@ -68,8 +68,8 @@ Nodedata::Nodedata(Nodedata::Base* base)
     this->options = nodedata->options;
 }
 
-Nodedata::Nodedata(int nnod, int ndim, const double xyz[])
-  : Handle(new Nodedata::Base), Object(),
+Nodeset::Nodeset(int nnod, int ndim, const double xyz[])
+  : Handle(new Nodeset::Base), Object(),
     nnod(nnod), ndim(ndim), nodedata(nnod*ndim)
 {
   if (nnod*ndim !=0) {
@@ -82,7 +82,7 @@ Nodedata::Nodedata(int nnod, int ndim, const double xyz[])
   memcpy(&this->nodedata[0], xyz, nnod*ndim*sizeof(double));
   
   // base pointer
-  Nodedata::Base* nodedata = *this;
+  Nodeset::Base* nodedata = *this;
   // options
   nodedata->options  = this->options;
   // nodedata
@@ -94,14 +94,14 @@ Nodedata::Nodedata(int nnod, int ndim, const double xyz[])
 
 
 void
-Nodedata::getSize(int* nnod, int* ndim) const
+Nodeset::getSize(int* nnod, int* ndim) const
 {
   if (nnod) *nnod = this->nnod;
   if (ndim) *ndim = this->ndim;
 }
 
 void
-Nodedata::getData(int* nnod, int* ndim, double* xyz[]) const
+Nodeset::getData(int* nnod, int* ndim, double* xyz[]) const
 {
   if (nnod) *nnod = this->nnod;
   if (ndim) *ndim = this->ndim;
@@ -109,7 +109,7 @@ Nodedata::getData(int* nnod, int* ndim, double* xyz[]) const
 }
 
 void
-Nodedata::setData(int nnod, int ndim, const double xyz[])
+Nodeset::setData(int nnod, int ndim, const double xyz[])
 {
   /* test */
   if (nnod*ndim !=0) {
@@ -129,7 +129,7 @@ Nodedata::setData(int nnod, int ndim, const double xyz[])
   memcpy(&this->nodedata[0], xyz, nnod*ndim*sizeof(double));
   
   // base pointer
-  Nodedata::Base* nodedata = *this;
+  Nodeset::Base* nodedata = *this;
   // nodedata
   nodedata->nnod     = this->nnod;
   nodedata->ndim     = this->ndim;
@@ -139,7 +139,7 @@ Nodedata::setData(int nnod, int ndim, const double xyz[])
 
 
 std::vector<double>
-Nodedata::getNode(int n) const 
+Nodeset::getNode(int n) const 
 {
   if (n<0 || n>=this->nnod) throw Error("index out of range");
   const double* beg = &this->nodedata[n*this->ndim];
@@ -148,7 +148,7 @@ Nodedata::getNode(int n) const
 }
 
 void 
-Nodedata::setNode(int n, const std::vector<double>& node)
+Nodeset::setNode(int n, const std::vector<double>& node)
 {
   if (n<0 || n>=this->nnod) throw Error("index out of range");
   if (node.size() != this->ndim) throw Error("invalid number of dimensions");
@@ -157,11 +157,11 @@ Nodedata::setNode(int n, const std::vector<double>& node)
 }
 
 void
-Nodedata::setUp()
+Nodeset::setUp()
 { }
 
 void
-Nodedata::clear() 
+Nodeset::clear() 
 {
   this->options.clear();
   this->nodedata.clear();
@@ -169,7 +169,7 @@ Nodedata::clear()
   this->ndim = 0;
   
   // base pointer
-  Nodedata::Base* nodedata = *this;
+  Nodeset::Base* nodedata = *this;
   // options
   nodedata->options  = this->options;
   // nodedata
@@ -181,11 +181,11 @@ Nodedata::clear()
 
 
 void
-Nodedata::view() const
+Nodeset::view() const
 {
   int nnod = this->nnod;
   int ndim = this->ndim;
-  printf("Nodedata Object:\n");
+  printf("Nodeset Object:\n");
   printf("  size: nnod=%d, ndim=%d\n", nnod, ndim);
   printf("  data:");
   int i=0;
@@ -202,7 +202,7 @@ Nodedata::view() const
 }
 
 void 
-Nodedata::sync(int root) {
+Nodeset::sync(int root) {
   /* test */
   int size;  MPI_Comm_size(this->comm, &size);
   if (root < 0 || root >= size) 
@@ -222,7 +222,7 @@ Nodedata::sync(int root) {
   MPI_Bcast(buff, count, MPI_DOUBLE, root, this->comm);
 
   // base pointer
-  Nodedata::Base* nodedata = *this;
+  Nodeset::Base* nodedata = *this;
   // options
   nodedata->options  = this->options;
   // nodedata

@@ -1,7 +1,8 @@
 // -*- c++ -*-
+// $Id: Nodeset.h,v 1.1.2.1 2006/03/30 15:40:05 rodrigop Exp $
 
-#ifndef PYPF_NODEDATA_H
-#define PYPF_NODEDATA_H
+#ifndef PYPF_NODESET_H
+#define PYPF_NODESET_H
 
 #include <vector>
 #include "petscfem4py.h"
@@ -9,7 +10,7 @@
 
 PYPF_NAMESPACE_BEGIN
 
-class Nodedata : SMARTPTR(Nodedata)
+class Nodeset : SMARTPTR(Nodeset)
   public Object
 {
   friend class Mesh;
@@ -18,7 +19,7 @@ class Nodedata : SMARTPTR(Nodedata)
 
 #if !defined(SWIG)
  public:
-  Nodedata(Nodedata::Base*);
+  Nodeset(Nodeset::Base*);
 #endif
 
  protected:
@@ -27,10 +28,10 @@ class Nodedata : SMARTPTR(Nodedata)
   std::vector<double> nodedata;
 
  public:
-  ~Nodedata();
-  Nodedata();
-  Nodedata(const Nodedata&);
-  Nodedata(int nnod, int ndim, const double xyz[]);
+  ~Nodeset();
+  Nodeset();
+  Nodeset(const Nodeset&);
+  Nodeset(int nnod, int ndim, const double xyz[]);
 
   void getSize(int* nnod, int* ndim) const;
   void getData(int* nnod, int* ndim, double* xyz[]) const;
@@ -51,4 +52,4 @@ class Nodedata : SMARTPTR(Nodedata)
 
 PYPF_NAMESPACE_END
 
-#endif // PYPF_NODEDATA_H
+#endif // PYPF_NODESET_H

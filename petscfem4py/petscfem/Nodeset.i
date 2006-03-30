@@ -1,5 +1,5 @@
 // -*- c++ -*-
-// $Id: Nodedata.i,v 1.1.2.4 2006/03/28 22:13:25 rodrigop Exp $
+// $Id: Nodeset.i,v 1.1.2.1 2006/03/30 15:40:05 rodrigop Exp $
 
 
 %include Object.i
@@ -27,7 +27,7 @@ PYPF_NAMESPACE_BEGIN
 
 %template() ::std::vector<double>;
 
-%extend Nodedata {
+%extend Nodeset {
   int __len__() { 
     int nnod;  
     self->getSize(&nnod, NULL);
@@ -41,16 +41,16 @@ PYPF_NAMESPACE_BEGIN
   }
 }
 
-%feature("shadow") Nodedata::__iter__ %{
+%feature("shadow") Nodeset::__iter__ %{
 def __iter__(self):
     for i in xrange(len(self)):
         yield self[i]
 %}
-%extend Nodedata { void __iter__() { } }
+%extend Nodeset { void __iter__() { } }
 
 PYPF_NAMESPACE_END
 
-%include "Nodedata.h"
+%include "Nodeset.h"
 
 %clear (int  nnod, int* ndim, double  xyz[]);
 %clear (int* nnod, int  ndim, double* xyz[]);

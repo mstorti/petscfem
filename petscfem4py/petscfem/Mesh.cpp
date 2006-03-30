@@ -1,6 +1,6 @@
-// $Id: Mesh.cpp,v 1.1.2.5 2006/03/28 22:13:25 rodrigop Exp $
+// $Id: Mesh.cpp,v 1.1.2.6 2006/03/30 15:40:05 rodrigop Exp $
 
-#include "Nodedata.h"
+#include "Nodeset.h"
 #include "Elemset.h"
 #include "Mesh.h"
 
@@ -24,7 +24,7 @@ Mesh::~Mesh()
 
 Mesh::Mesh() 
   : Handle(new Mesh::Base), Object(),
-    nodedata(new Nodedata), elemsetlist(0)
+    nodedata(new Nodeset), elemsetlist(0)
 { 
   this->nodedata->incref();
   /* base pointer */ Mesh::Base* mesh = *this;
@@ -54,7 +54,7 @@ Mesh::Mesh(const Mesh& msh)
 
 Mesh::Mesh(Mesh::Base* msh)
   : Handle(msh), Object(),
-    nodedata(new Nodedata(msh->nodedata)), elemsetlist(0)
+    nodedata(new Nodeset(msh->nodedata)), elemsetlist(0)
 {  
   Mesh::Base* mesh = *this;
   if (mesh->elemsetlist == NULL) {
@@ -80,7 +80,7 @@ Mesh::Mesh(Mesh::Base* msh)
        this->elemsetlist[i++]->incref());
 }
 
-Mesh::Mesh(Nodedata* _nodedata,
+Mesh::Mesh(Nodeset* _nodedata,
 	   const std::vector<Elemset*>& _elemsetlist) 
   : Handle(new Mesh::Base), Object(),
     nodedata(_nodedata), elemsetlist(_elemsetlist)
@@ -101,14 +101,14 @@ Mesh::Mesh(Nodedata* _nodedata,
 }
 
 
-Nodedata*
-Mesh::getNodedata() const
+Nodeset*
+Mesh::getNodeset() const
 {
   return this->nodedata;
 }
 
 void
-Mesh::setNodedata(Nodedata* nodedata)
+Mesh::setNodeset(Nodeset* nodedata)
 {
   nodedata->incref();
   this->nodedata->decref();
@@ -174,7 +174,7 @@ Mesh::clear()
 {
   this->options.clear();
   this->nodedata->decref();
-  this->nodedata = new Nodedata;
+  this->nodedata = new Nodeset;
   this->nodedata->incref();
   for (int i=0; i<this->elemsetlist.size(); 
        this->elemsetlist[i++]->decref());
@@ -191,9 +191,9 @@ Mesh::clear()
 void
 Mesh::view() const
 {
-  printf("Nodedata\n");
+  printf("Nodeset\n");
   printf("--------\n");
-  Nodedata::Base* nodedata = *(this->nodedata);
+  Nodeset::Base* nodedata = *(this->nodedata);
   printf("nnod: %d, ndim: %d\n", nodedata->nnod, nodedata->ndim);
   printf("\n");
 

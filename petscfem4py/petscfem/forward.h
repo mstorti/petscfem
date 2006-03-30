@@ -1,5 +1,5 @@
 // -*- c++ -*-
-// $Id: forward.h,v 1.1.2.5 2006/03/28 22:13:25 rodrigop Exp $
+// $Id: forward.h,v 1.1.2.6 2006/03/30 15:40:05 rodrigop Exp $
 
 #ifndef PYPF_FORWARD_H
 #define PYPF_FORWARD_H
@@ -22,7 +22,7 @@ class Constraint;
 class Dofmap;
 
 typedef TextHashTable OptionTable;
-typedef Nodedata      NodeData;
+typedef Nodedata      Nodeset;
 typedef Dofmap        DofMap;
 
 
@@ -35,7 +35,7 @@ PYPF_NAMESPACE_BEGIN
 
 class Options;
 class Object;
-class Nodedata;
+class Nodeset;
 class Elemset;
 class Mesh;
 class DofMap;

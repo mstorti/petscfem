@@ -1,15 +1,15 @@
 // -*- c++ -*-
-// $Id: Mesh.i,v 1.1.2.5 2006/03/30 15:18:14 rodrigop Exp $
+// $Id: Mesh.i,v 1.1.2.6 2006/03/30 15:40:05 rodrigop Exp $
 
 
 %include Object.i
-%include Nodedata.i
+%include Nodeset.i
 %include Elemset.i
 
 
 PYPF_NAMESPACE_BEGIN
 
-%newobject Mesh::getNodedata;
+%newobject Mesh::getNodeset;
 %newobject Mesh::getElemset;
 
 %template() ::std::vector<Elemset*>;

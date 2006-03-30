@@ -1,5 +1,5 @@
 // -*- c++ -*-
-// $Id: Mesh.h,v 1.1.2.6 2006/03/30 15:18:14 rodrigop Exp $
+// $Id: Mesh.h,v 1.1.2.7 2006/03/30 15:40:05 rodrigop Exp $
 
 #ifndef PYPF_MESH_H
 #define PYPF_MESH_H
@@ -8,7 +8,7 @@
 #include <vector>
 #include "petscfem4py.h"
 #include "Object.h"
-#include "Nodedata.h"
+#include "Nodeset.h"
 #include "Elemset.h"
 
 PYPF_NAMESPACE_BEGIN
@@ -25,17 +25,17 @@ class Mesh : SMARTPTR(Mesh)
 #endif
 
  protected:
-  Nodedata*             nodedata;
+  Nodeset*              nodedata;
   std::vector<Elemset*> elemsetlist;
 
  public:
   ~Mesh();
   Mesh();
   Mesh(const Mesh&);
-  Mesh(Nodedata*, const std::vector<Elemset*>&);
+  Mesh(Nodeset*, const std::vector<Elemset*>&);
   
-  Nodedata* getNodedata() const;
-  void      setNodedata(Nodedata*);
+  Nodeset* getNodeset() const;
+  void     setNodeset(Nodeset*);
 
   int       getSize() const;
   Elemset*  getElemset(int) const;

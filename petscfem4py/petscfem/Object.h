@@ -1,4 +1,5 @@
 // -*- c++ -*-
+// $Id: Object.h,v 1.1.2.5 2006/03/30 15:40:05 rodrigop Exp $
 
 #ifndef PYPF_OBJECT_H
 #define PYPF_OBJECT_H
