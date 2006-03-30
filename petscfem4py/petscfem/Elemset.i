@@ -1,5 +1,5 @@
 // -*- c++ -*-
-// $Id: Elemset.i,v 1.1.2.4 2006/03/28 22:13:25 rodrigop Exp $
+// $Id: Elemset.i,v 1.1.2.5 2006/03/30 15:18:14 rodrigop Exp $
 
 
 %include Object.i
@@ -47,7 +47,6 @@ def __iter__(self):
         yield self[i]
 %}
 %extend Elemset { void __iter__() { } }
-
 
 PYPF_NAMESPACE_END
 

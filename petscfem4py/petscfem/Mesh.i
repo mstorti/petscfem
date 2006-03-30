@@ -1,5 +1,5 @@
 // -*- c++ -*-
-// $Id: Mesh.i,v 1.1.2.4 2006/03/28 22:13:25 rodrigop Exp $
+// $Id: Mesh.i,v 1.1.2.5 2006/03/30 15:18:14 rodrigop Exp $
 
 
 %include Object.i
@@ -15,22 +15,17 @@ PYPF_NAMESPACE_BEGIN
 %template() ::std::vector<Elemset*>;
 
 %extend Mesh {
-
   int __len__() { 
     return self->getSize();
   }
-
   %newobject __getitem__;
-  Elemset* __getitem__(int i) { 
+  Elemset* __getitem__(int i) {
     return self->getElemset(i);
   }
-
   void __setitem__(int i, Elemset* e) { 
     self->setElemset(i, e);
   }
-
 }
-
 %feature("shadow") Mesh::__iter__ %{
 def __iter__(self):
     for i in xrange(len(self)):

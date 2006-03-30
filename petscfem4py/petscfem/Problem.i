@@ -1,5 +1,5 @@
 // -*- c++ -*-
-// $Id: Problem.i,v 1.1.2.2 2006/03/20 16:06:00 rodrigop Exp $
+// $Id: Problem.i,v 1.1.2.3 2006/03/30 15:18:14 rodrigop Exp $
 
 %include petsc.i
 
@@ -12,5 +12,10 @@ PYPF_NAMESPACE_BEGIN
 
 PYPF_NAMESPACE_END
 
+%apply int* OUTPUT {int* local, int* global};
+%apply int* OUTPUT {int* first, int* last};
 
 %include "Problem.h"
+
+%clear int* local, int* global;
+%clear int* first, int* last;

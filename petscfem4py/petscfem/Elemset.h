@@ -1,5 +1,5 @@
 // -*- c++ -*-
-// $Id: Elemset.h,v 1.1.2.6 2006/03/28 22:13:25 rodrigop Exp $
+// $Id: Elemset.h,v 1.1.2.7 2006/03/30 15:18:14 rodrigop Exp $
 
 #ifndef PYPF_ELEMSET_H
 #define PYPF_ELEMSET_H
@@ -12,21 +12,26 @@
 
 PYPF_NAMESPACE_BEGIN
 
-class Elemset : SMARTPTR(Elemset)
+class Elemset : SMARTPTR(Elemset)  
   public Object
 {
   friend class Mesh;
   friend class DofMap;
+  friend class Problem;
 
 #if !defined(SWIG)
-public:
+ public:
   Elemset(Elemset::Base*);
 #endif
-
-private:
+  
+ private:
   Elemset();
   
-public:
+ protected:
+  int nelem, nel;
+  std::vector<int> icone;
+
+ public:
   ~Elemset();
   Elemset(const Elemset&);
   Elemset(const std::string& type, const std::string& name="");
@@ -41,7 +46,6 @@ public:
   typedef std::vector<int> Elem;
   Elem getElem(int i) const;
   void setElem(int i, const Elem& elem);
-
 
   int  getNDof() const;
   void setNDof(int ndof);

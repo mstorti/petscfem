@@ -1,4 +1,4 @@
-// $Id: DofMap.cpp,v 1.1.2.5 2006/03/28 22:13:25 rodrigop Exp $
+// $Id: DofMap.cpp,v 1.1.2.6 2006/03/30 15:18:14 rodrigop Exp $
 
 #include "Mesh.h"
 #include "DofMap.h"
@@ -42,35 +42,28 @@ DofMap::~DofMap()
 
 // DofMap::DofMap()
 //   : Handle(new DofMap::Base), Object(),
-//     nnod(0), ndof(0)
+//     nnod(0), ndof(0),
+//     frozen(false)
 // { 
 //   DofMap::Base* dofmap = *this;
 
-//   dofmap->ident      = NULL;
-//   dofmap->ghost_dofs = NULL;
-//   dofmap->id         = NULL;
-//   dofmap->startproc  = NULL;
-//   dofmap->neqproc    = NULL;
-//   dofmap->tpwgts     = NULL;
-//   dofmap->npart      = NULL;
+//   dofmap->ident         = NULL;
+//   dofmap->ghost_dofs    = NULL;
+//   dofmap->id            = NULL;
+//   dofmap->startproc     = NULL;
+//   dofmap->neqproc       = NULL;
+//   dofmap->tpwgts        = NULL;
+//   dofmap->npart         = NULL;
 //   dofmap->ghost_scatter = NULL;
 //   dofmap->scatter_print = NULL;
+//   dofmap->ghost_dofs    = NULL;
 // }
 
 DofMap::DofMap(DofMap::Base* dm)
   : Handle(dm), Object(),
     nnod(dm->nnod), ndof(dm->ndof),
     frozen(true)
-{ 
-//   if (dofmap->ghost_dofs == NULL)
-//     dofmap->ghost_dofs    = new vector<int>;
-//   if (dofmap->ghost_scatter == NULL)
-//     dofmap->ghost_scatter = new VecScatter;
-//   if (dofmap->scatter_print == NULL)
-//     dofmap->scatter_print = new VecScatter;
-//   if (dofmap->id == NULL)
-//     dofmap->id = new idmap(this->nnod*this->ndof, NULL_MAP);
-}
+{ }
 
 
 DofMap::DofMap(Mesh* mesh, int _ndof)
@@ -90,6 +83,8 @@ DofMap::DofMap(Mesh* mesh, int _ndof)
   dofmap->ghost_scatter = NULL;
   dofmap->scatter_print = NULL;
   dofmap->ghost_dofs    = NULL;
+  
+  //PYPF_ASSERT(this->ndof>0, "invalid value for 'ndof'");
 
   dofmap->ghost_dofs    = new vector<int>;
   dofmap->ghost_scatter = new VecScatter;
@@ -100,18 +95,6 @@ DofMap::DofMap(Mesh* mesh, int _ndof)
   int nnod = dofmap->nnod = this->nnod;
   int ndof = dofmap->ndof = this->ndof;
   dofmap->id = new idmap(nnod*ndof, NULL_MAP);
-
-  for (int i=0; i<mesh->elemsetlist.size(); i++) {
-    Elemset& elemset = *mesh->elemsetlist[i];
-    int  nelem, nel, *icone;
-    elemset.getConnectivity(&nelem, &nel, &icone);
-    for (int j=0; j<nelem*nel; j++) {
-      for (int k=1; k<=ndof; k++) {
-	int edof = dofmap->edof(icone[j], k);
-	dofmap->id->set_elem(edof, edof, 1.);
-      }
-    }
-  }
 
   int size, rank;
   MPI_Comm_size(this->comm, &size);
@@ -129,11 +112,22 @@ DofMap::DofMap(Mesh* mesh, int _ndof)
   dofmap->neqproc   = neqproc;
   dofmap->tpwgts    = tpwgts;
   dofmap->npart     = npart;
-  
+
+  for (int i=0; i<mesh->elemsetlist.size(); i++) {
+    Elemset& elemset = *mesh->elemsetlist[i];
+    int  nelem, nel, *icone;
+    elemset.getConnectivity(&nelem, &nel, &icone);
+    for (int j=0; j<nelem*nel; j++) {
+      for (int k=0; k<ndof; k++) {
+	int edof = dofmap->edof(icone[j], k+1);
+	dofmap->id->set_elem(edof, edof, 1.0);
+      }
+    }
+  }
 }
 
 static void 
-dofmap_set_fixation(Dofmap* dofmap, int node, int field, double value) {
+dofmap_set_fixation(DofMap::Base* dofmap, int node, int field, double value) {
   row_t row;
   dofmap->get_row(node, field, row);
   if (row.size()!=1) throw Error("bad fixation for node/field combination");
@@ -171,49 +165,53 @@ DofMap::addConstraints(int n, int node[], int field[], double coef[])
 void
 DofMap::getSizes(int* local, int* global) const
 {
+  //if (!this->frozen) throw Error("DofMap object is not frozen");
   int size, rank;
   MPI_Comm_size(this->comm, &size);
   MPI_Comm_rank(this->comm, &rank);
   const DofMap& dofmap = *this;
-  *local  = dofmap->neqproc[rank];
-  *global = dofmap->startproc[size];
+  if (local)  *local  = dofmap->neqproc[rank];
+  if (global) *global = dofmap->startproc[size];
 }
 
 void
 DofMap::getRange(int* start, int* end) const
 {
-  DofMap& dofmap = const_cast<DofMap&>(*this);
+  //if (!this->frozen) throw Error("DofMap object is not frozen");
   int rank, dof1, dof2;
   MPI_Comm_rank(this->comm, &rank);
-  dofmap->dof_range(rank, dof1, dof2);
-  *start = dof1;
-  *end   = dof2+1;
+  const DofMap& dofmap =*this;
+  dof1 = dofmap->startproc[rank];
+  dof2 = dof1 + dofmap->neqproc[rank];
+  if (start) *start = dof1;
+  if (end)   *end   = dof2;
 }
 
 void
 DofMap::getRanges(int* size, int* ranges[]) const
 {
+  //if (!this->frozen) throw Error("DofMap object is not frozen");
   const DofMap& dofmap = *this;
-  *size = dofmap->size + 1;
-  *ranges = dofmap->startproc;
+  if (size)   *size = dofmap->size + 1;
+  if (ranges) *ranges = dofmap->startproc;
 }
 
 int
-DofMap::getNnod() const
+DofMap::getNNod() const
 { 
   const DofMap& dofmap = *this;
   return dofmap->nnod;
 };
 
 int
-DofMap::getNdof() const
+DofMap::getNDof() const
 { 
   const DofMap& dofmap = *this;
   return dofmap->ndof;
 };
 
 int
-DofMap::getNfix() const
+DofMap::getNFix() const
 {
   const DofMap& dofmap = *this;
   return dofmap->neqf;

@@ -1,4 +1,4 @@
-// $Id: Elemset.cpp,v 1.1.2.6 2006/03/28 22:13:25 rodrigop Exp $
+// $Id: Elemset.cpp,v 1.1.2.7 2006/03/30 15:18:14 rodrigop Exp $
 
 #include "Elemset.h"
 
@@ -28,27 +28,13 @@ Elemset::~Elemset()
 }
 
 Elemset::Elemset()
-  : Handle(NULL, false), Object()
-{ 
-#if 0
-  Elemset::Base* elemset = *this;
-  elemset->type             = NULL;
-  elemset->icone            = NULL;
-  elemset->epart            = NULL;
-  elemset->epart2           = NULL;
-  elemset->elemprops        = NULL;
-  elemset->elemiprops       = NULL;
-  elemset->elemprops_add    = NULL;
-  elemset->elemiprops_add   = NULL;
-  elemset->elem_iprop_names = NULL;
-  elemset->elem_prop_names  = NULL;
-  elemset->elem_conne       = NULL;
-  elemset->thash            = NULL;
-#endif
-}
+  : Handle(NULL, false), Object(),
+    nelem(0), nel(0), icone()
+{ }
 
 Elemset::Elemset(const Elemset& elset)
-  : Handle(NULL, false), Object(elset)
+  : Handle(NULL, false), Object(elset),
+    nelem(elset.nelem), nel(elset.nel), icone(elset.icone)
 { 
   
   Elemset::Base* input = elset;
@@ -87,7 +73,9 @@ Elemset::Elemset(const Elemset& elset)
   elemset->nelem_here  = input->nelem_here;
   elemset->ghost_elems = da_create(sizeof(int));
   da_concat_da(elemset->ghost_elems, input->ghost_elems);
-  elemset->local_store = new (void*)[input->nelem_here];
+  elemset->local_store = NULL;
+  if (input->local_store)
+    elemset->local_store = new (void*)[input->nelem_here];
 
   // options
   elemset->thash = this->options;
@@ -119,7 +107,8 @@ Elemset::Elemset(const Elemset& elset)
 
 
 Elemset::Elemset(Elemset::Base* base)
-  : Handle(base), Object()
+  : Handle(base), Object(),
+    nelem(base->nelem), nel(base->nel)
 { 
   Elemset::Base* elemset = *this;
   // options
@@ -131,7 +120,8 @@ Elemset::Elemset(Elemset::Base* base)
 
 Elemset::Elemset(const std::string& type,
 		 const std::string& name)
-  : Handle(NULL, false), Object()
+  : Handle(NULL, false), Object(),
+    nelem(0), nel(0), icone()
 {
   // create
   Elemset::Base* elemset = NULL;
@@ -233,8 +223,8 @@ Elemset::setConnectivity(int nelem, int nel, int icone[])
   PYPF_NEW_ARRAY(elemset->epart,      elemset->nelem,              nelem);
   PYPF_NEW_ARRAY(elemset->epart2,     elemset->nelem,              nelem);
 
-  elemset->nelem = nelem;
-  elemset->nel   = nel;
+  this->nelem = elemset->nelem = nelem;
+  this->nel   = elemset->nel   = nel;
   memcpy(elemset->icone, icone, sizeof(int)*nelem*nel);
   for (int i=0; i<nelem*nel; elemset->icone[i++]+=1);
   memset(elemset->elem_conne, 0, sizeof(int)*nel);
@@ -267,7 +257,7 @@ Elemset::setElem(int n, const std::vector<int>& elem)
   if (n<0 || n>=nelem) throw Error("index out of range");
   if (elem.size() != nel) throw Error("invalid number of dimensions");
   int* data = &icone[n*nel];
-  for (int i=0; i<nel; i++) data[i] = elem[i];
+  for (int i=0; i<nel; i++) data[i] = elem[i]+1;
 }
 
 int 

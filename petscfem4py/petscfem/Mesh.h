@@ -1,5 +1,5 @@
 // -*- c++ -*-
-// $Id: Mesh.h,v 1.1.2.5 2006/03/28 22:13:25 rodrigop Exp $
+// $Id: Mesh.h,v 1.1.2.6 2006/03/30 15:18:14 rodrigop Exp $
 
 #ifndef PYPF_MESH_H
 #define PYPF_MESH_H
@@ -25,7 +25,7 @@ class Mesh : SMARTPTR(Mesh)
 #endif
 
  protected:
-  Nodedata* nodedata;
+  Nodedata*             nodedata;
   std::vector<Elemset*> elemsetlist;
 
  public:
@@ -46,7 +46,6 @@ class Mesh : SMARTPTR(Mesh)
   void setUp();
   void clear();
   void view() const;
-  
 
 };
 

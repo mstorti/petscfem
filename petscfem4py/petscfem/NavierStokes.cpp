@@ -1,4 +1,4 @@
-// $Id: NavierStokes.cpp,v 1.1.2.4 2006/03/28 22:13:25 rodrigop Exp $
+// $Id: NavierStokes.cpp,v 1.1.2.5 2006/03/30 15:18:14 rodrigop Exp $
 
 #include "NavierStokes.h"
 
@@ -11,7 +11,6 @@
 
 
 //extern Mesh*          GLOBAL_MESH;
-//extern TextHashTable* GLOBAL_OPTIONS;
 
 PYPF_NAMESPACE_BEGIN
 
@@ -99,31 +98,28 @@ NavierStokes::~NavierStokes()
   PYPF_DELETE_SCLR(nsargs);
 }
 
-NavierStokes::NavierStokes()
-  : Problem(), 
-    nsargs(reinterpret_cast<void*>(new NSArgs))
-{ }
+// NavierStokes::NavierStokes()
+//   : Problem(),
+//     nsargs(reinterpret_cast<void*>(new NSArgs))
+// { }
 
-NavierStokes::NavierStokes(const NavierStokes& ns)
-  : Problem(ns),
-    nsargs(reinterpret_cast<void*>(new NSArgs))
-{ }
-
+// NavierStokes::NavierStokes(const NavierStokes& ns)
+//   : Problem(ns),
+//     nsargs(reinterpret_cast<void*>(new NSArgs))
+// { }
 
 NavierStokes::NavierStokes(Mesh* mesh, DofMap* dofmap) 
   : Problem(mesh, dofmap),
     nsargs(reinterpret_cast<void*>(new NSArgs))
 { }
 
-
-NavierStokes* 
-NavierStokes::fromFile(const std::string& filename)
-{
-  NavierStokes* problem = new NavierStokes();
-  problem->read(filename);
-  return problem;
-}
-
+// NavierStokes* 
+// NavierStokes::fromFile(const std::string& filename)
+// {
+//   NavierStokes* problem = new NavierStokes();
+//   problem->read(filename);
+//   return problem;
+// }
 
 void
 NavierStokes::assemble(Vec x, double t, Vec r, Mat J)

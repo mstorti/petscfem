@@ -14,6 +14,7 @@ class Nodedata : SMARTPTR(Nodedata)
 {
   friend class Mesh;
   friend class DofMap;
+  friend class Problem;
 
 #if !defined(SWIG)
  public:
@@ -21,7 +22,8 @@ class Nodedata : SMARTPTR(Nodedata)
 #endif
 
  protected:
-  int nnod, ndim;
+  int                 nnod;
+  int                 ndim;
   std::vector<double> nodedata;
 
  public:

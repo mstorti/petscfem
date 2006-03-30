@@ -1,4 +1,4 @@
-// $Id: Nodedata.cpp,v 1.1.2.5 2006/03/28 22:13:25 rodrigop Exp $
+// $Id: Nodedata.cpp,v 1.1.2.6 2006/03/30 15:18:14 rodrigop Exp $
 
 #include "Nodedata.h"
 
@@ -138,7 +138,7 @@ Nodedata::setData(int nnod, int ndim, const double xyz[])
 }
 
 
-std::vector<double> 
+std::vector<double>
 Nodedata::getNode(int n) const 
 {
   if (n<0 || n>=this->nnod) throw Error("index out of range");
@@ -185,12 +185,19 @@ Nodedata::view() const
 {
   int nnod = this->nnod;
   int ndim = this->ndim;
-  for (int i=0; i<nnod; i++) {
-    printf("Node %7d:", i);
+  printf("Nodedata Object:\n");
+  printf("  size: nnod=%d, ndim=%d\n", nnod, ndim);
+  printf("  data:");
+  int i=0;
+  while (i<nnod) {
+    if (i>0) printf("       "); 
+    printf(" %d -> ", i);
     for (int j=0; j<ndim; j++) {
-      printf(" %f", this->nodedata[i*ndim+j]);
+      if (j>0) printf(", "); 
+      printf("%g", this->nodedata[i*ndim+j]);
     }
     printf("\n");
+    i++;
   }
 }
 

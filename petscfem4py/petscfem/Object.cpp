@@ -1,4 +1,4 @@
-// $Id: Object.cpp,v 1.1.2.3 2006/03/28 22:13:25 rodrigop Exp $
+// $Id: Object.cpp,v 1.1.2.4 2006/03/30 15:18:14 rodrigop Exp $
 
 #include "Object.h"
 
@@ -14,11 +14,13 @@ Object::~Object()
 { }
 
 Object::Object()
-  : refcnt(0), comm(PETSC_COMM_WORLD), options()
+  : RefCounter(),
+    comm(PETSC_COMM_WORLD), options()
 { }
 
 Object::Object(const Object& obj)
-  : refcnt(0), comm(obj.comm), options(obj.options)
+  : RefCounter(obj),
+    comm(obj.comm), options(obj.options)
 { }
 
 

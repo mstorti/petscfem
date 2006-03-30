@@ -1,5 +1,5 @@
 // -*- c++ -*-
-// $Id: Problem.h,v 1.1.2.4 2006/03/28 22:13:25 rodrigop Exp $
+// $Id: Problem.h,v 1.1.2.5 2006/03/30 15:18:14 rodrigop Exp $
 
 #ifndef PYPF_PROBLEM_H
 #define PYPF_PROBLEM_H
@@ -23,7 +23,8 @@ class Problem :
 {
 
 private:
-  //Problem();
+  Problem();
+  Problem(const Problem&);
 
 protected:
   int nnod, ndim, ndof;
@@ -33,22 +34,20 @@ protected:
 
 public:
   ~Problem();
-  Problem();
-  Problem(const Problem &);
-  Problem(Mesh* mesh, DofMap* dofmap);
+  Problem(Mesh*, DofMap*);
 
+  void setUp();
+  
   Mesh*   getMesh()   const;
   DofMap* getDofMap() const;
 
-  void read(const std::string& filename);
+  void getDofSizes (int* local, int* global) const;
+  void getDofRange (int* first, int* last)   const;
 
-  void buildState(Vec solution, Vec state);
-  void buildSolution(Vec state, Vec solution);
+  void buildSolution (Vec state,    Vec solution) const;
+  void buildState    (Vec solution, Vec state)    const;
 
-  void setUp();
-  void clear();
-  
-
+  //void read(const std::string& filename);
 };
 
 

@@ -1,16 +1,18 @@
 // -*- c++ -*-
-// $Id: macros.h,v 1.1.2.3 2006/03/28 22:13:25 rodrigop Exp $
+// $Id: macros.h,v 1.1.2.4 2006/03/30 15:18:14 rodrigop Exp $
 
 #ifndef PYPF_MACROS_H
 #define PYPF_MACROS_H
 
 
-// #define PYPF_OBJ_GETOPTTBL_DECL \
-// protected: \
-// OptionTable* get_opt_table() const; \
-// private:
-
 #define SMARTPTR(CLASS) public SmartPtr< ::CLASS >,
+
+#define REFCOUNTER(CLASS) : public RefCounter
+
+
+#define PYPF_ASSERT(cond, message) \
+do {if (!(cond)) throw Error((message));} while(0)
+
 
 #define  PYPF_DELETE(delop, member) \
 do {if ((member) != NULL) { delop ((member)); (member) = NULL; }} while(0)
