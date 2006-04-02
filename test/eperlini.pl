@@ -313,6 +313,12 @@ EOM
     close OCT if $octtmpfile;
 }
 
+sub transcript2 {
+    print "## -- Computed values --\n";
+    for $v (@_) { print "# $v: ${$v}\n"; }
+    print "## ---------------------\n";
+}
+
 ## Converts a string to an array of numbers (if posible),
 ## otherwise it leaves a string
 ## usage: $v = conv("1.2 2.3 3.5") -> returns [1.2,2.3,3.5]
