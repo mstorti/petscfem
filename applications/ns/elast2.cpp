@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: elast2.cpp,v 1.8 2006/02/14 23:48:30 mstorti Exp $
+//$Id: elast2.cpp,v 1.9 2006/04/04 14:10:13 mstorti Exp $
 
 #include <src/fem.h>
 #include <src/utils.h>
@@ -15,10 +15,27 @@
 void elasticity2::init() {
 
   int ierr;
+
+#define ELEMPROPS(j,k) VEC2(elemprops,j,k,nelprops)
+#define MAXPROPS 100
+  elprpsindx.mono(MAXPROPS);
+  propel.mono(MAXPROPS);
+  
+  // TGETOPTNDEF_ND(thash,int,ndim,none); //nd
+
+  int iprop=0;
+  Young_modulus_indx = iprop; 
+  ierr = get_prop(iprop,elem_prop_names,
+		  thash,elprpsindx.buff(),propel.buff(), 
+		  "Young_modulus",1);
+  nprops = iprop;
+
+#if 0
   //o Young modulus
   TGETOPTDEF(thash,double,Young_modulus,0.);
   E=Young_modulus;
   assert(Young_modulus>0.);
+#endif
 
   //o Poisson ratio
   TGETOPTDEF(thash,double,Poisson_ratio,0.);
@@ -45,7 +62,7 @@ void elasticity2::init() {
 
   // Plane strain
   if (ndim==2) {
-    double c1=E*(1.-nu)/((1.+nu)*(1.-2.*nu)), c2=E/(2.*(1.+nu)),
+    double c1=(1.-nu)/((1.+nu)*(1.-2.*nu)), c2=1.0/(2.*(1.+nu)),
       c3=nu/(1.-nu);
     C.setel(c1,1,1)
       .setel(c1*c3,1,2)
@@ -67,7 +84,7 @@ void elasticity2::init() {
     }
 #endif
   } else if (ndim==3) {
-    double c1=E*(1.-nu)/((1.+nu)*(1.-2.*nu)), 
+    double c1=(1.-nu)/((1.+nu)*(1.-2.*nu)), 
       c2 = (1-2*nu)/2./(1-nu),
       c3=nu/(1.-nu);
       C.is(1,1,3).is(2,1,3).set(c3)
@@ -84,6 +101,10 @@ void elasticity2::element_connector(const FastMat2 &xloc,
 				   const FastMat2 &state_old,
 				   const FastMat2 &state_new,
 				   FastMat2 &res,FastMat2 &mat){
+  load_props(propel.buff(),elprpsindx.buff(),nprops,
+	     &(ELEMPROPS(elem,0)));
+  double Young_modulus = *(propel.buff()+Young_modulus_indx);
+
   B.reshape(3,ntens,nel,ndim);
   res.set(0.0);
   mat.set(0.0);
@@ -147,7 +168,7 @@ void elasticity2::element_connector(const FastMat2 &xloc,
     vstar.set(vnew).scale(alpha).axpy(vold,1-alpha);
 
     strain.prod(B,xstar,1,-1,-2,-1,-2);
-    stress.prod(C,strain,1,-1,-1);
+    stress.prod(C,strain,1,-1,-1).scale(Young_modulus);
 
     shape.ir(2,ipg+1);
 
@@ -174,7 +195,7 @@ void elasticity2::element_connector(const FastMat2 &xloc,
     mat.rs();
 
     // Jacobian computation
-    mat_pg1.prod(C,B,1,-1,-1,2,3);
+    mat_pg1.prod(C,B,1,-1,-1,2,3).scale(Young_modulus);
     mat_pg2.prod(B,mat_pg1,-1,1,2,-1,3,4);
     mat.is(2,ndim+1,2*ndim).is(4,1,ndim)
       .axpy(mat_pg2,wpgdet).rs();

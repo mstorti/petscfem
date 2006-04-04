@@ -1,6 +1,6 @@
 // -*- mode: C++ -*-
 /*__INSERT_LICENSE__*/
-//$Id: elast2.h,v 1.5 2006/02/14 23:48:30 mstorti Exp $
+//$Id: elast2.h,v 1.6 2006/04/04 14:10:13 mstorti Exp $
 
 #ifndef ELASTICITY2_H
 #define ELASTICITY2_H
@@ -8,12 +8,17 @@
 //-------<*>-------<*>-------<*>-------<*>-------<*>------- 
 /// 
 class  elasticity2 : public adaptor { 
-public: 
+private:
   double rho,E,nu;
   int ntens,nen;
   FastMat2 B,C,Jaco,iJaco,strain,stress,
     res_pg,mat_pg1,mat_pg2,mass_pg,dv,a,tmp,tmp2,
     xnew,xold,xstar,vnew,vold,vstar,tmp3,tmp4;
+  dvector<int> elprpsindx; 
+  int nprops;
+  dvector<double> propel;
+  int Young_modulus_indx;
+public: 
   void init();
   void element_connector(const FastMat2 &xloc,
 			 const FastMat2 &state_old,
