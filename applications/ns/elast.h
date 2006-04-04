@@ -1,6 +1,6 @@
 // -*- mode: C++ -*-
 /*__INSERT_LICENSE__*/
-//$Id: elast.h,v 1.9 2006/04/04 14:10:13 mstorti Exp $
+//$Id: elast.h,v 1.10 2006/04/04 15:32:43 mstorti Exp $
 
 #ifndef ELASTICITY_H
 #define ELASTICITY_H
@@ -9,7 +9,11 @@
 /// 
 class  elasticity : public adaptor { 
 private:
-  double rho,E,nu;
+  dvector<int> elprpsindx; 
+  int nprops;
+  dvector<double> propel;
+  int Young_modulus_indx;
+  double rho,nu,Young_modulus_fac;
   int ntens,nen;
   FastMat2 B,C,Jaco,iJaco,strain,stress,res_pg,mat_pg1,mat_pg2,
     x_new,G,fG,dshapex_scaled,G_body;

@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: elast.cpp,v 1.19 2006/02/14 20:47:23 mstorti Exp $
+//$Id: elast.cpp,v 1.20 2006/04/04 15:32:43 mstorti Exp $
 
 #include <src/fem.h>
 #include <src/utils.h>
@@ -31,10 +31,23 @@ public:
 void elasticity::init() {
 
   int ierr;
-  //o Young modulus
-  TGETOPTDEF(thash,double,Young_modulus,0.);
-  E=Young_modulus;
-  assert(Young_modulus>0.);
+#define ELEMPROPS(j,k) VEC2(elemprops,j,k,nelprops)
+#define MAXPROPS 100
+  elprpsindx.mono(MAXPROPS);
+  propel.mono(MAXPROPS);
+  
+  // TGETOPTNDEF_ND(thash,int,ndim,none); //nd
+
+  int iprop=0;
+  Young_modulus_indx = iprop; 
+  ierr = get_prop(iprop,elem_prop_names,
+		  thash,elprpsindx.buff(),propel.buff(), 
+		  "Young_modulus",1);
+  nprops = iprop;
+
+  //o Scale Young modulus
+  TGETOPTDEF_ND(thash,double,Young_modulus_fac,1.0);
+  assert(Young_modulus_fac>0.);
 
   //o Poisson ratio
   TGETOPTDEF(thash,double,Poisson_ratio,0.);
@@ -84,7 +97,7 @@ void elasticity::init() {
   my_fun2.init(G);
   // Plane strain
   if (ndim==2) {
-    double c1=E*(1.-nu)/((1.+nu)*(1.-2.*nu)), c2=E/(2.*(1.+nu)),
+    double c1=(1.-nu)/((1.+nu)*(1.-2.*nu)), c2=1.0/(2.*(1.+nu)),
       c3=nu/(1.-nu);
     C.setel(c1,1,1)
       .setel(c1*c3,1,2)
@@ -99,14 +112,14 @@ void elasticity::init() {
     if (plate_model) {
       printf("using plate model\n");
       C.set(0.0);
-      double c1 = E/(1.0-nu*nu);
+      double c1 = 1.0/(1.0-nu*nu);
       C.setel(c1,1,1);
-      C.setel(E,2,2);
+      C.setel(1.0,2,2);
       C.setel(c1*(5.0/6.0)*(1.0-nu)/2.0,3,3);
     }
 #endif
   } else if (ndim==3) {
-    double c1=E*(1.-nu)/((1.+nu)*(1.-2.*nu)), 
+    double c1=(1.-nu)/((1.+nu)*(1.-2.*nu)), 
       c2 = (1-2*nu)/2./(1-nu),
       c3=nu/(1.-nu);
       C.is(1,1,3).is(2,1,3).set(c3)
@@ -124,9 +137,16 @@ void elasticity::element_connector(const FastMat2 &xloc,
 				   const FastMat2 &state_old,
 				   const FastMat2 &state_new,
 				   FastMat2 &res,FastMat2 &mat){
-  double E_fac = 1.0;
-  if (nelprops>0) E_fac = elemprops[elem];
-  
+
+  load_props(propel.buff(),elprpsindx.buff(),nprops,
+	     &(ELEMPROPS(elem,0)));
+  double Young_modulus = 
+    *(propel.buff()+Young_modulus_indx)
+    *Young_modulus_fac;
+  if (rand()%100==0) 
+    printf("Young_modulus: %f, fac %f\n",
+	   Young_modulus,Young_modulus_fac);
+
   B.reshape(3,ntens,nel,ndof);
   
   // Levi-Civita tensor generation
@@ -190,14 +210,14 @@ void elasticity::element_connector(const FastMat2 &xloc,
     // B.rs().reshape(2,ntens,nen);
     B.rs();
     strain.prod(B,state_new,1,-1,-2,-1,-2);
-    stress.prod(C,strain,1,-1,-1).scale(E_fac);
+    stress.prod(C,strain,1,-1,-1).scale(Young_modulus);
     
     // Residual computation
     res_pg.prod(B,stress,-1,1,2,-1);
     res.axpy(res_pg,-wpgdet);
 
     // Jacobian computation
-    mat_pg1.prod(C,B,1,-1,-1,2,3).scale(E_fac);
+    mat_pg1.prod(C,B,1,-1,-1,2,3).scale(Young_modulus);
     mat_pg2.prod(B,mat_pg1,-1,1,2,-1,3,4);
     mat.axpy(mat_pg2,wpgdet);
     

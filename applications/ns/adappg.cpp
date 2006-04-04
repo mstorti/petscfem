@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: adappg.cpp,v 1.9 2003/09/11 17:47:14 mstorti Exp $
+//$Id: adappg.cpp,v 1.10 2006/04/04 15:32:43 mstorti Exp $
 
 #include <src/fem.h>
 #include <src/utils.h>
@@ -9,7 +9,6 @@
 
 #include "nsi_tet.h"
 #include "adaptor.h"
-#include "elast.h"
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 #define FUN_RET_MEMBER(name) \
