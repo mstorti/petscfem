@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: elast.cpp,v 1.20 2006/04/04 15:32:43 mstorti Exp $
+//$Id: elast.cpp,v 1.21 2006/04/04 22:36:13 mstorti Exp $
 
 #include <src/fem.h>
 #include <src/utils.h>
@@ -143,9 +143,11 @@ void elasticity::element_connector(const FastMat2 &xloc,
   double Young_modulus = 
     *(propel.buff()+Young_modulus_indx)
     *Young_modulus_fac;
+#if 0
   if (rand()%100==0) 
     printf("Young_modulus: %f, fac %f\n",
 	   Young_modulus,Young_modulus_fac);
+#endif
 
   B.reshape(3,ntens,nel,ndof);
   
