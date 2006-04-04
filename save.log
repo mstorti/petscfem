@@ -4593,3 +4593,6 @@ tag: beta-3.49.40 on Wed, 29 Mar 2006 09:54:33 -0300 by mstorti in minerva.cerid
 ----------
 tag: beta-3.49.41 on Wed, 29 Mar 2006 11:25:44 -0300 by mstorti in minerva.ceride.gov.ar
      > Added `Uref' option ro `advabso'. 
+----------
+tag: beta-3.49.42 on Tue, 04 Apr 2006 12:34:05 -0300 by mstorti in aquiles
+     > Now `Young_modulus' may be per-element prop in `elasticity'. 
