@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: mmoveopt.cpp,v 1.1 2005/10/25 12:43:53 mstorti Exp $
+//$Id: mmoveopt.cpp,v 1.2 2006/04/05 16:49:08 mstorti Exp $
 
 #include <src/fem.h>
 #include <src/utils.h>
@@ -194,6 +194,7 @@ element_connector(const FastMat2 &xloc,
     d2SldW2.scale(3.);
 
   }
+  if (V<=0.0) set_error(1);
 
   Q = C*V/Sl;
 
