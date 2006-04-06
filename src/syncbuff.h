@@ -1,6 +1,6 @@
 // -*- mode: c++ -*-
 //__INSERT_LICENSE__
-// $Id: syncbuff.h,v 1.9 2004/01/21 18:37:39 mstorti Exp $
+// $Id: syncbuff.h,v 1.10 2006/04/06 21:35:39 mstorti Exp $
 #include <list>
 #include <iostream>
 #include <src/distcont.h>
@@ -133,7 +133,7 @@ public:
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 /** Synchronized printing buffer. Objects are added with 
-    a #push# operation and then a #print# operation dos the 
+    a #push# operation and then a #print# operation does the 
     scatter, sorting according to the keys and printing.  */ 
 class KeyedOutputBuffer : public SyncBuffer<KeyedLine> {
 private:

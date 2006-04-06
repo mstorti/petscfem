@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: advdif_fsi.cpp,v 1.7 2006/03/27 21:19:42 mstorti Exp $
+//$Id: advdif_fsi.cpp,v 1.8 2006/04/06 21:35:39 mstorti Exp $
 
 #include <src/debug.h>
 #include <set>
@@ -90,7 +90,23 @@ int fsi_main() {
   Debug debug(0,PETSC_COMM_WORLD);
   GLOBAL_DEBUG = &debug;
 
-  ierr = PetscOptionsGetString(PETSC_NULL,"-case",fcase,FLEN,&flg); CHKERRA(ierr);
+  int activate_debug_line=0;
+  ierr = PetscOptionsGetInt(PETSC_NULL,"-activate_debug",
+			    &activate_debug_line,&flg);
+  printf("[%d] activate_debug_line %d\n",
+	 MY_RANK,activate_debug_line);
+  CHKERRA(ierr);
+  PetscFinalize();
+  exit(0);
+
+  if (activate_debug_line) {
+    if (!MY_RANK) printf("Activating debug feature.");
+    debug.activate();
+    Debug::init();
+  }
+
+  ierr = PetscOptionsGetString(PETSC_NULL,"-case",fcase,FLEN,&flg); 
+  CHKERRA(ierr);
   if (!flg) {
     PetscPrintf(PETSC_COMM_WORLD,
 		"Option \"-case <filename>\" not passed to PETSc-FEM!!\n");
@@ -103,8 +119,9 @@ int fsi_main() {
   GLOBAL_OPTIONS = mesh->global_options;
 
   //o Activate debugging
-  GETOPTDEF(int,activate_debug,0);
+  TGETOPTDEF(GLOBAL_OPTIONS,int,activate_debug,0);
   if (activate_debug) {
+    if (!MY_RANK) printf("Activating debug feature.");
     debug.activate();
     Debug::init();
   }

@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: readmesh.cpp,v 1.116 2005/12/06 21:45:32 mstorti Exp $
+//$Id: readmesh.cpp,v 1.117 2006/04/06 21:35:39 mstorti Exp $
 #ifndef _GNU_SOURCE 
 #define _GNU_SOURCE 
 #endif
@@ -10,6 +10,8 @@
 #include <src/idmap.h>
 #include <src/idmap.h>
 #include <src/generror.h>
+#include <src/syncbuff.h>
+#include <src/debug.h>
 
 // Apparently __log2 from Metis collides with some name in the GNU package.
 // This is a workaround. 
@@ -918,6 +920,33 @@ if (!(bool_cond)) { PetscPrintf(PETSC_COMM_WORLD, 				\
     
   }
     
+  //o Additional properties (used by the element routine)
+  TGETOPTDEF(mesh->global_options,int,print_hostnames,0);
+  if (size>1 && print_hostnames) {
+#define MAX_NAME_LEN 200
+    char line[MAX_NAME_LEN];
+    ierr = gethostname(line,MAX_NAME_LEN);
+    if (ierr) sprintf(line,"<unknown>");
+#if 0
+    printf("[%d] ierr %d hostname %s\n",myrank,ierr,line);
+#elif 0
+    PetscSynchronizedPrintf(PETSC_COMM_WORLD,
+			    "[%d] host %s\n",myrank,line);
+    PetscSynchronizedFlush(PETSC_COMM_WORLD);
+#else
+    GLOBAL_DEBUG->trace("trace 0");
+    KeyedOutputBuffer buff;
+    buff.cat_printf("[%d] hostname %s\n",myrank,line);
+    GLOBAL_DEBUG->trace("trace 1");
+    buff.push(myrank);
+    GLOBAL_DEBUG->trace("trace 2");
+    buff.flush();
+    GLOBAL_DEBUG->trace("trace 3");
+    PetscFinalize();
+    exit(0);
+#endif
+  }
+
   // nelemsets:= total number of elemsets in the mesh
   int nelemsets=da_length(mesh->elemsetlist);
 
