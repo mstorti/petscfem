@@ -4596,3 +4596,6 @@ tag: beta-3.49.41 on Wed, 29 Mar 2006 11:25:44 -0300 by mstorti in minerva.cerid
 ----------
 tag: beta-3.49.42 on Tue, 04 Apr 2006 12:34:05 -0300 by mstorti in aquiles
      > Now `Young_modulus' may be per-element prop in `elasticity'. 
+----------
+tag: beta-3.49.43 on Thu, 06 Apr 2006 13:33:21 -0300 by mstorti in minerva.ceride.gov.ar
+     > Implemented `dvector_read_parallel' and `dvector_clone_parallel'. 
