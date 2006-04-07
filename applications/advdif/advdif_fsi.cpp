@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: advdif_fsi.cpp,v 1.8 2006/04/06 21:35:39 mstorti Exp $
+//$Id: advdif_fsi.cpp,v 1.9 2006/04/07 12:24:06 mstorti Exp $
 
 #include <src/debug.h>
 #include <set>
@@ -93,11 +93,7 @@ int fsi_main() {
   int activate_debug_line=0;
   ierr = PetscOptionsGetInt(PETSC_NULL,"-activate_debug",
 			    &activate_debug_line,&flg);
-  printf("[%d] activate_debug_line %d\n",
-	 MY_RANK,activate_debug_line);
   CHKERRA(ierr);
-  PetscFinalize();
-  exit(0);
 
   if (activate_debug_line) {
     if (!MY_RANK) printf("Activating debug feature.");

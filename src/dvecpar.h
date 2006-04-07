@@ -1,11 +1,14 @@
 // -*- mode: C++ -*- 
 /*__INSERT_LICENSE__*/
-// $Id: dvecpar.h,v 1.1 2006/04/06 16:33:12 mstorti Exp $
+// $Id: dvecpar.h,v 1.2 2006/04/07 12:24:06 mstorti Exp $
 #ifndef PETSCFEM_DVECPAR_H
 #define PETSCFEM_DVECPAR_H
 
-#include <src/dvector.h>
 #include <mpi.h>
+#include <petsc.h>
+#include <src/dvector.h>
+
+extern int MY_RANK,SIZE;
 
 template<class T>
 MPI_Datatype dvector_mpi_type();
