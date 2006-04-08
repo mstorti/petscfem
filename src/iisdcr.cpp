@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: iisdcr.cpp,v 1.57 2006/03/27 19:12:06 mstorti Exp $
+//$Id: iisdcr.cpp,v 1.58 2006/04/08 21:56:09 mstorti Exp $
 
 // fixme:= this may not work in all applications
 extern int MY_RANK,SIZE;
@@ -531,19 +531,14 @@ int IISDMat::create_a() {
   PetscSynchronizedFlush(PETSC_COMM_WORLD);
 #endif
 
-  GLOBAL_DEBUG->trace("in create::iisdmat_print_statistics - begin");
   if (iisdmat_print_statistics) {
-    GLOBAL_DEBUG->trace("in create::iisdmat_print_statistics 0");
     if (!myrank) printf("IISDMat -- dof statistics:\n");
     printf("[%d] iisd_subpart_auto: %d\n",myrank,iisd_subpart_auto);
-    GLOBAL_DEBUG->trace("in create::iisdmat_print_statistics 0.1");
     if (iisd_subpart_auto && !myrank) 
       printf( "-- Automatically choosing number of subdomains"
 	      " with iisd_subpart_auto %d\n",iisd_subpart_auto);
     int nsubdos;
-    GLOBAL_DEBUG->trace("in create::iisdmat_print_statistics 1");
     MPI_Allreduce(&iisd_subpart,&nsubdos,1,MPI_INT,MPI_SUM, comm);
-    GLOBAL_DEBUG->trace("in create::iisdmat_print_statistics 2");
 
     PetscPrintf(comm,
 		"total %d, local %d, int %d, subdo's\n",neq,n_loc_tot,n_int_tot);
@@ -551,14 +546,11 @@ int IISDMat::create_a() {
 		"---\n"
 		//  5|   0|   5|   0|   5|   0|   5|   0|   5|   0|   5|   0|   5|   0|
 		"Proc. Total eqs   Subdo's     Local       Int    PtrLoc    PtrInt\n");
-    GLOBAL_DEBUG->trace("in create::iisdmat_print_statistics 3");
     PetscSynchronizedPrintf(comm,"[%2d]   %8d  %8d  %8d  %8d  %8d  %8d\n",
 			    myrank,neqp,iisd_subpart,n_loc,n_int,n_locp,n_intp);
     PetscSynchronizedFlush(comm); 
-    GLOBAL_DEBUG->trace("in create::iisdmat_print_statistics 4");
     PetscPrintf(comm,"---\n"); 
   }
-  GLOBAL_DEBUG->trace("in create::iisdmat_print_statistics - after");
 
 #ifdef PRINT_LOCAL_INT_PARTITION_TABLE
   if (myrank==0) {

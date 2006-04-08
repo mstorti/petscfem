@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: mainutl.cpp,v 1.25 2006/03/17 00:58:38 mstorti Exp $
+//$Id: mainutl.cpp,v 1.26 2006/04/08 21:56:09 mstorti Exp $
  
 #include "fem.h"
 #include "utils.h"
@@ -256,7 +256,6 @@ int read_vector(const char *filename,Vec x,Dofmap *dofmap,int myrank) {
   PetscPrintf(PETSC_COMM_WORLD,"Reading vector from file \"%s\"\n",filename);
   dvector<double> xdof;
   xdof.mono(dofmap->neqtot);
-  GLOBAL_DEBUG->trace("en read_vector trace 0");
   if (myrank==0) {
     dvector<double> xext;
     xext.mono(dofmap->nnod*ndof);
@@ -292,26 +291,20 @@ int read_vector(const char *filename,Vec x,Dofmap *dofmap,int myrank) {
     xext.clear();
   } 
   CHECK_PAR_ERR(ierro,"Error reading vector from file.");
-  GLOBAL_DEBUG->trace("en read_vector trace 1");
 
   ierr = MPI_Bcast (xdof.buff(),dofmap->neqtot,
 		    MPI_DOUBLE,0,PETSC_COMM_WORLD);
-  GLOBAL_DEBUG->trace("en read_vector trace 2");
 
   for (int k=0; k<dofmap->neq; k++) {
     if (dofmap->dof1 <= k+1 <= dofmap->dof2) {
       VecSetValue(x,k,xdof.e(k),INSERT_VALUES);
     }
   }
-  GLOBAL_DEBUG->trace("en read_vector trace 3");
   xdof.clear();
-  GLOBAL_DEBUG->trace("en read_vector trace 4");
   // PetscPrintf(PETSC_COMM_WORLD,"Values set.\n",dofmap->nnod);
   ierr = VecAssemblyBegin(x); CHKERRQ(ierr);
   ierr = VecAssemblyEnd(x); CHKERRQ(ierr);
-  GLOBAL_DEBUG->trace("en read_vector trace 5");
   PetscPrintf(PETSC_COMM_WORLD,"Done.\n",filename);
-  GLOBAL_DEBUG->trace("en read_vector trace 6");
   return ierr;
 }
 
