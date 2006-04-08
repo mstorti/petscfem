@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: readmesh.cpp,v 1.118 2006/04/07 12:24:06 mstorti Exp $
+//$Id: readmesh.cpp,v 1.119 2006/04/08 20:37:15 mstorti Exp $
 #ifndef _GNU_SOURCE 
 #define _GNU_SOURCE 
 #endif
@@ -36,6 +36,7 @@ extern "C" {
 #include <queue>
 #include <src/getprop.h>
 #include <src/pfobject.h>
+#include <src/dvecpar.h>
 
 #undef TRACE
 #if 0
@@ -1804,6 +1805,13 @@ if (!(bool_cond)) { PetscPrintf(PETSC_COMM_WORLD, 				\
 
   //fclose(fid);
   astr_destroy(linecopy);
+
+  // This is never called!
+  // It's just a trick to ensure that the
+  // `parallel_read' routines are implemented in the binary
+  dvector<int> v;
+  static int dum=0;
+  if (dum) dvector_read_parallel(NULL,v);
  
   return 0;
 }
