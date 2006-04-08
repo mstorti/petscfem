@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: readmesh.cpp,v 1.119 2006/04/08 20:37:15 mstorti Exp $
+//$Id: readmesh.cpp,v 1.120 2006/04/08 22:33:47 mstorti Exp $
 #ifndef _GNU_SOURCE 
 #define _GNU_SOURCE 
 #endif
@@ -37,6 +37,7 @@ extern "C" {
 #include <src/getprop.h>
 #include <src/pfobject.h>
 #include <src/dvecpar.h>
+#include <src/dvecpar2.h>
 
 #undef TRACE
 #if 0
