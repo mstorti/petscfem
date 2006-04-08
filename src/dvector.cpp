@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: dvector.cpp,v 1.7 2005/01/17 23:51:25 mstorti Exp $
+//$Id: dvector.cpp,v 1.8 2006/04/08 23:02:03 mstorti Exp $
  
 #include <src/dvector.h>
 #include <src/dvector2.h>
@@ -7,6 +7,8 @@
 // Explicit instantiation for `int' and `double'
 template class dvector<double>;
 template class dvector<int>;
+template class dvector<float>;
+template class dvector<char>;
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 int dvector<double>::read(FILE *fid,double &t) {
@@ -69,4 +71,3 @@ scale(double alpha) {
     ref(j) *= alpha;
   return *this;
 }
-

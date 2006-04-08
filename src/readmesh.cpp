@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: readmesh.cpp,v 1.120 2006/04/08 22:33:47 mstorti Exp $
+//$Id: readmesh.cpp,v 1.121 2006/04/08 23:02:03 mstorti Exp $
 #ifndef _GNU_SOURCE 
 #define _GNU_SOURCE 
 #endif
@@ -1810,10 +1810,16 @@ if (!(bool_cond)) { PetscPrintf(PETSC_COMM_WORLD, 				\
   // This is never called!
   // It's just a trick to ensure that the
   // `parallel_read' routines are implemented in the binary
-  dvector<int> v;
   static int dum=0;
-  if (dum) dvector_read_parallel(NULL,v);
- 
+  if (dum) {
+#define DOINST(type)				\
+    dvector<type> v_##type;			\
+    dvector_read_parallel(NULL,v_##type)
+    DOINST(int);
+    DOINST(double);
+    DOINST(char);
+    DOINST(float);
+  }
   return 0;
 }
 
