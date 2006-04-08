@@ -1,6 +1,6 @@
 // -*- mode: C++ -*- 
 /*__INSERT_LICENSE__*/
-// $Id: dvecpar.h,v 1.4 2006/04/08 21:35:17 mstorti Exp $
+// $Id: dvecpar.h,v 1.5 2006/04/08 21:37:13 mstorti Exp $
 #ifndef PETSCFEM_DVECPAR_H
 #define PETSCFEM_DVECPAR_H
 
@@ -11,7 +11,9 @@
 
 
 /** Clones a dvector object from the #root# processor to all
-    the others (like #MPI_Bcast()#). 
+    the others (like #MPI_Bcast()#). For basic types recognized 
+    by MPI the broadcast is done using the MPI type. Otherwise it 
+    is done in #MPI_CHAR# form. 
     @param w (input/output) the dvector to be broadcasted. As 
     a side effect it is defragmented in the root procesor and
     is created as defragmented in all others.
@@ -24,11 +26,9 @@ dvector_clone_parallel(dvector<T> &w,int root=0);
 /** Reads a vector in the #root# processor and broadcasts it to 
     all the others. The final vectors are defragmented. 
     @param file (input) The name of the file
-    @param w (input/output) the dvector to be broadcasted. As 
-    a side effect it is defragmented in the root procesor and
-    is created as defragmented in all others.
+    @param w (input/output) the dvector to be read. 
     @param root (input) the processor from which the dvector 
-    is boradcasted */ 
+    is read and broadcasted */ 
 template<class T>
 void 
 dvector_read_parallel(const char *file,
