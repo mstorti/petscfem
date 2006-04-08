@@ -1,6 +1,6 @@
 // -*- mode: C++ -*- 
 /*__INSERT_LICENSE__*/
-// $Id: dvecpar2.h,v 1.1 2006/04/08 21:35:17 mstorti Exp $
+// $Id: dvecpar2.h,v 1.2 2006/04/08 21:37:35 mstorti Exp $
 #ifndef PETSCFEM_DVECPAR2_H
 #define PETSCFEM_DVECPAR2_H
 
@@ -14,8 +14,6 @@
 extern int MY_RANK,SIZE;
 
 #define MPI_TYPE_UNDEFINED INT_MAX
-
-extern Debug *GLOBAL_DEBUG;
 
 template<class T>
 class dvector_mpi_type {
@@ -34,7 +32,6 @@ dvector_clone_parallel(dvector<T> &w,int root=0) {
   if (MY_RANK!=root) w.resize(size);
   w.defrag();
   MPI_Datatype t = dvector_mpi_type<T>().type();
-  GLOBAL_DEBUG->trace("en clone, antes de Bcast");
   if (t!=MPI_TYPE_UNDEFINED) {
     ierr = MPI_Bcast(w.buff(), size, MPI_DOUBLE, 
 		     root,PETSC_COMM_WORLD);
@@ -44,7 +41,6 @@ dvector_clone_parallel(dvector<T> &w,int root=0) {
 		     root,PETSC_COMM_WORLD);
     assert(!ierr);
   }
-  GLOBAL_DEBUG->trace("en clone, despues de Bcast");
 }
 
 template<class T>

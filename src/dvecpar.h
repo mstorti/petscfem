@@ -1,6 +1,6 @@
 // -*- mode: C++ -*- 
 /*__INSERT_LICENSE__*/
-// $Id: dvecpar.h,v 1.5 2006/04/08 21:37:13 mstorti Exp $
+// $Id: dvecpar.h,v 1.6 2006/04/08 21:37:46 mstorti Exp $
 #ifndef PETSCFEM_DVECPAR_H
 #define PETSCFEM_DVECPAR_H
 
@@ -8,7 +8,6 @@
 #include <mpi.h>
 #include <petsc.h>
 #include <src/dvector.h>
-
 
 /** Clones a dvector object from the #root# processor to all
     the others (like #MPI_Bcast()#). For basic types recognized 
