@@ -1,5 +1,5 @@
 #__INSERT_LICENSE__
-# $Id: Makefile,v 1.24 2005/01/26 10:54:51 mstorti Exp $ 
+# $Id: Makefile,v 1.25 2006/04/08 20:36:13 mstorti Exp $ 
 
 #s Local Targets
 #w all tests
@@ -7,7 +7,7 @@ tests: sparse dvector test_cloud test10
 
 sp: sp.bin
 
-SRCS = sp.cpp tryme7.cpp tryme8.cpp test10.cpp
+SRCS = sp.cpp tryme7.cpp tryme8.cpp test10.cpp test11.cpp
 
 PETSCFEM_DIR = ../..
 include $(PETSCFEM_DIR)/Makefile.base
@@ -105,5 +105,8 @@ test10: test10.bin
 	octave -qH test10_ini.m
 	test10.bin > test10_output.tmp
 	octave -qH test10_verif.m > test10_verif.tmp
+
+test11.bin: test11.o $(LIB_P)
+	g++ $(CXXOPTFLAGS) -o $@ $< $(LDFLAGS_NO_PROG_LIB)
 
 #s
