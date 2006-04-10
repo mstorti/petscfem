@@ -4603,3 +4603,6 @@ tag: beta-3.49.43 on Thu, 06 Apr 2006 13:33:21 -0300 by mstorti in minerva.cerid
 tag: beta-3.49.44 on Sat, 08 Apr 2006 17:37:23 -0300 by mstorti in spider
      > Added dummy lines to `readmesh.cpp' in order to instantiate de 
      > `dvector_read_parallel' stuff in the binaries. 
+----------
+tag: beta-3.49.45 on Mon, 10 Apr 2006 19:15:26 -0300 by mstorti in spider
+     > Added `Hloc' feature for `adaptor'
