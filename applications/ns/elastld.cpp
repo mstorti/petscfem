@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: elastld.cpp,v 1.10 2006/03/20 02:02:53 mstorti Exp $
+//$Id: elastld.cpp,v 1.11 2006/04/10 22:15:10 mstorti Exp $
 
 #include <src/fem.h>
 #include <src/utils.h>
@@ -76,6 +76,7 @@ void ld_elasticity::element_connector(const FastMat2 &xloc,
 				   FastMat2 &res,FastMat2 &mat){
   res.set(0.);
   mat.set(0.);
+  if (rand()%1000==0) Hloc.print("Hloc: ");
 
   // loop over Gauss points
   for (int ipg=0; ipg<npg; ipg++) {

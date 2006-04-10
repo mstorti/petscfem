@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: adaptor.cpp,v 1.14 2006/03/13 02:12:25 mstorti Exp $
+//$Id: adaptor.cpp,v 1.15 2006/04/10 22:15:10 mstorti Exp $
 
 #include <src/fem.h>
 #include <src/utils.h>
@@ -103,7 +103,10 @@ int adaptor::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
   // Physical properties
   int iprop=0, elprpsindx[MAXPROP]; double propel[MAXPROP];
   int nprops=iprop;
-  
+
+  nH = nu-ndim;
+  Hloc.resize(2,nel,nH);
+
   //o Type of element geometry to define Gauss Point data
   TGETOPTDEF_S(thash,string,geometry,cartesian2d);
   //GPdata gp_data(geom,ndim,nel,npg);
@@ -116,6 +119,8 @@ int adaptor::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
   TGETOPTDEF(thash,int,jacobian_fdj_print,1);
   //o Use FDJ for computations. 
   TGETOPTDEF(thash,int,use_jacobian_fdj,0);
+  //o Compute variables #H#
+  TGETOPTDEF(thash,int,compute_H_fields,0);
 
   if (use_jacobian_fdj) 
     jacobian_fdj_compute = 1;
@@ -166,7 +171,10 @@ int adaptor::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
     for (kloc=0; kloc<nel; kloc++) {
       node = ICONE(k,kloc);
       xloc.ir(1,kloc+1).set(&NODEDATA(node-1,0));
+      if (nH>0 && compute_H_fields)
+	Hloc.ir(1,kloc+1).set(&NODEDATA(node-1,0)+ndim);
     }
+    Hloc.rs();
     xloc.rs();
 
     if (comp_mat_res) {

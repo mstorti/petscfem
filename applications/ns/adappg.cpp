@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: adappg.cpp,v 1.10 2006/04/04 15:32:43 mstorti Exp $
+//$Id: adappg.cpp,v 1.11 2006/04/10 22:15:10 mstorti Exp $
 
 #include <src/fem.h>
 #include <src/utils.h>
@@ -44,6 +44,7 @@ void adaptor_pg::init() {
   dshapexi_m.resize(2,ndimel,nel);
 
   elemset_init();
+
 }
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 

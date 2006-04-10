@@ -1,6 +1,6 @@
 // -*- mode: C++ -*-
 /*__INSERT_LICENSE__*/
-//$Id: adaptor.h,v 1.13 2006/02/04 14:25:07 mstorti Exp $
+//$Id: adaptor.h,v 1.14 2006/04/10 22:15:10 mstorti Exp $
 #ifndef ADAPTOR_H
 #define ADAPTOR_H
 
@@ -13,6 +13,7 @@ class adaptor : public ns_volume_element {
 private:
   /// Flags whether the elements have been initialized or not
   int elem_init_flag;
+  int nH;
 public: 
   adaptor();
   /// This should not be defined by the user...
@@ -69,6 +70,8 @@ public:
   virtual void element_init() { } 
 
   void after_assemble(const char *jobinfo);
+  /** Contains constant fields for the element */
+  FastMat2 Hloc;
 };
 
 //-------<*>-------<*>-------<*>-------<*>-------<*>------- 
