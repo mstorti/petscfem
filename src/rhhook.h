@@ -1,6 +1,6 @@
 // -*- mode: C++ -*-
 /*__INSERT_LICENSE__*/
-//$Id: rhhook.h,v 1.2 2006/04/11 13:23:03 mstorti Exp $
+//$Id: rhhook.h,v 1.3 2006/04/11 16:44:46 mstorti Exp $
 
 #ifndef RHHOOK_H
 #define RHHOOK_H
@@ -14,6 +14,7 @@
 class read_hfields_hook : public Hook {
 private:
   int nu, ndim, nnod;
+  int read_hfields_ignore_extra_nodes;
   string read_hfields_file;
   void read_hfields();
   Mesh *mesh_p;
