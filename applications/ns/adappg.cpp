@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: adappg.cpp,v 1.12 2006/04/11 00:48:09 mstorti Exp $
+//$Id: adappg.cpp,v 1.13 2006/04/11 13:23:00 mstorti Exp $
 
 #include <src/fem.h>
 #include <src/utils.h>
@@ -91,6 +91,9 @@ void adaptor_pg::element_connector(const FastMat2 &xloc,
 #define shape    (adaptor::shape)
 #define dshapex  (adaptor::dshapex)
 #define dshapexi (adaptor::dshapexi)
+
+  res.set(0.0);
+  mat.set(0.0);
 
   // loop over Gauss points
   elem_init();

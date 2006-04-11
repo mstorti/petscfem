@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: errestim.cpp,v 1.3 2006/04/11 01:31:00 mstorti Exp $
+//$Id: errestim.cpp,v 1.4 2006/04/11 13:23:00 mstorti Exp $
 
 #include <src/fem.h>
 #include <src/utils.h>
@@ -34,16 +34,9 @@ pg_connector(const FastMat2 &xpg,
   assert(ndof==1);
   du.set(state_new_pg).rest(state_old_pg).scale(rec_Dt);
   double g = grad_H.sum_square_all();
+  g = pow(g,norm_expo/2.0);
   G.setel(g,1);
-  tmp.set(G); // G will be the error estimator
-  // tmp.print("tmp: ");
-  tmp.rest(du);
+  tmp.set(G).rest(du);
   res_pg.prod(shape(),tmp,1,2);
   mat_pg.set(0.0);
-#if 0
-  xpg.print("xpg:");
-  H.print("H: ");
-  grad_H.print("grad_H: ");
-#endif
-  
 }

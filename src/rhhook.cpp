@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: rhhook.cpp,v 1.1 2006/04/11 12:36:20 mstorti Exp $
+//$Id: rhhook.cpp,v 1.2 2006/04/11 13:23:03 mstorti Exp $
 
 #include <src/debug.h>
 #include <src/fem.h>
@@ -10,7 +10,7 @@
 #include <src/hook.h>
 #include <src/rhhook.h>
 #include <src/dvector.h>
-#include <src/dvector2.h>
+#include <src/dvecpar.h>
 
 extern int MY_RANK, SIZE;
 
@@ -18,22 +18,40 @@ extern int MY_RANK, SIZE;
 void read_hfields_hook::
 init(Mesh &mesh_a,Dofmap &dofmap_a,
      const char *name_a) {
-#if 0
-  nu = mesh_a.nodedata->nu;
-  assert(nu==2*ndim);
+  int ierr;
 
-  // Store original coords for reference
-  asdp->coords0.a_resize(2,asdp->nnod,ndim);
-  for (int j=0; j<asdp->nnod; j++)
-    for (int k=0; k<ndim; k++) 
-      asdp->coords0.e(j,k)=COORDS(j,k);
-#endif
+  mesh_p = &mesh_a;
+  nu = mesh_a.nodedata->nu;
+  ndim = mesh_a.nodedata->ndim;
+  nnod = mesh_a.nodedata->nnod;
+
+  //o File where to read the H fields
+  TGETOPTDEF_S_ND(mesh_a.global_options,string,read_hfields_file,"Hfields.tmp");
+
+  read_hfields();
 }
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 void read_hfields_hook::
-time_step_pre(double time,int step) {}
+time_step_pre(double time,int step) {
+  read_hfields();
+}
 
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+void read_hfields_hook::read_hfields() {
+  dvector<double> hfields;
+  dvector_read_parallel(read_hfields_file.c_str(),hfields);
+
+  int nH = nu-ndim;
+  assert(hfields.size() == nH*nnod);
+  double *coords = mesh_p->nodedata->nodedata;
+#define COORDSP(j,k) VEC2(coords,j,k,nu)
+  for (int j=0; j<nnod; j++)
+    for (int k=0; k<nH; k++) 
+      COORDSP(j,ndim+k) = hfields.e(j,k);
+}
+
+#if 0
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 void read_hfields_hook::
 time_step_post(double time,int step,
@@ -43,3 +61,4 @@ time_step_post(double time,int step,
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 void read_hfields_hook::close() {
 }
+#endif
