@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: adappg.cpp,v 1.11 2006/04/10 22:15:10 mstorti Exp $
+//$Id: adappg.cpp,v 1.12 2006/04/11 00:48:09 mstorti Exp $
 
 #include <src/fem.h>
 #include <src/utils.h>
@@ -23,6 +23,16 @@ FastMat2 & adaptor_pg::dshapex() { return adaptor::dshapex; }
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 void adaptor_pg::init() {
+
+  int ierr;
+
+  //o Compute variables #H#
+  TGETOPTDEF_ND(thash,int,compute_H_fields,0);
+  if (compute_H_fields) {
+    H.resize(1,nH);
+    grad_H.resize(2,ndim,nH);
+  }
+
   // This covers may real cases, it only remains lines in 3D.
   // But maybe it should work also. 
   assert(ndimel==ndim || ndimel==ndim-1);
@@ -117,13 +127,17 @@ void adaptor_pg::element_connector(const FastMat2 &xloc,
     xpg.prod(shape,xloc,-1,-1,1);
     state_new_pg.prod(shape,state_new,-1,-1,1);
     state_old_pg.prod(shape,state_old,-1,-1,1);
+
+    if (compute_H_fields) {
+      H.prod(shape,Hloc,-1,-1,1);
+      grad_H.prod(dshapex,Hloc,1,-1,-1,2);
+    }
     shape.rs();
 
     pg_connector(xpg,state_old_pg,grad_state_old_pg,
 		 state_new_pg,grad_state_new_pg,res_pg,mat_pg);
     mat.axpy(mat_pg,wpgdet);
     res.axpy(res_pg,wpgdet);
-    
   }
   elem_end();
 }

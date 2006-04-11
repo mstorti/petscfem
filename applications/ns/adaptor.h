@@ -1,6 +1,6 @@
 // -*- mode: C++ -*-
 /*__INSERT_LICENSE__*/
-//$Id: adaptor.h,v 1.14 2006/04/10 22:15:10 mstorti Exp $
+//$Id: adaptor.h,v 1.15 2006/04/11 00:48:10 mstorti Exp $
 #ifndef ADAPTOR_H
 #define ADAPTOR_H
 
@@ -13,7 +13,6 @@ class adaptor : public ns_volume_element {
 private:
   /// Flags whether the elements have been initialized or not
   int elem_init_flag;
-  int nH;
 public: 
   adaptor();
   /// This should not be defined by the user...
@@ -72,6 +71,7 @@ public:
   void after_assemble(const char *jobinfo);
   /** Contains constant fields for the element */
   FastMat2 Hloc;
+  int nH;
 };
 
 //-------<*>-------<*>-------<*>-------<*>-------<*>------- 
@@ -86,6 +86,7 @@ public:
     parallel to the surface. Also the user has acces to the normal to
     the element.  */
 class adaptor_pg : public adaptor { 
+private:
   /** User defined callback function for the `adaptor' class. 
       Implemented in this class. */
   void init();
@@ -101,6 +102,7 @@ class adaptor_pg : public adaptor {
   FastMat2 Jaco,grad_state_new_pg,grad_state_old_pg,
     state_old_pg,state_new_pg,res_pg,mat_pg,
     xpg,normal_m,g,ig,tmp,shape_m,dshapexi_m;
+  int compute_H_fields;
 public: 
   /** @name Call back functions. */ 
   //@{
@@ -138,6 +140,7 @@ public:
   FastMat2 &shape();
   FastMat2 &dshapexi();
   FastMat2 &dshapex();
+  FastMat2 H, grad_H;
 };
 
 #endif
