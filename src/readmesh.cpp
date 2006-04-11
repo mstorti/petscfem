@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: readmesh.cpp,v 1.111 2005/05/01 18:38:35 mstorti Exp $
+//$Id: readmesh.cpp,v 1.111.10.1 2006/04/11 21:26:05 rodrigop Exp $
 #ifndef _GNU_SOURCE 
 #define _GNU_SOURCE 
 #endif
@@ -611,6 +611,7 @@ int read_mesh(Mesh *& mesh,char *fcase,Dofmap *& dofmap,
       // adding a line CHECK_ELEMSET_TYPE(type) for each
       // type of elemset to be added
       bless_elemset(type,elemset);
+      if(!elemset) PETSCFEM_ERROR("not known elemset type: \"%s\"\n",type);
 
       elemset->type = type;
       elemset->nelem = nelem; 
