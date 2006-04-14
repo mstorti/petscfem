@@ -1,5 +1,5 @@
 ///__INSERT_LICENSE__
-//$Id: fastmat2.cpp,v 1.23 2005/09/25 20:29:06 mstorti Exp $
+//$Id: fastmat2.cpp,v 1.24 2006/04/14 17:50:35 mstorti Exp $
 
 #include <cmath>
 #include <cstdio>
@@ -7,6 +7,14 @@
 using namespace std;
 #include "fem.h"
 #include "fastmat2.h"
+
+#if 0
+static void fill_to_length(Indx &indx,int m) {
+  int n = indx.size();
+  for (int j=0; j<m-n; j++)
+    indx.push_back(0);
+}
+#endif
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 void FastMat2::get_cache_position(FastMatCachePosition & pos) {

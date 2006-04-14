@@ -1,6 +1,6 @@
 // -*- mode: c++ -*-
 /*__INSERT_LICENSE__*/
-//$Id: fastmat2.h,v 1.35 2005/06/10 21:34:29 mstorti Exp $
+//$Id: fastmat2.h,v 1.36 2006/04/14 17:50:35 mstorti Exp $
 
 #ifndef FASTMAT2_H
 #define FASTMAT2_H
@@ -18,13 +18,16 @@ using namespace std;
 #include "fastlib.h"
 #include "readlist.h"
 
+#define INT_ARG_LIST_DEFAULT_VAL INT_MAX
 /// To be used in variable argument functions. Ex: fun(double,INT\_ARG\_LIST)
 /// In declarations
-#define INT_ARG_LIST ARG_LIST(int,arg,0)
+#define INT_ARG_LIST \
+           ARG_LIST(int,arg,INT_ARG_LIST_DEFAULT_VAL)
 /// In definitions (without the default value)
 #define INT_ARG_LIST_ND ARG_LIST_ND(int,arg)
 /// To access the elements in the INT\_ARG\_LIST.
-#define READ_INT_ARG_LIST(indx) READ_ARG_LIST(arg,indx,0,EXIT)
+#define READ_INT_ARG_LIST(indx) \
+           READ_ARG_LIST(arg,indx,INT_ARG_LIST_DEFAULT_VAL,EXIT)
 
 /** Defines whether uses standard variadic argument lists or that
     defined rhtough readlist.h
