@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-// $Id: advabso.cpp,v 1.19 2006/04/15 19:33:25 mstorti Exp $
+// $Id: advabso.cpp,v 1.20 2006/04/15 22:14:53 mstorti Exp $
 #include "./advabso.h"
 #include "./gasflow.h"
 
@@ -107,7 +107,9 @@ res(int k,FastMat2 &U,FastMat2 &r,
     
     if (use_uref_glob) Uref.set(Uref_glob);
     else { U.ir(1,3); Uref.set(U); U.rs(); }
+    Uref.rs().is(2,2,ndim+1);
     double urefn = unor.prod(Uref,normal,-1,-1);
+    Uref.rs();
     use_old_state_as_ref_elem = urefn>0;
   } else {
     use_old_state_as_ref_elem 
