@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-// $Id: advabso.cpp,v 1.18 2006/03/29 17:46:53 mstorti Exp $
+// $Id: advabso.cpp,v 1.19 2006/04/15 19:33:25 mstorti Exp $
 #include "./advabso.h"
 #include "./gasflow.h"
 
@@ -95,7 +95,7 @@ res(int k,FastMat2 &U,FastMat2 &r,
   double delta_sc=0.0,
       lambda_max_pg=0.0;
   U.ir(1,1); Uo.set(U);
-  U.ir(1,2); Ulambda.set(U);
+  U.ir(1,2); Ulambda.set(U); U.rs();
   // As `use_old_state_as_ref' but
   // for this element. 
   int use_old_state_as_ref_elem;
@@ -105,10 +105,10 @@ res(int k,FastMat2 &U,FastMat2 &r,
     assert(dynamic_cast<gasflow_ff*>(adv_diff_ff));
     // U(3,:) contains the reference value
     
-    U.rs().ir(1,3).is(2,2,ndim+1);
-    double un = unor.prod(U,normal,-1,-1);
-    use_old_state_as_ref_elem = un>0;
-    U.rs();
+    if (use_uref_glob) Uref.set(Uref_glob);
+    else { U.ir(1,3); Uref.set(U); U.rs(); }
+    double urefn = unor.prod(Uref,normal,-1,-1);
+    use_old_state_as_ref_elem = urefn>0;
   } else {
     use_old_state_as_ref_elem 
       = use_old_state_as_ref; 
@@ -124,10 +124,10 @@ res(int k,FastMat2 &U,FastMat2 &r,
   } else {
     FastMat2::choose(1);
     if (use_uref_glob) Uref.set(Uref_glob);
-    else { U.ir(1,3); Uref.set(U); }
+    else { U.ir(1,3); Uref.set(U); U.rs(); }
   }
   FastMat2::leave();
-  U.rs();
+  
   adv_diff_ff->set_state(Uref,grad_U);
   adv_diff_ff
     ->compute_flux(Uref, dummy, dummy, dummy, flux, fluxd,
