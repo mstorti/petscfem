@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-// $Id: advabso.cpp,v 1.21 2006/04/15 22:25:39 mstorti Exp $
+// $Id: advabso.cpp,v 1.22 2006/04/16 03:34:27 mstorti Exp $
 #include "./advabso.h"
 #include "./gasflow.h"
 
@@ -20,7 +20,6 @@ void AdvectiveAbso::
 init() {
   int nelprops;
   elem_params(nel,ndof,nelprops);
-  assert(nel==3);
   int ierr;
 
   //o Dimension of the space.
@@ -54,6 +53,8 @@ init() {
     Uref_glob.resize(1,ndof);
     Uref_glob.set(&*urefv.begin());
   } 
+  if (use_uref_glob || use_old_state_as_ref) assert(nel>=2);
+  else assert(nel==3);
 
   flux.resize(2,ndof,ndim);
   fluxd.resize(2,ndof,ndim);
@@ -100,10 +101,14 @@ res(int k,FastMat2 &U,FastMat2 &r,
   // for this element. 
   int use_old_state_as_ref_elem;
   if (switch_to_ref_on_incoming) {
+
     // Check that `adv_diff_ff'is truly a
-    // gasflow_ff
+    // gasflow_ff. For other flux-functions one
+    // should say which is the "velocity vector"
+    // that determines the direction of the incoming flow. 
     assert(dynamic_cast<gasflow_ff*>(adv_diff_ff));
     // U(3,:) contains the reference value
+    // or alternatively the global `Uref' option
     
     if (use_uref_glob) Uref.set(Uref_glob);
     else { U.ir(1,3); Uref.set(U); U.rs(); }
@@ -174,12 +179,14 @@ res(int k,FastMat2 &U,FastMat2 &r,
   tmp1.prod(Cp,Pi_m,1,-1,-1,2);
   w.set(0.).ir(1,1).set(tmp1).rs();
   jac.ir(2,1).set(Pi_m);
+#if 0
   FastMat2::branch();
-  if (!use_old_state_as_ref_elem) {
+  if (nel>=3 && !use_old_state_as_ref_elem) {
     FastMat2::choose(0);
     jac.ir(2,3).set(Pi_m).scale(-1.0);
   }
   FastMat2::leave();
+#endif
   jac.rs();
 }
 
