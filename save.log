@@ -4618,3 +4618,6 @@ tag: beta-3.49.48 on Tue, 11 Apr 2006 13:44:54 -0300 by mstorti in minerva.cerid
 ----------
 tag: beta-3.49.49 on Sat, 15 Apr 2006 16:34:32 -0300 by mstorti in spider
      > Fixed bug in `advabso' when using `Uref'. 
+----------
+tag: beta-3.49.50 on Sun, 16 Apr 2006 00:34:35 -0300 by mstorti in aquiles
+     > Fixed bug in `advabso.cpp' with `Uref' global. 
