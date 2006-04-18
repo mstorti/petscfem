@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-// $Id: absolay.cpp,v 1.1 2006/04/17 03:08:14 mstorti Exp $
+// $Id: absolay.cpp,v 1.2 2006/04/18 02:16:56 mstorti Exp $
 #include "./absolay.h"
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:
@@ -8,11 +8,13 @@ new_assemble(arg_data_list &arg_data_v,const Nodedata *nodedata,
 	     const Dofmap *dofmap,const char *jobinfo,
 	     const ElementList &elemlist,
 	     const TimeData *time_data) try {
-  
+
   GET_JOBINFO_FLAG(comp_res);
   GET_JOBINFO_FLAG(comp_prof);
 
   int ierr=0;
+
+  int locdof,kldof,lldof;
 
   NSGETOPTDEF(int,npg,0); //nd
   NSGETOPTDEF(int,ndim,0); //nd
@@ -23,172 +25,177 @@ new_assemble(arg_data_list &arg_data_v,const Nodedata *nodedata,
   elem_params(nel,ndof,nelprops);
   int nen = nel*ndof;
 
-  //o Dimension of the space.
-  NSGETOPTDEF_ND(int,ndim,0);
+  // Unpack Dofmap
+  int neq,nnod;
+  neq = dofmap->neq;
+  nnod = dofmap->nnod;
 
-  //o Flags whether to use the old state ad the
-  // boundary as reference for the linear absorbing
-  // boundary condition.
-  NSGETOPTDEF_ND(int,use_old_state_as_ref,0);
+  // Unpack nodedata
+  int nu=nodedata->nu;
+  // H is a generalized local property passed per node with the nodal
+  // coordinates. In shallow water nH =1 and H is the depth. It is
+  // needed in order to compute the source term. In 1D Euler it may be
+  // the area section of the tube. Its gradient is needed for the
+  // source term in the momentum eqs.
+  int nH = nu-ndim;
+  FMatrix  Hloc(nel,nH),H(nH),vloc_mesh(nel,ndim),v_mesh(ndim);
+  //  FastMat2 v_mesh;
 
-  //o Use special combination for choosing reference state.
-  //  If velocity is outgoing ( #uref.n>0#, #n# is exterior
-  //  normal, #u# is the flow velocity), then the
-  //  #use_old_state_as_ref# strategy is used, otherwise the
-  //  state reference is used. 
-  NSGETOPTDEF_ND(int,switch_to_ref_on_incoming,0);
-
-  //o Do correction for wave characteristic computation
-  //  do to mesh velocity (ALE).
-  NSGETOPTDEF_ND(int,ALE_flag,0);
-
-  vector<double> urefv;
-  const char *line;
-  get_entry("Uref",line);
-  use_uref_glob = 0;
-  if(line) {
-    use_uref_glob = 1;
-    read_double_array(urefv,line);
-    PETSCFEM_ASSERT0(urefv.size() == ndof,
-		     "Uref needs ndof values \n");
-    Uref_glob.resize(1,ndof);
-    Uref_glob.set(&*urefv.begin());
-  } 
-  if (use_uref_glob || use_old_state_as_ref) assert(nel>=2);
-  else assert(nel==3);
-
-  flux.resize(2,ndof,ndim);
-  fluxd.resize(2,ndof,ndim);
-  A_grad_U.resize(1,ndof);
-  grad_U.resize(2,ndim,ndof).set(0.);
-  normal.resize(1,ndim);
-  vmesh.resize(1,ndim);
-  A_jac.resize(2,ndof,ndof);
-  S.resize(2,ndof,ndof);
-  invS.resize(2,ndof,ndof);
-  tmp1.resize(2,ndof,ndof);
-  c.resize(2,2,ndof);
-  Pi_m.resize(2,ndof,ndof);
-  Pi_p.resize(2,ndof,ndof);
-  Cp.resize(2,ndof,ndof);
-  Uold.resize(2,nel,ndof);
-  invCp.resize(2,ndof,ndof);
-
-  if (ALE_flag) {
-    get_prop(vmesh_prop,"vmesh");
-    assert(vmesh_prop.length == ndim);
+  if(nnod!=nodedata->nnod) {
+    printf("nnod from dofmap and nodedata don't coincide\n");
+    exit(1);
   }
 
-  get_prop(normal_prop,"normal");
-  assert(normal_prop.length == ndim);
-  // The state on the reference node
-  Uref.resize(1,ndof);
-  dU.resize(1,ndof);
-  // The lagrange multipliers (state for the 2nd node)
-  Ulambda.resize(1,ndof);
-  // The state of the outlet node
-  Uo.resize(1,ndof);
+  // lambda_max:= the maximum eigenvalue of the jacobians.
+  // used to compute the critical time step.
+  vector<double> *dtmin;
+  double lambda_max;
+  int jdtmin;
+  GlobParam *glob_param;
+  // The trapezoidal rule integration parameter
+#define ALPHA (glob_param->alpha)
+#define DT (glob_param->Dt)
+  arg_data *staten,*stateo,*retval,*fdj_jac,*jac_prof,*Ajac;
+  if (comp_res) {
+    int j=-1;
+    stateo = &arg_data_v[++j]; //[0]
+    staten = &arg_data_v[++j]; //[1]
+    retval  = &arg_data_v[++j];//[2]
+    jdtmin = ++j;//[3]
+#define DTMIN ((*(arg_data_v[jdtmin].vector_assoc))[0])
+#define WAS_SET arg_data_v[jdtmin].was_set
+    Ajac = &arg_data_v[++j];//[4]
+    glob_param = (GlobParam *)arg_data_v[++j].user_data;;
 
-  for (ElementIterator element = elemlist.begin(); 
+#ifdef CHECK_JAC
+    fdj_jac = &arg_data_v[++j];
+#endif
+  }
+
+  FastMat2 matlocf(4,nel,ndof,nel,ndof),
+    matlocf_mass(4,nel,ndof,nel,ndof);
+  FastMat2 prof_nodes(2,nel,nel), prof_fields(2,ndof,ndof),
+    matlocf_fix(4,nel,ndof,nel,ndof);
+  FastMat2 Id_ndf(2,ndof,ndof),Id_nel(2,nel,nel),
+    prof_fields_diag_fixed(2,ndof,ndof);
+
+  //o Uses operations caches for computations with the FastMat2
+  //  library for internal computations. Note that this affects also the
+  //  use of caches in routines like fluxes, etc...
+  NSGETOPTDEF(int,use_fastmat2_cache,1);
+
+  // Initialize flux functions
+  int ff_options=0;
+  adv_diff_ff->start_chunk(ff_options);
+  int ndimel = adv_diff_ff->dim();
+  if (ndimel<0) ndimel = ndim;
+  FastMat2 grad_H(2,ndimel,nH);
+
+  adv_diff_ff->set_profile(prof_fields); // profile by equations
+  prof_nodes.set(1.);
+
+  Id_ndf.eye();
+  Id_nel.eye();
+
+  prof_fields.d(1,2);
+  prof_fields_diag_fixed.set(0.);
+  prof_fields_diag_fixed.d(1,2);
+  prof_fields_diag_fixed.set(prof_fields);
+  prof_fields.rs();
+  prof_fields_diag_fixed.rs();
+  prof_fields_diag_fixed.scale(-1.).add(Id_ndf);
+
+  matlocf_fix.prod(prof_fields_diag_fixed,Id_nel,2,4,1,3);
+  matlocf.prod(prof_fields,prof_nodes,2,4,1,3);
+
+  matlocf.add(matlocf_fix);
+  if (comp_res)
+     matlocf.export_vals(Ajac->profile);
+  if (comp_prof) {
+    jac_prof = &arg_data_v[0];
+    matlocf.export_vals(jac_prof->profile);
+  }
+
+  int nlog_vars;
+  const int *log_vars;
+  adv_diff_ff->get_log_vars(nlog_vars,log_vars);
+  //o Use log-vars for $k$ and $\epsilon$
+  NSGETOPTDEF(int,use_log_vars,0);
+  if (!use_log_vars) nlog_vars=0;
+
+  // Allocate local vecs
+  FMatrix veccontr(nel,ndof),veccontr_mass(nel,ndof),
+    xloc(nel,ndim),lstate(nel,ndof),
+    lstateo(nel,ndof),lstaten(nel,ndof),dUloc_c(nel,ndof),
+    dUloc(nel,ndof),matloc;
+  FastMat2 true_lstate(2,nel,ndof),
+    true_lstateo(2,nel,ndof),true_lstaten(2,nel,ndof);
+
+  FastMat2 true_lstate_abs(2,nel,ndof);
+
+  nen = nel*ndof;
+
+  //o Type of element geometry to define Gauss Point data
+  NGETOPTDEF_S(string,geometry,cartesian2d);
+  GPdata gp_data(geometry.c_str(),ndimel,nel,npg,GP_FASTMAT2);
+  GPdata gp_data_low(geometry.c_str(),ndimel,nel,1,GP_FASTMAT2);
+
+  double detJaco, wpgdet, delta_sc, delta_sc_old;
+  int elem, ipg,node, jdim, kloc,lloc,ldof;
+  double lambda_max_pg;
+
+  // Position of current element in elemset and in chunk
+  int k_elem, k_chunk;
+
+  FastMatCacheList cache_list;
+  if (use_fastmat2_cache) FastMat2::activate_cache(&cache_list);
+
+  // printf("[%d] %s start: %d last: %d\n",MY_RANK,jobinfo,el_start,el_last);
+  for (ElementIterator element = elemlist.begin();
        element!=elemlist.end(); element++) try {
-	 
+
     element.position(k_elem,k_chunk);
     FastMat2::reset_cache();
-	 
-    double delta_sc=0.0,
-      lambda_max_pg=0.0;
-    U.ir(1,1); Uo.set(U);
-    U.ir(1,2); Ulambda.set(U); U.rs();
-    // As `use_old_state_as_ref' but
-    // for this element. 
-    int use_old_state_as_ref_elem;
-    if (switch_to_ref_on_incoming) {
-      
-      // Check that `adv_diff_ff'is truly a
-      // gasflow_ff. For other flux-functions one
-      // should say which is the "velocity vector"
-      // that determines the direction of the incoming flow. 
-      assert(dynamic_cast<gasflow_ff*>(adv_diff_ff));
-      // U(3,:) contains the reference value
-      // or alternatively the global `Uref' option
-    
-      if (use_uref_glob) Uref.set(Uref_glob);
-      else { U.ir(1,3); Uref.set(U); U.rs(); }
-      Uref.rs().is(1,2,ndim+1);
-      double urefn = unor.prod(Uref,normal,-1,-1);
-      Uref.rs();
-      use_old_state_as_ref_elem = urefn>0;
-    } else {
-      use_old_state_as_ref_elem 
-	= use_old_state_as_ref; 
+
+    // Initialize element
+    adv_diff_ff->element_hook(element);
+
+    // Get nodedata info (coords. etc...)
+    element.node_data(nodedata,xloc.storage_begin(),
+		      Hloc.storage_begin());
+
+    if (comp_prof) {
+      matlocf.export_vals(element.ret_mat_values(*jac_prof));
+      continue;
     }
 
-    FastMat2::branch();
-    if (use_old_state_as_ref_elem) {
-      FastMat2::choose(0);
-      get_old_state(Uold);
-      Uold.ir(1,1);
-      Uref.set(Uold);
-      Uold.rs();
-    } else {
-      FastMat2::choose(1);
-      if (use_uref_glob) Uref.set(Uref_glob);
-      else { U.ir(1,3); Uref.set(U); U.rs(); }
+    if (comp_res) {
+      lambda_max=0;
+      lstateo.set(element.vector_values(*stateo));
+      lstaten.set(element.vector_values(*staten));
     }
-    FastMat2::leave();
-  
-    adv_diff_ff->set_state(Uref,grad_U);
-    adv_diff_ff
-      ->compute_flux(Uref, dummy, dummy, dummy, flux, fluxd,
-		     A_grad_U, grad_U, dummy,
-		     dummy, delta_sc, lambda_max_pg, dummy,
-		     dummy, dummy, dummy, 0);
-    adv_diff_ff->comp_A_jac_n(A_jac,normal);
-    adv_diff_ff->get_Cp(Cp);
-    invCp.inv(Cp);
-    if (ALE_flag) {
-      vnor.prod(vmesh,normal,-1,-1);
-      // A_jac.d(1,2).add(-double(vnor)).rs();
-      double vn = double(vnor);
-      A_jac.axpy(Cp,-vn);
-    }
-    // tmp1 = Cp \ A
-    tmp1.prod(invCp,A_jac,1,-1,-1,2);
-    c.eig(tmp1,S);
-    invS.inv(S);
-    double aimag = c.ir(1,2).sum_square_all();
-    assert(aimag<1e-10);
-    c.ir(1,1);
-    // Pi_m = projector on negative eigenvalues space
-    // Pi_p = projector on positive eigenvalues space
-    // Pi_m + Pi_p = A_jac
-    Pi_m.set(0.).d(1,2)
-      .set(c).fun(msign).rs();
-    c.rs();
-    tmp1.prod(Pi_m,invS,1,-1,-1,2);
-    Pi_m.prod(S,tmp1,1,-1,-1,2);
-#if 0
-    tmp1.prod(Pi_p,invS,1,-1,-1,2);
-    Pi_p.prod(S,tmp1,1,-1,-1,2);
-    tmp1.set(Pi_m).add(Pi_p);
+
+
+
+
+    // State at time t_{n+\alpha}
+    lstate.set(0.).axpy(lstaten,ALPHA).axpy(lstateo,(1-ALPHA));
+
+    veccontr.set(0.);
+    
+    veccontr.export_vals(element.ret_vector_values(*retval));
+#ifdef CHECK_JAC
+    veccontr.export_vals(element.ret_fdj_values(*fdj_jac));
 #endif
-    // residual is the projection of U-Uref
-    // on to the space of incoming waves
-    dU.set(Uo).rest(Uref);
-    r.prod(Pi_m,dU,1,-1,-1);
-    // The vector of reactions is the pojector on
-    // to the incoming wave space: w = Cp * Pi_m
-    tmp1.prod(Cp,Pi_m,1,-1,-1,2);
-    w.set(0.).ir(1,1).set(tmp1).rs();
-    jac.ir(2,1).set(Pi_m);
-#if 0
-    FastMat2::branch();
-    if (nel>=3 && !use_old_state_as_ref_elem) {
-      FastMat2::choose(0);
-      jac.ir(2,3).set(Pi_m).scale(-1.0);
-    }
-    FastMat2::leave();
-#endif
-    jac.rs();
-       }
-	     }
+    
+  } catch (GenericError e) {
+    set_error(1);
+    return;
+  }
+
+  FastMat2::void_cache();
+  FastMat2::deactivate_cache();
+} catch (GenericError e) {
+  set_error(1);
+
+}

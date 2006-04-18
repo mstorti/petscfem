@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: advdife.cpp,v 1.109 2006/02/18 22:40:44 mstorti Exp $
+//$Id: advdife.cpp,v 1.110 2006/04/18 02:16:56 mstorti Exp $
 extern int comp_mat_each_time_step_g,
   consistent_supg_matrix_g,
   local_time_step_g;
@@ -1318,8 +1318,6 @@ void NewAdvDif::new_assemble(arg_data_list &arg_data_v,const Nodedata *nodedata,
       }
       */
 
-
-
       veccontr.export_vals(element.ret_vector_values(*retval));
 #ifdef CHECK_JAC
       veccontr.export_vals(element.ret_fdj_values(*fdj_jac));
@@ -1331,7 +1329,7 @@ void NewAdvDif::new_assemble(arg_data_list &arg_data_v,const Nodedata *nodedata,
     } else if (comp_prof) {
       matlocf.export_vals(element.ret_mat_values(*jac_prof));
     }
-
+    
   } catch (GenericError e) {
     set_error(1);
     return;
