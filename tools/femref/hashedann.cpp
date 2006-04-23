@@ -34,9 +34,10 @@ public:
       bound(j,2) = 1.0;
     }
   }
-  void add(const vector<double> &x) {
+  int add(const vector<double> &x) {
     assert(x.size()%ndim==0);
     int np = x.size()/ndim;
+    int ok = 0;
     for (int j=0; j<np; j++) {
       hasher.reset();
       for (int k=0; k<ndim; k++) {
@@ -51,9 +52,12 @@ public:
       int h = hasher.val();
 //       printf("adding point j %d, (%f,%f,%f), hash %x\n",
 // 	     j,x[j*ndim],x[j*ndim+1],x[j*ndim+2],h);
-      assert(table.find(h)==table.end());
-      table[h] = npoints++;
+      if (table.find(h)==table.end()) {
+	table[h] = npoints++;
+	ok ++;
+      } 
     }
+    return ok;
   }
 
   int get(const vector<double> &x,
@@ -84,13 +88,13 @@ double drand() {
 // Tries to solve the ANN problem (or related)
 // through hashing
 int main() {
-  int N=100, ndim=3;			// Number of points to be added
+  int N=10000000, ndim=3;			// Number of points to be added
   hashed_coords_t hashed_coords(ndim,1e-10);
   vector<double> coords;
-  for (int j=0; j<N*ndim; j++) {
+  for (int j=0; j<N*ndim; j++)
     coords.push_back(drand());
-  }
-  hashed_coords.add(coords);
+  int ok = hashed_coords.add(coords);
+  printf("tried %d, ok %d\n",N,ok);
   int bad=0;
   for (int j=0; j<N; j++) {
     vector<double> xtry;
