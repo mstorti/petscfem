@@ -153,7 +153,7 @@ double drand() {
 // Tries to solve the ANN problem (or related)
 // through hashing
 int main() {
-  int N=10, ndim=3;			// Number of points to be added
+  int N=1000000, ndim=3;			// Number of points to be added
   hashed_coords_t hashed_coords(ndim,1e-10);
   vector<double> coords;
   for (int j=0; j<N*ndim; j++)
@@ -161,17 +161,17 @@ int main() {
   int npoints = hashed_coords.add(coords);
   printf("tried %d, OK %d\n",N,npoints);
   int bad=0;
-  hashed_coords.print();
+  // hashed_coords.print();
   for (int j=0; j<N; j++) {
     vector<double> xtry;
     int q = rand() % 2;
     if (q) {
-      printf("random generation\n");
+      // printf("random generation\n");
       for (int j=0; j<ndim; j++) 
 	xtry.push_back(drand());
     } else {
       int k = rand()%N;
-      printf("probing point %d\n",k);
+      // printf("probing point %d\n",k);
       for (int j=0; j<ndim; j++) 
 	xtry.push_back(coords[k*ndim+j]);
     }
