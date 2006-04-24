@@ -1,3 +1,6 @@
+#include <sys/time.h>
+#include <unistd.h>
+
 #include <cstdlib>
 #include <cstring>
 #include <ctime>
@@ -6,12 +9,29 @@
 #include <vector>
 #include <map>
 #include <algorithm>
-
-#include <mpi.h>
+#include <ctype.h>
 
 #include "./hasher.h"
 
 using namespace std;
+
+double TABLE_INSERT, OTHER, CAND_AVG;
+
+
+class chrono_t {
+private:
+  timeval start,now;
+public:
+  chrono_t() { reset(); }
+  void reset() {
+    gettimeofday (&start,NULL);
+  }
+  double elapsed() {
+    gettimeofday (&now,NULL);
+    return double(now.tv_sec)-double(start.tv_sec)
+      +(double(now.tv_usec)-double(start.tv_usec))/1e6;
+  }
+};
 
 class hashed_coords_t {
 private:
@@ -89,18 +109,21 @@ public:
     }
   }
   int add(const vector<double> &x,double tol_a=NAN) {
+    chrono_t chrono;
     if (isnan(tol_a)) tol_a=tol;
     assert(tol_a<=tol);
     assert(x.size() % ndim == 0);
     int np = x.size()/ndim;
     int ok = 0;
     for (int j=0; j<np; j++) {
+      chrono.reset();
       vector<int> candidates;
       vector<double> xx(ndim);
       for (int k=0; k<ndim; k++) 
 	xx[k] = x[j*ndim+k];
       get_candidates(xx,candidates);
       int ncand = candidates.size();
+      CAND_AVG += ncand;
       for (int j=0; j<ncand; j++) {
 	double d = dist(candidates[j],x);
 	if (d<tol_a) continue;
@@ -114,7 +137,10 @@ public:
 	hasher.hash(interv);
       }
       int w = hasher.val();
+      OTHER += chrono.elapsed();
+      chrono.reset();
       table.insert(pair_t(w,npoints++));
+      TABLE_INSERT += chrono.elapsed();
     }
     return ok;
   }
@@ -153,18 +179,21 @@ double drand() {
 }
 
 void check1() {
-  int N=100000, ndim=3;			// Number of points to be added
+  chrono_t chrono;
+  int N=1000000, ndim=3;     // Number of points to be added
   hashed_coords_t hashed_coords(ndim,1e-10);
   vector<double> coords;
   for (int j=0; j<N*ndim; j++)
     coords.push_back(drand());
-  //  double start = MPI_Wtime();
+  chrono.reset();
+  TABLE_INSERT=0.0; OTHER=0.0, CAND_AVG=0.0;
   int npoints = hashed_coords.add(coords);
   printf("tried %d, OK %d\n",N,npoints);
-  // printf("insertion %f\n",MPI_Wtime()-start);
+  printf("insertion %f, table_insert %f, other %f, cand_avg %f\n",
+	 chrono.elapsed(),TABLE_INSERT,OTHER,CAND_AVG/npoints);
   int bad=0;
   // hashed_coords.print();
-  // start = MPI_Wtime();
+  chrono.reset();
   for (int j=0; j<N; j++) {
     vector<double> xtry;
     int q = rand() % 2;
@@ -182,14 +211,12 @@ void check1() {
     hashed_coords.get(xtry,found);
     bad += (found.size()==0 != q);
   }
-  // printf("checking %f\n",MPI_Wtime()-start);
+  printf("checking %f\n",chrono.elapsed());
   printf("total %d, OK %d, bad %d\n",N,N-bad,bad);
 }
 
 // Tries to solve the ANN problem (or related)
 // through hashing
 int main(int argc,char **argv) {
-  MPI_Init(&argc,&argv);
   check1();
-  MPI_Finalize();
 }

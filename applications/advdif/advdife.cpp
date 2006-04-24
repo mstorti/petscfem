@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: advdife.cpp,v 1.110 2006/04/18 02:16:56 mstorti Exp $
+//$Id: advdife.cpp,v 1.111 2006/04/24 19:30:42 mstorti Exp $
 extern int comp_mat_each_time_step_g,
   consistent_supg_matrix_g,
   local_time_step_g;
@@ -559,6 +559,12 @@ void NewAdvDif::new_assemble(arg_data_list &arg_data_v,const Nodedata *nodedata,
       assert(indx_ALE_xold >= nH+1-ndim);
       Hloc.is(2,indx_ALE_xold,indx_ALE_xold+ndim-1);
       vloc_mesh.set(xloc).rest(Hloc).scale(rec_Dt_m*ALPHA).rs();
+#if 0
+      double vmesh = vloc_mesh.norm_p_all()/nel;
+      if (rand()%1000==0) {
+	printf("elem %d, vmesh %f\n",k_elem,vmesh);
+      }
+#endif
       Hloc.rs();
     }
 
