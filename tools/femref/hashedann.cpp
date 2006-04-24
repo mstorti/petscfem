@@ -153,18 +153,18 @@ double drand() {
 }
 
 void check1() {
-  int N=100000, ndim=3;			// Number of points to be added
+  int N=10000, ndim=3;			// Number of points to be added
   hashed_coords_t hashed_coords(ndim,1e-10);
   vector<double> coords;
   for (int j=0; j<N*ndim; j++)
     coords.push_back(drand());
-  double start = MPI_Wtime();
+  //  double start = MPI_Wtime();
   int npoints = hashed_coords.add(coords);
   printf("tried %d, OK %d\n",N,npoints);
-  printf("insertion %f\n",MPI_Wtime()-start);
+  // printf("insertion %f\n",MPI_Wtime()-start);
   int bad=0;
   // hashed_coords.print();
-  start = MPI_Wtime();
+  // start = MPI_Wtime();
   for (int j=0; j<N; j++) {
     vector<double> xtry;
     int q = rand() % 2;
@@ -182,7 +182,7 @@ void check1() {
     hashed_coords.get(xtry,found);
     bad += (found.size()==0 != q);
   }
-  printf("checking %f\n",MPI_Wtime()-start);
+  // printf("checking %f\n",MPI_Wtime()-start);
   printf("total %d, OK %d, bad %d\n",N,N-bad,bad);
 }
 
