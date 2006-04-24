@@ -95,7 +95,7 @@ trymd5.bin: trymd5.c md5r.c
 	gcc $(OPT) -o $@ $^
 
 hashedann.bin: hashedann.o hasher.o md5r.o bjhash.o
-	g++ $(OPT) -o $@ $^
+	g++ $(OPT) -o $@ $^ $(LDFLAGS_NO_PROG_LIB)
 
 cdepend:
 	gcc -MM *.c > makefilec.d

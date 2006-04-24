@@ -153,7 +153,7 @@ double drand() {
 }
 
 void check1() {
-  int N=10000, ndim=3;			// Number of points to be added
+  int N=100000, ndim=3;			// Number of points to be added
   hashed_coords_t hashed_coords(ndim,1e-10);
   vector<double> coords;
   for (int j=0; j<N*ndim; j++)
