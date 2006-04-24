@@ -7,6 +7,8 @@
 #include <map>
 #include <algorithm>
 
+#include <mpi.h>
+
 #include "./hasher.h"
 
 using namespace std;
@@ -150,18 +152,19 @@ double drand() {
   return double(rand())/double(RAND_MAX);
 }
 
-// Tries to solve the ANN problem (or related)
-// through hashing
-int main() {
-  int N=1000000, ndim=3;			// Number of points to be added
+void check1() {
+  int N=100000, ndim=3;			// Number of points to be added
   hashed_coords_t hashed_coords(ndim,1e-10);
   vector<double> coords;
   for (int j=0; j<N*ndim; j++)
     coords.push_back(drand());
+  double start = MPI_Wtime();
   int npoints = hashed_coords.add(coords);
   printf("tried %d, OK %d\n",N,npoints);
+  printf("insertion %f\n",MPI_Wtime()-start);
   int bad=0;
   // hashed_coords.print();
+  start = MPI_Wtime();
   for (int j=0; j<N; j++) {
     vector<double> xtry;
     int q = rand() % 2;
@@ -179,5 +182,14 @@ int main() {
     hashed_coords.get(xtry,found);
     bad += (found.size()==0 != q);
   }
+  printf("checking %f\n",MPI_Wtime()-start);
   printf("total %d, OK %d, bad %d\n",N,N-bad,bad);
+}
+
+// Tries to solve the ANN problem (or related)
+// through hashing
+int main(int argc,char **argv) {
+  MPI_Init(&argc,&argv);
+  check1();
+  MPI_Finalize();
 }
