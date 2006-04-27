@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: mmove.cpp,v 1.24 2005/09/25 20:28:59 mstorti Exp $
+//$Id: mmove.cpp,v 1.24.2.1 2006/04/27 19:05:51 rodrigop Exp $
 
 #include <src/fem.h>
 #include <src/utils.h>
@@ -19,150 +19,54 @@ extern GlobParam *GLOB_PARAM;
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 void mesh_move_eig_anal::init() {
+
   int ierr;
-  // The constitutive eq. is stress = C strain
-  FastMat2 C;
-  double c1 = sqrt(1./3.), c2 = sqrt(1./6.);
-  // These are the gradient of shape functions for a master
-  // tetra, with unit edge length with nodes at 
-  // [+-1/2 0 0], [0,sqrt(3)/2,0], [0,1/sqrt(6),sqrt(2/3)]
-  double c[12] = {-1., -c1, -c2, +1., -c1, -c2, 
-		  0., 2*c1, -c2, 0., 0., 3*c2};
   
-  G.resize(2,ndim,ndim); // the metric tensor
-  xlocp.resize(1,nel*ndim); // The perturbed coordinates
-  xloc0.resize(1,nel*ndim); // The perturbed coordinates
   assert(ndof==ndim);
   assert(ndim==2 || ndim==3);
-  // assert(nel==ndim+1); // Only for triangles in 2D, tetras in 3D
-  J.resize(2,ndim,ndim);
-  dNdxi.resize(2,ndim,nel);
+  assert(nel==ndim+1);
 
-  if (ndim==2) {
-    if (nel==3) {
-      dNdxi.setel(-sin(M_PI/3)*cos(M_PI/6),1,1);
-      dNdxi.setel(-sin(M_PI/3)*sin(M_PI/6),2,1);
-      dNdxi.setel(+sin(M_PI/3)*cos(M_PI/6),1,2);
-      dNdxi.setel(-sin(M_PI/3)*sin(M_PI/6),2,2);
-      dNdxi.setel(0                       ,1,3);
-      dNdxi.setel(+sin(M_PI/3)            ,2,3);
-    } else if (nel==4) {
-      double cq[] = {-1,-1,1,-1,1,1,-1,1};
-      C.resize(2,nel,ndim).set(cq).t();
-      dNdxi.set(C);
-    } else PETSCFEM_ERROR("Only triangles and quads in 2D: nel %d\n",nel);
-  } else {
-    C.resize(2,nel,ndim).set(c).t();
-    dNdxi.set(C);
+  dVdW.resize(2,ndim,ndim).set(0.);
+  dSldW.resize(2,ndim,ndim).set(0.);
+  dWdu.resize(4,ndim,ndim,nel,ndim).set(0.);
+  d2VdW2.resize(4,ndim,ndim,ndim,ndim).set(0.);
+  d2SldW2.resize(4,ndim,ndim,ndim,ndim).set(0.);
+  w.resize(2,ndim,ndim).set(0.);
+  w0.resize(2,ndim,ndim).set(0.);
+
+  vaux1.resize(1,ndim).set(0.);
+  vaux2.resize(2,ndim,3).set(0.);
+
+  epsilon_LC.eps_LC();
+
+  for(int i=1;i <= ndim;i++){
+    for(int j=1;j <= ndim;j++) {
+      dWdu.setel(-1.,i,j,1,j);
+      for(int k=2;k <= nel;k++) {
+	if (i+1 == k) {
+	  dWdu.setel(1.,i,j,k,j);
+	}
+      }
+    }
   }
-  // gradient of eigenvalues
-  glambda.resize(3,ndim,nel,ndim);
-  // Gradient and Hessian of functional (w.r.t. eigenvalues)
-  dFdl.resize(1,ndim);
-  d2Fdl2.resize(2,ndim,ndim);
 
-  //o Perturbation scale length for increment in computing
-  // the Jacobian with finite differences. 
-  TGETOPTDEF(thash,double,epsilon_x,1.e-4);
-  eps = epsilon_x;
   //o The functional to be minimized is $\Phi = \sum_{e=1,...,Nel} \phi_e^r$,
   // where $\phi_e = \sum_{i\neq j} (\lambda_i-\lambda_j)^2/Vol^{2/n_d}$,
   // and $r={\tt distor\_exp}$. 
-  TGETOPTDEF_ND(thash,double,distor_exp,1.);
-  //o Adds a term $\propto {\tt c\_volume}\,{\rm volume}$ to the functionala. 
+  TGETOPTDEF_ND(thash,double,distor_exp,-1.);
+
+  TGETOPTDEF_ND(thash,double,volume_exp,2.);
+  //o Adds a term $\propto {\tt c\_volume}\,{\rm volume}$ to the functional.
   TGETOPTDEF_ND(thash,double,c_volume,0.);
-  //o Compute an initial ``predictor'' step with this relaxation scale. 
-  TGETOPTDEF_ND(thash,double,c_relax,1.);
   //o Scales distortion function
   TGETOPTDEF_ND(thash,double,c_distor,1.);
-}
 
-//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
-void mesh_move_eig_anal::la_grad(const FastMat2 &x,FastMat2 &lambda,
-				 FastMat2 &glambda) {
-  // Computes jacobian of master element
-  //        -> actual element transformation
-  J.prod(dNdxi,x,2,-1,-1,1);
-  // Check that element is not collapsed 
-  double detJaco;
-  detJaco = J.det();
-  if (detJaco<=0.) {
-    detj_error(detJaco,elem);
-    set_error(1);
-  }
-  // metric tensor
-  G.prod(J,J,-1,1,-1,2);
-  // eigenvalues of metric tensor
-  lambda.seig(G,V);
-#define SHF(n) n.print(#n ": ")
-#ifdef DEBUG_ANAL
-  tmp3.prod(G,V,1,-1,-1,2);
-  tmp4.prod(V,tmp3,-1,1,-1,2);
-  tmp4.print("V' G V (D?): ");
-  SHF(J);
-  SHF(G);
-  SHF(lambda);
-  SHF(V);
-#endif
-  // The derivative of an eigenvalue lambda w.r.t. to a node coordinate $x_j$
-  // is:
-  // \dep\lambda{x_j} = 
-  tmp1.prod(J,V,1,-1,-1,2);
-  tmp2.prod(dNdxi,V,-1,1,-1,2);
-  for (int q=1; q<=ndim; q++) {
-    glambda.ir(1,q);
-    tmp1.ir(2,q);
-    tmp2.ir(2,q);
-    glambda.prod(tmp1,tmp2,2,1);
-  }
-  glambda.rs().scale(2.);
-  tmp1.rs();
-  tmp2.rs();
-}
+  TGETOPTDEF_ND(thash,double,delta0,0.0);
 
-class Prod : public FastMat2::Fun2 {
-public:
-  void pre() { set(1.); }
-  double fun2(double a,double val) { return val*a; }
-} prod;
+  TGETOPTDEF_ND(thash,double,fraction,1.0);
 
-//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
-double mesh_move_eig_anal::dfun(const FastMat2 &D) {
-#if 1
-  double F=0;
-  double vol=1.;
-  for (int k=1; k<=ndim; k++) vol *= D.get(k);
-  for (int k=2; k<=ndim; k++)
-    for (int l=1; l<k; l++) F += square(D.get(k)-D.get(l));
-  F /= pow(vol,2./double(ndim));
-  return pow(F,distor_exp);
-#elif 0
-  double p=distor_exp;
-  double norm_D = D.norm_p_all(p);
-  double norm_iD = D.norm_p_all(-p);
-  return norm_D*norm_iD;
-#else
-  return D.sum_all()*sqrt(D.assoc_all(prod));
-#endif
-}
+  TGETOPTDEF_ND(thash,double,coef,1.0);
 
-//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
-void mesh_move_eig_anal::df_grad(const FastMat2 &x,FastMat2 &dFdx) {
-  la_grad(x,lambda,glambda);
-  double F, F0 = dfun(lambda);
-  for (int k=1; k<=ndim; k++) {
-    lambdap.set(lambda).addel(eps,k);
-    F  = dfun(lambdap);
-    dFdl.setel((F-F0)/eps,k);
-  }
-  dFdx.prod(dFdl,glambda,-1,-1,1,2);
-#ifdef DEBUG_ANAL
-    x.print("x:");
-    lambda.print("lambda:");
-    glambda.print("glambda:");
-    dFdl.print("dFdl:");
-    dFdx.print("dFdx:");
-#endif
 }
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
@@ -172,46 +76,183 @@ element_connector(const FastMat2 &xloc,
 		  const FastMat2 &state_new,
 		  FastMat2 &res,FastMat2 &mat) {
 
-  x0.set(xloc).add(state_old);
-  df_grad(x0,res);
-  x0.reshape(1,nel*ndim);
-  mat.reshape(3,nel,ndim,nel*ndim);
-  for (int k=1; k<=nel*ndim; k++) {
-    xp.set(x0).addel(eps,k).reshape(2,nel,ndim);
-    df_grad(xp,resp);
-    xp.reshape(1,nel*ndim);
-#ifdef DEBUG_ANAL
-    printf("k %d\n",k);
-    x0.print("x0:");
-    xp.print("xp:");
-    resp.print("resp:");
-    res.print("res:");
-#endif
-    mat.ir(3,k).set(resp).rest(res).rs();
+  double C,V,Sl,Q,Vref,Sl0,delta;
+
+  x.set(xloc).add(state_new);
+  x0.set(xloc);
+  for (int i=1;i<=ndim;i++){
+    for (int j=1;j<=ndim;j++){
+      w.setel(x.get(i+1,j)-x.get(1,j),i,j);
+      w0.setel(x0.get(i+1,j)-x0.get(1,j),i,j);
+    }
   }
-  mat.scale(1/eps);
-  x0.reshape(2,nel,ndim);
-  mat.rs().reshape(4,nel,ndim,nel,ndim);
+    
+  if (ndim == 2){
+    C = 4.*sqrt(3.);
 
-  if (0 && !glob_param->inwt) {
-    x0.set(xloc).axpy(state_new,c_relax)
-      .axpy(state_old,1.-c_relax);
-    df_grad(x0,res);
-    res.scale(1./c_relax);
-  } 
-  res.scale(-1.);
+    V = w.det();
+    V *= 0.5;
 
-  dstate.set(state_new).rest(state_old);
-  res_Dir.prod(mat,dstate,1,2,-1,-2,-1,-2);
-  res.axpy(res_Dir,-1.);
+    Vref = w0.det();
+    Vref = 0.5*abs(Vref);
+
+    vaux.norm_p(w.ir(1,1),2);
+    Sl  = pow(double(vaux),ndim);
+    vaux.norm_p(w.ir(1,2),2);
+    Sl += pow(double(vaux),ndim);
+    w.rs();
+    for (int j=1;j<=ndim;j++){
+      vaux1.setel(w.get(2,j)-w.get(1,j),j);
+    }
+    vaux.norm_p(vaux1,2);
+    Sl += pow(double(vaux),ndim);
+
+    dVdW.setel(w.get(2,2),1,1);
+    dVdW.setel(-1.*w.get(1,2),2,1);
+    dVdW.setel(w.get(1,1),2,2);
+    dVdW.setel(-1.*w.get(2,1),1,2);
+    dVdW.scale(0.5);
+
+    dSldW.setel(w.get(1,1)-vaux1.get(1),1,1);
+    dSldW.setel(w.get(1,2)-vaux1.get(2),1,2);
+    dSldW.setel(w.get(2,1)+vaux1.get(1),2,1);
+    dSldW.setel(w.get(2,2)+vaux1.get(2),2,2);
+    dSldW.scale(2.);
+
+    d2VdW2.setel(0.5,1,1,2,2).setel(-0.5,1,2,2,1).setel(-0.5,2,1,1,2).setel(0.5,2,2,1,1);
+    d2SldW2.setel(4.,1,1,1,1).setel(4.,1,2,1,2).setel(-2.,1,1,2,1).setel(-2.,1,2,2,2);
+    d2SldW2.setel(-2.,2,1,1,1).setel(-2.,2,2,1,2).setel(4.,2,1,2,1).setel(4.,2,2,2,2);
+  } else if (ndim == 3) {
+
+    int ind[5]={3,1,2,3,1};
+
+    C = 36.*sqrt(2.);
+
+    V = w.det();
+    V *= 1./6.;
+
+    Vref = w0.det();
+    Vref = 1./6.*abs(Vref);
+
+    Sl = 0.;
+    for (int i=1;i<=ndim;i++) {
+      vaux.norm_p(w.ir(1,i),2);
+      Sl += pow(double(vaux),ndim);
+      w.rs();
+      for (int j=1;j<=ndim;j++){
+	vaux1.setel(w.get(ind[i+1],j)-w.get(ind[i],j),j);
+      }
+      vaux.norm_p(vaux1,2);
+      Sl += pow(double(vaux),ndim);
+    }
+
+    dVdW.set(0.);
+    d2VdW2.set(0.);
+    for (int p=1;p<=ndim;p++) {
+      for (int q=1;q<=ndim;q++) {
+	for (int r=1;r<=ndim;r++) {
+	  dVdW.ir(1,1).ir(2,p).set(dVdW.get(1,p)+epsilon_LC.get(p,q,r)*w.get(2,q)*w.get(3,r)).rs();
+	  dVdW.ir(1,2).ir(2,q).set(dVdW.get(2,q)+epsilon_LC.get(p,q,r)*w.get(1,p)*w.get(3,r)).rs();
+	  dVdW.ir(1,3).ir(2,r).set(dVdW.get(3,r)+epsilon_LC.get(p,q,r)*w.get(1,p)*w.get(2,q)).rs();
+
+	  d2VdW2.ir(1,2).ir(2,q).ir(3,1).ir(4,p).set(d2VdW2.get(2,q,1,p)+epsilon_LC.get(p,q,r)*w.get(3,r)).rs();
+	  d2VdW2.ir(1,3).ir(2,r).ir(3,1).ir(4,p).set(d2VdW2.get(3,r,1,p)+epsilon_LC.get(p,q,r)*w.get(2,q)).rs();
+	  d2VdW2.ir(1,1).ir(2,p).ir(3,2).ir(4,q).set(d2VdW2.get(1,p,2,q)+epsilon_LC.get(p,q,r)*w.get(3,r)).rs();
+	  d2VdW2.ir(1,3).ir(2,r).ir(3,2).ir(4,q).set(d2VdW2.get(3,r,2,q)+epsilon_LC.get(p,q,r)*w.get(1,p)).rs();
+	  d2VdW2.ir(1,1).ir(2,p).ir(3,3).ir(4,r).set(d2VdW2.get(1,p,3,r)+epsilon_LC.get(p,q,r)*w.get(2,q)).rs();
+	  d2VdW2.ir(1,2).ir(2,q).ir(3,3).ir(4,r).set(d2VdW2.get(2,q,3,r)+epsilon_LC.get(p,q,r)*w.get(1,p)).rs();
+	}
+      }
+    }
+    dVdW.scale(1./6.);
+    d2VdW2.scale(1./6.);
+
+    dSldW.set(0.);
+    d2SldW2.set(0.);
+    for (int i=1;i<=ndim;i++) {
+      vaux2.ir(2,1).set(w.ir(1,i)).rs();
+      vaux1.set(w.ir(1,ind[i+1]));
+      vaux2.ir(2,2).set(vaux1.rest(w.ir(1,ind[i]))).rs();
+      vaux1.set(w.ir(1,ind[i]));
+      vaux2.ir(2,3).set(vaux1.rest(w.ir(1,ind[i-1]))).rs();
+      for (int l=1;l<=ndim;l++) {
+	vaux1.ir(1,l).norm_p(vaux2.ir(2,l),2).rs();
+      }
+      w.rs();
+      vaux2.rs();
+      for (int j=1;j<=ndim;j++) {
+	dSldW.setel(vaux1.get(1)*w.get(i,j)-vaux1.get(2)*vaux2.get(j,2)+vaux1.get(3)*vaux2.get(j,3),i,j);
+
+	for (int k=1;k<=ndim;k++) {
+	  d2SldW2.setel(d2SldW2.get(i,j,i,k)+w.get(i,k)*w.get(i,j)/vaux1.get(1),i,j,i,k);
+	  d2SldW2.setel(d2SldW2.get(i,j,i,k)+vaux2.get(k,2)*vaux2.get(j,2)/vaux1.get(2),i,j,i,k);
+	  d2SldW2.setel(d2SldW2.get(i,j,i,k)+vaux2.get(k,3)*vaux2.get(j,3)/vaux1.get(3),i,j,i,k);
+	  d2SldW2.setel(d2SldW2.get(i,j,ind[i+1],k)-vaux2.get(k,2)*vaux2.get(j,2)/vaux1.get(2),i,j,ind[i+1],k);
+	  d2SldW2.setel(d2SldW2.get(i,j,ind[i-1],k)-vaux2.get(k,3)*vaux2.get(j,3)/vaux1.get(3),i,j,ind[i-1],k);
+	  if (k==j) {
+	    d2SldW2.setel(d2SldW2.get(i,j,i,k)+vaux1.get(1)+vaux1.get(2)+vaux1.get(3),i,j,i,k);
+	    d2SldW2.setel(d2SldW2.get(i,j,ind[i+1],k)-vaux1.get(2),i,j,ind[i+1],k);
+	    d2SldW2.setel(d2SldW2.get(i,j,ind[i-1],k)-vaux1.get(3),i,j,ind[i-1],k);
+	  }
+	}
+      }
+    }
+    dSldW.scale(3.);
+    d2SldW2.scale(3.);
+
+  }
+
+  delta = delta0*pow(fraction,glob_param->inwt);
+
+  double h = 0.5*(V+pow(pow(V,2.)+4.*pow(delta,2.),0.5));
+  double dhdV = 0.5*(1.+V/pow(pow(V,2.)+4.*pow(delta,2.),0.5));
+  double d2hdV2 = 2.*pow(delta,2.)/pow(pow(V,2.)+4.*pow(delta,2.),1.5);
+
+  dVdu.prod(dVdW,dWdu,-1,-2,-1,-2,1,2);
+  dSldu.prod(dSldW,dWdu,-1,-2,-1,-2,1,2);
+
+  tmp.prod(d2VdW2,dWdu,1,2,-1,-2,-1,-2,3,4);
+  d2Vdu2.prod(tmp,dWdu,-1,-2,3,4,-1,-2,1,2);
+  tmp.prod(d2SldW2,dWdu,1,2,-1,-2,-1,-2,3,4);
+  d2Sldu2.prod(tmp,dWdu,-1,-2,3,4,-1,-2,1,2);
+
+  Q = C*h/Sl;
   
-#ifdef DEBUG_ANAL
-  xloc.print("eig_anal: xloc");
-  xloc.print("state_new");
-  res.print("res:");
-  mat.reshape(2,nel*ndim,nel*ndim).print("mat: ");
-  printf("eps: %f\n",eps);
-  PetscFinalize();
-  exit(0);
-#endif
+  dQ.set(dVdu).scale(dhdV*Sl).rest(dSldu.scale(h)).scale(C/pow(Sl,2));
+
+  dSldu.scale(1./h);
+
+  // Esto anda con el funcional original (basado en la calidad q)
+  res.set(dQ).scale(distor_exp*c_distor*pow(Q,distor_exp-1.));
+  res.axpy(dVdu,volume_exp*c_volume/Vref*pow(V/Vref-1.,volume_exp-1.));
+  
+  d2Q.set(d2Vdu2).scale(Sl);
+  mat1.prod(dVdu,dSldu,1,2,3,4);
+  d2Q.axpy(mat1,1.);
+  mat1.prod(dSldu,dVdu,1,2,3,4);
+  d2Q.axpy(mat1,-1.).scale(dhdV);
+  d2Q.axpy(d2Sldu2,-h);
+  mat1.prod(dVdu,dVdu,1,2,3,4);
+  d2Q.axpy(mat1,d2hdV2*Sl).scale(C/pow(Sl,2));
+  mat1.prod(dQ,dSldu,1,2,3,4);
+  d2Q.axpy(mat1,-2./Sl);
+
+  // Esto anda con el funcional original
+  mat.prod(dQ,dQ,1,2,3,4).scale((distor_exp-1)/Q);
+  mat.axpy(d2Q,1.).scale(distor_exp*c_distor*pow(Q,distor_exp-1.));
+
+  mat1.prod(dVdu,dVdu,1,2,3,4);
+  mat.axpy(mat1,volume_exp*c_volume/pow(Vref,volume_exp)*(volume_exp-1.)*pow(V-Vref,volume_exp-2.));
+  mat.axpy(d2Vdu2,volume_exp*c_volume/pow(Vref,volume_exp)*pow(V-Vref,volume_exp-1.)).scale(-1.);
+
+  // Relajo los terminos de acople de la matriz
+  for (int i=1;i<=ndim;i++){
+    for (int j=1;j<=ndim;j++){
+      if (i!=j){
+	mat.ir(4,j).ir(2,i).scale(coef);
+      }
+      mat.rs();
+    }
+  }
+
 }
