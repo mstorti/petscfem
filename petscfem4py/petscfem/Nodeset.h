@@ -1,5 +1,4 @@
-// -*- c++ -*-
-// $Id: Nodeset.h,v 1.1.2.1 2006/03/30 15:40:05 rodrigop Exp $
+// $Id: Nodeset.h,v 1.1.2.2 2006/04/27 19:09:17 rodrigop Exp $
 
 #ifndef PYPF_NODESET_H
 #define PYPF_NODESET_H
@@ -13,37 +12,31 @@ PYPF_NAMESPACE_BEGIN
 class Nodeset : SMARTPTR(Nodeset)
   public Object
 {
-  friend class Mesh;
-  friend class DofMap;
-  friend class Problem;
-
-#if !defined(SWIG)
- public:
-  Nodeset(Nodeset::Base*);
-#endif
 
  protected:
-  int                 nnod;
-  int                 ndim;
+  int ndim;
+  int nnod, nval;
   std::vector<double> nodedata;
 
  public:
   ~Nodeset();
   Nodeset();
-  Nodeset(const Nodeset&);
-  Nodeset(int nnod, int ndim, const double xyz[]);
+  Nodeset(const Nodeset& nodeset);
+  Nodeset(int ndim, int nnod, int nval, const double data[]);
 
-  void getSize(int* nnod, int* ndim) const;
-  void getData(int* nnod, int* ndim, double* xyz[]) const;
-  void setData(int  nnod, int  ndim, const double  xyz[]);
+  int  getDim() const;
+  void setDim(int ndim);
 
-  typedef std::vector<double> Node;
-  Node getNode(int i) const;
-  void setNode(int i, const Node& node);
+  void getData(int* nnod, int* nval, const double* data[]) const;
+  void setData(int  nnod, int  nval, const double  data[]);
+  void getDataSize(int* nnod, int* nval) const;
 
+  void getNode(int i, int* n, const double* data[]) const;
+  void setNode(int i, int  n, const double  data[]);
+  int  getSize() const;
+
+ public:
   void sync(int root = 0);
-
-  void setUp();
   void clear();
   void view() const;
 
@@ -53,3 +46,7 @@ class Nodeset : SMARTPTR(Nodeset)
 PYPF_NAMESPACE_END
 
 #endif // PYPF_NODESET_H
+
+// Local Variables:
+// mode: C++
+// End:

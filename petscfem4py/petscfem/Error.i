@@ -1,35 +1,33 @@
 // -*- c++ -*-
-// $Id: Error.i,v 1.1.2.3 2006/03/28 22:13:25 rodrigop Exp $
+// $Id: Error.i,v 1.1.2.4 2006/04/27 19:09:17 rodrigop Exp $
 
 %include exception.i
 
-#if 1
+%define PYPF_CATCH_SWIGDIRECTORS
+/* SWIG Directors exception*/
+catch(Swig::DirectorException &e) { SWIG_fail; }
+%enddef
+
+%define PYPF_CATCH_PETSCFEM
+/* PETScFEM exception */
+catch(const PYPF_NAMESPACE::Error & error) 
+ { SWIG_exception(SWIG_RuntimeError, error); } 
+%enddef
+
+%define PYPF_CATCH_UNKNOWN
+/* Other exceptions */
+catch (std::exception& e)
+ { SWIG_exception(SWIG_SystemError, e.what() ); }
+catch (...)
+ { SWIG_exception(SWIG_UnknownError, "unknown exception");}
+%enddef
+
 
 %exception {
-  try {
-    $action
-  } catch(const PyPF::Error & error) {
-    SWIG_exception(SWIG_RuntimeError, error);
-  } catch(const std::exception& exc) {
-    SWIG_exception(SWIG_RuntimeError, exc.what());
-  } catch(...) {
-    SWIG_exception(SWIG_UnknownError, "unknown exception");
-  }
+try { $action }
+%#if defined(SWIG_DIRECTORS)
+PYPF_CATCH_SWIGDIRECTORS
+%#endif
+PYPF_CATCH_PETSCFEM
+PYPF_CATCH_UNKNOWN
 }
-
-#else
-
-%{
-#define PF_TRY(ACTION)                             \
-try { ACTION }                                     \
-catch(const PyPF::Error & error)                   \
-{ SWIG_exception(SWIG_RuntimeError, error); }      \
-catch(const std::exception& exc)                   \
-{ SWIG_exception(SWIG_RuntimeError, exc.what()); } \
-catch(...)                                         \
-{ SWIG_exception(SWIG_UnknownError, "unknown exception"); }
-%}
-
-%exception { PF_TRY($action) }
-
-#endif

@@ -1,5 +1,4 @@
-// -*- c++ -*-
-// $Id: SmartPtr.h,v 1.1.2.4 2006/03/30 15:18:14 rodrigop Exp $
+// $Id: SmartPtr.h,v 1.1.2.5 2006/04/27 19:09:17 rodrigop Exp $
 
 #ifndef PYPF_SMARTPTR_H
 #define PYPF_SMARTPTR_H
@@ -28,7 +27,7 @@ public:
   // destruction
   virtual ~SmartPtr() { this->ptr = 0; }
   // construction
-  explicit SmartPtr(T* t, bool flag=true) : ptr(t) { 
+  explicit SmartPtr(T* t, bool flag=true) : ptr(t) {
     if (flag && this->ptr == NULL) 
       throw Error("constructing a handle from a null pointer"); 
   }
@@ -78,3 +77,7 @@ public:
 PYPF_NAMESPACE_END
 
 #endif // PYPF_SMARTPTR_H
+
+// Local Variables:
+// mode: C++
+// End:

@@ -1,7 +1,5 @@
-// $Id: Mesh.cpp,v 1.1.2.6 2006/03/30 15:40:05 rodrigop Exp $
+// $Id: Mesh.cpp,v 1.1.2.7 2006/04/27 19:09:17 rodrigop Exp $
 
-#include "Nodeset.h"
-#include "Elemset.h"
 #include "Mesh.h"
 
 #include <fem.h>
@@ -12,9 +10,11 @@ PYPF_NAMESPACE_BEGIN
 
 Mesh::~Mesh() 
 { 
-  this->nodedata->decref();
-  for (int i=0; i<this->elemsetlist.size();
-       this->elemsetlist[i++]->decref());
+  PYPF_DECREF(this->nodeset);
+  for (int i=0; i<this->elemsetlist.size(); i++) {
+    Elemset* elemset = this->elemsetlist[i];
+    PYPF_DECREF(elemset);
+  }
   /* base pointer */ Mesh::Base* mesh = *this;
   /* options      */ mesh->global_options = NULL;
   /* nodedata     */ mesh->nodedata = NULL;
@@ -23,26 +23,30 @@ Mesh::~Mesh()
 }
 
 Mesh::Mesh() 
-  : Handle(new Mesh::Base), Object(),
-    nodedata(new Nodeset), elemsetlist(0)
+  : Handle(new Mesh::Base), 
+    Object(),
+    nodeset(new Nodeset), 
+    elemsetlist()
 { 
-  this->nodedata->incref();
+  PYPF_INCREF(this->nodeset);
   /* base pointer */ Mesh::Base* mesh = *this;
   /* options      */ mesh->global_options = this->options;
-  /* nodedata     */ mesh->nodedata = *(this->nodedata); 
+  /* nodedata     */ mesh->nodedata = *(this->nodeset); 
   /* elemset list */ mesh->elemsetlist = da_create(sizeof(Elemset::Base*));
 }
 
 Mesh::Mesh(const Mesh& msh) 
-  : Handle(new Mesh::Base), Object(msh),
-    nodedata(msh.nodedata), elemsetlist(msh.elemsetlist)
+  : Handle(new Mesh::Base), 
+    Object(msh),
+    nodeset(msh.nodeset), 
+    elemsetlist(msh.elemsetlist)
 { 
-  this->nodedata->incref();
-  for (int i=0; i<this->elemsetlist.size(); 
+  PYPF_INCREF(this->nodeset);
+  for (int i=0; i<this->elemsetlist.size();
        this->elemsetlist[i++]->incref());
   /* base pointer */ Mesh::Base* mesh = *this;
   /* options      */ mesh->global_options = this->options;
-  /* nodedata     */ mesh->nodedata = *(this->nodedata);
+  /* nodedata     */ mesh->nodedata = *(this->nodeset);
   /* elemset list */ mesh->elemsetlist = 
   /*              */    da_create_len(sizeof(Elemset::Base*),
   /*              */ 		      this->elemsetlist.size());
@@ -52,44 +56,18 @@ Mesh::Mesh(const Mesh& msh)
   /*              */ }
 }
 
-Mesh::Mesh(Mesh::Base* msh)
-  : Handle(msh), Object(),
-    nodedata(new Nodeset(msh->nodedata)), elemsetlist(0)
-{  
-  Mesh::Base* mesh = *this;
-  if (mesh->elemsetlist == NULL) {
-    mesh->elemsetlist = da_create(sizeof(Elemset::Base*));
-  }
-  else {
-    int size = int(da_length(mesh->elemsetlist));
-    this->elemsetlist.resize(size);
-    for (int i=0; i<size; i++) {
-      Elemset::Base** e;
-      e = reinterpret_cast<Elemset::Base**>(da_ref(mesh->elemsetlist, i));
-      Elemset* elemset = new Elemset(*e);
-      this->elemsetlist[i] = elemset;
-    }
-  }
-  if (mesh->global_options == NULL) 
-    mesh->global_options = this->options;
-  else
-    this->options = mesh->global_options;
-
-  this->nodedata->incref();
-  for (int i=0; i<this->elemsetlist.size(); 
-       this->elemsetlist[i++]->incref());
-}
-
-Mesh::Mesh(Nodeset* _nodedata,
-	   const std::vector<Elemset*>& _elemsetlist) 
-  : Handle(new Mesh::Base), Object(),
-    nodedata(_nodedata), elemsetlist(_elemsetlist)
+Mesh::Mesh(Nodeset& nodeset,
+	   const std::vector<Elemset*>& elemsetlist)
+  : Handle(new Mesh::Base), 
+    Object(),
+    nodeset(&nodeset), 
+    elemsetlist(elemsetlist)
 { 
-  this->nodedata->incref();
-  for (int i=0; i<this->elemsetlist.size(); 
+  PYPF_INCREF(this->nodeset);
+  for (int i=0; i<this->elemsetlist.size();
        this->elemsetlist[i++]->incref());
   /* base pointer */ Mesh::Base* mesh = *this;
-  /* nodedata     */ mesh->nodedata = *(this->nodedata);
+  /* nodedata     */ mesh->nodedata = *(this->nodeset);
   /* elemset list */ mesh->elemsetlist = 
   /*              */   da_create_len(sizeof(Elemset::Base*),
   /*              */	             this->elemsetlist.size());
@@ -100,21 +78,20 @@ Mesh::Mesh(Nodeset* _nodedata,
   /* options      */ mesh->global_options = this->options;
 }
 
-
-Nodeset*
+Nodeset&
 Mesh::getNodeset() const
 {
-  return this->nodedata;
+  return *this->nodeset;
 }
 
 void
-Mesh::setNodeset(Nodeset* nodedata)
+Mesh::setNodeset(Nodeset& nodeset)
 {
-  nodedata->incref();
-  this->nodedata->decref();
-  this->nodedata = nodedata;
+  PYPF_INCREF(&nodeset);
+  PYPF_DECREF(this->nodeset);
+  this->nodeset = &nodeset;
   /* base pointer */ Mesh::Base* mesh = *this;
-  /* nodedata     */ mesh->nodedata = *(this->nodedata);
+  /* nodedata     */ mesh->nodedata = *(this->nodeset);
 }
 
 
@@ -124,65 +101,62 @@ Mesh::getSize() const
   return this->elemsetlist.size();
 }
   
-Elemset*
+Elemset&
 Mesh::getElemset(int i) const
 {
   int n = this->elemsetlist.size();
-  if (n==0)      throw Error("empty elemset list");
-  if (i<0||i>=n) throw Error("index out of range");
-  return this->elemsetlist[i];
+  PYPF_ASSERT(i>=0 && i<n, "index out of range");
+  return *this->elemsetlist[i];
 }
 
 void
-Mesh::setElemset(int i, Elemset* elemset)
+Mesh::setElemset(int i, Elemset& elemset)
 {
   int n = this->elemsetlist.size();
-  if (n==0)      throw Error("empty elemset list");
-  if (i<0||i>=n) throw Error("index out of range");
+  PYPF_ASSERT(i>=0 && i<n, "index out of range");
 
-  elemset->incref();
-  this->elemsetlist[i]->decref();
-  this->elemsetlist[i] = elemset;
+  PYPF_INCREF(&elemset);
+  PYPF_DECREF(this->elemsetlist[i]);
+  this->elemsetlist[i] = &elemset;
 
   /* base pointer */ Mesh::Base* mesh = *this;
-  /* base pointer */ Elemset::Base* e = *elemset;
+  /* base pointer */ Elemset::Base* e = elemset;
   /* elemset list */ da_set(mesh->elemsetlist, i, &e);
 }
 
-
 void
-Mesh::addElemset(Elemset* elemset)
+Mesh::delElemset(int i)
 {
-  elemset->incref();
-  this->elemsetlist.push_back(elemset);
-
-  /* base pointer */ Mesh::Base* mesh = *this;
-  /* base pointer */ Elemset::Base* e = *elemset;
-  /* elemset list */ da_append(mesh->elemsetlist, &e);
+  int n = this->elemsetlist.size();
+  PYPF_ASSERT(i>=0 && i<n, "index out of range");
+  PYPF_ASSERT(0, "not implemented yet");
 }
 
 void
-Mesh::setUp()
+Mesh::addElemset(Elemset& elemset)
 {
-  this->nodedata->setUp();
-  for (int i=0; i<this->elemsetlist.size(); i++)
-    this->elemsetlist[i]->setUp();
+  PYPF_INCREF(&elemset);
+  this->elemsetlist.push_back(&elemset);
+
+  /* base pointer */ Mesh::Base* mesh = *this;
+  /* base pointer */ Elemset::Base* e = elemset;
+  /* elemset list */ da_append(mesh->elemsetlist, &e);
 }
 
 void
 Mesh::clear()
 {
   this->options.clear();
-  this->nodedata->decref();
-  this->nodedata = new Nodeset;
-  this->nodedata->incref();
+  PYPF_DECREF(this->nodeset);
+  this->nodeset = new Nodeset;
+  PYPF_INCREF(this->nodeset);
   for (int i=0; i<this->elemsetlist.size(); 
        this->elemsetlist[i++]->decref());
   this->elemsetlist.resize(0);
 
   /* base pointer */ Mesh::Base* mesh = *this;
   /* options      */ mesh->global_options = this->options;
-  /* nodedata     */ mesh->nodedata = *(this->nodedata);
+  /* nodedata     */ mesh->nodedata = *(this->nodeset);
   /* elemset list */ PYPF_DELETE(da_destroy, mesh->elemsetlist);
   /*              */ mesh->elemsetlist = da_create(sizeof(Elemset::Base*));
 
@@ -193,7 +167,7 @@ Mesh::view() const
 {
   printf("Nodeset\n");
   printf("--------\n");
-  Nodeset::Base* nodedata = *(this->nodedata);
+  Nodeset::Base* nodedata = *(this->nodeset);
   printf("nnod: %d, ndim: %d\n", nodedata->nnod, nodedata->ndim);
   printf("\n");
 

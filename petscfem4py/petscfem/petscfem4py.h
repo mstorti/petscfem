@@ -1,5 +1,4 @@
-// -*- c++ -*-
-// $Id: petscfem4py.h,v 1.1.2.4 2006/03/20 16:06:00 rodrigop Exp $
+// $Id: petscfem4py.h,v 1.1.2.5 2006/04/27 19:09:18 rodrigop Exp $
 
 #ifndef PYPF_PETSCFEM4PY_H
 #define PYPF_PETSCFEM4PY_H
@@ -13,3 +12,7 @@
 #include "Base.h"
 
 #endif // PYPF_PETSCFEM4PY_H
+
+// Local Variables:
+// mode: C++
+// End:

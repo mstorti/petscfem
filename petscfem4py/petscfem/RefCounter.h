@@ -1,5 +1,4 @@
-// -*- c++ -*-
-// $Id: RefCounter.h,v 1.1.2.1 2006/03/30 15:18:14 rodrigop Exp $
+// $Id: RefCounter.h,v 1.1.2.2 2006/04/27 19:09:17 rodrigop Exp $
 
 #ifndef PYPF_REFCOUNTER_H
 #define PYPF_REFCOUNTER_H
@@ -25,10 +24,8 @@ public:
   inline int getref() const { return get_ref(); }
   inline int incref() const { return inc_ref(); }
   inline int decref() const {
-    if (get_ref() == 0 || dec_ref() == 0) { 
-      delete this; 
-      return 0; 
-    }
+    if (get_ref() == 0 || dec_ref() == 0) 
+      { delete this; return 0; }
     return get_ref();
   }
 
@@ -37,3 +34,7 @@ public:
 PYPF_NAMESPACE_END
 
 #endif // PYPF_REFCOUNTER_H
+
+// Local Variables:
+// mode: C++
+// End:

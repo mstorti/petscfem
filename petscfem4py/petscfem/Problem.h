@@ -1,13 +1,11 @@
-// -*- c++ -*-
-// $Id: Problem.h,v 1.1.2.6 2006/03/30 15:40:05 rodrigop Exp $
+// $Id: Problem.h,v 1.1.2.7 2006/04/27 19:09:17 rodrigop Exp $
 
 #ifndef PYPF_PROBLEM_H
 #define PYPF_PROBLEM_H
 
 
-#include <string>
 #include <vector>
-#include <mpi.h>
+#include <petscvec.h>
 #include "petscfem4py.h"
 #include "Object.h"
 #include "Nodeset.h"
@@ -18,39 +16,52 @@
 
 PYPF_NAMESPACE_BEGIN
 
-class Problem : 
-  public Object
+class Problem 
+  : public Object
 {
 
 private:
   Problem();
-  Problem(const Problem&);
 
 protected:
-  int nnod, ndim, ndof;
   Mesh*   mesh;
   DofMap* dofmap;
-  bool setupcalled;
 
 public:
   ~Problem();
-  Problem(Mesh*, DofMap*);
-
-  void setUp();
+  Problem(const Problem& problem);
+  Problem(Mesh& mesh, DofMap& dofmap);
+  Problem(Nodeset& nodeset,
+	  const std::vector<Elemset*>& elemsets,
+	  Dofset& dofset);
   
-  Mesh*   getMesh()   const;
-  DofMap* getDofMap() const;
+  Mesh&   getMesh()   const;
+  DofMap& getDofMap() const;
 
-  void getDofSizes (int* local, int* global) const;
-  void getDofRange (int* first, int* last)   const;
+  int  getDim() const;
+  int  getSize() const;
+  void getSizes(int* nnod, int* ndof) const;
+
+  int  getDofSize() const;
+  void getDofSizes(int* local, int* global) const;
+  void getDofRange(int* first, int* last)   const;
+
+  void getLocalDofs(int* n, int* dofs[]) const;
 
   void buildSolution (Vec state,    Vec solution) const;
   void buildState    (Vec solution, Vec state)    const;
 
-  //void read(const std::string& filename);
+protected:
+  virtual void preAssemble();
+  virtual void postAssemble();
+
 };
 
 
 PYPF_NAMESPACE_END
 
 #endif // PYPF_PROBLEM_H
+
+// Local Variables:
+// mode: C++
+// End:

@@ -1,8 +1,6 @@
-// $Id: DofMap.cpp,v 1.1.2.6 2006/03/30 15:18:14 rodrigop Exp $
+// $Id: DofMap.cpp,v 1.1.2.7 2006/04/27 19:09:17 rodrigop Exp $
 
-#include "Mesh.h"
 #include "DofMap.h"
-
 
 #include <fem.h>
 #include <dofmap.h>
@@ -13,6 +11,11 @@ PYPF_NAMESPACE_BEGIN
 
 DofMap::~DofMap() 
 { 
+  Dofset::AmplitudeSet::iterator s = this->ampset.begin();
+  while (s != this->ampset.end()) {
+    Amplitude* amp = *s++; PYPF_DECREF(amp);
+  }
+
   DofMap::Base* dofmap = *this;
 #if 0
   // private:
@@ -40,37 +43,18 @@ DofMap::~DofMap()
   delete dofmap;
 }
 
-// DofMap::DofMap()
-//   : Handle(new DofMap::Base), Object(),
-//     nnod(0), ndof(0),
-//     frozen(false)
-// { 
-//   DofMap::Base* dofmap = *this;
-
-//   dofmap->ident         = NULL;
-//   dofmap->ghost_dofs    = NULL;
-//   dofmap->id            = NULL;
-//   dofmap->startproc     = NULL;
-//   dofmap->neqproc       = NULL;
-//   dofmap->tpwgts        = NULL;
-//   dofmap->npart         = NULL;
-//   dofmap->ghost_scatter = NULL;
-//   dofmap->scatter_print = NULL;
-//   dofmap->ghost_dofs    = NULL;
-// }
-
-DofMap::DofMap(DofMap::Base* dm)
-  : Handle(dm), Object(),
-    nnod(dm->nnod), ndof(dm->ndof),
-    frozen(true)
-{ }
-
-
-DofMap::DofMap(Mesh* mesh, int _ndof)
-  : Handle(new DofMap::Base), Object(),
-    nnod(mesh->nodedata->nnod), ndof(_ndof),
-    frozen(false)
+DofMap::DofMap(Mesh& mesh, Dofset& dofset)
+  : Handle(new DofMap::Base),
+    Object(mesh.getComm()),
+    nnod(dofset.nnod),
+    ndof(dofset.ndof),
+    ampset(dofset.amplitude)
 {
+  Dofset::AmplitudeSet::iterator s = this->ampset.begin();
+  while (s != this->ampset.end()) {
+    Amplitude* amp = *s++; PYPF_INCREF(amp);
+  }
+
   DofMap::Base* dofmap   = *this;
 
   dofmap->ident         = NULL;
@@ -84,39 +68,36 @@ DofMap::DofMap(Mesh* mesh, int _ndof)
   dofmap->scatter_print = NULL;
   dofmap->ghost_dofs    = NULL;
   
-  //PYPF_ASSERT(this->ndof>0, "invalid value for 'ndof'");
-
   dofmap->ghost_dofs    = new vector<int>;
   dofmap->ghost_scatter = new VecScatter;
   dofmap->scatter_print = new VecScatter;
   *dofmap->ghost_scatter = PETSC_NULL;
   *dofmap->scatter_print = PETSC_NULL;
 
+  // create idmap
   int nnod = dofmap->nnod = this->nnod;
   int ndof = dofmap->ndof = this->ndof;
   dofmap->id = new idmap(nnod*ndof, NULL_MAP);
 
+  // allocation
   int size, rank;
   MPI_Comm_size(this->comm, &size);
   MPI_Comm_rank(this->comm, &rank);
-  int*   startproc = new int[size+1];
-  int*   neqproc   = new int[size+1];
-  float* tpwgts    = new float[size];
-  int *  npart     = new int[nnod];
-  memset(startproc, 0, sizeof(int)*(size+1));
-  memset(neqproc,   0, sizeof(int)*(size+1));
-  memset(npart,     0, sizeof(int)*nnod);
-  for (int i=0; i<size;  tpwgts[i++] = 1.0/float(size));
   dofmap->size      = size;
-  dofmap->startproc = startproc;
-  dofmap->neqproc   = neqproc;
-  dofmap->tpwgts    = tpwgts;
-  dofmap->npart     = npart;
+  dofmap->startproc = new int[size+1];
+  dofmap->neqproc   = new int[size+1];
+  dofmap->tpwgts    = new float[size];
+  dofmap->npart     = new int[nnod];
+  memset(dofmap->startproc, 0, sizeof(int)*(size+1));
+  memset(dofmap->neqproc,   0, sizeof(int)*(size+1));
+  memset(dofmap->npart,     0, sizeof(int)*nnod);
+  for (int i=0; i<size; dofmap->tpwgts[i++] = 1.0/float(size));
 
-  for (int i=0; i<mesh->elemsetlist.size(); i++) {
-    Elemset& elemset = *mesh->elemsetlist[i];
-    int  nelem, nel, *icone;
-    elemset.getConnectivity(&nelem, &nel, &icone);
+  // add nodes
+  for (int i=0; i<mesh.getSize(); i++) {
+    Elemset& elemset = mesh.getElemset(i);
+    int  nelem, nel; const int* icone;
+    elemset.getData(&nelem, &nel, &icone);
     for (int j=0; j<nelem*nel; j++) {
       for (int k=0; k<ndof; k++) {
 	int edof = dofmap->edof(icone[j], k+1);
@@ -124,73 +105,94 @@ DofMap::DofMap(Mesh* mesh, int _ndof)
       }
     }
   }
+  // add fixations  
+  Dofset::FixationList& fixations = dofset.fixations;
+  Dofset::FixationList::const_iterator f = fixations.begin();
+  while (f != fixations.end()) this->addFixation(*f++);
+  // add constraints
+  Dofset::ConstraintList& constraints = dofset.constraints;
+  Dofset::ConstraintList::const_iterator c = constraints.begin();
+  while (c != constraints.end()) this->addConstraint(*c++);
 }
 
-static void 
-dofmap_set_fixation(DofMap::Base* dofmap, int node, int field, double value) {
-  row_t row;
-  dofmap->get_row(node, field, row);
-  if (row.size()!=1) throw Error("bad fixation for node/field combination");
+void 
+DofMap::addFixation(const Dofset::Fixation& f)
+{
+  DofMap& dofmap = *this;
+
+  int node  = f.node+1;
+  int field = f.field+1;
+  double value = f.value;
+  Amplitude::Base* amp = f.amp;
+
+  row_t row; dofmap->get_row(node, field, row);
+  if (row.size()!=1)
+    throw Error("bad fixation for node/field combination");
+  if (row.begin()->second != 1.0)
+    throw Error("bad fixation for node/field combination");
   std::vector<fixation_entry>& fixed      = dofmap->fixed;
   std::map<int,int>&           fixed_dofs = dofmap->fixed_dofs;
-  int keq = row.begin()->first;
+  int keq  = row.begin()->first;
+  int edof = amp ? dofmap->edof(node, field) : -1;
+  fixation_entry fix_entry(value, amp, edof);
   if (fixed_dofs.find(keq) == fixed_dofs.end()) {
-    fixed.push_back(fixation_entry(value));
+    fixed.push_back(fix_entry);
     fixed_dofs[keq] = fixed.size()-1;
   } else {
-    fixed[fixed_dofs[keq]] = fixation_entry(value);
+    fixed[fixed_dofs[keq]] = fix_entry;
   }
 }
 
-void
-DofMap::addFixations(int n, int node[], int field[], double value[])
+void 
+DofMap::addConstraint(const Dofset::Constraint& constraint)
 {
-  if (this->frozen) throw Error("DofMap object is frozen");
   DofMap& dofmap = *this;
-  for (int i=0; i<n; i++)
-    dofmap_set_fixation(dofmap, node[i]+1, field[i]+1, value[i]);
+  Constraint C;
+  for (int i=0; i<constraint.size(); i++) {
+    const Dofset::constraint& c = constraint[i];
+    C.add_entry(c.node+1, c.field+1, c.coeff);
+  }
+  dofmap->set_constraint(C);
 }
 
-void
-DofMap::addConstraints(int n, int node[], int field[], double coef[])
+
+int 
+DofMap::getSize() const
 {
-  if (this->frozen) throw Error("DofMap object is frozen");
-  DofMap& dofmap = *this;
-  ::Constraint constraint;
-  for (int i=0; i<n; i++) 
-    constraint.add_entry(node[i]+1, field[i]+1, coef[i]);
-  dofmap->set_constraint(constraint);
+  const DofMap& dofmap = *this;
+  int size; MPI_Comm_size(this->comm, &size);
+  return dofmap->startproc[size];
+}
+
+int 
+DofMap::getLocalSize() const
+{
+  const DofMap& dofmap = *this;
+  int rank; MPI_Comm_rank(this->comm, &rank);
+  const int* range = dofmap->startproc;
+  return range[rank+1] - range[rank];
 }
 
 void
 DofMap::getSizes(int* local, int* global) const
 {
-  //if (!this->frozen) throw Error("DofMap object is not frozen");
-  int size, rank;
-  MPI_Comm_size(this->comm, &size);
-  MPI_Comm_rank(this->comm, &rank);
-  const DofMap& dofmap = *this;
-  if (local)  *local  = dofmap->neqproc[rank];
-  if (global) *global = dofmap->startproc[size];
+  if (local)  *local  = this->getLocalSize();
+  if (global) *global = this->getSize();
 }
 
 void
-DofMap::getRange(int* start, int* end) const
+DofMap::getRange(int* first, int* last) const
 {
-  //if (!this->frozen) throw Error("DofMap object is not frozen");
-  int rank, dof1, dof2;
+  int rank;
   MPI_Comm_rank(this->comm, &rank);
   const DofMap& dofmap =*this;
-  dof1 = dofmap->startproc[rank];
-  dof2 = dof1 + dofmap->neqproc[rank];
-  if (start) *start = dof1;
-  if (end)   *end   = dof2;
+  if (first) *first = dofmap->startproc[rank];
+  if (last)  *last  = dofmap->startproc[rank+1];
 }
 
 void
-DofMap::getRanges(int* size, int* ranges[]) const
+DofMap::getDist(int* size, int* ranges[]) const
 {
-  //if (!this->frozen) throw Error("DofMap object is not frozen");
   const DofMap& dofmap = *this;
   if (size)   *size = dofmap->size + 1;
   if (ranges) *ranges = dofmap->startproc;
@@ -210,17 +212,49 @@ DofMap::getNDof() const
   return dofmap->ndof;
 };
 
-int
-DofMap::getNFix() const
-{
-  const DofMap& dofmap = *this;
-  return dofmap->neqf;
-};
-
 
 void
-DofMap::setUp()
-{ }
+DofMap::apply(int nstt, const double state[],
+	      int nsol, double solution[],
+	      double _time) const
+{
+  DofMap& dofmap = const_cast<DofMap&>(*this);
+
+  int nnod = dofmap->nnod;
+  int ndof = dofmap->ndof;
+  int neq  = dofmap->neq;
+
+  PYPF_ASSERT(nstt==neq,       "invalid size for state array");
+  PYPF_ASSERT(nsol==nnod*ndof, "invalid size for solution array");
+
+  Time time; time.set(_time);
+  for (int i=0; i<nnod; i++)
+    for (int j=0; j<ndof; j++)
+      dofmap->get_nodal_value(i+1, j+1, state, &time, solution[i*ndof+j]);
+}
+
+void
+DofMap::solve(int nsol, const double solution[],
+	      int nstt, double state[]) const
+{
+  DofMap& dofmap = const_cast<DofMap&>(*this);
+
+  int nnod = dofmap->nnod;
+  int ndof = dofmap->ndof;
+  int neq  = dofmap->neq;
+  int neqt = dofmap->neqtot;
+
+  PYPF_ASSERT(nstt==neq,       "invalid size for state array");
+  PYPF_ASSERT(nsol==nnod*ndof, "invalid size for solution array");
+
+  std::vector<double> solvec; solvec.resize(nnod*ndof);
+  std::vector<double> sttvec; sttvec.resize(neqt);
+
+  memcpy(&solvec[0], solution, nnod*ndof*sizeof(double));
+  dofmap->solve(&sttvec[0], &solvec[0]);
+  memcpy(state, &sttvec[0], neq*sizeof(double));
+}
+
 
 void
 DofMap::view() const
@@ -228,6 +262,5 @@ DofMap::view() const
   const DofMap& dofmap = *this;
   if (dofmap->id != NULL) dofmap->id->print();
 }
-
 
 PYPF_NAMESPACE_END

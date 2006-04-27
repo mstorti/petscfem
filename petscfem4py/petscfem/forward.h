@@ -1,14 +1,7 @@
-// -*- c++ -*-
-// $Id: forward.h,v 1.1.2.6 2006/03/30 15:40:05 rodrigop Exp $
+// $Id: forward.h,v 1.1.2.7 2006/04/27 19:09:17 rodrigop Exp $
 
 #ifndef PYPF_FORWARD_H
 #define PYPF_FORWARD_H
-
-// PETSc
-// -----
-
-typedef struct _p_Vec* Vec;
-typedef struct _p_Mat* Mat;
 
 
 // PETScFEM
@@ -19,9 +12,10 @@ class Nodedata;
 class Elemset;
 class Mesh;
 class Constraint;
+class Amplitude;
 class Dofmap;
 
-typedef TextHashTable OptionTable;
+typedef TextHashTable Options;
 typedef Nodedata      Nodeset;
 typedef Dofmap        DofMap;
 
@@ -38,10 +32,13 @@ class Object;
 class Nodeset;
 class Elemset;
 class Mesh;
+class Amplitude;
 class DofMap;
-
-typedef ::OptionTable OptionTable;
 
 PYPF_NAMESPACE_END
 
 #endif // PYPF_FORWARD_H
+
+// Local Variables:
+// mode: C++
+// End:

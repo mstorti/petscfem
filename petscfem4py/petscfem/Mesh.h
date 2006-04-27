@@ -1,10 +1,8 @@
-// -*- c++ -*-
-// $Id: Mesh.h,v 1.1.2.7 2006/03/30 15:40:05 rodrigop Exp $
+// $Id: Mesh.h,v 1.1.2.8 2006/04/27 19:09:17 rodrigop Exp $
 
 #ifndef PYPF_MESH_H
 #define PYPF_MESH_H
 
-#include <string>
 #include <vector>
 #include "petscfem4py.h"
 #include "Object.h"
@@ -16,34 +14,28 @@ PYPF_NAMESPACE_BEGIN
 class Mesh : SMARTPTR(Mesh)
   public Object
 {
-  friend class DofMap;
-  friend class Problem;
   
-#if !defined(SWIG)
- public:
-  Mesh(Mesh::Base*);
-#endif
-
  protected:
-  Nodeset*              nodedata;
+  Nodeset*              nodeset;
   std::vector<Elemset*> elemsetlist;
 
  public:
   ~Mesh();
   Mesh();
-  Mesh(const Mesh&);
-  Mesh(Nodeset*, const std::vector<Elemset*>&);
+  Mesh(const Mesh& mesh);
+  Mesh(Nodeset& nodeset,
+       const std::vector<Elemset*>& elemsets);
   
-  Nodeset* getNodeset() const;
-  void     setNodeset(Nodeset*);
+  Nodeset& getNodeset() const;
+  void     setNodeset(Nodeset& nodeset);
 
-  int       getSize() const;
-  Elemset*  getElemset(int) const;
-  void      setElemset(int, Elemset*);
-  void      addElemset(Elemset*);
+  Elemset& getElemset(int i) const;
+  void     setElemset(int i, Elemset& elemset);
+  void     delElemset(int i);
+  void     addElemset(Elemset& elemset);
+  int      getSize() const;
 
  public:
-  void setUp();
   void clear();
   void view() const;
 
@@ -52,3 +44,7 @@ class Mesh : SMARTPTR(Mesh)
 PYPF_NAMESPACE_END
 
 #endif // PYPF_MESH_H
+
+// Local Variables:
+// mode: C++
+// End:

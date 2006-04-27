@@ -1,5 +1,4 @@
-// -*- c++ -*-
-// $Id: Object.h,v 1.1.2.5 2006/03/30 15:40:05 rodrigop Exp $
+// $Id: Object.h,v 1.1.2.6 2006/04/27 19:09:17 rodrigop Exp $
 
 #ifndef PYPF_OBJECT_H
 #define PYPF_OBJECT_H
@@ -9,6 +8,7 @@
 #include <mpi.h>
 #include "petscfem4py.h"
 #include "Options.h"
+#include "Comm.h"
 
 PYPF_NAMESPACE_BEGIN
 
@@ -18,6 +18,8 @@ class Object
 #endif
 {
 
+protected:
+  Object(MPI_Comm comm);
 public:
   virtual ~Object() = 0;
   Object();
@@ -36,20 +38,21 @@ public:
 protected:
   MPI_Comm comm;
 public:
-  MPI_Comm& getComm() const;
+  Comm getComm() const;
+  void setComm(Comm& comm);
+  void setComm(MPI_Comm comm);
 
   // options management
 protected:
   Options options;
 public:
-  typedef std::string             string;
-  typedef std::map<string,string> Table;
-  bool   hasOption(const string& key) const;
-  string getOption(const string& key) const;
-  void   setOption(const string& key, const string& value);
-  Table getOptions() const;
-  void  setOptions(const Table&);
-  void  addOptions(const Table&);
+  bool        hasOption (const std::string& key) const;
+  std::string getOption (const std::string& key) const;
+  void        setOption (const std::string& key, const std::string& value);
+  std::map<std::string,std::string> getOptions() const;
+  void setOptions(const std::map<std::string,std::string>& options);
+  void addOptions(const std::map<std::string,std::string>& options);
+  void delOptions();
 
 };
 
@@ -57,3 +60,7 @@ public:
 PYPF_NAMESPACE_END
 
 #endif // PYPF_OBJECT_H
+
+// Local Variables:
+// mode: C++
+// End:

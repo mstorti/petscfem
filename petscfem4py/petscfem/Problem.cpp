@@ -1,18 +1,15 @@
-// $Id: Problem.cpp,v 1.1.2.5 2006/03/30 15:18:14 rodrigop Exp $
+// $Id: Problem.cpp,v 1.1.2.6 2006/04/27 19:09:17 rodrigop Exp $
 
 #include "Problem.h"
 
 #include <fem.h>
 #include <dofmap.h>
-#include <readmesh.h>
-//#include <getprop.h>
-//#include <utils.h>
-//#include <util2.h>
-//#include <sttfilter.h>
-//#include <pfmat.h>
-//#include <hook.h>
-extern Mesh* GLOBAL_MESH;
+
+
 int my_mesh_part(MPI_Comm comm, Mesh* mesh, Dofmap* dofmap);
+extern TextHashTable* GLOBAL_OPTIONS;
+extern Mesh*          GLOBAL_MESH;
+extern int            SIZE, MY_RANK;
 
 
 PYPF_NAMESPACE_BEGIN
@@ -20,88 +17,104 @@ PYPF_NAMESPACE_BEGIN
 
 Problem::~Problem() 
 { 
-  this->mesh->decref();
-  this->dofmap->decref();
-}
-
-// Problem::Problem()
-//   : Object(),
-//     nnod(0), ndim(0), ndof(0),
-//     mesh(new Mesh), dofmap(new DofMap),
-//     setupcalled(false)
-// { 
-//   this->mesh->incref();
-//   this->dofmap->incref();
-// }
-
-// Problem::Problem(const Problem& p) 
-//   : Object(p),
-//     nnod(p.nnod), ndim(p.ndim), ndof(p.ndof),
-//     mesh(p.mesh), dofmap(p.dofmap),
-//     setupcalled(p.setupcalled)
-// { 
-//   this->mesh->incref();
-//   this->dofmap->incref();
-// }
-
-
-Problem::Problem(Mesh* mesh, DofMap* dofmap)
-  : Object(),
-    nnod(mesh->nodedata->nnod), ndim(mesh->nodedata->ndim), ndof(dofmap->ndof),
-    mesh(mesh), dofmap(dofmap),
-    setupcalled(false)
-{
-  this->mesh->incref();
-  this->dofmap->incref();
+  PYPF_DECREF(this->mesh);
+  PYPF_DECREF(this->dofmap);
 }
 
 
 static void
-problem_setup(MPI_Comm comm, Mesh& mesh, DofMap& dofmap)
+build_problem(MPI_Comm comm, Mesh& mesh, DofMap& dofmap)
 {
+  MPI_Comm_size(comm, &SIZE);
+  MPI_Comm_rank(comm, &MY_RANK);
   GLOBAL_MESH = mesh;
   my_mesh_part(comm, mesh, dofmap);
   GLOBAL_MESH = NULL;
 }
 
-void
-Problem::setUp()
+Problem::Problem(const Problem& P)
+  : Object(P), 
+    mesh(P.mesh), 
+    dofmap(P.dofmap)
 {
-  if (this->setupcalled) return;
-  
-  problem_setup(this->comm, *this->mesh, *this->dofmap);
-  this->dofmap->frozen = true;
-  
-  this->setupcalled = true;
+  PYPF_INCREF(this->mesh);
+  PYPF_INCREF(this->dofmap);
 }
 
+Problem::Problem(Mesh& mesh, DofMap& dofmap)
+  : Object(mesh.getComm()),
+    mesh(&mesh),
+    dofmap(&dofmap)
+{
+  PYPF_INCREF(this->mesh);
+  PYPF_INCREF(this->dofmap);
+  build_problem(this->getComm(), this->getMesh(), this->getDofMap());
+}
 
-Mesh*
+Problem::Problem(Nodeset& nodeset,
+		 const std::vector<Elemset*>& elemsets,
+		 Dofset& dofset)
+  : Object(),
+    mesh(new Mesh(nodeset, elemsets)),
+    dofmap(new DofMap(*mesh, dofset))
+{
+  this->setComm(this->mesh->getComm());
+  PYPF_INCREF(this->mesh);
+  PYPF_INCREF(this->dofmap);
+  build_problem(this->getComm(), this->getMesh(), this->getDofMap());
+}
+
+Mesh&
 Problem::getMesh() const
 {
-  return this->mesh;
+  return *this->mesh;
 }
 
-DofMap*
+DofMap&
 Problem::getDofMap() const
 {
-  return this->dofmap;
+  return *this->dofmap;
+}
+
+int
+Problem::getDim() const
+{
+  return this->mesh->getNodeset().getDim();
+}
+
+int
+Problem::getSize() const
+{
+  return this->dofmap->getNNod() * this->dofmap->getNDof();
+}
+
+void
+Problem::getSizes(int* nnod, int* ndof) const
+{
+  if (nnod) *nnod = this->dofmap->getNNod();
+  if (ndof) *ndof = this->dofmap->getNDof();
+}
+
+int
+Problem::getDofSize() const
+{
+  return this->dofmap->getSize();
 }
 
 void 
-Problem::getDofSizes (int* local, int* global) const 
+Problem::getDofSizes(int* local, int* global) const
 {
   this->dofmap->getSizes(local, global);
 }
 
 void 
-Problem::getDofRange (int* first, int* last) const 
+Problem::getDofRange(int* first, int* last) const 
 {
   this->dofmap->getRange(first, last);
 }
 
 static void
-solution2state(DofMap& dofmap, const double solution[], double state[]) 
+solution2state(DofMap& dofmap, const double solution[], double state[])
 {
   int nnod = dofmap->nnod;
   int ndof = dofmap->ndof;
@@ -116,13 +129,15 @@ solution2state(DofMap& dofmap, const double solution[], double state[])
 }
 
 static void
-state2solution(DofMap& dofmap, const double state[], double solution[]) 
+state2solution(DofMap& dofmap,
+	       const double state[], double solution[], double t)
 {
   int nnod = dofmap->nnod;
   int ndof = dofmap->ndof;
+  Time time; time.set(t);
   for (int i=0; i<nnod; i++)
     for (int j=0; j<ndof; j++)
-      dofmap->get_nodal_value(i+1, j+1, state, NULL, solution[i*ndof+j]);
+      dofmap->get_nodal_value(i+1, j+1, state, &time, solution[i*ndof+j]);
 }
 
 static void 
@@ -150,7 +165,7 @@ Problem::buildSolution(Vec state, Vec solution) const
   VecGetArray(state,    &stt_buff);
   VecGetArray(solution, &sol_buff);
 
-  state2solution(dofmap, stt_buff, sol_buff);
+  state2solution(dofmap, stt_buff, sol_buff, 0.0);
 
   VecRestoreArray(state,    &stt_buff);
   VecRestoreArray(solution, &sol_buff);
@@ -176,38 +191,84 @@ Problem::buildState(Vec solution, Vec state) const
   PetscObjectStateDecrease(solution);
 }
 
+#include <set>
 
-// void Problem::read(const std::string& filename)
-// {
+void
+Problem::getLocalDofs(int* _ndofs, int* _dofs[]) const
+{
+  Mesh&   mesh = *this->mesh;
+  DofMap& dofmap = *this->dofmap;
 
-//   char* fcase = const_cast<char*>(filename.c_str());
-//   int neq, size, rank;
-//   MPI_Comm_size(PETSC_COMM_WORLD, &size);
-//   MPI_Comm_rank(PETSC_COMM_WORLD, &rank);
+  // iterate over all elemsets and build
+  // the set of nodes of local elements
+  std::set<int> nodset;
+  int           proc;
+  MPI_Comm_rank(this->getComm(), &proc); proc++;
+  for (int elset=0; elset<mesh.getSize(); elset++) {
+    const Elemset& elemset = mesh.getElemset(elset);
+    int nelem, nel;
+    const int *icone;
+    int       *part;
+    elemset.getData(&nelem, &nel, &icone);
+    elemset.getPart(NULL, &part);
+    for (int i=0; i<nelem; i++)
+      if (part[i] == proc)
+	for (int j=0; j<nel; j++)
+	  nodset.insert(icone[i*nel+j]);
+  }
+  
+  // iterate over set of nodes of local elements
+  // and build the set of associated dofs
+  std::set<int> dofset;
+  int           nnod = nodset.size();
+  int           ndof = dofmap.getNDof();
+  int           neqs = dofmap.getSize();
+  idmap*        id   = dofmap->id;
+  IdMapRow      row;
+  set<int>::iterator node_it = nodset.begin();
+  for (int n=0; n<nnod; n++, node_it++) {
+    int node = *node_it;
+    for (int field=1; field<=ndof; field++) {
+      int edof = (node-1) * ndof + field; // dofmap->edof()
+      id->get_row(edof, row);
+      int nrows = row.size();
+      for (int i=0; i<nrows; i++) {
+	IdMapEntry* entry = &row[i];
+	int dof = entry->j - 1;
+	if (dof<neqs) dofset.insert(dof);
+      }
+    }
+  }
+  nodset.clear();
+  
 
-//   Mesh::Base*   mesh   = NULL;
-//   DofMap::Base* dofmap = NULL;;
+  // build array from set of dofs
+  int ndofs = dofset.size();
+  int *dofs = new int[ndofs];
+  std::set<int>::iterator dof_it = dofset.begin();
+  for (int i=0; i<ndofs; ) dofs[i++] = *dof_it++;
+  dofset.clear();
 
-//   read_mesh(mesh, fcase, dofmap, neq, size, rank);
+  // output data
+  *_ndofs = ndofs; *_dofs = dofs;
+}
 
-//   this->comm = PETSC_COMM_WORLD;
+void
+Problem::preAssemble()
+{
+  MPI_Comm_size(this->getComm(), &SIZE);
+  MPI_Comm_rank(this->getComm(), &MY_RANK);
+  GLOBAL_MESH = this->getMesh();
+  if (this->options.size() > 0)
+    GLOBAL_OPTIONS = this->options;
+  else
+    GLOBAL_OPTIONS = OPTIONS::GLOBAL;
+}
 
-//   this->nnod = mesh->nodedata->nnod;
-//   this->ndim = mesh->nodedata->ndim;
-//   this->ndof = dofmap->ndof;
-
-//   this->mesh->decref();
-//   this->mesh = new Mesh(mesh);
-//   this->mesh->incref();
-
-//   this->dofmap->decref();
-//   this->dofmap = new DofMap(dofmap);
-//   this->dofmap->incref();
-
-//   this->setupcalled = true;
-
-// }
-
-
+void
+Problem::postAssemble()
+{
+  GLOBAL_OPTIONS = OPTIONS::GLOBAL;
+}
 
 PYPF_NAMESPACE_END

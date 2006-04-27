@@ -1,17 +1,38 @@
-// $Id: Elemset.cpp,v 1.1.2.7 2006/03/30 15:18:14 rodrigop Exp $
+// $Id: Elemset.cpp,v 1.1.2.8 2006/04/27 19:09:17 rodrigop Exp $
 
 #include "Elemset.h"
 
 #include <fem.h>
 #include <readmesh.h>
 
+#if 0
+void  py_bless_elemset(char*, Elemset*&);
+#define bless_elemset py_bless_elemset
+#endif
+
+PYPF_NAMESPACE_BEGIN
+Elemset::Base*
+NewElemset(const std::string& type) {
+  Elemset::Base* elemset = NULL;
+  bless_elemset(const_cast<char*>(type.c_str()), elemset);
+  return elemset;
+}
+PYPF_NAMESPACE_END
+
+
 PYPF_NAMESPACE_BEGIN
 
 Elemset::~Elemset()
 { 
+  Elemset& handle = *this;
+  typedef std::map<std::string,Elemset::Base*> Table;
+  Table& table = Elemset::Base::elemset_table;
+  Table::iterator m = table.find(handle->name_m);
+  if (m != table.end()) table.erase(m);
+
   Elemset::Base* elemset = *this;
   PYPF_DELETE_VCTR(elemset->type);
-  PYPF_DELETE_VCTR(elemset->icone);
+  elemset->icone = NULL;
   PYPF_DELETE_VCTR(elemset->epart);
   PYPF_DELETE_VCTR(elemset->epart2);
   PYPF_DELETE_VCTR(elemset->elemprops);
@@ -28,38 +49,48 @@ Elemset::~Elemset()
 }
 
 Elemset::Elemset()
-  : Handle(NULL, false), Object(),
+  : Handle(NULL, false),
+    Object(),
     nelem(0), nel(0), icone()
 { }
 
 Elemset::Elemset(const Elemset& elset)
-  : Handle(NULL, false), Object(elset),
+  : Handle(NULL, false),
+    Object(elset),
     nelem(elset.nelem), nel(elset.nel), icone(elset.icone)
 { 
   
   Elemset::Base* input = elset;
 
   // creation
-  Elemset::Base* elemset = NULL;
-  bless_elemset(input->type, elemset);
-  if (elemset == NULL) throw Error("unknown elemset type");
-  elemset->type = new char[strlen(input->type)+1];
-  strcpy(elemset->type, input->type);
+  std::string type = input->type;
+  Elemset::Base* elemset = NewElemset(type.c_str());
+  if (elemset == NULL)
+    throw Error("unknown elemset type: '" + type + "'");
+  elemset->type = new char[type.size()+1];
+  strcpy(elemset->type, type.c_str());
   const std::string& name = (Elemset::Base::anon);
   elemset->register_name(name, elemset->type);
-  
+
   Elemset::Base*& handle = *this;
   handle = elemset;
 
+  // options
+  elemset->thash = this->options;
+
   // connectivity
-  int nelem = elemset->nelem = input->nelem;
-  int nel   = elemset->nel   = input->nel;
-  elemset->icone  = new int[nelem*nel];
-  memcpy(elemset->icone,  input->icone,  sizeof(int)*nelem*nel);
-  elemset->elem_conne = new int[nel];
-  memset(elemset->elem_conne, 0, nel*sizeof(int));
+  elemset->nelem = this->nelem;
+  elemset->nel   = this->nel;
+  elemset->icone = &this->icone[0];
+
+  elemset->elem_conne = new int[this->nel];
+  memset(elemset->elem_conne, 0, this->nel*sizeof(int));
 
   elemset->ndof = input->ndof;
+
+
+  int nelem = this->nelem;
+  int nel   = this->nel;
 
   // partitioning
   elemset->epart       = new int[nelem];
@@ -75,10 +106,7 @@ Elemset::Elemset(const Elemset& elset)
   da_concat_da(elemset->ghost_elems, input->ghost_elems);
   elemset->local_store = NULL;
   if (input->local_store)
-    elemset->local_store = new (void*)[input->nelem_here];
-
-  // options
-  elemset->thash = this->options;
+    elemset->local_store = new void*[input->nelem_here];
 
   // double properties
   int nelprops = elemset->nelprops = input->nelprops;
@@ -100,49 +128,36 @@ Elemset::Elemset(const Elemset& elset)
   elemset->elemiprops_add = new int[elemset->nelem*neliprops_add];
   memcpy(elemset->elemiprops_add, input->elemiprops_add, sizeof(int)*nelem*neliprops_add);
 
-  
-  elemset->initialize();
-  
-}
-
-
-Elemset::Elemset(Elemset::Base* base)
-  : Handle(base), Object(),
-    nelem(base->nelem), nel(base->nel)
-{ 
-  Elemset::Base* elemset = *this;
-  // options
-  if (elemset->thash == NULL) 
-    elemset->thash = this->options;
-  else 
-    this->options = elemset->thash;
 }
 
 Elemset::Elemset(const std::string& type,
-		 const std::string& name)
-  : Handle(NULL, false), Object(),
+		 int nelem, int nel, const int icone[])
+  : Handle(NULL, false), 
+    Object(),
     nelem(0), nel(0), icone()
 {
   // create
-  Elemset::Base* elemset = NULL;
-  bless_elemset(const_cast<char*>(type.c_str()), elemset);
-  if (elemset == NULL) throw Error("unknown elemset type");
+  Elemset::Base* elemset = NewElemset(type.c_str());
+  if (elemset == NULL) 
+    throw Error("unknown elemset type: '" + type + "'" );
   elemset->type = new char[type.size()+1];
   strcpy(elemset->type, type.c_str());
-  const std::string& _name =  (name.size()) ? name : (Elemset::Base::anon);
-  elemset->register_name(_name, elemset->type);
+  const std::string& name = (Elemset::Base::anon);
+  elemset->register_name(name, elemset->type);
 
   Elemset::Base*& handle = *this;
   handle = elemset;
 
-  //  connectivity
-  elemset->nelem      = 0;
-  elemset->nel        = 0;
-  elemset->icone      = NULL;
+  // options
+  elemset->thash = this->options;
+
+  // connectivity
+  elemset->nelem = 0;
+  elemset->nel   = 0;
+  elemset->icone = NULL;
+  elemset->ndof  = 0;
   elemset->elem_conne = NULL;
 
-  elemset->ndof  = 0;
-  
   // partitioning
   elemset->epart       = NULL;
   elemset->epart2      = NULL;
@@ -152,9 +167,6 @@ Elemset::Elemset(const std::string& type,
   elemset->nelem_here  = 0;
   elemset->ghost_elems = da_create(sizeof(int));
   elemset->local_store = NULL;
-
-  // options
-  elemset->thash = this->options;
 
   // double props
   elemset->nelprops         = 0;
@@ -169,6 +181,8 @@ Elemset::Elemset(const std::string& type,
   elemset->elem_iprop_names = g_hash_table_new(&g_str_hash,&g_str_equal); 
   elemset->neliprops_add    = 0; 
   elemset->elemiprops_add   = NULL; 
+
+  this->setData(nelem, nel, icone);
 
 }
 
@@ -186,8 +200,27 @@ Elemset::getName() const
   return elemset->name();
 }
 
+void
+Elemset::setName(const std::string& name)
+{
+  PYPF_ASSERT(name.size()>0, "empty name");
+  Elemset& elemset = *this;
+  typedef std::map<std::string,Elemset::Base*> Table;
+
+  Table& table = Elemset::Base::elemset_table;
+  Table::iterator m; 
+
+  m = table.find(elemset->name_m);
+  if (m != table.end()) table.erase(m);
+
+  m = table.find(name);
+  if (m != table.end()) throw Error("name already registered");
+  table[name]     = elemset;
+  elemset->name_m = name;
+}
+
 void 
-Elemset::getSize(int* nelem, int* nel) const
+Elemset::getDataSize(int* nelem, int* nel) const
 {
   Elemset::Base* elemset = *this;
   if (nelem) *nelem = elemset->nelem;
@@ -195,18 +228,18 @@ Elemset::getSize(int* nelem, int* nel) const
 }
 
 void 
-Elemset::getConnectivity(int* nelem, int* nel, int* icone[]) const
+Elemset::getData(int* nelem, int* nel, const int* icone[]) const
 {
   Elemset::Base* elemset = *this;
-  if (nelem) *nelem = elemset->nelem;
-  if (nel)   *nel   = elemset->nel;
-  if (icone) *icone = elemset->icone;
+  if (nelem) *nelem = this->nelem;
+  if (nel)   *nel   = this->nel;
+  if (icone) *icone = &this->icone[0];
 }
 
 #undef  PYPF_NEW_ARRAY
 #define PYPF_NEW_ARRAY(array, old_size, new_size)       \
 do {                                                    \
-    if ((array) == NULL) {                              \
+    if ((array) == NULL && (new_size)>0) {              \
       (array) = new int[(new_size)];                    \
     } else if ((old_size) != (new_size)) {              \
       delete[] (array); (array) = new int[(new_size)];  \
@@ -214,19 +247,33 @@ do {                                                    \
 } while(0)
 
 void 
-Elemset::setConnectivity(int nelem, int nel, int icone[])
+Elemset::setData(int nelem, int nel, int const icone[])
 {
-  Elemset::Base* elemset = *this;
+  // test data
+  if (nelem*nel != 0) {
+    PYPF_ASSERT(nelem>=1,    "invalid number of nodes (nelem<1)");
+    PYPF_ASSERT(nel>=1,      "invalid number of element nodes (nel<1)");
+    PYPF_ASSERT(icone!=NULL, "null pointer to data array");
+  } else nelem = nel = 0;
+  if (this->nelem*this->nel != 0) {
+    PYPF_ASSERT(this->nelem==nelem, "cannot change data size (nelem)");
+    PYPF_ASSERT(this->nel==nel,     "cannot change data size (nel)");
+  }
 
-  PYPF_NEW_ARRAY(elemset->icone,      elemset->nelem*elemset->nel, nelem*nel);
+  this->nelem = nelem;
+  this->nel   = nel;
+  this->icone.resize(nelem*nel);
+  memcpy(&this->icone[0], icone, nelem*nel*sizeof(int));
+  for (int i=0; i<nelem*nel; this->icone[i++]+=1);
+
+
+  Elemset::Base* elemset = *this;
+  elemset->nelem = this->nelem;
+  elemset->nel   = this->nel;
+  elemset->icone = &this->icone[0];
   PYPF_NEW_ARRAY(elemset->elem_conne, elemset->nel,                nel);
   PYPF_NEW_ARRAY(elemset->epart,      elemset->nelem,              nelem);
   PYPF_NEW_ARRAY(elemset->epart2,     elemset->nelem,              nelem);
-
-  this->nelem = elemset->nelem = nelem;
-  this->nel   = elemset->nel   = nel;
-  memcpy(elemset->icone, icone, sizeof(int)*nelem*nel);
-  for (int i=0; i<nelem*nel; elemset->icone[i++]+=1);
   memset(elemset->elem_conne, 0, sizeof(int)*nel);
   memset(elemset->epart,      0, sizeof(int)*nelem);
   memset(elemset->epart2,     0, sizeof(int)*nelem);
@@ -237,27 +284,42 @@ Elemset::setConnectivity(int nelem, int nel, int icone[])
 
 #undef PYPF_NEW_ARRAY
 
-std::vector<int> 
-Elemset::getElem(int n) const 
+
+void
+Elemset::getPart(int* n, int* part[]) const
 {
-  int nelem, nel; int* icone;
-  this->getConnectivity(&nelem, &nel, &icone);
-  if (n<0 || n>=nelem) throw Error("index out of range");
-  const int* data = &icone[n*nel];
-  std::vector<int> elem(nel);
-  for (int i=0; i<nel; i++) elem[i] = data[i]-1;
-  return elem;
+  Elemset::Base* elemset = *this;
+  if (n)    *n    = elemset->nelem;
+  if (part) *part = elemset->epart;
+}
+
+
+void
+Elemset::getElem(int i, int* n, const int* elem[]) const
+{
+  int nelem, nel; const int* icone;
+  this->getData(&nelem, &nel, &icone);
+  PYPF_ASSERT(i>=0 && i<nelem, "index out of range");
+  if (n)    *n    = nel;
+  if (elem) *elem = &icone[i*nel];
 }
 
 void 
-Elemset::setElem(int n, const std::vector<int>& elem)
+Elemset::setElem(int i, int n, const int elem[])
 {
-  int nelem, nel; int* icone;
-  this->getConnectivity(&nelem, &nel, &icone);
-  if (n<0 || n>=nelem) throw Error("index out of range");
-  if (elem.size() != nel) throw Error("invalid number of dimensions");
-  int* data = &icone[n*nel];
-  for (int i=0; i<nel; i++) data[i] = elem[i]+1;
+  int nelem, nel; const int* icone;
+  this->getData(&nelem, &nel, &icone);
+  PYPF_ASSERT(i>=0 && i<nelem, "index out of range");
+  PYPF_ASSERT(n != nel, "invalid data size");
+  int* data = const_cast<int*>(&icone[i*nel]);
+  for (int k=0; k<nel; k++) data[k] = elem[k]+1;
+}
+
+int Elemset::getSize() const
+{
+  int nelem;
+  this->getDataSize(&nelem, NULL);
+  return nelem;
 }
 
 int 
@@ -270,13 +332,10 @@ Elemset::getNDof() const
 void 
 Elemset::setNDof(int ndof)
 {
+  PYPF_ASSERT(ndof>=1, "value out of range, (ndof<1)");
   Elemset::Base* elemset = *this;
   elemset->ndof = ndof;
 }
-
-void 
-Elemset::setUp()
-{ }
 
 void
 Elemset::clear()

@@ -1,5 +1,5 @@
 // -*- c++ -*-
-// $Id: Mesh.i,v 1.1.2.6 2006/03/30 15:40:05 rodrigop Exp $
+// $Id: Mesh.i,v 1.1.2.7 2006/04/27 19:09:17 rodrigop Exp $
 
 
 %include Object.i
@@ -8,31 +8,38 @@
 
 
 PYPF_NAMESPACE_BEGIN
-
 %newobject Mesh::getNodeset;
 %newobject Mesh::getElemset;
+PYPF_NAMESPACE_END
 
-%template() ::std::vector<Elemset*>;
 
+PYPF_NAMESPACE_BEGIN
 %extend Mesh {
-  int __len__() { 
-    return self->getSize();
-  }
+  int __len__() 
+    { return self->getSize(); }
   %newobject __getitem__;
-  Elemset* __getitem__(int i) {
-    return self->getElemset(i);
-  }
-  void __setitem__(int i, Elemset* e) { 
-    self->setElemset(i, e);
-  }
-}
-%feature("shadow") Mesh::__iter__ %{
-def __iter__(self):
+  Elemset& __getitem__(int i)
+    { return self->getElemset(i); }
+  void __setitem__(int i, Elemset& elemset)
+    { self->setElemset(i, elemset); }
+  void __delitem__(int i)
+    { self->delElemset(i); }
+  %pythoncode {
+  def __iter__(self):
+    """__iter__(self) -> iterator"""
     for i in xrange(len(self)):
         yield self[i]
-%}
-%extend Mesh { void __iter__() { } }
+  }
+}
+PYPF_NAMESPACE_END
 
+
+PYPF_NAMESPACE_BEGIN
+%extend Mesh {
+  %pythoncode {
+  size = property(getSize, doc='mesh size (number of elemsets)')
+  }
+}
 PYPF_NAMESPACE_END
 
 

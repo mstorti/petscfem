@@ -1,4 +1,4 @@
-// $Id: Object.cpp,v 1.1.2.4 2006/03/30 15:18:14 rodrigop Exp $
+// $Id: Object.cpp,v 1.1.2.5 2006/04/27 19:09:17 rodrigop Exp $
 
 #include "Object.h"
 
@@ -23,11 +23,29 @@ Object::Object(const Object& obj)
     comm(obj.comm), options(obj.options)
 { }
 
+Object::Object(MPI_Comm comm)
+  : RefCounter(),
+    comm(comm), options()
+{ }
 
-MPI_Comm&
-Object::getComm() const 
+Comm
+Object::getComm() const
 {
-  return const_cast<MPI_Comm&>(this->comm);
+  return this->comm;
+}
+
+void
+Object::setComm(Comm& comm)
+{
+  PYPF_ASSERT((MPI_Comm)comm!=MPI_COMM_NULL, "cannot set null communicator");
+  this->comm = comm;
+}
+
+void
+Object::setComm(MPI_Comm comm)
+{
+  PYPF_ASSERT(comm!=MPI_COMM_NULL, "cannot set null communicator");
+  this->comm = comm;
 }
 
 bool
@@ -65,6 +83,12 @@ void
 Object::addOptions(const map<string,string>& M)
 {
   return this->options.add(M);
+}
+
+void        
+Object::delOptions()
+{
+  this->options.clear();
 }
 
 

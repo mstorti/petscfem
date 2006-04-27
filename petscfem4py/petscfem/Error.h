@@ -1,5 +1,4 @@
-// -*- c++ -*-
-// $Id: Error.h,v 1.1.2.2 2006/03/02 21:37:12 rodrigop Exp $
+// $Id: Error.h,v 1.1.2.3 2006/04/27 19:09:17 rodrigop Exp $
 
 #ifndef PYPF_ERROR_H
 #define PYPF_ERROR_H
@@ -23,3 +22,7 @@ class Error
 PYPF_NAMESPACE_END
 
 #endif // PYPF_NODEDATA_H
+
+// Local Variables:
+// mode: C++
+// End:

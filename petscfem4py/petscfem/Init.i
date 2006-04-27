@@ -1,8 +1,16 @@
 // -*- c++ -*-
-// $Id: init.i,v 1.1.2.3 2006/03/28 22:13:25 rodrigop Exp $
+// $Id: Init.i,v 1.1.2.1 2006/04/27 19:09:17 rodrigop Exp $
 
 %{
 #include <petsc.h>
+%}
+
+%header %{
+#if defined(PETSC_HAVE_MPIUNI)
+#if !defined(MPI_Finalized)
+#define MPI_Finalized(flag) (((flag)?(*(flag)=0):0),0)
+#endif
+#endif
 %}
 
 %wrapper %{
@@ -10,10 +18,12 @@ static bool PetscFemBeganPetsc = false;
 static void petscfem_atexit(void) {
   int flag;  MPI_Finalized(&flag); if (flag) return;
   if (!PetscFemBeganPetsc || PetscFinalizeCalled) return;
-  PetscErrorCode ierr = PetscFinalize(); if (!ierr) return;
-  fflush(stderr);
-  fprintf(stderr, "PetscFinalize() failed [ierr: %d]\n",ierr);
-  fflush(stderr);
+  PetscErrorCode ierr = PetscFinalize(); 
+  if (ierr) {
+    fflush(stderr);
+    fprintf(stderr, "PetscFinalize() failed [ierr: %d]\n",ierr);
+    fflush(stderr);
+  }
 }
 %}
 
