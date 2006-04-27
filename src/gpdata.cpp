@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: gpdata.cpp,v 1.40.4.1 2005/09/25 22:58:44 mstorti Exp $
+//$Id: gpdata.cpp,v 1.40.4.2 2006/04/27 20:31:10 rodrigop Exp $
 
 #include "petscksp.h"
 #include <math.h>
@@ -587,8 +587,8 @@ GPdata::GPdata(const char *geom,int ndimel,int nel,int npg_,int
   if (mat_version==GP_FASTMAT) {
 
     // make fastmat copy version
-    FM_shape = new (FastMat *)[npg];
-    FM_dshapexi = new (FastMat *)[npg];
+    FM_shape = new FastMat *[npg];
+    FM_dshapexi = new FastMat *[npg];
     for (int ipg=0; ipg<npg; ipg++) {
       FM_shape[ipg] = new FastMat;
       NM2FM(*FM_shape[ipg],shape[ipg]);
@@ -598,8 +598,8 @@ GPdata::GPdata(const char *geom,int ndimel,int nel,int npg_,int
 
   } else if (mat_version==GP_FASTMAT2) {
 
-    FM2_shape = new (FastMat2 *)[npg];
-    FM2_dshapexi = new (FastMat2 *)[npg];
+    FM2_shape = new FastMat2 *[npg];
+    FM2_dshapexi = new FastMat2 *[npg];
     for (int ipg=0; ipg<npg; ipg++) {
       FM2_shape[ipg] = new FastMat2;
       FM2_shape[ipg]->set(shape[ipg]);

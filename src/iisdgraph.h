@@ -1,9 +1,8 @@
 // -*- mode: C++ -*- 
 //__INSERT_LICENSE__
-//$Id: iisdgraph.h,v 1.9 2004/11/04 22:03:13 mstorti Exp $
+//$Id: iisdgraph.h,v 1.9.40.1 2006/04/27 20:31:10 rodrigop Exp $
 #ifndef IISDGRAPH_H
 #define IISDGRAPH_H
-
 // fixme:= this may not work in all applications
 extern int MY_RANK,SIZE;
 
@@ -17,6 +16,7 @@ extern int MY_RANK,SIZE;
 #include <src/graph.h>
 #include <src/distcont.h>
 //#include <src/graphdv.h>
+extern MPI_Comm PETSC_COMM_WORLD;
 
 /// The storage area type
 typedef map<int, GSet, less<int> > GMap;
@@ -34,12 +34,16 @@ public:
   virtual void scatter()=0;
 };
 
+template<>
 int DGMap::size_of_pack(const GRow &q) const;
 
+template<>
 void DGMap::pack(const GRow &p,char *&buff) const;
 
+template<>
 void DGMap::unpack(GRow &p,const char *&buff);
 
+template<>
 void DGMap::combine(const GRow &p);
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
@@ -66,7 +70,7 @@ class StoreGraph1 : public StoreGraph {
   ~StoreGraph1() { lgraph.clear(); };
   /// Constructor
   StoreGraph1(int N=0,const DofPartitioner *dp=NULL,
-	     MPI_Comm comm_=MPI_COMM_WORLD) :
+	     MPI_Comm comm_=PETSC_COMM_WORLD) :
     g_part(dp),
     lgraph(&g_part,comm_), comm(comm_) { init(N); }
   // void print() { lgraph.print(); }
@@ -80,7 +84,7 @@ class StoreGraph1 : public StoreGraph {
 class StoreGraph2 : public GMap {
 public:
   StoreGraph2(int N=0,const DofPartitioner *pp=NULL,
-    MPI_Comm comm_=MPI_COMM_WORLD) {}
+    MPI_Comm comm_=PETSC_COMM_WORLD) {}
   void add(int i,int j) { (*this)[i].insert(j); }
   void set_ngbrs(int j,GSet &ngbrs_v) {}
   ~StoreGraph2() { clear(); };
