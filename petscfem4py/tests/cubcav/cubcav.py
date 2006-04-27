@@ -21,10 +21,10 @@ if USE_SCHUR:
     USE_MATIS = True
     petscopts['ksp_type'] = 'preonly'
     petscopts['pc_type']  = 'schur'
-    petscopts['schur_global_ksp_type'] = 'gmres'
-    petscopts['schur_global_ksp_max_it'] = '250'
-    petscopts['schur_global_ksp_gmres_restart'] = '250'
-    petscopts['schur_global_pc_type']  = 'jacobi'
+    petscopts['pc_schur_ksp_type'] = 'gmres'
+    petscopts['pc_schur_ksp_max_it'] = '250'
+    petscopts['pc_schur_ksp_gmres_restart'] = '250'
+    petscopts['pc_schur_pc_type']  = 'jacobi'
 else:
     petscopts['ksp_type'] = 'gmres'
     if USE_MATIS:
@@ -39,12 +39,12 @@ else:
 M,N,O = 4, 4, 4
 M,N,O = 5, 5, 5
 M,N,O = 10, 10, 10
-#M,N,O = 20, 20, 20
-#M,N,O = 30, 30, 30
-# M,N,O = 40, 40, 40
-# M,N,O = 50, 50, 50
-# M,N,O = 60, 60, 60
-# M,N,O = 70, 70, 70
+M,N,O = 20, 20, 20
+M,N,O = 30, 30, 30
+M,N,O = 40, 40, 40
+M,N,O = 50, 50, 50
+#M,N,O = 60, 60, 60
+#M,N,O = 70, 70, 70
 
 nodes = numpy.arange(M*N*O)
 nodes.shape = M,N,O
@@ -87,7 +87,7 @@ opts ={'geometry'   : 'cartesian%dd' % ndim,
        'ndim'       : str(ndim),
        'npg'        : str(8),
        'viscosity'  : str(1),
-       'block_uploading': str(1)
+       'block_uploading': str(1),
        }
 elemset.setOptions(opts)
 
@@ -121,10 +121,6 @@ for nods in walls:
 
 class NSI(NavierStokes):
 
-    def __del__(self):
-        print self
-        del self.this
-    
     def __init__(self, nodeset, elemsetlist, dofset):
 
         fem = NavierStokes(nodeset, elemsetlist, dofset)
@@ -162,8 +158,15 @@ class NSI(NavierStokes):
         self.snes = snes
         self.t= 0
 
+    def clear(self,*targs,**kargs):
+        del self.fem
+        del self.J
+        del self.x
+        del self.r
+        del self.snes
+
     def snes_res(self, SNES, x, r):
-        PETSc.Print('computing res & jac...\n', SNES.comm)
+        #PETSc.Print('computing res & jac...\n', SNES.comm)
         J,_,_ = SNES.getJacobian()
 
         r.zeroEntries()
@@ -196,6 +199,8 @@ class NSI(NavierStokes):
 
 
 nsi = NSI(nodeset, [elemset], dofset)
+import atexit
+atexit.register(nsi.clear)
 
 
 if 0:
@@ -216,6 +221,7 @@ if 0:
     PETSc.Print('\n')
 
 if 1:
+    PETSc.Print('Start solving...\n')
     x = nsi.x
     nsi.solve(x)
     ass_time = nsi.ass_time
@@ -273,3 +279,4 @@ if 0:
     PETSc.SyncPrint('[%d]: %d %s\n' % (RANK, ldofs.size, list(ldofs)), COMM)
     PETSc.SyncFlush(COMM)
     PETSc.Print('\n', COMM)
+    
