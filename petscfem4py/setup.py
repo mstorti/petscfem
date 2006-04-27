@@ -21,6 +21,7 @@ Topic :: Software Development :: Libraries :: Python Modules
 keywords = """
 scientific computing
 parallel computing
+finite elemets method
 """
 
 metadata = {
@@ -40,12 +41,26 @@ metadata = {
 # --------------------------------------------------------------------
 # Basic Configuration
 # --------------------------------------------------------------------
-from posixpath import abspath, join
+from os import environ as env
+from posixpath import expanduser, abspath, join
 
-MPI_DIR      = '/usr/local/mpich2-1.0.2'
-PETSC_DIR    = abspath('../../petsc-2.3.1-p0')
-PETSC_ARCH   = 'linux-gnu-g_c++'
-PETSCFEM_DIR = abspath('..') 
+MPI_DIR      = env.get('MPI_DIR')    or '/usr/local/mpich2-1.0.2'
+PETSC_DIR    = env.get('PETSC_DIR')  or '/usr/local/petsc/2.3.1'
+PETSC_ARCH   = env.get('PETSC_ARCH') or 'linux-gnu-g_c++'
+PETSCFEM_DIR = abspath('..')
+
+SOFT_DIR     =  expanduser('~/PETSC')
+
+GLIB1 = '/usr/include/glib-1.2'
+GLIB2 = '/usr/lib/glib/include'
+
+NEWMAT       = join(SOFT_DIR, 'NEWMAT/src')
+LIBRETTO     = join(SOFT_DIR, 'libretto-2.1')
+MESCHACH     = join(SOFT_DIR, 'meschach-1.2')
+METIS        = join(SOFT_DIR, 'metis-4.0')
+ANN_INCLUDE  = join(SOFT_DIR, 'ann/include')
+ANN_LIBDIR   = join(SOFT_DIR, 'ann/lib')
+
 
 
 # --------------------------------------------------------------------
@@ -54,17 +69,10 @@ PETSCFEM_DIR = abspath('..')
 
 config = {
     'define_macros': [ ('MPICH_SKIP_MPICXX', None)],
-    'include_dirs' : ['/usr/include/glib-1.2',
-                      '/usr/lib/glib/include',
-                      join(MPI_DIR, 'include'),
-                      PETSC_DIR,
+    'include_dirs' : [join(MPI_DIR, 'include'),
                       join(PETSC_DIR, 'bmake', PETSC_ARCH),
                       join(PETSC_DIR, 'include'),
-                      '/u/rodrigop/PETSC/NEWMAT/src',
-                      '/u/rodrigop/PETSC/libretto-2.1',
-                      '/u/rodrigop/PETSC/meschach-1.2',
-                      '/u/rodrigop/PETSC/metis-4.0'
-                      ],
+                      GLIB1, GLIB2, NEWMAT, LIBRETTO, MESCHACH, METIS, ANN_INCLUDE],
     
     'libraries'    : ['glib',
                       'mpich',
@@ -78,13 +86,8 @@ config = {
     
     'library_dirs' : [join(MPI_DIR, 'lib'),
                       join(PETSC_DIR, 'lib', PETSC_ARCH),
-                      '/u/rodrigop/PETSC/NEWMAT/src',
-                      '/usr/local/lib',
-                      '/u/rodrigop/PETSC/meschach-1.2',
-                      '/u/rodrigop/PETSC/metis-4.0',
-                      '/u/rodrigop/PETSC/ann/lib',
-                      '/u/rodrigop/lib',
-                      ],
+                      '/usr/local/lib',expanduser('~/lib'),
+                      NEWMAT, LIBRETTO, MESCHACH, METIS, ANN_LIBDIR],
     'runtime_library_dirs' : []
     }
 
@@ -95,8 +98,15 @@ def ext_modules(Extension):
     PETSCFEM_DIR = abspath('..')
     PETSCFEM_INCLUDE_DIR = [PETSCFEM_DIR, join(PETSCFEM_DIR, 'src')] \
                            + config['include_dirs']
-    
-    PETSCFEM_LIBRARY = ['ns_g', 'petscfem_g'] * 2 + config['libraries']
+
+    if 'g_c++' in PETSC_ARCH:
+        PETSCFEM_LIBRARY = ['petscfem_g', 'ns_g'] * 2 + config['libraries']
+    elif 'O_c++' in PETSC_ARCH:
+        PETSCFEM_LIBRARY = ['petscfem_O', 'ns_O'] * 2 + config['libraries']
+    else:
+        raise SystemExit('invalid PETSC_ARCH: %s' % PETSC_ARCH)
+
+    PETSCFEM_LIBRARY = ['petscfem_g', 'ns_g'] * 2 + config['libraries']
     PETSCFEM_LIBRARY_DIR = [join(PETSCFEM_DIR, 'src'),
                             join(PETSCFEM_DIR, 'applications/ns') ] \
                             + config['library_dirs']
@@ -122,6 +132,22 @@ def ext_modules(Extension):
                        )
     return [petscfem]
 
+def c_libraries():
+    from os.path import abspath, join
+
+    PETSCFEM_DIR = abspath('..')
+    PETSCFEM_MACROS = config['define_macros']
+    PETSCFEM_INCLUDE_DIR = [PETSCFEM_DIR, join(PETSCFEM_DIR, 'src')] \
+                           + config['include_dirs']
+    from glob import glob
+    sources = glob('petscfem/*.cpp')
+    if 'petscfem/petscfem_wrap.cpp' in sources: 
+        sources.remove('petscfem/petscfem_wrap.cpp')
+
+    return [('petscfem', dict(sources      = sources,
+                              macros       = PETSCFEM_MACROS,
+                              include_dirs = PETSCFEM_INCLUDE_DIR))]
+
 # --------------------------------------------------------------------
 # Setup
 # --------------------------------------------------------------------
@@ -136,11 +162,14 @@ def setup():
         def finalize_options(self):
             _build_src.finalize_options(self)
             self.inplace = True
-            self.swigflags.append('-modern')
+            self.swigflags.append('-O')
+            self.swigflags.append('-nofastproxy')
+            self.swigflags.append('-noh')
             
     setup(packages     = ['petscfem4py'],
     	  package_dir  = {'petscfem4py' : 'petscfem'},
           ext_modules  = ext_modules(Extension),
+          #libraries    = c_libraries(),
           cmdclass     = {'build_src' : build_src},
           **metadata)
 
