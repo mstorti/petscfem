@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: metisprt.cpp,v 1.22.70.1 2006/03/27 20:16:40 rodrigop Exp $
+//$Id: metisprt.cpp,v 1.22.70.2 2006/04/27 19:03:31 rodrigop Exp $
 
 #include "fem.h"
 #include "utils.h"
@@ -316,7 +316,8 @@ void metis_part_comm(MPI_Comm COMM, int nelemfat,Mesh *mesh,
   if (size*iisd_subpart > 1) {
     if (myrank==0) {
       if (partflag==0) {
-	if (myrank==0) printf("METIS partition - partflag = %d\n",partflag);
+	if (print_statistics && myrank==0) 
+	  printf("METIS partition - partflag = %d\n",partflag);
 	METIS_WPartGraphKway(&nvrtx,xadj,adjncy,vwgt, 
 			     NULL,&wgtflag,&numflag,&nvsubdo, 
 			     tpwgts_d,&options,&edgecut,vpart);
