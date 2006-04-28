@@ -1,5 +1,5 @@
 // -*- c++ -*-
-// $Id: Docs.i,v 1.1.2.1 2006/04/27 19:09:17 rodrigop Exp $
+// $Id: Docs.i,v 1.1.2.2 2006/04/28 17:48:02 dalcinl Exp $
 
 %define %docstring(node,...) 
 #if #__VA_ARGS__ == ""
@@ -139,6 +139,13 @@ PYPF_NAMESPACE_BEGIN
 %docstring(Amplitude::Amplitude);
 %docstring(Amplitude::operator());
 
+
+%typemap(doc,name="node, field, value",type="int[], int[], double[]")
+  (int n, const int node[],const int field[],const double value[])
+  "node, field, value: int[], int[], double[] array values";
+%typemap(doc,name="node, field, coeff",type="int[], int[], double[]")
+  (int n, const int node[],const int field[],const double coeff[])
+  "node, field, coeff: int[], int[], double[] array values";
 
 %doctypemap(Dofset);
 %docstring(Dofset);

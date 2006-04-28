@@ -1,4 +1,4 @@
-// $Id: Dofset.cpp,v 1.1.2.1 2006/04/27 19:09:17 rodrigop Exp $
+// $Id: Dofset.cpp,v 1.1.2.2 2006/04/28 17:48:02 dalcinl Exp $
 
 #include "Dofset.h"
 
@@ -52,13 +52,21 @@ Dofset::Dofset(int nnod, int ndof)
 
 void
 Dofset::addFixations(int n, 
-		      const int    node[], 
-		      const int    field[],
-		      const double value[], 
-		      Amplitude* amplitude)
+		     const int    node[], 
+		     const int    field[],
+		     const double value[])
+{
+  this->addFixations(n, node, field, value, NULL);
+}
+
+void
+Dofset::addFixations(int n, 
+		     const int    node[], 
+		     const int    field[],
+		     const double value[], 
+		     Amplitude* amplitude)
 {
   if (n == 0) return;
-  
   int nnod = this->nnod;
   int ndof = this->ndof;
   for (int i=0; i<n; i++) {

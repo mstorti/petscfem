@@ -40,8 +40,8 @@ M,N,O = 4, 4, 4
 M,N,O = 5, 5, 5
 M,N,O = 10, 10, 10
 M,N,O = 20, 20, 20
-M,N,O = 30, 30, 30
-M,N,O = 40, 40, 40
+#M,N,O = 30, 30, 30
+#M,N,O = 40, 40, 40
 M,N,O = 50, 50, 50
 #M,N,O = 60, 60, 60
 #M,N,O = 70, 70, 70
@@ -138,7 +138,10 @@ class NSI(NavierStokes):
             J.setLGMapping(lgmap)
             J.setPreallocation(27*4)
         else:
-            J.setType(J.Type.MPIAIJ)
+            if SIZE > 1:
+                J.setType(J.Type.MPIAIJ)
+            else:
+                J.setType(J.Type.SEQAIJ)
             J.setPreallocation([27*4, 9*4])
             
         x, r = J.getVecs()
@@ -181,8 +184,6 @@ class NSI(NavierStokes):
     def snes_jac(self, SNES, x, J, P):
         assert (self.J == J)
         assert (self.J == P)
-        if not J.isAssembled():
-            J.assemble()
         return PETSc.Mat.Structure.SAME_NONZERO_PATTERN
 
     def solve(self, x, t=0.0):
@@ -202,6 +203,12 @@ nsi = NSI(nodeset, [elemset], dofset)
 import atexit
 atexit.register(nsi.clear)
 
+dofsizes = nsi.fem.getDofSizes()
+solsizes = nsi.fem.getSizes()
+PETSc.SyncPrint('dof sizes: local: %d global:%d\n' % dofsizes)
+PETSc.SyncFlush()
+PETSc.Print('sol size:  nnod:  %d ndof:  %d\n' % solsizes)
+
 
 if 0:
     # assemble performance
@@ -220,7 +227,7 @@ if 0:
     PETSc.Print('Assemble time:  %f (%d loops)\n'% (ass_time, loops))
     PETSc.Print('\n')
 
-if 1:
+if 0:
     PETSc.Print('Start solving...\n')
     x = nsi.x
     nsi.solve(x)
