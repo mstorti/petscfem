@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: dofmap3.cpp,v 1.9 2005/02/21 00:07:14 mstorti Exp $
+//$Id: dofmap3.cpp,v 1.10 2006/04/28 21:50:04 mstorti Exp $
 
 #include <cassert>
 
@@ -162,10 +162,21 @@ diff(double *v, double *w,int m) {
 }
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
-void Dofmap::solve(double *x,double *y) {
+void Dofmap::solve(double *xp,double *yp) {
   int nrow = nnod*ndof;
   int ncol = neqtot;
   int m;
+#if 1
+  Vec x,z;
+  // Make product z=Qy
+  ierr = VecCreateSeq(PETSC_COMM_SELF,
+		      nrow,&x); CHKERRQ(ierr);
+  qtxpy(&zv[0],y,1.0);
+  ierr = VecCreateSeq(PETSC_COMM_SELF,
+		      nrow,&x); CHKERRQ(ierr);
+  
+    
+#else
   vector<double> zv(nrow,0.0), 
     vv(nrow,0.0), wv(ncol,0.0),
     dv(ncol,0.0);
@@ -180,6 +191,15 @@ void Dofmap::solve(double *x,double *y) {
   // assert(nrow==ncol);
   // printf("|z-y| %f\n",diff(z,y,nrow));
   // Compute diagonal
+
+  //#define DBG
+#ifdef DBG
+  for (int k=0; k<m; k++)
+    printf(" %d %d  %f\n",j,dofs[k]-1,coef[k]);
+  PetscFinalize();
+  exit(0);
+#endif
+
   for (int j=0; j<nrow; j++) {
     int kdof = j % ndof + 1;
     int node = (j / ndof) + 1;
@@ -191,11 +211,6 @@ void Dofmap::solve(double *x,double *y) {
       // assert(dof<ncol);
       d[dof] += square(coef[k]);
     }
-#if 0
-    if (m>1 || (dofs[0]-1)!=j)
-      for (int k=0; k<m; k++)
-	printf(" %d %d  %f\n",j,dofs[k]-1,coef[k]);
-#endif
   }
   // printv(d,nrow,"d");
   int iter;
@@ -226,4 +241,5 @@ void Dofmap::solve(double *x,double *y) {
   if (iter>=niter) 
     printf("in Dofmap::solve: projection doesn't converge in %d iters.\n"
 	   "rtol %g, res_0 %g, atol %g\n",niter,rtol,r0,atol);
+#endif
 }
