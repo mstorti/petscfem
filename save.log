@@ -4621,3 +4621,8 @@ tag: beta-3.49.49 on Sat, 15 Apr 2006 16:34:32 -0300 by mstorti in spider
 ----------
 tag: beta-3.49.50 on Sun, 16 Apr 2006 00:34:35 -0300 by mstorti in aquiles
      > Fixed bug in `advabso.cpp' with `Uref' global. 
+----------
+tag: beta-3.49.51 on Fri, 28 Apr 2006 22:17:45 -0300 by mstorti in spider
+     > Now projection of read vectors onto the `neqtot' 
+     > internal vectors is done with PETSc MatShell solver
+     > with CGN method. 
