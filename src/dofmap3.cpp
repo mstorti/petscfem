@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: dofmap3.cpp,v 1.10 2006/04/28 21:50:04 mstorti Exp $
+//$Id: dofmap3.cpp,v 1.11 2006/04/29 01:11:48 mstorti Exp $
 
 #include <cassert>
 
@@ -153,6 +153,7 @@ printv(double *v,int n,const char *s=NULL) {
     printf("%f\n",v[j]);
 }
 
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>
 static double
 diff(double *v, double *w,int m) {
   double d = 0.0;
@@ -161,21 +162,104 @@ diff(double *v, double *w,int m) {
   return sqrt(d);
 }
 
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>
+static int dofmap_mult(Mat A,Vec x,Vec y) { // y =A*x
+  void *ctx;
+  int ierr = MatShellGetContext(A,&ctx); 
+  CHKERRQ(ierr); 
+  Dofmap * dofmap = (Dofmap *)ctx;
+  dofmap->mult(A,x,y);
+  return 0;
+}
+  
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>
+int Dofmap::mult(Mat A,Vec x,Vec y) { // y =A*x
+  int ierr;
+  int nrow = nnod*ndof;
+  int ncol = neqtot;
+  double *xp,*yp;
+  ierr = VecGetArray(x,&xp);
+  assert(!ierr);
+  ierr = VecGetArray(y,&yp);
+  assert(!ierr);
+  
+  for (int j=0; j<nrow; j++) w[j]=0.0;
+  qxpy(&w[0],xp,1.0);
+  for (int j=0; j<neqtot; j++) yp[j]=0.0;
+  qtxpy(yp,&w[0],1.0);
+
+  ierr = VecRestoreArray(x,&xp);
+  assert(!ierr);
+  ierr = VecRestoreArray(y,&yp);
+  assert(!ierr);
+}
+
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 void Dofmap::solve(double *xp,double *yp) {
   int nrow = nnod*ndof;
   int ncol = neqtot;
-  int m;
+  int m, ierr;
 #if 1
-  Vec x,z;
   // Make product z=Qy
   ierr = VecCreateSeq(PETSC_COMM_SELF,
-		      nrow,&x); CHKERRQ(ierr);
-  qtxpy(&zv[0],y,1.0);
+		      neqtot,&x); 
+  assert(!ierr);
   ierr = VecCreateSeq(PETSC_COMM_SELF,
-		      nrow,&x); CHKERRQ(ierr);
-  
-    
+		      neqtot,&z); 
+  w.resize(nrow);
+
+  assert(!ierr);
+  double *zp;
+  ierr = VecGetArray(z,&zp); 
+  assert(!ierr);
+  qtxpy(zp,yp,1.0);
+  ierr = VecRestoreArray(z,&zp);
+  assert(!ierr);
+
+  Mat A;
+  ierr = MatCreateShell(PETSC_COMM_SELF,ncol,
+			ncol,ncol,ncol,this,&A);
+  assert(!ierr);
+  MatShellSetOperation(A,MATOP_MULT,
+		       (void (*)(void))(&dofmap_mult));
+  assert(!ierr);
+
+  SLES sles;
+  KSP ksp;
+  PC pc;
+  ierr = SLESCreate(PETSC_COMM_SELF,&sles); assert(!ierr);
+  ierr = SLESSetOperators(sles,A,
+			  A,SAME_NONZERO_PATTERN); assert(!ierr);
+  ierr = SLESGetKSP(sles,&ksp); assert(!ierr);
+  ierr = SLESGetPC(sles,&pc); assert(!ierr);
+  ierr = KSPSetType(ksp,KSPCG); assert(!ierr);
+  ierr = PCSetType(pc,PCNONE); assert(!ierr);
+  // ierr = KSPSetMonitor(ksp,KSPDefaultMonitor,NULL,NULL);
+  int its;
+  ierr = SLESSolve(sles,z,x,&its);
+  assert(its<=100);
+  printf("Dofmap::solve: solved projection in %d iters\n",its);
+
+#if 0
+  double a=1.0;
+  ierr = VecSet(&a,x);  assert(!ierr);
+  ierr = MatMult(A,x,z);  assert(!ierr);
+  ierr = VecView(z,PETSC_VIEWER_STDOUT_SELF);
+  assert(!ierr);
+#endif
+
+  double *xpp;
+  ierr = VecGetArray(x,&xpp); 
+  assert(!ierr);
+  for (int j=0; j<neqtot; j++)
+    xp[j] = xpp[j];
+  ierr = VecRestoreArray(x,&xpp);
+  assert(!ierr);
+
+  ierr =MatDestroy(A); assert(!ierr);
+  ierr = VecDestroy(x); assert(!ierr);
+  ierr = VecDestroy(z); assert(!ierr);
+ 
 #else
   vector<double> zv(nrow,0.0), 
     vv(nrow,0.0), wv(ncol,0.0),

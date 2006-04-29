@@ -1,6 +1,6 @@
 // -*- mode: c++ -*-
 /*__INSERT_LICENSE__*/
-//$Id: dofmap.h,v 1.22 2005/10/19 17:40:33 mstorti Exp $
+//$Id: dofmap.h,v 1.23 2006/04/29 01:15:06 mstorti Exp $
  
 #ifndef DOFMAP_H
 #define DOFMAP_H
@@ -188,6 +188,8 @@ private:
   dvector<double> coefs_dv;
   double *coefs;
   double one_coef;
+  Vec x,z;
+  vector<double> w;
 
 public:
   /// number of nodes
@@ -430,5 +432,7 @@ public:
       @param x (input) the vector to multiply by #Q'# (size #nnod*ndof#).
       @param alpha (input) the scalar to scale the term #Q*x#. */ 
   void qtxpy(double *x,double *y,double alpha);
+
+  int mult(Mat A,Vec x,Vec y);
 };
 #endif
