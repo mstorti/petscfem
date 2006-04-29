@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: dofmap3.cpp,v 1.11 2006/04/29 01:11:48 mstorti Exp $
+//$Id: dofmap3.cpp,v 1.12 2006/04/29 19:41:24 mstorti Exp $
 
 #include <cassert>
 
@@ -200,15 +200,25 @@ void Dofmap::solve(double *xp,double *yp) {
   int ncol = neqtot;
   int m, ierr;
 #if 1
-  // Make product z=Qy
+  // We have to solve the system Q*x = y. 
+  // In this version we solve it with the CG
+  // on the normal equations. Normally the matrix Q
+  // is a permutation and in other cases it is very well
+  // conditioned so that this is a good choice. So we
+  // solve Q'*Q*x = Q'*y, -> H*x = z
+
+  // Store x, z in PETSc vectors
   ierr = VecCreateSeq(PETSC_COMM_SELF,
 		      neqtot,&x); 
   assert(!ierr);
   ierr = VecCreateSeq(PETSC_COMM_SELF,
 		      neqtot,&z); 
+  assert(!ierr);
+
+  // `w' is an auxiliary vector, contains `Q*x'. 
   w.resize(nrow);
 
-  assert(!ierr);
+  // Compute `z = Q*y'
   double *zp;
   ierr = VecGetArray(z,&zp); 
   assert(!ierr);
@@ -216,6 +226,7 @@ void Dofmap::solve(double *xp,double *yp) {
   ierr = VecRestoreArray(z,&zp);
   assert(!ierr);
 
+  // Define auxiliary matrix shell
   Mat A;
   ierr = MatCreateShell(PETSC_COMM_SELF,ncol,
 			ncol,ncol,ncol,this,&A);
@@ -224,6 +235,7 @@ void Dofmap::solve(double *xp,double *yp) {
 		       (void (*)(void))(&dofmap_mult));
   assert(!ierr);
 
+  // Define auxiliary SLES
   SLES sles;
   KSP ksp;
   PC pc;
@@ -235,6 +247,8 @@ void Dofmap::solve(double *xp,double *yp) {
   ierr = KSPSetType(ksp,KSPCG); assert(!ierr);
   ierr = PCSetType(pc,PCNONE); assert(!ierr);
   // ierr = KSPSetMonitor(ksp,KSPDefaultMonitor,NULL,NULL);
+
+  // Solve problem
   int its;
   ierr = SLESSolve(sles,z,x,&its);
   assert(its<=100);
@@ -248,6 +262,8 @@ void Dofmap::solve(double *xp,double *yp) {
   assert(!ierr);
 #endif
 
+  // Copy auxiliary PETSc vector `x' in
+  // output argument `x'
   double *xpp;
   ierr = VecGetArray(x,&xpp); 
   assert(!ierr);
@@ -256,9 +272,11 @@ void Dofmap::solve(double *xp,double *yp) {
   ierr = VecRestoreArray(x,&xpp);
   assert(!ierr);
 
+  // Destroy auxiliary quantities
   ierr =MatDestroy(A); assert(!ierr);
   ierr = VecDestroy(x); assert(!ierr);
   ierr = VecDestroy(z); assert(!ierr);
+  w.clear();
  
 #else
   vector<double> zv(nrow,0.0), 
