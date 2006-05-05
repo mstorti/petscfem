@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: elastld.cpp,v 1.12 2006/04/14 13:44:51 mstorti Exp $
+//$Id: elastld.cpp,v 1.13 2006/05/05 21:52:18 mstorti Exp $
 
 #include <src/fem.h>
 #include <src/utils.h>
@@ -215,6 +215,12 @@ void ld_elasticity_load
   xstar.axpy(state,alpha);
   state.rs();
 
+#if 0
+  if (elem % 10==0)
+    printf("elem %d, pressure %f\n",
+	   elem,pressure,ELEMPROPS(elem,0),&ELEMPROPS(elem,0));
+#endif
+
   for (int ipg=0; ipg<npg; ipg++) {
 
     dshapexi.ir(3,ipg+1); // restriccion del indice 3 a ipg+1
@@ -228,10 +234,6 @@ void ld_elasticity_load
     double wpgdet = detJaco*wpg.get(ipg+1);
     tmp.prod(shape,nor,1,2);
     res.axpy(tmp,-pressure);
-#if 0
-    printf("elem %d, wpgdet %f\n",elem,wpgdet);
-    nor.print("nor: ");
-#endif
   }
   dshapexi.rs();
   shape.rs();
