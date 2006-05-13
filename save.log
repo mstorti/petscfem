@@ -4626,3 +4626,6 @@ tag: beta-3.49.51 on Fri, 28 Apr 2006 22:17:45 -0300 by mstorti in spider
      > Now projection of read vectors onto the `neqtot' 
      > internal vectors is done with PETSc MatShell solver
      > with CGN method. 
+----------
+tag: beta-3.49.52 on Sat, 13 May 2006 18:12:58 -0300 by mstorti in spider
+     > Added `relax_factor' to `mes-move-opt'.
