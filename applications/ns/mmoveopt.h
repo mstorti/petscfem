@@ -1,6 +1,6 @@
 // -*- mode: C++ -*-
 /*__INSERT_LICENSE__*/
-//$Id: mmoveopt.h,v 1.1 2005/10/25 12:43:53 mstorti Exp $
+//$Id: mmoveopt.h,v 1.2 2006/05/13 21:11:55 mstorti Exp $
 
 #ifndef MMOVEOPT_H
 #define MMOVEOPT_H
@@ -24,9 +24,12 @@
 class  mesh_move_opt : public adaptor { 
 private:
   /// Auxiliary variables
-  FastMat2 dVdW,dSldW,dWdu,d2VdW2,d2SldW2,d2Vdu2,d2Sldu2,x,w,dVdu,dSldu,dQ,d2Q,tmp,mat1,vaux,vaux1,vaux2,w0,x0,epsilon_LC;
+  FastMat2 dVdW,dSldW,dWdu,d2VdW2,d2SldW2,d2Vdu2,
+    d2Sldu2,x,w,dVdu,dSldu,dQ,d2Q,tmp,mat1,
+    vaux,vaux1,vaux2,w0,x0,epsilon_LC,dx;
   /// Parameters
-  double distor_exp,c_distor,c_volume,c_relax,volume_exp;
+  double distor_exp,c_distor,c_volume,c_relax,
+    volume_exp,relax_factor;
 
 public: 
   /** Initializes the elemset. Reads parameters, 

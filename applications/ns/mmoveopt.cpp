@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: mmoveopt.cpp,v 1.2 2006/04/05 16:49:08 mstorti Exp $
+//$Id: mmoveopt.cpp,v 1.3 2006/05/13 21:11:55 mstorti Exp $
 
 #include <src/fem.h>
 #include <src/utils.h>
@@ -60,6 +60,8 @@ void mesh_move_opt::init() {
   TGETOPTDEF_ND(thash,double,c_volume,0.);
   //o Scales distortion function
   TGETOPTDEF_ND(thash,double,c_distor,1.);
+  //o Relaxation factor
+  TGETOPTDEF_ND(thash,double,relax_factor,1.);
 }
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
@@ -70,9 +72,18 @@ element_connector(const FastMat2 &xloc,
 		  FastMat2 &res,FastMat2 &mat) {
 
   double C,V,Sl,Q,Vref;
+  double relax_factor_now = relax_factor;
+  if (glob_param->inwt>0) 
+    relax_factor_now = 1.0;
 
   x.set(xloc).add(state_new);
   x0.set(xloc).add(state_old);
+
+  if (relax_factor_now!=1.0) {
+    dx.set(x).rest(x0);
+    x.set(x0).axpy(dx,relax_factor_now);
+  }
+
   for (int i=1;i<=ndim;i++){
     for (int j=1;j<=ndim;j++){
       w.setel(x.get(i+1,j)-x.get(1,j),i,j);
@@ -212,6 +223,7 @@ element_connector(const FastMat2 &xloc,
 
   res.set(dQ).scale(distor_exp*c_distor*pow(Q,distor_exp-1.));
   res.axpy(dVdu,volume_exp*c_volume/Vref*pow(V/Vref-1.,volume_exp-1.));
+  res.scale(1.0/relax_factor_now);
 
   d2Q.set(d2Vdu2).scale(Sl);
   mat1.prod(dVdu,dSldu,1,2,3,4);
