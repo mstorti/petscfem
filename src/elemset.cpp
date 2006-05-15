@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: elemset.cpp,v 1.93 2005/04/09 10:31:35 mstorti Exp $
+//$Id: elemset.cpp,v 1.94 2006/05/15 10:38:03 mstorti Exp $
 
 #ifndef _GNU_SOURCE
 #define _GNU_SOURCE
@@ -241,12 +241,15 @@ public:
 void Elemset::clear_error() { error_code_m=0; }
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
-void Elemset::set_error(int error_code_a) { error_code_m = error_code_a; }
+void Elemset::set_error(int error_code_a) { 
+  error_code_m = error_code_a; 
+}
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 void Elemset::check_error() {
   int error;
-  int ierr = MPI_Allreduce(&error_code_m,&error,1,MPI_INT,MPI_MAX,PETSC_COMM_WORLD);
+  int ierr = MPI_Allreduce(&error_code_m,&error,1,
+			   MPI_INT,MPI_MAX,PETSC_COMM_WORLD);
   error_code_m = error;
   handle_error(error_code_m);
 }
@@ -540,7 +543,8 @@ int assemble(Mesh *mesh,arg_list argl,
       el_last = iele;
       if (el_last >=nelem) el_last = nelem-1;
       if (el_last==nelem-1) last_chunk=1;
-      // printf("[%d] jobinfo %s, chunk %d, chunk_size %d, here %d,range %d-%d\n",
+      // printf("[%d] jobinfo %s, chunk %d,
+      // chunk_size %d, here %d,range %d-%d\n",
       // myrank,jobinfo,chunk,chunk_size,iele_here+1,el_start,el_last);
 
       for (j=0; j<narg; j++) {
@@ -572,7 +576,6 @@ int assemble(Mesh *mesh,arg_list argl,
       }
 #endif 
 
-      
       elemset->clear_error();
       if (iele_here > -1) {
 	// if (1) {
