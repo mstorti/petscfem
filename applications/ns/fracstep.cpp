@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: fracstep.cpp,v 1.13 2003/09/11 17:47:14 mstorti Exp $
+//$Id: fracstep.cpp,v 1.13.70.1 2006/05/19 23:43:37 dalcinl Exp $
  
 #include <src/fem.h>
 #include <src/utils.h>
@@ -139,7 +139,7 @@ int fracstep::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
     ustate2(nel,ndim);
 
   if (ndof != ndim+1) {
-    PetscPrintf(PETSC_COMM_WORLD,"ndof != ndim+1\n"); CHKERRA(1);
+    PetscPrintf(PETSCFEM_COMM_WORLD,"ndof != ndim+1\n"); CHKERRA(1);
   }
 
   nen = nel*ndof;

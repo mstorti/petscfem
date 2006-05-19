@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: elast.cpp,v 1.18 2005/06/21 01:36:15 mstorti Exp $
+//$Id: elast.cpp,v 1.18.4.1 2006/05/19 23:43:37 dalcinl Exp $
 
 #include <src/fem.h>
 #include <src/utils.h>
@@ -100,7 +100,7 @@ void elasticity::init() {
 	.rs().d(1,2).is(1,4,6).set(c2)
 	.rs().scale(c1);
   } else {
-    PetscPrintf(PETSC_COMM_WORLD,"wrong dimension: %d\n",ndim);
+    PetscPrintf(PETSCFEM_COMM_WORLD,"wrong dimension: %d\n",ndim);
     assert(0);
   }
 

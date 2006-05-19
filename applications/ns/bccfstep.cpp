@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: bccfstep.cpp,v 1.2 2004/12/21 23:00:06 mstorti Exp $
+//$Id: bccfstep.cpp,v 1.2.34.1 2006/05/19 23:43:37 dalcinl Exp $
   
 #include <src/fem.h>
 #include <src/utils.h>
@@ -98,7 +98,7 @@ int bcconv_fstep_fm2::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
 
 #if 0				// allow nsikeps elemset
   if (ndof != ndim+1) {
-    PetscPrintf(PETSC_COMM_WORLD,"ndof != ndim+1\n"); CHKERRA(1);
+    PetscPrintf(PETSCFEM_COMM_WORLD,"ndof != ndim+1\n"); CHKERRA(1);
   }
 #endif
 
@@ -242,7 +242,7 @@ int bcconv_fstep_fm2::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
 	}
 	*/
       } else {
-	PetscPrintf(PETSC_COMM_WORLD,
+	PetscPrintf(PETSCFEM_COMM_WORLD,
 		    "Don't know how to compute jobinfo: %s\n",jobinfo);
 	CHKERRQ(ierr);
       }

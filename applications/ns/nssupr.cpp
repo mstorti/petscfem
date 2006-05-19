@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-/* $Id: nssupr.cpp,v 1.12 2003/07/06 15:10:18 mstorti Exp $ */
+/* $Id: nssupr.cpp,v 1.12.74.1 2006/05/19 23:43:38 dalcinl Exp $ */
 
 #include <src/fem.h>
 #include <src/utils.h>
@@ -33,18 +33,18 @@ void ns_sup_res::lm_initialize() {
   // set, we set it to -1. 
   int axial_accel_rank_a = (AXIAL_ACCELERATION!=DBL_MAX ? MY_RANK : -1);
 #if 0
-  PetscSynchronizedPrintf(PETSC_COMM_WORLD,"[%d] axial_accel_rank_a: %d\n",
+  PetscSynchronizedPrintf(PETSCFEM_COMM_WORLD,"[%d] axial_accel_rank_a: %d\n",
 			  MY_RANK,axial_accel_rank_a);
-  PetscSynchronizedFlush(PETSC_COMM_WORLD); 
+  PetscSynchronizedFlush(PETSCFEM_COMM_WORLD); 
 #endif
   int axial_accel_rank;
   // The we make an ALlreduce and get one of the processors where
   // the acceleration has been set.
   MPI_Allreduce(&axial_accel_rank_a,&axial_accel_rank,1,MPI_INT,
-		MPI_MAX,PETSC_COMM_WORLD);
+		MPI_MAX,PETSCFEM_COMM_WORLD);
   if (axial_accel_rank>=0)
     // And we make a broadcast from that processor
-    MPI_Bcast(&AXIAL_ACCELERATION,1,MPI_DOUBLE,axial_accel_rank,PETSC_COMM_WORLD);
+    MPI_Bcast(&AXIAL_ACCELERATION,1,MPI_DOUBLE,axial_accel_rank,PETSCFEM_COMM_WORLD);
 #endif
 }
 
@@ -89,7 +89,7 @@ void ns_sup_res::res(int k,FastMat2 & U,FastMat2 & r,
   eta = U.get(2,1);
   //#define DEBUG_AXIAL_ACC
 #if DEBUG_AXIAL_ACC
-  PetscSynchronizedPrintf(PETSC_COMM_WORLD,"k %d, gravity %f, rho %f, p %f, eta %f\n",
+  PetscSynchronizedPrintf(PETSCFEM_COMM_WORLD,"k %d, gravity %f, rho %f, p %f, eta %f\n",
 			  k, gravity, rho, p, eta);
 #endif
   r.setel(p-rho*gravity*eta,1);
@@ -98,6 +98,6 @@ void ns_sup_res::res(int k,FastMat2 & U,FastMat2 & r,
 
 void ns_sup_res::close() {
 #if DEBUG_AXIAL_ACC
-  PetscSynchronizedFlush(PETSC_COMM_WORLD);
+  PetscSynchronizedFlush(PETSCFEM_COMM_WORLD);
 #endif
 }

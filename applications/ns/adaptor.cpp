@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: adaptor.cpp,v 1.9 2003/10/11 14:08:10 mstorti Exp $
+//$Id: adaptor.cpp,v 1.9.68.1 2006/05/19 23:43:37 dalcinl Exp $
 
 #include <src/fem.h>
 #include <src/utils.h>
@@ -47,7 +47,7 @@ int adaptor::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
 #define RETVALMAT(iele,j,k,p,q) VEC5(retvalmat,iele,j,nel,k,ndof,p,nel,q,ndof)
 
   int ierr=0;
-  // PetscPrintf(PETSC_COMM_WORLD,"entrando a nsilesther\n");
+  // PetscPrintf(PETSCFEM_COMM_WORLD,"entrando a nsilesther\n");
 
 #define NODEDATA(j,k) VEC2(nodedata->nodedata,j,k,nu)
 #define ICONE(j,k) (icone[nel*(j)+(k)]) 

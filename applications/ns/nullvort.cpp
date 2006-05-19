@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-// $Id: nullvort.cpp,v 1.6 2003/03/10 20:09:38 mstorti Exp $
+// $Id: nullvort.cpp,v 1.6.74.1 2006/05/19 23:43:38 dalcinl Exp $
 
 #include <applications/ns/nullvort.h>
 #include <src/dvector.h>
@@ -337,7 +337,7 @@ void null_vort::res(int k,FastMat2 &U,FastMat2 & r,FastMat2 & lambda,
   // warning if the computation was too bad conditioned
   double cond = cloud.cond();
   if (cond > 1e8) {
-    PetscPrintf(PETSC_COMM_WORLD,
+    PetscPrintf(PETSCFEM_COMM_WORLD,
 		"null_vort: object %d, bad conditioned cloud, cond %g\n",
 		k,cond);
   }
