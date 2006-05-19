@@ -44,22 +44,20 @@ metadata = {
 from os import environ as env
 from posixpath import expanduser, abspath, join
 
-MPI_DIR      = env.get('MPI_DIR')    or '/usr/local/mpich2-1.0.3'
-PETSC_DIR    = env.get('PETSC_DIR')  or '/usr/local/petsc/2.3.1'
-PETSC_ARCH   = env.get('PETSC_ARCH') or 'linux-gnu-g_c++'
-PETSCFEM_DIR = abspath('..')
-
+MPI_DIR      = env.get('MPI_DIR')      or '/usr/local/mpich2-1.0.3'
+PETSC_DIR    = env.get('PETSC_DIR')    or '/usr/local/petsc/2.3.1'
+PETSC_ARCH   = env.get('PETSC_ARCH')   or 'linux-gnu-g_c++'
+PETSCFEM_DIR = env.get('PETSCFEM_DIR') or abspath('..')
 
 GLIB1    = '/usr/include/glib-1.2'
 GLIB2    = '/usr/lib/glib/include'
 
-SOFT1  = expanduser('/u/mstorti/SOFT')
-SOFT2  = expanduser('/u/mstorti/PETSC')
-NEWMAT   = join(SOFT1, 'NEWMAT/src')
-LIBRETTO = join(SOFT1, 'libretto-2.1')
-MESCHACH = join(SOFT1, 'meschach-1.2')
-METIS    = join(SOFT1, 'metis-4.0')
-ANN      = join(SOFT2, 'ann_0.2')
+SOFT  = expanduser('/u/mstorti/SOFT')
+NEWMAT   = join(SOFT, 'NEWMAT/src')
+LIBRETTO = join(SOFT, 'libretto-2.1')
+MESCHACH = join(SOFT, 'meschach-1.2')
+METIS    = join(SOFT, 'metis-4.0')
+ANN      = join(SOFT, 'ann_1.1')
 
 
 
@@ -83,7 +81,6 @@ config = {
                       'mes',
                       'metis',
                       'ANN',],
-                      #'simpleskts'],
     
     'library_dirs' : [join(MPI_DIR, 'lib'),
                       join(PETSC_DIR, 'lib', PETSC_ARCH),
@@ -164,6 +161,7 @@ def setup():
             self.swigflags.append('-O')
             self.swigflags.append('-nofastproxy')
             self.swigflags.append('-noh')
+            self.swigflags.append('-fastinit')
             
     setup(packages     = ['petscfem4py'],
     	  package_dir  = {'petscfem4py' : 'petscfem'},
