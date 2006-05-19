@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: adv.cpp,v 1.14.58.1 2005/09/25 22:58:34 mstorti Exp $
+//$Id: adv.cpp,v 1.14.58.2 2006/05/19 23:17:29 dalcinl Exp $
  
 #include <src/fem.h>
 #include <src/readmesh.h>
@@ -92,6 +92,13 @@ int main(int argc,char **args) {
 
   // elemsetlist =  da_create(sizeof(Elemset *));
   PetscInitialize(&argc,&args,(char *)0,help);
+
+  PETSCFEM_COMM_WORLD = PETSC_COMM_WORLD;
+  // Get MPI info
+  MPI_Comm_size(PETSCFEM_COMM_WORLD,&SIZE);
+  MPI_Comm_rank(PETSCFEM_COMM_WORLD,&MY_RANK);
+
+
   print_copyright();
 
   // Start registering functions

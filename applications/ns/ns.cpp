@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: ns.cpp,v 1.166.4.2 2006/03/15 19:37:56 rodrigop Exp $
+//$Id: ns.cpp,v 1.166.4.3 2006/05/19 23:17:29 dalcinl Exp $
 #include <src/debug.h>
 #include <malloc.h>
 
@@ -71,9 +71,11 @@ int main(int argc,char **args) {
   hmin.resize(1);
 
   PetscInitialize(&argc,&args,(char *)0,help);
+
+  PETSCFEM_COMM_WORLD = PETSC_COMM_WORLD;
   // Get MPI info
-  MPI_Comm_size(PETSC_COMM_WORLD,&SIZE);
-  MPI_Comm_rank(PETSC_COMM_WORLD,&MY_RANK);
+  MPI_Comm_size(PETSCFEM_COMM_WORLD,&SIZE);
+  MPI_Comm_rank(PETSCFEM_COMM_WORLD,&MY_RANK);
 
   print_copyright();
   PetscPrintf(PETSC_COMM_WORLD,"-------- Navier-Stokes module ---------\n");

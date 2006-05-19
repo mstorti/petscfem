@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: laplace.cpp,v 1.13.82.1 2005/09/25 22:58:37 mstorti Exp $
+//$Id: laplace.cpp,v 1.13.82.2 2006/05/19 23:17:29 dalcinl Exp $
  
 #include <src/fem.h>
 #include <src/readmesh.h>
@@ -54,11 +54,13 @@ int main(int argc,char **args) {
   Mesh *mesh;
 
   PetscInitialize(&argc,&args,(char *)0,help);
-  print_copyright();
 
+  PETSCFEM_COMM_WORLD = PETSC_COMM_WORLD;
   // Get MPI info
-  MPI_Comm_size(PETSC_COMM_WORLD,&size);
-  MPI_Comm_rank(PETSC_COMM_WORLD,&myrank);
+  MPI_Comm_size(PETSCFEM_COMM_WORLD,&SIZE);
+  MPI_Comm_rank(PETSCFEM_COMM_WORLD,&MY_RANK);
+
+  print_copyright();
 
   ierr = PetscOptionsGetString(PETSC_NULL,"-case",fcase,FLEN,&flg); CHKERRA(ierr);
   if (!flg) {
