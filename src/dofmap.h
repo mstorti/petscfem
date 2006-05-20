@@ -1,6 +1,6 @@
 // -*- mode: c++ -*-
 /*__INSERT_LICENSE__*/
-//$Id: dofmap.h,v 1.21.20.3 2006/05/20 22:37:36 dalcinl Exp $
+//$Id: dofmap.h,v 1.21.20.4 2006/05/20 23:12:10 dalcinl Exp $
  
 #ifndef DOFMAP_H
 #define DOFMAP_H
@@ -33,6 +33,7 @@ class Time : public TimeData{public:
   void set(const double t)  {time_=t;};
   void inc(const double dt) {time_+=dt;};
   operator double() const {return time_;};
+  Time& operator=(const Time& t) { time_=t.time_; return *this;}
 private:
   double time_;
 };
