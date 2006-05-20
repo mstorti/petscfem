@@ -1,6 +1,6 @@
 // -*-mode: c++ -*-
 /*__INSERT_LICENSE__*/
-//$Id: sttfilter.h,v 1.10.82.1 2006/03/27 20:16:40 rodrigop Exp $
+//$Id: sttfilter.h,v 1.10.82.2 2006/05/20 22:39:02 dalcinl Exp $
  
 #ifndef STTFILTER_H
 #define STTFILTER_H
@@ -40,7 +40,7 @@ public:
   /**@name Operations on the time part */
   //@{
   /// Changes the time of the state
-  State & set_time(const Time t) {time = t;}
+  State & set_time(const Time& t) {time = t;}
   /// Increments the time part
   State & inc(double dt) {time.inc(dt);}
   /// Const access to the time part
