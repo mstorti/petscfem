@@ -1,4 +1,4 @@
-//$Id: godunov.cpp,v 1.3 2005/01/27 14:43:35 mstorti Exp $
+//$Id: godunov.cpp,v 1.3.26.1 2006/05/20 20:53:30 dalcinl Exp $
 #include <src/fem.h>
 #include <src/utils.h>
 #include <src/util2.h>
@@ -454,14 +454,14 @@ void AdvDiff_Godunov::new_assemble(arg_data_list &arg_data_v,const Nodedata *nod
 	   hloc = 2.*sqrt(hvec.min_all());
 	   
 	   dtloc = hloc/lambda_max;
-	   // PetscPrintf(PETSC_COMM_WORLD,
+	   // PetscPrintf(PETSCFEM_COMM_WORLD,
 	   // "On element %d, hloc %f, lambda_max %f, dtloc %f\n",
 	   // k,hloc,lambda_max,dtloc);
 	   
 	   if (dtloc<DTMIN || !WAS_SET) {
 	     DTMIN = dtloc;
 	     WAS_SET = 1;
-	     //   	PetscPrintf(PETSC_COMM_WORLD,
+	     //   	PetscPrintf(PETSCFEM_COMM_WORLD,
 	     //   		    "setting dtmin: %f, hloc %f, lambda_max: %f\n",
 	     //   		    DTMIN,hloc,lambda_max);
 	   }

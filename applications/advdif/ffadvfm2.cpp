@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: ffadvfm2.cpp,v 1.48 2003/11/25 01:13:36 mstorti Exp $
+//$Id: ffadvfm2.cpp,v 1.48.58.1 2006/05/20 20:53:30 dalcinl Exp $
 
 #include <stdio.h>
 #include <string.h>
@@ -804,7 +804,7 @@ void newadvecfm2_ff_t::start_chunk(int &ret_options) {
     u.resize(3,ndim,ndof,ndof);
     a_jac =  &full_adv_jac;
   } else {
-    PetscPrintf(PETSC_COMM_WORLD,
+    PetscPrintf(PETSCFEM_COMM_WORLD,
 		"Advective Jacobian does not fit in \n"
 		"a predefined name/length combination\n"
 		"name entered: \"%s\"\n"
@@ -870,7 +870,7 @@ void newadvecfm2_ff_t::start_chunk(int &ret_options) {
     D_jac.resize(4,ndof,ndof,ndim,ndim);
     d_jac =  &full_dif_jac;
   } else {
-    PetscPrintf(PETSC_COMM_WORLD,
+    PetscPrintf(PETSCFEM_COMM_WORLD,
 		"Diffusive Jacobian does not fit in \n"
 		"a predefined name/length combination\n"
 		"name entered: \"%s\"\n"
@@ -925,7 +925,7 @@ void newadvecfm2_ff_t::start_chunk(int &ret_options) {
     C_jac.resize(2,ndof,ndof);
     c_jac =  &full_c_jac;
   } else {
-    PetscPrintf(PETSC_COMM_WORLD,
+    PetscPrintf(PETSCFEM_COMM_WORLD,
 		"Reactive Jacobian does not fit in \n"
 		"a predefined name/length combination\n"
 		"name entered: \"%s\"\n"
@@ -971,7 +971,7 @@ void newadvecfm2_ff_t::start_chunk(int &ret_options) {
     S_body.resize(1,ndof);
     source_term =  &full_source_term;
   } else {
-    PetscPrintf(PETSC_COMM_WORLD,
+    PetscPrintf(PETSCFEM_COMM_WORLD,
 		"Source term does not fit in \n"
 		"a predefined name/length combination\n"
 		"name entered: \"%s\"\n"

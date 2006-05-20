@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: advdif_bubbly.cpp,v 1.13.12.2 2006/05/19 23:17:29 dalcinl Exp $
+//$Id: advdif_bubbly.cpp,v 1.13.12.3 2006/05/20 20:53:29 dalcinl Exp $
 
 #include <src/debug.h>
 #include <set>
@@ -85,14 +85,14 @@ int bubbly_main() {
   // elemsetlist =  da_create(sizeof(Elemset *));
   // PetscInitialize(&argc,&args,(char *)0,help);
   print_copyright();
-  PetscPrintf(PETSC_COMM_WORLD,
+  PetscPrintf(PETSCFEM_COMM_WORLD,
 	      "-------- Generic Advective-Diffusive / Bubbly module ---------\n");
 
-  Debug debug2(0,PETSC_COMM_WORLD);
+  Debug debug2(0,PETSCFEM_COMM_WORLD);
 
   ierr = PetscOptionsGetString(PETSC_NULL,"-case",fcase,FLEN,&flg); CHKERRA(ierr);
   if (!flg) {
-    PetscPrintf(PETSC_COMM_WORLD,
+    PetscPrintf(PETSCFEM_COMM_WORLD,
 		"Option \"-case <filename>\" not passed to PETSc-FEM!!\n");
     PetscFinalize();
     exit(0);
@@ -303,7 +303,7 @@ int bubbly_main() {
 
 #if 0
   PetscViewer matlab;
-  ierr = PetscViewerASCIIOpen(PETSC_COMM_WORLD,
+  ierr = PetscViewerASCIIOpen(PETSCFEM_COMM_WORLD,
 			      "matns.m",&matlab); CHKERRA(ierr);
 #endif
   //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:
@@ -506,10 +506,10 @@ int bubbly_main() {
 
 	if (print_linear_system_and_stop &&
 	    inwt==inwt_stop && tstep==time_step_stop) {
-	  PetscPrintf(PETSC_COMM_WORLD,
+	  PetscPrintf(PETSCFEM_COMM_WORLD,
 		      "Printing residual and matrix for debugging and stopping..\n");
 	  PetscViewer matlab;
-	  ierr = PetscViewerASCIIOpen(PETSC_COMM_WORLD,
+	  ierr = PetscViewerASCIIOpen(PETSCFEM_COMM_WORLD,
 				      "mat.output",&matlab); CHKERRA(ierr);
 	  ierr = PetscViewerSetFormat_WRAPPER(matlab,
 					      PETSC_VIEWER_ASCII_MATLAB,"res");
@@ -539,7 +539,7 @@ int bubbly_main() {
 	}
 
 	ierr  = VecNorm(res,NORM_2,&normres); CHKERRA(ierr);
-	PetscPrintf(PETSC_COMM_WORLD,
+	PetscPrintf(PETSCFEM_COMM_WORLD,
 		    "Newton subiter (inner) %d, stage  %d, norm_res  = %10.3e\n",
 		    inwt_in,kstage,normres);
 	scal=omega_newton_in/alpha;
@@ -554,7 +554,7 @@ int bubbly_main() {
 
       ierr  = VecNorm(res,NORM_2,&normres); CHKERRA(ierr);
       if (inwt==0) normres_ext = normres;
-      PetscPrintf(PETSC_COMM_WORLD,
+      PetscPrintf(PETSCFEM_COMM_WORLD,
 		  "Newton subiter (outer) %d, norm_res  = %10.3e\n",
 		  inwt,normres);
       //      scal=omega_newton;
@@ -590,7 +590,7 @@ int bubbly_main() {
     ierr  = VecNorm(dx,NORM_2,&delta_u); CHKERRA(ierr);
 
     if (tstep % nsave == 0){
-      PetscPrintf(PETSC_COMM_WORLD,
+      PetscPrintf(PETSCFEM_COMM_WORLD,
 		  " --------------------------------------\n"
 		  "Time step: %d\n"
 		  " --------------------------------------\n",
@@ -631,7 +631,7 @@ int bubbly_main() {
       }
     }
 
-    PetscPrintf(PETSC_COMM_WORLD,
+    PetscPrintf(PETSCFEM_COMM_WORLD,
 		"time_step %d, time: %g, delta_u = %10.3e\n",
 		tstep,time_,delta_u);
     print_vector_rota(save_file_pattern.c_str(),x,dofmap,

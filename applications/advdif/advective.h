@@ -1,6 +1,6 @@
 // -*- mode: c++ -*-
 /*__INSERT_LICENSE__*/
-//$Id: advective.h,v 1.78 2005/09/01 02:49:41 mstorti Exp $
+//$Id: advective.h,v 1.78.4.1 2006/05/20 20:53:30 dalcinl Exp $
  
 //#define CHECK_JAC // Computes also the FD Jacobian for debugging
  
@@ -117,7 +117,7 @@ private:
   vector<int> log_vars_v;
 public:
   virtual int operator() (ADVDIFFF_ARGS) {
-    PetscPrintf(PETSC_COMM_WORLD,"Undefined flux function\n");
+    PetscPrintf(PETSCFEM_COMM_WORLD,"Undefined flux function\n");
     return 0;
   }
   /** Returns the list of variables that are 

@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: adv.cpp,v 1.14.58.2 2006/05/19 23:17:29 dalcinl Exp $
+//$Id: adv.cpp,v 1.14.58.3 2006/05/20 20:56:41 dalcinl Exp $
  
 #include <src/fem.h>
 #include <src/readmesh.h>
@@ -27,7 +27,7 @@ int print_internal_loop_conv_g=0,
 #define __FUNC__ "int MyKSPMonitor(KSP ,int ,double ,void *)"
 int MyKSPMonitor(KSP ksp,int n,double rnorm,void *dummy) {
   if (print_internal_loop_conv_g) 
-    PetscPrintf(PETSC_COMM_WORLD,
+    PetscPrintf(PETSCFEM_COMM_WORLD,
 		"iteration %d KSP Residual norm %7.4e \n",n,rnorm);
   return 0;
 }
@@ -105,16 +105,16 @@ int main(int argc,char **args) {
   // Amplitude::initialize_function_table();
 
   // Get MPI info
-  MPI_Comm_size(PETSC_COMM_WORLD,&SIZE);
-  MPI_Comm_rank(PETSC_COMM_WORLD,&MY_RANK);
+  MPI_Comm_size(PETSCFEM_COMM_WORLD,&SIZE);
+  MPI_Comm_rank(PETSCFEM_COMM_WORLD,&MY_RANK);
 
-//    MPI_Comm_size(PETSC_COMM_WORLD,&size);
-//    MPI_Comm_rank(PETSC_COMM_WORLD,&myrank);
+//    MPI_Comm_size(PETSCFEM_COMM_WORLD,&size);
+//    MPI_Comm_rank(PETSCFEM_COMM_WORLD,&myrank);
 
       //  if (size != 1) SETERRA(1,0,"This is a uniprocessor example only!");
   ierr = PetscOptionsGetString(PETSC_NULL,"-case",fcase,FLEN,&flg); CHKERRA(ierr);
   if (!flg) {
-    PetscPrintf(PETSC_COMM_WORLD,
+    PetscPrintf(PETSCFEM_COMM_WORLD,
 		"Option \"-case <filename>\" not passed to PETSc-FEM!!\n");
     PetscFinalize();
     exit(0);
@@ -201,7 +201,7 @@ int main(int argc,char **args) {
 
 #if 0
   PetscViewer matlab;
-  ierr = ViewerASCIIOpen(PETSC_COMM_WORLD,
+  ierr = ViewerASCIIOpen(PETSCFEM_COMM_WORLD,
 			 "matns.m",&matlab); CHKERRA(ierr);
 #endif
   //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
@@ -249,7 +249,7 @@ int main(int argc,char **args) {
     ierr = assemble(mesh,argl,dofmap,"comp_mat_mass",&time); CHKERRA(ierr);
 
 	//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
-    ierr = KSPCreate(PETSC_COMM_WORLD,&ksp_mass); CHKERRA(ierr);
+    ierr = KSPCreate(PETSCFEM_COMM_WORLD,&ksp_mass); CHKERRA(ierr);
     ierr = KSPSetType(ksp_mass,KSPCG); CHKERRA(ierr);
     ierr = KSPGetPC(ksp_mass,&pc_mass); CHKERRA(ierr);
     ierr = PCSetType(pc_mass,PCJACOBI); CHKERRA(ierr);
@@ -304,7 +304,7 @@ int main(int argc,char **args) {
     if (comp_mat_each_time_step_g) {
 
       //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
-      ierr = KSPCreate(PETSC_COMM_WORLD,&ksp_mass); CHKERRA(ierr);
+      ierr = KSPCreate(PETSCFEM_COMM_WORLD,&ksp_mass); CHKERRA(ierr);
       ierr = KSPSetType(ksp_mass,KSPGMRES); CHKERRA(ierr);
       ierr = KSPGetPC(ksp_mass,&pc_mass); CHKERRA(ierr);
       ierr = PCSetType(pc_mass,PCJACOBI); CHKERRA(ierr);
@@ -377,10 +377,10 @@ int main(int argc,char **args) {
 
     // Prints residual and mass matrix in Matlab format
     if (print_linear_system_and_stop) {
-      PetscPrintf(PETSC_COMM_WORLD,
+      PetscPrintf(PETSCFEM_COMM_WORLD,
 		  "Printing residual and matrix for debugging and stopping..\n");
       PetscViewer matlab;
-      ierr = PetscViewerASCIIOpen(PETSC_COMM_WORLD,
+      ierr = PetscViewerASCIIOpen(PETSCFEM_COMM_WORLD,
 			     "mat.output",&matlab); CHKERRA(ierr);
       ierr = PetscViewerSetFormat_WRAPPER(matlab, 
 			     PETSC_VIEWER_ASCII_MATLAB,"res");
@@ -421,14 +421,14 @@ int main(int argc,char **args) {
     ierr = VecAXPY(dx,scal,xold);
     ierr  = VecNorm(dx,NORM_2,&delta_u); CHKERRA(ierr);
 
-    PetscPrintf(PETSC_COMM_WORLD,
+    PetscPrintf(PETSCFEM_COMM_WORLD,
 		"time_step %d, time: %g, res = %14.12e - delta_u = %10.3e\n",
 		tstep,time_,norm,delta_u);
     print_vector_rota(save_file_pattern.c_str(),x,dofmap,
 		      &time,tstep-1,nsaverot,nrec,nfile);
 
     if (tstep % nsave == 0){
-      PetscPrintf(PETSC_COMM_WORLD,
+      PetscPrintf(PETSCFEM_COMM_WORLD,
 		  " --------------------------------------\n"
 		  "Time step: %d\n"
 		  " --------------------------------------\n",

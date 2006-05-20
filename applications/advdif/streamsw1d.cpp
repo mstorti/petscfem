@@ -1,4 +1,4 @@
-//$Id: streamsw1d.cpp,v 1.7 2005/02/01 20:36:01 mstorti Exp $
+//$Id: streamsw1d.cpp,v 1.7.26.1 2006/05/20 20:53:30 dalcinl Exp $
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:
 #include <stdio.h>
 #include <string.h>
@@ -146,7 +146,7 @@ void streamsw1d_ff::compute_flux(const FastMat2 &U,
   //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:
   static double ajac[NDOF*NDOF];
   if ((ndim!=2) || (dim()!=1) || (ndof!=2)) {
-    PetscPrintf(PETSC_COMM_WORLD,"Stop shallow_water 1D over 2D domain Only...\n");
+    PetscPrintf(PETSCFEM_COMM_WORLD,"Stop shallow_water 1D over 2D domain Only...\n");
     PetscFinalize();
     exit(0);
   }

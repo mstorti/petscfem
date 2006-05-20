@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: compdate.cpp,v 1.3 2003/09/13 17:32:09 mstorti Exp $
+//$Id: compdate.cpp,v 1.3.70.1 2006/05/20 20:53:30 dalcinl Exp $
 #include <cstdio>
 #include <petsc.h>
 
@@ -8,7 +8,7 @@
 #endif
 
 void petscfem_print_link_date() {
-  PetscPrintf(PETSC_COMM_WORLD,
+  PetscPrintf(PETSCFEM_COMM_WORLD,
 	      "-----------------------------------------------------------------\n"
 	      "Advective-Diffusive module built on " __DATE__ ", " __TIME__ ", with "
 #ifdef __GNUC__

@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: bubbly_asm_mix.cpp,v 1.6 2005/09/20 01:30:29 mstorti Exp $
+//$Id: bubbly_asm_mix.cpp,v 1.6.4.1 2006/05/20 20:53:30 dalcinl Exp $
 //
 //
 // <<<<<<<<<<<<<<<<<< VERSION ASM >>>>>>>>>>>>>>>>>>>>>>>>
@@ -971,7 +971,7 @@ void bubbly_ff::compute_flux(const FastMat2 &U,
     } else if (ndim==3) {
       h_pspg = cbrt(6*Volume/pi);
     } else {
-      PetscPrintf(PETSC_COMM_WORLD,
+      PetscPrintf(PETSCFEM_COMM_WORLD,
 		  "Only dimensions 2 and 3 allowed for this element.\n");
     }
 

@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: laplace.cpp,v 1.13.82.2 2006/05/19 23:17:29 dalcinl Exp $
+//$Id: laplace.cpp,v 1.13.82.3 2006/05/20 21:00:16 dalcinl Exp $
  
 #include <src/fem.h>
 #include <src/readmesh.h>
@@ -20,7 +20,7 @@ static char help[] = "Basic finite element program.\n\n";
 
 int MyKSPMonitor(KSP ksp,int n,double rnorm,void *dummy)
 {
-  PetscPrintf(PETSC_COMM_WORLD,
+  PetscPrintf(PETSCFEM_COMM_WORLD,
 	      "iteration %d KSP Residual norm %14.12e \n",n,rnorm);
   return 0;
 }
@@ -64,7 +64,7 @@ int main(int argc,char **args) {
 
   ierr = PetscOptionsGetString(PETSC_NULL,"-case",fcase,FLEN,&flg); CHKERRA(ierr);
   if (!flg) {
-    PetscPrintf(PETSC_COMM_WORLD,
+    PetscPrintf(PETSCFEM_COMM_WORLD,
 		"Option \"-case <filename>\" not passed to PETSc-FEM!!\n");
     PetscFinalize();
     exit(0);
@@ -95,7 +95,7 @@ int main(int argc,char **args) {
   ierr = MatZeroEntries(A); CHKERRA(ierr);
       
   // KSP solver for the laplacian
-  ierr = KSPCreate(PETSC_COMM_WORLD,&ksp); CHKERRA(ierr);
+  ierr = KSPCreate(PETSCFEM_COMM_WORLD,&ksp); CHKERRA(ierr);
   ierr = KSPSetType(ksp,KSPCG); CHKERRA(ierr);
   ierr = KSPGetPC(ksp,&pc); CHKERRA(ierr);
   ierr = PCSetType(pc,PCJACOBI); CHKERRA(ierr);

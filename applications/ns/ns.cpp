@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: ns.cpp,v 1.166.4.4 2006/05/19 23:43:37 dalcinl Exp $
+//$Id: ns.cpp,v 1.166.4.5 2006/05/20 20:53:13 dalcinl Exp $
 #include <src/debug.h>
 #include <malloc.h>
 
@@ -72,7 +72,7 @@ int main(int argc,char **args) {
 
   PetscInitialize(&argc,&args,(char *)0,help);
 
-  PETSCFEM_COMM_WORLD = PETSCFEM_COMM_WORLD;
+  PETSCFEM_COMM_WORLD = PETSC_COMM_WORLD;
   // Get MPI info
   MPI_Comm_size(PETSCFEM_COMM_WORLD,&SIZE);
   MPI_Comm_rank(PETSCFEM_COMM_WORLD,&MY_RANK);

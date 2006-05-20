@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: absorb.cpp,v 1.9 2002/01/14 03:45:05 mstorti Exp $
+//$Id: absorb.cpp,v 1.9.90.1 2006/05/20 20:56:41 dalcinl Exp $
 
 #include <cassert>  
 #include <vector>
@@ -140,7 +140,7 @@ int Absorb::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
       //        }
       //        SHV(U1old);
       //        SHV(A_jac_nor);
-	PetscPrintf(PETSC_COMM_WORLD,
+	PetscPrintf(PETSCFEM_COMM_WORLD,
 		    "System is not hyperbolic. Imaginary part of eigenvalue is not null.\n");
       //        PFEMERRQ("System is not hyperbolic. Imaginary part of eigenvalue is not null.\n");
       }
