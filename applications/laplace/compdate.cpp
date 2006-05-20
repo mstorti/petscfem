@@ -1,7 +1,9 @@
 //__INSERT_LICENSE__
-//$Id: compdate.cpp,v 1.2.70.1 2006/05/20 21:00:16 dalcinl Exp $
+//$Id: compdate.cpp,v 1.2.70.2 2006/05/20 21:50:46 dalcinl Exp $
 #include <cstdio>
 #include <petsc.h>
+
+extern MPI_Comm PETSCFEM_COMM_WORLD;
 
 #ifndef PETSCFEM_HOSTNAME
 #define PETSCFEM_HOSTNAME "<unknown host>"
