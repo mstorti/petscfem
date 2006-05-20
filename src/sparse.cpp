@@ -1,7 +1,9 @@
 //__INSERT_LICENSE__
-//$Id: sparse.cpp,v 1.35.72.1 2006/05/20 21:11:20 dalcinl Exp $
+//$Id: sparse.cpp,v 1.35.72.2 2006/05/20 21:44:16 dalcinl Exp $
 
 #include <src/sparse2.h>
+
+extern MPI_Comm PETSCFEM_COMM_WORLD;
 
 using namespace Random;
 

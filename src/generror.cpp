@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-// $Id: generror.cpp,v 1.4.36.1 2006/05/20 21:11:19 dalcinl Exp $
+// $Id: generror.cpp,v 1.4.36.2 2006/05/20 21:44:16 dalcinl Exp $
 
 #include <string>
 
@@ -8,6 +8,8 @@ using namespace std;
 #include <petsc.h>
 #include <src/generror.h>
 #include <src/autostr.h>
+
+extern MPI_Comm PETSCFEM_COMM_WORLD;
 
 GenericError PETSCFEM_GENERIC_ERROR;
 
