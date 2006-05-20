@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: fem.cpp,v 1.13.20.1 2005/09/25 22:58:44 mstorti Exp $
+//$Id: fem.cpp,v 1.13.20.2 2006/05/20 21:11:19 dalcinl Exp $
 
 #include <time.h>
 #include <stdarg.h>
@@ -10,6 +10,7 @@
 #include "getprop.h"
 #include "pfmat.h"
 
+MPI_Comm PETSCFEM_COMM_WORLD=0;
 int MY_RANK, SIZE;
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
@@ -84,7 +85,7 @@ int compute_prof(Darray *da,Dofmap *dofmap,int myrank,
   avo = double(sumo)/double(neqp);
   avd = double(sumd)/double(neqp);
   avdcorr = double(sumdcorr)/double(neqp);
-  PetscSynchronizedPrintf(PETSC_COMM_WORLD,
+  PetscSynchronizedPrintf(PETSCFEM_COMM_WORLD,
 			  "On processor %d,\n"
 			  "       diagonal block terms: %d, (%f av.)\n"
 			  // Corrected does not make sense anymore
@@ -94,11 +95,11 @@ int compute_prof(Darray *da,Dofmap *dofmap,int myrank,
 			  "   off diagonal block terms: %d, (%f av.)\n",
 			  // myrank,sumd,avd,sumdcorr,avdcorr,sumo,avo);
 			  myrank,sumd,avd,sumo,avo);
-  PetscSynchronizedFlush(PETSC_COMM_WORLD);
+  PetscSynchronizedFlush(PETSCFEM_COMM_WORLD);
   
   // Create matrices
   int neq=dofmap->neq;
-  ierr =  MatCreateMPIAIJ(PETSC_COMM_WORLD,dofmap->neqproc[myrank],
+  ierr =  MatCreateMPIAIJ(PETSCFEM_COMM_WORLD,dofmap->neqproc[myrank],
 			  dofmap->neqproc[myrank],neq,neq,
 			  PETSC_NULL,d_nnz,PETSC_NULL,o_nnz,A); CHKERRA(ierr);
   delete[] d_nnz;
@@ -113,7 +114,7 @@ void petscfem_printf(const char *templ,va_list list) {
   int myrank;
 //    va_list list;
 //    va_start(list,templ);
-  MPI_Comm_rank(PETSC_COMM_WORLD,&myrank);
+  MPI_Comm_rank(PETSCFEM_COMM_WORLD,&myrank);
   if (myrank==0) vprintf(templ,list);
 }
 
@@ -172,7 +173,7 @@ int opt_read_vector(Mesh *mesh,Vec x, Dofmap *dofmap,int myrank) {
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 void petscfem_check_par_err(int ierro,GenericError &ge,int myrank) {
-  int ierr = MPI_Bcast (&ierro,1,MPI_INT,0,PETSC_COMM_WORLD);	
+  int ierr = MPI_Bcast (&ierro,1,MPI_INT,0,PETSCFEM_COMM_WORLD);	
   PETSCFEM_ASSERT(!ierro,"%s",ge.c_str());
 }
 

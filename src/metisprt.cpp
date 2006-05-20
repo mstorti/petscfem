@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: metisprt.cpp,v 1.22.70.2 2006/04/27 19:03:31 rodrigop Exp $
+//$Id: metisprt.cpp,v 1.22.70.3 2006/05/20 21:11:20 dalcinl Exp $
 
 #include "fem.h"
 #include "utils.h"
@@ -400,7 +400,7 @@ void metis_part(int nelemfat,Mesh *mesh,
 		int max_partgraph_vertices,
 		int iisd_subpart,int print_statistics) 
 {
-  metis_part_comm(PETSC_COMM_WORLD,
+  metis_part_comm(PETSCFEM_COMM_WORLD,
 		  nelemfat,mesh,
 		  nelemsets,epart,
 		  nelemsetptr,n2eptr,

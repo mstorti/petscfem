@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: iisdmat.cpp,v 1.68.36.2 2006/02/24 12:26:57 rodrigop Exp $
+//$Id: iisdmat.cpp,v 1.68.36.3 2006/05/20 21:11:19 dalcinl Exp $
 // fixme:= this may not work in all applications
 #ifndef _GNU_SOURCE
 #define _GNU_SOURCE
@@ -152,7 +152,7 @@ int PFPETScMat::build_ksp() {
   }
 
   if (KSP_method == "cg" && preco_side == "right") {
-    PetscPrintf(PETSC_COMM_WORLD,__FUNC__ 
+    PetscPrintf(PETSCFEM_COMM_WORLD,__FUNC__ 
 		": can't choose \"right\" preconditioning with KSP CG\n");
     preco_side = "left";
   }
@@ -166,7 +166,7 @@ int PFPETScMat::build_ksp() {
 #if 1
   if (preco_type=="asm") {
     int nprocs;
-    MPI_Comm_size(PETSC_COMM_WORLD,&nprocs);
+    MPI_Comm_size(PETSCFEM_COMM_WORLD,&nprocs);
     
     ierr = PCSetType(pc,PCASM);CHKERRQ(ierr);
     ierr = PCASMSetType(pc,PC_ASM_BASIC);CHKERRQ(ierr);
@@ -230,7 +230,7 @@ int PFPETScMat::build_ksp() {
   if (preco_side == "right")
     ierr = KSPSetPreconditionerSide(ksp,PC_RIGHT);
   else if (preco_side == "left") {}
-  else PetscPrintf(PETSC_COMM_WORLD,
+  else PetscPrintf(PETSCFEM_COMM_WORLD,
 		   "PFPETScMat::build_ksp: bad \"preco_side\" option: %s\n",
 		   preco_side.c_str());
     
@@ -532,10 +532,10 @@ int IISDMat::assembly_begin_a(MatAssemblyType type) {
   if (nlay>1) { ierr = MatAssemblyBegin(A_II_isp,type); PF_CHKERRQ(ierr); }
 
 #if 0
-  PetscSynchronizedPrintf(PETSC_COMM_WORLD,
+  PetscSynchronizedPrintf(PETSCFEM_COMM_WORLD,
 			  "[%d] t1 %f, t2 %f, t3 %f, scattered %d, sr %d\n",
 			  MY_RANK,t1,t2,t3,scattered,sr);
-  PetscSynchronizedFlush(PETSC_COMM_WORLD);
+  PetscSynchronizedFlush(PETSCFEM_COMM_WORLD);
 #endif
   return 0;
 };
@@ -548,10 +548,10 @@ int IISDMat::assembly_end_a(MatAssemblyType type) {
 #if 0
   // This prints the time elapsed in 
   double beg,li,ii,il,ll;
-  PetscSynchronizedPrintf(PETSC_COMM_WORLD,
+  PetscSynchronizedPrintf(PETSCFEM_COMM_WORLD,
 			  "[%d] %d %d %d %d\n",
 			  MY_RANK,N_SET[0],N_SET[1],N_SET[2],N_SET[3]);
-  PetscSynchronizedFlush(PETSC_COMM_WORLD);
+  PetscSynchronizedFlush(PETSCFEM_COMM_WORLD);
   PetscFinalize();
   exit(0);
   beg = chrono.elapsed(); chrono.start();
@@ -565,11 +565,11 @@ int IISDMat::assembly_end_a(MatAssemblyType type) {
     ierr = MatAssemblyEnd(A_LL,type); PF_CHKERRQ(ierr);
   }
   ll  = chrono.elapsed(); chrono.start();
-  PetscSynchronizedPrintf(PETSC_COMM_WORLD,
+  PetscSynchronizedPrintf(PETSCFEM_COMM_WORLD,
 			  "[%d] iisdmat-assembly-end beg-li-ii-il-ll-tot: "
 			  "%f %f %f %f %f %f\n",
 			  MY_RANK,beg,li,ii,il,ll,beg+li+ii+il+ll);
-  PetscSynchronizedFlush(PETSC_COMM_WORLD);
+  PetscSynchronizedFlush(PETSCFEM_COMM_WORLD);
 #else
   ierr = MatAssemblyEnd(A_LI,type); PF_CHKERRQ(ierr);
   ierr = MatAssemblyEnd(A_II,type); PF_CHKERRQ(ierr);
@@ -1159,7 +1159,7 @@ int IISDMat::pc_apply(Vec x,Vec w) {
     
   } else {
     // Computes the componentwise division w = x/y. 
-    ierr = VecPointwiseDivide(x,A_II_diag,w); CHKERRQ(ierr);  
+    ierr = VecPointwiseDivide(w,x,A_II_diag); CHKERRQ(ierr);  
   }
   return 0;
 }

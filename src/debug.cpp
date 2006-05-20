@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: debug.cpp,v 1.14 2003/07/02 02:32:47 mstorti Exp $
+//$Id: debug.cpp,v 1.14.74.1 2006/05/20 21:11:19 dalcinl Exp $
  
 #include <src/debug.h>
 #include <sys/resource.h>
@@ -102,7 +102,7 @@ void Debug::trace(const char *s) {
     MPI_Allreduce(&mem,&mem_max,1,MPI_INT,MPI_MAX,comm);
     MPI_Allreduce(&mem,&mem_sum,1,MPI_INT,MPI_SUM,comm);
     mem_avrg = int(ceil(double(mem_sum)/double(size)));
-    PetscPrintf(PETSC_COMM_WORLD,
+    PetscPrintf(PETSCFEM_COMM_WORLD,
 		"-- %s -- [Memory usage(kB): min %d, max %d, avrg %d]\n",
 		s,mem_min,mem_max,mem_avrg);
   }

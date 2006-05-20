@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: idmap.cpp,v 1.12.20.1 2005/09/25 22:58:44 mstorti Exp $
+//$Id: idmap.cpp,v 1.12.20.2 2006/05/20 21:11:19 dalcinl Exp $
  
 #include <stdio.h>
 #include <map>
@@ -693,7 +693,7 @@ void idmap::print_statistics(void) const{
     if (ident[k]==-1) nns++;
     if (ident[k]==0) n_null++;
   }
-  PetscPrintf(PETSC_COMM_WORLD,
+  PetscPrintf(PETSCFEM_COMM_WORLD,
 	      "Number of null rows:       %d\n"
 	      "Number of non-simple rows: %d\n"
 	      "size of row_map:           %d\n",
@@ -704,13 +704,13 @@ void idmap::print_statistics(void) const{
     if (iident[k]==-1) nns++;
     if (iident[k]==0) n_null++;
   }
-  PetscPrintf(PETSC_COMM_WORLD,
+  PetscPrintf(PETSCFEM_COMM_WORLD,
 	      "Number of null cols:       %d\n"
 	      "Number of non-simple cols: %d\n"
 	      "size of col_map:           %d\n",
 	      n_null,nns,col_map->size());
 
-  PetscPrintf(PETSC_COMM_WORLD,
+  PetscPrintf(PETSCFEM_COMM_WORLD,
 	      "Number of created rows,cols: %d, %d\n"
 	      "Number of deleted rows,cols: %d, %d\n",
 	      n_created_rows, n_created_cols,

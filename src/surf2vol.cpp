@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-// $Id: surf2vol.cpp,v 1.6 2003/07/02 23:22:19 mstorti Exp $
+// $Id: surf2vol.cpp,v 1.6.74.1 2006/05/20 21:11:20 dalcinl Exp $
 
 #include <src/utils.h>
 #include <src/surf2vol.h>
@@ -236,7 +236,7 @@ void identify_volume_elements_fun(int nnod, int nel_surf, int layers,
 	}
       }
       if (!match) {
-	PetscPrintf(PETSC_COMM_WORLD,
+	PetscPrintf(PETSCFEM_COMM_WORLD,
 		    "embedded_gatherer: Can't find matching volume element"
 		    " to surface element %d\n",e);
 	PetscFinalize();

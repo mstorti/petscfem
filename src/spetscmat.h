@@ -1,6 +1,6 @@
 // -*- mode: C++ -*- 
 /*__INSERT_LICENSE__*/
-// $Id: spetscmat.h,v 1.4.42.1 2005/09/25 22:58:44 mstorti Exp $
+// $Id: spetscmat.h,v 1.4.42.2 2006/05/20 21:11:20 dalcinl Exp $
 #ifndef PETSCFEM_SPETSCMAT_H
 #define PETSCFEM_SPETSCMAT_H
 
@@ -27,7 +27,7 @@ protected:
 public:
 
   PETScSymmMat(int MM,int NN,const DofPartitioner &part_a,
-		 MPI_Comm comm_a = PETSC_COMM_WORLD);
+		 MPI_Comm comm_a = PETSCFEM_COMM_WORLD);
 
   int mult(Vec x,Vec y);
 

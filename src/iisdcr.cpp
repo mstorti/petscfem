@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: iisdcr.cpp,v 1.52.42.1 2005/09/25 22:58:44 mstorti Exp $
+//$Id: iisdcr.cpp,v 1.52.42.2 2006/05/20 21:11:19 dalcinl Exp $
 
 // fixme:= this may not work in all applications
 extern int MY_RANK,SIZE;
@@ -228,7 +228,7 @@ int IISDMat::create_a() {
   PETSCFEM_ASSERT(nlay>=0,"Number of ISP layers must be non-negative. "
 		  "nlay %d\n",nlay);  
   if (!nlay && use_interface_full_preco) {
-    PetscPrintf(PETSC_COMM_WORLD,
+    PetscPrintf(PETSCFEM_COMM_WORLD,
 		"Using 'nlay=0' forces 'use_interface_full_preco=0'\n");
     use_interface_full_preco=0;
   }
@@ -511,15 +511,15 @@ int IISDMat::create_a() {
   }
 
 #if 0
-  PetscSynchronizedPrintf(PETSC_COMM_WORLD,"In [%d]:\n",myrank);
+  PetscSynchronizedPrintf(PETSCFEM_COMM_WORLD,"In [%d]:\n",myrank);
   for (int j=0; j<neq; j++) {
     if (!(isp_lay_map[j] && part.processor(j)==myrank)) continue;
     int ispj = isp_map[j]-n_lay1_p[myrank];
-    PetscSynchronizedPrintf(PETSC_COMM_WORLD,
+    PetscSynchronizedPrintf(PETSCFEM_COMM_WORLD,
 			    "j %d, isp_indx %d, d_nnz %d o_nnz %d\n",
 			    j,isp_map[j],isp_d_nnz[ispj],isp_o_nnz[ispj]);
   }
-  PetscSynchronizedFlush(PETSC_COMM_WORLD);
+  PetscSynchronizedFlush(PETSCFEM_COMM_WORLD);
 #endif
 
   if (iisdmat_print_statistics) {

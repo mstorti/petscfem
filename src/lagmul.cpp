@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-/* $Id: lagmul.cpp,v 1.14 2005/05/30 02:01:28 mstorti Exp $ */
+/* $Id: lagmul.cpp,v 1.14.4.1 2006/05/20 21:11:20 dalcinl Exp $ */
 
 #include <src/fem.h>
 #include <src/utils.h>
@@ -49,7 +49,7 @@ new_assemble(arg_data_list &arg_data_v,const Nodedata *nodedata,
 
   // nr:= number of restrictions
   int nr,ierr=0,jr,jfic,kfic,dofic;
-  // PetscPrintf(PETSC_COMM_WORLD,"entrando a nsikeps\n");
+  // PetscPrintf(PETSCFEM_COMM_WORLD,"entrando a nsikeps\n");
 
   double lambda,rr;
 

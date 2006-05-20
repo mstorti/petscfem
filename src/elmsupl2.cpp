@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: elmsupl2.cpp,v 1.6 2004/11/11 18:32:23 mstorti Exp $
+//$Id: elmsupl2.cpp,v 1.6.40.1 2006/05/20 21:11:19 dalcinl Exp $
 
 #ifndef _GNU_SOURCE
 #define _GNU_SOURCE
@@ -395,14 +395,14 @@ upload_vector_fast_1b(int color,
   }
 #if 0
   if (load_mat) {
-    PetscSynchronizedFlush(PETSC_COMM_WORLD); 
+    PetscSynchronizedFlush(PETSCFEM_COMM_WORLD); 
     int any_A_LL_other_stop_all;
     MPI_Allreduce(&any_A_LL_other_stop,
-		  &any_A_LL_other_stop_all,1,MPI_INT,MPI_MAX,PETSC_COMM_WORLD);
+		  &any_A_LL_other_stop_all,1,MPI_INT,MPI_MAX,PETSCFEM_COMM_WORLD);
     if (any_A_LL_other_stop_all) {
-      PetscSynchronizedPrintf(PETSC_COMM_WORLD,
+      PetscSynchronizedPrintf(PETSCFEM_COMM_WORLD,
 			      "[%d] any_A_LL_other: %d\n",MY_RANK,any_A_LL_other_stop);
-      PetscSynchronizedFlush(PETSC_COMM_WORLD); 
+      PetscSynchronizedFlush(PETSCFEM_COMM_WORLD); 
       PetscFinalize();
       exit(0);
     }

@@ -1,6 +1,6 @@
 // -*- mode: C++ -*- 
 /*__INSERT_LICENSE__*/
-// $Id: iisdmat.h,v 1.32.42.1 2005/09/25 22:58:44 mstorti Exp $
+// $Id: iisdmat.h,v 1.32.42.2 2006/05/20 21:11:19 dalcinl Exp $
 #ifndef IISDMAT_H
 #define IISDMAT_H
 
@@ -281,7 +281,7 @@ public:
 
   /// Ctor
   IISDMat(int MM,int NN,const DofPartitioner &pp,MPI_Comm comm_ =
-	  PETSC_COMM_WORLD);
+	  PETSCFEM_COMM_WORLD);
 
   /// The PETSc wrapper function calls this
   int pc_apply(Vec x,Vec y); 

@@ -1,6 +1,6 @@
 // -*- mode: C++ -*- 
 /*__INSERT_LICENSE__*/
-// $Id: ampli.h,v 1.18 2003/01/27 19:09:35 mstorti Exp $
+// $Id: ampli.h,v 1.18.74.1 2006/05/20 21:11:19 dalcinl Exp $
 #ifndef AMPLI_H
 #define AMPLI_H
 
@@ -204,7 +204,7 @@ public:
 								\
 INIT_FUN1(fun_obj_class) {					\
   fun_obj_class *fun_obj_ptr = new fun_obj_class;		\
-  PetscPrintf(PETSC_COMM_WORLD,					\
+  PetscPrintf(PETSCFEM_COMM_WORLD,					\
 	      "initializing " #fun_obj_class			\
 	      " fun_data: %p\n",fun_data);			\
   fun_obj_ptr->dl_generic_ptr = (DLGeneric *)fun_data;		\

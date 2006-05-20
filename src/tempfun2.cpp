@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: tempfun2.cpp,v 1.4 2003/11/25 02:10:22 mstorti Exp $
+//$Id: tempfun2.cpp,v 1.4.58.1 2006/05/20 21:11:20 dalcinl Exp $
 
 #include <math.h>
 
@@ -17,7 +17,7 @@ private:
   TextHashTable *thash;
 public:
   void print() const {
-    PetscPrintf(PETSC_COMM_WORLD,
+    PetscPrintf(PETSCFEM_COMM_WORLD,
 		"\"gaussian\" fixa amplitude, options table: \n");
     thash->print();
   }
@@ -70,10 +70,10 @@ private:
   TextHashTable *thash;
 public:
   void print() const {
-    PetscPrintf(PETSC_COMM_WORLD,
+    PetscPrintf(PETSCFEM_COMM_WORLD,
 		"\"piecewise_linear\" fixa amplitude, options table: \n");
     thash->print();
-    PetscPrintf(PETSC_COMM_WORLD,"number of intervals: %f\n",ntime);
+    PetscPrintf(PETSCFEM_COMM_WORLD,"number of intervals: %f\n",ntime);
   }
   void init(TextHashTable *thash_) {
     double tt,ff;
@@ -184,7 +184,7 @@ private:
   TextHashTable *thash;
 public:
   void print() const {
-    PetscPrintf(PETSC_COMM_WORLD,
+    PetscPrintf(PETSCFEM_COMM_WORLD,
 		"\"smooth_impulse\" fixa amplitude, options table: \n");
     thash->print();
   }
@@ -221,7 +221,7 @@ protected:
   TextHashTable *thash;
 public:
   void print() const {
-    PetscPrintf(PETSC_COMM_WORLD,
+    PetscPrintf(PETSCFEM_COMM_WORLD,
 		"\"cos\" fixa amplitude, options table: \n");
     thash->print();
   }
@@ -235,7 +235,7 @@ public:
     SGETOPTDEF_ND(double,period,0.);
     SGETOPTDEF_ND(double,phase,0.);
     if (omega==0. && frequency==0. && period==0) {
-      PetscPrintf(PETSC_COMM_WORLD,
+      PetscPrintf(PETSCFEM_COMM_WORLD,
 		  "cos_function: not defined any of omega/frequency/period\n");
       PetscFinalize();
       exit(0);
@@ -277,14 +277,14 @@ Amplitude *Amplitude::factory(char *& label,
 #ifdef USE_DLEF
     amp = new DLGeneric;
 #else
-    PetscPrintf(PETSC_COMM_WORLD,
+    PetscPrintf(PETSCFEM_COMM_WORLD,
 		"This version is not compiled with dynamically"
 		" loaded extended functions!!\n"
 		" Enable the 'USE_DLEF' flag and recompile.\n");
     assert(0);
 #endif
   } else {
-    PetscPrintf(PETSC_COMM_WORLD,
+    PetscPrintf(PETSCFEM_COMM_WORLD,
 		"Not known fixa_amplitude \"%s\"\n",label);
     assert(0);
   }

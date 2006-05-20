@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: gpdata.cpp,v 1.40.4.2 2006/04/27 20:31:10 rodrigop Exp $
+//$Id: gpdata.cpp,v 1.40.4.3 2006/05/20 21:11:19 dalcinl Exp $
 
 #include "petscksp.h"
 #include <math.h>
@@ -12,7 +12,7 @@
 
 #define GPERROR \
     {PFEM_TRACE(""); \
-    PetscPrintf(PETSC_COMM_WORLD,"Not implemented combination: geometry=\"%s\","\
+    PetscPrintf(PETSCFEM_COMM_WORLD,"Not implemented combination: geometry=\"%s\","\
            "nel=%d, npg=%d, ndimel=%d, \n", \
 	   geom,nel,npg,ndimel); \
     PetscFinalize(); \
@@ -279,7 +279,7 @@ GPdata::GPdata(const char *geom,int ndimel,int nel,int npg_,int
 	wpg[ipg] =  0.5;
 
       } else {
-	PetscPrintf(PETSC_COMM_WORLD,
+	PetscPrintf(PETSCFEM_COMM_WORLD,
 		    "Not valid value of npg. for triangles %d\n",
 		    npg);
 	PetscFinalize();
@@ -345,7 +345,7 @@ GPdata::GPdata(const char *geom,int ndimel,int nel,int npg_,int
 	wpg[ipg] =  master_volume;
 
       } else {
-	PetscPrintf(PETSC_COMM_WORLD,
+	PetscPrintf(PETSCFEM_COMM_WORLD,
 		    "Not valid value of npg. for tetras %d\n",
 		    npg);
 	PetscFinalize();

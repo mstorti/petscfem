@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: elemset.cpp,v 1.93.10.1 2006/03/27 20:16:40 rodrigop Exp $
+//$Id: elemset.cpp,v 1.93.10.2 2006/05/20 21:11:19 dalcinl Exp $
 
 #ifndef _GNU_SOURCE
 #define _GNU_SOURCE
@@ -154,7 +154,7 @@ int vector_assoc_gather(vector<double> *vector_assoc,
   // appropriate operation. 
   if (size==1) return 0;
   Vec one_elem_per_proc;
-  int ierr = VecCreateMPI(PETSC_COMM_WORLD,1,size,&one_elem_per_proc);
+  int ierr = VecCreateMPI(PETSCFEM_COMM_WORLD,1,size,&one_elem_per_proc);
   double global_val;
   for (int j=0; j<vector_assoc->size(); j++) {
     // set local value
@@ -222,18 +222,18 @@ public:
     return sum;
   }
   void print_stat(char * s= NULL) {
-    if (s) PetscPrintf(PETSC_COMM_WORLD,
+    if (s) PetscPrintf(PETSCFEM_COMM_WORLD,
 		       "Event %s ------------------------\n",s);
     if (initialized) {
-      PetscSynchronizedPrintf(PETSC_COMM_WORLD, 
+      PetscSynchronizedPrintf(PETSCFEM_COMM_WORLD, 
 			      "[%d] total: %g, max: %g, min: "
 			      "%g, avrg: %g, count: %d\n",
 			      MY_RANK, total(), max(), min(), 
 			      avrg(), n());
     } else {
-      PetscSynchronizedPrintf(PETSC_COMM_WORLD,"[not initialized]\n");
+      PetscSynchronizedPrintf(PETSCFEM_COMM_WORLD,"[not initialized]\n");
     }
-    PetscSynchronizedFlush(PETSC_COMM_WORLD);
+    PetscSynchronizedFlush(PETSCFEM_COMM_WORLD);
   }
 };
 
@@ -246,7 +246,7 @@ void Elemset::set_error(int error_code_a) { error_code_m = error_code_a; }
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 void Elemset::check_error() {
   int error;
-  int ierr = MPI_Allreduce(&error_code_m,&error,1,MPI_INT,MPI_MAX,PETSC_COMM_WORLD);
+  int ierr = MPI_Allreduce(&error_code_m,&error,1,MPI_INT,MPI_MAX,PETSCFEM_COMM_WORLD);
   error_code_m = error;
   handle_error(error_code_m);
 }
@@ -302,7 +302,7 @@ int assemble(Mesh *mesh,arg_list argl,
   // pref:= Local values (reference state for finite difference jacobian).
   double *pref,fdj;
 
-  MPI_Comm_rank(PETSC_COMM_WORLD,&myrank);
+  MPI_Comm_rank(PETSCFEM_COMM_WORLD,&myrank);
 
   // max weight (processor speed)
   float w_max=dofmap->tpwgts[0]; 
@@ -326,7 +326,7 @@ int assemble(Mesh *mesh,arg_list argl,
     /// Copy the options to the arg_data_v structure. 
     ARGVJ.options = argl[j].options; 
     ARGVJ.must_flush = 0;
-    // PetscPrintf(PETSC_COMM_WORLD,"Argument %d\n",j);
+    // PetscPrintf(PETSCFEM_COMM_WORLD,"Argument %d\n",j);
     if (argl[j].options & DOWNLOAD_VECTOR) {
       Vec *x;
       if (argl[j].options & USE_TIME_DATA) {
@@ -454,10 +454,10 @@ int assemble(Mesh *mesh,arg_list argl,
     local_chunk_size = 
       (int)(chunk_size*dofmap->tpwgts[myrank]/w_max) +1;
     if (print_local_chunk_size) {
-      PetscSynchronizedPrintf(PETSC_COMM_WORLD,
+      PetscSynchronizedPrintf(PETSCFEM_COMM_WORLD,
 			      "[%d] type %s, chunk_size %d, local_chunk_size %d\n",
 			      MY_RANK,elemset->type,chunk_size,local_chunk_size);
-      PetscSynchronizedFlush(PETSC_COMM_WORLD); 
+      PetscSynchronizedFlush(PETSCFEM_COMM_WORLD); 
     }
 
     CHKERRQ(ierr);
@@ -503,10 +503,10 @@ int assemble(Mesh *mesh,arg_list argl,
 
     //#define DEBUG_CHUNK_PROCESSING
 #ifdef DEBUG_CHUNK_PROCESSING
-    PetscSynchronizedPrintf(PETSC_COMM_WORLD,
+    PetscSynchronizedPrintf(PETSCFEM_COMM_WORLD,
 			    "[%d] %d chunks (approx.)\n"
 			    ,myrank,(nel_here-1)/local_chunk_size+1);
-    PetscSynchronizedFlush(PETSC_COMM_WORLD);
+    PetscSynchronizedFlush(PETSCFEM_COMM_WORLD);
 #endif
 
     // here application writers can perform tasks before the
@@ -529,12 +529,12 @@ int assemble(Mesh *mesh,arg_list argl,
       }
 
 #ifdef DEBUG_CHUNK_PROCESSING
-      PetscPrintf(PETSC_COMM_WORLD,"chunk %d\n",chunk);
-      PetscSynchronizedPrintf(PETSC_COMM_WORLD,
+      PetscPrintf(PETSCFEM_COMM_WORLD,"chunk %d\n",chunk);
+      PetscSynchronizedPrintf(PETSCFEM_COMM_WORLD,
 			      "[%d]     elements in chunk: %d\n",
 			      myrank,
 			      iele_here+1);
-      PetscSynchronizedFlush(PETSC_COMM_WORLD);
+      PetscSynchronizedFlush(PETSCFEM_COMM_WORLD);
 #endif
 
       el_last = iele;
@@ -605,10 +605,10 @@ int assemble(Mesh *mesh,arg_list argl,
 	  upload += MPI_Wtime() - upl_s;
 	}
 	if (report_assembly_time) {
-	  PetscSynchronizedPrintf(PETSC_COMM_WORLD,
+	  PetscSynchronizedPrintf(PETSCFEM_COMM_WORLD,
 				  "[%d] Upload time %f secs.\n",
 				  MY_RANK,hpcassmbl.elapsed());
-	  PetscSynchronizedFlush(PETSC_COMM_WORLD); 
+	  PetscSynchronizedFlush(PETSCFEM_COMM_WORLD); 
 	}
       }
 
@@ -711,10 +711,10 @@ int assemble(Mesh *mesh,arg_list argl,
 				  MAT_FLUSH_ASSEMBLY); CHKERRQ(ierr);
 	  }
 	  if (report_assembly_time) {
-	    PetscSynchronizedPrintf(PETSC_COMM_WORLD,
+	    PetscSynchronizedPrintf(PETSCFEM_COMM_WORLD,
 				    "[%d] Assembly time \"%s\"/\"%s\" %f secs.\n",
 				    MY_RANK,elemset->type,jobinfo,hpcassmbl.elapsed());
-	    PetscSynchronizedFlush(PETSC_COMM_WORLD); 
+	    PetscSynchronizedFlush(PETSCFEM_COMM_WORLD); 
 	  }
 	}
 	assmbly += MPI_Wtime() - assmbly_s;
@@ -731,17 +731,17 @@ int assemble(Mesh *mesh,arg_list argl,
       int global_has_finished;
       ierr = MPI_Allreduce((void *)&local_has_finished,
 			(void *)&global_has_finished,1,MPI_INT,
-			MPI_LAND,PETSC_COMM_WORLD);
+			MPI_LAND,PETSCFEM_COMM_WORLD);
 
 #ifdef DEBUG_CHUNK_PROCESSING
-      PetscPrintf(PETSC_COMM_WORLD,"chunk %d\n",chunk);
-      PetscSynchronizedPrintf(PETSC_COMM_WORLD,
+      PetscPrintf(PETSCFEM_COMM_WORLD,"chunk %d\n",chunk);
+      PetscSynchronizedPrintf(PETSCFEM_COMM_WORLD,
 			      "[%d] local finished:  %s\n"
 			      "     global finished: %s\n",
 			      myrank,
 			      (local_has_finished ? "YES" : "NO"),
 			      (global_has_finished ? "YES" : "NO")),
-      PetscSynchronizedFlush(PETSC_COMM_WORLD);
+      PetscSynchronizedFlush(PETSCFEM_COMM_WORLD);
 #endif
 
       el_start = el_last+1;
@@ -753,7 +753,7 @@ int assemble(Mesh *mesh,arg_list argl,
     elemset->after_assemble(jobinfo);
 
     if (report_consumed_time) {
-      PetscPrintf(PETSC_COMM_WORLD,
+      PetscPrintf(PETSCFEM_COMM_WORLD,
 		  "Performance report elemset \"%s\" task \"%s\"\n"
 		  "[proc] - elems - compt[sec](rate[sec/Ke]) - upl/dwl[sec]"
 		  " - assmbly[sec]  - other[sec]\n",
@@ -763,7 +763,7 @@ int assemble(Mesh *mesh,arg_list argl,
       total = MPI_Wtime() - tot_s;
       double upd = upload+download;
       double other = total-(compt+upd+assmbly);
-      PetscSynchronizedPrintf(PETSC_COMM_WORLD,
+      PetscSynchronizedPrintf(PETSCFEM_COMM_WORLD,
 			      "[%d]  %7d  %7.2g/%3.0f%%(%7.2g)  "
 			      "%7.2g/%3.0f%%  %7.2g/%3.0f%%  %7.2g/%3.0f%%\n",
 			      myrank,elemset->nelem_here,
@@ -772,16 +772,16 @@ int assemble(Mesh *mesh,arg_list argl,
 			      assmbly,100.0*assmbly/total,
 			      other,100.0*other/total);
 #if 0
-      PetscSynchronizedPrintf(PETSC_COMM_WORLD,
+      PetscSynchronizedPrintf(PETSCFEM_COMM_WORLD,
 			      "upload %10.3gsecs, (%10.3g secs/Ke)\n",
 			      upload,1000.0*upload/elemset->nelem_here);
-      PetscSynchronizedPrintf(PETSC_COMM_WORLD,
+      PetscSynchronizedPrintf(PETSCFEM_COMM_WORLD,
 			      "download %10.3gsecs, (%10.3g secs/Ke)\n",
 			      download,1000.0*download/elemset->nelem_here);
 #endif
-      PetscSynchronizedFlush(PETSC_COMM_WORLD);
+      PetscSynchronizedFlush(PETSCFEM_COMM_WORLD);
 
-      PetscPrintf(PETSC_COMM_WORLD,"Total element compt. %10.3gsecs\n",total);
+      PetscPrintf(PETSCFEM_COMM_WORLD,"Total element compt. %10.3gsecs\n",total);
     }
 
     // To be done for each elemset
@@ -814,9 +814,9 @@ int assemble(Mesh *mesh,arg_list argl,
       out_of_loop.print_stat("Out of loop");
       in_loop.print_stat("In loop");
       wait.print_stat("Wait");
-      PetscSynchronizedPrintf(PETSC_COMM_WORLD,"[%d] Total in assemble: %g\n",
+      PetscSynchronizedPrintf(PETSCFEM_COMM_WORLD,"[%d] Total in assemble: %g\n",
 			      MY_RANK,hpc2.elapsed());
-      PetscSynchronizedFlush(PETSC_COMM_WORLD);
+      PetscSynchronizedFlush(PETSCFEM_COMM_WORLD);
     }
 
   }
