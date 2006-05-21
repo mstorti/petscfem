@@ -1,5 +1,5 @@
 // -*- c++ -*-
-// $Id: Options.i,v 1.1.2.1 2006/04/27 19:09:17 rodrigop Exp $
+// $Id: Options.i,v 1.1.2.2 2006/05/21 03:48:11 dalcinl Exp $
 
 
 PYPF_NAMESPACE_BEGIN
@@ -7,8 +7,6 @@ PYPF_NAMESPACE_BEGIN
 %ignore Options::Options;
 %ignore Options::operator=;
 %ignore Options::del;
-%ignore OPTIONS::GLOBAL;
-%ignore OPTIONS::init;
 PYPF_NAMESPACE_END
 
 
@@ -26,6 +24,12 @@ PYPF_NAMESPACE_END
 //   }
 // }
 // PYPF_NAMESPACE_END
+
+
+PYPF_NAMESPACE_BEGIN
+%ignore OPTIONS::GLOBAL;
+%ignore OPTIONS::init;
+PYPF_NAMESPACE_END
 
 
 %include "Options.h"
