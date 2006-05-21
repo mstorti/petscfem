@@ -1,4 +1,4 @@
-// $Id: Dofset.h,v 1.1.2.2 2006/04/28 17:48:02 dalcinl Exp $ 
+// $Id: Dofset.h,v 1.1.2.3 2006/05/21 03:49:44 dalcinl Exp $ 
 
 #ifndef PYPF_DOFSET_H
 #define PYPF_DOFSET_H
@@ -73,7 +73,9 @@ public:
   void addConstraints(int n,
 		      const int node[],
 		      const int field[],
-		      const double coeff[]); 
+		      const double coeff[]);
+
+  void clear();
 
 };
 

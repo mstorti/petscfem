@@ -1,4 +1,4 @@
-// $Id: Dofset.cpp,v 1.1.2.2 2006/04/28 17:48:02 dalcinl Exp $
+// $Id: Dofset.cpp,v 1.1.2.3 2006/05/21 03:49:56 dalcinl Exp $
 
 #include "Dofset.h"
 
@@ -113,5 +113,17 @@ Dofset::addConstraints(int n,
   }
 }
 
+void
+Dofset::clear()
+{
+  AmplitudeSet::iterator s = this->amplitude.begin();
+  while (s != this->amplitude.end()) { 
+    Amplitude* amp = *s++; PYPF_DECREF(amp);
+  }
+  this->amplitude.clear();
+  this->fixations.clear();
+  this->constraints.clear();
+  
+}
 
 PYPF_NAMESPACE_END
