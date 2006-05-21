@@ -1,4 +1,4 @@
-// $Id: Problem.cpp,v 1.1.2.6 2006/04/27 19:09:17 rodrigop Exp $
+// $Id: Problem.cpp,v 1.1.2.7 2006/05/21 00:26:05 dalcinl Exp $
 
 #include "Problem.h"
 
@@ -23,17 +23,19 @@ Problem::~Problem()
 
 
 static void
-build_problem(MPI_Comm comm, Mesh& mesh, DofMap& dofmap)
+Problem_setUp(MPI_Comm comm, Mesh& mesh, DofMap& dofmap)
 {
-  MPI_Comm_size(comm, &SIZE);
-  MPI_Comm_rank(comm, &MY_RANK);
-  GLOBAL_MESH = mesh;
+  PETSCFEM_COMM_WORLD = comm;
+  GLOBAL_MESH         = mesh;
+  MPI_Comm_size(PETSCFEM_COMM_WORLD, &SIZE);
+  MPI_Comm_rank(PETSCFEM_COMM_WORLD, &MY_RANK);
   my_mesh_part(comm, mesh, dofmap);
-  GLOBAL_MESH = NULL;
+  PETSCFEM_COMM_WORLD = MPI_COMM_NULL;
+  GLOBAL_MESH         = NULL;
 }
 
 Problem::Problem(const Problem& P)
-  : Object(P), 
+  : Object(P),
     mesh(P.mesh), 
     dofmap(P.dofmap)
 {
@@ -48,7 +50,7 @@ Problem::Problem(Mesh& mesh, DofMap& dofmap)
 {
   PYPF_INCREF(this->mesh);
   PYPF_INCREF(this->dofmap);
-  build_problem(this->getComm(), this->getMesh(), this->getDofMap());
+  Problem_setUp(this->getComm(), this->getMesh(), this->getDofMap());
 }
 
 Problem::Problem(Nodeset& nodeset,
@@ -61,7 +63,7 @@ Problem::Problem(Nodeset& nodeset,
   this->setComm(this->mesh->getComm());
   PYPF_INCREF(this->mesh);
   PYPF_INCREF(this->dofmap);
-  build_problem(this->getComm(), this->getMesh(), this->getDofMap());
+  Problem_setUp(this->getComm(), this->getMesh(), this->getDofMap());
 }
 
 Mesh&
@@ -256,19 +258,25 @@ Problem::getLocalDofs(int* _ndofs, int* _dofs[]) const
 void
 Problem::preAssemble()
 {
-  MPI_Comm_size(this->getComm(), &SIZE);
-  MPI_Comm_rank(this->getComm(), &MY_RANK);
+  // MPI
+  PETSCFEM_COMM_WORLD = this->getComm();
+  MPI_Comm_size(PETSCFEM_COMM_WORLD, &SIZE);
+  MPI_Comm_rank(PETSCFEM_COMM_WORLD, &MY_RANK);
+  // Mesh
   GLOBAL_MESH = this->getMesh();
-  if (this->options.size() > 0)
-    GLOBAL_OPTIONS = this->options;
-  else
+  // Options
+  if (this->options.empty())
     GLOBAL_OPTIONS = OPTIONS::GLOBAL;
+  else
+    GLOBAL_OPTIONS = this->options;
 }
 
 void
 Problem::postAssemble()
 {
-  GLOBAL_OPTIONS = OPTIONS::GLOBAL;
+  PETSCFEM_COMM_WORLD = MPI_COMM_NULL;
+  GLOBAL_MESH         = NULL;
+  GLOBAL_OPTIONS      = OPTIONS::GLOBAL;
 }
 
 PYPF_NAMESPACE_END
