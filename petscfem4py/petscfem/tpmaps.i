@@ -1,5 +1,5 @@
 // -*- c++ -*-
-// $Id: tpmaps.i,v 1.1.2.2 2006/05/21 03:47:18 dalcinl Exp $
+// $Id: tpmaps.i,v 1.1.2.3 2006/05/22 23:35:06 dalcinl Exp $
 
 
 // pair of int values
@@ -9,6 +9,13 @@
 %typemap(argout, noblock=1) (int*, int*)
 { %append_output(Py_BuildValue("ii", *$1, *$2)) ;}
 
+
+%define %get_swig_this(obj, argp)
+do { 
+  *(argp) = (obj)? PyObject_GetAttr((obj), SWIG_This()) : 0;
+  if (PyErr_Occurred()) PyErr_Clear();
+} while(0)
+%enddef
 
 // PETSc objects
 %define PETSC_OBJECT_TYPEMAP(Type)
@@ -21,14 +28,11 @@ typedef struct _p_##Type* Type;
 %typemap(in, noblock=1) Type (void  *argp = 0, int res = 0) {
   res = SWIG_ConvertPtr($input, &argp,$descriptor, $disown | %convertptr_flags);
   if (!SWIG_IsOK(res)) {
-    PyObject* sobj = PyObject_GetAttr($input, SWIG_This());
-    if (PyErr_Occurred()) PyErr_Clear();
+    PyObject* sobj; %get_swig_this($input, &sobj);
     res = SWIG_ConvertPtr(sobj, &argp,$descriptor, $disown | %convertptr_flags);
     Py_XDECREF(sobj);
   }
-  if (!SWIG_IsOK(res)) {
-    %argument_fail(res, "$*ltype", $symname, $argnum); 
-  }
+  if (!SWIG_IsOK(res)) { %argument_fail(res, "$*ltype", $symname, $argnum);}
   $1 = %reinterpret_cast(argp, $ltype);
 }
 %typemap(freearg) Type "";
