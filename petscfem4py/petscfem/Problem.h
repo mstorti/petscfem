@@ -1,11 +1,11 @@
-// $Id: Problem.h,v 1.1.2.7 2006/04/27 19:09:17 rodrigop Exp $
+// $Id: Problem.h,v 1.1.2.8 2006/05/22 18:53:19 dalcinl Exp $
 
 #ifndef PYPF_PROBLEM_H
 #define PYPF_PROBLEM_H
 
 
+#include <string>
 #include <vector>
-#include <petscvec.h>
 #include "petscfem4py.h"
 #include "Object.h"
 #include "Nodeset.h"
@@ -52,8 +52,9 @@ public:
   void buildState    (Vec solution, Vec state)    const;
 
 protected:
-  virtual void preAssemble();
-  virtual void postAssemble();
+  virtual void preAssemble(const std::string& jobinfo);
+  virtual void baseAssemble(const std::string& jobinfo);
+  virtual void postAssemble(const std::string& jobinfo);
 
 };
 
