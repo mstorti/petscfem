@@ -1,4 +1,4 @@
-// $Id: Dofset.h,v 1.1.2.3 2006/05/21 03:49:44 dalcinl Exp $ 
+// $Id: Dofset.h,v 1.1.2.4 2006/05/23 14:51:30 dalcinl Exp $ 
 
 #ifndef PYPF_DOFSET_H
 #define PYPF_DOFSET_H
@@ -17,10 +17,9 @@ class Dofset :
 {
   friend class DofMap;
 
- private:
+private:
   Dofset();
-  Dofset(const Dofset& dofset);
-
+  
 protected:
   struct fixation {
     int node; int field; double value; Amplitude::Base* amp;
@@ -56,6 +55,7 @@ protected:
 
 public:
   ~Dofset();
+  Dofset(const Dofset& dofset);
   Dofset(int nnod, int ndof);
 
  public:
