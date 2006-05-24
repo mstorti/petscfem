@@ -1,4 +1,4 @@
-// $Id: macros.h,v 1.1.2.5 2006/04/27 19:09:17 rodrigop Exp $
+// $Id: macros.h,v 1.1.2.6 2006/05/24 20:56:30 dalcinl Exp $
 
 #ifndef PYPF_MACROS_H
 #define PYPF_MACROS_H
@@ -29,6 +29,14 @@ do { \
   if ((object) != PETSC_NULL && !PetscFinalizeCalled) \
     { destroy ((object)); (object) = NULL; } \
 } while(0)
+
+#define  PYPF_PETSC_CALL(CALL) \
+do { \
+  PetscErrorCode ierr = CALL;\
+  if (ierr) throw Error("error in PETSc call")
+} while(0)
+
+
 
 #endif // PYPF_MACROS_H
 
