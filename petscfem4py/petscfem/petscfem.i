@@ -1,5 +1,5 @@
 // -*- c++ -*-
-// $Id: petscfem.i,v 1.1.2.8 2006/05/24 21:14:29 dalcinl Exp $ 
+// $Id: petscfem.i,v 1.1.2.9 2006/05/24 21:41:11 dalcinl Exp $ 
 
 #if 0 // hack for numpy.distutils.command.build_ext
 %module petscfem
@@ -46,16 +46,15 @@
 
 
 %header %{
+#include "Application.h"
+#include "NvrStks.h"
+%}
+%include Application.i
+
+
+%header %{
 #include "Problem.h"
 #include "NavierStokes.h"
 %}
 %include Problem.i
 %include NavierStokes.i
-
-
-
-%header %{
-#include "Application.h"
-#include "NvrStks.h"
-%}
-%include Application.i
