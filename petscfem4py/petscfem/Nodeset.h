@@ -1,4 +1,4 @@
-// $Id: Nodeset.h,v 1.1.2.2 2006/04/27 19:09:17 rodrigop Exp $
+// $Id: Nodeset.h,v 1.1.2.3 2006/05/24 21:09:28 dalcinl Exp $
 
 #ifndef PYPF_NODESET_H
 #define PYPF_NODESET_H
@@ -41,7 +41,6 @@ class Nodeset : SMARTPTR(Nodeset)
   void view() const;
 
 };
-
 
 PYPF_NAMESPACE_END
 

@@ -1,4 +1,4 @@
-// $Id: Nodeset.cpp,v 1.1.2.2 2006/04/27 19:09:17 rodrigop Exp $
+// $Id: Nodeset.cpp,v 1.1.2.3 2006/05/24 21:10:46 dalcinl Exp $
 
 #include "Nodeset.h"
 
@@ -238,6 +238,5 @@ Nodeset::sync(int root) {
   nodedata->ndim     = this->ndim;
   nodedata->nodedata = &this->nodedata[0];
 }
-
 
 PYPF_NAMESPACE_END
