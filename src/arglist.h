@@ -1,6 +1,6 @@
 // -*- mode: C++ -*-
 /*__INSERT_LICENSE__*/
-//$Id: arglist.h,v 1.14 2004/09/24 20:44:27 mstorti Exp $
+//$Id: arglist.h,v 1.14.46.1 2006/05/24 18:57:49 dalcinl Exp $
 
 #ifndef ARGLIST_H
 #define ARGLIST_H
@@ -76,9 +76,14 @@ public:
   string arginfo;
 
   /// Constructor
-  arg_entry(void *arg_,int options_, string arginfo_="") :
-    arg(arg_), options(options_) {};
-    
+  arg_entry() :
+    arg(NULL), options(0), arginfo("") {}
+  arg_entry(const arg_entry& a) :
+    arg(a.arg), options(a.options), arginfo(a.arginfo) {}
+  arg_entry(void *arg_,int options_) :
+    arg(arg_), options(options_), arginfo("") {}
+  arg_entry(void *arg_,int options_, string arginfo_) :
+    arg(arg_), options(options_), arginfo(arginfo_) {}
 };
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
@@ -89,7 +94,10 @@ public:
 */ 
 class arg_list : public vector<arg_entry> {
 public:
-  void arg_add(void *arg,int options,string arginfo="") {
+  void arg_add(void *arg,int options) {
+    push_back(arg_entry(arg,options));
+  }
+  void arg_add(void *arg,int options,string arginfo) {
     push_back(arg_entry(arg,options,arginfo));
   }
 };  
