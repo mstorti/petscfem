@@ -1,4 +1,4 @@
-// $Id: Domain.h,v 1.1.2.1 2006/05/24 21:04:02 dalcinl Exp $
+// $Id: Domain.h,v 1.1.2.2 2006/05/24 21:35:58 dalcinl Exp $
 
 #ifndef PYPF_DOMAIN_H
 #define PYPF_DOMAIN_H
@@ -19,7 +19,6 @@ class Domain :
 
 private:
   Domain();
-  Domain(const Domain& domain);
 
 protected:
   Mesh*   mesh;
@@ -28,6 +27,7 @@ protected:
   
 public:
   ~Domain();
+  Domain(const Domain& domain);
   Domain(Mesh& mesh,
 	 Dofset& dofset);
   Domain(Nodeset& nodeset,

@@ -1,4 +1,4 @@
-// $Id: Application.h,v 1.1.2.1 2006/05/24 21:02:33 dalcinl Exp $
+// $Id: Application.h,v 1.1.2.2 2006/05/24 21:35:50 dalcinl Exp $
 
 #ifndef PYPF_APPLICATION_H
 #define PYPF_APPLICATION_H
@@ -20,7 +20,7 @@ protected:
 
 public:
   ~Application();
-  Application(const Application&);
+  Application(const Application& application);
   Application(Domain& domain);
 
   Domain& getDomain() const;
