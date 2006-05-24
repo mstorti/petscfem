@@ -1,6 +1,6 @@
 // -*-mode: c++ -*-
 /*__INSERT_LICENSE__*/
-//$Id: sttfilter.h,v 1.10.82.2 2006/05/20 22:39:02 dalcinl Exp $
+//$Id: sttfilter.h,v 1.10.82.3 2006/05/24 18:59:05 dalcinl Exp $
  
 #ifndef STTFILTER_H
 #define STTFILTER_H
@@ -30,8 +30,10 @@ protected:
   /// boundaries with time dependednt are obtained using these 
   Time time;
 public:
+  /// Default constructor
+  State() : vec(NULL), time() {};
   /// Constructor from state vector and time
-  State(Vec &vec,Time t) : vec(&vec), time(t) {};
+  State(Vec &vec, const Time& t) : vec(&vec), time(t) {};
   /// Constructor from another state
   State(const State &v);
   /// Destructor
