@@ -1,5 +1,5 @@
 // -*- c++ -*-
-// $Id: petscfem.i,v 1.1.2.7 2006/04/27 19:09:18 rodrigop Exp $ 
+// $Id: petscfem.i,v 1.1.2.8 2006/05/24 21:14:29 dalcinl Exp $ 
 
 #if 0 // hack for numpy.distutils.command.build_ext
 %module petscfem
@@ -19,7 +19,7 @@
 #include "Amplitude.h"
 #include "Dofset.h"
 #include "DofMap.h"
-#include "Problem.h"
+#include "Domain.h"
 %}
 
 %include stl.i
@@ -42,10 +42,20 @@
 %include Amplitude.i
 %include Dofset.i
 %include DofMap.i
-%include Problem.i
+%include Domain.i
 
 
 %header %{
+#include "Problem.h"
 #include "NavierStokes.h"
 %}
+%include Problem.i
 %include NavierStokes.i
+
+
+
+%header %{
+#include "Application.h"
+#include "NvrStks.h"
+%}
+%include Application.i

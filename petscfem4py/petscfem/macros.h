@@ -1,4 +1,4 @@
-// $Id: macros.h,v 1.1.2.6 2006/05/24 20:56:30 dalcinl Exp $
+// $Id: macros.h,v 1.1.2.8 2006/05/24 21:18:17 dalcinl Exp $
 
 #ifndef PYPF_MACROS_H
 #define PYPF_MACROS_H
@@ -33,7 +33,7 @@ do { \
 #define  PYPF_PETSC_CALL(CALL) \
 do { \
   PetscErrorCode ierr = CALL;\
-  if (ierr) throw Error("error in PETSc call")
+  if (ierr) throw Error("error in PETSc call"); \
 } while(0)
 
 
