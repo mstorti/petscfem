@@ -1,4 +1,4 @@
-// $Id: Dofset.cpp,v 1.1.2.3 2006/05/21 03:49:56 dalcinl Exp $
+// $Id: Dofset.cpp,v 1.1.2.4 2006/05/24 21:07:25 dalcinl Exp $
 
 #include "Dofset.h"
 
@@ -81,6 +81,7 @@ Dofset::addFixations(int n,
     if (this->amplitude.insert(amplitude).second) PYPF_INCREF(amplitude);
     amp = *amplitude;
   }
+  this->fixations.reserve(this->fixations.size() + n);
   for (int i=0; i<n; i++) {
     this->fixations.push_back(Fixation(node[i], field[i], value[i], amp));
   }
@@ -89,9 +90,9 @@ Dofset::addFixations(int n,
 
 void
 Dofset::addConstraints(int n, 
-			const int    node[],
-			const int    field[],
-			const double coeff[])
+		       const int    node[],
+		       const int    field[],
+		       const double coeff[])
 {
   if (n == 0) return;
 
@@ -108,6 +109,7 @@ Dofset::addConstraints(int n,
 
   this->constraints.push_back(Constraint());
   Constraint& c = this->constraints.back();
+  c.reserve(n);
   for (int i=0; i<n; i++) {
     c.push_back(constraint(node[i], field[i], coeff[i]));
   }
@@ -123,7 +125,6 @@ Dofset::clear()
   this->amplitude.clear();
   this->fixations.clear();
   this->constraints.clear();
-  
 }
 
 PYPF_NAMESPACE_END
