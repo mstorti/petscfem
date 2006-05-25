@@ -1,4 +1,4 @@
-// $Id: Domain.h,v 1.1.2.2 2006/05/24 21:35:58 dalcinl Exp $
+// $Id: Domain.h,v 1.1.2.3 2006/05/25 00:26:57 dalcinl Exp $
 
 #ifndef PYPF_DOMAIN_H
 #define PYPF_DOMAIN_H
@@ -48,9 +48,12 @@ public:
 
   int  getDofSize() const;
   void getDofSizes(int* local, int* global) const;
-  void getDofRange(int* first, int* last)   const;
+  void getDofRange(int* first, int* last)    const;
 
+  void getOwnedDofs(int* start, int* end)    const;
+  void getGhostDofs(std::vector<int>& gdofs) const;
   void getLocalDofs(std::vector<int>& ldofs) const;
+
   void getDofGraph(std::vector<int>& xadj,
 		   std::vector<int>& adjncy) const;
 

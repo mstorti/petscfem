@@ -1,4 +1,4 @@
-// $Id: Application.h,v 1.1.2.2 2006/05/24 21:35:50 dalcinl Exp $
+// $Id: Application.h,v 1.1.2.3 2006/05/25 00:29:26 dalcinl Exp $
 
 #ifndef PYPF_APPLICATION_H
 #define PYPF_APPLICATION_H
@@ -12,7 +12,7 @@ PYPF_NAMESPACE_BEGIN
 class Application
   : public Object
 {
-private:
+protected:
   Application();
 
 protected:

@@ -1,4 +1,4 @@
-// $Id: Application.cpp,v 1.1.2.1 2006/05/24 21:02:33 dalcinl Exp $
+// $Id: Application.cpp,v 1.1.2.2 2006/05/25 00:30:57 dalcinl Exp $
 
 #include "Application.h"
 
@@ -9,6 +9,11 @@ Application::~Application()
 { 
   PYPF_DECREF(this->domain);
 }
+
+Application::Application()
+  : Object(),
+    domain(NULL)
+{ }
 
 Application::Application(const Application& app)
   : Object(app),

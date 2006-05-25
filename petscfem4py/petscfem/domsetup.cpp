@@ -1,4 +1,4 @@
-//$Id: domsetup.cpp,v 1.1.2.1 2006/05/24 20:54:44 dalcinl Exp $
+//$Id: domsetup.cpp,v 1.1.2.2 2006/05/25 00:34:06 dalcinl Exp $
 
 // STL components
 #include <vector>
@@ -649,11 +649,18 @@ int dofmap_setup(MPI_Comm comm, Mesh* mesh, Dofmap* dofmap) {
   }
   
   // Convert ghost_dof_set en dofmap
+#if 0
   set<int>::iterator it;
   for (it=ghost_dof_set.begin(); it!=ghost_dof_set.end(); it++) 
     dofmap->ghost_dofs->push_back(*it);
-  
-  VOID_IT(ghost_dof_set);
+#else
+  dofmap->ghost_dofs->clear();
+  dofmap->ghost_dofs->reserve(ghost_dof_set.size());
+  dofmap->ghost_dofs->insert(dofmap->ghost_dofs->end(),
+			     ghost_dof_set.begin(),
+			     ghost_dof_set.end());
+#endif
+  ghost_dof_set.clear();
   delete[] dof_here; 
 
 

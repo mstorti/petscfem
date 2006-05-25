@@ -1,5 +1,5 @@
 // -*- c++ -*-
-// $Id: Docs.i,v 1.1.2.2 2006/04/28 17:48:02 dalcinl Exp $
+// $Id: Docs.i,v 1.1.2.3 2006/05/25 00:25:57 dalcinl Exp $
 
 %define %docstring(node,...) 
 #if #__VA_ARGS__ == ""
@@ -152,6 +152,7 @@ PYPF_NAMESPACE_BEGIN
 %docstring(Dofset::Dofset);
 %docstring(Dofset::addFixations);
 %docstring(Dofset::addConstraints);
+%docstring(Dofset::clear);
 
 
 %doctypemap(DofMap);
@@ -169,19 +170,52 @@ PYPF_NAMESPACE_BEGIN
 %docstring(DofMap::view);
 
 
-%doctypemap(Problem);
-%docstring(Problem);
-%docstring(Problem::Problem);
-%docstring(Problem::getMesh);
-%docstring(Problem::getDofMap);
-%docstring(Problem::getDim);
-%docstring(Problem::getSize);
-%docstring(Problem::getSizes,    "getSizes(self) -> (int, int)");
-%docstring(Problem::getDofSize);
-%docstring(Problem::getDofSizes, "getDofSizes(self) -> (int, int)");
-%docstring(Problem::getDofRange, "getDofRange(self) -> (int, int)");
-%docstring(Problem::buildSolution);
-%docstring(Problem::buildState);
+%doctypemap(Domain);
+%docstring(Domain);
+%docstring(Domain::Domain);
+%docstring(Domain::getMesh);
+%docstring(Domain::getDofMap);
+%docstring(Domain::getDim);
+%docstring(Domain::getSize);
+%docstring(Domain::getSizes,    "getSizes(self) -> (int, int)");
+%docstring(Domain::getDofSize);
+%docstring(Domain::getDofSizes, "getDofSizes(self) -> (int, int)");
+%docstring(Domain::getDofRange, "getDofRange(self) -> (int, int)");
+
+%docstring(Domain::getOwnedDofs, "getOwnedDofs(self) -> (int, int)");
+%docstring(Domain::getGhostDofs, "getGhostDofs(self) -> int array[]");
+%docstring(Domain::getLocalDofs, "getLocalDofs(self) -> int array[]");
+
+
+%doctypemap(Application);
+%docstring(Application);
+%docstring(Application::Application);
+%docstring(Application::getDomain);
+
+
+%doctypemap(NvrStks);
+%docstring(NvrStks);
+%docstring(NvrStks::NvrStks);
+%docstring(NvrStks::getAlpha);
+%docstring(NvrStks::getSteady);
+%docstring(NvrStks::setAlpha);
+%docstring(NvrStks::setSteady);
+%docstring(NvrStks::assemble);
+
+
+// %doctypemap(Problem);
+// %docstring(Problem);
+// %docstring(Problem::Problem);
+// %docstring(Problem::getMesh);
+// %docstring(Problem::getDofMap);
+// %docstring(Problem::getDim);
+// %docstring(Problem::getSize);
+// %docstring(Problem::getSizes,    "getSizes(self) -> (int, int)");
+// %docstring(Problem::getDofSize);
+// %docstring(Problem::getDofSizes, "getDofSizes(self) -> (int, int)");
+// %docstring(Problem::getDofRange, "getDofRange(self) -> (int, int)");
+// %docstring(Problem::buildSolution);
+// %docstring(Problem::buildState);
 
 
 PYPF_NAMESPACE_END
