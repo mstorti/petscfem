@@ -1,4 +1,4 @@
-//$Id: domsetup.cpp,v 1.1.2.2 2006/05/25 00:34:06 dalcinl Exp $
+//$Id: domsetup.cpp,v 1.1.2.3 2006/05/26 16:57:22 dalcinl Exp $
 
 // STL components
 #include <vector>
@@ -40,7 +40,7 @@ int mesh_setup(MPI_Comm comm, Mesh* mesh, Dofmap* dofmap) {
   MPI_Comm_size(comm, &size);
   MPI_Comm_rank(comm, &rank);
 
-  int nnod = mesh->nodedata->nnod;
+  int nnod = dofmap->nnod;
   int ndof = dofmap->ndof;
 
   float* tpwgts    = dofmap->tpwgts;
