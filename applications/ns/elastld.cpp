@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: elastld.cpp,v 1.13 2006/05/05 21:52:18 mstorti Exp $
+//$Id: elastld.cpp,v 1.14 2006/05/28 23:25:00 mstorti Exp $
 
 #include <src/fem.h>
 #include <src/utils.h>
@@ -65,7 +65,7 @@ void ld_elasticity::init() {
 
   // I don't know right if this will work for
   // ndim==3 (may be yes)
-  assert(ndim==2);
+  // assert(ndim==2);
 
 }
 
