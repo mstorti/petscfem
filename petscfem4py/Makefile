@@ -1,14 +1,11 @@
-# $Id: Makefile,v 1.1.2.3 2006/03/06 16:56:04 rodrigop Exp $
+# $Id: Makefile,v 1.1.2.4 2006/05/30 20:38:33 dalcinl Exp $
 
-.PHONY: default src swig  build install clean
+.PHONY: default src build install uninstall clean swig
 
 default: build
 
 src:
 	python setup.py build_src
-
-swig:
-	python setup.py build_src --force
 
 build:
 	python setup.py build
@@ -16,5 +13,12 @@ build:
 install:
 	python setup.py install --home=${HOME}
 
+uninstall:
+	${RM} -r ${HOME}/lib/python/petscfem4py
+
 clean:
 	python setup.py clean --all
+
+swig:
+	python setup.py build_src --force
+
