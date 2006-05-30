@@ -1,4 +1,4 @@
-// $Id: NvrStks.cpp,v 1.1.2.3 2006/05/30 20:22:23 dalcinl Exp $
+// $Id: NvrStks.cpp,v 1.1.2.2 2006/05/30 20:21:09 dalcinl Exp $
 
 #include "NvrStks.h"
 
@@ -153,7 +153,7 @@ NvrStks::assemble(Vec x, double t, Vec r, Mat J) const
   bool   steady = true;
 
   args->pack(PETSC_NULL, t, x, t, r, J, alpha, steady);
-  Application::assemble(*this, *this->args);
+  Application::assemble(*this,*this->args);
   PYPF_PETSC_CALL(VecScale(r, -1.0/alpha));
 }
 
@@ -171,7 +171,7 @@ NvrStks::assemble(Vec x0, double t0, Vec x1, double t1, Vec r, Mat J) const
   if (t1 < t0 )          throw Error("invalid value, 't1' < 't0'");
     
   args->pack(x0, t0, x1, t1, r, J, alpha, steady);
-  Application::assemble(*this, *this->args);
+  Application::assemble(*this,*this->args);
   PYPF_PETSC_CALL(VecScale(r, -1.0/alpha));
 }
 
