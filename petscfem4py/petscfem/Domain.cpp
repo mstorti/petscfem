@@ -1,4 +1,7 @@
-// $Id: Domain.cpp,v 1.1.2.2 2006/05/25 00:26:57 dalcinl Exp $
+
+// $Id: Domain.cpp,v 1.1.2.4 2006/05/30 20:03:54 dalcinl Exp $
+
+#include <algorithm>
 
 #include "Domain.h"
 
@@ -119,9 +122,11 @@ Domain::getDofRange(int* first, int* last) const
 {
   this->dofmap->getRange(first, last);
 }
-
-
-#include <set>
+void 
+Domain::getDofDist(int* rsize, int* ranges[]) const
+{
+  this->dofmap->getDist(rsize, ranges);
+}
 
 void 
 Domain::getOwnedDofs(int* start, int* end) const 
@@ -133,84 +138,76 @@ void
 Domain::getGhostDofs(std::vector<int>& gdofs) const
 {
   const DofMap& dofmap = this->getDofMap();
-  const std::vector<int>& ghost_dofs = *dofmap->ghost_dofs;
-  gdofs.reserve(gdofs.size() + ghost_dofs.size());
-  gdofs.insert(gdofs.end(), ghost_dofs.begin(), ghost_dofs.end());
+  const std::vector<int>& ghosts = *dofmap->ghost_dofs;
+  gdofs.reserve(gdofs.size() + ghosts.size());
+  gdofs.insert(gdofs.end(), ghosts.begin(), ghosts.end());
 }
 
 void
 Domain::getLocalDofs(std::vector<int>& ldofs) const
 {
   const DofMap& dofmap = this->getDofMap();
-  // add ghost dofs
-  std::vector<int>& ghost_dofs = *dofmap->ghost_dofs;
-  std::set<int> dofset(ghost_dofs.begin(), ghost_dofs.end());
-  // add ghost in local range
-  int start,end; this->getDofRange(&start, &end);
-  for (int dof=start; dof<end; dof++) dofset.insert(dof);
-  // fill output vector
-  ldofs.reserve(ldofs.size() + dofset.size());
-  ldofs.insert(ldofs.end(), dofset.begin(), dofset.end());
-
-#if 0
-  // old version !!
-
-  Mesh&   mesh   = this->getMesh();
-  DofMap& dofmap = this->getDofMap();
-
-  // iterate over all elemsets and build
-  // the set of nodes of local elements
-  std::set<int> nodset;
-  int proc; MPI_Comm_rank(this->getComm(), &proc); proc++;
-  for (int elset=0; elset<mesh.getSize(); elset++) {
-    const Elemset& elemset = mesh.getElemset(elset);
-    int nelem, nel;
-    const int *icone;
-    int       *part;
-    elemset.getData(&nelem, &nel, &icone);
-    elemset.getPart(NULL, &part);
-    for (int i=0; i<nelem; i++)
-      if (part[i] == proc)
-	for (int j=0; j<nel; j++)
-	  nodset.insert(icone[i*nel+j]);
-  }
-  
-  // iterate over set of nodes of local elements
-  // and build the set of associated dofs
-  std::set<int> dofset;
-  int           nnod = nodset.size();
-  int           ndof = dofmap.getNDof();
-  int           neqs = dofmap.getSize();
-  idmap*        id   = dofmap->id;
-  IdMapRow      row;
-  set<int>::iterator node_it = nodset.begin();
-  for (int n=0; n<nnod; n++, node_it++) {
-    int node = *node_it;
-    for (int field=1; field<=ndof; field++) {
-      int edof = (node-1) * ndof + field; // dofmap->edof()
-      id->get_row(edof, row);
-      int nrows = row.size();
-      for (int i=0; i<nrows; i++) {
-	IdMapEntry* entry = &row[i];
-	int dof = entry->j - 1;
-	if (dof<neqs) dofset.insert(dof);
-      }
-    }
-  }
-  nodset.clear();
-  // fill output vector
-  ldofs.reserve(ldofs.size() + dofset.size());
-  ldofs.insert(ldofs.end(), dofset.begin(), dofset.end());
-#endif
+  int start,end; this->getOwnedDofs(&start, &end);
+  const std::vector<int>& ghosts = *dofmap->ghost_dofs;
+  std::vector<int>::const_iterator middle =
+    std::lower_bound(ghosts.begin(), ghosts.end(), start);
+  ldofs.reserve(ldofs.size() + ghosts.size() + (end-start));
+  ldofs.insert(ldofs.end(), ghosts.begin(), middle);
+  for (int dof=start; dof<end; ) ldofs.push_back(dof++);
+  ldofs.insert(ldofs.end(), middle, ghosts.end());
 }
 
-void 
-Domain::getDofGraph(std::vector<int>& xadj,
-		    std::vector<int>& adjncy) const
-{
-  Mesh&   mesh   = this->getMesh();
-  DofMap& dofmap = this->getDofMap();
+// // old version !!
+// void
+// Domain::getLocalDofs(std::vector<int>& ldofs) const
+// {
+//   Mesh&   mesh   = this->getMesh();
+//   DofMap& dofmap = this->getDofMap();
+
+//   // iterate over all elemsets and build
+//   // the set of nodes of local elements
+//   std::set<int> nodset;
+//   int proc; MPI_Comm_rank(this->getComm(), &proc); proc++;
+//   for (int elset=0; elset<mesh.getSize(); elset++) {
+//     const Elemset& elemset = mesh.getElemset(elset);
+//     int nelem, nel;
+//     const int *icone;
+//     int       *part;
+//     elemset.getData(&nelem, &nel, &icone);
+//     elemset.getPart(NULL, &part);
+//     for (int i=0; i<nelem; i++)
+//       if (part[i] == proc)
+// 	for (int j=0; j<nel; j++)
+// 	  nodset.insert(icone[i*nel+j]);
+//   }
   
-}
+//   // iterate over set of nodes of local elements
+//   // and build the set of associated dofs
+//   std::set<int> dofset;
+//   int           nnod = nodset.size();
+//   int           ndof = dofmap.getNDof();
+//   int           neqs = dofmap.getSize();
+//   idmap*        id   = dofmap->id;
+//   IdMapRow      row;
+//   set<int>::iterator node_it = nodset.begin();
+//   for (int n=0; n<nnod; n++, node_it++) {
+//     int node = *node_it;
+//     for (int field=1; field<=ndof; field++) {
+//       int edof = (node-1) * ndof + field; // dofmap->edof()
+//       id->get_row(edof, row);
+//       int nrows = row.size();
+//       for (int i=0; i<nrows; i++) {
+// 	IdMapEntry* entry = &row[i];
+// 	int dof = entry->j - 1;
+// 	if (dof<neqs) dofset.insert(dof);
+//       }
+//     }
+//   }
+//   nodset.clear();
+//   // fill output vector
+//   ldofs.reserve(ldofs.size() + dofset.size());
+//   ldofs.insert(ldofs.end(), dofset.begin(), dofset.end());
+// #endif
+// }
 
 PYPF_NAMESPACE_END
