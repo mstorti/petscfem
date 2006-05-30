@@ -1,5 +1,5 @@
 // -*- c++ -*-
-// $Id: Docs.i,v 1.1.2.3 2006/05/25 00:25:57 dalcinl Exp $
+// $Id: Docs.i,v 1.1.2.4 2006/05/30 20:20:25 dalcinl Exp $
 
 %define %docstring(node,...) 
 #if #__VA_ARGS__ == ""
@@ -181,16 +181,31 @@ PYPF_NAMESPACE_BEGIN
 %docstring(Domain::getDofSize);
 %docstring(Domain::getDofSizes, "getDofSizes(self) -> (int, int)");
 %docstring(Domain::getDofRange, "getDofRange(self) -> (int, int)");
+%docstring(Domain::getDofDist,  "getDofDist(self) -> int array[]");
 
 %docstring(Domain::getOwnedDofs, "getOwnedDofs(self) -> (int, int)");
 %docstring(Domain::getGhostDofs, "getGhostDofs(self) -> int array[]");
 %docstring(Domain::getLocalDofs, "getLocalDofs(self) -> int array[]");
 
+%typemap(doc,name="state",type="double[]")
+  (int ns, const double state[])
+  "state: double[] array";
+%typemap(doc,name="nodes",type="int[]")
+  (int nn, const int nodes[])
+  "nodes: int[] array";
+%typemap(doc,name="fields",type="int[]")
+  (int nf, const int fields[])
+  "fields: int[] array";
+%typemap(doc,name="values",type="double[]")
+  std::vector<double>& values,
+  (std::pair<int,int>& shape, std::vector<double>& values)
+  "values: double[] array (output)";
 
 %doctypemap(Application);
 %docstring(Application);
 %docstring(Application::Application);
 %docstring(Application::getDomain);
+%docstring(Application::getNodalValues);
 
 
 %doctypemap(NvrStks);
@@ -201,21 +216,6 @@ PYPF_NAMESPACE_BEGIN
 %docstring(NvrStks::setAlpha);
 %docstring(NvrStks::setSteady);
 %docstring(NvrStks::assemble);
-
-
-// %doctypemap(Problem);
-// %docstring(Problem);
-// %docstring(Problem::Problem);
-// %docstring(Problem::getMesh);
-// %docstring(Problem::getDofMap);
-// %docstring(Problem::getDim);
-// %docstring(Problem::getSize);
-// %docstring(Problem::getSizes,    "getSizes(self) -> (int, int)");
-// %docstring(Problem::getDofSize);
-// %docstring(Problem::getDofSizes, "getDofSizes(self) -> (int, int)");
-// %docstring(Problem::getDofRange, "getDofRange(self) -> (int, int)");
-// %docstring(Problem::buildSolution);
-// %docstring(Problem::buildState);
 
 
 PYPF_NAMESPACE_END

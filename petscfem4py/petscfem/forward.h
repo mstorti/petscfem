@@ -1,4 +1,4 @@
-// $Id: forward.h,v 1.1.2.8 2006/05/24 20:57:53 dalcinl Exp $
+// $Id: forward.h,v 1.1.2.9 2006/05/30 20:19:50 dalcinl Exp $
 
 #ifndef PYPF_FORWARD_H
 #define PYPF_FORWARD_H
@@ -21,10 +21,13 @@ class Mesh;
 class Constraint;
 class Amplitude;
 class Dofmap;
+class arg_list;
+class Time;
 
 typedef TextHashTable Options;
 typedef Nodedata      Nodeset;
 typedef Dofmap        DofMap;
+typedef arg_list      ArgList;
 
 
 // PETScFEM for Python
@@ -40,8 +43,10 @@ class Nodeset;
 class Elemset;
 class Mesh;
 class Amplitude;
+class Dofset;
 class DofMap;
 class Domain;
+class ArgList;
 
 class Problem;
 

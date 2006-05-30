@@ -1,5 +1,5 @@
 // -*- c++ -*-
-// $Id: Nodeset.i,v 1.1.2.2 2006/04/27 19:09:17 rodrigop Exp $
+// $Id: Nodeset.i,v 1.1.2.3 2006/05/30 20:18:22 dalcinl Exp $
 
 
 %include Object.i
@@ -23,7 +23,7 @@ ARRAY_2D_NEW(int* nnod, int* nval, const double* data[], PyPF_FLOAT)
 
 PYPF_NAMESPACE_BEGIN
 %extend Nodeset {
-  int  __len__() 
+  int  __len__()
     { return self->getSize(); }
   void __getitem__(int i, int* n, const double* data[]) 
     { return self->getNode(i, n, data); }
