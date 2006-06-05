@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: ns.cpp,v 1.183 2006/03/27 20:14:04 mstorti Exp $
+//$Id: ns.cpp,v 1.184 2006/06/05 22:20:17 mstorti Exp $
 #include <src/debug.h>
 #include <malloc.h>
 
@@ -408,7 +408,7 @@ int main(int argc,char **args) {
 	A_mom->set_option("preco_side","left");
 	A_mom->set_option("preco_type","jacobi");
 
-#if 1      
+#if 1
 	A_poi = PFMat::dispatch(dofmap->neq,*dofmap,"petsc");
 	A_poi->set_option("KSP_method",KSPCG);
 	A_poi->set_option("preco_type","jacobi");
