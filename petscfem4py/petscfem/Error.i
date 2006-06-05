@@ -1,11 +1,12 @@
 // -*- c++ -*-
-// $Id: Error.i,v 1.1.2.4 2006/04/27 19:09:17 rodrigop Exp $
+// $Id: Error.i,v 1.1.2.5 2006/06/05 16:02:54 dalcinl Exp $
 
 %include exception.i
 
 %define PYPF_CATCH_SWIGDIRECTORS
 /* SWIG Directors exception*/
-catch(Swig::DirectorException &e) { SWIG_fail; }
+catch(Swig::DirectorException &e) 
+ { SWIG_fail; }
 %enddef
 
 %define PYPF_CATCH_PETSCFEM

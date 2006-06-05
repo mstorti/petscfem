@@ -1,4 +1,4 @@
-// $Id: Object.h,v 1.1.2.6 2006/04/27 19:09:17 rodrigop Exp $
+// $Id: Object.h,v 1.1.2.7 2006/06/05 16:02:42 dalcinl Exp $
 
 #ifndef PYPF_OBJECT_H
 #define PYPF_OBJECT_H
@@ -39,7 +39,7 @@ protected:
   MPI_Comm comm;
 public:
   Comm getComm() const;
-  void setComm(Comm& comm);
+  void setComm(const Comm& comm);
   void setComm(MPI_Comm comm);
 
   // options management

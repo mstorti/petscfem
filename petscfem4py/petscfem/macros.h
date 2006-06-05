@@ -1,4 +1,4 @@
-// $Id: macros.h,v 1.1.2.7 2006/05/24 21:18:02 dalcinl Exp $
+// $Id: macros.h,v 1.1.2.9 2006/06/05 16:00:54 dalcinl Exp $
 
 #ifndef PYPF_MACROS_H
 #define PYPF_MACROS_H
@@ -24,18 +24,19 @@ do {if ((member) != NULL) { delop ((member)); (member) = NULL; }} while(0)
 #define  PYPF_DELETE_SCLR(member) PYPF_DELETE(delete,   member)
 #define  PYPF_DELETE_VCTR(member) PYPF_DELETE(delete[], member)
 
-#define  PYPF_PETSC_DESTROY(destroy, object) \
-do { \
-  if ((object) != PETSC_NULL && !PetscFinalizeCalled) \
-    { destroy ((object)); (object) = NULL; } \
+#define  PYPF_PETSC_DESTROY(destroy, object)\
+do {\
+  if ((object) != PETSC_NULL && !PetscFinalizeCalled) {\
+    PetscErrorCode ierr = destroy ((object)); (object) = NULL;\
+    if (ierr) throw Error("PETSc error, calling function " #destroy);\
+    }\
 } while(0)
 
-#define  PYPF_PETSC_CALL(CALL) \
-do { \
-  PetscErrorCode ierr = CALL;\
-  if (ierr) throw Error("error in PETSc call") \
+#define  PYPF_PETSC_CALL(function, args)\
+do {\
+  PetscErrorCode ierr = function args;\
+  if (ierr) throw Error("PETSc error, calling function " #function);\
 } while(0)
-
 
 
 #endif // PYPF_MACROS_H
