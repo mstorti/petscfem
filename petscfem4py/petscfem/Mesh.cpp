@@ -1,4 +1,4 @@
-// $Id: Mesh.cpp,v 1.1.2.7 2006/04/27 19:09:17 rodrigop Exp $
+// $Id: Mesh.cpp,v 1.1.2.8 2006/06/05 21:20:05 dalcinl Exp $
 
 #include "Mesh.h"
 
@@ -16,6 +16,7 @@ Mesh::~Mesh()
     PYPF_DECREF(elemset);
   }
   /* base pointer */ Mesh::Base* mesh = *this;
+  /*              */ if (mesh == NULL) return;
   /* options      */ mesh->global_options = NULL;
   /* nodedata     */ mesh->nodedata = NULL;
   /* elemset list */ PYPF_DELETE(da_destroy, mesh->elemsetlist);
@@ -59,8 +60,8 @@ Mesh::Mesh(const Mesh& msh)
 Mesh::Mesh(Nodeset& nodeset,
 	   const std::vector<Elemset*>& elemsetlist)
   : Handle(new Mesh::Base), 
-    Object(),
-    nodeset(&nodeset), 
+    Object(nodeset.getComm()),
+    nodeset(&nodeset),
     elemsetlist(elemsetlist)
 { 
   PYPF_INCREF(this->nodeset);
