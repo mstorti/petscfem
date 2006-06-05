@@ -1,5 +1,5 @@
 // -*- c++ -*-
-// $Id: Docs.i,v 1.1.2.5 2006/06/05 22:44:11 dalcinl Exp $
+// $Id: Docs.i,v 1.1.2.6 2006/06/05 23:55:04 dalcinl Exp $
 
 %define %docstring(node,...) 
 #if #__VA_ARGS__ == ""
@@ -57,12 +57,15 @@ PYPF_NAMESPACE_BEGIN
 %docstring(Object::operator==);
 %docstring(Object::operator!=);
 
-%typemap(doc,name="node",type="double array[]") 
-  (int n, const double node[])
-  "node: double array[] value";
+%typemap(doc, name="xnod",type="double array[]") 
+  (int nnod, int ndim, const double xnod[])
+  "xnod: double array[] value";
 %typemap(doc, name="nodedata",type="double array[]") 
   (int nnod, int nval, const double data[])
   "nodedata: double array[] value";
+%typemap(doc,name="node",type="double array[]") 
+  (int n, const double node[])
+  "node: double array[] value";
 
 %doctypemap(Nodeset);
 %docstring(Nodeset);

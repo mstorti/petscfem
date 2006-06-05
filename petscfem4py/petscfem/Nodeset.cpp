@@ -1,4 +1,4 @@
-// $Id: Nodeset.cpp,v 1.1.2.4 2006/06/05 22:13:19 dalcinl Exp $
+// $Id: Nodeset.cpp,v 1.1.2.5 2006/06/05 23:56:24 dalcinl Exp $
 
 #include "Nodeset.h"
 
@@ -19,7 +19,7 @@ Nodeset::~Nodeset()
 Nodeset::Nodeset()
   : Handle(new Nodeset::Base), 
     Object(),
-    ndim(0), nnod(0), nval(0), nodedata()
+    nnod(0), ndim(0), nval(0), nodedata()
 { 
   // base pointer
   Nodeset::Base* nodedata = *this;
@@ -35,7 +35,7 @@ Nodeset::Nodeset()
 Nodeset::Nodeset(const Nodeset& nd)
   : Handle(new Nodeset::Base), 
     Object(nd),
-    ndim(nd.ndim), nnod(nd.nnod), nval(nd.nval), nodedata(nd.nodedata)
+    nnod(nd.nnod), ndim(nd.ndim), nval(nd.nval), nodedata(nd.nodedata)
 { 
   // base pointer
   Nodeset::Base* nodedata = *this;
@@ -51,7 +51,7 @@ Nodeset::Nodeset(const Nodeset& nd)
 Nodeset::Nodeset(int nnod, int ndim, const double data[])
   : Handle(new Nodeset::Base),
     Object(),
-    ndim(0), nnod(0), nval(0), nodedata()
+    nnod(0), ndim(0), nval(0), nodedata()
 {
   
   this->setDim(ndim);
@@ -71,7 +71,7 @@ Nodeset::Nodeset(int nnod, int ndim, const double data[])
 Nodeset::Nodeset(int ndim, int nnod, int nval, const double data[])
   : Handle(new Nodeset::Base),
     Object(),
-    ndim(0), nnod(0), nval(0), nodedata()
+    nnod(0), ndim(0), nval(0), nodedata()
 {
   
   this->setDim(ndim);
@@ -106,6 +106,14 @@ int
 Nodeset::getDim() const
 {
   return this->ndim;
+}
+
+
+void
+Nodeset::getDataSize(int* nnod, int* nval) const
+{
+  if (nnod) *nnod = this->nnod;
+  if (nval) *nval = this->nval;
 }
 
 void
@@ -148,11 +156,12 @@ Nodeset::setData(int nnod, int nval, const double data[])
   nodedata->nodedata = &this->nodedata[0];
 }
 
-void
-Nodeset::getDataSize(int* nnod, int* nval) const
+int
+Nodeset::getSize() const
 {
-  if (nnod) *nnod = this->nnod;
-  if (nval) *nval = this->nval;
+  int nnod;
+  this->getDataSize(&nnod, NULL);
+  return nnod;
 }
 
 void
@@ -174,14 +183,6 @@ Nodeset::setNode(int i, int n, const double node[])
   PYPF_ASSERT(n==nval || n==this->ndim , "invalid number of values");
   double* data = const_cast<double*>(&nodedata[i*nval]);
   for (int k=0; k<n; k++) data[k] = node[k];
-}
-
-int
-Nodeset::getSize() const
-{
-  int nnod;
-  this->getDataSize(&nnod, NULL);
-  return nnod;
 }
 
 void

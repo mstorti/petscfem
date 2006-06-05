@@ -1,21 +1,26 @@
 // -*- c++ -*-
-// $Id: Nodeset.i,v 1.1.2.3 2006/05/30 20:18:22 dalcinl Exp $
+// $Id: Nodeset.i,v 1.1.2.4 2006/06/05 23:55:36 dalcinl Exp $
 
 
 %include Object.i
 
-ARRAY_FLAT(int n, const double data[],
-	   ARRAY_INPUT, PyPF_FLOAT)
-ARRAY_TYPECHECK_SEQUENCE((int n, const double data[]), 
+ARRAY_2D(int nnod, int ndim, const double xnod[],
+	 ARRAY_INPUT, PyPF_FLOAT)
+ARRAY_TYPECHECK_SEQUENCE((int nnod, int ndim, const double xnod[]),
 			 ARRAY_TYPECHECK_FLOAT)
-ARRAY_1D_NEW(int* n, const double* data[], PyPF_FLOAT)
-
 
 ARRAY_2D(int nnod, int nval, const double data[],
 	 ARRAY_INPUT, PyPF_FLOAT)
-ARRAY_TYPECHECK_SEQUENCE((int nnod, int nval, const double data[]), 
+ARRAY_TYPECHECK_SEQUENCE((int nnod, int nval, const double data[]),
 			 ARRAY_TYPECHECK_FLOAT)
 ARRAY_2D_NEW(int* nnod, int* nval, const double* data[], PyPF_FLOAT)
+
+
+ARRAY_FLAT(int n, const double node[],
+	   ARRAY_INPUT, PyPF_FLOAT)
+ARRAY_TYPECHECK_SEQUENCE((int n, const double node[]), 
+			 ARRAY_TYPECHECK_FLOAT)
+ARRAY_1D_NEW(int* n, const double* node[], PyPF_FLOAT)
 
 
 %apply (int*, int*) { (int* nnod, int* nval) };
@@ -25,10 +30,10 @@ PYPF_NAMESPACE_BEGIN
 %extend Nodeset {
   int  __len__()
     { return self->getSize(); }
-  void __getitem__(int i, int* n, const double* data[]) 
-    { return self->getNode(i, n, data); }
-  void __setitem__(int i, int  n, const double  data[]) 
-    { self->setNode(i, n , data); }
+  void __getitem__(int i, int* n, const double* node[]) 
+    { return self->getNode(i, n, node); }
+  void __setitem__(int i, int  n, const double  node[]) 
+    { self->setNode(i, n , node); }
   %pythoncode {
   def __iter__(self):
       """__iter__(self) -> iterator"""
@@ -81,8 +86,8 @@ PYPF_NAMESPACE_END
 
 %clear  (int* nnod, int* nval);
 
-%clear (int  n, const double data[]);
-%clear (int* n, const double* data[]);
+%clear (int  n, const double  node[]);
+%clear (int* n, const double* node[]);
 
 %clear (int  nnod, int  nval, const double  data[]);
 %clear (int* nnod, int* nval, const double* data[]);

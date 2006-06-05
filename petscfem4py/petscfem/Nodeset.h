@@ -1,4 +1,4 @@
-// $Id: Nodeset.h,v 1.1.2.6 2006/06/05 22:56:56 dalcinl Exp $
+// $Id: Nodeset.h,v 1.1.2.7 2006/06/05 23:54:01 dalcinl Exp $
 
 #ifndef PYPF_NODESET_H
 #define PYPF_NODESET_H
@@ -14,8 +14,7 @@ class Nodeset : SMARTPTR(Nodeset)
 {
 
  protected:
-  int ndim;
-  int nnod, nval;
+  int nnod, ndim, nval;
   std::vector<double> nodedata;
 
  public:
@@ -28,13 +27,13 @@ class Nodeset : SMARTPTR(Nodeset)
   int  getDim() const;
   void setDim(int ndim);
 
+  void getDataSize(int* nnod, int* nval) const;
   void getData(int* nnod, int* nval, const double* data[]) const;
   void setData(int  nnod, int  nval, const double  data[]);
-  void getDataSize(int* nnod, int* nval) const;
 
+  int  getSize() const;
   void getNode(int i, int* n, const double* node[]) const;
   void setNode(int i, int  n, const double  node[]);
-  int  getSize() const;
 
  public:
   void sync(int root = 0);
