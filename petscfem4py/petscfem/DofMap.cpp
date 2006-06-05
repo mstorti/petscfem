@@ -1,4 +1,4 @@
-// $Id: DofMap.cpp,v 1.1.2.7 2006/04/27 19:09:17 rodrigop Exp $
+// $Id: DofMap.cpp,v 1.1.2.8 2006/06/05 20:39:06 dalcinl Exp $
 
 #include "DofMap.h"
 
@@ -17,6 +17,7 @@ DofMap::~DofMap()
   }
 
   DofMap::Base* dofmap = *this;
+  if (dofmap == NULL) return;
 #if 0
   // private:
   PYPF_DELETE_VCTR(dofmap->idmap2);
@@ -45,7 +46,7 @@ DofMap::~DofMap()
 
 DofMap::DofMap(Mesh& mesh, Dofset& dofset)
   : Handle(new DofMap::Base),
-    Object(mesh.getComm()),
+    Object(dofset.getComm()),
     nnod(dofset.nnod),
     ndof(dofset.ndof),
     ampset(dofset.amplitude)

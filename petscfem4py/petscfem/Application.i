@@ -1,5 +1,5 @@
 // -*- c++ -*-
-// $Id: Application.i,v 1.1.2.2 2006/05/30 20:16:44 dalcinl Exp $
+// $Id: Application.i,v 1.1.2.3 2006/06/05 20:40:02 dalcinl Exp $
 
 %include Domain.i
 
@@ -81,6 +81,7 @@ PETSC_OBJECT_TYPEMAP(Mat)
 
 %typemap(check, noblock=1) Vec x0 "";
 %typemap(check, noblock=1) Vec x1 "";
+%typemap(check, noblock=1) Vec r  "";
 %typemap(check, noblock=1) Mat J  "";
 
 %include "NvrStks.h"

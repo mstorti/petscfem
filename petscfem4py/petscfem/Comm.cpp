@@ -1,4 +1,4 @@
-// $Id: Comm.cpp,v 1.1.2.1 2006/04/27 19:09:17 rodrigop Exp $
+// $Id: Comm.cpp,v 1.1.2.2 2006/06/05 20:44:58 dalcinl Exp $
 
 
 #include "Comm.h"
@@ -37,16 +37,38 @@ Comm::getRank() const
   return rank;
 }
 
+static bool comm_compare(MPI_Comm comm1, MPI_Comm comm2)
+{
+  if (comm1 == MPI_COMM_NULL && comm2 == MPI_COMM_NULL) return true;
+  if (comm1 == MPI_COMM_NULL || comm2 == MPI_COMM_NULL) return false;
+  int result;
+  MPI_Comm_compare(comm1, comm2, &result);
+  if (result == MPI_IDENT || result == MPI_CONGRUENT) return true;
+  else return false;
+}
+
 bool 
 Comm::operator==(const Comm& comm) const
 {
-  return this->comm == comm.comm;
+  return comm_compare(this->comm, comm.comm);
+}
+
+bool 
+Comm::operator==(MPI_Comm comm) const
+{
+  return comm_compare(this->comm, comm);
 }
 
 bool 
 Comm::operator!=(const Comm& comm) const
 {
-  return this->comm != comm.comm;
+  return !comm_compare(this->comm, comm.comm);
+}
+
+bool 
+Comm::operator!=(MPI_Comm comm) const
+{
+  return !comm_compare(this->comm, comm);
 }
 
 Comm& 

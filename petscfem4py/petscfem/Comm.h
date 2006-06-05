@@ -22,7 +22,9 @@ class Comm {
   Comm& operator=(MPI_Comm comm);
 
   bool operator==(const Comm& comm) const;
+  bool operator==(MPI_Comm comm)    const;
   bool operator!=(const Comm& comm) const;
+  bool operator!=(MPI_Comm comm)    const;
   
   int getSize() const;
   int getRank() const;

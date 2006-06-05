@@ -1,4 +1,4 @@
-// $Id: Application.h,v 1.1.2.4 2006/05/30 20:13:55 dalcinl Exp $
+// $Id: Application.h,v 1.1.2.5 2006/06/05 20:39:22 dalcinl Exp $
 
 #ifndef PYPF_APPLICATION_H
 #define PYPF_APPLICATION_H
@@ -25,8 +25,9 @@ public:
   Application(Domain& domain);
 
 public:
-  Domain& getDomain() const;
 
+  Domain& getDomain() const;
+  
   void getNodalValues(const double state[], double time,
 		      double values[]) const;
 

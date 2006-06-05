@@ -1,4 +1,4 @@
-// $Id: Amplitude.cpp,v 1.1.2.1 2006/04/27 19:09:17 rodrigop Exp $
+// $Id: Amplitude.cpp,v 1.1.2.2 2006/06/05 20:38:57 dalcinl Exp $
 
 #include "Amplitude.h"
 
@@ -31,6 +31,7 @@ PYPF_NAMESPACE_BEGIN
 Amplitude::~Amplitude()
 {
   Amplitude::Base* amp = *this;
+  if (amp == NULL) return;
   delete amp;
 }
 
