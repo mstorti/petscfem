@@ -1,4 +1,4 @@
-// $Id: Dofset.cpp,v 1.1.2.4 2006/05/24 21:07:25 dalcinl Exp $
+// $Id: Dofset.cpp,v 1.1.2.5 2006/06/05 22:18:18 dalcinl Exp $
 
 #include "Dofset.h"
 
@@ -96,6 +96,8 @@ Dofset::addConstraints(int n,
 {
   if (n == 0) return;
 
+  PYPF_ASSERT(n>=2, "invalid constraint size");
+
   int nnod = this->nnod;
   int ndof = this->ndof;
   for (int i=0; i<n; i++) {
@@ -104,8 +106,6 @@ Dofset::addConstraints(int n,
     PYPF_ASSERT(field[i]>=0,   "invalid field, out of range (field<0)");
     PYPF_ASSERT(field[i]<ndof, "invalid field, out of range (field>=ndof)");
   }
-
-  PYPF_ASSERT(n>=2, "invalid constraint size");
 
   this->constraints.push_back(Constraint());
   Constraint& c = this->constraints.back();

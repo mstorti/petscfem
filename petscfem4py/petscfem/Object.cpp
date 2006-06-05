@@ -1,4 +1,4 @@
-// $Id: Object.cpp,v 1.1.2.5 2006/04/27 19:09:17 rodrigop Exp $
+// $Id: Object.cpp,v 1.1.2.6 2006/06/05 22:22:55 dalcinl Exp $
 
 #include "Object.h"
 
@@ -35,7 +35,7 @@ Object::getComm() const
 }
 
 void
-Object::setComm(Comm& comm)
+Object::setComm(const Comm& comm)
 {
   PYPF_ASSERT((MPI_Comm)comm!=MPI_COMM_NULL, "cannot set null communicator");
   this->comm = comm;

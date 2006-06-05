@@ -1,4 +1,4 @@
-// $Id: Nodeset.h,v 1.1.2.3 2006/05/24 21:09:28 dalcinl Exp $
+// $Id: Nodeset.h,v 1.1.2.4 2006/06/05 22:14:02 dalcinl Exp $
 
 #ifndef PYPF_NODESET_H
 #define PYPF_NODESET_H
@@ -22,6 +22,7 @@ class Nodeset : SMARTPTR(Nodeset)
   ~Nodeset();
   Nodeset();
   Nodeset(const Nodeset& nodeset);
+  Nodeset(int nnod, int nval, const double data[]);
   Nodeset(int ndim, int nnod, int nval, const double data[]);
 
   int  getDim() const;

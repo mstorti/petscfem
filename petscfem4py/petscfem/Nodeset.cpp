@@ -1,4 +1,4 @@
-// $Id: Nodeset.cpp,v 1.1.2.3 2006/05/24 21:10:46 dalcinl Exp $
+// $Id: Nodeset.cpp,v 1.1.2.4 2006/06/05 22:13:19 dalcinl Exp $
 
 #include "Nodeset.h"
 
@@ -10,6 +10,7 @@ PYPF_NAMESPACE_BEGIN
 Nodeset::~Nodeset()
 { 
   Nodeset::Base* nodedata = *this;
+  if (nodedata == NULL) return;
   nodedata->nodedata = NULL;
   nodedata->options  = NULL;
   delete nodedata;
@@ -46,6 +47,26 @@ Nodeset::Nodeset(const Nodeset& nd)
   nodedata->ndim     = this->ndim;
   nodedata->nodedata = &this->nodedata[0];
 }
+
+Nodeset::Nodeset(int nnod, int ndim, const double data[])
+  : Handle(new Nodeset::Base),
+    Object(),
+    ndim(0), nnod(0), nval(0), nodedata()
+{
+  
+  this->setDim(ndim);
+  this->setData(nnod, ndim, data);
+
+  // base pointer
+  Nodeset::Base* nodedata = *this;
+  // options
+  nodedata->options  = this->options;
+  // nodedata
+  nodedata->nnod     = this->nnod;
+  nodedata->nu       = this->nval;
+  nodedata->ndim     = this->ndim;
+  nodedata->nodedata = &this->nodedata[0];
+}  
 
 Nodeset::Nodeset(int ndim, int nnod, int nval, const double data[])
   : Handle(new Nodeset::Base),
