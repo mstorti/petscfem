@@ -1,10 +1,9 @@
-// $Id: Problem.h,v 1.1.2.8 2006/05/22 18:53:19 dalcinl Exp $
+// $Id: Problem.h,v 1.1.2.9 2006/06/06 15:45:49 dalcinl Exp $
 
 #ifndef PYPF_PROBLEM_H
 #define PYPF_PROBLEM_H
 
 
-#include <string>
 #include <vector>
 #include "petscfem4py.h"
 #include "Object.h"
@@ -22,15 +21,17 @@ class Problem
 
 private:
   Problem();
+  Problem(const Problem& problem);
+  Problem(Mesh& mesh, DofMap& dofmap);
 
 protected:
   Mesh*   mesh;
   DofMap* dofmap;
-
+  
 public:
   ~Problem();
-  Problem(const Problem& problem);
-  Problem(Mesh& mesh, DofMap& dofmap);
+  Problem(Mesh& mesh,
+	  Dofset& dofset);
   Problem(Nodeset& nodeset,
 	  const std::vector<Elemset*>& elemsets,
 	  Dofset& dofset);
@@ -48,13 +49,13 @@ public:
 
   void getLocalDofs(int* n, int* dofs[]) const;
 
-  void buildSolution (Vec state,    Vec solution) const;
-  void buildState    (Vec solution, Vec state)    const;
+
+  void buildSolution (Vec state, Vec soltn, double t=0.0) const;
+  void buildState    (Vec soltn, Vec state) const;
 
 protected:
-  virtual void preAssemble(const std::string& jobinfo);
-  virtual void baseAssemble(const std::string& jobinfo);
-  virtual void postAssemble(const std::string& jobinfo);
+  void preAssemble();
+  void postAssemble();
 
 };
 

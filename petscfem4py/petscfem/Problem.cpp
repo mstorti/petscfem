@@ -1,4 +1,4 @@
-// $Id: Problem.cpp,v 1.1.2.7 2006/05/21 00:26:05 dalcinl Exp $
+// $Id: Problem.cpp,v 1.1.2.8 2006/06/06 15:46:15 dalcinl Exp $
 
 #include "Problem.h"
 
@@ -6,7 +6,7 @@
 #include <dofmap.h>
 
 
-int my_mesh_part(MPI_Comm comm, Mesh* mesh, Dofmap* dofmap);
+int domain_setup(MPI_Comm comm, Mesh* mesh, Dofmap* dofmap);
 extern TextHashTable* GLOBAL_OPTIONS;
 extern Mesh*          GLOBAL_MESH;
 extern int            SIZE, MY_RANK;
@@ -29,24 +29,27 @@ Problem_setUp(MPI_Comm comm, Mesh& mesh, DofMap& dofmap)
   GLOBAL_MESH         = mesh;
   MPI_Comm_size(PETSCFEM_COMM_WORLD, &SIZE);
   MPI_Comm_rank(PETSCFEM_COMM_WORLD, &MY_RANK);
-  my_mesh_part(comm, mesh, dofmap);
+  domain_setup(comm, mesh, dofmap);
   PETSCFEM_COMM_WORLD = MPI_COMM_NULL;
   GLOBAL_MESH         = NULL;
 }
 
-Problem::Problem(const Problem& P)
-  : Object(P),
-    mesh(P.mesh), 
-    dofmap(P.dofmap)
-{
-  PYPF_INCREF(this->mesh);
-  PYPF_INCREF(this->dofmap);
-}
-
-Problem::Problem(Mesh& mesh, DofMap& dofmap)
+Problem::Problem(Mesh& mesh,
+		 DofMap& dofmap)
   : Object(mesh.getComm()),
     mesh(&mesh),
     dofmap(&dofmap)
+{
+  PYPF_INCREF(this->mesh);
+  PYPF_INCREF(this->dofmap);
+  Problem_setUp(this->getComm(), this->getMesh(), this->getDofMap());
+}
+
+Problem::Problem(Mesh& mesh,
+		 Dofset& dofset)
+  : Object(mesh.getComm()),
+    mesh(&mesh),
+    dofmap(new DofMap(mesh, dofset))
 {
   PYPF_INCREF(this->mesh);
   PYPF_INCREF(this->dofmap);
@@ -157,7 +160,7 @@ check_vec_sizes(DofMap& dofmap, Vec sol_vec, Vec stt_vec)
 }
 
 void
-Problem::buildSolution(Vec state, Vec solution) const
+Problem::buildSolution(Vec state, Vec solution, double t) const
 {
   DofMap& dofmap = *this->dofmap;
   check_vec_sizes(dofmap, solution, state);
@@ -167,7 +170,7 @@ Problem::buildSolution(Vec state, Vec solution) const
   VecGetArray(state,    &stt_buff);
   VecGetArray(solution, &sol_buff);
 
-  state2solution(dofmap, stt_buff, sol_buff, 0.0);
+  state2solution(dofmap, stt_buff, sol_buff, t);
 
   VecRestoreArray(state,    &stt_buff);
   VecRestoreArray(solution, &sol_buff);
@@ -271,6 +274,19 @@ Problem::preAssemble()
     GLOBAL_OPTIONS = this->options;
 }
 
+// void 
+// Problem::baseAssemble(const std::string& jobinfo)
+// {
+// #if 0
+//   Mesh::Base*   mesh   = this->getMesh();
+//   Dofmap::Base* dofmap = this->getDofMap();
+//   this->preAssemble(jobinfo);
+//   int ierr = ::assemble(mesh, args->argl, dofmap, jobinfo, &args->tstar);
+//   this->postAssemble(jobinfo);
+//   if (ierr) throw Error("Problem::baseAssemble(...)");
+// #endif
+// }
+
 void
 Problem::postAssemble()
 {
@@ -278,5 +294,56 @@ Problem::postAssemble()
   GLOBAL_MESH         = NULL;
   GLOBAL_OPTIONS      = OPTIONS::GLOBAL;
 }
+
+
+
+
+
+// void
+// Problem::pre_assemble() const
+// {
+//   // MPI
+//   PETSCFEM_COMM_WORLD = this->getComm();
+//   MPI_Comm_size(PETSCFEM_COMM_WORLD, &SIZE);
+//   MPI_Comm_rank(PETSCFEM_COMM_WORLD, &MY_RANK);
+//   // Mesh
+//   GLOBAL_MESH = this->getMesh();
+//   // Options
+//   if (this->options.empty())
+//     GLOBAL_OPTIONS = OPTIONS::GLOBAL;
+//   else
+//     GLOBAL_OPTIONS = this->options;
+// }
+
+// void
+// Problem::post_assemble() const
+// {
+//   PETSCFEM_COMM_WORLD = MPI_COMM_NULL;
+//   GLOBAL_MESH         = NULL;
+//   GLOBAL_OPTIONS      = OPTIONS::GLOBAL;
+// }
+
+// void 
+// Problem::assemble(const Application& _app, 
+// 		  Vec x, double t, 
+// 		  Vec r, Mat J) const
+// {
+//   const Application& app = _app;
+//   this->pre_assemble();
+//   app(*this,x,t,r,J);
+//   this->post_assemble();
+// }
+
+// void 
+// Problem::assemble(const Application& _app, 
+// 		  Vec x0, double t0, Vec x1, double t1, 
+// 		  Vec r, Mat J) const
+// {
+//   const Application& app = _app;
+//   this->pre_assemble();
+//   app(*this,x0,t0,x1,t1,r,J);
+//   this->post_assemble();
+// }
+
 
 PYPF_NAMESPACE_END
