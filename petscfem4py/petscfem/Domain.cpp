@@ -1,4 +1,5 @@
-// $Id: Domain.cpp,v 1.1.2.3 2006/05/30 20:03:46 dalcinl Exp $
+
+// $Id: Domain.cpp,v 1.1.2.5 2006/06/06 17:01:40 dalcinl Exp $
 
 #include <algorithm>
 
@@ -71,6 +72,12 @@ Domain::Domain(Nodeset& nodeset,
   PYPF_INCREF(this->dofset);
   PYPF_INCREF(this->dofmap);
   Domain_setUp(this);
+}
+
+Dofset&
+Domain::getDofset() const
+{
+  return *this->dofset;
 }
 
 Mesh&

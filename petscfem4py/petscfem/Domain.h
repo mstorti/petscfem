@@ -1,4 +1,4 @@
-// $Id: Domain.h,v 1.1.2.4 2006/05/30 20:02:46 dalcinl Exp $
+// $Id: Domain.h,v 1.1.2.5 2006/06/06 17:01:31 dalcinl Exp $
 
 #ifndef PYPF_DOMAIN_H
 #define PYPF_DOMAIN_H
@@ -36,8 +36,8 @@ public:
   
   // Nodeset&              getNodeset() const;
   // std::vector<Elemset*> getElemset() const;
-  // Dofset&               getDofset()  const;
   
+  Dofset& getDofset() const;
   Mesh&   getMesh()   const;
   DofMap& getDofMap() const;
 

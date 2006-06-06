@@ -1,5 +1,5 @@
 // -*- c++ -*-
-// $Id: Domain.i,v 1.1.2.3 2006/05/30 20:05:49 dalcinl Exp $ 
+// $Id: Domain.i,v 1.1.2.4 2006/06/06 17:01:10 dalcinl Exp $ 
 
 %include Object.i
 %include Mesh.i
@@ -16,6 +16,7 @@ ARRAY_STDVEC_OUTPUT(std::vector<int>& ldofs, PyPF_INT)
 
 
 PYPF_NAMESPACE_BEGIN
+%newobject Domain::getDofset;
 %newobject Domain::getMesh;
 %newobject Domain::getDofMap;
 PYPF_NAMESPACE_END
