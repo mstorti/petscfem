@@ -1,5 +1,5 @@
 // -*- c++ -*-
-// $Id: tpmaps.i,v 1.1.2.3 2006/05/22 23:35:06 dalcinl Exp $
+// $Id: tpmaps.i,v 1.1.2.4 2006/06/06 15:45:00 dalcinl Exp $
 
 
 // pair of int values
@@ -8,6 +8,13 @@
 { $1= &temp1; $2= &temp2; }
 %typemap(argout, noblock=1) (int*, int*)
 { %append_output(Py_BuildValue("ii", *$1, *$2)) ;}
+
+// triad of int values
+%typemap(in, numinputs=0, noblock=1) (int*, int*, int*)
+($*1_ltype temp1=0, $*2_ltype temp2=0, $*3_ltype temp3=0)
+{ $1= &temp1; $2= &temp2; $3= &temp3; }
+%typemap(argout, noblock=1) (int*, int*, int*)
+{ %append_output(Py_BuildValue("iii", *$1, *$2, *$3)) ;}
 
 
 %define %get_swig_this(obj, argp)
