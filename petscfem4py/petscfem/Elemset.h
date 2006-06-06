@@ -1,10 +1,11 @@
-// $Id: Elemset.h,v 1.1.2.8 2006/04/27 19:09:17 rodrigop Exp $
+// $Id: Elemset.h,v 1.1.2.9 2006/06/06 00:10:03 dalcinl Exp $
 
 #ifndef PYPF_ELEMSET_H
 #define PYPF_ELEMSET_H
 
 #include <string>
 #include <vector>
+#include <map>
 #include "petscfem4py.h"
 #include "Object.h"
 
@@ -27,6 +28,9 @@ class Elemset : SMARTPTR(Elemset)
   Elemset(const Elemset& elemset);
   Elemset(const std::string& type,
 	  int nelem, int nel, const int icone[]);
+  Elemset(const std::string& type,
+	  int nelem, int nel, const int icone[],
+	  const std::map<std::string,std::string>& options);
 
   std::string getType() const;
   std::string getName() const;
