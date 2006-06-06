@@ -1,5 +1,5 @@
 // -*- c++ -*-
-// $Id: Docs.i,v 1.1.2.6 2006/06/05 23:55:04 dalcinl Exp $
+// $Id: Docs.i,v 1.1.2.7 2006/06/06 15:15:34 dalcinl Exp $
 
 %define %docstring(node,...) 
 #if #__VA_ARGS__ == ""
@@ -32,6 +32,7 @@ PYPF_NAMESPACE_BEGIN
 
 %feature("autodoc");
 
+
 %doctypemap(Comm);
 %docstring(Comm);
 %docstring(Comm::Comm);
@@ -57,41 +58,42 @@ PYPF_NAMESPACE_BEGIN
 %docstring(Object::operator==);
 %docstring(Object::operator!=);
 
-%typemap(doc, name="xnod",type="double array[]") 
+
+%typemap(doc, name="xnod",type="double[]") 
   (int nnod, int ndim, const double xnod[])
-  "xnod: double array[] value";
-%typemap(doc, name="nodedata",type="double array[]") 
-  (int nnod, int nval, const double data[])
-  "nodedata: double array[] value";
-%typemap(doc,name="node",type="double array[]") 
+  "xnod: double[] value)";
+%typemap(doc, name="array",type="double[]") 
+  (int rows, int cols, const double array[])
+  "array: double[] value,";
+%typemap(doc,name="node",type="double[]") 
   (int n, const double node[])
-  "node: double array[] value";
+  "node: double[] value";
 
 %doctypemap(Nodeset);
 %docstring(Nodeset);
 %docstring(Nodeset::Nodeset);
-%docstring(Nodeset::getData,     "getData(self, int i) -> double array[]") ;
-%docstring(Nodeset::setData);
-%docstring(Nodeset::getDataSize, "getDataSize(self) -> (int, int)") ;
-%docstring(Nodeset::getNode,     "getNode(self, int i) -> double array[]");
-%docstring(Nodeset::setNode);
-%docstring(Nodeset::getSize);
+%docstring(Nodeset::getSizes,  "getSizes(self) -> (int, int, int)") ;
+%docstring(Nodeset::setSizes);
+%docstring(Nodeset::getArray,  "getArray(self) -> double[]") ;
+%docstring(Nodeset::setArray);
 %docstring(Nodeset::getDim);
-%docstring(Nodeset::setDim);
+%docstring(Nodeset::getSize);
+%docstring(Nodeset::getNode,   "getNode(self, int i) -> double[]");
+%docstring(Nodeset::setNode);
 %docstring(Nodeset::clear);
 %docstring(Nodeset::view);
 %docstring(Nodeset::__len__);
-%docstring(Nodeset::__getitem__, "__getitem__(self, int i) -> double array[]");
+%docstring(Nodeset::__getitem__, "__getitem__(self, int i) -> double[]");
 %docstring(Nodeset::__setitem__);
 %docstring(Nodeset::__iter__,    "__iter__(self) -> iterator");
 
 
-%typemap(doc,name="elem",type="int array[]")
+%typemap(doc,name="elem",type="int[]")
   (int n, const int elem[])
-  "elem: int array[] value";
-%typemap(doc,name="elemdata",type="int array[]")
+  "elem: int[] value";
+%typemap(doc,name="elemdata",type="int[]")
   (int nelem, int nel, const int icone[])
-  "elemdata: double array[] value";
+  "elemdata: int[] value";
 
 %doctypemap(Elemset);
 %docstring(Elemset);
@@ -112,6 +114,7 @@ PYPF_NAMESPACE_BEGIN
 %docstring(Elemset::__getitem__, "__getitem__(self, int i) -> int array[]");
 %docstring(Elemset::__setitem__);
 %docstring(Elemset::__iter__,    "__iter__(self) -> iterator");
+
 
 %typemap(doc, type="list<Elemset>")
   std::vector<PYPF_NAMESPACE::Elemset*>&,
@@ -180,12 +183,11 @@ PYPF_NAMESPACE_BEGIN
 %docstring(Domain::getDofMap);
 %docstring(Domain::getDim);
 %docstring(Domain::getSize);
-%docstring(Domain::getSizes,    "getSizes(self) -> (int, int)");
+%docstring(Domain::getSizes,     "getSizes(self) -> (int, int)");
 %docstring(Domain::getDofSize);
-%docstring(Domain::getDofSizes, "getDofSizes(self) -> (int, int)");
-%docstring(Domain::getDofRange, "getDofRange(self) -> (int, int)");
-%docstring(Domain::getDofDist,  "getDofDist(self) -> int array[]");
-
+%docstring(Domain::getDofSizes,  "getDofSizes(self) -> (int, int)");
+%docstring(Domain::getDofRange,  "getDofRange(self) -> (int, int)");
+%docstring(Domain::getDofDist,   "getDofDist(self) -> int array[]");
 %docstring(Domain::getOwnedDofs, "getOwnedDofs(self) -> (int, int)");
 %docstring(Domain::getGhostDofs, "getGhostDofs(self) -> int array[]");
 %docstring(Domain::getLocalDofs, "getLocalDofs(self) -> int array[]");

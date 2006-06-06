@@ -1,8 +1,55 @@
-// $Id: Nodeset.cpp,v 1.1.2.5 2006/06/05 23:56:24 dalcinl Exp $
+// $Id: Nodeset.cpp,v 1.1.2.6 2006/06/06 15:15:34 dalcinl Exp $
 
 #include "Nodeset.h"
 
 #include <fem.h>
+
+PYPF_NAMESPACE_BEGIN
+
+void Nodeset::chk_sizes(int nnod, int ndim, int nval) const
+{
+  if (this->nodedata.empty()) {
+    PYPF_ASSERT(nnod>=0, "invalid number of nodes (nnod<0)");
+    PYPF_ASSERT(ndim>=1, "invalid number of dimensions, out of range (ndim<1)");
+    PYPF_ASSERT(ndim<=3, "invalid number of dimensions, out of range (ndim>3)");
+    PYPF_ASSERT(nval>=0, "invalid number of values, out of range (nval<0)");
+  } else {
+    PYPF_ASSERT(this->nnod==nnod, "cannot change number of nodes");
+    PYPF_ASSERT(this->ndim==ndim, "cannot change number of dimensions");
+    PYPF_ASSERT(this->nval==nval, "cannot change number of values");
+  }
+}
+
+void Nodeset::set_sizes(int nnod, int ndim, int nval)
+{ 
+  this->nnod = nnod;
+  this->ndim = ndim;
+  this->nval = nval;
+  this->nodedata.resize(nnod * (ndim + nval));
+}
+
+void Nodeset::set_array(const double array[])
+{ 
+  int     size = this->nodedata.size();
+  double* data = &this->nodedata[0];
+  if (size == 0) return;
+  PYPF_ASSERT(array!=NULL, "null pointer to array data");
+  memcpy(data, array, size*sizeof(double));
+}
+
+void Nodeset::touch() const {
+  // get base pointer
+  Nodeset::Base* nodedata = *this;
+  // update options
+  nodedata->options  = this->options;
+  // update nodedata
+  nodedata->nnod     = this->nnod;
+  nodedata->ndim     = this->ndim;
+  nodedata->nu       = this->ndim + this->nval;
+  nodedata->nodedata = const_cast<double*>(&this->nodedata[0]);
+}  
+
+PYPF_NAMESPACE_END
 
 
 PYPF_NAMESPACE_BEGIN
@@ -21,15 +68,7 @@ Nodeset::Nodeset()
     Object(),
     nnod(0), ndim(0), nval(0), nodedata()
 { 
-  // base pointer
-  Nodeset::Base* nodedata = *this;
-  // options
-  nodedata->options  = this->options;
-  // nodedata
-  nodedata->ndim     = this->ndim;
-  nodedata->nnod     = this->nnod;
-  nodedata->nu       = this->nval;
-  nodedata->nodedata = &this->nodedata[0];
+  this->touch();
 }
 
 Nodeset::Nodeset(const Nodeset& nd)
@@ -37,69 +76,60 @@ Nodeset::Nodeset(const Nodeset& nd)
     Object(nd),
     nnod(nd.nnod), ndim(nd.ndim), nval(nd.nval), nodedata(nd.nodedata)
 { 
-  // base pointer
-  Nodeset::Base* nodedata = *this;
-  // options
-  nodedata->options  = this->options;
-  // nodedata
-  nodedata->nnod     = this->nnod;
-  nodedata->nu       = this->nval;
-  nodedata->ndim     = this->ndim;
-  nodedata->nodedata = &this->nodedata[0];
+  this->touch();
 }
 
-Nodeset::Nodeset(int nnod, int ndim, const double data[])
+Nodeset::Nodeset(int nnod, int ndim, int nval) 
+  : Handle(new Nodeset::Base), 
+    Object(),
+    nnod(0), ndim(0), nval(0), nodedata()
+{
+  this->chk_sizes(nnod, ndim, nval);
+  this->set_sizes(nnod, ndim, nval);
+  this->touch();
+}
+
+Nodeset::Nodeset(int nnod, int ndim, const double xnod[])
   : Handle(new Nodeset::Base),
     Object(),
     nnod(0), ndim(0), nval(0), nodedata()
 {
-  
-  this->setDim(ndim);
-  this->setData(nnod, ndim, data);
 
-  // base pointer
-  Nodeset::Base* nodedata = *this;
-  // options
-  nodedata->options  = this->options;
-  // nodedata
-  nodedata->nnod     = this->nnod;
-  nodedata->nu       = this->nval;
-  nodedata->ndim     = this->ndim;
-  nodedata->nodedata = &this->nodedata[0];
-}  
-
-Nodeset::Nodeset(int ndim, int nnod, int nval, const double data[])
-  : Handle(new Nodeset::Base),
-    Object(),
-    nnod(0), ndim(0), nval(0), nodedata()
-{
-  
-  this->setDim(ndim);
-  this->setData(nnod, nval, data);
-
-  // base pointer
-  Nodeset::Base* nodedata = *this;
-  // options
-  nodedata->options  = this->options;
-  // nodedata
-  nodedata->nnod     = this->nnod;
-  nodedata->nu       = this->nval;
-  nodedata->ndim     = this->ndim;
-  nodedata->nodedata = &this->nodedata[0];
+  this->chk_sizes(nnod, ndim, 0);
+  this->set_sizes(nnod, ndim, 0);
+  this->set_array(xnod);
+  this->touch();
 }  
 
 void
-Nodeset::setDim(int ndim)
+Nodeset::getSizes(int* nnod, int* ndim, int* nval) const
 {
-  PYPF_ASSERT(this->ndim==0 || this->ndim==ndim,
-	      "cannot change number of dimensions");
-  PYPF_ASSERT(ndim>=1,
-	      "invalid number of dimensions, out of range (ndim<1)");
-  PYPF_ASSERT(ndim<=3, 
-	      "invalid number of dimensions, out of range (ndim>3)");
-  PYPF_ASSERT(this->nval==0 || ndim<=this->nval,
-	      "invalid number of dimensions for data size (nval<ndim)");
-  this->ndim = ndim;
+  if (nnod) *nnod = this->nnod;
+  if (ndim) *ndim = this->ndim;
+  if (nval) *nval = this->nval;
+}
+
+void 
+Nodeset::setSizes(int nnod, int ndim, int nval) 
+{
+  this->chk_sizes(nnod, ndim, nval);
+  this->set_sizes(nnod, ndim, nval);
+  this->touch();
+  
+}
+
+void
+Nodeset::getArray(const double* array[]) const
+{
+  if (array) *array = &this->nodedata[0];
+}
+
+void
+Nodeset::setArray(const double data[])
+{
+
+  this->set_array(data);
+  this->touch();
 }
 
 int
@@ -108,101 +138,40 @@ Nodeset::getDim() const
   return this->ndim;
 }
 
-
-void
-Nodeset::getDataSize(int* nnod, int* nval) const
-{
-  if (nnod) *nnod = this->nnod;
-  if (nval) *nval = this->nval;
-}
-
-void
-Nodeset::getData(int* nnod, int* nval, const double* data[]) const
-{
-  if (nnod) *nnod = this->nnod;
-  if (nval) *nval = this->nval;
-  if (data) *data = &this->nodedata[0];
-}
-
-void
-Nodeset::setData(int nnod, int nval, const double data[])
-{
-  // test data
-  if (nnod*nval != 0) {
-    int ndim = this->ndim;
-    PYPF_ASSERT(nnod>=1,    "invalid number of nodes (nnod<1)");
-    PYPF_ASSERT(nval>=1,    "invalid number of values (nval<1)");
-    PYPF_ASSERT(data!=NULL, "null pointer to data array");
-    PYPF_ASSERT(nval>=ndim, "invalid number of values (nval<ndim)");
-  } else nnod = nval = 0;
-  if (this->nnod*this->nval != 0) {
-    PYPF_ASSERT(this->nnod==nnod, "cannot change data size (nnod)");
-    PYPF_ASSERT(this->nval==nval, "cannot change data size (nval)");
-  }
-  // copy data
-  this->nnod  = nnod;
-  this->nval  = nval;
-  this->nodedata.resize(nnod*nval);
-  memcpy(&this->nodedata[0], data, nnod*nval*sizeof(double));
-  
-  // base pointer
-  Nodeset::Base* nodedata = *this;
-  // options
-  nodedata->options  = this->options;
-  // nodedata
-  nodedata->ndim     = this->ndim;
-  nodedata->nnod     = this->nnod;
-  nodedata->nu       = this->nval;
-  nodedata->nodedata = &this->nodedata[0];
-}
-
 int
 Nodeset::getSize() const
 {
-  int nnod;
-  this->getDataSize(&nnod, NULL);
-  return nnod;
+  return this->nnod;
 }
 
 void
 Nodeset::getNode(int i, int* n, const double* node[]) const 
 {
-  int nnod, nval; const double* data;
-  this->getData(&nnod, &nval, &data);
+  int nnod, ndim, nval;  this->getSizes(&nnod, &ndim, &nval);
+  const double* data;    this->getArray(&data);
   PYPF_ASSERT(i>=0 && i<nnod, "index out of range");
-  if (n)    *n    = nval;
-  if (data) *node = &data[i*nval];
+  if (n)    *n    = ndim + nval;
+  if (data) *node = &data[i * (ndim + nval)];
 }
 
 void 
 Nodeset::setNode(int i, int n, const double node[])
 {
-  int nnod, nval; const double* nodedata;
-  this->getData(&nnod, &nval, &nodedata);
+  int nnod, ndim, nval;  this->getSizes(&nnod, &ndim, &nval);
+  const double* data;    this->getArray(&data);
   PYPF_ASSERT(i>=0 && i<nnod, "index out of range");
-  PYPF_ASSERT(n==nval || n==this->ndim , "invalid number of values");
-  double* data = const_cast<double*>(&nodedata[i*nval]);
-  for (int k=0; k<n; k++) data[k] = node[k];
+  PYPF_ASSERT(n==ndim || n==(ndim + nval) , "invalid number of dimensions/values");
+  double* array = const_cast<double*>(&data[i * (ndim + nval)]);
+  for (int k=0; k<n; k++) array[k] = node[k];
 }
 
 void
-Nodeset::clear() 
+Nodeset::clear()
 {
   this->options.clear();
   this->nodedata.clear();
   this->nnod = 0;
-  this->nval = 0;
-  this->ndim = 0;
-  
-  // base pointer
-  Nodeset::Base* nodedata = *this;
-  // options
-  nodedata->options  = this->options;
-  // nodedata
-  nodedata->ndim     = this->ndim;
-  nodedata->nnod     = this->nnod;
-  nodedata->nu       = this->nval;
-  nodedata->nodedata = &this->nodedata[0];
+  this->touch();
 }
 
 
@@ -210,18 +179,21 @@ void
 Nodeset::view() const
 {
   int nnod = this->nnod;
-  int nval = this->nval;
   int ndim = this->ndim;
+  int nval = this->nval;
+  int cols = ndim+nval;
   printf("Nodeset Object:\n");
-  printf("  size: nnod=%d, ndim=%d\n", nnod, ndim);
-  printf("  data:");
+  printf("  nnod=%d, ndim=%d, nval=%d\n", nnod, ndim, nval);
   int i=0;
   while (i<nnod) {
-    if (i>0) printf("       "); 
+    printf("  ");
     printf(" %d -> ", i);
-    for (int j=0; j<nval; j++) {
-      if (j>0) printf(", "); 
-      printf("%g", this->nodedata[i*nval+j]);
+    for (int j=0; j<cols; j++) {
+      if (j>0) {
+	if (j == ndim) printf(" - "); 
+	else           printf(", "); 
+      }
+      printf("%g", this->nodedata[i*cols+j]);
     }
     printf("\n");
     i++;

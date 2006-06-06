@@ -1,4 +1,4 @@
-// $Id: Nodeset.h,v 1.1.2.7 2006/06/05 23:54:01 dalcinl Exp $
+// $Id: Nodeset.h,v 1.1.2.8 2006/06/06 15:15:33 dalcinl Exp $
 
 #ifndef PYPF_NODESET_H
 #define PYPF_NODESET_H
@@ -13,24 +13,31 @@ class Nodeset : SMARTPTR(Nodeset)
   public Object
 {
 
+ private:
+  Nodeset();
+  
  protected:
   int nnod, ndim, nval;
   std::vector<double> nodedata;
 
+ protected:
+  void chk_sizes(int nnod, int ndim, int nval) const;
+  void set_sizes(int nnod, int ndim, int nval);
+  void set_array(const double array[]);
+  void touch() const;
+
  public:
   ~Nodeset();
-  Nodeset();
   Nodeset(const Nodeset& nodeset);
+  Nodeset(int nnod, int ndim, int nval=0);
   Nodeset(int nnod, int ndim, const double xnod[]);
-  Nodeset(int ndim, int nnod, int nval, const double data[]);
 
-  int  getDim() const;
-  void setDim(int ndim);
+  void getSizes(int* nnod, int* ndim, int* nval) const;
+  void setSizes(int nnod, int ndim, int nval=0);
+  void getArray(const double* array[]) const;
+  void setArray(const double  array[]);
 
-  void getDataSize(int* nnod, int* nval) const;
-  void getData(int* nnod, int* nval, const double* data[]) const;
-  void setData(int  nnod, int  nval, const double  data[]);
-
+  int  getDim()  const;
   int  getSize() const;
   void getNode(int i, int* n, const double* node[]) const;
   void setNode(int i, int  n, const double  node[]);
