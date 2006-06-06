@@ -1,4 +1,4 @@
-// $Id: DofMap.cpp,v 1.1.2.8 2006/06/05 20:39:06 dalcinl Exp $
+// $Id: DofMap.cpp,v 1.1.2.9 2006/06/06 16:54:04 dalcinl Exp $
 
 #include "DofMap.h"
 
@@ -109,15 +109,15 @@ DofMap::DofMap(Mesh& mesh, Dofset& dofset)
   // add fixations  
   Dofset::FixationList& fixations = dofset.fixations;
   Dofset::FixationList::const_iterator f = fixations.begin();
-  while (f != fixations.end()) this->addFixation(*f++);
+  while (f != fixations.end()) this->add_fixation(*f++);
   // add constraints
   Dofset::ConstraintList& constraints = dofset.constraints;
   Dofset::ConstraintList::const_iterator c = constraints.begin();
-  while (c != constraints.end()) this->addConstraint(*c++);
+  while (c != constraints.end()) this->add_constraint(*c++);
 }
 
 void 
-DofMap::addFixation(const Dofset::Fixation& f)
+DofMap::add_fixation(const Dofset::Fixation& f)
 {
   DofMap& dofmap = *this;
 
@@ -145,7 +145,7 @@ DofMap::addFixation(const Dofset::Fixation& f)
 }
 
 void 
-DofMap::addConstraint(const Dofset::Constraint& constraint)
+DofMap::add_constraint(const Dofset::Constraint& constraint)
 {
   DofMap& dofmap = *this;
   Constraint C;

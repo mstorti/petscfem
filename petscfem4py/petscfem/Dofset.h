@@ -1,4 +1,4 @@
-// $Id: Dofset.h,v 1.1.2.4 2006/05/23 14:51:30 dalcinl Exp $ 
+// $Id: Dofset.h,v 1.1.2.5 2006/06/06 16:52:47 dalcinl Exp $ 
 
 #ifndef PYPF_DOFSET_H
 #define PYPF_DOFSET_H
@@ -59,6 +59,9 @@ public:
   Dofset(int nnod, int ndof);
 
  public:
+  
+  void getSizes(int* nnod, int* ndof) const;
+
   void addFixations(int n,
 		    const int    node[],
 		    const int    field[],
@@ -67,7 +70,7 @@ public:
   void addFixations(int n,
 		    const int    node[],
 		    const int    field[],
-		    const double value[], 
+		    const double value[],
 		    Amplitude*   amplitude);
 
   void addConstraints(int n,
@@ -75,6 +78,8 @@ public:
 		      const int field[],
 		      const double coeff[]);
 
+public:
+  void view() const;
   void clear();
 
 };

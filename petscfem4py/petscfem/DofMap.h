@@ -1,4 +1,4 @@
-// $Id: DofMap.h,v 1.1.2.7 2006/04/27 19:09:17 rodrigop Exp $
+// $Id: DofMap.h,v 1.1.2.8 2006/06/06 16:53:58 dalcinl Exp $
 
 #ifndef PYPF_DOFMAP_H
 #define PYPF_DOFMAP_H
@@ -28,8 +28,8 @@ class DofMap : SMARTPTR(DofMap)
   Dofset::AmplitudeSet ampset;
 
  protected:
-  void addFixation  (const Dofset::Fixation&   fixation);
-  void addConstraint(const Dofset::Constraint& constraint);
+  void add_fixation  (const Dofset::Fixation&   fixation);
+  void add_constraint(const Dofset::Constraint& constraint);
   
  public:
   ~DofMap();

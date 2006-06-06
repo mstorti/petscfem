@@ -1,12 +1,12 @@
-// $Id: Dofset.cpp,v 1.1.2.5 2006/06/05 22:18:18 dalcinl Exp $
+// $Id: Dofset.cpp,v 1.1.2.6 2006/06/06 16:53:02 dalcinl Exp $
 
 #include "Dofset.h"
 
 #include <fem.h>
 #include <dofmap.h>
 
-PYPF_NAMESPACE_BEGIN
 
+PYPF_NAMESPACE_BEGIN
 
 Dofset::~Dofset()
 { 
@@ -49,6 +49,12 @@ Dofset::Dofset(int nnod, int ndof)
   PYPF_ASSERT(this->ndof>=0,  "invalid 'ndof', out of range (ndof<0)");
 }
 
+void
+Dofset::getSizes(int* nnod, int* ndof) const
+{
+  if (nnod) *nnod = this->nnod;
+  if (ndof) *ndof = this->ndof;
+}
 
 void
 Dofset::addFixations(int n, 
@@ -112,6 +118,32 @@ Dofset::addConstraints(int n,
   c.reserve(n);
   for (int i=0; i<n; i++) {
     c.push_back(constraint(node[i], field[i], coeff[i]));
+  }
+}
+
+void
+Dofset::view() const {
+  printf("Dofset Object:\n");
+  printf("  nnod=%d, ndof=%d", this->nnod, this->ndof);
+  printf("  Fixations:\n");
+  FixationList::const_iterator f = this->fixations.begin();
+  while (f != this->fixations.end()) {
+    printf("    %d, %d, %g", f->node, f->field, f->value); 
+    if (f->amp) printf(", amp: %p", (void*)f->amp);
+    printf("\n");
+    f++;
+  }
+  printf("  Constraints:\n");
+  ConstraintList::const_iterator cl = this->constraints.begin();
+  while (cl != this->constraints.end()) {
+    Constraint::const_iterator c = cl->begin();
+    printf("    ");
+    while (c != cl->end()) {
+      printf("%d, %d, %g, ", c->node, c->field, c->coeff); 
+      c++;
+    }
+    printf("\n");
+    cl++;
   }
 }
 
