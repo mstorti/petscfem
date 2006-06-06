@@ -1,5 +1,5 @@
 // -*- c++ -*-
-// $Id: Docs.i,v 1.1.2.7 2006/06/06 15:15:34 dalcinl Exp $
+// $Id: Docs.i,v 1.1.2.8 2006/06/06 15:44:27 dalcinl Exp $
 
 %define %docstring(node,...) 
 #if #__VA_ARGS__ == ""
@@ -20,8 +20,7 @@ namespace std { }
   "$1_name: string value";
 
 %typemap(doc, type="map<string,string>") 
-  std::map<std::string,std::string>,
-  const std::map<std::string,std::string>&
+  std::map<std::string,std::string>, const std::map<std::string,std::string>&
   "$1_name: dict instance";
 
 
@@ -125,18 +124,11 @@ PYPF_NAMESPACE_BEGIN
 %docstring(Mesh);
 %docstring(Mesh::Mesh);
 %docstring(Mesh::getNodeset);
-%docstring(Mesh::setNodeset);
-%docstring(Mesh::getElemset);
-%docstring(Mesh::setElemset);
-%docstring(Mesh::delElemset);
-%docstring(Mesh::addElemset);
 %docstring(Mesh::getSize);
-%docstring(Mesh::clear);
+%docstring(Mesh::getElemset);
 %docstring(Mesh::view);
 %docstring(Mesh::__len__);
 %docstring(Mesh::__getitem__);
-%docstring(Mesh::__setitem__);
-%docstring(Mesh::__delitem__);
 %docstring(Mesh::__iter__, "__iter__(self) -> iterator");
 
 

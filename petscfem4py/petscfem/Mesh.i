@@ -1,5 +1,5 @@
 // -*- c++ -*-
-// $Id: Mesh.i,v 1.1.2.7 2006/04/27 19:09:17 rodrigop Exp $
+// $Id: Mesh.i,v 1.1.2.8 2006/06/06 15:44:27 dalcinl Exp $
 
 
 %include Object.i
@@ -13,6 +13,7 @@ PYPF_NAMESPACE_BEGIN
 PYPF_NAMESPACE_END
 
 
+// special methods
 PYPF_NAMESPACE_BEGIN
 %extend Mesh {
   int __len__() 
@@ -20,10 +21,6 @@ PYPF_NAMESPACE_BEGIN
   %newobject __getitem__;
   Elemset& __getitem__(int i)
     { return self->getElemset(i); }
-  void __setitem__(int i, Elemset& elemset)
-    { self->setElemset(i, elemset); }
-  void __delitem__(int i)
-    { self->delElemset(i); }
   %pythoncode {
   def __iter__(self):
     """__iter__(self) -> iterator"""
@@ -34,10 +31,13 @@ PYPF_NAMESPACE_BEGIN
 PYPF_NAMESPACE_END
 
 
+// properties
 PYPF_NAMESPACE_BEGIN
 %extend Mesh {
   %pythoncode {
-  size = property(getSize, doc='mesh size (number of elemsets)')
+  nodeset = property(getNodeset, doc='nodeset instance')
+  elemsets = property(getNodeset, doc='list of elemset instances')
+  size = property(getSize, doc='number of elemset instances')
   }
 }
 PYPF_NAMESPACE_END
