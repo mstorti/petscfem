@@ -1,4 +1,4 @@
-// $Id: Elemset.h,v 1.1.2.9 2006/06/06 00:10:03 dalcinl Exp $
+// $Id: Elemset.h,v 1.1.2.10 2006/06/07 16:27:51 dalcinl Exp $
 
 #ifndef PYPF_ELEMSET_H
 #define PYPF_ELEMSET_H
@@ -16,7 +16,7 @@ class Elemset : SMARTPTR(Elemset)
   public Object
 {
 
- private:
+ protected:
   Elemset();
   
  protected:

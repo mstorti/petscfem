@@ -1,6 +1,5 @@
 // -*- c++ -*-
-// $Id: tpmaps.i,v 1.1.2.4 2006/06/06 15:45:00 dalcinl Exp $
-
+// $Id: tpmaps.i,v 1.1.2.5 2006/06/07 16:25:32 dalcinl Exp $
 
 // pair of int values
 %typemap(in, numinputs=0, noblock=1) (int*, int*)
@@ -24,6 +23,28 @@ do {
 } while(0)
 %enddef
 
+
+%typemap(in) MPI_Type (void *argp, int res = 0) {
+  res = SWIG_ConvertPtr($input, &argp, $&descriptor, %convertptr_flags);
+  if (!SWIG_IsOK(res)) {
+    PyObject* _swig_this; %get_swig_this($input, &_swig_this);
+    res = SWIG_ConvertPtr(_swig_this, &argp, $&descriptor, %convertptr_flags);
+    Py_XDECREF(_swig_this);
+    if (!SWIG_IsOK(res)) { %argument_fail(res, "$type", $symname, $argnum); }  
+  }
+  if (argp) { $1 = *(%reinterpret_cast(argp, $&ltype));} 
+  /*else    {  %argument_nullref("$type", $symname, $argnum); } */
+}
+
+
+// MPI communicator
+%typemap(arginit, noblock=1) MPI_Comm { $1 = MPI_COMM_NULL; }
+%typemap(typecheck) MPI_Comm = SWIGTYPE;
+%typemap(in) MPI_Comm = MPI_Type;
+%typemap(freearg) MPI_Comm "";
+
+
+
 // PETSc objects
 %define PETSC_OBJECT_TYPEMAP(Type)
 typedef struct _p_##Type* Type;
@@ -35,11 +56,11 @@ typedef struct _p_##Type* Type;
 %typemap(in, noblock=1) Type (void  *argp = 0, int res = 0) {
   res = SWIG_ConvertPtr($input, &argp,$descriptor, $disown | %convertptr_flags);
   if (!SWIG_IsOK(res)) {
-    PyObject* sobj; %get_swig_this($input, &sobj);
-    res = SWIG_ConvertPtr(sobj, &argp,$descriptor, $disown | %convertptr_flags);
-    Py_XDECREF(sobj);
+    PyObject* _swig_this; %get_swig_this($input, &_swig_this);
+    res = SWIG_ConvertPtr(_swig_this, &argp,$descriptor, $disown | %convertptr_flags);
+    Py_XDECREF(_swig_this);
+    if (!SWIG_IsOK(res)) { %argument_fail(res, "$*ltype", $symname, $argnum);}
   }
-  if (!SWIG_IsOK(res)) { %argument_fail(res, "$*ltype", $symname, $argnum);}
   $1 = %reinterpret_cast(argp, $ltype);
 }
 %typemap(freearg) Type "";

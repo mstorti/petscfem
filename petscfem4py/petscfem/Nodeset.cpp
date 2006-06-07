@@ -1,4 +1,4 @@
-// $Id: Nodeset.cpp,v 1.1.2.6 2006/06/06 15:15:34 dalcinl Exp $
+// $Id: Nodeset.cpp,v 1.1.2.7 2006/06/07 16:27:21 dalcinl Exp $
 
 #include "Nodeset.h"
 
@@ -64,7 +64,7 @@ Nodeset::~Nodeset()
 }
 
 Nodeset::Nodeset()
-  : Handle(new Nodeset::Base), 
+  : Handle(new Nodeset::Base),
     Object(),
     nnod(0), ndim(0), nval(0), nodedata()
 { 
@@ -200,37 +200,37 @@ Nodeset::view() const
   }
 }
 
-void 
-Nodeset::sync(int root) {
-  /* test */
-  int size;  MPI_Comm_size(this->comm, &size);
-  if (root < 0 || root >= size) 
-    throw Error("invalid root processor, out of range");
-  else if (size == 1) return; // nothing to do
-  // broadcast sizes
-  int ndsize[3];
-  ndsize[0] = this->nnod;
-  ndsize[1] = this->nval;
-  ndsize[2] = this->ndim;
-  MPI_Bcast(ndsize, 3, MPI_INT, root, this->comm);
-  int nnod = this->nnod = ndsize[0];
-  int nval = this->nval = ndsize[1];
-  int ndim = this->ndim = ndsize[2];
-  // broadcast data
-  int rank; MPI_Comm_rank(this->comm, &rank);
-  if (rank != root) this->nodedata.resize(nnod*nval);
-  double* buff = &this->nodedata[0]; int count = nnod*nval;
-  MPI_Bcast(buff, nnod*nval, MPI_DOUBLE, root, this->comm);
+// void 
+// Nodeset::sync(int root) {
+//   /* test */
+//   int size;  MPI_Comm_size(this->comm, &size);
+//   if (root < 0 || root >= size) 
+//     throw Error("invalid root processor, out of range");
+//   else if (size == 1) return; // nothing to do
+//   // broadcast sizes
+//   int ndsize[3];
+//   ndsize[0] = this->nnod;
+//   ndsize[1] = this->nval;
+//   ndsize[2] = this->ndim;
+//   MPI_Bcast(ndsize, 3, MPI_INT, root, this->comm);
+//   int nnod = this->nnod = ndsize[0];
+//   int nval = this->nval = ndsize[1];
+//   int ndim = this->ndim = ndsize[2];
+//   // broadcast data
+//   int rank; MPI_Comm_rank(this->comm, &rank);
+//   if (rank != root) this->nodedata.resize(nnod*nval);
+//   double* buff = &this->nodedata[0]; int count = nnod*nval;
+//   MPI_Bcast(buff, nnod*nval, MPI_DOUBLE, root, this->comm);
 
-  // base pointer
-  Nodeset::Base* nodedata = *this;
-  // options
-  nodedata->options  = this->options;
-  // nodedata
-  nodedata->nnod     = this->nnod;
-  nodedata->nu       = this->nval;
-  nodedata->ndim     = this->ndim;
-  nodedata->nodedata = &this->nodedata[0];
-}
+//   // base pointer
+//   Nodeset::Base* nodedata = *this;
+//   // options
+//   nodedata->options  = this->options;
+//   // nodedata
+//   nodedata->nnod     = this->nnod;
+//   nodedata->nu       = this->nval;
+//   nodedata->ndim     = this->ndim;
+//   nodedata->nodedata = &this->nodedata[0];
+// }
 
 PYPF_NAMESPACE_END

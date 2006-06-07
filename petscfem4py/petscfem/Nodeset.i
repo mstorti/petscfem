@@ -1,16 +1,25 @@
 // -*- c++ -*-
-// $Id: Nodeset.i,v 1.1.2.5 2006/06/06 15:15:34 dalcinl Exp $
+// $Id: Nodeset.i,v 1.1.2.6 2006/06/07 16:29:46 dalcinl Exp $
 
 
 %include Object.i
 
+%typemap(doc, name="xnod",type="double[]") 
+  (int nnod, int ndim, const double xnod[])
+  "xnod: double[] value)";
 ARRAY_2D(int nnod, int ndim, const double xnod[], ARRAY_INPUT, PyPF_FLOAT)
 ARRAY_TYPECHECK_SEQUENCE((int nnod, int ndim, const double xnod[]), ARRAY_TYPECHECK_FLOAT)
 
+%typemap(doc, name="array",type="double[]") 
+  (int rows, int cols, const double array[])
+  "array: double[] value,";
 ARRAY_2D(int rows, int cols, const double array[], ARRAY_INPUT, PyPF_FLOAT)
 ARRAY_TYPECHECK_SEQUENCE((int rows, int cols, const double array[]), ARRAY_TYPECHECK_FLOAT)
 ARRAY_2D_NEW(int* rows, int* cols, const double* array[], PyPF_FLOAT)
 
+%typemap(doc,name="node",type="double[]") 
+  (int n, const double node[])
+  "node: double[] value";
 ARRAY_FLAT(int n, const double node[], ARRAY_INPUT, PyPF_FLOAT)
 ARRAY_TYPECHECK_SEQUENCE((int n, const double node[]),  ARRAY_TYPECHECK_FLOAT)
 ARRAY_1D_NEW(int* n, const double* node[], PyPF_FLOAT)

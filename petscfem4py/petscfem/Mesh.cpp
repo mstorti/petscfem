@@ -1,4 +1,4 @@
-// $Id: Mesh.cpp,v 1.1.2.9 2006/06/06 15:44:27 dalcinl Exp $
+// $Id: Mesh.cpp,v 1.1.2.10 2006/06/07 16:25:54 dalcinl Exp $
 
 #include "Mesh.h"
 
@@ -54,6 +54,7 @@ Mesh::Mesh(Nodeset& nodeset, const std::vector<Elemset*>& elemsetlist)
   for (int i=0; i<this->elemsetlist.size();
        this->elemsetlist[i++]->incref());
   /* base pointer */ Mesh::Base* mesh = *this;
+  /* options      */ mesh->global_options = this->options;
   /* nodedata     */ mesh->nodedata = *(this->nodeset);
   /* elemset list */ mesh->elemsetlist = 
   /*              */   da_create_len(sizeof(Elemset::Base*),
@@ -62,7 +63,6 @@ Mesh::Mesh(Nodeset& nodeset, const std::vector<Elemset*>& elemsetlist)
   /*              */    Elemset::Base* e = *this->elemsetlist[i];
   /*              */    da_set(mesh->elemsetlist, i, &e);
   /*              */ }
-  /* options      */ mesh->global_options = this->options;
 }
 
 Nodeset&
