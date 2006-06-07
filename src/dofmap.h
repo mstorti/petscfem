@@ -1,6 +1,6 @@
 // -*- mode: c++ -*-
 /*__INSERT_LICENSE__*/
-//$Id: dofmap.h,v 1.21.20.4 2006/05/20 23:12:10 dalcinl Exp $
+//$Id: dofmap.h,v 1.21.20.5 2006/06/07 22:11:15 dalcinl Exp $
  
 #ifndef DOFMAP_H
 #define DOFMAP_H
@@ -46,6 +46,7 @@ private:
 */ 
 class Amplitude {
 public:
+  virtual ~Amplitude() { }
   static Amplitude *factory(char *& label,TextHashTable *tht_=NULL);
   static Amplitude *old_factory(char *& label,FileStack &fstack);
   /// Eval the amplitude of the function at this time. 
