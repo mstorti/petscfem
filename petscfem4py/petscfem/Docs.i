@@ -1,5 +1,5 @@
 // -*- c++ -*-
-// $Id: Docs.i,v 1.1.2.10 2006/06/08 15:44:52 dalcinl Exp $
+// $Id: Docs.i,v 1.1.2.11 2006/06/08 17:10:44 dalcinl Exp $
 
 %define %docstring(node,...) 
 #if #__VA_ARGS__ == ""
@@ -174,6 +174,7 @@ PYPF_NAMESPACE_BEGIN
 %docstring(NvrStks::getSteady);
 %docstring(NvrStks::setAlpha);
 %docstring(NvrStks::setSteady);
+%docstring(NvrStks::operator());
 %docstring(NvrStks::assemble);
 
 
