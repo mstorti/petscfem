@@ -1,5 +1,5 @@
 // -*- c++ -*-
-// $Id: Domain.i,v 1.1.2.4 2006/06/06 17:01:10 dalcinl Exp $ 
+// $Id: Domain.i,v 1.1.2.5 2006/06/08 15:44:52 dalcinl Exp $ 
 
 %include Object.i
 %include Mesh.i
@@ -16,11 +16,23 @@ ARRAY_STDVEC_OUTPUT(std::vector<int>& ldofs, PyPF_INT)
 
 
 PYPF_NAMESPACE_BEGIN
+%newobject Domain::getNodeset;
 %newobject Domain::getDofset;
 %newobject Domain::getMesh;
 %newobject Domain::getDofMap;
 PYPF_NAMESPACE_END
 
+// properties
+PYPF_NAMESPACE_BEGIN
+%extend Domain {
+  %pythoncode {
+  nodeset = property(getNodeset, doc='Nodeset instance')
+  mesh    = property(getMesh,    doc='Mesh instance')
+  dofset  = property(getDofset,  doc='Dofset instance')
+  dofmap  = property(getDofMap,  doc='DofMap instance')
+  }
+}
+PYPF_NAMESPACE_END
 
 %include "Domain.h"
 

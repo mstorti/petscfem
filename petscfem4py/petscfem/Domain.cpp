@@ -1,5 +1,5 @@
 
-// $Id: Domain.cpp,v 1.1.2.5 2006/06/06 17:01:40 dalcinl Exp $
+// $Id: Domain.cpp,v 1.1.2.6 2006/06/08 15:44:52 dalcinl Exp $
 
 #include <algorithm>
 
@@ -18,8 +18,8 @@ PYPF_NAMESPACE_BEGIN
 
 Domain::~Domain() 
 { 
-  PYPF_DECREF(this->mesh);
   PYPF_DECREF(this->dofset);
+  PYPF_DECREF(this->mesh);
   PYPF_DECREF(this->dofmap);
 }
 
@@ -37,8 +37,8 @@ Domain_setUp(const Domain* domain)
 
 Domain::Domain(const Domain& domain)
   : Object(domain),
-    mesh(domain.mesh),
     dofset(domain.dofset),
+    mesh(domain.mesh),
     dofmap(domain.dofmap)
 {
   PYPF_INCREF(this->mesh);
@@ -46,32 +46,43 @@ Domain::Domain(const Domain& domain)
   PYPF_INCREF(this->dofmap);
 }
     
-
-Domain::Domain(Mesh& mesh,
-	       Dofset& dofset)
-  : Object(dofset.getComm()),
-    mesh(&mesh),
-    dofset(&dofset),
-    dofmap(new DofMap(mesh, dofset))
-{
-  PYPF_INCREF(this->mesh);
-  PYPF_INCREF(this->dofset);
-  PYPF_INCREF(this->dofmap);
-  Domain_setUp(this);
-}
-
 Domain::Domain(Nodeset& nodeset,
 	       const std::vector<Elemset*>& elemsets,
 	       Dofset& dofset)
   : Object(dofset.getComm()),
-    mesh(new Mesh(nodeset, elemsets)),
     dofset(&dofset),
+    mesh(new Mesh(nodeset, elemsets)),
     dofmap(new DofMap(*mesh, dofset))
 {
   PYPF_INCREF(this->mesh);
   PYPF_INCREF(this->dofset);
   PYPF_INCREF(this->dofmap);
+
   Domain_setUp(this);
+}
+
+Domain::Domain(Nodeset& nodeset,
+	       const std::vector<Elemset*>& elemsets,
+	       Dofset& dofset, MPI_Comm comm)
+  : Object(comm),
+    dofset(&dofset),
+    mesh(new Mesh(nodeset, elemsets, comm)),
+    dofmap(new DofMap(*mesh, dofset, comm))
+{
+  this->dofset->setComm(comm);
+  
+  PYPF_INCREF(this->mesh);
+  PYPF_INCREF(this->dofset);
+  PYPF_INCREF(this->dofmap);
+
+  Domain_setUp(this);
+}
+
+
+Nodeset&
+Domain::getNodeset() const
+{
+  return this->mesh->getNodeset();
 }
 
 Dofset&

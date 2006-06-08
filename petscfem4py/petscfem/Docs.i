@@ -1,5 +1,5 @@
 // -*- c++ -*-
-// $Id: Docs.i,v 1.1.2.9 2006/06/06 16:51:49 dalcinl Exp $
+// $Id: Docs.i,v 1.1.2.10 2006/06/08 15:44:52 dalcinl Exp $
 
 %define %docstring(node,...) 
 #if #__VA_ARGS__ == ""
@@ -58,16 +58,6 @@ PYPF_NAMESPACE_BEGIN
 %docstring(Object::operator!=);
 
 
-%typemap(doc, name="xnod",type="double[]") 
-  (int nnod, int ndim, const double xnod[])
-  "xnod: double[] value)";
-%typemap(doc, name="array",type="double[]") 
-  (int rows, int cols, const double array[])
-  "array: double[] value,";
-%typemap(doc,name="node",type="double[]") 
-  (int n, const double node[])
-  "node: double[] value";
-
 %doctypemap(Nodeset);
 %docstring(Nodeset);
 %docstring(Nodeset::Nodeset);
@@ -86,13 +76,6 @@ PYPF_NAMESPACE_BEGIN
 %docstring(Nodeset::__setitem__);
 %docstring(Nodeset::__iter__,    "__iter__(self) -> iterator");
 
-
-%typemap(doc,name="elem",type="int[]")
-  (int n, const int elem[])
-  "elem: int[] value";
-%typemap(doc,name="elemdata",type="int[]")
-  (int nelem, int nel, const int icone[])
-  "elemdata: int[] value";
 
 %doctypemap(Elemset);
 %docstring(Elemset);
@@ -115,11 +98,6 @@ PYPF_NAMESPACE_BEGIN
 %docstring(Elemset::__iter__,    "__iter__(self) -> iterator");
 
 
-%typemap(doc, type="list<Elemset>")
-  std::vector<PYPF_NAMESPACE::Elemset*>&,
-  const std::vector<PYPF_NAMESPACE::Elemset*>&
-  "$1_name: list of Elemset instances";
-
 %doctypemap(Mesh);
 %docstring(Mesh);
 %docstring(Mesh::Mesh);
@@ -137,13 +115,6 @@ PYPF_NAMESPACE_BEGIN
 %docstring(Amplitude::Amplitude);
 %docstring(Amplitude::operator());
 
-
-%typemap(doc,name="node, field, value",type="int[], int[], double[]")
-  (int n, const int node[],const int field[],const double value[])
-  "node, field, value: int[], int[], double[] array values";
-%typemap(doc,name="node, field, coeff",type="int[], int[], double[]")
-  (int n, const int node[],const int field[],const double coeff[])
-  "node, field, coeff: int[], int[], double[] array values";
 
 %doctypemap(Dofset);
 %docstring(Dofset);
@@ -173,6 +144,7 @@ PYPF_NAMESPACE_BEGIN
 %doctypemap(Domain);
 %docstring(Domain);
 %docstring(Domain::Domain);
+%docstring(Domain::getNodeset);
 %docstring(Domain::getDofset);
 %docstring(Domain::getMesh);
 %docstring(Domain::getDofMap);
@@ -187,19 +159,6 @@ PYPF_NAMESPACE_BEGIN
 %docstring(Domain::getGhostDofs, "getGhostDofs(self) -> int array[]");
 %docstring(Domain::getLocalDofs, "getLocalDofs(self) -> int array[]");
 
-%typemap(doc,name="state",type="double[]")
-  (int ns, const double state[])
-  "state: double[] array";
-%typemap(doc,name="nodes",type="int[]")
-  (int nn, const int nodes[])
-  "nodes: int[] array";
-%typemap(doc,name="fields",type="int[]")
-  (int nf, const int fields[])
-  "fields: int[] array";
-%typemap(doc,name="values",type="double[]")
-  std::vector<double>& values,
-  (std::pair<int,int>& shape, std::vector<double>& values)
-  "values: double[] array (output)";
 
 %doctypemap(Application);
 %docstring(Application);

@@ -1,4 +1,4 @@
-// $Id: Amplitude.h,v 1.1.2.1 2006/04/27 19:09:17 rodrigop Exp $ 
+// $Id: Amplitude.h,v 1.1.2.2 2006/06/08 15:44:52 dalcinl Exp $ 
 
 #ifndef PYPF_AMPLITUDE_H
 #define PYPF_AMPLITUDE_H
@@ -16,11 +16,26 @@ class Amplitude : SMARTPTR(Amplitude)
   Amplitude(const Amplitude&);
 
  public:
-  virtual ~Amplitude();
-  Amplitude();
+  enum Kind {
+    CONSTANT = 0,
+    TEMPORAL = 1,
+    NODAL    = 2,
+    GENERAL  = 3
+  };
 
  public:
-  virtual double operator()(int node, int field, double time);
+  virtual ~Amplitude();
+  Amplitude(Kind kind=GENERAL);
+
+//  public:
+//   virtual void init();
+//   virtual void clear();
+
+ public:
+  virtual double operator()() = 0;
+  virtual double operator()(double time) = 0;
+  virtual double operator()(int node, int field) = 0;
+  virtual double operator()(int node, int field, double time) = 0;
 
 };
 

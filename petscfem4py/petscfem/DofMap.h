@@ -1,4 +1,4 @@
-// $Id: DofMap.h,v 1.1.2.8 2006/06/06 16:53:58 dalcinl Exp $
+// $Id: DofMap.h,v 1.1.2.9 2006/06/08 15:44:52 dalcinl Exp $
 
 #ifndef PYPF_DOFMAP_H
 #define PYPF_DOFMAP_H
@@ -24,16 +24,17 @@ class DofMap : SMARTPTR(DofMap)
   DofMap(const DofMap& dofmap);
 
  protected:
-  int nnod, ndof;
   Dofset::AmplitudeSet ampset;
 
  protected:
+  void build(const Mesh& mesh, const Dofset& dofset);
   void add_fixation  (const Dofset::Fixation&   fixation);
   void add_constraint(const Dofset::Constraint& constraint);
   
  public:
   ~DofMap();
   DofMap(Mesh& mesh, Dofset& dofset);
+  DofMap(Mesh& mesh, Dofset& dofset, MPI_Comm comm);
 
   int  getSize() const;
   int  getLocalSize() const;

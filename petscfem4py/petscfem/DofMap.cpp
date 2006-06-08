@@ -1,4 +1,4 @@
-// $Id: DofMap.cpp,v 1.1.2.9 2006/06/06 16:54:04 dalcinl Exp $
+// $Id: DofMap.cpp,v 1.1.2.10 2006/06/08 15:44:52 dalcinl Exp $
 
 #include "DofMap.h"
 
@@ -11,11 +11,6 @@ PYPF_NAMESPACE_BEGIN
 
 DofMap::~DofMap() 
 { 
-  Dofset::AmplitudeSet::iterator s = this->ampset.begin();
-  while (s != this->ampset.end()) {
-    Amplitude* amp = *s++; PYPF_DECREF(amp);
-  }
-
   DofMap::Base* dofmap = *this;
   if (dofmap == NULL) return;
 #if 0
@@ -44,19 +39,27 @@ DofMap::~DofMap()
   delete dofmap;
 }
 
+
 DofMap::DofMap(Mesh& mesh, Dofset& dofset)
   : Handle(new DofMap::Base),
     Object(dofset.getComm()),
-    nnod(dofset.nnod),
-    ndof(dofset.ndof),
-    ampset(dofset.amplitude)
-{
-  Dofset::AmplitudeSet::iterator s = this->ampset.begin();
-  while (s != this->ampset.end()) {
-    Amplitude* amp = *s++; PYPF_INCREF(amp);
-  }
+    ampset(dofset.amplitudes)
+{ 
+  this->build(mesh, dofset); 
+}
 
-  DofMap::Base* dofmap   = *this;
+DofMap::DofMap(Mesh& mesh, Dofset& dofset, MPI_Comm comm)
+  : Handle(new DofMap::Base),
+    Object(comm),
+    ampset(dofset.amplitudes)
+{ 
+  this->build(mesh, dofset); 
+}
+
+void 
+DofMap::build(const Mesh& mesh, const Dofset& dofset)
+{
+  DofMap::Base* dofmap = *this;
 
   dofmap->ident         = NULL;
   dofmap->ghost_dofs    = NULL;
@@ -75,16 +78,15 @@ DofMap::DofMap(Mesh& mesh, Dofset& dofset)
   *dofmap->ghost_scatter = PETSC_NULL;
   *dofmap->scatter_print = PETSC_NULL;
 
-  // create idmap
-  int nnod = dofmap->nnod = this->nnod;
-  int ndof = dofmap->ndof = this->ndof;
-  dofmap->id = new idmap(nnod*ndof, NULL_MAP);
-
   // allocation
-  int size, rank;
-  MPI_Comm_size(this->comm, &size);
-  MPI_Comm_rank(this->comm, &rank);
+  int nnod, ndof, size;
+  dofset.getSizes(&nnod,&ndof);
+  MPI_Comm comm = this->getComm();
+  MPI_Comm_size(comm, &size);
+  dofmap->comm      = comm;
   dofmap->size      = size;
+  dofmap->nnod      = nnod;
+  dofmap->ndof      = ndof;
   dofmap->startproc = new int[size+1];
   dofmap->neqproc   = new int[size+1];
   dofmap->tpwgts    = new float[size];
@@ -94,7 +96,8 @@ DofMap::DofMap(Mesh& mesh, Dofset& dofset)
   memset(dofmap->npart,     0, sizeof(int)*nnod);
   for (int i=0; i<size; dofmap->tpwgts[i++] = 1.0/float(size));
 
-  // add nodes
+  // create and fill idmap
+  dofmap->id = new idmap(nnod*ndof, NULL_MAP);
   for (int i=0; i<mesh.getSize(); i++) {
     Elemset& elemset = mesh.getElemset(i);
     int  nelem, nel; const int* icone;
@@ -107,11 +110,11 @@ DofMap::DofMap(Mesh& mesh, Dofset& dofset)
     }
   }
   // add fixations  
-  Dofset::FixationList& fixations = dofset.fixations;
+  const Dofset::FixationList& fixations = dofset.fixations;
   Dofset::FixationList::const_iterator f = fixations.begin();
   while (f != fixations.end()) this->add_fixation(*f++);
   // add constraints
-  Dofset::ConstraintList& constraints = dofset.constraints;
+  const Dofset::ConstraintList& constraints = dofset.constraints;
   Dofset::ConstraintList::const_iterator c = constraints.begin();
   while (c != constraints.end()) this->add_constraint(*c++);
 }
@@ -161,15 +164,14 @@ int
 DofMap::getSize() const
 {
   const DofMap& dofmap = *this;
-  int size; MPI_Comm_size(this->comm, &size);
-  return dofmap->startproc[size];
+  return dofmap->startproc[dofmap->size];
 }
 
 int 
 DofMap::getLocalSize() const
 {
   const DofMap& dofmap = *this;
-  int rank; MPI_Comm_rank(this->comm, &rank);
+  int rank; MPI_Comm_rank(dofmap->comm, &rank);
   const int* range = dofmap->startproc;
   return range[rank+1] - range[rank];
 }
@@ -184,18 +186,18 @@ DofMap::getSizes(int* local, int* global) const
 void
 DofMap::getRange(int* first, int* last) const
 {
-  int rank;
-  MPI_Comm_rank(this->comm, &rank);
   const DofMap& dofmap =*this;
-  if (first) *first = dofmap->startproc[rank];
-  if (last)  *last  = dofmap->startproc[rank+1];
+  int rank; MPI_Comm_rank(dofmap->comm, &rank);
+  const int* range = dofmap->startproc;
+  if (first) *first = range[rank];
+  if (last)  *last  = range[rank+1];
 }
 
 void
 DofMap::getDist(int* size, int* ranges[]) const
 {
   const DofMap& dofmap = *this;
-  if (size)   *size = dofmap->size + 1;
+  if (size)   *size   = dofmap->size + 1;
   if (ranges) *ranges = dofmap->startproc;
 }
 

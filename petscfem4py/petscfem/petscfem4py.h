@@ -1,4 +1,4 @@
-// $Id: petscfem4py.h,v 1.1.2.5 2006/04/27 19:09:18 rodrigop Exp $
+// $Id: petscfem4py.h,v 1.1.2.6 2006/06/08 15:47:59 dalcinl Exp $
 
 #ifndef PYPF_PETSCFEM4PY_H
 #define PYPF_PETSCFEM4PY_H
@@ -9,7 +9,8 @@
 #include "forward.h"
 
 #include "Error.h"
-#include "Base.h"
+#include "SmartPtr.h"
+#include "RefCounter.h"
 
 #endif // PYPF_PETSCFEM4PY_H
 

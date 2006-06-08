@@ -1,5 +1,5 @@
 // -*- c++ -*-
-// $Id: petscfem.i,v 1.1.2.9 2006/05/24 21:41:11 dalcinl Exp $ 
+// $Id: petscfem.i,v 1.1.2.10 2006/06/08 15:48:44 dalcinl Exp $ 
 
 #if 0 // hack for numpy.distutils.command.build_ext
 %module petscfem
@@ -32,7 +32,6 @@
 %include Docs.i
 %include Init.i
 %include Error.i
-%include Base.i
 %include Options.i
 %include Comm.i
 %include Object.i

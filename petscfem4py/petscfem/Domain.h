@@ -1,4 +1,4 @@
-// $Id: Domain.h,v 1.1.2.5 2006/06/06 17:01:31 dalcinl Exp $
+// $Id: Domain.h,v 1.1.2.6 2006/06/08 15:44:52 dalcinl Exp $
 
 #ifndef PYPF_DOMAIN_H
 #define PYPF_DOMAIN_H
@@ -21,25 +21,26 @@ private:
   Domain();
 
 protected:
-  Mesh*   mesh;
   Dofset* dofset;
+  Mesh*   mesh;
   DofMap* dofmap;
   
 public:
   ~Domain();
   Domain(const Domain& domain);
-  Domain(Mesh& mesh,
-	 Dofset& dofset);
   Domain(Nodeset& nodeset,
 	 const std::vector<Elemset*>& elemsets,
 	 Dofset& dofset);
+  Domain(Nodeset& nodeset,
+	 const std::vector<Elemset*>& elemsets,
+	 Dofset& dofset, MPI_Comm comm);
   
-  // Nodeset&              getNodeset() const;
   // std::vector<Elemset*> getElemset() const;
   
-  Dofset& getDofset() const;
-  Mesh&   getMesh()   const;
-  DofMap& getDofMap() const;
+  Nodeset& getNodeset() const;
+  Dofset&  getDofset()  const;
+  Mesh&    getMesh()    const;
+  DofMap&  getDofMap()  const;
 
   int  getDim() const;
   int  getSize() const;

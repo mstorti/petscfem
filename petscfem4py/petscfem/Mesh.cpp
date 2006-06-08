@@ -1,4 +1,4 @@
-// $Id: Mesh.cpp,v 1.1.2.10 2006/06/07 16:25:54 dalcinl Exp $
+// $Id: Mesh.cpp,v 1.1.2.11 2006/06/08 15:44:52 dalcinl Exp $
 
 #include "Mesh.h"
 
@@ -10,12 +10,14 @@ PYPF_NAMESPACE_BEGIN
 
 Mesh::~Mesh() 
 { 
+  // reference counting
   PYPF_DECREF(this->nodeset);
   for (int i=0; i<this->elemsetlist.size(); i++) {
     Elemset* elemset = this->elemsetlist[i];
     PYPF_DECREF(elemset);
   }
-  /* base pointer */ Mesh::Base* mesh = *this;
+  // base object
+  /* pointer      */ Mesh::Base* mesh = *this;
   /*              */ if (mesh == NULL) return;
   /* options      */ mesh->global_options = NULL;
   /* nodedata     */ mesh->nodedata = NULL;
@@ -29,10 +31,12 @@ Mesh::Mesh(const Mesh& msh)
     nodeset(msh.nodeset), 
     elemsetlist(msh.elemsetlist)
 { 
+  // reference counting
   PYPF_INCREF(this->nodeset);
   for (int i=0; i<this->elemsetlist.size();
        this->elemsetlist[i++]->incref());
-  /* base pointer */ Mesh::Base* mesh = *this;
+  // base object
+  /* pointer      */ Mesh::Base* mesh = *this;
   /* options      */ mesh->global_options = this->options;
   /* nodedata     */ mesh->nodedata = *(this->nodeset);
   /* elemset list */ mesh->elemsetlist = 
@@ -44,16 +48,19 @@ Mesh::Mesh(const Mesh& msh)
   /*              */ }
 }
 
-Mesh::Mesh(Nodeset& nodeset, const std::vector<Elemset*>& elemsetlist)
+Mesh::Mesh(Nodeset& nodeset, 
+	   const std::vector<Elemset*>& elemsetlist)
   : Handle(new Mesh::Base), 
     Object(nodeset.getComm()),
     nodeset(&nodeset),
     elemsetlist(elemsetlist)
 { 
+  // reference counting
   PYPF_INCREF(this->nodeset);
   for (int i=0; i<this->elemsetlist.size();
        this->elemsetlist[i++]->incref());
-  /* base pointer */ Mesh::Base* mesh = *this;
+  // base object
+  /* pointer      */ Mesh::Base* mesh = *this;
   /* options      */ mesh->global_options = this->options;
   /* nodedata     */ mesh->nodedata = *(this->nodeset);
   /* elemset list */ mesh->elemsetlist = 
@@ -64,6 +71,36 @@ Mesh::Mesh(Nodeset& nodeset, const std::vector<Elemset*>& elemsetlist)
   /*              */    da_set(mesh->elemsetlist, i, &e);
   /*              */ }
 }
+
+Mesh::Mesh(Nodeset& nodeset, 
+	   const std::vector<Elemset*>& elemsetlist, 
+	   MPI_Comm comm)
+  : Handle(new Mesh::Base), 
+    Object(comm),
+    nodeset(&nodeset),
+    elemsetlist(elemsetlist)
+{ 
+  // set communicator
+  this->nodeset->setComm(comm);
+  for (int i=0; i<this->elemsetlist.size();
+       this->elemsetlist[i++]->setComm(comm));
+  // reference counting
+  PYPF_INCREF(this->nodeset);
+  for (int i=0; i<this->elemsetlist.size();
+       this->elemsetlist[i++]->incref());
+  // base object
+  /* pointer      */ Mesh::Base* mesh = *this;
+  /* options      */ mesh->global_options = this->options;
+  /* nodedata     */ mesh->nodedata = *(this->nodeset);
+  /* elemset list */ mesh->elemsetlist = 
+  /*              */   da_create_len(sizeof(Elemset::Base*),
+  /*              */	             this->elemsetlist.size());
+  /*              */ for (int i=0; i<this->elemsetlist.size(); i++) {
+  /*              */    Elemset::Base* e = *this->elemsetlist[i];
+  /*              */    da_set(mesh->elemsetlist, i, &e);
+  /*              */ }
+}
+
 
 Nodeset&
 Mesh::getNodeset() const

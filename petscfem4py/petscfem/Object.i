@@ -1,9 +1,9 @@
 // -*- c++ -*-
-// $Id: Object.i,v 1.1.2.4 2006/04/27 19:09:17 rodrigop Exp $
+// $Id: Object.i,v 1.1.2.5 2006/06/08 15:44:52 dalcinl Exp $
 
 namespace std { }
-%template() std::pair<std::string, std::string>;
-%template() std::map<std::string, std::string>;
+%template() std::pair <std::string, std::string>;
+%template() std::map  <std::string, std::string>;
 
 PYPF_NAMESPACE_BEGIN
 %feature("ref")   Object "$this->incref();"
@@ -17,15 +17,14 @@ PYPF_NAMESPACE_BEGIN
 %ignore Object::incref;
 %ignore Object::decref;
 PYPF_NAMESPACE_END
-  
-// PYPF_NAMESPACE_BEGIN
-// %feature("pythonprepend") Object::setOption
-// %{args = (args[0], args[1], str(args[2]))%}
 
-// %feature("pythonprepend") Object::setOptions
-// %{args = (args[0], dict((k, str(v)) for k, v in args[1].iteritems()))%}
-// PYPF_NAMESPACE_END
 
+PYPF_NAMESPACE_BEGIN
+%extend Object {
+  Comm getComm() { return self->getComm(); }
+  %ignore getComm;
+}
+PYPF_NAMESPACE_END
 
 PYPF_NAMESPACE_BEGIN
 %extend Object {

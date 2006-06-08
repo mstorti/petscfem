@@ -1,4 +1,4 @@
-// $Id: Object.cpp,v 1.1.2.6 2006/06/05 22:22:55 dalcinl Exp $
+// $Id: Object.cpp,v 1.1.2.7 2006/06/08 15:44:52 dalcinl Exp $
 
 #include "Object.h"
 
@@ -11,7 +11,7 @@ PYPF_NAMESPACE_BEGIN
 using namespace std;
 
 Object::~Object() 
-{ }
+{ this->comm = MPI_COMM_NULL; }
 
 Object::Object()
   : RefCounter(),
@@ -28,17 +28,10 @@ Object::Object(MPI_Comm comm)
     comm(comm), options()
 { }
 
-Comm
+MPI_Comm
 Object::getComm() const
 {
   return this->comm;
-}
-
-void
-Object::setComm(const Comm& comm)
-{
-  PYPF_ASSERT((MPI_Comm)comm!=MPI_COMM_NULL, "cannot set null communicator");
-  this->comm = comm;
 }
 
 void

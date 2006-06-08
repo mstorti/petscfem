@@ -1,5 +1,5 @@
 // -*- c++ -*-
-// $Id: Comm.i,v 1.1.2.1 2006/04/27 19:09:17 rodrigop Exp $
+// $Id: Comm.i,v 1.1.2.2 2006/06/08 15:44:52 dalcinl Exp $
 
 
 PYPF_NAMESPACE_BEGIN
@@ -14,9 +14,8 @@ PYPF_NAMESPACE_END
 PYPF_NAMESPACE_BEGIN
 %extend Comm {
   MPI_Comm& getComm() { return *self; }
-  void      setComm(MPI_Comm comm) { *self = comm; }
   %pythoncode {
-  comm = property(getComm, setComm,  doc='MPI handle')
+  comm = property(getComm, doc='MPI handle (MPI_Comm)')
   size = property(getSize, doc='communicator size')
   rank = property(getRank, doc='communicator rank')
   }

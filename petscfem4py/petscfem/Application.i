@@ -1,5 +1,5 @@
 // -*- c++ -*-
-// $Id: Application.i,v 1.1.2.3 2006/06/05 20:40:02 dalcinl Exp $
+// $Id: Application.i,v 1.1.2.4 2006/06/08 15:44:52 dalcinl Exp $
 
 %include Domain.i
 
@@ -31,6 +31,21 @@ ARRAY_STDVEC_OUTPUT(std::vector<double>& values,  PyPF_FLOAT)
   ARRAY_arg_fail($symname, $argnum);
   %append_output(o);
 }
+
+
+%typemap(doc,name="state",type="double[]")
+  (int ns, const double state[])
+  "state: double[] array";
+%typemap(doc,name="nodes",type="int[]")
+  (int nn, const int nodes[])
+  "nodes: int[] array";
+%typemap(doc,name="fields",type="int[]")
+  (int nf, const int fields[])
+  "fields: int[] array";
+%typemap(doc,name="values",type="double[]")
+  std::vector<double>& values,
+  (std::pair<int,int>& shape, std::vector<double>& values)
+  "values: double[] array (output)";
 
 PYPF_NAMESPACE_BEGIN
 

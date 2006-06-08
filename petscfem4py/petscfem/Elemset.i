@@ -1,9 +1,12 @@
 // -*- c++ -*-
-// $Id: Elemset.i,v 1.1.2.6 2006/04/27 19:09:17 rodrigop Exp $
+// $Id: Elemset.i,v 1.1.2.7 2006/06/08 15:44:52 dalcinl Exp $
 
 
 %include Object.i
 
+%typemap(doc,name="elem",type="int[]")
+  (int n, const int elem[])
+  "elem: int[] value";
 ARRAY_FLAT(int n, const int elem[],
 	   ARRAY_INPUT, PyPF_INT)
 ARRAY_TYPECHECK_SEQUENCE((int n, const int elem[]), 
@@ -11,13 +14,22 @@ ARRAY_TYPECHECK_SEQUENCE((int n, const int elem[]),
 ARRAY_1D_NEW(int* n, int* elem[], PyPF_INT)
 
 
+%typemap(doc,name="elemdata",type="int[]")
+  (int nelem, int nel, const int icone[])
+  "elemdata: int[] value";
 ARRAY_2D(int nelem, int nel, const int icone[],
 	 ARRAY_INPUT, PyPF_INT)
 ARRAY_TYPECHECK_SEQUENCE((int nelem, int nel, const int icone[]),
 			 ARRAY_TYPECHECK_INT32)
 ARRAY_2D_NEW(int* nelem, int* nel, const int* icone[], PyPF_INT)
 
+
 ARRAY_1D_NEW(int* n, int* part[], PyPF_INT)
+
+%typemap(doc, type="list<Elemset>")
+  std::vector<PYPF_NAMESPACE::Elemset*>&,
+  const std::vector<PYPF_NAMESPACE::Elemset*>&
+  "$1_name: list of Elemset instances";
 
 %template() std::vector<PYPF_NAMESPACE::Elemset*>;
 %typemap(check, noblock=1) 

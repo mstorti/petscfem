@@ -1,4 +1,4 @@
-// $Id: Dofset.cpp,v 1.1.2.6 2006/06/06 16:53:02 dalcinl Exp $
+// $Id: Dofset.cpp,v 1.1.2.7 2006/06/08 15:44:52 dalcinl Exp $
 
 #include "Dofset.h"
 
@@ -9,18 +9,13 @@
 PYPF_NAMESPACE_BEGIN
 
 Dofset::~Dofset()
-{ 
-  AmplitudeSet::iterator s = this->amplitude.begin();
-  while (s != this->amplitude.end()) { 
-    Amplitude* amp = *s++; PYPF_DECREF(amp);
-  }
-}
+{ }
 
 Dofset::Dofset()
   : Object(),
     nnod(0), ndof(0),
-    amplitude(),
     fixations(),
+    amplitudes(),
     constraints()
 { }
 
@@ -28,25 +23,77 @@ Dofset::Dofset()
 Dofset::Dofset(const Dofset& dofset)
   : Object(dofset),
     nnod(dofset.nnod), ndof(dofset.ndof),
-    amplitude(dofset.amplitude),
     fixations(dofset.fixations),
+    amplitudes(dofset.amplitudes),
     constraints(dofset.constraints)
-{ 
-  AmplitudeSet::const_iterator s = this->amplitude.begin();
-  while (s != this->amplitude.end()) {
-    const Amplitude* amp = *s++; PYPF_INCREF(amp);
-  }
-}
+{ }
 
 Dofset::Dofset(int nnod, int ndof)
   :  Object(),
      nnod(nnod), ndof(ndof),
-     amplitude(),
      fixations(),
+     amplitudes(),
      constraints()
 { 
-  PYPF_ASSERT(this->nnod>=0,  "invalid 'nnod', out of range (nnod<0)");
-  PYPF_ASSERT(this->ndof>=0,  "invalid 'ndof', out of range (ndof<0)");
+  this->chk_sizes(nnod, ndof); 
+}
+
+Dofset::Dofset(int nnod, int ndof, MPI_Comm comm)
+  :  Object(comm),
+     nnod(nnod), ndof(ndof),
+     fixations(),
+     amplitudes(),
+     constraints()
+{ 
+  this->chk_sizes(nnod, ndof); 
+}
+
+void
+Dofset::chk_sizes(int nnod, int ndof)
+{
+  PYPF_ASSERT(nnod>=0,  "invalid 'nnod', out of range (nnod<0)");
+  PYPF_ASSERT(ndof>=0,  "invalid 'ndof', out of range (ndof<0)");
+}
+
+void
+Dofset::chk_fixa(int n, int f, double v)
+{
+  int nnod = this->nnod;
+  int ndof = this->ndof;
+  PYPF_ASSERT(n>=0,    "invalid node, out of range (node<0)");
+  PYPF_ASSERT(n<nnod,  "invalid node, out of range (node>=nnod)");
+  PYPF_ASSERT(f>=0,    "invalid field, out of range (field<0)");
+  PYPF_ASSERT(f<ndof,  "invalid field, out of range (field>=ndof)");
+  PYPF_ASSERT(!(v!=v), "invalid value, not a number (NaN)");
+}
+
+void
+Dofset::chk_fixa(int n, 
+		 const int    node[],
+		 const int    field[],
+		 const double value[]) 
+{
+  for (int i=0; i<n; i++)  
+    this->chk_fixa(node[i], field[i], value[i]);
+}
+
+void
+Dofset::add_fixa(int n, int f, double v, Amplitude::Base* a)
+{
+  this->fixations.push_back(Fixation(n, f, v, a));
+}
+
+void
+Dofset::add_fixa(int n, 
+		 const int    node[],
+		 const int    field[],
+		 const double value[],
+		 Amplitude::Base* a)
+{
+  if (n == 0) return;
+  this->fixations.reserve(this->fixations.size() + n);
+  for (int i=0; i<n; i++)
+    this->add_fixa(node[i], field[i], value[i], a);
 }
 
 void
@@ -57,40 +104,25 @@ Dofset::getSizes(int* nnod, int* ndof) const
 }
 
 void
-Dofset::addFixations(int n, 
-		     const int    node[], 
+Dofset::addFixations(int n,
+		     const int    node[],
 		     const int    field[],
 		     const double value[])
 {
-  this->addFixations(n, node, field, value, NULL);
+  this->chk_fixa(n, node, field, value);
+  this->add_fixa(n, node, field, value);
 }
 
 void
-Dofset::addFixations(int n, 
-		     const int    node[], 
+Dofset::addFixations(int n,
+		     const int    node[],
 		     const int    field[],
-		     const double value[], 
-		     Amplitude* amplitude)
+		     const double value[],
+		     Amplitude& amplitude)
 {
-  if (n == 0) return;
-  int nnod = this->nnod;
-  int ndof = this->ndof;
-  for (int i=0; i<n; i++) {
-    PYPF_ASSERT(node[i]>=0,    "invalid node, out of range (node<0)");
-    PYPF_ASSERT(node[i]<nnod,  "invalid node, out of range (node>=nnod)");
-    PYPF_ASSERT(field[i]>=0,   "invalid field, out of range (field<0)");
-    PYPF_ASSERT(field[i]<ndof, "invalid field, out of range (field>=ndof)");
-  }
-
-  Amplitude::Base* amp = NULL;
-  if (amplitude != NULL) {
-    if (this->amplitude.insert(amplitude).second) PYPF_INCREF(amplitude);
-    amp = *amplitude;
-  }
-  this->fixations.reserve(this->fixations.size() + n);
-  for (int i=0; i<n; i++) {
-    this->fixations.push_back(Fixation(node[i], field[i], value[i], amp));
-  }
+  this->chk_fixa(n, node, field, value);
+  this->add_fixa(n, node, field, value, amplitude);
+  this->amplitudes.add(&amplitude);
 }
 
 
@@ -150,12 +182,8 @@ Dofset::view() const {
 void
 Dofset::clear()
 {
-  AmplitudeSet::iterator s = this->amplitude.begin();
-  while (s != this->amplitude.end()) { 
-    Amplitude* amp = *s++; PYPF_DECREF(amp);
-  }
-  this->amplitude.clear();
   this->fixations.clear();
+  this->amplitudes.clear();
   this->constraints.clear();
 }
 

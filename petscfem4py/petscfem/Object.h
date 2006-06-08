@@ -1,4 +1,4 @@
-// $Id: Object.h,v 1.1.2.7 2006/06/05 16:02:42 dalcinl Exp $
+// $Id: Object.h,v 1.1.2.8 2006/06/08 15:44:52 dalcinl Exp $
 
 #ifndef PYPF_OBJECT_H
 #define PYPF_OBJECT_H
@@ -8,7 +8,6 @@
 #include <mpi.h>
 #include "petscfem4py.h"
 #include "Options.h"
-#include "Comm.h"
 
 PYPF_NAMESPACE_BEGIN
 
@@ -34,13 +33,12 @@ public:
   bool operator==(const Object& obj) const { return this == &obj; }
   bool operator!=(const Object& obj) const { return this != &obj; }
 
-  // communicator
+  // MPI communicator
 protected:
   MPI_Comm comm;
 public:
-  Comm getComm() const;
-  void setComm(const Comm& comm);
-  void setComm(MPI_Comm comm);
+  MPI_Comm getComm() const;
+  void     setComm(MPI_Comm comm);
 
   // options management
 protected:
