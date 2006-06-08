@@ -1,9 +1,11 @@
-// $Id: ArgList.h,v 1.1.2.1 2006/05/30 20:13:05 dalcinl Exp $
+// $Id: ArgList.h,v 1.1.2.2 2006/06/08 16:14:21 dalcinl Exp $
 
 #ifndef PYPF_ARGLIST_H
 #define PYPF_ARGLIST_H
 
-#include "petscfem4py.h"
+#include "namespace.h"
+#include "forward.h"
+#include "SmartPtr.h"
 
 PYPF_NAMESPACE_BEGIN
 
