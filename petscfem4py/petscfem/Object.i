@@ -1,5 +1,8 @@
 // -*- c++ -*-
-// $Id: Object.i,v 1.1.2.5 2006/06/08 15:44:52 dalcinl Exp $
+// $Id: Object.i,v 1.1.2.6 2006/06/09 14:23:32 dalcinl Exp $
+
+%include Options.i
+%include Comm.i
 
 namespace std { }
 %template() std::pair <std::string, std::string>;

@@ -1,6 +1,9 @@
 // -*- c++ -*-
-// $Id: Comm.i,v 1.1.2.2 2006/06/08 15:44:52 dalcinl Exp $
+// $Id: Comm.i,v 1.1.2.3 2006/06/09 14:23:18 dalcinl Exp $
 
+%header %{
+#include "Comm.h"
+%}
 
 PYPF_NAMESPACE_BEGIN
 %ignore Comm::operator=;
