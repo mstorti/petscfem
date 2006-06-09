@@ -4633,3 +4633,6 @@ tag: beta-3.49.52 on Sat, 13 May 2006 18:12:58 -0300 by mstorti in spider
 tag: beta-3.49.53 on Wed, 07 Jun 2006 15:14:58 -0300 by mstorti in aquiles
      > Work around for `iisdmat_print_statistics' (never call 
      > on fractional step solver. 
+----------
+tag: beta-3.49.54 on Fri, 09 Jun 2006 19:07:55 -0300 by mstorti in aquiles
+     > Fixed bug with `iisdmat_print_statistics'. 
