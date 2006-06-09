@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: ns_fsi.cpp,v 1.6 2006/06/07 18:14:26 mstorti Exp $
+//$Id: ns_fsi.cpp,v 1.7 2006/06/09 18:04:33 mstorti Exp $
 #include <src/debug.h>
 #include <malloc.h>
 
@@ -354,23 +354,24 @@ int fsi_main() {
     } else {
       if (fractional_step_solver_combo=="iisd") {
 	// IISD (Domain decomposition) iteration
+#define IISDMAT_PRINT_STATISTICS "1"
 	A_mom = PFMat::dispatch(dofmap->neq,*dofmap,"iisd");
 	A_mom->set_option("preco_type","jacobi");
 	A_mom->set_option("print_internal_loop_conv","1");
-	A_mom->set_option("iisdmat_print_statistics",0);
-	A_mom->set_option("use_interface_full_preco_nlay",1);
+	A_mom->set_option("iisdmat_print_statistics",IISDMAT_PRINT_STATISTICS);
+	A_mom->set_option("use_interface_full_preco_nlay","1");
 	A_poi = PFMat::dispatch(dofmap->neq,*dofmap,"iisd");
 	A_poi->set_option("preco_type","jacobi");
 	A_poi->set_option("print_internal_loop_conv","1");
 	A_poi->set_option("block_uploading","0");
-	A_poi->set_option("iisdmat_print_statistics",0);
-	A_poi->set_option("use_interface_full_preco_nlay",1);
+	A_poi->set_option("iisdmat_print_statistics",IISDMAT_PRINT_STATISTICS);
+	A_poi->set_option("use_interface_full_preco_nlay","1");
 	A_prj = PFMat::dispatch(dofmap->neq,*dofmap,"iisd");
 	A_prj->set_option("preco_type","jacobi");
 	A_prj->set_option("print_internal_loop_conv","1");
 	A_prj->set_option("block_uploading","0");
-	A_prj->set_option("iisdmat_print_statistics",0);
-	A_prj->set_option("use_interface_full_preco_nlay",1);
+	A_prj->set_option("iisdmat_print_statistics",IISDMAT_PRINT_STATISTICS);
+	A_prj->set_option("use_interface_full_preco_nlay","1");
 
       } else if (fractional_step_solver_combo=="global_gmres") {
 
@@ -396,8 +397,8 @@ int fsi_main() {
 	A_poi->set_option("preco_type","jacobi");
 	A_poi->set_option("print_internal_loop_conv","1");
 	A_poi->set_option("block_uploading","0");
-	A_poi->set_option("iisdmat_print_statistics",0);
-	// A_poi->set_option("use_interface_full_preco_nlay",1);
+	A_poi->set_option("iisdmat_print_statistics",IISDMAT_PRINT_STATISTICS);
+	// A_poi->set_option("use_interface_full_preco_nlay","1");
 #endif
 	// A_prj = PFMat::dispatch(dofmap->neq,*dofmap,"petsc");
 	A_prj = PFMat::dispatch(dofmap->neq,*dofmap,"petsc_symm");

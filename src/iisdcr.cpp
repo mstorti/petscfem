@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: iisdcr.cpp,v 1.59 2006/06/07 18:14:26 mstorti Exp $
+//$Id: iisdcr.cpp,v 1.60 2006/06/09 18:04:36 mstorti Exp $
 
 // fixme:= this may not work in all applications
 extern int MY_RANK,SIZE;
@@ -127,7 +127,6 @@ int IISDMat::create_a() {
   //o Print dof statistics, number of dofs local and interface in each
   // processor. 
   TGETOPTDEF(&thash,int,iisdmat_print_statistics,0);
-
   // lgraph->print();
   // Scatter the profile graph
   lgraph->scatter();
@@ -533,15 +532,11 @@ int IISDMat::create_a() {
 
   if (iisdmat_print_statistics) {
     if (!myrank) printf("IISDMat -- dof statistics:\n");
-    // printf("[%d] iisd_subpart_auto: %d\n",myrank,iisd_subpart_auto);
-    GLOBAL_DEBUG->trace("iisdcr: 0");
     if (iisd_subpart_auto && !myrank) 
       printf( "-- Automatically choosing number of subdomains"
 	      " with iisd_subpart_auto %d\n",iisd_subpart_auto);
     int nsubdos;
-    GLOBAL_DEBUG->trace("iisdcr: 1");
     MPI_Allreduce(&iisd_subpart,&nsubdos,1,MPI_INT,MPI_SUM, comm);
-    GLOBAL_DEBUG->trace("iisdcr: 2");
 
     PetscPrintf(comm,
 		"total %d, local %d, int %d, subdo's\n",neq,n_loc_tot,n_int_tot);
@@ -554,7 +549,6 @@ int IISDMat::create_a() {
     PetscSynchronizedFlush(comm); 
     PetscPrintf(comm,"---\n"); 
   }
-  GLOBAL_DEBUG->trace("iisdcr: 3");
 
 #ifdef PRINT_LOCAL_INT_PARTITION_TABLE
   if (myrank==0) {
@@ -632,7 +626,6 @@ int IISDMat::create_a() {
   }
 #endif
 
-  GLOBAL_DEBUG->trace("iisdcr: 4");
   // Now we have to construct the `d_nnz' and `o_nnz' vectors
   // od:= may be `D' (0) or `I' (1). Diagonal or off-diagonal (in the
   // PETSc sense)
