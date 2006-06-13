@@ -4636,3 +4636,6 @@ tag: beta-3.49.53 on Wed, 07 Jun 2006 15:14:58 -0300 by mstorti in aquiles
 ----------
 tag: beta-3.49.54 on Fri, 09 Jun 2006 19:07:55 -0300 by mstorti in aquiles
      > Fixed bug with `iisdmat_print_statistics'. 
+----------
+tag: beta-3.49.55 on Tue, 13 Jun 2006 10:56:24 -0300 by mstorti in minerva.ceride.gov.ar
+     > Takes into account mesh velocity in order to compute stabilization terms. 
