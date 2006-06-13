@@ -1,6 +1,6 @@
 // -*- mode: C++ -*-
 /*__INSERT_LICENSE__*/
-// $Id: gasflow.h,v 1.30 2005/08/24 01:52:49 mstorti Exp $
+// $Id: gasflow.h,v 1.31 2006/06/13 22:31:54 mstorti Exp $
 #ifndef PETSCFEM_GASFLOW_H
 #define PETSCFEM_GASFLOW_H
 
@@ -29,6 +29,7 @@ private:
   FastMat2 dviscodU,grad_U_norm_c,vel_beta,Gamma_i;
   FastMat2 r_dir,r_dir_aux,grad_velmod;
   FastMat2 grad_U_norm;
+  FastMat2 tmp_P_supg_ALE_1,tmp_P_supg_ALE_2;
 
   double rho,p,visco,visco_t,visco_eff,cond,cond_t,cond_eff,Tem;
   double tau_fac,temporal_stability_factor;
