@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: advdife.cpp,v 1.111 2006/04/24 19:30:42 mstorti Exp $
+//$Id: advdife.cpp,v 1.112 2006/06/13 13:56:09 mstorti Exp $
 extern int comp_mat_each_time_step_g,
   consistent_supg_matrix_g,
   local_time_step_g;
@@ -208,7 +208,8 @@ void NewAdvDif::new_assemble(arg_data_list &arg_data_v,const Nodedata *nodedata,
   // the area section of the tube. Its gradient is needed for the
   // source term in the momentum eqs.
   int nH = nu-ndim;
-  FMatrix  Hloc(nel,nH),H(nH),vloc_mesh(nel,ndim),v_mesh(ndim);
+  //  FMatrix  Hloc(nel,nH),H(nH),vloc_mesh(nel,ndim),v_mesh(ndim);
+  FMatrix  Hloc(nel,nH),H(nH),vloc_mesh(nel,ndim);
   //  FastMat2 v_mesh;
 
   if(nnod!=nodedata->nnod) {
@@ -459,6 +460,8 @@ void NewAdvDif::new_assemble(arg_data_list &arg_data_v,const Nodedata *nodedata,
   // Position of current element in elemset and in chunk
   int k_elem, k_chunk;
 
+  v_mesh.resize(1,ndim);
+
   Uo.resize(1,ndof);
   Id_ndof.set(0.);
   for (int j=1; j<=ndof; j++) Id_ndof.setel(1.,j,j);
@@ -499,6 +502,9 @@ void NewAdvDif::new_assemble(arg_data_list &arg_data_v,const Nodedata *nodedata,
     mass.set(0.);
     lmass.set(0.);
     matlocf.set(0.);
+
+    v_mesh.set(0.);
+
     if (lumped_mass) matlocf_mass.set(0.);
 
 #define DSHAPEXI (*gp_data.FM2_dshapexi[ipg])
@@ -559,12 +565,6 @@ void NewAdvDif::new_assemble(arg_data_list &arg_data_v,const Nodedata *nodedata,
       assert(indx_ALE_xold >= nH+1-ndim);
       Hloc.is(2,indx_ALE_xold,indx_ALE_xold+ndim-1);
       vloc_mesh.set(xloc).rest(Hloc).scale(rec_Dt_m*ALPHA).rs();
-#if 0
-      double vmesh = vloc_mesh.norm_p_all()/nel;
-      if (rand()%1000==0) {
-	printf("elem %d, vmesh %f\n",k_elem,vmesh);
-      }
-#endif
       Hloc.rs();
     }
 
@@ -594,6 +594,9 @@ void NewAdvDif::new_assemble(arg_data_list &arg_data_v,const Nodedata *nodedata,
 	grad_U_norm.prod(dshapex,true_lstate_abs,1,-1,-1,2);
 
 	adv_diff_ff->set_state(Uo,grad_Uo);
+
+	if (ALE_flag) v_mesh.prod(SHAPE_LOW,vloc_mesh,-1,-1,1);
+
 	adv_diff_ff->compute_flux(Uo,iJaco_low,H,grad_H,flux,fluxd,
 				  A_grad_U,grad_Uo,G_source,
 				  tau_supg,delta_sc_old,
@@ -613,6 +616,7 @@ void NewAdvDif::new_assemble(arg_data_list &arg_data_v,const Nodedata *nodedata,
 	grad_U.prod(dshapex,true_lstate,1,-1,-1,2);
 
 	adv_diff_ff->set_state(U,grad_U);
+
 	adv_diff_ff->compute_flux(U,iJaco_low,H,grad_H,flux,fluxd,
 				  A_grad_U,grad_U,G_source,
 				  tau_supg,delta_sc_old,
@@ -621,7 +625,7 @@ void NewAdvDif::new_assemble(arg_data_list &arg_data_v,const Nodedata *nodedata,
 	adv_diff_ff->comp_A_grad_N(A_grad_N,dshapex);
 	
 	if (ALE_flag) {
-	  v_mesh.prod(SHAPE_LOW,vloc_mesh,-1,-1,1);
+	  //	  v_mesh.prod(SHAPE_LOW,vloc_mesh,-1,-1,1);
 	  adv_diff_ff->get_Cp(Cp_bis);
 	  tmp_ALE_01.prod(v_mesh,dshapex,-1,-1,1);
 	  tmp_ALE_02.prod(v_mesh,grad_U,-1,-1,1);
@@ -808,6 +812,9 @@ void NewAdvDif::new_assemble(arg_data_list &arg_data_v,const Nodedata *nodedata,
 	adv_diff_ff->set_state(Uo,grad_Uo); // fixme:= ojo que le pasamos
 					   // grad_U (y no grad_Uold) ya que
 					   // no nos interesa la parte difusiva
+
+	if (ALE_flag) v_mesh.prod(SHAPE,vloc_mesh,-1,-1,1);
+
 	adv_diff_ff->compute_flux(Uo,iJaco,H,grad_H,flux,fluxd,
 				  A_grad_U,grad_Uo,G_source,
 				  tau_supg,delta_sc_old,
@@ -948,7 +955,7 @@ void NewAdvDif::new_assemble(arg_data_list &arg_data_v,const Nodedata *nodedata,
 
 	// add ALE Galerkin terms
 	if (ALE_flag) {
-	  v_mesh.prod(SHAPE,vloc_mesh,-1,-1,1);
+	  //	  v_mesh.prod(SHAPE,vloc_mesh,-1,-1,1);
 	  adv_diff_ff->get_Cp(Cp_bis);
 	  tmp_ALE_01.prod(v_mesh,dshapex,-1,-1,1);
 	  tmp_ALE_02.prod(v_mesh,grad_U,-1,-1,1);
@@ -1324,6 +1331,8 @@ void NewAdvDif::new_assemble(arg_data_list &arg_data_v,const Nodedata *nodedata,
       }
       */
 
+
+
       veccontr.export_vals(element.ret_vector_values(*retval));
 #ifdef CHECK_JAC
       veccontr.export_vals(element.ret_fdj_values(*fdj_jac));
@@ -1335,7 +1344,7 @@ void NewAdvDif::new_assemble(arg_data_list &arg_data_v,const Nodedata *nodedata,
     } else if (comp_prof) {
       matlocf.export_vals(element.ret_mat_values(*jac_prof));
     }
-    
+
   } catch (GenericError e) {
     set_error(1);
     return;

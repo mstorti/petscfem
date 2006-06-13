@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: gasflow.cpp,v 1.40 2005/08/18 23:31:10 mstorti Exp $
+//$Id: gasflow.cpp,v 1.41 2006/06/13 13:56:10 mstorti Exp $
 
 #include <src/fem.h>
 #include <src/texthash.h>
@@ -779,13 +779,19 @@ void gasflow_ff::compute_flux(const FastMat2 &U,
 
     FastMat2 &Uo = (FastMat2 &) advdf_e->Uold();
 
+    FastMat2 &v_mesh = (FastMat2 &) advdf_e->vmesh();
+
+    //    v_mesh.print("v_mesh: ");
+
     Uo.is(1,vl_indx,vl_indxe);
     vel_old.set(Uo);
     Uo.rs();
 
     const FastMat2 &grad_N = *advdf_e->grad_N();
 
-    vel_supg.set(vel_old);
+    //vel_supg.set(vel_old);
+    vel_supg.set(vel_old).rest(v_mesh).rs();
+
     if(axi>0){
       vel_supg.setel(0.,axi);
     }
