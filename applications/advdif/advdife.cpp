@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: advdife.cpp,v 1.114 2006/06/14 01:10:42 mstorti Exp $
+//$Id: advdife.cpp,v 1.115 2006/06/14 15:05:32 mstorti Exp $
 extern int comp_mat_each_time_step_g,
   consistent_supg_matrix_g,
   local_time_step_g;
@@ -568,10 +568,10 @@ void NewAdvDif::new_assemble(arg_data_list &arg_data_v,const Nodedata *nodedata,
       Hloc.rs();
     }
 
-    if (0){
+    if (1){
       int kk,ielhh;
       element.position(kk,ielhh);
-      if (rand()%1==0){
+      if (rand() % 50 == 0){
 	printf("Element %d \n",kk);
 	xloc.print(" xloc^(n+1) :");
 	Hloc.print(" Hloc^(n+1) :");
