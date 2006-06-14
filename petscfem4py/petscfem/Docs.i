@@ -1,5 +1,5 @@
 // -*- c++ -*-
-// $Id: Docs.i,v 1.1.2.11 2006/06/08 17:10:44 dalcinl Exp $
+// $Id: Docs.i,v 1.1.2.12 2006/06/14 19:09:36 dalcinl Exp $
 
 %define %docstring(node,...) 
 #if #__VA_ARGS__ == ""
@@ -149,9 +149,7 @@ PYPF_NAMESPACE_BEGIN
 %docstring(Domain::getMesh);
 %docstring(Domain::getDofMap);
 %docstring(Domain::getDim);
-%docstring(Domain::getSize);
 %docstring(Domain::getSizes,     "getSizes(self) -> (int, int)");
-%docstring(Domain::getDofSize);
 %docstring(Domain::getDofSizes,  "getDofSizes(self) -> (int, int)");
 %docstring(Domain::getDofRange,  "getDofRange(self) -> (int, int)");
 %docstring(Domain::getDofDist,   "getDofDist(self) -> int array[]");

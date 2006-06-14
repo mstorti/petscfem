@@ -1,4 +1,4 @@
-//$Id: domsetup.cpp,v 1.1.2.3 2006/05/26 16:57:22 dalcinl Exp $
+//$Id: domsetup.cpp,v 1.1.2.4 2006/06/14 19:08:25 dalcinl Exp $
 
 // STL components
 #include <vector>
@@ -678,7 +678,7 @@ int dofmap_setup(MPI_Comm comm, Mesh* mesh, Dofmap* dofmap) {
   ierr = VecCreateMPI(comm,dofmap->neqproc[rank],neq,&x); CHKERRQ(ierr);
   ierr = VecCreateSeq(PETSC_COMM_SELF,nghost,&ghost_vec); CHKERRQ(ierr);
 
-  ierr = ISCreateGeneral(comm,nghost, ghosts, &is_ghost_glob);CHKERRQ(ierr);
+  ierr = ISCreateGeneral(comm,nghost,ghosts,&is_ghost_glob);CHKERRQ(ierr);
   ierr = ISCreateStride(comm,nghost,0,1,&is_ghost_loc);
 
   ierr = VecScatterCreate(x,is_ghost_glob,ghost_vec,is_ghost_loc,

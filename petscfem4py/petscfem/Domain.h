@@ -1,4 +1,4 @@
-// $Id: Domain.h,v 1.1.2.6 2006/06/08 15:44:52 dalcinl Exp $
+// $Id: Domain.h,v 1.1.2.7 2006/06/14 19:10:08 dalcinl Exp $
 
 #ifndef PYPF_DOMAIN_H
 #define PYPF_DOMAIN_H
@@ -43,10 +43,8 @@ public:
   DofMap&  getDofMap()  const;
 
   int  getDim() const;
-  int  getSize() const;
   void getSizes(int* nnod, int* ndof) const;
 
-  int  getDofSize() const;
   void getDofSizes(int* local, int* global)  const;
   void getDofRange(int* first, int* last)    const;
   void getDofDist(int* rsize, int* ranges[]) const;

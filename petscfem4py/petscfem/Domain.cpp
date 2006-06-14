@@ -1,5 +1,5 @@
 
-// $Id: Domain.cpp,v 1.1.2.6 2006/06/08 15:44:52 dalcinl Exp $
+// $Id: Domain.cpp,v 1.1.2.7 2006/06/14 19:10:00 dalcinl Exp $
 
 #include <algorithm>
 
@@ -109,12 +109,6 @@ Domain::getDim() const
   return this->mesh->getNodeset().getDim();
 }
 
-int
-Domain::getSize() const
-{
-  return this->dofmap->getNNod() * this->dofmap->getNDof();
-}
-
 void
 Domain::getSizes(int* nnod, int* ndof) const
 {
@@ -122,13 +116,7 @@ Domain::getSizes(int* nnod, int* ndof) const
   if (ndof) *ndof = this->dofmap->getNDof();
 }
 
-int
-Domain::getDofSize() const
-{
-  return this->dofmap->getSize();
-}
-
-void 
+void
 Domain::getDofSizes(int* local, int* global) const
 {
   this->dofmap->getSizes(local, global);
