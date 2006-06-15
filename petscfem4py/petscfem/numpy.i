@@ -5,16 +5,14 @@
  *
  * This SWIG file provides typemaps for NumPy
  *
- * $Id: numpy.i,v 1.1.2.2 2006/03/06 16:56:04 rodrigop Exp $
+ * $Id: numpy.i,v 1.1.2.3 2006/06/15 21:52:18 dalcinl Exp $
  * -----------------------------------------------------------------*/
 
 %{
 #include <numpy/arrayobject.h>
 %}
 
-%init %{
-if (import_array() < 0) return;
-%}
+%init %{if (import_array() < 0) return;%}
 
 
 /* ---------------------------------------------------------------- */

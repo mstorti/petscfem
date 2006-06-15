@@ -1,11 +1,12 @@
 // -*- c++ -*-
-// $Id: array.i,v 1.1.2.5 2006/05/30 17:54:33 dalcinl Exp $
+// $Id: array.i,v 1.1.2.6 2006/06/15 21:52:59 dalcinl Exp $
 
 %include numpy.i
 
-ARRAY_NUMTYPE(Int,   PyPF_INT,   PyArray_INT)
-ARRAY_NUMTYPE(Float, PyPF_FLOAT, PyArray_DOUBLE)
-
+%inline %{
+#define PyPF_INT    PyArray_INT
+#define PyPF_FLOAT  PyArray_DOUBLE
+%}
 
 %define ARRAY_STDVEC_OUTPUT(VECARG, VALUE_T)
 %typemap(in,numinputs=0) (VECARG) ($*ltype temp) "$1 = &temp;"
