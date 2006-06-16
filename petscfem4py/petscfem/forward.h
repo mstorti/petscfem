@@ -1,4 +1,4 @@
-// $Id: forward.h,v 1.1.2.9 2006/05/30 20:19:50 dalcinl Exp $
+// $Id: forward.h,v 1.1.2.10 2006/06/16 00:16:25 dalcinl Exp $
 
 #ifndef PYPF_FORWARD_H
 #define PYPF_FORWARD_H
@@ -7,8 +7,9 @@
 // PETSc
 // -----
 
-typedef struct _p_Vec* Vec;
-typedef struct _p_Mat* Mat;
+typedef struct _p_Vec*        Vec;
+typedef struct _p_VecScatter* VecScatter;
+typedef struct _p_Mat*        Mat;
 
 
 // PETScFEM
