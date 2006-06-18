@@ -1,5 +1,5 @@
 // -*- c++ -*-
-// $Id: Nodeset.i,v 1.1.2.6 2006/06/07 16:29:46 dalcinl Exp $
+// $Id: Nodeset.i,v 1.1.2.7 2006/06/18 00:03:38 dalcinl Exp $
 
 
 %include Object.i
@@ -26,7 +26,7 @@ ARRAY_1D_NEW(int* n, const double* node[], PyPF_FLOAT)
 
 %apply (int*, int*, int*) { (int* nnod, int* ndim, int* nval) };
 
-// array accessors
+// data array accessor
 PYPF_NAMESPACE_BEGIN
 %extend Nodeset {
   void getArray(int *rows, int *cols, const double *array[]) {
@@ -44,7 +44,7 @@ PYPF_NAMESPACE_BEGIN
 %ignore Nodeset::setArray;
 PYPF_NAMESPACE_END
 
-// special methods
+// sequence methods
 PYPF_NAMESPACE_BEGIN
 %extend Nodeset {
   int  __len__()
@@ -62,7 +62,30 @@ PYPF_NAMESPACE_BEGIN
 }
 PYPF_NAMESPACE_END
 
-// array interface <http://numeric.scipy.org/array_interface.html>
+// array interface #3 <http://numeric.scipy.org/array_interface.html>
+PYPF_NAMESPACE_BEGIN
+%extend Nodeset {
+  PyObject* __array_interface__ () {
+    int nnod, ndim, nval;
+    const double* array; 
+    self->getSizes(&nnod, &ndim, &nval);
+    self->getArray(&array);
+    char endian = PyArray_NATIVE;
+    char kind   = PyArray_DOUBLELTR;
+    int  elsize = sizeof(double);
+    return Py_BuildValue("{sNsNsNsN}",
+			 "shape",   Py_BuildValue("ii", nnod, ndim+nval),
+			 "typestr", PyString_FromFormat("%c%c%d", endian, kind, elsize),
+			 "data",    Py_BuildValue("NO", PyLong_FromVoidPtr((void*)array), Py_False),
+			 "version", PyInt_FromLong(3));
+  }
+  %pythoncode {
+  __array_interface__ = property(__array_interface__, doc='Array protocol')
+  }
+}
+PYPF_NAMESPACE_END
+
+// array interface #2 <http://numeric.scipy.org/array_interface.html>
 PYPF_NAMESPACE_BEGIN
 %extend Nodeset {
   PyObject* __array_shape__ () {
@@ -89,13 +112,14 @@ PYPF_NAMESPACE_BEGIN
 }
 PYPF_NAMESPACE_END
 
+
 // properties <http://users.rcn.com/python/download/Descriptor.htm>
 PYPF_NAMESPACE_BEGIN
 %extend Nodeset {
   %pythoncode {
-  ndim = dim   = property(getDim, doc='number of dimensions')
+  ndim = dim   = property(getDim,  doc='number of dimensions')
   nnod = size  = property(getSize, doc='number of nodes')
-  sizes = property(getSizes, setSizes, doc='data layout')
+  sizes = property(getSizes, doc='data layout')
   array = property(getArray, setArray, doc='data array')
   }
 }
