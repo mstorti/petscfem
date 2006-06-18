@@ -1,4 +1,4 @@
-// $Id: Dofset.cpp,v 1.1.2.7 2006/06/08 15:44:52 dalcinl Exp $
+// $Id: Dofset.cpp,v 1.1.2.8 2006/06/18 00:05:05 dalcinl Exp $
 
 #include "Dofset.h"
 
@@ -28,15 +28,18 @@ Dofset::Dofset(const Dofset& dofset)
     constraints(dofset.constraints)
 { }
 
+static void chk_sizes(int nnod, int ndof) {
+  PYPF_ASSERT(nnod>=0, "invalid 'nnod', out of range (nnod<0)");
+  PYPF_ASSERT(ndof>=0, "invalid 'ndof', out of range (ndof<0)");
+}
+
 Dofset::Dofset(int nnod, int ndof)
   :  Object(),
      nnod(nnod), ndof(ndof),
      fixations(),
      amplitudes(),
      constraints()
-{ 
-  this->chk_sizes(nnod, ndof); 
-}
+{ chk_sizes(this->nnod, this->ndof); }
 
 Dofset::Dofset(int nnod, int ndof, MPI_Comm comm)
   :  Object(comm),
@@ -44,27 +47,34 @@ Dofset::Dofset(int nnod, int ndof, MPI_Comm comm)
      fixations(),
      amplitudes(),
      constraints()
-{ 
-  this->chk_sizes(nnod, ndof); 
-}
+{ chk_sizes(this->nnod, this->ndof); }
+
 
 void
-Dofset::chk_sizes(int nnod, int ndof)
+Dofset::chk_fixa(int n, int f)
 {
-  PYPF_ASSERT(nnod>=0,  "invalid 'nnod', out of range (nnod<0)");
-  PYPF_ASSERT(ndof>=0,  "invalid 'ndof', out of range (ndof<0)");
+  int nnod = this->nnod;
+  int ndof = this->ndof;
+  PYPF_ASSERT(n>=0,   "invalid node, out of range (node<0)");
+  PYPF_ASSERT(n<nnod, "invalid node, out of range (node>=nnod)");
+  PYPF_ASSERT(f>=0,   "invalid field, out of range (field<0)");
+  PYPF_ASSERT(f<ndof, "invalid field, out of range (field>=ndof)");
 }
 
 void
 Dofset::chk_fixa(int n, int f, double v)
 {
-  int nnod = this->nnod;
-  int ndof = this->ndof;
-  PYPF_ASSERT(n>=0,    "invalid node, out of range (node<0)");
-  PYPF_ASSERT(n<nnod,  "invalid node, out of range (node>=nnod)");
-  PYPF_ASSERT(f>=0,    "invalid field, out of range (field<0)");
-  PYPF_ASSERT(f<ndof,  "invalid field, out of range (field>=ndof)");
+  this->chk_fixa(n, f);
   PYPF_ASSERT(!(v!=v), "invalid value, not a number (NaN)");
+}
+
+void
+Dofset::chk_fixa(int n, 
+		 const int node[],
+		 const int field[]) 
+{
+  for (int i=0; i<n; i++)
+    this->chk_fixa(node[i], field[i]);
 }
 
 void

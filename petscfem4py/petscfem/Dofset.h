@@ -1,4 +1,4 @@
-// $Id: Dofset.h,v 1.1.2.6 2006/06/08 15:44:52 dalcinl Exp $ 
+// $Id: Dofset.h,v 1.1.2.7 2006/06/18 00:04:13 dalcinl Exp $ 
 
 #ifndef PYPF_DOFSET_H
 #define PYPF_DOFSET_H
@@ -76,9 +76,12 @@ protected:
   Dofset();
 
 protected:
-  inline void chk_sizes(int, int);
+  inline void chk_fixa(int, int);
+  inline void chk_fixa(int, const int[], const int[]);
+
   inline void chk_fixa(int, int, double);
   inline void chk_fixa(int, const int[], const int[], const double[]);
+
   inline void add_fixa(int, int, double, Amplitude::Base* a=NULL);
   inline void add_fixa(int, const int[], const int[], const double[],
 		       Amplitude::Base* a=NULL);
