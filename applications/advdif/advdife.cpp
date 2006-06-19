@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: advdife.cpp,v 1.115 2006/06/14 15:05:32 mstorti Exp $
+//$Id: advdife.cpp,v 1.116 2006/06/19 15:50:46 mstorti Exp $
 extern int comp_mat_each_time_step_g,
   consistent_supg_matrix_g,
   local_time_step_g;
@@ -568,7 +568,7 @@ void NewAdvDif::new_assemble(arg_data_list &arg_data_v,const Nodedata *nodedata,
       Hloc.rs();
     }
 
-    if (1){
+    if (0){
       int kk,ielhh;
       element.position(kk,ielhh);
       if (rand() % 50 == 0){
@@ -685,10 +685,16 @@ void NewAdvDif::new_assemble(arg_data_list &arg_data_v,const Nodedata *nodedata,
 	    matlocf.add(tmp22);
 	    
 	    if (ALE_flag) {
+	      tmp_ALE_07.prod(P_supg,tmp_ALE_01,1,3,2);
+	      matlocf.axpy(tmp_ALE_07,-wpgdet_low);
+	      tmp_ALE_06.prod(P_supg,tmp_ALE_02,1,-1,-1);
+	      veccontr.axpy(tmp_ALE_06,wpgdet_low);
+	      /*
 	      tmp_ALE_07.prod(P_Cp,tmp_ALE_01,1,3,2);
 	      matlocf.axpy(tmp_ALE_07,-wpgdet_low);
 	      tmp_ALE_06.prod(P_Cp,tmp_ALE_02,1,-1,-1);
 	      veccontr.axpy(tmp_ALE_06,wpgdet_low);
+	      */
 	    }
 	    
 	  }
@@ -953,7 +959,7 @@ void NewAdvDif::new_assemble(arg_data_list &arg_data_v,const Nodedata *nodedata,
 
 	// add ALE Galerkin terms
 	if (ALE_flag) {
-	  //	  v_mesh.prod(SHAPE,vloc_mesh,-1,-1,1);
+	  // v_mesh.prod(SHAPE,vloc_mesh,-1,-1,1);
 	  adv_diff_ff->get_Cp(Cp_bis);
 	  tmp_ALE_01.prod(v_mesh,dshapex,-1,-1,1);
 	  tmp_ALE_02.prod(v_mesh,grad_U,-1,-1,1);
@@ -968,7 +974,8 @@ void NewAdvDif::new_assemble(arg_data_list &arg_data_v,const Nodedata *nodedata,
 
 	// Termino Galerkin
 	if (weak_form) {
-	  //	  assert(!lumped_mass && beta_supg==1.); // Not implemented yet!!
+	  // assert(!lumped_mass && beta_supg==1.); 
+	  // Not implemented yet!!
 	  // weak version
 
 	  //	  tmp11.set(flux).rest(fluxd); // tmp11 = flux_c - flux_d
@@ -1186,10 +1193,16 @@ void NewAdvDif::new_assemble(arg_data_list &arg_data_v,const Nodedata *nodedata,
 	      matlocf.add(tmp22);
 	      
 	      if (ALE_flag) {
+		tmp_ALE_07.prod(P_supg,tmp_ALE_01,1,3,2);
+		matlocf.axpy(tmp_ALE_07,-wpgdet);
+		tmp_ALE_06.prod(P_supg,tmp_ALE_02,1,-1,-1);
+		veccontr.axpy(tmp_ALE_06,wpgdet);
+		/*
 		tmp_ALE_07.prod(P_Cp,tmp_ALE_01,1,3,2);
 		matlocf.axpy(tmp_ALE_07,-wpgdet);
 		tmp_ALE_06.prod(P_Cp,tmp_ALE_02,1,-1,-1);
 		veccontr.axpy(tmp_ALE_06,wpgdet);
+		*/
 	      }
 	    }
 	}

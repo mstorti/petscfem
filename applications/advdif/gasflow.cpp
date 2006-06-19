@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: gasflow.cpp,v 1.42 2006/06/13 22:31:54 mstorti Exp $
+//$Id: gasflow.cpp,v 1.43 2006/06/19 15:50:46 mstorti Exp $
 
 #include <src/fem.h>
 #include <src/texthash.h>
@@ -76,6 +76,12 @@ void gasflow_ff::start_chunk(int &ret_options) {
   //                    inv(tau_adv[jdof])^r_switch+inv(tau_dif[jdof])^r_switch 
   // 
   GF_GETOPTDEF_ND(int,tau_scheme,0);
+
+  // tau_scalar
+  GF_GETOPTDEF_ND(int,tau_scalar,0);
+
+  // tau_reversed
+  GF_GETOPTDEF_ND(int,tau_reversed,0);
 
   // r-switch : exponent for stabilization switching 
   //            see Tezduyar & Senga WCCM VI (2004) 
@@ -353,7 +359,7 @@ compute_tau(int ijob,double &delta_sc) {
     double tol=1.0e-16;
     h_supg=0;
     //    const FastMat2 &grad_N = *advdf_e->grad_N();
-    velmod = sqrt(vel_supg.sum_square_all());
+    double velmod = sqrt(vel_supg.sum_square_all());
     FastMat2::branch();
     if(velmod>tol) {
       FastMat2::choose(0);
@@ -425,7 +431,7 @@ void gasflow_ff::compute_flux(const FastMat2 &U,
 
   double tau_con, tau_mom,tau_ene;
   
-  double tol=1.0e-16;
+  double tol=1.0e-12;
   //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:
   // Enthalpy Jacobian Cp
 
@@ -804,13 +810,24 @@ void gasflow_ff::compute_flux(const FastMat2 &U,
       compute_tau(ijob,delta_sc);
       
       grad_U_norm_c.set(grad_rho);
-      grad_U_norm_c.scale(1.0/(sqrt(grad_U_norm_c.sum_square_all())+tol));
+      
+      double grad_rho_mod = sqrt(grad_U_norm_c.sum_square_all());
+      
+      double vaux = (grad_rho_mod > tol ? 1.0/grad_rho_mod : 0.0);
+
+      //      grad_U_norm_c.scale(1.0/(sqrt(grad_U_norm_c.sum_square_all())+tol));
+      grad_U_norm_c.scale(vaux);
       
       compute_tau_viscous(grad_U_norm_c, delta_sc);
       
-      tau_supg.eye(tau_supg_a-tau_supg_delta);
-      
-      tau_supg.d(1,2).rest(tau_supg_d).rs();
+      //DEBUG
+      if(tau_scalar==0) {
+        tau_supg.eye(tau_supg_a-tau_supg_delta);
+	tau_supg.d(1,2).rest(tau_supg_d).rs();
+      } else {
+	tau_supg.eye(tau_supg_a-0.0*tau_supg_delta);
+      }
+
       for (int j=1; j<=ndof; j++) {
 	double vaux = double(tau_supg.get(j,j));
 	vaux = (vaux > 0.0 ? vaux : 0.0);
@@ -831,11 +848,9 @@ void gasflow_ff::compute_flux(const FastMat2 &U,
       compute_shocap(delta_sc);
       
     }
-    
-    
+        
     tau_supg.scale(tau_fac);
     
-    // postmultiply by inv(Cp)
     Cpi.set(0.);
     Cpi.setel(1.0,1,1);
     Cpi.is(1,vl_indx,vl_indxe).ir(2,1).set(vel).scale(-1.0/rho).rs();
@@ -844,10 +859,22 @@ void gasflow_ff::compute_flux(const FastMat2 &U,
     Cpi.setel(g1,ndof,ndof);
     Cpi.setel(0.5*square(velmod)*g1,ndof,1);
 
-    // tau_supg_c.prod(tau_supg,Cpi,1,-1,-1,2);
-    tau_supg_c.prod(Cpi,tau_supg,1,-1,-1,2);
+    if(tau_reversed) {
+      tau_supg_c.prod(tau_supg,Cpi,1,-1,-1,2);
+    } else {
+      tau_supg_c.prod(Cpi,tau_supg,1,-1,-1,2);
+    }
 
   }
+
+  /*
+  // DEBUG
+  printf(" tau_supg_a = \n",tau_supg_a);
+  tau_supg.print(" Tau_supg \n");
+  tau_supg_c.print(" Tau_supg_c \n");
+  Cpi.print(" inv(Cp) = \n");
+  exit(1);
+  */
 
   if (options & COMP_SOURCE) {
     G_source.set(0.);
@@ -920,8 +947,9 @@ void gasflow_ff::comp_P_supg(FastMat2 &P_supg) {
   P_supg.prod(Ao_grad_N,tau_supg_c,1,2,-1,-1,3);
   // SHV("en comp_P_supg",P_supg);
   tmp_P_supg_ALE_1.prod(grad_N,v_mesh,-1,1,-1);
-  tmp_P_supg_ALE_2.prod(tmp_P_supg_ALE_1,tau_supg_c,1,2,3);
-  P_supg.rest(tmp_P_supg_ALE_2);
+  tmp_P_supg_ALE_2.prod(Cp,tmp_P_supg_ALE_1,2,3,1);
+  tmp_P_supg_ALE_3.prod(tmp_P_supg_ALE_2,tau_supg_c,1,2,-1,-1,3);
+  P_supg.rest(tmp_P_supg_ALE_3);
 
 }
 #endif
