@@ -1,4 +1,4 @@
-// $Id: Amplitude.h,v 1.1.2.2 2006/06/08 15:44:52 dalcinl Exp $ 
+// $Id: Amplitude.h,v 1.1.2.3 2006/06/22 22:35:42 dalcinl Exp $ 
 
 #ifndef PYPF_AMPLITUDE_H
 #define PYPF_AMPLITUDE_H
@@ -35,7 +35,7 @@ class Amplitude : SMARTPTR(Amplitude)
   virtual double operator()() = 0;
   virtual double operator()(double time) = 0;
   virtual double operator()(int node, int field) = 0;
-  virtual double operator()(int node, int field, double time) = 0;
+  virtual double operator()(double time, int node, int field) = 0;
 
 };
 

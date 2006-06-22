@@ -1,4 +1,4 @@
-// $Id: Dofset.cpp,v 1.1.2.8 2006/06/18 00:05:05 dalcinl Exp $
+// $Id: Dofset.cpp,v 1.1.2.9 2006/06/22 22:34:52 dalcinl Exp $
 
 #include "Dofset.h"
 
@@ -53,12 +53,10 @@ Dofset::Dofset(int nnod, int ndof, MPI_Comm comm)
 void
 Dofset::chk_fixa(int n, int f)
 {
-  int nnod = this->nnod;
-  int ndof = this->ndof;
-  PYPF_ASSERT(n>=0,   "invalid node, out of range (node<0)");
-  PYPF_ASSERT(n<nnod, "invalid node, out of range (node>=nnod)");
-  PYPF_ASSERT(f>=0,   "invalid field, out of range (field<0)");
-  PYPF_ASSERT(f<ndof, "invalid field, out of range (field>=ndof)");
+  PYPF_ASSERT(n >= 0,          "invalid node, out of range (node<0)");
+  PYPF_ASSERT(n <  this->nnod, "invalid node, out of range (node>=nnod)");
+  PYPF_ASSERT(f >= 0,          "invalid field, out of range (field<0)");
+  PYPF_ASSERT(f <  this->ndof, "invalid field, out of range (field>=ndof)");
 }
 
 void
@@ -117,60 +115,47 @@ void
 Dofset::addFixations(int n,
 		     const int    node[],
 		     const int    field[],
-		     const double value[])
-{
-  this->chk_fixa(n, node, field, value);
-  this->add_fixa(n, node, field, value);
-}
-
-void
-Dofset::addFixations(int n,
-		     const int    node[],
-		     const int    field[],
 		     const double value[],
-		     Amplitude& amplitude)
+		     Amplitude* amplitude)
 {
+  Amplitude::Base* amp = NULL;
+  if (amplitude) amp = *amplitude;
   this->chk_fixa(n, node, field, value);
-  this->add_fixa(n, node, field, value, amplitude);
-  this->amplitudes.add(&amplitude);
+  this->add_fixa(n, node, field, value, amp);
+  this->amplitudes.add(amplitude);
 }
-
 
 void
 Dofset::addConstraints(int n, 
+		       const double coeff[],
 		       const int    node[],
-		       const int    field[],
-		       const double coeff[])
+		       const int    field[])
 {
   if (n == 0) return;
-
   PYPF_ASSERT(n>=2, "invalid constraint size");
-
-  int nnod = this->nnod;
-  int ndof = this->ndof;
   for (int i=0; i<n; i++) {
-    PYPF_ASSERT(node[i]>=0,    "invalid node, out of range (node<0)");
-    PYPF_ASSERT(node[i]<nnod,  "invalid node, out of range (node>=nnod)");
-    PYPF_ASSERT(field[i]>=0,   "invalid field, out of range (field<0)");
-    PYPF_ASSERT(field[i]<ndof, "invalid field, out of range (field>=ndof)");
+    PYPF_ASSERT(!(coeff[i]!=coeff[i]),  "invalid coefficient, not a number (NaN)");
+    PYPF_ASSERT(node[i]  >= 0,          "invalid node, out of range (node<0)");
+    PYPF_ASSERT(node[i]  < this->nnod,  "invalid node, out of range (node>=nnod)");
+    PYPF_ASSERT(field[i] >= 0,          "invalid field, out of range (field<0)");
+    PYPF_ASSERT(field[i] < this->ndof,  "invalid field, out of range (field>=ndof)");
   }
-
   this->constraints.push_back(Constraint());
   Constraint& c = this->constraints.back();
   c.reserve(n);
   for (int i=0; i<n; i++) {
-    c.push_back(constraint(node[i], field[i], coeff[i]));
+    c.push_back(constraint(coeff[i], node[i], field[i]));
   }
 }
 
 void
 Dofset::view() const {
   printf("Dofset Object:\n");
-  printf("  nnod=%d, ndof=%d", this->nnod, this->ndof);
+  printf("  nnod=%d, ndof=%d\n", this->nnod, this->ndof);
   printf("  Fixations:\n");
   FixationList::const_iterator f = this->fixations.begin();
   while (f != this->fixations.end()) {
-    printf("    %d, %d, %g", f->node, f->field, f->value); 
+    printf("    %d, %d, %g", f->node, f->field, f->value);
     if (f->amp) printf(", amp: %p", (void*)f->amp);
     printf("\n");
     f++;
@@ -181,7 +166,7 @@ Dofset::view() const {
     Constraint::const_iterator c = cl->begin();
     printf("    ");
     while (c != cl->end()) {
-      printf("%d, %d, %g, ", c->node, c->field, c->coeff); 
+      printf("%g, %d, %d, ", c->coeff, c->node, c->field);
       c++;
     }
     printf("\n");

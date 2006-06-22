@@ -1,4 +1,4 @@
-// $Id: Dofset.h,v 1.1.2.7 2006/06/18 00:04:13 dalcinl Exp $ 
+// $Id: Dofset.h,v 1.1.2.8 2006/06/22 22:34:59 dalcinl Exp $ 
 
 #ifndef PYPF_DOFSET_H
 #define PYPF_DOFSET_H
@@ -59,13 +59,13 @@ protected:
 
 protected:
   struct constraint {
-    int node; int field; double coeff;
+    double coeff; int node; int field;
     constraint() 
-      : node(0), field(0), coeff(0.0) { }
+      : coeff(0.0), node(0), field(0) { }
     constraint(const constraint& C)
-      : node(C.node), field(C.field), coeff(C.coeff) { }
-    constraint(int n, int f, double c)
-      : node(n), field(f), coeff(c) { }
+      : coeff(C.coeff), node(C.node), field(C.field) { }
+    constraint(double c, int n, int f)
+      : coeff(c), node(n), field(f) { }
   };
   typedef std::vector<constraint> Constraint;
   typedef std::list<Constraint>   ConstraintList;
@@ -82,7 +82,8 @@ protected:
   inline void chk_fixa(int, int, double);
   inline void chk_fixa(int, const int[], const int[], const double[]);
 
-  inline void add_fixa(int, int, double, Amplitude::Base* a=NULL);
+  inline void add_fixa(int, int, double, 
+		       Amplitude::Base* a=NULL);
   inline void add_fixa(int, const int[], const int[], const double[],
 		       Amplitude::Base* a=NULL);
  
@@ -96,20 +97,19 @@ public:
   Dofset(int nnod, int ndof, MPI_Comm comm);
 
  public:
+
   void getSizes(int* nnod, int* ndof) const;
-  void addFixations(int n,
-		    const int    node[],
-		    const int    field[],
-		    const double value[]);
+
   void addFixations(int n,
 		    const int    node[],
 		    const int    field[],
 		    const double value[],
-		    Amplitude& amplitude);
+		    Amplitude* amplitude=NULL);
+
   void addConstraints(int n,
-		      const int node[],
-		      const int field[],
-		      const double coeff[]);
+		      const double coeff[],
+		      const int    node[],
+		      const int    field[]);
 public:
   void view() const;
   void clear();

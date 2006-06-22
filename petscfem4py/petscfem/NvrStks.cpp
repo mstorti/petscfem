@@ -1,4 +1,4 @@
-// $Id: NvrStks.cpp,v 1.1.2.4 2006/06/08 15:44:52 dalcinl Exp $
+// $Id: NvrStks.cpp,v 1.1.2.5 2006/06/22 22:35:42 dalcinl Exp $
 
 #include "NvrStks.h"
 
@@ -73,8 +73,8 @@ struct ArgsNS : public ArgList {
 
   const Time* time() const { return &this->tstar;  }
   
-  void pack(Vec x0, double t0,
-	    Vec x1, double t1,
+  void pack(double t0, Vec x0,
+	    double t1, Vec x1,
 	    Vec r, Mat J,
 	    double alpha, bool steady)
   {
@@ -172,21 +172,21 @@ NvrStks::NvrStks(Domain& domain, double alpha, bool steady)
 
 
 void 
-NvrStks::assemble(Vec x, double t, Vec r, Mat J) const
+NvrStks::assemble(double t, Vec x, Vec r, Mat J) const
 {
   // XXX test vector and matrix sizes against dofmap !!!
 
   double alpha  = 1.0;
   bool   steady = true;
 
-  args->pack(PETSC_NULL, t, x, t, r, J, alpha, steady);
+  args->pack(t, PETSC_NULL, t, x, r, J, alpha, steady);
   Application::assemble(*this, *this->args);
   if (r != PETSC_NULL) PYPF_PETSC_CALL(VecScale, (r, -1.0/alpha));
 }
 
 
 void
-NvrStks::assemble(Vec x0, double t0, Vec x1, double t1, Vec r, Mat J) const
+NvrStks::assemble(double t0, Vec x0, double t1, Vec x1, Vec r, Mat J) const
 {
   // XXX test vector and matrix sizes against dofmap !!!
 
@@ -195,9 +195,8 @@ NvrStks::assemble(Vec x0, double t0, Vec x1, double t1, Vec r, Mat J) const
   if (steady) alpha = 1.0;
   else if (alpha <= 0.0) throw Error("invalid value, 'alpha' <= 0.0");
   else if (alpha >  1.0) throw Error("invalid value, 'alpha' > 1.0");
-  if (t1 < t0 )          throw Error("invalid value, 't1' < 't0'");
     
-  args->pack(x0, t0, x1, t1, r, J, alpha, steady);
+  args->pack(t0, x0, t1, x1, r, J, alpha, steady);
   Application::assemble(*this, *this->args);
   if (r != PETSC_NULL) PYPF_PETSC_CALL(VecScale, (r, -1.0/alpha));
 }

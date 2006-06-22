@@ -1,4 +1,4 @@
-// $Id: Application.cpp,v 1.1.2.3 2006/05/30 20:14:04 dalcinl Exp $
+// $Id: Application.cpp,v 1.1.2.4 2006/06/22 22:35:42 dalcinl Exp $
 
 #include "Application.h"
 
@@ -14,23 +14,28 @@ PYPF_NAMESPACE_BEGIN
 Application::~Application() 
 { 
   PYPF_DECREF(this->domain);
+  PYPF_PETSC_DESTROY(VecScatterDestroy, this->scatter);
+  PYPF_PETSC_DESTROY(VecDestroy,        this->state);
 }
 
 Application::Application()
   : Object(),
-    domain(NULL)
+    domain(NULL),
+    scatter(PETSC_NULL), state(PETSC_NULL)
 { }
 
 Application::Application(const Application& app)
   : Object(app),
-    domain(app.domain)
+    domain(app.domain),
+    scatter(PETSC_NULL), state(PETSC_NULL)
 {
   PYPF_INCREF(this->domain);
 }
 
 Application::Application(Domain& domain)
   : Object(domain.getComm()),
-    domain(&domain)
+    domain(&domain),
+    scatter(PETSC_NULL), state(PETSC_NULL)
 {
   PYPF_INCREF(this->domain);
 }
@@ -66,35 +71,51 @@ Application::getDomain() const
 //   PetscFunctionReturn(0);
 // }
 
-void
-Application::getNodalValues(const double state[], double time,
-			    double values[]) const
+void 
+Application::buildSolution(double time, Vec state, Vec solution)
 {
-  int nn, nf;
-  this->domain->getSizes(&nn,&nf);
-  const DofMap::Base* dm = this->domain->getDofMap();
-  Time time_data = time;
-  for (int i=0; i<nn; i++)
-    for (int j=0; j<nf; j++)
-      dm->get_nodal_value(i+1, j+1, 
-			  state, &time_data, 
-			  values[i*nf+j]);
+  int nnod,  ndof;  this->domain->getSizes(&nnod,&ndof);
+  int ldofs, gdofs; this->domain->getDofSizes(&ldofs,&gdofs);
 
-}
-
-void
-Application::getNodalValues(const double state[], double time,
-			    int nn, const int nodes[],
-			    int nf, const int fields[],
-			    double values[]) const
-{
-  const DofMap::Base* dm = this->domain->getDofMap();
-  Time time_data = time;
-  for (int i=0; i<nn; i++)
-    for (int j=0; j<nf; j++)
-      dm->get_nodal_value(nodes[i]+1, fields[j]+1,
-			  state, &time_data, 
-			  values[i*nf+j]);
+  /* check provided state vector */
+  PetscTruth stt_valid; VecValid(state,&stt_valid);
+  PYPF_ASSERT(stt_valid == PETSC_TRUE, "provided state vector is not valid");
+  PetscInt n, N; VecGetLocalSize(state,&n); VecGetSize(state,&N);
+  PYPF_ASSERT(ldofs == n,"provided state vector has wrong local size");
+  PYPF_ASSERT(gdofs == N,"provided state vector has wrong global size");
+  
+  /* scatter state values to all processors */
+  if (!this->scatter) PYPF_PETSC_CALL(VecScatterCreateToAll, (state,&this->scatter,&this->state));
+  PYPF_PETSC_CALL(VecScatterBegin, (state,this->state,INSERT_VALUES,SCATTER_FORWARD,this->scatter));
+  PYPF_PETSC_CALL(VecScatterEnd,   (state,this->state,INSERT_VALUES,SCATTER_FORWARD,this->scatter));
+  
+  /* user does not want solution on this processor */
+  if (solution == PETSC_NULL) return;
+  
+  /* check provided solution vector */
+  PetscTruth sol_valid; VecValid(solution,&sol_valid);
+  PYPF_ASSERT(sol_valid == PETSC_TRUE, "provided solution vector is not valid");
+  PetscInt sol_size; VecGetLocalSize(solution,&sol_size);
+  PYPF_ASSERT(sol_size == 0 || sol_size == nnod*ndof, 
+	      "provided solution vector has wrong local size ");
+  
+  PetscScalar* sol_array;
+  VecGetArray(solution, &sol_array);
+  if (sol_size > 0 && sol_array != NULL) {
+    PetscScalar* stt_array;
+    VecGetArray(this->state, &stt_array);
+    if (sol_array != NULL) {
+      const DofMap::Base* dm = this->domain->getDofMap();
+      const Time time_data = time;
+      for (int i=0; i<nnod; i++)
+	for (int j=0; j<ndof; j++)
+	  dm->get_nodal_value(i+1, j+1,stt_array,&time_data,sol_array[i*ndof+j]);
+    }
+    /* array of state vector was not touched */
+    VecRestoreArray(this->state, &stt_array);
+    PetscObjectStateDecrease((PetscObject)this->state);
+  }
+  VecRestoreArray(solution, &sol_array);
 }
 
 void 

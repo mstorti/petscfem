@@ -1,4 +1,4 @@
-// $Id: Amplitude.cpp,v 1.1.2.3 2006/06/08 15:44:52 dalcinl Exp $
+// $Id: Amplitude.cpp,v 1.1.2.4 2006/06/22 22:35:42 dalcinl Exp $
 
 #include "Amplitude.h"
 
@@ -41,7 +41,7 @@ public:
     --node; --field;
     switch(this->kind) {
     case Amp::GENERAL:
-      return this->amp->operator()(node, field, get_time(time_data));
+      return this->amp->operator()(get_time(time_data), node, field);
     case Amp::NODAL:
       return this->amp->operator()(node, field);
     default:

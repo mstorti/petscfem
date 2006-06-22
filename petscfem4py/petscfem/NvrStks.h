@@ -1,4 +1,4 @@
-// $Id: NvrStks.h,v 1.1.2.3 2006/06/08 15:44:52 dalcinl Exp $
+// $Id: NvrStks.h,v 1.1.2.4 2006/06/22 22:35:42 dalcinl Exp $
 
 #ifndef PYPF_NVRSTKS_H
 #define PYPF_NVRSTKS_H
@@ -32,13 +32,13 @@ public:
   void   setAlpha(double alpha) { this->alpha  = alpha;  };
   void   setSteady(bool steady) { this->steady = steady; };
 
-  void operator()(Vec x, double t, Vec r, Mat J) const
-  { this->assemble(x, t, r, J); }
-  void operator()(Vec x0, double t0, Vec x1, double t1, Vec r, Mat J) const
-  { this->assemble(x0, t0, x1, t1, r, J); }
+  void operator()(double t, Vec x, Vec r, Mat J) const
+  { this->assemble(t, x, r, J); }
+  void operator()(double t0, Vec x0, double t1, Vec x1, Vec r, Mat J) const
+  { this->assemble(t0, x0, t1, x1, r, J); }
   
-  void assemble(Vec x, double t, Vec r, Mat J) const;
-  void assemble(Vec x0, double t0, Vec x1, double t1, Vec r, Mat J) const;
+  void assemble(double t, Vec x, Vec r, Mat J) const;
+  void assemble(double t0, Vec x0, double t1, Vec x1, Vec r, Mat J) const;
 
 };
 

@@ -1,5 +1,5 @@
 // -*- c++ -*-
-// $Id: Docs.i,v 1.1.2.13 2006/06/16 00:15:35 dalcinl Exp $
+// $Id: Docs.i,v 1.1.2.14 2006/06/22 22:32:41 dalcinl Exp $
 
 %define %docstring(node,...) 
 #if #__VA_ARGS__ == ""
@@ -120,8 +120,9 @@ PYPF_NAMESPACE_BEGIN
 %docstring(Dofset);
 %docstring(Dofset::Dofset);
 %docstring(Dofset::getSizes, "getSizes(self) -> (int, int)");
-%docstring(Dofset::addFixations);
-%docstring(Dofset::addConstraints);
+%docstring(Dofset::setFixation);
+%docstring(Dofset::setPeriodic);
+%docstring(Dofset::setConstraint);
 %docstring(Dofset::view);
 %docstring(Dofset::clear);
 

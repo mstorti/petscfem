@@ -1,4 +1,4 @@
-// $Id: Application.h,v 1.1.2.5 2006/06/05 20:39:22 dalcinl Exp $
+// $Id: Application.h,v 1.1.2.6 2006/06/22 22:35:42 dalcinl Exp $
 
 #ifndef PYPF_APPLICATION_H
 #define PYPF_APPLICATION_H
@@ -15,9 +15,14 @@ class Application
 {
 protected:
   Application();
+  
+protected:
+  Domain*    domain;
+  VecScatter scatter;
+  Vec        state;
 
 protected:
-  Domain* domain;
+  static void assemble(const Application&, const ArgList&);
 
 public:
   ~Application();
@@ -27,17 +32,9 @@ public:
 public:
 
   Domain& getDomain() const;
-  
-  void getNodalValues(const double state[], double time,
-		      double values[]) const;
 
-  void getNodalValues(const double state[], double time,
-		      int nn, const int nodes[],
-		      int nf, const int fields[],
-		      double values[]) const;
-
-protected:
-  static void assemble(const Application&, const ArgList&);
+  //void buildState(Vec solution, Vec state);
+  void buildSolution(double time, Vec state, Vec solution);
   
 };
 

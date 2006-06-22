@@ -1,5 +1,5 @@
 // -*- c++ -*-
-// $Id: Amplitude.i,v 1.1.2.4 2006/06/09 14:18:25 dalcinl Exp $
+// $Id: Amplitude.i,v 1.1.2.5 2006/06/22 22:35:42 dalcinl Exp $
 
 PYPF_NAMESPACE_BEGIN
 
@@ -11,5 +11,22 @@ PYPF_NAMESPACE_BEGIN
 
 PYPF_NAMESPACE_END
 
+PYPF_NAMESPACE_BEGIN
+%extend Amplitude {
+  %pythoncode {
+  def __new__(cls, *args, **kwargs):
+      amp = super(Amplitude, cls).__new__(cls)
+      if cls != Amplitude:
+          kind = getattr(cls, 'KIND', None)
+          if kind is None:
+              Amplitude.__init__(amp)
+          else:
+              if isinstance(kind, str):
+                  kind = getattr(Amplitude, kind.upper())
+              Amplitude.__init__(amp, kind)
+      return amp
+  }
+}
+PYPF_NAMESPACE_END
 
 %include "Amplitude.h"

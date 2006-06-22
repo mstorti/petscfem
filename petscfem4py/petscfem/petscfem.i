@@ -1,17 +1,15 @@
 // -*- c++ -*-
-// $Id: petscfem.i,v 1.1.2.10 2006/06/08 15:48:44 dalcinl Exp $ 
+// $Id: petscfem.i,v 1.1.2.11 2006/06/22 22:35:42 dalcinl Exp $ 
 
 #if 0 // hack for numpy.distutils.command.build_ext
 %module petscfem
 #else
-%module(package="petscfem4py",
-	directors=1) petscfem
+%module(package="petscfem4py", directors=1) petscfem
 #endif
 
 %header %{
 #include "petscfem4py.h"
 #include "Options.h"
-#include "Comm.h"
 #include "Object.h"
 #include "Nodeset.h"
 #include "Elemset.h"
@@ -26,7 +24,6 @@
 %include array.i
 %include macros.i
 %include tpmaps.i
-
 %import  namespace.h
 
 %include Docs.i
@@ -49,11 +46,3 @@
 #include "NvrStks.h"
 %}
 %include Application.i
-
-
-%header %{
-#include "Problem.h"
-#include "NavierStokes.h"
-%}
-%include Problem.i
-%include NavierStokes.i
