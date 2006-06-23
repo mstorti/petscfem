@@ -1,11 +1,11 @@
 // -*- c++ -*-
-// $Id: petscfem.i,v 1.1.2.11 2006/06/22 22:35:42 dalcinl Exp $ 
+// $Id: petscfem.i,v 1.1.2.12 2006/06/23 21:43:04 dalcinl Exp $ 
 
-#if 0 // hack for numpy.distutils.command.build_ext
-%module petscfem
-#else
+/*
+%module petscfem // hack for numpy.distutils, do not remove !!
+*/
+
 %module(package="petscfem4py", directors=1) petscfem
-#endif
 
 %header %{
 #include "petscfem4py.h"
@@ -20,10 +20,10 @@
 #include "Domain.h"
 %}
 
+%include tpmaps.i
 %include stl.i
 %include array.i
 %include macros.i
-%include tpmaps.i
 %import  namespace.h
 
 %include Docs.i
