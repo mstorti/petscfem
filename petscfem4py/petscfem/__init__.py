@@ -1,7 +1,7 @@
 # Author:  Lisandro Dalcin
 # Contact: dalcinl@users.sourceforge.net
 # License: GPL
-# $Id: __init__.py,v 1.1.2.6 2006/06/08 16:08:43 dalcinl Exp $
+# $Id: __init__.py,v 1.1.2.7 2006/06/23 19:53:20 dalcinl Exp $
 
 """
 PETSc-FEM for Python
@@ -10,9 +10,9 @@ PETSc-FEM for Python
 __author__    = 'Lisandro Dalcin <dalcinl@intec.unl.edu.ar>'
 __credits__   = "Mario Storti <mstorti@intec.unl.edu.ar>"
 
-__date__      = '$Date: 2006/06/08 16:08:43 $'
+__date__      = '$Date: 2006/06/23 19:53:20 $'
 __version__   = '$Version$'
-__revision__  = '$Revision: 1.1.2.6 $'
+__revision__  = '$Revision: 1.1.2.7 $'
 
 __docformat__ = 'reST'
 
@@ -48,6 +48,3 @@ from petscfem import Domain
 
 from petscfem import Application
 from petscfem import NvrStks
-
-from petscfem import Problem
-from petscfem import NavierStokes
