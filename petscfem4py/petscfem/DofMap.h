@@ -1,4 +1,4 @@
-// $Id: DofMap.h,v 1.1.2.9 2006/06/08 15:44:52 dalcinl Exp $
+// $Id: DofMap.h,v 1.1.2.10 2006/06/26 19:46:50 dalcinl Exp $
 
 #ifndef PYPF_DOFMAP_H
 #define PYPF_DOFMAP_H
@@ -45,11 +45,11 @@ class DofMap : SMARTPTR(DofMap)
   int getNNod() const;
   int getNDof() const;
   
-  void apply(int nstt, const double stt[],
-	     int nsol, double sol[],
-	     double time=0.0) const;
+  void apply(double time,
+	     int nstt, const double stt[],
+	     int nsol,       double sol[]) const;
   void solve(int nsol, const double sol[],
-	     int nstt, double stt[]) const;
+	     int nstt,       double stt[]) const;
 
  public:
   void view() const;

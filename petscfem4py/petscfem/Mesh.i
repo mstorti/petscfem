@@ -1,5 +1,5 @@
 // -*- c++ -*-
-// $Id: Mesh.i,v 1.1.2.8 2006/06/06 15:44:27 dalcinl Exp $
+// $Id: Mesh.i,v 1.1.2.9 2006/06/26 19:43:19 dalcinl Exp $
 
 
 %include Object.i
@@ -36,8 +36,7 @@ PYPF_NAMESPACE_BEGIN
 %extend Mesh {
   %pythoncode {
   nodeset = property(getNodeset, doc='nodeset instance')
-  elemsets = property(getNodeset, doc='list of elemset instances')
-  size = property(getSize, doc='number of elemset instances')
+  size    = property(getSize,    doc='number of elemset instances')
   }
 }
 PYPF_NAMESPACE_END
