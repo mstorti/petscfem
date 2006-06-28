@@ -1,5 +1,5 @@
 // -*- c++ -*-
-// $Id: Elemset.i,v 1.1.2.7 2006/06/08 15:44:52 dalcinl Exp $
+// $Id: Elemset.i,v 1.1.2.8 2006/06/28 20:14:10 dalcinl Exp $
 
 
 %include Object.i
@@ -85,17 +85,37 @@ PYPF_NAMESPACE_END
 
 PYPF_NAMESPACE_BEGIN
 %extend Elemset {
+  PyObject* __array_interface__ () {
+    int nelem, nel;
+    const int* icone; 
+    self->getData(&nelem, &nel, &icone);
+    char endian = PyArray_NATIVE;
+    char kind   = PyArray_INTLTR;
+    int  elsize = sizeof(int);
+    return Py_BuildValue("{sNsNsNsN}",
+			 "shape",   Py_BuildValue("ii", nelem, nel),
+			 "typestr", PyString_FromFormat("%c%c%d", endian, kind, elsize),
+			 "data",    Py_BuildValue("NO", PyLong_FromVoidPtr((void*)icone), Py_False),
+			 "version", PyInt_FromLong(3));
+  }
+  %pythoncode {
+  __array_interface__ = property(__array_interface__, doc='Array protocol')
+  }
+}
+PYPF_NAMESPACE_END
+
+
+PYPF_NAMESPACE_BEGIN
+%extend Elemset {
   PyObject* __array_shape__ () {
     int m, n; self->getData(&m, &n, NULL);
     return Py_BuildValue("ii", m, n);
   }
   PyObject* __array_typestr__ () {
-    PyArray_Descr *descr = PyArray_DescrFromType(PyArray_INT);
-    char kind      = descr->kind;
-    char byteorder = descr->byteorder;
-    int  elsize    = descr->elsize;
-    Py_DECREF(descr);
-    return PyString_FromFormat("%c%c%d", byteorder, kind, elsize);
+    char endian = PyArray_NATIVE;
+    char kind   = PyArray_INTLTR;
+    int  elsize = sizeof(int);
+    return PyString_FromFormat("%c%c%d", endian, kind, elsize);
   }
   PyObject* __array_data__ () {
     const int* data; self->getData(NULL, NULL, &data);

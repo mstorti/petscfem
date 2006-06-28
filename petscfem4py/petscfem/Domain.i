@@ -1,5 +1,5 @@
 // -*- c++ -*-
-// $Id: Domain.i,v 1.1.2.5 2006/06/08 15:44:52 dalcinl Exp $ 
+// $Id: Domain.i,v 1.1.2.6 2006/06/28 20:14:28 dalcinl Exp $ 
 
 %include Object.i
 %include Mesh.i
@@ -27,8 +27,8 @@ PYPF_NAMESPACE_BEGIN
 %extend Domain {
   %pythoncode {
   nodeset = property(getNodeset, doc='Nodeset instance')
-  mesh    = property(getMesh,    doc='Mesh instance')
   dofset  = property(getDofset,  doc='Dofset instance')
+  mesh    = property(getMesh,    doc='Mesh instance')
   dofmap  = property(getDofMap,  doc='DofMap instance')
   }
 }
