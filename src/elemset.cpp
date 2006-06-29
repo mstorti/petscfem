@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: elemset.cpp,v 1.93.10.2 2006/05/20 21:11:19 dalcinl Exp $
+//$Id: elemset.cpp,v 1.93.10.3 2006/06/29 14:42:07 dalcinl Exp $
 
 #ifndef _GNU_SOURCE
 #define _GNU_SOURCE
@@ -436,6 +436,9 @@ int assemble(Mesh *mesh,arg_list argl,
     
     //o Chunk size for the elemset. 
     TGETOPTDEF(elemset->thash,int,chunk_size,ELEM_CHUNK_SIZE);
+    //o Call MatAssembly[Begin|End](A, MAT_FLUSH_ASSEMBLY) for
+    // each chunk of elements.
+    TGETOPTDEF(elemset->thash,int,chunk_flush_assembly,0);
     //o The increment in the variables in order to
     // compute the finite difference approximation to the
     // Jacobian. Should be order epsilon=sqrt(precision)*(typical
@@ -589,15 +592,17 @@ int assemble(Mesh *mesh,arg_list argl,
       // Upload return values
       for (j=0; j<narg; j++) {
 	if (report_assembly_time) hpcassmbl.start();
-	// Do flush assmbly before to upload new values in matrix
-	if ((argl[j].options & ASSEMBLY_MATRIX) 
-	    && ARGVJ.must_flush) {
-	  assmbly_s = MPI_Wtime();
-	  ierr = (ARGVJ.pfA)
-	    ->assembly_end(MAT_FLUSH_ASSEMBLY); CHKERRQ(ierr);
-	  ARGVJ.must_flush = 0;
-	  assmbly += MPI_Wtime() - assmbly_s;
-	}
+	if (chunk_flush_assembly) {
+	  // Do flush assmbly before to upload new values in matrix
+	  if ((argl[j].options & ASSEMBLY_MATRIX) 
+	      && ARGVJ.must_flush) {
+	    assmbly_s = MPI_Wtime();
+	    ierr = (ARGVJ.pfA)
+	      ->assembly_end(MAT_FLUSH_ASSEMBLY); CHKERRQ(ierr);
+	    ARGVJ.must_flush = 0;
+	    assmbly += MPI_Wtime() - assmbly_s;
+	  }
+	}// chunk_flush_assembly
 	if (argl[j].options & UPLOAD_RETVAL) { 
 	  upl_s = MPI_Wtime();
 	  elemset->upload_vector(nel,ndof,dofmap,argl[j].options,ARGVJ,
@@ -684,41 +689,45 @@ int assemble(Mesh *mesh,arg_list argl,
 
       in_loop.add(hpchrono.elapsed());
       hpchrono.start();
-  
-      for (j=0; j<narg; j++) {
+      
+      if(chunk_flush_assembly) {
+
+	for (j=0; j<narg; j++) {
 	
-	assmbly_s = MPI_Wtime();
-	if (argl[j].options & ASSEMBLY_MATRIX) {
-	  if (report_assembly_time) hpcassmbl.start();
-	  if (argl[j].options & PFMAT) {
-	    if (ARGVJ.must_flush) {
+	  assmbly_s = MPI_Wtime();
+	  if (argl[j].options & ASSEMBLY_MATRIX) {
+	    if (report_assembly_time) hpcassmbl.start();
+	    if (argl[j].options & PFMAT) {
+	      if (ARGVJ.must_flush) {
+		ierr = (ARGVJ.pfA)
+		  ->assembly_end(MAT_FLUSH_ASSEMBLY); CHKERRQ(ierr);
+		ARGVJ.must_flush = 0;
+	      }
 	      ierr = (ARGVJ.pfA)
-		->assembly_end(MAT_FLUSH_ASSEMBLY); CHKERRQ(ierr);
-	      ARGVJ.must_flush = 0;
-	    }
-	    ierr = (ARGVJ.pfA)
-	      ->assembly_begin(MAT_FLUSH_ASSEMBLY); CHKERRQ(ierr);
-	    ARGVJ.must_flush = 1;
-	    if (!delayed_flush && ARGVJ.must_flush) {
-	      ierr = (ARGVJ.pfA)
-		->assembly_end(MAT_FLUSH_ASSEMBLY); CHKERRQ(ierr);
-	      ARGVJ.must_flush = 0;
-	    }
-	  } else {
-	    ierr = MatAssemblyBegin(*(ARGVJ.A),
+		->assembly_begin(MAT_FLUSH_ASSEMBLY); CHKERRQ(ierr);
+	      ARGVJ.must_flush = 1;
+	      if (!delayed_flush && ARGVJ.must_flush) {
+		ierr = (ARGVJ.pfA)
+		  ->assembly_end(MAT_FLUSH_ASSEMBLY); CHKERRQ(ierr);
+		ARGVJ.must_flush = 0;
+	      }
+	    } else {
+	      ierr = MatAssemblyBegin(*(ARGVJ.A),
+				      MAT_FLUSH_ASSEMBLY); CHKERRQ(ierr);
+	      ierr = MatAssemblyEnd(*(ARGVJ.A),
 				    MAT_FLUSH_ASSEMBLY); CHKERRQ(ierr);
-	    ierr = MatAssemblyEnd(*(ARGVJ.A),
-				  MAT_FLUSH_ASSEMBLY); CHKERRQ(ierr);
+	    }
+	    if (report_assembly_time) {
+	      PetscSynchronizedPrintf(PETSCFEM_COMM_WORLD,
+				      "[%d] Assembly time \"%s\"/\"%s\" %f secs.\n",
+				      MY_RANK,elemset->type,jobinfo,hpcassmbl.elapsed());
+	      PetscSynchronizedFlush(PETSCFEM_COMM_WORLD); 
+	    }
 	  }
-	  if (report_assembly_time) {
-	    PetscSynchronizedPrintf(PETSCFEM_COMM_WORLD,
-				    "[%d] Assembly time \"%s\"/\"%s\" %f secs.\n",
-				    MY_RANK,elemset->type,jobinfo,hpcassmbl.elapsed());
-	    PetscSynchronizedFlush(PETSCFEM_COMM_WORLD); 
-	  }
+	  assmbly += MPI_Wtime() - assmbly_s;
 	}
-	assmbly += MPI_Wtime() - assmbly_s;
-      }
+	
+      } // chunk_flush_assembly
 
       wait.add(hpchrono.elapsed());
       hpchrono.start();
@@ -787,13 +796,15 @@ int assemble(Mesh *mesh,arg_list argl,
     // To be done for each elemset
     if (any_fdj) delete[] pref;
     for (j=0; j<narg; j++) {
-      if (argl[j].options & ASSEMBLY_MATRIX
-	  && (argl[j].options & PFMAT)
-	  && ARGVJ.must_flush) {
-	    ierr = (ARGVJ.pfA)
-	      ->assembly_end(MAT_FLUSH_ASSEMBLY); CHKERRQ(ierr);
-	    ARGVJ.must_flush = 0;
-      }
+      if(chunk_flush_assembly) {
+	if (argl[j].options & ASSEMBLY_MATRIX
+	    && (argl[j].options & PFMAT)
+	    && ARGVJ.must_flush) {
+	  ierr = (ARGVJ.pfA)
+	    ->assembly_end(MAT_FLUSH_ASSEMBLY); CHKERRQ(ierr);
+	  ARGVJ.must_flush = 0;
+	}
+      } // chunk_flush_assembly
       if (argl[j].options & DOWNLOAD_VECTOR) {
 	delete[] ARGVJ.locst;
       }
