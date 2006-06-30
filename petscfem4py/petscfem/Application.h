@@ -1,4 +1,4 @@
-// $Id: Application.h,v 1.1.2.6 2006/06/22 22:35:42 dalcinl Exp $
+// $Id: Application.h,v 1.1.2.7 2006/06/30 18:33:33 dalcinl Exp $
 
 #ifndef PYPF_APPLICATION_H
 #define PYPF_APPLICATION_H
@@ -33,7 +33,7 @@ public:
 
   Domain& getDomain() const;
 
-  //void buildState(Vec solution, Vec state);
+  void buildState(Vec solution, Vec state);
   void buildSolution(double time, Vec state, Vec solution);
   
 };

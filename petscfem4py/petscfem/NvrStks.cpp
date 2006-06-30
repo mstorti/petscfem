@@ -1,4 +1,4 @@
-// $Id: NvrStks.cpp,v 1.1.2.5 2006/06/22 22:35:42 dalcinl Exp $
+// $Id: NvrStks.cpp,v 1.1.2.7 2006/06/30 18:39:24 dalcinl Exp $
 
 #include "NvrStks.h"
 
@@ -199,6 +199,108 @@ NvrStks::assemble(double t0, Vec x0, double t1, Vec x1, Vec r, Mat J) const
   args->pack(t0, x0, t1, x1, r, J, alpha, steady);
   Application::assemble(*this, *this->args);
   if (r != PETSC_NULL) PYPF_PETSC_CALL(VecScale, (r, -1.0/alpha));
+}
+
+PYPF_NAMESPACE_END
+
+
+#include <pfmat.h>
+#include <pfptscmat.h>
+
+
+PYPF_NAMESPACE_BEGIN
+
+struct DofProfiler : public PFPETScMat {
+  
+  int first, last;
+  std::vector<int> vec1;
+  std::vector<int> vec2;
+
+  DofProfiler(const DofMap &dm)
+    : PFPETScMat(dm.getSize(),dm,dm.getComm())
+  { 
+    dm.getRange(&this->first, &this->last);
+  }
+
+  void build_nnz(std::vector<int>& d_nnz,
+		 std::vector<int>& o_nnz) {
+    int dof = first;
+    int neq = last-first;
+    GSet adj;
+    d_nnz.resize(neq, 0); 
+    o_nnz.resize(neq, 0);
+    for (int k=0; k<neq; k++) {
+      adj.clear();
+      lgraph->set_ngbrs(dof++,adj);
+      GSet::iterator n  = adj.begin();
+      GSet::iterator ne = adj.end();
+      while (n!=ne) {
+	int node = *n++;
+	if (node < first || node >= last)
+	  d_nnz[k]++;
+	else 
+	  o_nnz[k]++;
+      }
+    }
+    
+  }
+
+  void build_csr(std::vector<int>& xadj, 
+		 std::vector<int>& adjncy) {
+    int dof = first;
+    int neq = last-first;
+    GSet adj;
+    xadj.reserve(neq+1);
+    xadj.push_back(0);
+    for (int k=0; k<neq; k++) {
+      adj.clear();
+      lgraph->set_ngbrs(dof++, adj);
+      adjncy.insert(adjncy.end(), adj.begin(), adj.end());
+      xadj.push_back(adjncy.size());
+    }
+    
+  }
+  
+  int create_a() { 
+    lgraph->scatter();
+    this->vec1.clear();
+    this->vec2.clear();
+    build_csr(this->vec1,this->vec2);
+    lgraph->clear();
+    return 0;
+  }
+  int size(int j)                                    { return mat_size; }
+  int set_value_a(int, int, PetscScalar, InsertMode) { return 0; }
+  int assembly_begin_a(MatAssemblyType type)         { return 0; }
+  int assembly_end_a(MatAssemblyType type)           { return 0; }
+  int factor_and_solve_a(Vec&, Vec&)                 { return 0; }
+  int solve_only_a(Vec&, Vec&)                       { return 0; }
+  int clean_mat_a()                                  { return 0; }
+  int clean_factor_a()                               { return 0; }
+  int view(PetscViewer viewer)                       { return 0; }
+
+};
+PYPF_NAMESPACE_END
+
+static const char COMP_PROF[]    = "comp_mat";
+
+PYPF_NAMESPACE_BEGIN
+void
+NvrStks::getProfile(std::vector<int>& xadj, std::vector<int>& adjncy) const
+{
+  const Domain& domain = this->getDomain();
+  const DofMap& dofmap = domain.getDofMap();
+
+  DofProfiler A(dofmap);
+  this->args->jobinfo = COMP_PROF;
+  this->args->tstar = 0.0;
+  ArgList::Base& argl = *this->args;
+  argl.clear(); argl.arg_add(&A,PROFILE|PFMAT);
+
+  Application::assemble(*this, *this->args);
+  
+  xadj.swap(A.vec1); adjncy.swap(A.vec2);
+
 }
 
 PYPF_NAMESPACE_END

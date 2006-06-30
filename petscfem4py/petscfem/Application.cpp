@@ -1,4 +1,4 @@
-// $Id: Application.cpp,v 1.1.2.4 2006/06/22 22:35:42 dalcinl Exp $
+// $Id: Application.cpp,v 1.1.2.5 2006/06/30 18:36:23 dalcinl Exp $
 
 #include "Application.h"
 
@@ -46,30 +46,68 @@ Application::getDomain() const
   return *this->domain;
 }
 
-// #undef __FUNCT__  
-// #define __FUNCT__ "Application_getGhostValues"
-// static PetscErrorCode
-// Application_getGhostValues(const Application& app,
-// 			   const double state[],
-// 			   std::vector<double>& buff)
-// {
-//   const DofMap& dofmap = app.getDomain().getDofMap();
-//   int ldofsz, gdofsz; dofmap.getSizes(&ldofsz, &gdofsz);
-//   int  nghost = dofmap->ghost_dofs->size();
-//   buff.reserve(nghost+1); buff.resize(nghost);
-//   double* ghosts = &buff[0];
-//   Vec sttvec, ghtvec;
+void 
+Application::buildState(Vec solution, Vec state)
+{
+  int nnod,  ndof;  this->domain->getSizes(&nnod,&ndof);
+  int ldofs, gdofs; this->domain->getDofSizes(&ldofs,&gdofs);
 
-//   PetscFunctionBegin;
-//   VecCreateMPIWithArray(dofmap.getComm(),ldofsz,gdofsz,state,&sttvec);
-//   VecCreateSeqWithArray(PETSC_COMM_SELF,nghost,ghosts,&ghtvec);
-//   VecScatter scatter = *(dofmap->ghost_scatter);
-//   VecScatterBegin(sttvec,ghtvec,INSERT_VALUES,SCATTER_FORWARD,scatter);
-//   VecScatterEnd  (sttvec,ghtvec,INSERT_VALUES,SCATTER_FORWARD,scatter);
-//   VecDestroy(sttvec);
-//   VecDestroy(ghtvec);
-//   PetscFunctionReturn(0);
-// }
+  /* check provided state vector */
+  PetscTruth stt_valid; VecValid(state,&stt_valid);
+  PYPF_ASSERT(stt_valid == PETSC_TRUE, "provided state vector is not valid");
+  PetscInt n, N; VecGetLocalSize(state,&n); VecGetSize(state,&N);
+  PYPF_ASSERT(ldofs == n,"provided state vector has wrong local size");
+  PYPF_ASSERT(gdofs == N,"provided state vector has wrong global size");
+
+  MPI_Comm comm;  PetscObjectGetComm((PetscObject)state,&comm);
+  int      rank;  MPI_Comm_rank(comm,&rank);
+
+  int root = 0;
+  
+  /* check provided solution vector */
+  if (rank==root) {
+    PetscTruth sol_valid; VecValid(solution,&sol_valid);
+    PYPF_ASSERT(sol_valid == PETSC_TRUE, "provided solution vector is not valid");
+    PetscInt sol_size; VecGetLocalSize(solution,&sol_size);
+    PYPF_ASSERT(sol_size == nnod*ndof,   "provided solution vector has wrong local size ");
+  }
+  
+  /* create scatter */
+  if (!this->scatter) PYPF_PETSC_CALL(VecScatterCreateToAll, (state,&this->scatter,&this->state));
+  
+  /* build state in root processor */
+  //VecZeroEntries(this->state);
+  PetscScalar* stt_array;
+  VecGetArray(this->state,&stt_array);
+  if (rank==root) {
+    PetscScalar* sol_array; 
+    VecGetArray(solution,&sol_array);
+#if 1
+    DofMap::Base* dm = this->domain->getDofMap();
+    //std::vector<PetscScalar> sttbuff(dm->neqtot);
+    PetscScalar* sttbuff; 
+    PetscMalloc(dm->neqtot*sizeof(PetscScalar), &sttbuff);
+    dm->solve(&sttbuff[0],sol_array);
+    PetscMemcpy(stt_array, &sttbuff[0], dm->neq*sizeof(PetscScalar));
+    PetscFree(sttbuff);
+#else
+    const DofMap& dofmap = this->domain->getDofMap();
+    dofmap.solve(nnod*ndof,sol_array,gdofs,stt_array);
+#endif
+    VecRestoreArray(solution,&sol_array);
+    PetscObjectStateDecrease((PetscObject)solution);
+  } else {
+    PetscMemzero(stt_array,gdofs*sizeof(PetscScalar));
+  }
+  VecRestoreArray(this->state,&stt_array);
+
+  /* scatter state values to all processors */
+  VecZeroEntries(state);
+  PYPF_PETSC_CALL(VecScatterBegin, (this->state,state,ADD_VALUES,SCATTER_REVERSE,this->scatter));
+  PYPF_PETSC_CALL(VecScatterEnd,   (this->state,state,ADD_VALUES,SCATTER_REVERSE,this->scatter));
+
+
+}
 
 void 
 Application::buildSolution(double time, Vec state, Vec solution)
@@ -105,11 +143,16 @@ Application::buildSolution(double time, Vec state, Vec solution)
     PetscScalar* stt_array;
     VecGetArray(this->state, &stt_array);
     if (sol_array != NULL) {
+#if 0
       const DofMap::Base* dm = this->domain->getDofMap();
       const Time time_data = time;
       for (int i=0; i<nnod; i++)
 	for (int j=0; j<ndof; j++)
 	  dm->get_nodal_value(i+1, j+1,stt_array,&time_data,sol_array[i*ndof+j]);
+#else
+      const DofMap& dofmap = this->domain->getDofMap();
+      dofmap.apply(time,gdofs,stt_array,nnod*ndof,sol_array);
+#endif
     }
     /* array of state vector was not touched */
     VecRestoreArray(this->state, &stt_array);

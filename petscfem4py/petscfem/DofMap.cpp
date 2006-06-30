@@ -1,4 +1,4 @@
-// $Id: DofMap.cpp,v 1.1.2.10 2006/06/08 15:44:52 dalcinl Exp $
+// $Id: DofMap.cpp,v 1.1.2.11 2006/06/30 18:37:25 dalcinl Exp $
 
 #include "DofMap.h"
 
@@ -217,9 +217,9 @@ DofMap::getNDof() const
 
 
 void
-DofMap::apply(int nstt, const double state[],
-	      int nsol, double solution[],
-	      double _time) const
+DofMap::apply(double _time,
+	      int nstt, const double state[],
+	      int nsol,       double solution[]) const
 {
   DofMap& dofmap = const_cast<DofMap&>(*this);
 
@@ -238,7 +238,7 @@ DofMap::apply(int nstt, const double state[],
 
 void
 DofMap::solve(int nsol, const double solution[],
-	      int nstt, double state[]) const
+	      int nstt,       double state[]) const
 {
   DofMap& dofmap = const_cast<DofMap&>(*this);
 
