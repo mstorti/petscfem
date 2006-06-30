@@ -1,4 +1,4 @@
-// $Id: NvrStks.cpp,v 1.1.2.6 2006/06/30 18:38:57 dalcinl Exp $
+// $Id: NvrStks.cpp,v 1.1.2.8 2006/06/30 18:47:44 dalcinl Exp $
 
 #include "NvrStks.h"
 
@@ -42,7 +42,6 @@ struct State: public ::State {
   { this->_vs = v; this->vec = &this->_vs; this->time = t; }
 };
 
-static const char COMP_PROF[]    = "comp_mat";
 static const char COMP_RES[]     = "comp_res";
 static const char COMP_RES_JAC[] = "comp_mat_res";
 
@@ -283,6 +282,8 @@ struct DofProfiler : public PFPETScMat {
 };
 PYPF_NAMESPACE_END
 
+static const char COMP_PROF[] = "comp_mat";
+//static const char COMP_PROF[] = "comp_prof";
 
 PYPF_NAMESPACE_BEGIN
 void
