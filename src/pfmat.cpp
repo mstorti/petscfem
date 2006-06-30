@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: pfmat.cpp,v 1.14.42.2 2006/05/20 21:11:20 dalcinl Exp $
+//$Id: pfmat.cpp,v 1.14.42.3 2006/06/30 00:41:39 dalcinl Exp $
 
 #include <petscmat.h>
 
@@ -17,12 +17,12 @@
 
 #define PF_ACTION_DECL(action) void action() 
 
-#define PF_ACTION_DEF(action)			\
-void pfmatFSMContext::action() {		\
-  matrix_p->ierr = matrix_p->action();		\
-  if (matrix_p->ierr)				\
-    printf("pfmatFSMContext::action ierr=%d\n",	\
-	   matrix_p->ierr);			\
+#define PF_ACTION_DEF(action)			        \
+void pfmatFSMContext::action() {		        \
+  matrix_p->ierr = matrix_p->action();		        \
+  if (matrix_p->ierr)				        \
+    printf("pfmatFSMContext::"#action" ierr=%d\n",	\
+	   matrix_p->ierr);			        \
 }
 
 #define PF_ACTION_LIST				\
@@ -92,8 +92,8 @@ PFMat::PFMat() : ierr(0),
 PFMat::~PFMat() { delete fsm; }
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
-#undef __FUNC__
-#define __FUNC__ "PFMat::set_profile"
+#undef __FUNCT__
+#define __FUNCT__ "PFMat::set_profile"
 int PFMat::set_profile(int row,int col) {
   fsm->set_profile();
   CHKERRQ(ierr); 
@@ -103,8 +103,8 @@ int PFMat::set_profile(int row,int col) {
 }
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
-#undef __FUNC__
-#define __FUNC__ "PFMat::create"
+#undef __FUNCT__
+#define __FUNCT__ "PFMat::create"
 int PFMat::create() {
   fsm->create();
   CHKERRQ(ierr); 
@@ -114,8 +114,8 @@ int PFMat::create() {
 }
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
-#undef __FUNC__
-#define __FUNC__ "PFMat::set_value"
+#undef __FUNCT__
+#define __FUNCT__ "PFMat::set_value"
 int PFMat::set_value(int row,int col,PetscScalar value,
 		     InsertMode mode) {
   fsm->set_value();
@@ -126,8 +126,8 @@ int PFMat::set_value(int row,int col,PetscScalar value,
 }
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
-#undef __FUNC__
-#define __FUNC__ "PFMat::set_values"
+#undef __FUNCT__
+#define __FUNCT__ "PFMat::set_values"
 int PFMat::set_values(int nrows,int *idxr,int ncols,int *idxc,
 		      PetscScalar *values, InsertMode mode) { 
   fsm->set_value();
@@ -138,8 +138,8 @@ int PFMat::set_values(int nrows,int *idxr,int ncols,int *idxc,
 }
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
-#undef __FUNC__
-#define __FUNC__ "PFMat::set_values_a"
+#undef __FUNCT__
+#define __FUNCT__ "PFMat::set_values_a"
 int PFMat::set_values_a(int nrows,int *idxr,int ncols,int *idxc,
 			PetscScalar *values, InsertMode mode) { 
   int row, ierr=0;
@@ -155,8 +155,8 @@ int PFMat::set_values_a(int nrows,int *idxr,int ncols,int *idxc,
 }
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
-#undef __FUNC__
-#define __FUNC__ "PFMat::assembly_begin"
+#undef __FUNCT__
+#define __FUNCT__ "PFMat::assembly_begin"
 int PFMat::assembly_begin(MatAssemblyType type) {
   fsm->assembly_begin();
   CHKERRQ(ierr); 
@@ -166,8 +166,8 @@ int PFMat::assembly_begin(MatAssemblyType type) {
 }
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
-#undef __FUNC__
-#define __FUNC__ "PFMat::assembly_end"
+#undef __FUNCT__
+#define __FUNCT__ "PFMat::assembly_end"
 int PFMat::assembly_end(MatAssemblyType type) {
   fsm->assembly_end();
   //  CHKERRQ(ierr); 
@@ -177,8 +177,8 @@ int PFMat::assembly_end(MatAssemblyType type) {
 }
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
-#undef __FUNC__
-#define __FUNC__ "PFMat::assembly"
+#undef __FUNCT__
+#define __FUNCT__ "PFMat::assembly"
 int PFMat::assembly(MatAssemblyType type) {
   int ierr;
   ierr = assembly_begin(type); CHKERRQ(ierr); 
@@ -187,8 +187,8 @@ int PFMat::assembly(MatAssemblyType type) {
 }
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
-#undef __FUNC__
-#define __FUNC__ "PFMat::solve"
+#undef __FUNCT__
+#define __FUNCT__ "PFMat::solve"
 int PFMat::solve(Vec &res,Vec &dx) {
   res_p = &res;
   dx_p = &dx;
@@ -197,8 +197,8 @@ int PFMat::solve(Vec &res,Vec &dx) {
 }
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
-#undef __FUNC__
-#define __FUNC__ "PFMat::factor_and_solve"
+#undef __FUNCT__
+#define __FUNCT__ "PFMat::factor_and_solve"
 int PFMat::factor_and_solve(Vec &res,Vec &dx) {
   res_p = &res;
   dx_p = &dx;
@@ -207,8 +207,8 @@ int PFMat::factor_and_solve(Vec &res,Vec &dx) {
 }
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
-#undef __FUNC__
-#define __FUNC__ "PFMat::solve_only"
+#undef __FUNCT__
+#define __FUNCT__ "PFMat::solve_only"
 int PFMat::solve_only(Vec &res,Vec &dx) {
   res_p = &res;
   dx_p = &dx;
@@ -217,8 +217,8 @@ int PFMat::solve_only(Vec &res,Vec &dx) {
 }
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
-#undef __FUNC__
-#define __FUNC__ "PFMat::duplicate"
+#undef __FUNCT__
+#define __FUNCT__ "PFMat::duplicate"
 int PFMat::duplicate(MatDuplicateOption op,const PFMat &A) {
   fsm->clear(); 
   duplicate_a(op,A);
@@ -229,32 +229,32 @@ int PFMat::duplicate(MatDuplicateOption op,const PFMat &A) {
 
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
-#undef __FUNC__
-#define __FUNC__ "PFMat::clean_factor"
+#undef __FUNCT__
+#define __FUNCT__ "PFMat::clean_factor"
 int PFMat::clean_factor() { 
   fsm->clean_factor(); CHKERRQ(ierr); 
   return 0;
 }
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
-#undef __FUNC__
-#define __FUNC__ "PFMat::clean_mat"
+#undef __FUNCT__
+#define __FUNCT__ "PFMat::clean_mat"
 int PFMat::clean_mat() { 
   fsm->clean_mat(); CHKERRQ(ierr); 
   return 0;
 }
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
-#undef __FUNC__
-#define __FUNC__ "PFMat::clean_prof"
+#undef __FUNCT__
+#define __FUNCT__ "PFMat::clean_prof"
 int PFMat::clean_prof() { 
   fsm->clean_prof(); CHKERRQ(ierr); 
   return 0;
 }
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
-#undef __FUNC__
-#define __FUNC__ "PFMat::clear"
+#undef __FUNCT__
+#define __FUNCT__ "PFMat::clear"
 int PFMat::clear() { 
   fsm->clear(); CHKERRQ(ierr); 
   return 0;
