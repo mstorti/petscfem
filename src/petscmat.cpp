@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: petscmat.cpp,v 1.13.42.1 2005/09/25 22:58:44 mstorti Exp $
+//$Id: petscmat.cpp,v 1.13.42.2 2006/06/30 00:40:49 dalcinl Exp $
 
 // fixme:= this may not work in all applications
 
@@ -18,8 +18,8 @@ extern int MY_RANK,SIZE;
 PETScMat::~PETScMat() {clear();};
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
-#undef __FUNC__
-#define __FUNC__ "PETScMat::duplicate_a"
+#undef __FUNCT__
+#define __FUNCT__ "PETScMat::duplicate_a"
 int PETScMat::duplicate_a(MatDuplicateOption op,const PFMat &B) {
   const PETScMat *BB = dynamic_cast<const PETScMat *> (&B);
   if (!BB) {
@@ -34,8 +34,8 @@ int PETScMat::duplicate_a(MatDuplicateOption op,const PFMat &B) {
 }
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
-#undef __FUNC__
-#define __FUNC__ "PETScMat::create_a"
+#undef __FUNCT__
+#define __FUNCT__ "PETScMat::create_a"
 int PETScMat::create_a() {
   int k,neqp,keq,leq,pos,sumd=0,sumdcorr=0,sumo=0,ierr,myrank;
 
@@ -158,8 +158,8 @@ int PETScMat::create_a() {
 
 #if 0
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
-#undef __FUNC__
-#define __FUNC__ "PETScMat::clear"
+#undef __FUNCT__
+#define __FUNCT__ "PETScMat::clear"
 void PETScMat::clear() {
   ierr = PFPETScMat::clear(); CHKERRQ(ierr); 
   // P is not destroyed, since P points to A
@@ -168,8 +168,8 @@ void PETScMat::clear() {
 #endif
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
-#undef __FUNC__
-#define __FUNC__ "PETScMat::factor_and_solve"
+#undef __FUNCT__
+#define __FUNCT__ "PETScMat::factor_and_solve"
 int PETScMat::factor_and_solve_a(Vec &res,Vec &dx) {
   ierr = build_ksp(); CHKERRQ(ierr); 
   ierr = solve_only_a(res,dx); CHKERRQ(ierr); 
@@ -177,8 +177,8 @@ int PETScMat::factor_and_solve_a(Vec &res,Vec &dx) {
 }
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
-#undef __FUNC__
-#define __FUNC__ "PETScMat::solve_only"
+#undef __FUNCT__
+#define __FUNCT__ "PETScMat::solve_only"
 int PETScMat::solve_only_a(Vec &res,Vec &dx) {
   int ierr = KSPSolve(ksp,res,dx); CHKERRQ(ierr); 
   ierr = KSPGetIterationNumber(ksp,&its_); CHKERRQ(ierr); 
@@ -186,8 +186,8 @@ int PETScMat::solve_only_a(Vec &res,Vec &dx) {
 }
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
-#undef __FUNC__
-#define __FUNC__ "PETScMat::view"
+#undef __FUNCT__
+#define __FUNCT__ "PETScMat::view"
 int PETScMat::view(PetscViewer viewer) {
   ierr = MatView(A,viewer); CHKERRQ(ierr); 
 //    ierr = KSPView(ksp,PETSC_VIEWER_STDOUT_SELF); CHKERRQ(ierr); 
@@ -195,8 +195,8 @@ int PETScMat::view(PetscViewer viewer) {
 };
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
-#undef __FUNC__
-#define __FUNC__ "PETScMat::clean_mat_a"
+#undef __FUNCT__
+#define __FUNCT__ "PETScMat::clean_mat_a"
 int PETScMat::clean_mat_a() {
   ierr=MatZeroEntries(A); CHKERRQ(ierr);
   return 0;
