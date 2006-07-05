@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: getprop.cpp,v 1.14 2004/01/30 03:44:29 mstorti Exp $
+//$Id: getprop.cpp,v 1.15 2006/07/05 22:12:16 mstorti Exp $
   
 #include "fem.h"
 #include "readmesh.h"
@@ -197,7 +197,7 @@ int get_prop(int & iprop,GHashTable *props,TextHashTable *thash,
   }
 
   // looks in the elemset table
-  double val;
+  double val=NAN;
   ierr = get_double(thash,name,&val,1,n); CHKERRA(ierr);
   for (int k=0; k<n; k++) {
     elprpsindx[iprop]=-1;
