@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: elastld.cpp,v 1.14 2006/05/28 23:25:00 mstorti Exp $
+//$Id: elastld.cpp,v 1.15 2006/07/07 02:10:27 mstorti Exp $
 
 #include <src/fem.h>
 #include <src/utils.h>
@@ -12,22 +12,32 @@
 #include "nsgath.h"
 #include "elastld.h"
 
+#define ELEMPROPS(j,k) VEC2(elemprops,j,k,nelprops)
+#define MAXPROPS 100
+
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>
 void ld_elasticity::init() {
 
-  int ierr;
+  elprpsindx.mono(MAXPROPS);
+  propel.mono(MAXPROPS);
+
+  int ierr, iprop=0;
+  Young_modulus_indx = iprop; 
+
   //o Young modulus
-  TGETOPTDEF(thash,double,Young_modulus,0.);
-  E=Young_modulus;
-  assert(Young_modulus>0.);
+  ierr = get_prop(iprop,elem_prop_names,
+		  thash,elprpsindx.buff(),propel.buff(), 
+		  "Young_modulus",1);
+  nprops = iprop;
+
+//   TGETOPTDEF(thash,double,Young_modulus,0.);
+//   E=Young_modulus;
+//   assert(Young_modulus>0.);
 
   //o Poisson ratio
   TGETOPTDEF(thash,double,Poisson_ratio,0.);
   nu=Poisson_ratio;
   assert(nu>=0. && nu<0.5);
-
-  lambda = nu*E/((1+nu)*(1-2*nu));
-  mu = E/2/(1+nu);
 
   //o Density
   TGETOPTDEF(thash,double,density,0.);
@@ -76,6 +86,15 @@ void ld_elasticity::element_connector(const FastMat2 &xloc,
 				   FastMat2 &res,FastMat2 &mat){
   res.set(0.);
   mat.set(0.);
+
+  load_props(propel.buff(),elprpsindx.buff(),nprops,
+	     &(ELEMPROPS(elem,0)));
+  double Young_modulus = *(propel.buff()+Young_modulus_indx);
+
+  // printf("element %d, Young %f\n",elem,Young_modulus);
+
+  lambda = nu*E/((1+nu)*(1-2*nu));
+  mu = E/2/(1+nu);
 
   // loop over Gauss points
   for (int ipg=0; ipg<npg; ipg++) {
@@ -175,8 +194,6 @@ void ld_elasticity_load
   elprpsindx.mono(MAXPROPS);
   propel.mono(MAXPROPS);
   
-  // TGETOPTNDEF_ND(thash,int,ndim,none); //nd
-
   int ierr, iprop=0;
   pressure_indx = iprop; 
   ierr = get_prop(iprop,elem_prop_names,
@@ -188,8 +205,6 @@ void ld_elasticity_load
   tmp.resize(2,nel,ndim);
 }
 
-#define ELEMPROPS(j,k) VEC2(elemprops,j,k,nelprops)
-
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>
 void ld_elasticity_load
 ::element_connector(const FastMat2 &xloc,
@@ -200,6 +215,7 @@ void ld_elasticity_load
   mat.set(0.);
   load_props(propel.buff(),elprpsindx.buff(),nprops,
 	     &(ELEMPROPS(elem,0)));
+
   double pressure = *(propel.buff()+pressure_indx);
   res.is(2,ndim+1,2*ndim);
 

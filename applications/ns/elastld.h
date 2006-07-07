@@ -1,6 +1,6 @@
 // -*- mode: C++ -*-
 /*__INSERT_LICENSE__*/
-//$Id: elastld.h,v 1.8 2006/03/20 02:02:53 mstorti Exp $
+//$Id: elastld.h,v 1.9 2006/07/07 02:10:27 mstorti Exp $
 
 #ifndef ELASTLD_H
 #define ELASTLD_H
@@ -8,7 +8,7 @@
 //-------<*>-------<*>-------<*>-------<*>-------<*>------- 
 /// 
 class  ld_elasticity : public adaptor { 
-public: 
+private:
   double rho,E,nu,lambda,mu,cdamp;
   int ntens,nen;
 
@@ -16,6 +16,13 @@ public:
     tmp, tmp1, tmp2, tmp3, tmp4, tmp5, tmp6,
     xnew, vnew, xold, vold, G_body, 
     Id, mass_pg, ustar, vstar, a, res_pg, dv;
+
+  dvector<int> elprpsindx; 
+  int nprops;
+  dvector<double> propel;
+  int Young_modulus_indx;
+
+public: 
   void init();
   void element_connector(const FastMat2 &xloc,
 			 const FastMat2 &state_old,
