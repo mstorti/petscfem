@@ -4639,3 +4639,6 @@ tag: beta-3.49.54 on Fri, 09 Jun 2006 19:07:55 -0300 by mstorti in aquiles
 ----------
 tag: beta-3.49.55 on Tue, 13 Jun 2006 10:56:24 -0300 by mstorti in minerva.ceride.gov.ar
      > Takes into account mesh velocity in order to compute stabilization terms. 
+----------
+tag: beta-3.49.56 on Thu, 06 Jul 2006 23:13:48 -0300 by mstorti in spider
+     > Now Young_modulus is a property in `elastld.cpp'
