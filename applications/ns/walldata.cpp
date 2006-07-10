@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: walldata.cpp,v 1.13 2006/02/18 22:40:47 mstorti Exp $
+//$Id: walldata.cpp,v 1.14 2006/07/10 21:40:27 mstorti Exp $
  
 #include <src/fem.h>
 //  #include <src/readmesh.h>
@@ -16,7 +16,10 @@ extern int MY_RANK,SIZE;
 #undef __FUNC__
 #define __FUNC__ "WallData::WallData()"
 WallData::WallData() 
-  : kd_tree(NULL), data_pts(NULL) { }
+#ifdef USE_ANN
+  : kd_tree(NULL), data_pts(NULL) 
+#endif
+{ }
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 void WallData
@@ -50,9 +53,11 @@ void WallData
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 void WallData::clear() {
+#ifdef USE_ANN
   if (kd_tree) delete kd_tree;
   kd_tree = NULL;
   // fixme:= hmmmmm.... who deletes data_pts???
+#endif
 }
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
