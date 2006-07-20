@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: ns_fsi.cpp,v 1.7 2006/06/09 18:04:33 mstorti Exp $
+//$Id: ns_fsi.cpp,v 1.8 2006/07/20 12:18:11 mstorti Exp $
 #include <src/debug.h>
 #include <malloc.h>
 
@@ -307,6 +307,11 @@ int fsi_main() {
   //o The pattern to generate the file name to save in for
   // the rotary save mechanism.
   TGETOPTDEF_S(GLOBAL_OPTIONS,string,save_file_pattern,outvector%d.out);
+  //o The pattern to generate the file name to save in for Newton iterations.
+  //  If not set, Newton iterations are not saved.
+  // the rotary save mechanism.
+  TGETOPTDEF_S(GLOBAL_OPTIONS,string,save_file_pattern_nwt,<none>);
+  int save_newton_iters = (save_file_pattern_nwt!="<none>");
 
   //o The name of the file to save the state vector. 
   TGETOPTDEF_S(GLOBAL_OPTIONS,string,save_file,outvector.out);
@@ -736,6 +741,14 @@ int fsi_main() {
 	  PetscFinalize();
 	  exit(0);
 #endif
+
+	  if (save_newton_iters) {
+	    char save_file_nwt[200];
+	    sprintf(save_file_nwt,save_file_pattern_nwt.c_str(),
+		    tstep,inwt);
+	    
+	    print_vector(save_file_nwt,x,dofmap,&time);
+	  }
 
 	  // fixme:= SHOULD WE CHECK HERE FOR NEWTON CONVERGENCE?	
 	  if (normres_external < tol_newton) {

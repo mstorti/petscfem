@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: elastld.cpp,v 1.15 2006/07/07 02:10:27 mstorti Exp $
+//$Id: elastld.cpp,v 1.16 2006/07/20 12:18:11 mstorti Exp $
 
 #include <src/fem.h>
 #include <src/utils.h>
@@ -89,7 +89,7 @@ void ld_elasticity::element_connector(const FastMat2 &xloc,
 
   load_props(propel.buff(),elprpsindx.buff(),nprops,
 	     &(ELEMPROPS(elem,0)));
-  double Young_modulus = *(propel.buff()+Young_modulus_indx);
+  E = *(propel.buff()+Young_modulus_indx);
 
   // printf("element %d, Young %f\n",elem,Young_modulus);
 
@@ -200,6 +200,10 @@ void ld_elasticity_load
 		  thash,elprpsindx.buff(),propel.buff(), 
 		  "pressure",1);
   nprops = iprop;
+
+  //o Poisson ratio
+  TGETOPTDEF(thash,double,defo_fac,1.);
+
   nor.resize(1,ndim);
   Jaco.resize(2,ndimel,ndim);
   tmp.resize(2,nel,ndim);
@@ -223,12 +227,12 @@ void ld_elasticity_load
 
   state.set(state_old);
   state.is(2,1,ndim);
-  xstar.axpy(state,1-alpha);
+  xstar.axpy(state,defo_fac*(1-alpha));
   state.rs();
 
   state.set(state_new);
   state.is(2,1,ndim);
-  xstar.axpy(state,alpha);
+  xstar.axpy(state,defo_fac*alpha);
   state.rs();
 
 #if 0
