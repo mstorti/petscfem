@@ -4642,3 +4642,9 @@ tag: beta-3.49.55 on Tue, 13 Jun 2006 10:56:24 -0300 by mstorti in minerva.cerid
 ----------
 tag: beta-3.49.56 on Thu, 06 Jul 2006 23:13:48 -0300 by mstorti in spider
      > Now Young_modulus is a property in `elastld.cpp'
+----------
+tag: beta-3.49.57 on Thu, 20 Jul 2006 09:26:11 -0300 by mstorti in aquiles
+     > Fixed bug in `E' per element (elastld)
+     > Added `defo_fac' in `elastld'
+     > Added `save_file_pattern_nwt' to `ns_fsi' (must add to `ns' and `advdif' also). 
+     > Fixed bug that prevented compilation without `ANN'. 
