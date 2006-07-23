@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: nsitetlesc.cpp,v 1.1 2005/05/08 15:19:39 mstorti Exp $
+//$Id: nsitetlesc.cpp,v 1.2 2006/07/23 16:35:42 mstorti Exp $
 
 #include <src/fem.h>
 #include <src/utils.h>
@@ -191,13 +191,33 @@ assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
   DEFPROP(viscosity);
 #define VISC (*(propel+viscosity_indx))
 
+  //o _T: double _N: c2_inverse _D: NAN
+  // _DOC: see doc for #sound_speed# _END
+  DEFPROP(c2_inverse);
+#define C2INV (*(propel+c2_inverse_indx))
+
   int nprops=iprop;
   
   //o Density
   TGETOPTDEF(thash,double,rho,1.);
-  //o Speed of sound
+
+  //o Artificial speed of sound #c# for the
+  //  pseudo-compressibility term. You can enter also #1/c^2#
+  //  as the `c2_inverse' option. We take whichever of the two
+  //  is non-null. If both are null then we assume #c2_inverse=0#,
+  //  i.e. not incompressible. Finally, if both are non-null, we take the value from
+  //  #c2_inverse#. 
   TGETOPTDEF(thash,double,sound_speed,0.);
-  double c2 = square(sound_speed);
+  PETSCFEM_ASSERT(sound_speed>=0.0,"sound_speed must be non-negative: %f\n",
+		  sound_speed)
+
+  //o Scale per element `c2_inverse' quantity. (see `c2_inverse' doc.)  
+  TGETOPTDEF(thash,double,c2_inverse_scale,0.);
+  PETSCFEM_ASSERT(c2_inverse_scale>=0.0,
+		  "c2_inverse_scale should be non-negative: %f\n",
+		  c2_inverse_scale);
+  int c2_flag = sound_speed || c2_inverse_scale;
+
   //o Type of element geometry to define Gauss Point data
   TGETOPTDEF_S(thash,string,geometry,cartesian2d);
   //GPdata gp_data(geom,ndim,nel,npg);
@@ -595,10 +615,15 @@ assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
 
 	// Galerkin - continuity
 	rescont.axpy(SHAPE,wpgdet*div_u_star);
-	if (sound_speed) {
+	double c2inv;
+	if (sound_speed) c2inv = 1.0/square(sound_speed);
+	else c2inv = C2INV*c2_inverse_scale;
+	printf("elem %d, c2inv %f\n",k,c2inv);
+
+	if (c2_flag) {
 	  double dmat_p = (p_star-p)*rec_Dt/alpha+ 
 	    double(tmp30.prod(u_star,grad_p_star,-1,-1));
-	  rescont.axpy(SHAPE,+wpgdet*dmat_p/c2);
+	  rescont.axpy(SHAPE,+wpgdet*dmat_p*c2inv);
 	}
 
 	// PSPG perturbation - continuity
@@ -662,10 +687,10 @@ assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
 	  // Continuity Galerkin
 	  tmp17.prod(dshapex,SHAPE,3,2,1).scale(wpgdet);
 	  matlocf.rest(tmp17).rs();
-	  if (sound_speed) {
+	  if (c2_flag) {
 	    tmp20.prod(SHAPE,SHAPE,1,2);
 	    matlocf.rs().ir(2,ndof).ir(4,ndof);
-	    matlocf.axpy(tmp20,-rec_Dt/alpha*wpgdet/c2).rs();
+	    matlocf.axpy(tmp20,-rec_Dt/alpha*wpgdet*c2inv).rs();
 	  }
 
 	  matlocf.ir(2,ndof).ir(4,ndof).axpy(tmp13,-wpgdet).rs();
