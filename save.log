@@ -4648,3 +4648,7 @@ tag: beta-3.49.57 on Thu, 20 Jul 2006 09:26:11 -0300 by mstorti in aquiles
      > Added `defo_fac' in `elastld'
      > Added `save_file_pattern_nwt' to `ns_fsi' (must add to `ns' and `advdif' also). 
      > Fixed bug that prevented compilation without `ANN'. 
+----------
+tag: beta-3.49.58 on Sun, 23 Jul 2006 13:38:41 -0300 by mstorti in spider
+     > Added compressibility (sound_speed or c2_inverse) per-element 
+     > in `nsitetlesc'
