@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: nsitetlesc.cpp,v 1.2 2006/07/23 16:35:42 mstorti Exp $
+//$Id: nsitetlesc.cpp,v 1.3 2006/07/24 04:52:20 mstorti Exp $
 
 #include <src/fem.h>
 #include <src/utils.h>
@@ -618,7 +618,7 @@ assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
 	double c2inv;
 	if (sound_speed) c2inv = 1.0/square(sound_speed);
 	else c2inv = C2INV*c2_inverse_scale;
-	printf("elem %d, c2inv %f\n",k,c2inv);
+	// printf("elem %d, c2inv %f\n",k,c2inv);
 
 	if (c2_flag) {
 	  double dmat_p = (p_star-p)*rec_Dt/alpha+ 
