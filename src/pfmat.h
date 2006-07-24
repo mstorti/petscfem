@@ -1,6 +1,6 @@
 // -*- mode: C++ -*- 
 /*__INSERT_LICENSE__*/
-// $Id: pfmat.h,v 1.39 2003/08/28 18:39:40 mstorti Exp $
+// $Id: pfmat.h,v 1.40 2006/07/24 04:28:15 mstorti Exp $
 #ifndef PFMAT_H
 #define PFMAT_H
 
@@ -132,7 +132,7 @@ public:
   int assembly_end(MatAssemblyType type);
 
   /// This calls both.
-  int PFMat::assembly(MatAssemblyType type);
+  int assembly(MatAssemblyType type);
 
   /** Solve the linear system 
       @param res (input) the rhs vector

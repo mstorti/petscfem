@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: linkgraph.cpp,v 1.13 2003/05/12 02:06:59 mstorti Exp $
+//$Id: linkgraph.cpp,v 1.14 2006/07/24 04:28:15 mstorti Exp $
 
 #include <src/linkgraph.h>
 #include <src/dvector2.h>
@@ -102,7 +102,8 @@ int LinkGraph::size(int r) {
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 /// Size of packed row (plus header)
-int LinkGraphDis::size_of_pack(Row const & row) const {
+template<> int 
+LinkGraphDis::size_of_pack(Row const & row) const {
   int n = row.size();
   // size + row number + size*(int+double)
   return (n+2)*sizeof(int);
@@ -110,7 +111,8 @@ int LinkGraphDis::size_of_pack(Row const & row) const {
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 /// Pack the row
-void LinkGraphDis::pack(const Row & row,char *&buff) const {
+template<> void 
+LinkGraphDis::pack(const Row & row,char *&buff) const {
   int n=row.size();
   BUFFER_PACK<int>(row.row,buff);
   BUFFER_PACK<int>(n,buff);
@@ -120,7 +122,8 @@ void LinkGraphDis::pack(const Row & row,char *&buff) const {
 }
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
-void LinkGraphDis::unpack(Row & row,const char *&buff)  {
+template<> void 
+LinkGraphDis::unpack(Row & row,const char *&buff)  {
   int n,k;
   BUFFER_UNPACK<int>(row.row,buff);
   BUFFER_UNPACK<int>(n,buff);
@@ -132,7 +135,8 @@ void LinkGraphDis::unpack(Row & row,const char *&buff)  {
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 /// combine a row in the container
-void LinkGraphDis::combine(const Row &row) {
+template<> void 
+LinkGraphDis::combine(const Row &row) {
   int j=row.row;
   Row::iterator q;
   for (q=row.begin(); q!=row.end(); q++) list_insert(j,*q);

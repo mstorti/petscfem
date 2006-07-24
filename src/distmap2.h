@@ -1,6 +1,6 @@
 // -*- mode: C++ -*-
 //__INSERT_LICENSE__
-//$Id: distmap2.h,v 1.12 2005/10/19 17:40:33 mstorti Exp $
+//$Id: distmap2.h,v 1.13 2006/07/24 04:28:15 mstorti Exp $
 
 #ifndef DISTMAP2_H
 #define DISTMAP2_H
@@ -11,7 +11,7 @@
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 template<class Key,class Val,class Partitioner>
 DistMap<Key,Val,Partitioner>::
-DistMap<Key,Val,Partitioner>(Partitioner *pp, MPI_Comm comm_) : comm(comm_) {
+DistMap(Partitioner *pp, MPI_Comm comm_) : comm(comm_) {
   // Determine size of the communicator and rank of the processor
   MPI_Comm_size (comm, &size);
   MPI_Comm_rank (comm, &myrank);

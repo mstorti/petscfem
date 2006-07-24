@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: iisdgraph.cpp,v 1.6 2002/08/28 00:48:18 mstorti Exp $
+//$Id: iisdgraph.cpp,v 1.7 2006/07/24 04:28:15 mstorti Exp $
 
 // fixme:= this may not work in all applications
 extern int MY_RANK,SIZE;
@@ -27,7 +27,8 @@ void StoreGraph1::set_ngbrs(int j,GSet &ngbrs_v) {
 }
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
-int DGMap::size_of_pack(const GRow &q) const {
+template<> int DGMap::
+size_of_pack(const GRow &q) const {
   /// Contains #int k# and the set of neighobrs #set<int> s#. We store
   //#n+2# where #n=s.size()# integers in the sequence: #k, n, s[0],
   //... s[n-1]#.
@@ -35,7 +36,8 @@ int DGMap::size_of_pack(const GRow &q) const {
 }
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
-void DGMap::pack(const GRow &p,char *&buff) const {
+template<> void DGMap::
+pack(const GRow &p,char *&buff) const {
   // number of rows in the map
   int n;
   GSet::const_iterator q,qe;
@@ -58,7 +60,8 @@ void DGMap::pack(const GRow &p,char *&buff) const {
 }
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
-void DGMap::unpack(GRow &p,const char *&buff) {
+template<> void DGMap::
+unpack(GRow &p,const char *&buff) {
   // The et of neighbors
   GSet &w = p.second;
   int k,n,q;
@@ -81,7 +84,8 @@ void DGMap::unpack(GRow &p,const char *&buff) {
 }
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
-void DGMap::combine(const GRow &p) {
+template<> void DGMap::
+combine(const GRow &p) {
   GMap::iterator iter;
   GSet::const_iterator q,qe;
   // Look if the row number is already in the graph

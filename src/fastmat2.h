@@ -1,6 +1,6 @@
 // -*- mode: c++ -*-
 /*__INSERT_LICENSE__*/
-//$Id: fastmat2.h,v 1.36 2006/04/14 17:50:35 mstorti Exp $
+//$Id: fastmat2.h,v 1.37 2006/07/24 04:28:15 mstorti Exp $
 
 #ifndef FASTMAT2_H
 #define FASTMAT2_H
@@ -818,7 +818,7 @@ public:
    */ 
   FastMat2 & assoc(const FastMat2 & A,Fun2 &f,const int m=0,INT_VAR_ARGS);
 
-  double FastMat2::assoc_all(FastMat2::Fun2 &) const ;
+  double assoc_all(FastMat2::Fun2 &) const ;
   //@}
 
   /** @name Sum operations over all indices, max, sum\_, ...

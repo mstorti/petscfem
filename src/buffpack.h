@@ -1,37 +1,26 @@
 // -*- mode: C++ -*- 
 /*__INSERT_LICENSE__*/
-// $Id: buffpack.h,v 1.4 2002/07/24 01:19:54 mstorti Exp $
+// $Id: buffpack.h,v 1.5 2006/07/24 04:28:15 mstorti Exp $
 #ifndef BUFFPACK_H
 #define BUFFPACK_H
 
-#define USE_NAMESPACE
-
-#ifdef USE_NAMESPACE
 #define BUFFER_PACK BufferPack::pack
 #define BUFFER_UNPACK BufferPack::unpack
-#else
-#define BUFFER_PACK BufferPack_pack
-#define BUFFER_UNPACK BufferPack_unpack
-#endif
 
-#ifdef USE_NAMESPACE
 namespace BufferPack {
-#endif
 
   template<class T>
-  void BUFFER_PACK(const T &t,char *& buff) {
+  void pack(const T &t,char *& buff) {
     memcpy(buff,&t,sizeof(T));
     buff += sizeof(T);
   }
   
   template<class T>
-  void BUFFER_UNPACK(T &t,const char *& buff) {
+  void unpack(T &t,const char *& buff) {
     memcpy(&t,buff,sizeof(T));
     buff += sizeof(T);
   }
   
-#ifdef USE_NAMESPACE
 }
-#endif
 
 #endif

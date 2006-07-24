@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: distcont2.h,v 1.4 2005/10/19 17:40:33 mstorti Exp $
+//$Id: distcont2.h,v 1.5 2006/07/24 04:28:15 mstorti Exp $
 
 #ifndef DISTCONT2_H
 #define DISTCONT2_H
@@ -12,9 +12,7 @@
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 template<class Container,typename ValueType,class Partitioner>
 DistCont<Container,ValueType,Partitioner>::
-DistCont<Container,
-  ValueType,
-  Partitioner>(Partitioner *pp, MPI_Comm comm_,iter_mode_t iter_mode_a) 
+DistCont(Partitioner *pp, MPI_Comm comm_,iter_mode_t iter_mode_a) 
     : comm(comm_), iter_mode(iter_mode_a) {
   // Determine size of the communicator and rank of the processor
   MPI_Comm_size (comm, &size);

@@ -1,5 +1,5 @@
 /*__INSERT_LICENSE__*/
-// $Id: distmat.cpp,v 1.14 2002/11/05 19:59:33 mstorti Exp $
+// $Id: distmat.cpp,v 1.15 2006/07/24 04:28:15 mstorti Exp $
 #include <cstdio>
 #include <cstdlib>
 #include <cmath>
@@ -53,7 +53,7 @@ double DistMatrix::val(int i,int j) {
 }  
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
-int DistMat::
+template<> int DistMat::
 size_of_pack(map<int,Row>::const_iterator iter) const {
   int n = iter->second.size();
   // size + row number + size*(int+double)
@@ -61,7 +61,7 @@ size_of_pack(map<int,Row>::const_iterator iter) const {
 }
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
-void DistMat::
+template<> void DistMat::
 pack(const int &k,const Row &row,char *&buff) const {
 
   int n = row.size();
@@ -81,7 +81,7 @@ pack(const int &k,const Row &row,char *&buff) const {
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 #undef __FUNC__
 #define __FUNC__ "void DistMat::unpack(int &,Row &,const char *&)"
-void DistMat::
+template<> void DistMat::
 unpack(int &k,Row &row,const char *&buff) {
   int n,j,key;
   double val;
@@ -104,7 +104,7 @@ unpack(int &k,Row &row,const char *&buff) {
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 #undef __FUNC__
 #define __FUNC__ "int DistMat::processor(const DistMatrix::iterator ) const"
-int DistMat::processor(const DistMat::iterator k) const {
+template<> int DistMat::processor(const DistMat::iterator k) const {
   // The number of processor is computed in the `Partitioner' 
   return part->dofpart(k->first);
 }
@@ -120,7 +120,7 @@ void Row::print() const {
 }
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
-void DistMat::
+template<> void DistMat::
 combine(const pair<int,Row> &p) {
   // Insert the pair (int,row) in the matrix
   map<int,Row>::iterator iter = find(p.first);
