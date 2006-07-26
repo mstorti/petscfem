@@ -1,5 +1,5 @@
 
-// $Id: Domain.cpp,v 1.1.2.7 2006/06/14 19:10:00 dalcinl Exp $
+// $Id: Domain.cpp,v 1.1.2.8 2006/07/26 23:31:34 dalcinl Exp $
 
 #include <algorithm>
 
@@ -162,57 +162,31 @@ Domain::getLocalDofs(std::vector<int>& ldofs) const
   ldofs.insert(ldofs.end(), middle, ghosts.end());
 }
 
-// // old version !!
-// void
-// Domain::getLocalDofs(std::vector<int>& ldofs) const
-// {
-//   Mesh&   mesh   = this->getMesh();
-//   DofMap& dofmap = this->getDofMap();
-
-//   // iterate over all elemsets and build
-//   // the set of nodes of local elements
-//   std::set<int> nodset;
-//   int proc; MPI_Comm_rank(this->getComm(), &proc); proc++;
-//   for (int elset=0; elset<mesh.getSize(); elset++) {
-//     const Elemset& elemset = mesh.getElemset(elset);
-//     int nelem, nel;
-//     const int *icone;
-//     int       *part;
-//     elemset.getData(&nelem, &nel, &icone);
-//     elemset.getPart(NULL, &part);
-//     for (int i=0; i<nelem; i++)
-//       if (part[i] == proc)
-// 	for (int j=0; j<nel; j++)
-// 	  nodset.insert(icone[i*nel+j]);
-//   }
-  
-//   // iterate over set of nodes of local elements
-//   // and build the set of associated dofs
-//   std::set<int> dofset;
-//   int           nnod = nodset.size();
-//   int           ndof = dofmap.getNDof();
-//   int           neqs = dofmap.getSize();
-//   idmap*        id   = dofmap->id;
-//   IdMapRow      row;
-//   set<int>::iterator node_it = nodset.begin();
-//   for (int n=0; n<nnod; n++, node_it++) {
-//     int node = *node_it;
-//     for (int field=1; field<=ndof; field++) {
-//       int edof = (node-1) * ndof + field; // dofmap->edof()
-//       id->get_row(edof, row);
-//       int nrows = row.size();
-//       for (int i=0; i<nrows; i++) {
-// 	IdMapEntry* entry = &row[i];
-// 	int dof = entry->j - 1;
-// 	if (dof<neqs) dofset.insert(dof);
-//       }
-//     }
-//   }
-//   nodset.clear();
-//   // fill output vector
-//   ldofs.reserve(ldofs.size() + dofset.size());
-//   ldofs.insert(ldofs.end(), dofset.begin(), dofset.end());
-// #endif
-// }
+void 
+Domain::getSplitDofs(std::vector<std::vector<int> >& split) const
+{
+  int nnod,  ndof; this->getSizes(&nnod, &ndof);
+  int first, last; this->getDofRange(&first, &last);
+  const DofMap& dofmap = this->getDofMap();
+  split.clear(); split.resize(ndof);
+  for (int field=0; field<ndof; field++) {
+    std::vector<int>& dofs = split[field];
+    for (int node=0; node<nnod; node++) {
+      int n; const int *dofp; const double *coefp;
+      dofmap->get_row(node+1,field+1,n,&dofp,&coefp);
+      for (int i=0; i<n; i++) {
+	int dof = dofp[i]-1;
+	if (dof < first || dof >= last) continue;
+	dofs.push_back(dof);
+      }
+    }
+    std::vector<int>::iterator first, last, uniq;
+    first = dofs.begin();
+    last  = dofs.end();
+    std::sort(first, last);
+    uniq = std::unique(first, last);
+    dofs.erase(uniq, last);
+  }
+}
 
 PYPF_NAMESPACE_END

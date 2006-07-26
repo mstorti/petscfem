@@ -1,4 +1,4 @@
-// $Id: Domain.h,v 1.1.2.7 2006/06/14 19:10:08 dalcinl Exp $
+// $Id: Domain.h,v 1.1.2.8 2006/07/26 23:32:06 dalcinl Exp $
 
 #ifndef PYPF_DOMAIN_H
 #define PYPF_DOMAIN_H
@@ -52,7 +52,7 @@ public:
   void getOwnedDofs(int* start, int* end)    const;
   void getGhostDofs(std::vector<int>& gdofs) const;
   void getLocalDofs(std::vector<int>& ldofs) const;
-
+  void getSplitDofs(std::vector<std::vector<int> >& split) const;
 };
 
 PYPF_NAMESPACE_END

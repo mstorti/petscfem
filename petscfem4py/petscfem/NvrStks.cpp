@@ -1,4 +1,4 @@
-// $Id: NvrStks.cpp,v 1.1.2.8 2006/06/30 18:47:44 dalcinl Exp $
+// $Id: NvrStks.cpp,v 1.1.2.9 2006/07/26 23:32:35 dalcinl Exp $
 
 #include "NvrStks.h"
 
@@ -211,13 +211,20 @@ PYPF_NAMESPACE_END
 PYPF_NAMESPACE_BEGIN
 
 struct DofProfiler : public PFPETScMat {
+
+  enum Kind {
+    NZ  = 0,
+    CSR = 1,
+  };
   
+  Kind kind;
   int first, last;
   std::vector<int> vec1;
   std::vector<int> vec2;
 
-  DofProfiler(const DofMap &dm)
-    : PFPETScMat(dm.getSize(),dm,dm.getComm())
+  DofProfiler(const DofMap &dm, Kind kind=CSR)
+    : PFPETScMat(dm.getSize(),dm,dm.getComm()),
+      kind(kind)
   { 
     dm.getRange(&this->first, &this->last);
   }
@@ -265,7 +272,12 @@ struct DofProfiler : public PFPETScMat {
     lgraph->scatter();
     this->vec1.clear();
     this->vec2.clear();
-    build_csr(this->vec1,this->vec2);
+    switch(this->kind) {
+    case NZ:
+      build_nnz(this->vec1,this->vec2); break;
+    case CSR:
+      build_csr(this->vec1,this->vec2); break;
+    }
     lgraph->clear();
     return 0;
   }
@@ -287,12 +299,30 @@ static const char COMP_PROF[] = "comp_mat";
 
 PYPF_NAMESPACE_BEGIN
 void
-NvrStks::getProfile(std::vector<int>& xadj, std::vector<int>& adjncy) const
+NvrStks::getProfileNZ(std::vector<int>& dnz, std::vector<int>& onz) const
 {
   const Domain& domain = this->getDomain();
   const DofMap& dofmap = domain.getDofMap();
 
-  DofProfiler A(dofmap);
+  DofProfiler A(dofmap, DofProfiler::NZ);
+  this->args->jobinfo = COMP_PROF;
+  this->args->tstar = 0.0;
+  ArgList::Base& argl = *this->args;
+  argl.clear(); argl.arg_add(&A,PROFILE|PFMAT);
+
+  Application::assemble(*this, *this->args);
+  
+  dnz.swap(A.vec1); onz.swap(A.vec2);
+
+}
+
+void
+NvrStks::getProfileCSR(std::vector<int>& xadj, std::vector<int>& adjncy) const
+{
+  const Domain& domain = this->getDomain();
+  const DofMap& dofmap = domain.getDofMap();
+
+  DofProfiler A(dofmap, DofProfiler::CSR);
   this->args->jobinfo = COMP_PROF;
   this->args->tstar = 0.0;
   ArgList::Base& argl = *this->args;

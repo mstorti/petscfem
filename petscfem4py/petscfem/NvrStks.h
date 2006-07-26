@@ -1,4 +1,4 @@
-// $Id: NvrStks.h,v 1.1.2.5 2006/06/30 18:38:45 dalcinl Exp $
+// $Id: NvrStks.h,v 1.1.2.6 2006/07/26 23:32:51 dalcinl Exp $
 
 #ifndef PYPF_NVRSTKS_H
 #define PYPF_NVRSTKS_H
@@ -32,12 +32,9 @@ public:
   void   setAlpha(double alpha) { this->alpha  = alpha;  };
   void   setSteady(bool steady) { this->steady = steady; };
 
-  void operator()(double t, Vec x, Vec r, Mat J) const
-  { this->assemble(t, x, r, J); }
-  void operator()(double t0, Vec x0, double t1, Vec x1, Vec r, Mat J) const
-  { this->assemble(t0, x0, t1, x1, r, J); }
-  
-  void getProfile(std::vector<int>& xadj, std::vector<int>& adjncy) const;
+  void getProfileNZ (std::vector<int>& dnz,  std::vector<int>& onz)    const;
+  void getProfileCSR(std::vector<int>& xadj, std::vector<int>& adjncy) const;
+
   void assemble(double t, Vec x, Vec r, Mat J) const;
   void assemble(double t0, Vec x0, double t1, Vec x1, Vec r, Mat J) const;
 

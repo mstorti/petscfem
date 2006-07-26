@@ -1,5 +1,5 @@
 // -*- c++ -*-
-// $Id: Application.i,v 1.1.2.6 2006/06/30 18:36:40 dalcinl Exp $
+// $Id: Application.i,v 1.1.2.7 2006/07/26 23:31:51 dalcinl Exp $
 
 %include Domain.i
 
@@ -21,6 +21,9 @@ PETSC_OBJECT_TYPEMAP(Vec)
 
 PETSC_OBJECT_TYPEMAP(Mat)
 %typemap(check, noblock=1) Mat J  "";
+
+ARRAY_STDVEC_OUTPUT(std::vector<int>& dnz, PyPF_INT)
+ARRAY_STDVEC_OUTPUT(std::vector<int>& onz, PyPF_INT)
 
 ARRAY_STDVEC_OUTPUT(std::vector<int>& xadj,   PyPF_INT)
 ARRAY_STDVEC_OUTPUT(std::vector<int>& adjncy, PyPF_INT)
