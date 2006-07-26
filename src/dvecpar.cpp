@@ -1,11 +1,11 @@
 //__INSERT_LICENSE__
-// $Id: dvecpar.cpp,v 1.7 2006/04/08 23:02:03 mstorti Exp $
+// $Id: dvecpar.cpp,v 1.8 2006/07/26 10:31:49 mstorti Exp $
 
 #include <src/dvecpar.h>
 #include <src/dvecpar2.h>
 
 #define DVECTOR_MPI_TYPE_DEF(stype,TYPE)			\
-MPI_Datatype							\
+template<> MPI_Datatype							\
 dvector_mpi_type<stype>::type() { return MPI_##TYPE; } ;	\
 // Instantiates for this type					\
 template							\

@@ -1,6 +1,6 @@
 // -*- mode: C++ -*-
 /*__INSERT_LICENSE__*/
-//$Id: nsi_tet.h,v 1.54 2006/03/16 20:39:57 mstorti Exp $
+//$Id: nsi_tet.h,v 1.55 2006/07/26 10:31:49 mstorti Exp $
 #ifndef PETSCFEM_NSI_TET_H  
 #define PETSCFEM_NSI_TET_H
 
@@ -198,8 +198,8 @@ public:
       @param elem (output) the wall element index (base 0)
       @param coords (output) the coords of the center of the wall element. 
   */
-  void WallData::nearest_elem_info(const int nn, Elemset *& elemset, int &elem,
-				   const double *& coords);
+  void nearest_elem_info(const int nn, Elemset *& elemset, int &elem,
+			 const double *& coords);
 };
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 

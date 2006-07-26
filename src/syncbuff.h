@@ -1,6 +1,6 @@
 // -*- mode: c++ -*-
 //__INSERT_LICENSE__
-// $Id: syncbuff.h,v 1.10 2006/04/06 21:35:39 mstorti Exp $
+// $Id: syncbuff.h,v 1.11 2006/07/26 10:31:49 mstorti Exp $
 #include <list>
 #include <iostream>
 #include <src/distcont.h>
@@ -65,21 +65,21 @@ public:
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 #define SYNC_BUFFER_FUNCTIONS(T)		\
 						\
-int SB(T)					\
+template<> int SB(T)					\
 ::size_of_pack(const T &t) const {		\
   return t.size_of_pack();			\
 }						\
 						\
-void SB(T)					\
+template<> void SB(T)					\
 ::pack(const T &t, char *&buff) const {		\
   t.pack(buff);					\
 }						\
 						\
-void SB(T)					\
+template<> void SB(T)					\
 ::unpack(T &t,const char *& buff) {		\
   t.unpack(buff); }				\
 						\
-void SB(T)					\
+template<> void SB(T)					\
 ::combine(const T &t) {				\
 push_back(t); };
 
