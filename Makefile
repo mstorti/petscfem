@@ -1,6 +1,6 @@
 # mode: -*- makefile -*-
 #__INSERT_LICENSE__
-#$Id: Makefile,v 1.64 2006/02/19 01:26:13 mstorti Exp $
+#$Id: Makefile,v 1.65 2006/08/02 16:36:10 mstorti Exp $
 
 SHELL = /bin/bash
 
@@ -219,6 +219,14 @@ save:
 
 #w Count lines in `.cpp' and `.h' files
 line_count:
+	@echo -n 'Lines in source files: ' ;	\
+	cat					\
+	`find . -name '*.cpp'`			\
+	`find . -name '*.h'`			\
+	`find . -name '*.c'`			\
+	| wc -l
+
+line_count_all:
 	@echo -n 'Lines in source files: ' ;	\
 	cat					\
 	`find . -name '*.cpp'`			\
