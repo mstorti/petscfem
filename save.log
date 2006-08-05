@@ -4655,3 +4655,6 @@ tag: beta-3.49.58 on Sun, 23 Jul 2006 13:38:41 -0300 by mstorti in spider
 ----------
 tag: beta-3.49.59 on Wed, 26 Jul 2006 13:48:13 -0300 by mstorti in minerva
      > Migration from GCC 3.3.3 to GCC 4.1
+----------
+tag: beta-3.49.60 on Sat, 05 Aug 2006 13:44:29 -0300 by mstorti in minerva
+     > Merged from bubbl17
