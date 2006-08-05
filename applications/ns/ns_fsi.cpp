@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: ns_fsi.cpp,v 1.8 2006/07/20 12:18:11 mstorti Exp $
+//$Id: ns_fsi.cpp,v 1.9 2006/08/05 16:44:27 mstorti Exp $
 #include <src/debug.h>
 #include <malloc.h>
 
@@ -293,6 +293,9 @@ int fsi_main() {
     PetscPrintf(PETSC_COMM_WORLD,"--- Don forget to refresh Wall_Data -- \n");
     PetscPrintf(PETSC_COMM_WORLD,"--- using update_wall_data global option -- \n");
   }
+
+  //o frequency of Poisson matrix recomputation
+  GETOPTDEF(int,freq_update_mat_poi,1000000);
 
   //o Use IISD (Interface Iterative Subdomain Direct) or not.
   GETOPTDEF(int,use_iisd,0);
@@ -865,7 +868,7 @@ int fsi_main() {
 	scal=0;
 	ierr = VecSet(&scal,res); CHKERRA(ierr);
 
-	if (tstep==1) {
+	if (tstep==1 || tstep % freq_update_mat_poi==0) {
 	  argl.clear();
 	  argl.arg_add(A_poi,OUT_MATRIX|PFMAT);
 	  argl.arg_add(&glob_param,USER_DATA);

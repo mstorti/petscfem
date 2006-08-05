@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: advdife.cpp,v 1.116 2006/06/19 15:50:46 mstorti Exp $
+//$Id: advdife.cpp,v 1.117 2006/08/05 16:44:27 mstorti Exp $
 extern int comp_mat_each_time_step_g,
   consistent_supg_matrix_g,
   local_time_step_g;
@@ -685,16 +685,17 @@ void NewAdvDif::new_assemble(arg_data_list &arg_data_v,const Nodedata *nodedata,
 	    matlocf.add(tmp22);
 	    
 	    if (ALE_flag) {
+#if 0
 	      tmp_ALE_07.prod(P_supg,tmp_ALE_01,1,3,2);
 	      matlocf.axpy(tmp_ALE_07,-wpgdet_low);
 	      tmp_ALE_06.prod(P_supg,tmp_ALE_02,1,-1,-1);
 	      veccontr.axpy(tmp_ALE_06,wpgdet_low);
-	      /*
+#else
 	      tmp_ALE_07.prod(P_Cp,tmp_ALE_01,1,3,2);
 	      matlocf.axpy(tmp_ALE_07,-wpgdet_low);
 	      tmp_ALE_06.prod(P_Cp,tmp_ALE_02,1,-1,-1);
 	      veccontr.axpy(tmp_ALE_06,wpgdet_low);
-	      */
+#endif
 	    }
 	    
 	  }
@@ -1193,16 +1194,17 @@ void NewAdvDif::new_assemble(arg_data_list &arg_data_v,const Nodedata *nodedata,
 	      matlocf.add(tmp22);
 	      
 	      if (ALE_flag) {
+#if 0
 		tmp_ALE_07.prod(P_supg,tmp_ALE_01,1,3,2);
 		matlocf.axpy(tmp_ALE_07,-wpgdet);
 		tmp_ALE_06.prod(P_supg,tmp_ALE_02,1,-1,-1);
 		veccontr.axpy(tmp_ALE_06,wpgdet);
-		/*
+#else
 		tmp_ALE_07.prod(P_Cp,tmp_ALE_01,1,3,2);
 		matlocf.axpy(tmp_ALE_07,-wpgdet);
 		tmp_ALE_06.prod(P_Cp,tmp_ALE_02,1,-1,-1);
 		veccontr.axpy(tmp_ALE_06,wpgdet);
-		*/
+#endif
 	      }
 	    }
 	}
