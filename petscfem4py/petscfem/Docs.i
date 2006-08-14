@@ -1,5 +1,5 @@
 // -*- c++ -*-
-// $Id: Docs.i,v 1.1.2.14 2006/06/22 22:32:41 dalcinl Exp $
+// $Id: Docs.i,v 1.1.2.15 2006/08/14 23:02:09 dalcinl Exp $
 
 %define %docstring(node,...) 
 #if #__VA_ARGS__ == ""
@@ -164,6 +164,7 @@ PYPF_NAMESPACE_BEGIN
 %docstring(Application::Application);
 %docstring(Application::getDomain);
 %docstring(Application::buildSolution);
+%docstring(Application::buildState);
 
 
 %doctypemap(NvrStks);
