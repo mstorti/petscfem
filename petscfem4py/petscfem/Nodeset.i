@@ -1,5 +1,5 @@
 // -*- c++ -*-
-// $Id: Nodeset.i,v 1.1.2.7 2006/06/18 00:03:38 dalcinl Exp $
+// $Id: Nodeset.i,v 1.1.2.8 2006/08/22 21:53:06 dalcinl Exp $
 
 
 %include Object.i
@@ -124,6 +124,7 @@ PYPF_NAMESPACE_BEGIN
   }
 }
 PYPF_NAMESPACE_END
+
 
 
 %include "Nodeset.h"
