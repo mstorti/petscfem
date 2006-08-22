@@ -1,5 +1,5 @@
 // -*- c++ -*-
-// $Id: Nodeset.i,v 1.1.2.8 2006/08/22 21:53:06 dalcinl Exp $
+// $Id: Nodeset.i,v 1.1.2.9 2006/08/22 22:09:01 dalcinl Exp $
 
 
 %include Object.i
@@ -81,33 +81,6 @@ PYPF_NAMESPACE_BEGIN
   }
   %pythoncode {
   __array_interface__ = property(__array_interface__, doc='Array protocol')
-  }
-}
-PYPF_NAMESPACE_END
-
-// array interface #2 <http://numeric.scipy.org/array_interface.html>
-PYPF_NAMESPACE_BEGIN
-%extend Nodeset {
-  PyObject* __array_shape__ () {
-    int n, d, v; self->getSizes(&n, &d, &v);
-    return Py_BuildValue("ii", n, d+v);
-  }
-  PyObject* __array_typestr__ () {
-    PyArray_Descr *descr = PyArray_DescrFromType(PyArray_DOUBLE);
-    char kind      = descr->kind;
-    char byteorder = descr->byteorder;
-    int  elsize    = descr->elsize;
-    Py_DECREF(descr);
-    return PyString_FromFormat("%c%c%d", byteorder, kind, elsize);
-  }
-  PyObject* __array_data__ () {
-    const double* array; self->getArray(&array);
-    return Py_BuildValue("NO", PyString_FromFormat("%p", array), Py_False);
-  }
-  %pythoncode {
-  __array_shape__   = property(__array_shape__,   doc='Array protocol: shape')
-  __array_typestr__ = property(__array_typestr__, doc='Array protocol: typestr')
-  __array_data__    = property(__array_data__,    doc='Array protocol: data')
   }
 }
 PYPF_NAMESPACE_END

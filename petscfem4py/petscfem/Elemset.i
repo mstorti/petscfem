@@ -1,5 +1,5 @@
 // -*- c++ -*-
-// $Id: Elemset.i,v 1.1.2.8 2006/06/28 20:14:10 dalcinl Exp $
+// $Id: Elemset.i,v 1.1.2.9 2006/08/22 22:08:29 dalcinl Exp $
 
 
 %include Object.i
@@ -104,30 +104,6 @@ PYPF_NAMESPACE_BEGIN
 }
 PYPF_NAMESPACE_END
 
-
-PYPF_NAMESPACE_BEGIN
-%extend Elemset {
-  PyObject* __array_shape__ () {
-    int m, n; self->getData(&m, &n, NULL);
-    return Py_BuildValue("ii", m, n);
-  }
-  PyObject* __array_typestr__ () {
-    char endian = PyArray_NATIVE;
-    char kind   = PyArray_INTLTR;
-    int  elsize = sizeof(int);
-    return PyString_FromFormat("%c%c%d", endian, kind, elsize);
-  }
-  PyObject* __array_data__ () {
-    const int* data; self->getData(NULL, NULL, &data);
-    return Py_BuildValue("NO", PyString_FromFormat("%p", data), Py_False);
-  }
-  %pythoncode {
-  __array_shape__   = property(__array_shape__,   doc='Array protocol: shape')
-  __array_typestr__ = property(__array_typestr__, doc='Array protocol: typestr')
-  __array_data__    = property(__array_data__,    doc='Array protocol: data')
-  }
-}
-PYPF_NAMESPACE_END
 
 
 %include "Elemset.h"
