@@ -1,4 +1,4 @@
-// $Id: Object.h,v 1.1.2.8 2006/06/08 15:44:52 dalcinl Exp $
+// $Id: Object.h,v 1.1.2.9 2006/08/22 22:10:43 dalcinl Exp $
 
 #ifndef PYPF_OBJECT_H
 #define PYPF_OBJECT_H
@@ -24,10 +24,6 @@ public:
   Object();
   Object(const Object&);
 
-  // reference count
-public:
-  int getRefCount() const { return getref(); }
-
   // object comparisons
 public:
   bool operator==(const Object& obj) const { return this == &obj; }
@@ -41,19 +37,10 @@ public:
   void     setComm(MPI_Comm comm);
 
   // options management
-protected:
-  Options options;
 public:
-  bool        hasOption (const std::string& key) const;
-  std::string getOption (const std::string& key) const;
-  void        setOption (const std::string& key, const std::string& value);
-  std::map<std::string,std::string> getOptions() const;
-  void setOptions(const std::map<std::string,std::string>& options);
-  void addOptions(const std::map<std::string,std::string>& options);
-  void delOptions();
+  Options options;
 
 };
-
 
 PYPF_NAMESPACE_END
 

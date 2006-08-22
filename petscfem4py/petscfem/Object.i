@@ -1,12 +1,8 @@
 // -*- c++ -*-
-// $Id: Object.i,v 1.1.2.6 2006/06/09 14:23:32 dalcinl Exp $
+// $Id: Object.i,v 1.1.2.7 2006/08/22 22:10:43 dalcinl Exp $
 
 %include Options.i
 %include Comm.i
-
-namespace std { }
-%template() std::pair <std::string, std::string>;
-%template() std::map  <std::string, std::string>;
 
 PYPF_NAMESPACE_BEGIN
 %feature("ref")   Object "$this->incref();"
@@ -24,6 +20,13 @@ PYPF_NAMESPACE_END
 
 PYPF_NAMESPACE_BEGIN
 %extend Object {
+  int __refcount__() { return self->getref(); }
+}
+PYPF_NAMESPACE_END
+
+
+PYPF_NAMESPACE_BEGIN
+%extend Object {
   Comm getComm() { return self->getComm(); }
   %ignore getComm;
 }
@@ -32,8 +35,7 @@ PYPF_NAMESPACE_END
 PYPF_NAMESPACE_BEGIN
 %extend Object {
   %pythoncode {
-  comm    = property(getComm,    setComm,    doc="MPI communicator")
-  options = property(getOptions, setOptions, doc="object options")
+  comm = property(getComm, setComm, doc="MPI communicator")
   }
 }
 PYPF_NAMESPACE_END

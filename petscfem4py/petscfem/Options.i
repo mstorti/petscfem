@@ -1,40 +1,35 @@
 // -*- c++ -*-
-// $Id: Options.i,v 1.1.2.2 2006/05/21 03:48:11 dalcinl Exp $
+// $Id: Options.i,v 1.1.2.3 2006/08/22 22:10:43 dalcinl Exp $
 
+namespace std { }
+%template() std::pair <std::string, std::string>;
+%template() std::map  <std::string, std::string>;
 
 PYPF_NAMESPACE_BEGIN
-%ignore Options;
-%ignore Options::Options;
+
+%naturalvar   Options;
+%implicitconv Options;
+
 %ignore Options::operator=;
-%ignore Options::del;
-PYPF_NAMESPACE_END
+%ignore Options::empty;
+%ignore Options::init;
 
+%rename(__len__)      Options::size;
+%rename(__contains__) Options::has;
+%rename(__getitem__)  Options::get;
+%rename(__setitem__)  Options::set;
+%rename(__delitem__)  Options::del;
 
-// PYPF_NAMESPACE_BEGIN
-// %extend OPTIONS {
-//   %pythoncode {
-//     def __contains__(self, key):
-//         return self.hasOption(key)
-//     def __getitem__(self, key):
-//         return self.getOption(key)
-//     def __setitem__(self, key, value):
-//         return self.setOption(key, value)
-//     def __delitem__(self, key):
-//         return self.delOption(key)
-//   }
-// }
-// PYPF_NAMESPACE_END
+%extend Options {
+  const std::map<std::string,std::string>& todict() { return *self; }
+}
 
-
-PYPF_NAMESPACE_BEGIN
-%ignore OPTIONS::GLOBAL;
-%ignore OPTIONS::init;
 PYPF_NAMESPACE_END
 
 
 %include "Options.h"
 
 
-%init %{
-  PYPF_NAMESPACE::OPTIONS::init();
+%init %{ 
+  PYPF_NAMESPACE::Options::init();
 %}

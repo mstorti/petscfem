@@ -5,14 +5,23 @@
  *
  * This SWIG file provides typemaps for NumPy
  *
- * $Id: numpy.i,v 1.1.2.3 2006/06/15 21:52:18 dalcinl Exp $
+ * $Id: numpy.i,v 1.1.2.4 2006/08/22 22:10:43 dalcinl Exp $
  * -----------------------------------------------------------------*/
 
 %{
 #include <numpy/arrayobject.h>
+#if !defined(NPY_VERSION)
+#define NPY_MAXDIMS      MAX_DIMS 
+#define NPY_CARRAY       CARRAY_FLAGS
+#define NPY_INOUT_ARRAY  INOUT_ARRAY
+#define import_numpy() { if (import_array() < 0) {PyErr_Print(); Py_FatalError("numpy.core.multiarray failed to import... exiting.\n"); } }
+typedef intp npy_intp;
+#else
+#define import_numpy()   import_array()
+#endif
 %}
 
-%init %{if (import_array() < 0) return;%}
+%init %{ import_numpy() %}
 
 
 /* ---------------------------------------------------------------- */
@@ -29,13 +38,13 @@
 
 
 #define ARRAY_INPUT(PYOBJ, TYPENUM) \
-(_PyArray_FROM_OTF((PYOBJ), (TYPENUM), CARRAY_FLAGS))
+(_PyArray_FROM_OTF((PYOBJ), (TYPENUM), NPY_CARRAY))
 
 #define ARRAY_OUTPUT(PYOBJ, TYPENUM) \
-(_PyArray_FROM_OTF((PYOBJ), (TYPENUM), CARRAY_FLAGS | UPDATEIFCOPY))
+(_PyArray_FROM_OTF((PYOBJ), (TYPENUM), NPY_INOUT_ARRAY))
 
 #define ARRAY_IO(PYOBJ, TYPENUM) \
-(_PyArray_FROM_OTF((PYOBJ), (TYPENUM), CARRAY_FLAGS | UPDATEIFCOPY))
+(_PyArray_FROM_OTF((PYOBJ), (TYPENUM), NPY_INOUT_ARRAY))
 
 
 /* creation of new array objects from memory and dimension data */
@@ -45,17 +54,16 @@ static PyObject *
 _PyArray_NewArray(void *buffer, int type, int ndim, ...)
 {
   int i;
-  intp shape[MAX_DIMS];
+  npy_intp shape[NPY_MAXDIMS];
   PyObject* array;
   va_list ap;
   va_start(ap, ndim);
-  for(i=0; i<ndim; i++)
-    shape[i] = va_arg(ap, intp);
+  for(i=0; i<ndim; i++) shape[i] = va_arg(ap, npy_intp);
   va_end(ap);
   array = PyArray_SimpleNew(ndim, shape, type);
   if (array != NULL && buffer != NULL) {
-    void* data = (void*) PyArray_DATA(array);
-    intp nbytes = PyArray_NBYTES(array);
+    void*  data   = (void*)  PyArray_DATA(array);
+    size_t nbytes = (size_t) PyArray_NBYTES(array);
     memcpy(data, buffer, nbytes);
   }
   return array;
@@ -121,7 +129,7 @@ if (!(condition)) ARRAY_exception(SWIG_ValueError, message);
 /* macros for checking array size and dimensions*/
 
 %define ARRAY_check_size(arr, sz)
-ARRAY_assert(PyArray_SIZE(arr)==(intp)(sz), "invalid array size")
+ARRAY_assert(PyArray_SIZE(arr)==(npy_intp)(sz), "invalid array size")
 %enddef
 
 %define ARRAY_check_ndim(arr, ndim)
@@ -129,7 +137,7 @@ ARRAY_assert(PyArray_NDIM(arr)==(int)(ndim), "invalid array ndim")
 %enddef
 
 %define ARRAY_check_dim(arr, i, di)
-ARRAY_assert(PyArray_DIM(arr, i)==(intp)(di), "invalid array dim")
+ARRAY_assert(PyArray_DIM(arr, i)==(npy_intp)(di), "invalid array dim")
 %enddef
 
 %define ARRAY_check_dims(array, size_t, rank, ...)
@@ -270,9 +278,7 @@ SWIG_TYPECHECK_OBJECT_ARRAY
 
 %define ARRAY_NUMTYPE(PYNAME, MACRONAME, NUMTYPE)
 #define  MACRONAME NUMTYPE /* for use in SWIG interface files */
-%init %{ /* for registration in extension module */
-if(PyModule_AddObject(m, #PYNAME, ARRAY_NUMTYPEOBJ(NUMTYPE))) return;
-%}
+%init %{ %set_constant(#PYNAME, ARRAY_NUMTYPEOBJ(NUMTYPE)); %}
 %enddef
 
 /* ---------------------------------------------------------------- */

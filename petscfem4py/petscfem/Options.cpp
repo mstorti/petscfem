@@ -1,4 +1,4 @@
-// $Id: Options.cpp,v 1.1.2.1 2006/04/27 19:09:17 rodrigop Exp $
+// $Id: Options.cpp,v 1.1.2.2 2006/08/22 22:10:43 dalcinl Exp $
 
 #include "Options.h"
 
@@ -91,15 +91,16 @@ Options::del(const string& key)
 }
 
 void
-Options::set(const map<string,string>& options)
+Options::add(const map<string,string>& options)
 {
-  this->options = options;
-  this->texthash->del_entries();
-  this->texthash->set_entries(this->options);
+  map<string,string>::const_iterator m = options.begin();
+  while (m != options.end())
+    if (not this->has(m->first)) 
+      this->set(m->first, m->second);
 }
 
 void
-Options::add(const map<string,string>& options)
+Options::update(const map<string,string>& options)
 {
   this->options.insert(options.begin(), options.end());
   this->texthash->set_entries(options);
@@ -117,11 +118,11 @@ PYPF_NAMESPACE_END
 
 PYPF_NAMESPACE_BEGIN
 
-Options OPTIONS::GLOBAL;
+Options Options::GLOBAL;
 
 void
-OPTIONS::init() {
-  TextHashTable* global_options = OPTIONS::GLOBAL;
+Options::init() {
+  TextHashTable* global_options = Options::GLOBAL;
   global_options->register_name("global_options");
   global_options->set_as_global();
   GLOBAL_OPTIONS = global_options;

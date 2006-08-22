@@ -1,5 +1,5 @@
 // -*- c++ -*-
-// $Id: Docs.i,v 1.1.2.16 2006/08/14 23:03:02 dalcinl Exp $
+// $Id: Docs.i,v 1.1.2.17 2006/08/22 22:10:43 dalcinl Exp $
 
 %define %docstring(node,...) 
 #if #__VA_ARGS__ == ""
@@ -32,6 +32,20 @@ PYPF_NAMESPACE_BEGIN
 %feature("autodoc");
 
 
+%doctypemap(Options);
+%docstring(Options);
+%docstring(Options::Options);
+%docstring(Options::has);
+%docstring(Options::get);
+%docstring(Options::set);
+%docstring(Options::del);
+%docstring(Options::add);
+%docstring(Options::update);
+%docstring(Options::size);
+%docstring(Options::clear);
+%docstring(Options::todict, "todict(self) -> dict");
+
+
 %doctypemap(Comm);
 %docstring(Comm);
 %docstring(Comm::Comm);
@@ -45,17 +59,10 @@ PYPF_NAMESPACE_BEGIN
 
 %doctypemap(Object);
 %docstring(Object);
-%docstring(Object::getComm);
-%docstring(Object::setComm);
-%docstring(Object::hasOption);
-%docstring(Object::getOption);
-%docstring(Object::setOption);
-%docstring(Object::getOptions, "getOptions(self) -> dict");
-%docstring(Object::setOptions);
-%docstring(Object::addOptions);
-%docstring(Object::delOptions);
 %docstring(Object::operator==);
 %docstring(Object::operator!=);
+%docstring(Object::getComm);
+%docstring(Object::setComm);
 
 
 %doctypemap(Nodeset);

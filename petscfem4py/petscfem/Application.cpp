@@ -1,4 +1,4 @@
-// $Id: Application.cpp,v 1.1.2.5 2006/06/30 18:36:23 dalcinl Exp $
+// $Id: Application.cpp,v 1.1.2.6 2006/08/22 22:10:43 dalcinl Exp $
 
 #include "Application.h"
 
@@ -174,7 +174,7 @@ Application::assemble(const Application& app, const ArgList& args)
   MPI_Comm_rank(PETSCFEM_COMM_WORLD, &MY_RANK);
   GLOBAL_MESH = mesh;
   if (app.options.empty())
-    GLOBAL_OPTIONS = OPTIONS::GLOBAL;
+    GLOBAL_OPTIONS = Options::GLOBAL;
   else
     GLOBAL_OPTIONS = app.options;
 
@@ -184,7 +184,7 @@ Application::assemble(const Application& app, const ArgList& args)
   // post-assemble
   PETSCFEM_COMM_WORLD = MPI_COMM_NULL;
   GLOBAL_MESH         = NULL;
-  GLOBAL_OPTIONS      = OPTIONS::GLOBAL;
+  GLOBAL_OPTIONS      = Options::GLOBAL;
 
   if (ierr) throw Error("PETScFEM assemble error");
 
