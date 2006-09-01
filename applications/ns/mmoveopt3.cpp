@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: mmoveopt3.cpp,v 1.2 2006/09/01 03:15:22 mstorti Exp $
+//$Id: mmoveopt3.cpp,v 1.3 2006/09/01 16:31:28 mstorti Exp $
 
 #include <src/fem.h>
 #include <src/utils.h>
@@ -100,9 +100,6 @@ element_connector(const FastMat2 &xloc,
 
   x.prod(iT0,y,2,-1,1,-1);
   x0.prod(iT0,y0,2,-1,1,-1);
-
-  x.set(y);
-  x.set(y0);
 
   if (relax_factor_now!=1.0) {
     dx.set(x).rest(x0);

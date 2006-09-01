@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-/* $Id: blessf.cpp,v 1.45 2006/09/01 01:43:26 mstorti Exp $ */
+/* $Id: blessf.cpp,v 1.46 2006/09/01 16:31:28 mstorti Exp $ */
 
 #include <src/debug.h>
 #include <malloc.h>
@@ -13,6 +13,7 @@
 #include <src/pfmat.h>
 #include <src/pfobject.h>
 #include <src/gatherer.h>
+#include <src/srfgath.h>
 
 #include "./nsi_tet.h"
 
@@ -39,6 +40,8 @@
 #include "./interplns.h"
 #include "./condwall.h"
 #include "./condwallpen.h"
+#include "./bubblyqint.h"
+#include "./bubblyqint.h"
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:
 #undef __FUNC__
@@ -69,6 +72,7 @@ void bless_elemset(char *type,Elemset *& elemset) {
     SET_ELEMSET_TYPE(nsi_tet_les_comp)
     SET_ELEMSET_TYPE(nsi_tet_les_ther)
     SET_ELEMSET_TYPE(nsi_tet_les_asm)
+    SET_ELEMSET_TYPE(bubbly_flow_rate_integrator);
     SET_ELEMSET_TYPE(nsi_tet_keps)
     SET_ELEMSET_TYPE(nsi_tet_keps_rot)
     SET_ELEMSET_TYPE(nsi_tet_asm)
