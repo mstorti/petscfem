@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: mmoveopt3.cpp,v 1.1 2006/09/01 01:43:26 mstorti Exp $
+//$Id: mmoveopt3.cpp,v 1.2 2006/09/01 03:15:22 mstorti Exp $
 
 #include <src/fem.h>
 #include <src/utils.h>
@@ -33,6 +33,14 @@ void mesh_move_opt3::init() {
   d2SldW2.resize(4,ndim,ndim,ndim,ndim).set(0.);
   w.resize(2,ndim,ndim).set(0.);
   w0.resize(2,ndim,ndim).set(0.);
+
+  tmp2.resize(2,ndim+1,ndim+1);
+  xreg.resize(2,ndim+1,ndim+1);
+  assert(ndim==2); // define coordinates for regular tetra
+  double xreg_v[] = {0.,0.,1.0,1.0,0.,1.0,0.5,sqrt(3.0)/2.0,1.0};
+  xreg.t().set(xreg_v).rs();
+  tmp3.inv(xreg);
+  tmp4.resize(2,ndim,ndim+1);
 
   vaux1.resize(1,ndim).set(0.);
   vaux2.resize(2,ndim,3).set(0.);
@@ -76,8 +84,25 @@ element_connector(const FastMat2 &xloc,
   if (glob_param->inwt>0) 
     relax_factor_now = 1.0;
 
-  x.set(xloc).add(state_new);
-  x0.set(xloc).add(state_old);
+  // `y' coordinates are real
+  // `x' coordinates are in the metric where the reference
+  // element is `regular'
+  xref.set(xloc);
+  
+  tmp4.prod(xref,tmp3,-1,1,-1,2);
+  tmp4.is(2,1,ndim);
+  T0.set(tmp4);
+  tmp4.rs();
+  iT0.inv(T0);
+
+  y.set(xloc).add(state_new);
+  y0.set(xloc).add(state_old);
+
+  x.prod(iT0,y,2,-1,1,-1);
+  x0.prod(iT0,y0,2,-1,1,-1);
+
+  x.set(y);
+  x.set(y0);
 
   if (relax_factor_now!=1.0) {
     dx.set(x).rest(x0);

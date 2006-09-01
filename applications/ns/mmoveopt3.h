@@ -1,6 +1,6 @@
 // -*- mode: C++ -*-
 /*__INSERT_LICENSE__*/
-//$Id: mmoveopt3.h,v 1.1 2006/09/01 01:43:26 mstorti Exp $
+//$Id: mmoveopt3.h,v 1.2 2006/09/01 03:15:22 mstorti Exp $
 
 #ifndef MMOVEOPT3_H
 #define MMOVEOPT3_H
@@ -27,6 +27,7 @@ private:
   FastMat2 dVdW,dSldW,dWdu,d2VdW2,d2SldW2,d2Vdu2,
     d2Sldu2,x,w,dVdu,dSldu,dQ,d2Q,tmp,mat1,
     vaux,vaux1,vaux2,w0,x0,epsilon_LC,dx;
+  FastMat2 y,y0,xref,tmp2,xreg,tmp3,tmp4,T0,iT0;
   /// Parameters
   double distor_exp,c_distor,c_volume,c_relax,
     volume_exp,relax_factor;
