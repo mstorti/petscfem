@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: mmoveopt3.cpp,v 1.4 2006/09/02 16:08:28 mstorti Exp $
+//$Id: mmoveopt3.cpp,v 1.5 2006/09/02 22:53:53 mstorti Exp $
 
 #include <src/fem.h>
 #include <src/utils.h>
@@ -38,6 +38,7 @@ void mesh_move_opt3::init() {
   xreg.resize(2,ndim+1,ndim+1);
   assert(ndim==2); // define coordinates for regular tetra
   double xreg_v[] = {0.,0.,1.0,1.0,0.,1.0,0.5,sqrt(3.0)/2.0,1.0};
+  // double xreg_v[] = {0.,0.,1.0,1.0,0.,1.0,0.,1.0,1.0};
   xreg.t().set(xreg_v).rs();
   tmp3.inv(xreg);
   tmp4.resize(2,ndim,ndim+1);
@@ -95,6 +96,7 @@ element_connector(const FastMat2 &xloc,
     tmp4.prod(xref,tmp3,-1,1,-1,2);
     tmp4.is(2,1,ndim);
     T0.set(tmp4);
+    // T0.print("T0:");
     tmp4.rs();
     iT0.inv(T0);
 
@@ -271,8 +273,9 @@ element_connector(const FastMat2 &xloc,
   mat.axpy(d2Vdu2,volume_exp*c_volume/pow(Vref,volume_exp)*pow(V-Vref,volume_exp-1.)).scale(-1.);
 
   if (use_ref_mesh) {
-    // mat2.prod(mat,iT0,1,-1,3,4,-1,2);
-    mat2.prod(mat,iT0,1,2,3,-1,-1,4);
-    mat.set(mat2);
+    res2.prod(res,iT0,1,-1,-1,2);
+    res.set(res2);
+    mat2.prod(mat,iT0,1,-1,3,4,-1,2);
+    mat.prod(mat2,iT0,1,2,3,-1,-1,4);
   }
 }
