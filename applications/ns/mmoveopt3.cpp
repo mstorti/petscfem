@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: mmoveopt3.cpp,v 1.3 2006/09/01 16:31:28 mstorti Exp $
+//$Id: mmoveopt3.cpp,v 1.4 2006/09/02 16:08:28 mstorti Exp $
 
 #include <src/fem.h>
 #include <src/utils.h>
@@ -70,6 +70,8 @@ void mesh_move_opt3::init() {
   TGETOPTDEF_ND(thash,double,c_distor,1.);
   //o Relaxation factor
   TGETOPTDEF_ND(thash,double,relax_factor,1.);
+  //o If true, then the reference mesh is used as the optimal mesh. 
+  TGETOPTDEF_ND(thash,int,use_ref_mesh,1);
 }
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
@@ -88,18 +90,23 @@ element_connector(const FastMat2 &xloc,
   // `x' coordinates are in the metric where the reference
   // element is `regular'
   xref.set(xloc);
-  
-  tmp4.prod(xref,tmp3,-1,1,-1,2);
-  tmp4.is(2,1,ndim);
-  T0.set(tmp4);
-  tmp4.rs();
-  iT0.inv(T0);
+ 
+  if (use_ref_mesh) {
+    tmp4.prod(xref,tmp3,-1,1,-1,2);
+    tmp4.is(2,1,ndim);
+    T0.set(tmp4);
+    tmp4.rs();
+    iT0.inv(T0);
 
-  y.set(xloc).add(state_new);
-  y0.set(xloc).add(state_old);
-
-  x.prod(iT0,y,2,-1,1,-1);
-  x0.prod(iT0,y0,2,-1,1,-1);
+    y.set(xloc).add(state_new);
+    y0.set(xloc).add(state_old);
+    
+    x.prod(iT0,y,2,-1,1,-1);
+    x0.prod(iT0,y0,2,-1,1,-1);
+  } else {
+    x.set(xloc).add(state_new);
+    x0.set(xloc).add(state_old);
+  }
 
   if (relax_factor_now!=1.0) {
     dx.set(x).rest(x0);
@@ -263,4 +270,9 @@ element_connector(const FastMat2 &xloc,
   mat.axpy(mat1,volume_exp*c_volume/pow(Vref,volume_exp)*(volume_exp-1.)*pow(V-Vref,volume_exp-2.));
   mat.axpy(d2Vdu2,volume_exp*c_volume/pow(Vref,volume_exp)*pow(V-Vref,volume_exp-1.)).scale(-1.);
 
+  if (use_ref_mesh) {
+    // mat2.prod(mat,iT0,1,-1,3,4,-1,2);
+    mat2.prod(mat,iT0,1,2,3,-1,-1,4);
+    mat.set(mat2);
+  }
 }
