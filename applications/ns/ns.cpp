@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: ns.cpp,v 1.186 2006/09/03 22:00:47 mstorti Exp $
+//$Id: ns.cpp,v 1.187 2006/09/03 22:16:26 mstorti Exp $
 #include <src/debug.h>
 #include <malloc.h>
 
@@ -77,6 +77,10 @@ int main(int argc,char **args) {
 
   PetscInitialize(&argc,&args,(char *)0,help);
 
+  // Get MPI info
+  MPI_Comm_size(PETSC_COMM_WORLD,&SIZE);
+  MPI_Comm_rank(PETSC_COMM_WORLD,&MY_RANK);
+
   int fsi=0;
   if (MY_RANK==0 && argc>=2 && !strcmp(args[1],"-fsi")) fsi=1;
   MPI_Bcast(&fsi,1,MPI_INT,0,PETSC_COMM_WORLD);
@@ -95,9 +99,6 @@ int main(int argc,char **args) {
 
   if (mmove) return mmove_main();
 
-  // Get MPI info
-  MPI_Comm_size(PETSC_COMM_WORLD,&SIZE);
-  MPI_Comm_rank(PETSC_COMM_WORLD,&MY_RANK);
 
   print_copyright();
   PetscPrintf(PETSC_COMM_WORLD,"-------- Navier-Stokes module ---------\n");

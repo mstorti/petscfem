@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: mmvmain.cpp,v 1.1 2006/09/03 21:42:52 mstorti Exp $
+//$Id: mmvmain.cpp,v 1.2 2006/09/03 22:16:26 mstorti Exp $
 #include <src/debug.h>
 #include <malloc.h>
 
@@ -63,7 +63,7 @@ int mmove_main() {
   hmin.resize(1);
 
   print_copyright();
-  PetscPrintf(PETSC_COMM_WORLD,"-------- Navier-Stokes[2] module ---------\n");
+  PetscPrintf(PETSC_COMM_WORLD,"-------- MESH-MOVE module ---------\n");
 
   Debug debug(0,PETSC_COMM_WORLD);
   GLOBAL_DEBUG = &debug;
@@ -180,24 +180,8 @@ int mmove_main() {
   //o Number of inner iterations for the global non-linear
   // Newton  problem. 
   GETOPTDEF(int,nnwt,1);
-  //o Update jacobian each $n$-th time step. 
-  GETOPTDEF(int,update_jacobian_steps,0);
-#define INF INT_MAX
-  //o Update jacobian each $n$-th time step. 
-  GETOPTDEF(int,update_jacobian_start_steps,INF);
-#undef INF
   //o Tolerance to solve the non-linear system (global Newton).
   GETOPTDEF(double,tol_newton,1e-8);
-
-#define INF INT_MAX
-  //o Update jacobian only until n-th Newton subiteration. 
-  // Don't update if null. 
-  GETOPTDEF(int,update_jacobian_iters,1);
-  assert(update_jacobian_iters>=1);
-  //o Update jacobian each $n$-th Newton iteration
-  GETOPTDEF(int,update_jacobian_start_iters,INF);
-  assert(update_jacobian_start_iters>=0);
-#undef INF
 
   //o _T: vector<double>
   // _N: newton_relaxation_factor
@@ -465,8 +449,8 @@ int mmove_main() {
       ierr  = VecNorm(res,NORM_2,&normres); CHKERRA(ierr);
       if (inwt==0) normres_external = normres;
       PetscPrintf(PETSC_COMM_WORLD,
-		  "Newton subiter %d, norm_res  = %10.3e, update Jac. %d\n",
-		  inwt,normres,update_jacobian_this_iter);
+		  "Newton subiter %d, norm_res  = %10.3e\n",
+		  inwt,normres);
 
       // substep update
       double relfac;
