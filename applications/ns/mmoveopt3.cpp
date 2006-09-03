@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: mmoveopt3.cpp,v 1.5 2006/09/02 22:53:53 mstorti Exp $
+//$Id: mmoveopt3.cpp,v 1.6 2006/09/03 00:18:38 mstorti Exp $
 
 #include <src/fem.h>
 #include <src/utils.h>
@@ -36,10 +36,30 @@ void mesh_move_opt3::init() {
 
   tmp2.resize(2,ndim+1,ndim+1);
   xreg.resize(2,ndim+1,ndim+1);
-  assert(ndim==2); // define coordinates for regular tetra
-  double xreg_v[] = {0.,0.,1.0,1.0,0.,1.0,0.5,sqrt(3.0)/2.0,1.0};
-  // double xreg_v[] = {0.,0.,1.0,1.0,0.,1.0,0.,1.0,1.0};
-  xreg.t().set(xreg_v).rs();
+  double xreg_v_tri[] = {0.,0.,1.0,1.0,0.,1.0,0.5,sqrt(3.0)/2.0,1.0};
+  double xreg_v_tetra[] = {0.,0.,0.,1.0,
+			   1.,0.,0.,1.0,
+			   0.5,sqrt(3.0)/2.0,0.,1.0,
+			   0.5,1.0/(sqrt(3.0)*2.0),sqrt(2.0/3.0),1.0};
+  xreg.t().set(ndim==2? xreg_v_tri : xreg_v_tetra).rs();
+  xreg.print("xreg: ");
+
+  FastMat2 a(1,ndim);
+  xreg.is(1,1,ndim);
+  for (int j=1; j<4; j++) {
+    for (int k=1; k<4; k++) {
+      xreg.ir(2,j);
+      xreg.print("");
+      a.set(0.0).add(xreg);
+      xreg.ir(2,k);
+      xreg.print("");
+      a.set(0.0).rest(xreg);
+      printf("length of edge: %f\n",sqrt(a.sum_square_all()));
+    }
+  }
+  PetscFinalize();
+  exit(0);
+
   tmp3.inv(xreg);
   tmp4.resize(2,ndim,ndim+1);
 
