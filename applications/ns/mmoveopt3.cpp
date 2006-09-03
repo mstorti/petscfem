@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: mmoveopt3.cpp,v 1.6 2006/09/03 00:18:38 mstorti Exp $
+//$Id: mmoveopt3.cpp,v 1.7 2006/09/03 22:00:47 mstorti Exp $
 
 #include <src/fem.h>
 #include <src/utils.h>
@@ -42,8 +42,9 @@ void mesh_move_opt3::init() {
 			   0.5,sqrt(3.0)/2.0,0.,1.0,
 			   0.5,1.0/(sqrt(3.0)*2.0),sqrt(2.0/3.0),1.0};
   xreg.t().set(ndim==2? xreg_v_tri : xreg_v_tetra).rs();
-  xreg.print("xreg: ");
 
+#if 0
+  xreg.print("xreg: ");
   FastMat2 a(1,ndim);
   xreg.is(1,1,ndim);
   for (int j=1; j<4; j++) {
@@ -59,6 +60,7 @@ void mesh_move_opt3::init() {
   }
   PetscFinalize();
   exit(0);
+#endif
 
   tmp3.inv(xreg);
   tmp4.resize(2,ndim,ndim+1);
