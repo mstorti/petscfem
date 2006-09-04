@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: mmvmain.cpp,v 1.5 2006/09/04 01:05:52 mstorti Exp $
+//$Id: mmvmain.cpp,v 1.6 2006/09/04 20:18:04 mstorti Exp $
 #include <src/debug.h>
 #include <malloc.h>
 
@@ -358,9 +358,15 @@ int mmove_main() {
 
     hook_list.time_step_pre(time.time(),tstep);
     
+    if (tstep>1) {
+      printf("x prev to project\n");
+      ierr = VecView(x,PETSC_VIEWER_STDOUT_WORLD);
+      CHKERRA(ierr);
+    }
+
     // Inicializacion del paso
-    ierr = VecCopy(x,dx_step);
     ierr = VecCopy(x,xold);
+    ierr = VecCopy(xold,dx_step);
 
     time_old.set(time.time());
 
@@ -384,8 +390,9 @@ int mmove_main() {
     CHKERRA(ierr);
     debug.trace("After residual computation.");
 
-    // ierr = VecView(res,PETSC_VIEWER_STDOUT_WORLD);
-    // CHKERRA(ierr);
+    printf("res: ");
+    ierr = VecView(res,PETSC_VIEWER_STDOUT_WORLD);
+    CHKERRA(ierr);
 
     // res = RES(u^n,t^n+epsilon);
     double epsilon = time_fac_epsilon*Dt;
@@ -407,8 +414,9 @@ int mmove_main() {
     CHKERRA(ierr);
     debug.trace("After residual computation.");
 
-    // ierr = VecView(resp,PETSC_VIEWER_STDOUT_WORLD);
-    // CHKERRA(ierr);
+    printf("resp: ");
+    ierr = VecView(resp,PETSC_VIEWER_STDOUT_WORLD);
+    CHKERRA(ierr);
 
     // res = (res-resp)
     scal = -1.;
@@ -418,10 +426,11 @@ int mmove_main() {
     ierr = VecScale(&scal,resp);
     ierr = Ap->solve(resp,dx); CHKERRA(ierr); 
 
-    // ierr = Ap->view(matlab); CHKERRA(ierr); 
+    ierr = Ap->view(matlab); CHKERRA(ierr); 
 
-    // ierr = VecView(dx,PETSC_VIEWER_STDOUT_WORLD);
-    // CHKERRA(ierr);
+    printf("dx: ");
+    ierr = VecView(dx,PETSC_VIEWER_STDOUT_WORLD);
+    CHKERRA(ierr);
 
     // x = x+dx
     scal = 1.0;

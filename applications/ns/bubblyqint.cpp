@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: bubblyqint.cpp,v 1.2 2006/09/04 17:49:42 mstorti Exp $
+//$Id: bubblyqint.cpp,v 1.3 2006/09/04 20:18:04 mstorti Exp $
 
 #include <src/fem.h>
 #include <src/utils.h>
@@ -51,7 +51,9 @@ void bubbly_flow_rate_integrator
   u.rs();
   double un = double(tmp);
   ip_values[1] = un;
+  double gn = n.get(g_dir);
   for (int j=0; j<nphases; j++) {
-    ip_values[j+2] = un*u.get(ndim+2+j);
+    double u_phase_n = un + vslip_user_vp.get(1+j)*gn;
+    ip_values[j+2] = u_phase_n * u.get(ndim+2+j);
   }
 }
