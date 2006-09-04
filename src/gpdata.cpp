@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: gpdata.cpp,v 1.42 2006/09/04 17:49:42 mstorti Exp $
+//$Id: gpdata.cpp,v 1.43 2006/09/04 18:02:03 mstorti Exp $
 
 #include "petscsles.h"
 #include <math.h>
@@ -507,6 +507,11 @@ GPdata::GPdata(const char *geom,int ndimel,int nel,int npg_,int
 #ifdef USE_DX
     splitting.parse("1  2  4  3 quads");
 #endif
+    // edges
+    nedges_m = 4;
+    int edges_v[] = {1,2, 2,3, 3,4, 4,1 }; // Lateral
+    edges.insert(edges.end(),edges_v,edges_v+2*nedges_m);
+
     } else if (ndimel==3) {
       Matrix xinode(3,8);
       xinode << -1 << 1 << 1 << -1 << -1 << 1 << 1 << -1 
