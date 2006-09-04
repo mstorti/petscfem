@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: mmvmain.cpp,v 1.3 2006/09/04 00:21:00 mstorti Exp $
+//$Id: mmvmain.cpp,v 1.4 2006/09/04 00:57:38 mstorti Exp $
 #include <src/debug.h>
 #include <malloc.h>
 
@@ -377,6 +377,8 @@ int mmove_main() {
     ierr = assemble(mesh,argl,dofmap,"comp_mat_res",&time);
     CHKERRA(ierr);
     debug.trace("After residual computation.");
+    ierr = VecView(res,PETSC_VIEWER_STDOUT_WORLD);
+    CHKERRA(ierr);
 
     // res = RES(u^n,t^n+epsilon);
     double epsilon = time_fac_epsilon*Dt;
@@ -397,16 +399,24 @@ int mmove_main() {
     ierr = assemble(mesh,argl,dofmap,"comp_mat_res",&time);
     CHKERRA(ierr);
     debug.trace("After residual computation.");
+    ierr = VecView(resp,PETSC_VIEWER_STDOUT_WORLD);
+    CHKERRA(ierr);
 
-    // res = (res-resp)/epsilon
+    // res = (res-resp)
     scal = -1.;
-    ierr = VecAXPY(&scal,res,resp); CHKERRQ(ierr); 
+    ierr = VecAXPY(&scal,resp,res); CHKERRQ(ierr); 
     
-    scal = 1./epsilon;
-    ierr = VecScale(&scal,res);
-    ierr = Ap->solve(res,dx); CHKERRA(ierr); 
+    scal = 1./time_fac_epsilon;
+    ierr = VecScale(&scal,resp);
+    ierr = Ap->solve(resp,dx); CHKERRA(ierr); 
+
+    ierr = Ap->view(matlab); CHKERRA(ierr); 
+
+    ierr = VecView(dx,PETSC_VIEWER_STDOUT_WORLD);
+    CHKERRA(ierr);
 
     // x = x+dx
+    scal = 1.0;
     ierr = VecAXPY(&scal,dx,x); CHKERRA(ierr); 
 
     time.set(time_old.time());
