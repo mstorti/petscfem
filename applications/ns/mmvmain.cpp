@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: mmvmain.cpp,v 1.2 2006/09/03 22:16:26 mstorti Exp $
+//$Id: mmvmain.cpp,v 1.3 2006/09/04 00:21:00 mstorti Exp $
 #include <src/debug.h>
 #include <malloc.h>
 
@@ -37,9 +37,9 @@ extern GlobParam *GLOB_PARAM;
 #define __FUNC__ "struct_main"
 int mmove_main() {
 
-  Vec x, dx, xold, dx_step, res; // approx solution, RHS, residual
+  Vec x, dx, xold, dx_step, res, resp; // approx solution, RHS, residual
   PetscViewer matlab;
-  PFMat *A;	// linear system matrix 
+  PFMat *Ap=NULL;	// linear system matrix 
   double  norm, *sol, scal;	// norm of solution error
   int     ierr, i, n = 10, size, node,
     jdof, k, kk, nfixa,
@@ -47,13 +47,13 @@ int mmove_main() {
     myrank;
   PetscTruth flg;
   // Initialize time
-  Time time,time_old,time_star; 
+  Time time,time_old; 
   GlobParam glob_param;
   GLOB_PARAM = &glob_param;
   string save_file_res;
   BasicObject_application_factory = &BasicObject_ns_factory;
   
-  // ierr = MatCreateShell(PETSC_COMM_WORLD,int m,int n,int M,int N,void *ctx,Mat *A)
+  // ierr = MatCreateShell(PETSC_COMM_WORLD,int m,int n,int M,int N,void *ctx,Mat *Ap)
   char fcase[FLEN+1],output_file[FLEN+1];
   Dofmap *dofmap;
   Mesh *mesh;
@@ -113,6 +113,10 @@ int mmove_main() {
   // time_old.set(start_comp_time-Dt); // we should do this!!
   State state(x,time),state_old(xold,time_old);
   vector<State *> add_states;
+
+  //o Additional states to be used by modules
+  TGETOPTDEF(GLOBAL_OPTIONS,double,time_fac_epsilon,1e-3);
+  assert(time_fac_epsilon>0.0);
 
 #if 0
   //o If set, redirect output to this file.
@@ -320,12 +324,13 @@ int mmove_main() {
   dofmap->create_MPI_vector(x);
   State sx(x,time);		// convert to State
 
-  A = PFMat::dispatch(dofmap->neq,*dofmap,solver.c_str());
+  Ap = PFMat::dispatch(dofmap->neq,*dofmap,solver.c_str());
 
   ierr = VecDuplicate(x,&xold); CHKERRA(ierr);
   ierr = VecDuplicate(x,&dx_step); CHKERRA(ierr);
   ierr = VecDuplicate(x,&dx); CHKERRA(ierr);
   ierr = VecDuplicate(x,&res); CHKERRA(ierr);
+  ierr = VecDuplicate(x,&resp); CHKERRA(ierr);
 
   //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
   // initialize state vectors
@@ -336,7 +341,7 @@ int mmove_main() {
   // Compute  profiles
   debug.trace("Computing profiles...");
   argl.clear();
-  argl.arg_add(A,PROFILE|PFMAT);
+  argl.arg_add(Ap,PROFILE|PFMAT);
   ierr = assemble(mesh,argl,dofmap,"comp_mat",&time); CHKERRA(ierr); 
   debug.trace("After computing profile.");
 
@@ -350,18 +355,75 @@ int mmove_main() {
   int update_jacobian_this_step,
     update_jacobian_this_iter, tstep_start=1;
   for (int tstep=tstep_start; tstep<=nstep; tstep++) {
+
     time_old.set(time.time());
-    time_star.set(time.time()+alpha*Dt);
+
+    // Computes a better starting point based on the solution
+    // of a differential problem
+    // res = RES(u^n,t^n);
+    argl.clear();
+    state.set_time(time);
+    state_old.set_time(time_old);
+    argl.arg_add(&state,IN_VECTOR|USE_TIME_DATA);
+    argl.arg_add(&state_old,IN_VECTOR|USE_TIME_DATA);
+    argl.arg_add(&res,OUT_VECTOR);
+    argl.arg_add(Ap,OUT_MATRIX|PFMAT);
+    argl.arg_add(&hmin,VECTOR_MIN);
+    argl.arg_add(&glob_param,USER_DATA);
+    argl.arg_add(&wall_data,USER_DATA);
+
+    ierr = Ap->clean_mat(); CHKERRA(ierr); 
+    debug.trace("Before residual computation...");
+    ierr = assemble(mesh,argl,dofmap,"comp_mat_res",&time);
+    CHKERRA(ierr);
+    debug.trace("After residual computation.");
+
+    // res = RES(u^n,t^n+epsilon);
+    double epsilon = time_fac_epsilon*Dt;
+    time.inc(epsilon);
+    argl.clear();
+    state.set_time(time);
+    state_old.set_time(time_old);
+    argl.arg_add(&state,IN_VECTOR|USE_TIME_DATA);
+    argl.arg_add(&state_old,IN_VECTOR|USE_TIME_DATA);
+    argl.arg_add(&resp,OUT_VECTOR);
+    argl.arg_add(Ap,OUT_MATRIX|PFMAT);
+    argl.arg_add(&hmin,VECTOR_MIN);
+    argl.arg_add(&glob_param,USER_DATA);
+    argl.arg_add(&wall_data,USER_DATA);
+
+    ierr = Ap->clean_mat(); CHKERRA(ierr); 
+    debug.trace("Before residual computation...");
+    ierr = assemble(mesh,argl,dofmap,"comp_mat_res",&time);
+    CHKERRA(ierr);
+    debug.trace("After residual computation.");
+
+    // res = (res-resp)/epsilon
+    scal = -1.;
+    ierr = VecAXPY(&scal,res,resp); CHKERRQ(ierr); 
+    
+    scal = 1./epsilon;
+    ierr = VecScale(&scal,res);
+    ierr = Ap->solve(res,dx); CHKERRA(ierr); 
+
+    // x = x+dx
+    ierr = VecAXPY(&scal,dx,x); CHKERRA(ierr); 
+
+    time.set(time_old.time());
     time.inc(Dt);
+    print_vector(save_file.c_str(),x,dofmap,&time);
+    PetscFinalize();
+    exit(0);
+ 
     if (!MY_RANK) printf("Time step: %d, time: %g %s\n",
 			 tstep,time.time(),(steady ? " (steady) " : ""));
 
-    hook_list.time_step_pre(time_star.time(),tstep);
+    hook_list.time_step_pre(time.time(),tstep);
     
     // Inicializacion del paso
     ierr = VecCopy(x,dx_step);
     ierr = VecCopy(x,xold);
-    
+
     //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
     // NEWTON-RAPHSON ALGORITHM
     
@@ -371,27 +433,7 @@ int mmove_main() {
       glob_param.inwt = inwt;
       // Initialize step
       
-      ierr = A->clean_mat(); CHKERRA(ierr); 
-
-      // Compute wall stresses
-      argl.clear();
-      argl.arg_add(&x,IN_VECTOR);
-      argl.arg_add(&xold,IN_VECTOR);
-      ierr = assemble(mesh,argl,dofmap,"comp_shear_vel",
-		      &time_star); CHKERRA(ierr);
-
-      // Communicate wall stresses amoung different processors
-      // This is obsolete. Now we control this from the loop
-      // over elements in the `wall' elemset. 
-
-      // Mon Oct 23 19:13:39 ART 2000. Now I think that I need this
-      // because the at each processor there is not a global version
-      // of the state.
-      if (LES && A_van_Driest>0. && SIZE>1) {
-	argl.clear();
-	ierr = assemble(mesh,argl,dofmap,"communicate_shear_vel",
-			&time_star); CHKERRA(ierr);
-      }
+      ierr = Ap->clean_mat(); CHKERRA(ierr); 
 
       scal=0;
       ierr = VecSet(&scal,res); CHKERRA(ierr);
@@ -402,19 +444,19 @@ int mmove_main() {
       argl.arg_add(&state,IN_VECTOR|USE_TIME_DATA);
       argl.arg_add(&state_old,IN_VECTOR|USE_TIME_DATA);
       argl.arg_add(&res,OUT_VECTOR);
-      argl.arg_add(A,OUT_MATRIX|PFMAT);
+      argl.arg_add(Ap,OUT_MATRIX|PFMAT);
       argl.arg_add(&hmin,VECTOR_MIN);
       argl.arg_add(&glob_param,USER_DATA);
       argl.arg_add(&wall_data,USER_DATA);
 
       debug.trace("Before residual computation...");
-      ierr = assemble(mesh,argl,dofmap,"comp_mat_res",&time_star);
+      ierr = assemble(mesh,argl,dofmap,"comp_mat_res",&time);
       CHKERRA(ierr);
       debug.trace("After residual computation.");
 
       if (!print_linear_system_and_stop || solve_system) {
 	debug.trace("Before solving linear system...");
-	ierr = A->solve(res,dx); CHKERRA(ierr); 
+	ierr = Ap->solve(res,dx); CHKERRA(ierr); 
 	debug.trace("After solving linear system.");
       }
 
@@ -427,7 +469,7 @@ int mmove_main() {
 	ierr = PetscViewerSetFormat_WRAPPER(matlab,
 					    PETSC_VIEWER_ASCII_MATLAB,
 					    "atet"); CHKERRA(ierr);
-	ierr = A->view(matlab);
+	ierr = Ap->view(matlab);
 	ierr = PetscViewerSetFormat_WRAPPER(matlab,
 					    PETSC_VIEWER_ASCII_MATLAB,
 					    "res"); CHKERRA(ierr);
@@ -508,11 +550,11 @@ int mmove_main() {
       arglf.arg_add(&state,IN_VECTOR|USE_TIME_DATA);
       arglf.arg_add(&state_old,IN_VECTOR|USE_TIME_DATA);
       arglf.arg_add(&gather_values,VECTOR_ADD);
-      ierr = assemble(mesh,arglf,dofmap,"gather",&time_star);
+      ierr = assemble(mesh,arglf,dofmap,"gather",&time);
       CHKERRA(ierr);
     }
 
-    hook_list.time_step_post(time_star.time(),tstep,gather_values);
+    hook_list.time_step_post(time.time(),tstep,gather_values);
 
     if (ngather>0) {
       // Print gathered values
@@ -549,8 +591,7 @@ int mmove_main() {
   ierr = VecDestroy(dx_step); CHKERRA(ierr); 
   ierr = VecDestroy(res); CHKERRA(ierr); 
 
-  delete A;
-
+  DELETE_SCLR(Ap);
   DELETE_SCLR(dofmap);
   DELETE_SCLR(mesh);
 #ifdef DEBUG_MALLOC_USE

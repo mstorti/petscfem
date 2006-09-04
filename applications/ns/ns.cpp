@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: ns.cpp,v 1.187 2006/09/03 22:16:26 mstorti Exp $
+//$Id: ns.cpp,v 1.188 2006/09/04 00:21:00 mstorti Exp $
 #include <src/debug.h>
 #include <malloc.h>
 
@@ -81,24 +81,16 @@ int main(int argc,char **args) {
   MPI_Comm_size(PETSC_COMM_WORLD,&SIZE);
   MPI_Comm_rank(PETSC_COMM_WORLD,&MY_RANK);
 
-  int fsi=0;
-  if (MY_RANK==0 && argc>=2 && !strcmp(args[1],"-fsi")) fsi=1;
-  MPI_Bcast(&fsi,1,MPI_INT,0,PETSC_COMM_WORLD);
+#define CNLEN 100
+  char code_name[CNLEN];
+  ierr = PetscOptionsGetString(PETSC_NULL,"-code",code_name,CNLEN,&flg);
+  printf("flg %d, code %s\n",flg,code_name);
 
-  if (fsi) return fsi_main();
-
-  int structc=0;
-  if (MY_RANK==0 && argc>=2 && !strcmp(args[1],"-struct")) structc=1;
-  MPI_Bcast(&structc,1,MPI_INT,0,PETSC_COMM_WORLD);
-
-  if (structc) return struct_main();
-
-  int mmove=0;
-  if (MY_RANK==0 && argc>=2 && !strcmp(args[1],"-mmove")) mmove=1;
-  MPI_Bcast(&mmove,1,MPI_INT,0,PETSC_COMM_WORLD);
-
-  if (mmove) return mmove_main();
-
+  if (flg) {
+    if (!strcmp(code_name,"fsi")) return fsi_main();
+    if (!strcmp(code_name,"struct")) return struct_main();
+    if (!strcmp(code_name,"mmove")) return mmove_main();
+  }
 
   print_copyright();
   PetscPrintf(PETSC_COMM_WORLD,"-------- Navier-Stokes module ---------\n");
