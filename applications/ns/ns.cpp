@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: ns.cpp,v 1.188 2006/09/04 00:21:00 mstorti Exp $
+//$Id: ns.cpp,v 1.189 2006/09/04 00:32:51 mstorti Exp $
 #include <src/debug.h>
 #include <malloc.h>
 
@@ -84,12 +84,12 @@ int main(int argc,char **args) {
 #define CNLEN 100
   char code_name[CNLEN];
   ierr = PetscOptionsGetString(PETSC_NULL,"-code",code_name,CNLEN,&flg);
-  printf("flg %d, code %s\n",flg,code_name);
 
   if (flg) {
     if (!strcmp(code_name,"fsi")) return fsi_main();
     if (!strcmp(code_name,"struct")) return struct_main();
     if (!strcmp(code_name,"mmove")) return mmove_main();
+    PETSCFEM_ERROR("Unknown -code option: \"%s\"\n",code_name);
   }
 
   print_copyright();
