@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: mmvmain.cpp,v 1.4 2006/09/04 00:57:38 mstorti Exp $
+//$Id: mmvmain.cpp,v 1.5 2006/09/04 01:05:52 mstorti Exp $
 #include <src/debug.h>
 #include <malloc.h>
 
@@ -356,6 +356,12 @@ int mmove_main() {
     update_jacobian_this_iter, tstep_start=1;
   for (int tstep=tstep_start; tstep<=nstep; tstep++) {
 
+    hook_list.time_step_pre(time.time(),tstep);
+    
+    // Inicializacion del paso
+    ierr = VecCopy(x,dx_step);
+    ierr = VecCopy(x,xold);
+
     time_old.set(time.time());
 
     // Computes a better starting point based on the solution
@@ -377,8 +383,9 @@ int mmove_main() {
     ierr = assemble(mesh,argl,dofmap,"comp_mat_res",&time);
     CHKERRA(ierr);
     debug.trace("After residual computation.");
-    ierr = VecView(res,PETSC_VIEWER_STDOUT_WORLD);
-    CHKERRA(ierr);
+
+    // ierr = VecView(res,PETSC_VIEWER_STDOUT_WORLD);
+    // CHKERRA(ierr);
 
     // res = RES(u^n,t^n+epsilon);
     double epsilon = time_fac_epsilon*Dt;
@@ -399,8 +406,9 @@ int mmove_main() {
     ierr = assemble(mesh,argl,dofmap,"comp_mat_res",&time);
     CHKERRA(ierr);
     debug.trace("After residual computation.");
-    ierr = VecView(resp,PETSC_VIEWER_STDOUT_WORLD);
-    CHKERRA(ierr);
+
+    // ierr = VecView(resp,PETSC_VIEWER_STDOUT_WORLD);
+    // CHKERRA(ierr);
 
     // res = (res-resp)
     scal = -1.;
@@ -410,10 +418,10 @@ int mmove_main() {
     ierr = VecScale(&scal,resp);
     ierr = Ap->solve(resp,dx); CHKERRA(ierr); 
 
-    ierr = Ap->view(matlab); CHKERRA(ierr); 
+    // ierr = Ap->view(matlab); CHKERRA(ierr); 
 
-    ierr = VecView(dx,PETSC_VIEWER_STDOUT_WORLD);
-    CHKERRA(ierr);
+    // ierr = VecView(dx,PETSC_VIEWER_STDOUT_WORLD);
+    // CHKERRA(ierr);
 
     // x = x+dx
     scal = 1.0;
@@ -421,18 +429,10 @@ int mmove_main() {
 
     time.set(time_old.time());
     time.inc(Dt);
-    print_vector(save_file.c_str(),x,dofmap,&time);
-    PetscFinalize();
-    exit(0);
+    // print_vector(save_file.c_str(),x,dofmap,&time);
  
     if (!MY_RANK) printf("Time step: %d, time: %g %s\n",
 			 tstep,time.time(),(steady ? " (steady) " : ""));
-
-    hook_list.time_step_pre(time.time(),tstep);
-    
-    // Inicializacion del paso
-    ierr = VecCopy(x,dx_step);
-    ierr = VecCopy(x,xold);
 
     //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
     // NEWTON-RAPHSON ALGORITHM
