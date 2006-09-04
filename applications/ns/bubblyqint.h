@@ -1,6 +1,6 @@
 // -*- mode: C++ -*-
 /*__INSERT_LICENSE__*/
-//$Id: bubblyqint.h,v 1.1 2006/09/01 16:31:28 mstorti Exp $
+//$Id: bubblyqint.h,v 1.2 2006/09/04 17:49:42 mstorti Exp $
 #ifndef PETSCFEM_BUBBLYQINT_H
 #define PETSCFEM_BUBBLYQINT_H
 
@@ -8,7 +8,7 @@
 class bubbly_flow_rate_integrator : public SurfGatherer {
 private:
   FastMat2 vslip_user_vp, tmp, ;
-  int nphases, ndim;
+  int nphases, ndim, g_dir;
 public:
   void init();
   void set_ip_values(vector<double> &pg_values,FastMat2 &u,

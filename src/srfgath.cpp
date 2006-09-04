@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: srfgath.cpp,v 1.14 2005/05/19 16:44:52 mstorti Exp $
+//$Id: srfgath.cpp,v 1.15 2006/09/04 17:49:43 mstorti Exp $
 
 #include <src/fem.h>
 #include <src/utils.h>
@@ -10,7 +10,8 @@
 #include "./srfgath.h"
 
 enum sf_error { not_correct_number_of_intersections,
-		found_bad_intersection_polygon };
+		found_bad_intersection_polygon,
+		not_2int_in_2d };
 SurfGatherer::SurfFunction::~SurfFunction() {}
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
@@ -210,7 +211,7 @@ int SurfGatherer::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
 
   //o Dimension of embedding space
   TGETOPTDEF(thash,int,ndim,0);
-  assert(ndim==3);
+  // assert(ndim==3);    // works in 2d?
   //o Position in gather vector
   TGETOPTDEF(thash,int,gather_pos,0);
   //o Number of Gauss points.
@@ -218,6 +219,9 @@ int SurfGatherer::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
   //o Defines the geomtry of the element
   TGETOPTDEF_S(thash,string,geometry,<none>);
   assert(geometry!="<none>");
+
+  // Initialize the call back functions
+  init();
 
   int vpp = vals_per_plane();
   assert(vpp>=0);
@@ -274,16 +278,13 @@ int SurfGatherer::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
     u(1,ndof), n(1,ndim),xpg(1,ndim),x(1,ndim),xi(2,ndim,nedges),
     ui(2,ndof,nedges), xc(1,ndim), xcp(1,ndim), uc(1,ndof),
     x1(1,ndim), x2(1,ndim), dx(1,ndim), tmp, ut(1,ndof),
-    a(1,ndim), b(1,ndim), c(1,ndim), tmp2;
+    a(1,ndim), b(1,ndim), c(1,ndim), tmp2, dx2(1,ndim);
   xi.set(0.);
   ui.set(0.);
 
   Time * time_c = (Time *)time;
   double t = time_c->time();
   
-  // Initialize the call back functions
-  init();
-
   FastMatCacheList cache_list;
   // FastMat2::activate_cache(&cache_list);
   vector<double> f(nel), alpha(nedges);
@@ -356,119 +357,165 @@ int SurfGatherer::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
 	xi.rs();
       }
 #endif
-      if (nint<3) set_error(not_correct_number_of_intersections);
-      //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
-      // Intersection area may be a triangle or quad for a tetra. Or
-      // higher polygons in other cases. We assume that it is a
-      // convex polygon and integrate over them by dividing the
-      // polygon in triangles from the center of the polygon to
-      // each side. 
-
-      // Compute center of polygon xc
-      xi.is(2,1,nint);
-      xc.sum(xi,1,-1).scale(1./double(nint));
-      xi.rs();
-      // Rest `xc' from all `xi'
-      for (int j=1; j<=nint; j++) xi.ir(2,j).rest(xc);
-      xi.rs();
-      // Computes normal as gradient of f in the center
-      double epsil = 1e-3,fp,fm;
-      for (int j=1; j<=ndim; j++) {
-	xcp.set(xc).addel(epsil,j);
-	fp = sf->f(xcp);
-	xcp.addel(-2*epsil,j);
-	fm = sf->f(xcp);
-	n.setel((fp-fm)/(2*epsil),j);
-      }
-      double an = n.norm_p_all(2.0);
-      n.scale(1./an);
-
-      // uc:= value of u interpolated at center of polygon
-      ui.is(2,1,nint);
-      uc.sum(ui,1,-1).scale(1./double(nint));
-      // x1,x2 perpendicular to normal n
-      // are two vectors that define the axis on the
-      // plane normal to the polygon
-      xi.rs().ir(2,1);
-      x1.cross(n,xi);
-      double l1 = x1.norm_p_all(2.0);
-      x1.scale(1./l1);
-      x2.cross(n,x1);
-      xi.rs();
-      // For each vertex of the polygon, we compute an angle
-      // of rotation around it, in order to project. 
-      for (int j=0; j<nint; j++) {
-	xi.ir(2,j+1);
-	tmp.prod(x1,xi,-1,-1);
-	double X1 = tmp.get();
-	tmp.prod(x2,xi,-1,-1);
-	double X2 = tmp.get();
-	alpha[j] = atan2(X2,X1);
-      }
-      xi.rs();
-
-      for (int j=0; j<nint; j++) indx[j] = j;
-#if 0
-      printf("sorting angles\n");
-      for (int j=0; j<nint; j++) printf("(%d,%g) ",j,alpha[j]);
-      printf("\n");
-#endif
-      // Sort angles and determine permutation
-      for (int j=0; j<nint-1; j++) {
-	// Look for the minimum in range j,nint and exchange with pos. j
-	double amin = alpha[j];
-	int kmin = j;
-	for (int k=j+1; k<nint; k++) {
-	  if (alpha[k]<amin) {
-	    amin = alpha[k];
-	    kmin = k;
-	  }
+      if (nint<ndim) set_error(not_correct_number_of_intersections);
+      if (ndim==3) {
+	//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+	// Intersection area may be a triangle or quad for a tetra. Or
+	// higher polygons in other cases. We assume that it is a
+	// convex polygon and integrate over them by dividing the
+	// polygon in triangles from the center of the polygon to
+	// each side. 
+	
+	// Compute center of polygon xc
+	xi.is(2,1,nint);
+	xc.sum(xi,1,-1).scale(1./double(nint));
+	xi.rs();
+	// Rest `xc' from all `xi'
+	for (int j=1; j<=nint; j++) xi.ir(2,j).rest(xc);
+	xi.rs();
+	// Computes normal as gradient of f in the center
+	double epsil = 1e-3,fp,fm;
+	for (int j=1; j<=ndim; j++) {
+	  xcp.set(xc).addel(epsil,j);
+	  fp = sf->f(xcp);
+	  xcp.addel(-2*epsil,j);
+	  fm = sf->f(xcp);
+	  n.setel((fp-fm)/(2*epsil),j);
 	}
-	alpha[kmin] = alpha[j];
-	alpha[j] = amin;
-	int tmp = indx[kmin];
-	indx[kmin] = indx[j];
-	indx[j] = tmp;
-      }
+	double an = n.norm_p_all(2.0);
+	n.scale(1./an);
+
+	// uc:= value of u interpolated at center of polygon
+	ui.is(2,1,nint);
+	uc.sum(ui,1,-1).scale(1./double(nint));
+	// x1,x2 perpendicular to normal n
+	// are two vectors that define the axis on the
+	// plane normal to the polygon
+	xi.rs().ir(2,1);
+	x1.cross(n,xi);
+	double l1 = x1.norm_p_all(2.0);
+	x1.scale(1./l1);
+	x2.cross(n,x1);
+	xi.rs();
+	// For each vertex of the polygon, we compute an angle
+	// of rotation around it, in order to project. 
+	for (int j=0; j<nint; j++) {
+	  xi.ir(2,j+1);
+	  tmp.prod(x1,xi,-1,-1);
+	  double X1 = tmp.get();
+	  tmp.prod(x2,xi,-1,-1);
+	  double X2 = tmp.get();
+	  alpha[j] = atan2(X2,X1);
+	}
+	xi.rs();
+
+	for (int j=0; j<nint; j++) indx[j] = j;
 #if 0
-      for (int j=0; j<nint; j++) printf("(%d,%g) ",indx[j],alpha[j]);
-      printf("\n");
+	printf("sorting angles\n");
+	for (int j=0; j<nint; j++) printf("(%d,%g) ",j,alpha[j]);
+	printf("\n");
 #endif
-      double Area = 0.;
-      // Loop over subtriangles
-      for (int j=0; j<nint; j++) {
-	// Value of u at the center of the triangle
-	int n1 = indx[j];
-	int n2 = indx[(j==nint-1? 0 : j+1)];
-	ut.set(0.).set(uc);
-	ui.ir(2,n1+1);
-	ut.add(ui);
-	ui.ir(2,n2+1);
-	ut.add(ui);
-	ut.scale(1./3.);
+	// Sort angles and determine permutation
+	for (int j=0; j<nint-1; j++) {
+	  // Look for the minimum in range j,nint and exchange with pos. j
+	  double amin = alpha[j];
+	  int kmin = j;
+	  for (int k=j+1; k<nint; k++) {
+	    if (alpha[k]<amin) {
+	      amin = alpha[k];
+	      kmin = k;
+	    }
+	  }
+	  alpha[kmin] = alpha[j];
+	  alpha[j] = amin;
+	  int tmp = indx[kmin];
+	  indx[kmin] = indx[j];
+	  indx[j] = tmp;
+	}
+#if 0
+	for (int j=0; j<nint; j++) printf("(%d,%g) ",indx[j],alpha[j]);
+	printf("\n");
+#endif
+	double Area = 0.;
+	// Loop over subtriangles
+	for (int j=0; j<nint; j++) {
+	  // Value of u at the center of the triangle
+	  int n1 = indx[j];
+	  int n2 = indx[(j==nint-1? 0 : j+1)];
+	  ut.set(0.).set(uc);
+	  ui.ir(2,n1+1);
+	  ut.add(ui);
+	  ui.ir(2,n2+1);
+	  ut.add(ui);
+	  ut.scale(1./3.);
+	  ui.rs();
+
+	  xpg.set(0.);
+	  xi.ir(2,n1+1);
+	  xpg.add(xi);
+	  a.set(xi);
+	  xi.ir(2,n2+1);
+	  xpg.add(xi);
+	  b.set(xi);
+	  xpg.scale(1./3.).add(xc);
+	  xi.rs();
+	  c.cross(a,b);
+	  double area = c.norm_p_all(2.0)/2.0;
+	  Area += area;
+	  tmp2.prod(n,c,-1,-1);
+	  double tol = 1e-6;
+	  if (tmp2.get() < -tol) 
+	    set_error(found_bad_intersection_polygon);
+	
+	  set_ip_values(ip_values,ut,xpg,n,t);
+	  int pos = gather_pos + vpp * jval;
+	  for (int j=0; j<vpp; j++) 
+	    (*values)[pos+j] += ip_values[j]*area;
+	}
+      } else if (ndim==2) {
+	if (nint!=2) set_error(not_2int_in_2d);
+
+	// In 2D intersection must be a segment.
+	// (It could be several segments if the surface
+	// id curved and the element has almost colinear edges). 
+
+	// Computes normal as gradient of f in the center
+	double epsil = 1e-3,fp,fm;
+	for (int j=1; j<=ndim; j++) {
+	  xcp.set(xc).addel(epsil,j);
+	  fp = sf->f(xcp);
+	  xcp.addel(-2*epsil,j);
+	  fm = sf->f(xcp);
+	  n.setel((fp-fm)/(2*epsil),j);
+	}
+	double an = n.norm_p_all(2.0);
+	n.scale(1./an);
+
+	// Computes coords. of center of segment
+	xi.is(2,1,nint);
+	xpg.sum(xi,1,-1);
+	xpg.scale(0.5);
+	xi.rs();
+
+	// Computes state at center of segment
+	ui.is(2,1,nint);
+	ut.sum(ui,1,-1);
+	ut.scale(0.5);
 	ui.rs();
 
-	xpg.set(0.);
-	xi.ir(2,n1+1);
-	xpg.add(xi);
-	a.set(xi);
-	xi.ir(2,n2+1);
-	xpg.add(xi);
-	b.set(xi);
-	xpg.scale(1./3.).add(xc);
+	// Length of segment
+	xi.ir(2,2);
+	dx2.set(xi);
+	xi.ir(2,1);
+	dx2.rest(xi);
 	xi.rs();
-	c.cross(a,b);
-	double area = c.norm_p_all(2.0)/2.0;
-	Area += area;
-	tmp2.prod(n,c,-1,-1);
-	double tol = 1e-6;
-	if (tmp2.get() < -tol) 
-	  set_error(found_bad_intersection_polygon);
-	
+	double seg_len = dx2.norm_p_all();
+
 	set_ip_values(ip_values,ut,xpg,n,t);
 	int pos = gather_pos + vpp * jval;
 	for (int j=0; j<vpp; j++) 
-	  (*values)[pos+j] += ip_values[j]*area;
+	    (*values)[pos+j] += ip_values[j]*seg_len;
+ 
       }
     }
   }  
@@ -485,6 +532,8 @@ void SurfGatherer::handle_error(int error) {
     s = "Not correct number of intersection.";
   else if (error==found_bad_intersection_polygon) 
     s = "Found an intersection polygon too complex.";
+  else if (error==not_2int_in_2d) 
+    s = "Plane doesn't intersect edges in 2 points in 2D.";
   else if (error) Elemset::handle_error(error);
   PETSCFEM_ERROR("%s",s.c_str());  
 }

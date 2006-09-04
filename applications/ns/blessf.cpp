@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-/* $Id: blessf.cpp,v 1.46 2006/09/01 16:31:28 mstorti Exp $ */
+/* $Id: blessf.cpp,v 1.47 2006/09/04 17:49:42 mstorti Exp $ */
 
 #include <src/debug.h>
 #include <malloc.h>
@@ -72,7 +72,7 @@ void bless_elemset(char *type,Elemset *& elemset) {
     SET_ELEMSET_TYPE(nsi_tet_les_comp)
     SET_ELEMSET_TYPE(nsi_tet_les_ther)
     SET_ELEMSET_TYPE(nsi_tet_les_asm)
-    SET_ELEMSET_TYPE(bubbly_flow_rate_integrator);
+    SET_ELEMSET_TYPE(bubbly_flow_rate_integrator)
     SET_ELEMSET_TYPE(nsi_tet_keps)
     SET_ELEMSET_TYPE(nsi_tet_keps_rot)
     SET_ELEMSET_TYPE(nsi_tet_asm)

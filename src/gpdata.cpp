@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: gpdata.cpp,v 1.41 2005/10/19 17:40:33 mstorti Exp $
+//$Id: gpdata.cpp,v 1.42 2006/09/04 17:49:42 mstorti Exp $
 
 #include "petscsles.h"
 #include <math.h>
@@ -305,6 +305,13 @@ GPdata::GPdata(const char *geom,int ndimel,int nel,int npg_,int
 #ifdef USE_DX
     splitting.parse("1  2  3  triangles");
 #endif
+
+    // edges
+    nedges_m = 3;
+    // edges.resize(2*nedges_m);
+    int edges_v[] = {1,2, 2,3, 3,1};
+    edges.insert(edges.end(),edges_v,edges_v+2*nedges_m);
+
   } else if ( !(strcmp(geom,"tetra")) ) {
     assert(nel==4);
     master_volume = 1./6.;

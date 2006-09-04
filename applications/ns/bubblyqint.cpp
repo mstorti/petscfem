@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: bubblyqint.cpp,v 1.1 2006/09/01 16:31:28 mstorti Exp $
+//$Id: bubblyqint.cpp,v 1.2 2006/09/04 17:49:42 mstorti Exp $
 
 #include <src/fem.h>
 #include <src/utils.h>
@@ -13,13 +13,13 @@
 void bubbly_flow_rate_integrator::init() {
   int ierr;
   //o Number of dimensions
-  TGETOPTDEF(thash,int,ndim,-1);
+  TGETOPTDEF_ND(thash,int,ndim,-1);
   assert(ndim>0);
   //o Number of disperse phases
-  TGETOPTDEF(thash,int,nphases,1);
+  TGETOPTDEF_ND(thash,int,nphases,1);
 
   //o Direction of gravity
-  TGETOPTDEF(thash,int,g_dir,ndim);
+  TGETOPTDEF_ND(thash,int,g_dir,ndim);
   // Ojo puede ser negativo
   assert(g_dir>0);
 
