@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: mmvmain.cpp,v 1.7 2006/09/05 13:00:05 mstorti Exp $
+//$Id: mmvmain.cpp,v 1.8 2006/09/05 19:08:00 mstorti Exp $
 #include <src/debug.h>
 #include <malloc.h>
 
@@ -448,7 +448,7 @@ int mmove_main() {
 
     time.set(time_old.time());
     time.inc(Dt);
-    // print_vector(save_file.c_str(),x,dofmap,&time);
+    // print_vector("state-proj.tmp",x,dofmap,&time);
  
     if (!MY_RANK) printf("Time step: %d, time: %g %s\n",
 			 tstep,time.time(),(steady ? " (steady) " : ""));
