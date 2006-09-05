@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: mmvmain.cpp,v 1.6 2006/09/04 20:18:04 mstorti Exp $
+//$Id: mmvmain.cpp,v 1.7 2006/09/05 13:00:05 mstorti Exp $
 #include <src/debug.h>
 #include <malloc.h>
 
@@ -358,11 +358,12 @@ int mmove_main() {
 
     hook_list.time_step_pre(time.time(),tstep);
     
-    if (tstep>1) {
-      printf("x prev to project\n");
-      ierr = VecView(x,PETSC_VIEWER_STDOUT_WORLD);
-      CHKERRA(ierr);
-    }
+    //#define MMV_DBG
+#ifdef MMV_DBG
+    printf("x prev to project\n");
+    ierr = VecView(x,PETSC_VIEWER_STDOUT_WORLD);
+    CHKERRA(ierr);
+#endif
 
     // Inicializacion del paso
     ierr = VecCopy(x,xold);
@@ -384,15 +385,19 @@ int mmove_main() {
     argl.arg_add(&glob_param,USER_DATA);
     argl.arg_add(&wall_data,USER_DATA);
 
+    scal=0;
+    ierr = VecSet(&scal,res); CHKERRA(ierr);
     ierr = Ap->clean_mat(); CHKERRA(ierr); 
     debug.trace("Before residual computation...");
     ierr = assemble(mesh,argl,dofmap,"comp_mat_res",&time);
     CHKERRA(ierr);
     debug.trace("After residual computation.");
 
+#ifdef MMV_DBG
     printf("res: ");
     ierr = VecView(res,PETSC_VIEWER_STDOUT_WORLD);
     CHKERRA(ierr);
+#endif
 
     // res = RES(u^n,t^n+epsilon);
     double epsilon = time_fac_epsilon*Dt;
@@ -408,15 +413,19 @@ int mmove_main() {
     argl.arg_add(&glob_param,USER_DATA);
     argl.arg_add(&wall_data,USER_DATA);
 
+    scal=0;
+    ierr = VecSet(&scal,resp); CHKERRA(ierr);
     ierr = Ap->clean_mat(); CHKERRA(ierr); 
     debug.trace("Before residual computation...");
     ierr = assemble(mesh,argl,dofmap,"comp_mat_res",&time);
     CHKERRA(ierr);
     debug.trace("After residual computation.");
 
+#ifdef MMV_DBG
     printf("resp: ");
     ierr = VecView(resp,PETSC_VIEWER_STDOUT_WORLD);
     CHKERRA(ierr);
+#endif
 
     // res = (res-resp)
     scal = -1.;
@@ -426,11 +435,12 @@ int mmove_main() {
     ierr = VecScale(&scal,resp);
     ierr = Ap->solve(resp,dx); CHKERRA(ierr); 
 
+#ifdef MMV_DBG
     ierr = Ap->view(matlab); CHKERRA(ierr); 
-
     printf("dx: ");
     ierr = VecView(dx,PETSC_VIEWER_STDOUT_WORLD);
     CHKERRA(ierr);
+#endif
 
     // x = x+dx
     scal = 1.0;
