@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-/* $Id: penalize.cpp,v 1.14 2006/02/07 15:02:02 mstorti Exp $ */
+/* $Id: penalize.cpp,v 1.15 2006/09/05 23:37:53 mstorti Exp $ */
 
 #ifdef USE_DLEF
 #include <dlfcn.h>
@@ -79,7 +79,6 @@ new_assemble(arg_data_list &arg_data_v,const Nodedata *nodedata,
   if (use_fastmat2_cache)
     FastMat2::activate_cache(&cache_list);
   int ielh=-1;
-  nu=nodedata->nu;
 
   int k_chunk;
   for (element = elemlist.begin();
