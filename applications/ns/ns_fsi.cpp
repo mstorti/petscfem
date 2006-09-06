@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: ns_fsi.cpp,v 1.9 2006/08/05 16:44:27 mstorti Exp $
+//$Id: ns_fsi.cpp,v 1.10 2006/09/06 16:22:12 mstorti Exp $
 #include <src/debug.h>
 #include <malloc.h>
 
@@ -545,7 +545,7 @@ int fsi_main() {
 		  " --------------------------------------\n",
 		  stage,nstage);
       
-      hook_list.stage("stage_pre",stage,time_star.time(),NULL);
+      hook_list.stage("stage_pre",stage,time_star.time(),&gather_values);
 
       // Jacobian update logic
       update_jacobian_this_step = (tstep < update_jacobian_start_steps) 
