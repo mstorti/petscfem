@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: nsitetasm.cpp,v 1.4 2006/02/18 22:40:47 mstorti Exp $
+//$Id: nsitetasm.cpp,v 1.5 2006/09/07 20:34:04 mstorti Exp $
 
 #include <src/fem.h>
 #include <src/utils.h>
@@ -19,6 +19,22 @@ extern TextHashTable *GLOBAL_OPTIONS;
 #define STOP {PetscFinalize(); exit(0);}
    
 #define MAXPROP 100
+
+class ComputeElemProps {
+public:
+  virtual void init(TextHashTable *thash) { }
+  virtual void element_hook(FastMat2 &xpg,FastMat2 &U_star,
+		       FastMat2 &alpha_source_vp) {}
+} DefaultPropsComp;
+
+class PIBComputeElemProps : public ComputeElemProps {
+public:
+  void init(TextHashTable *thash) {
+  }
+  void element_hook(FastMat2 &xpg,FastMat2 &U_star,
+		    FastMat2 &alpha_source_vp) {
+  }
+} PIBComputeElemPropsObj;
 
 void vel_axi(FastMat2 &u,FastMat2 &u_axi, const int axi) {
   u_axi.set(u);
@@ -127,6 +143,10 @@ assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
 	 int el_start,int el_last,int iter_mode,
 	 const TimeData *time_) {
 
+  ComputeElemProps *props_comp = NULL;
+  // props_comp = &DefaultPropsComp;
+  props_comp = &PIBComputeElemPropsObj;
+
   GET_JOBINFO_FLAG(comp_mat);
   GET_JOBINFO_FLAG(comp_mat_res);
   GET_JOBINFO_FLAG(comp_res);
@@ -157,6 +177,8 @@ assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
 
   int locdof,kldof,lldof;
   char *value;
+
+  props_comp->init(thash);
 
   //o Number of Gauss points.
   TGETOPTNDEF(thash,int,npg,none);
@@ -242,7 +264,7 @@ assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
   // allocate local vecs
   int kdof;
   FastMat2 veccontr(2,nel,ndof),xloc(2,nel,ndim),locstate(2,nel,ndof), 
-	 locstate2(2,nel,ndof),xpg,G_body(1,ndim);
+    locstate2(2,nel,ndof),xpg(1,ndim),G_body(1,ndim);
 
   if (ndof != ndim+1+nphases) {
     PetscPrintf(PETSC_COMM_WORLD,"ndof != ndim+1+nphases\n"); CHKERRA(1);
@@ -368,6 +390,8 @@ assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
   int ind_axi_1, ind_axi_2;
   double detJaco_axi;
 
+  FastMat2 U_star(1,ndof);
+
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 // Definicion de parametros de las diferentes fases
   FastMat2 rho_g_vp,visco_g_vp,d_bubble_vp,vslip_user_vp,alpha_source_vp,visco_g_eff_vp;
@@ -399,8 +423,8 @@ assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
   alpha_source_vp.resize(1,nphases);
   // alpha_source_vp.set(alpha_source);
   //  ierr = get_double(GLOBAL_OPTIONS,"alpha_source_phases",alpha_source_vp.storage_begin(),1,nphases);
-  ierr = get_double(thash,"alpha_source_phases",alpha_source_vp.storage_begin(),1,nphases);
-
+  ierr = get_double(thash,"alpha_source_phases",
+		    alpha_source_vp.storage_begin(),1,nphases);
 
   //o Direction of gravity
   TGETOPTDEF(thash,int,g_dir,ndim);
@@ -620,6 +644,7 @@ assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
     for (ipg=0; ipg<npg; ipg++) {
 
       Jaco.prod(DSHAPEXI,xloc,1,-1,-1,2);
+      xpg.prod(SHAPE,xloc,-1,-1,1);
 
       detJaco = Jaco.det();
       if (detJaco<=0.) {
@@ -675,6 +700,9 @@ assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
 	p_star = double(tmp8.prod(SHAPE,pcol_star,-1,-1));
 	u_star.prod(SHAPE,ucols_star,-1,-1,1);
 	vf_star.prod(SHAPE,vfcols_star,-1,-1,1);
+
+	U_star.prod(SHAPE,locstate,-1,-1,1);
+	props_comp->element_hook(xpg,U_star,alpha_source_vp);
 
 	grad_u.prod(dshapex,ucols,1,-1,-1,2);
 	grad_vf.prod(dshapex,vfcols,1,-1,-1,2);
