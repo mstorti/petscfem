@@ -1,5 +1,5 @@
 import numpy
-import petsc.PETSc as PETSc
+import petsc4py.PETSc as PETSc
 from petscfem4py import *
 
 ndim = 2
@@ -31,8 +31,7 @@ xnod = """\
 """.split()
 xnod = numpy.array([float(i) for i in xnod])
 xnod.shape = (xnod.size/ndim, ndim)
-nodeset = Nodeset(ndim, xnod)
-
+nodeset = Nodeset(xnod)
 icone = """\
  0  2  3  1
  2  4  5  3
@@ -55,7 +54,7 @@ opts ={'geometry'  : 'cartesian2d',
        'viscosity' : str(100),
        'weak_form' : str(0),
        }
-elemset.setOptions(opts)
+elemset.options = opts
 
 
 dofset = Dofset(nodeset.getSize(), ndof)
@@ -63,7 +62,7 @@ dofset = Dofset(nodeset.getSize(), ndof)
 # velocity and pressure set to zero
 for node in xrange(20, 22):
     for field in xrange(0, ndof):
-        dofset.addFixations(node, field, 0.0)
+        dofset.setFixation(node, field, 0.0)
 
 # time dependet boundary conditions
 class Sin(Amplitude):
@@ -79,28 +78,30 @@ class Sin(Amplitude):
 amp = Sin(1.0, 2*numpy.pi)
 
 for node in xrange(0, 2):
-    dofset.addFixations(node, 0, 0)
-    dofset.addFixations(node, 1, 1, amp)
+    dofset.setFixation(node, 0, 0)
+    dofset.setFixation(node, 1, 1, amp)
 
 # periodic boundary conditions from y=0 to y=0.1.
 nodes  = [0,  1]
 fields = [2,  2]
 coeffs = [1, -1]
-dofset.addConstraints(nodes, fields, coeffs)
+dofset.setConstraint(coeffs, nodes, fields)
 for node in xrange(2, 20, 2):
     nodes  = [node, node+1]
     for field in xrange(0, ndof):
         fields = [field, field]
-        dofset.addConstraints(nodes, fields, coeffs)
+        dofset.setConstraint(coeffs, nodes, fields)
 
-   
-nsi = NavierStokes(nodeset, [elemset], dofset)
+NavierStokes = NvrStks
+domain = Domain(nodeset, [elemset], dofset)
+nsi = NavierStokes(domain)
 
 class System:
 
     def __init__(self, problem):
         self.problem = problem
 
+        problem = problem.getDomain()
         COMM  = problem.getComm()
         comm  = COMM.comm
         ndofs = problem.getDofSizes()
@@ -124,7 +125,8 @@ class System:
         J,_,_ = SNES.getJacobian()
         r.zeroEntries()
         J.zeroEntries()
-        self.problem.assemble(xi, ti, x, t, r, J, self.alpha)
+        self.problem.alpha = self.alpha
+        self.problem.assemble(ti, xi, t, x, r, J)
         
     def jac(self, SNES, x, J, P):
         assert (self.J == J)
@@ -157,12 +159,11 @@ for i in xrange(len(time)-1):
     sys.step(state, time[i], time[i+1], alpha)
     print state.norm()
 
-dofmap = nsi.getDofMap()
-stt = numpy.array(state)
-sol = numpy.empty(nsi.getSize(), dtype=float)
-dofmap.apply(stt, sol, time[-1])
+## stt = numpy.array(state)
+## sol = numpy.empty(nsi.getSize(), dtype=float)
+## nsi.buildSolution(stt, sol, time[-1])
 
-out = numpy.fromfile('oscplate.out', dtype=float, sep=' ')
+## out = numpy.fromfile('oscplate.out', dtype=float, sep=' ')
 
-sol.shape = (sol.size/ndof, ndof)
-out.shape = (out.size/ndof, ndof)
+## sol.shape = (sol.size/ndof, ndof)
+## out.shape = (out.size/ndof, ndof)

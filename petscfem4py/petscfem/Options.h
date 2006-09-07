@@ -1,4 +1,4 @@
-// $Id: Options.h,v 1.1.2.2 2006/08/22 22:10:43 dalcinl Exp $
+// $Id: Options.h,v 1.1.2.3 2006/09/07 23:02:16 dalcinl Exp $
 
 #ifndef PYPF_OPTIONS_H
 #define PYPF_OPTIONS_H
@@ -27,6 +27,12 @@ public:
 public:
   Options& operator=(const Options&);
   Options& operator=(const std::map<std::string,std::string>&);
+
+public:
+  bool operator==(const Options& options) const 
+  { return this->options == options.options; }
+  bool operator!=(const Options& options) const
+  { return this->options != options.options; }
 
 public:
   static Options GLOBAL;
