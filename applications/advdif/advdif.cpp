@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: advdif.cpp,v 1.69 2006/02/18 22:40:44 mstorti Exp $
+//$Id: advdif.cpp,v 1.70 2006/09/13 16:02:04 rodrigop Exp $
 
 #include <src/debug.h>
 #include <set>
@@ -48,32 +48,30 @@ Hook *advdif_hook_factory(const char *name);
 int main(int argc,char **args) {
 
   PetscInitialize(&argc,&args,(char *)0,help);
-  int bubbly=0;
-  int fsi=0;
-  if (MY_RANK==0 && argc>=2 && !strcmp(args[1],"-bubbly")) bubbly=1;
-  MPI_Bcast(&bubbly,1,MPI_INT,0,PETSC_COMM_WORLD);
-  if (MY_RANK==0 && argc>=2 && !strcmp(args[1],"-fsi")) fsi=1;
-  MPI_Bcast(&fsi,1,MPI_INT,0,PETSC_COMM_WORLD);
-
-  if (bubbly) return bubbly_main();
-  if (fsi) return fsi_main();
 
   // Get MPI info
   MPI_Comm_size(PETSC_COMM_WORLD,&SIZE);
   MPI_Comm_rank(PETSC_COMM_WORLD,&MY_RANK);
 
-  if (argc>1 && !strcmp(args[1],"-bubbly")) return bubbly_main();
-  if (argc>1 && !strcmp(args[1],"-fsi")) return fsi_main();
+#define CNLEN 100
+  PetscTruth flg;
+  char code_name[CNLEN];
+  int ierr = PetscOptionsGetString(PETSC_NULL,"-code",code_name,CNLEN,&flg);
+
+  if (flg) {
+    if (!strcmp(code_name,"fsi")) return fsi_main();
+    if (!strcmp(code_name,"bubbly")) return bubbly_main();
+    PETSCFEM_ERROR("Unknown -code option: \"%s\"\n",code_name);
+  }
   
   Vec     x, dx, xold, res; /* approx solution, RHS, residual*/
   PFMat *A,*AA;			// linear system matrix 
   PFMat *A_tet, *A_tet_c;
   double  *sol, scal, normres, normres_ext;    /* norm of solution error */
-  int     ierr, i, n = 10, col[3], its, size, node,
+  int     i, n = 10, col[3], its, size, node,
     jdof, k, kk, nfixa,
     kdof, ldof, lloc, ndim, nel, nen, neq, nu,
     myrank;
-  PetscTruth flg;
   // nu:= dimension of the state vector per node
   PetscScalar  neg_one = -1.0, one = 1.0, value[3];
   PetscScalar *px;
