@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: mmvmain.cpp,v 1.8 2006/09/05 19:08:00 mstorti Exp $
+//$Id: mmvmain.cpp,v 1.9 2006/09/24 00:07:13 mstorti Exp $
 #include <src/debug.h>
 #include <malloc.h>
 
@@ -427,10 +427,16 @@ int mmove_main() {
     CHKERRA(ierr);
 #endif
 
-    // res = (res-resp)
+    // resp = (resp-res)
     scal = -1.;
-    ierr = VecAXPY(&scal,resp,res); CHKERRQ(ierr); 
+    ierr = VecAXPY(&scal,res,resp); CHKERRQ(ierr); 
     
+#ifdef MMV_DBG
+    printf("(resp-res)/time_fac_epsilon: ");
+    ierr = VecView(resp,PETSC_VIEWER_STDOUT_WORLD);
+    CHKERRA(ierr);
+#endif
+
     scal = 1./time_fac_epsilon;
     ierr = VecScale(&scal,resp);
     ierr = Ap->solve(resp,dx); CHKERRA(ierr); 
