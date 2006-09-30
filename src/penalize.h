@@ -1,6 +1,6 @@
 // -*- mode: c++ -*-
 //__INSERT_LICENSE__
-// $Id: penalize.h,v 1.15 2005/08/05 01:54:50 mstorti Exp $
+// $Id: penalize.h,v 1.16 2006/09/30 21:55:38 mstorti Exp $
 #ifndef PETSCFEM_PENALIZE_H
 #define PETSCFEM_PENALIZE_H
 
@@ -154,7 +154,8 @@ class DLBaseRestriction {
 public:
   virtual 
   int init(int nel,int ndof_a,
-	   TextHashTable *thash,const char *name) { return 0; }
+	   // TextHashTable *thash,const char *name) { return 0; }
+	   TextHashTable *thash,const char *name) { assert(0); }
   virtual
   void res(int k,FastMat2 &U,FastMat2 & r,
 	   FastMat2 & w,FastMat2 & jac)=0;
@@ -184,13 +185,13 @@ assert(obj);
 // `fun_data' argument. 
 #define DL_GENERIC_RESTRICTION(prefix)			\
 extern "C"						\
-void prefix##_init_fun(int nel,int ndof,		\
+int prefix##_init_fun(int nel,int ndof,		\
 		       TextHashTable *thash,		\
 		       const char *name,		\
 		       void *&fun_data) {		\
   fun_data = new prefix;				\
   dl_penal_convert_to_class;				\
-  obj->init(nel,ndof,thash,name);			\
+  return obj->init(nel,ndof,thash,name);		\
 }							\
 							\
 extern "C" void						\
@@ -219,6 +220,7 @@ extern "C" void						\
 prefix##_close_fun( void *fun_data) {			\
   dl_penal_convert_to_class;				\
   obj->close();						\
+  delete obj;						\
 }
 
 #endif

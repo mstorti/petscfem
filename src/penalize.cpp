@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-/* $Id: penalize.cpp,v 1.15 2006/09/05 23:37:53 mstorti Exp $ */
+/* $Id: penalize.cpp,v 1.16 2006/09/30 21:55:38 mstorti Exp $ */
 
 #ifdef USE_DLEF
 #include <dlfcn.h>
@@ -43,6 +43,12 @@ new_assemble(arg_data_list &arg_data_v,const Nodedata *nodedata,
   NSGETOPTDEF(int,use_fastmat2_cache,1);
   // alpha ,  temporal accuracy parameter
   NSGETOPTDEF(double,alpha,1.0); 
+  //o Use finite difference jacobians
+  NSGETOPTDEF(int,use_jacobian_fdj,0); 
+  //o Perturbation parameter for computation of FD Jacobians
+  NSGETOPTDEF(double,jacobian_fdj_epsilon,1e-5); 
+  //o Print computed FD jacobians
+  NSGETOPTDEF(double,jacobian_fdj_print,0); 
 
   int nelprops,ndof;
   elem_params(nel,ndof,nelprops);
@@ -62,8 +68,6 @@ new_assemble(arg_data_list &arg_data_v,const Nodedata *nodedata,
   FastMat2 r(1,nr),w(3,nel,ndof,nr),jac(3,nr,nel,ndof);
   jac.set(0.);
 
-  // #define COMPUTE_FD_RES_JACOBIAN
-#ifdef COMPUTE_FD_RES_JACOBIAN
   FastMat2 res_fd_jac(3,nr,nel,ndof),
     d_res_fd_jac(3,nr,nel,ndof),
     res_pert(1,nr),U_pert(2,nel,ndof),
@@ -73,7 +77,6 @@ new_assemble(arg_data_list &arg_data_v,const Nodedata *nodedata,
   U_pert.set(0.0);
   lambda_pert.set(0.0);
   fd_jac.set(0.0);
-#endif
  
   FastMatCacheList cache_list;
   if (use_fastmat2_cache)
@@ -117,26 +120,22 @@ new_assemble(arg_data_list &arg_data_v,const Nodedata *nodedata,
 		     .ret_mat_values(*retvalmat));
       jac.rs();
       w.rs();
-    }
 
-#ifdef COMPUTE_FD_RES_JACOBIAN
-    double eps_fd=1e-4;
-    for (int jele=1; jele<=nel; jele++) {
-      for (int jdof=1; jdof<=ndof; jdof++) {
-	U_pert.set(U);      	
-	U_pert.addel(eps_fd,jele,jdof);
-	restr->res(elem,U_pert,res_pert,lambda_pert,fd_jac);
-	res_pert.rest(r).scale(1./eps_fd);
-	res_fd_jac.ir(2,jele).ir(3,jdof)
-	  .set(res_pert).rs();
+      if (use_jacobian_fdj) {
+	double eps_fd = jacobian_fdj_epsilon;
+	for (int jele=1; jele<=nel; jele++) {
+	  for (int jdof=1; jdof<=ndof; jdof++) {
+	    U_pert.set(U);      	
+	    U_pert.addel(eps_fd,jele,jdof);
+	    restr->res(elem,U_pert,res_pert,lambda_pert,fd_jac);
+	    res_pert.rest(r).scale(1./eps_fd);
+	    res_fd_jac.ir(2,jele).ir(3,jdof)
+	      .set(res_pert).rs();
+	  }
+	}
+	jac.set(res_fd_jac);
       }
     }
-    d_res_fd_jac
-      .set(jac).rest(res_fd_jac);
-    double erro = d_res_fd_jac.sum_abs_all();
-    if (erro>1e-10) printf("error %g\n",erro);
-#endif	
-
   } catch (GenericError e) {
     set_error(1);
     return;
