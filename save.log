@@ -4673,3 +4673,7 @@ tag: beta-3.49.64 on Mon, 04 Sep 2006 14:48:52 -0300 by mstorti in minerva
 ----------
 tag: beta-3.49.65 on Thu, 07 Sep 2006 11:14:39 -0300 by mstorti in minerva
      > Added some fixes
+----------
+tag: beta-3.49.66 on Sat, 30 Sep 2006 18:55:54 -0300 by mstorti in spider
+     > Fixed bug in DL `DLBaseRestriction' (value of init not passed to base class)
+     > Added finite difference computation of jacobians for restrictions. 
