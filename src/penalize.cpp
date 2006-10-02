@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-/* $Id: penalize.cpp,v 1.16 2006/09/30 21:55:38 mstorti Exp $ */
+/* $Id: penalize.cpp,v 1.17 2006/10/02 03:01:21 mstorti Exp $ */
 
 #ifdef USE_DLEF
 #include <dlfcn.h>
@@ -110,16 +110,6 @@ new_assemble(arg_data_list &arg_data_v,const Nodedata *nodedata,
 
     if (comp_mat_res) {
       restr->res(elem,Ualpha,r,w,jac);
-      R.prod(w,r,1,2,-1,-1).scale(-K);
-      matloc.prod(w,jac,1,2,-1,-1,3,4).scale(K);
-      R.rs()
-	.export_vals(element
-			 .ret_vector_values(*retval));
-      matloc.rs()
-	.export_vals(element
-		     .ret_mat_values(*retvalmat));
-      jac.rs();
-      w.rs();
 
       if (use_jacobian_fdj) {
 	double eps_fd = jacobian_fdj_epsilon;
@@ -134,7 +124,20 @@ new_assemble(arg_data_list &arg_data_v,const Nodedata *nodedata,
 	  }
 	}
 	jac.set(res_fd_jac);
+	w.ctr(jac,3,1,2);
       }
+
+      R.prod(w,r,1,2,-1,-1).scale(-K);
+      matloc.prod(w,jac,1,2,-1,-1,3,4).scale(K);
+      R.rs()
+	.export_vals(element
+			 .ret_vector_values(*retval));
+      matloc.rs()
+	.export_vals(element
+		     .ret_mat_values(*retvalmat));
+      jac.rs();
+      w.rs();
+
     }
   } catch (GenericError e) {
     set_error(1);
