@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: advdife.cpp,v 1.117 2006/08/05 16:44:27 mstorti Exp $
+//$Id: advdife.cpp,v 1.118 2006/10/20 21:28:14 mstorti Exp $
 extern int comp_mat_each_time_step_g,
   consistent_supg_matrix_g,
   local_time_step_g;
@@ -849,18 +849,18 @@ void NewAdvDif::new_assemble(arg_data_list &arg_data_v,const Nodedata *nodedata,
 
 	// MODIF BETO 8/6
 	if (!lumped_mass) {
-	adv_diff_ff->compute_flux(U,iJaco,H,grad_H,flux,fluxd,
-				  A_grad_U,grad_U,G_source,
-				  tau_supg,delta_sc,
-				  lambda_max_pg, nor,lambda,Vr,Vr_inv,
-				  COMP_SOURCE | COMP_UPWIND);
-			  } else {
-	adv_diff_ff->compute_flux(U,iJaco,H,grad_H,flux,fluxd,
-				  A_grad_U,grad_U,G_source,
-				  tau_supg,delta_sc,
-				  lambda_max_pg, nor,lambda,Vr,Vr_inv,
-				  COMP_SOURCE_NOLUMPED | COMP_UPWIND);
-			  }
+	  adv_diff_ff->compute_flux(U,iJaco,H,grad_H,flux,fluxd,
+				    A_grad_U,grad_U,G_source,
+				    tau_supg,delta_sc,
+				    lambda_max_pg, nor,lambda,Vr,Vr_inv,
+				    COMP_SOURCE | COMP_UPWIND);
+	} else {
+	  adv_diff_ff->compute_flux(U,iJaco,H,grad_H,flux,fluxd,
+				    A_grad_U,grad_U,G_source,
+				    tau_supg,delta_sc,
+				    lambda_max_pg, nor,lambda,Vr,Vr_inv,
+				    COMP_SOURCE_NOLUMPED | COMP_UPWIND);
+	}
 	/*
 	adv_diff_ff->compute_flux(U,iJaco,H,grad_H,flux,fluxd,
 				  A_grad_U,grad_U,G_source,
