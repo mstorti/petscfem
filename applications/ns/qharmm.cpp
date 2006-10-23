@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: qharmm.cpp,v 1.10 2004/10/13 20:03:13 mstorti Exp $
+//$Id: qharmm.cpp,v 1.11 2006/10/23 02:43:18 mstorti Exp $
 
 #include <src/fem.h>
 #include <src/utils.h>
@@ -48,6 +48,10 @@ void qharmm::elemset_init() {
   TGETOPTDEF_ND(thash,double,Dt,0.);
   assert(Dt>0.);
 
+  //o Steady flag
+  TGETOPTDEF(thash,int,steady,0);
+  rec_Dt = (steady? 0.0 : 1.0/Dt);
+
   //o _T: double[ndof] _N: state_ref _D: null vector 
   // _DOC: Reference state value. _END
   x_ref.resize(1,ndof).set(0.);
@@ -83,7 +87,7 @@ void qharmm::pg_connector(const FastMat2 &xpg,
   tmp(6).set(state_new_pg).rest(x_ref);
   tmp(3).prod(C,tmp(6),1,-1,-1);
   tmp(7).prod(shape(),tmp(3),1,2);
-  tmp(8).set(state_new_pg).rest(state_old_pg).scale(1./Dt);
+  tmp(8).set(state_new_pg).rest(state_old_pg).scale(rec_Dt);
   tmp(9).prod(Cp,tmp(8),1,-1,-1).rest(G);
   tmp(11).prod(shape(),tmp(9),1,2);
   res_pg.rest(tmp(7)).rest(tmp(11));
@@ -93,5 +97,5 @@ void qharmm::pg_connector(const FastMat2 &xpg,
   tmp(4).prod(shape(),shape(),1,2);
   tmp(5).prod(tmp(4),C,1,3,2,4);
   tmp(10).prod(tmp(4),Cp,1,3,2,4);
-  mat_pg.add(tmp(5)).axpy(tmp(10),1./Dt);
+  mat_pg.add(tmp(5)).axpy(tmp(10),rec_Dt);
 }
