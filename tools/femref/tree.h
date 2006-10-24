@@ -1,8 +1,10 @@
 // -*- mode: c++ -*-
 //__INSERT_LICENSE__
-// $Id: tree.h,v 1.4 2004/12/26 03:09:24 mstorti Exp $
+// $Id: tree.h,v 1.5 2006/10/24 00:37:06 mstorti Exp $
 #ifndef PETSCFEM_TREE_H
 #define PETSCFEM_TREE_H
+
+#include <iostream>
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 template<class T>
@@ -186,7 +188,7 @@ private:
   //PP>if 0
   void print_prev(iterator p) { 
     if (p==end()) return;
-    cout << "(" << p.ptr << "," << p.ptr->t << ")" << endl;
+    std::cout << "(" << p.ptr << "," << p.ptr->t << ")" << std::endl;
     iterator c = p.lchild();
     while (c!=end()) print_prev(c++);
   }
@@ -196,7 +198,7 @@ private:
     if (p==end()) return;
     iterator c = p.lchild();
     while (c!=end()) print_post(c++);
-    cout << "(" << p.ptr << "," << p.ptr->t << ")" << endl;
+    std::cout << "(" << p.ptr << "," << p.ptr->t << ")" << std::endl;
   }
   void print_post() { print_post(begin()); }
 
@@ -204,14 +206,14 @@ private:
     if (n==end()) return;
     iterator c = n.lchild();
     bool is_leaf = c==end();
-    if (is_leaf) cout << *n;
+    if (is_leaf) std::cout << *n;
     else {
-      cout << "(" << *n;
+      std::cout << "(" << *n;
       while (c!=end()) {
-	cout << " ";
+	std::cout << " ";
 	lisp_print(c++);
       }
-      cout << ")";
+      std::cout << ")";
     }
   }
   void lisp_print() { lisp_print(begin()); }
