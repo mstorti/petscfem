@@ -1,4 +1,4 @@
-// $Id: Application.cpp,v 1.1.2.6 2006/08/22 22:10:43 dalcinl Exp $
+// $Id: Application.cpp,v 1.1.2.7 2006/11/29 22:35:09 dalcinl Exp $
 
 #include "Application.h"
 
@@ -44,6 +44,91 @@ Domain&
 Application::getDomain() const
 {
   return *this->domain;
+}
+
+
+void 
+Application::allocateState(Vec& r, const std::string& vec_type) const
+{
+  MPI_Comm comm;
+  comm = this->getComm();
+  PetscInt n, N;
+  this->domain->getDofSizes(&n, &N);
+
+  if (r != PETSC_NULL) throw Error("state vector already allocated");
+  // create
+  PYPF_PETSC_CALL(VecCreate, (comm, &r));
+  PYPF_PETSC_CALL(VecSetSizes, (r, n, N));
+  // set type
+  const char *vtype = NULL;
+  if (vec_type.size() > 0)
+    vtype = vec_type.c_str();
+  else {
+    int size; MPI_Comm_size(comm, &size);
+    vtype = (size == 1) ? VECSEQ : VECMPI;
+  }
+  PYPF_PETSC_CALL(VecSetType, (r, vtype));
+}
+
+void 
+Application::allocateResidual(Vec& r, const std::string& vec_type) const
+{
+  MPI_Comm comm;
+  PetscInt n, N;
+  comm = this->getComm();
+  this->domain->getDofSizes(&n, &N);
+
+  if (r != PETSC_NULL) throw Error("residual vector already allocated");
+  // create
+  PYPF_PETSC_CALL(VecCreate, (comm, &r));
+  PYPF_PETSC_CALL(VecSetSizes, (r, n, N));
+  // set type
+  const char *vtype = NULL;
+  if (vec_type.size() > 0)
+    vtype = vec_type.c_str();
+  else {
+    int size; MPI_Comm_size(comm, &size);
+    vtype = (size == 1) ? VECSEQ : VECMPI;
+  }
+  PYPF_PETSC_CALL(VecSetType, (r, vtype));
+}
+
+void 
+Application::allocateJacobian(Mat& J, const std::string& mat_type) const
+{
+  MPI_Comm comm;
+  comm = this->getComm();
+  PetscInt n, N;
+  this->domain->getDofSizes(&n, &N);
+  
+  if (J != PETSC_NULL) throw Error("jacobian matrix already allocated");
+  // create
+  PYPF_PETSC_CALL(MatCreate, (comm, &J));
+  PYPF_PETSC_CALL(MatSetSizes, (J, n, n, N, N));
+  // set type
+  const char *mtype = NULL;
+  if (mat_type.size() > 0)
+    mtype = mat_type.c_str();
+  else 
+    mtype = MATAIJ;
+  PYPF_PETSC_CALL(MatSetType,(J, mtype));
+}
+
+void 
+Application::allocateSolution(Vec& r) const
+{
+  MPI_Comm comm = PETSC_COMM_SELF;
+  PetscInt nnod, ndof, n, N;
+  this->domain->getSizes(&nnod, &ndof);
+  n = N = nnod*ndof;
+
+  if (r != PETSC_NULL) throw Error("solution vector already allocated");
+  // create
+  PYPF_PETSC_CALL(VecCreate, (comm, &r));
+  PYPF_PETSC_CALL(VecSetSizes, (r, n, N));
+  // set type
+  const char *vtype = VECSEQ;
+  PYPF_PETSC_CALL(VecSetType, (r, vtype));
 }
 
 void 

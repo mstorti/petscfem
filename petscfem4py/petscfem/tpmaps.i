@@ -1,5 +1,5 @@
 // -*- c++ -*-
-// $Id: tpmaps.i,v 1.1.2.6 2006/06/15 21:50:52 dalcinl Exp $
+// $Id: tpmaps.i,v 1.1.2.7 2006/11/29 22:35:09 dalcinl Exp $
 
 %header %{
 SWIGINTERNINLINE PyObject* 
@@ -48,12 +48,12 @@ SWIG_convert_ptr(PyObject *obj, void **ptr, swig_type_info *ty, int flags) {
 
 // PETSc objects
 %define PETSC_OBJECT_TYPEMAP(Type)
-typedef struct _p_##Type* Type;
 %types(Type);
-%typemap(typecheck, match="in") Type = SWIGTYPE*;
+typedef struct _p_##Type* Type;
+%typemap(typecheck, match="in") Type = SWIGTYPE;
 %typemap(arginit, noblock=1)    Type { $1 = PETSC_NULL; }
-%typemap(in)                    Type = SWIGTYPE*;
-%typemap(check, noblock=1)      Type
-{ if ($1 == PETSC_NULL) %argument_nullref($type, $symname, $argnum); }
+%typemap(in)                    Type = SWIGTYPE;
+%typemap(check, noblock=1)      Type 
+{ if ($1 == PETSC_NULL) %argument_nullref($type, $symname, $argnum);}
 %typemap(freearg, match="in")   Type "";
 %enddef

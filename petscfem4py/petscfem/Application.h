@@ -1,4 +1,4 @@
-// $Id: Application.h,v 1.1.2.7 2006/06/30 18:33:33 dalcinl Exp $
+// $Id: Application.h,v 1.1.2.8 2006/11/29 22:35:09 dalcinl Exp $
 
 #ifndef PYPF_APPLICATION_H
 #define PYPF_APPLICATION_H
@@ -33,8 +33,13 @@ public:
 
   Domain& getDomain() const;
 
-  void buildState(Vec solution, Vec state);
-  void buildSolution(double time, Vec state, Vec solution);
+  virtual void allocateState(Vec& x, const std::string&vec_type="") const;
+  virtual void allocateResidual(Vec& r, const std::string&vec_type="") const;
+  virtual void allocateJacobian(Mat& J, const std::string& mat_type="") const;
+  virtual void allocateSolution(Vec& u) const;
+
+  virtual void buildState(Vec solution, Vec state);
+  virtual void buildSolution(double time, Vec state, Vec solution);
   
 };
 

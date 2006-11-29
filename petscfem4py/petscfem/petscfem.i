@@ -1,5 +1,5 @@
 // -*- c++ -*-
-// $Id: petscfem.i,v 1.1.2.12 2006/06/23 21:43:04 dalcinl Exp $ 
+// $Id: petscfem.i,v 1.1.2.13 2006/11/29 22:35:09 dalcinl Exp $ 
 
 /*
 %module petscfem // hack for numpy.distutils, do not remove !!
@@ -46,3 +46,10 @@
 #include "NvrStks.h"
 %}
 %include Application.i
+
+
+%inline %{
+  void fvvec(Vec  v1) { }
+  void frvec(Vec& v1) { }
+  void fpvec(Vec* v1) { }
+%}

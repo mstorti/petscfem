@@ -1,4 +1,4 @@
-// $Id: NvrStks.cpp,v 1.1.2.9 2006/07/26 23:32:35 dalcinl Exp $
+// $Id: NvrStks.cpp,v 1.1.2.10 2006/11/29 22:35:09 dalcinl Exp $xce
 
 #include "NvrStks.h"
 
@@ -332,6 +332,24 @@ NvrStks::getProfileCSR(std::vector<int>& xadj, std::vector<int>& adjncy) const
   
   xadj.swap(A.vec1); adjncy.swap(A.vec2);
 
+}
+
+void 
+NvrStks::allocateJacobian(Mat& J, const std::string& mat_type) const
+{
+  Application::allocateJacobian(J, mat_type);
+  // preallocation 
+  std::vector<int> xadj, adjncy;
+  this->getProfileCSR(xadj, adjncy);
+  MPI_Comm comm;
+  comm = this->getComm();
+  int size; MPI_Comm_size(comm, &size);
+  if (size == 1)
+    PYPF_PETSC_CALL(MatSeqAIJSetPreallocationCSR,
+		    (J, &xadj[0], &adjncy[0], PETSC_NULL));
+  else
+    PYPF_PETSC_CALL(MatMPIAIJSetPreallocationCSR,
+		    (J, &xadj[0], &adjncy[0], PETSC_NULL));
 }
 
 PYPF_NAMESPACE_END

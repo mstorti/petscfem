@@ -1,5 +1,5 @@
 // -*- c++ -*-
-// $Id: Docs.i,v 1.1.2.17 2006/08/22 22:10:43 dalcinl Exp $
+// $Id: Docs.i,v 1.1.2.18 2006/11/29 22:35:09 dalcinl Exp $
 
 %define %docstring(node,...) 
 #if #__VA_ARGS__ == ""
@@ -170,6 +170,10 @@ PYPF_NAMESPACE_BEGIN
 %docstring(Application);
 %docstring(Application::Application);
 %docstring(Application::getDomain);
+%docstring(Application::allocateState);
+%docstring(Application::allocateResidual);
+%docstring(Application::allocateJacobian);
+%docstring(Application::allocateSolution);
 %docstring(Application::buildSolution);
 %docstring(Application::buildState);
 

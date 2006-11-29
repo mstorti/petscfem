@@ -12,37 +12,53 @@ COMM = PETSc.COMM_WORLD
 SIZE = COMM.size
 RANK = COMM.rank
 
-USE_SCHUR = PETSc.Options.HasName('use_schur')
-USE_MATIS = PETSc.Options.HasName('use_matis')
 
-petscopts = PETSc.Options()
+opts = PETSc.Options()
+
+DUMP      = opts.hasName('dump')
+USE_SCHUR = opts.hasName('schur')
+USE_MATIS = opts.hasName('matis')
 
 if USE_SCHUR:
-    USE_MATIS = True
-    petscopts['ksp_type'] = 'preonly'
-    petscopts['pc_type']  = 'schur'
-    petscopts['pc_schur_ksp_type'] = 'gmres'
-    petscopts['pc_schur_ksp_max_it'] = '250'
-    petscopts['pc_schur_ksp_gmres_restart'] = '250'
-    petscopts['pc_schur_pc_type']  = 'jacobi'
+    if SIZE > 1:
+        USE_MATIS = True
+    opts['ksp_type'] = 'preonly'
+    opts['pc_type']  = 'schur'
+    opts['pc_schur_ksp_type'] = 'gmres'
+    opts['pc_schur_ksp_max_it'] = '250'
+    opts['pc_schur_ksp_gmres_restart'] = '250'
+    opts['pc_schur_ksp_gmres_modifiedgramschmidt'] = '1'
+    #opts['pc_schur_pc_type']  = 'jacobi'
 else:
-    petscopts['ksp_type'] = 'gmres'
+    #opts['ksp_type'] = 'gmres'
+    opts['ksp_max_it'] = '250'
+    opts['ksp_gmres_restart'] = '250'
+    opts['ksp_gmres_modifiedgramschmidt'] = '1'
     if USE_MATIS:
-        petscopts['pc_type'] = 'jacobi'
-    else:
-        petscopts['pc_type'] = 'bjacobi'
+        if not PETSc.Options.HasName('pc_type'):
+            opts['pc_type'] = 'jacobi'
+
+if USE_MATIS:
+    if not PETSc.Options.HasName('mat_type'):
+        opts['mat_type'] = 'is'
 
 
 # Structured Grid
 # ---------------
+gsize = opts.getInt('grid', 10)
 
-M,N,O = 4, 4, 4
-M,N,O = 5, 5, 5
-M,N,O = 10, 10, 10
-M,N,O = 20, 20, 20
+M,N,O = (gsize,) * 3
+
+#M,N,O = 3, 3, 3
+#M,N,O = 4, 4, 4
+#M,N,O = 5, 5, 5
+#M,N,O = 7, 7, 7
+#M,N,O = 9, 9, 9
+#M,N,O = 10, 10, 10
+#M,N,O = 20, 20, 20
 #M,N,O = 30, 30, 30
 #M,N,O = 40, 40, 40
-M,N,O = 50, 50, 50
+#M,N,O = 50, 50, 50
 #M,N,O = 60, 60, 60
 #M,N,O = 70, 70, 70
 
@@ -54,6 +70,13 @@ nodes.shape = M,N,O
 X, Y, Z = numpy.mgrid[0:1:M*1j, 0:1:N*1j, 0:1:O*1j]
 xnod = numpy.array([X.ravel(), Y.ravel(), Z.ravel()])
 xnod = xnod.transpose()
+
+if DUMP and RANK==0:
+    fxnod = open('xnod.dat', 'w')
+    for xyz in xnod:
+        xyz.tofile(fxnod, sep=' ')
+        fxnod.write('\n')
+    fxnod.close()
 
 
 # Connectivity (Hexahedra)
@@ -74,6 +97,12 @@ icone[...,7] = nodes[ 1:n0   , 0:n1-1, 1:n2   ]
 # final mesh
 icone.shape = (e0*e1*e2, 8)
 
+if DUMP and RANK==0:
+    ficone = open('icone.dat', 'w')
+    for elem in (icone+1):
+        elem.tofile(ficone, sep=' ')
+        ficone.write('\n')
+    ficone.close()
 
 nnod = M*N*O
 ndim = 3
@@ -83,21 +112,28 @@ nodeset = Nodeset(ndim, xnod)
 
 elemset = Elemset('nsi_tet_les_fm2', icone)
 elemset.setName('cubcav')
-opts ={'geometry'   : 'cartesian%dd' % ndim,
-       'ndim'       : str(ndim),
-       'npg'        : str(8),
-       'viscosity'  : str(1),
-       'block_uploading': str(1),
-       }
-elemset.setOptions(opts)
+elopts ={'geometry'   : 'cartesian%dd' % ndim,
+         'ndim'       : str(ndim),
+         'npg'        : str(8),
+         'rho'        : str(1),
+         'viscosity'  : str(10),
+         'block_uploading': str(1),
+         }
+elemset.setOptions(elopts)
+
 
 # Boundary Conditions
 # -------------------
+if DUMP and RANK==0:
+    ffixa = open('fixa.dat', 'w')
 
 dofset = Dofset(nnod, ndof)
 
 # pressure
 dofset.addFixations(0, 3, 0) # p
+
+if DUMP and RANK==0:
+    ffixa.write('1 4 0.0\n')
 
 # top
 nods = nodes[...,-1]
@@ -106,6 +142,13 @@ _0, _1, _2 = [numpy.array(i).repeat(nods.size) for i in range(3)]
 dofset.addFixations(nods, _0,  _1) # v_x = 1
 dofset.addFixations(nods, _1,  _0) # v_y = 0
 dofset.addFixations(nods, _2,  _0) # v_z = 0
+
+if DUMP and RANK==0:
+    for n in (nods+1):
+        ffixa.write('%d %d %f\n' % (n, 1, 1.0))
+        ffixa.write('%d %d %f\n' % (n, 2, 0.0))
+        ffixa.write('%d %d %f\n' % (n, 3, 0.0))
+
 
 # walls
 walls = (nodes[:,:,0],
@@ -117,6 +160,19 @@ for nods in walls:
     dofset.addFixations(nods, _0,  _0) # v_x = 0
     dofset.addFixations(nods, _1,  _0) # v_y = 0
     dofset.addFixations(nods, _2,  _0) # v_z = 0
+
+    if DUMP and RANK==0:
+        for n in (nods+1):
+            ffixa.write('%d %d %f\n' % (n, 1, 0.0))
+            ffixa.write('%d %d %f\n' % (n, 2, 0.0))
+            ffixa.write('%d %d %f\n' % (n, 3, 0.0))
+
+if DUMP and RANK==0:
+    ffixa.close()
+
+
+if DUMP:
+    raise SystemExit
 
 
 class NSI(NavierStokes):
@@ -131,18 +187,11 @@ class NSI(NavierStokes):
         J = PETSc.Mat()
         J.create(comm=COMM.comm)
         J.setSizes(sizes)
-        if USE_MATIS:
-            ldofs = fem.getLocalDofs()
-            lgmap = PETSc.LGMapping(ldofs, comm=COMM.comm)
-            J.setType(J.Type.IS)
-            J.setLGMapping(lgmap)
-            J.setPreallocation(27*4)
-        else:
-            if SIZE > 1:
-                J.setType(J.Type.MPIAIJ)
-            else:
-                J.setType(J.Type.SEQAIJ)
-            J.setPreallocation([27*4, 9*4])
+        J.setFromOptions()
+        ldofs = fem.getLocalDofs()
+        lgmap = PETSc.LGMapping(ldofs, comm=COMM.comm)
+        J.setLGMapping(lgmap)
+        J.setPreallocation([27*4, 9*4])
             
         x, r = J.getVecs()
 
@@ -199,49 +248,98 @@ class NSI(NavierStokes):
         self.sol_time += t2-t1
 
 
+
+PETSc.Print('before problem setup...\n')
+
 nsi = NSI(nodeset, [elemset], dofset)
 import atexit
 atexit.register(nsi.clear)
 
-dofsizes = nsi.fem.getDofSizes()
-solsizes = nsi.fem.getSizes()
-PETSc.SyncPrint('dof sizes: local: %d global:%d\n' % dofsizes)
-PETSc.SyncFlush()
-PETSc.Print('sol size:  nnod:  %d ndof:  %d\n' % solsizes)
+PETSc.Print('after problem setup...\n')
+
+#PETSc.Print('Sleeping 1 second...\n')
+#PETSc.Sleep(1)
 
 
-if 0:
-    # assemble performance
-    # --------------------
-    loops = 10
+## dofsizes = nsi.fem.getDofSizes()
+## solsizes = nsi.fem.getSizes()
+## PETSc.SyncPrint('dof sizes: local: %d global:%d\n' % dofsizes)
+## PETSc.SyncFlush()
+## PETSc.Print('sol size:  nnod:  %d ndof:  %d\n' % solsizes)
+
+def test_assemble(nsi, loops):
+    PETSc.Print('Start assembling...\n')
     snes = nsi.snes
     x = nsi.x
     r = x.duplicate()
-    nsi.snes_res(snes,x,r)
     nsi.ass_time = 0.0
-    for i in xrange(10):
-        PETSc.Print('assemble loop: %d\n' % i)
+    nsi.snes_res(snes,x,r)
+    if loops:
+        nsi.ass_time = 0.0
+    for i in xrange(loops):
+        ass_time = nsi.ass_time
         x.set(0)
         nsi.snes_res(snes,x,r)
+        ass_time = nsi.ass_time - ass_time
+        ass_time = PETSc.GlobalSum(ass_time)/SIZE
+        PETSc.Print('Assemble time: %f (loop #%2d)\n' % (ass_time,i))
     ass_time = PETSc.GlobalSum(nsi.ass_time)/SIZE
-    PETSc.Print('Assemble time:  %f (%d loops)\n'% (ass_time, loops))
+    if not loops:
+        loops = 1
+    PETSc.Print('Assemble time: %f (mean,  %-2d loops)\n'% (ass_time/loops,loops))
+    PETSc.Print('Assemble time: %f (total, %-2d loops)\n'% (ass_time,loops))
     PETSc.Print('\n')
 
-if 0:
+
+def test_solution(nsi):
+    #test_assemble(nsi, 0)
+    #nsi.snes.ksp.pc.setUp()
     PETSc.Print('Start solving...\n')
     x = nsi.x
+    nsi.ass_time = 0.0
     nsi.solve(x)
     ass_time = nsi.ass_time
     ass_time = PETSc.GlobalSum(ass_time)/SIZE
     sol_time = nsi.sol_time
     sol_time = PETSc.GlobalSum(sol_time)/SIZE
-    snes_its = nsi.snes.iternum
-    ksp_its  = nsi.snes.linear_its
+    snes     = nsi.snes
+    snes_its = snes.iternum
+    ksp_its  = snes.linear_its
     PETSc.Print('Assemble time:   %f\n'  % ass_time)
     PETSc.Print('Solution time:   %f\n'  % sol_time)
     PETSc.Print('SNES Iterations: %d\n'  % snes_its)
     PETSc.Print('KSP Iterations:  %d\n'  % ksp_its)
+    PETSc.Print('\n')
+    #snes.view()
+    #snes.ksp.pc.view()
 
+#test_assemble(nsi, 10)
+#test_assemble(nsi, 10)
+test_solution(nsi)
+
+#PETSc.SyncPrint('[%d] %s\n' % (RANK,nsi.J.sizes[0]))
+#PETSc.SyncFlush()
+
+## test_assemble(nsi, 0)
+## import sys
+## sys.stdout.flush()
+## PETSc.SyncFlush()
+## pc = nsi.snes.ksp.pc
+## pc.setUp()
+
+
+if 0:
+    ldofs = nsi.fem.getLocalDofs()
+    lgmap = PETSc.LGMapping(ldofs)
+    from petsc.lib import _petsc
+    neigh, nodes  = _petsc.LGMappingGetInfo(lgmap)
+    nodes = [lgmap(i) for i in nodes]
+    PETSc.SyncPrint('rank:%d neighs: %s\n' % (RANK, neigh))
+    for i,ii in enumerate(nodes):
+        if i==0: continue
+        PETSc.SyncPrint('[%d]-[%d] -> %s\n' % (RANK,neigh[i], list(ii)))
+    PETSc.SyncPrint('\n');
+    PETSc.SyncFlush()
 
 ## dofmap = nsi.getDofMap()
 ## stt = numpy.array(state)
@@ -286,4 +384,4 @@ if 0:
     PETSc.SyncPrint('[%d]: %d %s\n' % (RANK, ldofs.size, list(ldofs)), COMM)
     PETSc.SyncFlush(COMM)
     PETSc.Print('\n', COMM)
-    
+        

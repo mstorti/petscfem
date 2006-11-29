@@ -44,10 +44,9 @@ metadata = {
 from os import environ as env
 from posixpath import expanduser, abspath, join
 
-MPI_DIR      = env.get('MPI_DIR')      or '/usr/local/mpich2-1.0.3'
-PETSC_DIR    = env.get('PETSC_DIR')    or '/usr/local/petsc/2.3.1'
-PETSC_ARCH   = env.get('PETSC_ARCH')   or 'linux-gnu-g_c++'
-PETSCFEM_DIR = env.get('PETSCFEM_DIR') or abspath('..')
+MPI_DIR      = env.get('MPI_DIR')    or '/usr/local/mpich2/1.0.4'
+PETSC_DIR    = env.get('PETSC_DIR')  or '/usr/local/petsc/2.3.2'
+PETSC_ARCH   = env.get('PETSC_ARCH') or 'linux-gnu'
 
 GLIB1    = '/usr/include/glib-1.2'
 GLIB2    = '/usr/lib/glib/include'
@@ -59,6 +58,8 @@ MESCHACH = join(SOFT, 'meschach-1.2')
 METIS    = join(SOFT, 'metis-4.0')
 ANN      = join(SOFT, 'ann_1.1')
 
+PETSCFEM_OPT = env.get('PETSCFEM_OPT') or 'g'
+PETSCFEM_DIR = env.get('PETSCFEM_DIR') or abspath('..')
 
 
 # --------------------------------------------------------------------
@@ -75,7 +76,7 @@ config = {
     
     'libraries'    : ['glib',
                       'mpich',
-                      'petsc', 'petscvec', 'petscmat', 'petscksp',
+                      'petscksp', 'petscdm', 'petscmat', 'petscvec', 'petsc',
                       'newmat',
                       'ibretto',
                       'mes',
@@ -98,12 +99,12 @@ def ext_modules(Extension):
     PETSCFEM_INCLUDE = [PETSCFEM_DIR, join(PETSCFEM_DIR, 'src')] \
                        + config['include_dirs']
 
-    if 'g_c++' in PETSC_ARCH:
+    if PETSCFEM_OPT in ('g', 'g_c++'):
         PETSCFEM_LIBRARY = ['petscfem_g', 'ns_g'] * 2 + config['libraries']
-    elif 'O_c++' in PETSC_ARCH:
+    elif PETSCFEM_OPT in ('O',  'O_c++'):
         PETSCFEM_LIBRARY = ['petscfem_O', 'ns_O'] * 2 + config['libraries']
     else:
-        raise SystemExit('invalid PETSC_ARCH: %s' % PETSC_ARCH)
+        raise SystemExit('invalid PETSCFEM_OPT: %s' % PETSCFEM_OPT)
     PETSCFEM_LIBDIR = [join(PETSCFEM_DIR, 'src'),
                        join(PETSCFEM_DIR, 'applications/ns') ] \
                             + config['library_dirs']
@@ -111,9 +112,12 @@ def ext_modules(Extension):
                           + config['runtime_library_dirs']
     
     from glob import glob
-    sources = glob('petscfem/petscfem.i') + glob('petscfem/*.cpp')
-    if 'petscfem/petscfem_wrap.cpp' in sources: 
+    sources = glob('petscfem/petscfem.i')
+    sources+= glob('petscfem/*.cpp')
+    try: 
         sources.remove('petscfem/petscfem_wrap.cpp')
+    except ValueError:
+        pass
     depends = glob('petscfem/*.i') + glob('petscfem/*.h')
 
     petscfem = Extension('petscfem4py._petscfem',
@@ -137,10 +141,14 @@ def c_libraries():
                            + config['include_dirs']
     from glob import glob
     sources = glob('petscfem/*.cpp')
-    if 'petscfem/petscfem_wrap.cpp' in sources: 
+    try: 
         sources.remove('petscfem/petscfem_wrap.cpp')
+    except ValueError:
+        pass
+    depends = glob('petscfem/*.h')
 
     return [('petscfem', dict(sources      = sources,
+                              depends      = depends,
                               macros       = PETSCFEM_MACROS,
                               include_dirs = PETSCFEM_INCLUDE_DIR))]
 
@@ -158,10 +166,14 @@ def setup():
         def finalize_options(self):
             _build_src.finalize_options(self)
             self.inplace = True
-            self.swigflags.append('-O')
-            self.swigflags.append('-nofastproxy')
-            self.swigflags.append('-noh')
-            self.swigflags.append('-fastinit')
+            for flag in ('-O',
+                         '-fastinit',
+                         '-nofastproxy',
+                         '-noh',
+                         '-nodirvtable', # bug in 1.3.29
+                         ):
+                self.swigflags.append(flag)
+            
             
     setup(packages     = ['petscfem4py'],
     	  package_dir  = {'petscfem4py' : 'petscfem'},
