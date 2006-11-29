@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: nsitetlesfm2.cpp,v 1.74.4.1 2006/05/19 23:43:38 dalcinl Exp $
+//$Id: nsitetlesfm2.cpp,v 1.74.4.2 2006/11/29 22:36:36 dalcinl Exp $
 
 #include <src/fem.h>
 #include <src/utils.h>
@@ -99,8 +99,8 @@ assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
   // rec_Dt is the reciprocal of Dt (i.e. 1/Dt)
   // for steady solutions it is set to 0. (Dt=inf)
   GlobParam *glob_param;
-  double *hmin,Dt,rec_Dt;
-  int ja_hmin;
+  double Dt,rec_Dt;
+  double *hmin=NULL; int ja_hmin=0;
 #define WAS_SET arg_data_v[ja_hmin].was_set
   if (comp_mat_res) {
     int ja=0;
@@ -109,7 +109,7 @@ assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
     retval = arg_data_v[ja++].retval;
     if (update_jacobian) retvalmat = arg_data_v[ja++].retval;
     hmin = &*(arg_data_v[ja++].vector_assoc)->begin();
-    ja_hmin=ja;
+    ja_hmin=ja-1;
     glob_param = (GlobParam *)(arg_data_v[ja++].user_data);
     rec_Dt = 1./glob_param->Dt;
     if (glob_param->steady) rec_Dt=0.;

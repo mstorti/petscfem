@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: elemset.cpp,v 1.93.10.3 2006/06/29 14:42:07 dalcinl Exp $
+//$Id: elemset.cpp,v 1.93.10.4 2006/11/29 22:36:36 dalcinl Exp $
 
 #ifndef _GNU_SOURCE
 #define _GNU_SOURCE
@@ -1032,7 +1032,7 @@ void Elemset::register_name(const string &name_a,const char *type) {
 	  ==elemset_table.end()) break;
     }
     if (j==MAX_ELEMSET_SFX) ename.sprintf("%s_%p",type,this);
-    name_m = local_copy(ename.str());
+    name_m = ename.str();
     PETSCFEM_ASSERT0(j!=MAX_ELEMSET_SFX,
 		     "Couldn't generate automatic name for this  elemset!!\n");
   }
