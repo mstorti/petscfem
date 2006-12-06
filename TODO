@@ -1,8 +1,9 @@
 ################################################################
-# $Id: TODO,v 1.250 2006/03/29 17:49:06 mstorti Exp $
+# $Id: TODO,v 1.251 2006/12/06 01:19:46 mstorti Exp $
 TODO: [Mainly fixes go here...]
 =====
 
+* using nsi_tet_les_fm2 with fractional step produces  SEGV
 * Absorbing b.c.'s: 
     Make emphasis in the doc that the normal is the exterior normal to
     the fluid. 
