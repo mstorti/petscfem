@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: dofmap.cpp,v 1.21.42.3 2006/05/20 21:11:19 dalcinl Exp $
+//$Id: dofmap.cpp,v 1.21.42.4 2006/12/18 23:15:35 dalcinl Exp $
 
 #include <cassert>
 #include <algorithm>
@@ -113,8 +113,10 @@ void Dofmap::get_row(int const & node,
 #undef __FUNC__
 #define __FUNC__ "int Dofmap::edof(const int node,const int field) const"
 int Dofmap::edof(const int node,const int field) const {
+#if !defined(NDEBUG)
   PETSCFEM_ASSERT(node>=1 && node<=nnod,"Node out of range: %d\n",node);
   PETSCFEM_ASSERT(field>=1 && field<=ndof,"Field out of range: %d\n",field);
+#endif
   return (node-1)*ndof+field;
 }
 
