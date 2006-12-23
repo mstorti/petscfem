@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: advdife.cpp,v 1.118 2006/10/20 21:28:14 mstorti Exp $
+//$Id: advdife.cpp,v 1.119 2006/12/23 20:25:25 mstorti Exp $
 extern int comp_mat_each_time_step_g,
   consistent_supg_matrix_g,
   local_time_step_g;
@@ -1281,70 +1281,15 @@ void NewAdvDif::new_assemble(arg_data_list &arg_data_v,const Nodedata *nodedata,
 	    
 	    adv_diff_ff->get_C(Cr);
 
-      tmp12.set(Cr).add(Cp_bis);
-
-      double mass_node;
-      mass_node = double(lmass.get(j));
-      veccontr.ir(1,j).axpy(tmp10,mass_node).rs();
-      matlocf.ir(1,j).ir(3,j).axpy(tmp12,mass_node).rs();
-
-      }
-    }
-
-      /*
-      if (lumped_mass) {
-	// lump mass matrix
-#if 1	// With this commented should be equivalent to no mass lumping
-	matlocf_mass.reshape(2,nen,nen);
-	for (int j=1; j<=nen; j++) {
-	  double m = matlocf_mass.ir(1,j).sum_all();
-	  matlocf_mass.set(0.).setel(m,j);
-	}
-	matlocf_mass.rs().reshape(4,nel,ndof,nel,ndof);
-#endif
-	// Compute derivative of local element state
-	// The Dt is already included in the mass matrix
-	dUloc.set(lstaten).rest(lstateo);
-	dUloc_c.set(dUloc);
-	// correct the logarithmic variables for a factor $U^{n+\alpha}$
-	for (int k=0; k<nlog_vars; k++) {
-	  int jdof=log_vars[k];
-	  for (int j=1; j<nel; j++) {
-	    true_lstate.ir(2,jdof);
-	    dUloc_c.ir(2,jdof).mult(true_lstate);
-	  }
-	}
-	dUloc_c.rs();
-	true_lstate.rs();
-
-	// Compute inertia term with lumped mass
-	veccontr_mass.prod(matlocf_mass,dUloc_c,1,2,-1,-2,-1,-2);
-	// Add (rest) to vector contribution to be returned
-	veccontr.rest(veccontr_mass);
-	// Scale mass matrix by $U^{n+\alpha}/Dt*(1+alpha\DU)$
-	for (int k=0; k<nlog_vars; k++) {
-	  int jdof=log_vars[k];
-	  for (int j=1; j<=nel; j++) {
-	    // Raw mass matrix value
-	    double m = matlocf_mass.get(j,jdof,j,jdof);
-	    // True (positive variable) value
-	    double UU = true_lstate.get(j,jdof);
-	    // Difference of log variable
-	    double DU = dUloc.get(j,jdof);
-	    // Correction factor
-	    double f=UU*(1+ALPHA*DU);
-	    matlocf_mass.setel(m*f,j,jdof,j,jdof);
-	    // Correct the spatial jacobian
-	    matlocf.ir(3,j).ir(4,jdof).scale(UU);
-	  }
-	}
-	matlocf.rs();
-	// Add to matrix contribution to be returned
-	matlocf.add(matlocf_mass);
-      }
-      */
-
-
+            tmp12.set(Cr).add(Cp_bis);
+            
+            double mass_node;
+            mass_node = double(lmass.get(j));
+            veccontr.ir(1,j).axpy(tmp10,mass_node).rs();
+            matlocf.ir(1,j).ir(3,j).axpy(tmp12,mass_node).rs();
+            
+          }
+        }
 
       veccontr.export_vals(element.ret_vector_values(*retval));
 #ifdef CHECK_JAC
