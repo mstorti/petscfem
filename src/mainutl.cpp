@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: mainutl.cpp,v 1.26 2006/04/08 21:56:09 mstorti Exp $
+//$Id: mainutl.cpp,v 1.27 2006/12/23 20:42:46 mstorti Exp $
  
 #include "fem.h"
 #include "utils.h"
@@ -91,7 +91,7 @@ void print_vector_rota(const char *filenamepat,const Vec x,const
   char buf[300];
   resrec = div(ressave.quot,nrec);
   int irec=resrec.rem;
-  int ifile = resrec.quot % nfile;
+  int ifile = (nfile>0? resrec.quot % nfile : resrec.quot);
 
   sprintf(buf,filenamepat,ifile);
   PetscPrintf(PETSC_COMM_WORLD,
