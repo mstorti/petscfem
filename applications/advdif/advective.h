@@ -1,6 +1,6 @@
 // -*- mode: c++ -*-
 /*__INSERT_LICENSE__*/
-//$Id: advective.h,v 1.79 2006/06/13 13:56:09 mstorti Exp $
+//$Id: advective.h,v 1.80 2006/12/24 03:10:22 mstorti Exp $
  
 //#define CHECK_JAC // Computes also the FD Jacobian for debugging
  
@@ -417,6 +417,7 @@ protected:
     A_jac_norm_min, A_jac_err_norm_max, A_jac_err_norm_min,
     A_rel_err_min, A_rel_err_max;
   FastMat2 dshapex_low;
+  int use_GCL_compliant;
 
 public:
   FastMat2 dshapex,Uo,Ao_grad_N,tau_supg,
@@ -445,6 +446,8 @@ public:
 
   /// The assemble function for the elemset. 
   NewAssembleFunction new_assemble;
+  /// The assemble function for the elemset. 
+  NewAssembleFunction new_assemble_GCL_compliant;
   /// The ask function for the elemset. 
   ASK_FUNCTION;
   double volume() const ;
@@ -480,7 +483,8 @@ public:
   ~NewBcconv() { delete adv_diff_ff; }
   /// The assemble function for the elemset. 
   NewAssembleFunction new_assemble;
-  /// The ask function for the elemset. 
+  /// The assemble function modified for being GCL compliant
+  /// for the elemset. 
   ASK_FUNCTION;
 };
 

@@ -1,5 +1,5 @@
 #__INSERT_LICENSE__
- # $Id: Makefile,v 1.58 2006/04/17 03:08:14 mstorti Exp $ 
+ # $Id: Makefile,v 1.59 2006/12/24 03:10:22 mstorti Exp $ 
 
 .PHONY: all run lclean save compile
 
@@ -15,7 +15,7 @@ LIBOBJS = advdife.o advdifeo.o advdif.o ffadvfm2_old.o ffburg.o		\
 	gasflow.o advdfgth.o advdif_bubbly.o advhookf.o smoke.o ctff.o	\
 	streamsw1d.o id.o gaschem.o nonlres.o fm2funm.o			\
 	bubbly_asm_mix.o lagmul.o advabso.o gasflwgth.o svenant1d.o	\
-	advpenal.o advdif_fsi.o absolay.o
+	advpenal.o advdif_fsi.o absolay.o advdife-gcl.o
 
 .INTERMEDIATE: $(LIBOBJS) 
 

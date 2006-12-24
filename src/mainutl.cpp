@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: mainutl.cpp,v 1.27 2006/12/23 20:42:46 mstorti Exp $
+//$Id: mainutl.cpp,v 1.28 2006/12/24 03:10:22 mstorti Exp $
  
 #include "fem.h"
 #include "utils.h"
@@ -85,6 +85,7 @@ void print_vector_rota(const char *filenamepat,const Vec x,const
   
   if (nsave==0) return;
   div_t ressave,resrec;
+
   ressave = div(j,nsave);
   if (ressave.rem !=0) return;
 
@@ -95,7 +96,8 @@ void print_vector_rota(const char *filenamepat,const Vec x,const
 
   sprintf(buf,filenamepat,ifile);
   PetscPrintf(PETSC_COMM_WORLD,
-	      "print_vector_rota: step = %d, saving on rec %d, file %s\n",j,irec,buf);
+	      "print_vector_rota: step = %d, saving on rec %d,"
+              " file %s\n",j,irec,buf);
   print_vector(buf,x,dofmap,time_data,irec!=0);
 
 }

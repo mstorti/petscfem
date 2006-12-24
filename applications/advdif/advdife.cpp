@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: advdife.cpp,v 1.119 2006/12/23 20:25:25 mstorti Exp $
+//$Id: advdife.cpp,v 1.120 2006/12/24 03:10:22 mstorti Exp $
 extern int comp_mat_each_time_step_g,
   consistent_supg_matrix_g,
   local_time_step_g;
@@ -134,6 +134,8 @@ before_assemble(arg_data_list &arg_datav,Nodedata *nodedata,
   //o Report elements whose relative error in computing
   //  flux jacobians exceed these value.
   NSGETOPTDEF_ND(double,compute_fd_adv_jacobian_rel_err_threshold,0.);
+  //o Use the GCL compliant versin of the algorithm 
+  NSGETOPTDEF_ND(int,use_GCL_compliant,0);
 
   A_fd_jac_norm_max = 0.;
   A_fd_jac_norm_min = DBL_MAX;
@@ -178,6 +180,12 @@ void NewAdvDif::new_assemble(arg_data_list &arg_data_v,const Nodedata *nodedata,
 			     const Dofmap *dofmap,const char *jobinfo,
 			     const ElementList &elemlist,
 			     const TimeData *time_data) try {
+
+  if (use_GCL_compliant) {
+    new_assemble_GCL_compliant(arg_data_v,nodedata,
+                               dofmap,jobinfo,elemlist,time_data);
+    return;
+  }
 
   GET_JOBINFO_FLAG(comp_res);
   GET_JOBINFO_FLAG(comp_prof);

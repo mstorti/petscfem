@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: advdife-gcl.cpp,v 1.1 2006/12/24 03:03:32 mstorti Exp $
+//$Id: advdife-gcl.cpp,v 1.2 2006/12/24 03:10:22 mstorti Exp $
 extern int comp_mat_each_time_step_g,
   consistent_supg_matrix_g,
   local_time_step_g;
@@ -29,6 +29,7 @@ new_assemble_GCL_compliant(arg_data_list &arg_data_v,const Nodedata *nodedata,
                            const ElementList &elemlist,
                            const TimeData *time_data) try {
 
+  if (!MY_RANK) printf("warning: using GCL compliant version...\n");
   GET_JOBINFO_FLAG(comp_res);
   GET_JOBINFO_FLAG(comp_prof);
 
