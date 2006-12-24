@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: advdife-gcl.cpp,v 1.2 2006/12/24 03:10:22 mstorti Exp $
+//$Id: advdife-gcl.cpp,v 1.3 2006/12/24 10:31:27 mstorti Exp $
 extern int comp_mat_each_time_step_g,
   consistent_supg_matrix_g,
   local_time_step_g;
@@ -28,8 +28,17 @@ new_assemble_GCL_compliant(arg_data_list &arg_data_v,const Nodedata *nodedata,
                            const Dofmap *dofmap,const char *jobinfo,
                            const ElementList &elemlist,
                            const TimeData *time_data) try {
-
-  if (!MY_RANK) printf("warning: using GCL compliant version...\n");
+  
+  static int use_GCL_compliant_reported = 0;
+  if (!use_GCL_compliant_reported) {
+    if (!MY_RANK) 
+      printf("=======================================\n"
+             "=======================================\n"
+             "WARNING: USING GCL COMPLIANT VERSION   \n"
+             "=======================================\n"
+             "=======================================\n");
+    use_GCL_compliant_reported = 1;
+  }
   GET_JOBINFO_FLAG(comp_res);
   GET_JOBINFO_FLAG(comp_prof);
 
@@ -175,6 +184,11 @@ new_assemble_GCL_compliant(arg_data_list &arg_data_v,const Nodedata *nodedata,
   if (ndimel<0) ndimel = ndim;
   FMatrix grad_H(ndimel,nH);
 
+  // Don't know how to handle the following combinations
+  assert(!(use_low_gpdata && use_GCL_compliant));
+  assert(!(use_GCL_compliant && ndim!=ndimel));
+  assert(!(use_GCL_compliant && lumped_mass));
+
   adv_diff_ff->set_profile(prof_fields); // profile by equations
   prof_nodes.set(1.);
 
@@ -233,7 +247,7 @@ new_assemble_GCL_compliant(arg_data_list &arg_data_v,const Nodedata *nodedata,
 
   // Allocate local vecs
   FMatrix veccontr(nel,ndof),veccontr_mass(nel,ndof),
-    xloc(nel,ndim),lstate(nel,ndof),
+    xloc(nel,ndim),xloc_old(nel,ndim),xloc_new(nel,ndim),lstate(nel,ndof),
     lstateo(nel,ndof),lstaten(nel,ndof),dUloc_c(nel,ndof),
     dUloc(nel,ndof),matloc;
   FastMat2 true_lstate(2,nel,ndof),
@@ -248,28 +262,32 @@ new_assemble_GCL_compliant(arg_data_list &arg_data_v,const Nodedata *nodedata,
   GPdata gp_data(geometry.c_str(),ndimel,nel,npg,GP_FASTMAT2);
   GPdata gp_data_low(geometry.c_str(),ndimel,nel,1,GP_FASTMAT2);
 
-  double detJaco, wpgdet, delta_sc, delta_sc_old;
+  double detJaco, detJaco_new, detJaco_old,
+    wpgdet, delta_sc, delta_sc_old;
   int elem, ipg,node, jdim, kloc,lloc,ldof;
   double lambda_max_pg;
 
   dshapex.resize(2,ndimel,nel);
   FMatrix Jaco(ndimel,ndim),Jaco_av(ndimel,ndim),
+    Jaco_new(ndimel,ndim), Jaco_old(ndimel,ndim),
     iJaco(ndimel,ndimel),
+    iJaco_old(ndimel,ndimel), iJaco_new(ndimel,ndimel),
     flux(ndof,ndimel),fluxd(ndof,ndimel),mass(nel,nel),
     grad_U(ndimel,ndof), A_grad_U(ndof),Ao_grad_U(ndof),
     G_source(ndof), dUdt(ndof), Un(ndof),
-    Ho(ndof),Hn(ndof);
+    Ho(ndof),Hn(ndof),Halpha(ndof);
   // FMatrix grad_U_norm(ndimel,ndof);
   // These are declared but not used
   FMatrix nor,lambda,Vr,Vr_inv,U(ndof),Ualpha(ndof),
     lmass(nel),Id_ndof(ndof,ndof),
     tmp1,tmp2,tmp3,tmp4,tmp5,hvec(ndimel),tmp6,tmp7,
-    tmp8,tmp9,tmp10,tmp11(ndof,ndimel),tmp12,tmp14,
+    tmp8,tmp9,tmp10,tmp11(ndof,ndimel),tmp12,tmp14,tmp14b,
     tmp15,tmp17,tmp19,tmp20,tmp21,tmp22,tmp23,tmp1_old,
     tmp24,tmp_sc,tmp_sc_v,tmp_shc_grad_U,
     tmp_j_grad_U(ndof),tmp_j_gradN,
     tmp_sc_aniso,tmp_matloc_aniso,
-    tmp_sc_v_aniso;
+    tmp_sc_v_aniso,tmp_ALE_flux, tmp_ALE_jac,
+    v_mesh_grad_N(ndof);
   FMatrix tmp_ALE_01,tmp_ALE_02,
     tmp_ALE_03,tmp_ALE_04,tmp_ALE_05,
     tmp_ALE_06,tmp_ALE_07;
@@ -332,6 +350,7 @@ new_assemble_GCL_compliant(arg_data_list &arg_data_v,const Nodedata *nodedata,
     // Get nodedata info (coords. etc...)
     element.node_data(nodedata,xloc.storage_begin(),
 		      Hloc.storage_begin());
+    xloc_new.set(xloc);
 
     if (comp_prof) {
       matlocf.export_vals(element.ret_mat_values(*jac_prof));
@@ -415,9 +434,14 @@ new_assemble_GCL_compliant(arg_data_list &arg_data_v,const Nodedata *nodedata,
       assert(nH >= ndim);
       assert(indx_ALE_xold >= nH+1-ndim);
       Hloc.is(2,indx_ALE_xold,indx_ALE_xold+ndim-1);
-      vloc_mesh.set(xloc).rest(Hloc).scale(rec_Dt_m*ALPHA).rs();
+      xloc_old.set(Hloc);
       Hloc.rs();
-    }
+      xloc.scale(ALPHA).axpy(xloc_old,1-ALPHA);
+      vloc_mesh.set(xloc_new).rest(xloc_old).scale(rec_Dt_m*ALPHA).rs();
+    } 
+//     FMSHV(xloc);
+//     FMSHV(xloc_old);
+//     FMSHV(xloc_new);
 
     if (0){
       int kk,ielhh;
@@ -573,10 +597,25 @@ new_assemble_GCL_compliant(arg_data_list &arg_data_v,const Nodedata *nodedata,
       //      Matrix xpg = SHAPE * xloc;
       Jaco.prod(DSHAPEXI,xloc,1,-1,-1,2);
       Jaco_av.add(Jaco);
+      if (use_GCL_compliant) {
+        Jaco_new.prod(DSHAPEXI,xloc_new,1,-1,-1,2);
+        Jaco_old.prod(DSHAPEXI,xloc_old,1,-1,-1,2);
+      }
 
       if (ndim==ndimel) {
 	iJaco.inv(Jaco);
 	detJaco = Jaco.det();
+        if (1 && use_GCL_compliant) {
+          // iJaco_new.inv(Jaco_new);
+          detJaco_new = Jaco_new.det();
+          // iJaco_old.inv(Jaco_old);
+          detJaco_old = Jaco_old.det();
+        } else {
+          detJaco_new = detJaco;
+          detJaco_old = detJaco;
+        }
+//         printf("detjaco (start,new,old): %g %g %g\n",detJaco, 
+//                detJaco_new, detJaco_old);
       } else if (ndimel==1) {
 	// This allows to solve problems on streams like rivers or
 	// ducts or advective problems on plane surfaces (not
@@ -638,13 +677,17 @@ new_assemble_GCL_compliant(arg_data_list &arg_data_v,const Nodedata *nodedata,
 	Uo.prod(SHAPE,lstateo,-1,-1,1);
 	adv_diff_ff->enthalpy_fun->enthalpy(Ho,Uo);
 	Ualpha.set(0.).axpy(Uo,1-ALPHA).axpy(Un,ALPHA);
+	adv_diff_ff->enthalpy_fun->enthalpy(Halpha,Ualpha);
+#if 1
+	dUdt
+          .set(Hn).scale(detJaco_new/detJaco)
+          .axpy(Ho,-detJaco_old/detJaco)
+          .scale(rec_Dt_m);
+//         printf("new/star %g, old/star %g\n",
+//                detJaco_new/detJaco, detJaco_old/detJaco);
+#else
 	dUdt.set(Hn).rest(Ho).scale(rec_Dt_m);
-
-	/*
-	  adv_diff_ff->get_Cp(Cp_bis);
-	  dUdt.set(Un).rest(Uo).scale(rec_Dt_m);
-	  dUdt.prod(Cp_bis,dUdt,1,-1,-1);
-	*/
+#endif
 
 	for (int k=0; k<nlog_vars; k++) {
 	  int jdof=log_vars[k];
@@ -832,13 +875,28 @@ new_assemble_GCL_compliant(arg_data_list &arg_data_v,const Nodedata *nodedata,
 
 	  //	  tmp11.set(flux).rest(fluxd); // tmp11 = flux_c - flux_d
 	  if (use_low_gpdata){
-	  tmp11.set(flux); // tmp11 = flux_c (viscous part is integrated in 1 PG)
+            // tmp11 = flux_c (viscous part is integrated in 1 PG)
+            tmp11.set(flux); 
 	  } else {
-	  tmp11.set(flux).rest(fluxd); // tmp11 = flux_c - flux_d
+            // tmp11 = flux_c - flux_d
+            tmp11.set(flux).rest(fluxd); 
+            // Add ALE correction to flux
+            // tmp11 = flux_c - v_mesh*H - flux_d
+            if (ALE_flag) {
+              tmp_ALE_flux.prod(Halpha,v_mesh,1,2);
+              tmp11.rest(tmp_ALE_flux);
+            }
 	  }
 
 	  tmp23.set(SHAPE).scale(-wpgdet);
-	  tmp14.prod(A_grad_N,tmp23,1,2,4,3);
+          if (ALE_flag) {
+            v_mesh_grad_N.prod(v_mesh,dshapex,-1,-1,1);
+            tmp_ALE_jac.prod(v_mesh_grad_N,Id_ndf,1,2,3);
+            tmp14b.set(A_grad_N).rest(tmp_ALE_jac);
+            tmp14.prod(tmp14b,tmp23,1,2,4,3);
+          } else {
+            tmp14.prod(A_grad_N,tmp23,1,2,4,3);
+          }
 	  matlocf.add(tmp14);
 	} else {
 	  // tmp2.prod(SHAPE,tmp1,1,2); // tmp2= SHAPE' * (G - dUdt - A_grad_U)
