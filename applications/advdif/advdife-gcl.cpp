@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: advdife-gcl.cpp,v 1.3 2006/12/24 10:31:27 mstorti Exp $
+//$Id: advdife-gcl.cpp,v 1.4 2006/12/26 03:44:13 mstorti Exp $
 extern int comp_mat_each_time_step_g,
   consistent_supg_matrix_g,
   local_time_step_g;
@@ -605,7 +605,7 @@ new_assemble_GCL_compliant(arg_data_list &arg_data_v,const Nodedata *nodedata,
       if (ndim==ndimel) {
 	iJaco.inv(Jaco);
 	detJaco = Jaco.det();
-        if (1 && use_GCL_compliant) {
+        if (0 && use_GCL_compliant) {
           // iJaco_new.inv(Jaco_new);
           detJaco_new = Jaco_new.det();
           // iJaco_old.inv(Jaco_old);
@@ -883,6 +883,8 @@ new_assemble_GCL_compliant(arg_data_list &arg_data_v,const Nodedata *nodedata,
             // Add ALE correction to flux
             // tmp11 = flux_c - v_mesh*H - flux_d
             if (ALE_flag) {
+//               printf("ipg %d\n",ipg);
+//               FMSHV(v_mesh);
               tmp_ALE_flux.prod(Halpha,v_mesh,1,2);
               tmp11.rest(tmp_ALE_flux);
             }
