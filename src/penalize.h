@@ -1,6 +1,6 @@
 // -*- mode: c++ -*-
 //__INSERT_LICENSE__
-// $Id: penalize.h,v 1.16 2006/09/30 21:55:38 mstorti Exp $
+// $Id: penalize.h,v 1.17 2006/12/31 17:40:33 mstorti Exp $
 #ifndef PETSCFEM_PENALIZE_H
 #define PETSCFEM_PENALIZE_H
 
@@ -64,7 +64,7 @@ public:
     (with #dlopen()# from a shared object file. */ 
 class DLRestriction : public Restriction {
 public:
-  DLRestriction() { }
+  DLRestriction() : fun_data(NULL) { }
   ~DLRestriction() { }
   typedef 
   int InitFun(int nel,int ndof,
@@ -189,7 +189,7 @@ int prefix##_init_fun(int nel,int ndof,		\
 		       TextHashTable *thash,		\
 		       const char *name,		\
 		       void *&fun_data) {		\
-  fun_data = new prefix;				\
+  if (!fun_data) fun_data = new prefix;                 \
   dl_penal_convert_to_class;				\
   return obj->init(nel,ndof,thash,name);		\
 }							\
