@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: nsitetlesfm2.cpp,v 1.74.4.2 2006/11/29 22:36:36 dalcinl Exp $
+//$Id: nsitetlesfm2.cpp,v 1.74.4.3 2007/01/16 21:04:40 dalcinl Exp $
 
 #include <src/fem.h>
 #include <src/utils.h>
@@ -175,8 +175,10 @@ assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
   assert(A_van_Driest>=0.);
   //o print Van Driest factor
   SGETOPTDEF(int,print_van_Driest,0); 
-  //o Scale the SUPG and PSPG stabilization term. 
+  //o Scale the SUPG and PSPG stabilization term.
   SGETOPTDEF(double,tau_fac,1.);  // Scale upwind
+  //o Scales the SUPG stabilization term. 
+  SGETOPTDEF(double,tau_supg_fac,1.);  // Scale upwind
   //o Scales the PSPG stabilization term. 
   SGETOPTDEF(double,tau_pspg_fac,1.);  // Scale upwind
   //o Scale the residual term. 
@@ -552,6 +554,7 @@ assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
 	  tau_pspg *= tau_fac;
 	  tau_supg *= tau_fac;
 	}
+	tau_supg *= tau_supg_fac;
 	tau_pspg *= tau_pspg_fac;
 
 #else
