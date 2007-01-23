@@ -1,10 +1,8 @@
 ################################################################
-# $Id: TODO,v 1.254 2007/01/21 23:08:23 mstorti Exp $
+# $Id: TODO,v 1.255 2007/01/23 21:54:28 mstorti Exp $
 TODO: [Mainly fixes go here...]
 =====
 
-* read-bad-state-gives-error: When reading an incomplete state should
-   give an error. (See notes.txt)
 * in advdif: setting ndim=3 but using 2d elements gives a FastMat2
   error. Should be detected earlier?
 * using nsi_tet_les_fm2 with fractional step produces  SEGV
@@ -151,6 +149,9 @@ TODO: [Mainly fixes go here...]
 DONE:
 =====
 
+* read-bad-state-gives-error: When reading an incomplete state should
+   give an error. (See notes.txt)
+   FIXED: Added `check_initial_state_correct_size' option in version `beta-3.49.70'
 * Let `upload_vector_fast' to have several masks with integer values,
     e.g. [1 1 1 0 0; 1 1 1 0 0; 1 1 1 2 2; 0 0 2 2 2; 0 0 2 2 2]
 * Doesn't report correctly acesses to the last thash table, probably 
