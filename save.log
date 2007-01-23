@@ -4686,5 +4686,5 @@ tag: beta-3.49.68 on Sun, 24 Dec 2006 00:11:35 -0300 by mstorti in spider
 tag: beta-3.49.69 on Sun, 24 Dec 2006 07:31:58 -0300 by mstorti in spider
      > Partially implemented GCL compliant version of ALE, with `weak_form=1'
 ----------
-tag: y on Tue, 23 Jan 2007 18:37:12 -0300 by mstorti in spider
+tag: beta-3.49.70 on Tue, 23 Jan 2007 18:50:18 -0300 by mstorti in spider
      > Added `check_initial_state_correct_size' option.
