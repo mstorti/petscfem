@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: mainutl.cpp,v 1.28 2006/12/24 03:10:22 mstorti Exp $
+//$Id: mainutl.cpp,v 1.29 2007/01/23 18:54:30 mstorti Exp $
  
 #include "fem.h"
 #include "utils.h"
@@ -255,42 +255,34 @@ int read_vector(const char *filename,Vec x,Dofmap *dofmap,int myrank) {
   int ndof = dofmap->ndof;
   int ierr,code,warn_flag=0,ierro=0;
 
+  //o Check if initial state has correct size
+  TGETOPTDEF(GLOBAL_OPTIONS,int,check_initial_state_correct_size,1);
+
   PetscPrintf(PETSC_COMM_WORLD,"Reading vector from file \"%s\"\n",filename);
   dvector<double> xdof;
   xdof.mono(dofmap->neqtot);
   if (myrank==0) {
     dvector<double> xext;
+#if 0
     xext.mono(dofmap->nnod*ndof);
     xext.a_resize(2,dofmap->nnod,ndof);
-#if 0
-    FILE *fid;
-    fid = fopen(filename,"r");
-    if (fid==NULL) {
-      printf("read_vector: couldn't open file %s\n",
-	     filename);
-      ierro=1;
-      throw ("Cant open file");
-    }
-    double dval;
-    for (int k=1; k<=dofmap->nnod; k++) {
-      // if (k % 1000 == 0) printf("%d node values read...\n",k);
-      for (int kldof=1; kldof<=ndof; kldof++) {
-	code = fscanf(fid,"%lf",&xext.e(k-1,kldof-1));
-	if (code==EOF) {
-	  warn_flag=1;
-	  xext.e(k-1,kldof-1) = 0.;
-	}
+#else
+    xext.cat(filename);
+    if (xext.size()!=dofmap->nnod*ndof) {
+      if (check_initial_state_correct_size) {
+        printf("Bad initial vector size: "
+               "wants %d (nnod %d, ndof %d), found %d",
+               dofmap->nnod*ndof,dofmap->nnod,ndof,xext.size());
+        ierro=1;
+      } else {
+        xext.resize(dofmap->nnod*ndof,0.0);
       }
+    } else {
+      xext.defrag();
+      dofmap->solve(xdof.buff(),xext.buff());
+      xext.clear();
     }
-    fclose(fid);
-    if (warn_flag) 
-      PetscPrintf(PETSC_COMM_WORLD,
-		  "PETScFEM warning: not enough values"
-		  " read while reading vector. Filling with 0's.\n");
 #endif
-    xext.read(filename);
-    dofmap->solve(xdof.buff(),xext.buff());
-    xext.clear();
   } 
   CHECK_PAR_ERR(ierro,"Error reading vector from file.");
 
