@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: mainutl.cpp,v 1.29 2007/01/23 18:54:30 mstorti Exp $
+//$Id: mainutl.cpp,v 1.30 2007/01/23 21:35:18 mstorti Exp $
  
 #include "fem.h"
 #include "utils.h"
@@ -252,6 +252,8 @@ int print_some(const char *filename,const Vec x,Dofmap *dofmap,
 #define __FUNC__ "read_vector" 
 int read_vector(const char *filename,Vec x,Dofmap *dofmap,int myrank) {
 
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>
+#if 1
   int ndof = dofmap->ndof;
   int ierr,code,warn_flag=0,ierro=0;
 
@@ -271,18 +273,52 @@ int read_vector(const char *filename,Vec x,Dofmap *dofmap,int myrank) {
     if (xext.size()!=dofmap->nnod*ndof) {
       if (check_initial_state_correct_size) {
         printf("Bad initial vector size: "
-               "wants %d (nnod %d, ndof %d), found %d",
+               "wants %d (nnod %d, ndof %d), found %d\n",
                dofmap->nnod*ndof,dofmap->nnod,ndof,xext.size());
         ierro=1;
+        goto ERROR;
       } else {
-        xext.resize(dofmap->nnod*ndof,0.0);
+        double z = 0.0;
+        xext.resize(dofmap->nnod*ndof,z);
       }
-    } else {
       xext.defrag();
       dofmap->solve(xdof.buff(),xext.buff());
       xext.clear();
     }
 #endif
+  } 
+ ERROR: CHECK_PAR_ERR(ierro,"Error reading vector from file.");
+  
+  ierr = MPI_Bcast (xdof.buff(),dofmap->neqtot,
+		    MPI_DOUBLE,0,PETSC_COMM_WORLD);
+
+  for (int k=0; k<dofmap->neq; k++) {
+    if (dofmap->dof1 <= k+1 <= dofmap->dof2) {
+      VecSetValue(x,k,xdof.e(k),INSERT_VALUES);
+    }
+  }
+  xdof.clear();
+  // PetscPrintf(PETSC_COMM_WORLD,"Values set.\n",dofmap->nnod);
+  ierr = VecAssemblyBegin(x); CHKERRQ(ierr);
+  ierr = VecAssemblyEnd(x); CHKERRQ(ierr);
+  PetscPrintf(PETSC_COMM_WORLD,"Done.\n",filename);
+  return ierr;
+
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>
+#else
+  int ndof = dofmap->ndof;
+  int ierr,code,warn_flag=0,ierro=0;
+
+  PetscPrintf(PETSC_COMM_WORLD,"Reading vector from file \"%s\"\n",filename);
+  dvector<double> xdof;
+  xdof.mono(dofmap->neqtot);
+  if (myrank==0) {
+    dvector<double> xext;
+    xext.mono(dofmap->nnod*ndof);
+    xext.a_resize(2,dofmap->nnod,ndof);
+    xext.read(filename);
+    dofmap->solve(xdof.buff(),xext.buff());
+    xext.clear();
   } 
   CHECK_PAR_ERR(ierro,"Error reading vector from file.");
 
@@ -300,6 +336,10 @@ int read_vector(const char *filename,Vec x,Dofmap *dofmap,int myrank) {
   ierr = VecAssemblyEnd(x); CHKERRQ(ierr);
   PetscPrintf(PETSC_COMM_WORLD,"Done.\n",filename);
   return ierr;
+
+#endif
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>
+
 }
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
