@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: advdife.cpp,v 1.120 2006/12/24 03:10:22 mstorti Exp $
+//$Id: advdife.cpp,v 1.121 2007/01/24 00:41:55 mstorti Exp $
 extern int comp_mat_each_time_step_g,
   consistent_supg_matrix_g,
   local_time_step_g;
@@ -152,21 +152,21 @@ before_assemble(arg_data_list &arg_datav,Nodedata *nodedata,
 
 void NewAdvDifFF::get_C(FastMat2 &C) {
   PetscPrintf(PETSC_COMM_WORLD,
-	      "Using lumped needs definition for get_C() virtual function\n"
+	      "Not defined get_C() virtual function\n"
 	      "in the flux function object.\n");
   assert(0);
 }
 
 void NewAdvDifFF::get_Cp(FastMat2 &Cp) {
   PetscPrintf(PETSC_COMM_WORLD,
-	      "Using lumped needs definition for get_Cp() virtual function\n"
+	      "Not defined get_Cp() virtual function\n"
 	      "in the flux function object.\n");
   assert(0);
 }
 
 void NewAdvDifFF::get_Ajac(FastMat2 &Ajac) {
   PetscPrintf(PETSC_COMM_WORLD,
-	      "Need definition for get_Ajac() virtual function\n"
+	      "Not defined get_Ajac() virtual function\n"
 	      "in the flux function object.\n");
   assert(0);
 }

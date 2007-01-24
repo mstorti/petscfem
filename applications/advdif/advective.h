@@ -1,6 +1,6 @@
 // -*- mode: c++ -*-
 /*__INSERT_LICENSE__*/
-//$Id: advective.h,v 1.80 2006/12/24 03:10:22 mstorti Exp $
+//$Id: advective.h,v 1.81 2007/01/24 00:41:55 mstorti Exp $
  
 //#define CHECK_JAC // Computes also the FD Jacobian for debugging
  
@@ -180,6 +180,16 @@ public:
       @param P_supg (input) matricial weight function, size #ndof# x #ndof#
   */ 
   virtual void comp_P_Cp(FastMat2 &P_Cp,const FastMat2 &P_supg)=0;
+
+  /** Gets the #Cp# jacobian 
+  */ 
+  virtual void get_Cp(FastMat2 &Cp) {
+    PetscPrintf(PETSC_COMM_WORLD,
+                "Not defined get_Cp() virtual function\n"
+                "in the enthalpy function object.\n");
+    assert(0);
+  }
+
 };
 
 /// Constant Cp for all fields
@@ -207,6 +217,8 @@ public:
 
   /// Scales #P_supg# by #Cp#
   void comp_P_Cp(FastMat2 &P_Cp,const FastMat2 &P_supg);
+
+  void get_Cp(FastMat2 &Cp_a) { Cp_a.eye(Cp); }
 };
 
 /** Constant Cp=1 for all the fields. 

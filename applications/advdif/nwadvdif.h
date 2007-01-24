@@ -345,6 +345,10 @@ public:
 		  FastMat2 &N,double w) {
     c_jac->comp_N_P_C(N_P_C,P_supg,N,w);
   }
+  void get_Cp(FastMat2 &Cp) {
+    enthalpy_fun->get_Cp(Cp); 
+  }
+
 };
 
 class newadvdif_advecfm2 : public NewAdvDif {
