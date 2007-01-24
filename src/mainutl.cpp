@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: mainutl.cpp,v 1.31 2007/01/23 21:35:44 mstorti Exp $
+//$Id: mainutl.cpp,v 1.32 2007/01/24 01:06:11 mstorti Exp $
  
 #include "fem.h"
 #include "utils.h"
@@ -275,10 +275,10 @@ int read_vector(const char *filename,Vec x,Dofmap *dofmap,int myrank) {
         double z = 0.0;
         xext.resize(dofmap->nnod*ndof,z);
       }
-      xext.defrag();
-      dofmap->solve(xdof.buff(),xext.buff());
-      xext.clear();
     }
+    xext.defrag();
+    dofmap->solve(xdof.buff(),xext.buff());
+    xext.clear();
   } 
  ERROR: CHECK_PAR_ERR(ierro,"Error reading vector from file.");
   
