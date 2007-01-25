@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: ns.cpp,v 1.189 2006/09/04 00:32:51 mstorti Exp $
+//$Id: ns.cpp,v 1.190 2007/01/25 01:09:06 mstorti Exp $
 #include <src/debug.h>
 #include <malloc.h>
 
@@ -45,6 +45,8 @@ int reuse_mat;
 //-------<*>-------<*>-------<*>-------<*>-------<*>------- 
 #undef __FUNC__
 GlobParam *GLOB_PARAM;
+
+double FLUID_TIME; // needed for FSI-HOOKS
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 #define __FUNC__ "main"

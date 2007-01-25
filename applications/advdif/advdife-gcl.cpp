@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: advdife-gcl.cpp,v 1.5 2007/01/24 00:41:55 mstorti Exp $
+//$Id: advdife-gcl.cpp,v 1.6 2007/01/25 01:09:06 mstorti Exp $
 extern int comp_mat_each_time_step_g,
   consistent_supg_matrix_g,
   local_time_step_g;
@@ -605,7 +605,7 @@ new_assemble_GCL_compliant(arg_data_list &arg_data_v,const Nodedata *nodedata,
       if (ndim==ndimel) {
 	iJaco.inv(Jaco);
 	detJaco = Jaco.det();
-        if (0 && use_GCL_compliant) {
+        if (use_GCL_compliant) {
           // iJaco_new.inv(Jaco_new);
           detJaco_new = Jaco_new.det();
           // iJaco_old.inv(Jaco_old);
@@ -713,6 +713,7 @@ new_assemble_GCL_compliant(arg_data_list &arg_data_v,const Nodedata *nodedata,
 					   // no nos interesa la parte difusiva
 
 	if (ALE_flag) v_mesh.prod(SHAPE,vloc_mesh,-1,-1,1);
+        // FMSHV(vloc_mesh);
 
 	adv_diff_ff->compute_flux(Uo,iJaco,H,grad_H,flux,fluxd,
 				  A_grad_U,grad_Uo,G_source,
