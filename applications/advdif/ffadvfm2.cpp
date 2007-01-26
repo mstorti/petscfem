@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: ffadvfm2.cpp,v 1.51 2005/12/18 23:11:43 mstorti Exp $
+//$Id: ffadvfm2.cpp,v 1.52 2007/01/26 12:21:17 mstorti Exp $
 
 #include <stdio.h>
 #include <string.h>
@@ -1058,13 +1058,12 @@ void newadvecfm2_ff_t::compute_flux(COMPUTE_FLUX_ARGS) {
       double van_D = 1.0;  // fixme using Van Driest law
       visco_t = SQ(C_smag*Delta*van_D)*sqrt(2*tr);
 
-       if(diffusive_jacobians_type==string("global_scalar")){
+      if(diffusive_jacobians_type==string("global_scalar")){
 	*(double *)difjac = *difjac_mol +  visco_t/Pr_t;
       } else {
 	double *difjac_aux = (double *)difjac;
-	for (int k=1; k<=ndof; k++) {
+	for (int k=1; k<=ndof; k++) 
 	  difjac_aux[k-1] = difjac_mol[k-1] + visco_t/Pr_t;	  
-	}
       }
 
       d_jac->update(difjac);
