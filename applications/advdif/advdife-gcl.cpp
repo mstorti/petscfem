@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: advdife-gcl.cpp,v 1.6 2007/01/25 01:09:06 mstorti Exp $
+//$Id: advdife-gcl.cpp,v 1.7 2007/01/26 13:16:00 mstorti Exp $
 extern int comp_mat_each_time_step_g,
   consistent_supg_matrix_g,
   local_time_step_g;
@@ -846,7 +846,7 @@ new_assemble_GCL_compliant(arg_data_list &arg_data_v,const Nodedata *nodedata,
 	if (!lumped_mass) {
 	  adv_diff_ff->enthalpy_fun
 	    ->comp_W_Cp_N(N_Cp_N,SHAPE,SHAPE,
-			  wpgdet*rec_Dt_m);
+			  detJaco_new*WPG*rec_Dt_m);
 	  matlocf.add(N_Cp_N);
 	}
 
