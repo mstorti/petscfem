@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: advdife-gcl.cpp,v 1.8 2007/01/28 00:20:52 mstorti Exp $
+//$Id: advdife-gcl.cpp,v 1.9 2007/01/28 00:27:12 mstorti Exp $
 extern int comp_mat_each_time_step_g,
   consistent_supg_matrix_g,
   local_time_step_g;
@@ -517,10 +517,6 @@ new_assemble_GCL_compliant(arg_data_list &arg_data_v,const Nodedata *nodedata,
 	
 	tmp10.set(G_source);	// tmp10 = G - dUdt
 	if (!lumped_mass) tmp10.rest(dUdt);
-        if (ALE_flag) {
-          tmp10j.set(G_source);	// tmp10 = G - dUdt
-          if (!lumped_mass) tmp10j.rest(dUdt);
-        }
 	
 	tmp1.rs().set(tmp10).rest(A_grad_U); //tmp1= G - dUdt - A_grad_U
 	
@@ -839,12 +835,20 @@ new_assemble_GCL_compliant(arg_data_list &arg_data_v,const Nodedata *nodedata,
 
 	tmp10.set(G_source);	// tmp10 = G - dUdt
 	if (!lumped_mass) tmp10.rest(dUdt);
+        if (ALE_flag) {
+          tmp10j.set(G_source);	// tmp10 = G - dUdt
+          if (!lumped_mass) tmp10j.rest(dUdt2);
+        }
 
-	tmp1.rs().set(tmp10).rest(A_grad_U); //tmp1= G - dUdt - A_grad_U
+        // For the stabilization term use dUdt2
+        // (i.e. not including dJ/dt term)
+        // tmp1= G - dUdt - A_grad_U
+	tmp1.rs().set(tmp10j).rest(A_grad_U); 
 
 	if (use_Ajac_old) {
 	  Ao_grad_U.prod(Ao,grad_U,-1,1,-2,-1,-2);
-	  tmp1_old.rs().set(tmp10).rest(Ao_grad_U); //tmp1= G - dUdt - A_grad_U
+          //tmp1= G - dUdt - A_grad_U
+	  tmp1_old.rs().set(tmp10).rest(Ao_grad_U);
 	}
 
 	// MODIF BETO 8/6
