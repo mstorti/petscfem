@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: advdife-gcl.cpp,v 1.7 2007/01/26 13:16:00 mstorti Exp $
+//$Id: advdife-gcl.cpp,v 1.8 2007/01/28 00:20:52 mstorti Exp $
 extern int comp_mat_each_time_step_g,
   consistent_supg_matrix_g,
   local_time_step_g;
@@ -154,6 +154,17 @@ new_assemble_GCL_compliant(arg_data_list &arg_data_v,const Nodedata *nodedata,
   //o key for computing reactive terms or not
   NSGETOPTDEF(int,compute_reactive_terms,1);
 
+  static int ale_with_no_weak_form_warning_given = 0;
+  if (!ale_with_no_weak_form_warning_given
+      && !weak_form && ALE_flag) {
+    printf("=============================================\n"
+           "=============================================\n"
+           "WARNING: WEAK_FORM=0 AND ALE IS A BAD CHOICE \n"
+           "=============================================\n"
+           "=============================================\n");
+    ale_with_no_weak_form_warning_given = 1;
+  }
+
   assert(compute_fd_adv_jacobian_random>0.
 	 && compute_fd_adv_jacobian_random <=1.);
 
@@ -220,23 +231,9 @@ new_assemble_GCL_compliant(arg_data_list &arg_data_v,const Nodedata *nodedata,
   //o Use log-vars for $k$ and $\epsilon$
   NSGETOPTDEF(int,use_log_vars,0);
   if (!use_log_vars) nlog_vars=0;
-
-#if 0
-  if (use_log_vars) {
-    // Bes sure that we are in shallow water.
-    // This would be returned by the flux function
-    if (ndof==5) {   // turbulent shallow water
-      nlog_vars=2;
-      log_vars = log_vars_swt; // Return dofs for k, epsilon
-    } else if (ndof==1) { // thermal problem
-      nlog_vars=1;
-      log_vars = &log_vars_sc;
-    } else { assert(0);}
-  } else {
-    nlog_vars=0;
-    log_vars=NULL;
-  }
-#endif
+  PETSCFEM_ASSERT0(!use_log_vars,
+                   "Log vars is not available in the GCL"
+                   " compliant version!!!\n");
 
   // Not implemented yet:= not lumped_mass + log-vars
   assert(!use_log_vars || lumped_mass);
@@ -274,14 +271,16 @@ new_assemble_GCL_compliant(arg_data_list &arg_data_v,const Nodedata *nodedata,
     iJaco_old(ndimel,ndimel), iJaco_new(ndimel,ndimel),
     flux(ndof,ndimel),fluxd(ndof,ndimel),mass(nel,nel),
     grad_U(ndimel,ndof), A_grad_U(ndof),Ao_grad_U(ndof),
-    G_source(ndof), dUdt(ndof), Un(ndof),
+    G_source(ndof), dUdt(ndof), dUdt2(ndof), Un(ndof),
     Ho(ndof),Hn(ndof),Halpha(ndof);
+  // When ALE: dUdt is in fact d(JH)/dt, and dUdt2 is d(H)/dt
+  // In the residual 
   // FMatrix grad_U_norm(ndimel,ndof);
   // These are declared but not used
   FMatrix nor,lambda,Vr,Vr_inv,U(ndof),Ualpha(ndof),
     lmass(nel),Id_ndof(ndof,ndof),
     tmp1,tmp2,tmp3,tmp4,tmp5,hvec(ndimel),tmp6,tmp7,
-    tmp8,tmp9,tmp10,tmp11(ndof,ndimel),tmp12,tmp14,tmp14b,
+    tmp8,tmp9,tmp10,tmp10j,tmp11(ndof,ndimel),tmp12,tmp14,tmp14b,
     tmp15,tmp17,tmp19,tmp20,tmp21,tmp22,tmp23,tmp1_old,
     tmp24,tmp_sc,tmp_sc_v,tmp_shc_grad_U,
     tmp_j_grad_U(ndof),tmp_j_gradN,
@@ -518,6 +517,10 @@ new_assemble_GCL_compliant(arg_data_list &arg_data_v,const Nodedata *nodedata,
 	
 	tmp10.set(G_source);	// tmp10 = G - dUdt
 	if (!lumped_mass) tmp10.rest(dUdt);
+        if (ALE_flag) {
+          tmp10j.set(G_source);	// tmp10 = G - dUdt
+          if (!lumped_mass) tmp10j.rest(dUdt);
+        }
 	
 	tmp1.rs().set(tmp10).rest(A_grad_U); //tmp1= G - dUdt - A_grad_U
 	
@@ -679,12 +682,14 @@ new_assemble_GCL_compliant(arg_data_list &arg_data_v,const Nodedata *nodedata,
 	Ualpha.set(0.).axpy(Uo,1-ALPHA).axpy(Un,ALPHA);
 	adv_diff_ff->enthalpy_fun->enthalpy(Halpha,Ualpha);
 #if 1
+        // This is d(JH)/dt (J is the jacobian of the
+        // ALE transformation
 	dUdt
           .set(Hn).scale(detJaco_new/detJaco)
           .axpy(Ho,-detJaco_old/detJaco)
           .scale(rec_Dt_m);
-//         printf("new/star %g, old/star %g\n",
-//                detJaco_new/detJaco, detJaco_old/detJaco);
+        // This is plain dH/dt
+	dUdt2.set(Hn).rest(Ho).scale(rec_Dt_m);
 #else
 	dUdt.set(Hn).rest(Ho).scale(rec_Dt_m);
 #endif
@@ -953,12 +958,12 @@ new_assemble_GCL_compliant(arg_data_list &arg_data_v,const Nodedata *nodedata,
 #endif
 
 	// MODIF BETO 8/6
-    if(compute_reactive_terms){
-	if (!lumped_mass) {
-	  adv_diff_ff->comp_N_N_C(N_N_C,SHAPE,wpgdet);
-	  matlocf.add(N_N_C);
-	}
-    }
+        if(compute_reactive_terms){
+          if (!lumped_mass) {
+            adv_diff_ff->comp_N_N_C(N_N_C,SHAPE,wpgdet);
+            matlocf.add(N_N_C);
+          }
+        }
 
 	// adding shock-capturing term
 	delta_sc_v.set(0.0);
@@ -1077,48 +1082,46 @@ new_assemble_GCL_compliant(arg_data_list &arg_data_v,const Nodedata *nodedata,
 	  veccontr.ir(1,jel);
 	  matlocf.ir(1,jel);
 	  
-	  if (use_Ajac_old) {
+	  if (use_Ajac_old) 
 	    tmp4.prod(tmp1_old,P_supg,-1,1,-1);
-	    } else {
-	      tmp4.prod(tmp1,P_supg,-1,1,-1);
-	    }
+          else tmp4.prod(tmp1,P_supg,-1,1,-1);
 	    
-	    // veccontr.ir(1,jel).axpy(tmp4,wpgdet);
-	    veccontr.axpy(tmp4,wpgdet);
+          // veccontr.ir(1,jel).axpy(tmp4,wpgdet);
+          veccontr.axpy(tmp4,wpgdet);
 	    
-	    tmp19.set(P_supg).scale(wpgdet);
-	    if (use_Ajac_old)
-	      tmp20.prod(tmp19,Ao_grad_N,1,-1,2,-1,3);
-	    else tmp20.prod(tmp19,A_grad_N,1,-1,2,-1,3);
-	    matlocf.add(tmp20);
+          tmp19.set(P_supg).scale(wpgdet);
+          if (use_Ajac_old)
+            tmp20.prod(tmp19,Ao_grad_N,1,-1,2,-1,3);
+          else tmp20.prod(tmp19,A_grad_N,1,-1,2,-1,3);
+          matlocf.add(tmp20);
 	    
-	    if(!lumped_mass) {
+          if(!lumped_mass) {
 	      
-	      if(compute_reactive_terms){
-		// Reactive term in matrix (SUPG term)
-		adv_diff_ff->comp_N_P_C(N_P_C,P_supg,SHAPE,wpgdet);
-		matlocf.add(N_P_C);
-	      }
+            if(compute_reactive_terms){
+              // Reactive term in matrix (SUPG term)
+              adv_diff_ff->comp_N_P_C(N_P_C,P_supg,SHAPE,wpgdet);
+              matlocf.add(N_P_C);
+            }
 	      
-	      tmp21.set(SHAPE).scale(wpgdet*rec_Dt_m);
-	      adv_diff_ff->enthalpy_fun->comp_P_Cp(P_Cp,P_supg);
-	      tmp22.prod(P_Cp,tmp21,1,3,2);
-	      matlocf.add(tmp22);
+            tmp21.set(SHAPE).scale(wpgdet*rec_Dt_m);
+            adv_diff_ff->enthalpy_fun->comp_P_Cp(P_Cp,P_supg);
+            tmp22.prod(P_Cp,tmp21,1,3,2);
+            matlocf.add(tmp22);
 	      
-	      if (ALE_flag) {
+            if (ALE_flag) {
 #if 0
-		tmp_ALE_07.prod(P_supg,tmp_ALE_01,1,3,2);
-		matlocf.axpy(tmp_ALE_07,-wpgdet);
-		tmp_ALE_06.prod(P_supg,tmp_ALE_02,1,-1,-1);
-		veccontr.axpy(tmp_ALE_06,wpgdet);
+              tmp_ALE_07.prod(P_supg,tmp_ALE_01,1,3,2);
+              matlocf.axpy(tmp_ALE_07,-wpgdet);
+              tmp_ALE_06.prod(P_supg,tmp_ALE_02,1,-1,-1);
+              veccontr.axpy(tmp_ALE_06,wpgdet);
 #else
-		tmp_ALE_07.prod(P_Cp,tmp_ALE_01,1,3,2);
-		matlocf.axpy(tmp_ALE_07,-wpgdet);
-		tmp_ALE_06.prod(P_Cp,tmp_ALE_02,1,-1,-1);
-		veccontr.axpy(tmp_ALE_06,wpgdet);
+              tmp_ALE_07.prod(P_Cp,tmp_ALE_01,1,3,2);
+              matlocf.axpy(tmp_ALE_07,-wpgdet);
+              tmp_ALE_06.prod(P_Cp,tmp_ALE_02,1,-1,-1);
+              veccontr.axpy(tmp_ALE_06,wpgdet);
 #endif
-	      }
-	    }
+            }
+          }
 	}
 	matlocf.rs();
 	veccontr.rs();
@@ -1226,3 +1229,8 @@ new_assemble_GCL_compliant(arg_data_list &arg_data_v,const Nodedata *nodedata,
   set_error(1);
 }
 
+// (setq outline-regexp "^ *//##*")
+
+// Local Variables: *
+// outline-regexp: "//#*"
+// End: *
