@@ -1,6 +1,6 @@
 // -*- mode: C++ -*-
 /*__INSERT_LICENSE__*/
-//$Id: mmove.h,v 1.19.4.1 2006/04/27 19:05:51 rodrigop Exp $
+//$Id: mmove.h,v 1.19.4.2 2007/01/29 21:41:29 dalcinl Exp $
 
 #ifndef MMOVE_H
 #define MMOVE_H
@@ -26,7 +26,7 @@ private:
   /// Auxiliary variables
   FastMat2 dVdW,dSldW,dWdu,d2VdW2,d2SldW2,d2Vdu2,d2Sldu2,x,w,dVdu,dSldu,dQ,d2Q,tmp,mat1,vaux,vaux1,vaux2,w0,x0,epsilon_LC;
   /// Parameters
-  double distor_exp,c_distor,c_volume,c_relax,volume_exp,delta0,fraction,coef;
+  double distor_exp,c_distor,c_volume,c_relax,volume_exp,delta,coef;
 
 public: 
   /** Initializes the elemset. Reads parameters, 

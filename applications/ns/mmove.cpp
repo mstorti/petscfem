@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: mmove.cpp,v 1.24.2.1 2006/04/27 19:05:51 rodrigop Exp $
+//$Id: mmove.cpp,v 1.24.2.2 2007/01/29 21:41:29 dalcinl Exp $
 
 #include <src/fem.h>
 #include <src/utils.h>
@@ -50,20 +50,18 @@ void mesh_move_eig_anal::init() {
     }
   }
 
-  //o The functional to be minimized is $\Phi = \sum_{e=1,...,Nel} \phi_e^r$,
-  // where $\phi_e = \sum_{i\neq j} (\lambda_i-\lambda_j)^2/Vol^{2/n_d}$,
-  // and $r={\tt distor\_exp}$. 
-  TGETOPTDEF_ND(thash,double,distor_exp,-1.);
+  //o The functional to be minimized is $\Phi = \sum_{e=1,...,Nel} \q_e^r$,
+  // where $\q_e = Vol/\sum_{i} l_i^{n_d}$,
+  // and $r={\tt distor\_exp}$.
+  TGETOPTDEF_ND(thash,double,distor_exp,1.);
 
   TGETOPTDEF_ND(thash,double,volume_exp,2.);
-  //o Adds a term $\propto {\tt c\_volume}\,{\rm volume}$ to the functional.
+  //o Adds a term $\propto {\tt c\_volume}\,{\rm volume}$ to the functional. 
   TGETOPTDEF_ND(thash,double,c_volume,0.);
   //o Scales distortion function
   TGETOPTDEF_ND(thash,double,c_distor,1.);
 
-  TGETOPTDEF_ND(thash,double,delta0,0.0);
-
-  TGETOPTDEF_ND(thash,double,fraction,1.0);
+  TGETOPTDEF_ND(thash,double,delta,0.0);
 
   TGETOPTDEF_ND(thash,double,coef,1.0);
 
@@ -76,10 +74,10 @@ element_connector(const FastMat2 &xloc,
 		  const FastMat2 &state_new,
 		  FastMat2 &res,FastMat2 &mat) {
 
-  double C,V,Sl,Q,Vref,Sl0,delta;
+  double C,V,Sl,Q,Vref;
 
   x.set(xloc).add(state_new);
-  x0.set(xloc);
+  x0.set(xloc).add(state_old);
   for (int i=1;i<=ndim;i++){
     for (int j=1;j<=ndim;j++){
       w.setel(x.get(i+1,j)-x.get(1,j),i,j);
@@ -202,11 +200,11 @@ element_connector(const FastMat2 &xloc,
 
   }
 
-  delta = delta0*pow(fraction,glob_param->inwt);
-
   double h = 0.5*(V+pow(pow(V,2.)+4.*pow(delta,2.),0.5));
   double dhdV = 0.5*(1.+V/pow(pow(V,2.)+4.*pow(delta,2.),0.5));
   double d2hdV2 = 2.*pow(delta,2.)/pow(pow(V,2.)+4.*pow(delta,2.),1.5);
+
+  Q = C*h/Sl;
 
   dVdu.prod(dVdW,dWdu,-1,-2,-1,-2,1,2);
   dSldu.prod(dSldW,dWdu,-1,-2,-1,-2,1,2);
@@ -216,16 +214,25 @@ element_connector(const FastMat2 &xloc,
   tmp.prod(d2SldW2,dWdu,1,2,-1,-2,-1,-2,3,4);
   d2Sldu2.prod(tmp,dWdu,-1,-2,3,4,-1,-2,1,2);
 
-  Q = C*h/Sl;
-  
+  //  dQ.set(dVdu).scale(Sl).rest(dSldu.scale(V)).scale(C/pow(Sl,2));
+  //  dSldu.scale(1./V);
+
   dQ.set(dVdu).scale(dhdV*Sl).rest(dSldu.scale(h)).scale(C/pow(Sl,2));
 
   dSldu.scale(1./h);
 
-  // Esto anda con el funcional original (basado en la calidad q)
   res.set(dQ).scale(distor_exp*c_distor*pow(Q,distor_exp-1.));
   res.axpy(dVdu,volume_exp*c_volume/Vref*pow(V/Vref-1.,volume_exp-1.));
-  
+
+//   d2Q.set(d2Vdu2).scale(Sl);
+//   mat1.prod(dVdu,dSldu,1,2,3,4);
+//   d2Q.axpy(mat1,1.);
+//   mat1.prod(dSldu,dVdu,1,2,3,4);
+//   d2Q.axpy(mat1,-1.);
+//   d2Q.axpy(d2Sldu2,-V).scale(C/pow(Sl,2));
+//   mat1.prod(dQ,dSldu,1,2,3,4);
+//   d2Q.axpy(mat1,-2./Sl);
+
   d2Q.set(d2Vdu2).scale(Sl);
   mat1.prod(dVdu,dSldu,1,2,3,4);
   d2Q.axpy(mat1,1.);
@@ -237,7 +244,6 @@ element_connector(const FastMat2 &xloc,
   mat1.prod(dQ,dSldu,1,2,3,4);
   d2Q.axpy(mat1,-2./Sl);
 
-  // Esto anda con el funcional original
   mat.prod(dQ,dQ,1,2,3,4).scale((distor_exp-1)/Q);
   mat.axpy(d2Q,1.).scale(distor_exp*c_distor*pow(Q,distor_exp-1.));
 
