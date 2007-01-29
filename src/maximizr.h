@@ -1,6 +1,6 @@
 // -*- mode: C++ -*- 
 /*__INSERT_LICENSE__*/
-// $Id: maximizr.h,v 1.1 2001/08/01 22:43:26 mstorti Exp $
+// $Id: maximizr.h,v 1.1.116.1 2007/01/29 21:07:57 dalcinl Exp $
 #ifndef MAXIMIZR_H
 #define MAXIMIZR_H
 
@@ -25,6 +25,6 @@ void Maximizer<T>::scan(T &tt,double val) {
     max_=val;
     ini=1;
   }
-};
+}
 
 #endif

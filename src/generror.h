@@ -1,6 +1,6 @@
 // -*- mode: c++ -*-
 //__INSERT_LICENSE__
-// $Id: generror.h,v 1.6 2004/05/13 02:58:18 mstorti Exp $
+// $Id: generror.h,v 1.6.72.1 2007/01/29 21:07:57 dalcinl Exp $
 #ifndef PETSCFEM_GENERROR_H
 #define PETSCFEM_GENERROR_H
 
@@ -14,15 +14,27 @@ public:
   GenericError(char *s,...);
 };
 
+#if 0
 #define PETSCFEM_ASSERT_GE(cond,templ,...)			\
 if (!(cond)) { throw GenericError(templ "\n---------------\n"	\
 	      "PETSC-FEM error at file \"%s\", line %d\n",	\
 	       __VA_ARGS__,__FILE__,__LINE__); }
+#endif
 
 #define PETSCFEM_ASSERT_GE0(cond,templ) 				\
-     if (!(cond)) { throw GenericError(templ "\n---------------\n"	\
+if (!(cond)) { throw GenericError(templ "\n---------------\n"	\
      "PETSC-FEM error at file \"%s\", line %d\n",			\
      __FILE__,__LINE__); }
+
+#define PETSCFEM_ASSERT_GE1(cond,templ,arg1) 				\
+if (!(cond)) { throw GenericError(templ "\n---------------\n"	\
+     "PETSC-FEM error at file \"%s\", line %d\n",			\
+     arg1, __FILE__,__LINE__); }
+
+#define PETSCFEM_ASSERT_GE2(cond,templ,arg1,arg2) 				\
+if (!(cond)) { throw GenericError(templ "\n---------------\n"	\
+     "PETSC-FEM error at file \"%s\", line %d\n",			\
+     arg1,arg2, __FILE__,__LINE__); }
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 void 

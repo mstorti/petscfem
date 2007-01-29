@@ -1,5 +1,5 @@
 /*__INSERT_LICENSE__*/
-// $Id: distmat.cpp,v 1.15 2006/07/24 04:28:15 mstorti Exp $
+// $Id: distmat.cpp,v 1.15.8.1 2007/01/29 21:07:56 dalcinl Exp $
 #include <cstdio>
 #include <cstdlib>
 #include <cmath>
@@ -15,7 +15,7 @@
 
 extern int MY_RANK,SIZE;
 
-IntRowPartitioner::~IntRowPartitioner() {};
+IntRowPartitioner::~IntRowPartitioner() {}
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 #undef __FUNC__

@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: utils.cpp,v 1.16 2003/07/02 23:22:19 mstorti Exp $
+//$Id: utils.cpp,v 1.16.92.1 2007/01/29 21:07:57 dalcinl Exp $
  
 #include <src/debug.h>
 #include <stdio.h>
@@ -28,6 +28,7 @@ double mydet(Matrix A) {
    } else {
      printf("Not implemented order (%d)  for determinant at file: %s, line: %d\n",
 	    m,__FILE__,__LINE__);
+     return 0.0;
    }
 }
 
@@ -42,7 +43,6 @@ double mydet(Matrix A) {
     compute the length of this resulting vector. 
  */
 double mydetsur(Matrix & Jaco, ColumnVector &S) {
-  int ierr;
   int m=Jaco.Nrows(), n=Jaco.Ncols();
   assert(m==n-1);
   // if (m!=n-1) PFEMERRQ("m!=n-1. (m=%d, n=%d)\n");
@@ -69,7 +69,6 @@ double mydetsur(Matrix & Jaco, ColumnVector &S) {
 // more cleanly if it will be used in the future. 
 #if 1 
 double mydetsur(FastMat2 &Jaco, FastMat2 &S) {
-  int ierr;
   int n=Jaco.dim(2);
   assert(Jaco.dim(1)==n-1);
   double sx,sy,sz;
@@ -218,6 +217,7 @@ int reshape(Matrix &A,int m,int n) {
   Matrix B(m,n);
   B << A.Store();
   A = B;
+  return 0;
 }
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
@@ -245,6 +245,7 @@ int wait_from_console(char *s) {
   } 
   ierr = MPI_Barrier(PETSC_COMM_WORLD);
   CHKERRQ(ierr);  
+  return 0;
 }
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
@@ -261,4 +262,5 @@ int string_bcast(string &s,int master,MPI_Comm comm) {
   if (ierr) return ierr;
   if (myrank!=master) s = string(copy);
   delete[] copy;
+  return 0;
 }

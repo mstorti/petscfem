@@ -1,6 +1,6 @@
 // -*- mode: C++ -*- 
 /*__INSERT_LICENSE__*/
-// $Id: pfptscmat.h,v 1.16 2003/07/26 00:43:12 mstorti Exp $
+// $Id: pfptscmat.h,v 1.16.90.1 2007/01/29 21:07:57 dalcinl Exp $
 #ifndef PFPTSCMAT_H
 #define PFPTSCMAT_H
 
@@ -53,10 +53,10 @@ protected:
   const DofPartitioner &part;
 
   /// The graph storing the profile object
+  LinkGraphWrapper lgraph_lkg;
+  graphdv_dis lgraph_dv;
   StoreGraph *lgraph;
   StoreGraph1 lgraph1;
-  graphdv_dis lgraph_dv;
-  LinkGraphWrapper lgraph_lkg;
 
   /// IntRowPartitioner based on a DofPartitioner
   class PFPETScPart : public IntRowPartitioner {

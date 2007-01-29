@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-/* $Id: nsikepsrot.cpp,v 1.34 2003/11/25 01:13:36 mstorti Exp $ */
+/* $Id: nsikepsrot.cpp,v 1.34.76.1 2007/01/29 21:07:56 dalcinl Exp $ */
 
 #include <src/fem.h>
 #include <src/utils.h>
@@ -1137,6 +1137,8 @@ int nsi_tet_keps_rot::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
   }
   FastMat2::void_cache();
   FastMat2::deactivate_cache();
+
+  return 0;
 }
 
 #undef SHAPE    

@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: sttfilter.cpp,v 1.8 2001/05/30 18:21:53 mstorti Exp $
+//$Id: sttfilter.cpp,v 1.8.118.1 2007/01/29 21:07:57 dalcinl Exp $
 
 #include "sttfilter.h"
 
@@ -30,7 +30,7 @@ Mixer & Mixer::add_input(Filter &input,double g) {
 #define __FUNC__ "void Mixer::update(Time time)" 
 void Mixer::update(Time time) {
   i_state.set_cnst(0.);
-  for (int j=0; j<filter_l.size(); j++) {
+  for (unsigned int j=0; j<filter_l.size(); j++) {
     Filter *f = filter_l[j];
     if (f->step() <= step()) f->update(time); 
     // f->update(time);
@@ -85,8 +85,8 @@ LPFilterGroup::LPFilterGroup(TextHashTable *thash,
       PetscPrintf(PETSC_COMM_WORLD,
 		  "Even entries in \"low_pass_filter\" should be "
 		  "positive integers\n"
-		  "gamma_1 n_1 gamma_2 n_2 ... Entered %f\n",
-		  "Entered %d values\n",a);
+		  "gamma_1 n_1 gamma_2 n_2 ... Entered %f\n"
+		  "Entered %d values\n",a,nalpha);
       exit(1);
     }
     n_v[j] = n;

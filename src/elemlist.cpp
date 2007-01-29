@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: elemlist.cpp,v 1.11 2001/05/30 18:21:53 mstorti Exp $
+//$Id: elemlist.cpp,v 1.11.118.1 2007/01/29 21:07:56 dalcinl Exp $
 
 #include "fem.h"
 #include <set>
@@ -101,7 +101,7 @@ NewElemset::assemble(arg_data_list &arg_datav,Nodedata *nodedata,Dofmap *dofmap,
   new_assemble(arg_datav,nodedata,dofmap,
 	       jobinfo,elemlist,time_data);
   return 0;
-};
+}
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 #undef __FUNC__

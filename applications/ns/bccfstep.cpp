@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: bccfstep.cpp,v 1.2 2004/12/21 23:00:06 mstorti Exp $
+//$Id: bccfstep.cpp,v 1.2.52.1 2007/01/29 21:07:56 dalcinl Exp $
   
 #include <src/fem.h>
 #include <src/utils.h>
@@ -271,6 +271,7 @@ int bcconv_fstep_fm2::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
   FastMat2::void_cache();
   FastMat2::deactivate_cache();
 
+  return 0;
 }
 
 #undef SHAPE    

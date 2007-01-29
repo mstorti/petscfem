@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: elemset.cpp,v 1.94 2006/05/15 10:38:03 mstorti Exp $
+//$Id: elemset.cpp,v 1.94.8.1 2007/01/29 21:07:56 dalcinl Exp $
 
 #ifndef _GNU_SOURCE
 #define _GNU_SOURCE
@@ -58,7 +58,7 @@ int int_cmp (const void *left,const void *right, void *args) {
   if (l > r) return +1;
   if (l < r) return -1;
   return 0;
-};
+}
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 void node_insert(Darray *da,int j,int k) {
@@ -97,7 +97,7 @@ int Elemset::download_vector(int nel,int ndof,Dofmap *dofmap,
 			     int myrank,int el_start,int el_last,
 			     int iter_mode,const TimeData *time_data) {
 
-  int iele,iele_here,kloc,node,kdof;
+  int iele,iele_here,/*kloc,node,*/kdof;
   
   // If the vector passed has a time_data value, then
   // use it as time
@@ -156,10 +156,10 @@ int vector_assoc_gather(vector<double> *vector_assoc,
   Vec one_elem_per_proc;
   int ierr = VecCreateMPI(PETSC_COMM_WORLD,1,size,&one_elem_per_proc);
   double global_val;
-  for (int j=0; j<vector_assoc->size(); j++) {
+  for (unsigned int j=0; j<vector_assoc->size(); j++) {
     // set local value
     // printf("On proc [%d] j=%d local val %f\n",myrank,j,(*vector_assoc)[j]);
-    VecSetValue(one_elem_per_proc,myrank,(*vector_assoc)[j],INSERT_VALUES);
+    ierr = VecSetValue(one_elem_per_proc,myrank,(*vector_assoc)[j],INSERT_VALUES);
     ierr = VecAssemblyBegin(one_elem_per_proc); CHKERRQ(ierr);
     ierr = VecAssemblyEnd(one_elem_per_proc); CHKERRQ(ierr);
     // perform appropriate function
@@ -248,8 +248,8 @@ void Elemset::set_error(int error_code_a) {
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 void Elemset::check_error() {
   int error;
-  int ierr = MPI_Allreduce(&error_code_m,&error,1,
-			   MPI_INT,MPI_MAX,PETSC_COMM_WORLD);
+  MPI_Allreduce(&error_code_m,&error,1,
+		MPI_INT,MPI_MAX,PETSC_COMM_WORLD);
   error_code_m = error;
   handle_error(error_code_m);
 }
@@ -285,7 +285,7 @@ int assemble(Mesh *mesh,arg_list argl,
 
   // Time statistics
   double total, compt, upload, download,
-    tot_s,tot_e,compt_s,bus_e,upl,upl_s,
+    tot_s,/*tot_e,*/compt_s,/*bus_e,*//*upl,*/upl_s,
     assmbly, assmbly_s;
   hpc2.start();
   hpchrono.start();
@@ -894,7 +894,8 @@ int Elemset::assemble(arg_data_list &arg_datav,Nodedata *nodedata,Dofmap *dofmap
 		       int el_start,int el_last,int iter_mode,
 		      const TimeData *time_data) {
   printf("assemble: not known Elemset\n"); exit(1);
-};
+  return 0;
+}
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 double Elemset::weight() {

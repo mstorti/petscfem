@@ -1,6 +1,6 @@
 // -*- mode: c++ -*-
 /*__INSERT_LICENSE__*/
-//$Id: advective.h,v 1.81 2007/01/24 00:41:55 mstorti Exp $
+//$Id: advective.h,v 1.81.2.1 2007/01/29 21:07:56 dalcinl Exp $
  
 //#define CHECK_JAC // Computes also the FD Jacobian for debugging
  
@@ -112,6 +112,8 @@ typedef void FastMat2Shell(FastMat2 & A,FastMat2 & B);
 
 // This is the flux function for a given physical problem. 
 class AdvDifFF {
+public:
+  virtual ~AdvDifFF() { }
 private:
   // The list of variables to be logarithmically transformed
   vector<int> log_vars_v;
@@ -135,6 +137,8 @@ public:
     state and enthalpy content. 
 */ 
 class EnthalpyFun {
+public:
+  virtual ~EnthalpyFun() { }
 public:
   /// The actual state
   FastMat2 UU;
@@ -524,7 +528,7 @@ enum flux_fun_opt {
   COMP_EIGENV = 0x0004,
   SCALAR_TAU  = 0x0008,
   COMP_SOURCE_NOLUMPED = 0x0010,
-  COMP_SOURCE_LUMPED = 0x0020,
+  COMP_SOURCE_LUMPED = 0x0020
 };
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:
@@ -578,10 +582,10 @@ public:							\
   bcconv_adv_##name() {adv_diff_ff = new name##_ff_t;};	\
 };
 
-ADVDIF_ELEMSET(advecfm2);	// linear advective diffusive 
-ADVDIF_ELEMSET(burgers);	// 1D scalar Burgers equation
-ADVDIF_ELEMSET(swfm2t);	        // shallow water 2d turbulent
-//ADVDIF_ELEMSET(swfm1t);	        // shallow water 1d supg
+ADVDIF_ELEMSET(advecfm2)	// linear advective diffusive 
+ADVDIF_ELEMSET(burgers)		// 1D scalar Burgers equation
+ADVDIF_ELEMSET(swfm2t)	        // shallow water 2d turbulent
+//ADVDIF_ELEMSET(swfm1t)	// shallow water 1d supg
 
 class wall_swfm2t : NewElemset { 
 public: 
@@ -594,8 +598,10 @@ class GenLoad;
 /// Generic surface flux function (film function) element
 class HFilmFun {
 public:
-  const FastMat2 &H,&H_out,&H_in;
+  virtual ~HFilmFun() { }
+public:
   GenLoad * elemset;
+  const FastMat2 &H,&H_out,&H_in;
   // for one layer
   virtual void q(FastMat2 &uin,FastMat2 &flux,FastMat2 &jacin);
   // for two layers
@@ -614,7 +620,7 @@ class GenLoad : public NewElemset {
   FastMat2 H_m,H_out_m;
 public: 
   const FastMat2 &H,&H_out,&H_in;
-  GenLoad() : H_in(H_m), H(H_m), H_out(H_out_m) {}
+  GenLoad() : H(H_m), H_out(H_out_m), H_in(H_m) {}
   HFilmFun *h_film_fun;
   NewAssembleFunction new_assemble;
   ASK_FUNCTION;

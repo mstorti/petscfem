@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: measperf.cpp,v 1.8 2004/09/24 12:00:56 mstorti Exp $
+//$Id: measperf.cpp,v 1.8.64.1 2007/01/29 21:07:57 dalcinl Exp $
 
 #include "fem.h"
 #include <set>
@@ -48,7 +48,7 @@ int measure_performance_fun(Mesh *mesh,arg_list argl,
 		" Elemset type: %s, name: %s,\n    ptr: %p, "
 		"elem: %d, weight per elem.: %.4g\n",
 		elemset->type, (name == "" ? "<anonymous>" : name.c_str()),
-		elemset, elemset->nelem,
+		(void*)elemset, elemset->nelem,
 		measure_performance_weight);
   }
   PetscPrintf(PETSC_COMM_WORLD,

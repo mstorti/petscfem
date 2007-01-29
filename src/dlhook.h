@@ -1,6 +1,6 @@
 // -*- mode: C++ -*-
 /*__INSERT_LICENSE__*/
-//$Id: dlhook.h,v 1.4 2006/02/21 11:00:33 mstorti Exp $
+//$Id: dlhook.h,v 1.4.10.1 2007/01/29 21:07:56 dalcinl Exp $
 
 #ifndef DLHOOK_H
 #define DLHOOK_H
@@ -12,11 +12,12 @@
 class dl_generic_hook : public Hook {
 public:
   dl_generic_hook() : 
-    options(NULL), handle(NULL), 
+    handle(NULL), 
     fun_data(NULL), init_fun(NULL),
     time_step_post_fun(NULL),
     time_step_pre_fun(NULL),
-    stage_fun(NULL), close_fun(NULL) {}
+    stage_fun(NULL), close_fun(NULL),
+    options(NULL) {}
   ~dl_generic_hook() { delete options; }
   typedef void InitFun(Mesh &mesh,Dofmap &dofmap,
 		       const char *name,TextHashTableFilter *options,

@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: ffadvfm2_old.cpp,v 1.5 2003/07/03 04:32:11 mstorti Exp $
+//$Id: ffadvfm2_old.cpp,v 1.5.92.1 2007/01/29 21:07:56 dalcinl Exp $
 
 #include <stdio.h>
 #include <string.h>
@@ -221,4 +221,5 @@ int advecfm2_ff_t::operator()(ADVDIFFF_ARGS) {
 
   }
 
+  return 0;
 }

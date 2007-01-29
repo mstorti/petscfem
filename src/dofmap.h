@@ -1,6 +1,6 @@
 // -*- mode: c++ -*-
 /*__INSERT_LICENSE__*/
-//$Id: dofmap.h,v 1.23 2006/04/29 01:15:06 mstorti Exp $
+//$Id: dofmap.h,v 1.23.8.1 2007/01/29 21:07:56 dalcinl Exp $
  
 #ifndef DOFMAP_H
 #define DOFMAP_H
@@ -45,6 +45,7 @@ private:
 */ 
 class Amplitude {
 public:
+  virtual ~Amplitude() {}
   static Amplitude *factory(char *& label,TextHashTable *tht_=NULL);
   static Amplitude *old_factory(char *& label,FileStack &fstack);
   /// Eval the amplitude of the function at this time. 
@@ -128,7 +129,7 @@ private:
   Amplitude *amp;
 public:
   fixation_entry(double val_=0.,Amplitude *amp_=NULL,int edof_a=-1) :
-    val(val_), amp(amp_), edof(edof_a) {};
+    val(val_), edof(edof_a), amp(amp_) {};
   // double value(const TimeData *time_data) const;
   void print(void) const;
 };

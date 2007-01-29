@@ -1,6 +1,6 @@
 // -*- mode: C++ -*- 
 /*__INSERT_LICENSE__*/
-// $Id: dvector2.h,v 1.34 2005/10/19 17:40:33 mstorti Exp $
+// $Id: dvector2.h,v 1.34.14.1 2007/01/29 21:07:56 dalcinl Exp $
 #ifndef PETSCFEM_DVECTOR2_H
 #define PETSCFEM_DVECTOR2_H
 
@@ -136,7 +136,7 @@ dvector<T>& dvector<T>::push(const T &t) {
   reff(size_m,chunk,k);
   if (k==0) {
     // allocate new chunk
-    assert(nchunks == chunk_vector.size());
+    assert((unsigned int)nchunks == chunk_vector.size());
     // resync `chunk_vector' and `nchunks'
     T* p = new T[chunk_size];
     chunk_vector.push_back(p);
@@ -519,7 +519,7 @@ void dvector<T>::recompute_shape() {
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 template<class T>
 int dvector<T>::size(int dim) const {
-  assert(dim<shape.size());
+  assert((unsigned int)dim<shape.size());
   return shape[dim];
 }
 
@@ -574,7 +574,7 @@ int dvector<T>::pos(int j,va_list ap) const {
 template<class T>
 int dvector<T>::
 pos(vector<int> &indx) const {
-  assert(indx.size()==rank_m);
+  assert(indx.size()==(unsigned int)rank_m);
   int poss = 0;
   for (int k=0; k<rank_m; k++) 
     poss = poss*shape_p[k]+indx[k];

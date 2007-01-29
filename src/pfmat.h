@@ -1,6 +1,6 @@
 // -*- mode: C++ -*- 
 /*__INSERT_LICENSE__*/
-// $Id: pfmat.h,v 1.40 2006/07/24 04:28:15 mstorti Exp $
+// $Id: pfmat.h,v 1.40.8.1 2007/01/29 21:07:57 dalcinl Exp $
 #ifndef PFMAT_H
 #define PFMAT_H
 
@@ -73,10 +73,10 @@ protected:
   //@}
 
   /// Factorizes matrix and solves linear system. Args are passed via pointers.
-  int factor_and_solve_A() { factor_and_solve_a(*res_p,*dx_p); }
+  int factor_and_solve_A() { return factor_and_solve_a(*res_p,*dx_p); }
 
   /// Solves linear system. Args are passed via pointers.
-  int solve_only_A() { solve_only_a(*res_p,*dx_p); }
+  int solve_only_A() { return solve_only_a(*res_p,*dx_p); }
 
 public:
   /// This is the `factory' of `PFMat' matrices.
@@ -166,7 +166,7 @@ public:
       iteration 
       @return A PETSc error code 
   */ 
-  virtual int monitor(int n,double rnorm) {}
+  virtual int monitor(int n,double rnorm) { return 0; }
 
   /// returns the number of iterations spent in the last solve
   virtual int its() {return 0;};

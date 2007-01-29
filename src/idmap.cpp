@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: idmap.cpp,v 1.12 2005/02/20 15:25:07 mstorti Exp $
+//$Id: idmap.cpp,v 1.12.38.1 2007/01/29 21:07:57 dalcinl Exp $
  
 #include <stdio.h>
 #include <map>
@@ -254,7 +254,7 @@ void idmap::del_col(const int j) {
 void idmap::check() {
   printf("checking consistency by rows: \n");
   row_t row,col;
-  col_t *colp;
+  /*col_t *colp;*/
   row_t::iterator it;
   int j,i;
 

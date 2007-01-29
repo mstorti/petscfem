@@ -1,11 +1,11 @@
 //__INSERT_LICENSE__
-// $Id: fm2temp.cpp,v 1.3 2003/07/02 23:22:19 mstorti Exp $
+// $Id: fm2temp.cpp,v 1.3.92.1 2007/01/29 21:07:57 dalcinl Exp $
 
 #include <src/fastmat2.h>
 #include <src/fm2temp.h>
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
-FastMat2Tmp::FastMat2Tmp() : size(0), store(NULL) {}
+FastMat2Tmp::FastMat2Tmp() : store(NULL) , size(0) {}
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 FastMat2Tmp::~FastMat2Tmp() { clear(); }

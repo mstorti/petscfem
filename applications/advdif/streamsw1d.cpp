@@ -1,4 +1,4 @@
-//$Id: streamsw1d.cpp,v 1.7 2005/02/01 20:36:01 mstorti Exp $
+//$Id: streamsw1d.cpp,v 1.7.44.1 2007/01/29 21:07:56 dalcinl Exp $
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:
 #include <stdio.h>
 #include <string.h>
@@ -75,8 +75,9 @@ void streamsw1d_ff::element_hook(ElementIterator &element) {
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 streamsw1d_ff::streamsw1d_ff(const NewElemset *e) 
-  : AdvDifFFWEnth(e), channel(NULL), 
-  friction_law(NULL) {}
+  : AdvDifFFWEnth(e), 
+    friction_law(NULL), 
+    channel(NULL)  {}
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 streamsw1d_ff::~streamsw1d_ff() { delete friction_law; }

@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: nsitetlesfm2.cpp,v 1.75 2006/02/18 22:40:47 mstorti Exp $
+//$Id: nsitetlesfm2.cpp,v 1.75.12.1 2007/01/29 21:07:56 dalcinl Exp $
 
 #include <src/fem.h>
 #include <src/utils.h>
@@ -779,6 +779,8 @@ assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
   }
   FastMat2::void_cache();
   FastMat2::deactivate_cache();
+
+  return 0;
 }
 
 #undef SHAPE    

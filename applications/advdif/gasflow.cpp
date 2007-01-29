@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: gasflow.cpp,v 1.44 2006/08/05 16:44:27 mstorti Exp $
+//$Id: gasflow.cpp,v 1.44.6.1 2007/01/29 21:07:56 dalcinl Exp $
 
 #include <src/fem.h>
 #include <src/texthash.h>
@@ -131,7 +131,7 @@ void gasflow_ff::start_chunk(int &ret_options) {
     old_elemset->thash->get_entry("G_body",line);
     if(line) {
       read_double_array(Uref_v,line);
-    assert(Uref_v.size()==ndof);
+    assert(Uref_v.size()==(unsigned int)ndof);
     Uref.set(&Uref_v[0]);
     }
   } else {

@@ -1,6 +1,6 @@
-// -*- mode: C++ -*- 
+/* -*- mode: C++ -*-  */
 /*__INSERT_LICENSE__*/
-//$Id: getarray.h,v 1.8 2001/05/30 03:58:50 mstorti Exp $
+/*$Id: getarray.h,v 1.8.118.1 2007/01/29 21:07:57 dalcinl Exp $*/
 #ifndef GETARRAY_H
 #define GETARRAY_H
 

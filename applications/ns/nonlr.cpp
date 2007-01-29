@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-/* $Id: nonlr.cpp,v 1.22 2003/11/25 01:13:36 mstorti Exp $ */
+/* $Id: nonlr.cpp,v 1.22.76.1 2007/01/29 21:07:56 dalcinl Exp $ */
 
 #include <src/fem.h>
 #include <src/utils.h>
@@ -12,7 +12,7 @@
 
 extern TextHashTable *GLOBAL_OPTIONS;
 
-NonLinearRes::~NonLinearRes() {};
+NonLinearRes::~NonLinearRes() {}
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 #undef __FUNC__
@@ -189,7 +189,7 @@ void wall_law_res::init() {
     wf->w(y_wall_plus,fwall,fprime);
   }      
 
-};
+}
 
 #define ELEMPROPS(j,k) VEC2(elemprops,j,k,nelprops)
 

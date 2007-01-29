@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-// $Id: util3.cpp,v 1.13 2004/10/22 17:33:53 mstorti Exp $
+// $Id: util3.cpp,v 1.13.60.1 2007/01/29 21:07:57 dalcinl Exp $
 #include <cstring>
 #include <cstdio>
 #include <cassert>
@@ -145,6 +145,7 @@ int DXSplit::parse(const char *line) {
     se.subnel = subnel;
     splitting.push_back(se);
   }
+  return 0;
 }
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 

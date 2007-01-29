@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: iisdmat.cpp,v 1.70 2005/12/04 10:03:19 mstorti Exp $
+//$Id: iisdmat.cpp,v 1.70.12.1 2007/01/29 21:07:57 dalcinl Exp $
 // fixme:= this may not work in all applications
 #ifndef _GNU_SOURCE
 #define _GNU_SOURCE
@@ -53,13 +53,17 @@ PFPETScMat::~PFPETScMat() {}
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 PFPETScMat::PFPETScMat(int MM,const DofPartitioner &pp,MPI_Comm comm_) 
-  : sles(NULL), comm(comm_), part(pp), pf_part(part), 
-  lgraph1(MM,&part,comm_), 
-  lgraph_dv(MM,&part,comm_), 
-  lgraph_lkg(0,&part,comm_), 
-  lgraph(&lgraph_lkg), 
-  // lgraph(&lgraph_dv), 
-  A(NULL), P(NULL), factored(0), mat_size(MM) { 
+  : 
+    mat_size(MM),
+    A(NULL), P(NULL), sles(NULL), 
+    factored(0), part(pp),
+    lgraph_lkg(0,&part,comm_), 
+    lgraph_dv(MM,&part,comm_),
+    lgraph(&lgraph_lkg), 
+    lgraph1(MM,&part,comm_), 
+    // lgraph(&lgraph_dv), 
+    pf_part(part), comm(comm_)
+{ 
   int use_compact_profile,compact_profile_graph_chunk_size;
 
   //o Print Finite State Machine transitions for PFPETScMat matrices.
@@ -246,8 +250,8 @@ int PFPETScMat::monitor(int n,double rnorm) {
     if (n==0) PetscPrintf(comm,
 			  " Begin internal iterations "
 			  "--------------------------------------\n");
-    PetscPrintf(comm,
-		"iteration %d KSP Residual_norm = %14.12e \n",n,rnorm);
+    ierr = PetscPrintf(comm,
+		       "iteration %d KSP Residual_norm = %14.12e \n",n,rnorm);
   }
   return 0;
 }
@@ -265,11 +269,12 @@ int petscfem_null_monitor(KSP ksp,int n,
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 IISDMat::IISDMat(int MM,int NN,const DofPartitioner &pp,MPI_Comm comm_a) : 
-  PFPETScMat(MM,pp,comm_a), 
+  PFPETScMat(MM,pp,comm_a),
   M(MM), N(NN), 
-  A_LL_other(NULL), A_LL(NULL), 
-  local_solver(PETSc), sles_ll(NULL), sles_ii(NULL),
-  use_interface_full_preco(0), nlay(0) {};
+  use_interface_full_preco(0), nlay(0),
+  A_LL(NULL), A_LL_other(NULL),
+  sles_ii(NULL), sles_ll(NULL),
+  local_solver(PETSc) { }
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 IISDMat::~IISDMat() {
@@ -376,7 +381,7 @@ int IISDMat::mult(Vec x,Vec y) {
   //
   // XI comes in x (interface nodes) and we have to compute y <- RI 
   
-  int j,ierr,its_;
+  int ierr;
 
   // x_loc <- A_LI * XI
   ierr = MatMult(A_LI,x,x_loc); CHKERRQ(ierr); 
@@ -414,7 +419,7 @@ int IISDMat::mult_trans(Vec x,Vec y) {
   //
   // XI comes in x (interface nodes) and we have to compute y = RI 
   
-  int j,ierr,its_;
+  int ierr;
 
   // x_loc <- A_IL' * XI
   ierr = MatMultTranspose(A_IL,x,x_loc); CHKERRQ(ierr); 
@@ -437,7 +442,7 @@ int IISDMat::assembly_begin_a(MatAssemblyType type) {
   DistMat::const_iterator I,I1,I2;
   Row::const_iterator J,J1,J2;
   int row_indx,col_indx,row_t,col_t;
-  double v,val;
+  double v;
 
   A_LL_other->scatter();
 
@@ -501,7 +506,7 @@ int IISDMat::assembly_begin_a(MatAssemblyType type) {
   PetscSynchronizedFlush(PETSC_COMM_WORLD);
 #endif
   return 0;
-};
+}
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 #undef __FUNC__
@@ -543,7 +548,7 @@ int IISDMat::assembly_end_a(MatAssemblyType type) {
   if (nlay>1) { ierr = MatAssemblyEnd(A_II_isp,type); PF_CHKERRQ(ierr); }
 #endif
   return 0;
-};
+}
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 #undef __FUNC__
@@ -668,6 +673,7 @@ int IISDMat::isp_set_value(int row,int col,PetscScalar value,
   ierr = MatSetValues(A_II_isp,
 			1,&rindx,1,&cindx,&value,mode);
   CHKERRQ(ierr);
+  return 0;
 }
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
@@ -676,7 +682,6 @@ int IISDMat::isp_set_value(int row,int col,PetscScalar value,
 int IISDMat::set_value_a(int row,int col,PetscScalar value,
 			InsertMode mode) {
   int row_indx,col_indx,row_t,col_t;
-  double val;
 
   if (nlay>1) isp_set_value(row,col,value,mode);
 
@@ -735,15 +740,15 @@ int type##Destroy_maybe(type &v) {		\
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 #undef __FUNC__
 #define __FUNC__ "VecDestroy_maybe"
-PETSC_OBJECT_DESTROY_MAYBE(Vec);
+PETSC_OBJECT_DESTROY_MAYBE(Vec)
 
 #undef __FUNC__
 #define __FUNC__ "MatDestroy_maybe"
-PETSC_OBJECT_DESTROY_MAYBE(Mat);
+PETSC_OBJECT_DESTROY_MAYBE(Mat)
 
 #undef __FUNC__
 #define __FUNC__ "SLESDestroy_maybe"
-PETSC_OBJECT_DESTROY_MAYBE(SLES);
+PETSC_OBJECT_DESTROY_MAYBE(SLES)
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 #undef __FUNC__
@@ -751,19 +756,19 @@ PETSC_OBJECT_DESTROY_MAYBE(SLES);
 int IISDMat::maybe_factor_and_solve(Vec &res,Vec &dx,int factored=0) {
 
   int ierr,kloc,itss,j,jj;
-  PetscViewer matlab;
-  double *res_a,*res_i_a,*res_loc_a,*y_loc_seq_a,
-    *x_loc_seq_a,*x_loc_a,*dx_a,scal,*x_a,*x_i_a;
+  double *res_a,*res_i_a,*res_loc_a,
+    *x_loc_seq_a,*x_loc_a,*dx_a,scal,/**x_a,*/*x_i_a;
   Vec res_i=NULL,x_i=NULL,res_loc=NULL,x_loc=NULL,res_loc_i=NULL;
 
 #if 0
-    ierr = PetscViewerASCIIOpen(PETSC_COMM_SELF,
-				"aiiisp.dat",&matlab); PF_CHKERRQ(ierr);
-    ierr = PetscViewerSetFormat(matlab,
-				PETSC_VIEWER_ASCII_MATLAB); PF_CHKERRQ(ierr);
-    ierr = MatView(A_II_isp,matlab); PF_CHKERRQ(ierr);
-    PetscFinalize();
-    exit(0);
+  PetscViewer matlab;
+  ierr = PetscViewerASCIIOpen(PETSC_COMM_SELF,
+			      "aiiisp.dat",&matlab); PF_CHKERRQ(ierr);
+  ierr = PetscViewerSetFormat(matlab,
+			      PETSC_VIEWER_ASCII_MATLAB); PF_CHKERRQ(ierr);
+  ierr = MatView(A_II_isp,matlab); PF_CHKERRQ(ierr);
+  PetscFinalize();
+  exit(0);
 #endif
 
   if (!factored) build_sles();
@@ -969,6 +974,7 @@ int IISDMat::maybe_factor_and_solve(Vec &res,Vec &dx,int factored=0) {
       } else { // local_solver == SuperLU
 
 #ifdef USE_SUPERLU
+	double *y_loc_seq_a;
 	ierr = VecGetArray(y_loc_seq,&y_loc_seq_a); PF_CHKERRQ(ierr); 
 	ierr = VecGetArray(x_loc_seq,&x_loc_seq_a); PF_CHKERRQ(ierr); 
 	A_LL_SLU.solve(y_loc_seq_a);
@@ -1081,7 +1087,7 @@ int IISDMat::pc_apply(Vec x,Vec w) {
       double *xbp, *wbp, *xp, *wp;
       ierr = VecGetArray(xb,&xbp); PF_CHKERRQ(ierr); 
       ierr = VecGetArray(x,&xp); PF_CHKERRQ(ierr); 
-      int n_int = n_int_v[myrank+1]-n_int_v[myrank];
+      //int n_int = n_int_v[myrank+1]-n_int_v[myrank];
       int n_int_p = n_int_v[myrank];
       int n_lay1_here = n_band_p[myrank] - n_lay1_p[myrank];
       int n_lay1_ph = n_lay1_p[myrank];

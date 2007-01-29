@@ -1,4 +1,4 @@
-/* $Id: nonlres.cpp,v 1.16 2005/04/25 03:03:50 mstorti Exp $ */
+/* $Id: nonlres.cpp,v 1.16.28.1 2007/01/29 21:07:56 dalcinl Exp $ */
 
 #include <src/fem.h>
 #include <src/utils.h>
@@ -15,7 +15,7 @@
 
 //extern Mesh *GLOBAL_MESH;
 
-NonLinearRes::~NonLinearRes() {};
+NonLinearRes::~NonLinearRes() {}
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 int NonLinearRes::

@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-// $Id: advabso.cpp,v 1.22 2006/04/16 03:34:27 mstorti Exp $
+// $Id: advabso.cpp,v 1.22.8.1 2007/01/29 21:07:56 dalcinl Exp $
 #include "./advabso.h"
 #include "./gasflow.h"
 
@@ -48,7 +48,7 @@ init() {
   if(line) {
     use_uref_glob = 1;
     read_double_array(urefv,line);
-    PETSCFEM_ASSERT0(urefv.size() == ndof,
+    PETSCFEM_ASSERT0(urefv.size() == (unsigned int)ndof,
 		     "Uref needs ndof values \n");
     Uref_glob.resize(1,ndof);
     Uref_glob.set(&*urefv.begin());

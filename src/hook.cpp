@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: hook.cpp,v 1.11 2006/02/21 11:00:33 mstorti Exp $
+//$Id: hook.cpp,v 1.11.10.1 2007/01/29 21:07:57 dalcinl Exp $
 
 #include <src/fem.h>
 #include <src/readmesh.h>
@@ -52,7 +52,7 @@ void HookList::init(Mesh &mesh,Dofmap &dofmap,
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 HookList::~HookList() {
-  for (int j=0; j<size(); j++) {
+  for (unsigned int j=0; j<size(); j++) {
     delete (*this)[j];
     (*this)[j] = NULL;
   }

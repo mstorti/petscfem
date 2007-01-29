@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: qharmm.cpp,v 1.11 2006/10/23 02:43:18 mstorti Exp $
+//$Id: qharmm.cpp,v 1.11.2.1 2007/01/29 21:07:56 dalcinl Exp $
 
 #include <src/fem.h>
 #include <src/utils.h>
@@ -21,9 +21,9 @@ void read_cond_matrix(TextHashTable *thash, const char *s,
   read_double_array(v,line);
   if (v.size()==1) {
     cond.eye(v[0]);
-  } else if (v.size()==ndof) {
+  } else if (v.size()==(unsigned int)ndof) {
     cond.set(0.).d(2,1).set(&*v.begin()).rs();
-  } else if (v.size()==ndof*ndof) {
+  } else if (v.size()==(unsigned int)(ndof*ndof)) {
     cond.set(&*v.begin());
   } else PETSCFEM_ERROR("Number of elements in conductivity line inappropriate\n"
 			"entered %d values\n", v.size());  
@@ -66,7 +66,7 @@ void qharmm::elemset_init() {
     read_double_array(v,line);
     if (v.size()==1) {
       G.set(v[0]);
-    } else if (v.size()==ndof) {
+    } else if (v.size()==(unsigned int)ndof) {
       cond.set(&v[0]);
     } else PETSCFEM_ERROR("Number of elements in source line inappropriate\n"
 			  "entered %d values\n", v.size()); 

@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: mainutl.cpp,v 1.32 2007/01/24 01:06:11 mstorti Exp $
+//$Id: mainutl.cpp,v 1.32.2.1 2007/01/29 21:07:57 dalcinl Exp $
  
 #include "fem.h"
 #include "utils.h"
@@ -108,7 +108,7 @@ void print_vector_rota(const char *filenamepat,const Vec x,const
 int print_vector(const char *filename,const Vec x,const Dofmap *dofmap,
 		 const TimeData *time_data,const int append) {
 
-  double *vseq_vals,*sstate;
+  double *vseq_vals/*,*sstate*/;
   Vec vseq;
   
   int myrank;
@@ -144,7 +144,8 @@ int print_vector(const char *filename,const Vec x,const Dofmap *dofmap,
   MPI_Bcast(&ierr,1,MPI_INT,0,PETSC_COMM_WORLD);
   PETSCFEM_ASSERT0(!ierr,"Couldn't open output file");
   ierr = VecRestoreArray(vseq,&vseq_vals); CHKERRQ(ierr); 
-  ierr = VecDestroy(vseq);
+  ierr = VecDestroy(vseq);CHKERRQ(ierr);
+  return 0;
 }
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
@@ -153,7 +154,7 @@ int print_vector(const char *filename,const Vec x,const Dofmap *dofmap,
 int state2fields(double *fields,const Vec x,const Dofmap *dofmap,
 		 const TimeData *time_data) {
 
-  double *vseq_vals,*sstate;
+  double *vseq_vals/*,*sstate*/;
   Vec vseq;
   
   // fixme:= Now we can make this without a scatter. We can use
@@ -244,7 +245,8 @@ int print_some(const char *filename,const Vec x,Dofmap *dofmap,
     fclose(output);
   }
   ierr = VecRestoreArray(vseq,&sol); CHKERRA(ierr); 
-  ierr = VecDestroy(vseq);
+  ierr = VecDestroy(vseq);CHKERRA(ierr);
+  return 0;
 }
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
@@ -253,7 +255,7 @@ int print_some(const char *filename,const Vec x,Dofmap *dofmap,
 int read_vector(const char *filename,Vec x,Dofmap *dofmap,int myrank) {
 
   int ndof = dofmap->ndof;
-  int ierr,code,warn_flag=0,ierro=0;
+  int ierr,/*code,warn_flag=0,*/ierro=0;
 
   //o Check if initial state has correct size
   TGETOPTDEF(GLOBAL_OPTIONS,int,check_initial_state_correct_size,1);
@@ -287,14 +289,14 @@ int read_vector(const char *filename,Vec x,Dofmap *dofmap,int myrank) {
 
   for (int k=0; k<dofmap->neq; k++) {
     if (dofmap->dof1 <= k+1 <= dofmap->dof2) {
-      VecSetValue(x,k,xdof.e(k),INSERT_VALUES);
+      ierr = VecSetValue(x,k,xdof.e(k),INSERT_VALUES);CHKERRQ(ierr);
     }
   }
   xdof.clear();
   // PetscPrintf(PETSC_COMM_WORLD,"Values set.\n",dofmap->nnod);
   ierr = VecAssemblyBegin(x); CHKERRQ(ierr);
   ierr = VecAssemblyEnd(x); CHKERRQ(ierr);
-  PetscPrintf(PETSC_COMM_WORLD,"Done.\n",filename);
+  PetscPrintf(PETSC_COMM_WORLD,"Done reading file '%s'\n",filename);
   return ierr;
 
 }

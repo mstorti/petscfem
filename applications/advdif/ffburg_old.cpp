@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: ffburg_old.cpp,v 1.5 2002/01/14 03:45:05 mstorti Exp $
+//$Id: ffburg_old.cpp,v 1.5.108.1 2007/01/29 21:07:56 dalcinl Exp $
 
 #include <stdio.h>
 #include <string.h>
@@ -110,4 +110,5 @@ int burgers_ff_t::operator()(ADVDIFFF_ARGS) {
 				// right now!!
   }
 
+  return 0;
 }

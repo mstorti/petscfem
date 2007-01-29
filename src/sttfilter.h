@@ -1,6 +1,6 @@
 // -*-mode: c++ -*-
 /*__INSERT_LICENSE__*/
-//$Id: sttfilter.h,v 1.10 2002/11/05 19:59:36 mstorti Exp $
+//$Id: sttfilter.h,v 1.10.100.1 2007/01/29 21:07:57 dalcinl Exp $
  
 #ifndef STTFILTER_H
 #define STTFILTER_H
@@ -39,9 +39,9 @@ public:
   /**@name Operations on the time part */
   //@{
   /// Changes the time of the state
-  State & set_time(const Time t) {time = t;}
+  State & set_time(const Time t) {time = t; return *this; }
   /// Increments the time part
-  State & inc(double dt) {time.inc(dt);}
+  State & inc(double dt) {time.inc(dt); return *this; }
   /// Const access to the time part
   const Time & t() const {return time;}
   //@}
@@ -122,7 +122,7 @@ class LowPass : public Filter {
 public:
   /// Constructor 
   LowPass(double gamma_,Filter &input_,State &state_) 
-    : input(&input_), gamma(gamma_), i_state(state_) {};
+    : input(&input_), i_state(state_), gamma(gamma_) {};
   /// Destructor
   virtual ~LowPass() {};
   /// Updates the filter (and its input)

@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: texthash.cpp,v 1.23 2005/11/06 15:53:20 mstorti Exp $
+//$Id: texthash.cpp,v 1.23.12.1 2007/01/29 21:07:57 dalcinl Exp $
  
 #include <iostream>
 #include <sstream>
@@ -16,14 +16,12 @@ TextHashTable *TextHashTable::global_options=NULL;
 int TextHashTable::print_statistics=0;
 TextHashTable *GLOBAL_OPTIONS;
 
-
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 #undef __FUNC__
 #define __FUNC__ "TextHashTableVal::TextHashTableVal(char *)"
 TextHashTableVal::TextHashTableVal(const char *s_) :
-  called_times(0), s(local_copy(s_)) {}
+  s(local_copy(s_)), called_times(0) {}
 
-
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 #undef __FUNC__
 #define __FUNC__ "void print_hash_entry(void *p, void *q, void *u)"
@@ -41,7 +39,6 @@ void print_hash_entry(void *p, void *q, void *count) {
   (*(int *)count)++;
 }
 
-
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 #undef __FUNC__
 #define __FUNC__ "void delete_hash_entry(void *p, void *q, void *u)"
@@ -67,15 +64,13 @@ unsigned int text_hash_func (const void *v) {
 }
 #endif
 
-
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 #undef __FUNC__
 #define __FUNC__ "TextHashTable::TextHashTable ()"
 TextHashTable::TextHashTable () {
   hash = g_hash_table_new(&g_str_hash,&g_str_equal);
-};
+}
 
-
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 #undef __FUNC__
 #define __FUNC__ "void TextHashTable::add_entry"
@@ -126,7 +121,6 @@ void TextHashTable
   // s.freeze(0);
 }
 
-
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 #undef __FUNC__
 #define __FUNC__ "TextHashTable::get_entry_recursive"
@@ -146,7 +140,6 @@ void TextHashTable::get_entry_recursive(const char * key,
   }
 }
 
-
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 #undef __FUNC__
 #define __FUNC__ "" 
@@ -159,7 +152,6 @@ void TextHashTable::get_entry(const char * key,TextHashTableVal *& value) const 
     global_options->get_entry_recursive(key,value,glob_was_visited);
 }
 
-
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 #undef __FUNC__
 #define __FUNC__ "" 
@@ -170,7 +162,6 @@ void TextHashTable::get_entry(const char * key,const char *& svalue) const {
   svalue = (value ? value->s : NULL);
 }
 
-
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 #undef __FUNC__
 #define __FUNC__ "TextHashTable::access_count()"
@@ -180,7 +171,6 @@ int TextHashTable::access_count(const char * key) {
   return (value ? value->called_times : -1);
 }
 
-
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 #undef __FUNC__
 #define __FUNC__ "TextHashTable::print(char * s = NULL ) const"
@@ -193,28 +183,26 @@ void TextHashTable::print(const char * s) const {
     printf("[No included hash tables]\n");
   } else {
     printf("Included hash tables:\n");
-    for (int j=0; j < included_tables.size(); j++) {
-      printf("%s  (%p)\n",included_tables_names[j]->c_str(),included_tables[j]);
+    for (unsigned int j=0; j < included_tables.size(); j++) {
+      printf("%s  (%p)\n",included_tables_names[j]->c_str(),(void*)included_tables[j]);
     }
   }
   printf(" --\n");
 }
 
-
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 #undef __FUNC__
 #define __FUNC__ "TextHashTable::~TextHashTable()"
 TextHashTable::~TextHashTable() {
   g_hash_table_foreach (hash,&delete_hash_entry,NULL);
   g_hash_table_destroy (hash);
-  for (int j=0; j<included_tables_names.size(); j++) {
+  for (unsigned int j=0; j<included_tables_names.size(); j++) {
     delete included_tables_names[j];
   }
   included_tables.resize(0);
   included_tables_names.resize(0);
 }
 
-
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 #undef __FUNC__
 #define __FUNC__ "TextHashTable::include_table(const string &s)"
@@ -237,7 +225,6 @@ void TextHashTable
   included_tables_names.push_back(sc);
 }
 
-
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 #undef __FUNC__
 #define __FUNC__ "TextHashTable::register_name(const string &s)"
@@ -245,7 +232,6 @@ void TextHashTable::register_name(const string &s) {
   thash_table.insert(THashTableEntry(s,this));
 }
 
-
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 #undef __FUNC__
 #define __FUNC__ "TextHashTable::read()"
@@ -296,7 +282,7 @@ void TextHashTable::get_entry(const char *name,vector<double> &v) {
   const char *value;
   static const char *bsp=" \t";
   char *token;
-  int k,ierr;
+  int k;
   double val;
 
   get_entry(name,value);

@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-// $Id: condwallpen.cpp,v 1.11 2005/05/30 22:32:28 mstorti Exp $
+// $Id: condwallpen.cpp,v 1.11.22.1 2007/01/29 21:07:56 dalcinl Exp $
 
 #include "./condwallpen.h"
 
@@ -35,7 +35,7 @@ init(int nel_a,int ndof_a,
      != cond_wall_data_map.end()) {
     data_p = &cond_wall_data_map[ename];
     if (!MY_RANK)
-      printf("in cond_wall::init(), data_p %p\n",data_p);
+      printf("in cond_wall::init(), data_p %p\n",(void*)data_p);
   }
 
   return 2*ndof;

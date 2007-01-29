@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: sparse.cpp,v 1.35 2003/08/12 02:35:50 mstorti Exp $
+//$Id: sparse.cpp,v 1.35.90.1 2007/01/29 21:07:57 dalcinl Exp $
 
 #include <src/sparse2.h>
 
@@ -7,18 +7,18 @@ using namespace Random;
 
 namespace Sparse {
 
-  GenVec::~GenVec() {};
+  GenVec::~GenVec() {}
 
   double GenVec::not_represented_val = 0.;
   double Mat::not_represented_val = 0.;
   
-  ScalarFunObj::~ScalarFunObj() {};
+  ScalarFunObj::~ScalarFunObj() {}
 
   Scale scale_fun_obj;
 
   ScalarFunWrapper scalar_fun_wrapper;
 
-  BinAssoc::~BinAssoc() {};
+  BinAssoc::~BinAssoc() {}
 
   Sum sum_bin_assoc;
   SumAbs sum_abs_bin_assoc;
@@ -28,7 +28,7 @@ namespace Sparse {
   MaxAbs max_abs_bin_assoc;
   Min min_bin_assoc;
 
-  Accumulator::~Accumulator() {};
+  Accumulator::~Accumulator() {}
   SumSq sum_sq_accum;
   SumPow sum_pow_accum;
 
@@ -94,7 +94,7 @@ namespace Sparse {
   //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
   FullVec::FullVec(GenVec &v) {
     GenVec::set(v);
-  };
+  }
 
   //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
   GenVec & GenVec::set(const GenVec &v) {
@@ -106,7 +106,7 @@ namespace Sparse {
       set(j,v.get(j));
     }
     return *this;
-  };
+  }
 
   //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
   Indx::Indx(int m,int n,int k) {
@@ -126,7 +126,7 @@ namespace Sparse {
 #if 0
   Vec::Vec(const Indx &I,const Vec &v) {
     assert(0); // code here
-  };
+  }
 #endif
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
@@ -217,7 +217,7 @@ namespace Sparse {
 #undef __FUNC__
 #define __FUNC__ "Vec::set"
   Vec & Vec::set(const Indx &I,const Vec & v) {
-    int j;
+    unsigned int j;
     for (j=0; j<I.size(); j++) {
       set(I[j],v.get(j));
     }
@@ -432,7 +432,7 @@ namespace Sparse {
   
   /// Constructor from the length
   Mat::Mat(int m,int n,TextHashTable *t) 
-    : grow_m(1), nrows(m), ncols(n) {
+    : nrows(m), ncols(n), grow_m(1) {
     init_fsm(this); 
     // thash = (t!=NULL ? t : new TextHashTable);
     if (t!=NULL) thash.include_table(string("father"),t);
@@ -902,7 +902,6 @@ namespace Sparse {
     RowCIt i,e;
     Vec row;
     int j,m,n;
-    double w;
 
     n = cols();
     e = end();
@@ -961,7 +960,7 @@ namespace Sparse {
 
 #undef FSM_OP
 #define FSM_OP(action) FSM_ACTION_DEF(action)
-    FSM_ACTIONS;
+    FSM_ACTIONS
 
   Mat *Mat::dispatch(char *opt,const TextHashTable *t) {
     Mat *m; 
@@ -989,7 +988,7 @@ namespace Sparse {
     *this = B;
 #endif
 
-    int m,j;
+    int m;
     RowCIt row,e;
 
     clear();

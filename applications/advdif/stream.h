@@ -1,6 +1,6 @@
 // -*- mode: C++ -*- 
 /*__INSERT_LICENSE__*/
-// $Id: stream.h,v 1.24 2005/11/13 23:13:10 mstorti Exp $
+// $Id: stream.h,v 1.24.12.1 2007/01/29 21:07:56 dalcinl Exp $
 #ifndef PETSCFEM_STREAM_H
 #define PETSCFEM_STREAM_H
 
@@ -40,6 +40,8 @@ public:
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 /// Defines the shape of the channel
 class ChannelShape {
+public:
+  virtual ~ChannelShape() {}
 protected:
   const NewElemset *elemset;
 public:
@@ -208,6 +210,8 @@ public:
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 /// Abstract class representing all friction laws
 class FrictionLaw {
+public:
+  virtual ~FrictionLaw() {}
 protected:
   const NewElemset *elemset;
 public:

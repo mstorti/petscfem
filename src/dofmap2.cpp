@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: dofmap2.cpp,v 1.14 2004/09/25 23:11:39 mstorti Exp $
+//$Id: dofmap2.cpp,v 1.14.60.1 2007/01/29 21:07:56 dalcinl Exp $
 
 #include <cassert>
 #include <deque>
@@ -45,7 +45,7 @@ int Amplitude::needs_dof_field_q() { return 0; }
 void Dofmap::nodf(int edof, int &node,int &field) const {
   field = (edof-1) % ndof +1;
   node = (edof-field)/ndof +1;
-};
+}
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 #undef __FUNC__
@@ -61,7 +61,7 @@ int Dofmap::set_constraint(const Constraint &constraint) {
   // of the corresponding rows in the current `idmap'
   for (int k=0; k<length; k++) {
     const constraint_entry *it = &(constraint[k]);
-    int edoff = edof(it->node,it->field);
+    edof(it->node,it->field);
     // Look if row is regular (it doesn't point to other edof's)
     row.clear();
 #ifdef DEBUG_ELIM

@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: nsstruct.cpp,v 1.4 2006/03/16 20:39:57 mstorti Exp $
+//$Id: nsstruct.cpp,v 1.4.10.1 2007/01/29 21:07:56 dalcinl Exp $
 #include <src/debug.h>
 #include <malloc.h>
 
@@ -223,7 +223,7 @@ int struct_main() {
   // Check number of elements is odd
   assert(newton_relaxation_factor.size() % 2 ==1);
   // Check even entries are integer
-  for (int j=1; j<newton_relaxation_factor.size(); j += 2) {
+  for (unsigned int j=1; j<newton_relaxation_factor.size(); j += 2) {
     double v = double(int(newton_relaxation_factor[j]));
     assert(v == newton_relaxation_factor[j]);
   }
@@ -718,7 +718,7 @@ int struct_main() {
 	double relfac;
 	int inwt_cum=0,nrf_indx=1;
 	while (1) {
-	  if (nrf_indx >= newton_relaxation_factor.size()) break;
+	  if ((unsigned int)nrf_indx >= newton_relaxation_factor.size()) break;
 	  inwt_cum += int(newton_relaxation_factor[nrf_indx]);
 	  if (inwt_cum > inwt) break;
 	  nrf_indx += 2;
@@ -1003,11 +1003,11 @@ int struct_main() {
       if (MY_RANK==0) {
 	if (gather_file == "") {
 	  printf("Gather results: \n");
-	  for (int j=0; j < gather_values.size(); j++) 
+	  for (unsigned int j=0; j < gather_values.size(); j++) 
 	    printf("v_component_%d = %12.10e\n",j,gather_values[j]);
 	} else {
 	  gather_file_f = fopen(gather_file.c_str(),"a");
-	  for (int j=0; j<gather_values.size(); j++) 
+	  for (unsigned int j=0; j<gather_values.size(); j++) 
 	    fprintf(gather_file_f,"%12.10e ",gather_values[j]);
 	  fprintf(gather_file_f,"\n");
 	  fclose(gather_file_f);

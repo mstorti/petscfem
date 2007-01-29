@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: elmsupl.cpp,v 1.30 2004/11/11 18:32:23 mstorti Exp $
+//$Id: elmsupl.cpp,v 1.30.58.1 2007/01/29 21:07:56 dalcinl Exp $
 
 #ifndef _GNU_SOURCE
 #define _GNU_SOURCE
@@ -375,7 +375,7 @@ int Elemset::upload_vector_fast(int nel,int ndof,Dofmap *dofmap,
 
 	  // load local values on global vector
 	  if (load_vec) {
-	    VecSetValue(*(argd.x),locdof-1,val,mode);
+	    ierr = VecSetValue(*(argd.x),locdof-1,val,mode); CHKERRQ(ierr);
 	  }
 
 	  // load finite difference jacobian computed by differences
@@ -406,7 +406,8 @@ int Elemset::upload_vector_fast(int nel,int ndof,Dofmap *dofmap,
 		    ierr = argd.pfA->set_value(kd,kdl,val,ADD_VALUES); 
 		    CHKERRQ(ierr); 
 		  } else {
-		    MatSetValue(*argd.A,kd,kdl,val,ADD_VALUES); 
+		    ierr = MatSetValue(*argd.A,kd,kdl,val,ADD_VALUES);
+		    CHKERRQ(ierr); 
 		  }
 		}
 	      }
@@ -491,7 +492,8 @@ int Elemset::upload_vector_slow(int nel,int ndof,Dofmap *dofmap,
 
 	  // load local values on global vector
 	  if (load_vec) {
-	    VecSetValue(*(argd.x),locdof-1,val,mode);
+	    ierr = VecSetValue(*(argd.x),locdof-1,val,mode);
+	    CHKERRQ(ierr);
 	  }
 
 	  // load finite difference jacobian computed by differences
@@ -521,7 +523,8 @@ int Elemset::upload_vector_slow(int nel,int ndof,Dofmap *dofmap,
 		    ierr = argd.pfA->set_value(kd,kdl,val,ADD_VALUES); 
 		    CHKERRQ(ierr); 
 		  } else {
-		    MatSetValue(*argd.A,kd,kdl,val,ADD_VALUES); 
+		    ierr = MatSetValue(*argd.A,kd,kdl,val,ADD_VALUES);
+		    CHKERRQ(ierr);
 		  }
 		}
 	      }
@@ -557,7 +560,8 @@ int Elemset::upload_vector_slow(int nel,int ndof,Dofmap *dofmap,
 		      ierr = argd.pfA->set_value(locdof-1,locdofl-1,val,ADD_VALUES); 
 		      CHKERRQ(ierr); 
 		    } else {
-		      MatSetValue(*argd.A,locdof-1,locdofl-1,val,ADD_VALUES);
+		      ierr = MatSetValue(*argd.A,locdof-1,locdofl-1,val,ADD_VALUES);
+		      CHKERRQ(ierr);
 		    }
 		  }
 		}

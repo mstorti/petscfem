@@ -1,13 +1,17 @@
 //__INSERT_LICENSE__
-//$Id: graph.cpp,v 1.20 2006/03/27 19:12:06 mstorti Exp $
+//$Id: graph.cpp,v 1.20.10.1 2007/01/29 21:07:57 dalcinl Exp $
 
 #include <src/utils.h>
 #include <src/graph.h>
 #include <vector>
 extern "C" {
 #define __log2 ___log2
+#define drand48 __drand48
+#define srand48 __srand48
 #include <metis.h>
 #undef __log2
+#undef __drand48
+#undef __srand48
 }
 
 extern int SIZE, MY_RANK;
@@ -42,7 +46,7 @@ double Graph::weight(int vrtx_f) {return weight_scale;}
 void Graph::part(int max_partgraph_vertices,
   int npart,float *tpwgts) {
 
-  int visited,vrtx_f,vrtx_fk,vrtx,vrtxj,vrtxjj,p,j,k,
+  int visited,vrtx_f,/*vrtx_fk,*/vrtx,vrtxj,vrtxjj,p,j,k,
     edgecut,options=0,numflag=0,wgtflag=2;
   GSet::iterator q,qe;
   // if tpwgts is not passed then define a local one

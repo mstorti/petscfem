@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: srfgath.cpp,v 1.15 2006/09/04 17:49:43 mstorti Exp $
+//$Id: srfgath.cpp,v 1.15.4.1 2007/01/29 21:07:57 dalcinl Exp $
 
 #include <src/fem.h>
 #include <src/utils.h>
@@ -40,7 +40,7 @@ void plane::init(const TextHashTable *thash) {
   if(line) {
     v.clear();
     read_double_array(v,line);
-    PETSCFEM_ASSERT(v.size()==ndim,
+    PETSCFEM_ASSERT(v.size()==(unsigned int)ndim,
 		    "SurfGatherer:plane: `x0' must be length ndim\n"
 		    "length %d, ndim %d\n",v.size(),ndim);
     x0.set(&*v.begin());
@@ -52,7 +52,7 @@ void plane::init(const TextHashTable *thash) {
 		   "SurfGatherer:plane: `normal' must be specified\n");
   v.clear();
   read_double_array(v,line);
-  PETSCFEM_ASSERT(v.size()==ndim,
+  PETSCFEM_ASSERT(v.size()==(unsigned int)ndim,
 		  "SurfGatherer:plane: `normal' must be length ndim\n"
 		  "length %d, ndim %d\n",v.size(),ndim);
   n.set(&*v.begin());
@@ -91,7 +91,7 @@ void sphere::init(const TextHashTable *thash) {
   if(line) {
     v.clear();
     read_double_array(v,line);
-    PETSCFEM_ASSERT(v.size()==ndim,
+    PETSCFEM_ASSERT(v.size()==(unsigned int)ndim,
 		    "SurfGatherer:plane: `x0' must be length ndim\n"
 		    "length %d, ndim %d\n",v.size(),ndim);
     x0.set(&*v.begin());
@@ -129,7 +129,7 @@ void cylinder::init(const TextHashTable *thash) {
   if(line) {
     v.clear();
     read_double_array(v,line);
-    PETSCFEM_ASSERT(v.size()==ndim,
+    PETSCFEM_ASSERT(v.size()==(unsigned int)ndim,
 		    "SurfGatherer:plane: `x0' must be length ndim\n"
 		    "length %d, ndim %d\n",v.size(),ndim);
     x0.set(&*v.begin());
@@ -141,7 +141,7 @@ void cylinder::init(const TextHashTable *thash) {
 		   "SurfGatherer:plane: `normal' must be specified\n");
   v.clear();
   read_double_array(v,line);
-  PETSCFEM_ASSERT(v.size()==ndim,
+  PETSCFEM_ASSERT(v.size()==(unsigned int)ndim,
 		  "SurfGatherer:plane: `normal' must be length ndim\n"
 		  "length %d, ndim %d\n",v.size(),ndim);
   n.set(&*v.begin());
@@ -179,7 +179,6 @@ SurfGatherer::SurfFunction::factory(const TextHashTable *thash) {
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 void SurfGatherer::initialize() {
-  int ierr;
   sf = SurfGatherer::SurfFunction::factory(thash);
   sf->init(thash);
 }
@@ -259,8 +258,8 @@ int SurfGatherer::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
 
   int ja = 0;
   double *locst = arg_data_v[ja++].locst;
-  double *locst2 = arg_data_v[ja++].locst;
-  int options = arg_data_v[ja].options;
+  //double *locst2 = arg_data_v[ja++].locst;
+  //int options = arg_data_v[ja].options;
   vector<double> *values = arg_data_v[ja++].vector_assoc;
   int nvalues = values->size();
   // check that we don't put values beyond the end of global vector

@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: nsitetasm_avgvol.cpp,v 1.3 2006/02/19 23:59:47 mstorti Exp $
+//$Id: nsitetasm_avgvol.cpp,v 1.3.10.1 2007/01/29 21:07:56 dalcinl Exp $
 
 //
 // This elemset uses the volume average velocity model 
@@ -1521,6 +1521,8 @@ assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
   }
   FastMat2::void_cache();
   FastMat2::deactivate_cache();
+
+  return 0;
 }
 
 #undef SHAPE	

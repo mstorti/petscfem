@@ -1,6 +1,6 @@
 // -*- mode: c++ -*-
 //__INSERT_LICENSE__
-// $Id: penalize.h,v 1.17 2006/12/31 17:40:33 mstorti Exp $
+// $Id: penalize.h,v 1.17.2.1 2007/01/29 21:07:57 dalcinl Exp $
 #ifndef PETSCFEM_PENALIZE_H
 #define PETSCFEM_PENALIZE_H
 
@@ -23,7 +23,7 @@ public:
   */
   virtual int
   init(int nel,int ndof,
-       TextHashTable *thash,const char *name) { }
+       TextHashTable *thash,const char *name) { return 0; }
   /** Return the node/dof pair to be used as lagrange
       multiplier for the #jr#-th restriction.
       @param jr (input) Number of restriction

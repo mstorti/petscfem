@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: advdife.cpp,v 1.121 2007/01/24 00:41:55 mstorti Exp $
+//$Id: advdife.cpp,v 1.121.2.1 2007/01/29 21:07:56 dalcinl Exp $
 extern int comp_mat_each_time_step_g,
   consistent_supg_matrix_g,
   local_time_step_g;
@@ -68,7 +68,7 @@ void NewAdvDifFF::get_log_vars(int &nlog_vars,const int *& log_vars) {
     } else if (log_vars_v[j]>ndof) {
       PetscPrintf(PETSC_COMM_WORLD,"Dof grater that ndof in "
 		  "\"log_vars_list\" entry: dof %d, ndof %d\n",
-		  log_vars_v[j]);
+		  log_vars_v[j], ndof);
       ierr=1;
     }
     if (ierr) {
@@ -99,7 +99,7 @@ void log_transf(FastMat2 &true_lstate,const FastMat2 &lstate,
 }
 
 NewAdvDifFF::NewAdvDifFF(const NewElemset *elemset_)
-    : elemset(elemset_), enthalpy_fun(NULL), new_adv_dif_elemset(NULL) {
+  : elemset(elemset_), new_adv_dif_elemset(NULL), enthalpy_fun(NULL) {
   // This is ugly!!
   // assert(new_adv_dif_elemset);
 }

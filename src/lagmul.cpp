@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-/* $Id: lagmul.cpp,v 1.14 2005/05/30 02:01:28 mstorti Exp $ */
+/* $Id: lagmul.cpp,v 1.14.22.1 2007/01/29 21:07:57 dalcinl Exp $ */
 
 #include <src/fem.h>
 #include <src/utils.h>
@@ -14,7 +14,7 @@
 
 extern TextHashTable *GLOBAL_OPTIONS;
 
-LagrangeMult::~LagrangeMult() {};
+LagrangeMult::~LagrangeMult() {}
 
 void 
 read_double_array_options(NewElemset &elemset,
@@ -48,7 +48,7 @@ new_assemble(arg_data_list &arg_data_v,const Nodedata *nodedata,
 #define ICONE(j,k) (icone[nel*(j)+(k)]) 
 
   // nr:= number of restrictions
-  int nr,ierr=0,jr,jfic,kfic,dofic;
+  int nr,ierr=0,jr,jfic,dofic;
   // PetscPrintf(PETSC_COMM_WORLD,"entrando a nsikeps\n");
 
   double lambda,rr;
@@ -129,7 +129,7 @@ new_assemble(arg_data_list &arg_data_v,const Nodedata *nodedata,
   if (comp_mat) matloc_prof.set(1.);
 
   int nu=nodedata->nu;
-  int nH = nu-ndim;
+  //int nH = nu-ndim;
 
   FastMat2 r(1,nr),w(3,nel,ndof,nr),jac(3,nr,nel,ndof);
   jac.set(0.);
@@ -177,7 +177,7 @@ new_assemble(arg_data_list &arg_data_v,const Nodedata *nodedata,
 	ldf_user.set(1e-5);
       else if (lagrange_diagonal_factor.size()==1)
 	ldf_user.set(lagrange_diagonal_factor[0]);
-      else if (lagrange_diagonal_factor.size()==nr)
+      else if (lagrange_diagonal_factor.size()==(unsigned int)nr)
 	ldf_user.set(&lagrange_diagonal_factor[0]);
       set_ldf(ldf_user,lagrange_diagonal_factor);
       for (jr=1; jr<=nr; jr++) {

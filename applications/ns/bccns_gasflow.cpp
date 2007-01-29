@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: bccns_gasflow.cpp,v 1.2 2005/09/20 01:56:43 mstorti Exp $
+//$Id: bccns_gasflow.cpp,v 1.2.22.1 2007/01/29 21:07:56 dalcinl Exp $
 
 #include <src/fem.h>
 #include <src/utils.h>
@@ -358,6 +358,7 @@ int bcconv_ns_gasflow::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
   FastMat2::void_cache();
   FastMat2::deactivate_cache();
 
+  return 0;
 }
 
 #undef SHAPE

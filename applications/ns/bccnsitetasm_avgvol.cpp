@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: bccnsitetasm_avgvol.cpp,v 1.1 2006/02/18 22:40:47 mstorti Exp $
+//$Id: bccnsitetasm_avgvol.cpp,v 1.1.12.1 2007/01/29 21:07:56 dalcinl Exp $
 
 #include <src/fem.h>
 #include <src/utils.h>
@@ -437,6 +437,7 @@ int bcconv_nsi_tet_asm_avgvol::assemble(arg_data_list &arg_data_v,Nodedata *node
   FastMat2::void_cache();
   FastMat2::deactivate_cache();
 
+  return 0;
 }
 
 #undef SHAPE

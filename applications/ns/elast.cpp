@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: elast.cpp,v 1.21 2006/04/04 22:36:13 mstorti Exp $
+//$Id: elast.cpp,v 1.21.8.1 2007/01/29 21:07:56 dalcinl Exp $
 
 #include <src/fem.h>
 #include <src/utils.h>
@@ -77,7 +77,7 @@ void elasticity::init() {
   thash->get_entry("G_body",line);
   if(line) {
     read_double_array(G_body_v,line);
-    assert(G_body_v.size()==ndim);
+    assert(G_body_v.size()==(unsigned int)ndim);
     G_body.set(&G_body_v[0]);
   }
 

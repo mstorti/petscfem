@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: getprop.cpp,v 1.15 2006/07/05 22:12:16 mstorti Exp $
+//$Id: getprop.cpp,v 1.15.8.1 2007/01/29 21:07:57 dalcinl Exp $
   
 #include "fem.h"
 #include "readmesh.h"
@@ -36,7 +36,7 @@ int get_double(TextHashTable *thash,const char *name,
   const char *value;
   static const char *bsp=" \t";
   char *token;
-  int k,ierr;
+  int k;
 
   thash->get_entry(name,value);
   if (value==NULL) {
@@ -132,6 +132,7 @@ int get_string_from_string(string &buf,string &ret) {
       return 1;
     }
   }
+  return 0;
 }
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
@@ -141,7 +142,6 @@ int get_string(const TextHashTable *thash,const char *name,
 	       string &ret,int defval,int n) {
   if (n==0) return 0;
   const char *value_;
-  int k;
 
   // First of all, void the local buffer `ret'
 //    if (ret!=NULL) {
@@ -159,8 +159,8 @@ int get_string(const TextHashTable *thash,const char *name,
   }
 
   string value = string(value_);
-  int ierr=get_string_from_string(value,ret);
-  return 0;
+  int ierr = get_string_from_string(value,ret);
+  return ierr;
 }
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 

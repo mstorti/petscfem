@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: debug.cpp,v 1.14 2003/07/02 02:32:47 mstorti Exp $
+//$Id: debug.cpp,v 1.14.92.1 2007/01/29 21:07:56 dalcinl Exp $
  
 #include <src/debug.h>
 #include <sys/resource.h>
@@ -47,6 +47,7 @@ void Debug::deactivate(const char *s) {
 }
 
 void Debug::release_proc(int proc) {
+  int ierr;
   if (proc<0 || proc>=size) {
     printf("bad procesor number: %d",proc);
     return;
@@ -57,7 +58,7 @@ void Debug::release_proc(int proc) {
     return;
   }
   if (!flags[proc])
-    MPI_Send(&dummy,1,MPI_INT,proc,release_barrier,comm);
+    ierr = MPI_Send(&dummy,1,MPI_INT,proc,release_barrier,comm);
   flags[proc]=1;
 }
 
@@ -98,9 +99,9 @@ void Debug::trace(const char *s) {
       if (sscanf(line,"VmRSS: %d kB",&mem)) break;
     }
     fclose(fid);
-    MPI_Allreduce(&mem,&mem_min,1,MPI_INT,MPI_MIN,comm);
-    MPI_Allreduce(&mem,&mem_max,1,MPI_INT,MPI_MAX,comm);
-    MPI_Allreduce(&mem,&mem_sum,1,MPI_INT,MPI_SUM,comm);
+    ierr = MPI_Allreduce(&mem,&mem_min,1,MPI_INT,MPI_MIN,comm);
+    ierr = MPI_Allreduce(&mem,&mem_max,1,MPI_INT,MPI_MAX,comm);
+    ierr = MPI_Allreduce(&mem,&mem_sum,1,MPI_INT,MPI_SUM,comm);
     mem_avrg = int(ceil(double(mem_sum)/double(size)));
     PetscPrintf(PETSC_COMM_WORLD,
 		"-- %s -- [Memory usage(kB): min %d, max %d, avrg %d]\n",
@@ -108,7 +109,7 @@ void Debug::trace(const char *s) {
   }
   if (!active()) return;
   int ierr,nread,proc;
-  char ans,c;
+  char ans;
   ierr = MPI_Barrier(comm);
   assert(ierr==0);
   while (1) {
@@ -166,9 +167,9 @@ void Debug::trace(const char *s) {
 	  getline (&line,&N,stdin);
 	}
       } else {
+	int ierr;
 	MPI_Status stat;
-	int flag;
-	MPI_Recv(&dummy,1,MPI_INT,0,release_barrier,comm,&stat);
+	ierr = MPI_Recv(&dummy,1,MPI_INT,0,release_barrier,comm,&stat);
       }
       break;
     } else if (ans=='\n') {

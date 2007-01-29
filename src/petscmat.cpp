@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: petscmat.cpp,v 1.13 2004/10/24 16:25:21 mstorti Exp $
+//$Id: petscmat.cpp,v 1.13.60.1 2007/01/29 21:07:57 dalcinl Exp $
 
 // fixme:= this may not work in all applications
 
@@ -15,7 +15,7 @@
 
 extern int MY_RANK,SIZE;
 
-PETScMat::~PETScMat() {clear();};
+PETScMat::~PETScMat() {clear();}
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 #undef __FUNC__
@@ -37,7 +37,7 @@ int PETScMat::duplicate_a(MatDuplicateOption op,const PFMat &B) {
 #undef __FUNC__
 #define __FUNC__ "PETScMat::create_a"
 int PETScMat::create_a() {
-  int k,neqp,keq,leq,pos,sumd=0,sumdcorr=0,sumo=0,ierr,myrank;
+  int k,neqp,keq,leq,/*pos,*/sumd=0,sumdcorr=0,sumo=0,ierr,myrank;
 
   //o Print the profile 
   TGETOPTDEF(&thash,int,debug_compute_prof,0);
@@ -69,7 +69,7 @@ int PETScMat::create_a() {
   dofs_proc_v = &*dofs_proc.begin();
 
   // vectors for dimensioning the PETSc matrix
-  int *d_nnz,*o_nnz,diag_ok;
+  int *d_nnz,*o_nnz/*,diag_ok*/;
   d_nnz = new int[neqp];
   o_nnz = new int[neqp];
   //loop over local dof's
@@ -192,7 +192,7 @@ int PETScMat::view(PetscViewer viewer) {
   ierr = MatView(A,viewer); CHKERRQ(ierr); 
 //    ierr = SLESView(sles,PETSC_VIEWER_STDOUT_SELF); CHKERRQ(ierr); 
   return 0;
-};
+}
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 #undef __FUNC__
@@ -200,7 +200,7 @@ int PETScMat::view(PetscViewer viewer) {
 int PETScMat::clean_mat_a() {
   ierr=MatZeroEntries(A); CHKERRQ(ierr);
   return 0;
-};
+}
 
 /*
   Local Variables: 

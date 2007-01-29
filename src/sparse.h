@@ -1,6 +1,6 @@
 // -*- mode: C++ -*- 
 /*__INSERT_LICENSE__*/
-// $Id: sparse.h,v 1.36 2003/07/02 23:22:19 mstorti Exp $
+// $Id: sparse.h,v 1.36.92.1 2007/01/29 21:07:57 dalcinl Exp $
 #ifndef SPARSE_H
 #define SPARSE_H
 
@@ -362,7 +362,7 @@ namespace Sparse {
   // header and definition. The definition is simply to call the
   // action on the `matrix_p' pointer .
 
-#define FSM_ACTION_DECL(action) void action()
+#define FSM_ACTION_DECL(action) void action();
 
 #if 1
 
@@ -381,10 +381,10 @@ void MatFSMContext::action() {			\
 #endif
 
 #define FSM_ACTIONS				\
-  FSM_OP(clear);				\
-  FSM_OP(clean_mat);				\
-  FSM_OP(clean_factor);				\
-  FSM_OP(fact_and_solve);			\
+  FSM_OP(clear)					\
+  FSM_OP(clean_mat)				\
+  FSM_OP(clean_factor)				\
+  FSM_OP(fact_and_solve)			\
   FSM_OP(solve_only)
 
   class MatFSMContext {
@@ -393,7 +393,7 @@ void MatFSMContext::action() {			\
     MatFSMContext() {};
 #undef FSM_OP
 #define FSM_OP(action) FSM_ACTION_DECL(action)
-    FSM_ACTIONS;
+    FSM_ACTIONS
     void FSMError(const char *e,const char *s) { 
       printf("Not valid \"%s\" event in state \"%s\"",e,s);
     }
@@ -541,7 +541,7 @@ void MatFSMContext::action() {			\
     void set_option(const char *key,const char *value);
     void get_option(const char *key,const char *&value) const;
     int get_int(const char *name,int *retval,int defval=0,int n=1) {
-      ::get_int(&thash,name,retval,defval,n);
+      return ::get_int(&thash,name,retval,defval,n);
     }
 
   };

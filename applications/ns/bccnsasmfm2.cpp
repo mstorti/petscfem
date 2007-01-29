@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: bccnsasmfm2.cpp,v 1.2 2003/12/04 12:21:04 mstorti Exp $
+//$Id: bccnsasmfm2.cpp,v 1.2.76.1 2007/01/29 21:07:56 dalcinl Exp $
 
 #include <src/fem.h>
 #include <src/utils.h>
@@ -341,6 +341,7 @@ int bcconv_nsasm_fm2::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
   FastMat2::void_cache();
   FastMat2::deactivate_cache();
 
+  return 0;
 }
 
 #undef SHAPE

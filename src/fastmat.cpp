@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: fastmat.cpp,v 1.6 2003/07/02 02:32:47 mstorti Exp $
+//$Id: fastmat.cpp,v 1.6.92.1 2007/01/29 21:07:57 dalcinl Exp $
 
 #include <math.h>
 #include <stdio.h>
@@ -19,7 +19,7 @@ int FastMat::lastid=0;
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 
 FastMat::FastMat(int m_,int n_,double *s) :
-  m(m_), n(n_), store(s) {
+  store(s), m(m_), n(n_) {
 
   m=0;
   n=0;
@@ -335,7 +335,7 @@ int FMdet(double & det,const FastMat & A) {
        + AA(0,2)*(AA(1,0)*AA(2,1)-AA(1,1)*AA(2,0));
      return 0;
    } else {
-     printf("Not implemented order (%d)  for determinant.");
+     printf("Not implemented order (%d)  for determinant.", m);
      return 1;
    }
 #undef AA

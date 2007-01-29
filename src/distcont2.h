@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: distcont2.h,v 1.5 2006/07/24 04:28:15 mstorti Exp $
+//$Id: distcont2.h,v 1.5.8.1 2007/01/29 21:07:56 dalcinl Exp $
 
 #ifndef DISTCONT2_H
 #define DISTCONT2_H
@@ -18,7 +18,7 @@ DistCont(Partitioner *pp, MPI_Comm comm_,iter_mode_t iter_mode_a)
   MPI_Comm_size (comm, &size);
   MPI_Comm_rank (comm, &myrank);
   part=pp;
-};
+}
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 template<typename Container,typename ValueType,class Partitioner> 
@@ -40,17 +40,16 @@ void DistCont<Container,ValueType,Partitioner>::scatter() {
   HPChrono hpc;
 #endif
   typename Container::iterator iter,next;
-  int *to_send,*to_send_buff,*recv_ok,n_recv_ok,send_ok,
+  int *to_send,*to_send_buff,/**recv_ok,n_recv_ok,send_ok,*/
     dest,source,my_band_start;
 
   char **send_buff,**send_buff_pos,*recv_buff;
   const char *recv_buff_pos,*recv_buff_pos_end;
-  MPI_Request send_rq,recv_rq;
+  /*MPI_Request send_rq,recv_rq;*/
   MPI_Status status;
-  int j,k,l,nsent;
+  int j,k,/*l,*/nsent;
   int sproc,mproc,eproc,band,stage,s1,s2,nrecv,rank,
-    size_here,max_local_size,max_recv_buff_size,jd,nproc,
-    eras;
+    size_here,max_local_size,max_recv_buff_size,jd,nproc;
   int *plist = new int[size];
 
   // to_send:= `to_send(j,k)' contains the table of how much amount of
@@ -236,8 +235,9 @@ void DistCont<Container,ValueType,Partitioner>::scatter() {
 	    // my_band_start sends to s1+1 and so on...
 	    dest = s1 + ((myrank-my_band_start) + jd) % nrecv;
 	    // printf("[%d] Sending to %d\n",myrank,dest);
-	    MPI_Send(send_buff[dest],SEND(myrank,dest),MPI_CHAR,
-		     dest,myrank,comm);
+	    int ierr;
+	    ierr = MPI_Send(send_buff[dest],SEND(myrank,dest),MPI_CHAR,
+			    dest,myrank,comm);
 	  }
 	} else {
 	  // Receive stage
@@ -247,9 +247,10 @@ void DistCont<Container,ValueType,Partitioner>::scatter() {
 	    // possibility of error since they are tagged with the
 	    // source. But we wait for receiving all the packets in
 	    // this stage. 
-	    MPI_Recv(recv_buff,max_recv_buff_size,MPI_CHAR,
-		     MPI_ANY_SOURCE,MPI_ANY_TAG,
-		     comm,&status);
+	    int ierr;
+	    ierr = MPI_Recv(recv_buff,max_recv_buff_size,MPI_CHAR,
+			    MPI_ANY_SOURCE,MPI_ANY_TAG,
+			    comm,&status);
 	    // Get rank of source 
 	    source = status.MPI_SOURCE;
 	    // printf("[%d] received source %d, tag %d\n",

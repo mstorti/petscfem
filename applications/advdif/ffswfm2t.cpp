@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: ffswfm2t.cpp,v 1.15 2003/07/03 04:32:11 mstorti Exp $
+//$Id: ffswfm2t.cpp,v 1.15.92.1 2007/01/29 21:07:56 dalcinl Exp $
 
 #include <stdio.h>
 #include <string.h>
@@ -73,7 +73,7 @@ int swfm2t_ff_t::operator()(ADVDIFFF_ARGS) {
     bottom_slope.set(0.);
     if (bs!=NULL) {
       read_double_array(bottom_slope_v,bs);
-      assert(bottom_slope_v.size()==ndim);
+      assert(bottom_slope_v.size()==(unsigned int)ndim);
       bottom_slope.set(&*bottom_slope_v.begin());
     }
     
@@ -360,4 +360,5 @@ int swfm2t_ff_t::operator()(ADVDIFFF_ARGS) {
     G_source.setel(P_h+P_k-h*eps,4);
     G_source.setel((C_1*P_h-C_2*eps*h)*eps/(ket<ket_min ? ket_min : ket)+P_e,5);
   }
+  return 0;
 }

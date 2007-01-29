@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: nsilesasm_2.cpp,v 1.3 2004/10/01 00:20:54 mstorti Exp $
+//$Id: nsilesasm_2.cpp,v 1.3.60.1 2007/01/29 21:07:56 dalcinl Exp $
 
 //---<Archivos de Cabecera>---//
 #include <src/fem.h>
@@ -922,6 +922,8 @@ int nsi_tet_les_asm::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
   }
   FastMat2::void_cache();
   FastMat2::deactivate_cache();
+
+  return 0;
 }
 
 #undef SHAPE

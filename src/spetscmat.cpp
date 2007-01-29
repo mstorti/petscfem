@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: spetscmat.cpp,v 1.6 2004/11/10 02:06:34 mstorti Exp $
+//$Id: spetscmat.cpp,v 1.6.58.1 2007/01/29 21:07:57 dalcinl Exp $
 
 #include <src/petscmat.h>
 #include <src/pfmat.h>
@@ -128,7 +128,7 @@ int PETScSymmMat
   ierr = MatSetValues(A,1,&roww,1,&coll,&value,mode); 
   CHKERRQ(ierr); 
   return 0;
-};
+}
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 #undef __FUNC__

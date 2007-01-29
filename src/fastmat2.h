@@ -1,6 +1,6 @@
 // -*- mode: c++ -*-
 /*__INSERT_LICENSE__*/
-//$Id: fastmat2.h,v 1.37 2006/07/24 04:28:15 mstorti Exp $
+//$Id: fastmat2.h,v 1.37.8.1 2007/01/29 21:07:57 dalcinl Exp $
 
 #ifndef FASTMAT2_H
 #define FASTMAT2_H
@@ -85,17 +85,17 @@ using namespace std;
 class Indx {
 public:
   inline Indx(void) {size_=0; storage=INDX_CHUNK_SIZE; 
-  store=rigid_store; flexible_store=NULL;}; 
+  store=rigid_store; flexible_store=NULL;} 
   inline Indx(const int m,const int n);
   inline ~Indx();
   void print(const char *s=NULL) const;
-  int & operator[] (const int j) {return store[j];};
-  const int & operator[] (const int j) const {return store[j];};
+  int & operator[] (const int j) {return store[j];}
+  const int & operator[] (const int j) const {return store[j];}
   inline int operator== (const Indx & indx) const;
   inline Indx & operator= (const Indx & indx);
-  int size(void) const {return size_;};
-  int push_back(const int j) {resize(size_+1); store[size_++]=j;};
-  void reset() {size_=0;};
+  int size(void) const {return size_;}
+  int push_back(const int j) {resize(size_+1); store[size_++]=j;}
+  void reset() {size_=0;}
 private:
   inline void resize(const int n);
   int rigid_store[INDX_CHUNK_SIZE];
@@ -174,7 +174,7 @@ typedef FastVector<int> Indx;
 */
 class Perm : public vector<int> {
 public:
-  Perm(void) {}; 
+  Perm(void) {} 
   Perm(const int m);
   void print(const char *s=NULL) const;
 };
@@ -182,7 +182,7 @@ public:
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 class IndexFilter : public Indx {
 public:
-  IndexFilter(const int dim_=0) : dim(dim_){};
+  IndexFilter(const int dim_=0) : dim(dim_){}
   // adds a range to the filter
   void push(const int s,const int f=0,const int st=1);
   void print() const;
@@ -233,7 +233,7 @@ public:
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 /// This stores the counters for the various kind of operations
 struct OperationCount {
-  OperationCount() {get=0;put=0;mult=0;sum=0;div=0;abs=0;fun=0;};
+  OperationCount() {get=0;put=0;mult=0;sum=0;div=0;abs=0;fun=0;}
   int get,put,mult,sum,div,abs,fun;
 };
 
@@ -241,7 +241,7 @@ struct OperationCount {
 //typedef vector<FastMatCache *> FastMatCacheList;
 class FastMatCacheList : public vector<FastMatCache *> {
 public:
-  FastMatCacheList() {list_size=0;};
+  FastMatCacheList() {list_size=0;}
   // Operation count
   //  OperationCount op_count;
   //  void print_count_statistics();
@@ -305,7 +305,7 @@ public:
       already defined or not. 
       @return the correponding logical value
   */ 
-  int is_defined(void) const {return defined;};
+  int is_defined(void) const {return defined;}
 
   //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
   /** Prints the matrix.
@@ -366,7 +366,7 @@ public:
   */ 
   FastMat2 & r(const int i,const int j=0,
 	    const int step=1) 
-    {return is(1,i,j,step);};
+    {return is(1,i,j,step);}
 
 
   //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
@@ -380,7 +380,7 @@ public:
   */
   FastMat2 & c(const int i,const int j=0,
 	    const int step=1) 
-    {return is(2,i,j,step);};
+    {return is(2,i,j,step);}
 
   //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
   /** Sets an index to a fixed value and reducing one dimension. 
@@ -424,7 +424,7 @@ public:
       @return a reference to the matrix.
   */ 
   FastMat2 & setel(const Indx & indx,const double val) {
-    *location(indx) = val; };
+    *location(indx) = val; return *this; }
 
   //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
   /** Adds value at filtered position indx. 
@@ -435,7 +435,7 @@ public:
       @return a reference to the matrix.
   */ 
   FastMat2 & addel(const Indx & indx,const double val) {
-    *location(indx) += val; };
+    *location(indx) += val; return *this; }
 
   //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
   /** Sets value at filtered position i,j,k... (INT\_VAR\_ARGS)
@@ -479,7 +479,7 @@ public:
       @return the value at that position.
    */ 
   double get(const Indx & indx) const {
-    return *location(indx); };
+    return *location(indx); }
   //@}
 
   //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
@@ -497,7 +497,7 @@ public:
       @return a reference to the matrix.
   */ 
   FastMat2 & t(void) {
-    assert(dims.size()==2); return exc(1,2); };
+    assert(dims.size()==2); return exc(1,2); }
  
   /** @name One to one operations.  
       These operations act on pair of
@@ -802,9 +802,9 @@ public:
     */
     virtual double fun2(double x,double v)=0;
     /// May be run after each stride is processed
-    virtual void post() {};
+    virtual void post() {}
     /// May be run after all strides are processed
-    virtual void post_all() {};
+    virtual void post_all() {}
     /// Returns the cumulated value
     double v() { return val; }
   };
@@ -1242,9 +1242,9 @@ inline void FastMat2::deactivate_cache(void) {
 /// For 2 indices matrices
 class FMatrix : public FastMat2 {
 public:
-  FMatrix() : FastMat2() {};
-  FMatrix(const int m, const int n) : FastMat2(2,m,n) {};
-  FMatrix(const int m) : FastMat2(1,m) {};
+  FMatrix() : FastMat2() {}
+  FMatrix(const int m, const int n) : FastMat2(2,m,n) {}
+  FMatrix(const int m) : FastMat2(1,m) {}
 };
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
