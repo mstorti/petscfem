@@ -1,1 +1,2 @@
+makefile.d libpetscfem_g.a libpetscfem_O.a 
 version.cpp getarrgr.tab.c getarrgr.tab.h
