@@ -1,6 +1,6 @@
 // -*- mode: c++ -*-
 /*__INSERT_LICENSE__*/
-//$Id: fem.h,v 1.38 2005/02/21 18:50:28 mstorti Exp $
+//$Id: fem.h,v 1.39 2007/01/30 19:03:44 mstorti Exp $
 
 #ifndef FEM_H
 #define FEM_H
@@ -525,12 +525,12 @@ void print_copyright(void);
 /** Returns the square of a double
     @param x (input) the base 
 */ 
-inline double square(double x) { return x*x;};
+inline double square(double x) { return x*x; }
 
 /** Returns the cube of a double
     @param x (input) the base 
 */ 
-inline double cube(double x) { return x*x*x;};
+inline double cube(double x) { return x*x*x; }
 
 //#define SQ(n) ((n)*(n))
 //#define CB(n) ((n)*(n)*(n))

@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: nsitetasm.cpp,v 1.5 2006/09/07 20:34:04 mstorti Exp $
+//$Id: nsitetasm.cpp,v 1.6 2007/01/30 19:03:44 mstorti Exp $
 
 #include <src/fem.h>
 #include <src/utils.h>
@@ -22,6 +22,7 @@ extern TextHashTable *GLOBAL_OPTIONS;
 
 class ComputeElemProps {
 public:
+  virtual ~ComputeElemProps() {}
   virtual void init(TextHashTable *thash) { }
   virtual void element_hook(FastMat2 &xpg,FastMat2 &U_star,
 		       FastMat2 &alpha_source_vp) {}
@@ -1252,6 +1253,8 @@ assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
   }
   FastMat2::void_cache();
   FastMat2::deactivate_cache();
+
+  return 0;
 }
 
 #undef SHAPE	

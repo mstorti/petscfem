@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: util2.cpp,v 1.20 2005/05/03 12:57:26 mstorti Exp $
+//$Id: util2.cpp,v 1.21 2007/01/30 19:03:44 mstorti Exp $
   
 #include <stdio.h>
 #include <cassert>
@@ -14,11 +14,18 @@
 #include <newmatio.h>
 #undef HAVE_MEMMOVE // para que no chille al incluir petsccfonf.h
 
+#define malloc  __malloc
+#define calloc  __calloc
+#define realloc __realloc
 extern "C" {
 #include "machine.h"
 #include <matrix.h>
 #include <matrix2.h>
 }
+#undef malloc
+#undef calloc
+#undef realloc
+
 // Defined in Meschach matrix.h!!
 #undef catch
 
@@ -174,7 +181,7 @@ int non_symm_eigenvals(const Matrix &A,Matrix &lambda,Matrix &Vre,
 int vector_divide(Vec &res,Vec a_mass) {
   
   int lsize, ierr;
-  double *ares,*aa_mass,*adx;
+  double *ares,*aa_mass;
   ierr = VecGetLocalSize(res,&lsize); CHKERRQ(ierr); 
 
   // localize vectors
@@ -184,9 +191,10 @@ int vector_divide(Vec &res,Vec a_mass) {
     ares[k] /= aa_mass[k];
   }
   
-  ierr = VecRestoreArray(res,&ares);
-  ierr = VecRestoreArray(a_mass,&aa_mass);
+  ierr = VecRestoreArray(res,&ares);CHKERRQ(ierr); 
+  ierr = VecRestoreArray(a_mass,&aa_mass);CHKERRQ(ierr); 
 
+  return 0;
 }
 
 double pw4(double x) {
@@ -293,7 +301,8 @@ double int_pow(double base,int exp) {
     return 1.;
   } else if (exp==-1) {
     return 1./base;
-  } 
+  }
+  return 1;
 }
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 

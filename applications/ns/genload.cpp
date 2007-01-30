@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: genload.cpp,v 1.13 2006/02/02 19:26:37 mstorti Exp $
+//$Id: genload.cpp,v 1.14 2007/01/30 19:03:44 mstorti Exp $
 #include <src/fem.h>
 #include <src/utils.h>
 #include <src/readmesh.h>
@@ -106,7 +106,7 @@ int GenLoad::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
   //o Whether there is a double or single layer of nodes
   TGETOPTDEF(thash,int,double_layer,0);
 
-  nel2;
+  int nel2;
   if (double_layer) {
     PETSCFEM_ASSERT0(nel % 2 ==0,"Number of nodes per element has to be even for "
 		    "double_layer mode");
@@ -348,7 +348,7 @@ void lin_gen_load::start_chunk_c() {
   thash->get_entry("u_out",line);
   if (line) {
     read_double_array(v,line);
-    assert(v.size()==ndof);
+    assert(v.size()==(unsigned int)ndof);
   } else v.resize(ndof,0);
 
   U_out_sl.resize(1,ndof).set(&*v.begin());

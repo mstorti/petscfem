@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: bccnstherfm2.cpp,v 1.9 2003/09/11 17:47:14 mstorti Exp $
+//$Id: bccnstherfm2.cpp,v 1.10 2007/01/30 19:03:44 mstorti Exp $
 
 #include <src/fem.h>
 #include <src/utils.h>
@@ -319,6 +319,7 @@ int bcconv_nsther_fm2::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
   FastMat2::void_cache();
   FastMat2::deactivate_cache();
 
+  return 0;
 }
 
 #undef SHAPE    

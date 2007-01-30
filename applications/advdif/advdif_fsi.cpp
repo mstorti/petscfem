@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: advdif_fsi.cpp,v 1.9 2006/04/07 12:24:06 mstorti Exp $
+//$Id: advdif_fsi.cpp,v 1.10 2007/01/30 19:03:44 mstorti Exp $
 
 #include <src/debug.h>
 #include <set>
@@ -292,7 +292,7 @@ int fsi_main() {
   FILE *gather_file_f;
   if (MY_RANK==0 && ngather>0) {
     gather_file_f = fopen(gather_file.c_str(),"w");
-    fprintf(gather_file_f,"");
+    //fprintf(gather_file_f,"");
     fclose(gather_file_f);
   }
 
@@ -624,11 +624,11 @@ int fsi_main() {
       if (MY_RANK==0) {
 	if (gather_file == "") {
 	  printf("Gather results: \n");
-	  for (int j=0; j < gather_values.size(); j++) 
+	  for (unsigned int j=0; j < gather_values.size(); j++) 
 	    printf("v_component_%d = %12.10e\n",j,gather_values[j]);
 	} else {
 	  gather_file_f = fopen(gather_file.c_str(),"a");
-	  for (int j=0; j<gather_values.size(); j++) 
+	  for (unsigned int j=0; j<gather_values.size(); j++) 
 	    fprintf(gather_file_f,"%12.10e ",gather_values[j]);
 	  fprintf(gather_file_f,"\n");
 	  fclose(gather_file_f);

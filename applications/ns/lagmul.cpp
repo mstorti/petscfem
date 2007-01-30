@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-/* $Id: lagmul.cpp,v 1.12 2003/11/25 01:13:36 mstorti Exp $ */
+/* $Id: lagmul.cpp,v 1.13 2007/01/30 19:03:44 mstorti Exp $ */
 
 #include <src/fem.h>
 #include <src/utils.h>
@@ -13,7 +13,7 @@
 
 extern TextHashTable *GLOBAL_OPTIONS;
 
-LagrangeMult::~LagrangeMult() {};
+LagrangeMult::~LagrangeMult() {}
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 #undef __FUNC__

@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: dxhook.cpp,v 1.65 2005/11/06 23:06:14 mstorti Exp $
+//$Id: dxhook.cpp,v 1.66 2007/01/30 19:03:44 mstorti Exp $
 
 #include <src/debug.h>
 #include <src/fem.h>
@@ -34,7 +34,7 @@ extern int MY_RANK, SIZE;
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 FieldGenList::~FieldGenList() {
-  for (int j=0; j<size(); j++) {
+  for (unsigned int j=0; j<size(); j++) {
     delete (*this)[j];
     (*this)[j] = NULL;
   }
@@ -85,7 +85,7 @@ public:
   }
   void values(int jf,vector<double> &in,vector<double> &out) {
     const vector<int> &dof_list = field_list[jf].dof_list;
-    for (int j=0; j<dof_list.size(); j++) out[j] = in[dof_list[j]];
+    for (unsigned int j=0; j<dof_list.size(); j++) out[j] = in[dof_list[j]];
   }
 };
 
@@ -129,13 +129,14 @@ void FieldGenLine::parse(const char *line) {
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 dx_hook::dx_hook() : 
-#ifdef USE_PTHREADS
-  connection_state_m(not_launched),
-  connection_state_master(not_launched) , 
-#endif
   options(NULL), srvr_root(NULL), step_cntr(0), steps(0),
   dx_read_state_from_file(0),
-  dx_cache_coords(0) { }
+  dx_cache_coords(0) 
+#ifdef USE_PTHREADS
+  , connection_state_m(not_launched),
+  connection_state_master(not_launched)
+#endif
+{ }
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 void dx_hook::init(Mesh &mesh_a,Dofmap &dofmap_a,
@@ -411,7 +412,7 @@ void dx_hook::send_state(int step,build_state_fun_t build_state_fun) try {
     tokenize(buf,tokens);
 
     // Parse DX options
-    int j=0;
+    unsigned int j=0;
     while (1) {
       if (j>=tokens.size()) break;
       if (tokens[j]=="steps") {
@@ -452,7 +453,7 @@ void dx_hook::send_state(int step,build_state_fun_t build_state_fun) try {
 	}
       }
       fclose(fid);
-      printf("dx_hook: Done.\n",coord_file.str());
+      printf("dx_hook: Done.\n");
     }
   }
 

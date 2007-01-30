@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: interpola.cpp,v 1.3 2003/06/09 02:37:18 mstorti Exp $
+//$Id: interpola.cpp,v 1.4 2007/01/30 19:03:44 mstorti Exp $
 
 #include <src/fem.h>
 #include <src/fastmat2.h>
@@ -27,7 +27,7 @@ read(FileStack *fstack) {
   while(!fstack->get_line(line)) {
     if (!strcmp(line,"__END_DATA__")) break;
     read_double_array(row,line);
-    assert(row.size()==ndim);
+    assert(row.size()==(unsigned int)ndim);
     for (int j=0; j<ndim; j++) points.push(row[j]);
     npoints++;
   }

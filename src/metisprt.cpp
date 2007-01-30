@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: metisprt.cpp,v 1.24 2005/12/05 20:56:43 mstorti Exp $
+//$Id: metisprt.cpp,v 1.25 2007/01/30 19:03:44 mstorti Exp $
 
 #include "fem.h"
 #include "utils.h"
@@ -7,9 +7,13 @@
 #include "readmesh.h"
 #include "idmap.h"
 extern "C" {
-#define __log2 ___log
+#define __log2 ___log2
+#define drand48 __drand48
+#define srand48 __srand48
 #include <metis.h>
-#undef ___log2
+#undef __log2
+#undef __drand48
+#undef __srand48
 }
 
 #include "elemset.h"
@@ -59,7 +63,7 @@ void elem_connectivities(int elem,Mesh *mesh,const int *nelemsetptr,
 
   // iel:= the number of elemeset to which the element belongs
   // locel:= the element number local to the elemset
-  int iel,locel,*icone;
+  int /*iel,*/locel,*icone;
   Elemset *elemset;
   
   find_elem(elem,nelemsetptr,nelemsets,mesh,elemset,locel);
@@ -77,7 +81,7 @@ void metis_part(int nelemfat,Mesh *mesh,
 		int iisd_subpart,int print_statistics) {
   
   Elemset *elemset;
-  int *icone,nel,node,nvrtx,adjcount,j,elem,elemk,vrtx,
+  int *icone,nel,node,nvrtx,/*adjcount,*/j,elem,elemk,vrtx,
     visited,locel,k,jj,vrtxj,vrtxjj,p,ierr,nvsubdo;
   const int *elem_icone;
   double weight_scale=1.;
@@ -268,7 +272,7 @@ void metis_part(int nelemfat,Mesh *mesh,
     int e, adjs = adj.size();
     // Number of connected nodes may be zero (somewhat strange....)
     e = (adjs > 0 ? int(floor(log(double(adjs))/log(2.0)+1e-5)) : 0 );
-    if (vrtx_count.size() <= e) vrtx_count.resize(e+1,0);
+    if (vrtx_count.size() <= (unsigned int)e) vrtx_count.resize(e+1,0);
     vrtx_count[e]++;
     qe = adj.end();
     p = xadj[vrtxj];
@@ -278,7 +282,7 @@ void metis_part(int nelemfat,Mesh *mesh,
   if (print_statistics && myrank==0) {
     printf("Neighbor statistics for element graph:\n");
     int nne = 1;
-    for (int e=0; e<vrtx_count.size(); e++) {
+    for (int e=0; (unsigned int)e<vrtx_count.size(); e++) {
       printf("%5d graph vertices with %7d <= neighbors < %7d\n",
 	     vrtx_count[e],nne,2*nne);
       nne *= 2;

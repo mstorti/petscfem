@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-// $Id: surf2vol.cpp,v 1.6 2003/07/02 23:22:19 mstorti Exp $
+// $Id: surf2vol.cpp,v 1.7 2007/01/30 19:03:44 mstorti Exp $
 
 #include <src/utils.h>
 #include <src/surf2vol.h>
@@ -12,9 +12,9 @@ extern Mesh *GLOBAL_MESH;
 /** Contains the three non-trivial face orientations. All
     other may be obtained by reflections ad rotations. */
 const int Quad2Hexa::faces[][8] = {
-  0,1,2,3,4,5,6,7,
-  1,5,6,2,0,4,7,3,
-  0,4,5,1,3,7,6,2};
+  {0,1,2,3,4,5,6,7},
+  {1,5,6,2,0,4,7,3},
+  {0,4,5,1,3,7,6,2}};
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 /** Remaps the volume connectivity #vol_conn# so that the face
@@ -87,7 +87,7 @@ void Quad2Hexa::face(int j,const int *&fc,const int *&vol_ret) {
 void Line2Quad::face(int j,const int *&fc,const int *&vol) {
   static int fc_c[2], vol_c[4], fc_cr[2], vol_cr[4];
   static const int vol_cc[4] = {0, 1, 3, 2};
-  int fc_rot[] = {1,0};
+  //int fc_rot[] = {1,0};
   for (int k=0; k<2; k++) fc_c[k] = (j+k) % 4;
   for (int k=0; k<4; k++) vol_c[k] = (vol_cc[k]+j) % 4;
   if (use_exterior_normal()) {

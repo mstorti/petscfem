@@ -1,9 +1,11 @@
 //__INSERT_LICENSE__
-//$Id: fm2funm.h,v 1.2 2003/01/08 15:54:25 mstorti Exp $
+//$Id: fm2funm.h,v 1.3 2007/01/30 19:03:44 mstorti Exp $
 #ifndef FM2FUNM_H
 #define FM2FUNM_H
 
 class FastMat2_fund {
+ public:
+  virtual ~FastMat2_fund() {}
 private:
   int m;
   FastMat2 V,D,tmp,lambda,flambda;

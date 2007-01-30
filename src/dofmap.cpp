@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: dofmap.cpp,v 1.21 2004/09/25 23:11:39 mstorti Exp $
+//$Id: dofmap.cpp,v 1.22 2007/01/30 19:03:44 mstorti Exp $
 
 #include <cassert>
 #include <algorithm>
@@ -66,7 +66,7 @@ int fixa_entry_cmp (const void *left,const void *right, void *args) {
   if (l->kdof > r->kdof) return +1;
   if (l->kdof < r->kdof) return -1;
   return 0;
-};
+}
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 #undef __FUNC__
@@ -235,7 +235,7 @@ int q_entry_cmp (const void *left,const void *right, void *args) {
   if (l->keq > r->keq) return +1;
   if (l->keq < r->keq) return -1;
   return 0;
-};
+}
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 int Dofmap::col_is_null(int j) {
@@ -281,6 +281,7 @@ int Dofmap::create_MPI_vector(Vec &v) {
   MPI_Comm_rank(PETSC_COMM_WORLD,&myrank);
   int ierr = VecCreateMPI(PETSC_COMM_WORLD,neqproc[myrank],neq,&v);
   CHKERRQ(ierr);
+  return ierr;
 }
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 

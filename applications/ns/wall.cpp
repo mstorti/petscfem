@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: wall.cpp,v 1.22 2006/02/18 22:40:47 mstorti Exp $
+//$Id: wall.cpp,v 1.23 2007/01/30 19:03:44 mstorti Exp $
 
 #include <src/fem.h>
 #include <src/utils.h>
@@ -68,6 +68,8 @@ int wall::ask(const char *jobinfo,int &skip_elemset) {
     for (int j=0; j<nelem; j++) elemprops_add[j] = recv_buff[j];
     delete[] recv_buff;
   }
+
+  return 0;
 }
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:

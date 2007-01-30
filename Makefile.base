@@ -1,6 +1,6 @@
 # mode: -*- makefile -*-
 #__INSERT_LICENSE__
-#$Id: Makefile.base,v 1.215 2006/12/07 18:21:24 mstorti Exp $
+#$Id: Makefile.base,v 1.216 2007/01/30 19:03:44 mstorti Exp $
 
 #p [in Makefile.base]
 #s General
@@ -122,18 +122,19 @@ else
 LIBRETTO_INCLUDE_FLAGS = -I/$(LIBRETTO_I)
 endif
 
-CPPFLAGS         := 					\
-		 $(PROF_FLAGS)        			\
-                 -I$(PETSC_DIR)/include			\
-                 -I$(PETSC_DIR)/bmake/$(PETSC_ARCH)	\
-                 -I$(MPI_HOME)/include			\
-                 ${BS_INCLUDE} -I$(GLIB) -I$(NEWMAT)	\
-                 -I$(METIS)/Lib				\
-                 -I$(PETSCFEM_DIR) -I$(MESCHACH)	\
-                 $(LIBRETTO_INCLUDE_FLAGS)		\
-		 $(ANN_CPPFLAGS)			\
-                 $(SUPERLU_CPPFLAGS) -DMPICH_IGNORE_CXX_SEEK
 
+CPPFLAGS := 					\
+	$(WARN_FLAGS)				\
+	$(PROF_FLAGS)        			\
+	-I$(MPI_HOME)/include			\
+	-I$(PETSC_DIR)/include			\
+	-I$(PETSC_DIR)/bmake/$(PETSC_ARCH)	\
+	${BS_INCLUDE} -I$(GLIB) -I$(NEWMAT)	\
+	-I$(METIS)/Lib				\
+	-I$(PETSCFEM_DIR) -I$(MESCHACH)	\
+	$(LIBRETTO_INCLUDE_FLAGS)		\
+	$(ANN_CPPFLAGS)			\
+	$(SUPERLU_CPPFLAGS) -DMPICH_IGNORE_CXX_SEEK
 
 ifeq ($(USE_DYNAMICALLY_LOADED_EXTENDED_FUNCTIONS),yes) 
 CPPFLAGS += -DUSE_DLEF

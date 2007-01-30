@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-// $Id: generror.cpp,v 1.4 2004/11/17 23:41:02 mstorti Exp $
+// $Id: generror.cpp,v 1.5 2007/01/30 19:03:44 mstorti Exp $
 
 #include <string>
 
@@ -34,15 +34,15 @@ extern int MY_RANK,SIZE;
 void petscfem_check_par_err(int ierro,GenericError &ge) {
   int ierr = MPI_Bcast (&ierro,1,MPI_INT,0,PETSC_COMM_WORLD);	
 #if 0
-  PetscSynchronizedPrintf(PETSC_COMM_WORLD,
+  ierr = PetscSynchronizedPrintf(PETSC_COMM_WORLD,
 			  "[%d] ierro %d\n",ierro,MY_RANK);
-  PetscSynchronizedFlush(PETSC_COMM_WORLD); 
-  PetscFinalize();
+  ierr = PetscSynchronizedFlush(PETSC_COMM_WORLD); 
+  ierr = PetscFinalize();
   exit(0);
 #endif
   if (ierro) {
-    PetscPrintf(PETSC_COMM_WORLD,"%s",ge.c_str());
-    PetscFinalize();
+    ierr = PetscPrintf(PETSC_COMM_WORLD,"%s",ge.c_str());
+    ierr = PetscFinalize();
     exit(0);
   }
 }

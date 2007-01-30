@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-/* $Id: nsirot.cpp,v 1.6 2003/11/25 01:13:36 mstorti Exp $ */
+/* $Id: nsirot.cpp,v 1.7 2007/01/30 19:03:44 mstorti Exp $ */
 
 #include <src/fem.h>
 #include <src/utils.h>
@@ -754,6 +754,8 @@ int nsi_rot::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
   }
   FastMat2::void_cache();
   FastMat2::deactivate_cache();
+
+  return 0;
 }
 
 #undef SHAPE

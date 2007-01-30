@@ -1,6 +1,6 @@
 // -*- mode: C++ -*-
 /*__INSERT_LICENSE__*/
-//$Id: genload.h,v 1.6 2006/02/02 19:26:37 mstorti Exp $
+//$Id: genload.h,v 1.7 2007/01/30 19:03:44 mstorti Exp $
 #ifndef GENLOAD_H
 #define GENLOAD_H
 
@@ -23,7 +23,7 @@ protected:
   double propel[MAXPROP];
 public: 
   const FastMat2 &H,&H_out,&H_in;
-  GenLoad() : H_in(H_m), H(H_m), H_out(H_out_m) {}
+  GenLoad() : H(H_m), H_out(H_out_m), H_in(H_m) {}
   /** Call back function to be called by the elemset before
       a sequence of elements to be computed. This may be used
       by a derived class in order to perform some

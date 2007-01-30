@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: readmesh.cpp,v 1.121 2006/04/08 23:02:03 mstorti Exp $
+//$Id: readmesh.cpp,v 1.122 2007/01/30 19:03:44 mstorti Exp $
 #ifndef _GNU_SOURCE 
 #define _GNU_SOURCE 
 #endif
@@ -15,11 +15,15 @@
 
 // Apparently __log2 from Metis collides with some name in the GNU package.
 // This is a workaround. 
-#define __log2 ____log2
 extern "C" {
+#define __log2 ___log2
+#define drand48 __drand48
+#define srand48 __srand48
 #include <metis.h>
-}
 #undef __log2
+#undef __drand48
+#undef __srand48
+}
 
 #include "elemset.h"
 //#include "libretto.h"
@@ -227,18 +231,18 @@ int read_mesh(Mesh *& mesh,char *fcase,Dofmap *& dofmap,
 	  node++;
 	  for (int kk=0; kk<nu; kk++) {
 	    token = strtok((kk==0 ? line : NULL),bsp);
-	    PETSCFEM_ASSERT_GE(token!=NULL,
+	    PETSCFEM_ASSERT_GE1(token!=NULL,
 			       "Error reading coordinates in line:\n\"%s\"\n"
 			       "Not enough values in line!!\n",astr_chars(linecopy));
 	    int nread = sscanf(token,"%lf",row+kk);
-	    PETSCFEM_ASSERT_GE(nread == 1,
+	    PETSCFEM_ASSERT_GE1(nread == 1,
 			    "Error reading coordinates in line:\n\"%s\"",line);
 	  }
 	  int indx = da_append (xnod,row);
 	  PETSCFEM_ASSERT_GE0(indx>=0,"Insufficient memory reading nodes");
 	} 
 	ierro = fstack_nodes_data->last_error()!=FileStack::eof;
-	PETSCFEM_ASSERT_GE(!ierro,"Couldn't process correctly node data file %s\n",
+	PETSCFEM_ASSERT_GE1(!ierro,"Couldn't process correctly node data file %s\n",
 			   fstack_nodes_data->file_name());
 	nnod=node;
 	fstack_nodes_data->close();
@@ -314,7 +318,7 @@ int read_mesh(Mesh *& mesh,char *fcase,Dofmap *& dofmap,
       if (cline!=NULL) {
 	parse_props_line(cline,prop_names,prop_lens);
 	props_hash_entry *phe, *pheold;
-	for (int j=0; j<prop_names.size(); j++) {
+	for (unsigned int j=0; j<prop_names.size(); j++) {
 	  prop_name = prop_names[j].c_str();
 	  phe = new props_hash_entry;
 	  // fixme:= despues hay que poner width a la cantidad de
@@ -427,7 +431,7 @@ int read_mesh(Mesh *& mesh,char *fcase,Dofmap *& dofmap,
 	      PetscPrintf(PETSC_COMM_WORLD,
 			  "fails to read per-element property %d,\n at line \"%s\"",
 			  jprop+1,line);
-	      PFEMERRQ("");
+	      PFEMERRQ("\n");
 	    }
 	    sscanf(token,"%lf",proprow+jprop);
 	  }
@@ -440,7 +444,7 @@ int read_mesh(Mesh *& mesh,char *fcase,Dofmap *& dofmap,
 			  "fails to read integer per-element"
 			  " property %d,\n at line \"%s\"",
 			  jprop+1,line);
-	      PFEMERRQ("");
+	      PFEMERRQ("\n");
 	    }
 	    sscanf(token,"%d",iproprow+jprop);
 	  }
@@ -488,7 +492,7 @@ int read_mesh(Mesh *& mesh,char *fcase,Dofmap *& dofmap,
 		PetscPrintf(PETSC_COMM_WORLD,
 			    "fails to read per-element property %d,\n at line \"%s\"",
 			    jprop+1,line);
-		PFEMERRQ("");
+		PFEMERRQ("\n");
 	      }
 	      sscanf(token,"%lf",proprow+jprop);
 	    }
@@ -501,7 +505,7 @@ int read_mesh(Mesh *& mesh,char *fcase,Dofmap *& dofmap,
 			    "fails to read integer per-element"
 			    " property %d,\n at line \"%s\"",
 			    jprop+1,line);
-		PFEMERRQ("");
+		PFEMERRQ("\n");
 	      }
 	      sscanf(token,"%d",iproprow+jprop);
 	    }
@@ -647,7 +651,7 @@ int read_mesh(Mesh *& mesh,char *fcase,Dofmap *& dofmap,
 
       PetscPrintf(PETSC_COMM_WORLD,
 		  "elemset number %d, name \"%s\", pointer %p, number of elements %d\n",
-		  elemsetnum,elemset->name(),elemset,nelem);
+		  elemsetnum,elemset->name(),(void*)elemset,nelem);
       
       // Append to the list
       da_append(mesh->elemsetlist,&elemset);

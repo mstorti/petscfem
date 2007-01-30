@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: wallke.cpp,v 1.23 2003/11/25 01:13:36 mstorti Exp $
+//$Id: wallke.cpp,v 1.24 2007/01/30 19:03:44 mstorti Exp $
 #include <src/fem.h>
 #include <src/utils.h>
 #include <src/readmesh.h>
@@ -28,7 +28,7 @@ extern int TSTEP; //debug:=
 // by Bruce Eckel (http://www.MindView.net)
 // Chapter 15: `Polymorphism &  Virtual Functions', 
 // paragraph `Pure virtual destructors' 
-WallFun::~WallFun() {}; 
+WallFun::~WallFun() {} 
 
 /** Constructor. It sets the elemset pointer and defines constants. 
 */ 
@@ -42,7 +42,7 @@ WallFunStd::WallFunStd(Elemset *e) : elemset(e) {
   c1 = -5.*log(5.)+5.;
   // c2 \approx 5.5
   c2 = 5.*log(30.)+c1-2.5*log(30.);
-};
+}
 
 /// The wall function
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 

@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-/* $Id: nsres.cpp,v 1.2 2001/10/16 23:00:31 mstorti Exp $ */
+/* $Id: nsres.cpp,v 1.3 2007/01/30 19:03:44 mstorti Exp $ */
 
 #include <src/fem.h>
 #include <src/utils.h>
@@ -51,7 +51,7 @@ void linear_restriction::init() {
 	assert(code==3);
 	coef.setel(c,j,node,dof);
       }
-      code = fscanf(fid,"%lf\n",c);
+      code = fscanf(fid,"%lf\n",&c);
       assert(code==1);
 
       b.setel(c,j);

@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: iisdgraph.cpp,v 1.7 2006/07/24 04:28:15 mstorti Exp $
+//$Id: iisdgraph.cpp,v 1.8 2007/01/30 19:03:44 mstorti Exp $
 
 // fixme:= this may not work in all applications
 extern int MY_RANK,SIZE;
@@ -113,12 +113,12 @@ combine(const GRow &p) {
     // insert the whole pair <row, set of ngbrs>
     insert(p);
   }
-};
+}
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 void StoreGraph1::print() const {
   // print the map using `PetscSynchronizedPrintf'
-  int p;
+  //int p;
   DGMap::const_iterator q,qe;
   GSet::const_iterator s,se;
 

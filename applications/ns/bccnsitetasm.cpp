@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: bccnsitetasm.cpp,v 1.3 2005/10/13 16:21:53 mstorti Exp $
+//$Id: bccnsitetasm.cpp,v 1.4 2007/01/30 19:03:44 mstorti Exp $
 
 #include <src/fem.h>
 #include <src/utils.h>
@@ -445,6 +445,7 @@ int bcconv_nsi_tet_asm::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
   FastMat2::void_cache();
   FastMat2::deactivate_cache();
 
+  return 0;
 }
 
 #undef SHAPE

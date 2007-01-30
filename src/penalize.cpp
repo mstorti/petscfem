@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-/* $Id: penalize.cpp,v 1.17 2006/10/02 03:01:21 mstorti Exp $ */
+/* $Id: penalize.cpp,v 1.18 2007/01/30 19:03:44 mstorti Exp $ */
 
 #ifdef USE_DLEF
 #include <dlfcn.h>
@@ -62,8 +62,8 @@ new_assemble(arg_data_list &arg_data_v,const Nodedata *nodedata,
   // Call callback function defined by user initializing the elemset
   int nr = restr->init(nel,ndof,option_table(),name());
 
-  int nu = nodedata->nu;
-  int nH = nu-ndim;
+  //int nu = nodedata->nu;
+  //int nH = nu-ndim;
 
   FastMat2 r(1,nr),w(3,nel,ndof,nr),jac(3,nr,nel,ndof);
   jac.set(0.);

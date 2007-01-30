@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: gasflwgth.cpp,v 1.6 2005/08/13 14:40:02 mstorti Exp $
+//$Id: gasflwgth.cpp,v 1.7 2007/01/30 19:03:44 mstorti Exp $
 
 #include <src/fem.h>
 #include <src/utils.h>
@@ -54,7 +54,7 @@ gasflow_force_integrator
   //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>
   read_double_array2(this,"x0",x0v);
   if (x0v.size()) {
-    assert(x0v.size()==ndim);
+    assert(x0v.size()==(unsigned int)ndim);
     x0.set(&x0v[0]);
   }
 }

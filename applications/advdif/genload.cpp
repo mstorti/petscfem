@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: genload.cpp,v 1.19 2002/08/27 02:53:46 mstorti Exp $
+//$Id: genload.cpp,v 1.20 2007/01/30 19:03:44 mstorti Exp $
 extern int comp_mat_each_time_step_g,
   consistent_supg_matrix_g,
   local_time_step_g;
@@ -15,7 +15,7 @@ extern int MY_RANK,SIZE;
 #include "advective.h"
 #include "genload.h"
 
-GenLoad::~GenLoad() {};
+GenLoad::~GenLoad() {}
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 void HFilmFun::q(FastMat2 &uin,FastMat2 &flux,FastMat2 &jacin) {
@@ -61,8 +61,8 @@ double detsur(FastMat2 &Jaco, FastMat2 &S) {
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 HFilmFun::HFilmFun(GenLoad *e) 
-  : elemset(e), H_in(e->H_in), 
-  H(e->H), H_out(e->H_out) {};
+  : elemset(e), 
+  H(e->H), H_out(e->H_out), H_in(e->H_in) {}
 
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 

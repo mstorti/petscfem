@@ -8,10 +8,14 @@
 
 class SourceTerm {
 public:
+  virtual ~SourceTerm() { }
+public:
   virtual void add_source_term(FastMat2 &G_source)=0;
 };
 
 class CJac {
+public:
+  virtual ~CJac() { }
 public:
   virtual void comp_N_N_C(FastMat2 &N_N_C,FastMat2 &N,double w)=0;
   virtual void comp_G_source(FastMat2 &G_source, FastMat2 &U)=0;
@@ -20,6 +24,8 @@ public:
 };
 
 class AJac {
+public:
+  virtual ~AJac() { }
 public:
   virtual void comp_A_grad_N(FastMat2 & A,FastMat2 & B)=0;
   virtual void comp_A_grad_U(FastMat2 & A,FastMat2 & B)=0;
@@ -30,6 +36,8 @@ public:
 };
 
 class DJac {
+public:
+  virtual ~DJac() { }
 public:
   virtual void comp_grad_N_D_grad_N(FastMat2 &grad_N_D_grad_N,
 				    FastMat2 & dshapex,double w) =0 ;

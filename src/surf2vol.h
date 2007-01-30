@@ -1,6 +1,6 @@
 // -*- mode: c++ -*-
 //__INSERT_LICENSE__
-// $Id: surf2vol.h,v 1.5 2003/03/06 20:49:04 mstorti Exp $
+// $Id: surf2vol.h,v 1.6 2007/01/30 19:03:44 mstorti Exp $
 #ifndef PETSCFEM_SURF2VOL_H
 #define PETSCFEM_SURF2VOL_H
 
@@ -20,6 +20,7 @@ private:
   /// Flags whether to use the exterior normal or the interior normal
   int use_exterior_normal_m;
 public:
+  virtual ~Surf2Vol() {}
   /** Constructor as for the `GPdata' class plus the flag
       `use_exterior_normal'. 
       @param geom (input) the geometry of the integration element

@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: fstack.cpp,v 1.17 2004/12/05 19:50:53 mstorti Exp $
+//$Id: fstack.cpp,v 1.18 2007/01/30 19:03:44 mstorti Exp $
 #include <stdlib.h>
 #include "fstack.h"
 
@@ -49,10 +49,9 @@ void FileStack::close(void) {
 #define __FUNC__ "FileStack::FileStack" 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 FileStack::FileStack(const char *filename) : 
-  quiet(0),
-  echo_stream (NULL), 
-  echo(0), 
   file_at_top(NULL),
+  echo_stream (NULL), 
+  echo(0), quiet(0), 
   last_error_m(read_ok) {
 
   open(filename);
@@ -97,8 +96,8 @@ int FileStack::open(const char *filename) {
 #define __FUNC__ "FileStack::get_line" 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 int FileStack::get_line(char * & line) {
-  char ch, *chp, *token, *bufrp;
-  int len,lenn,readlen,contnd,ierr;
+  char /*ch, *chp,*/ *token, *bufrp;
+  int len,lenn,readlen,contnd;/*,ierr;*/
   len=0;
 
   // resets line
@@ -240,8 +239,8 @@ const char * FileStack::line_read(void) const {
 void FileStack::print(void) const {
   if (!quiet) {
     printf("File stack:\n");
-    int nfiles= file_names.size();
-    for (int j=0; j<file_names.size(); j++) {
+    unsigned int nfiles= file_names.size();
+    for (unsigned int j=0; j<file_names.size(); j++) {
       printf("pos %d in stack: %s:%d\n",
 	     j,file_names[j].c_str(),( j != nfiles-1 ? file_pos[j] : pos));
     }
@@ -261,7 +260,7 @@ int FileStack::unread_line(const char * line) {
 }
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:   
-int FileStack::line_number() const {return pos;};
+int FileStack::line_number() const {return pos; }
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 const char * FileStack::file_name() const {

@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: ns_gasflow.cpp,v 1.2 2005/09/20 01:56:43 mstorti Exp $
+//$Id: ns_gasflow.cpp,v 1.3 2007/01/30 19:03:44 mstorti Exp $
 
 #include <src/fem.h>
 #include <src/utils.h>
@@ -979,6 +979,8 @@ assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
   }
   FastMat2::void_cache();
   FastMat2::deactivate_cache();
+
+  return 0;
 }
 
 #undef SHAPE    

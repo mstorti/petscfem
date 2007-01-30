@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: genload.cpp,v 1.10 2002/01/14 03:45:05 mstorti Exp $
+//$Id: genload.cpp,v 1.11 2007/01/30 19:03:44 mstorti Exp $
  
 #include <src/fem.h>
 #include <src/utils.h>
@@ -160,6 +160,7 @@ int genload::assemble(double *retval,Nodedata *nodedata,double *locst,
       matloc >> &(RETVALMAT(ielh,0,0,0,0));
     
   }
+  return 0;
 }
 
 #undef SHAPE    

@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-// $Id: nullvort.cpp,v 1.6 2003/03/10 20:09:38 mstorti Exp $
+// $Id: nullvort.cpp,v 1.7 2007/01/30 19:03:44 mstorti Exp $
 
 #include <applications/ns/nullvort.h>
 #include <src/dvector.h>
@@ -60,7 +60,7 @@ void null_vort_bo::read(FileStack *fstack,Mesh *mesh,Dofmap *dofmap) {
     if (!strcmp(line,"__END_DATA__")) break;
     row.clear();
     read_int_array(row,line);
-    assert(row.size()==nel_surf);
+    assert(row.size()==(unsigned int)nel_surf);
     for (int j=0; j<nel_surf; j++) icone.push(row[j]);
     for (int j=0; j<nel_surf*layers; j++) icone.push(1);
     nelem++;
@@ -207,7 +207,7 @@ void null_vort_bo::read(FileStack *fstack,Mesh *mesh,Dofmap *dofmap) {
     // less than 3 (in each tangent direction) we can't make a second
     // order precision approximation. So we skip the node. Give a
     // warning.
-    if (ngb.size()!=n_stencil) {
+    if (ngb.size()!=(unsigned int)n_stencil) {
       printf("No 3 ngbrs node: %d\n",node);
       continue;
     }

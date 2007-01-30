@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: nsilesther.cpp,v 1.33 2005/10/25 14:06:28 mstorti Exp $
+//$Id: nsilesther.cpp,v 1.34 2007/01/30 19:03:44 mstorti Exp $
 
 #include <src/fem.h>
 #include <src/utils.h>
@@ -181,7 +181,7 @@ int nsi_tet_les_ther::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
     PETSCFEM_ASSERT0(visco_temp_table.size()>=4,
 		     "Visco-temp table needs at least two points "
 		     "(4 elements)\n");
-    int j = 2;
+    unsigned int j = 2;
     while(j<visco_temp_table.size()) {
       PETSCFEM_ASSERT0(visco_temp_table[j] > visco_temp_table[j-2],
 		       "Abscissae in visco-temp table should be sorted\n");
@@ -528,7 +528,7 @@ int nsi_tet_les_ther::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
 	    if (T_star<=visco_temp_table[0])
 	      visco_corr = visco_temp_table[1];
 	    else {
-	      int j;
+	      unsigned int j;
 	      for (j=2; j<visco_temp_table.size(); j+= 2) {
 		if (T_star<= visco_temp_table[j]) break;
 	      }
@@ -925,6 +925,8 @@ int nsi_tet_les_ther::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
   }
   FastMat2::void_cache();
   FastMat2::deactivate_cache();
+
+  return 0;
 }
 
 #undef SHAPE

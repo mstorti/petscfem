@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-// $Id: advdifeo.cpp,v 1.15 2003/11/23 16:43:04 mstorti Exp $
+// $Id: advdifeo.cpp,v 1.16 2007/01/30 19:03:44 mstorti Exp $
 
 extern int comp_mat_each_time_step_g,
   consistent_supg_matrix_g,
@@ -64,7 +64,7 @@ void AdvDifFF::get_log_vars(const NewElemset *elemset,int &nlog_vars,
     } else if (log_vars_v[j]>ndof) {
       PetscPrintf(PETSC_COMM_WORLD,"Dof grater that ndof in "
 		  "\"log_vars_list\" entry: dof %d, ndof %d\n",
-		  log_vars_v[j]);
+		  log_vars_v[j], ndof);
       ierr=1;
     }
     if (ierr) {

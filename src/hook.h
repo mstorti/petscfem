@@ -1,6 +1,6 @@
 // -*- mode: C++ -*-
 /*__INSERT_LICENSE__*/
-//$Id: hook.h,v 1.4 2006/02/21 11:00:33 mstorti Exp $
+//$Id: hook.h,v 1.5 2007/01/30 19:03:44 mstorti Exp $
 
 #ifndef HOOK_H
 #define HOOK_H
@@ -12,6 +12,7 @@ typedef Hook *HookFactory(const char *name);
 /// Hooks are executed previous and after the time step. 
 class Hook {
 public:
+  virtual ~Hook() {}
   static Hook *factory(const char *name);
   /** Initializes the hook. 
       @param mesh (input) the mesh
@@ -62,7 +63,7 @@ public:
   /** For convergence in an outer loop over the coupled problem */
   virtual void close();
   /// Dtor.
-  ~HookList();
+  virtual ~HookList();
 };
 
 #define CHECK_HOOK(hook_name)				\

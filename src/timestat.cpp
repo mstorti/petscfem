@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: timestat.cpp,v 1.1 2001/11/01 19:11:33 mstorti Exp $
+//$Id: timestat.cpp,v 1.2 2007/01/30 19:03:44 mstorti Exp $
 
 #include <cmath>
 #include <cstdio>
@@ -37,10 +37,10 @@ void TimeStat::print_stat() {
     ctotal += cumul[j];
   }
   if (*out>0) 
-    printf("warning: entries outside range %d (%g \%) , %g secs (%g\%)\n",
-	   (*out), (*out)/total, (*cout) / ctotal);
+    printf("warning: entries outside range %d (%g%%) , %g secs (%g%%)\n",
+	   (*out), (double)(*out)/total, (*cout), (*cout)/ctotal);
   for (int j=0; j<nbin; j++) {
-    printf("%g <= t < %g : %d (%g\%), %g secs (%g\%)\n",
+    printf("%g <= t < %g : %d (%g%%), %g secs (%g%%)\n",
 	   t_min*exp(j*dt),
 	   t_min*exp((j+1)*dt),
 	   histo[j],

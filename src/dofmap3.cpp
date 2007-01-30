@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: dofmap3.cpp,v 1.12 2006/04/29 19:41:24 mstorti Exp $
+//$Id: dofmap3.cpp,v 1.13 2007/01/30 19:03:44 mstorti Exp $
 
 #include <cassert>
 
@@ -146,14 +146,13 @@ qtxpy(double *y,double *x, double alpha) {
 }
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+#if 0
 static void 
 printv(double *v,int n,const char *s=NULL) {
   if (s) printf("%s\n",s);
   for (int j=0; j<n; j++)
     printf("%f\n",v[j]);
 }
-
-//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>
 static double
 diff(double *v, double *w,int m) {
   double d = 0.0;
@@ -161,7 +160,7 @@ diff(double *v, double *w,int m) {
     d += square(w[j]-v[j]);
   return sqrt(d);
 }
-
+#endif
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>
 static int dofmap_mult(Mat A,Vec x,Vec y) { // y =A*x
   void *ctx;
@@ -192,6 +191,7 @@ int Dofmap::mult(Mat A,Vec x,Vec y) { // y =A*x
   assert(!ierr);
   ierr = VecRestoreArray(y,&yp);
   assert(!ierr);
+  return 0;
 }
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 

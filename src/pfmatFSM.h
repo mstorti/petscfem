@@ -6,7 +6,7 @@ class pfmatFSM;
 
 class pfmatFSMState {
 public:
-
+  virtual ~pfmatFSMState() {}
   virtual const char* StateName() const = 0;
   virtual void solve_only(pfmatFSM& s);
   virtual void solve(pfmatFSM& s);

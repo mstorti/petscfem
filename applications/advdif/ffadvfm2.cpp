@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: ffadvfm2.cpp,v 1.52 2007/01/26 12:21:17 mstorti Exp $
+//$Id: ffadvfm2.cpp,v 1.53 2007/01/30 19:03:44 mstorti Exp $
 
 #include <stdio.h>
 #include <string.h>
@@ -16,24 +16,26 @@
 
 #include "nwadvdif.h"
 
-NewAdvDifFF::~NewAdvDifFF() {};
+NewAdvDifFF::~NewAdvDifFF() {}
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 #undef __FUNC__
 #define __FUNC__ \
 "newadvecfm2_ff_t::newadvecfm2_ff_t(NewElemset *elemset_)"
 newadvecfm2_ff_t::newadvecfm2_ff_t(NewElemset *elemset_) 
-  : NewAdvDifFF(elemset_), u_per_field(*this), u_global(*this), 
-  full_adv_jac(*this), full_dif_jac(*this),
-  null_d_jac(*this),
-  scalar_dif_per_field(*this), global_scalar_djac(*this),
-  global_dif_tensor(*this), per_field_dif_tensor(*this),
-  full_c_jac(*this), scalar_c_jac(*this),
-  scalar_per_field_c_jac(*this),
-  null_c_jac(*this), null_a_jac(*this),
-  null_source_term(*this), gscalar_source_term(*this),
-  full_source_term(*this)
-{};
+  : NewAdvDifFF(elemset_), 
+    null_source_term(*this), gscalar_source_term(*this),
+    full_source_term(*this),
+    full_c_jac(*this), scalar_c_jac(*this),
+    null_c_jac(*this),
+    scalar_per_field_c_jac(*this),
+    null_a_jac(*this),
+    u_global(*this), u_per_field(*this),
+    full_adv_jac(*this), full_dif_jac(*this),
+    global_dif_tensor(*this), per_field_dif_tensor(*this),
+    null_d_jac(*this), global_scalar_djac(*this),
+    scalar_dif_per_field(*this)
+{}
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 #undef __FUNC__

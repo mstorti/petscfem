@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: stream.cpp,v 1.18 2003/10/16 19:13:42 mstorti Exp $
+//$Id: stream.cpp,v 1.19 2007/01/30 19:03:44 mstorti Exp $
 
 #include <src/fem.h>
 #include <src/texthash.h>
@@ -53,8 +53,9 @@ void stream_ff::element_hook(ElementIterator &element) {
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 stream_ff::stream_ff(const NewAdvDif *e) 
-  : AdvDifFFWEnth(e), channel(NULL), 
-  friction_law(NULL) {}
+  : AdvDifFFWEnth(e),  
+    friction_law(NULL),
+    channel(NULL) {}
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 stream_ff::~stream_ff() { delete friction_law; }

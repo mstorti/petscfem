@@ -1,10 +1,11 @@
 // -*- mode: C++ -*-
 //__INSERT_LICENSE__
-//$Id: distmap2.h,v 1.13 2006/07/24 04:28:15 mstorti Exp $
+//$Id: distmap2.h,v 1.14 2007/01/30 19:03:44 mstorti Exp $
 
 #ifndef DISTMAP2_H
 #define DISTMAP2_H
 
+#include <mpi.h>
 #include <src/distmap.h>
 //#define DEBUG_SPEEDUP
 
@@ -17,30 +18,31 @@ DistMap(Partitioner *pp, MPI_Comm comm_) : comm(comm_) {
   MPI_Comm_rank (comm, &myrank);
   part=pp;
   sched = grouping;
-};
+}
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 template<class Key,class Val,class Partitioner> 
 int DistMap<Key,Val,Partitioner>::
 processor(kv_iterator k) const {
   return part->processor(k);
-};
+}
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 // shortcut to access `to_send' as a size x size matrix
 #define SEND(p,q) VEC2(to_send,p,q,size)
 template <class Key,class Val,class Partitioner>
 void DistMap<Key,Val,Partitioner>::scatter() {
+  int ierr;
   HPChrono hpc;
   typename map<Key,Val>::iterator iter;
   // kv_iterator iter;
-  int *to_send,*to_send_buff,*recv_ok,n_recv_ok,send_ok,
+  int *to_send,*to_send_buff,/**recv_ok,n_recv_ok,send_ok,*/
     dest,source,my_band_start;
   pair<Key,Val> p;
 
   char **send_buff,**send_buff_pos,*recv_buff;
   const char *recv_buff_pos,*recv_buff_pos_end;
-  MPI_Request send_rq,recv_rq;
+  /*MPI_Request send_rq,recv_rq;*/
   MPI_Status status;
   int j,k,nsent;
   int sproc,mproc,eproc,band,stage,s1,s2,nrecv,rank,
@@ -70,8 +72,8 @@ void DistMap<Key,Val,Partitioner>::scatter() {
   SEND(myrank,myrank)=0;
 
   // gather/scatter all `to_send' data 
-  MPI_Allreduce(to_send,to_send_buff,size*size,MPI_INT, 
-		MPI_SUM,comm);
+  ierr = MPI_Allreduce(to_send,to_send_buff,size*size,MPI_INT, 
+		       MPI_SUM,comm);
   // recopy `to_send_buff' to `to_send'
   memcpy(to_send,to_send_buff,size*size*sizeof(int));
 
@@ -158,8 +160,8 @@ void DistMap<Key,Val,Partitioner>::scatter() {
       // number of processors in this group
       size_here = eproc-sproc;
       // printf("[%d] size here %d\n",myrank,size_here);
-      MPI_Allreduce(&size_here,&max_local_size,1,MPI_INT,MPI_MAX,
-		    comm);
+      ierr = MPI_Allreduce(&size_here,&max_local_size,1,MPI_INT,MPI_MAX,
+			   comm);
       // exit loop if all groups of processor are of size 1
       if (max_local_size<=1) break;
 
@@ -200,8 +202,8 @@ void DistMap<Key,Val,Partitioner>::scatter() {
 	      dest = s1 + ((myrank-my_band_start) + jd) % nrecv;
 	      // printf("[%d] Sending to %d\n",myrank,dest);
 	      hpc.start();
-	      MPI_Send(send_buff[dest],SEND(myrank,dest),MPI_CHAR,
-		       dest,myrank,comm);
+	      ierr = MPI_Send(send_buff[dest],SEND(myrank,dest),MPI_CHAR,
+			      dest,myrank,comm);
 	      tsend += hpc.elapsed();
 	    }
 	  } else {
@@ -213,9 +215,9 @@ void DistMap<Key,Val,Partitioner>::scatter() {
 	      // source. But we wait for receiving all the packets in
 	      // this stage. 
 	      hpc.start();
-	      MPI_Recv(recv_buff,max_recv_buff_size,MPI_CHAR,
-		       MPI_ANY_SOURCE,MPI_ANY_TAG,
-		       comm,&status);
+	      ierr = MPI_Recv(recv_buff,max_recv_buff_size,MPI_CHAR,
+			      MPI_ANY_SOURCE,MPI_ANY_TAG,
+			      comm,&status);
 	      trecv += hpc.elapsed();
 	      // Get rank of source 
 	      source = status.MPI_SOURCE;
@@ -225,7 +227,7 @@ void DistMap<Key,Val,Partitioner>::scatter() {
 
 	      nsent = SEND(source,myrank);
 #if 0	    
-	      MPI_Get_count(&status,MPI_CHAR,&nsent);
+	      ierr = MPI_Get_count(&status,MPI_CHAR,&nsent);
 	      assert(nsent == SEND(source,myrank));
 #endif
 	      // unpack received buffer
@@ -275,18 +277,18 @@ void DistMap<Key,Val,Partitioner>::scatter() {
       // initialize position 
       recv_buff_pos = recv_buff;
       if (myrank!=0) {
-	MPI_Send(send_buff[dest],SEND(myrank,dest),MPI_CHAR,
-		 dest,myrank,comm);
-	MPI_Recv(recv_buff,SEND(source,myrank),MPI_CHAR,source,source,
-		 comm,&status);
+	ierr = MPI_Send(send_buff[dest],SEND(myrank,dest),MPI_CHAR,
+			dest,myrank,comm);
+	ierr = MPI_Recv(recv_buff,SEND(source,myrank),MPI_CHAR,source,source,
+			comm,&status);
       } else {
-	MPI_Recv(recv_buff,SEND(source,myrank),MPI_CHAR,source,source,
-		 comm,&status);
-	MPI_Send(send_buff[dest],SEND(myrank,dest),MPI_CHAR,
-		 dest,myrank,comm);
+	ierr = MPI_Recv(recv_buff,SEND(source,myrank),MPI_CHAR,source,source,
+			comm,&status);
+	ierr = MPI_Send(send_buff[dest],SEND(myrank,dest),MPI_CHAR,
+			dest,myrank,comm);
       }    
 
-      MPI_Get_count(&status,MPI_CHAR,&nsent);
+      ierr = MPI_Get_count(&status,MPI_CHAR,&nsent);
       // printf("[%d] %d received from %d\n",myrank,nsent,source);
       if (nsent!=SEND(source,myrank)) 
 	printf("[%d] Didn't receive expected amount of data\n"

@@ -1,6 +1,6 @@
 // -*- mode: c++ -*-
 //__INSERT_LICENSE__
-// $Id: syncbuff.h,v 1.11 2006/07/26 10:31:49 mstorti Exp $
+// $Id: syncbuff.h,v 1.12 2007/01/30 19:03:44 mstorti Exp $
 #include <list>
 #include <iostream>
 #include <src/distcont.h>
@@ -54,8 +54,9 @@ public:
       output */
   int sort_by_key;
   /// Constructor
-  SyncBuffer() : sort_by_key(1), 
-		 DistCont<list<T>,T,TrivialPartitioner<T> >(&part) {}
+  SyncBuffer() : 
+    DistCont<list<T>,T,TrivialPartitioner<T> >(&part),
+    sort_by_key(1) {}
   /// Prints all elements to the output stream
   void print();
   /// This is for checking the pack/unpack routines. 
@@ -65,23 +66,23 @@ public:
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 #define SYNC_BUFFER_FUNCTIONS(T)		\
 						\
-template<> int SB(T)					\
+template<> int SB(T)				\
 ::size_of_pack(const T &t) const {		\
   return t.size_of_pack();			\
 }						\
 						\
-template<> void SB(T)					\
+template<> void SB(T)				\
 ::pack(const T &t, char *&buff) const {		\
   t.pack(buff);					\
 }						\
 						\
-template<> void SB(T)					\
+template<> void SB(T)				\
 ::unpack(T &t,const char *& buff) {		\
   t.unpack(buff); }				\
 						\
-template<> void SB(T)					\
+template<> void SB(T)				\
 ::combine(const T &t) {				\
-push_back(t); };
+push_back(t); }
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 /** A line with an integer key (see doc for 

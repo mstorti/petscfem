@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: elmsupl2.cpp,v 1.6 2004/11/11 18:32:23 mstorti Exp $
+//$Id: elmsupl2.cpp,v 1.7 2007/01/30 19:03:44 mstorti Exp $
 
 #ifndef _GNU_SOURCE
 #define _GNU_SOURCE
@@ -352,7 +352,8 @@ upload_vector_fast_1b(int color,
 	  
 	  // load local values on global vector
 	  if (color==1 && load_vec) {
-	    VecSetValue(*(argd.x),locdof-1,val,mode);
+	    ierr = VecSetValue(*(argd.x),locdof-1,val,mode);
+	    CHKERRQ(ierr);
 	  }
 	  
 	  // load finite difference jacobian computed by differences
@@ -383,7 +384,8 @@ upload_vector_fast_1b(int color,
 		    ierr = argd.pfA->set_value(kd,kdl,val,ADD_VALUES); 
 		    CHKERRQ(ierr); 
 		  } else {
-		    MatSetValue(*argd.A,kd,kdl,val,ADD_VALUES); 
+		    ierr = MatSetValue(*argd.A,kd,kdl,val,ADD_VALUES); 
+		    CHKERRQ(ierr);
 		  }
 		}
 	      }

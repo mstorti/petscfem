@@ -1,6 +1,6 @@
 // -*- mode: c++ -*-
 //__INSERT_LICENSE__
-// $Id: syncbuff.cpp,v 1.6 2004/01/21 18:37:39 mstorti Exp $
+// $Id: syncbuff.cpp,v 1.7 2007/01/30 19:03:44 mstorti Exp $
 #include <list>
 #include <iostream>
 #include <src/distcont.h>
@@ -113,7 +113,7 @@ KeyedLine::KeyedLine(int k,const AutoString &as) {
 
 // This is the tricky part due to the problem
 // with partial template specializations
-SYNC_BUFFER_FUNCTIONS(KeyedLine);
+SYNC_BUFFER_FUNCTIONS(KeyedLine)
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 // Special shortcut to the push functions

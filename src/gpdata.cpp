@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: gpdata.cpp,v 1.43 2006/09/04 18:02:03 mstorti Exp $
+//$Id: gpdata.cpp,v 1.44 2007/01/30 19:03:44 mstorti Exp $
 
 #include "petscsles.h"
 #include <math.h>
@@ -236,13 +236,13 @@ GPdata::GPdata(const char *geom,int ndimel,int nel,int npg_,int
 
 	double wpg_[7]={W1,W2,W2,W2,W3,W3,W3};
 	double xpg_[7][2]={
-	  1./3., 1./3.,
-	  A1, B1,
-	  B1, A1,
-	  B1, B1,
-	  A2, B2,
-	  B2, A2,
-	  B2, B2};
+	  {1./3., 1./3.},
+	  {A1, B1},
+	  {B1, A1},
+	  {B1, B1},
+	  {A2, B2},
+	  {B2, A2},
+	  {B2, B2}};
 	xipg  = xpg_[ipg][0];
 	etapg = xpg_[ipg][1];
 	wpg[ipg] = wpg_[ipg];
@@ -251,10 +251,10 @@ GPdata::GPdata(const char *geom,int ndimel,int nel,int npg_,int
 	// Three points in the edge centers
 	double wpg_[4]={-27./96.,25./96.,25./96.,25./96.};
 	double xpg_[4][2]={
-	  1./3., 1./3.,
-	  0.2, 0.2,
-	  0.6, 0.2,
-	  0.2, 0.6};
+	  {1./3., 1./3.},
+	  {0.2, 0.2},
+	  {0.6, 0.2},
+	  {0.2, 0.6}};
 	xipg  = xpg_[ipg][0];
 	etapg = xpg_[ipg][1];
 	wpg[ipg] = wpg_[ipg];

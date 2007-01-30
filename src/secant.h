@@ -1,6 +1,6 @@
 // -*-mode: c++ -*-
 /*__INSERT_LICENSE__*/
-//$Id: secant.h,v 1.5 2001/07/04 02:58:16 mstorti Exp $
+//$Id: secant.h,v 1.6 2007/01/30 19:03:44 mstorti Exp $
 #ifndef SECANT_H
 #define SECANT_H
 
@@ -9,6 +9,8 @@
 
 /// Solves a 1D non-linear eq. with the secant method $f(x)=0$. Very simple. 
 class Secant {
+public:
+  virtual ~Secant() {}
 public:
   /// Initial value
   double x0;

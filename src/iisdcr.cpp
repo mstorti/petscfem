@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: iisdcr.cpp,v 1.60 2006/06/09 18:04:36 mstorti Exp $
+//$Id: iisdcr.cpp,v 1.61 2007/01/30 19:03:44 mstorti Exp $
 
 // fixme:= this may not work in all applications
 extern int MY_RANK,SIZE;
@@ -98,9 +98,9 @@ int IISDMat::create_a() {
 
 #define comm PETSC_COMM_WORLD
   int myrank,size,max_partgraph_vertices_proc,proc_l;
-  int k,pos,keq,leq,jj,row,row_type,col_type,od,
-    d_nz,o_nz,nrows,ierr,n_loc_h,n_int_h,k1h,k2h,rank,
-    n_loc_pre,loc,dof,subdoj,subdok,vrtx_k,ierro=0;
+  int k,/*pos,*/keq,leq,/*jj,*/row,row_type,col_type,od,
+    /*d_nz,o_nz,nrows,ierr,n_loc_h,n_int_h,k1h,k2h,*/rank,
+    n_loc_pre,loc,dof,subdoj,/*subdok,vrtx_k,*/ierro=0;
   vector<int> dof2loc,loc2dof;
   GSet ngbrs_v;
   GSet::iterator q,qe;
@@ -677,7 +677,7 @@ int IISDMat::create_a() {
       assert(!(od==O && row_type==L && col_type==L));
       // count 
       int size = nnz[od][row_type][col_type].size();
-      PETSCFEM_ASSERT_GE(row>=0 && row<size,
+      PETSCFEM_ASSERT_GE2(row>=0 && row<size,
 			 "IISD internal error, row %d, size %d.",
 			 row,size);
       nnz[od][row_type][col_type][row]++;

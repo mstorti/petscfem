@@ -1,6 +1,6 @@
 // -*- mode: C++ -*-
 /*__INSERT_LICENSE__*/
-//$Id: dxhook.h,v 1.20 2005/11/06 23:06:14 mstorti Exp $
+//$Id: dxhook.h,v 1.21 2007/01/30 19:03:44 mstorti Exp $
 
 #ifndef DXHOOK_H
 #define DXHOOK_H
@@ -16,6 +16,7 @@
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 class FieldGen {
 public:
+  virtual ~FieldGen() {}
   virtual void init(int ndof,TextHashTable* options,char *name)=0;
   virtual int n()=0;
   virtual void field(int j,string &name,vector<int> &rank)=0;

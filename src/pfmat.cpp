@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: pfmat.cpp,v 1.14 2004/10/25 02:09:32 mstorti Exp $
+//$Id: pfmat.cpp,v 1.15 2007/01/30 19:03:44 mstorti Exp $
 
 #include <petscmat.h>
 
@@ -15,10 +15,8 @@
 #include <src/spetscmat.h>
 #include <src/spdirect.h>
 
-#define PF_ACTION_DECL(action) void action() 
-
-#define PF_ACTION_DEF(action)			\
-void pfmatFSMContext::action() {		\
+#define PF_ACTION(action)			\
+void action() {					\
   matrix_p->ierr = matrix_p->action();		\
   if (matrix_p->ierr)				\
     printf("pfmatFSMContext::action ierr=%d\n",	\
@@ -26,27 +24,21 @@ void pfmatFSMContext::action() {		\
 }
 
 #define PF_ACTION_LIST				\
-  PF_ACTION(clean_prof_a);			\
-  PF_ACTION(clean_mat_a);			\
-  PF_ACTION(clean_factor_a);			\
-  PF_ACTION(factor_and_solve_A);		\
-  PF_ACTION(solve_only_A);
+  PF_ACTION(clean_prof_a)			\
+  PF_ACTION(clean_mat_a)			\
+  PF_ACTION(clean_factor_a)			\
+  PF_ACTION(factor_and_solve_A)			\
+  PF_ACTION(solve_only_A)
 
-#define PF_ACTION(name) PF_ACTION_DECL(name) 
 class pfmatFSMContext {
 public:
   PFMat * matrix_p;
-  // pfmatFSMContext(PFMat *p) : matrix_p(p) {};
-  PF_ACTION_LIST;
+  PF_ACTION_LIST
   void FSMError(const char *e,const char *s) { 
     printf("PFMat: Not valid event \"%s\" in state \"%s\"\n",e,s);
   }
 };
-#undef PF_ACTION
 
-#define PF_ACTION(name) PF_ACTION_DEF(name) 
-PF_ACTION_LIST;
-#undef PF_ACTION
 
 class PFMat;
 
@@ -85,8 +77,10 @@ void report_transition_event(const char *from, const char *event,
 
 #include "pfmatFSM.cpp"
 
-PFMat::PFMat() : ierr(0), 
-  print_fsm_transition_info(0), fsm(new pfmatFSM) { 
+PFMat::PFMat() : 
+  print_fsm_transition_info(0),
+  ierr(0), 
+  fsm(new pfmatFSM) { 
   fsm->matrix_p = this; }
 
 PFMat::~PFMat() { delete fsm; }
@@ -99,7 +93,8 @@ int PFMat::set_profile(int row,int col) {
   CHKERRQ(ierr); 
   
   ierr = set_profile_a(row,col);
-  CHKERRQ(ierr); 
+  CHKERRQ(ierr);
+  return 0;
 }
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
@@ -111,6 +106,7 @@ int PFMat::create() {
   
   ierr = create_a();
   CHKERRQ(ierr); 
+  return 0;
 }
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
@@ -304,5 +300,6 @@ PFMat * PFMat::dispatch(int N,DofPartitioner &part,const char *s) {
   } else {
     PETSCFEM_ERROR("PFMat type not known: %s\n",s);
   }
+  return 0;
 }
 

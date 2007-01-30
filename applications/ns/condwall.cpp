@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-// $Id: condwall.cpp,v 1.18 2005/05/29 16:28:33 mstorti Exp $
+// $Id: condwall.cpp,v 1.19 2007/01/30 19:03:44 mstorti Exp $
 
 #include "./condwall.h"
 extern int MY_RANK,SIZE;
@@ -46,7 +46,7 @@ init() {
      != cond_wall_data_map.end()) {
     data_p = &cond_wall_data_map[ename];
     if (!MY_RANK)
-      printf("in cond_wall::init(), data_p %p\n",data_p);
+      printf("in cond_wall::init(), data_p %p\n",(void*)data_p);
   }
 }
 

@@ -1,5 +1,5 @@
 ///__INSERT_LICENSE__
-//$Id: fastmat2.cpp,v 1.24 2006/04/14 17:50:35 mstorti Exp $
+//$Id: fastmat2.cpp,v 1.25 2007/01/30 19:03:44 mstorti Exp $
 
 #include <cmath>
 #include <cstdio>
@@ -360,7 +360,7 @@ FastMat2 & FastMat2::reshape(const int ndims, INT_VAR_ARGS_ND) {
 }
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
-FastMatSubCache::~FastMatSubCache() {};
+FastMatSubCache::~FastMatSubCache() {}
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 FastMat2 & FastMat2::resize(const int ndims, INT_VAR_ARGS_ND) {

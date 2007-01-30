@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: adappg.cpp,v 1.13 2006/04/11 13:23:00 mstorti Exp $
+//$Id: adappg.cpp,v 1.14 2007/01/30 19:03:44 mstorti Exp $
 
 #include <src/fem.h>
 #include <src/utils.h>
@@ -14,9 +14,9 @@
 #define FUN_RET_MEMBER(name) \
 FastMat2 & adaptor_pg::name() { return name##_m; }
 
-FUN_RET_MEMBER(normal);
-FUN_RET_MEMBER(shape);
-FUN_RET_MEMBER(dshapexi);
+FUN_RET_MEMBER(normal)
+FUN_RET_MEMBER(shape)
+FUN_RET_MEMBER(dshapexi)
 #undef FUN_RET_MEMBER
 
 FastMat2 & adaptor_pg::dshapex() { return adaptor::dshapex; }

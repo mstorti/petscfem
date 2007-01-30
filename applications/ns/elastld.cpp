@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: elastld.cpp,v 1.16 2006/07/20 12:18:11 mstorti Exp $
+//$Id: elastld.cpp,v 1.17 2007/01/30 19:03:44 mstorti Exp $
 
 #include <src/fem.h>
 #include <src/utils.h>
@@ -52,7 +52,7 @@ void ld_elasticity::init() {
   thash->get_entry("G_body",line);
   if(line) {
     read_double_array(G_body_v,line);
-    assert(G_body_v.size()==ndim);
+    assert(G_body_v.size()==(unsigned int)ndim);
     G_body.set(&G_body_v[0]);
   }
 

@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: bccadvfm2_old.cpp,v 1.12 2003/09/14 00:23:19 mstorti Exp $
+//$Id: bccadvfm2_old.cpp,v 1.13 2007/01/30 19:03:44 mstorti Exp $
 
 extern int comp_mat_each_time_step_g,
   consistent_supg_matrix_g,
@@ -26,6 +26,7 @@ int BcconvAdv::ask(const char *jobinfo,int &skip_elemset) {
    DONT_SKIP_JOBINFO(comp_res);
    DONT_SKIP_JOBINFO(comp_prof);
 
+   return 0;
 }
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 

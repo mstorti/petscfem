@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: tempfun2.cpp,v 1.4 2003/11/25 02:10:22 mstorti Exp $
+//$Id: tempfun2.cpp,v 1.5 2007/01/30 19:03:44 mstorti Exp $
 
 #include <math.h>
 
@@ -73,7 +73,7 @@ public:
     PetscPrintf(PETSC_COMM_WORLD,
 		"\"piecewise_linear\" fixa amplitude, options table: \n");
     thash->print();
-    PetscPrintf(PETSC_COMM_WORLD,"number of intervals: %f\n",ntime);
+    PetscPrintf(PETSC_COMM_WORLD,"number of intervals: %d\n",ntime);
   }
   void init(TextHashTable *thash_) {
     double tt,ff;
@@ -128,7 +128,7 @@ public:
       ntime++;
     }
     fclose(fid);
-    assert (ntime == t_v.size());
+    assert ((unsigned int)ntime == t_v.size());
     assert (ntime>1);
     // Store pointers
     first = t_v.begin();

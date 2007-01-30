@@ -1,6 +1,6 @@
 // -*- mode: c++ -*-
 /*__INSERT_LICENSE__*/
-//$Id: elemset.h,v 1.41 2005/04/09 10:31:35 mstorti Exp $
+//$Id: elemset.h,v 1.42 2007/01/30 19:03:44 mstorti Exp $
 
 #ifndef ELEMSET_H
 #define ELEMSET_H
@@ -674,7 +674,7 @@ public:
   ClearFun *clear_fun;
 
   Property() : indx(-1), ptr(NULL), length(0), 
-  init_fun(NULL), eval_fun(NULL), fun_data(NULL), clear_fun(NULL) { val.clear(); };
+  fun_data(NULL), init_fun(NULL), eval_fun(NULL), clear_fun(NULL) { val.clear(); };
 
   ~Property() { if(clear_fun) (*clear_fun)(fun_data); }
 };

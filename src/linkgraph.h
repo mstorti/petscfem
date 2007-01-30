@@ -1,6 +1,6 @@
 // -*- mode: C++ -*- 
 /*__INSERT_LICENSE__*/
-// $Id: linkgraph.h,v 1.15 2006/03/27 19:12:06 mstorti Exp $
+// $Id: linkgraph.h,v 1.16 2007/01/30 19:03:44 mstorti Exp $
 #ifndef LINKGRAPH_H
 #define LINKGRAPH_H
 
@@ -62,7 +62,7 @@ public:
     int operator==(const_iterator q) const { return r==q.r; }
     int operator!=(const_iterator q) const { return r!=q.r; }
     /// returns number of adjacents elements in the row
-    int size() const { graph->size(r); }
+    int size() const { return graph->size(r); }
   };
   class iterator : public const_iterator {
     friend class LinkGraph;
@@ -143,8 +143,8 @@ class LinkGraphWrapper : public StoreGraph {
   /// Constructor
   LinkGraphWrapper(int N=0,const DofPartitioner *dp=NULL,
 		   MPI_Comm comm_a=PETSC_COMM_WORLD) :
-    lg_part(dp),
-    lgd(&lg_part,comm_a,LinkGraphDis::random_iter_mode) { init(N); }
+    lgd(&lg_part,comm_a,LinkGraphDis::random_iter_mode),
+    lg_part(dp) { init(N); }
   /// perform the scatter of elements to its corresponding processor. 
   void scatter() { lgd.scatter(); }
   /// Clean all memory related 
