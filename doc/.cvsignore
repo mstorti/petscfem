@@ -31,3 +31,4 @@ options.info
 options2.texi
 options3.texi
 *.log
+pod2htm[d|i].tmp
