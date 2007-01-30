@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: gasflow.cpp,v 1.44 2006/08/05 16:44:27 mstorti Exp $
+//$Id: gasflow.cpp,v 1.45 2007/01/30 11:54:27 mstorti Exp $
 
 #include <src/fem.h>
 #include <src/texthash.h>
@@ -933,39 +933,17 @@ void gasflow_ff::comp_N_P_C(FastMat2 &N_P_C, FastMat2 &P_supg,
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:
 void gasflow_ff::comp_P_supg(FastMat2 &P_supg) {
 
-  double rho_m,tau;
-  //  FastMat2 tmp(1,nel),tmp2(3,nel,ndof,ndof);
-
   const FastMat2 &grad_N = *new_adv_dif_elemset->grad_N();
   const FastMat2 &Ao_grad_N = new_adv_dif_elemset->Ao_grad_N;
   
   FastMat2 &v_mesh = (FastMat2 &) advdf_e->vmesh();
   
-  // SHV("en comp_P_supg",grad_N);
-  // SHV("en comp_P_supg",Ao_grad_N);
   P_supg.prod(Ao_grad_N,tau_supg_c,1,2,-1,-1,3);
   tmp_P_supg_ALE_1.prod(grad_N,v_mesh,-1,1,-1);
   tmp_P_supg_ALE_2.prod(Cp,tmp_P_supg_ALE_1,2,3,1);
   tmp_P_supg_ALE_3.prod(tmp_P_supg_ALE_2,tau_supg_c,1,2,-1,-1,3);
   P_supg.rest(tmp_P_supg_ALE_3);
 
-  /*
-  SHV("en comp_P_supg  - Cp ",Cp);
-  SHV("en comp_P_supg  - tau_supg_c ",tau_supg_c);
-  SHV("en comp_P_supg  - P_supg ",P_supg);
-  */
-
-  /*
-  // DEBUG
-  P_supg.set(0.0);
-  for (int j=1; j<=nel; j++) {
-  P_supg.ir(1,j).eye().rs();
-  }
-  //  P_supg.ir(2,3).set(1.0).rs();
-  //  P_supg.ir(3,3).set(1.0).rs();
-  // END DEBUG
-  // P_supg.print("en comp_P_supg \n");
-  */
 }
 #endif
 

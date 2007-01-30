@@ -70,6 +70,9 @@ private:
   IdentityEF identity_ef;
   ScalarPerFieldEF scalar_per_field_ef;
   FullEF full_ef;
+
+  FastMat2 tmp_P_supg_ALE_1, tmp_P_supg_ALE_2, tmp_P_supg_ALE_3;
+ 
 public:
 
   /// Null source term

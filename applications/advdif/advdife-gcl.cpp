@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: advdife-gcl.cpp,v 1.9 2007/01/28 00:27:12 mstorti Exp $
+//$Id: advdife-gcl.cpp,v 1.10 2007/01/30 11:54:27 mstorti Exp $
 extern int comp_mat_each_time_step_g,
   consistent_supg_matrix_g,
   local_time_step_g;
@@ -115,7 +115,7 @@ new_assemble_GCL_compliant(arg_data_list &arg_data_v,const Nodedata *nodedata,
     matlocf_mass(4,nel,ndof,nel,ndof);
   FastMat2 prof_nodes(2,nel,nel), prof_fields(2,ndof,ndof),
     matlocf_fix(4,nel,ndof,nel,ndof);
-  FastMat2 Id_ndf(2,ndof,ndof),Id_nel(2,nel,nel),
+  FastMat2 Id_ndof(2,ndof,ndof),Id_nel(2,nel,nel),
     prof_fields_diag_fixed(2,ndof,ndof);
 
   //o Use the weak form for the Galerkin part of the advective term.
@@ -203,7 +203,7 @@ new_assemble_GCL_compliant(arg_data_list &arg_data_v,const Nodedata *nodedata,
   adv_diff_ff->set_profile(prof_fields); // profile by equations
   prof_nodes.set(1.);
 
-  Id_ndf.eye();
+  Id_ndof.eye();
   Id_nel.eye();
 
   prof_fields.d(1,2);
@@ -212,7 +212,7 @@ new_assemble_GCL_compliant(arg_data_list &arg_data_v,const Nodedata *nodedata,
   prof_fields_diag_fixed.set(prof_fields);
   prof_fields.rs();
   prof_fields_diag_fixed.rs();
-  prof_fields_diag_fixed.scale(-1.).add(Id_ndf);
+  prof_fields_diag_fixed.scale(-1.).add(Id_ndof);
 
   matlocf_fix.prod(prof_fields_diag_fixed,Id_nel,2,4,1,3);
   matlocf.prod(prof_fields,prof_nodes,2,4,1,3);
@@ -278,7 +278,7 @@ new_assemble_GCL_compliant(arg_data_list &arg_data_v,const Nodedata *nodedata,
   // FMatrix grad_U_norm(ndimel,ndof);
   // These are declared but not used
   FMatrix nor,lambda,Vr,Vr_inv,U(ndof),Ualpha(ndof),
-    lmass(nel),Id_ndof(ndof,ndof),
+    lmass(nel),
     tmp1,tmp2,tmp3,tmp4,tmp5,hvec(ndimel),tmp6,tmp7,
     tmp8,tmp9,tmp10,tmp10j,tmp11(ndof,ndimel),tmp12,tmp14,tmp14b,
     tmp15,tmp17,tmp19,tmp20,tmp21,tmp22,tmp23,tmp1_old,
@@ -331,8 +331,6 @@ new_assemble_GCL_compliant(arg_data_list &arg_data_v,const Nodedata *nodedata,
   v_mesh.resize(1,ndim);
 
   Uo.resize(1,ndof);
-  Id_ndof.set(0.);
-  for (int j=1; j<=ndof; j++) Id_ndof.setel(1.,j,j);
 
   FastMatCacheList cache_list;
   if (use_fastmat2_cache) FastMat2::activate_cache(&cache_list);
@@ -871,7 +869,7 @@ new_assemble_GCL_compliant(arg_data_list &arg_data_v,const Nodedata *nodedata,
 	  tmp_ALE_03.prod(SHAPE,Cp_bis,1,2,3);
 
 	  tmp_ALE_04.prod(tmp_ALE_03,tmp_ALE_02,1,2,-1,-1);
-	  veccontr.axpy(tmp_ALE_04,wpgdet);
+          if (!weak_form) veccontr.axpy(tmp_ALE_04,wpgdet);
 
 	  tmp_ALE_05.prod(tmp_ALE_03,tmp_ALE_01,1,2,4,3);
 	  matlocf.axpy(tmp_ALE_05,-wpgdet);
@@ -903,7 +901,7 @@ new_assemble_GCL_compliant(arg_data_list &arg_data_v,const Nodedata *nodedata,
 	  tmp23.set(SHAPE).scale(-wpgdet);
           if (ALE_flag) {
             v_mesh_grad_N.prod(v_mesh,dshapex,-1,-1,1);
-            tmp_ALE_jac.prod(v_mesh_grad_N,Id_ndf,1,2,3);
+            tmp_ALE_jac.prod(v_mesh_grad_N,Cp_bis,1,2,3);
             tmp14b.set(A_grad_N).rest(tmp_ALE_jac);
             tmp14.prod(tmp14b,tmp23,1,2,4,3);
           } else {
@@ -974,21 +972,11 @@ new_assemble_GCL_compliant(arg_data_list &arg_data_v,const Nodedata *nodedata,
 	if (shocap>0. ) {
 	  adv_diff_ff->compute_delta_sc_v(delta_sc_v);
 
-/*
-	  adv_diff_ff->get_Cp(Cp_bis);
-	  tmp_shc_grad_U.prod(Cp_bis,grad_U,2,-1,1,-1);
-	  for (int jdf=1; jdf<=ndof; jdf++) {
-	    delta_sc_v.addel(delta_sc,jdf);
-*/
-
-//	  Cp_bis.set(Cp_bis_old);
 	  tmp_shc_grad_U.prod(Cp_bis_old,grad_U,2,-1,1,-1);
 	  for (int jdf=1; jdf<=ndof; jdf++) {
 	    //	    delta_sc_v.addel(delta_sc,jdf);
 	    delta_sc_v.addel(delta_sc_old,jdf);
 	  }
-
-//		  }
 
 	  tmp_sc.prod(dshapex,dshapex,-1,1,-1,2).scale(shocap*wpgdet);
 	  //	  tmp_sc_v.prod(dshapex,grad_U,-1,1,-1,2);
@@ -1183,7 +1171,7 @@ new_assemble_GCL_compliant(arg_data_list &arg_data_v,const Nodedata *nodedata,
 	    
 	    Ualpha.set(0.).axpy(Uo,1-ALPHA).axpy(Un,ALPHA);
 	    
-	    //	adv_diff_ff->enthalpy_fun->comp_P_Cp(Cp,Id_ndf);
+	    //	adv_diff_ff->enthalpy_fun->comp_P_Cp(Cp,Id_ndof);
 	    adv_diff_ff->get_Cp(Cp_bis);
 	    Cp_bis.scale(rec_Dt_m);
 	    

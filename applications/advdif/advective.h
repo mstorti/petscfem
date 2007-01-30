@@ -1,6 +1,6 @@
 // -*- mode: c++ -*-
 /*__INSERT_LICENSE__*/
-//$Id: advective.h,v 1.81 2007/01/24 00:41:55 mstorti Exp $
+//$Id: advective.h,v 1.82 2007/01/30 11:54:27 mstorti Exp $
  
 //#define CHECK_JAC // Computes also the FD Jacobian for debugging
  
@@ -429,7 +429,7 @@ protected:
     A_jac_norm_min, A_jac_err_norm_max, A_jac_err_norm_min,
     A_rel_err_min, A_rel_err_max;
   FastMat2 dshapex_low;
-  int use_GCL_compliant;
+  int use_GCL_compliant, ALE_flag;
 
 public:
   FastMat2 dshapex,Uo,Ao_grad_N,tau_supg,
@@ -476,6 +476,7 @@ public:
       @return actual time
   */ 
   double time() const { return time_m; };
+  int use_ALE() { return ALE_flag; }
 
 };
 
