@@ -1,8 +1,9 @@
 ################################################################
-# $Id: TODO,v 1.255 2007/01/23 21:54:28 mstorti Exp $
+# $Id: TODO,v 1.255.4.1 2007/01/31 15:07:57 mstorti Exp $
 TODO: [Mainly fixes go here...]
 =====
 
+* doesn't compile without `pthreads'
 * in advdif: setting ndim=3 but using 2d elements gives a FastMat2
   error. Should be detected earlier?
 * using nsi_tet_les_fm2 with fractional step produces  SEGV
