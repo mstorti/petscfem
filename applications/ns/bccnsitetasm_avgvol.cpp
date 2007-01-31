@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: bccnsitetasm_avgvol.cpp,v 1.2 2007/01/30 19:03:44 mstorti Exp $
+//$Id: bccnsitetasm_avgvol.cpp,v 1.2.2.1 2007/01/31 02:02:56 dalcinl Exp $
 
 #include <src/fem.h>
 #include <src/utils.h>
@@ -100,7 +100,7 @@ int bcconv_nsi_tet_asm_avgvol::assemble(arg_data_list &arg_data_v,Nodedata *node
     locstate2(nel,ndof),xpg;
 
   if (ndof != ndim+1+nphases) {
-    PetscPrintf(PETSC_COMM_WORLD,"ndof != ndim+1+nphases\n"); CHKERRA(1);
+    PetscPrintf(PETSCFEM_COMM_WORLD,"ndof != ndim+1+nphases\n"); CHKERRA(1);
   }
 
   nen = nel*ndof;
@@ -394,7 +394,7 @@ int bcconv_nsi_tet_asm_avgvol::assemble(arg_data_list &arg_data_v,Nodedata *node
       } else if (comp_mat) {
 	// don't make anything here !!
       } else {
-	PetscPrintf(PETSC_COMM_WORLD,
+	PetscPrintf(PETSCFEM_COMM_WORLD,
 		    "Don't know how to compute jobinfo: %s\n",jobinfo);
 	CHKERRQ(ierr);
       }

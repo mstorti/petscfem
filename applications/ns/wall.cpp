@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: wall.cpp,v 1.23 2007/01/30 19:03:44 mstorti Exp $
+//$Id: wall.cpp,v 1.23.2.1 2007/01/31 02:02:56 dalcinl Exp $
 
 #include <src/fem.h>
 #include <src/utils.h>
@@ -64,7 +64,7 @@ int wall::ask(const char *jobinfo,int &skip_elemset) {
     double *recv_buff = new double[nelem];
     ierr = MPI_Allreduce((void *)elemprops_add,
 			 (void *)recv_buff,nelem,MPI_DOUBLE,
-			 MPI_SUM,PETSC_COMM_WORLD); CHKERRQ(ierr);
+			 MPI_SUM,PETSCFEM_COMM_WORLD); CHKERRQ(ierr);
     for (int j=0; j<nelem; j++) elemprops_add[j] = recv_buff[j];
     delete[] recv_buff;
   }

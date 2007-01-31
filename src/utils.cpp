@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: utils.cpp,v 1.17 2007/01/30 19:03:44 mstorti Exp $
+//$Id: utils.cpp,v 1.17.2.1 2007/01/31 02:02:56 dalcinl Exp $
  
 #include <src/debug.h>
 #include <stdio.h>
@@ -225,17 +225,17 @@ int wait_from_console(char *s) {
   static int deac=0;
   if (deac) return 0;
   int myrank;
-  MPI_Comm_rank(PETSC_COMM_WORLD,&myrank);
+  MPI_Comm_rank(PETSCFEM_COMM_WORLD,&myrank);
   int ierr;
   char ans;
-  ierr = MPI_Barrier(PETSC_COMM_WORLD);
+  ierr = MPI_Barrier(PETSCFEM_COMM_WORLD);
   if (myrank==0) {
     if (s!=NULL) printf("%s --- ",s);
     printf("Continue? (n/RET=y) > ");
     fflush(stdout);
     scanf("%c",&ans);
   }
-  ierr = MPI_Bcast (&ans, 1, MPI_CHAR, 0,PETSC_COMM_WORLD);
+  ierr = MPI_Bcast (&ans, 1, MPI_CHAR, 0,PETSCFEM_COMM_WORLD);
   CHKERRQ(ierr); 
   if (ans=='n') {
     PetscFinalize();
@@ -243,7 +243,7 @@ int wait_from_console(char *s) {
   } else if (ans=='d') {
     deac = 1;
   } 
-  ierr = MPI_Barrier(PETSC_COMM_WORLD);
+  ierr = MPI_Barrier(PETSCFEM_COMM_WORLD);
   CHKERRQ(ierr);  
   return 0;
 }

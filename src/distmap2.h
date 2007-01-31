@@ -1,6 +1,6 @@
 // -*- mode: C++ -*-
 //__INSERT_LICENSE__
-//$Id: distmap2.h,v 1.14 2007/01/30 19:03:44 mstorti Exp $
+//$Id: distmap2.h,v 1.14.2.1 2007/01/31 02:02:56 dalcinl Exp $
 
 #ifndef DISTMAP2_H
 #define DISTMAP2_H
@@ -255,10 +255,10 @@ void DistMap<Key,Val,Partitioner>::scatter() {
       }
     }
 #ifdef DEBUG_SPEEDUP
-    PetscSynchronizedPrintf(PETSC_COMM_WORLD,
+    PetscSynchronizedPrintf(PETSCFEM_COMM_WORLD,
 			    "[%d] in distmap.h, send %f, recv %f, total %f\n",
 			    MY_RANK,tsend,trecv,hpc2.elapsed());
-    PetscSynchronizedFlush(PETSC_COMM_WORLD);
+    PetscSynchronizedFlush(PETSCFEM_COMM_WORLD);
 #endif 
     // free memory
     delete[] recv_buff;
@@ -297,7 +297,7 @@ void DistMap<Key,Val,Partitioner>::scatter() {
       recv_buff_pos_end = recv_buff + SEND(source,myrank);
       while (recv_buff_pos < recv_buff_pos_end ) {
 	unpack(p.first,p.second,recv_buff_pos);
-	//        PetscPrintf(PETSC_COMM_WORLD,"unpacking: key %d, val %f\n",
+	//        PetscPrintf(PETSCFEM_COMM_WORLD,"unpacking: key %d, val %f\n",
 	//  		  p.first,p.second);
 	combine(p);
       }

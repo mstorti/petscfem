@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: idmap.cpp,v 1.13 2007/01/30 19:03:44 mstorti Exp $
+//$Id: idmap.cpp,v 1.13.2.1 2007/01/31 02:02:56 dalcinl Exp $
  
 #include <stdio.h>
 #include <map>
@@ -10,7 +10,7 @@
 #include <cassert>
 #include <math.h>
 
-#include <petscsles.h>
+#include <petscksp.h>
 
 #include "libretto.h"
 #include <libretto/darray.h>
@@ -693,7 +693,7 @@ void idmap::print_statistics(void) const{
     if (ident[k]==-1) nns++;
     if (ident[k]==0) n_null++;
   }
-  PetscPrintf(PETSC_COMM_WORLD,
+  PetscPrintf(PETSCFEM_COMM_WORLD,
 	      "Number of null rows:       %d\n"
 	      "Number of non-simple rows: %d\n"
 	      "size of row_map:           %d\n",
@@ -704,13 +704,13 @@ void idmap::print_statistics(void) const{
     if (iident[k]==-1) nns++;
     if (iident[k]==0) n_null++;
   }
-  PetscPrintf(PETSC_COMM_WORLD,
+  PetscPrintf(PETSCFEM_COMM_WORLD,
 	      "Number of null cols:       %d\n"
 	      "Number of non-simple cols: %d\n"
 	      "size of col_map:           %d\n",
 	      n_null,nns,col_map->size());
 
-  PetscPrintf(PETSC_COMM_WORLD,
+  PetscPrintf(PETSCFEM_COMM_WORLD,
 	      "Number of created rows,cols: %d, %d\n"
 	      "Number of deleted rows,cols: %d, %d\n",
 	      n_created_rows, n_created_cols,

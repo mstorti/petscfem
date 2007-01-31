@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: advdif_fsi.cpp,v 1.10 2007/01/30 19:03:44 mstorti Exp $
+//$Id: advdif_fsi.cpp,v 1.10.2.1 2007/01/31 02:02:56 dalcinl Exp $
 
 #include <src/debug.h>
 #include <set>
@@ -20,6 +20,7 @@ static char help[] = "Basic finite element program.\n\n";
 
 extern GlobParam *GLOB_PARAM;
 
+extern MPI_Comm PETSCFEM_COMM_WORLD;
 extern int MY_RANK,SIZE;
 /*
 extern int print_internal_loop_conv_g=0,
@@ -79,15 +80,16 @@ int fsi_main() {
   // euler_absorb::flux_fun = &flux_fun_euler;
 
   // Get MPI info
-  MPI_Comm_size(PETSC_COMM_WORLD,&SIZE);
-  MPI_Comm_rank(PETSC_COMM_WORLD,&MY_RANK);
+  PETSCFEM_COMM_WORLD = PETSC_COMM_WORLD;
+  MPI_Comm_size(PETSCFEM_COMM_WORLD,&SIZE);
+  MPI_Comm_rank(PETSCFEM_COMM_WORLD,&MY_RANK);
 
   // elemsetlist =  da_create(sizeof(Elemset *));
   print_copyright();
-  PetscPrintf(PETSC_COMM_WORLD,
+  PetscPrintf(PETSCFEM_COMM_WORLD,
 	      "-------- Generic Advective-Diffusive / Fluid Structure Interaction module ---------\n");
 
-  Debug debug(0,PETSC_COMM_WORLD);
+  Debug debug(0,PETSCFEM_COMM_WORLD);
   GLOBAL_DEBUG = &debug;
 
   int activate_debug_line=0;
@@ -104,7 +106,7 @@ int fsi_main() {
   ierr = PetscOptionsGetString(PETSC_NULL,"-case",fcase,FLEN,&flg); 
   CHKERRA(ierr);
   if (!flg) {
-    PetscPrintf(PETSC_COMM_WORLD,
+    PetscPrintf(PETSCFEM_COMM_WORLD,
 		"Option \"-case <filename>\" not passed to PETSc-FEM!!\n");
     PetscFinalize();
     exit(0);
@@ -316,7 +318,7 @@ int fsi_main() {
 
 #if 0
   PetscViewer matlab;
-  ierr = PetscViewerASCIIOpen(PETSC_COMM_WORLD,
+  ierr = PetscViewerASCIIOpen(PETSCFEM_COMM_WORLD,
 			 "matns.m",&matlab); CHKERRA(ierr);
 #endif
   //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
@@ -336,7 +338,7 @@ int fsi_main() {
   //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
   // initialize state vectors
   scal=0;
-  ierr = VecSet(&scal,x); CHKERRA(ierr);
+  ierr = VecSet(x,scal); CHKERRA(ierr);
 
   arg_list argl,arglf;
 
@@ -399,7 +401,7 @@ int fsi_main() {
     
     for (int stage=0; stage<nstage; stage++) {
       
-      PetscPrintf(PETSC_COMM_WORLD,
+      PetscPrintf(PETSCFEM_COMM_WORLD,
 		  " --------------------------------------\n"
 		  "Stage in Advdif #: %d / %d \n"
 		  " --------------------------------------\n",
@@ -413,7 +415,7 @@ int fsi_main() {
 	
 	// Initializes res
 	scal=0;
-	ierr = VecSet(&scal,res); CHKERRA(ierr);
+	ierr = VecSet(res,scal); CHKERRA(ierr);
 	
 	if (comp_mat_each_time_step_g) {
 	  
@@ -483,7 +485,7 @@ int fsi_main() {
 #if 0
 	PetscViewer matlab;
 	if (verify_jacobian_with_numerical_one) {
-	  ierr = PetscViewerASCIIOpen(PETSC_COMM_WORLD,
+	  ierr = PetscViewerASCIIOpen(PETSCFEM_COMM_WORLD,
 				      "system.dat.tmp",&matlab); CHKERRA(ierr);
 	  ierr = PetscViewerSetFormat_WRAPPER(matlab,
 					      PETSC_VIEWER_ASCII_MATLAB,
@@ -519,10 +521,10 @@ int fsi_main() {
 	
 	if (print_linear_system_and_stop && 
 	    inwt==inwt_stop && tstep==time_step_stop) {
-	  PetscPrintf(PETSC_COMM_WORLD,
+	  PetscPrintf(PETSCFEM_COMM_WORLD,
 		      "Printing residual and matrix for debugging and stopping..\n");
 	  PetscViewer matlab;
-	  ierr = PetscViewerASCIIOpen(PETSC_COMM_WORLD,
+	  ierr = PetscViewerASCIIOpen(PETSCFEM_COMM_WORLD,
 				      "mat.output",&matlab); CHKERRA(ierr);
 	  ierr = PetscViewerSetFormat_WRAPPER(matlab, 
 					      PETSC_VIEWER_ASCII_MATLAB,"res");
@@ -547,11 +549,11 @@ int fsi_main() {
 	
 	ierr  = VecNorm(res,NORM_2,&normres); CHKERRA(ierr);
 	if (inwt==0) normres_ext = normres;
-	PetscPrintf(PETSC_COMM_WORLD,
+	PetscPrintf(PETSCFEM_COMM_WORLD,
 		    "Newton subiter %d, norm_res  = %10.3e\n",
 		    inwt,normres);
 	scal=omega_newton/alpha;
-	ierr = VecAXPY(&scal,dx,x);
+	ierr = VecAXPY(x,scal,dx);
 	if (normres < tol_newton) break;
       }   // loop newton
       
@@ -577,7 +579,7 @@ int fsi_main() {
       // Reuse dx for computing the delta state vector after re-projecting
       //      double delta_u;
       scal=-1.;
-      ierr = VecAXPY(&scal,x,dx_step);
+      ierr = VecAXPY(dx_step,scal,x);
       ierr  = VecNorm(dx_step,NORM_2,&delta_u); CHKERRA(ierr);
       
       if (ngather>0) {
@@ -592,7 +594,7 @@ int fsi_main() {
       }
       
       if (tstep % nsave == 0){
-	PetscPrintf(PETSC_COMM_WORLD,
+	PetscPrintf(PETSCFEM_COMM_WORLD,
 		    " --------------------------------------\n"
 		    "Time step: %d\n"
 		    " --------------------------------------\n",
@@ -606,7 +608,7 @@ int fsi_main() {
       int converged = 0;
       hook_list.stage("stage_post",stage,time_star.time(),&converged);
       
-      PetscPrintf(PETSC_COMM_WORLD,
+      PetscPrintf(PETSCFEM_COMM_WORLD,
 		  "time_step %d, time: %g, stage %d, delta_u = %10.3e\n",
 		  tstep,time_,stage,delta_u);
 

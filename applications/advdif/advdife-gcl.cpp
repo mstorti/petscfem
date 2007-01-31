@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: advdife-gcl.cpp,v 1.11 2007/01/30 17:46:20 mstorti Exp $
+//$Id: advdife-gcl.cpp,v 1.11.2.1 2007/01/31 02:02:56 dalcinl Exp $
 extern int comp_mat_each_time_step_g,
   consistent_supg_matrix_g,
   local_time_step_g;
@@ -176,7 +176,7 @@ new_assemble_GCL_compliant(arg_data_list &arg_data_v,const Nodedata *nodedata,
   else if (axisymmetric=="y") axi=2;
   else if (axisymmetric=="z") axi=3;
   else {
-    PetscPrintf(PETSC_COMM_WORLD,
+    PetscPrintf(PETSCFEM_COMM_WORLD,
 		"Invalid value for \"axisymmetric\" option\n"
 		"axisymmetric=\"%s\"\n",axisymmetric.c_str());
     PetscFinalize();

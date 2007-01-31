@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: genload.cpp,v 1.11 2007/01/30 19:03:44 mstorti Exp $
+//$Id: genload.cpp,v 1.11.2.1 2007/01/31 02:02:56 dalcinl Exp $
  
 #include <src/fem.h>
 #include <src/utils.h>
@@ -55,7 +55,7 @@ int genload::assemble(double *retval,Nodedata *nodedata,double *locst,
     locstate(nel,ndof),vecc2;
 
   if (ndof != 1) {
-    PetscPrintf(PETSC_COMM_WORLD,"ndof != 1\n"); CHKERRA(1);
+    PetscPrintf(PETSCFEM_COMM_WORLD,"ndof != 1\n"); CHKERRA(1);
   }
 
   nen = nel*ndof;

@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-/* $Id: nsres.cpp,v 1.3 2007/01/30 19:03:44 mstorti Exp $ */
+/* $Id: nsres.cpp,v 1.3.2.1 2007/01/31 02:02:56 dalcinl Exp $ */
 
 #include <src/fem.h>
 #include <src/utils.h>
@@ -29,7 +29,7 @@ void linear_restriction::init() {
 
     code = fscanf(fid,"%d %d\n",&nres_m,&ncoef);
     assert(code==2);
-    PetscPrintf(PETSC_COMM_WORLD,"reading restriction file %s\n"
+    PetscPrintf(PETSCFEM_COMM_WORLD,"reading restriction file %s\n"
 		"number of restrictions: %d\n"
 		"number of non null coefs. per restriction: %d\n",
 		coef_file.c_str(),nres_m,ncoef);

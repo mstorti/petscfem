@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: fem.cpp,v 1.15 2007/01/30 19:03:44 mstorti Exp $
+//$Id: fem.cpp,v 1.15.2.1 2007/01/31 02:02:56 dalcinl Exp $
 
 #include <time.h>
 #include <stdarg.h>
@@ -10,6 +10,7 @@
 #include "getprop.h"
 #include "pfmat.h"
 
+MPI_Comm PETSCFEM_COMM_WORLD=0;
 int MY_RANK, SIZE;
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
@@ -20,8 +21,7 @@ int zeroe_mat(Mat A,int & ass_flag) {
     ass_flag=1;
     return 0;
   } else {
-    double scal = 0;
-    int ierr = MatScale(&scal,A);
+    int ierr = MatZeroEntries(A);
     return ierr;
   }
 }
@@ -85,7 +85,7 @@ int compute_prof(Darray *da,Dofmap *dofmap,int myrank,
   avo = double(sumo)/double(neqp);
   avd = double(sumd)/double(neqp);
   avdcorr = double(sumdcorr)/double(neqp);
-  PetscSynchronizedPrintf(PETSC_COMM_WORLD,
+  PetscSynchronizedPrintf(PETSCFEM_COMM_WORLD,
 			  "On processor %d,\n"
 			  "       diagonal block terms: %d, (%f av.)\n"
 			  // Corrected does not make sense anymore
@@ -95,11 +95,11 @@ int compute_prof(Darray *da,Dofmap *dofmap,int myrank,
 			  "   off diagonal block terms: %d, (%f av.)\n",
 			  // myrank,sumd,avd,sumdcorr,avdcorr,sumo,avo);
 			  myrank,sumd,avd,sumo,avo);
-  PetscSynchronizedFlush(PETSC_COMM_WORLD);
+  PetscSynchronizedFlush(PETSCFEM_COMM_WORLD);
   
   // Create matrices
   int neq=dofmap->neq;
-  ierr =  MatCreateMPIAIJ(PETSC_COMM_WORLD,dofmap->neqproc[myrank],
+  ierr =  MatCreateMPIAIJ(PETSCFEM_COMM_WORLD,dofmap->neqproc[myrank],
 			  dofmap->neqproc[myrank],neq,neq,
 			  PETSC_NULL,d_nnz,PETSC_NULL,o_nnz,A); CHKERRA(ierr);
   delete[] d_nnz;
@@ -114,7 +114,7 @@ void petscfem_printf(const char *templ,va_list list) {
   int myrank;
 //    va_list list;
 //    va_start(list,templ);
-  MPI_Comm_rank(PETSC_COMM_WORLD,&myrank);
+  MPI_Comm_rank(PETSCFEM_COMM_WORLD,&myrank);
   if (myrank==0) vprintf(templ,list);
 }
 
@@ -150,7 +150,7 @@ int opt_read_vector(Mesh *mesh,Vec x, Dofmap *dofmap,int myrank) {
     ierr = read_vector(ini_name,x,dofmap,myrank);
   } else {
     double scal = 0.;
-    ierr = VecSet(&scal,x); CHKERRA(ierr);
+    ierr = VecSet(x,scal); CHKERRA(ierr);
   }
   return ierr;
 }
@@ -168,14 +168,14 @@ int opt_read_vector(Mesh *mesh,Vec x, Dofmap *dofmap,int myrank) {
     ierr = read_vector(ini_name.c_str(),x,dofmap,myrank);
   } else {
     double scal = 0.;
-    ierr = VecSet(&scal,x); CHKERRA(ierr);
+    ierr = VecSet(x,scal); CHKERRA(ierr);
   }
   return ierr;
 }
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 void petscfem_check_par_err(int ierro,GenericError &ge,int myrank) {
-  MPI_Bcast(&ierro,1,MPI_INT,0,PETSC_COMM_WORLD);
+  MPI_Bcast(&ierro,1,MPI_INT,0,PETSCFEM_COMM_WORLD);
   PETSCFEM_ASSERT(!ierro,"%s",ge.c_str());
 }
 

@@ -1,6 +1,6 @@
 // -*- mode: C++ -*- 
 /*__INSERT_LICENSE__*/
-// $Id: distcont.h,v 1.14 2006/03/27 19:12:06 mstorti Exp $
+// $Id: distcont.h,v 1.14.14.1 2007/01/31 02:02:56 dalcinl Exp $
 #ifndef DISTCONT_H
 #define DISTCONT_H
 
@@ -9,6 +9,8 @@
 #include <mpi.h>
 #include <petsc.h>
 #include <src/vecmacros.h>
+
+extern MPI_Comm PETSCFEM_COMM_WORLD;
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 /** Distributed map class. Elements can be assigned as for a standard
@@ -46,7 +48,7 @@ public:
   */ 
   DistCont<Container,
     ValueType,Partitioner>(Partitioner *part=NULL,
-			   MPI_Comm comm_=PETSC_COMM_WORLD,
+			   MPI_Comm comm_=PETSCFEM_COMM_WORLD,
 			   iter_mode_t iter_mode = associative_iter_mode);
   /** Computes the size of data needed to pack this entry 
       @param k (input) iterator to the entry

@@ -1,7 +1,9 @@
 //__INSERT_LICENSE__
-//$Id: sparse.cpp,v 1.36 2007/01/30 19:03:44 mstorti Exp $
+//$Id: sparse.cpp,v 1.36.2.1 2007/01/31 02:02:56 dalcinl Exp $
 
 #include <src/sparse2.h>
+
+extern MPI_Comm PETSCFEM_COMM_WORLD;
 
 using namespace Random;
 
@@ -970,7 +972,7 @@ namespace Sparse {
 #ifdef USE_SUPERLU
       m = new SuperLUMat;
 #else
-      PetscPrintf(PETSC_COMM_WORLD,
+      PetscPrintf(PETSCFEM_COMM_WORLD,
 		  "Not compiled with SuperLU library!!\n");
       PetscFinalize();
       exit(0);

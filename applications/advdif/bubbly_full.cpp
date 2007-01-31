@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: bubbly_full.cpp,v 1.2 2005/08/13 14:40:02 mstorti Exp $
+//$Id: bubbly_full.cpp,v 1.2.26.1 2007/01/31 02:02:56 dalcinl Exp $
 
 #include <src/fem.h>
 #include <src/texthash.h>
@@ -469,7 +469,7 @@ void bubbly_ff::compute_tau_beta() {
   SHV2(Tau_beta);
 
   /*
-  PetscPrintf(PETSC_COMM_WORLD," ENDING \n");
+  PetscPrintf(PETSCFEM_COMM_WORLD," ENDING \n");
   PetscFinalize();
   exit(0);
   */
@@ -925,7 +925,7 @@ void bubbly_ff::compute_tau_gas() {
     Ajac.print("Ajac:\n");
     sign_Lambda_gas.print("inv(abs(La)):\n");
 
-    PetscPrintf(PETSC_COMM_WORLD," ENDING \n");
+    PetscPrintf(PETSCFEM_COMM_WORLD," ENDING \n");
     PetscFinalize();
     exit(0);
 */
@@ -1419,7 +1419,7 @@ if (0) {
     } else if (ndim==3) {
       h_pspg = cbrt(6*Volume/pi);
     } else {
-      PetscPrintf(PETSC_COMM_WORLD,
+      PetscPrintf(PETSCFEM_COMM_WORLD,
 		  "Only dimensions 2 and 3 allowed for this element.\n");
     }
 

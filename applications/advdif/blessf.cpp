@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: blessf.cpp,v 1.28 2005/11/06 00:35:55 mstorti Exp $
+//$Id: blessf.cpp,v 1.28.16.1 2007/01/31 02:02:56 dalcinl Exp $
 
 #include <set>
 
@@ -106,7 +106,7 @@ void bless_elemset(char *type,Elemset *& elemset) {
     SET_ELEMSET_TYPE(dl_penalize)
 
     {
-      printf("not known elemset type: \"%s\"\n",type);
-      exit(1);
+      // PETSCFEM_ERROR("not known elemset type: \"%s\"\n",type);
+      elemset=NULL;
     }
 }

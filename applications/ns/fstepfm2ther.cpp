@@ -190,7 +190,7 @@ int fracstep::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
     ustate2(2,nel,ndim),G_body(1,ndim),vrel;
 
   if (ndof != ndim+2) {
-    PetscPrintf(PETSC_COMM_WORLD,"ndof != ndim+2\n"); CHKERRA(1);
+    PetscPrintf(PETSCFEM_COMM_WORLD,"ndof != ndim+2\n"); CHKERRA(1);
   }
 
   nen = nel*ndof;
@@ -210,7 +210,7 @@ int fracstep::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
   else if (axisymmetric=="y") axi=2;
   else if (axisymmetric=="z") axi=3;
   else {
-    PetscPrintf(PETSC_COMM_WORLD,
+    PetscPrintf(PETSCFEM_COMM_WORLD,
 		"Invalid value for \"axisymmetric\" option\n"
 		"axisymmetric=\"%s\"\n",axisymmetric.c_str());
     PetscFinalize();

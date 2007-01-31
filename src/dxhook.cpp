@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: dxhook.cpp,v 1.66 2007/01/30 19:03:44 mstorti Exp $
+//$Id: dxhook.cpp,v 1.66.2.1 2007/01/31 02:02:56 dalcinl Exp $
 
 #include <src/debug.h>
 #include <src/fem.h>
@@ -173,7 +173,7 @@ void dx_hook::init(Mesh &mesh_a,Dofmap &dofmap_a,
     sprintf(skthost,"S%d",dx_port);
     srvr_root = Sopen("",skthost);
     PETSCFEM_ASSERT(srvr_root,"Couldn't open dx port on %s",skthost);
-    PetscPrintf(PETSC_COMM_WORLD,"Done.\n");
+    PetscPrintf(PETSCFEM_COMM_WORLD,"Done.\n");
   }
   mesh = &mesh_a;
   dofmap = &dofmap_a;
@@ -260,9 +260,9 @@ void dx_hook::init(Mesh &mesh_a,Dofmap &dofmap_a,
 void dx_hook::time_step_pre(double time,int step) {}
 
 #define PF_DBG(name,format)					\
-PetscSynchronizedPrintf(PETSC_COMM_WORLD,"[%d] " 		\
+PetscSynchronizedPrintf(PETSCFEM_COMM_WORLD,"[%d] " 		\
                         #name "  " #format "\n",MY_RANK,name);	\
-PetscSynchronizedFlush(PETSC_COMM_WORLD); 
+PetscSynchronizedFlush(PETSCFEM_COMM_WORLD); 
 #define PF_DBG_INT(name)  PF_DBG(name,%d) 
 #define PF_DBG_DBL(name)  PF_DBG(name,%f) 
 
@@ -284,7 +284,7 @@ void *dx_hook::wait_connection() {
 dx_hook::connection_state_t 
 dx_hook::connection_state() {
   if (!MY_RANK) connection_state_m = connection_state_master;
-  ierr = MPI_Bcast (&connection_state_m, 1, MPI_INT, 0,PETSC_COMM_WORLD);
+  ierr = MPI_Bcast (&connection_state_m, 1, MPI_INT, 0,PETSCFEM_COMM_WORLD);
   return connection_state_m;
 }
 
@@ -312,7 +312,7 @@ int dx_hook::build_state_from_state(double *state_p) {
 int dx_hook::build_state_from_file(double *state_p) {
   int recl = (record>=0 ? record : 0);
   printf("record %d, recl %d\n",record,recl);
-  PetscPrintf(PETSC_COMM_WORLD,
+  PetscPrintf(PETSCFEM_COMM_WORLD,
 	      "dx_hook: reading state from file %s, record %d\n",
 	      state_file.c_str(),recl);
   if (!MY_RANK) {
@@ -370,7 +370,7 @@ void dx_hook::send_state(int step,build_state_fun_t build_state_fun) try {
       sleep(1);
     }
     if (connection_state()==not_connected) {
-      PetscPrintf(PETSC_COMM_WORLD,
+      PetscPrintf(PETSCFEM_COMM_WORLD,
 		  "dx_hook: step %d, detached mode, no connection found\n",step);
       return;
     } else if (connection_state()==connected) {
@@ -382,7 +382,7 @@ void dx_hook::send_state(int step,build_state_fun_t build_state_fun) try {
       set_connection_state(not_launched);
     } else assert(0);
 #else
-    PetscPrintf(PETSC_COMM_WORLD,
+    PetscPrintf(PETSCFEM_COMM_WORLD,
 		"Can't have asynchronous communication (steps=0) with DX \n"
 		"because this version is not compiled with threads.\n"
 		"Setting steps=1\n");
@@ -390,7 +390,7 @@ void dx_hook::send_state(int step,build_state_fun_t build_state_fun) try {
 #endif
   } else {
     if (!MY_RANK) {
-      PetscPrintf(PETSC_COMM_WORLD,
+      PetscPrintf(PETSCFEM_COMM_WORLD,
 		  "dx_hook: accepting connections, step %d\n",step);
       srvr = Saccept(srvr_root);
       assert(srvr);
@@ -459,15 +459,15 @@ void dx_hook::send_state(int step,build_state_fun_t build_state_fun) try {
 
   // Options are read in master and
   // each option is sent to the slaves with MPI_Bcast
-  ierr = MPI_Bcast (&stepso, 1, MPI_INT, 0,PETSC_COMM_WORLD);
-  ierr = MPI_Bcast (&dx_step, 1, MPI_INT, 0,PETSC_COMM_WORLD);
-  ierr = string_bcast(state_file,0,PETSC_COMM_WORLD);
-  ierr = MPI_Bcast (&record, 1, MPI_INT, 0,PETSC_COMM_WORLD);
+  ierr = MPI_Bcast (&stepso, 1, MPI_INT, 0,PETSCFEM_COMM_WORLD);
+  ierr = MPI_Bcast (&dx_step, 1, MPI_INT, 0,PETSCFEM_COMM_WORLD);
+  ierr = string_bcast(state_file,0,PETSCFEM_COMM_WORLD);
+  ierr = MPI_Bcast (&record, 1, MPI_INT, 0,PETSCFEM_COMM_WORLD);
 
   if (record==-1) throw GenericError("Received record=-1, stop.");
 
   if (stepso>=0 && stepso!=steps) {
-    PetscPrintf(PETSC_COMM_WORLD,
+    PetscPrintf(PETSCFEM_COMM_WORLD,
 		"dx_hook: changed \"steps\" %d -> %d from DX\n",
 		steps,stepso);
     if (stepso==0) set_connection_state(not_launched);

@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: measperf.cpp,v 1.9 2007/01/30 19:03:44 mstorti Exp $
+//$Id: measperf.cpp,v 1.9.2.1 2007/01/31 02:02:56 dalcinl Exp $
 
 #include "fem.h"
 #include <set>
@@ -21,10 +21,10 @@ extern int MY_RANK,SIZE;
 int measure_performance_fun(Mesh *mesh,arg_list argl,
 			Dofmap *dofmap,const char *jobinfo,const TimeData
 			*time) {
-  PetscPrintf(PETSC_COMM_WORLD,
+  PetscPrintf(PETSCFEM_COMM_WORLD,
 	      "----\n Measuring performance for jobinfo \"%s\"...\n",jobinfo);
   if (SIZE>1) 
-    PetscPrintf(PETSC_COMM_WORLD,
+    PetscPrintf(PETSCFEM_COMM_WORLD,
 		"Warning: measuring performance with size>1 !!!\n");
 
   Chrono chrono;
@@ -44,14 +44,14 @@ int measure_performance_fun(Mesh *mesh,arg_list argl,
     TGETOPTDEF_S(elemset->thash,string,name,); //nd 
 
     wnelem += elemset->nelem * measure_performance_weight;
-    PetscPrintf(PETSC_COMM_WORLD,
+    PetscPrintf(PETSCFEM_COMM_WORLD,
 		" Elemset type: %s, name: %s,\n    ptr: %p, "
 		"elem: %d, weight per elem.: %.4g\n",
 		elemset->type, (name == "" ? "<anonymous>" : name.c_str()),
 		(void*)elemset, elemset->nelem,
 		measure_performance_weight);
   }
-  PetscPrintf(PETSC_COMM_WORLD,
+  PetscPrintf(PETSCFEM_COMM_WORLD,
 	      "Total (weighted) number of elements: %.4f\n",
 	      wnelem);
 
@@ -75,9 +75,9 @@ int measure_performance_fun(Mesh *mesh,arg_list argl,
   min = tmin/wnelem*1000;
   mean = tsum/NLOOP/wnelem*1000;
   dev = sqrt(t2sum/NLOOP-tsum*tsum/NLOOP/NLOOP)/wnelem*1000;
-  PetscPrintf(PETSC_COMM_WORLD,"Total %.4g, ntimes %d, nelems %.4f\n",
+  PetscPrintf(PETSCFEM_COMM_WORLD,"Total %.4g, ntimes %d, nelems %.4f\n",
 	 tsum, NLOOP, wnelem);
-  PetscPrintf(PETSC_COMM_WORLD,
+  PetscPrintf(PETSCFEM_COMM_WORLD,
 	      "Rate [sec/Kelems]: mean %.4g, min %.4g, "
 	      "max %.4g, std.dev. %.4g\n",mean,min,max,dev);
   return 0;

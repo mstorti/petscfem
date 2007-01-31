@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: bccns_gasflow.cpp,v 1.3 2007/01/30 19:03:44 mstorti Exp $
+//$Id: bccns_gasflow.cpp,v 1.3.2.1 2007/01/31 02:02:56 dalcinl Exp $
 
 #include <src/fem.h>
 #include <src/utils.h>
@@ -165,7 +165,7 @@ int bcconv_ns_gasflow::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
   else if (axisymmetric=="y") axi=2;
   else if (axisymmetric=="z") axi=3;
   else {
-    PetscPrintf(PETSC_COMM_WORLD,
+    PetscPrintf(PETSCFEM_COMM_WORLD,
 		"Invalid value for \"axisymmetric\" option\n"
 		"axisymmetric=\"%s\"\n",axisymmetric.c_str());
     PetscFinalize();
@@ -337,7 +337,7 @@ int bcconv_ns_gasflow::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
       } else if (comp_mat) {
 	// don't make anything here !!
       } else {
-	PetscPrintf(PETSC_COMM_WORLD,
+	PetscPrintf(PETSCFEM_COMM_WORLD,
 		    "Don't know how to compute jobinfo: %s\n",jobinfo);
 	CHKERRQ(ierr);
       }

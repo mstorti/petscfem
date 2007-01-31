@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-// $Id: generror.cpp,v 1.5 2007/01/30 19:03:44 mstorti Exp $
+// $Id: generror.cpp,v 1.5.2.1 2007/01/31 02:02:56 dalcinl Exp $
 
 #include <string>
 
@@ -8,6 +8,8 @@ using namespace std;
 #include <petsc.h>
 #include <src/generror.h>
 #include <src/autostr.h>
+
+extern MPI_Comm PETSCFEM_COMM_WORLD;
 
 GenericError PETSCFEM_GENERIC_ERROR;
 
@@ -32,16 +34,16 @@ extern int MY_RANK,SIZE;
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 void petscfem_check_par_err(int ierro,GenericError &ge) {
-  int ierr = MPI_Bcast (&ierro,1,MPI_INT,0,PETSC_COMM_WORLD);	
+  int ierr = MPI_Bcast (&ierro,1,MPI_INT,0,PETSCFEM_COMM_WORLD);	
 #if 0
-  ierr = PetscSynchronizedPrintf(PETSC_COMM_WORLD,
+  ierr = PetscSynchronizedPrintf(PETSCFEM_COMM_WORLD,
 			  "[%d] ierro %d\n",ierro,MY_RANK);
-  ierr = PetscSynchronizedFlush(PETSC_COMM_WORLD); 
+  ierr = PetscSynchronizedFlush(PETSCFEM_COMM_WORLD); 
   ierr = PetscFinalize();
   exit(0);
 #endif
   if (ierro) {
-    ierr = PetscPrintf(PETSC_COMM_WORLD,"%s",ge.c_str());
+    ierr = PetscPrintf(PETSCFEM_COMM_WORLD,"%s",ge.c_str());
     ierr = PetscFinalize();
     exit(0);
   }

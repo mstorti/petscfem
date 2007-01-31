@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: distcont2.h,v 1.6 2007/01/30 19:03:44 mstorti Exp $
+//$Id: distcont2.h,v 1.6.2.1 2007/01/31 02:02:56 dalcinl Exp $
 
 #ifndef DISTCONT2_H
 #define DISTCONT2_H
@@ -287,9 +287,9 @@ void DistCont<Container,ValueType,Partitioner>::scatter() {
     }
   }
 #if DEBUG_SPEEDUP
-  PetscSynchronizedPrintf(PETSC_COMM_WORLD,
+  PetscSynchronizedPrintf(PETSCFEM_COMM_WORLD,
 			  "[%d] distcont 1 %f\n",MY_RANK,hpc.elapsed());
-  PetscSynchronizedFlush(PETSC_COMM_WORLD);
+  PetscSynchronizedFlush(PETSCFEM_COMM_WORLD);
 #endif 
 
   delete[] plist;

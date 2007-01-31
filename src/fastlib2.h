@@ -1,8 +1,10 @@
 // -*- mode: C++ -*- 
 /*__INSERT_LICENSE__*/
-// $Id: fastlib2.h,v 1.4 2005/05/29 16:28:37 mstorti Exp $
+// $Id: fastlib2.h,v 1.4.26.1 2007/01/31 02:02:56 dalcinl Exp $
 #ifndef FASTLIB2_H
 #define FASTLIB2_H
+
+#include <iostream>
 
 using namespace std;
 

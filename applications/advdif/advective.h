@@ -1,6 +1,6 @@
 // -*- mode: c++ -*-
 /*__INSERT_LICENSE__*/
-//$Id: advective.h,v 1.84 2007/01/30 19:03:44 mstorti Exp $
+//$Id: advective.h,v 1.84.2.1 2007/01/31 02:02:56 dalcinl Exp $
  
 //#define CHECK_JAC // Computes also the FD Jacobian for debugging
  
@@ -119,7 +119,7 @@ private:
   vector<int> log_vars_v;
 public:
   virtual int operator() (ADVDIFFF_ARGS) {
-    PetscPrintf(PETSC_COMM_WORLD,"Undefined flux function\n");
+    PetscPrintf(PETSCFEM_COMM_WORLD,"Undefined flux function\n");
     return 0;
   }
   /** Returns the list of variables that are 
@@ -188,7 +188,7 @@ public:
   /** Gets the #Cp# jacobian 
   */ 
   virtual void get_Cp(FastMat2 &Cp) {
-    PetscPrintf(PETSC_COMM_WORLD,
+    PetscPrintf(PETSCFEM_COMM_WORLD,
                 "Not defined get_Cp() virtual function\n"
                 "in the enthalpy function object.\n");
     assert(0);

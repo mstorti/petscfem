@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: iisdmat2.cpp,v 1.7 2004/09/24 12:00:56 mstorti Exp $
+//$Id: iisdmat2.cpp,v 1.7.68.1 2007/01/31 02:02:56 dalcinl Exp $
 // fixme:= this may not work in all applications
 #ifndef _GNU_SOURCE
 #define _GNU_SOURCE
@@ -190,7 +190,7 @@ int IISDMat::set_values_a(int nrows,int *idxr,int ncols,int *idxc,
 	  // send to A_LL_other
 	  A_LL_other->insert_val(idxr[jr],idxc[jc],*w);
 #if 0
-	  PetscSynchronizedPrintf(PETSC_COMM_WORLD,
+	  PetscSynchronizedPrintf(PETSCFEM_COMM_WORLD,
 				  "[%d] NEW, sending to A_LL_other %d,%d,%g\n",
 				  MY_RANK,idxr[jr],idxc[jc],*w);
 #endif

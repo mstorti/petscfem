@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: nsilesasm_2.cpp,v 1.4 2007/01/30 19:03:44 mstorti Exp $
+//$Id: nsilesasm_2.cpp,v 1.4.2.1 2007/01/31 02:02:56 dalcinl Exp $
 
 //---<Archivos de Cabecera>---//
 #include <src/fem.h>
@@ -62,7 +62,7 @@ int nsi_tet_les_asm::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
 #define RETVALMAT(iele,j,k,p,q) VEC5(retvalmat,iele,j,nel,k,ndof,p,nel,q,ndof)
 
   int ierr=0, axi;
-  // PetscPrintf(PETSC_COMM_WORLD,"entrando a nsilesasm\n");
+  // PetscPrintf(PETSCFEM_COMM_WORLD,"entrando a nsilesasm\n");
 
 #define NODEDATA(j,k) VEC2(nodedata->nodedata,j,k,nu)
 #define ICONE(j,k) (icone[nel*(j)+(k)])
@@ -132,7 +132,7 @@ int nsi_tet_les_asm::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
          locstate2(nel,ndof),xpg,G_body(ndim),gravity(ndim);
 
   if (ndof != ndim+2) {
-    PetscPrintf(PETSC_COMM_WORLD,"ndof != ndim+2\n"); CHKERRA(1);
+    PetscPrintf(PETSCFEM_COMM_WORLD,"ndof != ndim+2\n"); CHKERRA(1);
   }
 
   nen = nel*ndof;
@@ -181,7 +181,7 @@ int nsi_tet_les_asm::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
   else if (axisymmetric=="y") axi=2;
   else if (axisymmetric=="z") axi=3;
   else {
-    PetscPrintf(PETSC_COMM_WORLD,
+    PetscPrintf(PETSCFEM_COMM_WORLD,
 		"Invalid value for \"axisymmetric\" option\n"
 		"axisymmetric=\"%s\"\n",axisymmetric.c_str());
     PetscFinalize();
@@ -885,7 +885,7 @@ int nsi_tet_les_asm::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
       } else if (comp_mat) {
 	// don't make anything here !!
       } else {
-	PetscPrintf(PETSC_COMM_WORLD,
+	PetscPrintf(PETSCFEM_COMM_WORLD,
 		    "Don't know how to compute jobinfo: %s\n",jobinfo);
 	CHKERRQ(ierr);
       }

@@ -1,5 +1,5 @@
 #__INSERT_LICENSE__
- # $Id: Makefile,v 1.82 2006/09/03 22:00:47 mstorti Exp $ 
+ # $Id: Makefile,v 1.82.8.1 2007/01/31 02:02:56 dalcinl Exp $ 
 
 .PHONY: all run lclean save compile
 
@@ -33,10 +33,10 @@ include $(PETSCFEM_DIR)/Makefile.base
 
 # CPPFLAGS += -DROSI_COUPLING_MODULE
 
-%.cppi: %.cpp
-	g++ $(CPPFLAGS) -I /usr/local/mpich-1.2.0/include/ \
-		-I/home/mstorti/PETSC/petsc-2.0.24/bmake/linux/ \
-		-I/home/mstorti/PETSC/petsc-2.0.24/include/ -E $< > $@
+#%.cppi: %.cpp
+#	g++ $(CPPFLAGS) -I /usr/local/mpich-1.2.0/include/ \
+#		-I/home/mstorti/PETSC/petsc-2.0.24/bmake/linux/ \
+#		-I/home/mstorti/PETSC/petsc-2.0.24/include/ -E $< > $@
 
 # documentation of options with the script `odoc.pl'
 odocns: ../../doc/odocns.tex ../../doc/odocnse.tex \

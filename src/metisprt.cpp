@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: metisprt.cpp,v 1.25 2007/01/30 19:03:44 mstorti Exp $
+//$Id: metisprt.cpp,v 1.25.2.1 2007/01/31 02:02:56 dalcinl Exp $
 
 #include "fem.h"
 #include "utils.h"
@@ -72,7 +72,8 @@ void elem_connectivities(int elem,Mesh *mesh,const int *nelemsetptr,
   elem_icone = &ICONE(locel,0);
 }
 
-void metis_part(int nelemfat,Mesh *mesh,
+void metis_part(MPI_Comm comm, 
+		int nelemfat,Mesh *mesh,
 		const int nelemsets,int *epart,
 		int *nelemsetptr,int *n2eptr,
 		int *node2elem,int size,const int myrank,
@@ -320,7 +321,8 @@ void metis_part(int nelemfat,Mesh *mesh,
   if (size*iisd_subpart > 1) {
     if (myrank==0) {
       if (partflag==0) {
-	if (myrank==0) printf("METIS partition - partflag = %d\n",partflag);
+	if (print_statistics && myrank==0) 
+	  printf("METIS partition - partflag = %d\n",partflag);
 	METIS_WPartGraphKway(&nvrtx,xadj,adjncy,vwgt, 
 			     NULL,&wgtflag,&numflag,&nvsubdo, 
 			     tpwgts_d,&options,&edgecut,vpart);
@@ -369,7 +371,7 @@ void metis_part(int nelemfat,Mesh *mesh,
     
 
     // Broadcast partitioning to other nodes
-    ierr = MPI_Bcast(vpart,nvrtx,MPI_INT,0,PETSC_COMM_WORLD);
+    ierr = MPI_Bcast(vpart,nvrtx,MPI_INT,0,comm);
   } else {
     for (int jj=0; jj<nvrtx; jj++) 
       vpart[jj]=0;
@@ -393,4 +395,22 @@ void metis_part(int nelemfat,Mesh *mesh,
 
   assert(ngbrs.empty());
 
+}
+
+void metis_part(int nelemfat,Mesh *mesh,
+		const int nelemsets,int *epart,
+		int *nelemsetptr,int *n2eptr,
+		int *node2elem,int size,const int myrank,
+		const int partflag,float *tpwgts,
+		int max_partgraph_vertices,
+		int iisd_subpart,int print_statistics) 
+{
+  metis_part(PETSCFEM_COMM_WORLD,
+	     nelemfat,mesh,
+	     nelemsets,epart,
+	     nelemsetptr,n2eptr,
+	     node2elem, size, myrank,
+	     partflag, tpwgts,
+	     max_partgraph_vertices,
+	     iisd_subpart, print_statistics);
 }

@@ -1,6 +1,6 @@
 // -*- mode: C++ -*- 
 /*__INSERT_LICENSE__*/
-// $Id: debug.h,v 1.9 2003/07/02 02:32:47 mstorti Exp $
+// $Id: debug.h,v 1.9.96.1 2007/01/31 02:02:56 dalcinl Exp $
 #ifndef PF_DEBUG_H
 #define PF_DEBUG_H
 
@@ -45,7 +45,7 @@ class Debug {
   void activate(const char *s=NULL);
   void deactivate(const char *s=NULL);
   void trace(const char *s=NULL);
-  Debug(int active_=0,MPI_Comm comm_=PETSC_COMM_WORLD);
+  Debug(int active_=0,MPI_Comm comm_=PETSCFEM_COMM_WORLD);
 };
 
 extern Debug *GLOBAL_DEBUG;

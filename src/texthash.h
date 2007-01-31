@@ -1,6 +1,6 @@
 // -*- mode: c++ -*-
 /*__INSERT_LICENSE__*/
-//$Id: texthash.h,v 1.13 2005/11/06 15:15:38 mstorti Exp $
+//$Id: texthash.h,v 1.13.16.1 2007/01/31 02:02:56 dalcinl Exp $
 
 #ifndef __TEXTHASH_H__
 #define __TEXTHASH_H__
@@ -75,6 +75,19 @@ public:
   */ 
   void print(const char * = NULL) const;
 
+  /** Sets many entries to the hash (no warn if already there).
+      @author L. Dalcin
+      @param entries (input) map : key->value
+  */ 
+  void set_entries(const std::map<std::string,std::string>& entries);
+
+  /** Sets an entry to the hash (no warn if already there).
+      @author L. Dalcin
+      @param key (input) key of the entry
+      @param value (input) value of the entry
+  */ 
+  void set_entry(const char *key,const char *value);
+
   /** Adds an entry to the hash.
       @author M. Storti
       @param key (input) key of the entry
@@ -115,6 +128,15 @@ public:
   */
   void set_as_global() {global_options=this;};
 
+  /** Fills a map<string,string> with hash table contents.  Read
+      values are appended to the map so you perhaps have to clear() it
+      before calling this method. Access counter for entries are not
+      incremented.
+      @author L. Dalcin
+      @param M (output) value of the entry
+  */ 
+  void get_entries(std::map<std::string,std::string>&) const;
+
   /** Searches an entry in the hash. 
       @author M. Storti
       @param key (input) key of the entry
@@ -130,6 +152,13 @@ public:
       it before calling this method. 
   */ 
   void get_entry(const char *,vector<double> &v);
+
+
+  /** Removes all entries in the hash
+      @author L. Dalcin
+  */ 
+  void del_entries();
+
 
   /** Returns the number of times a particular key was accessed.
       @author M. Storti

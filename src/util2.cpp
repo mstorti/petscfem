@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: util2.cpp,v 1.21 2007/01/30 19:03:44 mstorti Exp $
+//$Id: util2.cpp,v 1.21.2.1 2007/01/31 02:02:56 dalcinl Exp $
   
 #include <stdio.h>
 #include <cassert>
@@ -10,7 +10,7 @@
 #include "libretto.h"
 #include <libretto/darray.h>
 
-#include <petscsles.h>
+#include <petscksp.h>
 #include <newmatio.h>
 #undef HAVE_MEMMOVE // para que no chille al incluir petsccfonf.h
 

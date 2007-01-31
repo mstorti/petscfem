@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: advecfm2.cpp,v 1.10 2003/11/25 01:13:36 mstorti Exp $
+//$Id: advecfm2.cpp,v 1.10.80.1 2007/01/31 02:02:56 dalcinl Exp $
 
 extern int comp_mat_each_time_step_g,
   consistent_supg_matrix_g,
@@ -116,7 +116,7 @@ int AdvectiveFM2::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
          matloc(nen,nen);
 
 //    if (ndof != ndim+1) {
-//      PetscPrintf(PETSC_COMM_WORLD,"ndof != ndim+1\n"); CHKERRA(1);
+//      PetscPrintf(PETSCFEM_COMM_WORLD,"ndof != ndim+1\n"); CHKERRA(1);
 //    }
   
   nen = nel*ndof;
@@ -378,14 +378,14 @@ int AdvectiveFM2::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
       hloc = 2.*sqrt(hvec.min_all());
 
       dtloc = hloc/lambda_max;
-      // PetscPrintf(PETSC_COMM_WORLD,
+      // PetscPrintf(PETSCFEM_COMM_WORLD,
       // "On element %d, hloc %f, lambda_max %f, dtloc %f\n",
       // k,hloc,lambda_max,dtloc);
 	
       if (dtloc<DTMIN || !WAS_SET) {
 	DTMIN = dtloc;
 	WAS_SET = 1;
-//   	PetscPrintf(PETSC_COMM_WORLD,
+//   	PetscPrintf(PETSCFEM_COMM_WORLD,
 //   		    "setting dtmin: %f, hloc %f, lambda_max: %f\n",
 //   		    DTMIN,hloc,lambda_max);
       }

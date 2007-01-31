@@ -44,7 +44,7 @@ int assemble(Mesh *mesh,arg_list argl,
   // pref:= Local values (reference state for finite difference jacobian).
   double *pref;
 
-  MPI_Comm_rank(PETSC_COMM_WORLD,&myrank);
+  MPI_Comm_rank(PETSCFEM_COMM_WORLD,&myrank);
   int nghost_dofs = dofmap->ghost_dofs->size();
 
   int j;
@@ -56,7 +56,7 @@ int assemble(Mesh *mesh,arg_list argl,
   // perturbed. 
   int any_fdj = 0,j_pert;
   for (j=0; j<narg; j++) {
-    // PetscPrintf(PETSC_COMM_WORLD,"Argument %d\n",j);
+    // PetscPrintf(PETSCFEM_COMM_WORLD,"Argument %d\n",j);
     if (argl[j].options & DOWNLOAD_VECTOR) {
 
       Vec *x = (Vec *) (argl[j].arg);
@@ -259,16 +259,16 @@ int assemble(Mesh *mesh,arg_list argl,
     // ierr = get_int(mesh->global_options,"report_consumed_time",
     // &report_consumed_time_size,1);
     if (report_consumed_time) {
-      PetscPrintf(PETSC_COMM_WORLD,
+      PetscPrintf(PETSCFEM_COMM_WORLD,
 		  "Performance report for elemset \"%s\" task \"%s\"\n"
 		  "[proc] - total[sec] - rate[sec/element]\n",
 		  elemset->type,jobinfo);
       double elapsed;
       elapsed=chrono.elapsed();
       double rate=elapsed/elemset->nelem_here;
-      PetscSynchronizedPrintf(PETSC_COMM_WORLD,
+      PetscSynchronizedPrintf(PETSCFEM_COMM_WORLD,
 			      "[proc %d]   %g   %g\n",myrank,elapsed,rate);
-      PetscSynchronizedFlush(PETSC_COMM_WORLD);
+      PetscSynchronizedFlush(PETSCFEM_COMM_WORLD);
     }
   }
 

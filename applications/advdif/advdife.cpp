@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: advdife.cpp,v 1.124 2007/01/30 19:03:44 mstorti Exp $
+//$Id: advdife.cpp,v 1.124.2.1 2007/01/31 02:02:56 dalcinl Exp $
 extern int comp_mat_each_time_step_g,
   consistent_supg_matrix_g,
   local_time_step_g;
@@ -61,21 +61,21 @@ void NewAdvDifFF::get_log_vars(int &nlog_vars,const int *& log_vars) {
   int ierr=0;
   for (int j=0; j<nlog_vars; j++) {
     if (log_vars_v[j]<=0) {
-      PetscPrintf(PETSC_COMM_WORLD,"Non positive dof in "
+      PetscPrintf(PETSCFEM_COMM_WORLD,"Non positive dof in "
 		  "\"log_vars_list\" entry: dof %d\n",
 		  log_vars_v[j]);
       ierr=1;
     } else if (log_vars_v[j]>ndof) {
-      PetscPrintf(PETSC_COMM_WORLD,"Dof grater that ndof in "
+      PetscPrintf(PETSCFEM_COMM_WORLD,"Dof grater that ndof in "
 		  "\"log_vars_list\" entry: dof %d, ndof %d\n",
 		  log_vars_v[j], ndof);
       ierr=1;
     }
     if (ierr) {
-      PetscPrintf(PETSC_COMM_WORLD,
+      PetscPrintf(PETSCFEM_COMM_WORLD,
 		  "Errors while reading \"log_vars_list\"\n");
       if (log_vars_entry)
-	PetscPrintf(PETSC_COMM_WORLD,
+	PetscPrintf(PETSCFEM_COMM_WORLD,
 		    "In line \"%s\"\n",s.c_str());
       exit(1);
     }
@@ -151,21 +151,21 @@ before_assemble(arg_data_list &arg_datav,Nodedata *nodedata,
 }
 
 void NewAdvDifFF::get_C(FastMat2 &C) {
-  PetscPrintf(PETSC_COMM_WORLD,
+  PetscPrintf(PETSCFEM_COMM_WORLD,
 	      "Not defined get_C() virtual function\n"
 	      "in the flux function object.\n");
   assert(0);
 }
 
 void NewAdvDifFF::get_Cp(FastMat2 &Cp) {
-  PetscPrintf(PETSC_COMM_WORLD,
+  PetscPrintf(PETSCFEM_COMM_WORLD,
 	      "Not defined get_Cp() virtual function\n"
 	      "in the flux function object.\n");
   assert(0);
 }
 
 void NewAdvDifFF::get_Ajac(FastMat2 &Ajac) {
-  PetscPrintf(PETSC_COMM_WORLD,
+  PetscPrintf(PETSCFEM_COMM_WORLD,
 	      "Not defined get_Ajac() virtual function\n"
 	      "in the flux function object.\n");
   assert(0);
@@ -313,7 +313,7 @@ void NewAdvDif::new_assemble(arg_data_list &arg_data_v,const Nodedata *nodedata,
   else if (axisymmetric=="y") axi=2;
   else if (axisymmetric=="z") axi=3;
   else {
-    PetscPrintf(PETSC_COMM_WORLD,
+    PetscPrintf(PETSCFEM_COMM_WORLD,
 		"Invalid value for \"axisymmetric\" option\n"
 		"axisymmetric=\"%s\"\n",axisymmetric.c_str());
     PetscFinalize();

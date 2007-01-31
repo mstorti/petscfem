@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: pfmat.cpp,v 1.15 2007/01/30 19:03:44 mstorti Exp $
+//$Id: pfmat.cpp,v 1.15.2.1 2007/01/31 02:02:56 dalcinl Exp $
 
 #include <petscmat.h>
 
@@ -263,28 +263,28 @@ PFMat * PFMat::dispatch(int N,DofPartitioner &part,const char *s) {
   // IISD solver with PETSc or SuperLU local solver
   if (!strcmp(s,"iisd_superlu")) {
 #ifdef USE_SUPERLU
-    AA =  new IISDMat(N,N,part,PETSC_COMM_WORLD);
+    AA =  new IISDMat(N,N,part,PETSCFEM_COMM_WORLD);
     AA->local_solver = IISDMat::SuperLU;
     return AA;
 #else
     PETSCFEM_ERROR0("Not compiled with SuperLU library!!\n");
 #endif
   } else if (!strcmp(s,"iisd_petsc")) {
-    AA =  new IISDMat(N,N,part,PETSC_COMM_WORLD);
+    AA =  new IISDMat(N,N,part,PETSCFEM_COMM_WORLD);
     AA->local_solver = IISDMat::PETSc;
     return AA;
   } else if (!strcmp(s,"iisd")) {
     // local solver is chosen by default
-    AA =  new IISDMat(N,N,part,PETSC_COMM_WORLD);
+    AA =  new IISDMat(N,N,part,PETSCFEM_COMM_WORLD);
     return AA;
   } else if (!strcmp(s,"petsc")) {
     // PETSc (iterative) solver 
-    A = new PETScMat(N,N,part,PETSC_COMM_WORLD);
+    A = new PETScMat(N,N,part,PETSCFEM_COMM_WORLD);
     return A;
   } else if (!strcmp(s,"petsc_symm")) {
     // PETSc (iterative) solver, symmetric matrix,
     // only iterative solvers (e.g. CG) allowed
-    A = new PETScSymmMat(N,N,part,PETSC_COMM_WORLD);
+    A = new PETScSymmMat(N,N,part,PETSCFEM_COMM_WORLD);
     return A;
   } else if (!strcmp(s,"direct_superlu")) {
 #ifdef USE_SUPERLU

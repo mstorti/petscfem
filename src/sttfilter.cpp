@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: sttfilter.cpp,v 1.9 2007/01/30 19:03:44 mstorti Exp $
+//$Id: sttfilter.cpp,v 1.9.2.1 2007/01/31 02:02:56 dalcinl Exp $
 
 #include "sttfilter.h"
 
@@ -61,7 +61,7 @@ LPFilterGroup::LPFilterGroup(TextHashTable *thash,
   if (entry) read_double_array(array,entry);
   nalpha = array.size();
   if (int(nalpha/2)*2 != nalpha) {
-    PetscPrintf(PETSC_COMM_WORLD,
+    PetscPrintf(PETSCFEM_COMM_WORLD,
 		"Number of entries in \"low_pass_filter\" should be even\n"
 		"Entered %d values\n",nalpha);
     exit(1);
@@ -74,7 +74,7 @@ LPFilterGroup::LPFilterGroup(TextHashTable *thash,
     double a = array[2*j+1];
     printf("aa %f, a %f\n",aa,a);
     if (aa <= 0.) {
-      PetscPrintf(PETSC_COMM_WORLD,
+      PetscPrintf(PETSCFEM_COMM_WORLD,
 		  "Odd entries in \"low_pass_filter\" should be "
 		  "positive reals. Entered %f\n",aa);
       exit(1);
@@ -82,7 +82,7 @@ LPFilterGroup::LPFilterGroup(TextHashTable *thash,
     gamma_v[j] = exp(-aa*Dt);
     int n = int(a);
     if (a != double(n) || n<=0) {
-      PetscPrintf(PETSC_COMM_WORLD,
+      PetscPrintf(PETSCFEM_COMM_WORLD,
 		  "Even entries in \"low_pass_filter\" should be "
 		  "positive integers\n"
 		  "gamma_1 n_1 gamma_2 n_2 ... Entered %f\n"

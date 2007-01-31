@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: iisdmat.cpp,v 1.71 2007/01/30 19:03:44 mstorti Exp $
+//$Id: iisdmat.cpp,v 1.71.2.1 2007/01/31 02:02:56 dalcinl Exp $
 // fixme:= this may not work in all applications
 #ifndef _GNU_SOURCE
 #define _GNU_SOURCE
@@ -55,7 +55,7 @@ PFPETScMat::~PFPETScMat() {}
 PFPETScMat::PFPETScMat(int MM,const DofPartitioner &pp,MPI_Comm comm_) 
   : 
     mat_size(MM),
-    A(NULL), P(NULL), sles(NULL), 
+    A(NULL), P(NULL), ksp(NULL), 
     factored(0), part(pp),
     lgraph_lkg(0,&part,comm_), 
     lgraph_dv(MM,&part,comm_),
@@ -115,8 +115,8 @@ int PFPETScMat::duplicate_a(MatDuplicateOption op,const PFMat &A) {
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 #undef __FUNC__
-#define __FUNC__ "PFPETScMat::build_sles"
-int PFPETScMat::build_sles() {
+#define __FUNC__ "PFPETScMat::build_ksp"
+int PFPETScMat::build_ksp() {
 
   int ierr;
   //o Absolute tolerance to solve the monolithic linear
@@ -140,6 +140,14 @@ int PFPETScMat::build_sles() {
   TGETOPTDEF_S_ND_PF(thash,string,KSP_method,gmres);
   //o Chooses the preconditioning operator. 
   TGETOPTDEF_S_PF(thash,string,preco_type,jacobi);
+  //o define subproblems in Additive Schwarz prec.
+  TGETOPTDEF_ND_PF(thash,int,asm_define_sub_problems,0);
+  //o Chooses the preconditioning for block problems in ASM method.
+  TGETOPTDEF_S_PF(thash,string,asm_sub_preco_type,ilu);
+  //o Chooses the number of local blocks in ASM
+  TGETOPTDEF_ND_PF(thash,int,asm_lblocks,1);
+  //o Chooses the overlap of blocks in ASM
+  TGETOPTDEF_ND_PF(thash,int,asm_overlap,1);
   //o Uses right or left preconditioning. Default is  #right#  for
   // GMRES. 
   TGETOPTDEF_S_PF(thash,string,preco_side,<ksp-dependent>);
@@ -149,19 +157,56 @@ int PFPETScMat::build_sles() {
   }
 
   if (KSP_method == "cg" && preco_side == "right") {
-    PetscPrintf(PETSC_COMM_WORLD,__FUNC__ 
+    PetscPrintf(PETSCFEM_COMM_WORLD,__FUNC__ 
 		": can't choose \"right\" preconditioning with KSP CG\n");
     preco_side = "left";
   }
 
-  ierr = SLESDestroy_maybe(sles); CHKERRQ(ierr);
-  ierr = SLESCreate(comm,&sles); CHKERRQ(ierr);
-  ierr = SLESSetOperators(sles,A,
-			  P,SAME_NONZERO_PATTERN); CHKERRQ(ierr);
-  ierr = SLESGetKSP(sles,&ksp); CHKERRQ(ierr);
-  ierr = SLESGetPC(sles,&pc); CHKERRQ(ierr);
+  ierr = KSPDestroy_maybe(ksp); CHKERRQ(ierr);
+  ierr = KSPCreate(comm,&ksp); CHKERRQ(ierr);
+  ierr = KSPSetOperators(ksp,A,
+			 P,SAME_NONZERO_PATTERN); CHKERRQ(ierr);
+  ierr = KSPGetPC(ksp,&pc); CHKERRQ(ierr);
 
-  set_preco(preco_type);
+#if 1
+  if (preco_type=="asm") {
+    int nprocs;
+    MPI_Comm_size(PETSCFEM_COMM_WORLD,&nprocs);
+    
+    ierr = PCSetType(pc,PCASM);CHKERRQ(ierr);
+    ierr = PCASMSetType(pc,PC_ASM_BASIC);CHKERRQ(ierr);
+    ierr = PCASMSetOverlap(pc,asm_overlap);
+    assert(asm_overlap>=0);
+    
+    /*
+      if (asm_lblocks==1 && nprocs==1)
+      PETSCFEM_ERROR0("PCASM uniprocessor and one block results in\n"
+      "a direct mewthod (ILU(0))! Please, if you don't want this set the\n"
+      "variables NP > 1 and/or asm_lblocks > 1\n");
+    */
+    if (asm_lblocks>1) ierr = PCASMSetLocalSubdomains(pc,asm_lblocks,PETSC_NULL);CHKERRQ(ierr);
+    if (asm_define_sub_problems && asm_lblocks>1){
+      int        nlocal,first;  /* number of local subblocks, first local subblock */
+      KSP        *subksp;             /* KSP context for subblock */
+      PC         subpc;              /* PC context for subblock */
+      
+      ierr = KSPSetUp(ksp);CHKERRQ(ierr);
+      //Extract array of KSP for the local blocks
+      ierr = PCASMGetSubKSP(pc,&nlocal,&first,&subksp); CHKERRQ(ierr);
+      //ierr = PCView(pc,PETSC_VIEWER_STDOUT_WORLD); CHKERRQ(ierr);    
+      assert(asm_lblocks>0);
+      for (int j=0; j<nlocal; j++) {
+ 	ierr = KSPGetPC(subksp[j],&subpc); CHKERRQ(ierr);
+ 	ierr = PCSetType(subpc,(char *)asm_sub_preco_type.c_str()); CHKERRQ(ierr);
+ 	ierr = KSPSetType(subksp[j],(char *)KSP_method.c_str());  CHKERRQ(ierr);
+ 	ierr = KSPSetTolerances(subksp[j],1.e-7,PETSC_DEFAULT,PETSC_DEFAULT,PETSC_DEFAULT); CHKERRQ(ierr);
+ 	//ierr = PCView(subpc,PETSC_VIEWER_STDOUT_WORLD);
+      }
+    }
+  } else
+#endif
+    
+    set_preco(preco_type);
 
   // warning:= avoiding `const' restriction!!
   ierr = KSPSetType(ksp,(char *)KSP_method.c_str()); CHKERRQ(ierr);
@@ -171,15 +216,17 @@ int PFPETScMat::build_sles() {
     // May be  {\tt unmodified\_gram\_schmidt},
     //  #modified_gram_schmidt#  or {\tt ir\_orthog} (default). (Iterative refinement).
     // See PETSc documentation. 
-    TGETOPTDEF_S_PF(thash,string,gmres_orthogonalization,ir_orthog);
+    TGETOPTDEF_S_PF(thash,string,gmres_orthogonalization,modified_gram_schmidt);
 
 #define SETORTH(key,fun) if (gmres_orthogonalization==key) fcn = &fun
-    SETORTH("ir_orthog",KSPGMRESIROrthogonalization);
+    //SETORTH("ir_orthog",KSPGMRESIROrthogonalization); 
+    SETORTH("classical_gram_schmidt",
+	    KSPGMRESClassicalGramSchmidtOrthogonalization);
     else SETORTH("unmodified_gram_schmidt",
-		 KSPGMRESUnmodifiedGramSchmidtOrthogonalization);
+		 KSPGMRESClassicalGramSchmidtOrthogonalization);
     else SETORTH("modified_gram_schmidt",
 		 KSPGMRESModifiedGramSchmidtOrthogonalization);
-    else PETSCFEM_ERROR("PFPETScMat::build_sles():: "
+    else PETSCFEM_ERROR("PFPETScMat::build_ksp():: "
 			"Bad \"gmres_orthogonalization\": %s\n",
 			gmres_orthogonalization.c_str());  
     ierr = KSPGMRESSetOrthogonalization(ksp,fcn);
@@ -188,8 +235,8 @@ int PFPETScMat::build_sles() {
   if (preco_side == "right")
     ierr = KSPSetPreconditionerSide(ksp,PC_RIGHT);
   else if (preco_side == "left") {}
-  else PetscPrintf(PETSC_COMM_WORLD,
-		   "PFPETScMat::build_sles: bad \"preco_side\" option: %s\n",
+  else PetscPrintf(PETSCFEM_COMM_WORLD,
+		   "PFPETScMat::build_ksp: bad \"preco_side\" option: %s\n",
 		   preco_side.c_str());
     
   //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
@@ -199,7 +246,7 @@ int PFPETScMat::build_sles() {
 
   ierr = KSPSetMonitor(ksp,PFPETScMat_default_monitor,this,NULL);
   CHKERRQ(ierr); 
-  // sles_was_built = 1; // included in `factored'
+  // ksp_was_built = 1; // included in `factored'
   return 0;
 }
 
@@ -216,7 +263,7 @@ int PFPETScMat::set_preco(const string & preco_type) {
 #undef __FUNC__
 #define __FUNC__ "PFPETScMat::clean_factor"
 int PFPETScMat::clean_factor_a() {
-  ierr = SLESDestroy_maybe(sles); CHKERRQ(ierr); 
+  ierr = KSPDestroy_maybe(ksp); CHKERRQ(ierr); 
   return 0;
 }
 
@@ -225,8 +272,8 @@ int PFPETScMat::clean_factor_a() {
 #define __FUNC__ "IISDMat::clean_factor_a"
 int IISDMat::clean_factor_a() {
   ierr = PFPETScMat::clean_factor_a(); CHKERRQ(ierr); 
-  ierr = SLESDestroy_maybe(sles_ll); CHKERRQ(ierr); 
-  ierr = SLESDestroy_maybe(sles_ii); CHKERRQ(ierr); 
+  ierr = KSPDestroy_maybe(ksp_ll); CHKERRQ(ierr); 
+  ierr = KSPDestroy_maybe(ksp_ii); CHKERRQ(ierr); 
   ierr = MatDestroy_maybe(A_LL); CHKERRQ(ierr); 
   return 0;
 }
@@ -273,7 +320,7 @@ IISDMat::IISDMat(int MM,int NN,const DofPartitioner &pp,MPI_Comm comm_a) :
   M(MM), N(NN), 
   use_interface_full_preco(0), nlay(0),
   A_LL(NULL), A_LL_other(NULL),
-  sles_ii(NULL), sles_ll(NULL),
+  ksp_ii(NULL), ksp_ll(NULL),
   local_solver(PETSc) { }
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
@@ -347,11 +394,11 @@ int IISDMat::local_solve(Vec x_loc,Vec y_loc,int trans,double c) {
 
   // Solve local system: x_loc_seq <- XL
   if (trans) {
-    ierr = SLESSolveTranspose(sles_ll,y_loc_seq,x_loc_seq,&its_);
-    CHKERRQ(ierr); 
+    ierr = KSPSolveTranspose(ksp_ll,y_loc_seq,x_loc_seq); CHKERRQ(ierr); 
+    ierr = KSPGetIterationNumber(ksp_ll,&its_); CHKERRQ(ierr); 
   } else {
-    ierr = SLESSolve(sles_ll,y_loc_seq,x_loc_seq,&its_);
-    CHKERRQ(ierr); 
+    ierr = KSPSolve(ksp_ll,y_loc_seq,x_loc_seq); CHKERRQ(ierr); 
+    ierr = KSPGetIterationNumber(ksp_ll,&its_); CHKERRQ(ierr); 
   }
   
   // Pass to global vector: x_loc <- XL
@@ -501,10 +548,10 @@ int IISDMat::assembly_begin_a(MatAssemblyType type) {
   if (nlay>1) { ierr = MatAssemblyBegin(A_II_isp,type); PF_CHKERRQ(ierr); }
 
 #if 0
-  PetscSynchronizedPrintf(PETSC_COMM_WORLD,
+  PetscSynchronizedPrintf(PETSCFEM_COMM_WORLD,
 			  "[%d] t1 %f, t2 %f, t3 %f, scattered %d, sr %d\n",
 			  MY_RANK,t1,t2,t3,scattered,sr);
-  PetscSynchronizedFlush(PETSC_COMM_WORLD);
+  PetscSynchronizedFlush(PETSCFEM_COMM_WORLD);
 #endif
   return 0;
 }
@@ -517,10 +564,10 @@ int IISDMat::assembly_end_a(MatAssemblyType type) {
 #if 0
   // This prints the time elapsed in 
   double beg,li,ii,il,ll;
-  PetscSynchronizedPrintf(PETSC_COMM_WORLD,
+  PetscSynchronizedPrintf(PETSCFEM_COMM_WORLD,
 			  "[%d] %d %d %d %d\n",
 			  MY_RANK,N_SET[0],N_SET[1],N_SET[2],N_SET[3]);
-  PetscSynchronizedFlush(PETSC_COMM_WORLD);
+  PetscSynchronizedFlush(PETSCFEM_COMM_WORLD);
   PetscFinalize();
   exit(0);
   beg = chrono.elapsed(); chrono.start();
@@ -534,11 +581,11 @@ int IISDMat::assembly_end_a(MatAssemblyType type) {
     ierr = MatAssemblyEnd(A_LL,type); PF_CHKERRQ(ierr);
   }
   ll  = chrono.elapsed(); chrono.start();
-  PetscSynchronizedPrintf(PETSC_COMM_WORLD,
+  PetscSynchronizedPrintf(PETSCFEM_COMM_WORLD,
 			  "[%d] iisdmat-assembly-end beg-li-ii-il-ll-tot: "
 			  "%f %f %f %f %f %f\n",
 			  MY_RANK,beg,li,ii,il,ll,beg+li+ii+il+ll);
-  PetscSynchronizedFlush(PETSC_COMM_WORLD);
+  PetscSynchronizedFlush(PETSCFEM_COMM_WORLD);
 #else
   ierr = MatAssemblyEnd(A_LI,type); PF_CHKERRQ(ierr);
   ierr = MatAssemblyEnd(A_II,type); PF_CHKERRQ(ierr);
@@ -607,8 +654,6 @@ int IISDMat::view(PetscViewer viewer) {
   ierr = MatView(A_II,viewer); PF_CHKERRQ(ierr);
 
   return 0;
-//    ViewerASCIIPrintf(viewer,"% IISD SLES\n");
-//    ierr =  SLESView(sles,viewer);
 }
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
@@ -750,7 +795,7 @@ PETSC_OBJECT_DESTROY_MAYBE(Mat)
 
 #undef __FUNC__
 #define __FUNC__ "SLESDestroy_maybe"
-PETSC_OBJECT_DESTROY_MAYBE(SLES)
+PETSC_OBJECT_DESTROY_MAYBE(KSP)
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 #undef __FUNC__
@@ -773,7 +818,7 @@ int IISDMat::maybe_factor_and_solve(Vec &res,Vec &dx,int factored=0) {
   exit(0);
 #endif
 
-  if (!factored) build_sles();
+  if (!factored) build_ksp();
 
   if (n_int_tot > 0 ) {
     
@@ -795,26 +840,24 @@ int IISDMat::maybe_factor_and_solve(Vec &res,Vec &dx,int factored=0) {
 
     if (!factored && local_solver == PETSc) {
     
-      ierr = SLESDestroy_maybe(sles_ll); PF_CHKERRQ(ierr); 
-      ierr = SLESCreate(PETSC_COMM_SELF,&sles_ll); PF_CHKERRQ(ierr); 
-      ierr = SLESSetOperators(sles_ll,A_LL,
+      ierr = KSPDestroy_maybe(ksp_ll); PF_CHKERRQ(ierr); 
+      ierr = KSPCreate(PETSC_COMM_SELF,&ksp_ll); PF_CHKERRQ(ierr); 
+      ierr = KSPSetOperators(ksp_ll,A_LL,
 			      A_LL,SAME_NONZERO_PATTERN); PF_CHKERRQ(ierr); 
-      ierr = SLESGetKSP(sles_ll,&ksp_ll); PF_CHKERRQ(ierr); 
-      ierr = SLESGetPC(sles_ll,&pc_ll); PF_CHKERRQ(ierr); 
+      ierr = KSPGetPC(ksp_ll,&pc_ll); PF_CHKERRQ(ierr); 
 
       ierr = KSPSetType(ksp_ll,KSPPREONLY); PF_CHKERRQ(ierr); 
       ierr = PCSetType(pc_ll,PCLU); PF_CHKERRQ(ierr); 
-      ierr = PCLUSetFill(pc_ll,pc_lu_fill); PF_CHKERRQ(ierr); 
+      ierr = PCFactorSetFill(pc_ll,pc_lu_fill); PF_CHKERRQ(ierr); 
       // ierr = PCLUSetMatOrdering(pc_ll,MATORDERING_RCM);
 
       if (use_interface_full_preco) {
-	ierr = SLESDestroy_maybe(sles_ii); PF_CHKERRQ(ierr); 
-	ierr = SLESCreate(comm,&sles_ii); PF_CHKERRQ(ierr); 
+	ierr = KSPDestroy_maybe(ksp_ii); PF_CHKERRQ(ierr); 
+	ierr = KSPCreate(comm,&ksp_ii); PF_CHKERRQ(ierr); 
 	Mat A_II_g = (nlay>1 ? A_II_isp : A_II);
-	ierr = SLESSetOperators(sles_ii,A_II_g,
+	ierr = KSPSetOperators(ksp_ii,A_II_g,
 				A_II_g,SAME_NONZERO_PATTERN); PF_CHKERRQ(ierr); 
-	ierr = SLESGetKSP(sles_ii,&ksp_ii); PF_CHKERRQ(ierr); 
-	ierr = SLESGetPC(sles_ii,&pc_ii); PF_CHKERRQ(ierr); 
+	ierr = KSPGetPC(ksp_ii,&pc_ii); PF_CHKERRQ(ierr); 
 	// ierr = KSPSetType(ksp_ii,KSPGMRES); PF_CHKERRQ(ierr); 
 	ierr = KSPSetType(ksp_ii,KSPRICHARDSON); PF_CHKERRQ(ierr); 
 	ierr = KSPRichardsonSetScale(ksp_ii,interface_full_preco_relax_factor);
@@ -834,7 +877,7 @@ int IISDMat::maybe_factor_and_solve(Vec &res,Vec &dx,int factored=0) {
       // To print the Schur matrix by columns
       for (j = 0; j < n_int_tot; j++) {
 	scal = 0.;
-	ierr = VecSet(&scal,x_i); 
+	ierr = VecSet(x_i,scal); 
 	PF_CHKERRQ(ierr); 
 	scal = 1.;
 	ierr = VecSetValues(x_i,1,&j,&scal,INSERT_VALUES);
@@ -886,14 +929,15 @@ int IISDMat::maybe_factor_and_solve(Vec &res,Vec &dx,int factored=0) {
 
 
     // Solves the interface problem (iteratively)
-    ierr = SLESSolve(sles,res_i,x_i,&itss); PF_CHKERRQ(ierr); 
-    
+    ierr = KSPSolve(ksp,res_i,x_i); PF_CHKERRQ(ierr); 
+    ierr = KSPGetIterationNumber(ksp_ll,&itss); CHKERRQ(ierr); 
+
     ierr = VecDuplicate(res_loc,&res_loc_i); PF_CHKERRQ(ierr); 
 
     ierr = MatMult(A_LI,x_i,res_loc_i); PF_CHKERRQ(ierr);
 
     scal = -1.;
-    ierr = VecAXPY(&scal,res_loc_i,res_loc); PF_CHKERRQ(ierr);
+    ierr = VecAXPY(res_loc,scal,res_loc_i); PF_CHKERRQ(ierr);
     
     if (local_solver == PETSc) {
       local_solve(x_loc,res_loc);
@@ -940,7 +984,7 @@ int IISDMat::maybe_factor_and_solve(Vec &res,Vec &dx,int factored=0) {
     ierr = VecGetArray(res,&res_a); PF_CHKERRQ(ierr); 
 
     scal=0.;
-    ierr = VecSet(&scal,y_loc_seq); PF_CHKERRQ(ierr);
+    ierr = VecSet(y_loc_seq,scal); PF_CHKERRQ(ierr);
     for (int j = 0; j < neqp; j++) {
       int dof = dofs_proc[j];
       kloc = map_dof[dof] - n_locp;
@@ -954,24 +998,23 @@ int IISDMat::maybe_factor_and_solve(Vec &res,Vec &dx,int factored=0) {
     if (n_loc > 0) {
 
       if (local_solver == PETSc) {
-	SLES sles_lll;
 	KSP ksp_lll;
 	PC pc_lll;
 
-	ierr = SLESCreate(PETSC_COMM_SELF,&sles_lll); PF_CHKERRQ(ierr); 
-	ierr = SLESSetOperators(sles_lll,A_LL,
+	ierr = KSPCreate(PETSC_COMM_SELF,&ksp_lll); PF_CHKERRQ(ierr); 
+	// fix me @@@@@ ierr = KSPSetType(ksp_lll,KSPPREONLY);PF_CHKERRQ(ierr); 
+	ierr = KSPSetOperators(ksp_lll,A_LL,
 				A_LL,SAME_NONZERO_PATTERN); PF_CHKERRQ(ierr); 
-	ierr = SLESGetKSP(sles_lll,&ksp_lll); PF_CHKERRQ(ierr); 
-	ierr = SLESGetPC(sles_lll,&pc_lll); PF_CHKERRQ(ierr); 
+	ierr = KSPGetPC(ksp_lll,&pc_lll); PF_CHKERRQ(ierr); 
 
 	ierr = KSPSetTolerances(ksp_lll,0,0,1e10,1); PF_CHKERRQ(ierr); 
-
 	ierr = PCSetType(pc_lll,PCLU); PF_CHKERRQ(ierr); 
 	ierr = KSPSetMonitor(ksp_lll,petscfem_null_monitor,PETSC_NULL,NULL);
 
-	ierr = SLESSolve(sles_lll,y_loc_seq,x_loc_seq,&itss); PF_CHKERRQ(ierr); 
+	ierr = KSPSolve(ksp_lll,y_loc_seq,x_loc_seq); PF_CHKERRQ(ierr); 
+	ierr = KSPGetIterationNumber(ksp_lll,&itss); PF_CHKERRQ(ierr); 
 
-	ierr = SLESDestroy(sles_lll); CHKERRA(ierr); PF_CHKERRQ(ierr); 
+	ierr = KSPDestroy(ksp_lll); CHKERRA(ierr); PF_CHKERRQ(ierr); 
 
       } else { // local_solver == SuperLU
 
@@ -1033,7 +1076,8 @@ int IISDMat::set_preco(const string & preco_type) {
   int ierr;
   if (preco_type=="jacobi" || preco_type=="") {
     ierr = PCSetType(pc,PCSHELL); CHKERRQ(ierr);
-    ierr = PCShellSetApply(pc,&iisd_pc_apply,this); 
+    ierr = PCShellSetContext(pc,this);CHKERRQ(ierr);
+    ierr = PCShellSetApply(pc,iisd_pc_apply); CHKERRQ(ierr);
   } else if (preco_type=="none" ) {
     ierr = PCSetType(pc,PCNONE); CHKERRQ(ierr);
   } else {
@@ -1071,8 +1115,8 @@ int IISDMat::pc_apply(Vec x,Vec w) {
     int its;
     if (nlay==1) {
       // Solves `w = A_II \ x' iteratively. 
-      ierr = SLESSolve(sles_ii,x,w,&its);
-      CHKERRQ(ierr);
+      ierr = KSPSolve(ksp_ii,x,w); CHKERRQ(ierr);
+      ierr = KSPGetIterationNumber(ksp_ii,&its); CHKERRQ(ierr); 
     } else {
       const int &neq = M;
       // Injects `x' in `xb'. Solves `A_II_isp wb = xb'
@@ -1082,8 +1126,7 @@ int IISDMat::pc_apply(Vec x,Vec w) {
       MPI_Comm_rank(comm, &myrank);
 
       double scal = 0.;
-      ierr = VecSet(&scal,xb); 
-      PF_CHKERRQ(ierr); 
+      ierr = VecSet(xb,scal); PF_CHKERRQ(ierr); 
       
       // Injects `x' in `xb'.
       double *xbp, *wbp, *xp, *wp;
@@ -1109,8 +1152,8 @@ int IISDMat::pc_apply(Vec x,Vec w) {
       ierr = VecRestoreArray(x,&xp); PF_CHKERRQ(ierr); 
 
       //Solves `A_II_isp wb = xb'
-      ierr = SLESSolve(sles_ii,xb,wb,&its);
-      CHKERRQ(ierr);
+      ierr = KSPSolve(ksp_ii,xb,wb); CHKERRQ(ierr);
+      ierr = KSPGetIterationNumber(ksp_ii,&its); CHKERRQ(ierr); 
 
       // Takes `w' from `wb'
       ierr = VecGetArray(wb,&wbp); PF_CHKERRQ(ierr); 
@@ -1134,7 +1177,7 @@ int IISDMat::pc_apply(Vec x,Vec w) {
     
   } else {
     // Computes the componentwise division w = x/y. 
-    ierr = VecPointwiseDivide(x,A_II_diag,w); CHKERRQ(ierr);  
+    ierr = VecPointwiseDivide(w,x,A_II_diag); CHKERRQ(ierr);  
   }
   return 0;
 }
@@ -1144,15 +1187,15 @@ iisdmat_stat_t iisdmat_stat;
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>
 void iisdmat_stat_t::report() {
-  PetscPrintf(PETSC_COMM_WORLD,"iters %d\n",count);
+  PetscPrintf(PETSCFEM_COMM_WORLD,"iters %d\n",count);
   local[0] /= count;
   interf[0] /= count;
-  PetscSynchronizedPrintf(PETSC_COMM_WORLD,
+  PetscSynchronizedPrintf(PETSCFEM_COMM_WORLD,
 			  "[%d] count %d, local: averg %f, min %f, max %f "
 			  "interf: averg %f, min %f, max %f\n",
 			  MY_RANK, count, local[0],local[1],local[2],
 			  interf[0],interf[1],interf[2]);
-  PetscSynchronizedFlush(PETSC_COMM_WORLD); 
+  PetscSynchronizedFlush(PETSCFEM_COMM_WORLD); 
   reset();
 }
 

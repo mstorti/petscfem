@@ -1,6 +1,6 @@
 // -*- mode: C++ -*- 
 /*__INSERT_LICENSE__*/
-// $Id: spetscmat.h,v 1.4 2004/10/25 02:09:32 mstorti Exp $
+// $Id: spetscmat.h,v 1.4.64.1 2007/01/31 02:02:56 dalcinl Exp $
 #ifndef PETSCFEM_SPETSCMAT_H
 #define PETSCFEM_SPETSCMAT_H
 
@@ -8,7 +8,7 @@
 #include <vector>
 
 #include <petsc.h>
-#include <petscsles.h>
+#include <petscksp.h>
 
 #include <src/iisdgraph.h>
 #include <src/graphdv.h>
@@ -27,7 +27,7 @@ protected:
 public:
 
   PETScSymmMat(int MM,int NN,const DofPartitioner &part_a,
-		 MPI_Comm comm_a = PETSC_COMM_WORLD);
+		 MPI_Comm comm_a = PETSCFEM_COMM_WORLD);
 
   int mult(Vec x,Vec y);
 
@@ -39,7 +39,7 @@ public:
 
   int duplicate_a(MatDuplicateOption op,const PFMat &A) { assert(0); }
 
-  int build_sles();
+  int build_ksp();
 
 };
 

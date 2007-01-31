@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: mmvmain.cpp,v 1.10 2007/01/30 19:03:44 mstorti Exp $
+//$Id: mmvmain.cpp,v 1.10.2.1 2007/01/31 02:02:56 dalcinl Exp $
 #include <src/debug.h>
 #include <malloc.h>
 
@@ -53,7 +53,7 @@ int mmove_main() {
   string save_file_res;
   BasicObject_application_factory = &BasicObject_ns_factory;
   
-  // ierr = MatCreateShell(PETSC_COMM_WORLD,int m,int n,int M,int N,void *ctx,Mat *Ap)
+  // ierr = MatCreateShell(PETSCFEM_COMM_WORLD,int m,int n,int M,int N,void *ctx,Mat *Ap)
   char fcase[FLEN+1],output_file[FLEN+1];
   Dofmap *dofmap;
   Mesh *mesh;
@@ -63,9 +63,9 @@ int mmove_main() {
   hmin.resize(1);
 
   print_copyright();
-  PetscPrintf(PETSC_COMM_WORLD,"-------- MESH-MOVE module ---------\n");
+  PetscPrintf(PETSCFEM_COMM_WORLD,"-------- MESH-MOVE module ---------\n");
 
-  Debug debug(0,PETSC_COMM_WORLD);
+  Debug debug(0,PETSCFEM_COMM_WORLD);
   GLOBAL_DEBUG = &debug;
 
   int activate_debug=0;
@@ -79,7 +79,7 @@ int mmove_main() {
   ierr = PetscOptionsGetString(PETSC_NULL,"-case",fcase,FLEN,&flg);
   CHKERRA(ierr);
   if (!flg) {
-    PetscPrintf(PETSC_COMM_WORLD,
+    PetscPrintf(PETSCFEM_COMM_WORLD,
 		"Option \"-case <filename>\" not passed to PETSc-FEM!!\n");
     PetscFinalize();
     exit(0);
@@ -88,11 +88,11 @@ int mmove_main() {
   ierr = PetscOptionsGetString(PETSC_NULL,"-o",output_file,FLEN,&flg);
   CHKERRA(ierr);
   if (flg) { 
-    PetscPrintf(PETSC_COMM_WORLD,"PETSc-FEM: NS module: "
+    PetscPrintf(PETSCFEM_COMM_WORLD,"PETSc-FEM: NS module: "
 		"redirecting output to \"%s\"\n",output_file);
     FILE *new_stdout = fopen(output_file,"w");
     if (!new_stdout) {
-      PetscPrintf(PETSC_COMM_WORLD,"error redirecting output. "
+      PetscPrintf(PETSCFEM_COMM_WORLD,"error redirecting output. "
 		  "Couldn't open \"%s\"\n",output_file);
     } else {
       fclose(stdout);
@@ -277,8 +277,8 @@ int mmove_main() {
   GETOPTDEF(int,A_van_Driest,0);
 
   if(A_van_Driest>0) { 
-    PetscPrintf(PETSC_COMM_WORLD,"--- Don forget to refresh Wall_Data -- \n");
-    PetscPrintf(PETSC_COMM_WORLD,"--- using update_wall_data global option -- \n");
+    PetscPrintf(PETSCFEM_COMM_WORLD,"--- Don forget to refresh Wall_Data -- \n");
+    PetscPrintf(PETSCFEM_COMM_WORLD,"--- using update_wall_data global option -- \n");
   }
 
   //o Use IISD (Interface Iterative Subdomain Direct) or not.
@@ -335,7 +335,7 @@ int mmove_main() {
   //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
   // initialize state vectors
   scal=0;
-  ierr = VecSet(&scal,x); CHKERRA(ierr);
+  ierr = VecSet(x,scal); CHKERRA(ierr);
 
   //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
   // Compute  profiles
@@ -386,7 +386,7 @@ int mmove_main() {
     argl.arg_add(&wall_data,USER_DATA);
 
     scal=0;
-    ierr = VecSet(&scal,res); CHKERRA(ierr);
+    ierr = VecSet(res,scal); CHKERRA(ierr);
     ierr = Ap->clean_mat(); CHKERRA(ierr); 
     debug.trace("Before residual computation...");
     ierr = assemble(mesh,argl,dofmap,"comp_mat_res",&time);
@@ -414,7 +414,7 @@ int mmove_main() {
     argl.arg_add(&wall_data,USER_DATA);
 
     scal=0;
-    ierr = VecSet(&scal,resp); CHKERRA(ierr);
+    ierr = VecSet(resp,scal); CHKERRA(ierr);
     ierr = Ap->clean_mat(); CHKERRA(ierr); 
     debug.trace("Before residual computation...");
     ierr = assemble(mesh,argl,dofmap,"comp_mat_res",&time);
@@ -429,7 +429,7 @@ int mmove_main() {
 
     // resp = (resp-res)
     scal = -1.;
-    ierr = VecAXPY(&scal,res,resp); CHKERRQ(ierr); 
+    ierr = VecAXPY(resp,scal,res); CHKERRQ(ierr); 
     
 #ifdef MMV_DBG
     printf("(resp-res)/time_fac_epsilon: ");
@@ -438,7 +438,7 @@ int mmove_main() {
 #endif
 
     scal = 1./time_fac_epsilon;
-    ierr = VecScale(&scal,resp);
+    ierr = VecScale(resp,scal);
     ierr = Ap->solve(resp,dx); CHKERRA(ierr); 
 
 #ifdef MMV_DBG
@@ -450,7 +450,7 @@ int mmove_main() {
 
     // x = x+dx
     scal = 1.0;
-    ierr = VecAXPY(&scal,dx,x); CHKERRA(ierr); 
+    ierr = VecAXPY(x,scal,dx); CHKERRA(ierr); 
 
     time.set(time_old.time());
     time.inc(Dt);
@@ -471,7 +471,7 @@ int mmove_main() {
       ierr = Ap->clean_mat(); CHKERRA(ierr); 
 
       scal=0;
-      ierr = VecSet(&scal,res); CHKERRA(ierr);
+      ierr = VecSet(res,scal); CHKERRA(ierr);
 
       argl.clear();
       state.set_time(time);
@@ -496,10 +496,10 @@ int mmove_main() {
       }
 
       if (print_linear_system_and_stop) {
-	PetscPrintf(PETSC_COMM_WORLD,
+	PetscPrintf(PETSCFEM_COMM_WORLD,
 		    "Printing residual and matrix for"
 		    " debugging and stopping.\n");
-	ierr = PetscViewerASCIIOpen(PETSC_COMM_WORLD,
+	ierr = PetscViewerASCIIOpen(PETSCFEM_COMM_WORLD,
 				    "system.dat",&matlab); CHKERRA(ierr);
 	ierr = PetscViewerSetFormat_WRAPPER(matlab,
 					    PETSC_VIEWER_ASCII_MATLAB,
@@ -525,7 +525,7 @@ int mmove_main() {
       double normres;
       ierr  = VecNorm(res,NORM_2,&normres); CHKERRA(ierr);
       if (inwt==0) normres_external = normres;
-      PetscPrintf(PETSC_COMM_WORLD,
+      PetscPrintf(PETSCFEM_COMM_WORLD,
 		  "Newton subiter %d, norm_res  = %10.3e\n",
 		  inwt,normres);
 
@@ -539,10 +539,10 @@ int mmove_main() {
 	nrf_indx += 2;
       }
       relfac = newton_relaxation_factor[nrf_indx-1];
-      if (relfac!=1.) PetscPrintf(PETSC_COMM_WORLD,
+      if (relfac!=1.) PetscPrintf(PETSCFEM_COMM_WORLD,
 				  "relaxation factor %f\n",relfac);
       scal= relfac/alpha;
-      ierr = VecAXPY(&scal,dx,x);
+      ierr = VecAXPY(x,scal,dx);
 
 #if 0
       ierr = VecView(x,PETSC_VIEWER_STDOUT_WORLD); CHKERRA(ierr);
@@ -555,7 +555,7 @@ int mmove_main() {
     } // end of loop over Newton subiteration (inwt)
 
     if (normres_external < tol_newton) {
-      PetscPrintf(PETSC_COMM_WORLD,
+      PetscPrintf(PETSCFEM_COMM_WORLD,
 		  "Tolerance on newton loop reached:  "
 		  "|| R ||_0,  norm_res =%g < tol = %g\n",
 		  normres_external,tol_newton);
@@ -564,9 +564,9 @@ int mmove_main() {
 
     // error difference
     scal = -1.0;
-    ierr = VecAXPY(&scal,x,dx_step);
+    ierr = VecAXPY(dx_step,scal,x);
     ierr  = VecNorm(dx_step,NORM_2,&norm); CHKERRA(ierr);
-    PetscPrintf(PETSC_COMM_WORLD,"============= delta_u = %10.3e\n",norm);
+    PetscPrintf(PETSCFEM_COMM_WORLD,"============= delta_u = %10.3e\n",norm);
     print_vector_rota(save_file_pattern.c_str(),x,dofmap,&time,
 		      tstep-1,nsaverot,nrec,nfile);
   
