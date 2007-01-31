@@ -4,7 +4,7 @@
 
 
 //__INSERT_LICENSE__
-//$Id: fm2eperl.cpp,v 1.31 2005/10/19 21:49:34 mstorti Exp $
+//$Id: fm2eperl.cpp,v 1.32 2007/01/31 15:33:12 mstorti Exp $
 #include <math.h>
 #include <stdio.h>
 
@@ -2829,7 +2829,7 @@ printf(" cache_list %p, cache %p, position_in_cache %d\n",
   double **to = cache->pto;
   double **to_end = to + cache->nelems;
   while (to<to_end) {
-    **to = val/(**to++);
+    **to = val/(**to); to++;
   }
 
   if (!use_cache) delete cache;

@@ -4,7 +4,7 @@
 
 
 //__INSERT_LICENSE__
-//$Id: fm2eperl2.cpp,v 1.16 2005/10/19 21:49:34 mstorti Exp $
+//$Id: fm2eperl2.cpp,v 1.17 2007/01/31 15:33:12 mstorti Exp $
 #include <math.h>
 #include <stdio.h>
 
@@ -319,7 +319,7 @@ class inv_cache : public FastMatSubCache {
 public:
   double *A,*b,*inv_A;
   int *ipvt;
-  inv_cache() : A(NULL), ipvt(NULL), b(NULL), inv_A(NULL) {}
+  inv_cache() : A(NULL), b(NULL), inv_A(NULL), ipvt(NULL) {}
   ~inv_cache() {
     delete[] A;
     delete[] inv_A;

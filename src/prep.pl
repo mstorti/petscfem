@@ -87,7 +87,7 @@ sub in_place_all {
     in_place('set','**to++ = val',{'FUN_ARGS' => 'const double val'});
     in_place('scale','**to++ *= val');
     in_place('add','**to++ += val');
-    in_place('rcp','**to = val/(**to++)',{'FUN_ARGS' => 'const double val'});
+    in_place('rcp','**to = val/(**to); to++',{'FUN_ARGS' => 'const double val'});
     in_place('fun','**to = (*fun_)(**to); **to++',
 	     {'FUN_ARGS' => 'scalar_fun_t *fun_'});
     in_place('fun','**to = (*fun_)(**to,user_args); **to++',

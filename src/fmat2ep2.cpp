@@ -2,7 +2,7 @@
 //<=$warn_dont_modify //>
 
 //__INSERT_LICENSE__
-//$Id: fmat2ep2.cpp,v 1.11 2005/10/19 17:40:33 mstorti Exp $
+//$Id: fmat2ep2.cpp,v 1.12 2007/01/31 15:33:12 mstorti Exp $
 #include <math.h>
 #include <stdio.h>
 
@@ -275,7 +275,7 @@ class inv_cache : public FastMatSubCache {
 public:
   double *A,*b,*inv_A;
   int *ipvt;
-  inv_cache() : A(NULL), ipvt(NULL), b(NULL), inv_A(NULL) {}
+  inv_cache() : A(NULL), b(NULL), inv_A(NULL), ipvt(NULL) {}
   ~inv_cache() {
     delete[] A;
     delete[] inv_A;
