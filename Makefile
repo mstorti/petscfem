@@ -1,6 +1,6 @@
 # mode: -*- makefile -*-
 #__INSERT_LICENSE__
-#$Id: Makefile,v 1.65 2006/08/02 16:36:10 mstorti Exp $
+#$Id: Makefile,v 1.65.12.1 2007/01/31 18:55:27 dalcinl Exp $
 
 SHELL = /bin/bash
 
@@ -59,7 +59,7 @@ apps_all:
 
 #w Make all `new' (NS and Advdif) applications
 napps_all: 
-	$(MAKE) advdif_all ns_all
+	$(MAKE)  ns_all advdif_all
 
 #w Make `new' (NS and Advdif) applications
 napps: 
@@ -129,9 +129,9 @@ TAGDIRS = src $(APPDIRS)
 tags: 
 	for dir in $(TAGDIRS) ; do $(MAKE) -C $$dir TAGS ; done
 
-PETSCFEM_DIR     = .
+PETSCFEM_DIR = .
 include $(PETSCFEM_DIR)/Makefile.base
-LOCDIR           = $(PWD)
+LOCDIR  = $(PWD)
 
 DIRS = doc manual src ns advective tryme laplace 
 
@@ -158,20 +158,28 @@ ns_g:
 ns_O:
 	$(MAKE) BOPT=O_c++ ns
 
-#w Make Advdif module (O_c++ and g_c++)
-advdif_all: 
-	$(MAKE) BOPT=g_c++ advdif
-	$(MAKE) BOPT=O_c++ advdif
-
-#w Builds th advective systems module (Euler, shallow water)
-adv: libpetscfem
-	$(MAKE) -C applications/advective adv$(osfx).bin
 
 #w Builds the Advective/diffusive systems module (NS-compresible,
 #w 		(shallow water+diffusive and turbulent terms, 
 #w               linear advection diffusion, burgers
 advdif: libpetscfem
 	$(MAKE) -C applications/advdif advdif$(osfx).bin
+
+#w Make Advdif module module (debugger and optimized versions)
+advdif_all: advdif_g advdif_O
+
+#w Make Advdif module module (debugger version)
+advdif_g: 
+	$(MAKE) BOPT=g_c++ advdif
+
+#w Make Advdif module (optimized version)
+advdif_O:
+	$(MAKE) BOPT=O_c++ advdif
+
+
+#w Builds th advective systems module (Euler, shallow water)
+adv: libpetscfem
+	$(MAKE) -C applications/advective adv$(osfx).bin
 
 #w Builds the Laplace module
 laplace: libpetscfem
@@ -249,12 +257,15 @@ ltag:
 torture:
 	$(MAKE) -C test torture
 
-#w Cleans all optimized libraries and binaries
-clean_O:
-	-rm -f `find . -name '*_O.a'` `find . -name '*_O.bin'` 
+#w Cleans all libraries and binaries
+clean_all: clean_g clean_O
 
 clean_g:
-	-rm -f `find . -name '*_g.a'` `find . -name '*_g.bin'` 
+	-${RM} `find . -name '*_g.a'` `find . -name '*_g.bin'` 
+
+clean_O:
+	-${RM} `find . -name '*_O.a'` `find . -name '*_O.bin'` 
+
 
 #w Updates working directory
 sync:

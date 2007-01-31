@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: mainutl.cpp,v 1.33.2.1 2007/01/31 02:02:56 dalcinl Exp $
+//$Id: mainutl.cpp,v 1.33.2.2 2007/01/31 18:55:27 dalcinl Exp $
  
 #include "fem.h"
 #include "utils.h"
@@ -10,8 +10,6 @@
 #include "generror.h"
 #include <src/debug.h>
 #include <src/dvector.h>
-
-extern int MY_RANK,SIZE;
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 #undef __FUNC__

@@ -1,10 +1,9 @@
 //__INSERT_LICENSE__
-//$Id: iisdmat.cpp,v 1.71.2.1 2007/01/31 02:02:56 dalcinl Exp $
+//$Id: iisdmat.cpp,v 1.71.2.2 2007/01/31 18:55:27 dalcinl Exp $
 // fixme:= this may not work in all applications
 #ifndef _GNU_SOURCE
 #define _GNU_SOURCE
 #endif
-extern int MY_RANK,SIZE;
 
 #include <typeinfo>
 #include "libretto.h"

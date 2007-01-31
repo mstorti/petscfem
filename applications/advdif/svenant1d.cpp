@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: svenant1d.cpp,v 1.1 2005/08/24 01:52:49 mstorti Exp $
+//$Id: svenant1d.cpp,v 1.1.26.1 2007/01/31 18:55:27 dalcinl Exp $
 
 #include <src/fem.h>
 #include <src/texthash.h>
@@ -8,7 +8,6 @@
 
 #include "svenant1d.h"
 
-extern int MY_RANK,SIZE;
 
 #define GF_GETOPTDEF_ND(type,var,def)				\
  { if (elemset) { EGETOPTDEF_ND(elemset,type,var,def); }	\

@@ -1,9 +1,8 @@
 //__INSERT_LICENSE__
-//$Id: diff.cpp,v 1.10 2005/05/02 23:56:09 mstorti Exp $
+//$Id: diff.cpp,v 1.10.32.1 2007/01/31 18:55:27 dalcinl Exp $
 extern int comp_mat_each_time_step_g,
   consistent_supg_matrix_g,
   local_time_step_g;
-extern int MY_RANK,SIZE;
   
 #include <vector>
 #include <string>

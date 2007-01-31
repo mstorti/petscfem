@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: nsstruct.cpp,v 1.5.2.1 2007/01/31 02:02:56 dalcinl Exp $
+//$Id: nsstruct.cpp,v 1.5.2.2 2007/01/31 18:55:27 dalcinl Exp $
 #include <src/debug.h>
 #include <malloc.h>
 
@@ -20,7 +20,6 @@
 #include <applications/ns/nsi_tet.h>
 static char help[] = "PETSc-FEM Navier Stokes module\n\n";
 
-extern int MY_RANK,SIZE;
 extern WallData wall_data;
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 

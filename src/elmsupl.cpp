@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: elmsupl.cpp,v 1.31.2.1 2007/01/31 02:02:56 dalcinl Exp $
+//$Id: elmsupl.cpp,v 1.31.2.2 2007/01/31 18:55:27 dalcinl Exp $
 
 #ifndef _GNU_SOURCE
 #define _GNU_SOURCE
@@ -25,7 +25,6 @@
 // iteration modes
 #define NOT_INCLUDE_GHOST_ELEMS 0
 #define INCLUDE_GHOST_ELEMS 1
-extern int MY_RANK,SIZE;
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 #define LOCST(iele,j,k) VEC3(locst,iele,j,nel,k,ndof)

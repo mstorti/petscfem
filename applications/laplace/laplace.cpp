@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: laplace.cpp,v 1.13.104.1 2007/01/31 02:02:56 dalcinl Exp $
+//$Id: laplace.cpp,v 1.13.104.2 2007/01/31 18:55:27 dalcinl Exp $
  
 #include <src/fem.h>
 #include <src/readmesh.h>
@@ -11,7 +11,6 @@
 #include "lapla.h"
 #include <time.h>
 
-extern int MY_RANK,SIZE;
 // TextHashTable *GLOBAL_OPTIONS;
 
 static char help[] = "Basic finite element program.\n\n";
@@ -41,6 +40,9 @@ void bless_elemset(char *type,Elemset *& elemset) {
 #undef __FUNC__
 #define __FUNC__ "main"
 int main(int argc,char **args) {
+
+  PetscFemInitialize(&argc,&args,(char *)0,help);
+
   Vec     x, res;
   Mat     A;                          /* linear system matrix */
   PC      pc;           /* preconditioner context */
@@ -52,8 +54,6 @@ int main(int argc,char **args) {
   char fcase[FLEN+1];
   Dofmap *dofmap;
   Mesh *mesh;
-
-  PetscInitialize(&argc,&args,(char *)0,help);
 
   PETSCFEM_COMM_WORLD = PETSC_COMM_WORLD;
   // Get MPI info

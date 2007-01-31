@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: fem.cpp,v 1.15.2.1 2007/01/31 02:02:56 dalcinl Exp $
+//$Id: fem.cpp,v 1.15.2.2 2007/01/31 18:55:27 dalcinl Exp $
 
 #include <time.h>
 #include <stdarg.h>
@@ -11,7 +11,18 @@
 #include "pfmat.h"
 
 MPI_Comm PETSCFEM_COMM_WORLD=0;
-int MY_RANK, SIZE;
+int MY_RANK=0, SIZE=1;
+
+int PetscFemInitialize(int *argc,char ***args,const char file[],const char help[])
+{
+  int ierr;
+  ierr = PetscInitialize(argc,args,file,help);
+  PETSCFEM_COMM_WORLD = PETSC_COMM_WORLD;
+  ierr = MPI_Comm_size(PETSCFEM_COMM_WORLD,&SIZE);
+  ierr = MPI_Comm_rank(PETSCFEM_COMM_WORLD,&MY_RANK);
+  return 0;
+}
+
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 #undef __FUNC__

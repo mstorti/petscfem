@@ -12,7 +12,6 @@
 #include "./fracstep.h"
 
 #define MAXPROP 100
-extern int MY_RANK,SIZE;
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 int fracstep_fm2_cw::ask(const char *jobinfo,int &skip_elemset) {

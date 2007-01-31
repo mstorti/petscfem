@@ -1,9 +1,8 @@
 //__INSERT_LICENSE__
-// $Id: condwall-new.cpp,v 1.5 2005/07/11 20:31:32 mstorti Exp $
+// $Id: condwall-new.cpp,v 1.5.26.1 2007/01/31 18:55:27 dalcinl Exp $
 
 #include "./condwall.h"
 #include "./condwallpen.h"
-extern int MY_RANK,SIZE;
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 void CondWallRestriction::

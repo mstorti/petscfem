@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: measperf.cpp,v 1.9.2.1 2007/01/31 02:02:56 dalcinl Exp $
+//$Id: measperf.cpp,v 1.9.2.2 2007/01/31 18:55:27 dalcinl Exp $
 
 #include "fem.h"
 #include <set>
@@ -13,7 +13,6 @@
 // iteration modes
 #define NOT_INCLUDE_GHOST_ELEMS 0
 #define INCLUDE_GHOST_ELEMS 1
-extern int MY_RANK,SIZE;
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 #undef __FUNC__

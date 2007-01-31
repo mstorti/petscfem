@@ -1,8 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: spdirect.cpp,v 1.6.96.1 2007/01/31 02:02:56 dalcinl Exp $
-
-// fixme:= this may not work in all applications
-extern int MY_RANK,SIZE;
+//$Id: spdirect.cpp,v 1.6.96.2 2007/01/31 18:55:27 dalcinl Exp $
 
 #include <petscmat.h>
 

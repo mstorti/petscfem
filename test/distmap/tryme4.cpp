@@ -1,15 +1,15 @@
 //__INSERT_LICENSE__
-//$Id: tryme4.cpp,v 1.6 2003/01/08 15:49:04 mstorti Exp $
+//$Id: tryme4.cpp,v 1.6.102.1 2007/01/31 18:55:27 dalcinl Exp $
 #include <petsc.h>
-#include <petscsles.h>
+#include <petscksp.h>
+
 
 int null_monitor(KSP ksp,int n, double rnorm,void *A_) {return 0;}
 
 int main(int argc,char **args) {
   const int N=100000, M=100;
-  int ierr,m=3,its, Nit=10;
+  int ierr,m=3,Nit=10;
   double v, *a, *a2, sum,sum2,dit;
-  SLES sles;
   KSP ksp;
   PC pc;
   Mat A;
@@ -27,11 +27,9 @@ int main(int argc,char **args) {
 			   PETSC_NULL,&A); 
     ierr = MatZeroEntries(A); CHKERRA(ierr);
 
-    ierr = SLESCreate(PETSC_COMM_SELF,&sles); CHKERRA(ierr); 
-    ierr = SLESSetOperators(sles,A,
-			    A,SAME_NONZERO_PATTERN); CHKERRA(ierr); 
-    ierr = SLESGetKSP(sles,&ksp); CHKERRA(ierr); 
-    ierr = SLESGetPC(sles,&pc); CHKERRA(ierr); 
+    ierr = KSPCreate(PETSC_COMM_SELF,&ksp); CHKERRA(ierr); 
+    ierr = KSPSetOperators(ksp,A, A,SAME_NONZERO_PATTERN); CHKERRA(ierr); 
+    ierr = KSPGetPC(ksp,&pc); CHKERRA(ierr); 
 
 #if 0
     ierr = KSPSetType(ksp,KSPPREONLY); CHKERRA(ierr); 
@@ -63,8 +61,8 @@ int main(int argc,char **args) {
     ierr = MatAssemblyBegin(A,MAT_FINAL_ASSEMBLY); CHKERRA(ierr);
     ierr = MatAssemblyEnd(A,MAT_FINAL_ASSEMBLY); CHKERRA(ierr);
 
-    ierr = SLESSolve(sles,b,x,&its); CHKERRA(ierr); 
-    ierr = SLESSolve(sles,b2,x2,&its); CHKERRA(ierr); 
+    ierr = KSPSolve(ksp,b,x); CHKERRA(ierr); 
+    ierr = KSPSolve(ksp,b2,x2); CHKERRA(ierr); 
     ierr = VecGetArray(x,&a); CHKERRA(ierr); 
     ierr = VecGetArray(x2,&a2); CHKERRA(ierr); 
     sum = 0.;
@@ -79,7 +77,7 @@ int main(int argc,char **args) {
     }
     ierr = VecRestoreArray(x,&a);
     ierr = VecRestoreArray(x2,&a2);
-    ierr = SLESDestroy(sles); CHKERRA(ierr); 
+    ierr = KSPDestroy(ksp); CHKERRA(ierr); 
     ierr = MatDestroy(A); CHKERRA(ierr); 
     dit +=1.;
     if(Nit>0 && dit > double(Nit)) break;

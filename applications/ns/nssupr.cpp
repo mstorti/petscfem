@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-/* $Id: nssupr.cpp,v 1.12.96.1 2007/01/31 02:02:56 dalcinl Exp $ */
+/* $Id: nssupr.cpp,v 1.12.96.2 2007/01/31 18:55:27 dalcinl Exp $ */
 
 #include <src/fem.h>
 #include <src/utils.h>
@@ -16,7 +16,6 @@ extern TextHashTable *GLOBAL_OPTIONS;
 #ifdef ROSI_COUPLING_MODULE
 #warning Compiling with ROSI_COUPLING_MODULE enabled
 double AXIAL_ACCELERATION=DBL_MAX, GLOBAL_TIME;
-extern int MY_RANK,SIZE;
 #endif
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 

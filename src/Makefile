@@ -1,5 +1,5 @@
 #__INSERT_LICENSE__
-# $Id: Makefile,v 1.103.12.1 2007/01/31 02:02:56 dalcinl Exp $ 
+# $Id: Makefile,v 1.103.12.2 2007/01/31 18:55:27 dalcinl Exp $ 
 
 .PHONY: all run lclean save compile default
 
@@ -153,8 +153,3 @@ $(DOC_DIR)/odocrmsh.tex: readmesh.cpp
 
 $(DOC_DIR)/odocdxhook.tex: dxhook.cpp
 	$(run_odoc)
-
-pp:
-	@echo CC: $(CC)
-	@echo CFLAGS: $(CFLAGS)
-

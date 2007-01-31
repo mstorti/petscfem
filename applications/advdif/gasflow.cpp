@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: gasflow.cpp,v 1.47.2.1 2007/01/31 02:02:56 dalcinl Exp $
+//$Id: gasflow.cpp,v 1.47.2.2 2007/01/31 18:55:27 dalcinl Exp $
 
 #include <src/fem.h>
 #include <src/texthash.h>
@@ -7,8 +7,6 @@
 #include <src/generror.h>
 
 #include "gasflow.h"
-
-extern int MY_RANK,SIZE;
 
 #define GF_GETOPTDEF_ND(type,var,def)				\
  { if (elemset) { EGETOPTDEF_ND(elemset,type,var,def); }	\

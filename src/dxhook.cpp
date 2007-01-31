@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: dxhook.cpp,v 1.66.2.1 2007/01/31 02:02:56 dalcinl Exp $
+//$Id: dxhook.cpp,v 1.66.2.2 2007/01/31 18:55:27 dalcinl Exp $
 
 #include <src/debug.h>
 #include <src/fem.h>
@@ -18,8 +18,6 @@
 
 #include <src/sockbuff.h>
 #include <HDR/sockets.h>
-
-extern int MY_RANK, SIZE;
 
 // I didn't found a definition for this
 #ifndef IPPORT_MAX

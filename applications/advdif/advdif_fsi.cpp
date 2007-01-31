@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: advdif_fsi.cpp,v 1.10.2.1 2007/01/31 02:02:56 dalcinl Exp $
+//$Id: advdif_fsi.cpp,v 1.10.2.2 2007/01/31 18:55:27 dalcinl Exp $
 
 #include <src/debug.h>
 #include <set>
@@ -19,9 +19,6 @@
 static char help[] = "Basic finite element program.\n\n";
 
 extern GlobParam *GLOB_PARAM;
-
-extern MPI_Comm PETSCFEM_COMM_WORLD;
-extern int MY_RANK,SIZE;
 /*
 extern int print_internal_loop_conv_g=0,
   consistent_supg_matrix_g=0,

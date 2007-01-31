@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: advdif_bubbly.cpp,v 1.14.2.1 2007/01/31 02:02:56 dalcinl Exp $
+//$Id: advdif_bubbly.cpp,v 1.14.2.2 2007/01/31 18:55:27 dalcinl Exp $
 
 #include <src/debug.h>
 #include <set>
@@ -20,7 +20,6 @@ extern GlobParam *GLOB_PARAM;
 
 static char help[] = "Basic finite element program.\n\n";
 
-extern int MY_RANK,SIZE;
 extern int print_internal_loop_conv_g,
   consistent_supg_matrix_g,
   local_time_step_g,
@@ -83,7 +82,7 @@ int bubbly_main() {
   // euler_absorb::flux_fun = &flux_fun_euler;
 
   // elemsetlist =  da_create(sizeof(Elemset *));
-  // PetscInitialize(&argc,&args,(char *)0,help);
+
   print_copyright();
   PetscPrintf(PETSCFEM_COMM_WORLD,
 	      "-------- Generic Advective-Diffusive / Bubbly module ---------\n");

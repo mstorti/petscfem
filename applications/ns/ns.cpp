@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: ns.cpp,v 1.191.2.1 2007/01/31 02:02:56 dalcinl Exp $
+//$Id: ns.cpp,v 1.191.2.2 2007/01/31 18:55:27 dalcinl Exp $
 #include <src/debug.h>
 #include <malloc.h>
 
@@ -21,7 +21,6 @@
 #include <applications/ns/nsi_tet.h>
 static char help[] = "PETSc-FEM Navier Stokes module\n\n";
 
-extern int MY_RANK,SIZE;
 WallData wall_data;
 
 int fsi_main();
@@ -52,6 +51,8 @@ double FLUID_TIME; // needed for FSI-HOOKS
 #define __FUNC__ "main"
 int main(int argc,char **args) {
 
+  PetscFemInitialize(&argc,&args,(char *)0,help);
+
   Vec x, xp, dx, xold, dx_step, res; // approx solution, RHS, residual
   PetscViewer matlab;
   PFMat *A_tet, *A_tet_c, *A_mom, *A_poi, *A_prj;;	// linear system matrix 
@@ -76,13 +77,6 @@ int main(int argc,char **args) {
   arg_list argl, arglf;
   vector<double> hmin;
   hmin.resize(1);
-
-  PetscInitialize(&argc,&args,(char *)0,help);
-
-  // Get MPI info
-  PETSCFEM_COMM_WORLD = PETSC_COMM_WORLD;
-  MPI_Comm_size(PETSCFEM_COMM_WORLD,&SIZE);
-  MPI_Comm_rank(PETSCFEM_COMM_WORLD,&MY_RANK);
 
 #define CNLEN 100
   char code_name[CNLEN];

@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: getprop.cpp,v 1.16 2007/01/30 19:03:44 mstorti Exp $
+//$Id: getprop.cpp,v 1.16.2.1 2007/01/31 18:55:27 dalcinl Exp $
   
 #include "fem.h"
 #include "readmesh.h"
@@ -159,8 +159,8 @@ int get_string(const TextHashTable *thash,const char *name,
   }
 
   string value = string(value_);
-  int ierr = get_string_from_string(value,ret);
-  return ierr;
+  get_string_from_string(value,ret);
+  return 0;
 }
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 

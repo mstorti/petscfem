@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: wallke.cpp,v 1.24 2007/01/30 19:03:44 mstorti Exp $
+//$Id: wallke.cpp,v 1.24.2.1 2007/01/31 18:55:27 dalcinl Exp $
 #include <src/fem.h>
 #include <src/utils.h>
 #include <src/readmesh.h>
@@ -9,7 +9,6 @@
 #include "nsi_tet.h"
 
 extern TextHashTable *GLOBAL_OPTIONS;
-extern int MY_RANK,SIZE;
 extern int TSTEP; //debug:=
 #define MAXPROP 10
 

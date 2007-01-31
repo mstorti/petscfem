@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: wall.cpp,v 1.23.2.1 2007/01/31 02:02:56 dalcinl Exp $
+//$Id: wall.cpp,v 1.23.2.2 2007/01/31 18:55:27 dalcinl Exp $
 
 #include <src/fem.h>
 #include <src/utils.h>
@@ -10,7 +10,6 @@
 #include "nsi_tet.h"
 
 extern TextHashTable *GLOBAL_OPTIONS;
-extern int MY_RANK,SIZE;
 extern int TSTEP; //debug:=
 #define MAXPROP 100
 

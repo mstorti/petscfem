@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: fstepfm2.cpp,v 1.37.16.1 2007/01/31 02:02:56 dalcinl Exp $
+//$Id: fstepfm2.cpp,v 1.37.16.2 2007/01/31 18:55:27 dalcinl Exp $
  
 #include <src/fem.h>
 #include <src/utils.h>
@@ -11,7 +11,6 @@
 #include "fracstep.h"
 
 #define MAXPROP 100
-extern int MY_RANK,SIZE;
 
 // extern WallData wall_data;
 

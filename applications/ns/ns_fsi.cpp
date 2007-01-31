@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: ns_fsi.cpp,v 1.11.2.1 2007/01/31 02:02:56 dalcinl Exp $
+//$Id: ns_fsi.cpp,v 1.11.2.2 2007/01/31 18:55:27 dalcinl Exp $
 #include <src/debug.h>
 #include <malloc.h>
 
@@ -20,8 +20,6 @@
 #include <applications/ns/nsi_tet.h>
 static char help[] = "PETSc-FEM Navier Stokes module\n\n";
 
-extern MPI_Comm PETSCFEM_COMM_WORLD;
-extern int MY_RANK,SIZE;
 extern WallData wall_data;
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
@@ -43,7 +41,8 @@ extern int reuse_mat;
 extern GlobParam *GLOB_PARAM;
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
-#define __FUNC__ "main"
+#undef  __FUNC__
+#define __FUNC__ "fsi_main"
 int fsi_main() {
 
   Vec x, xp, dx, xold, dx_step, res; // approx solution, RHS, residual
@@ -70,12 +69,6 @@ int fsi_main() {
   arg_list argl, arglf;
   vector<double> hmin;
   hmin.resize(1);
-
-  //  PetscInitialize(&argc,&args,(char *)0,help);
-  // Get MPI info
-  PETSCFEM_COMM_WORLD = PETSC_COMM_WORLD;
-  MPI_Comm_size(PETSCFEM_COMM_WORLD,&SIZE);
-  MPI_Comm_rank(PETSCFEM_COMM_WORLD,&MY_RANK);
 
   print_copyright();
   PetscPrintf(PETSCFEM_COMM_WORLD,"-------- Navier-Stokes - Fluid Structure Interaction module ---------\n");

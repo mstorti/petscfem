@@ -1,9 +1,8 @@
 //__INSERT_LICENSE__
-//$Id: advdife-gcl.cpp,v 1.11.2.1 2007/01/31 02:02:56 dalcinl Exp $
+//$Id: advdife-gcl.cpp,v 1.11.2.2 2007/01/31 18:55:27 dalcinl Exp $
 extern int comp_mat_each_time_step_g,
   consistent_supg_matrix_g,
   local_time_step_g;
-extern int MY_RANK,SIZE;
 
 #include <vector>
 #include <string>

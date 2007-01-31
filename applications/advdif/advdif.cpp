@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: advdif.cpp,v 1.71.2.1 2007/01/31 02:02:56 dalcinl Exp $
+//$Id: advdif.cpp,v 1.71.2.2 2007/01/31 18:55:27 dalcinl Exp $
 
 #include <src/debug.h>
 #include <set>
@@ -20,7 +20,6 @@ static char help[] = "Basic finite element program.\n\n";
 
 GlobParam *GLOB_PARAM;
 
-extern int MY_RANK,SIZE;
 int print_internal_loop_conv_g=0,
   consistent_supg_matrix_g=0,
   local_time_step_g=0,
@@ -47,13 +46,8 @@ Hook *advdif_hook_factory(const char *name);
 #define __FUNC__ "main"
 int main(int argc,char **args) {
 
-  PetscInitialize(&argc,&args,(char *)0,help);
-
-  // Get MPI info
-  PETSCFEM_COMM_WORLD = PETSC_COMM_WORLD;
-  MPI_Comm_size(PETSCFEM_COMM_WORLD,&SIZE);
-  MPI_Comm_rank(PETSCFEM_COMM_WORLD,&MY_RANK);
-
+  PetscFemInitialize(&argc,&args,(char *)0,help);
+  
 #define CNLEN 100
   PetscTruth flg;
   char code_name[CNLEN];

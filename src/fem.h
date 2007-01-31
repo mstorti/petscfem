@@ -1,6 +1,6 @@
 // -*- mode: c++ -*-
 /*__INSERT_LICENSE__*/
-//$Id: fem.h,v 1.39.2.1 2007/01/31 02:02:56 dalcinl Exp $
+//$Id: fem.h,v 1.39.2.2 2007/01/31 18:55:27 dalcinl Exp $
 
 #ifndef FEM_H
 #define FEM_H
@@ -13,6 +13,8 @@ using namespace std;
 
 
 extern MPI_Comm PETSCFEM_COMM_WORLD;
+extern int MY_RANK,SIZE;
+int PetscFemInitialize(int *argc,char ***args,const char file[],const char help[]);
 
 
 // Libretto has some incompatibilities with recent versions

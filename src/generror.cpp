@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-// $Id: generror.cpp,v 1.5.2.1 2007/01/31 02:02:56 dalcinl Exp $
+// $Id: generror.cpp,v 1.5.2.2 2007/01/31 18:55:27 dalcinl Exp $
 
 #include <string>
 
@@ -10,6 +10,8 @@ using namespace std;
 #include <src/autostr.h>
 
 extern MPI_Comm PETSCFEM_COMM_WORLD;
+extern int MY_RANK,SIZE;
+
 
 GenericError PETSCFEM_GENERIC_ERROR;
 
@@ -29,8 +31,6 @@ GenericError(char *s,...) {
   as.vsprintf(s,ap);
   *this = GenericError(string(as.str()));
 }
-
-extern int MY_RANK,SIZE;
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 void petscfem_check_par_err(int ierro,GenericError &ge) {

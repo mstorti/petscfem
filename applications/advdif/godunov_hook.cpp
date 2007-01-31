@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: godunov_hook.cpp,v 1.2.72.1 2007/01/31 02:02:56 dalcinl Exp $
+//$Id: godunov_hook.cpp,v 1.2.72.2 2007/01/31 18:55:27 dalcinl Exp $
 #define _GNU_SOURCE
 
 #include <cstdio>
@@ -21,7 +21,6 @@
 #include <src/fastmat2.h>
 #include "../../test/plate/fifo.h"
 
-extern int MY_RANK,SIZE;
 #define CASE_NAME "reflection"
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 

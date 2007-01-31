@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: embgath.cpp,v 1.41 2006/03/27 19:43:22 mstorti Exp $
+//$Id: embgath.cpp,v 1.41.14.1 2007/01/31 18:55:27 dalcinl Exp $
 
 #include <src/fem.h>
 #include <src/utils.h>
@@ -15,7 +15,6 @@
 #include "./nsi_tet.h"
 
 extern Mesh *GLOBAL_MESH;
-extern int MY_RANK,SIZE;
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 int embedded_gatherer::ask(const char *jobinfo,int &skip_elemset) {

@@ -1,8 +1,7 @@
 //__INSERT_LICENSE__
-// $Id: condwall.cpp,v 1.19 2007/01/30 19:03:44 mstorti Exp $
+// $Id: condwall.cpp,v 1.19.2.1 2007/01/31 18:55:27 dalcinl Exp $
 
 #include "./condwall.h"
-extern int MY_RANK,SIZE;
 
 cond_wall_data_map_t cond_wall_data_map;
 

@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: adv.cpp,v 1.14.80.1 2007/01/31 02:02:56 dalcinl Exp $
+//$Id: adv.cpp,v 1.14.80.2 2007/01/31 18:55:27 dalcinl Exp $
  
 #include <src/fem.h>
 #include <src/readmesh.h>
@@ -11,7 +11,6 @@
 
 static char help[] = "Basic finite element program.\n\n";
 
-extern int MY_RANK,SIZE;
 int print_internal_loop_conv_g=0,
   consistent_supg_matrix_g=0,
   local_time_step_g=0,
@@ -65,6 +64,9 @@ ierr = VecView(name,matlab); CHKERRA(ierr)
 #define __FUNC__ "main"
 int main(int argc,char **args) {
 
+  PetscFemInitialize(&argc,&args,(char *)0,help);
+
+
   Vec     x, dx, xold, res; /* approx solution, RHS, residual*/
   Mat     A_mass;                              /* linear system matrix */
   PC      pc_mass;           /* preconditioner context */
@@ -91,14 +93,6 @@ int main(int argc,char **args) {
   // euler_absorb::flux_fun = &flux_fun_euler;
 
   // elemsetlist =  da_create(sizeof(Elemset *));
-  PetscInitialize(&argc,&args,(char *)0,help);
-
-  PETSCFEM_COMM_WORLD = PETSC_COMM_WORLD;
-  // Get MPI info
-  MPI_Comm_size(PETSCFEM_COMM_WORLD,&SIZE);
-  MPI_Comm_rank(PETSCFEM_COMM_WORLD,&MY_RANK);
-
-
   print_copyright();
 
   // Start registering functions
