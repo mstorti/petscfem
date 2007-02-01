@@ -1,6 +1,6 @@
 // -*- mode: c++ -*-
 /*__INSERT_LICENSE__*/
-//$Id: advective.h,v 1.84 2007/01/30 19:03:44 mstorti Exp $
+//$Id: advective.h,v 1.82.2.1 2007/02/01 12:28:29 mstorti Exp $
  
 //#define CHECK_JAC // Computes also the FD Jacobian for debugging
  
@@ -112,8 +112,6 @@ typedef void FastMat2Shell(FastMat2 & A,FastMat2 & B);
 
 // This is the flux function for a given physical problem. 
 class AdvDifFF {
-public:
-  virtual ~AdvDifFF() { }
 private:
   // The list of variables to be logarithmically transformed
   vector<int> log_vars_v;
@@ -137,8 +135,6 @@ public:
     state and enthalpy content. 
 */ 
 class EnthalpyFun {
-public:
-  virtual ~EnthalpyFun() { }
 public:
   /// The actual state
   FastMat2 UU;
@@ -247,6 +243,8 @@ class NewAdvDifFF {
 private:
   /// The list of variables to be logarithmically transformed
   vector<int> log_vars_v;
+  /// Needed for ALE computations
+  FastMat2 tmp_P_supg_ALE_1, tmp_P_supg_ALE_2, tmp_P_supg_ALE_3;
 public:
   /// The elemset associated with the flux function
   const NewElemset *elemset;
@@ -433,7 +431,7 @@ protected:
     A_jac_norm_min, A_jac_err_norm_max, A_jac_err_norm_min,
     A_rel_err_min, A_rel_err_max;
   FastMat2 dshapex_low;
-  int use_GCL_compliant;
+  int use_GCL_compliant, ALE_flag;
 
 public:
   FastMat2 dshapex,Uo,Ao_grad_N,tau_supg,
@@ -480,6 +478,7 @@ public:
       @return actual time
   */ 
   double time() const { return time_m; };
+  int use_ALE() const { return ALE_flag; }
 
 };
 
@@ -528,7 +527,7 @@ enum flux_fun_opt {
   COMP_EIGENV = 0x0004,
   SCALAR_TAU  = 0x0008,
   COMP_SOURCE_NOLUMPED = 0x0010,
-  COMP_SOURCE_LUMPED = 0x0020
+  COMP_SOURCE_LUMPED = 0x0020,
 };
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:
@@ -582,10 +581,10 @@ public:							\
   bcconv_adv_##name() {adv_diff_ff = new name##_ff_t;};	\
 };
 
-ADVDIF_ELEMSET(advecfm2)	// linear advective diffusive 
-ADVDIF_ELEMSET(burgers)		// 1D scalar Burgers equation
-ADVDIF_ELEMSET(swfm2t)	        // shallow water 2d turbulent
-//ADVDIF_ELEMSET(swfm1t)	// shallow water 1d supg
+ADVDIF_ELEMSET(advecfm2);	// linear advective diffusive 
+ADVDIF_ELEMSET(burgers);	// 1D scalar Burgers equation
+ADVDIF_ELEMSET(swfm2t);	        // shallow water 2d turbulent
+//ADVDIF_ELEMSET(swfm1t);	        // shallow water 1d supg
 
 class wall_swfm2t : NewElemset { 
 public: 
@@ -598,10 +597,8 @@ class GenLoad;
 /// Generic surface flux function (film function) element
 class HFilmFun {
 public:
-  virtual ~HFilmFun() { }
-public:
-  GenLoad * elemset;
   const FastMat2 &H,&H_out,&H_in;
+  GenLoad * elemset;
   // for one layer
   virtual void q(FastMat2 &uin,FastMat2 &flux,FastMat2 &jacin);
   // for two layers
@@ -620,7 +617,7 @@ class GenLoad : public NewElemset {
   FastMat2 H_m,H_out_m;
 public: 
   const FastMat2 &H,&H_out,&H_in;
-  GenLoad() : H(H_m), H_out(H_out_m), H_in(H_m) {}
+  GenLoad() : H_in(H_m), H(H_m), H_out(H_out_m) {}
   HFilmFun *h_film_fun;
   NewAssembleFunction new_assemble;
   ASK_FUNCTION;

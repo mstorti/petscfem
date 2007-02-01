@@ -8,14 +8,10 @@
 
 class SourceTerm {
 public:
-  virtual ~SourceTerm() { }
-public:
   virtual void add_source_term(FastMat2 &G_source)=0;
 };
 
 class CJac {
-public:
-  virtual ~CJac() { }
 public:
   virtual void comp_N_N_C(FastMat2 &N_N_C,FastMat2 &N,double w)=0;
   virtual void comp_G_source(FastMat2 &G_source, FastMat2 &U)=0;
@@ -24,8 +20,6 @@ public:
 };
 
 class AJac {
-public:
-  virtual ~AJac() { }
 public:
   virtual void comp_A_grad_N(FastMat2 & A,FastMat2 & B)=0;
   virtual void comp_A_grad_U(FastMat2 & A,FastMat2 & B)=0;
@@ -36,8 +30,6 @@ public:
 };
 
 class DJac {
-public:
-  virtual ~DJac() { }
 public:
   virtual void comp_grad_N_D_grad_N(FastMat2 &grad_N_D_grad_N,
 				    FastMat2 & dshapex,double w) =0 ;
@@ -78,6 +70,7 @@ private:
   IdentityEF identity_ef;
   ScalarPerFieldEF scalar_per_field_ef;
   FullEF full_ef;
+
 public:
 
   /// Null source term
@@ -355,6 +348,17 @@ public:
   }
   void get_Cp(FastMat2 &Cp) {
     enthalpy_fun->get_Cp(Cp); 
+  }
+
+  void comp_P_supg(FastMat2 &P_supg) {
+    assert(new_adv_dif_elemset);
+    const NewAdvDif *e = new_adv_dif_elemset;
+    if (e->ff_options & SCALAR_TAU) {
+      double tau_supg_d = e->tau_supg.get(1,1);
+      P_supg.set(e->Ao_grad_N).scale(tau_supg_d);
+    } else {
+      P_supg.prod(e->Ao_grad_N,e->tau_supg,1,2,-1,-1,3);
+    }
   }
 
 };
