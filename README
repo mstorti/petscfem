@@ -284,13 +284,15 @@ AUTHORS
            PETSc-FEM kernel, NS and AdvDif modules.
 
        Norberto M. Nigro* "<nnigro@intec.unl.edu.ar""
-           NS and AdvDif modules.
+           NS and AdvDif modules, multi-phase flow.
 
        Rodrigo R. Paz* "<rodrigop@intec.unl.edu.ar>"
-           AdvDif module, specially the hydrology module.
+           AdvDif module, hydrology module, compressible flow, fluid-structure
+           interaction, preconditioners.
 
        Lisandro Dalcin* "<dalcinl@intec.unl.edu.ar>"
-           PETSc-FEM kernel, Python extension language project.
+           PETSc-FEM kernel, Python extension language project, linear alge-
+           bra, preconditioners, multigrid.
 
        Ezequiel Lopez* "<ezequiellopez@hotmail.com>"
            Mesh relocation algorithms.
@@ -303,4 +305,4 @@ AUTHORS
 
 
 
-perl v5.8.8                       2007-01-30                         README(1)
+perl v5.8.8                       2007-02-01                         README(1)
