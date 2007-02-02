@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: gpdata.cpp,v 1.44.2.1 2007/01/31 02:02:56 dalcinl Exp $
+//$Id: gpdata.cpp,v 1.44.2.2 2007/02/02 18:30:21 dalcinl Exp $
 
 #include "petscksp.h"
 #include <math.h>
@@ -77,7 +77,7 @@ void cart_prod(int npg,int nel,int nel_lay,
     double coef2[] = {-0.5, 0.5};
     double coef3[] = {-1.5,2.0,-0.5};
     double coef4[] = {-(11./6.), +(18./6.), -( 9./6.), +( 2./6.)};
-    double *coef;
+    double *coef = 0;
     if (nlay == 2) coef = coef2;
     else if (nlay==3) coef = coef3;
     else if (nlay==4) coef = coef4;
@@ -174,7 +174,7 @@ GPdata::GPdata(const char *geom,int ndimel,int nel,int npg_,int
     assert(ndimel==3);
     assert(nel==6);
     assert(npg==1 || npg==6 || npg==8); // other cases may be considered
-    int npg_seg, npg_tri;
+    int npg_seg=0, npg_tri=0;
     if (npg==1) { npg_seg=1; npg_tri=1; }
     else if (npg==6) { npg_seg=2; npg_tri=3; }
     else if (npg==8) { npg_seg=2; npg_tri=4; }

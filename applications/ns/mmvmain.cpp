@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: mmvmain.cpp,v 1.10.2.2 2007/01/31 18:55:27 dalcinl Exp $
+//$Id: mmvmain.cpp,v 1.10.2.3 2007/02/02 18:30:21 dalcinl Exp $
 #include <src/debug.h>
 #include <malloc.h>
 
@@ -461,7 +461,7 @@ int mmove_main() {
     //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
     // NEWTON-RAPHSON ALGORITHM
     
-    double normres_external;
+    double normres_external = 0.0;
     for (int inwt=0; inwt<nnwt; inwt++) {
       
       glob_param.inwt = inwt;

@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: tempfun.cpp,v 1.15.94.1 2007/01/31 02:02:56 dalcinl Exp $
+//$Id: tempfun.cpp,v 1.15.94.2 2007/02/02 18:30:21 dalcinl Exp $
 
 #include <math.h>
 
@@ -185,7 +185,7 @@ double piecewise_function(TextHashTable *thash,const TimeData *t,
   } else {
     // double tstar = start_time + (time-start_time) % (end_time-start_time);
     double tstar = start_time + fmod(time-start_time,end_time-start_time);
-    double t1,t2,f1,f2;
+    double t1=0.0,t2=0.0,f1=0.0,f2=0.0;
     for (int k=0; k<npoints-1; k++) {
       t1 = time_vals[k];
       t2 = time_vals[k+1];

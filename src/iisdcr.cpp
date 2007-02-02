@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: iisdcr.cpp,v 1.61.2.2 2007/01/31 18:55:27 dalcinl Exp $
+//$Id: iisdcr.cpp,v 1.61.2.3 2007/02/02 18:30:21 dalcinl Exp $
 
 #include <typeinfo>
 #include "libretto.h"
@@ -48,6 +48,47 @@ int IISD_mult_trans(Mat A,Vec x,Vec y) {
   int ierr = MatShellGetContext(A,&ctx); CHKERRQ(ierr); 
   pfA = (IISDMat *) ctx;
   ierr = pfA->mult_trans(x,y); CHKERRQ(ierr); 
+  return 0;
+}
+
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+#undef __FUNC__
+#define __FUNC__ "IISD_ksp_ll_view"
+int IISD_ksp_ll_view(Mat A, PetscViewer viewer) {
+  void *ctx;
+  IISDMat *pfA;
+  int ierr = MatShellGetContext(A,&ctx); CHKERRQ(ierr); 
+  pfA = (IISDMat *) ctx;
+  ierr = pfA->ksp_ll_view(viewer); CHKERRQ(ierr); 
+  return 0;
+}
+
+#undef __FUNC__
+#define __FUNC__ "IISDMat::ksp_ll_view"
+int IISDMat::ksp_ll_view(PetscViewer viewer) {
+  int ierr;
+  PetscViewer sviewer = 0;
+  PetscTruth iascii;
+  ierr = PetscViewerGetSingleton(viewer,&sviewer);CHKERRQ(ierr);
+  ierr = PetscTypeCompare((PetscObject)viewer,PETSC_VIEWER_ASCII,&iascii);
+  CHKERRQ(ierr);
+  if (iascii) {
+    ierr = PetscViewerASCIIPrintf(viewer,
+    "PETSc-FEM IISD: local solvers follows\n");
+    CHKERRQ(ierr);
+    
+  }
+  if (ksp_ll && sviewer) {
+    MPI_Comm ksp_comm; int rank;
+    PetscObjectGetComm((PetscObject)ksp,&comm);
+    MPI_Comm_rank(comm,&rank);
+    ierr = PetscViewerASCIIPrintf(sviewer,
+    "===== processor %3D =====\n", rank);CHKERRQ(ierr);
+    ierr = KSPView(ksp_ll, sviewer); CHKERRQ(ierr);
+  }
+  if (sviewer) {
+    ierr = PetscViewerRestoreSingleton(viewer,&sviewer);CHKERRQ(ierr);
+  }
   return 0;
 }
 
@@ -761,6 +802,7 @@ int IISDMat::create_a() {
   CHKERRQ(ierr); 
   P=A;
 
+  MatShellSetOperation(A,MATOP_VIEW,(void (*)(void))(&IISD_ksp_ll_view));
   MatShellSetOperation(A,MATOP_MULT,(void (*)(void))(&IISD_mult));
   MatShellSetOperation(A,MATOP_MULT_TRANSPOSE,(void (*)(void))(&IISD_mult_trans));
 

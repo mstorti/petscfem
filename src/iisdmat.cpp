@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: iisdmat.cpp,v 1.71.2.2 2007/01/31 18:55:27 dalcinl Exp $
+//$Id: iisdmat.cpp,v 1.71.2.3 2007/02/02 18:30:21 dalcinl Exp $
 // fixme:= this may not work in all applications
 #ifndef _GNU_SOURCE
 #define _GNU_SOURCE
@@ -243,8 +243,15 @@ int PFPETScMat::build_ksp() {
   ierr = KSPGMRESSetRestart(ksp,Krylov_dim); CHKERRQ(ierr);
   ierr = KSPSetTolerances(ksp,rtol,atol,dtol,maxits); CHKERRQ(ierr); 
 
-  ierr = KSPSetMonitor(ksp,PFPETScMat_default_monitor,this,NULL);
+  ierr = KSPMonitorSet(ksp,PFPETScMat_default_monitor,this,NULL);
   CHKERRQ(ierr); 
+
+  if (this->has_prefix()) {
+    const string& prefix = this->get_prefix();
+    ierr = KSPSetOptionsPrefix(ksp,prefix.c_str());CHKERRQ(ierr); 
+    ierr = KSPSetFromOptions(ksp);CHKERRQ(ierr);
+  }
+
   // ksp_was_built = 1; // included in `factored'
   return 0;
 }
@@ -253,8 +260,7 @@ int PFPETScMat::build_ksp() {
 #undef __FUNC__
 #define __FUNC__ "PFMat::set_preco"
 int PFPETScMat::set_preco(const string & preco_type) {
-  // warning:= avoiding `const' restriction!!
-  int ierr = PCSetType(pc,(char *)preco_type.c_str()); CHKERRQ(ierr);
+  int ierr = PCSetType(pc,preco_type.c_str()); CHKERRQ(ierr);
   return 0;
 }
 
@@ -861,7 +867,7 @@ int IISDMat::maybe_factor_and_solve(Vec &res,Vec &dx,int factored=0) {
 	ierr = KSPSetType(ksp_ii,KSPRICHARDSON); PF_CHKERRQ(ierr); 
 	ierr = KSPRichardsonSetScale(ksp_ii,interface_full_preco_relax_factor);
 	if(print_interface_full_preco_conv) {
-	  ierr = KSPSetMonitor(ksp_ii,KSPDefaultMonitor,NULL,NULL);
+	  ierr = KSPMonitorSet(ksp_ii,KSPMonitorDefault,NULL,NULL);
 	  PF_CHKERRQ(ierr); 
 	}
 	ierr = KSPSetTolerances(ksp_ii,0.,0.,1.e10,
@@ -869,7 +875,20 @@ int IISDMat::maybe_factor_and_solve(Vec &res,Vec &dx,int factored=0) {
 	PF_CHKERRQ(ierr); 
         ierr = PCSetType(pc_ii,(char *)interface_full_preco_pc.c_str()); 
 	PF_CHKERRQ(ierr); 
+
+	if (this->has_prefix()) {
+	  string prefix = this->get_prefix() + string("isp-");
+	  ierr = KSPSetOptionsPrefix(ksp_ii,prefix.c_str());CHKERRQ(ierr);
+	  ierr = KSPSetFromOptions(ksp_ii);CHKERRQ(ierr);
+	}
+	
       }
+      if (this->has_prefix()) {
+	string prefix = this->get_prefix() + string("ll-");
+	ierr = KSPSetOptionsPrefix(ksp_ll,prefix.c_str());CHKERRQ(ierr); 
+	ierr = KSPSetFromOptions(ksp_ll);CHKERRQ(ierr);
+      }
+
     }
 
     if (print_Schur_matrix) {
@@ -1008,7 +1027,13 @@ int IISDMat::maybe_factor_and_solve(Vec &res,Vec &dx,int factored=0) {
 
 	ierr = KSPSetTolerances(ksp_lll,0,0,1e10,1); PF_CHKERRQ(ierr); 
 	ierr = PCSetType(pc_lll,PCLU); PF_CHKERRQ(ierr); 
-	ierr = KSPSetMonitor(ksp_lll,petscfem_null_monitor,PETSC_NULL,NULL);
+	ierr = KSPMonitorSet(ksp_lll,petscfem_null_monitor,PETSC_NULL,NULL);
+
+	if (this->has_prefix()) {
+	  string prefix = this->get_prefix() + string("ll-");
+	  ierr = KSPSetOptionsPrefix(ksp_lll,prefix.c_str());CHKERRQ(ierr); 
+	  ierr = KSPSetFromOptions(ksp_lll);CHKERRQ(ierr);
+      }
 
 	ierr = KSPSolve(ksp_lll,y_loc_seq,x_loc_seq); PF_CHKERRQ(ierr); 
 	ierr = KSPGetIterationNumber(ksp_lll,&itss); PF_CHKERRQ(ierr); 
@@ -1066,6 +1091,28 @@ int IISDMat::solve_only_a(Vec &res,Vec &dx) {
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 int IISDMat::warn_iisdmat=0;
+
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+
+#undef __FUNC__
+#define __FUNC__ "iisd_pc_apply"
+int iisd_pc_view(void *ctx,PetscViewer viewer) {
+  int ierr;
+  PFMat *A = (PFMat *) ctx;
+  IISDMat *AA;
+  AA = dynamic_cast<IISDMat *> (A);
+  ierr = (AA==NULL); CHKERRQ(ierr);
+  AA->pc_view(viewer);
+  return 0;
+}
+
+#undef __FUNC__
+#define __FUNC__ "IISDMat::pc_view"
+int IISDMat::pc_view(PetscViewer viewer) {
+  int ierr;
+  ierr = 0;CHKERRQ(ierr);
+  return 0;
+}
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 #define DEFAULT_IISD_PC "jacobi"

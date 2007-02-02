@@ -1,6 +1,6 @@
 // -*- mode: c++ -*-
 /*__INSERT_LICENSE__*/
-//$Id: fastmat.h,v 1.3 2001/05/30 03:58:50 mstorti Exp $
+//$Id: fastmat.h,v 1.3.122.1 2007/02/02 18:30:21 dalcinl Exp $
 
 #ifndef FASTMAT_H
 #define FASTMAT_H
@@ -103,7 +103,7 @@ public:
   /// reshapes the matrix
   void reshape(int m, int n);
   /// converts to scalar
-  int as_scalar(double & val) const {assert(m==1 || n==1); val=*store;}
+  int as_scalar(double & val) const {assert(m==1 || n==1); val=*store; return 0;}
   /// sum of all terms
   double sum() const;
   /// sum of squares

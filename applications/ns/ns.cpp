@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: ns.cpp,v 1.191.2.2 2007/01/31 18:55:27 dalcinl Exp $
+//$Id: ns.cpp,v 1.191.2.3 2007/02/02 18:30:21 dalcinl Exp $
 #include <src/debug.h>
 #include <malloc.h>
 
@@ -440,6 +440,15 @@ int main(int argc,char **args) {
     }
     ierr = VecDuplicate(x,&xp); CHKERRA(ierr);
   }
+
+  if (!fractional_step) {
+    A_tet->set_prefix("ns-");
+  } else {
+    A_mom->set_prefix("fs-mom-");
+    A_poi->set_prefix("fs-poi-");
+    A_prj->set_prefix("fs-prj-");
+  }
+
 
   ierr = VecDuplicate(x,&xold); CHKERRA(ierr);
   ierr = VecDuplicate(x,&dx_step); CHKERRA(ierr);

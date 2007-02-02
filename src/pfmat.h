@@ -1,6 +1,6 @@
 // -*- mode: C++ -*- 
 /*__INSERT_LICENSE__*/
-// $Id: pfmat.h,v 1.41 2007/01/30 19:03:44 mstorti Exp $
+// $Id: pfmat.h,v 1.41.2.1 2007/02/02 18:30:21 dalcinl Exp $
 #ifndef PFMAT_H
 #define PFMAT_H
 
@@ -69,6 +69,7 @@ protected:
   /// duplicate matrix
   virtual int duplicate_a(MatDuplicateOption op,const PFMat &A) {
     printf("Not implemented yet\n"); assert(0);
+    return 1;
   }
   //@}
 
@@ -199,6 +200,21 @@ public:
 
   int print_fsm_transition_info_f() { 
     return print_fsm_transition_info; };
+
+public:
+  string _prefix;
+  bool has_prefix() const { 
+    return this->_prefix.size() > 0;
+  }
+  virtual void set_prefix(const string& prefix) {
+    if (prefix.size() > 0)
+      this->_prefix = string("pf-") + prefix;
+    else
+      this->_prefix = string();
+  }
+  virtual const string& get_prefix() const {
+    return this->_prefix;
+  }
 };
 
 #endif

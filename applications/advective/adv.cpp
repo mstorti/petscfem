@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: adv.cpp,v 1.14.80.2 2007/01/31 18:55:27 dalcinl Exp $
+//$Id: adv.cpp,v 1.14.80.3 2007/02/02 18:30:21 dalcinl Exp $
  
 #include <src/fem.h>
 #include <src/readmesh.h>
@@ -251,7 +251,7 @@ int main(int argc,char **args) {
 			    DIFFERENT_NONZERO_PATTERN); CHKERRA(ierr);
     ierr = KSPSetTolerances(ksp_mass,tol_mass,PETSC_DEFAULT,PETSC_DEFAULT,
 			    PETSC_DEFAULT); CHKERRA(ierr);
-    ierr = KSPSetMonitor(ksp_mass,MyKSPMonitor,PETSC_NULL,NULL);
+    ierr = KSPMonitorSet(ksp_mass,MyKSPMonitor,PETSC_NULL,NULL);
 
 	//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
     VOID_IT(argl);
@@ -308,7 +308,7 @@ int main(int argc,char **args) {
       // ierr = KSPSetTolerances(ksp_mass,tol_mass,PETSC_DEFAULT,PETSC_DEFAULT,
       // PETSC_DEFAULT); CHKERRA(ierr);
       ierr = KSPSetTolerances(ksp_mass,rtol,atol,dtol,maxits); CHKERRA(ierr);
-      ierr = KSPSetMonitor(ksp_mass,MyKSPMonitor,PETSC_NULL,NULL); CHKERRA(ierr);
+      ierr = KSPMonitorSet(ksp_mass,MyKSPMonitor,PETSC_NULL,NULL); CHKERRA(ierr);
       //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 
       ierr = MatZeroEntries(A_mass); CHKERRA(ierr);

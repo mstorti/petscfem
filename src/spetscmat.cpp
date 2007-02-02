@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: spetscmat.cpp,v 1.7.2.1 2007/01/31 02:02:56 dalcinl Exp $
+//$Id: spetscmat.cpp,v 1.7.2.2 2007/02/02 18:30:21 dalcinl Exp $
 
 #include <src/petscmat.h>
 #include <src/pfmat.h>
@@ -70,8 +70,15 @@ int PETScSymmMat::build_ksp() {
 
   ierr = KSPSetTolerances(ksp,rtol,atol,dtol,maxits);CHKERRQ(ierr); 
 
-  ierr = KSPSetMonitor(ksp,PFPETScMat_default_monitor,
-		       this,NULL); CHKERRQ(ierr); 
+  ierr = KSPMonitorSet(ksp,PFPETScMat_default_monitor,
+		       this,NULL); CHKERRQ(ierr);
+
+  if (this->has_prefix()) {
+    const string& prefix = this->get_prefix();
+    ierr = KSPSetOptionsPrefix(ksp,prefix.c_str());CHKERRQ(ierr); 
+    ierr = KSPSetFromOptions(ksp);CHKERRQ(ierr);
+  }
+
   return 0;
 }
 
@@ -98,9 +105,9 @@ int PETScSymmMat::insert_p(int row,int col) {
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 int PETScSymmMat::insert_p2(int row,int col) {
   int x;
-  if (row==col) x = 1;
+  if (row==col)     x = 1;
   else if (col>row) x = insert_p(row,col);
-  else x = !insert_p(col,row);
+  else              x = !insert_p(col,row);
   return x;
 }
 

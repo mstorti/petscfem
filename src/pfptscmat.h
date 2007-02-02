@@ -1,6 +1,6 @@
 // -*- mode: C++ -*- 
 /*__INSERT_LICENSE__*/
-// $Id: pfptscmat.h,v 1.17.2.1 2007/01/31 02:02:56 dalcinl Exp $
+// $Id: pfptscmat.h,v 1.17.2.2 2007/02/02 18:30:21 dalcinl Exp $
 #ifndef PFPTSCMAT_H
 #define PFPTSCMAT_H
 
@@ -13,6 +13,19 @@
 #include <src/graphdv.h>
 #include <src/linkgraph.h>
 #include <src/pfmat.h>
+
+#if (PETSC_VERSION_MAJOR    == 2 && \
+     PETSC_VERSION_MINOR    == 3 && \
+     PETSC_VERSION_SUBMINOR == 2 && \
+     PETSC_VERSION_RELEASE  == 1)
+#define KSPMonitorSet KSPSetMonitor
+#define KSPMonitorCancel KSPClearMonitor
+#define KSPMonitorDefault  KSPDefaultMonitor
+#define KSPMonitorTrueResidualNorm KSPTrueMonitor
+#define KSPMonitorSolution KSPVecViewMonitor
+#define KSPMonitorLG KSPLGMonitor
+#endif
+
 
 class PFPETScMat : public PFMat {
 protected:

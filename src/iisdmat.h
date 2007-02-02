@@ -1,6 +1,6 @@
 // -*- mode: C++ -*- 
 /*__INSERT_LICENSE__*/
-// $Id: iisdmat.h,v 1.32.64.1 2007/01/31 02:02:56 dalcinl Exp $
+// $Id: iisdmat.h,v 1.32.64.2 2007/02/02 18:30:21 dalcinl Exp $
 #ifndef IISDMAT_H
 #define IISDMAT_H
 
@@ -284,7 +284,10 @@ public:
 	  PETSCFEM_COMM_WORLD);
 
   /// The PETSc wrapper function calls this
+  int ksp_ll_view(PetscViewer viewer);
   int pc_apply(Vec x,Vec y); 
+  int pc_view(PetscViewer viewer);
+
   /// Destructor
   ~IISDMat();
 };

@@ -1,6 +1,6 @@
 // -*- mode: C++ -*- 
 /*__INSERT_LICENSE__*/
-// $Id: sparse.h,v 1.37.2.1 2007/01/31 02:02:56 dalcinl Exp $
+// $Id: sparse.h,v 1.37.2.2 2007/02/02 18:30:21 dalcinl Exp $
 #ifndef SPARSE_H
 #define SPARSE_H
 
@@ -180,7 +180,7 @@ namespace Sparse {
     /// Resize vector
     virtual GenVec & resize(int n)=0;
     /// export internal array
-    virtual const double * get() const {assert(0);};
+    virtual const double * get() const {assert(0); return 0; };
     /// generic copy vector
     virtual GenVec & set(const GenVec &v);
     

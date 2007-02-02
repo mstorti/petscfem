@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: laplace.cpp,v 1.13.104.2 2007/01/31 18:55:27 dalcinl Exp $
+//$Id: laplace.cpp,v 1.13.104.3 2007/02/02 18:30:21 dalcinl Exp $
  
 #include <src/fem.h>
 #include <src/readmesh.h>
@@ -103,7 +103,7 @@ int main(int argc,char **args) {
 			  A,DIFFERENT_NONZERO_PATTERN); CHKERRA(ierr);
   ierr = KSPSetTolerances(ksp,tol,PETSC_DEFAULT,PETSC_DEFAULT,
          PETSC_DEFAULT); CHKERRA(ierr);
-  ierr = KSPSetMonitor(ksp,MyKSPMonitor,PETSC_NULL,NULL);
+  ierr = KSPMonitorSet(ksp,MyKSPMonitor,PETSC_NULL,NULL);
 
 #if 0
   // Computes matrix by finite differences

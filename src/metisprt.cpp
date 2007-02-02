@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: metisprt.cpp,v 1.25.2.1 2007/01/31 02:02:56 dalcinl Exp $
+//$Id: metisprt.cpp,v 1.25.2.2 2007/02/02 18:30:21 dalcinl Exp $
 
 #include "fem.h"
 #include "utils.h"
@@ -326,7 +326,8 @@ void metis_part(MPI_Comm comm,
 	METIS_WPartGraphKway(&nvrtx,xadj,adjncy,vwgt, 
 			     NULL,&wgtflag,&numflag,&nvsubdo, 
 			     tpwgts_d,&options,&edgecut,vpart);
-	if (myrank==0) printf("     edgecut %d\n",edgecut);
+	if (print_statistics && myrank==0)
+	  printf("     edgecut %d\n",edgecut);
       } else { // partflag=2
 	assert(0);
 #if 0

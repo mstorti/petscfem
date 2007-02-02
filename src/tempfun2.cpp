@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: tempfun2.cpp,v 1.5.2.1 2007/01/31 02:02:56 dalcinl Exp $
+//$Id: tempfun2.cpp,v 1.5.2.2 2007/02/02 18:30:21 dalcinl Exp $
 
 #include <math.h>
 
@@ -262,7 +262,7 @@ public:
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 Amplitude *Amplitude::factory(char *& label,
 			      TextHashTable *t) {
-  Amplitude *amp;
+  Amplitude *amp=0;
   if (!strcmp(label,"gaussian")) {
     amp = new gaussian;
   } else if (!strcmp(label,"piecewise_linear")) {
@@ -282,11 +282,13 @@ Amplitude *Amplitude::factory(char *& label,
 		" loaded extended functions!!\n"
 		" Enable the 'USE_DLEF' flag and recompile.\n");
     assert(0);
+    return 0;
 #endif
   } else {
     PetscPrintf(PETSCFEM_COMM_WORLD,
 		"Not known fixa_amplitude \"%s\"\n",label);
     assert(0);
+    return 0;
   }
   amp->init(t);
   delete t; // If it wasn't deleted by `init'
