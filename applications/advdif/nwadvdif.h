@@ -27,6 +27,9 @@ public:
   virtual void comp_Uintri(FastMat2 & A,FastMat2 & B)=0;
   virtual void comp_flux(FastMat2 & A,FastMat2 & B) =0 ;
   virtual void comp_vel_per_field(FastMat2 &vel_per_field)=0;
+  virtual void comp_vel_vec_per_field(FastMat2 &vel_vec_per_field) {
+    assert("Not defined comp_vel_vec_per_field() fun.");
+  }
 };
 
 class DJac {
@@ -45,11 +48,12 @@ private:
   double tau_fac;
   FastMat2 u,u2,Uintri,AA,Ucpy,iJaco_cpy,
     tmp2,D_jac,dif_per_field,vel_per_field,
+    vel_vec_per_field,
     tmp3,eye_ndof,C_jac,N_C,S_body;
   int LES;
   double C_smag,A_van_Driest,Pr_t;
   string diffusive_jacobians_type;
-  FastMat2 strain_rate,tmp15;
+  FastMat2 strain_rate,tmp15,tmp16;
 
   const NewAdvDif *advdf_e;
 
@@ -70,7 +74,7 @@ private:
   IdentityEF identity_ef;
   ScalarPerFieldEF scalar_per_field_ef;
   FullEF full_ef;
-
+  
 public:
 
   /// Null source term
@@ -189,6 +193,7 @@ public:
     FastMat2Shell comp_flux,comp_A_grad_U,comp_A_grad_N,
       comp_Uintri,comp_A_jac_n;
     void comp_vel_per_field(FastMat2 &vel_per_field);
+    void comp_vel_vec_per_field(FastMat2 &vel_vec_per_field);
   };
   UGlobal u_global;
 

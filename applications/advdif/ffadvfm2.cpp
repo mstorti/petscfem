@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: ffadvfm2.cpp,v 1.53 2007/01/30 19:03:44 mstorti Exp $
+//$Id: ffadvfm2.cpp,v 1.52.4.1 2007/02/03 23:28:55 mstorti Exp $
 
 #include <stdio.h>
 #include <string.h>
@@ -16,26 +16,24 @@
 
 #include "nwadvdif.h"
 
-NewAdvDifFF::~NewAdvDifFF() {}
+NewAdvDifFF::~NewAdvDifFF() {};
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 #undef __FUNC__
 #define __FUNC__ \
 "newadvecfm2_ff_t::newadvecfm2_ff_t(NewElemset *elemset_)"
 newadvecfm2_ff_t::newadvecfm2_ff_t(NewElemset *elemset_) 
-  : NewAdvDifFF(elemset_), 
-    null_source_term(*this), gscalar_source_term(*this),
-    full_source_term(*this),
-    full_c_jac(*this), scalar_c_jac(*this),
-    null_c_jac(*this),
-    scalar_per_field_c_jac(*this),
-    null_a_jac(*this),
-    u_global(*this), u_per_field(*this),
-    full_adv_jac(*this), full_dif_jac(*this),
-    global_dif_tensor(*this), per_field_dif_tensor(*this),
-    null_d_jac(*this), global_scalar_djac(*this),
-    scalar_dif_per_field(*this)
-{}
+  : NewAdvDifFF(elemset_), u_per_field(*this), u_global(*this), 
+  full_adv_jac(*this), full_dif_jac(*this),
+  null_d_jac(*this),
+  scalar_dif_per_field(*this), global_scalar_djac(*this),
+  global_dif_tensor(*this), per_field_dif_tensor(*this),
+  full_c_jac(*this), scalar_c_jac(*this),
+  scalar_per_field_c_jac(*this),
+  null_c_jac(*this), null_a_jac(*this),
+  null_source_term(*this), gscalar_source_term(*this),
+  full_source_term(*this)
+{};
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 #undef __FUNC__
@@ -661,6 +659,16 @@ comp_vel_per_field(FastMat2 &vel_per_field) {
   vel_per_field.set(sqrt(vv));
 }
 
+#undef __FUNC__
+#define __FUNC__ "comp_vel_vec_per_field()"
+void newadvecfm2_ff_t::UGlobal::
+comp_vel_vec_per_field(FastMat2 &vel_vec_per_field) {
+  for (int k=1; k<=ff.ndof; k++) {
+    vel_vec_per_field.ir(1,k).set(ff.u);
+  }
+  vel_vec_per_field.rs();
+}
+
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 #undef __FUNC__
 #define __FUNC__ "void advecfm2_ff_t::element_hook(ElementIterator &)"
@@ -724,6 +732,7 @@ void newadvecfm2_ff_t::start_chunk(int &ret_options) {
   tmp3.set(tmp2);
   dif_per_field.resize(1,ndof);
   vel_per_field.resize(1,ndof);
+  vel_vec_per_field.resize(2,ndof,ndim);
   eye_ndof.resize(2,ndof,ndof).eye();
 
   strain_rate.resize(2,ndim,ndim);
@@ -1039,6 +1048,21 @@ void newadvecfm2_ff_t::compute_flux(COMPUTE_FLUX_ARGS) {
 
     a_jac->comp_Uintri(Uintri,iJaco_cpy);
     a_jac->comp_vel_per_field(vel_per_field);
+    if (new_adv_dif_elemset) {
+      const NewAdvDif *e = new_adv_dif_elemset;
+      if (e->use_ALE()) {
+        a_jac->comp_vel_vec_per_field(vel_vec_per_field);
+        for (int k=1; k<=ndof; k++) {
+          vel_vec_per_field.ir(1,k);
+          tmp16.set(vel_vec_per_field);
+          tmp16.rest(e->v_mesh);
+          vel_per_field.setel(tmp16.norm_p_all(),k);
+          Uintri.ir(1,k).prod(iJaco_cpy,tmp16,1,-1,-1);
+        }
+        vel_vec_per_field.rs();
+        Uintri.rs();
+      }
+    }
 
     double visco_t = 0.0;
     if (LES){
@@ -1087,12 +1111,14 @@ void newadvecfm2_ff_t::compute_flux(COMPUTE_FLUX_ARGS) {
       if (vel*vel > 20*Uh*alpha) { // remove singularity when D=0
 	FastMat2::choose(0);	// magic=1
 	tau = tau_fac/Uh;	// intrinsic time
-      } else if (vel*vel > 1e-5*Uh*alpha) {		// remove singularity when v=0
+      } else if (vel*vel > 1e-5*Uh*alpha) {		
+        // remove singularity when v=0
 	FastMat2::choose(1);
 	double Pe  = vel*vel/(Uh*alpha);	// Peclet number
 	// magic function
 	double magic = (fabs(Pe)>1.e-4 ? 1./tanh(Pe)-1./Pe : Pe/3.); 
 	tau = tau_fac/Uh*magic; // intrinsic time
+        // printf("Pe %f, tau %f\n",Pe,tau);
       } else {
 	FastMat2::choose(2);
 	double h = 2./sqrt(tmp0.sum_square(iJaco,1,-1).max_all());

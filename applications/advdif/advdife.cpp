@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: advdife.cpp,v 1.122.2.2 2007/02/03 19:40:50 mstorti Exp $
+//$Id: advdife.cpp,v 1.122.2.3 2007/02/03 23:28:55 mstorti Exp $
 extern int comp_mat_each_time_step_g,
   consistent_supg_matrix_g,
   local_time_step_g;
@@ -1369,7 +1369,7 @@ void NewAdvDifFF::comp_P_supg(FastMat2 &P_supg) {
     P_supg.prod(e->Ao_grad_N,e->tau_supg,1,2,-1,-1,3);
   }
   if (e->use_ALE()) {
-    FMSHV(e->v_mesh);
+    // FMSHV(e->v_mesh);
     tmp_P_supg_ALE_1.prod(*(e->grad_N()),e->v_mesh,-1,1,-1);
     tmp_P_supg_ALE_2.prod(e->Cp,tmp_P_supg_ALE_1,2,3,1);
     // tmp_P_supg_ALE_3.prod(tmp_P_supg_ALE_2,tau_supg_c,1,2,-1,-1,3);
