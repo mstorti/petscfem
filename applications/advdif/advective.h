@@ -1,6 +1,6 @@
 // -*- mode: c++ -*-
 /*__INSERT_LICENSE__*/
-//$Id: advective.h,v 1.82.2.1 2007/02/01 12:28:29 mstorti Exp $
+//$Id: advective.h,v 1.82.2.2 2007/02/03 19:40:50 mstorti Exp $
  
 //#define CHECK_JAC // Computes also the FD Jacobian for debugging
  
@@ -435,7 +435,7 @@ protected:
 
 public:
   FastMat2 dshapex,Uo,Ao_grad_N,tau_supg,
-  P_supg,grad_Uo, grad_U_norm,v_mesh;
+    P_supg,grad_Uo, grad_U_norm,v_mesh, Cp, Cp_old;
   friend class NewAdvDifFF;
   /// Contructor from the pointer to the fux function
   NewAdvDif(NewAdvDifFF *adv_diff_ff_=NULL) :

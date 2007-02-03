@@ -350,17 +350,6 @@ public:
     enthalpy_fun->get_Cp(Cp); 
   }
 
-  void comp_P_supg(FastMat2 &P_supg) {
-    assert(new_adv_dif_elemset);
-    const NewAdvDif *e = new_adv_dif_elemset;
-    if (e->ff_options & SCALAR_TAU) {
-      double tau_supg_d = e->tau_supg.get(1,1);
-      P_supg.set(e->Ao_grad_N).scale(tau_supg_d);
-    } else {
-      P_supg.prod(e->Ao_grad_N,e->tau_supg,1,2,-1,-1,3);
-    }
-  }
-
 };
 
 class newadvdif_advecfm2 : public NewAdvDif {
