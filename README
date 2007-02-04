@@ -61,7 +61,7 @@ INSTALLATION
 
        I guess it should be relatively easy to install in other processor
        architectures (SPARC or Alpha) running GNU/Linux and also (maybe) on
-       other Unix flavor’s.
+       other Unix flavor's.
 
        Required Software
 
@@ -165,7 +165,7 @@ INSTALLATION
        Simple Sockets Library (SSL) (optional)
            The Simple Sockets Library (SSL) allows C programmers to use inter-
            process communications via Berkeley sockets simply and quickly.
-           Most of the SSL’s functions resemble C’s file i/o functions, so C
+           Most of the SSL's functions resemble C's file i/o functions, so C
            programmers will find the SSL easy to learn. Currently used for
            communication with the IBM Data Explorer visualization tool, but
            but it might be used for other things in a near future.  [Current
@@ -198,7 +198,7 @@ INSTALLATION
        installed, you have to define the variables in the CONFIGURATION VARI-
        ABLES section in file $(PETSCFEM_DIR)/Makefile.base.
 
-       ·   First you have to set the "PETSC_BOPT" variable which is the
+       ?   First you have to set the "PETSC_BOPT" variable which is the
            default value for the "PETSc" "BOPT" variable, which sets the opti-
            mization level to be used in compilation. You can set it to
 
@@ -223,10 +223,10 @@ INSTALLATION
            This compiles the Navier-Stokes module with optimization enabled
            independently of the "PETSC_BOPT" default value.
 
-       ·   The "PROF_FLAGS" variables allows you to turn on profiling. By
+       ?   The "PROF_FLAGS" variables allows you to turn on profiling. By
            default, profiling is deactivated.
 
-       ·   Other configuration variables are defined in a file "Make-
+       ?   Other configuration variables are defined in a file "Make-
            file.defs", but normally they are set only when you first install
            PETSc-FEM, so the best is to put "Makefile.defs" in the directory
            immediately above PETSc-FEM directory (i.e. "$(PETSCFEM_DIR)/..").
@@ -299,10 +299,10 @@ AUTHORS
 
        * CIMEC, Internacional Center for Computational Methods in Engineering,
        Santa Fe, Argentina.
-       <http://www.cimec.org.ar/petscfem│http://www.cimec.org.ar/petscfem>
+       <http://www.cimec.org.ar/petscfem|http://www.cimec.org.ar/petscfem>
        Ordinary mail: Mario Storti, CIMEC-INTEC, Guemes 3450, 3000 Santa Fe,
        Argentina.
 
 
 
-perl v5.8.8                       2007-02-01                         README(1)
+perl v5.8.8                       2007-02-04                         README(1)
