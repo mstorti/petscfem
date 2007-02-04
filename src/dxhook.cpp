@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: dxhook.cpp,v 1.66 2007/01/30 19:03:44 mstorti Exp $
+//$Id: dxhook.cpp,v 1.66.4.1 2007/02/04 15:23:22 mstorti Exp $
 
 #include <src/debug.h>
 #include <src/fem.h>
@@ -470,7 +470,10 @@ void dx_hook::send_state(int step,build_state_fun_t build_state_fun) try {
     PetscPrintf(PETSC_COMM_WORLD,
 		"dx_hook: changed \"steps\" %d -> %d from DX\n",
 		steps,stepso);
+
+#ifdef USE_PTHREADS
     if (stepso==0) set_connection_state(not_launched);
+#endif
     steps=stepso;
   }
   
