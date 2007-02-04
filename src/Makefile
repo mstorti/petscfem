@@ -1,5 +1,5 @@
 #__INSERT_LICENSE__
-# $Id: Makefile,v 1.103 2006/04/11 13:23:03 mstorti Exp $ 
+# $Id: Makefile,v 1.103.14.1 2007/02/04 14:26:06 mstorti Exp $ 
 
 .PHONY: all run lclean save compile default
 
@@ -62,6 +62,7 @@ fm2eperl2.cpp: fmat2ep2.cpp prep.pl fmat2.pl
 	if [ -e $@ ] ; then chmod +w $@ ; rm $@ ; fi
 	$(EPERL) -B '//<' -E '//>' $< > $@ ; chmod -w $@
 
+ifeq (1,0)
 FSM := matFSM
 $(FSM).cpp $(FSM).h: sparse.sm
 ifneq ($(SMC),)
@@ -86,6 +87,7 @@ pfmatFSM.cpp  pfmatFSM.h: pfmat.sm
 	if [ ! -f $*FSM.cpp ] ; then cp -f $*FSM.cc $*FSM.cpp ; fi
 	-rm -f $*FSM.cc
 	chmod -w $*FSM.cpp $*FSM.h
+endif
 
 # This doesn't compile with -O2
 #measperf.o: CCPPFLAGS += -O1 // this doesn't work with the old 'make'
