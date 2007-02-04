@@ -63,11 +63,12 @@ can also install PETSc-FEM in a single GNU/Linux box, for use in
 sequential (i.e. non-parallel) mode or either for simulating parallel
 runs, by launching several processes in the same processor. (This is a
 feature of MPI). PETSc-FEM compiles cleanly with the GNU compiler GCC
-3.2 that comes with Red-Hat 8.0. 
+4.1.1 that comes with the Fedora Core 5 GNU/Linux distribution. 
+L<http://fedora.redhat.com/>
 
 I guess it should be relatively easy to install in other processor
-architectures (SPARC or Alpha) running GNU/Linux and also (maybe) on
-other Unix flavor's.
+architectures (SPARC or Alpha) running GNU/Linux and also on other
+Unix flavor's.
 
 =head2 Required Software
 
@@ -78,9 +79,9 @@ packages correctly installed in your system.
 
 =item MPI  
 
-I<Message Passing Interface>. We are currently using MPICH 1.2.1
-(L<http://www.mcs.anl.gov/mpich>) but I think there will be no problem
-with LAM MPI.
+I<Message Passing Interface>. We are currently using MPICH2 1.0.3
+(L<http://www.mcs.anl.gov/mpich>) but I think it should be possible to
+use other versions of MPI like LAM or OpenMPI. 
 
 =item PETSC
 
@@ -138,22 +139,6 @@ some functions that can not be done with Newmat. Currently, it is used
 in the advective module for performing eigenvalue decomposition of
 non-symmetric matrices. I think that in a future this functionality
 could be replaced by calls to LAPACK. 
-
-=item ePerl
-
-B<ePerl> (for I<embedded Perl>) is a preprocessor much like the B<C>
-language preprocessor (home page:
-L<http://www.engelschall.com/sw/eperl/>). B<ePerl> allows you to embed
-arbitrary B<Perl> code in your document. It is not required at all,
-but is is very useful for preprocessing the data files. 
-[RedHat RPM package: C<eperl>]. NEW: from version 3.18.pl44 on the
-Perl based version of C<eperl> is include in the <tools> directory. So
-that it is not needed to install it!! The Perl based version can be
-marginally different from the C<C> version. If you want to specify your
-own C<eperl> preprocessor then you have to modify the C<EPERL>
-variable in C<Makefile.base>. The Perl version of ePerl is written
-and maintained by David Ljung Madison C<< <DaveSource.com> >>
-L<http://MarginalHacks.com>. License: GPL (See C<tools/eperl_license.txt>). 
 
 =item Perl
 

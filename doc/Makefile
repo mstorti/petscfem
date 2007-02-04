@@ -1,5 +1,5 @@
 #__INSERT_LICENSE__
-#$Id: Makefile,v 1.52 2005/07/31 16:38:52 mstorti Exp $
+#$Id: Makefile,v 1.53 2007/02/04 14:54:19 mstorti Exp $
 
 .PHONY: all_html clean lclean all icons latex force ps readme
 
@@ -145,7 +145,7 @@ README.pod: README.podin ../VERSION
 ../README: README.pod ../VERSION
 	-chmod +w $@
 	cat ./banner >$@
-	pod2text README.pod >> $@
+	pod2text README.pod | deutf8.pl >> $@
 	-chmod -w $@
 
 ../README.html: README.pod ../VERSION
