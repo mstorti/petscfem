@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: advdife-gcl.cpp,v 1.11 2007/01/30 17:46:20 mstorti Exp $
+//$Id: advdife-gcl.cpp,v 1.12 2007/02/04 14:10:09 mstorti Exp $
 extern int comp_mat_each_time_step_g,
   consistent_supg_matrix_g,
   local_time_step_g;
@@ -115,7 +115,7 @@ new_assemble_GCL_compliant(arg_data_list &arg_data_v,const Nodedata *nodedata,
     matlocf_mass(4,nel,ndof,nel,ndof);
   FastMat2 prof_nodes(2,nel,nel), prof_fields(2,ndof,ndof),
     matlocf_fix(4,nel,ndof,nel,ndof);
-  FastMat2 Id_ndf(2,ndof,ndof),Id_nel(2,nel,nel),
+  FastMat2 Id_ndof(2,ndof,ndof),Id_nel(2,nel,nel),
     prof_fields_diag_fixed(2,ndof,ndof);
 
   //o Use the weak form for the Galerkin part of the advective term.
@@ -203,7 +203,7 @@ new_assemble_GCL_compliant(arg_data_list &arg_data_v,const Nodedata *nodedata,
   adv_diff_ff->set_profile(prof_fields); // profile by equations
   prof_nodes.set(1.);
 
-  Id_ndf.eye();
+  Id_ndof.eye();
   Id_nel.eye();
 
   prof_fields.d(1,2);
@@ -212,7 +212,7 @@ new_assemble_GCL_compliant(arg_data_list &arg_data_v,const Nodedata *nodedata,
   prof_fields_diag_fixed.set(prof_fields);
   prof_fields.rs();
   prof_fields_diag_fixed.rs();
-  prof_fields_diag_fixed.scale(-1.).add(Id_ndf);
+  prof_fields_diag_fixed.scale(-1.).add(Id_ndof);
 
   matlocf_fix.prod(prof_fields_diag_fixed,Id_nel,2,4,1,3);
   matlocf.prod(prof_fields,prof_nodes,2,4,1,3);
@@ -278,7 +278,7 @@ new_assemble_GCL_compliant(arg_data_list &arg_data_v,const Nodedata *nodedata,
   // FMatrix grad_U_norm(ndimel,ndof);
   // These are declared but not used
   FMatrix nor,lambda,Vr,Vr_inv,U(ndof),Ualpha(ndof),
-    lmass(nel),Id_ndof(ndof,ndof),
+    lmass(nel),
     tmp1,tmp2,tmp3,tmp4,tmp5,hvec(ndimel),tmp6,tmp7,
     tmp8,tmp9,tmp10,tmp10j,tmp11(ndof,ndimel),tmp12,tmp14,tmp14b,
     tmp15,tmp17,tmp19,tmp20,tmp21,tmp22,tmp23,tmp1_old,
@@ -298,14 +298,14 @@ new_assemble_GCL_compliant(arg_data_list &arg_data_v,const Nodedata *nodedata,
   tau_supg.resize(2,ndof,ndof);
   P_supg.resize(3,nel,ndof,ndof);
   grad_U_norm.resize(2,ndimel,ndof);
+  Cp.resize(2,ndof,ndof);
+  Cp_old.resize(2,ndof,ndof);
 
   FMatrix Jaco_axi(2,2);
   int ind_axi_1, ind_axi_2;
   double detJaco_axi;
 
-  FastMat2 Cr(2,ndof,ndof);
-  FastMat2 Cp_bis(2,ndof,ndof),
-    Cp_bis_old(2,ndof,ndof),Ao(3,ndim,ndof,ndof);
+  FastMat2 Cr(2,ndof,ndof), Ao(3,ndim,ndof,ndof);
   FastMat2 delta_sc_v(1,ndof);
 
   FMatrix Jaco_low(ndimel,ndim),iJaco_low(ndimel,ndimel);
@@ -331,8 +331,6 @@ new_assemble_GCL_compliant(arg_data_list &arg_data_v,const Nodedata *nodedata,
   v_mesh.resize(1,ndim);
 
   Uo.resize(1,ndof);
-  Id_ndof.set(0.);
-  for (int j=1; j<=ndof; j++) Id_ndof.setel(1.,j,j);
 
   FastMatCacheList cache_list;
   if (use_fastmat2_cache) FastMat2::activate_cache(&cache_list);
@@ -498,7 +496,7 @@ new_assemble_GCL_compliant(arg_data_list &arg_data_v,const Nodedata *nodedata,
 	
 	if (ALE_flag) {
 	  //	  v_mesh.prod(SHAPE_LOW,vloc_mesh,-1,-1,1);
-	  adv_diff_ff->get_Cp(Cp_bis);
+	  adv_diff_ff->get_Cp(Cp);
 	  tmp_ALE_01.prod(v_mesh,dshapex,-1,-1,1);
 	  tmp_ALE_02.prod(v_mesh,grad_U,-1,-1,1);
 	}
@@ -724,19 +722,19 @@ new_assemble_GCL_compliant(arg_data_list &arg_data_v,const Nodedata *nodedata,
 	adv_diff_ff->comp_A_grad_N(Ao_grad_N,dshapex);
 	Ao_grad_U.set(A_grad_U);
 	if (shocap>0. || shocap_aniso>0.)
-	  adv_diff_ff->get_Cp(Cp_bis_old);
+	  adv_diff_ff->get_Cp(Cp_old);
 	if (use_Ajac_old) adv_diff_ff->get_Ajac(Ao);
 	  adv_diff_ff
 	    ->compute_shock_cap_aniso(delta_aniso_old,jvec_old);
 
 
-#define USE_OLD_STATE_FOR_P_SUPG
-#ifdef USE_OLD_STATE_FOR_P_SUPG
-	// This computes either the standard `P_supg' perturbation
-	// function or other written by the user in the
-	// flux-function.
-	adv_diff_ff->comp_P_supg(P_supg);
-#endif
+// #define USE_OLD_STATE_FOR_P_SUPG
+// #ifdef USE_OLD_STATE_FOR_P_SUPG
+// 	// This computes either the standard `P_supg' perturbation
+// 	// function or other written by the user in the
+// 	// flux-function.
+// 	adv_diff_ff->comp_P_supg(P_supg);
+// #endif
 
 	// Set the state of the fluid so that it can be used to
 	// compute matrix products
@@ -864,14 +862,14 @@ new_assemble_GCL_compliant(arg_data_list &arg_data_v,const Nodedata *nodedata,
 
 	// add ALE Galerkin terms
 	if (ALE_flag) {
-	  // v_mesh.prod(SHAPE,vloc_mesh,-1,-1,1);
-	  adv_diff_ff->get_Cp(Cp_bis);
+	  v_mesh.prod(SHAPE,vloc_mesh,-1,-1,1);
+	  adv_diff_ff->get_Cp(Cp);
 	  tmp_ALE_01.prod(v_mesh,dshapex,-1,-1,1);
 	  tmp_ALE_02.prod(v_mesh,grad_U,-1,-1,1);
-	  tmp_ALE_03.prod(SHAPE,Cp_bis,1,2,3);
+	  tmp_ALE_03.prod(SHAPE,Cp,1,2,3);
 
 	  tmp_ALE_04.prod(tmp_ALE_03,tmp_ALE_02,1,2,-1,-1);
-	  veccontr.axpy(tmp_ALE_04,wpgdet);
+          if (!weak_form) veccontr.axpy(tmp_ALE_04,wpgdet);
 
 	  tmp_ALE_05.prod(tmp_ALE_03,tmp_ALE_01,1,2,4,3);
 	  matlocf.axpy(tmp_ALE_05,-wpgdet);
@@ -903,7 +901,7 @@ new_assemble_GCL_compliant(arg_data_list &arg_data_v,const Nodedata *nodedata,
 	  tmp23.set(SHAPE).scale(-wpgdet);
           if (ALE_flag) {
             v_mesh_grad_N.prod(v_mesh,dshapex,-1,-1,1);
-            tmp_ALE_jac.prod(v_mesh_grad_N,Id_ndf,1,2,3);
+            tmp_ALE_jac.prod(v_mesh_grad_N,Cp,1,2,3);
             tmp14b.set(A_grad_N).rest(tmp_ALE_jac);
             tmp14.prod(tmp14b,tmp23,1,2,4,3);
           } else {
@@ -974,21 +972,11 @@ new_assemble_GCL_compliant(arg_data_list &arg_data_v,const Nodedata *nodedata,
 	if (shocap>0. ) {
 	  adv_diff_ff->compute_delta_sc_v(delta_sc_v);
 
-/*
-	  adv_diff_ff->get_Cp(Cp_bis);
-	  tmp_shc_grad_U.prod(Cp_bis,grad_U,2,-1,1,-1);
-	  for (int jdf=1; jdf<=ndof; jdf++) {
-	    delta_sc_v.addel(delta_sc,jdf);
-*/
-
-//	  Cp_bis.set(Cp_bis_old);
-	  tmp_shc_grad_U.prod(Cp_bis_old,grad_U,2,-1,1,-1);
+	  tmp_shc_grad_U.prod(Cp_old,grad_U,2,-1,1,-1);
 	  for (int jdf=1; jdf<=ndof; jdf++) {
 	    //	    delta_sc_v.addel(delta_sc,jdf);
 	    delta_sc_v.addel(delta_sc_old,jdf);
 	  }
-
-//		  }
 
 	  tmp_sc.prod(dshapex,dshapex,-1,1,-1,2).scale(shocap*wpgdet);
 	  //	  tmp_sc_v.prod(dshapex,grad_U,-1,1,-1,2);
@@ -996,8 +984,8 @@ new_assemble_GCL_compliant(arg_data_list &arg_data_v,const Nodedata *nodedata,
 	  for (int jdf=1; jdf<=ndof; jdf++) {
 	    double delta = (double)delta_sc_v.get(jdf);
 	    for (int kdf=1; kdf<=ndof; kdf++) {
-//	      double tmp_shc_1=Cp_bis.get(jdf,kdf);
-	      double tmp_shc_1=Cp_bis_old.get(jdf,kdf);
+//	      double tmp_shc_1=Cp.get(jdf,kdf);
+	      double tmp_shc_1=Cp_old.get(jdf,kdf);
 	      matlocf.ir(2,jdf).ir(4,kdf).axpy(tmp_sc,delta*tmp_shc_1).rs();
 	      //       matlocf.ir(2,jdf).ir(4,jdf).axpy(tmp_sc,delta).rs();
 	    }
@@ -1010,7 +998,7 @@ new_assemble_GCL_compliant(arg_data_list &arg_data_v,const Nodedata *nodedata,
 	}
 
 	// adding ANISOTROPIC shock-capturing term
-	// Falta usar el Cp_bis_old aca tambien
+	// Falta usar el Cp_old aca tambien
 	if (shocap_aniso>0.) {
 //	  double delta_aniso = 0.0;
 	  delta_aniso = 0.0;
@@ -1023,8 +1011,8 @@ new_assemble_GCL_compliant(arg_data_list &arg_data_v,const Nodedata *nodedata,
 #endif
 
 #if 0
-	  adv_diff_ff->get_Cp(Cp_bis);
-	  tmp_shc_grad_U.prod(Cp_bis,grad_U,2,-1,1,-1);
+	  adv_diff_ff->get_Cp(Cp);
+	  tmp_shc_grad_U.prod(Cp,grad_U,2,-1,1,-1);
 	  tmp_j_grad_U.prod(jvec,tmp_shc_grad_U,-1,-1,1);
 	  tmp_j_gradN.prod(jvec,dshapex,-1,-1,1);
 
@@ -1033,7 +1021,7 @@ new_assemble_GCL_compliant(arg_data_list &arg_data_v,const Nodedata *nodedata,
 
 	  tmp_sc_v_aniso.prod(tmp_j_gradN,tmp_j_grad_U,1,2);
 #else
-	  tmp_shc_grad_U.prod(Cp_bis_old,grad_U,2,-1,1,-1);
+	  tmp_shc_grad_U.prod(Cp_old,grad_U,2,-1,1,-1);
 	  tmp_j_grad_U.prod(jvec_old,tmp_shc_grad_U,-1,-1,1);
 	  tmp_j_gradN.prod(jvec_old,dshapex,-1,-1,1);
 
@@ -1048,7 +1036,7 @@ new_assemble_GCL_compliant(arg_data_list &arg_data_v,const Nodedata *nodedata,
 	  for (int jdf=1; jdf<=ndof; jdf++) {
 	    double delta = (double)delta_sc_v.get(jdf);
 	    for (int kdf=1; kdf<=ndof; kdf++) {
-	      double tmp_shc_1=Cp_bis.get(jdf,kdf);
+	      double tmp_shc_1=Cp.get(jdf,kdf);
 	      matlocf.ir(2,jdf).ir(4,kdf).axpy(tmp_sc,delta*tmp_shc_1).rs();
 	      //       matlocf.ir(2,jdf).ir(4,jdf).axpy(tmp_sc,delta).rs();
 	    }
@@ -1059,12 +1047,12 @@ new_assemble_GCL_compliant(arg_data_list &arg_data_v,const Nodedata *nodedata,
 	  veccontr.add(tmp_sc_v);
 #else
 #if 0
-	  tmp_matloc_aniso.prod(tmp_sc_aniso,Cp_bis,1,3,2,4);
+	  tmp_matloc_aniso.prod(tmp_sc_aniso,Cp,1,3,2,4);
 	  matlocf.axpy(tmp_matloc_aniso,delta_aniso);
 	  veccontr.axpy(tmp_sc_v_aniso,
 			-shocap_aniso*delta_aniso*wpgdet);
 #else
-	  tmp_matloc_aniso.prod(tmp_sc_aniso,Cp_bis_old,1,3,2,4);
+	  tmp_matloc_aniso.prod(tmp_sc_aniso,Cp_old,1,3,2,4);
 	  matlocf.axpy(tmp_matloc_aniso,delta_aniso_old);
 	  veccontr.axpy(tmp_sc_v_aniso,
 			-shocap_aniso*delta_aniso_old*wpgdet);
@@ -1183,9 +1171,9 @@ new_assemble_GCL_compliant(arg_data_list &arg_data_v,const Nodedata *nodedata,
 	    
 	    Ualpha.set(0.).axpy(Uo,1-ALPHA).axpy(Un,ALPHA);
 	    
-	    //	adv_diff_ff->enthalpy_fun->comp_P_Cp(Cp,Id_ndf);
-	    adv_diff_ff->get_Cp(Cp_bis);
-	    Cp_bis.scale(rec_Dt_m);
+	    //	adv_diff_ff->enthalpy_fun->comp_P_Cp(Cp,Id_ndof);
+	    adv_diff_ff->get_Cp(Cp);
+	    Cp.scale(rec_Dt_m);
 	    
 	    dUdt.set(Hn).rest(Ho).scale(rec_Dt_m);
 	    
@@ -1200,7 +1188,7 @@ new_assemble_GCL_compliant(arg_data_list &arg_data_v,const Nodedata *nodedata,
 	    
 	    adv_diff_ff->get_C(Cr);
 
-            tmp12.set(Cr).add(Cp_bis);
+            tmp12.set(Cr).add(Cp);
             
             double mass_node;
             mass_node = double(lmass.get(j));

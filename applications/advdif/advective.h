@@ -1,6 +1,6 @@
 // -*- mode: c++ -*-
 /*__INSERT_LICENSE__*/
-//$Id: advective.h,v 1.84 2007/01/30 19:03:44 mstorti Exp $
+//$Id: advective.h,v 1.85 2007/02/04 14:10:09 mstorti Exp $
  
 //#define CHECK_JAC // Computes also the FD Jacobian for debugging
  
@@ -247,6 +247,8 @@ class NewAdvDifFF {
 private:
   /// The list of variables to be logarithmically transformed
   vector<int> log_vars_v;
+  /// Needed for ALE computations
+  FastMat2 tmp_P_supg_ALE_1, tmp_P_supg_ALE_2, tmp_P_supg_ALE_3;
 public:
   /// The elemset associated with the flux function
   const NewElemset *elemset;
@@ -433,11 +435,11 @@ protected:
     A_jac_norm_min, A_jac_err_norm_max, A_jac_err_norm_min,
     A_rel_err_min, A_rel_err_max;
   FastMat2 dshapex_low;
-  int use_GCL_compliant;
+  int use_GCL_compliant, ALE_flag;
 
 public:
   FastMat2 dshapex,Uo,Ao_grad_N,tau_supg,
-  P_supg,grad_Uo, grad_U_norm,v_mesh;
+    P_supg,grad_Uo, grad_U_norm,v_mesh, Cp, Cp_old;
   friend class NewAdvDifFF;
   /// Contructor from the pointer to the fux function
   NewAdvDif(NewAdvDifFF *adv_diff_ff_=NULL) :
@@ -480,6 +482,7 @@ public:
       @return actual time
   */ 
   double time() const { return time_m; };
+  int use_ALE() const { return ALE_flag; }
 
 };
 
