@@ -91,10 +91,11 @@ can also install PETSc-FEM in a single GNU/Linux box, for use in
 sequential (i.e. non-parallel) mode or either for simulating parallel
 runs, by launching several processes in the same processor. (This is a
 feature of MPI). PETSc-FEM compiles cleanly with the GNU compiler GCC
-3.2 that comes with Red-Hat 8.0.</p>
+4.1.1 that comes with the Fedora Core 5 GNU/Linux distribution. 
+<a href="http://fedora.redhat.com/">http://fedora.redhat.com/</a></p>
 <p>I guess it should be relatively easy to install in other processor
-architectures (SPARC or Alpha) running GNU/Linux and also (maybe) on
-other Unix flavor's.</p>
+architectures (SPARC or Alpha) running GNU/Linux and also on other
+Unix flavor's.</p>
 <p>
 </p>
 <h2><a name="required_software">Required Software</a></h2>
@@ -104,9 +105,9 @@ packages correctly installed in your system.</p>
 <dt><strong><a name="item_mpi">MPI</a></strong>
 
 <dd>
-<p><em>Message Passing Interface</em>. We are currently using MPICH 1.2.1
-(<a href="http://www.mcs.anl.gov/mpich">http://www.mcs.anl.gov/mpich</a>) but I think there will be no problem
-with LAM MPI.</p>
+<p><em>Message Passing Interface</em>. We are currently using MPICH2 1.0.3
+(<a href="http://www.mcs.anl.gov/mpich">http://www.mcs.anl.gov/mpich</a>) but I think it should be possible to
+use other versions of MPI like LAM or OpenMPI.</p>
 </dd>
 </li>
 <dt><strong><a name="item_petsc">PETSC</a></strong>
@@ -178,24 +179,6 @@ some functions that can not be done with Newmat. Currently, it is used
 in the advective module for performing eigenvalue decomposition of
 non-symmetric matrices. I think that in a future this functionality
 could be replaced by calls to LAPACK.</p>
-</dd>
-</li>
-<dt><strong><a name="item_eperl">ePerl</a></strong>
-
-<dd>
-<p><strong>ePerl</strong> (for <em>embedded Perl</em>) is a preprocessor much like the <strong>C</strong>
-language preprocessor (home page:
-<a href="http://www.engelschall.com/sw/eperl/">http://www.engelschall.com/sw/eperl/</a>). <strong>ePerl</strong> allows you to embed
-arbitrary <strong>Perl</strong> code in your document. It is not required at all,
-but is is very useful for preprocessing the data files. 
-[RedHat RPM package: <code>eperl</code>]. NEW: from version 3.18.pl44 on the
-Perl based version of <code>eperl</code> is include in the &lt;tools&gt; directory. So
-that it is not needed to install it!! The Perl based version can be
-marginally different from the <code>C</code> version. If you want to specify your
-own <code>eperl</code> preprocessor then you have to modify the <code>EPERL</code>
-variable in <code>Makefile.base</code>. The Perl version of ePerl is written
-and maintained by David Ljung Madison <code>&lt;DaveSource.com&gt;</code>
-<a href="http://MarginalHacks.com">http://MarginalHacks.com</a>. License: GPL (See <code>tools/eperl_license.txt</code>).</p>
 </dd>
 </li>
 <dt><strong><a name="item_perl">Perl</a></strong>
