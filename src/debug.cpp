@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: debug.cpp,v 1.15 2007/01/30 19:03:44 mstorti Exp $
+//$Id: debug.cpp,v 1.16 2007/02/05 17:52:11 mstorti Exp $
  
 #include <src/debug.h>
 #include <sys/resource.h>
@@ -95,7 +95,8 @@ void Debug::trace(const char *s) {
     file.sprintf("/proc/%d/status",getpid());
     FILE *fid = fopen(file.str(),"r");
     while(1) {
-      assert(getline(&line,&n,fid)!=-1);
+      int ret = getline(&line,&n,fid);
+      assert(ret!=-1);
       if (sscanf(line,"VmRSS: %d kB",&mem)) break;
     }
     fclose(fid);
