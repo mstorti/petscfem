@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: advdife-gcl.cpp,v 1.12.2.2 2007/02/06 18:28:13 mstorti Exp $
+//$Id: advdife-gcl.cpp,v 1.12.2.3 2007/02/06 22:41:36 mstorti Exp $
 extern int comp_mat_each_time_step_g,
   consistent_supg_matrix_g,
   local_time_step_g;
@@ -436,9 +436,6 @@ new_assemble_GCL_compliant(arg_data_list &arg_data_v,const Nodedata *nodedata,
       xloc.scale(ALPHA).axpy(xloc_old,1-ALPHA);
       vloc_mesh.set(xloc_new).rest(xloc_old).scale(rec_Dt_m*ALPHA).rs();
     } 
-//     FMSHV(xloc);
-//     FMSHV(xloc_old);
-//     FMSHV(xloc_new);
 
     if (0){
       int kk,ielhh;
@@ -557,17 +554,10 @@ new_assemble_GCL_compliant(arg_data_list &arg_data_v,const Nodedata *nodedata,
 	    matlocf.add(tmp22);
 	    
 	    if (ALE_flag) {
-#if 0
-	      tmp_ALE_07.prod(P_supg,tmp_ALE_01,1,3,2);
-	      matlocf.axpy(tmp_ALE_07,-wpgdet_low);
-	      tmp_ALE_06.prod(P_supg,tmp_ALE_02,1,-1,-1);
-	      veccontr.axpy(tmp_ALE_06,wpgdet_low);
-#else
 	      tmp_ALE_07.prod(P_Cp,tmp_ALE_01,1,3,2);
 	      matlocf.axpy(tmp_ALE_07,-wpgdet_low);
 	      tmp_ALE_06.prod(P_Cp,tmp_ALE_02,1,-1,-1);
 	      veccontr.axpy(tmp_ALE_06,wpgdet_low);
-#endif
 	    }
 	    
 	  }
@@ -675,8 +665,8 @@ new_assemble_GCL_compliant(arg_data_list &arg_data_v,const Nodedata *nodedata,
 	adv_diff_ff->enthalpy_fun->enthalpy(Ho,Uo);
 	Ualpha.set(0.).axpy(Uo,1-ALPHA).axpy(Un,ALPHA);
 	adv_diff_ff->enthalpy_fun->enthalpy(Halpha,Ualpha);
-#if 1
         // This is d(JH)/dt (J is the jacobian of the
+
         // ALE transformation
 	dUdt
           .set(Hn).scale(detJaco_new/detJaco)
@@ -684,9 +674,6 @@ new_assemble_GCL_compliant(arg_data_list &arg_data_v,const Nodedata *nodedata,
           .scale(rec_Dt_m);
         // This is plain dH/dt
 	dUdt2.set(Hn).rest(Ho).scale(rec_Dt_m);
-#else
-	dUdt.set(Hn).rest(Ho).scale(rec_Dt_m);
-#endif
 
 	for (int k=0; k<nlog_vars; k++) {
 	  int jdof=log_vars[k];
@@ -712,7 +699,6 @@ new_assemble_GCL_compliant(arg_data_list &arg_data_v,const Nodedata *nodedata,
 					   // no nos interesa la parte difusiva
 
 	if (ALE_flag) v_mesh.prod(SHAPE,vloc_mesh,-1,-1,1);
-        // FMSHV(vloc_mesh);
 
 	adv_diff_ff->compute_flux(Uo,iJaco,H,grad_H,flux,fluxd,
 				  A_grad_U,grad_Uo,G_source,
@@ -866,13 +852,14 @@ new_assemble_GCL_compliant(arg_data_list &arg_data_v,const Nodedata *nodedata,
 	  adv_diff_ff->get_Cp(Cp);
 	  tmp_ALE_01.prod(v_mesh,dshapex,-1,-1,1);
 	  tmp_ALE_02.prod(v_mesh,grad_U,-1,-1,1);
-	  tmp_ALE_03.prod(SHAPE,Cp,1,2,3);
 
-	  tmp_ALE_04.prod(tmp_ALE_03,tmp_ALE_02,1,2,-1,-1);
-          if (!weak_form) veccontr.axpy(tmp_ALE_04,wpgdet);
-
-	  tmp_ALE_05.prod(tmp_ALE_03,tmp_ALE_01,1,2,4,3);
-	  if (!weak_form) matlocf.axpy(tmp_ALE_05,-wpgdet);
+          if (!weak_form) {
+            tmp_ALE_03.prod(SHAPE,Cp,1,2,3);
+            tmp_ALE_04.prod(tmp_ALE_03,tmp_ALE_02,1,2,-1,-1);
+            veccontr.axpy(tmp_ALE_04,wpgdet);
+            tmp_ALE_05.prod(tmp_ALE_03,tmp_ALE_01,1,2,4,3);
+            matlocf.axpy(tmp_ALE_05,-wpgdet);
+          }
 	}
 
 	// Termino Galerkin
@@ -891,8 +878,6 @@ new_assemble_GCL_compliant(arg_data_list &arg_data_v,const Nodedata *nodedata,
             // Add ALE correction to flux
             // tmp11 = flux_c - v_mesh*H - flux_d
             if (ALE_flag) {
-//               printf("ipg %d\n",ipg);
-//               FMSHV(v_mesh);
               tmp_ALE_flux.prod(Halpha,v_mesh,1,2);
               tmp11.rest(tmp_ALE_flux);
             }
@@ -1101,17 +1086,10 @@ new_assemble_GCL_compliant(arg_data_list &arg_data_v,const Nodedata *nodedata,
             matlocf.add(tmp22);
 	      
             if (ALE_flag) {
-#if 0
-              tmp_ALE_07.prod(P_supg,tmp_ALE_01,1,3,2);
-              matlocf.axpy(tmp_ALE_07,-wpgdet);
-              tmp_ALE_06.prod(P_supg,tmp_ALE_02,1,-1,-1);
-              veccontr.axpy(tmp_ALE_06,wpgdet);
-#else
               tmp_ALE_07.prod(P_Cp,tmp_ALE_01,1,3,2);
               matlocf.axpy(tmp_ALE_07,-wpgdet);
               tmp_ALE_06.prod(P_Cp,tmp_ALE_02,1,-1,-1);
               veccontr.axpy(tmp_ALE_06,wpgdet);
-#endif
             }
           }
 	}
@@ -1199,6 +1177,7 @@ new_assemble_GCL_compliant(arg_data_list &arg_data_v,const Nodedata *nodedata,
         }
 
       veccontr.export_vals(element.ret_vector_values(*retval));
+      // veccontr.print(nel,"veccontr:");
 #ifdef CHECK_JAC
       veccontr.export_vals(element.ret_fdj_values(*fdj_jac));
 #endif
