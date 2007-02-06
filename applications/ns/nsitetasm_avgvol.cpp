@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: nsitetasm_avgvol.cpp,v 1.4.2.1 2007/01/31 02:02:56 dalcinl Exp $
+//$Id: nsitetasm_avgvol.cpp,v 1.4.2.2 2007/02/06 20:54:24 dalcinl Exp $
 
 //
 // This elemset uses the volume average velocity model 
@@ -429,7 +429,7 @@ assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
   // rec_Dt is the reciprocal of Dt (i.e. 1/Dt)
   // for steady solutions it is set to 0. (Dt=inf)
   GlobParam *glob_param;
-  double *hmin,Dt,rec_Dt;
+  double *hmin,Dt,rec_Dt=0.;
   int ja_hmin;
 #define WAS_SET arg_data_v[ja_hmin].was_set
   if (comp_mat_res) {

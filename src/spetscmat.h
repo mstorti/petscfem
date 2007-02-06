@@ -1,6 +1,6 @@
 // -*- mode: C++ -*- 
 /*__INSERT_LICENSE__*/
-// $Id: spetscmat.h,v 1.4.64.1 2007/01/31 02:02:56 dalcinl Exp $
+// $Id: spetscmat.h,v 1.4.64.2 2007/02/06 20:54:24 dalcinl Exp $
 #ifndef PETSCFEM_SPETSCMAT_H
 #define PETSCFEM_SPETSCMAT_H
 
@@ -37,7 +37,7 @@ public:
   int set_value_a(int row,int col,PetscScalar value,
 		  InsertMode mode=ADD_VALUES);
 
-  int duplicate_a(MatDuplicateOption op,const PFMat &A) { assert(0); }
+  int duplicate_a(MatDuplicateOption op,const PFMat &A) { assert(0); return 0; }
 
   int build_ksp();
 

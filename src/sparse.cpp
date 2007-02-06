@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: sparse.cpp,v 1.36.2.1 2007/01/31 02:02:56 dalcinl Exp $
+//$Id: sparse.cpp,v 1.36.2.2 2007/02/06 20:54:24 dalcinl Exp $
 
 #include <src/sparse2.h>
 
@@ -965,7 +965,7 @@ namespace Sparse {
     FSM_ACTIONS
 
   Mat *Mat::dispatch(char *opt,const TextHashTable *t) {
-    Mat *m; 
+    Mat *m=0; 
     if (!strcmp(opt,"PETSc")) {
       m = new PETScMat;
     } else if (!strcmp(opt,"SuperLU")) {

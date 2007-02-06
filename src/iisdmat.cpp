@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: iisdmat.cpp,v 1.71.2.3 2007/02/02 18:30:21 dalcinl Exp $
+//$Id: iisdmat.cpp,v 1.71.2.4 2007/02/06 20:54:24 dalcinl Exp $
 // fixme:= this may not work in all applications
 #ifndef _GNU_SOURCE
 #define _GNU_SOURCE
@@ -22,6 +22,18 @@
 #include <src/distcont2.h>
 #include <src/debug.h>
 #include <src/iisdmatstat.h>
+
+#if (PETSC_VERSION_MAJOR    == 2 && \
+     PETSC_VERSION_MINOR    == 3 && \
+     PETSC_VERSION_SUBMINOR == 2 && \
+     PETSC_VERSION_RELEASE  == 1)
+#define KSPMonitorSet KSPSetMonitor
+#define KSPMonitorCancel KSPClearMonitor
+#define KSPMonitorDefault  KSPDefaultMonitor
+#define KSPMonitorTrueResidualNorm KSPTrueMonitor
+#define KSPMonitorSolution KSPVecViewMonitor
+#define KSPMonitorLG KSPLGMonitor
+#endif
 
 //#define PF_CHKERRQ(ierr) assert(ierr)
 #define PF_CHKERRQ(ierr) CHKERRQ(ierr)
@@ -210,7 +222,7 @@ int PFPETScMat::build_ksp() {
   // warning:= avoiding `const' restriction!!
   ierr = KSPSetType(ksp,(char *)KSP_method.c_str()); CHKERRQ(ierr);
   if (KSP_method=="gmres") {
-    int (*fcn )(KSP,int);
+    int (*fcn )(KSP,int) = KSPGMRESClassicalGramSchmidtOrthogonalization;
     //o Orthogonalization method used in conjunction with GMRES. 
     // May be  {\tt unmodified\_gram\_schmidt},
     //  #modified_gram_schmidt#  or {\tt ir\_orthog} (default). (Iterative refinement).

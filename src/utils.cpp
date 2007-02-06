@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: utils.cpp,v 1.17.2.1 2007/01/31 02:02:56 dalcinl Exp $
+//$Id: utils.cpp,v 1.17.2.2 2007/02/06 20:54:24 dalcinl Exp $
  
 #include <src/debug.h>
 #include <stdio.h>
@@ -90,6 +90,7 @@ double mydetsur(FastMat2 &Jaco, FastMat2 &S) {
   } else {
     printf("Dimension not allowed (only 2 and 3)");
     assert(0);
+    return 0.0;
   }
 }
 #else  // old version
@@ -172,7 +173,7 @@ int irand(int n) {
 int mini(int n,...) {
   va_list list;
   va_start(list,n);
-  int min,item;
+  int min=-1,item;
   for (int kk=0; kk<n; kk++) {
     item = va_arg(list,int);
     min = ( kk==0 ? item : ( min < item ? min : item));
@@ -185,7 +186,7 @@ int mini(int n,...) {
 int maxi(int n,...) {
   va_list list;
   va_start(list,n);
-  int max,item;
+  int max=-1,item;
   for (int kk=0; kk<n; kk++) {
     item = va_arg(list,int);
     max = ( kk==0 ? item : ( max > item ? max : item));
@@ -198,7 +199,7 @@ int maxi(int n,...) {
 double maxd(int n,...) {
   va_list list;
   va_start(list,n);
-  double max,item;
+  double max=-1,item;
   for (int kk=0; kk<n; kk++) {
     item = va_arg(list,double);
     max = ( kk==0 ? item : ( max > item ? max : item));

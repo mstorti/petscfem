@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: elemset.cpp,v 1.95.2.1 2007/01/31 02:02:56 dalcinl Exp $
+//$Id: elemset.cpp,v 1.95.2.2 2007/02/06 20:54:24 dalcinl Exp $
 
 #ifndef _GNU_SOURCE
 #define _GNU_SOURCE
@@ -303,7 +303,7 @@ int assemble(Mesh *mesh,arg_list argl,
   arg_data_list arg_data_v(narg);
 
   // pref:= Local values (reference state for finite difference jacobian).
-  double *pref,fdj;
+  double *pref=0,fdj;
 
   MPI_Comm_rank(PETSCFEM_COMM_WORLD,&myrank);
 
@@ -319,7 +319,7 @@ int assemble(Mesh *mesh,arg_list argl,
   // difference approximation to jacobian. 
   // j_pert:= this points to which argument is the vector to be
   // perturbed. 
-  int any_fdj = 0,j_pert;  
+  int any_fdj = 0,j_pert=0;
   // any_include_ghost_elems:= any_not_include_ghost_elems=0:=
   // Flag whether any argument corresponds to that iteration mode. 
   // Iteration modes are mutually exclusive, so that we must check
@@ -505,7 +505,7 @@ int assemble(Mesh *mesh,arg_list argl,
 
     if (any_fdj) pref = new double[chunk_size*ndoft];
 
-    int el_start = 0, chunk = 0, el_last, last_chunk=0;
+    int el_start = 0, chunk = 0, el_last=0, last_chunk=0;
 
     //#define DEBUG_CHUNK_PROCESSING
 #ifdef DEBUG_CHUNK_PROCESSING

@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: measperf.cpp,v 1.9.2.2 2007/01/31 18:55:27 dalcinl Exp $
+//$Id: measperf.cpp,v 1.9.2.3 2007/02/06 20:54:24 dalcinl Exp $
 
 #include "fem.h"
 #include <set>
@@ -54,7 +54,7 @@ int measure_performance_fun(Mesh *mesh,arg_list argl,
 	      "Total (weighted) number of elements: %.4f\n",
 	      wnelem);
 
-  double tsum=0., t2sum=0.,tmax, tmin,mean,max,min,dev,t;
+  double tsum=0., t2sum=0.,tmax=0., tmin=0.,mean,max,min,dev,t;
   for (int jjj=0; jjj<NLOOP; jjj++) {
     chrono.start();
     ierr = assemble(mesh,argl,dofmap,jobinfo,time); CHKERRA(ierr);

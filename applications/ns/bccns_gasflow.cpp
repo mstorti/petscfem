@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: bccns_gasflow.cpp,v 1.3.2.1 2007/01/31 02:02:56 dalcinl Exp $
+//$Id: bccns_gasflow.cpp,v 1.3.2.2 2007/02/06 20:54:23 dalcinl Exp $
 
 #include <src/fem.h>
 #include <src/utils.h>
@@ -122,7 +122,7 @@ int bcconv_ns_gasflow::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
   }
 
   GlobParam *glob_param;
-  double *hmin,rec_Dt;
+  double *hmin,rec_Dt=0.;
   int ja_hmin;
 
   // Get arguments from arg_list

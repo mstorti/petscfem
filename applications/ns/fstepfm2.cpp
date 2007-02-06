@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: fstepfm2.cpp,v 1.37.16.2 2007/01/31 18:55:27 dalcinl Exp $
+//$Id: fstepfm2.cpp,v 1.37.16.3 2007/02/06 20:54:23 dalcinl Exp $
  
 #include <src/fem.h>
 #include <src/utils.h>
@@ -139,7 +139,7 @@ int fracstep::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
   // rec_Dt is the reciprocal of Dt (i.e. 1/Dt)
   // for steady solutions it is set to 0. (Dt=inf)
   GlobParam *glob_param=NULL;
-  double Dt,rec_Dt;
+  double Dt=0.0,rec_Dt=0.0;
   arg_data *A_mom_arg,*A_poi_arg,*A_prj_arg;
   if (comp_mat_prof) {
     int ja=0;

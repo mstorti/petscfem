@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: readmesh.cpp,v 1.122.2.1 2007/01/31 02:02:56 dalcinl Exp $
+//$Id: readmesh.cpp,v 1.122.2.2 2007/02/06 20:54:24 dalcinl Exp $
 #ifndef _GNU_SOURCE 
 #define _GNU_SOURCE 
 #endif
@@ -214,11 +214,11 @@ int read_mesh(Mesh *& mesh,char *fcase,Dofmap *& dofmap,
       dofmap->ndof = ndof;
       node = 0;
       double *row = new double[nu];
-      darray *xnod;
+      darray *xnod=0;
       const char *data = NULL;
       mesh->nodedata->options->get_entry("data",data);
       assert(data);
-      FileStack *fstack_nodes_data;
+      FileStack *fstack_nodes_data=0;
       if (!myrank) {
 	fstack_nodes_data = new FileStack(data);
 	ierro = !fstack_nodes_data->ok();
@@ -463,7 +463,7 @@ int read_mesh(Mesh *& mesh,char *fcase,Dofmap *& dofmap,
       DONE:;
       } else {
 	Autobuf *tempo = abuf_create();
-	FileStack *file_connect;
+	FileStack *file_connect=0;
 	if (!myrank) {
 	  file_connect = new FileStack(data);
 	  ierro = !file_connect->ok();
@@ -1060,7 +1060,7 @@ if (!(bool_cond)) { PetscPrintf(PETSCFEM_COMM_WORLD, 				\
   // partflag = 2 -> Neighbor partition. 
   // partflag = 3 -> random partition. 
   // partflag = 4 -> natural partition. 
-  int partflag;
+  int partflag=0;
   //o Set partitioning method. May be set to  #metis# ,
   //  #hitchhiking# ,  #nearest_neighbor#  or  #random# .
   TGETOPTDEF_S(mesh->global_options,string,partitioning_method,metis);

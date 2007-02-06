@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: nsilesther.cpp,v 1.34.2.1 2007/01/31 02:02:56 dalcinl Exp $
+//$Id: nsilesther.cpp,v 1.34.2.2 2007/02/06 20:54:24 dalcinl Exp $
 
 #include <src/fem.h>
 #include <src/utils.h>
@@ -101,7 +101,7 @@ int nsi_tet_les_ther::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
   }
 
   GlobParam *glob_param;
-  double *hmin,Dt,rec_Dt;
+  double *hmin,Dt,rec_Dt=0.;
   int ja_hmin;
 #define WAS_SET arg_data_v[ja_hmin].was_set
   if (comp_mat_res || comp_mat_res_th) {

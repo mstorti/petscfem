@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: embgath.cpp,v 1.41.14.1 2007/01/31 18:55:27 dalcinl Exp $
+//$Id: embgath.cpp,v 1.41.14.2 2007/02/06 20:54:23 dalcinl Exp $
 
 #include <src/fem.h>
 #include <src/utils.h>
@@ -160,7 +160,7 @@ int embedded_gatherer::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
 
   //o Type of element geometry to define Gauss Point data
   TGETOPTDEF_S(thash,string,geometry,quad2hexa);
-  GPdata *gp_data_p;
+  GPdata *gp_data_p=0;
   if (geometry=="quad2hexa") 
     gp_data_p = new GPdata("cartesian2d",ndimel,4,npg,GP_FASTMAT2);
   else if (geometry=="tri2prism") 

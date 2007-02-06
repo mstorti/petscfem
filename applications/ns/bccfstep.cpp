@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: bccfstep.cpp,v 1.3.2.1 2007/01/31 02:02:56 dalcinl Exp $
+//$Id: bccfstep.cpp,v 1.3.2.2 2007/02/06 20:54:23 dalcinl Exp $
   
 #include <src/fem.h>
 #include <src/utils.h>
@@ -77,7 +77,7 @@ int bcconv_fstep_fm2::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
   double *locst,*locst2,*retval,*retvalmat;
 
   GlobParam *glob_param=NULL;
-  double Dt;
+  double Dt=0.0;
 
   if (comp_res_poi) {
     int ja=0;

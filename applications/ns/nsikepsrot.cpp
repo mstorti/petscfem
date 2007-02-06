@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-/* $Id: nsikepsrot.cpp,v 1.35.2.1 2007/01/31 02:02:56 dalcinl Exp $ */
+/* $Id: nsikepsrot.cpp,v 1.35.2.2 2007/02/06 20:54:24 dalcinl Exp $ */
 
 #include <src/fem.h>
 #include <src/utils.h>
@@ -140,7 +140,7 @@ int nsi_tet_keps_rot::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
   }
 
   GlobParam *glob_param;
-  double *hmin,rec_Dt;
+  double *hmin,rec_Dt=0.;
   int ja_hmin;
 #define WAS_SET arg_data_v[ja_hmin].was_set
   if (comp_mat_res || comp_mat_res_ke) {

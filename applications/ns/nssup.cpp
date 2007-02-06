@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: nssup.cpp,v 1.7 2003/07/02 23:22:19 mstorti Exp $
+//$Id: nssup.cpp,v 1.7.96.1 2007/02/06 20:54:24 dalcinl Exp $
 
 #include <src/fem.h>
 #include <src/utils.h>
@@ -66,7 +66,7 @@ int ns_sup::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
   // rec_Dt is the reciprocal of Dt (i.e. 1/Dt)
   // for steady solutions it is set to 0. (Dt=inf)
   GlobParam *glob_param;
-  double *hmin,Dt,rec_Dt;
+  double *hmin,Dt,rec_Dt=0.0;
   int ja_hmin;
 #define WAS_SET arg_data_v[ja_hmin].was_set
   if (comp_mat_res) {

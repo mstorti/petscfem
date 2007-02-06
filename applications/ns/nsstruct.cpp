@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: nsstruct.cpp,v 1.5.2.2 2007/01/31 18:55:27 dalcinl Exp $
+//$Id: nsstruct.cpp,v 1.5.2.3 2007/02/06 20:54:24 dalcinl Exp $
 #include <src/debug.h>
 #include <malloc.h>
 
@@ -47,7 +47,7 @@ int struct_main() {
 
   Vec x, xp, dx, xold, dx_step, res; // approx solution, RHS, residual
   PetscViewer matlab;
-  PFMat *A_tet, *A_tet_c, *A_mom, *A_poi, *A_prj;;	// linear system matrix 
+  PFMat *A_tet=0, *A_tet_c=0, *A_mom=0, *A_poi=0, *A_prj=0;	// linear system matrix 
   double  norm, *sol, scal;	// norm of solution error
   int     ierr, i, n = 10, size, node,
     jdof, k, kk, nfixa,
@@ -548,7 +548,7 @@ int struct_main() {
       //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
       // TET ALGORITHM
       
-      double normres_external;
+      double normres_external=0.0;
       for (int inwt=0; inwt<nnwt; inwt++) {
 
 	glob_param.inwt = inwt;
