@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: advdife-gcl.cpp,v 1.12.2.1 2007/02/06 16:35:07 mstorti Exp $
+//$Id: advdife-gcl.cpp,v 1.12.2.2 2007/02/06 18:28:13 mstorti Exp $
 extern int comp_mat_each_time_step_g,
   consistent_supg_matrix_g,
   local_time_step_g;
@@ -853,7 +853,7 @@ new_assemble_GCL_compliant(arg_data_list &arg_data_v,const Nodedata *nodedata,
 	if (!lumped_mass) {
 	  adv_diff_ff->enthalpy_fun
 	    ->comp_W_Cp_N(N_Cp_N,SHAPE,SHAPE,
-			  0*detJaco_new*WPG*rec_Dt_m);
+			  detJaco_new*WPG*rec_Dt_m);
 	  matlocf.add(N_Cp_N);
 	}
 
@@ -872,7 +872,7 @@ new_assemble_GCL_compliant(arg_data_list &arg_data_v,const Nodedata *nodedata,
           if (!weak_form) veccontr.axpy(tmp_ALE_04,wpgdet);
 
 	  tmp_ALE_05.prod(tmp_ALE_03,tmp_ALE_01,1,2,4,3);
-	  matlocf.axpy(tmp_ALE_05,-wpgdet);
+	  if (!weak_form) matlocf.axpy(tmp_ALE_05,-wpgdet);
 	}
 
 	// Termino Galerkin
