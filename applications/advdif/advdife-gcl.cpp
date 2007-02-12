@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: advdife-gcl.cpp,v 1.12.2.3 2007/02/06 22:41:36 mstorti Exp $
+//$Id: advdife-gcl.cpp,v 1.12.2.4 2007/02/12 02:13:55 mstorti Exp $
 extern int comp_mat_each_time_step_g,
   consistent_supg_matrix_g,
   local_time_step_g;
@@ -571,10 +571,6 @@ new_assemble_GCL_compliant(arg_data_list &arg_data_v,const Nodedata *nodedata,
 	
       }	      
     }
-#if 0
-    SHV("despues de use_low_gpdata block",matlocf);
-    SHV("despues de use_low_gpdata block",veccontr);
-#endif
 
     // loop over Gauss points
     
@@ -913,8 +909,17 @@ new_assemble_GCL_compliant(arg_data_list &arg_data_v,const Nodedata *nodedata,
 	//	      w = weak_form
 	tmp8.prod(dshapex,tmp11,-1,1,2,-1);
 	tmp9.prod(SHAPE,tmp10,1,2); // tmp9 = SHAPE' * (G - dUdt)
+#if 0
+        FMSHV(tmp8);
+        FMSHV(tmp9);
+        FMSHV(veccontr);
+#endif
 	tmp8.add(tmp9);		// tmp8 = DSHAPEX * tmp11
 	veccontr.axpy(tmp8,wpgdet);
+        // printf("dUdt part: %f\n",veccontr.sum_all());
+#if 0
+        FMSHV(veccontr);
+#endif
 
 	// Diffusive term in matrix
 #if 0
