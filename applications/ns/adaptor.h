@@ -1,8 +1,8 @@
 // -*- mode: C++ -*-
 /*__INSERT_LICENSE__*/
-//$Id: adaptor.h,v 1.15 2006/04/11 00:48:10 mstorti Exp $
-#ifndef ADAPTOR_H
-#define ADAPTOR_H
+//$Id: adaptor.h,v 1.15.16.1 2007/02/13 02:17:31 mstorti Exp $
+#ifndef PETSCFEM_ADAPTOR_H
+#define PETSCFEM_ADAPTOR_H
 
 //-------<*>-------<*>-------<*>-------<*>-------<*>------- 
 /** Generic class that allows the user not make explicitly the element
@@ -13,6 +13,9 @@ class adaptor : public ns_volume_element {
 private:
   /// Flags whether the elements have been initialized or not
   int elem_init_flag;
+  /// Given an argument list to the assemble function, stores
+  /// the corresponding keys
+  vector<string> output_val;
 public: 
   adaptor();
   /// This should not be defined by the user...
@@ -42,7 +45,8 @@ public:
   /// Parameters passed to the element from the main
   GlobParam *glob_param;
   /** User defined callback function to be defined by the
-      user. Called {\bf before} the element loop. 
+      user. Called {\bf before} the element loop. May be used for
+      initialization operations. 
   */
   virtual void init()=0;
   /** User defined callback function to be defined by the
@@ -67,6 +71,16 @@ public:
   /** This is called only once for each element after calling 
       initialize().  */ 
   virtual void element_init() { } 
+  
+  class OutputHandle {
+    friend class adaptor;
+  private:
+    int index;
+  };
+    
+  OutputHandle get_output_handle(const string &key);
+
+  void export_vals(OutputHandle h,double *buf);
 
   void after_assemble(const char *jobinfo);
   /** Contains constant fields for the element */

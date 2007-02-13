@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: ns.cpp,v 1.191 2007/01/30 19:03:44 mstorti Exp $
+//$Id: ns.cpp,v 1.191.6.1 2007/02/13 02:17:31 mstorti Exp $
 #include <src/debug.h>
 #include <malloc.h>
 
@@ -27,6 +27,7 @@ WallData wall_data;
 int fsi_main();
 int struct_main();
 int mmove_main();
+int mmove2_main();
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 /** Creates hooks depending on the name. 
@@ -91,6 +92,7 @@ int main(int argc,char **args) {
     if (!strcmp(code_name,"fsi")) return fsi_main();
     if (!strcmp(code_name,"struct")) return struct_main();
     if (!strcmp(code_name,"mmove")) return mmove_main();
+    if (!strcmp(code_name,"mmove2")) return mmove2_main();
     PETSCFEM_ERROR("Unknown -code option: \"%s\"\n",code_name);
   }
 
