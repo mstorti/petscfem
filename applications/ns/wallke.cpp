@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: wallke.cpp,v 1.24 2007/01/30 19:03:44 mstorti Exp $
+//$Id: wallke.cpp,v 1.24.4.1 2007/02/17 10:31:10 mstorti Exp $
 #include <src/fem.h>
 #include <src/utils.h>
 #include <src/readmesh.h>
@@ -154,7 +154,7 @@ int wallke::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
   SGETOPTDEF(double,y_wall,0.);
   //o Mask for using laminar relation ( #turbulence_coef=0# ). 
   SGETOPTDEF(double,turbulence_coef,1.);
-  //o Use lumped mass matric for the wall element contribution. Avoids
+  //o Use lumped mass matrix for the wall element contribution. Avoids
   // oscillations due to ``reactive type'' wall contributions. 
   SGETOPTDEF(int,lumped_wallke,0);
   //o Density
