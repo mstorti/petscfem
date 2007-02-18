@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: wallke.cpp,v 1.24.4.2 2007/02/18 15:10:29 mstorti Exp $
+//$Id: wallke.cpp,v 1.24.4.3 2007/02/18 18:22:09 mstorti Exp $
 #include <src/fem.h>
 #include <src/utils.h>
 #include <src/readmesh.h>
@@ -159,6 +159,8 @@ int wallke::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
   SGETOPTDEF(int,lumped_wallke,0);
   //o Density
   SGETOPTDEF(double,rho,1.);
+  //o Use new version for wallke
+  SGETOPTDEF(int,use_new_version_lumped_wallke,1);
 
   SGETOPTDEF(double,viscosity,0.); //o
   PETSCFEM_ASSERT0(viscosity>0.,
@@ -193,6 +195,198 @@ int wallke::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
 
   // allocate local vecs
   int kdof;
+
+#define USE_NEW_VERSION
+#ifdef USE_NEW_VERSION
+  assert(use_new_version_lumped_wallke);
+  FastMat2 veccontr(2,nel,ndof),xloc(2,nel,ndim),xc(1,ndim),
+    locstate(2,nel,ndof),locstate2(2,nel,ndof),
+    shape_lump(1,nel),xpg,*shape_p;
+
+  nen = nel*ndof;
+  FastMat2 matloc(4,nel,ndof,nel,ndof),lmass(1,nel ),
+    u_wall(1,ndim),matlocmom(2,nel,nel);
+
+  // Trapezoidal method parameter. 
+  TGETOPTDEF(GLOBAL_OPTIONS,double,alpha,1.);    //nd
+
+  // Gauss Point data
+  //o Type of element geometry to define Gauss Point data
+  TGETOPTDEF_S(thash,string,geometry,cartesian2d);
+  
+  GPdata gp_data(geometry.c_str(),ndimel,nel,npg,GP_FASTMAT2);
+
+  // Definiciones para descargar el lazo interno
+  double detJaco,p_star,wpgdet;
+
+  int elem, ipg,node, jdim, kloc,lloc,ldof;
+    
+  FMatrix Jaco(ndimel,ndim),resmom(nel,ndim),normal(ndim);
+          
+  FMatrix grad_p_star(ndim),u,u_star,ucols,ucols_new,ucols_star,
+    pcol_star,pcol_new,pcol;
+
+  FMatrix matloc_prof(nen,nen),uc(ndim),tmp1,tmp2,tmp3,tmp4,
+    tmp5,seed(ndof,ndof);
+
+//    if (comp_mat_res) {
+//      seed.eye().setel(0.,ndof,ndof);
+//    }
+  seed.set(0.);
+  for (int j=1; j<=ndim; j++) 
+    seed.setel(1.,j,j);
+
+  if (comp_mat) {
+    matloc_prof.set(1.);
+  }
+  
+  FastMatCacheList cache_list;
+  FastMat2::activate_cache(&cache_list);
+  
+  int ielh=-1;
+  for (int k=el_start; k<=el_last; k++) {
+    if (!compute_this_elem(k,this,myrank,iter_mode)) continue;
+    FastMat2::reset_cache();
+
+    ielh++;
+    load_props(propel,elprpsindx,nprops,&(ELEMPROPS(k,0)));
+    u_wall.set(propel+u_wall_indx);
+
+    // Load local node coordinates in local vector
+    for (kloc=0; kloc<nel; kloc++) {
+      node = ICONE(k,kloc);
+      xloc.ir(1,kloc+1).set(&NODEDATA(node-1,0));
+    }
+    xloc.rs();
+
+    // locstate2 <- u^n
+    // locstate  <- u^*
+    if (comp_mat_res ) {
+      locstate.set(&(LOCST(ielh,0,0)));
+      locstate2.set(&(LOCST2(ielh,0,0)));
+    }
+
+    matlocmom.set(0.);
+    matloc.set(0.);
+    veccontr.set(0.);
+
+    ucols.set(locstate2.is(2,1,ndim));
+    locstate2.rs();
+
+    ucols_new.set(locstate.is(2,1,ndim));
+    locstate.rs();
+    
+    ucols_star.set(ucols_new).scale(alpha).axpy(ucols,1-alpha);
+    double tol_Ustar = 1e-8;
+    
+    if(comp_mat) {
+      matloc_prof.export_vals(&(RETVALMAT(ielh,0,0,0,0)));
+      continue;
+    }      
+    
+#define DSHAPEXI (*gp_data.FM2_dshapexi[ipg])
+#define SHAPE    (*shape_p)
+#define WPG      (gp_data.wpg[ipg])
+    
+    if (comp_mat_res) {
+      veccontr.is(2,1,ndim);
+      matloc.is(2,1,ndim).is(4,1,ndim);
+      lmass.set(0.)       ;
+
+      if (lumped_wallke) {
+        for (ipg=0; ipg<npg; ipg++) {
+          Jaco.prod(DSHAPEXI,xloc,1,-1,-1,2);
+          detJaco = Jaco.detsur(&normal);
+          wpgdet = detJaco * WPG;
+	  lmass.axpy(*gp_data.FM2_shape[ipg],wpgdet);
+        }
+      }
+
+      // loop over Gauss points
+      // Guarda que hay que invertir la direccion de la traccion!!!!
+      int ninteg = (lumped_wallke? nel : npg);
+      for (ipg=0; ipg<ninteg; ipg++) {
+
+        if (lumped_wallke) {
+          shape_lump.set(0.).setel(1.0,ipg+1);
+          shape_p = &shape_lump;
+          wpgdet = lmass.get(ipg+1);
+        } else {
+          Jaco.prod(DSHAPEXI,xloc,1,-1,-1,2);
+          detJaco = Jaco.detsur(&normal);
+          wpgdet = detJaco * WPG;
+          shape_p = gp_data.FM2_shape[ipg];
+        }
+
+	u_star.prod(SHAPE,ucols_star,-1,-1,1).rest(u_wall);
+	// Warning: here `u_star' refers to the vector at time
+	// t_star  = t + alpha * Dt, in the trapeziodal method
+	double Ustar = sqrt(u_star.sum_square_all());
+        if (Ustar<tol_Ustar) Ustar = tol_Ustar;
+	double gfun,gprime;
+	if (y_wall>0.) {
+	  wfs.u = Ustar;
+	  wfs.x0 = sqrt(viscosity*Ustar/y_wall);
+	  // *This* is the friction velocity at the wall
+	  double uwstar = wfs.sol();
+	  double yplus = y_wall*uwstar/viscosity;
+	  wf->w(yplus,fwall,fprime);
+	  double tau_w = rho * square(uwstar);
+	  gfun = tau_w/Ustar;
+	  double dustar_du = 1./(fwall+yplus*fprime);
+	  // gprime = ( 2.*rho*uwstar*dustar_du - gfun)/Ustar;
+	  gprime = (2.*fwall*dustar_du-1.)*gfun/Ustar;
+//  	  SHV(uwstar);
+//  	  SHV(yplus);
+//  	  SHV(tau_w);
+//  	  SHV(dustar_du);
+//  	  SHV(fwall);
+//  	  SHV(fprime);
+//  	  SHV(gfun);
+//  	  SHV(gprime);
+	} else {
+	  gprime = rho / (fwall*fwall);
+	  gfun = gprime * Ustar;
+	}
+
+	if (turbulence_coef == 0.) {
+	  gprime = 0.;
+	  gfun = rho * viscosity / y_wall;
+	}
+
+        tmp1.prod(SHAPE,SHAPE,1,2);
+        matlocmom.axpy(tmp1,gfun*wpgdet);
+
+	tmp2.prod(SHAPE,u_star,1,2);
+	tmp3.set(tmp2).scale(wpgdet*gprime/Ustar);
+	tmp4.prod(tmp2,tmp3,1,2,3,4);
+	matloc.add(tmp4);
+
+	veccontr.axpy(tmp2,-gfun*wpgdet);
+      }
+
+      matlocmom.rs();
+      tmp5.prod(matlocmom,seed,1,3,2,4);
+
+      veccontr.rs();
+      matloc.rs().add(tmp5);
+
+      matloc.reshape(2,nel*ndof,nel*ndof);
+      matloc.reshape(4,nel,ndof,nel,ndof);
+
+      veccontr.export_vals(&(RETVAL(ielh,0,0)));
+      matloc.export_vals(&(RETVALMAT(ielh,0,0,0,0)));
+     }
+
+  }
+
+  FastMat2::void_cache();
+  FastMat2::deactivate_cache();
+  return 0;
+
+#else
+  //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>
+  assert(!use_new_version_lumped_wallke);
   FMatrix veccontr(nel,ndof),xloc(nel,ndim),xc(ndim),locstate(nel,ndof),
     locstate2(nel,ndof),xpg; 
 
@@ -395,6 +589,9 @@ int wallke::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
   FastMat2::void_cache();
   FastMat2::deactivate_cache();
   return 0;
+
+#endif
+
 }
 #undef SHAPE    
 #undef DSHAPEXI 
