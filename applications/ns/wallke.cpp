@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: wallke.cpp,v 1.24.4.4 2007/02/18 18:28:09 mstorti Exp $
+//$Id: wallke.cpp,v 1.24.4.6 2007/02/18 18:32:23 mstorti Exp $
 #include <src/fem.h>
 #include <src/utils.h>
 #include <src/readmesh.h>
@@ -159,8 +159,6 @@ int wallke::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
   SGETOPTDEF(int,lumped_wallke,0);
   //o Density
   SGETOPTDEF(double,rho,1.);
-  //o Use new version for wallke
-  SGETOPTDEF(int,use_new_version_lumped_wallke,1);
 
   SGETOPTDEF(double,viscosity,0.); //o
   PETSCFEM_ASSERT0(viscosity>0.,
@@ -196,7 +194,6 @@ int wallke::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
   // allocate local vecs
   int kdof;
 
-  assert(use_new_version_lumped_wallke);
   FastMat2 veccontr(2,nel,ndof),xloc(2,nel,ndim),xc(1,ndim),
     locstate(2,nel,ndof),locstate2(2,nel,ndof),
     shape_lump(1,nel),xpg,*shape_p;
