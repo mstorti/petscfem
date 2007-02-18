@@ -4707,3 +4707,6 @@ tag: beta-3.49.75 on Sun, 18 Feb 2007 12:13:55 -0300 by mstorti in spider
 ----------
 tag: beta-3.49.76 on Sun, 18 Feb 2007 15:28:14 -0300 by mstorti in spider
      > Implemented `lumped_wallke' for `wallke'. 
+----------
+tag: beta-3.49.77 on Sun, 18 Feb 2007 18:49:21 -0300 by mstorti in spider
+     > Added patch from `gcl-ale2' branch
