@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: wall.cpp,v 1.23 2007/01/30 19:03:44 mstorti Exp $
+//$Id: wall.cpp,v 1.23.4.1 2007/02/18 15:10:29 mstorti Exp $
 
 #include <src/fem.h>
 #include <src/utils.h>
@@ -191,6 +191,12 @@ int wall::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
   //o Type of element geometry to define Gauss Point data
   TGETOPTDEF_S(thash,string,geometry,cartesian2d);
 
+  //o Compute the wall residual and element contributions
+  // in order to impose the wall law. Useful when `wall'
+  // elemset is used in conjunction with `wallke' only in order to
+  // `wall' compute the shear velocity. 
+  TGETOPTDEF(thash,double,compute_wall_law_terms,1);
+
   GPdata gp_data(geometry.c_str(),ndimel,nel,npg,GP_FASTMAT2);
 
   // Definiciones para descargar el lazo interno
@@ -312,6 +318,11 @@ int wall::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
 
       veccontr.rs();
       matloc.rs().add(tmp5);
+
+      if (!compute_wall_law_terms) {
+        veccontr.set(0.0);
+        matloc.set(0.0);
+      }
 
       veccontr.export_vals(&(RETVAL(ielh,0,0)));
       matloc.export_vals(&(RETVALMAT(ielh,0,0,0,0)));

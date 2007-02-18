@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: wallke.cpp,v 1.24.4.1 2007/02/17 10:31:10 mstorti Exp $
+//$Id: wallke.cpp,v 1.24.4.2 2007/02/18 15:10:29 mstorti Exp $
 #include <src/fem.h>
 #include <src/utils.h>
 #include <src/readmesh.h>
@@ -270,6 +270,7 @@ int wallke::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
     locstate.rs();
 
     ucols_star.set(ucols_new).scale(alpha).axpy(ucols,1-alpha);
+    double tol_Ustar = 1e-8;
 
     if(comp_mat) {
       matloc_prof.export_vals(&(RETVALMAT(ielh,0,0,0,0)));
@@ -298,6 +299,7 @@ int wallke::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
 	// Warning: here `u_star' refers to the vector at time
 	// t_star  = t + alpha * Dt, in the trapeziodal method
 	double Ustar = sqrt(u_star.sum_square_all());
+        if (Ustar<tol_Ustar) Ustar = tol_Ustar;
 	double gfun,gprime;
 	if (y_wall>0.) {
 	  wfs.u = Ustar;
