@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: wallke.cpp,v 1.24 2007/01/30 19:03:44 mstorti Exp $
+//$Id: wallke.cpp,v 1.25 2007/02/18 21:49:37 mstorti Exp $
 #include <src/fem.h>
 #include <src/utils.h>
 #include <src/readmesh.h>
@@ -154,7 +154,7 @@ int wallke::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
   SGETOPTDEF(double,y_wall,0.);
   //o Mask for using laminar relation ( #turbulence_coef=0# ). 
   SGETOPTDEF(double,turbulence_coef,1.);
-  //o Use lumped mass matric for the wall element contribution. Avoids
+  //o Use lumped mass matrix for the wall element contribution. Avoids
   // oscillations due to ``reactive type'' wall contributions. 
   SGETOPTDEF(int,lumped_wallke,0);
   //o Density
@@ -193,12 +193,14 @@ int wallke::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
 
   // allocate local vecs
   int kdof;
-  FMatrix veccontr(nel,ndof),xloc(nel,ndim),xc(ndim),locstate(nel,ndof),
-    locstate2(nel,ndof),xpg; 
+
+  FastMat2 veccontr(2,nel,ndof),xloc(2,nel,ndim),xc(1,ndim),
+    locstate(2,nel,ndof),locstate2(2,nel,ndof),
+    shape_lump(1,nel),xpg,*shape_p;
 
   nen = nel*ndof;
-  FastMat2 matloc(4,nel,ndof,nel,ndof),lmass(1,nel ),u_wall(1,ndim);
-  FMatrix matlocmom(nel,nel);
+  FastMat2 matloc(4,nel,ndof,nel,ndof),lmass(1,nel ),
+    u_wall(1,ndim),matlocmom(2,nel,nel);
 
   // Trapezoidal method parameter. 
   TGETOPTDEF(GLOBAL_OPTIONS,double,alpha,1.);    //nd
@@ -232,10 +234,10 @@ int wallke::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
   if (comp_mat) {
     matloc_prof.set(1.);
   }
-
+  
   FastMatCacheList cache_list;
   FastMat2::activate_cache(&cache_list);
-
+  
   int ielh=-1;
   for (int k=el_start; k<=el_last; k++) {
     if (!compute_this_elem(k,this,myrank,iter_mode)) continue;
@@ -268,16 +270,17 @@ int wallke::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
 
     ucols_new.set(locstate.is(2,1,ndim));
     locstate.rs();
-
+    
     ucols_star.set(ucols_new).scale(alpha).axpy(ucols,1-alpha);
-
+    double tol_Ustar = 1e-8;
+    
     if(comp_mat) {
       matloc_prof.export_vals(&(RETVALMAT(ielh,0,0,0,0)));
       continue;
     }      
-
+    
 #define DSHAPEXI (*gp_data.FM2_dshapexi[ipg])
-#define SHAPE    (*gp_data.FM2_shape[ipg])
+#define SHAPE    (*shape_p)
 #define WPG      (gp_data.wpg[ipg])
     
     if (comp_mat_res) {
@@ -285,19 +288,36 @@ int wallke::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
       matloc.is(2,1,ndim).is(4,1,ndim);
       lmass.set(0.)       ;
 
+      if (lumped_wallke) {
+        for (ipg=0; ipg<npg; ipg++) {
+          Jaco.prod(DSHAPEXI,xloc,1,-1,-1,2);
+          detJaco = Jaco.detsur(&normal);
+          wpgdet = detJaco * WPG;
+	  lmass.axpy(*gp_data.FM2_shape[ipg],wpgdet);
+        }
+      }
+
       // loop over Gauss points
       // Guarda que hay que invertir la direccion de la traccion!!!!
-      for (ipg=0; ipg<npg; ipg++) {
+      int ninteg = (lumped_wallke? nel : npg);
+      for (ipg=0; ipg<ninteg; ipg++) {
 
-	Jaco.prod(DSHAPEXI,xloc,1,-1,-1,2);
-	detJaco = Jaco.detsur(&normal);
-	wpgdet = detJaco * WPG;
-	normal.scale(-1.); // fixme:= This is to compensate a bug in mydetsur
+        if (lumped_wallke) {
+          shape_lump.set(0.).setel(1.0,ipg+1);
+          shape_p = &shape_lump;
+          wpgdet = lmass.get(ipg+1);
+        } else {
+          Jaco.prod(DSHAPEXI,xloc,1,-1,-1,2);
+          detJaco = Jaco.detsur(&normal);
+          wpgdet = detJaco * WPG;
+          shape_p = gp_data.FM2_shape[ipg];
+        }
 
 	u_star.prod(SHAPE,ucols_star,-1,-1,1).rest(u_wall);
 	// Warning: here `u_star' refers to the vector at time
 	// t_star  = t + alpha * Dt, in the trapeziodal method
 	double Ustar = sqrt(u_star.sum_square_all());
+        if (Ustar<tol_Ustar) Ustar = tol_Ustar;
 	double gfun,gprime;
 	if (y_wall>0.) {
 	  wfs.u = Ustar;
@@ -329,10 +349,8 @@ int wallke::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
 	  gfun = rho * viscosity / y_wall;
 	}
 
-	tmp1.prod(SHAPE,SHAPE,1,2);
-	matlocmom.axpy(tmp1,gfun*wpgdet);
-	if (lumped_wallke) 
-	  lmass.axpy(SHAPE,wpgdet);
+        tmp1.prod(SHAPE,SHAPE,1,2);
+        matlocmom.axpy(tmp1,gfun*wpgdet);
 
 	tmp2.prod(SHAPE,u_star,1,2);
 	tmp3.set(tmp2).scale(wpgdet*gprime/Ustar);
@@ -340,39 +358,6 @@ int wallke::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
 	matloc.add(tmp4);
 
 	veccontr.axpy(tmp2,-gfun*wpgdet);
-      }
-
-      if (lumped_wallke) {
-	assert(y_wall==0); // `lumped_wallke' and `y_wall' not
-			   // implemented yet check that no
-	matloc.reshape(2,nel*ndof,nel*ndof);
-	matloc.reshape(4,nel,ndof,nel,ndof);
-
-	matlocmom.set(0.);
-	matloc.rs().set(0.).is(2,1,ndim).is(4,1,ndim);
-	veccontr.rs().set(0.).is(2,1,ndim);
-
-	for (int j=1; j<=nel; j++) {
-	  ucols_star.ir(1,j);
-	  u_star.set(ucols_star).rest(u_wall);
-	  double Ustar = sqrt(u_star.sum_square_all());
-	  double gfun,gprime, Omega_j;
-	  Omega_j = lmass.get(j);
-	  gprime = rho / (fwall*fwall);
-	  gfun = gprime * Ustar;
-	  if (turbulence_coef == 0.) {
-	    gprime = 0.;
-	    gfun = rho * viscosity / y_wall;
-	  }
-
-	  matlocmom.setel(Omega_j*gfun,j,j);
-
-	  matloc.ir(1,j).ir(3,j)
-	    .prod(u_star,u_star,1,2)
-	    .scale(Omega_j*gprime/Ustar);
-
-	  veccontr.ir(1,j).set(ucols_star).scale(-gfun*Omega_j);
-	}
       }
 
       matlocmom.rs();
@@ -386,13 +371,15 @@ int wallke::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
 
       veccontr.export_vals(&(RETVAL(ielh,0,0)));
       matloc.export_vals(&(RETVALMAT(ielh,0,0,0,0)));
-    }
+     }
 
   }
 
   FastMat2::void_cache();
   FastMat2::deactivate_cache();
   return 0;
+
+
 }
 #undef SHAPE    
 #undef DSHAPEXI 
