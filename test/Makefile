@@ -1,5 +1,5 @@
 #__INSERT_LICENSE__
-# $Id: Makefile,v 1.108.40.3 2007/02/19 13:24:18 mstorti Exp $ 
+# $Id: Makefile,v 1.108.40.4 2007/02/19 18:57:05 mstorti Exp $ 
 
 .PHONY: all run  compile lclean ns laplace adv nso laplace_tests force		\
         ctest runtests clean fastmat2_obj plano idmap fastvec			\
@@ -105,7 +105,8 @@ runtests: compile sector oscplate fastmat2 plano idmap fastvec			\
 	cubcav
 
 rp: runtests_p
-runtests_p:    cubcav
+runtests_p:  oscplate fastmat2 plano idmap fastvec			\
+	chunk_size_process constraint_bug fstack 
 
 #s Specific tests
 #----<*>----------<*>----------<*>----------<*>----------<*>----------<*>-----

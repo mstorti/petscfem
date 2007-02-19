@@ -5,6 +5,7 @@ ndim 2
 nsave 5
 nstep 1
 initial_state "stream2.ini"
+check_initial_state_correct_size 0
 
 solver "petsc"
 preco_type "lu"

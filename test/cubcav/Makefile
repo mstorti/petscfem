@@ -1,4 +1,4 @@
-# $Id: Makefile,v 1.112.48.1 2007/02/19 04:02:15 mstorti Exp $ 
+# $Id: Makefile,v 1.112.48.2 2007/02/19 18:57:05 mstorti Exp $ 
 
 .PHONY: all run  compile lclean laplace adv nso laplace_tests force \
         ctest gprof srfgath
@@ -33,7 +33,7 @@ MCH := -machinefile ./machi.dat
 else
 NP := $(shell procsel ./proctable.mono)
 NL :=
-MCH := -machinefile ./machi.dat
+MCH := 
 NP := 1
 endif
 
@@ -73,7 +73,7 @@ nettest = $(PETSCFEM_DIR)/tools/nettest.bin
 .PHONY: nettest
 nettest:
 	NP=`procsel -n ./proctable.geronimo` ;  \
-	$(MPIRUN) -np $$NP -machinefile machi.dat $(nettest)
+	$(MPIRUN) -machinefile machi.dat -np $$NP $(nettest)
 
 dxo: viewer.dx.tmp
 
