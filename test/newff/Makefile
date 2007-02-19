@@ -1,5 +1,5 @@
 #__INSERT_LICENSE__
-# $Id: Makefile,v 1.30.84.1 2007/02/19 13:24:18 mstorti Exp $ 
+# $Id: Makefile,v 1.30.84.2 2007/02/19 19:35:11 mstorti Exp $ 
 
 .PHONY: force all run tests data
 
@@ -65,7 +65,7 @@ NP := 1
 endif
 
 run: 
-	@make-depl data.m.epl data.m.tmp -d CASE=$(CASE) ;		\
+	make-depl data.m.epl data.m.tmp -d CASE=$(CASE) ;		\
 	$(OCTAVE) -qH newff.m ;						\
 	make-depl newff.epl newff.$(CASE).depl -d $(CASE)=1 ;		\
 	if [ -f save.state.tmp ] ; then rm -f save.state.tmp ; fi ;	\

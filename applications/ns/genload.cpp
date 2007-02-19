@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: genload.cpp,v 1.14 2007/01/30 19:03:44 mstorti Exp $
+//$Id: genload.cpp,v 1.14.8.1 2007/02/19 19:35:11 mstorti Exp $
 #include <src/fem.h>
 #include <src/utils.h>
 #include <src/readmesh.h>
@@ -356,6 +356,8 @@ void lin_gen_load::start_chunk_c() {
   const_flux_indx = iprop; 
   ierr = get_prop(iprop,elem_prop_names,thash,elprpsindx,propel, 
 		  "const_flux",ndof);
+  PETSCFEM_ASSERT0(!isnan(*(propel+const_flux_indx)),
+                   "Must enter value for \"const_flux\"");  
   nprops = iprop;
 }
 

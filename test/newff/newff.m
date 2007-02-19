@@ -1,5 +1,5 @@
 ##__INSERT_LICENSE__
-## $Id: newff.m,v 1.14.84.1 2007/02/19 13:24:18 mstorti Exp $
+## $Id: newff.m,v 1.14.84.2 2007/02/19 19:35:11 mstorti Exp $
 source("data.m.tmp");
 
 ## Physical parameters
@@ -111,8 +111,9 @@ elseif full_jacs==2
 
   CP=log(Cp)*(eye(ndof)+log((Cp-Cpfluc)/Cp)*(2*rand(size(CP))-1));
   CP=(CP+CP')/2;
-  ## CP=expm(CP);
-  CP=myfunm(CP,"exp");
+  return
+  CP=expm(CP);
+  ## CP=myfunm(CP,"exp");
 	      
   fprintf(fid,"enthalpy_jacobians_type \"full\"\n");
   fprintf(fid,"enthalpy_jacobians");
@@ -173,7 +174,6 @@ else
   full_jacs
   error("Value of full_jacs unknown");
 endif 
-## OK
 
 ## Number of nodes/elements in x,y
 Nx=nx+1;
@@ -285,7 +285,7 @@ phase=kwave(1)*xnod(:,1)+kwave(2)*xnod(:,2);
 phase=exp(i*phase);
 
 if !steady
-  ##  uana = (beta \ (eye(ndof)-expm(-beta*nstep*Dt)))*(CP\S);
+  ## uana = (beta \ (eye(ndof)-expm(-beta*nstep*Dt)))*(CP\S);
   QQ = myfunm(-beta*nstep*Dt,"exp");
   uana = (beta \ (eye(ndof)-QQ))*(CP\S);
 else
