@@ -1,4 +1,4 @@
-# $Id: Makefile,v 1.86.50.1 2007/02/19 03:35:08 mstorti Exp $ 
+# $Id: Makefile,v 1.86.50.2 2007/02/19 15:05:57 mstorti Exp $ 
 
 .PHONY: all run  compile lclean laplace adv nso laplace_tests force	\
         ctest gprof dxhook dx_tests dx_hook_test_post_run dx		\
@@ -12,9 +12,10 @@ isp_test:
 	$(MAKE) CASE=qharm np=1 case=iisd_sbp2 run
 
 ###--------<*>--------<*>--------<*>--------<*>--------<*>--------<*>--------<*>
+## 2007-02-19 11:11:06 Saco `dx_tests'
 tests: test_re1000 test_iisd test_iisd2 test_meas_perf		\
 	test_g_body test_zero_w_proc test_zero_w_proc2		\
-	test_triangle dx_tests test_qharm_3d test_shell_hook	\
+	test_triangle test_qharm_3d test_shell_hook	\
 	test_read_ini test_disconnected_graph test_fs
 
 test_shell_hook: test_shell_hook1 test_shell_hook2
