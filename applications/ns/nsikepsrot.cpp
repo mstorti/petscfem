@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-/* $Id: nsikepsrot.cpp,v 1.35 2007/01/30 19:03:44 mstorti Exp $ */
+/* $Id: nsikepsrot.cpp,v 1.35.10.1 2007/02/19 20:23:56 mstorti Exp $ */
 
 #include <src/fem.h>
 #include <src/utils.h>
@@ -89,7 +89,7 @@ int nsi_tet_keps_rot::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
 #define RETVALMAT(iele,j,k,p,q) VEC5(retvalmat,iele,j,nel,k,ndof,p,nel,q,ndof)
 
   int ierr=0, axi;
-  // PetscPrintf(PETSC_COMM_WORLD,"entrando a nsikeps\n");
+  // PetscPrintf(PETSCFEM_COMM_WORLD,"entrando a nsikeps\n");
 
 #define NODEDATA(j,k) VEC2(nodedata->nodedata,j,k,nu)
   //#define ICONE(j,k) (icone[nel*(j)+(k)]) 
@@ -140,7 +140,7 @@ int nsi_tet_keps_rot::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
   }
 
   GlobParam *glob_param;
-  double *hmin,rec_Dt;
+  double *hmin,rec_Dt=0.;
   int ja_hmin;
 #define WAS_SET arg_data_v[ja_hmin].was_set
   if (comp_mat_res || comp_mat_res_ke) {
@@ -187,7 +187,7 @@ int nsi_tet_keps_rot::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
   FMatrix acel_rot(ndim),waux1(ndim),waux2(ndim);
 
   if (ndof != ndim+3) {
-    PetscPrintf(PETSC_COMM_WORLD,"ndof != ndim+3\n"); CHKERRA(1);
+    PetscPrintf(PETSCFEM_COMM_WORLD,"ndof != ndim+3\n"); CHKERRA(1);
   }
 
   nen = nelr*ndof;
@@ -236,7 +236,7 @@ int nsi_tet_keps_rot::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
   else if (axisymmetric=="y") axi=2;
   else if (axisymmetric=="z") axi=3;
   else {
-    PetscPrintf(PETSC_COMM_WORLD,
+    PetscPrintf(PETSCFEM_COMM_WORLD,
 		"Invalid value for \"axisymmetric\" option\n"
 		"axisymmetric=\"%s\"\n",axisymmetric.c_str());
     PetscFinalize();
@@ -1081,7 +1081,7 @@ int nsi_tet_keps_rot::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
       } else if (comp_mat) {
 	// don't make anything here !!
       } else {
-	PetscPrintf(PETSC_COMM_WORLD,
+	PetscPrintf(PETSCFEM_COMM_WORLD,
 		    "Don't know how to compute jobinfo: %s\n",jobinfo);
 	CHKERRQ(ierr);
       }

@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: bccnsasmfm2.cpp,v 1.3 2007/01/30 19:03:44 mstorti Exp $
+//$Id: bccnsasmfm2.cpp,v 1.3.10.1 2007/02/19 20:23:56 mstorti Exp $
 
 #include <src/fem.h>
 #include <src/utils.h>
@@ -113,7 +113,7 @@ int bcconv_nsasm_fm2::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
     locstate2(nel,ndof),xpg;
 
   if (ndof != ndim+2) {
-    PetscPrintf(PETSC_COMM_WORLD,"ndof != ndim+2\n"); CHKERRA(1);
+    PetscPrintf(PETSCFEM_COMM_WORLD,"ndof != ndim+2\n"); CHKERRA(1);
   }
 
   nen = nel*ndof;
@@ -262,7 +262,7 @@ int bcconv_nsasm_fm2::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
       } else if (comp_mat) {
 	// don't make anything here !!
       } else {
-	PetscPrintf(PETSC_COMM_WORLD,
+	PetscPrintf(PETSCFEM_COMM_WORLD,
 		    "Don't know how to compute jobinfo: %s\n",jobinfo);
 	CHKERRQ(ierr);
       }
@@ -312,7 +312,7 @@ int bcconv_nsasm_fm2::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
       } else if (comp_mat_th) {
 	// don't make anything here !!
       } else {
-	PetscPrintf(PETSC_COMM_WORLD,
+	PetscPrintf(PETSCFEM_COMM_WORLD,
 		    "Don't know how to compute jobinfo: %s\n",jobinfo);
 	CHKERRQ(ierr);
       }

@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: lapla.cpp,v 1.9 2002/01/14 03:45:05 mstorti Exp $
+//$Id: lapla.cpp,v 1.9.120.1 2007/02/19 20:23:56 mstorti Exp $
   
 #include <src/fem.h>
 #include <src/utils.h>
@@ -88,7 +88,7 @@ int lapla::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,Dofmap *dofmap,
     locstate(nel,ndof);
 
 //   if (ndof != 1) {
-//     PetscPrintf(PETSC_COMM_WORLD,"ndof != 1\n"); CHKERRA(1);
+//     PetscPrintf(PETSCFEM_COMM_WORLD,"ndof != 1\n"); CHKERRA(1);
 //   }
 
   nen = nel*ndof;

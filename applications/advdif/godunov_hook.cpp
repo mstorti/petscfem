@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: godunov_hook.cpp,v 1.2 2004/07/07 16:45:49 rodrigop Exp $
+//$Id: godunov_hook.cpp,v 1.2.80.1 2007/02/19 20:23:56 mstorti Exp $
 #define _GNU_SOURCE
 
 #include <cstdio>
@@ -21,7 +21,6 @@
 #include <src/fastmat2.h>
 #include "../../test/plate/fifo.h"
 
-extern int MY_RANK,SIZE;
 #define CASE_NAME "reflection"
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 
@@ -137,7 +136,7 @@ void godunov_hook::time_step_post(double time,int step,
     read_mesh();
     printf("ADV_HOOK: ending time_step_post()\n");
   }
-  int ierr = MPI_Bcast(mesh->nodedata->nodedata, nnod*nu, MPI_DOUBLE, 0,PETSC_COMM_WORLD);
+  int ierr = MPI_Bcast(mesh->nodedata->nodedata, nnod*nu, MPI_DOUBLE, 0,PETSCFEM_COMM_WORLD);
   assert(!ierr);
 
   // Volume correction
@@ -211,7 +210,7 @@ void adv_god_hook::init(Mesh &mesh_a,Dofmap &dofmap,
     
     printf("ADV_GOD_HOOK: Done.\n");
   }
-  int ierr = MPI_Barrier(PETSC_COMM_WORLD);
+  int ierr = MPI_Barrier(PETSCFEM_COMM_WORLD);
   assert(!ierr);
   printf("ADV_GOD_HOOK: trace -2\n");
 
@@ -325,12 +324,12 @@ s  printf("ADV_GOD_HOOK: trace 2\n");
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 void adv_god_hook::time_step_pre(double time,int step) {
-  PetscPrintf(PETSC_COMM_WORLD,"ADV_GOD_HOOK: step %d, time_step_pre() starts.\n",step);
+  PetscPrintf(PETSCFEM_COMM_WORLD,"ADV_GOD_HOOK: step %d, time_step_pre() starts.\n",step);
   int ierr;
   // verify step sent by NS run
   int step_sent = int(read_doubles(adv2god,"step"));
   if (step_sent==-1) {
-    PetscPrintf(PETSC_COMM_WORLD, 
+    PetscPrintf(PETSCFEM_COMM_WORLD, 
 		"ADV_GOD_HOOK: step==-1 received, stopping myself.\n");
     PetscFinalize();
     exit(0);
@@ -492,7 +491,7 @@ void adv_god_hook::time_step_pre(double time,int step) {
     }
     fclose(fid);
   }
-  PetscPrintf(PETSC_COMM_WORLD,"ADV_GOD_HOOK: time_step_pre() ends.\n");
+  PetscPrintf(PETSCFEM_COMM_WORLD,"ADV_GOD_HOOK: time_step_pre() ends.\n");
 }
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 

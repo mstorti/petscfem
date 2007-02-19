@@ -1,7 +1,7 @@
 //__INSERT_LICENSE__
-//$Id: gpdata.cpp,v 1.44 2007/01/30 19:03:44 mstorti Exp $
+//$Id: gpdata.cpp,v 1.44.10.1 2007/02/19 20:23:56 mstorti Exp $
 
-#include "petscsles.h"
+#include "petscksp.h"
 #include <math.h>
 #include <fnmatch.h>
 
@@ -12,7 +12,7 @@
 
 #define GPERROR \
     {PFEM_TRACE(""); \
-    PetscPrintf(PETSC_COMM_WORLD,"Not implemented combination: geometry=\"%s\","\
+    PetscPrintf(PETSCFEM_COMM_WORLD,"Not implemented combination: geometry=\"%s\","\
            "nel=%d, npg=%d, ndimel=%d, \n", \
 	   geom,nel,npg,ndimel); \
     PetscFinalize(); \
@@ -77,7 +77,7 @@ void cart_prod(int npg,int nel,int nel_lay,
     double coef2[] = {-0.5, 0.5};
     double coef3[] = {-1.5,2.0,-0.5};
     double coef4[] = {-(11./6.), +(18./6.), -( 9./6.), +( 2./6.)};
-    double *coef;
+    double *coef = 0;
     if (nlay == 2) coef = coef2;
     else if (nlay==3) coef = coef3;
     else if (nlay==4) coef = coef4;
@@ -174,7 +174,7 @@ GPdata::GPdata(const char *geom,int ndimel,int nel,int npg_,int
     assert(ndimel==3);
     assert(nel==6);
     assert(npg==1 || npg==6 || npg==8); // other cases may be considered
-    int npg_seg, npg_tri;
+    int npg_seg=0, npg_tri=0;
     if (npg==1) { npg_seg=1; npg_tri=1; }
     else if (npg==6) { npg_seg=2; npg_tri=3; }
     else if (npg==8) { npg_seg=2; npg_tri=4; }
@@ -279,7 +279,7 @@ GPdata::GPdata(const char *geom,int ndimel,int nel,int npg_,int
 	wpg[ipg] =  0.5;
 
       } else {
-	PetscPrintf(PETSC_COMM_WORLD,
+	PetscPrintf(PETSCFEM_COMM_WORLD,
 		    "Not valid value of npg. for triangles %d\n",
 		    npg);
 	PetscFinalize();
@@ -352,7 +352,7 @@ GPdata::GPdata(const char *geom,int ndimel,int nel,int npg_,int
 	wpg[ipg] =  master_volume;
 
       } else {
-	PetscPrintf(PETSC_COMM_WORLD,
+	PetscPrintf(PETSCFEM_COMM_WORLD,
 		    "Not valid value of npg. for tetras %d\n",
 		    npg);
 	PetscFinalize();

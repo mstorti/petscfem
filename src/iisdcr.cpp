@@ -1,8 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: iisdcr.cpp,v 1.61 2007/01/30 19:03:44 mstorti Exp $
-
-// fixme:= this may not work in all applications
-extern int MY_RANK,SIZE;
+//$Id: iisdcr.cpp,v 1.61.10.1 2007/02/19 20:23:56 mstorti Exp $
 
 #include <typeinfo>
 #include "libretto.h"
@@ -25,7 +22,7 @@ extern int MY_RANK,SIZE;
 
 #if 0
 void trace(const char *label) {
-  MPI_Barrier(PETSC_COMM_WORLD);
+  MPI_Barrier(PETSCFEM_COMM_WORLD);
   if (!MY_RANK) printf("TRACE -- \"%s\"\n",label);
 }
 #endif
@@ -51,6 +48,47 @@ int IISD_mult_trans(Mat A,Vec x,Vec y) {
   int ierr = MatShellGetContext(A,&ctx); CHKERRQ(ierr); 
   pfA = (IISDMat *) ctx;
   ierr = pfA->mult_trans(x,y); CHKERRQ(ierr); 
+  return 0;
+}
+
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+#undef __FUNC__
+#define __FUNC__ "IISD_ksp_ll_view"
+int IISD_ksp_ll_view(Mat A, PetscViewer viewer) {
+  void *ctx;
+  IISDMat *pfA;
+  int ierr = MatShellGetContext(A,&ctx); CHKERRQ(ierr); 
+  pfA = (IISDMat *) ctx;
+  ierr = pfA->ksp_ll_view(viewer); CHKERRQ(ierr); 
+  return 0;
+}
+
+#undef __FUNC__
+#define __FUNC__ "IISDMat::ksp_ll_view"
+int IISDMat::ksp_ll_view(PetscViewer viewer) {
+  int ierr;
+  PetscViewer sviewer = 0;
+  PetscTruth iascii;
+  ierr = PetscViewerGetSingleton(viewer,&sviewer);CHKERRQ(ierr);
+  ierr = PetscTypeCompare((PetscObject)viewer,PETSC_VIEWER_ASCII,&iascii);
+  CHKERRQ(ierr);
+  if (iascii) {
+    ierr = PetscViewerASCIIPrintf(viewer,
+    "PETSc-FEM IISD: local solvers follows\n");
+    CHKERRQ(ierr);
+    
+  }
+  if (ksp_ll && sviewer) {
+    MPI_Comm ksp_comm; int rank;
+    PetscObjectGetComm((PetscObject)ksp,&comm);
+    MPI_Comm_rank(comm,&rank);
+    ierr = PetscViewerASCIIPrintf(sviewer,
+    "===== processor %3D =====\n", rank);CHKERRQ(ierr);
+    ierr = KSPView(ksp_ll, sviewer); CHKERRQ(ierr);
+  }
+  if (sviewer) {
+    ierr = PetscViewerRestoreSingleton(viewer,&sviewer);CHKERRQ(ierr);
+  }
   return 0;
 }
 
@@ -96,7 +134,7 @@ void LocalGraph::set_ngbrs(int loc1,GSet &ngbrs_v) {
 #define __FUNC__ "IISDMat::create_a"
 int IISDMat::create_a() {
 
-#define comm PETSC_COMM_WORLD
+#define comm PETSCFEM_COMM_WORLD
   int myrank,size,max_partgraph_vertices_proc,proc_l;
   int k,/*pos,*/keq,leq,/*jj,*/row,row_type,col_type,od,
     /*d_nz,o_nz,nrows,ierr,n_loc_h,n_int_h,k1h,k2h,*/rank,
@@ -236,7 +274,7 @@ int IISDMat::create_a() {
   PETSCFEM_ASSERT(nlay>=0,"Number of ISP layers must be non-negative. "
 		  "nlay %d\n",nlay);  
   if (!nlay && use_interface_full_preco) {
-    PetscPrintf(PETSC_COMM_WORLD,
+    PetscPrintf(PETSCFEM_COMM_WORLD,
 		"Using 'nlay=0' forces 'use_interface_full_preco=0'\n");
     use_interface_full_preco=0;
   }
@@ -519,15 +557,15 @@ int IISDMat::create_a() {
   }
 
 #if 0
-  PetscSynchronizedPrintf(PETSC_COMM_WORLD,"In [%d]:\n",myrank);
+  PetscSynchronizedPrintf(PETSCFEM_COMM_WORLD,"In [%d]:\n",myrank);
   for (int j=0; j<neq; j++) {
     if (!(isp_lay_map[j] && part.processor(j)==myrank)) continue;
     int ispj = isp_map[j]-n_lay1_p[myrank];
-    PetscSynchronizedPrintf(PETSC_COMM_WORLD,
+    PetscSynchronizedPrintf(PETSCFEM_COMM_WORLD,
 			    "j %d, isp_indx %d, d_nnz %d o_nnz %d\n",
 			    j,isp_map[j],isp_d_nnz[ispj],isp_o_nnz[ispj]);
   }
-  PetscSynchronizedFlush(PETSC_COMM_WORLD);
+  PetscSynchronizedFlush(PETSCFEM_COMM_WORLD);
 #endif
 
   if (iisdmat_print_statistics) {
@@ -739,7 +777,7 @@ int IISDMat::create_a() {
   ierr =  MatSetOption(A_II, MAT_NEW_NONZERO_ALLOCATION_ERR);
   CHKERRQ(ierr); 
   
-  ierr = MatSetStashInitialSize(A_II,300000,0);
+  ierr = MatStashSetInitialSize(A_II,300000,0);
   CHKERRQ(ierr); 
 
   if (nlay>1) {
@@ -751,7 +789,7 @@ int IISDMat::create_a() {
 			   &A_II_isp); CHKERRQ(ierr); 
     ierr =  MatSetOption(A_II_isp, MAT_NEW_NONZERO_ALLOCATION_ERR);
     CHKERRQ(ierr); 
-    // ierr = MatSetStashInitialSize(A_II,300000,0);
+    // ierr = MatStashSetInitialSize(A_II,300000,0);
     // CHKERRQ(ierr); 
     // Create aux vectors for solving the band problem
     ierr = VecCreateMPI(comm,n_isp_here,PETSC_DETERMINE,&wb);
@@ -764,6 +802,7 @@ int IISDMat::create_a() {
   CHKERRQ(ierr); 
   P=A;
 
+  MatShellSetOperation(A,MATOP_VIEW,(void (*)(void))(&IISD_ksp_ll_view));
   MatShellSetOperation(A,MATOP_MULT,(void (*)(void))(&IISD_mult));
   MatShellSetOperation(A,MATOP_MULT_TRANSPOSE,(void (*)(void))(&IISD_mult_trans));
 

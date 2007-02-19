@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: hook.cpp,v 1.12 2007/01/30 19:03:44 mstorti Exp $
+//$Id: hook.cpp,v 1.12.10.1 2007/02/19 20:23:56 mstorti Exp $
 
 #include <src/fem.h>
 #include <src/readmesh.h>
@@ -8,8 +8,6 @@
 #include <src/hook.h>
 #include <src/dlhook.h>
 #include <src/shllhook.h>
-
-extern int MY_RANK,SIZE;
 
 Hook * Hook::factory(const char *name) {
   Hook *hook=NULL;

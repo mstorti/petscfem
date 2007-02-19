@@ -1,6 +1,6 @@
 // -*- mode: c++ -*-
 /*__INSERT_LICENSE__*/
-//$Id: dofmap.h,v 1.24 2007/01/30 19:03:44 mstorti Exp $
+//$Id: dofmap.h,v 1.24.10.1 2007/02/19 20:23:56 mstorti Exp $
  
 #ifndef DOFMAP_H
 #define DOFMAP_H
@@ -29,10 +29,13 @@ class TimeData {};
 // };
 
 class Time : public TimeData{public:
+  Time(double t=0.0) : time_(t) {};
+  Time(const Time& t) : time_(t.time_) {};
   double time() const {return time_;};
-  void set(const double t) {time_=t;};
+  void set(const double t)  {time_=t;};
   void inc(const double dt) {time_+=dt;};
   operator double() const {return time_;};
+  Time& operator=(const Time& t) { time_=t.time_; return *this;}
 private:
   double time_;
 };
@@ -193,6 +196,9 @@ private:
   vector<double> w;
 
 public:
+  /// MPI communicator (default: PETSCFEM_COMM_WORLD)
+  MPI_Comm comm;
+
   /// number of nodes
   int nnod;
 

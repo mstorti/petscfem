@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: fracstep.cpp,v 1.13 2003/09/11 17:47:14 mstorti Exp $
+//$Id: fracstep.cpp,v 1.13.100.1 2007/02/19 20:23:56 mstorti Exp $
  
 #include <src/fem.h>
 #include <src/utils.h>
@@ -94,7 +94,7 @@ int fracstep::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
   // rec_Dt is the reciprocal of Dt (i.e. 1/Dt)
   // for steady solutions it is set to 0. (Dt=inf)
   GlobParam *glob_param=NULL;
-  double Dt;
+  double Dt=0.0;
   arg_data *A_mom_arg,*A_poi_arg,*A_prj_arg;
   if (comp_mat_prof) {
     int ja=0;
@@ -139,7 +139,7 @@ int fracstep::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
     ustate2(nel,ndim);
 
   if (ndof != ndim+1) {
-    PetscPrintf(PETSC_COMM_WORLD,"ndof != ndim+1\n"); CHKERRA(1);
+    PetscPrintf(PETSCFEM_COMM_WORLD,"ndof != ndim+1\n"); CHKERRA(1);
   }
 
   nen = nel*ndof;

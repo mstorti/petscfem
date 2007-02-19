@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: dxelmst.cpp,v 1.7 2003/09/10 23:18:43 mstorti Exp $
+//$Id: dxelmst.cpp,v 1.7.100.1 2007/02/19 20:23:56 mstorti Exp $
 
 #ifdef USE_DX
 #include <vector>
@@ -8,8 +8,6 @@
 #include <src/elemset.h>
 #include <src/util3.h>
 #include <src/sockbuff.h>
-
-extern int MY_RANK,SIZE;
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 void Elemset::dx_send_connectivities(Socket *sock,

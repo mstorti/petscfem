@@ -1,12 +1,12 @@
 /*__INSERT_LICENSE__*/
-//$Id: testfm2d.cpp,v 1.1 2002/11/03 11:04:16 mstorti Exp $
+//$Id: testfm2d.cpp,v 1.1.112.1 2007/02/19 20:23:56 mstorti Exp $
 
 #include <stdio.h>
 #include <unistd.h>
 #include <time.h>
 #include <sys/time.h>
 
-#include <petscsles.h>
+#include <petscksp.h>
 
 #include <src/fastmat2.h>
 #include <src/fastmat.h>

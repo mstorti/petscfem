@@ -1,6 +1,6 @@
 // -*- mode: c++ -*-
 //__INSERT_LICENSE__
-// $Id: penalize.h,v 1.18 2007/01/30 19:03:44 mstorti Exp $
+// $Id: penalize.h,v 1.18.10.1 2007/02/19 20:23:56 mstorti Exp $
 #ifndef PETSCFEM_PENALIZE_H
 #define PETSCFEM_PENALIZE_H
 
@@ -157,7 +157,7 @@ public:
   virtual 
   int init(int nel,int ndof_a,
 	   // TextHashTable *thash,const char *name) { return 0; }
-	   TextHashTable *thash,const char *name) { assert(0); }
+	   TextHashTable *thash,const char *name) { assert(0); return 1; }
   virtual
   void res(int k,FastMat2 &U,FastMat2 & r,
 	   FastMat2 & w,FastMat2 & jac)=0;

@@ -6,7 +6,7 @@ class MatFSM;
 
 class MatFSMState {
 public:
-  virtual ~MatFSMState() {}
+
   virtual const char* StateName() const = 0;
   virtual void clear(MatFSM& s);
   virtual void solve(MatFSM& s);

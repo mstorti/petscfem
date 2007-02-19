@@ -1,8 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: spdirect.cpp,v 1.6 2003/07/02 23:22:19 mstorti Exp $
-
-// fixme:= this may not work in all applications
-extern int MY_RANK,SIZE;
+//$Id: spdirect.cpp,v 1.6.104.1 2007/02/19 20:23:56 mstorti Exp $
 
 #include <petscmat.h>
 
@@ -18,7 +15,7 @@ extern int MY_RANK,SIZE;
 #define __FUNC__ "SparseDirect::create_a"
 int SparseDirect::create_a() {
   int size;
-  MPI_Comm_size (PETSC_COMM_WORLD, &size);
+  MPI_Comm_size (PETSCFEM_COMM_WORLD, &size);
   assert(size==1); // Only sequential use
   return 0;
 }

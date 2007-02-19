@@ -1,9 +1,8 @@
 //__INSERT_LICENSE__
-//$Id: advdife-gcl.cpp,v 1.13 2007/02/18 21:49:37 mstorti Exp $
+//$Id: advdife-gcl.cpp,v 1.13.4.1 2007/02/19 20:23:56 mstorti Exp $
 extern int comp_mat_each_time_step_g,
   consistent_supg_matrix_g,
   local_time_step_g;
-extern int MY_RANK,SIZE;
 
 #include <vector>
 #include <string>
@@ -176,7 +175,7 @@ new_assemble_GCL_compliant(arg_data_list &arg_data_v,const Nodedata *nodedata,
   else if (axisymmetric=="y") axi=2;
   else if (axisymmetric=="z") axi=3;
   else {
-    PetscPrintf(PETSC_COMM_WORLD,
+    PetscPrintf(PETSCFEM_COMM_WORLD,
 		"Invalid value for \"axisymmetric\" option\n"
 		"axisymmetric=\"%s\"\n",axisymmetric.c_str());
     PetscFinalize();

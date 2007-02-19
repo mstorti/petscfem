@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: dofmap3.cpp,v 1.13 2007/01/30 19:03:44 mstorti Exp $
+//$Id: dofmap3.cpp,v 1.13.10.1 2007/02/19 20:23:56 mstorti Exp $
 
 #include <cassert>
 
@@ -236,21 +236,20 @@ void Dofmap::solve(double *xp,double *yp) {
   assert(!ierr);
 
   // Define auxiliary SLES
-  SLES sles;
   KSP ksp;
   PC pc;
-  ierr = SLESCreate(PETSC_COMM_SELF,&sles); assert(!ierr);
-  ierr = SLESSetOperators(sles,A,
-			  A,SAME_NONZERO_PATTERN); assert(!ierr);
-  ierr = SLESGetKSP(sles,&ksp); assert(!ierr);
-  ierr = SLESGetPC(sles,&pc); assert(!ierr);
+  ierr = KSPCreate(PETSC_COMM_SELF,&ksp); assert(!ierr);
+  ierr = KSPSetOperators(ksp,A,A,SAME_NONZERO_PATTERN); assert(!ierr);
+  ierr = KSPGetPC(ksp,&pc); assert(!ierr);
   ierr = KSPSetType(ksp,KSPCG); assert(!ierr);
   ierr = PCSetType(pc,PCNONE); assert(!ierr);
   // ierr = KSPSetMonitor(ksp,KSPDefaultMonitor,NULL,NULL);
 
   // Solve problem
   int its;
-  ierr = SLESSolve(sles,z,x,&its);
+  ierr = KSPSolve(ksp,z,x);
+  ierr = KSPGetIterationNumber(ksp,&its); assert(!ierr);
+
   assert(its<=100);
   printf("Dofmap::solve: solved projection in %d iters\n",its);
 

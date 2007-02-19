@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: nsstruct.cpp,v 1.5 2007/01/30 19:03:44 mstorti Exp $
+//$Id: nsstruct.cpp,v 1.5.10.1 2007/02/19 20:23:56 mstorti Exp $
 #include <src/debug.h>
 #include <malloc.h>
 
@@ -20,7 +20,6 @@
 #include <applications/ns/nsi_tet.h>
 static char help[] = "PETSc-FEM Navier Stokes module\n\n";
 
-extern int MY_RANK,SIZE;
 extern WallData wall_data;
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
@@ -48,7 +47,7 @@ int struct_main() {
 
   Vec x, xp, dx, xold, dx_step, res; // approx solution, RHS, residual
   PetscViewer matlab;
-  PFMat *A_tet, *A_tet_c, *A_mom, *A_poi, *A_prj;;	// linear system matrix 
+  PFMat *A_tet=0, *A_tet_c=0, *A_mom=0, *A_poi=0, *A_prj=0;	// linear system matrix 
   double  norm, *sol, scal;	// norm of solution error
   int     ierr, i, n = 10, size, node,
     jdof, k, kk, nfixa,
@@ -62,7 +61,7 @@ int struct_main() {
   string save_file_res;
   BasicObject_application_factory = &BasicObject_ns_factory;
   
-  // ierr = MatCreateShell(PETSC_COMM_WORLD,int m,int n,int M,int N,void *ctx,Mat *A)
+  // ierr = MatCreateShell(PETSCFEM_COMM_WORLD,int m,int n,int M,int N,void *ctx,Mat *A)
   char fcase[FLEN+1],output_file[FLEN+1];
   Dofmap *dofmap;
   Mesh *mesh;
@@ -72,9 +71,9 @@ int struct_main() {
   hmin.resize(1);
 
   print_copyright();
-  PetscPrintf(PETSC_COMM_WORLD,"-------- Navier-Stokes[2] module ---------\n");
+  PetscPrintf(PETSCFEM_COMM_WORLD,"-------- Navier-Stokes[2] module ---------\n");
 
-  Debug debug(0,PETSC_COMM_WORLD);
+  Debug debug(0,PETSCFEM_COMM_WORLD);
   GLOBAL_DEBUG = &debug;
 
   int activate_debug=0;
@@ -88,7 +87,7 @@ int struct_main() {
   ierr = PetscOptionsGetString(PETSC_NULL,"-case",fcase,FLEN,&flg);
   CHKERRA(ierr);
   if (!flg) {
-    PetscPrintf(PETSC_COMM_WORLD,
+    PetscPrintf(PETSCFEM_COMM_WORLD,
 		"Option \"-case <filename>\" not passed to PETSc-FEM!!\n");
     PetscFinalize();
     exit(0);
@@ -97,11 +96,11 @@ int struct_main() {
   ierr = PetscOptionsGetString(PETSC_NULL,"-o",output_file,FLEN,&flg);
   CHKERRA(ierr);
   if (flg) { 
-    PetscPrintf(PETSC_COMM_WORLD,"PETSc-FEM: NS module: "
+    PetscPrintf(PETSCFEM_COMM_WORLD,"PETSc-FEM: NS module: "
 		"redirecting output to \"%s\"\n",output_file);
     FILE *new_stdout = fopen(output_file,"w");
     if (!new_stdout) {
-      PetscPrintf(PETSC_COMM_WORLD,"error redirecting output. "
+      PetscPrintf(PETSCFEM_COMM_WORLD,"error redirecting output. "
 		  "Couldn't open \"%s\"\n",output_file);
     } else {
       fclose(stdout);
@@ -298,8 +297,8 @@ int struct_main() {
   GETOPTDEF(int,A_van_Driest,0);
 
   if(A_van_Driest>0) { 
-    PetscPrintf(PETSC_COMM_WORLD,"--- Don forget to refresh Wall_Data -- \n");
-    PetscPrintf(PETSC_COMM_WORLD,"--- using update_wall_data global option -- \n");
+    PetscPrintf(PETSCFEM_COMM_WORLD,"--- Don forget to refresh Wall_Data -- \n");
+    PetscPrintf(PETSCFEM_COMM_WORLD,"--- using update_wall_data global option -- \n");
   }
 
   //o Use IISD (Interface Iterative Subdomain Direct) or not.
@@ -442,7 +441,7 @@ int struct_main() {
   //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
   // initialize state vectors
   scal=0;
-  ierr = VecSet(&scal,x); CHKERRA(ierr);
+  ierr = VecSet(x,scal); CHKERRA(ierr);
 
   //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
   // Compute  profiles
@@ -487,22 +486,22 @@ int struct_main() {
       && ((tstep-tstep_start) % update_wall_data)==0;
     refresh_wall_data &= (tstep==tstep_start || rest_ok);
     if (refresh_wall_data) {
-      PetscPrintf(PETSC_COMM_WORLD,"--- Refreshing Wall_Data -- \n");
+      PetscPrintf(PETSCFEM_COMM_WORLD,"--- Refreshing Wall_Data -- \n");
 #ifdef USE_ANN
       argl.clear();
       argl.arg_add(&data_pts,USER_DATA);
       argl.arg_add(&elemset_pointer,USER_DATA);
       ierr = assemble(mesh,argl,dofmap,"build_nneighbor_tree",&time); CHKERRQ(ierr); 
-      PetscSynchronizedFlush(PETSC_COMM_WORLD);
+      PetscSynchronizedFlush(PETSCFEM_COMM_WORLD);
       dvector<double> buff;
       buff.mono(data_pts.size());
       ierr = MPI_Allreduce(&*data_pts.begin(),buff.buff(),
 			   data_pts.size(),MPI_DOUBLE,
-			   MPI_SUM,PETSC_COMM_WORLD); CHKERRQ(ierr);
+			   MPI_SUM,PETSCFEM_COMM_WORLD); CHKERRQ(ierr);
       for (unsigned int j=0; j<data_pts.size(); j++) data_pts[j] = buff.ref(j);
       buff.clear();
 
-      PetscPrintf(PETSC_COMM_WORLD,"After nearest neighbor tree.\n");
+      PetscPrintf(PETSCFEM_COMM_WORLD,"After nearest neighbor tree.\n");
 
       wall_data.init(&data_pts,&elemset_pointer,ndim);
 
@@ -549,7 +548,7 @@ int struct_main() {
       //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
       // TET ALGORITHM
       
-      double normres_external;
+      double normres_external=0.0;
       for (int inwt=0; inwt<nnwt; inwt++) {
 
 	glob_param.inwt = inwt;
@@ -586,7 +585,7 @@ int struct_main() {
 	}
 
 	scal=0;
-	ierr = VecSet(&scal,res); CHKERRA(ierr);
+	ierr = VecSet(res,scal); CHKERRA(ierr);
 	if (update_jacobian_this_iter) {
 	  // ierr = A_tet->clean_mat(); CHKERRA(ierr); 
 	}
@@ -618,7 +617,7 @@ int struct_main() {
 	debug.trace("After residual computation.");
 
 #if 0
-	ierr = PetscViewerASCIIOpen(PETSC_COMM_WORLD,
+	ierr = PetscViewerASCIIOpen(PETSCFEM_COMM_WORLD,
 			       "system.dat",&matlab); CHKERRA(ierr);
 	ierr = PetscViewerSetFormat(matlab,
 			       PETSC_VIEWER_ASCII_MATLAB); CHKERRA(ierr);
@@ -627,7 +626,7 @@ int struct_main() {
 #endif
 
 #if 0 //debug:=
-	ierr = PetscViewerASCIIOpen(PETSC_COMM_WORLD,
+	ierr = PetscViewerASCIIOpen(PETSCFEM_COMM_WORLD,
 			       "system.dat",&matlab); CHKERRA(ierr);
 	ierr = PetscViewerSetFormat_WRAPPER(matlab,
 			       PETSC_VIEWER_ASCII_MATLAB,"x"); CHKERRA(ierr);
@@ -641,7 +640,7 @@ int struct_main() {
 
 	PetscViewer matlab;
 	if (verify_jacobian_with_numerical_one) {
-	  ierr = PetscViewerASCIIOpen(PETSC_COMM_WORLD,
+	  ierr = PetscViewerASCIIOpen(PETSCFEM_COMM_WORLD,
 				 "system.dat.tmp",&matlab); CHKERRA(ierr);
 	  ierr = PetscViewerSetFormat_WRAPPER(matlab,
 				 PETSC_VIEWER_ASCII_MATLAB,
@@ -683,10 +682,10 @@ int struct_main() {
 	}
 
 	if (print_linear_system_and_stop) {
-	  PetscPrintf(PETSC_COMM_WORLD,
+	  PetscPrintf(PETSCFEM_COMM_WORLD,
 		      "Printing residual and matrix for"
 		      " debugging and stopping.\n");
-	  ierr = PetscViewerASCIIOpen(PETSC_COMM_WORLD,
+	  ierr = PetscViewerASCIIOpen(PETSCFEM_COMM_WORLD,
 				 "system.dat",&matlab); CHKERRA(ierr);
 	  ierr = PetscViewerSetFormat_WRAPPER(matlab,
 				 PETSC_VIEWER_ASCII_MATLAB,"atet"); CHKERRA(ierr);
@@ -710,7 +709,7 @@ int struct_main() {
 	double normres;
 	ierr  = VecNorm(res,NORM_2,&normres); CHKERRA(ierr);
 	if (inwt==0) normres_external = normres;
-	PetscPrintf(PETSC_COMM_WORLD,
+	PetscPrintf(PETSCFEM_COMM_WORLD,
 		    "Newton subiter %d, norm_res  = %10.3e, update Jac. %d\n",
 		    inwt,normres,update_jacobian_this_iter);
 
@@ -724,10 +723,10 @@ int struct_main() {
 	  nrf_indx += 2;
 	}
 	relfac = newton_relaxation_factor[nrf_indx-1];
-	if (relfac!=1.) PetscPrintf(PETSC_COMM_WORLD,
+	if (relfac!=1.) PetscPrintf(PETSCFEM_COMM_WORLD,
 				    "relaxation factor %f\n",relfac);
 	scal= relfac/alpha;
-	ierr = VecAXPY(&scal,dx,x);
+	ierr = VecAXPY(x,scal,dx);
 
 #if 0
 	ierr = VecView(x,PETSC_VIEWER_STDOUT_WORLD); CHKERRA(ierr);
@@ -740,7 +739,7 @@ int struct_main() {
       } // end of loop over Newton subiteration (inwt)
 
       if (normres_external < tol_newton) {
-	PetscPrintf(PETSC_COMM_WORLD,
+	PetscPrintf(PETSCFEM_COMM_WORLD,
 		    "Tolerance on newton loop reached:  "
 		    "|| R ||_0,  norm_res =%g < tol = %g\n",
 		    normres_external,tol_newton);
@@ -798,7 +797,7 @@ int struct_main() {
 
       do_stop = print_linear_system_and_stop && stop_on_step==tstep;
       if (do_stop && stop_mom) {
-	ierr = PetscViewerASCIIOpen(PETSC_COMM_WORLD,
+	ierr = PetscViewerASCIIOpen(PETSCFEM_COMM_WORLD,
 				    "system.dat",&matlab); CHKERRA(ierr);
 	ierr = PetscViewerSetFormat_WRAPPER(matlab,
 					    PETSC_VIEWER_ASCII_MATLAB,"amom"); 
@@ -825,7 +824,7 @@ int struct_main() {
       debug.trace("-PREDICTOR- After solving linear system.");
 
       scal= 1.0;
-      ierr = VecAXPY(&scal,dx,x);
+      ierr = VecAXPY(x,scal,dx);
 
       if (do_stop && stop_mom) {
 	ierr = VecView(x,PETSC_VIEWER_STDOUT_WORLD); CHKERRA(ierr);
@@ -834,7 +833,7 @@ int struct_main() {
       }
 
 #if 0
-      ierr = PetscViewerASCIIOpen(PETSC_COMM_WORLD,
+      ierr = PetscViewerASCIIOpen(PETSCFEM_COMM_WORLD,
 			     "system.dat",&matlab); CHKERRA(ierr);
       ierr = PetscViewerSetFormat_WRAPPER(matlab,
 			     PETSC_VIEWER_ASCII_MATLAB,"x"); CHKERRA(ierr);
@@ -850,7 +849,7 @@ int struct_main() {
       // SECOND STEP POISSON
       ierr = VecCopy(x,xp);
       scal=0;
-      ierr = VecSet(&scal,res); CHKERRA(ierr);
+      ierr = VecSet(res,scal); CHKERRA(ierr);
 
       if (tstep==1) {
 	argl.clear();
@@ -882,11 +881,11 @@ int struct_main() {
       debug.trace("-POISSON- After solving linear system.");
 
       scal= 1.0;
-      ierr = VecAXPY(&scal,dx,x);
+      ierr = VecAXPY(x,scal,dx);
 #endif
 
       if (do_stop && stop_poi) {
-	ierr = PetscViewerASCIIOpen(PETSC_COMM_WORLD,
+	ierr = PetscViewerASCIIOpen(PETSCFEM_COMM_WORLD,
 				    "system.dat",&matlab); CHKERRA(ierr);
 	ierr = PetscViewerSetFormat_WRAPPER(matlab,
 					    PETSC_VIEWER_ASCII_MATLAB,"apoi"); 
@@ -911,7 +910,7 @@ int struct_main() {
       // THIRD STEP PROJECTION
       ierr = VecCopy(x,xp);
       scal=0;
-      ierr = VecSet(&scal,res); CHKERRA(ierr);
+      ierr = VecSet(res,scal); CHKERRA(ierr);
       if (!reuse_mat || tstep==1) {
 	argl.clear();
 	statep.set_time(time);	// fixme:= what time?
@@ -937,7 +936,7 @@ int struct_main() {
       CHKERRA(ierr);
       debug.trace("-PROJECTION- After residual computation.");
       if (do_stop && stop_prj) {
-	ierr = PetscViewerASCIIOpen(PETSC_COMM_WORLD,
+	ierr = PetscViewerASCIIOpen(PETSCFEM_COMM_WORLD,
 				    "system.dat",&matlab); 
 	CHKERRA(ierr);
 	ierr = PetscViewerSetFormat_WRAPPER(matlab,
@@ -965,15 +964,15 @@ int struct_main() {
       }
 
       scal= 1.0;
-      ierr = VecAXPY(&scal,dx,x);
+      ierr = VecAXPY(x,scal,dx);
 #endif
     }
 
     // error difference
     scal = -1.0;
-    ierr = VecAXPY(&scal,x,dx_step);
+    ierr = VecAXPY(dx_step,scal,x);
     ierr  = VecNorm(dx_step,NORM_2,&norm); CHKERRA(ierr);
-    PetscPrintf(PETSC_COMM_WORLD,"============= delta_u = %10.3e\n",norm);
+    PetscPrintf(PETSCFEM_COMM_WORLD,"============= delta_u = %10.3e\n",norm);
     print_vector_rota(save_file_pattern.c_str(),x,dofmap,&time,
 		      tstep-1,nsaverot,nrec,nfile);
   

@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: fstack.cpp,v 1.18 2007/01/30 19:03:44 mstorti Exp $
+//$Id: fstack.cpp,v 1.18.10.1 2007/02/19 20:23:56 mstorti Exp $
 #include <stdlib.h>
 #include "fstack.h"
 
@@ -97,7 +97,7 @@ int FileStack::open(const char *filename) {
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 int FileStack::get_line(char * & line) {
   char /*ch, *chp,*/ *token, *bufrp;
-  int len,lenn,readlen,contnd;/*,ierr;*/
+  int len,lenn,readlen,contnd=0;/*,ierr;*/
   len=0;
 
   // resets line

@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: fstepfm2.cpp,v 1.37 2006/02/18 22:40:47 mstorti Exp $
+//$Id: fstepfm2.cpp,v 1.37.24.1 2007/02/19 20:23:56 mstorti Exp $
  
 #include <src/fem.h>
 #include <src/utils.h>
@@ -11,7 +11,6 @@
 #include "fracstep.h"
 
 #define MAXPROP 100
-extern int MY_RANK,SIZE;
 
 // extern WallData wall_data;
 
@@ -140,7 +139,7 @@ int fracstep::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
   // rec_Dt is the reciprocal of Dt (i.e. 1/Dt)
   // for steady solutions it is set to 0. (Dt=inf)
   GlobParam *glob_param=NULL;
-  double Dt,rec_Dt;
+  double Dt=0.0,rec_Dt=0.0;
   arg_data *A_mom_arg,*A_poi_arg,*A_prj_arg;
   if (comp_mat_prof) {
     int ja=0;
@@ -195,7 +194,7 @@ int fracstep::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
     ustate2(2,nel,ndim),G_body(1,ndim),vrel,gravity(1,ndim);
 
   if (ndof != ndim+1) {
-    PetscPrintf(PETSC_COMM_WORLD,"ndof != ndim+1\n"); CHKERRA(1);
+    PetscPrintf(PETSCFEM_COMM_WORLD,"ndof != ndim+1\n"); CHKERRA(1);
   }
 
   nen = nel*ndof;
@@ -215,7 +214,7 @@ int fracstep::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
   else if (axisymmetric=="y") axi=2;
   else if (axisymmetric=="z") axi=3;
   else {
-    PetscPrintf(PETSC_COMM_WORLD,
+    PetscPrintf(PETSCFEM_COMM_WORLD,
 		"Invalid value for \"axisymmetric\" option\n"
 		"axisymmetric=\"%s\"\n",axisymmetric.c_str());
     PetscFinalize();
@@ -864,9 +863,9 @@ int fracstep::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
   if (comp_res_mom) {
     vector<double> maxunv(SIZE), maxfv(SIZE);
     MPI_Gather(&max_force,1, MPI_DOUBLE,
-	       &maxfv[0],1,MPI_DOUBLE,0,PETSC_COMM_WORLD);
+	       &maxfv[0],1,MPI_DOUBLE,0,PETSCFEM_COMM_WORLD);
     MPI_Gather(&max_u_neg,1,MPI_DOUBLE,
-	       &maxunv[0],1,MPI_DOUBLE,0,PETSC_COMM_WORLD);
+	       &maxunv[0],1,MPI_DOUBLE,0,PETSCFEM_COMM_WORLD);
     if (!myrank) {
       int jmax = 0;
       for (int j=0; j<SIZE; j++) 

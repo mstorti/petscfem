@@ -1,6 +1,6 @@
 // -*- mode: C++ -*- 
 /*__INSERT_LICENSE__*/
-// $Id: dvecpar2.h,v 1.2 2006/04/08 21:37:35 mstorti Exp $
+// $Id: dvecpar2.h,v 1.2.20.1 2007/02/19 20:23:56 mstorti Exp $
 #ifndef PETSCFEM_DVECPAR2_H
 #define PETSCFEM_DVECPAR2_H
 
@@ -26,7 +26,7 @@ void
 dvector_clone_parallel(dvector<T> &w,int root=0) {
   int size = w.size();
   int ierr = MPI_Bcast(&size,1,MPI_INT,
-		       root,PETSC_COMM_WORLD);
+		       root,PETSCFEM_COMM_WORLD);
   assert(!ierr);
   
   if (MY_RANK!=root) w.resize(size);
@@ -34,11 +34,11 @@ dvector_clone_parallel(dvector<T> &w,int root=0) {
   MPI_Datatype t = dvector_mpi_type<T>().type();
   if (t!=MPI_TYPE_UNDEFINED) {
     ierr = MPI_Bcast(w.buff(), size, MPI_DOUBLE, 
-		     root,PETSC_COMM_WORLD);
+		     root,PETSCFEM_COMM_WORLD);
     assert(!ierr);
   } else {
     ierr = MPI_Bcast(w.buff(), size*sizeof(T), MPI_CHAR, 
-		     root,PETSC_COMM_WORLD);
+		     root,PETSCFEM_COMM_WORLD);
     assert(!ierr);
   }
 }

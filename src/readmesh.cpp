@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: readmesh.cpp,v 1.122 2007/01/30 19:03:44 mstorti Exp $
+//$Id: readmesh.cpp,v 1.122.10.1 2007/02/19 20:23:56 mstorti Exp $
 #ifndef _GNU_SOURCE 
 #define _GNU_SOURCE 
 #endif
@@ -46,8 +46,8 @@ extern "C" {
 #undef TRACE
 #if 0
 #define TRACE(n)				\
-  ierr = MPI_Barrier(PETSC_COMM_WORLD);		\
-  PetscPrintf(PETSC_COMM_WORLD,"trace " #n "\n")
+  ierr = MPI_Barrier(PETSCFEM_COMM_WORLD);		\
+  PetscPrintf(PETSCFEM_COMM_WORLD,"trace " #n "\n")
 #else
 #define TRACE(n)
 #endif
@@ -139,7 +139,7 @@ int read_mesh(Mesh *& mesh,char *fcase,Dofmap *& dofmap,
     } else if (!strcmp(token,"nodes")) {
       
       TRACE(-5.0);
-      PetscPrintf(PETSC_COMM_WORLD," -- Reading nodes:\n");
+      PetscPrintf(PETSCFEM_COMM_WORLD," -- Reading nodes:\n");
       tokens.clear();
       tokenize(fstack->line_read(),tokens);
       assert(tokens.size()==4);
@@ -153,7 +153,7 @@ int read_mesh(Mesh *& mesh,char *fcase,Dofmap *& dofmap,
       assert(!ierr);
       assert(ndof>=0);
 
-      PetscPrintf(PETSC_COMM_WORLD, 
+      PetscPrintf(PETSCFEM_COMM_WORLD, 
 		  "Dimension: %d, Size of nodedata vector: %d\n",ndim,nu);
       mesh->nodedata->nu = nu;
       mesh->nodedata->ndim = ndim;
@@ -183,7 +183,7 @@ int read_mesh(Mesh *& mesh,char *fcase,Dofmap *& dofmap,
       nnod=node;
       dofmap->nnod = nnod;
       mesh->nodedata->nnod = nnod;
-      PetscPrintf(PETSC_COMM_WORLD,"Read %d nodes\n",nnod);
+      PetscPrintf(PETSCFEM_COMM_WORLD,"Read %d nodes\n",nnod);
       
       delete[] row;
       mesh->nodedata->nodedata = new double[nnod*nu];
@@ -201,11 +201,11 @@ int read_mesh(Mesh *& mesh,char *fcase,Dofmap *& dofmap,
 
     } else if (!strcmp(token,"nodedata")) {
 
-      PetscPrintf(PETSC_COMM_WORLD," -- Reading nodes:\n");
+      PetscPrintf(PETSCFEM_COMM_WORLD," -- Reading nodes:\n");
       token = strtok(NULL,bsp); assert(token); sscanf(token,"%d",&ndim);
       token = strtok(NULL,bsp); assert(token); sscanf(token,"%d",&nu);
       token = strtok(NULL,bsp); assert(token); sscanf(token,"%d",&ndof);
-      PetscPrintf(PETSC_COMM_WORLD, 
+      PetscPrintf(PETSCFEM_COMM_WORLD, 
 		  "Dimension: %d, Size of nodedata vector: %d\n",ndim,nu);
       read_hash_table(fstack,mesh->nodedata->options);
       mesh->nodedata->nu = nu;
@@ -214,11 +214,11 @@ int read_mesh(Mesh *& mesh,char *fcase,Dofmap *& dofmap,
       dofmap->ndof = ndof;
       node = 0;
       double *row = new double[nu];
-      darray *xnod;
+      darray *xnod=0;
       const char *data = NULL;
       mesh->nodedata->options->get_entry("data",data);
       assert(data);
-      FileStack *fstack_nodes_data;
+      FileStack *fstack_nodes_data=0;
       if (!myrank) {
 	fstack_nodes_data = new FileStack(data);
 	ierro = !fstack_nodes_data->ok();
@@ -250,10 +250,10 @@ int read_mesh(Mesh *& mesh,char *fcase,Dofmap *& dofmap,
       } 
       CHECK_PAR_ERR_GE;
 
-      ierr = MPI_Bcast (&nnod,1,MPI_INT,0,PETSC_COMM_WORLD);
+      ierr = MPI_Bcast (&nnod,1,MPI_INT,0,PETSCFEM_COMM_WORLD);
       dofmap->nnod = nnod;
       mesh->nodedata->nnod = nnod;
-      PetscPrintf(PETSC_COMM_WORLD,"Read %d nodes\n",nnod);
+      PetscPrintf(PETSCFEM_COMM_WORLD,"Read %d nodes\n",nnod);
       
       delete[] row;
       mesh->nodedata->nodedata = new double[nnod*nu];
@@ -268,7 +268,7 @@ int read_mesh(Mesh *& mesh,char *fcase,Dofmap *& dofmap,
       }
 
       ierr = MPI_Bcast (mesh->nodedata->nodedata,nnod*nu,
-			MPI_DOUBLE,0,PETSC_COMM_WORLD);
+			MPI_DOUBLE,0,PETSCFEM_COMM_WORLD);
 
       // calling dofmap constructor
       dofmap->id = new idmap(nnod*ndof,NULL_MAP);
@@ -296,7 +296,7 @@ int read_mesh(Mesh *& mesh,char *fcase,Dofmap *& dofmap,
       PETSCFEM_ASSERT0(token,"Couldn't find elemset name.");  
       type = new char[strlen(token)+1];
       strcpy(type,token);
-      PetscPrintf(PETSC_COMM_WORLD,"\n -- Reading elemset type \"%s\"\n",type);
+      PetscPrintf(PETSCFEM_COMM_WORLD,"\n -- Reading elemset type \"%s\"\n",type);
       token = strtok(NULL,bsp); 
       PETSCFEM_ASSERT0(token,"Couldn't find elemset `nel' parameter.");  
       int nread = sscanf(token,"%d",&nel);
@@ -332,7 +332,7 @@ int read_mesh(Mesh *& mesh,char *fcase,Dofmap *& dofmap,
 	  // old compiler versions
 	  pheold = (props_hash_entry *)g_hash_table_lookup(props,(char *)prop_name);
 	  if (pheold) {
-	    PetscPrintf(PETSC_COMM_WORLD,
+	    PetscPrintf(PETSCFEM_COMM_WORLD,
 			"duplicated elem properties label \"%s\"\n",prop_name);
 	    PetscFinalize();
 	    exit(1);
@@ -369,7 +369,7 @@ int read_mesh(Mesh *& mesh,char *fcase,Dofmap *& dofmap,
 	  // verificar que la propiedad no este duplicada
 	  pheold = (props_hash_entry *)g_hash_table_lookup(props,token);
 	  if (pheold) {
-	    PetscPrintf(PETSC_COMM_WORLD,
+	    PetscPrintf(PETSCFEM_COMM_WORLD,
 			"duplicated elem properties label \"%s\"\n",token);
 	    PetscFinalize();
 	    exit(1);
@@ -428,7 +428,7 @@ int read_mesh(Mesh *& mesh,char *fcase,Dofmap *& dofmap,
 	  for (int jprop=0; jprop<nelprops; jprop++) {
 	    token = strtok(NULL,bsp);
 	    if (token==NULL) {
-	      PetscPrintf(PETSC_COMM_WORLD,
+	      PetscPrintf(PETSCFEM_COMM_WORLD,
 			  "fails to read per-element property %d,\n at line \"%s\"",
 			  jprop+1,line);
 	      PFEMERRQ("\n");
@@ -440,7 +440,7 @@ int read_mesh(Mesh *& mesh,char *fcase,Dofmap *& dofmap,
 	  for (int jprop=0; jprop<neliprops; jprop++) {
 	    token = strtok(NULL,bsp);
 	    if (token==NULL) {
-	      PetscPrintf(PETSC_COMM_WORLD,
+	      PetscPrintf(PETSCFEM_COMM_WORLD,
 			  "fails to read integer per-element"
 			  " property %d,\n at line \"%s\"",
 			  jprop+1,line);
@@ -463,7 +463,7 @@ int read_mesh(Mesh *& mesh,char *fcase,Dofmap *& dofmap,
       DONE:;
       } else {
 	Autobuf *tempo = abuf_create();
-	FileStack *file_connect;
+	FileStack *file_connect=0;
 	if (!myrank) {
 	  file_connect = new FileStack(data);
 	  ierro = !file_connect->ok();
@@ -489,7 +489,7 @@ int read_mesh(Mesh *& mesh,char *fcase,Dofmap *& dofmap,
 	    for (int jprop=0; jprop<nelprops; jprop++) {
 	      token = strtok(NULL,bsp);
 	      if (token==NULL) {
-		PetscPrintf(PETSC_COMM_WORLD,
+		PetscPrintf(PETSCFEM_COMM_WORLD,
 			    "fails to read per-element property %d,\n at line \"%s\"",
 			    jprop+1,line);
 		PFEMERRQ("\n");
@@ -501,7 +501,7 @@ int read_mesh(Mesh *& mesh,char *fcase,Dofmap *& dofmap,
 	    for (int jprop=0; jprop<neliprops; jprop++) {
 	      token = strtok(NULL,bsp);
 	      if (token==NULL) {
-		PetscPrintf(PETSC_COMM_WORLD,
+		PetscPrintf(PETSCFEM_COMM_WORLD,
 			    "fails to read integer per-element"
 			    " property %d,\n at line \"%s\"",
 			    jprop+1,line);
@@ -526,12 +526,12 @@ int read_mesh(Mesh *& mesh,char *fcase,Dofmap *& dofmap,
 	  delete file_connect;
 	}
 	CHECK_PAR_ERR(ierro,"Error reading connectivity file");
-	ierr = MPI_Bcast (&nelem,1,MPI_INT,0,PETSC_COMM_WORLD);
+	ierr = MPI_Bcast (&nelem,1,MPI_INT,0,PETSCFEM_COMM_WORLD);
 	// Resize `da_icone' in other processors
 	if (myrank) ierr =  abuf_set (tempo,nelem*rowsize,0);
 	  
 	// Broadcast all `icone' data using MPI
-	ierr = MPI_Bcast (abuf_data(tempo),nelem*rowsize,MPI_CHAR,0,PETSC_COMM_WORLD);
+	ierr = MPI_Bcast (abuf_data(tempo),nelem*rowsize,MPI_CHAR,0,PETSCFEM_COMM_WORLD);
 
 	// This should be done AFTER reading the nodes 
 	// Set all nodes that are connected to an element as degrees of freedom
@@ -619,6 +619,7 @@ int read_mesh(Mesh *& mesh,char *fcase,Dofmap *& dofmap,
       // adding a line CHECK_ELEMSET_TYPE(type) for each
       // type of elemset to be added
       bless_elemset(type,elemset);
+      if(!elemset) PETSCFEM_ERROR("not known elemset type: \"%s\"\n",type);
 
       elemset->type = type;
       elemset->nelem = nelem; 
@@ -649,23 +650,23 @@ int read_mesh(Mesh *& mesh,char *fcase,Dofmap *& dofmap,
       elemset->initialize();
       TRACE(-5.3.8);
 
-      PetscPrintf(PETSC_COMM_WORLD,
+      PetscPrintf(PETSCFEM_COMM_WORLD,
 		  "elemset number %d, name \"%s\", pointer %p, number of elements %d\n",
 		  elemsetnum,elemset->name(),(void*)elemset,nelem);
       
       // Append to the list
       da_append(mesh->elemsetlist,&elemset);
-      PetscPrintf(PETSC_COMM_WORLD,"Ends reading  elemset\n");
+      PetscPrintf(PETSCFEM_COMM_WORLD,"Ends reading  elemset\n");
 
       TRACE(-5.4);
     } else if (!strcmp(token,"end_elemsets")) {
 
       // nothing is done here
-      PetscPrintf(PETSC_COMM_WORLD,"End elemsets section\n");
+      PetscPrintf(PETSCFEM_COMM_WORLD,"End elemsets section\n");
 
     } else if (!strcmp(token,"fixa")) {
 
-      PetscPrintf(PETSC_COMM_WORLD," -- Reading fixations\n"); 
+      PetscPrintf(PETSCFEM_COMM_WORLD," -- Reading fixations\n"); 
       // Read fixations
       // dofmap->fixa = da_create(sizeof(fixa_entry));
       // fixa_entry fe;
@@ -678,7 +679,7 @@ int read_mesh(Mesh *& mesh,char *fcase,Dofmap *& dofmap,
 	nfixa++;
 	int nr=sscanf(line,"%d %d %lf",&node,&kdof,&dval);
 	if (nr !=3) {
-	  PetscPrintf(PETSC_COMM_WORLD,
+	  PetscPrintf(PETSCFEM_COMM_WORLD,
 		      "Error reading fixations, for fixation %d\nline: %s\n",
 		      nfixa,astr_chars(linecopy));
 	  CHKERRQ(1);
@@ -686,7 +687,7 @@ int read_mesh(Mesh *& mesh,char *fcase,Dofmap *& dofmap,
 
 	dofmap->get_row(node,kdof,row);
 	if (row.size()!=1) {
-	  PetscPrintf(PETSC_COMM_WORLD,
+	  PetscPrintf(PETSCFEM_COMM_WORLD,
 		      "In line: %s\nFixation %d, imposed on an invalid"
 		      " node/field combination.\n",
 		      astr_chars(linecopy),nfixa);
@@ -712,11 +713,11 @@ int read_mesh(Mesh *& mesh,char *fcase,Dofmap *& dofmap,
 	  dofmap->fixed_dofs[keq]=dofmap->fixed.size()-1;
 	}
       }
-      PetscPrintf(PETSC_COMM_WORLD,"Total fixations: %d\n",nfixa);
+      PetscPrintf(PETSCFEM_COMM_WORLD,"Total fixations: %d\n",nfixa);
 
     } else if (!strcmp(token,"fixa_amplitude")) {
 
-      PetscPrintf(PETSC_COMM_WORLD," -- Reading fixa_amplitude section\n"); 
+      PetscPrintf(PETSCFEM_COMM_WORLD," -- Reading fixa_amplitude section\n"); 
       // next token is the identifier of the amplitude function
       token = strtok(NULL,bsp);
       PETSCFEM_ASSERT0(token,"Couldn't find name for fixa_amplitude section");  
@@ -745,14 +746,14 @@ int read_mesh(Mesh *& mesh,char *fcase,Dofmap *& dofmap,
 	nfixa++;
 	int nr=sscanf(line,"%d %d %lf",&node,&kdof,&dval);
 	if (nr !=3) {
-	  PetscPrintf(PETSC_COMM_WORLD,
+	  PetscPrintf(PETSCFEM_COMM_WORLD,
 		      "Error reading fixations, for fixation %d\n",nfixa);
 	  CHKERRQ(1);
 	}
 
 	dofmap->get_row(node,kdof,row);
 	if (row.size()!=1) {
-	  PetscPrintf(PETSC_COMM_WORLD,
+	  PetscPrintf(PETSCFEM_COMM_WORLD,
 		      "In line: %s\nFixation %d, imposed on an"
 		      " invalid node/field combination.\n",
 		      astr_chars(linecopy),nfixa);
@@ -779,15 +780,15 @@ int read_mesh(Mesh *& mesh,char *fcase,Dofmap *& dofmap,
 	  dofmap->fixed_dofs[keq]=dofmap->fixed.size()-1;
 	}
       }
-      PetscPrintf(PETSC_COMM_WORLD,
+      PetscPrintf(PETSCFEM_COMM_WORLD,
 		  "Total fixations with temporal amplitude: %d\n",nfixa);
 
     } else if (!strcmp(token,"constraint")) {
 
-      PetscPrintf(PETSC_COMM_WORLD," -- Reading constraint section\n"); 
+      PetscPrintf(PETSCFEM_COMM_WORLD," -- Reading constraint section\n"); 
 #define ERRLINE								\
       if (ierr==-1) {							\
-         PetscPrintf(PETSC_COMM_WORLD,"Error reading line:\n\"%s\"\n",	\
+         PetscPrintf(PETSCFEM_COMM_WORLD,"Error reading line:\n\"%s\"\n",	\
 		     astr_chars(linecopy));				\
          CHKERRQ(1);							\
       }
@@ -808,7 +809,7 @@ int read_mesh(Mesh *& mesh,char *fcase,Dofmap *& dofmap,
 	rflag=0;
 
 #define PETSCFEM_WARNING(bool_cond,templ,...)					\
-if (!(bool_cond)) { PetscPrintf(PETSC_COMM_WORLD, 				\
+if (!(bool_cond)) { PetscPrintf(PETSCFEM_COMM_WORLD, 				\
 				"PETSc-FEM warning: " templ,__VA_ARGS__);}
 
 	while (1) { 
@@ -830,7 +831,7 @@ if (!(bool_cond)) { PetscPrintf(PETSC_COMM_WORLD, 				\
 	}
 	int return_status = dofmap->set_constraint(constraint);
 	if (return_status==1) {
-	  PetscPrintf(PETSC_COMM_WORLD,
+	  PetscPrintf(PETSCFEM_COMM_WORLD,
 		      "Linearly dependent fixation discarded. \n"
 		      "%s:%d: \"%s\"\n",
 		      fstack->file_name(),
@@ -846,8 +847,8 @@ if (!(bool_cond)) { PetscPrintf(PETSC_COMM_WORLD, 				\
 	}
       }
       // dofmap->id->print("");
-      PetscPrintf(PETSC_COMM_WORLD,"Total entered constraint lines: %d.\n",nconstr);
-      PetscPrintf(PETSC_COMM_WORLD,"-- Linearly dependent %d, linearly independent %d\n",
+      PetscPrintf(PETSCFEM_COMM_WORLD,"Total entered constraint lines: %d.\n",nconstr);
+      PetscPrintf(PETSCFEM_COMM_WORLD,"-- Linearly dependent %d, linearly independent %d\n",
 		  nlindep,nconstr-nlindep);
 #undef ERRLINE
 
@@ -861,7 +862,7 @@ if (!(bool_cond)) { PetscPrintf(PETSC_COMM_WORLD, 				\
       if (obj) {
 	obj->read(fstack,mesh,dofmap);
       } else {
-	PetscPrintf(PETSC_COMM_WORLD,"Bad section name in data file.\n"
+	PetscPrintf(PETSCFEM_COMM_WORLD,"Bad section name in data file.\n"
 		    "line: \"%s\"\n",line);
 	CHKERRQ(1);
       }
@@ -889,7 +890,7 @@ if (!(bool_cond)) { PetscPrintf(PETSC_COMM_WORLD, 				\
   tpwgts = new float[size];
   dofmap->tpwgts = tpwgts; // add to dofmap
   mesh->global_options->get_entry("proc_weights",proc_weights);
-  PetscPrintf(PETSC_COMM_WORLD,"size: %d\n",size);
+  PetscPrintf(PETSCFEM_COMM_WORLD,"size: %d\n",size);
   if (size==1 || proc_weights == NULL) {
 
     // If there is not  a processor weight table, then 
@@ -913,11 +914,11 @@ if (!(bool_cond)) { PetscPrintf(PETSC_COMM_WORLD, 				\
 			 "Processor weight must be >= 0.");  
 	sumw += tpwgts[proc];
       }
-      PetscPrintf(PETSC_COMM_WORLD,"total weight: %f\n",sumw);
+      PetscPrintf(PETSCFEM_COMM_WORLD,"total weight: %f\n",sumw);
       PETSCFEM_ASSERT0(sumw>0.,"Total processor weight must be > 0.");  
       for (int proc=0; proc<size; proc++) {
 	tpwgts[proc] /= sumw;
-	PetscPrintf(PETSC_COMM_WORLD," proc: %d, w: %f\n",proc,tpwgts[proc]);
+	PetscPrintf(PETSCFEM_COMM_WORLD," proc: %d, w: %f\n",proc,tpwgts[proc]);
       }
       weights_file->close();
       delete weights_file;
@@ -1004,7 +1005,7 @@ if (!(bool_cond)) { PetscPrintf(PETSC_COMM_WORLD, 				\
   // cumulated sum 
   for (node=0; node<nnod; node++) 
     n2eptr[node+1] += n2eptr[node];
-  // PetscPrintf(PETSC_COMM_WORLD,"n2eptr[nnod]: %d\n",n2eptr[nnod]);
+  // PetscPrintf(PETSCFEM_COMM_WORLD,"n2eptr[nnod]: %d\n",n2eptr[nnod]);
 
   // n2esize:= total number of entries in the node2elem table
   int n2esize = n2eptr[nnod];
@@ -1059,7 +1060,7 @@ if (!(bool_cond)) { PetscPrintf(PETSC_COMM_WORLD, 				\
   // partflag = 2 -> Neighbor partition. 
   // partflag = 3 -> random partition. 
   // partflag = 4 -> natural partition. 
-  int partflag;
+  int partflag=0;
   //o Set partitioning method. May be set to  #metis# ,
   //  #hitchhiking# ,  #nearest_neighbor#  or  #random# .
   TGETOPTDEF_S(mesh->global_options,string,partitioning_method,metis);
@@ -1094,7 +1095,7 @@ if (!(bool_cond)) { PetscPrintf(PETSC_COMM_WORLD, 				\
     PETSCFEM_ERROR("partitioning method not known \"%s\"\n",
 		   partitioning_method.c_str());
   }
-  PetscPrintf(PETSC_COMM_WORLD,"Starts partitioning.\n"); 
+  PetscPrintf(PETSCFEM_COMM_WORLD,"Starts partitioning.\n"); 
 
   TRACE(-4.0);
   int *vpart = new int[nelemfat];
@@ -1138,11 +1139,11 @@ if (!(bool_cond)) { PetscPrintf(PETSC_COMM_WORLD, 				\
 	// printf("element %d in [%d]\n",j+1,vpart[j]);
       }
     }
-    ierr = MPI_Bcast (vpart,nelemfat,MPI_INT,0,PETSC_COMM_WORLD);
+    ierr = MPI_Bcast (vpart,nelemfat,MPI_INT,0,PETSCFEM_COMM_WORLD);
   } else assert(0); // something went wrong
 
   TRACE(-4.1);
-  PetscPrintf(PETSC_COMM_WORLD,"Ends partitioning.\n");
+  PetscPrintf(PETSCFEM_COMM_WORLD,"Ends partitioning.\n");
 
   // nelem_part:= nelem_part[proc] is the number of elements in
   // processor proc. 
@@ -1181,7 +1182,7 @@ if (!(bool_cond)) { PetscPrintf(PETSC_COMM_WORLD, 				\
   ii_stat.a_resize(2,size,size);
   ii_stat2.a_resize(1,size);
   if (print_nodal_partitioning)
-    PetscPrintf(PETSC_COMM_WORLD,"\nNodal partitioning (node/processor): \n");
+    PetscPrintf(PETSCFEM_COMM_WORLD,"\nNodal partitioning (node/processor): \n");
 
   TRACE(-3.1);
   // Node interface between processor statistics
@@ -1202,11 +1203,11 @@ if (!(bool_cond)) { PetscPrintf(PETSC_COMM_WORLD, 				\
   }
   TRACE(-3.2);
   if (myrank == 0 && size > 1) {
-    PetscPrintf(PETSC_COMM_WORLD,"---\nInter-processor node connections\n");
+    PetscPrintf(PETSCFEM_COMM_WORLD,"---\nInter-processor node connections\n");
     for (P1=0; P1<size; P1++) 
       for (P2=0; P2<size; P2++) 
 	printf("[%d]-[%d] %.2f\n",P1,P2,ii_stat.e(P1,P2));
-    PetscPrintf(PETSC_COMM_WORLD,"\n");
+    PetscPrintf(PETSCFEM_COMM_WORLD,"\n");
   }
   ii_stat.clear();
   ii_stat2.clear();
@@ -1240,15 +1241,15 @@ if (!(bool_cond)) { PetscPrintf(PETSC_COMM_WORLD, 				\
       npart[node] = proc;
     }
     if (print_nodal_partitioning)
-      PetscPrintf(PETSC_COMM_WORLD,
+      PetscPrintf(PETSCFEM_COMM_WORLD,
 		  "%d   %d\n",node+1,npart[node]);
   }
   TRACE(-3.4);
   if (print_nodal_partitioning)
-    PetscPrintf(PETSC_COMM_WORLD,"End nodal partitioning table\n\n");
+    PetscPrintf(PETSCFEM_COMM_WORLD,"End nodal partitioning table\n\n");
 
   if (node_not_connected_to_fat)
-    PetscPrintf(PETSC_COMM_WORLD,"warning! there are %d "
+    PetscPrintf(PETSCFEM_COMM_WORLD,"warning! there are %d "
 		"nodes not linked to any \"fat\" elemset. \n"
 		"This induces artificial numbering. [But may be OK]\n",
 		node_not_connected_to_fat);
@@ -1269,11 +1270,11 @@ if (!(bool_cond)) { PetscPrintf(PETSC_COMM_WORLD, 				\
       epart[iel] = vpart[ielg]+1;
     }
     if (debug_element_partitioning) {
-      PetscPrintf(PETSC_COMM_WORLD,
+      PetscPrintf(PETSCFEM_COMM_WORLD,
 		  "Elemset \"%s\", type \"%s\", nelem %d\n."
 		  "Partitioning table: \n",elemset->name(),elemset->type,elemset->nelem);
       for (int kk=0; kk<elemset->nelem; kk++) 
-	PetscPrintf(PETSC_COMM_WORLD,"%d -> %d\n",kk,epart[kk]);
+	PetscPrintf(PETSCFEM_COMM_WORLD,"%d -> %d\n",kk,epart[kk]);
     }
   }
   
@@ -1343,7 +1344,7 @@ if (!(bool_cond)) { PetscPrintf(PETSC_COMM_WORLD, 				\
   dofmap->neq = neq;
   dofmap->neqf = neqproc[size];
   dofmap->neqtot = dofmap->neq + dofmap->neqf;
-  PetscPrintf(PETSC_COMM_WORLD,
+  PetscPrintf(PETSCFEM_COMM_WORLD,
 	      "Total number of degrees of freedom neq:     %d\n"
 	      "Total number of independent fixations neqf: %d\n",
 	      neq,dofmap->neqf);
@@ -1351,7 +1352,7 @@ if (!(bool_cond)) { PetscPrintf(PETSC_COMM_WORLD, 				\
   TRACE(-2.6);
   if (size>1) {
     for (proc=0; proc<size; proc++) 
-      PetscPrintf(PETSC_COMM_WORLD,
+      PetscPrintf(PETSCFEM_COMM_WORLD,
 		  "[%d] number of dof's: %d\n",proc,neqproc[proc]);
   }
   
@@ -1495,7 +1496,7 @@ if (!(bool_cond)) { PetscPrintf(PETSC_COMM_WORLD, 				\
 	node = conn[0];
 	proc = npart[node-1];
 	if (proc<1 || proc>size) {
-	  PetscPrintf(PETSC_COMM_WORLD,
+	  PetscPrintf(PETSCFEM_COMM_WORLD,
 		      "node %d attached to processor %d out of range",node,proc);
 	  CHKERRA(1);
 	}
@@ -1604,14 +1605,14 @@ if (!(bool_cond)) { PetscPrintf(PETSC_COMM_WORLD, 				\
 
     TRACE(5);
     if (size>1) {
-      PetscPrintf(PETSC_COMM_WORLD,
+      PetscPrintf(PETSCFEM_COMM_WORLD,
 		  "For elemset type \"%s\", name \"%s\"\n",
 		  elemset->type,elemset->name());
-      PetscSynchronizedPrintf(PETSC_COMM_WORLD,
+      PetscSynchronizedPrintf(PETSCFEM_COMM_WORLD,
 			      "On processor [%d], %d local elements,"
 			      " %d ghost elements.\n",
 			      myrank,elemset->nelem_here,nghostel);
-      PetscSynchronizedFlush(PETSC_COMM_WORLD);
+      PetscSynchronizedFlush(PETSCFEM_COMM_WORLD);
     }
     TRACE(6);
 
@@ -1622,7 +1623,7 @@ if (!(bool_cond)) { PetscPrintf(PETSC_COMM_WORLD, 				\
   dofmap->ghost_dofs = new vector<int>;
   for (it=ghost_dof_set.begin(); it!=ghost_dof_set.end(); it++) 
     dofmap->ghost_dofs->push_back(*it);
-  PetscSynchronizedFlush(PETSC_COMM_WORLD);
+  PetscSynchronizedFlush(PETSCFEM_COMM_WORLD);
   VOID_IT(ghost_dof_set);
   int nghost_dofs = dofmap->ghost_dofs->size();
 
@@ -1657,7 +1658,7 @@ if (!(bool_cond)) { PetscPrintf(PETSC_COMM_WORLD, 				\
   //                        DEFINE SCATTER
   //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 
-  PetscPrintf(PETSC_COMM_WORLD,"Defining scatters...\n");
+  PetscPrintf(PETSCFEM_COMM_WORLD,"Defining scatters...\n");
 
   // Create MPI vectors
   //  Vec x,xseq;
@@ -1673,10 +1674,10 @@ if (!(bool_cond)) { PetscPrintf(PETSC_COMM_WORLD, 				\
   int nghost_tot;
   ierr = VecGetSize(ghost_vec,&nghost_tot); CHKERRQ(ierr);
 
-  ierr = ISCreateGeneral(PETSC_COMM_WORLD,nghost_dofs,
+  ierr = ISCreateGeneral(PETSCFEM_COMM_WORLD,nghost_dofs,
 			 &*dofmap->ghost_dofs->begin(),
 			 &is_ghost_glob);  CHKERRQ(ierr); 
-  ierr = ISCreateStride(PETSC_COMM_WORLD,nghost_dofs,0,1,&is_ghost_loc);
+  ierr = ISCreateStride(PETSCFEM_COMM_WORLD,nghost_dofs,0,1,&is_ghost_loc);
 
   ierr = VecScatterCreate(x,is_ghost_glob,ghost_vec,is_ghost_loc,
 			  dofmap->ghost_scatter); CHKERRQ(ierr); 
@@ -1687,7 +1688,7 @@ if (!(bool_cond)) { PetscPrintf(PETSC_COMM_WORLD, 				\
   int neql = (myrank==0 ? dofmap->neq : 0);
   ierr = VecCreateSeq(PETSC_COMM_SELF,neql,&xseq);  CHKERRQ(ierr);
   
-  ierr = ISCreateStride(PETSC_COMM_WORLD,neql,0,1,&is_print);
+  ierr = ISCreateStride(PETSCFEM_COMM_WORLD,neql,0,1,&is_print);
   ierr = VecScatterCreate(x,is_print,xseq,is_print,
 			  dofmap->scatter_print); CHKERRQ(ierr); 
   
@@ -1697,9 +1698,9 @@ if (!(bool_cond)) { PetscPrintf(PETSC_COMM_WORLD, 				\
   for (int jj=dof1; jj<=dof2; jj++) {
     VecSetValue(x,jj-1,double(jj),INSERT_VALUES);
   }
-  PetscPrintf(PETSC_COMM_WORLD,"vector x en read_mesh\n");
+  PetscPrintf(PETSCFEM_COMM_WORLD,"vector x en read_mesh\n");
   ierr = VecView(x,PETSC_VIEWER_STDOUT_WORLD); CHKERRA(ierr);
-  PetscPrintf(PETSC_COMM_WORLD,"================\n");
+  PetscPrintf(PETSCFEM_COMM_WORLD,"================\n");
   ierr = VecScatterBegin(x,ghost_vec,INSERT_VALUES,
 			 SCATTER_FORWARD,dofmap->ghost_scatter); CHKERRA(ierr); 
   ierr = VecScatterEnd(x,ghost_vec,INSERT_VALUES,
@@ -1708,11 +1709,11 @@ if (!(bool_cond)) { PetscPrintf(PETSC_COMM_WORLD, 				\
   double *array;
   ierr = VecGetArray(ghost_vec,&array); CHKERRQ(ierr);
 
-  PetscSynchronizedPrintf(PETSC_COMM_WORLD,"Local ghost values on [%d]\n",myrank);
+  PetscSynchronizedPrintf(PETSCFEM_COMM_WORLD,"Local ghost values on [%d]\n",myrank);
   for (int jj=0; jj<nghost_dofs; jj++ ) 
-    PetscSynchronizedPrintf(PETSC_COMM_WORLD,"local %d, dof %d  -> %g\n",
+    PetscSynchronizedPrintf(PETSCFEM_COMM_WORLD,"local %d, dof %d  -> %g\n",
 			    jj,(*dofmap->ghost_dofs)[jj],array[jj]);
-  PetscSynchronizedFlush(PETSC_COMM_WORLD);
+  PetscSynchronizedFlush(PETSCFEM_COMM_WORLD);
 #endif
 
   ierr = VecDestroy(x);
@@ -1734,20 +1735,20 @@ if (!(bool_cond)) { PetscPrintf(PETSC_COMM_WORLD, 				\
   double *array;
   ierr = VecGetArray(lx,&array); CHKERRQ(ierr);
 
-  PetscSynchronizedPrintf(PETSC_COMM_WORLD,"On processor [%d], local values\n",myrank);
+  PetscSynchronizedPrintf(PETSCFEM_COMM_WORLD,"On processor [%d], local values\n",myrank);
   for (int jj=0; jj<neqproc[myrank]; jj++ ) {
-    PetscSynchronizedPrintf(PETSC_COMM_WORLD,"local %d, global %d -> %g\n",
+    PetscSynchronizedPrintf(PETSCFEM_COMM_WORLD,"local %d, global %d -> %g\n",
 			    jj,startproc[myrank]+jj,array[jj]);
   }
 
-  PetscSynchronizedPrintf(PETSC_COMM_WORLD,"Local ghost values\n");
+  PetscSynchronizedPrintf(PETSCFEM_COMM_WORLD,"Local ghost values\n");
   for (int jj=0; jj<nghost_dofs; jj++ ) {
     int local = neqproc[myrank]+jj;
-    PetscSynchronizedPrintf(PETSC_COMM_WORLD,"local %d, global %d -> %g\n",
+    PetscSynchronizedPrintf(PETSCFEM_COMM_WORLD,"local %d, global %d -> %g\n",
 			    local,(*(dofmap->ghost_dofs))[jj],array[local]);
   }
 
-  PetscSynchronizedFlush(PETSC_COMM_WORLD);
+  PetscSynchronizedFlush(PETSCFEM_COMM_WORLD);
   ierr = VecRestoreArray(lx,&array);CHKERRQ(ierr);
   ierr = VecGhostRestoreLocalForm(gx,&lx);CHKERRQ(ierr); 
   PetscFinalize();
@@ -1758,17 +1759,17 @@ if (!(bool_cond)) { PetscPrintf(PETSC_COMM_WORLD, 				\
   // para debuggear
   ierr = VecScatterBegin(x,xseq,INSERT_VALUES,SCATTER_FORWARD,scatter); CHKERRQ(ierr); 
   ierr = VecScatterEnd(x,xseq,INSERT_VALUES,SCATTER_FORWARD,scatter); CHKERRQ(ierr); 
-  PetscPrintf(PETSC_COMM_WORLD,"Despues del scatter\n");
+  PetscPrintf(PETSCFEM_COMM_WORLD,"Despues del scatter\n");
 
 
   // debug
   ierr = VecGetArray(xseq,&sstate); CHKERRQ(ierr); 
-  PetscSynchronizedPrintf(PETSC_COMM_WORLD,"On processor %d ------------------\n",
+  PetscSynchronizedPrintf(PETSCFEM_COMM_WORLD,"On processor %d ------------------\n",
 			  myrank+1);
   for (int k=0; k<neq; k++) {
-    PetscSynchronizedPrintf(PETSC_COMM_WORLD,"%d -> %f\n",k+1,sstate[k]);
+    PetscSynchronizedPrintf(PETSCFEM_COMM_WORLD,"%d -> %f\n",k+1,sstate[k]);
   }
-  PetscSynchronizedFlush(PETSC_COMM_WORLD);
+  PetscSynchronizedFlush(PETSCFEM_COMM_WORLD);
   ierr = VecRestoreArray(xseq,&sstate); CHKERRQ(ierr); 
 
   PetscFinalize();
@@ -1776,22 +1777,22 @@ if (!(bool_cond)) { PetscPrintf(PETSC_COMM_WORLD, 				\
 #endif  
 
 #if 0
-  PetscSynchronizedPrintf(PETSC_COMM_WORLD,
+  PetscSynchronizedPrintf(PETSCFEM_COMM_WORLD,
 			  "On processor %d \n",myrank+1);
   for (k=0; k<ndofhere; k++) {
-    PetscSynchronizedPrintf(PETSC_COMM_WORLD,
+    PetscSynchronizedPrintf(PETSCFEM_COMM_WORLD,
 			    "%d -> %d\n",k+1,dof_here_list[k]);
   }
-  PetscSynchronizedFlush(PETSC_COMM_WORLD);
+  PetscSynchronizedFlush(PETSCFEM_COMM_WORLD);
 #endif
   
-  PetscPrintf(PETSC_COMM_WORLD,"Total number of dof's: %d\n",neq);
+  PetscPrintf(PETSCFEM_COMM_WORLD,"Total number of dof's: %d\n",neq);
 
 #if 0
   int nloads=0;
   fstack->get_line(line);
   if (strncmp("loads",line,5) ) {
-    PetscPrintf(PETSC_COMM_WORLD,"Couldn't find <fixa> tag line\n");
+    PetscPrintf(PETSCFEM_COMM_WORLD,"Couldn't find <fixa> tag line\n");
     exit(1);
   }
   while (1) {
@@ -1800,12 +1801,12 @@ if (!(bool_cond)) { PetscPrintf(PETSC_COMM_WORLD, 				\
     nloads++;
     int nr=sscanf(line,"%d %d %lf",&node,&kdof,&dval);
     if (nr !=3) {
-      PetscPrintf(PETSC_COMM_WORLD,"Error reading LOADS, for loads %d\n",nfixa);
+      PetscPrintf(PETSCFEM_COMM_WORLD,"Error reading LOADS, for loads %d\n",nfixa);
     }
     //LOAD(node-1,kdof)=dval;
     CHKERRQ(1);
   }
-  PetscPrintf(PETSC_COMM_WORLD,"Total loads: %d\n",nloads);
+  PetscPrintf(PETSCFEM_COMM_WORLD,"Total loads: %d\n",nloads);
 #endif
 
   //fclose(fid);

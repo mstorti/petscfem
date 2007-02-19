@@ -1,6 +1,6 @@
 // -*- mode: C++ -*- 
 /*__INSERT_LICENSE__*/
-// $Id: sparse.h,v 1.37 2007/01/30 19:03:44 mstorti Exp $
+// $Id: sparse.h,v 1.37.10.1 2007/02/19 20:23:56 mstorti Exp $
 #ifndef SPARSE_H
 #define SPARSE_H
 
@@ -20,7 +20,7 @@
 #include <SRC/dsp_defs.h>
 #endif
 
-#include <petscsles.h>
+#include <petscksp.h>
 
 #include <src/texthash.h>
 #include <src/getprop.h>
@@ -180,7 +180,7 @@ namespace Sparse {
     /// Resize vector
     virtual GenVec & resize(int n)=0;
     /// export internal array
-    virtual const double * get() const {assert(0);};
+    virtual const double * get() const {assert(0); return 0; };
     /// generic copy vector
     virtual GenVec & set(const GenVec &v);
     

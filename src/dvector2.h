@@ -1,6 +1,6 @@
 // -*- mode: C++ -*- 
 /*__INSERT_LICENSE__*/
-// $Id: dvector2.h,v 1.35 2007/01/30 19:03:44 mstorti Exp $
+// $Id: dvector2.h,v 1.35.10.1 2007/02/19 20:23:56 mstorti Exp $
 #ifndef PETSCFEM_DVECTOR2_H
 #define PETSCFEM_DVECTOR2_H
 
@@ -349,6 +349,7 @@ template<class T>
 dvector<T>& dvector<T>::
 axpy(double alpha,const dvector<T> &w) {
   assert(0);
+  return *this;
 }
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
@@ -356,6 +357,7 @@ template<class T>
 dvector<T>& dvector<T>::
 scale(double alpha) {
   assert(0);
+  return *this;
 }
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 

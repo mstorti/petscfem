@@ -1,14 +1,16 @@
 //__INSERT_LICENSE__
-//$Id: compdate.cpp,v 1.2 2003/09/13 17:32:09 mstorti Exp $
+//$Id: compdate.cpp,v 1.2.100.1 2007/02/19 20:23:56 mstorti Exp $
 #include <cstdio>
 #include <petsc.h>
+
+extern MPI_Comm PETSCFEM_COMM_WORLD;
 
 #ifndef PETSCFEM_HOSTNAME
 #define PETSCFEM_HOSTNAME "<unknown host>"
 #endif
 
 void petscfem_print_link_date() {
-  PetscPrintf(PETSC_COMM_WORLD,
+  PetscPrintf(PETSCFEM_COMM_WORLD,
 	      "-----------------------------------------------------------------\n"
 	      "Advective module built on " __DATE__ ", " __TIME__ ", with "
 #ifdef __GNUC__

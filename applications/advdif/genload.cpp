@@ -1,9 +1,8 @@
 //__INSERT_LICENSE__
-//$Id: genload.cpp,v 1.20 2007/01/30 19:03:44 mstorti Exp $
+//$Id: genload.cpp,v 1.20.10.1 2007/02/19 20:23:56 mstorti Exp $
 extern int comp_mat_each_time_step_g,
   consistent_supg_matrix_g,
   local_time_step_g;
-extern int MY_RANK,SIZE;
  
 #include <src/fem.h>
 #include <src/utils.h>

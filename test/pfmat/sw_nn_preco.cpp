@@ -1,5 +1,5 @@
 /*__INSERT_LICENSE__*/
-// $Id: sw_nn_preco.cpp,v 1.2 2004/07/07 16:56:25 rodrigop Exp $
+// $Id: sw_nn_preco.cpp,v 1.2.80.1 2007/02/19 20:23:56 mstorti Exp $
 
 // Tests for the `PFMat' class
 
@@ -14,7 +14,7 @@
 #include <src/pfptscmat.h>
 #include <src/iisdmat.h>
 #include <src/graph.h>
-#include <petscsles.h>
+#include <petscksp.h>
 
 // Runs a simple example for testing the PFMat matrix classes.
 

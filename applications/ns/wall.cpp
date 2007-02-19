@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: wall.cpp,v 1.24 2007/02/18 21:49:37 mstorti Exp $
+//$Id: wall.cpp,v 1.24.4.1 2007/02/19 20:23:56 mstorti Exp $
 
 #include <src/fem.h>
 #include <src/utils.h>
@@ -10,7 +10,6 @@
 #include "nsi_tet.h"
 
 extern TextHashTable *GLOBAL_OPTIONS;
-extern int MY_RANK,SIZE;
 extern int TSTEP; //debug:=
 #define MAXPROP 100
 
@@ -64,7 +63,7 @@ int wall::ask(const char *jobinfo,int &skip_elemset) {
     double *recv_buff = new double[nelem];
     ierr = MPI_Allreduce((void *)elemprops_add,
 			 (void *)recv_buff,nelem,MPI_DOUBLE,
-			 MPI_SUM,PETSC_COMM_WORLD); CHKERRQ(ierr);
+			 MPI_SUM,PETSCFEM_COMM_WORLD); CHKERRQ(ierr);
     for (int j=0; j<nelem; j++) elemprops_add[j] = recv_buff[j];
     delete[] recv_buff;
   }

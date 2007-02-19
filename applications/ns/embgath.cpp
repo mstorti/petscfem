@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: embgath.cpp,v 1.41 2006/03/27 19:43:22 mstorti Exp $
+//$Id: embgath.cpp,v 1.41.22.1 2007/02/19 20:23:56 mstorti Exp $
 
 #include <src/fem.h>
 #include <src/utils.h>
@@ -15,7 +15,6 @@
 #include "./nsi_tet.h"
 
 extern Mesh *GLOBAL_MESH;
-extern int MY_RANK,SIZE;
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 int embedded_gatherer::ask(const char *jobinfo,int &skip_elemset) {
@@ -161,7 +160,7 @@ int embedded_gatherer::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
 
   //o Type of element geometry to define Gauss Point data
   TGETOPTDEF_S(thash,string,geometry,quad2hexa);
-  GPdata *gp_data_p;
+  GPdata *gp_data_p=0;
   if (geometry=="quad2hexa") 
     gp_data_p = new GPdata("cartesian2d",ndimel,4,npg,GP_FASTMAT2);
   else if (geometry=="tri2prism") 

@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: adv.cpp,v 1.14 2003/11/25 01:13:36 mstorti Exp $
+//$Id: adv.cpp,v 1.14.88.1 2007/02/19 20:23:56 mstorti Exp $
  
 #include <src/fem.h>
 #include <src/readmesh.h>
@@ -11,7 +11,6 @@
 
 static char help[] = "Basic finite element program.\n\n";
 
-extern int MY_RANK,SIZE;
 int print_internal_loop_conv_g=0,
   consistent_supg_matrix_g=0,
   local_time_step_g=0,
@@ -27,7 +26,7 @@ int print_internal_loop_conv_g=0,
 #define __FUNC__ "int MyKSPMonitor(KSP ,int ,double ,void *)"
 int MyKSPMonitor(KSP ksp,int n,double rnorm,void *dummy) {
   if (print_internal_loop_conv_g) 
-    PetscPrintf(PETSC_COMM_WORLD,
+    PetscPrintf(PETSCFEM_COMM_WORLD,
 		"iteration %d KSP Residual norm %7.4e \n",n,rnorm);
   return 0;
 }
@@ -65,9 +64,11 @@ ierr = VecView(name,matlab); CHKERRA(ierr)
 #define __FUNC__ "main"
 int main(int argc,char **args) {
 
+  PetscFemInitialize(&argc,&args,(char *)0,help);
+
+
   Vec     x, dx, xold, res; /* approx solution, RHS, residual*/
   Mat     A_mass;                              /* linear system matrix */
-  SLES    sles_mass;     /* linear solver context */
   PC      pc_mass;           /* preconditioner context */
   KSP     ksp_mass;        /* Krylov subspace method context */
   double  norm, *sol, scal; /* norm of solution error */
@@ -92,23 +93,22 @@ int main(int argc,char **args) {
   // euler_absorb::flux_fun = &flux_fun_euler;
 
   // elemsetlist =  da_create(sizeof(Elemset *));
-  PetscInitialize(&argc,&args,(char *)0,help);
   print_copyright();
 
   // Start registering functions
   // Amplitude::initialize_function_table();
 
   // Get MPI info
-  MPI_Comm_size(PETSC_COMM_WORLD,&SIZE);
-  MPI_Comm_rank(PETSC_COMM_WORLD,&MY_RANK);
+  MPI_Comm_size(PETSCFEM_COMM_WORLD,&SIZE);
+  MPI_Comm_rank(PETSCFEM_COMM_WORLD,&MY_RANK);
 
-//    MPI_Comm_size(PETSC_COMM_WORLD,&size);
-//    MPI_Comm_rank(PETSC_COMM_WORLD,&myrank);
+//    MPI_Comm_size(PETSCFEM_COMM_WORLD,&size);
+//    MPI_Comm_rank(PETSCFEM_COMM_WORLD,&myrank);
 
       //  if (size != 1) SETERRA(1,0,"This is a uniprocessor example only!");
   ierr = PetscOptionsGetString(PETSC_NULL,"-case",fcase,FLEN,&flg); CHKERRA(ierr);
   if (!flg) {
-    PetscPrintf(PETSC_COMM_WORLD,
+    PetscPrintf(PETSCFEM_COMM_WORLD,
 		"Option \"-case <filename>\" not passed to PETSc-FEM!!\n");
     PetscFinalize();
     exit(0);
@@ -195,7 +195,7 @@ int main(int argc,char **args) {
 
 #if 0
   PetscViewer matlab;
-  ierr = ViewerASCIIOpen(PETSC_COMM_WORLD,
+  ierr = ViewerASCIIOpen(PETSCFEM_COMM_WORLD,
 			 "matns.m",&matlab); CHKERRA(ierr);
 #endif
   //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
@@ -210,7 +210,7 @@ int main(int argc,char **args) {
   //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
   // initialize state vectors
   scal=0;
-  ierr = VecSet(&scal,x); CHKERRA(ierr);
+  ierr = VecSet(x,scal); CHKERRA(ierr);
 
   arg_list argl;
 
@@ -243,17 +243,15 @@ int main(int argc,char **args) {
     ierr = assemble(mesh,argl,dofmap,"comp_mat_mass",&time); CHKERRA(ierr);
 
 	//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
-    ierr = SLESCreate(PETSC_COMM_WORLD,&sles_mass); CHKERRA(ierr);
-    ierr = SLESSetOperators(sles_mass,A_mass,A_mass,
-			    DIFFERENT_NONZERO_PATTERN); CHKERRA(ierr);
-    ierr = SLESGetKSP(sles_mass,&ksp_mass); CHKERRA(ierr);
-    ierr = SLESGetPC(sles_mass,&pc_mass); CHKERRA(ierr);
-
+    ierr = KSPCreate(PETSCFEM_COMM_WORLD,&ksp_mass); CHKERRA(ierr);
     ierr = KSPSetType(ksp_mass,KSPCG); CHKERRA(ierr);
+    ierr = KSPGetPC(ksp_mass,&pc_mass); CHKERRA(ierr);
     ierr = PCSetType(pc_mass,PCJACOBI); CHKERRA(ierr);
+    ierr = KSPSetOperators(ksp_mass,A_mass,A_mass,
+			    DIFFERENT_NONZERO_PATTERN); CHKERRA(ierr);
     ierr = KSPSetTolerances(ksp_mass,tol_mass,PETSC_DEFAULT,PETSC_DEFAULT,
 			    PETSC_DEFAULT); CHKERRA(ierr);
-    ierr = KSPSetMonitor(ksp_mass,MyKSPMonitor,PETSC_NULL,NULL);
+    ierr = KSPMonitorSet(ksp_mass,MyKSPMonitor,PETSC_NULL,NULL);
 
 	//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
     VOID_IT(argl);
@@ -294,24 +292,23 @@ int main(int argc,char **args) {
     ierr = VecCopy(x,xold);
 
     scal=0;
-    ierr = VecSet(&scal,res); CHKERRA(ierr);
+    ierr = VecSet(res,scal); CHKERRA(ierr);
 
 
     if (comp_mat_each_time_step_g) {
 
       //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
-      ierr = SLESCreate(PETSC_COMM_WORLD,&sles_mass); CHKERRA(ierr);
-      ierr = SLESSetOperators(sles_mass,A_mass,A_mass,
-			      DIFFERENT_NONZERO_PATTERN); CHKERRA(ierr);
-      ierr = SLESGetKSP(sles_mass,&ksp_mass); CHKERRA(ierr);
-      ierr = SLESGetPC(sles_mass,&pc_mass); CHKERRA(ierr);
-
+      ierr = KSPCreate(PETSCFEM_COMM_WORLD,&ksp_mass); CHKERRA(ierr);
       ierr = KSPSetType(ksp_mass,KSPGMRES); CHKERRA(ierr);
+      ierr = KSPGetPC(ksp_mass,&pc_mass); CHKERRA(ierr);
       ierr = PCSetType(pc_mass,PCJACOBI); CHKERRA(ierr);
+      ierr = KSPSetOperators(ksp_mass,A_mass,A_mass,
+			      DIFFERENT_NONZERO_PATTERN); CHKERRA(ierr);
+
       // ierr = KSPSetTolerances(ksp_mass,tol_mass,PETSC_DEFAULT,PETSC_DEFAULT,
       // PETSC_DEFAULT); CHKERRA(ierr);
       ierr = KSPSetTolerances(ksp_mass,rtol,atol,dtol,maxits); CHKERRA(ierr);
-      ierr = KSPSetMonitor(ksp_mass,MyKSPMonitor,PETSC_NULL,NULL); CHKERRA(ierr);
+      ierr = KSPMonitorSet(ksp_mass,MyKSPMonitor,PETSC_NULL,NULL); CHKERRA(ierr);
       //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 
       ierr = MatZeroEntries(A_mass); CHKERRA(ierr);
@@ -344,8 +341,9 @@ int main(int argc,char **args) {
       }
       ierr = assemble(mesh,argl,dofmap,"comp_res",&time); CHKERRA(ierr);
 
-      ierr = SLESSolve(sles_mass,res,dx,&its); CHKERRA(ierr); 
-      ierr = SLESDestroy(sles_mass);
+      ierr = KSPSolve(ksp_mass,res,dx); CHKERRA(ierr); 
+      ierr = KSPGetIterationNumber(ksp_mass,&its); CHKERRA(ierr); 
+      ierr = KSPDestroy(ksp_mass);
 
     } else {
 
@@ -366,16 +364,17 @@ int main(int argc,char **args) {
       ierr = VecCopy(res,dx);
       vector_divide(dx,a_mass);
 #else
-      ierr = SLESSolve(sles_mass,res,dx,&its); CHKERRA(ierr); 
+      ierr = KSPSolve(ksp_mass,res,dx); CHKERRA(ierr); 
+      ierr = KSPGetIterationNumber(ksp_mass,&its); CHKERRA(ierr); 
 #endif
     }
 
     // Prints residual and mass matrix in Matlab format
     if (print_linear_system_and_stop) {
-      PetscPrintf(PETSC_COMM_WORLD,
+      PetscPrintf(PETSCFEM_COMM_WORLD,
 		  "Printing residual and matrix for debugging and stopping..\n");
       PetscViewer matlab;
-      ierr = PetscViewerASCIIOpen(PETSC_COMM_WORLD,
+      ierr = PetscViewerASCIIOpen(PETSCFEM_COMM_WORLD,
 			     "mat.output",&matlab); CHKERRA(ierr);
       ierr = PetscViewerSetFormat_WRAPPER(matlab, 
 			     PETSC_VIEWER_ASCII_MATLAB,"res");
@@ -399,7 +398,7 @@ int main(int argc,char **args) {
     time.inc(Dt);
 
     // Upgrade state vector.
-    ierr = VecAXPY(&Dt,dx,x);
+    ierr = VecAXPY(x,Dt,dx);
 
     VOID_IT(argl);
     argl.arg_add(&x,IN_OUT_VECTOR);
@@ -413,17 +412,17 @@ int main(int argc,char **args) {
     double delta_u;
     ierr = VecCopy(x,dx);
     scal=-1.;
-    ierr = VecAXPY(&scal,xold,dx);
+    ierr = VecAXPY(dx,scal,xold);
     ierr  = VecNorm(dx,NORM_2,&delta_u); CHKERRA(ierr);
 
-    PetscPrintf(PETSC_COMM_WORLD,
+    PetscPrintf(PETSCFEM_COMM_WORLD,
 		"time_step %d, time: %g, res = %14.12e - delta_u = %10.3e\n",
 		tstep,time_,norm,delta_u);
     print_vector_rota(save_file_pattern.c_str(),x,dofmap,
 		      &time,tstep-1,nsaverot,nrec,nfile);
 
     if (tstep % nsave == 0){
-      PetscPrintf(PETSC_COMM_WORLD,
+      PetscPrintf(PETSCFEM_COMM_WORLD,
 		  " --------------------------------------\n"
 		  "Time step: %d\n"
 		  " --------------------------------------\n",

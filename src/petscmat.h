@@ -1,6 +1,6 @@
 // -*- mode: C++ -*- 
 /*__INSERT_LICENSE__*/
-// $Id: petscmat.h,v 1.6 2004/10/24 16:25:21 mstorti Exp $
+// $Id: petscmat.h,v 1.6.72.1 2007/02/19 20:23:56 mstorti Exp $
 #ifndef PETSCMAT_H
 #define PETSCMAT_H
 
@@ -41,7 +41,7 @@ public:
   ~PETScMat();
 
   PETScMat(int MM,int NN,const DofPartitioner &pp,MPI_Comm comm_ =
-	  PETSC_COMM_WORLD) : 
+	  PETSCFEM_COMM_WORLD) : 
     PFPETScMat(MM,pp,comm_), 
     M(MM), N(NN) {};
 

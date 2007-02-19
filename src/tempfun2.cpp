@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: tempfun2.cpp,v 1.5 2007/01/30 19:03:44 mstorti Exp $
+//$Id: tempfun2.cpp,v 1.5.10.1 2007/02/19 20:23:56 mstorti Exp $
 
 #include <math.h>
 
@@ -17,7 +17,7 @@ private:
   TextHashTable *thash;
 public:
   void print() const {
-    PetscPrintf(PETSC_COMM_WORLD,
+    PetscPrintf(PETSCFEM_COMM_WORLD,
 		"\"gaussian\" fixa amplitude, options table: \n");
     thash->print();
   }
@@ -70,10 +70,10 @@ private:
   TextHashTable *thash;
 public:
   void print() const {
-    PetscPrintf(PETSC_COMM_WORLD,
+    PetscPrintf(PETSCFEM_COMM_WORLD,
 		"\"piecewise_linear\" fixa amplitude, options table: \n");
     thash->print();
-    PetscPrintf(PETSC_COMM_WORLD,"number of intervals: %d\n",ntime);
+    PetscPrintf(PETSCFEM_COMM_WORLD,"number of intervals: %d\n",ntime);
   }
   void init(TextHashTable *thash_) {
     double tt,ff;
@@ -184,7 +184,7 @@ private:
   TextHashTable *thash;
 public:
   void print() const {
-    PetscPrintf(PETSC_COMM_WORLD,
+    PetscPrintf(PETSCFEM_COMM_WORLD,
 		"\"smooth_impulse\" fixa amplitude, options table: \n");
     thash->print();
   }
@@ -221,7 +221,7 @@ protected:
   TextHashTable *thash;
 public:
   void print() const {
-    PetscPrintf(PETSC_COMM_WORLD,
+    PetscPrintf(PETSCFEM_COMM_WORLD,
 		"\"cos\" fixa amplitude, options table: \n");
     thash->print();
   }
@@ -235,7 +235,7 @@ public:
     SGETOPTDEF_ND(double,period,0.);
     SGETOPTDEF_ND(double,phase,0.);
     if (omega==0. && frequency==0. && period==0) {
-      PetscPrintf(PETSC_COMM_WORLD,
+      PetscPrintf(PETSCFEM_COMM_WORLD,
 		  "cos_function: not defined any of omega/frequency/period\n");
       PetscFinalize();
       exit(0);
@@ -262,7 +262,7 @@ public:
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 Amplitude *Amplitude::factory(char *& label,
 			      TextHashTable *t) {
-  Amplitude *amp;
+  Amplitude *amp=0;
   if (!strcmp(label,"gaussian")) {
     amp = new gaussian;
   } else if (!strcmp(label,"piecewise_linear")) {
@@ -277,16 +277,18 @@ Amplitude *Amplitude::factory(char *& label,
 #ifdef USE_DLEF
     amp = new DLGeneric;
 #else
-    PetscPrintf(PETSC_COMM_WORLD,
+    PetscPrintf(PETSCFEM_COMM_WORLD,
 		"This version is not compiled with dynamically"
 		" loaded extended functions!!\n"
 		" Enable the 'USE_DLEF' flag and recompile.\n");
     assert(0);
+    return 0;
 #endif
   } else {
-    PetscPrintf(PETSC_COMM_WORLD,
+    PetscPrintf(PETSCFEM_COMM_WORLD,
 		"Not known fixa_amplitude \"%s\"\n",label);
     assert(0);
+    return 0;
   }
   amp->init(t);
   delete t; // If it wasn't deleted by `init'

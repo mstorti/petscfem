@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: elast2.cpp,v 1.11 2006/06/12 21:46:18 mstorti Exp $
+//$Id: elast2.cpp,v 1.11.20.1 2007/02/19 20:23:56 mstorti Exp $
 
 #include <src/fem.h>
 #include <src/utils.h>
@@ -92,7 +92,7 @@ void elasticity2::init() {
 	.rs().d(1,2).is(1,4,6).set(c2)
 	.rs().scale(c1);
   } else {
-    PetscPrintf(PETSC_COMM_WORLD,"wrong dimension: %d\n",ndim);
+    PetscPrintf(PETSCFEM_COMM_WORLD,"wrong dimension: %d\n",ndim);
     assert(0);
   }
 }
@@ -270,7 +270,7 @@ void elast_energy_integrator::init(){
       .rs().d(1,2).is(1,4,6).set(c2)
       .rs().scale(c1);
   } else {
-    PetscPrintf(PETSC_COMM_WORLD,"wrong dimension: %d\n",ndim);
+    PetscPrintf(PETSCFEM_COMM_WORLD,"wrong dimension: %d\n",ndim);
     assert(0);
   }
 }
@@ -303,7 +303,7 @@ void elast_energy_integrator
     stress.prod(C,strain,1,-1,-1);
     e_pot.prod(strain,stress,-1,-1).scale(0.5);
   } else {
-    PetscPrintf(PETSC_COMM_WORLD,"wrong dimension: %d\n",ndim);
+    PetscPrintf(PETSCFEM_COMM_WORLD,"wrong dimension: %d\n",ndim);
     assert(0);
   }
   tmp1.set(u.is(1,ndim+1,ndof));

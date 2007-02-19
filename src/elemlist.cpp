@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: elemlist.cpp,v 1.12 2007/01/30 19:03:44 mstorti Exp $
+//$Id: elemlist.cpp,v 1.12.10.1 2007/02/19 20:23:56 mstorti Exp $
 
 #include "fem.h"
 #include <set>
@@ -13,7 +13,6 @@
 // iteration modes
 #define NOT_INCLUDE_GHOST_ELEMS 0
 #define INCLUDE_GHOST_ELEMS 1
-extern int MY_RANK,SIZE;
 
 #if 0
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 

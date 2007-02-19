@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-/* $Id: blessf.cpp,v 1.47 2006/09/04 17:49:42 mstorti Exp $ */
+/* $Id: blessf.cpp,v 1.47.16.1 2007/02/19 20:23:56 mstorti Exp $ */
 
 #include <src/debug.h>
 #include <malloc.h>
@@ -118,9 +118,11 @@ void bless_elemset(char *type,Elemset *& elemset) {
     SET_ELEMSET_TYPE(dl_penalize)
 
     SET_ELEMSET_TYPE_ALIAS(interpolation,interpolation_ns)
-      {
-	PETSCFEM_ERROR("not known elemset type: \"%s\"\n",type);
-      }
+
+    {
+      // PETSCFEM_ERROR("not known elemset type: \"%s\"\n",type);
+      elemset=NULL;
+    }
 }
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:

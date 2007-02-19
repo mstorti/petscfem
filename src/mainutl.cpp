@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: mainutl.cpp,v 1.33 2007/01/30 19:03:44 mstorti Exp $
+//$Id: mainutl.cpp,v 1.33.10.1 2007/02/19 20:23:56 mstorti Exp $
  
 #include "fem.h"
 #include "utils.h"
@@ -10,8 +10,6 @@
 #include "generror.h"
 #include <src/debug.h>
 #include <src/dvector.h>
-
-extern int MY_RANK,SIZE;
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 #undef __FUNC__
@@ -95,7 +93,7 @@ void print_vector_rota(const char *filenamepat,const Vec x,const
   int ifile = (nfile>0? resrec.quot % nfile : resrec.quot);
 
   sprintf(buf,filenamepat,ifile);
-  PetscPrintf(PETSC_COMM_WORLD,
+  PetscPrintf(PETSCFEM_COMM_WORLD,
 	      "print_vector_rota: step = %d, saving on rec %d,"
               " file %s\n",j,irec,buf);
   print_vector(buf,x,dofmap,time_data,irec!=0);
@@ -112,7 +110,7 @@ int print_vector(const char *filename,const Vec x,const Dofmap *dofmap,
   Vec vseq;
   
   int myrank;
-  MPI_Comm_rank(PETSC_COMM_WORLD,&myrank);
+  MPI_Comm_rank(PETSCFEM_COMM_WORLD,&myrank);
 
   // fixme:= Now we can make this without a scatter. We can use
   // the version of get_nodal_value() with ghost_values. 
@@ -141,7 +139,7 @@ int print_vector(const char *filename,const Vec x,const Dofmap *dofmap,
     }
     fclose(output);
   } catch(GenericError e) { ierr = 1; }
-  MPI_Bcast(&ierr,1,MPI_INT,0,PETSC_COMM_WORLD);
+  MPI_Bcast(&ierr,1,MPI_INT,0,PETSCFEM_COMM_WORLD);
   PETSCFEM_ASSERT0(!ierr,"Couldn't open output file");
   ierr = VecRestoreArray(vseq,&vseq_vals); CHKERRQ(ierr); 
   ierr = VecDestroy(vseq);CHKERRQ(ierr);
@@ -203,7 +201,7 @@ int print_some(const char *filename,const Vec x,Dofmap *dofmap,
   int ierr;
 
   int myrank;
-  MPI_Comm_rank(PETSC_COMM_WORLD,&myrank);
+  MPI_Comm_rank(PETSCFEM_COMM_WORLD,&myrank);
 
   // fixme:= Now we can make this without a scatter. We can use
   // the version of get_nodal_value() with ghost_values. 
@@ -260,7 +258,7 @@ int read_vector(const char *filename,Vec x,Dofmap *dofmap,int myrank) {
   //o Check if initial state has correct size
   TGETOPTDEF(GLOBAL_OPTIONS,int,check_initial_state_correct_size,1);
 
-  PetscPrintf(PETSC_COMM_WORLD,"Reading vector from file \"%s\"\n",filename);
+  PetscPrintf(PETSCFEM_COMM_WORLD,"Reading vector from file \"%s\"\n",filename);
   dvector<double> xdof;
   xdof.mono(dofmap->neqtot);
   if (myrank==0) {
@@ -285,7 +283,7 @@ int read_vector(const char *filename,Vec x,Dofmap *dofmap,int myrank) {
  ERROR: CHECK_PAR_ERR(ierro,"Error reading vector from file.");
   
   ierr = MPI_Bcast (xdof.buff(),dofmap->neqtot,
-		    MPI_DOUBLE,0,PETSC_COMM_WORLD);
+		    MPI_DOUBLE,0,PETSCFEM_COMM_WORLD);
 
   for (int k=0; k<dofmap->neq; k++) {
     if (dofmap->dof1 <= k+1 <= dofmap->dof2) {
@@ -293,10 +291,10 @@ int read_vector(const char *filename,Vec x,Dofmap *dofmap,int myrank) {
     }
   }
   xdof.clear();
-  // PetscPrintf(PETSC_COMM_WORLD,"Values set.\n",dofmap->nnod);
+  // PetscPrintf(PETSCFEM_COMM_WORLD,"Values set.\n",dofmap->nnod);
   ierr = VecAssemblyBegin(x); CHKERRQ(ierr);
   ierr = VecAssemblyEnd(x); CHKERRQ(ierr);
-  PetscPrintf(PETSC_COMM_WORLD,"Done reading file '%s'\n",filename);
+  PetscPrintf(PETSCFEM_COMM_WORLD,"Done reading file '%s'\n",filename);
   return ierr;
 
 }
@@ -311,10 +309,10 @@ int print_some_file_init(TextHashTable *thash,
 			 int save_file_some_append) {
   if (MY_RANK==0 && strlen(print_some_file)>0) {
     int nodo;
-    PetscPrintf(PETSC_COMM_WORLD,"Reading print_some_file...\n");
+    PetscPrintf(PETSCFEM_COMM_WORLD,"Reading print_some_file...\n");
     FILE *fid=fopen(print_some_file,"r");
     if (fid==NULL) {
-      PetscPrintf(PETSC_COMM_WORLD,"Couldn't open `print_some_file': \"%s\"\n",
+      PetscPrintf(PETSCFEM_COMM_WORLD,"Couldn't open `print_some_file': \"%s\"\n",
 		  print_some_file);
       PetscFinalize();
       exit(0);
@@ -325,7 +323,7 @@ int print_some_file_init(TextHashTable *thash,
       node_list.insert(nodo);
     }
     fclose(fid);
-    PetscPrintf(PETSC_COMM_WORLD,"... Done.\n");
+    PetscPrintf(PETSCFEM_COMM_WORLD,"... Done.\n");
     if (!save_file_some_append) {
       // Rewind file, discard old content
       FILE *fid = fopen(save_file_some,"w");

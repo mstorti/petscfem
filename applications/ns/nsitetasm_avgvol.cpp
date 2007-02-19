@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: nsitetasm_avgvol.cpp,v 1.4 2007/01/30 19:03:44 mstorti Exp $
+//$Id: nsitetasm_avgvol.cpp,v 1.4.10.1 2007/02/19 20:23:56 mstorti Exp $
 
 //
 // This elemset uses the volume average velocity model 
@@ -382,7 +382,7 @@ assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
 #define RETVALMAT(iele,j,k,p,q) VEC5(retvalmat,iele,j,nel,k,ndof,p,nel,q,ndof)
 
   int ierr=0, axi;
-  // PetscPrintf(PETSC_COMM_WORLD,"entrando a nsi_tet\n");
+  // PetscPrintf(PETSCFEM_COMM_WORLD,"entrando a nsi_tet\n");
 
 #define NODEDATA(j,k) VEC2(nodedata->nodedata,j,k,nu)
 #define ICONE(j,k) (icone[nel*(j)+(k)]) 
@@ -429,7 +429,7 @@ assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
   // rec_Dt is the reciprocal of Dt (i.e. 1/Dt)
   // for steady solutions it is set to 0. (Dt=inf)
   GlobParam *glob_param;
-  double *hmin,Dt,rec_Dt;
+  double *hmin,Dt,rec_Dt=0.;
   int ja_hmin;
 #define WAS_SET arg_data_v[ja_hmin].was_set
   if (comp_mat_res) {
@@ -481,7 +481,7 @@ assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
 	 locstate2(2,nel,ndof),xpg,G_body(1,ndim);
 
   if (ndof != ndim+1+nphases) {
-    PetscPrintf(PETSC_COMM_WORLD,"ndof != ndim+1+nphases\n"); CHKERRA(1);
+    PetscPrintf(PETSCFEM_COMM_WORLD,"ndof != ndim+1+nphases\n"); CHKERRA(1);
   }
 
   nen = nel*ndof;
@@ -499,7 +499,7 @@ assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
   else if (axisymmetric=="y") axi=2;
   else if (axisymmetric=="z") axi=3;
   else {
-    PetscPrintf(PETSC_COMM_WORLD,
+    PetscPrintf(PETSCFEM_COMM_WORLD,
 		"Invalid value for \"axisymmetric\" option\n"
 		"axisymmetric=\"%s\"\n",axisymmetric.c_str());
     PetscFinalize();
@@ -1460,7 +1460,7 @@ assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
       } else if (comp_mat) {
 	// don't make anything here !!
       } else {
-	PetscPrintf(PETSC_COMM_WORLD,
+	PetscPrintf(PETSCFEM_COMM_WORLD,
 		    "Don't know how to compute jobinfo: %s\n",jobinfo);
 	CHKERRQ(ierr);
       }

@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: laplace.cpp,v 1.13 2002/09/05 20:25:50 mstorti Exp $
+//$Id: laplace.cpp,v 1.13.112.1 2007/02/19 20:23:56 mstorti Exp $
  
 #include <src/fem.h>
 #include <src/readmesh.h>
@@ -11,7 +11,6 @@
 #include "lapla.h"
 #include <time.h>
 
-extern int MY_RANK,SIZE;
 // TextHashTable *GLOBAL_OPTIONS;
 
 static char help[] = "Basic finite element program.\n\n";
@@ -20,7 +19,7 @@ static char help[] = "Basic finite element program.\n\n";
 
 int MyKSPMonitor(KSP ksp,int n,double rnorm,void *dummy)
 {
-  PetscPrintf(PETSC_COMM_WORLD,
+  PetscPrintf(PETSCFEM_COMM_WORLD,
 	      "iteration %d KSP Residual norm %14.12e \n",n,rnorm);
   return 0;
 }
@@ -41,9 +40,11 @@ void bless_elemset(char *type,Elemset *& elemset) {
 #undef __FUNC__
 #define __FUNC__ "main"
 int main(int argc,char **args) {
+
+  PetscFemInitialize(&argc,&args,(char *)0,help);
+
   Vec     x, res;
   Mat     A;                          /* linear system matrix */
-  SLES    sles;     /* linear solver context */
   PC      pc;           /* preconditioner context */
   KSP     ksp;        /* Krylov subspace method context */
   double  norm, *sol, scal; /* norm of solution error */
@@ -54,16 +55,16 @@ int main(int argc,char **args) {
   Dofmap *dofmap;
   Mesh *mesh;
 
-  PetscInitialize(&argc,&args,(char *)0,help);
-  print_copyright();
-
+  PETSCFEM_COMM_WORLD = PETSC_COMM_WORLD;
   // Get MPI info
-  MPI_Comm_size(PETSC_COMM_WORLD,&size);
-  MPI_Comm_rank(PETSC_COMM_WORLD,&myrank);
+  MPI_Comm_size(PETSCFEM_COMM_WORLD,&SIZE);
+  MPI_Comm_rank(PETSCFEM_COMM_WORLD,&MY_RANK);
+
+  print_copyright();
 
   ierr = PetscOptionsGetString(PETSC_NULL,"-case",fcase,FLEN,&flg); CHKERRA(ierr);
   if (!flg) {
-    PetscPrintf(PETSC_COMM_WORLD,
+    PetscPrintf(PETSCFEM_COMM_WORLD,
 		"Option \"-case <filename>\" not passed to PETSc-FEM!!\n");
     PetscFinalize();
     exit(0);
@@ -80,8 +81,8 @@ int main(int argc,char **args) {
   printf("retornado por get_string: \"%s\"\n",save_file.c_str());
 
   scal=0;
-  ierr = VecSet(&scal,x); CHKERRA(ierr);
-  ierr = VecSet(&scal,res); CHKERRA(ierr);
+  ierr = VecSet(x,scal); CHKERRA(ierr);
+  ierr = VecSet(res,scal); CHKERRA(ierr);
 
   ierr = opt_read_vector(mesh,x,dofmap,myrank);
 
@@ -93,18 +94,16 @@ int main(int argc,char **args) {
 
   ierr = MatZeroEntries(A); CHKERRA(ierr);
       
-  // SLES solver for the laplacian
-  ierr = SLESCreate(PETSC_COMM_WORLD,&sles); CHKERRA(ierr);
-  ierr = SLESSetOperators(sles,A,
-			  A,DIFFERENT_NONZERO_PATTERN); CHKERRA(ierr);
-  ierr = SLESGetKSP(sles,&ksp); CHKERRA(ierr);
-  ierr = SLESGetPC(sles,&pc); CHKERRA(ierr);
-
+  // KSP solver for the laplacian
+  ierr = KSPCreate(PETSCFEM_COMM_WORLD,&ksp); CHKERRA(ierr);
   ierr = KSPSetType(ksp,KSPCG); CHKERRA(ierr);
+  ierr = KSPGetPC(ksp,&pc); CHKERRA(ierr);
   ierr = PCSetType(pc,PCJACOBI); CHKERRA(ierr);
+  ierr = KSPSetOperators(ksp,A,
+			  A,DIFFERENT_NONZERO_PATTERN); CHKERRA(ierr);
   ierr = KSPSetTolerances(ksp,tol,PETSC_DEFAULT,PETSC_DEFAULT,
          PETSC_DEFAULT); CHKERRA(ierr);
-  ierr = KSPSetMonitor(ksp,MyKSPMonitor,PETSC_NULL,NULL);
+  ierr = KSPMonitorSet(ksp,MyKSPMonitor,PETSC_NULL,NULL);
 
 #if 0
   // Computes matrix by finite differences
@@ -126,7 +125,9 @@ int main(int argc,char **args) {
   ierr = assemble(mesh,argl,dofmap,"comp_res_mat"); CHKERRA(ierr);
 #endif
 
-  ierr = SLESSolve(sles,res,x,&its); CHKERRA(ierr); 
+  ierr = KSPSolve(ksp,res,x); CHKERRA(ierr);
+  ierr = KSPGetIterationNumber(ksp,&its); CHKERRA(ierr);
+
   print_vector(save_file.c_str(),x,dofmap);
 
   PetscFinalize();

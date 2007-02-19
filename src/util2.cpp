@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: util2.cpp,v 1.21 2007/01/30 19:03:44 mstorti Exp $
+//$Id: util2.cpp,v 1.21.10.1 2007/02/19 20:23:56 mstorti Exp $
   
 #include <stdio.h>
 #include <cassert>
@@ -10,7 +10,7 @@
 #include "libretto.h"
 #include <libretto/darray.h>
 
-#include <petscsles.h>
+#include <petscksp.h>
 #include <newmatio.h>
 #undef HAVE_MEMMOVE // para que no chille al incluir petsccfonf.h
 
@@ -136,7 +136,7 @@ int non_symm_eigenvals(const Matrix &A,Matrix &lambda,Matrix &Vre,
     /* extract eigenvalues */
     schur_evals(AA,evals_re,evals_im);
 
-    double min_la, max_la, kmax, absla;
+    double min_la=0., max_la=.0, kmax, absla;
     for (int k=0; k<m; k++) {
       absla = sqrt(evals_re->ve[k]*evals_re->ve[k] 
 		   +evals_im->ve[k]*evals_im->ve[k]);
@@ -337,8 +337,8 @@ make_tangent(const FastMat2 &normal) {
     // `t2 = n x t1'. `z' must be non parallel to `n', so that
     // we choose the versor along the 'j' axis, with `j' the direction
     // such that `|n_j|' is minimum. 
-    int j;
-    double amin;
+    int j=0;
+    double amin=0.;
     for (int k=1; k<=ndim; k++) {
       double anj = fabs(normal.get(k));
       if (k==1 || anj<amin) {
