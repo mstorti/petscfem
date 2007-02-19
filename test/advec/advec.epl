@@ -157,7 +157,8 @@ advective_jacobians <:=$ux:> <:=$uy:>
 #endif
 geometry triangle
 npg 3
-diffusive_jacobians 0.
+diffusive_jacobians 0.0
+diffusive_jacobians_mol 0.0
 # data advec.con.tmp
 dx 1
 __END_HASH__

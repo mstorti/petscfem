@@ -1,4 +1,4 @@
-# $Id: Makefile,v 1.30 2003/09/14 21:48:57 mstorti Exp $ 
+# $Id: Makefile,v 1.30.96.1 2007/02/19 04:02:15 mstorti Exp $ 
 
 .PHONY:  force data test_plain test_var_eta test_transient rung run runs
 
@@ -112,7 +112,7 @@ data: force
 
 #w Runs program
 rung: data force
-	-${MPIRUN} -np $(np) $(MCH) $(PROG) \
+	-${MPIRUN} $(MCH) -np $(np) $(PROG) \
 			-case $(CASE).depl > output.$(casen).out.tmp
 
 ###--------<*>--------<*>--------<*>--------<*>--------<*>--------<*>

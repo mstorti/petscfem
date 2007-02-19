@@ -1,4 +1,4 @@
-# $Id: Makefile,v 1.112 2005/02/21 03:57:14 mstorti Exp $ 
+# $Id: Makefile,v 1.112.48.1 2007/02/19 04:02:15 mstorti Exp $ 
 
 .PHONY: all run  compile lclean laplace adv nso laplace_tests force \
         ctest gprof srfgath
@@ -56,7 +56,7 @@ mesh:
 #w Runs program, use `mkmesh=0' or 1 to control mesh creation
 run: 
 	$(MAKE) mesh
-	-${MPIRUN} $(NL) -np $(NP) $(MCH) $(PROG) -case $(CASE).depl
+	-${MPIRUN} $(NL) $(MCH) -np $(NP) $(PROG) -case $(CASE).depl
 
 local_sw::
 	chmod 755 mkmpeg*.sh
@@ -134,7 +134,7 @@ block_uploading:
 #w Checks the surf-gatherer class
 srfgath:
 	$(MAKE) case=srfgath mesh
-	-${MPIRUN} $(NL) -np $(NP) $(MCH) $(PROG) \
+	-${MPIRUN} $(NL) $(MCH) -np $(NP) $(PROG) \
 		-case $(CASE).depl > $(CASE).srfgath-output.tmp
 	octave -qH check_srfgath.m > verif-srfgath.tmp
 

@@ -1,6 +1,6 @@
 // -*- mode: c++ -*-
 /*__INSERT_LICENSE__*/
-//$Id: advective.h,v 1.85 2007/02/04 14:10:09 mstorti Exp $
+//$Id: advective.h,v 1.85.6.1 2007/02/19 04:04:06 mstorti Exp $
  
 //#define CHECK_JAC // Computes also the FD Jacobian for debugging
  
@@ -443,7 +443,7 @@ public:
   friend class NewAdvDifFF;
   /// Contructor from the pointer to the fux function
   NewAdvDif(NewAdvDifFF *adv_diff_ff_=NULL) :
-    adv_diff_ff(adv_diff_ff_), volume_flag(0) {};
+    adv_diff_ff(adv_diff_ff_), volume_flag(0), ALE_flag(0) {};
   /** Destructor. Destroys the flux function object. fixme:= Warning: this is
       not good!! We cannot destroy the flux function object here if it
       is built in the derived class, because it may happen, for
