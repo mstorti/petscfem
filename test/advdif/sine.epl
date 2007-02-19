@@ -62,6 +62,7 @@ weak_form 1
 
 advective_jacobians <:=$u:> 0. 
 diffusive_jacobians <:=$D:>
+diffusive_jacobians_mol 0
 reactive_jacobians 0
 
 #initial_state "<:=$case:>.ini"

@@ -1,5 +1,5 @@
 #__INSERT_LICENSE__
-# $Id: Makefile,v 1.13 2004/11/11 18:32:38 mstorti Exp $ 
+# $Id: Makefile,v 1.13.68.1 2007/02/19 03:35:08 mstorti Exp $ 
 #s Local Targets
 
 default: pfmat7
@@ -42,8 +42,8 @@ args = ne 20 deb 0 nsl 2 $(1) nmat 2 rnd 1 $(2) q 1 $(3)
 
 pfmat = out=output.$(3).tmp ; rm -f $$out ;	\
 	echo   args: $(2) > $$out ;		\
-	$(MPIRUN) -np $(1) -machinefile		\
-        machi.dat ./pfmat.bin $(2)  >> $$out
+	$(MPIRUN) -machinefile		\
+        machi.dat -np $(1) ./pfmat.bin $(2)  >> $$out
 
 pfmat: pfmat.bin iisdmat_petsc petscmat spd_petsc spd_slu
 
@@ -96,8 +96,8 @@ args2 = ne 100 deb 0 nsl 2 $(1) nmat 2 nprof 2 $(2) f 0.9
 
 pfmat2 = out=output2.$(3).tmp ; rm -f $$out ;	\
 	echo args: $(2) > $$out ;		\
-	$(MPIRUN) -np $(1) -machinefile		\
-        machi.dat ./pfmat2.bin $(2)  >> $$out
+	$(MPIRUN) -machinefile		\
+        machi.dat -np $(1)  ./pfmat2.bin $(2)  >> $$out
 
 pfmat2: pfmat2.bin force
 	$(call pfmat2,1,$(call args2,sbdp 4, mtyp 0, ls 0),case1)

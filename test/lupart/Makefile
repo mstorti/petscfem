@@ -1,5 +1,5 @@
 #__INSERT_LICENSE__
-# $Id: Makefile,v 1.46 2003/09/01 10:45:50 mstorti Exp $ 
+# $Id: Makefile,v 1.46.98.1 2007/02/19 03:35:08 mstorti Exp $ 
 
 .PHONY: force all run tests data
 
@@ -13,8 +13,7 @@ test_eff:
 tests: test_iisd test_partitioning test_distmap \
 		test_direct_petsc test_iisd_subpart test_superlu
 
-tests_suite: test_distmap \
-		test_direct_petsc 
+tests_suite: test_distmap test_direct_petsc 
 
 #w IISD with subpartitioning and partitioning with coalescence
 test_iisd_subpart: 
@@ -118,8 +117,7 @@ NPP := $(shell procsel $(PETSCFEM_PROCTABLE))
 NP := 1 
 test_case: test_case_data
 	if [ -e save.state ] ; then cp save.state save.state.tmp ; fi
-	-$(MPIRUN) -np $(NP) -machinefile machi.dat $(PROG) \
-			-case $(NAME).depl  > output.case_$(case).tmp
+	-$(MPIRUN) -np $(NP) $(PROG) -case $(NAME).depl  > output.case_$(case).tmp
 
 local_clean::
 	-rm -rf mat.output system.dat save.state data.m

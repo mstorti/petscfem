@@ -1,5 +1,5 @@
 /*__INSERT_LICENSE__*/
-//$Id: tfstack.cpp,v 1.7 2003/09/13 17:29:41 mstorti Exp $
+//$Id: tfstack.cpp,v 1.7.98.1 2007/02/19 03:35:08 mstorti Exp $
 
 #include <src/fstack.h>
 #include <petsc.h>
@@ -42,6 +42,8 @@ int main () {
     fclose(fout);
     file1.close();
 
+    fout = fopen("fstack3.out.tmp","w");
+#if 1
     file1.open("file4.dat");
     j = 0;
     while (!file1.get_line(line1)) 
@@ -50,13 +52,15 @@ int main () {
     if (file1.last_error()!=FileStack::eof) 
       printf("Couldn't process correctly file4.dat\n");
     file1.close();
+#endif
 
+#if 0
     FileStack file3("file3.dat");
     j = 0;
     char *line;
-    fout = fopen("fstack3.out.tmp","w");
     while (!file3.get_line(line)) 
       fprintf(fout,"%d>   %s:%d   <%s>\n",
 	      ++j,file3.file_name(),file3.line_number(),line);
+#endif
     fclose(fout);
 }

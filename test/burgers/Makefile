@@ -1,5 +1,5 @@
 #__INSERT_LICENSE__
-# $Id: Makefile,v 1.11 2003/11/16 15:37:36 mstorti Exp $ 
+# $Id: Makefile,v 1.11.88.1 2007/02/19 03:35:08 mstorti Exp $ 
 
 .PHONY: force all run tests data
 
@@ -67,7 +67,7 @@ burgers.depl: burgers.epl data.m force
 NP := $(shell procsel $(PETSCFEM_PROCTABLE))
 run: 
 	make-depl burgers.epl burgers.depl 
-	-$(MPIRUN) -np 1 -machinefile machi.dat $(ADVDIF)		\
+	-$(MPIRUN) -np 1 $(ADVDIF)		\
 			-case burgers.depl > burgers.$(CASE).out.tmp
 	if [ -f save.state.tmp ] ;					\
 		then mv -f save.state.tmp save.state.$(CASE).tmp ;	\

@@ -37,6 +37,7 @@ weak_form 0
 #initial_state "save.state"
 advective_jacobians 10. 0. -10. 0.
 diffusive_jacobians 0.1 0.1
+diffusive_jacobians_mol 0.0 0.0
 __END_HASH__
 
 #===========================================================

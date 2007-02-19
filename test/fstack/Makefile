@@ -1,11 +1,12 @@
 #__INSERT_LICENSE__
-# $Id: Makefile,v 1.13 2003/09/13 17:29:41 mstorti Exp $ 
+# $Id: Makefile,v 1.13.98.1 2007/02/19 03:35:08 mstorti Exp $ 
 
 .PHONY: fstack force tests test_autostr
 
 default: fstack
 
-tests: fstack test_autostr
+#tests: fstack test_autostr
+tests:  test_autostr
 
 PETSCFEM_DIR = ../..
 include $(PETSCFEM_DIR)/Makefile.base
