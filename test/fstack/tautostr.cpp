@@ -1,6 +1,5 @@
 /*__INSERT_LICENSE__*/
-//$Id: tautostr.cpp,v 1.4 2003/05/04 16:43:50 mstorti Exp $
-#define _GNU_SOURCE
+//$Id: tautostr.cpp,v 1.4.102.1 2007/02/19 13:24:18 mstorti Exp $
 #include <cstdio>
 #include <src/autostr.h>
 

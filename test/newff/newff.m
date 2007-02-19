@@ -1,5 +1,5 @@
 ##__INSERT_LICENSE__
-## $Id: newff.m,v 1.14 2003/12/08 16:38:04 mstorti Exp $
+## $Id: newff.m,v 1.14.84.1 2007/02/19 13:24:18 mstorti Exp $
 source("data.m.tmp");
 
 ## Physical parameters
@@ -44,6 +44,7 @@ elseif full_jacs==1
       fprintf(fid," %f ",ddd);
     endfor
     fprintf(fid,"\n\n");
+    diffujac(fid,ndof);
     Dyy=Dxx;
   else
     error(["not implemented dif_type " dif_type " with full_jacs=1"]);
@@ -83,7 +84,7 @@ elseif full_jacs==1
   if strcmp(source_type,"full")
                                 #    fprintf(fid,"source_term_type \"full\"\n");
                                 #    fprintf(fid,"source_term");
-    S=0;
+    S(:)=0;
     for k=1:ndof
       sss=s*(1+sfluc*(2*rand-1));
       S(k)=sss;
@@ -110,7 +111,8 @@ elseif full_jacs==2
 
   CP=log(Cp)*(eye(ndof)+log((Cp-Cpfluc)/Cp)*(2*rand(size(CP))-1));
   CP=(CP+CP')/2;
-  CP=expm(CP);
+  ## CP=expm(CP);
+  CP=myfunm(CP,"exp");
 	      
   fprintf(fid,"enthalpy_jacobians_type \"full\"\n");
   fprintf(fid,"enthalpy_jacobians");
@@ -137,7 +139,9 @@ elseif full_jacs==2
               Dxx(j,k),Dxy(j,k),Dxy(j,k),Dyy(j,k));
     endfor
   endfor
-  fprintf(fid,"\n\n");
+  fprintf(fid,"\n");
+  diffujac(fid,4*ndof^2);
+  fprintf(fid,"\n");
   
   fprintf(fid,"advective_jacobians_type \"full\"\n");
   fprintf(fid,"advective_jacobians ");
@@ -155,7 +159,7 @@ elseif full_jacs==2
   if strcmp(source_type,"full")
                                 #    fprintf(fid,"source_term_type \"full\"\n");
                                 #    fprintf(fid,"source_term");
-    S=0;
+    S(:)=0;
     for k=1:ndof
       sss=s*(1+sfluc*(2*rand-1));
       S(k)=sss;
@@ -169,6 +173,7 @@ else
   full_jacs
   error("Value of full_jacs unknown");
 endif 
+## OK
 
 ## Number of nodes/elements in x,y
 Nx=nx+1;
@@ -219,7 +224,7 @@ if use_bcconv
   fclose(fid);
 
 endif                           # { use_bcconv }
-
+## OK
 
 fixa=[];
 for j=1:3
@@ -257,6 +262,7 @@ for k=1:nele
   fprintf(fid,"\n");
 endfor
 fclose(fid);
+## OK
 
 ## bcconv en todo el fondo y la tapa
 #  bcconv = [nx*Ny+(1:Ny)';
@@ -277,8 +283,11 @@ kDk = kwave(1)*kwave(1)*Dxx+2*kwave(1)*kwave(2)*Dxy+kwave(2)*kwave(2)*Dyy;
 beta = CP \ (RR + i*kwu + kDk);
 phase=kwave(1)*xnod(:,1)+kwave(2)*xnod(:,2);
 phase=exp(i*phase);
+
 if !steady
-  uana = (beta \ (eye(ndof)-expm(-beta*nstep*Dt)))*(CP\S);
+  ##  uana = (beta \ (eye(ndof)-expm(-beta*nstep*Dt)))*(CP\S);
+  QQ = myfunm(-beta*nstep*Dt,"exp");
+  uana = (beta \ (eye(ndof)-QQ))*(CP\S);
 else
   uana = beta\(CP\S);
 endif
