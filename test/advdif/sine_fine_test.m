@@ -1,12 +1,12 @@
 ##__INSERT_LICENSE__
-## $Id: sine_fine_test.m,v 1.2 2003/01/08 15:49:03 mstorti Exp $
+## $Id: sine_fine_test.m,v 1.2.108.1 2007/02/20 00:14:56 mstorti Exp $
 #sine
 
 x=[1 1];
 source("sine.data");
 source("sine.data.res");
 
-uu=aload("sine.some");
+uu=aload("sine.some.tmp");
 
 ky=pi/2/Ly;
 
