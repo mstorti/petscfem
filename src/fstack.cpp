@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: fstack.cpp,v 1.18 2007/01/30 19:03:44 mstorti Exp $
+//$Id: fstack.cpp,v 1.19 2007/02/20 14:57:47 mstorti Exp $
 #include <stdlib.h>
 #include "fstack.h"
 
@@ -49,8 +49,12 @@ void FileStack::close(void) {
 #define __FUNC__ "FileStack::FileStack" 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 FileStack::FileStack(const char *filename) : 
+  file_stack(NULL),
   file_at_top(NULL),
   echo_stream (NULL), 
+  read_buffer(NULL),
+  buf(NULL), bufr(NULL),linecopy(NULL),
+  abufr(NULL),abuf(NULL),
   echo(0), quiet(0), 
   last_error_m(read_ok) {
 
@@ -195,6 +199,7 @@ int FileStack::get_line(char * & line) {
 	if (!quiet)
 	  printf("Couldn't open file \"%s\"!!\n",token);
 	last_error_m = cant_open;
+        da_pop(file_stack,&file_at_top);
 	return 1;
       }
       file_names.push_back(token_cpy);

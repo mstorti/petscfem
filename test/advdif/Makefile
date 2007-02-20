@@ -1,5 +1,5 @@
 #__INSERT_LICENSE__
-# $Id: Makefile,v 1.29 2003/03/23 20:52:43 mstorti Exp $ 
+# $Id: Makefile,v 1.30 2007/02/20 14:57:47 mstorti Exp $ 
 
 .PHONY: plano data run sine 
 
@@ -145,8 +145,7 @@ sine.data: sine.data.epl
 #NP := $(shell procsel $(PETSCFEM_PROCTABLE))
 run: data
 	-rm -f dummy $(output_files_$(case))
-	-$(MPIRUN) -np 1 -machinefile machi.dat $(ADVDIF) \
-			-case $(case).depl > $(case).out
+	-$(MPIRUN) -np 1 $(ADVDIF) -case $(case).depl > $(case).out
 
 # Tests to be done:
 # * Convergence to analityc solution
@@ -171,4 +170,7 @@ local_clean::
 	-rm -f $(eperl_out_$(case)) $(octave_out_$(case)) $(output_files_$(case)) \
 		sine.some sine.data sine.data.res save.state*
 
+#w Make a link of the binary to this dir (for use with gdb)
+link:
+	ln -sf $(PROG) $(LOC_PROG)
 #s

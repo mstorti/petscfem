@@ -1,5 +1,5 @@
 #__INSERT_LICENSE__
-# $Id: Makefile,v 1.21 2005/02/17 11:50:44 mstorti Exp $ 
+# $Id: Makefile,v 1.22 2007/02/20 14:57:47 mstorti Exp $ 
 
 tests = nutcyl test_rigid test_strip \
 	test_strip_prism test_strip_prism_inv test_strip2d test_strip2d_inv
@@ -38,8 +38,7 @@ run: data
 	-rm -f $(CASE_NAME).some_rslt.tmp
 	if [ -e $(CASE_NAME).force.tmp ] ; then rm $(CASE_NAME).force.tmp ; fi
 	if [ -e save.state ] ; then cp save.state save.state.tmp ; fi
-	-$(MPIRUN) -np $(NP) $(NL) $(MACHI) $(PROG) \
-		 -case $(CASE_NAME).depl  > petscfem.output.tmp
+	-$(MPIRUN) $(NL) $(PROG) -case $(CASE_NAME).depl  > petscfem.output.tmp
 
 local_clean::
 	-putex
