@@ -1,4 +1,4 @@
-$Id: notes.txt,v 1.500.2.8 2007/02/20 00:14:55 mstorti Exp $
+$Id: notes.txt,v 1.500.2.9 2007/02/20 01:09:21 mstorti Exp $
 OK. This is mostly in spanish...  Sorry :-)
 ================================================================
 
@@ -2464,13 +2464,13 @@ diff -c /home/mstorti/PETSC/petsc-2.0.24/bmake/linux/base_variables.bck /home/ms
 --- /home/mstorti/PETSC/petsc-2.0.24/bmake/linux/base_variables	Sun Jan 14 14:51:45 2001
 ***************
 *** 1,4 ****
-! # $Id: notes.txt,v 1.500.2.8 2007/02/20 00:14:55 mstorti Exp $ 
+! # $Id: notes.txt,v 1.500.2.9 2007/02/20 01:09:21 mstorti Exp $ 
   #
   #     See the file bmake/base_variables.defs for a complete explanation of all these fields
   #
 --- 1,5 ----
 ! # -*- mode: makefile -*-
-! # $Id: notes.txt,v 1.500.2.8 2007/02/20 00:14:55 mstorti Exp $ 
+! # $Id: notes.txt,v 1.500.2.9 2007/02/20 01:09:21 mstorti Exp $ 
   #
   #     See the file bmake/base_variables.defs for a complete explanation of all these fields
   #
@@ -2561,7 +2561,7 @@ diff -c /home/mstorti/PETSC/petsc-2.0.24/bmake/linux/base_variables.bck2 /home/m
 *** 1,3 ****
 --- 1,4 ----
 + # -*- mode: makefile -*-
-  # $Id: notes.txt,v 1.500.2.8 2007/02/20 00:14:55 mstorti Exp $ 
+  # $Id: notes.txt,v 1.500.2.9 2007/02/20 01:09:21 mstorti Exp $ 
   #
   #     See the file bmake/base_variables.defs for a complete explanation of all these fields
 ***************
@@ -2641,9 +2641,9 @@ diff -c /home/mstorti/PETSC/petsc-2.0.24/bmake/linux/base_variables.bck /home/ms
 ***************
 *** 1,4 ****
 <<<<<<< notes.txt
-! # $Id: notes.txt,v 1.500.2.8 2007/02/20 00:14:55 mstorti Exp $ 
+! # $Id: notes.txt,v 1.500.2.9 2007/02/20 01:09:21 mstorti Exp $ 
 =======
-! # $Id: notes.txt,v 1.500.2.8 2007/02/20 00:14:55 mstorti Exp $ 
+! # $Id: notes.txt,v 1.500.2.9 2007/02/20 01:09:21 mstorti Exp $ 
 >>>>>>> 1.228.2.1
   #
   #     See the file bmake/base_variables.defs for a complete explanation of all these fields
@@ -2651,9 +2651,9 @@ diff -c /home/mstorti/PETSC/petsc-2.0.24/bmake/linux/base_variables.bck /home/ms
 --- 1,5 ----
 ! # -*- mode: makefile -*-
 <<<<<<< notes.txt
-! # $Id: notes.txt,v 1.500.2.8 2007/02/20 00:14:55 mstorti Exp $ 
+! # $Id: notes.txt,v 1.500.2.9 2007/02/20 01:09:21 mstorti Exp $ 
 =======
-! # $Id: notes.txt,v 1.500.2.8 2007/02/20 00:14:55 mstorti Exp $ 
+! # $Id: notes.txt,v 1.500.2.9 2007/02/20 01:09:21 mstorti Exp $ 
 >>>>>>> 1.228.2.1
   #
   #     See the file bmake/base_variables.defs for a complete explanation of all these fields
@@ -2746,9 +2746,9 @@ diff -c /home/mstorti/PETSC/petsc-2.0.24/bmake/linux/base_variables.bck2 /home/m
 --- 1,4 ----
 + # -*- mode: makefile -*-
 <<<<<<< notes.txt
-  # $Id: notes.txt,v 1.500.2.8 2007/02/20 00:14:55 mstorti Exp $ 
+  # $Id: notes.txt,v 1.500.2.9 2007/02/20 01:09:21 mstorti Exp $ 
 =======
-  # $Id: notes.txt,v 1.500.2.8 2007/02/20 00:14:55 mstorti Exp $ 
+  # $Id: notes.txt,v 1.500.2.9 2007/02/20 01:09:21 mstorti Exp $ 
 >>>>>>> 1.228.2.1
   #
   #     See the file bmake/base_variables.defs for a complete explanation of all these fields
@@ -9605,7 +9605,7 @@ diff -u -r1.5 graphdv.cpp
 --- src/graphdv.cpp	2 Jul 2003 23:22:19 -0000	1.5
 +++ src/graphdv.cpp	20 Oct 2004 08:59:14 -0000
 @@ -2,6 +2,7 @@
- //$Id: notes.txt,v 1.500.2.8 2007/02/20 00:14:55 mstorti Exp $
+ //$Id: notes.txt,v 1.500.2.9 2007/02/20 01:09:21 mstorti Exp $
  
  #include <src/graphdv.h>
 +#include <cassert>
@@ -9678,7 +9678,7 @@ diff -u -r1.12 util3.cpp
 --- src/util3.cpp	14 Sep 2003 00:23:22 -0000	1.12
 +++ src/util3.cpp	20 Oct 2004 09:09:51 -0000
 @@ -2,6 +2,7 @@
- // $Id: notes.txt,v 1.500.2.8 2007/02/20 00:14:55 mstorti Exp $
+ // $Id: notes.txt,v 1.500.2.9 2007/02/20 01:09:21 mstorti Exp $
  #include <cstring>
  #include <cstdio>
 +#include <cassert>
@@ -11675,10 +11675,12 @@ CAN'T FIX
 - fstack/fstack: Hay un problema con SIGSEGV (alguna mala
 manipulacion de punteros o archivos)
 - saco sqcav/dxtests: se cuelga
-- distmap: no compila?
 - idmap: da error en 'column permutations, maximum error'
 FIXED:
 ======
+- distmap: no compila? FIXED:= habia que agregar los `template<>'
+  antes de las instanciaciones y tambien el orden de `-np' con
+  `-machinefile'. 
 - sqcav/test_fs: da un poco de error (1%), supongo que fue algun
   cambio. Cambio la solucion de referencia. 
 - texthash/tthash*: antes no corria ahora corre

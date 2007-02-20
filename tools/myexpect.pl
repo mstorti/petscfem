@@ -1,5 +1,5 @@
 #__INSERT_LICENSE__
-#$Id: myexpect.pl,v 1.20 2003/12/08 12:34:08 mstorti Exp $
+#$Id: myexpect.pl,v 1.20.84.1 2007/02/20 01:09:21 mstorti Exp $
 
 use English;
 ## position in count record
@@ -97,6 +97,7 @@ sub match_regexp {
     ## check each condition if any
     for (my $j=0; $j<@conds; $j++) {
 	$W = $matches[$j];
+        ## print "W $W, cond ($conds[$j]) -> ",eval($conds[$j]),"\n";
 	return 0 unless eval $conds[$j];
     }
     return 1;

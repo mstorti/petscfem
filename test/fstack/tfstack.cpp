@@ -1,5 +1,5 @@
 /*__INSERT_LICENSE__*/
-//$Id: tfstack.cpp,v 1.7.98.1 2007/02/19 03:35:08 mstorti Exp $
+//$Id: tfstack.cpp,v 1.7.98.2 2007/02/20 01:08:19 mstorti Exp $
 
 #include <src/fstack.h>
 #include <petsc.h>
@@ -54,7 +54,7 @@ int main () {
     file1.close();
 #endif
 
-#if 0
+#if 1
     FileStack file3("file3.dat");
     j = 0;
     char *line;
