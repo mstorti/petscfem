@@ -1,5 +1,5 @@
 /*__INSERT_LICENSE__*/
-// $Id: distmap.cpp,v 1.12 2003/07/03 04:32:11 mstorti Exp $
+// $Id: distmap.cpp,v 1.12.102.1 2007/02/20 00:43:53 mstorti Exp $
 #include <cstdio>
 #include <cstdlib>
 #include <ctime>
@@ -26,6 +26,7 @@ public:
 
 // Simply returns the size of the int+ double
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+template<>
 int DistMap<int,double,TrivialPartitioner>
 ::size_of_pack(map<int,double>::const_iterator iter) const {
   return sizeof(int)+sizeof(double);
@@ -33,6 +34,7 @@ int DistMap<int,double,TrivialPartitioner>
 
 // Copy the int and double to the buffer. Update pointer *buff
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+template<>
 void DistMap<int,double,TrivialPartitioner>::
 pack(const int &k,const double &v,char *&buff) const {
   memcpy(buff,&k,sizeof(int));
@@ -42,6 +44,7 @@ pack(const int &k,const double &v,char *&buff) const {
 }
   
   //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+template<>
 void DistMap<int,double,TrivialPartitioner>::
 unpack(int &k,double &v,const char *& buff) {
   memcpy(&k,buff,sizeof(int));
@@ -51,6 +54,7 @@ unpack(int &k,double &v,const char *& buff) {
 }
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+template<>
 void DistMap<int,double,TrivialPartitioner>::
 combine(const pair<int,double> &p) {
   map<int,double>::iterator iter = find(p.first);

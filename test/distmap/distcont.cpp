@@ -1,5 +1,5 @@
 /*__INSERT_LICENSE__*/
-// $Id: distcont.cpp,v 1.6 2003/07/03 04:32:11 mstorti Exp $
+// $Id: distcont.cpp,v 1.6.102.1 2007/02/20 00:43:53 mstorti Exp $
 #include <cstdio>
 #include <cstdlib>
 #include <ctime>
@@ -66,6 +66,7 @@ TrivialPartitioner::processor(const VT &k,int &nproc,int *plist) {
 
 // Simply returns the size of the int+ double
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+template<>
 int DistCont<Map_id,VT,TrivialPartitioner>
 ::size_of_pack(const VT &p) const {
   return sizeof(int)+sizeof(double);
@@ -73,6 +74,7 @@ int DistCont<Map_id,VT,TrivialPartitioner>
 
 // Copy the int and double to the buffer. Update pointer *buff
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+template<>
 void DistCont<Map_id,VT,TrivialPartitioner>::
 pack(const VT &p,char *&buff) const {
   memcpy(buff,&p.first,sizeof(int));
@@ -82,6 +84,7 @@ pack(const VT &p,char *&buff) const {
 }
   
   //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+template<>
 void DistCont<Map_id,VT,TrivialPartitioner>::
 unpack(VT &p,const char *& buff) {
   memcpy(&p.first,buff,sizeof(int)); // debug:=
@@ -91,6 +94,7 @@ unpack(VT &p,const char *& buff) {
 }
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+template<>
 void DistCont<Map_id,VT,TrivialPartitioner>::
 combine(const VT &p) {
   Map_id::iterator iter = find(p.first);
