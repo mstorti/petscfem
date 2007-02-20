@@ -4,7 +4,7 @@
 
 
 //__INSERT_LICENSE__
-//$Id: fm2eperl.cpp,v 1.32 2007/01/31 15:33:12 mstorti Exp $
+//$Id: fm2eperl.cpp,v 1.32.8.1 2007/02/20 18:26:52 dalcinl Exp $
 #include <math.h>
 #include <stdio.h>
 
@@ -3090,7 +3090,7 @@ printf(" cache_list %p, cache %p, position_in_cache %d\n",
     cache->line_size = mem_size(ndimsc);
     int line_size = cache->line_size;
 
-    int jlc=0,inca,incb;
+    int jlc=0,inca=1,incb=1;
     LineCache *lc;
     while (1) {
       lc = cache->line_cache_start + jlc++;
@@ -3492,7 +3492,6 @@ printf(" cache_list %p, cache %p, position_in_cache %d\n",
     A.get_dims(Afdims);
 
     // maxc:= maximum contracted index
-    int nd=0,cd=0,maxc=0;
     ii.push_back(m);
     int ndims = Afdims.size();
 
@@ -3655,7 +3654,6 @@ printf(" cache_list %p, cache %p, position_in_cache %d\n",
     assert(A.defined);
     A.get_dims(Afdims);
 
-    int nd=0;
     ii.push_back(m);
     int ndims = Afdims.size();
 
