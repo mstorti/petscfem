@@ -4714,7 +4714,7 @@ tag: beta-3.49.77 on Sun, 18 Feb 2007 18:49:21 -0300 by mstorti in spider
 tag: beta-3.49.78 on Tue, 20 Feb 2007 11:15:35 -0300 by mstorti in minerva.ceride.gov.ar
      > Runs most tests. 
 ----------
-tag: beta-3.50.1 on Tue, 20 Feb 2007 12:20:46 -0300 by mstorti in minerva.ceride.gov.ar
+tag: beta-3.50 on Tue, 20 Feb 2007 12:20:46 -0300 by mstorti in minerva.ceride.gov.ar
      > Added fixes to `ns/nsiteasm'. 
      > Now compiles with gcc-3.4.2
      > Works absorbing boundary condition for alpha<1 and =1, With ALE. 
