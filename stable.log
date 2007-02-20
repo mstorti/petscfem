@@ -609,3 +609,78 @@ tag: beta-3.48 on Tue Sep 27 11:46:16 -0300 2005, by mstorti in minerva.ceride.g
      > Fixed bug eith `G_body_scale' in `gasflow'. 
      > Fixed bug in `modulo(double,double)'
      > Merged from Beto (bubbly13), compiles on HEAD. 
+----------
+tag: beta-3.50 on Tue, 20 Feb 2007 12:20:46 -0300 by mstorti in minerva.ceride.gov.ar
+     > Added fixes to `ns/nsiteasm'. 
+     > Now compiles with gcc-3.4.2
+     > Works absorbing boundary condition for alpha<1 and =1, With ALE. 
+     > Added `mesh_move_opt' (Ezequiel). 
+     > Added option `fractional_step_solver_combo'. 
+     > Merged from bubbly14 (Beto). 
+     > Now `hook.init()' list is processed before computing 
+     > profile and reading initial vector, as for NS. 
+     > Added `dl_penalize' to Advdif.
+     > Added checks for reading data file. 
+     > Working on `block_uploading=2' for Fractional Step/predictor. 
+     > Fixed a bug in `ffadvfm2.cpp'. 
+     > Detected problem with iisdmat_print_statistiscs, produces
+     > deadlock. As a workaround it is disabled. 
+     > Ported to MPICH2. 
+     > True elasticity element implemented (elast2.cpp). 
+     > Computation of FD Jacobians for adaptor class implemented. 
+     > Included alpha in `adaptor' class. 
+     > `elasticity2' now is second order.  
+     > Fixed bug in computation of Jacobians for 
+     > `penalize' and `bccadvfm2'. 
+     > Added energy gatherer for elasticity module. 
+     > Added files by Beto to compute advdif/ns FSI `etagee'. 
+     > Changes from `petscfem-bubbly15' branch applied and compiles. 
+     > Fixed bugs in loading `stage' functions for hooks. 
+     > In staged mains (<prog>_fsi) now restores state at beginning of stage. 
+     > Now computes delta_u=||u^{n+1,i+1}-u^{n+1,i}|| in 
+     > `ns_fsi.cpp' and `advdif_fsi.cpp'. ----------
+     > Fixed bug in `gatherer' for `ndimel!=ndim'. 
+     > Adding large deformation elasticity elment. 
+     > Fixed bug in finite difference jacobian for `adaptor.cpp'. 
+     > Fixed computation of FD Jacobian for adaptor class, for alpha!=1
+     > Added gravity to `elastld'. 
+     > Elemset `ld_elasticity_load' gets `pressure' prop OK. 
+     > Merged corrections from Beto (bubbly16). 
+     > Added `Uref' option ro `advabso'. 
+     > Now `Young_modulus' may be per-element prop in `elasticity'. 
+     > Implemented `dvector_read_parallel' and `dvector_clone_parallel'. 
+     > Added dummy lines to `readmesh.cpp' in order to instantiate de 
+     > `dvector_read_parallel' stuff in the binaries. 
+     > Added `Hloc' feature for `adaptor'
+     > Writing `error_estimator' elemset. 
+     > Implementing `read_hfields_hook'
+     > Fixed bug in `advabso' when using `Uref'. 
+     > Fixed bug in `advabso.cpp' with `Uref' global. 
+     > Now projection of read vectors onto the `neqtot' 
+     > internal vectors is done with PETSc MatShell solver
+     > with CGN method. 
+     > Added `relax_factor' to `mes-move-opt'.
+     > Work around for `iisdmat_print_statistics' (never call 
+     > on fractional step solver. 
+     > Fixed bug with `iisdmat_print_statistics'. 
+     > Takes into account mesh velocity in order to compute stabilization terms. 
+     > Fixed bug in `E' per element (elastld)
+     > Added `defo_fac' in `elastld'
+     > Added `save_file_pattern_nwt' to `ns_fsi' (must add to `ns' and `advdif' also). 
+     > Fixed bug that prevented compilation without `ANN'. 
+     > Added compressibility (sound_speed or c2_inverse) per-element 
+     > in `nsitetlesc'
+     > Migration from GCC 3.3.3 to GCC 4.1
+     > Merged from bubbl17
+     > Implemented `mmoveopt3' with analytic Jacobians. 
+     > Extended `srfgath' to 2D (triangles)
+     > Fixed bug in DL `DLBaseRestriction' (value of init not passed to base class)
+     > Added finite difference computation of jacobians for restrictions. 
+     > Starts adding GCL compliant version of advdife. 
+     > Added `check_initial_state_correct_size' option.
+     > Added get_Cp() for `newadvdif_advecfm2' element, needed for ALE. 
+     > Some fix in `advdife-gcl.cpp'.
+     > Fixed ALE terms for `weak_form=1', and tested GCL 
+     > Fixed bug that prevented compilation with USE_PTHREADS disabled. 
+     > Added features to wallke to allow using together with wall. 
+     > Implemented `lumped_wallke' for `wallke'. 
