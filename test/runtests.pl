@@ -1,5 +1,5 @@
 #!/usr/bin/perl
-#$Id: runtests.pl,v 1.126 2005/02/21 00:36:16 mstorti Exp $
+#$Id: runtests.pl,v 1.126.48.1 2007/02/20 14:15:09 mstorti Exp $
 #__INSERT_LICENSE__
 
 require '../tools/myexpect.pl';
@@ -683,6 +683,7 @@ EOT
 expect("nsgenload/output.fstack_nodes.tmp",
        "Readmesh complains bad file inclusion in nodes",<<'EOT');
 Couldn.t open file.*dummy_archive
+__REWIND__
 genload.depl
 EOT
 
