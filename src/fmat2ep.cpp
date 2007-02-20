@@ -2,7 +2,7 @@
 //<=$warn_dont_modify //>
 
 //__INSERT_LICENSE__
-//$Id: fmat2ep.cpp,v 1.24 2005/10/19 17:40:33 mstorti Exp $
+//$Id: fmat2ep.cpp,v 1.25 2007/02/20 18:04:29 mstorti Exp $
 #include <math.h>
 #include <stdio.h>
 
@@ -597,7 +597,7 @@ FastMat2 & FastMat2::prod(const FastMat2 & A,const FastMat2 & B,const int m,INT_
     cache->line_size = mem_size(ndimsc);
     int line_size = cache->line_size;
 
-    int jlc=0,inca,incb;
+    int jlc=0,inca=1,incb=1;
     LineCache *lc;
     while (1) {
       lc = cache->line_cache_start + jlc++;
@@ -763,7 +763,6 @@ FastMat2 & FastMat2::ctr(const FastMat2 & A,const int m,INT_VAR_ARGS_ND) {
     A.get_dims(Afdims);
 
     // maxc:= maximum contracted index
-    int nd=0,cd=0,maxc=0;
     ii.push_back(m);
     int ndims = Afdims.size();
 
@@ -905,7 +904,6 @@ FastMat2 & FastMat2::diag(FastMat2 & A,const int m,INT_VAR_ARGS_ND) {
     assert(A.defined);
     A.get_dims(Afdims);
 
-    int nd=0;
     ii.push_back(m);
     int ndims = Afdims.size();
 
