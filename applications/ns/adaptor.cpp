@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: adaptor.cpp,v 1.15 2006/04/10 22:15:10 mstorti Exp $
+//$Id: adaptor.cpp,v 1.15.24.1 2007/02/22 11:51:49 mstorti Exp $
 
 #include <src/fem.h>
 #include <src/utils.h>
@@ -22,6 +22,12 @@ void adaptor::after_assemble(const char *jobinfo) {
   GET_JOBINFO_FLAG(comp_mat_res);
   if (comp_mat_res && !elem_init_flag) elem_init_flag=1;
 }
+
+adaptor::OutputHandle adaptor::
+get_output_handle(const string &key) {}
+
+void adaptor::
+export_vals(OutputHandle h,double *buff) {}
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 // modif nsi_tet
@@ -75,6 +81,7 @@ int adaptor::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
   double *hmin,Dt;
   int ja_hmin;
 #define WAS_SET arg_data_v[ja_hmin].was_set
+  output_val.clear();
   if (comp_mat_res) {
     int ja=0;
     locst = arg_data_v[ja++].locst;
