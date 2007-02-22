@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: elemset.cpp,v 1.95 2007/01/30 19:03:44 mstorti Exp $
+//$Id: elemset.cpp,v 1.95.14.1 2007/02/22 20:38:29 mstorti Exp $
 
 #ifndef _GNU_SOURCE
 #define _GNU_SOURCE
@@ -329,6 +329,7 @@ int assemble(Mesh *mesh,arg_list argl,
     /// Copy the options to the arg_data_v structure. 
     ARGVJ.options = argl[j].options; 
     ARGVJ.must_flush = 0;
+    ARGVJ.arginfo = argl[j].arginfo;
     // PetscPrintf(PETSC_COMM_WORLD,"Argument %d\n",j);
     if (argl[j].options & DOWNLOAD_VECTOR) {
       Vec *x;

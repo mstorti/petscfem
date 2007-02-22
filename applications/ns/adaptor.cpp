@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: adaptor.cpp,v 1.15.24.1 2007/02/22 11:51:49 mstorti Exp $
+//$Id: adaptor.cpp,v 1.15.24.2 2007/02/22 20:38:29 mstorti Exp $
 
 #include <src/fem.h>
 #include <src/utils.h>
@@ -14,20 +14,43 @@ extern TextHashTable *GLOBAL_OPTIONS;
    
 #define MAXPROP 100
 
+adaptor::ArgHandle adaptor::NullArgHandle;
+
+size_t adaptor::nargs() const {
+  return arg_data_vp->size();
+}
+
+bool adaptor::ArgHandle::
+operator==(ArgHandle b) const {
+  return index_m==b.index_m;
+}
+
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>
+adaptor::ArgHandle 
+adaptor::get_arg_handle(const string &key,
+                        const char* errmess) const {
+  ArgHandle handle = NullArgHandle;
+  if (arg_data_vp) {
+    for (unsigned int j=0; j<arg_data_vp->size(); j++) {
+      if ((*arg_data_vp)[j].arginfo == key) {
+        handle = ArgHandle(j);
+        break;
+      }
+    }
+  }
+  if (errmess && handle==NullArgHandle)
+    petscfem_error(errmess);
+  return handle;
+}
+
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
-adaptor::adaptor() : elem_init_flag(0) { }
+adaptor::adaptor() : elem_init_flag(0), arg_data_vp(NULL) { }
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 void adaptor::after_assemble(const char *jobinfo) {
   GET_JOBINFO_FLAG(comp_mat_res);
   if (comp_mat_res && !elem_init_flag) elem_init_flag=1;
 }
-
-adaptor::OutputHandle adaptor::
-get_output_handle(const string &key) {}
-
-void adaptor::
-export_vals(OutputHandle h,double *buff) {}
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 // modif nsi_tet
@@ -39,11 +62,11 @@ int adaptor::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
 		      const TimeData *time_) {
 
   int kloc,node;
+  arg_data_vp = &arg_data_v;
 
   GET_JOBINFO_FLAG(comp_mat);
   GET_JOBINFO_FLAG(comp_mat_res);
   GET_JOBINFO_FLAG(comp_res);
-  GET_JOBINFO_FLAG(get_nearest_wall_element);
 
   assert(!comp_res);
 
@@ -78,10 +101,8 @@ int adaptor::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
 
   if (comp_mat) retvalmat = arg_data_v[0].retval;
 
-  double *hmin,Dt;
   int ja_hmin;
 #define WAS_SET arg_data_v[ja_hmin].was_set
-  output_val.clear();
   if (comp_mat_res) {
     int ja=0;
     locst = arg_data_v[ja++].locst;
@@ -106,11 +127,6 @@ int adaptor::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
     matlocf_fdj(4,nel,ndof,nel,ndof),
     matloc_prof(4,nel,ndof,nel,ndof), tmp;
     
-
-  // Physical properties
-  int iprop=0, elprpsindx[MAXPROP]; double propel[MAXPROP];
-  int nprops=iprop;
-
   nH = nu-ndim;
   Hloc.resize(2,nel,nH);
 
@@ -240,6 +256,7 @@ int adaptor::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
   FastMat2::deactivate_cache();
 
   if (comp_mat_res) clean();
+  arg_data_vp = NULL;
   return 0;
 }
 

@@ -1,6 +1,6 @@
 // -*- mode: C++ -*-
 /*__INSERT_LICENSE__*/
-//$Id: arglist.h,v 1.14 2004/09/24 20:44:27 mstorti Exp $
+//$Id: arglist.h,v 1.14.80.1 2007/02/22 20:38:29 mstorti Exp $
 
 #ifndef ARGLIST_H
 #define ARGLIST_H
@@ -77,7 +77,7 @@ public:
 
   /// Constructor
   arg_entry(void *arg_,int options_, string arginfo_="") :
-    arg(arg_), options(options_) {};
+    arg(arg_), options(options_), arginfo(arginfo_) {};
     
 };
 
@@ -107,6 +107,10 @@ public:
 */ 
 class arg_data {
 public:
+  /** string containing info about what the
+      argument contains and how has to be processed.
+  */
+  string arginfo;
   /// A copy of the options for the corresponding arg\_entry value. 
   int options;
   /// The MPI vector.

@@ -1,6 +1,6 @@
 // -*- mode: C++ -*-
 /*__INSERT_LICENSE__*/
-//$Id: mmoveopt3.h,v 1.4 2006/09/02 22:53:53 mstorti Exp $
+//$Id: mmoveopt3.h,v 1.4.20.1 2007/02/22 20:38:29 mstorti Exp $
 
 #ifndef MMOVEOPT3_H
 #define MMOVEOPT3_H
@@ -33,7 +33,7 @@ private:
   double distor_exp,c_distor,c_volume,c_relax,
     volume_exp,relax_factor;
   int use_ref_mesh;
-
+  ArgHandle res_delta_h;
 public: 
   /** Initializes the elemset. Reads parameters, 
       resizes auxiliary matrices. 

@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: mmoveopt3.cpp,v 1.8 2006/09/05 18:51:37 mstorti Exp $
+//$Id: mmoveopt3.cpp,v 1.8.20.1 2007/02/22 20:38:29 mstorti Exp $
 
 #include <src/fem.h>
 #include <src/utils.h>
@@ -21,10 +21,25 @@ extern GlobParam *GLOB_PARAM;
 void mesh_move_opt3::init() {
 
   int ierr;
+
+  res_delta_h = get_arg_handle("res_delta",
+                               "No handle for `res_delta'\n");
+//   PETSCFEM_ASSERT(!(res_delta_h==NullArgHandle),
+//                    "mesh_move_opt3: doesn't receive `res_delta' argument\n"
+//                   "nargs: ",nargs());
+  printf("res_delta_h indx %d\n",res_delta_h.index());
   
-  assert(ndof==ndim);
-  assert(ndim==2 || ndim==3);
-  assert(nel==ndim+1);
+  PETSCFEM_ASSERT(ndof==ndim,
+                  "Number of dofs must be equal to \n"
+                  "number of dimensions for this elemset.\n"
+                  "ndim %d, ndof %d\n",ndim,ndof);  
+  PETSCFEM_ASSERT(ndim==2 || ndim==3,
+                  "Only available for 2D/3D. ndim %d\n",
+                  ndim);  
+  PETSCFEM_ASSERT(nel==ndim+1,
+                  "Only available for simplices \n"
+                  "(triangles in 2D, tetras in 3D), ndim %d, nel %d.\n",
+                  ndim,nel);  
 
   dVdW.resize(2,ndim,ndim).set(0.);
   dSldW.resize(2,ndim,ndim).set(0.);

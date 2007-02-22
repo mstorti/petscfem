@@ -1,6 +1,6 @@
 // -*- mode: C++ -*-
 /*__INSERT_LICENSE__*/
-//$Id: adaptor.h,v 1.15.24.1 2007/02/22 11:51:49 mstorti Exp $
+//$Id: adaptor.h,v 1.15.24.2 2007/02/22 20:38:29 mstorti Exp $
 #ifndef PETSCFEM_ADAPTOR_H
 #define PETSCFEM_ADAPTOR_H
 
@@ -13,9 +13,7 @@ class adaptor : public ns_volume_element {
 private:
   /// Flags whether the elements have been initialized or not
   int elem_init_flag;
-  /// Given an argument list to the assemble function, stores
-  /// the corresponding keys
-  vector<string> output_val;
+  arg_data_list *arg_data_vp;
 public: 
   adaptor();
   /// This should not be defined by the user...
@@ -71,16 +69,22 @@ public:
   /** This is called only once for each element after calling 
       initialize().  */ 
   virtual void element_init() { } 
-  
-  class OutputHandle {
+
+  class ArgHandle {
     friend class adaptor;
   private:
-    int index;
+    int index_m;
+    ArgHandle(int indx) : index_m(indx) {}
+  public:
+    ArgHandle() : index_m(-1) {}
+    int index() { return index_m; }
+    bool operator==(ArgHandle b) const;
   };
-    
-  OutputHandle get_output_handle(const string &key);
+  static ArgHandle NullArgHandle;
+  size_t nargs() const;
 
-  void export_vals(OutputHandle h,double *buf);
+  ArgHandle get_arg_handle(const string &key,
+                           const char* errmess=NULL) const;
 
   void after_assemble(const char *jobinfo);
   /** Contains constant fields for the element */

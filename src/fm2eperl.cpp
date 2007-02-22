@@ -4,7 +4,7 @@
 
 
 //__INSERT_LICENSE__
-//$Id: fm2eperl.cpp,v 1.32 2007/01/31 15:33:12 mstorti Exp $
+//$Id: fm2eperl.cpp,v 1.32.12.1 2007/02/22 20:38:29 mstorti Exp $
 #include <math.h>
 #include <stdio.h>
 
@@ -3491,8 +3491,6 @@ printf(" cache_list %p, cache %p, position_in_cache %d\n",
     assert(A.defined);
     A.get_dims(Afdims);
 
-    // maxc:= maximum contracted index
-    int nd=0,cd=0,maxc=0;
     ii.push_back(m);
     int ndims = Afdims.size();
 
@@ -3655,7 +3653,6 @@ printf(" cache_list %p, cache %p, position_in_cache %d\n",
     assert(A.defined);
     A.get_dims(Afdims);
 
-    int nd=0;
     ii.push_back(m);
     int ndims = Afdims.size();
 
