@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: mmv2main.cpp,v 1.1.4.3 2007/02/22 22:06:27 mstorti Exp $
+//$Id: mmv2main.cpp,v 1.1.4.4 2007/02/22 22:31:48 mstorti Exp $
 #include <src/debug.h>
 #include <malloc.h>
 
@@ -399,7 +399,7 @@ int mmove2_main() {
     argl.arg_add(&state_old,IN_VECTOR|USE_TIME_DATA,"state_old");
     argl.arg_add(&resp,OUT_VECTOR,"res");
     argl.arg_add(&res_delta,OUT_VECTOR,"res_delta");
-    argl.arg_add(Ap,OUT_MATRIX|PFMAT,"Ap");
+    argl.arg_add(Ap,OUT_MATRIX|PFMAT,"A");
     argl.arg_add(&hmin,VECTOR_MIN,"hmin");
     argl.arg_add(&glob_param,USER_DATA,"glob_param");
 

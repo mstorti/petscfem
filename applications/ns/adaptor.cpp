@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: adaptor.cpp,v 1.15.24.4 2007/02/22 22:06:27 mstorti Exp $
+//$Id: adaptor.cpp,v 1.15.24.5 2007/02/22 22:31:48 mstorti Exp $
 
 #include <src/fem.h>
 #include <src/utils.h>
@@ -105,7 +105,6 @@ int adaptor::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
   // Get arguments from arg_list
   double *locst,*locst2,*retval,*retvalmat;
 
-  int ja_hmin;
   if (!use_arg_handles) {
     if (comp_mat) 
       retvalmat = arg_data_v[0].retval;
@@ -117,34 +116,28 @@ int adaptor::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
       ja++; // for res_delta
       retvalmat = arg_data_v[ja++].retval;
       ja++;
-      ja_hmin=ja;
       glob_param = (GlobParam *)(arg_data_v[ja++].user_data);
-      rec_Dt = 1./glob_param->Dt;
       alpha = glob_param->alpha;
-      if (glob_param->steady) rec_Dt=0.;
     } 
   } else {
 
-#define GET_INDEX(key)                                                  \
-    handle = get_arg_handle(key,"can't get arg handle for key " key);   \
+#define GET_INDEX(key)                                  \
+    handle = get_arg_handle(key,                        \
+          "can't get arg handle for key " key "\n");    \
     index = handle.index();
 
     ArgHandle handle;
     int index;
     if (comp_mat) {
       GET_INDEX("A"); retvalmat = arg_data_v[index].retval;
-    }
-    if (comp_mat_res) {
-      int ja=0;
-      GET_INDEX("locst"); locst = arg_data_v[ja++].locst;
-      GET_INDEX("locst2"); locst2 = arg_data_v[ja++].locst;
-      GET_INDEX("res"); retval = arg_data_v[ja++].retval;
-      GET_INDEX("A"); retvalmat = arg_data_v[ja++].retval;
+    } else if (comp_mat_res) {
+      GET_INDEX("state"); locst = arg_data_v[index].locst;
+      GET_INDEX("state_old"); locst2 = arg_data_v[index].locst;
+      GET_INDEX("res"); retval = arg_data_v[index].retval;
+      GET_INDEX("A"); retvalmat = arg_data_v[index].retval;
       GET_INDEX("glob_param"); 
-      glob_param = (GlobParam *)(arg_data_v[ja++].user_data);
-      rec_Dt = 1./glob_param->Dt;
+      glob_param = (GlobParam *)(arg_data_v[index].user_data);
       alpha = glob_param->alpha;
-      if (glob_param->steady) rec_Dt=0.;
     } 
   }
   // allocate local vecs
