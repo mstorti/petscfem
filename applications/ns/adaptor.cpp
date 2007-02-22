@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: adaptor.cpp,v 1.15.24.2 2007/02/22 20:38:29 mstorti Exp $
+//$Id: adaptor.cpp,v 1.15.24.3 2007/02/22 21:08:17 mstorti Exp $
 
 #include <src/fem.h>
 #include <src/utils.h>
@@ -87,10 +87,16 @@ int adaptor::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
   TGETOPTDEF_ND(thash,int,npg,0);
   // ierr = get_int(thash,"npg",&npg); CHKERRA(ierr);
   TGETOPTDEF_ND(thash,int,ndim,0); //nd
-  assert(npg>=0);  
-  assert(ndim>0);
+  //o Use #arg-handles# for manipulation of argumentes
+  //  from/to `adaptor'. 
+  TGETOPTDEF_ND(thash,int,use_arg_handles,0);
+
+  PETSCFEM_ASSERT(npg>=0,"npg should be non-negative, npg %d\n",npg);  
+  PETSCFEM_ASSERT(ndim>=0,"ndim should be non-negative, ndim %d\n",ndim);  
+
   TGETOPTDEF_ND(thash,int,ndimel,ndim);
-  assert(ndimel>=0 && ndimel<=ndim);
+  PETSCFEM_ASSERT0(ndimel>=0 && ndimel<=ndim,
+                   "Incorrect value for `ndimel': \n",ndimel);
   int nen = nel*ndof;
 
   // Unpack nodedata
