@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: fstack.cpp,v 1.19 2007/02/20 14:57:47 mstorti Exp $
+//$Id: fstack.cpp,v 1.19.4.1 2007/02/22 22:06:27 mstorti Exp $
 #include <stdlib.h>
 #include "fstack.h"
 
@@ -52,10 +52,11 @@ FileStack::FileStack(const char *filename) :
   file_stack(NULL),
   file_at_top(NULL),
   echo_stream (NULL), 
+  echo(0), 
   read_buffer(NULL),
   buf(NULL), bufr(NULL),linecopy(NULL),
   abufr(NULL),abuf(NULL),
-  echo(0), quiet(0), 
+  quiet(0), 
   last_error_m(read_ok) {
 
   open(filename);

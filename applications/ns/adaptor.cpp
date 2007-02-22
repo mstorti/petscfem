@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: adaptor.cpp,v 1.15.24.3 2007/02/22 21:08:17 mstorti Exp $
+//$Id: adaptor.cpp,v 1.15.24.4 2007/02/22 22:06:27 mstorti Exp $
 
 #include <src/fem.h>
 #include <src/utils.h>
@@ -89,14 +89,14 @@ int adaptor::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
   TGETOPTDEF_ND(thash,int,ndim,0); //nd
   //o Use #arg-handles# for manipulation of argumentes
   //  from/to `adaptor'. 
-  TGETOPTDEF_ND(thash,int,use_arg_handles,0);
+  TGETOPTDEF(thash,int,use_arg_handles,0);
 
   PETSCFEM_ASSERT(npg>=0,"npg should be non-negative, npg %d\n",npg);  
   PETSCFEM_ASSERT(ndim>=0,"ndim should be non-negative, ndim %d\n",ndim);  
 
   TGETOPTDEF_ND(thash,int,ndimel,ndim);
-  PETSCFEM_ASSERT0(ndimel>=0 && ndimel<=ndim,
-                   "Incorrect value for `ndimel': \n",ndimel);
+  PETSCFEM_ASSERT(ndimel>=0 && ndimel<=ndim,
+                  "Incorrect value for `ndimel': \n",ndimel);
   int nen = nel*ndof;
 
   // Unpack nodedata
@@ -105,24 +105,48 @@ int adaptor::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
   // Get arguments from arg_list
   double *locst,*locst2,*retval,*retvalmat;
 
-  if (comp_mat) retvalmat = arg_data_v[0].retval;
-
   int ja_hmin;
-#define WAS_SET arg_data_v[ja_hmin].was_set
-  if (comp_mat_res) {
-    int ja=0;
-    locst = arg_data_v[ja++].locst;
-    locst2 = arg_data_v[ja++].locst;
-    retval = arg_data_v[ja++].retval;
-    retvalmat = arg_data_v[ja++].retval;
-    ja++;
-    ja_hmin=ja;
-    glob_param = (GlobParam *)(arg_data_v[ja++].user_data);
-    rec_Dt = 1./glob_param->Dt;
-    alpha = glob_param->alpha;
-    if (glob_param->steady) rec_Dt=0.;
-  } 
+  if (!use_arg_handles) {
+    if (comp_mat) 
+      retvalmat = arg_data_v[0].retval;
+    if (comp_mat_res) {
+      int ja=0;
+      locst = arg_data_v[ja++].locst;
+      locst2 = arg_data_v[ja++].locst;
+      retval = arg_data_v[ja++].retval;
+      ja++; // for res_delta
+      retvalmat = arg_data_v[ja++].retval;
+      ja++;
+      ja_hmin=ja;
+      glob_param = (GlobParam *)(arg_data_v[ja++].user_data);
+      rec_Dt = 1./glob_param->Dt;
+      alpha = glob_param->alpha;
+      if (glob_param->steady) rec_Dt=0.;
+    } 
+  } else {
 
+#define GET_INDEX(key)                                                  \
+    handle = get_arg_handle(key,"can't get arg handle for key " key);   \
+    index = handle.index();
+
+    ArgHandle handle;
+    int index;
+    if (comp_mat) {
+      GET_INDEX("A"); retvalmat = arg_data_v[index].retval;
+    }
+    if (comp_mat_res) {
+      int ja=0;
+      GET_INDEX("locst"); locst = arg_data_v[ja++].locst;
+      GET_INDEX("locst2"); locst2 = arg_data_v[ja++].locst;
+      GET_INDEX("res"); retval = arg_data_v[ja++].retval;
+      GET_INDEX("A"); retvalmat = arg_data_v[ja++].retval;
+      GET_INDEX("glob_param"); 
+      glob_param = (GlobParam *)(arg_data_v[ja++].user_data);
+      rec_Dt = 1./glob_param->Dt;
+      alpha = glob_param->alpha;
+      if (glob_param->steady) rec_Dt=0.;
+    } 
+  }
   // allocate local vecs
   nen = nel*ndof;
   FastMat2 veccontr(2,nel,ndof),veccontrp(2,nel,ndof),

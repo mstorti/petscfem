@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: mmv2main.cpp,v 1.1.4.2 2007/02/22 20:38:29 mstorti Exp $
+//$Id: mmv2main.cpp,v 1.1.4.3 2007/02/22 22:06:27 mstorti Exp $
 #include <src/debug.h>
 #include <malloc.h>
 
@@ -21,7 +21,6 @@
 static char help[] = "PETSc-FEM Navier Stokes module\n\n";
 
 extern int MY_RANK,SIZE;
-extern WallData wall_data;
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 /** Creates hooks depending on the name. 
@@ -180,10 +179,6 @@ int mmove2_main() {
   //o Dimension of the problem.
   GETOPTDEF(int,ndim,3);
 
-  //o If 0: compute #wall_data# info only once. Otherwise
-  //   refresh each #update_wall_data# steps. 
-  GETOPTDEF(int,update_wall_data,0);
-
   //o Scales displacement for ALE-like mesh relocation. 
   GETOPTDEF(double,displ_factor,0.1);
   //o Number of inner iterations for the global non-linear
@@ -275,17 +270,6 @@ int mmove2_main() {
     fclose(gather_file_f);
   }
 
-  //o Use the LES/Smagorinsky turbulence model. 
-  GETOPTDEF(int,LES,0);
-  //o If {\tt A\_van\_Driest=0} then the van Driest
-  //    damping factor is not used 
-  GETOPTDEF(int,A_van_Driest,0);
-
-  if(A_van_Driest>0) { 
-    PetscPrintf(PETSC_COMM_WORLD,"--- Don forget to refresh Wall_Data -- \n");
-    PetscPrintf(PETSC_COMM_WORLD,"--- using update_wall_data global option -- \n");
-  }
-
   //o Use IISD (Interface Iterative Subdomain Direct) or not.
   GETOPTDEF(int,use_iisd,0);
   //o Type of solver. May be  #iisd#  or  #petsc# . 
@@ -347,7 +331,7 @@ int mmove2_main() {
   // Compute  profiles
   debug.trace("Computing profiles...");
   argl.clear();
-  argl.arg_add(Ap,PROFILE|PFMAT);
+  argl.arg_add(Ap,PROFILE|PFMAT,"A");
   ierr = assemble(mesh,argl,dofmap,"comp_mat",&time); CHKERRA(ierr); 
   debug.trace("After computing profile.");
 
@@ -385,12 +369,11 @@ int mmove2_main() {
     state_old.set_time(time_old);
     argl.arg_add(&state,IN_VECTOR|USE_TIME_DATA,"state");
     argl.arg_add(&state_old,IN_VECTOR|USE_TIME_DATA,"state_old");
-    // argl.arg_add(&res,OUT_VECTOR,"res");
+    argl.arg_add(&res,OUT_VECTOR,"res");
     argl.arg_add(&res_delta,OUT_VECTOR,"res_delta");
     argl.arg_add(Ap,OUT_MATRIX|PFMAT,"A");
     argl.arg_add(&hmin,VECTOR_MIN,"hmin");
     argl.arg_add(&glob_param,USER_DATA,"glob_param");
-    argl.arg_add(&wall_data,USER_DATA,"wall_data");
 
     scal=0;
     ierr = VecSet(&scal,res); CHKERRA(ierr);
@@ -412,13 +395,13 @@ int mmove2_main() {
     argl.clear();
     state.set_time(time);
     state_old.set_time(time_old);
-    argl.arg_add(&state,IN_VECTOR|USE_TIME_DATA);
-    argl.arg_add(&state_old,IN_VECTOR|USE_TIME_DATA);
-    argl.arg_add(&resp,OUT_VECTOR);
-    argl.arg_add(Ap,OUT_MATRIX|PFMAT);
-    argl.arg_add(&hmin,VECTOR_MIN);
-    argl.arg_add(&glob_param,USER_DATA);
-    argl.arg_add(&wall_data,USER_DATA);
+    argl.arg_add(&state,IN_VECTOR|USE_TIME_DATA,"state");
+    argl.arg_add(&state_old,IN_VECTOR|USE_TIME_DATA,"state_old");
+    argl.arg_add(&resp,OUT_VECTOR,"res");
+    argl.arg_add(&res_delta,OUT_VECTOR,"res_delta");
+    argl.arg_add(Ap,OUT_MATRIX|PFMAT,"Ap");
+    argl.arg_add(&hmin,VECTOR_MIN,"hmin");
+    argl.arg_add(&glob_param,USER_DATA,"glob_param");
 
     scal=0;
     ierr = VecSet(&scal,resp); CHKERRA(ierr);
@@ -483,13 +466,13 @@ int mmove2_main() {
       argl.clear();
       state.set_time(time);
       state_old.set_time(time_old);
-      argl.arg_add(&state,IN_VECTOR|USE_TIME_DATA);
-      argl.arg_add(&state_old,IN_VECTOR|USE_TIME_DATA);
-      argl.arg_add(&res,OUT_VECTOR);
-      argl.arg_add(Ap,OUT_MATRIX|PFMAT);
-      argl.arg_add(&hmin,VECTOR_MIN);
-      argl.arg_add(&glob_param,USER_DATA);
-      argl.arg_add(&wall_data,USER_DATA);
+      argl.arg_add(&state,IN_VECTOR|USE_TIME_DATA,"state");
+      argl.arg_add(&state_old,IN_VECTOR|USE_TIME_DATA,"state_old");
+      argl.arg_add(&res,OUT_VECTOR,"res");
+      argl.arg_add(&res_delta,OUT_VECTOR,"res_delta");
+      argl.arg_add(Ap,OUT_MATRIX|PFMAT,"A");
+      argl.arg_add(&hmin,VECTOR_MIN,"hmin");
+      argl.arg_add(&glob_param,USER_DATA,"glob_param");
 
       debug.trace("Before residual computation...");
       ierr = assemble(mesh,argl,dofmap,"comp_mat_res",&time);
@@ -632,6 +615,7 @@ int mmove2_main() {
   ierr = VecDestroy(dx); CHKERRA(ierr); 
   ierr = VecDestroy(dx_step); CHKERRA(ierr); 
   ierr = VecDestroy(res); CHKERRA(ierr); 
+  ierr = VecDestroy(res_delta); CHKERRA(ierr); 
 
   DELETE_SCLR(Ap);
   DELETE_SCLR(dofmap);
