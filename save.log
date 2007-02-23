@@ -4821,3 +4821,6 @@ tag: beta-3.51.9 on Fri, 23 Feb 2007 00:16:12 -0300 by mstorti in spider
 ----------
 tag: beta-3.51.10 on Fri, 23 Feb 2007 01:02:47 -0300 by mstorti in spider
      > Fixed uninitialized variables
+----------
+tag: beta-3.51.11 on Fri, 23 Feb 2007 13:06:42 -0300 by mstorti in minerva.ceride.gov.ar
+     > Fixed error in adaptor. Call to `befoe_chunk()'
