@@ -4,13 +4,15 @@
 
 
 //__INSERT_LICENSE__
-//$Id: fm2eperl.cpp,v 1.33 2007/02/20 18:04:29 mstorti Exp $
+//$Id: fm2eperl.cpp,v 1.33.2.1 2007/02/23 16:05:30 mstorti Exp $
 #include <math.h>
 #include <stdio.h>
 
 #include <src/fem.h>
 #include <src/fastmat2.h>
 #include <src/fastlib2.h>
+
+//#define FM2_CACHE_DBG
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 int mem_size(const Indx & indx) {
