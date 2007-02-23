@@ -1,11 +1,8 @@
 ################################################################
-# $Id: TODO,v 1.257.2.1 2007/02/23 17:24:26 mstorti Exp $
+# $Id: TODO,v 1.257.2.2 2007/02/23 17:31:38 mstorti Exp $
 TODO: [Mainly fixes go here...]
 =====
 
-* doesn't compile without `pthreads' (this was fixed?? -> check)
-* in advdif: setting ndim=3 but using 2d elements gives a FastMat2
-  error. Should be detected earlier?
 * using nsi_tet_les_fm2 with fractional step produces  SEGV
 * Absorbing b.c.'s: 
     Make emphasis in the doc that the normal is the exterior normal to
@@ -150,6 +147,9 @@ TODO: [Mainly fixes go here...]
 DONE:
 =====
 
+* in advdif: setting ndim=3 but using 2d elements gives a FastMat2
+  error. Should be detected earlier?
+* doesn't compile without `pthreads' FIXED:= in  `beta-3.49.73'
 * mmmove2 doesn't work with FastMat2 cached -> FIX
   2007-02-23 14:23:35 FIXED:= `before_chunk()' must be called _before_
    the element loop
