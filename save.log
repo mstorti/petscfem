@@ -4807,3 +4807,7 @@ tag: beta-3.51.5 on Thu, 22 Feb 2007 19:08:00 -0300 by mstorti in spider
 tag: beta-3.51.6 on Thu, 22 Feb 2007 22:00:46 -0300 by mstorti in spider
      > Adaptor runs ok with new `arg-handles' and `mmove2'
      > Computes ok `res' and `res_delta'
+----------
+tag: beta-3.51.7 on Thu, 22 Feb 2007 22:20:32 -0300 by mstorti in spider
+     > Runs ok with new `arg-handles' and `mmove2'.
+     > Computes `res', `res_delta', `mat' and iterates.
