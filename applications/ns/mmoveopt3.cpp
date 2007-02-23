@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: mmoveopt3.cpp,v 1.8.20.2 2007/02/22 22:06:27 mstorti Exp $
+//$Id: mmoveopt3.cpp,v 1.8.20.3 2007/02/23 00:55:42 mstorti Exp $
 
 #include <src/fem.h>
 #include <src/utils.h>
@@ -18,17 +18,17 @@
 extern GlobParam *GLOB_PARAM;
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
-void mesh_move_opt3::init() {
+void mesh_move_opt3::before_chunk(const char *jobinfo) {
+
+  GET_JOBINFO_FLAG(comp_mat);
+  GET_JOBINFO_FLAG(comp_mat_res);
+
+  PETSCFEM_ASSERT(comp_mat || comp_mat_res,
+                  "Only jobinfo=\"comp_mat_res\" processed. \n"
+                  "Received unrecognized jobinfo %s\n",jobinfo);  
 
   int ierr;
 
-  res_delta_h = get_arg_handle("res_delta",
-                               "No handle for `res_delta'\n");
-//   PETSCFEM_ASSERT(!(res_delta_h==NullArgHandle),
-//                    "mesh_move_opt3: doesn't receive `res_delta' argument\n"
-//                   "nargs: ",nargs());
-  printf("res_delta_h indx %d\n",res_delta_h.index());
-  
   PETSCFEM_ASSERT(ndof==ndim,
                   "Number of dofs must be equal to \n"
                   "number of dimensions for this elemset.\n"
@@ -41,57 +41,65 @@ void mesh_move_opt3::init() {
                   "(triangles in 2D, tetras in 3D), ndim %d, nel %d.\n",
                   ndim,nel);  
 
-  dVdW.resize(2,ndim,ndim).set(0.);
-  dSldW.resize(2,ndim,ndim).set(0.);
-  dWdu.resize(4,ndim,ndim,nel,ndim).set(0.);
-  d2VdW2.resize(4,ndim,ndim,ndim,ndim).set(0.);
-  d2SldW2.resize(4,ndim,ndim,ndim,ndim).set(0.);
-  w.resize(2,ndim,ndim).set(0.);
-  w0.resize(2,ndim,ndim).set(0.);
+  if (comp_mat_res) {
+    res_h = get_arg_handle("res",
+                           "No handle for `res'\n");
+    res_delta_h = get_arg_handle("res_delta",
+                                 "No handle for `res_delta'\n");
+    mat_h = get_arg_handle("A","No handle for `A'\n");
 
-  tmp2.resize(2,ndim+1,ndim+1);
-  xreg.resize(2,ndim+1,ndim+1);
-  double xreg_v_tri[] = {0.,0.,1.0,1.0,0.,1.0,0.5,sqrt(3.0)/2.0,1.0};
-  double xreg_v_tetra[] = {0.,0.,0.,1.0,
-			   1.,0.,0.,1.0,
-			   0.5,sqrt(3.0)/2.0,0.,1.0,
-			   0.5,1.0/(sqrt(3.0)*2.0),sqrt(2.0/3.0),1.0};
-  xreg.t().set(ndim==2? xreg_v_tri : xreg_v_tetra).rs();
+    dVdW.resize(2,ndim,ndim).set(0.);
+    dSldW.resize(2,ndim,ndim).set(0.);
+    dWdu.resize(4,ndim,ndim,nel,ndim).set(0.);
+    d2VdW2.resize(4,ndim,ndim,ndim,ndim).set(0.);
+    d2SldW2.resize(4,ndim,ndim,ndim,ndim).set(0.);
+    w.resize(2,ndim,ndim).set(0.);
+    w0.resize(2,ndim,ndim).set(0.);
+
+    tmp2.resize(2,ndim+1,ndim+1);
+    xreg.resize(2,ndim+1,ndim+1);
+    double xreg_v_tri[] = {0.,0.,1.0,1.0,0.,1.0,0.5,sqrt(3.0)/2.0,1.0};
+    double xreg_v_tetra[] = {0.,0.,0.,1.0,
+                             1.,0.,0.,1.0,
+                             0.5,sqrt(3.0)/2.0,0.,1.0,
+                             0.5,1.0/(sqrt(3.0)*2.0),sqrt(2.0/3.0),1.0};
+    xreg.t().set(ndim==2? xreg_v_tri : xreg_v_tetra).rs();
 
 #if 0
-  xreg.print("xreg: ");
-  FastMat2 a(1,ndim);
-  xreg.is(1,1,ndim);
-  for (int j=1; j<4; j++) {
-    for (int k=1; k<4; k++) {
-      xreg.ir(2,j);
-      xreg.print("");
-      a.set(0.0).add(xreg);
-      xreg.ir(2,k);
-      xreg.print("");
-      a.set(0.0).rest(xreg);
-      printf("length of edge: %f\n",sqrt(a.sum_square_all()));
+    xreg.print("xreg: ");
+    FastMat2 a(1,ndim);
+    xreg.is(1,1,ndim);
+    for (int j=1; j<4; j++) {
+      for (int k=1; k<4; k++) {
+        xreg.ir(2,j);
+        xreg.print("");
+        a.set(0.0).add(xreg);
+        xreg.ir(2,k);
+        xreg.print("");
+        a.set(0.0).rest(xreg);
+        printf("length of edge: %f\n",sqrt(a.sum_square_all()));
+      }
     }
-  }
-  PetscFinalize();
-  exit(0);
+    PetscFinalize();
+    exit(0);
 #endif
 
-  tmp3.inv(xreg);
-  tmp4.resize(2,ndim,ndim+1);
+    tmp3.inv(xreg);
+    tmp4.resize(2,ndim,ndim+1);
 
-  vaux1.resize(1,ndim).set(0.);
-  vaux2.resize(2,ndim,3).set(0.);
+    vaux1.resize(1,ndim).set(0.);
+    vaux2.resize(2,ndim,3).set(0.);
 
-  epsilon_LC.eps_LC();
+    epsilon_LC.eps_LC();
 
-  for(int i=1;i <= ndim;i++){
-    for(int j=1;j <= ndim;j++) {
-      dWdu.setel(-1.,i,j,1,j);
-      for(int k=2;k <= nel;k++) {
-	if (i+1 == k) {
-	  dWdu.setel(1.,i,j,k,j);
-	}
+    for(int i=1;i <= ndim;i++){
+      for(int j=1;j <= ndim;j++) {
+        dWdu.setel(-1.,i,j,1,j);
+        for(int k=2;k <= nel;k++) {
+          if (i+1 == k) {
+            dWdu.setel(1.,i,j,k,j);
+          }
+        }
       }
     }
   }
@@ -342,4 +350,9 @@ element_connector(const FastMat2 &xloc,
     mat2.prod(mat,iT0,1,-1,3,4,-1,2);
     mat.prod(mat2,iT0,1,2,3,-1,-1,4);
   }
+  res_delta.set(res).scale(2.0);
+  int nen = nel*ndof;
+  export_vals(res_h,res.storage_begin(),nen);
+  export_vals(res_delta_h,res_delta.storage_begin(),nen);
+  export_vals(mat_h,mat.storage_begin(),nen*nen);
 }

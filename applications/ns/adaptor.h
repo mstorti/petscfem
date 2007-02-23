@@ -1,6 +1,6 @@
 // -*- mode: C++ -*-
 /*__INSERT_LICENSE__*/
-//$Id: adaptor.h,v 1.15.24.2 2007/02/22 20:38:29 mstorti Exp $
+//$Id: adaptor.h,v 1.15.24.3 2007/02/23 00:55:42 mstorti Exp $
 #ifndef PETSCFEM_ADAPTOR_H
 #define PETSCFEM_ADAPTOR_H
 
@@ -12,7 +12,7 @@
 class adaptor : public ns_volume_element { 
 private:
   /// Flags whether the elements have been initialized or not
-  int elem_init_flag;
+  int elem_init_flag, use_fastmat2_cache;
   arg_data_list *arg_data_vp;
 public: 
   adaptor();
@@ -46,7 +46,7 @@ public:
       user. Called {\bf before} the element loop. May be used for
       initialization operations. 
   */
-  virtual void init()=0;
+  virtual void init() {}
   /** User defined callback function to be defined by the
       user. Called {\bf after} the element loop. May be used for
       clean-up operations. 
@@ -86,7 +86,13 @@ public:
   ArgHandle get_arg_handle(const string &key,
                            const char* errmess=NULL) const;
 
+  void export_vals(ArgHandle h,double *vals,int s=-1); 
+
   void after_assemble(const char *jobinfo);
+
+  virtual void before_chunk(const char *jobinfo) { }
+  virtual void after_chunk(const char *jobinfo) { }
+  
   /** Contains constant fields for the element */
   FastMat2 Hloc;
   int nH;
@@ -160,5 +166,7 @@ public:
   FastMat2 &dshapex();
   FastMat2 H, grad_H;
 };
+
+#define GET_JOBINFO_FLAG_ND(name) name  = !strcmp(jobinfo,#name)
 
 #endif

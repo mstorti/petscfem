@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: adaptor.cpp,v 1.15.24.5 2007/02/22 22:31:48 mstorti Exp $
+//$Id: adaptor.cpp,v 1.15.24.6 2007/02/23 00:55:42 mstorti Exp $
 
 #include <src/fem.h>
 #include <src/utils.h>
@@ -14,12 +14,33 @@ extern TextHashTable *GLOBAL_OPTIONS;
    
 #define MAXPROP 100
 
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>
+void adaptor::export_vals(adaptor::ArgHandle h,
+                          double *vals,int s) {
+  PETSCFEM_ASSERT0(elem>=0,
+                   "Current element not set. "
+                   "`export_vals()' was called probably from outside \n"
+                   "1adaptor' element loop\n");
+  int index = h.index();
+  PETSCFEM_ASSERT0(!(h==NullArgHandle),
+                   "Invalid handle");
+  PETSCFEM_ASSERT(index>=0 && index<int(nargs()),
+                  "Invalid handle index, index %d, nargs\n",
+                  index,nargs());  
+  double *retval = (*arg_data_vp)[index].retval;
+  assert(s!=-1);
+  memcpy(retval,vals,s*sizeof(double));
+}
+
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>
 adaptor::ArgHandle adaptor::NullArgHandle;
 
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>
 size_t adaptor::nargs() const {
   return arg_data_vp->size();
 }
 
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>
 bool adaptor::ArgHandle::
 operator==(ArgHandle b) const {
   return index_m==b.index_m;
@@ -44,7 +65,11 @@ adaptor::get_arg_handle(const string &key,
 }
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
-adaptor::adaptor() : elem_init_flag(0), arg_data_vp(NULL) { }
+adaptor::adaptor() : elem_init_flag(0), 
+                     use_fastmat2_cache(1),
+                     arg_data_vp(NULL),
+                     elem(-1)
+                     { }
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 void adaptor::after_assemble(const char *jobinfo) {
@@ -90,6 +115,8 @@ int adaptor::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
   //o Use #arg-handles# for manipulation of argumentes
   //  from/to `adaptor'. 
   TGETOPTDEF(thash,int,use_arg_handles,0);
+  //o Use caches for FastMat2 matrices
+  TGETOPTDEF(thash,int,use_fastmat2_cache,0);
 
   PETSCFEM_ASSERT(npg>=0,"npg should be non-negative, npg %d\n",npg);  
   PETSCFEM_ASSERT(ndim>=0,"ndim should be non-negative, ndim %d\n",ndim);  
@@ -203,14 +230,15 @@ int adaptor::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
   if (comp_mat_res) init();
 
   FastMatCacheList cache_list;
-  FastMat2::activate_cache(&cache_list);
+  if (use_fastmat2_cache) 
+    FastMat2::activate_cache(&cache_list);
 
+  before_chunk(jobinfo);
   int ielh=-1;
   for (int k=el_start; k<=el_last; k++) {
     if (!compute_this_elem(k,this,myrank,iter_mode)) continue;
     FastMat2::reset_cache();
-    ielh++;
-    elem=k;
+    ielh++; elem=k;
     // load_props(propel,elprpsindx,nprops,&(ELEMPROPS(k,0)));
 
     // Load local node coordinates in local vector
@@ -231,14 +259,15 @@ int adaptor::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
     matlocf.set(0.);
     veccontr.set(0.);
 
-    if(comp_mat)
+    if(comp_mat && !use_arg_handles)
       matloc_prof.export_vals(&(RETVALMAT(ielh,0,0,0,0)));
 
     if (comp_mat_res) {
       // Users have to implement this function with the physics of
       // the problem.
       element_connector(xloc,locstate2,locstate,veccontr,matlocf);
-      veccontr.export_vals(&(RETVAL(ielh,0,0)));
+      if (!use_arg_handles)
+        veccontr.export_vals(&(RETVAL(ielh,0,0)));
 
       if (jacobian_fdj_compute) {
 	double epsil = jacobian_fdj_epsilon;
@@ -272,9 +301,12 @@ int adaptor::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
 	  matlocf.set(matlocf_fdj);
 	  matlocf_fdj.rs();
       }
-      matlocf.export_vals(&(RETVALMAT(ielh,0,0,0,0)));
+      if (!use_arg_handles)
+        matlocf.export_vals(&(RETVALMAT(ielh,0,0,0,0)));
     }
   }
+  elem = -1;
+  after_chunk(jobinfo);
   FastMat2::void_cache();
   FastMat2::deactivate_cache();
 

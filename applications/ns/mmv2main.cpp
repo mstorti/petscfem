@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: mmv2main.cpp,v 1.1.4.4 2007/02/22 22:31:48 mstorti Exp $
+//$Id: mmv2main.cpp,v 1.1.4.5 2007/02/23 00:55:42 mstorti Exp $
 #include <src/debug.h>
 #include <malloc.h>
 
@@ -383,10 +383,15 @@ int mmove2_main() {
     CHKERRA(ierr);
     debug.trace("After residual computation.");
 
-#ifdef MMV_DBG
+    // #ifdef MMV_DBG
+#if 1
     printf("res: ");
     ierr = VecView(res,PETSC_VIEWER_STDOUT_WORLD);
+    printf("res_delta: ");
+    ierr = VecView(res_delta,PETSC_VIEWER_STDOUT_WORLD);
     CHKERRA(ierr);
+    PetscFinalize();
+    exit(0);
 #endif
 
     // res = RES(u^n,t^n+epsilon);
