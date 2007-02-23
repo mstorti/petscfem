@@ -2,13 +2,15 @@
 //<=$warn_dont_modify //>
 
 //__INSERT_LICENSE__
-//$Id: fmat2ep.cpp,v 1.25 2007/02/20 18:04:29 mstorti Exp $
+//$Id: fmat2ep.cpp,v 1.26 2007/02/23 16:31:14 mstorti Exp $
 #include <math.h>
 #include <stdio.h>
 
 #include <src/fem.h>
 #include <src/fastmat2.h>
 #include <src/fastlib2.h>
+
+//#define FM2_CACHE_DBG
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 int mem_size(const Indx & indx) {

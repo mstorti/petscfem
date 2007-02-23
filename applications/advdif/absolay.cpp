@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-// $Id: absolay.cpp,v 1.2 2006/04/18 02:16:56 mstorti Exp $
+// $Id: absolay.cpp,v 1.3 2007/02/23 16:31:14 mstorti Exp $
 #include "./absolay.h"
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:
@@ -51,11 +51,12 @@ new_assemble(arg_data_list &arg_data_v,const Nodedata *nodedata,
   vector<double> *dtmin;
   double lambda_max;
   int jdtmin;
-  GlobParam *glob_param;
+  GlobParam *glob_param=NULL;
   // The trapezoidal rule integration parameter
 #define ALPHA (glob_param->alpha)
 #define DT (glob_param->Dt)
-  arg_data *staten,*stateo,*retval,*fdj_jac,*jac_prof,*Ajac;
+  arg_data *staten=NULL,*stateo=NULL,*retval=NULL,
+    *fdj_jac=NULL,*jac_prof=NULL,*Ajac=NULL;
   if (comp_res) {
     int j=-1;
     stateo = &arg_data_v[++j]; //[0]

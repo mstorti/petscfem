@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: bubbly_full.cpp,v 1.2 2005/08/13 14:40:02 mstorti Exp $
+//$Id: bubbly_full.cpp,v 1.3 2007/02/23 16:31:14 mstorti Exp $
 
 #include <src/fem.h>
 #include <src/texthash.h>
@@ -993,7 +993,7 @@ void bubbly_ff::compute_flux(const FastMat2 &U,
 	       double &lam_max,FastMat2 &nor, FastMat2 &lambda,
 	       FastMat2 &Vr, FastMat2 &Vr_inv,int options) {
 
-  double strain_rate_scalar;
+  double strain_rate_scalar=NAN;
 
   double coe,pot,f_drag_alpha , df_drag_alpha ;
 
@@ -1173,7 +1173,7 @@ if (0) {
     assert(advdf_e);
 #define pi M_PI
     double Volume = advdf_e->volume();
-    double Delta;
+    double Delta=NAN;
     if (ndim==2) Delta = sqrt(Volume);
     if (ndim==3) Delta = cbrt(Volume);
 

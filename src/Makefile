@@ -1,5 +1,5 @@
 #__INSERT_LICENSE__
-# $Id: Makefile,v 1.104 2007/02/18 21:49:37 mstorti Exp $ 
+# $Id: Makefile,v 1.105 2007/02/23 16:31:14 mstorti Exp $ 
 
 .PHONY: all run lclean save compile default
 
@@ -63,7 +63,8 @@ fm2eperl2.cpp: fmat2ep2.cpp prep.pl fmat2.pl
 	$(EPERL) -B '//<' -E '//>' $< > $@ ; chmod -w $@
 
 ## generation of FSM files is left to `developper' mode
-ifeq ($(DEVELOPER_MODE),yes)
+#ifeq ($(DEVELOPER_MODE),yes)
+ifeq (1,0)
 FSM := matFSM
 $(FSM).cpp $(FSM).h: sparse.sm
 	$(SMC) < $<

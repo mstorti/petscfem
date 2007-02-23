@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: advdife-gcl.cpp,v 1.13 2007/02/18 21:49:37 mstorti Exp $
+//$Id: advdife-gcl.cpp,v 1.14 2007/02/23 16:31:14 mstorti Exp $
 extern int comp_mat_each_time_step_g,
   consistent_supg_matrix_g,
   local_time_step_g;
@@ -85,11 +85,12 @@ new_assemble_GCL_compliant(arg_data_list &arg_data_v,const Nodedata *nodedata,
   vector<double> *dtmin;
   double lambda_max;
   int jdtmin;
-  GlobParam *glob_param;
+  GlobParam *glob_param=NULL;
   // The trapezoidal rule integration parameter
 #define ALPHA (glob_param->alpha)
 #define DT (glob_param->Dt)
-  arg_data *staten,*stateo,*retval,*fdj_jac,*jac_prof,*Ajac;
+  arg_data *staten=NULL,*stateo=NULL,*retval=NULL,
+    *fdj_jac=NULL,*jac_prof=NULL,*Ajac=NULL;
   if (comp_res) {
     int j=-1;
     stateo = &arg_data_v[++j]; //[0]
@@ -259,7 +260,7 @@ new_assemble_GCL_compliant(arg_data_list &arg_data_v,const Nodedata *nodedata,
   GPdata gp_data(geometry.c_str(),ndimel,nel,npg,GP_FASTMAT2);
   GPdata gp_data_low(geometry.c_str(),ndimel,nel,1,GP_FASTMAT2);
 
-  double detJaco, detJaco_new, detJaco_old,
+  double detJaco, detJaco_new=NAN, detJaco_old=NAN,
     wpgdet, delta_sc, delta_sc_old;
   int elem, ipg,node, jdim, kloc,lloc,ldof;
   double lambda_max_pg;
@@ -309,7 +310,7 @@ new_assemble_GCL_compliant(arg_data_list &arg_data_v,const Nodedata *nodedata,
   FastMat2 delta_sc_v(1,ndof);
 
   FMatrix Jaco_low(ndimel,ndim),iJaco_low(ndimel,ndimel);
-  double detJaco_low,wpgdet_low;
+  double detJaco_low=NAN,wpgdet_low;
   // dshapex_low.resize(2,ndimel,nel);
 
   // FastMat2 vaux(2,ndim,nel);

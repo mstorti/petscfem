@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: adaptor.cpp,v 1.16 2007/02/23 03:05:01 mstorti Exp $
+//$Id: adaptor.cpp,v 1.17 2007/02/23 16:31:14 mstorti Exp $
 
 #include <src/fem.h>
 #include <src/utils.h>
@@ -159,7 +159,6 @@ int adaptor::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
       locst = arg_data_v[ja++].locst;
       locst2 = arg_data_v[ja++].locst;
       retval = arg_data_v[ja++].retval;
-      ja++; // for res_delta
       retvalmat = arg_data_v[ja++].retval;
       ja++;
       glob_param = (GlobParam *)(arg_data_v[ja++].user_data);
@@ -248,11 +247,11 @@ int adaptor::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
   // *outside* the element loop
   if (comp_mat_res) init();
 
+  before_chunk(jobinfo);
   FastMatCacheList cache_list;
   if (use_fastmat2_cache) 
     FastMat2::activate_cache(&cache_list);
 
-  before_chunk(jobinfo);
   int ielh=-1;
   for (int k=el_start; k<=el_last; k++) {
     if (!compute_this_elem(k,this,myrank,iter_mode)) continue;

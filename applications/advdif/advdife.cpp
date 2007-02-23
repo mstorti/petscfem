@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: advdife.cpp,v 1.125 2007/02/04 14:10:09 mstorti Exp $
+//$Id: advdife.cpp,v 1.126 2007/02/23 16:31:14 mstorti Exp $
 extern int comp_mat_each_time_step_g,
   consistent_supg_matrix_g,
   local_time_step_g;
@@ -47,8 +47,9 @@ IdentityEF identity_ef;
 #undef __FUNC__
 #define __FUNC__ "void AdvDifFF::get_log_vars(int,const int*)"
 void NewAdvDifFF::get_log_vars(int &nlog_vars,const int *& log_vars) {
+  int nel,ndof,nelprops;
+  elemset->elem_params(nel,ndof,nelprops);
   const char *log_vars_entry;
-  const int &ndof=ndof;
   elemset->get_entry("log_vars_list",log_vars_entry);
   VOID_IT(log_vars_v);
   string s;
@@ -192,8 +193,6 @@ void NewAdvDif::new_assemble(arg_data_list &arg_data_v,const Nodedata *nodedata,
 
   int ierr=0;
 
-  int locdof,kldof,lldof;
-
   NSGETOPTDEF(int,npg,0); //nd
   NSGETOPTDEF(int,ndim,0); //nd
   assert(npg>0);
@@ -225,19 +224,18 @@ void NewAdvDif::new_assemble(arg_data_list &arg_data_v,const Nodedata *nodedata,
     exit(1);
   }
 
-  double *retvalt;
   time_m = double(* (const Time *) time_data);
 
   // lambda_max:= the maximum eigenvalue of the jacobians.
   // used to compute the critical time step.
-  vector<double> *dtmin;
   double lambda_max;
   int jdtmin;
-  GlobParam *glob_param;
+  GlobParam *glob_param=NULL;
   // The trapezoidal rule integration parameter
 #define ALPHA (glob_param->alpha)
 #define DT (glob_param->Dt)
-  arg_data *staten,*stateo,*retval,*fdj_jac,*jac_prof,*Ajac;
+  arg_data *staten=NULL,*stateo=NULL,*retval=NULL,
+    *jac_prof=NULL,*Ajac=NULL;
   if (comp_res) {
     int j=-1;
     stateo = &arg_data_v[++j]; //[0]
@@ -406,7 +404,7 @@ void NewAdvDif::new_assemble(arg_data_list &arg_data_v,const Nodedata *nodedata,
   GPdata gp_data_low(geometry.c_str(),ndimel,nel,1,GP_FASTMAT2);
 
   double detJaco, wpgdet, delta_sc, delta_sc_old;
-  int elem, ipg,node, jdim, kloc,lloc,ldof;
+  int ipg;
   double lambda_max_pg;
 
   dshapex.resize(2,ndimel,nel);
@@ -449,7 +447,7 @@ void NewAdvDif::new_assemble(arg_data_list &arg_data_v,const Nodedata *nodedata,
   FastMat2 delta_sc_v(1,ndof);
 
   FMatrix Jaco_low(ndimel,ndim),iJaco_low(ndimel,ndimel);
-  double detJaco_low,wpgdet_low;
+  double detJaco_low=NAN,wpgdet_low;
   // dshapex_low.resize(2,ndimel,nel);
 
   // FastMat2 vaux(2,ndim,nel);
@@ -1394,8 +1392,8 @@ void NewAdvDifFF::get_bcconv_factor(FastMat2 &bcconv_factor) {
 
   bcconv_factor.set(1.);
 
-  int ierr = elemset->get_double("bcconv_factor",
-		     *bcconv_factor.storage_begin(),1,ndof);
+  elemset->get_double("bcconv_factor",
+                      *bcconv_factor.storage_begin(),1,ndof);
 
   /*
   const char *line;
