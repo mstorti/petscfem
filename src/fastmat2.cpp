@@ -1,5 +1,5 @@
 ///__INSERT_LICENSE__
-//$Id: fastmat2.cpp,v 1.25 2007/01/30 19:03:44 mstorti Exp $
+//$Id: fastmat2.cpp,v 1.25.14.1 2007/02/23 02:44:47 mstorti Exp $
 
 #include <cmath>
 #include <cstdio>
@@ -481,6 +481,13 @@ FastMat2 & FastMat2::d(const int j1,const int j2) {
   assert(set_indx[j1-1]==0);
   set_indx[j2-1]=-j1;
   return *this;
+}
+
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>
+int FastMat2::size() const {
+  Indx dims;
+  get_dims(dims);
+  return comp_storage_size(dims);
 }
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 

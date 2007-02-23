@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: mmoveopt3.cpp,v 1.8.20.3 2007/02/23 00:55:42 mstorti Exp $
+//$Id: mmoveopt3.cpp,v 1.8.20.4 2007/02/23 02:44:47 mstorti Exp $
 
 #include <src/fem.h>
 #include <src/utils.h>
@@ -352,7 +352,7 @@ element_connector(const FastMat2 &xloc,
   }
   res_delta.set(res).scale(2.0);
   int nen = nel*ndof;
-  export_vals(res_h,res.storage_begin(),nen);
-  export_vals(res_delta_h,res_delta.storage_begin(),nen);
-  export_vals(mat_h,mat.storage_begin(),nen*nen);
+  export_vals(res_h,res);
+  export_vals(res_delta_h,res_delta);
+  export_vals(mat_h,mat);
 }

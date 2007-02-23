@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: adaptor.cpp,v 1.15.24.7 2007/02/23 01:19:44 mstorti Exp $
+//$Id: adaptor.cpp,v 1.15.24.8 2007/02/23 02:44:47 mstorti Exp $
 
 #include <src/fem.h>
 #include <src/utils.h>
@@ -29,7 +29,6 @@ void adaptor::export_vals(adaptor::ArgHandle h,
                   "Invalid handle index, index %d, nargs\n",
                   index,nargs());  
   double *retval = arg.retval;
-  assert(s!=-1);
   int rowsz=-1;
   if (arg.options & OUT_VECTOR) rowsz=nel*ndof;
   else if (arg.options &OUT_MATRIX) 
@@ -39,8 +38,17 @@ void adaptor::export_vals(adaptor::ArgHandle h,
                    "arginfo \"%s\", index %d\n",
                    arg.arginfo.c_str(),index);  
   }
-  
-  memcpy(retval+elem*rowsz,vals,s*sizeof(double));
+  if (s>=0) {
+    PETSCFEM_ASSERT(s==rowsz,
+                    "Not exporting correct size. \n"
+                    "exported %d, required %d\n",s,rowsz);  
+  }
+  memcpy(retval+elem*rowsz,vals,rowsz*sizeof(double));
+}
+
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>
+void adaptor::export_vals(ArgHandle h,FastMat2 &a) {
+  export_vals(h,a.storage_begin(),a.size());
 }
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>

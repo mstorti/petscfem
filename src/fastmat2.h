@@ -1,6 +1,6 @@
 // -*- mode: c++ -*-
 /*__INSERT_LICENSE__*/
-//$Id: fastmat2.h,v 1.38 2007/01/30 19:03:44 mstorti Exp $
+//$Id: fastmat2.h,v 1.38.14.1 2007/02/23 02:44:47 mstorti Exp $
 
 #ifndef FASTMAT2_H
 #define FASTMAT2_H
@@ -282,6 +282,12 @@ public:
       @author M. Storti
   */ 
   ~FastMat2();
+
+  /** Returns the size of the matrix, i.e. the
+      product of its indices. 
+      @return size of matrix */ 
+  int size() const;
+
 
   //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
   /** Returns the jd-th dimension

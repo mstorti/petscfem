@@ -1,6 +1,6 @@
 // -*- mode: C++ -*-
 /*__INSERT_LICENSE__*/
-//$Id: adaptor.h,v 1.15.24.3 2007/02/23 00:55:42 mstorti Exp $
+//$Id: adaptor.h,v 1.15.24.4 2007/02/23 02:44:47 mstorti Exp $
 #ifndef PETSCFEM_ADAPTOR_H
 #define PETSCFEM_ADAPTOR_H
 
@@ -87,6 +87,8 @@ public:
                            const char* errmess=NULL) const;
 
   void export_vals(ArgHandle h,double *vals,int s=-1); 
+
+  void export_vals(ArgHandle h,FastMat2 &a); 
 
   void after_assemble(const char *jobinfo);
 
