@@ -4815,3 +4815,6 @@ tag: beta-3.51.7 on Thu, 22 Feb 2007 22:20:32 -0300 by mstorti in spider
 tag: beta-3.51.8 on Thu, 22 Feb 2007 23:45:00 -0300 by mstorti in spider
      > Added adaptor:export_vals(ArgHandle,Fastmat2&) to export
      > directly matrices. 
+----------
+tag: beta-3.51.9 on Fri, 23 Feb 2007 00:16:12 -0300 by mstorti in spider
+     > Merged `mstorti-v1' with `HEAD'
