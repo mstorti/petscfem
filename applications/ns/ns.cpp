@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: ns.cpp,v 1.192 2007/02/23 03:05:01 mstorti Exp $
+//$Id: ns.cpp,v 1.192.2.1 2007/02/23 16:21:45 mstorti Exp $
 #include <src/debug.h>
 #include <malloc.h>
 
@@ -616,7 +616,8 @@ int main(int argc,char **args) {
 	argl.arg_add(&glob_param,USER_DATA);
 	argl.arg_add(&wall_data,USER_DATA);
 
-	const char *jobinfo = (update_jacobian_this_iter ? "comp_mat_res" : "comp_res");
+	const char *jobinfo = (update_jacobian_this_iter 
+                               ? "comp_mat_res" : "comp_res");
 
 	// In order to measure performance
 	if (measure_performance) {

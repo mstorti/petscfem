@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: adaptor.cpp,v 1.16.2.1 2007/02/23 16:05:30 mstorti Exp $
+//$Id: adaptor.cpp,v 1.16.2.2 2007/02/23 16:21:45 mstorti Exp $
 
 #include <src/fem.h>
 #include <src/utils.h>
@@ -159,7 +159,6 @@ int adaptor::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
       locst = arg_data_v[ja++].locst;
       locst2 = arg_data_v[ja++].locst;
       retval = arg_data_v[ja++].retval;
-      ja++; // for res_delta
       retvalmat = arg_data_v[ja++].retval;
       ja++;
       glob_param = (GlobParam *)(arg_data_v[ja++].user_data);
