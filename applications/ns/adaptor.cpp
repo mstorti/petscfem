@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: adaptor.cpp,v 1.15.24.6 2007/02/23 00:55:42 mstorti Exp $
+//$Id: adaptor.cpp,v 1.15.24.7 2007/02/23 01:19:44 mstorti Exp $
 
 #include <src/fem.h>
 #include <src/utils.h>
@@ -22,14 +22,25 @@ void adaptor::export_vals(adaptor::ArgHandle h,
                    "`export_vals()' was called probably from outside \n"
                    "1adaptor' element loop\n");
   int index = h.index();
+  arg_data &arg = (*arg_data_vp)[index];
   PETSCFEM_ASSERT0(!(h==NullArgHandle),
                    "Invalid handle");
   PETSCFEM_ASSERT(index>=0 && index<int(nargs()),
                   "Invalid handle index, index %d, nargs\n",
                   index,nargs());  
-  double *retval = (*arg_data_vp)[index].retval;
+  double *retval = arg.retval;
   assert(s!=-1);
-  memcpy(retval,vals,s*sizeof(double));
+  int rowsz=-1;
+  if (arg.options & OUT_VECTOR) rowsz=nel*ndof;
+  else if (arg.options &OUT_MATRIX) 
+    rowsz=nel*ndof*nel*ndof;
+  else {
+    PETSCFEM_ERROR("Invalid argument for output. \n"
+                   "arginfo \"%s\", index %d\n",
+                   arg.arginfo.c_str(),index);  
+  }
+  
+  memcpy(retval+elem*rowsz,vals,s*sizeof(double));
 }
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>
