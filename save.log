@@ -4818,3 +4818,6 @@ tag: beta-3.51.8 on Thu, 22 Feb 2007 23:45:00 -0300 by mstorti in spider
 ----------
 tag: beta-3.51.9 on Fri, 23 Feb 2007 00:16:12 -0300 by mstorti in spider
      > Merged `mstorti-v1' with `HEAD'
+----------
+tag: beta-3.51.10 on Fri, 23 Feb 2007 01:02:47 -0300 by mstorti in spider
+     > Fixed uninitialized variables
