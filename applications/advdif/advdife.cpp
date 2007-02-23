@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: advdife.cpp,v 1.125.14.1 2007/02/23 04:02:14 mstorti Exp $
+//$Id: advdife.cpp,v 1.125.14.2 2007/02/23 04:20:52 mstorti Exp $
 extern int comp_mat_each_time_step_g,
   consistent_supg_matrix_g,
   local_time_step_g;
@@ -193,8 +193,6 @@ void NewAdvDif::new_assemble(arg_data_list &arg_data_v,const Nodedata *nodedata,
 
   int ierr=0;
 
-  int locdof,kldof,lldof;
-
   NSGETOPTDEF(int,npg,0); //nd
   NSGETOPTDEF(int,ndim,0); //nd
   assert(npg>0);
@@ -226,12 +224,10 @@ void NewAdvDif::new_assemble(arg_data_list &arg_data_v,const Nodedata *nodedata,
     exit(1);
   }
 
-  double *retvalt;
   time_m = double(* (const Time *) time_data);
 
   // lambda_max:= the maximum eigenvalue of the jacobians.
   // used to compute the critical time step.
-  vector<double> *dtmin;
   double lambda_max;
   int jdtmin;
   GlobParam *glob_param=NULL;
@@ -239,7 +235,7 @@ void NewAdvDif::new_assemble(arg_data_list &arg_data_v,const Nodedata *nodedata,
 #define ALPHA (glob_param->alpha)
 #define DT (glob_param->Dt)
   arg_data *staten=NULL,*stateo=NULL,*retval=NULL,
-    *fdj_jac=NULL,*jac_prof=NULL,*Ajac=NULL;
+    *jac_prof=NULL,*Ajac=NULL;
   if (comp_res) {
     int j=-1;
     stateo = &arg_data_v[++j]; //[0]
@@ -408,7 +404,7 @@ void NewAdvDif::new_assemble(arg_data_list &arg_data_v,const Nodedata *nodedata,
   GPdata gp_data_low(geometry.c_str(),ndimel,nel,1,GP_FASTMAT2);
 
   double detJaco, wpgdet, delta_sc, delta_sc_old;
-  int elem, ipg,node, jdim, kloc,lloc,ldof;
+  int ipg;
   double lambda_max_pg;
 
   dshapex.resize(2,ndimel,nel);
@@ -1396,8 +1392,8 @@ void NewAdvDifFF::get_bcconv_factor(FastMat2 &bcconv_factor) {
 
   bcconv_factor.set(1.);
 
-  int ierr = elemset->get_double("bcconv_factor",
-		     *bcconv_factor.storage_begin(),1,ndof);
+  elemset->get_double("bcconv_factor",
+                      *bcconv_factor.storage_begin(),1,ndof);
 
   /*
   const char *line;
