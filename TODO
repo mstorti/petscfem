@@ -1,9 +1,8 @@
 ################################################################
-# $Id: TODO,v 1.257 2007/02/23 16:31:14 mstorti Exp $
+# $Id: TODO,v 1.257.2.1 2007/02/23 17:24:26 mstorti Exp $
 TODO: [Mainly fixes go here...]
 =====
 
-* mmmove2 doesn't work with FastMat2 cached -> FIX
 * doesn't compile without `pthreads' (this was fixed?? -> check)
 * in advdif: setting ndim=3 but using 2d elements gives a FastMat2
   error. Should be detected earlier?
@@ -151,6 +150,9 @@ TODO: [Mainly fixes go here...]
 DONE:
 =====
 
+* mmmove2 doesn't work with FastMat2 cached -> FIX
+  2007-02-23 14:23:35 FIXED:= `before_chunk()' must be called _before_
+   the element loop
 * read-bad-state-gives-error: When reading an incomplete state should
    give an error. (See notes.txt)
    FIXED: Added `check_initial_state_correct_size' option in version `beta-3.49.70'
