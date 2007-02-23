@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: gaschem.cpp,v 1.17.84.1 2007/02/19 20:23:56 mstorti Exp $
+//$Id: gaschem.cpp,v 1.17.84.2 2007/02/23 19:18:07 dalcinl Exp $
 
 #include <src/fem.h>
 #include <src/texthash.h>
@@ -147,7 +147,7 @@ void gaschem_ff::compute_flux(const FastMat2 &U,
 
   double diff;
 #define GC_VAR(name,indx)				\
-    double name;					\
+    double name=NAN;					\
     if (name##_ctff!=DBL_MAX)  				\
       name = ctff(U.get(indx),diff,name##_ctff);
   GC_VAR(Nb,1);

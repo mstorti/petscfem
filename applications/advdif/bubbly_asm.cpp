@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: bubbly_asm.cpp,v 1.1.72.1 2007/02/19 20:23:56 mstorti Exp $
+//$Id: bubbly_asm.cpp,v 1.1.72.2 2007/02/23 19:18:07 dalcinl Exp $
 //
 //
 // <<<<<<<<<<<<<<<<<< VERSION ASM >>>>>>>>>>>>>>>>>>>>>>>>
@@ -621,7 +621,7 @@ if (0) {
     assert(advdf_e);
 #define pi M_PI
     double Volume = advdf_e->volume();
-    double Delta;
+    double Delta=NAN;
     if (ndim==2) Delta = sqrt(Volume);
     if (ndim==3) Delta = cbrt(Volume);
 

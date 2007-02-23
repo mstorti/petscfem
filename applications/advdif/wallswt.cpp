@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: wallswt.cpp,v 1.14.104.1 2007/02/19 20:23:56 mstorti Exp $
+//$Id: wallswt.cpp,v 1.14.104.2 2007/02/23 19:18:07 dalcinl Exp $
   
 #include <src/fem.h>
 #include <src/utils.h>
@@ -104,8 +104,9 @@ void wall_swfm2t::new_assemble(arg_data_list &arg_data_v,const Nodedata *nodedat
 #undef GETOPTDEF_ND_HOOK
 #define GETOPTDEF_ND_HOOK(name) name
 
-  GlobParam *glob_param;
-  arg_data *staten,*stateo,*retval,*Ajac,*jac_prof,*fdj_jac;
+  GlobParam *glob_param=NULL;
+  arg_data *staten=NULL,*stateo=NULL,*retval=NULL,
+    *Ajac=NULL,*jac_prof=NULL,*fdj_jac=NULL;
   if (comp_res) {
     int j=-1;
     staten = &arg_data_v[++j];

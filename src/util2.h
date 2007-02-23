@@ -1,6 +1,6 @@
 // -*- mode: c++ -*-
 /*__INSERT_LICENSE__*/
-//$Id: util2.h,v 1.15.40.1 2007/02/19 20:23:56 mstorti Exp $
+//$Id: util2.h,v 1.15.40.2 2007/02/23 19:18:07 dalcinl Exp $
 #ifndef UTIL2_H
 #define UTIL2_H
 
@@ -43,9 +43,9 @@ private:
   /// structures for `libc' time function calls.
   clock_t start_time;
 public:
-#if 0
+#if 1
   /// create a chronometer
-  Chrono();
+  Chrono() : start_time(clock()) { }
   /// destroy chronometer
   ~Chrono() {};
 #endif

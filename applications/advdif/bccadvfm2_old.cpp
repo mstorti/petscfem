@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: bccadvfm2_old.cpp,v 1.13 2007/01/30 19:03:44 mstorti Exp $
+//$Id: bccadvfm2_old.cpp,v 1.13.10.1 2007/02/23 19:18:07 dalcinl Exp $
 
 extern int comp_mat_each_time_step_g,
   consistent_supg_matrix_g,
@@ -73,8 +73,9 @@ void BcconvAdv::new_assemble(arg_data_list &arg_data_v,const Nodedata *nodedata,
   }
 
   int jdtmin;
-  arg_data *staten,*stateo,*retval,*fdj_jac,*jac_prof,*Ajac;
-  GlobParam *glob_param;
+  arg_data *staten=NULL,*stateo=NULL,*retval=NULL,
+    *fdj_jac=NULL,*jac_prof=NULL,*Ajac=NULL;
+  GlobParam *glob_param=NULL;
   FastMat2 matlocf(4,nel,ndof,nel,ndof);
   //  if (comp_mat_mass || comp_diag_mat_mass) {
   //	printf("BC_CONV is not designed for matrices assembly \n");

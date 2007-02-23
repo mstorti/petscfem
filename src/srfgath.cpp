@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: srfgath.cpp,v 1.16.10.1 2007/02/19 20:23:56 mstorti Exp $
+//$Id: srfgath.cpp,v 1.16.10.2 2007/02/23 19:18:07 dalcinl Exp $
 
 #include <src/fem.h>
 #include <src/utils.h>
@@ -158,7 +158,7 @@ double cylinder::f(const FastMat2 &x) {
 SurfGatherer::SurfFunction* 
 SurfGatherer::SurfFunction::factory(const TextHashTable *thash) {
   int ierr;
-  SurfGatherer::SurfFunction *sf=0;
+  SurfGatherer::SurfFunction *sf=NULL;
   //o Defines the geomtry of the element
   TGETOPTDEF_S(thash,string,surf_fun_type,<none>);
   assert(surf_fun_type!="<none>");
@@ -295,7 +295,7 @@ int SurfGatherer::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
     FastMat2::reset_cache();
     ielh++;
 
-    double max_f=0., min_f=0.;
+    double max_f=0, min_f=0;
     for (kloc=0; kloc<nel; kloc++) {
       int node = ICONE(k,kloc);
       xloc.ir(1,kloc+1).set(&NODEDATA(node-1,0));
