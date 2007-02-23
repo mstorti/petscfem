@@ -1,4 +1,4 @@
-/* $Id: nonlres.cpp,v 1.17 2007/01/30 19:03:44 mstorti Exp $ */
+/* $Id: nonlres.cpp,v 1.17.16.1 2007/02/23 04:02:14 mstorti Exp $ */
 
 #include <src/fem.h>
 #include <src/utils.h>
@@ -68,8 +68,9 @@ new_assemble(arg_data_list &arg_data_v,
 
   // Aqui en advdif esta primero en el
   // arg_data_v el estado en t_n y despues en t_n+1.
-  arg_data *locstold,*locst,*retval,*fdj_jac,*jac_prof,*Ajac;
-  GlobParam *glob_param;
+  arg_data *locstold=NULL,*locst=NULL,*retval=NULL,
+    *fdj_jac=NULL,*jac_prof=NULL,*Ajac=NULL;
+  GlobParam *glob_param=NULL;
   double *hmin,Dt,rec_Dt;
   int ja_hmin;
 #define WAS_SET arg_data_v[ja_hmin].was_set

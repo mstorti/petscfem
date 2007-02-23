@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: advdif.cpp,v 1.71 2007/01/30 19:03:44 mstorti Exp $
+//$Id: advdif.cpp,v 1.71.16.1 2007/02/23 04:02:14 mstorti Exp $
 
 #include <src/debug.h>
 #include <set>
@@ -67,7 +67,7 @@ int main(int argc,char **args) {
   Vec     x, dx, xold, res; /* approx solution, RHS, residual*/
   PFMat *A,*AA;			// linear system matrix 
   PFMat *A_tet, *A_tet_c;
-  double  *sol, scal, normres, normres_ext;    /* norm of solution error */
+  double  *sol, scal, normres, normres_ext=NAN;    /* norm of solution error */
   int     i, n = 10, col[3], its, size, node,
     jdof, k, kk, nfixa,
     kdof, ldof, lloc, ndim, nel, nen, neq, nu,

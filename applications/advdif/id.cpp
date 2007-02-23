@@ -1,4 +1,4 @@
-//$Id: id.cpp,v 1.3 2003/12/08 23:24:45 mstorti Exp $
+//$Id: id.cpp,v 1.3.92.1 2007/02/23 04:02:14 mstorti Exp $
 
 #include <src/fem.h>
 #include <src/utils.h>
@@ -41,7 +41,7 @@ int id::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
   int nen = nel*ndof;
 
   // Get arguments from arg_list
-  double *locst,*locst2,*retval,*retvalmat;
+  double *locst=NULL,*locst2=NULL,*retval=NULL,*retvalmat=NULL;
 
   if (comp_res) {
     int ja=0;

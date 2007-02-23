@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: advdife.cpp,v 1.125 2007/02/04 14:10:09 mstorti Exp $
+//$Id: advdife.cpp,v 1.125.14.1 2007/02/23 04:02:14 mstorti Exp $
 extern int comp_mat_each_time_step_g,
   consistent_supg_matrix_g,
   local_time_step_g;
@@ -47,8 +47,9 @@ IdentityEF identity_ef;
 #undef __FUNC__
 #define __FUNC__ "void AdvDifFF::get_log_vars(int,const int*)"
 void NewAdvDifFF::get_log_vars(int &nlog_vars,const int *& log_vars) {
+  int nel,ndof,nelprops;
+  elemset->elem_params(nel,ndof,nelprops);
   const char *log_vars_entry;
-  const int &ndof=ndof;
   elemset->get_entry("log_vars_list",log_vars_entry);
   VOID_IT(log_vars_v);
   string s;
@@ -233,11 +234,12 @@ void NewAdvDif::new_assemble(arg_data_list &arg_data_v,const Nodedata *nodedata,
   vector<double> *dtmin;
   double lambda_max;
   int jdtmin;
-  GlobParam *glob_param;
+  GlobParam *glob_param=NULL;
   // The trapezoidal rule integration parameter
 #define ALPHA (glob_param->alpha)
 #define DT (glob_param->Dt)
-  arg_data *staten,*stateo,*retval,*fdj_jac,*jac_prof,*Ajac;
+  arg_data *staten=NULL,*stateo=NULL,*retval=NULL,
+    *fdj_jac=NULL,*jac_prof=NULL,*Ajac=NULL;
   if (comp_res) {
     int j=-1;
     stateo = &arg_data_v[++j]; //[0]
@@ -449,7 +451,7 @@ void NewAdvDif::new_assemble(arg_data_list &arg_data_v,const Nodedata *nodedata,
   FastMat2 delta_sc_v(1,ndof);
 
   FMatrix Jaco_low(ndimel,ndim),iJaco_low(ndimel,ndimel);
-  double detJaco_low,wpgdet_low;
+  double detJaco_low=NAN,wpgdet_low;
   // dshapex_low.resize(2,ndimel,nel);
 
   // FastMat2 vaux(2,ndim,nel);
