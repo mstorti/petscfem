@@ -1,6 +1,6 @@
 // -*- mode: C++ -*-
 /*__INSERT_LICENSE__*/
-//$Id: mmoveopt3.h,v 1.4 2006/09/02 22:53:53 mstorti Exp $
+//$Id: mmoveopt3.h,v 1.5 2007/02/23 03:05:01 mstorti Exp $
 
 #ifndef MMOVEOPT3_H
 #define MMOVEOPT3_H
@@ -28,17 +28,17 @@ private:
     d2Sldu2,x,w,dVdu,dSldu,dQ,d2Q,tmp,mat1,
     vaux,vaux1,vaux2,w0,x0,epsilon_LC,dx;
   FastMat2 y,y0,xref,tmp2,xreg,tmp3,tmp4,T0,iT0,
-    mat2,res2;
+    mat2,res2,res_delta;
   /// Parameters
   double distor_exp,c_distor,c_volume,c_relax,
     volume_exp,relax_factor;
   int use_ref_mesh;
-
+  ArgHandle res_delta_h, res_h, mat_h;
 public: 
   /** Initializes the elemset. Reads parameters, 
       resizes auxiliary matrices. 
   */ 
-  void init();
+  void before_chunk(const char *jobinfo);
   /** Computes the residual (gradient of the distortion functional) and 
       the jacobian (Hessian, i.e. second derivatives, of the 
       distortion functional. 

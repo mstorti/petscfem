@@ -4791,3 +4791,27 @@ tag: beta-3.50 on Tue, 20 Feb 2007 12:20:46 -0300 by mstorti in minerva.ceride.g
 ----------
 tag: beta-3.51.1 on Tue, 20 Feb 2007 12:39:47 -0300 by mstorti in minerva.ceride.gov.ar
      > Admnistrative tag
+----------
+tag: beta-3.51.2 on Tue, 20 Feb 2007 13:32:37 -0300 by mstorti in aquiles
+     > `lclean' doesn't enter in `dx' directory if `USE_DX' is not set. 
+----------
+tag: beta-3.51.3 on Thu, 22 Feb 2007 08:52:18 -0300 by mstorti in minerva.ceride.gov.ar
+     > Starts working on mesh-move-adaptor
+----------
+tag: beta-3.51.4 on Thu, 22 Feb 2007 17:38:49 -0300 by mstorti in minerva.ceride.gov.ar
+     > Writing `arg-handle' feature for adpator. 
+----------
+tag: beta-3.51.5 on Thu, 22 Feb 2007 19:08:00 -0300 by mstorti in spider
+     > Runs ok with new `arg-handles' and `mmove2' partially implemented
+----------
+tag: beta-3.51.6 on Thu, 22 Feb 2007 22:00:46 -0300 by mstorti in spider
+     > Adaptor runs ok with new `arg-handles' and `mmove2'
+     > Computes ok `res' and `res_delta'
+----------
+tag: beta-3.51.7 on Thu, 22 Feb 2007 22:20:32 -0300 by mstorti in spider
+     > Runs ok with new `arg-handles' and `mmove2'.
+     > Computes `res', `res_delta', `mat' and iterates.
+----------
+tag: beta-3.51.8 on Thu, 22 Feb 2007 23:45:00 -0300 by mstorti in spider
+     > Added adaptor:export_vals(ArgHandle,Fastmat2&) to export
+     > directly matrices. 

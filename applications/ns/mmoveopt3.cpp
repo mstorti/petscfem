@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: mmoveopt3.cpp,v 1.8 2006/09/05 18:51:37 mstorti Exp $
+//$Id: mmoveopt3.cpp,v 1.9 2007/02/23 03:05:01 mstorti Exp $
 
 #include <src/fem.h>
 #include <src/utils.h>
@@ -18,65 +18,88 @@
 extern GlobParam *GLOB_PARAM;
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
-void mesh_move_opt3::init() {
+void mesh_move_opt3::before_chunk(const char *jobinfo) {
+
+  GET_JOBINFO_FLAG(comp_mat);
+  GET_JOBINFO_FLAG(comp_mat_res);
+
+  PETSCFEM_ASSERT(comp_mat || comp_mat_res,
+                  "Only jobinfo=\"comp_mat_res\" processed. \n"
+                  "Received unrecognized jobinfo %s\n",jobinfo);  
 
   int ierr;
-  
-  assert(ndof==ndim);
-  assert(ndim==2 || ndim==3);
-  assert(nel==ndim+1);
 
-  dVdW.resize(2,ndim,ndim).set(0.);
-  dSldW.resize(2,ndim,ndim).set(0.);
-  dWdu.resize(4,ndim,ndim,nel,ndim).set(0.);
-  d2VdW2.resize(4,ndim,ndim,ndim,ndim).set(0.);
-  d2SldW2.resize(4,ndim,ndim,ndim,ndim).set(0.);
-  w.resize(2,ndim,ndim).set(0.);
-  w0.resize(2,ndim,ndim).set(0.);
+  PETSCFEM_ASSERT(ndof==ndim,
+                  "Number of dofs must be equal to \n"
+                  "number of dimensions for this elemset.\n"
+                  "ndim %d, ndof %d\n",ndim,ndof);  
+  PETSCFEM_ASSERT(ndim==2 || ndim==3,
+                  "Only available for 2D/3D. ndim %d\n",
+                  ndim);  
+  PETSCFEM_ASSERT(nel==ndim+1,
+                  "Only available for simplices \n"
+                  "(triangles in 2D, tetras in 3D), ndim %d, nel %d.\n",
+                  ndim,nel);  
 
-  tmp2.resize(2,ndim+1,ndim+1);
-  xreg.resize(2,ndim+1,ndim+1);
-  double xreg_v_tri[] = {0.,0.,1.0,1.0,0.,1.0,0.5,sqrt(3.0)/2.0,1.0};
-  double xreg_v_tetra[] = {0.,0.,0.,1.0,
-			   1.,0.,0.,1.0,
-			   0.5,sqrt(3.0)/2.0,0.,1.0,
-			   0.5,1.0/(sqrt(3.0)*2.0),sqrt(2.0/3.0),1.0};
-  xreg.t().set(ndim==2? xreg_v_tri : xreg_v_tetra).rs();
+  if (comp_mat_res) {
+    res_h = get_arg_handle("res",
+                           "No handle for `res'\n");
+    res_delta_h = get_arg_handle("res_delta",
+                                 "No handle for `res_delta'\n");
+    mat_h = get_arg_handle("A","No handle for `A'\n");
+
+    dVdW.resize(2,ndim,ndim).set(0.);
+    dSldW.resize(2,ndim,ndim).set(0.);
+    dWdu.resize(4,ndim,ndim,nel,ndim).set(0.);
+    d2VdW2.resize(4,ndim,ndim,ndim,ndim).set(0.);
+    d2SldW2.resize(4,ndim,ndim,ndim,ndim).set(0.);
+    w.resize(2,ndim,ndim).set(0.);
+    w0.resize(2,ndim,ndim).set(0.);
+
+    tmp2.resize(2,ndim+1,ndim+1);
+    xreg.resize(2,ndim+1,ndim+1);
+    double xreg_v_tri[] = {0.,0.,1.0,1.0,0.,1.0,0.5,sqrt(3.0)/2.0,1.0};
+    double xreg_v_tetra[] = {0.,0.,0.,1.0,
+                             1.,0.,0.,1.0,
+                             0.5,sqrt(3.0)/2.0,0.,1.0,
+                             0.5,1.0/(sqrt(3.0)*2.0),sqrt(2.0/3.0),1.0};
+    xreg.t().set(ndim==2? xreg_v_tri : xreg_v_tetra).rs();
 
 #if 0
-  xreg.print("xreg: ");
-  FastMat2 a(1,ndim);
-  xreg.is(1,1,ndim);
-  for (int j=1; j<4; j++) {
-    for (int k=1; k<4; k++) {
-      xreg.ir(2,j);
-      xreg.print("");
-      a.set(0.0).add(xreg);
-      xreg.ir(2,k);
-      xreg.print("");
-      a.set(0.0).rest(xreg);
-      printf("length of edge: %f\n",sqrt(a.sum_square_all()));
+    xreg.print("xreg: ");
+    FastMat2 a(1,ndim);
+    xreg.is(1,1,ndim);
+    for (int j=1; j<4; j++) {
+      for (int k=1; k<4; k++) {
+        xreg.ir(2,j);
+        xreg.print("");
+        a.set(0.0).add(xreg);
+        xreg.ir(2,k);
+        xreg.print("");
+        a.set(0.0).rest(xreg);
+        printf("length of edge: %f\n",sqrt(a.sum_square_all()));
+      }
     }
-  }
-  PetscFinalize();
-  exit(0);
+    PetscFinalize();
+    exit(0);
 #endif
 
-  tmp3.inv(xreg);
-  tmp4.resize(2,ndim,ndim+1);
+    tmp3.inv(xreg);
+    tmp4.resize(2,ndim,ndim+1);
 
-  vaux1.resize(1,ndim).set(0.);
-  vaux2.resize(2,ndim,3).set(0.);
+    vaux1.resize(1,ndim).set(0.);
+    vaux2.resize(2,ndim,3).set(0.);
 
-  epsilon_LC.eps_LC();
+    epsilon_LC.eps_LC();
 
-  for(int i=1;i <= ndim;i++){
-    for(int j=1;j <= ndim;j++) {
-      dWdu.setel(-1.,i,j,1,j);
-      for(int k=2;k <= nel;k++) {
-	if (i+1 == k) {
-	  dWdu.setel(1.,i,j,k,j);
-	}
+    for(int i=1;i <= ndim;i++){
+      for(int j=1;j <= ndim;j++) {
+        dWdu.setel(-1.,i,j,1,j);
+        for(int k=2;k <= nel;k++) {
+          if (i+1 == k) {
+            dWdu.setel(1.,i,j,k,j);
+          }
+        }
       }
     }
   }
@@ -176,9 +199,12 @@ element_connector(const FastMat2 &xloc,
     dSldW.setel(w.get(2,2)+vaux1.get(2),2,2);
     dSldW.scale(2.);
 
-    d2VdW2.setel(0.5,1,1,2,2).setel(-0.5,1,2,2,1).setel(-0.5,2,1,1,2).setel(0.5,2,2,1,1);
-    d2SldW2.setel(4.,1,1,1,1).setel(4.,1,2,1,2).setel(-2.,1,1,2,1).setel(-2.,1,2,2,2);
-    d2SldW2.setel(-2.,2,1,1,1).setel(-2.,2,2,1,2).setel(4.,2,1,2,1).setel(4.,2,2,2,2);
+    d2VdW2.setel(0.5,1,1,2,2).setel(-0.5,1,2,2,1)
+      .setel(-0.5,2,1,1,2).setel(0.5,2,2,1,1);
+    d2SldW2.setel(4.,1,1,1,1).setel(4.,1,2,1,2)
+      .setel(-2.,1,1,2,1).setel(-2.,1,2,2,2);
+    d2SldW2.setel(-2.,2,1,1,1).setel(-2.,2,2,1,2)
+      .setel(4.,2,1,2,1).setel(4.,2,2,2,2);
   } else if (ndim == 3) {
 
     int ind[5]={3,1,2,3,1};
@@ -208,16 +234,27 @@ element_connector(const FastMat2 &xloc,
     for (int p=1;p<=ndim;p++) {
       for (int q=1;q<=ndim;q++) {
 	for (int r=1;r<=ndim;r++) {
-	  dVdW.ir(1,1).ir(2,p).set(dVdW.get(1,p)+epsilon_LC.get(p,q,r)*w.get(2,q)*w.get(3,r)).rs();
-	  dVdW.ir(1,2).ir(2,q).set(dVdW.get(2,q)+epsilon_LC.get(p,q,r)*w.get(1,p)*w.get(3,r)).rs();
-	  dVdW.ir(1,3).ir(2,r).set(dVdW.get(3,r)+epsilon_LC.get(p,q,r)*w.get(1,p)*w.get(2,q)).rs();
-
-	  d2VdW2.ir(1,2).ir(2,q).ir(3,1).ir(4,p).set(d2VdW2.get(2,q,1,p)+epsilon_LC.get(p,q,r)*w.get(3,r)).rs();
-	  d2VdW2.ir(1,3).ir(2,r).ir(3,1).ir(4,p).set(d2VdW2.get(3,r,1,p)+epsilon_LC.get(p,q,r)*w.get(2,q)).rs();
-	  d2VdW2.ir(1,1).ir(2,p).ir(3,2).ir(4,q).set(d2VdW2.get(1,p,2,q)+epsilon_LC.get(p,q,r)*w.get(3,r)).rs();
-	  d2VdW2.ir(1,3).ir(2,r).ir(3,2).ir(4,q).set(d2VdW2.get(3,r,2,q)+epsilon_LC.get(p,q,r)*w.get(1,p)).rs();
-	  d2VdW2.ir(1,1).ir(2,p).ir(3,3).ir(4,r).set(d2VdW2.get(1,p,3,r)+epsilon_LC.get(p,q,r)*w.get(2,q)).rs();
-	  d2VdW2.ir(1,2).ir(2,q).ir(3,3).ir(4,r).set(d2VdW2.get(2,q,3,r)+epsilon_LC.get(p,q,r)*w.get(1,p)).rs();
+	  dVdW.ir(1,1).ir(2,p)
+            .set(dVdW.get(1,p) +epsilon_LC.get(p,q,r)
+                 *w.get(2,q)*w.get(3,r)).rs();
+	  dVdW.ir(1,2).ir(2,q)
+            .set(dVdW.get(2,q)+epsilon_LC.get(p,q,r)
+                 *w.get(1,p)*w.get(3,r)).rs();
+	  dVdW.ir(1,3).ir(2,r)
+            .set(dVdW.get(3,r)+epsilon_LC.get(p,q,r)
+                 *w.get(1,p)*w.get(2,q)).rs();
+	  d2VdW2.ir(1,2).ir(2,q).ir(3,1).ir(4,p)
+            .set(d2VdW2.get(2,q,1,p)+epsilon_LC.get(p,q,r)*w.get(3,r)).rs();
+	  d2VdW2.ir(1,3).ir(2,r).ir(3,1).ir(4,p)
+            .set(d2VdW2.get(3,r,1,p)+epsilon_LC.get(p,q,r)*w.get(2,q)).rs();
+	  d2VdW2.ir(1,1).ir(2,p).ir(3,2).ir(4,q)
+            .set(d2VdW2.get(1,p,2,q)+epsilon_LC.get(p,q,r)*w.get(3,r)).rs();
+	  d2VdW2.ir(1,3).ir(2,r).ir(3,2).ir(4,q)
+            .set(d2VdW2.get(3,r,2,q)+epsilon_LC.get(p,q,r)*w.get(1,p)).rs();
+	  d2VdW2.ir(1,1).ir(2,p).ir(3,3).ir(4,r)
+            .set(d2VdW2.get(1,p,3,r)+epsilon_LC.get(p,q,r)*w.get(2,q)).rs();
+	  d2VdW2.ir(1,2).ir(2,q).ir(3,3).ir(4,r)
+            .set(d2VdW2.get(2,q,3,r)+epsilon_LC.get(p,q,r)*w.get(1,p)).rs();
 	}
       }
     }
@@ -238,18 +275,28 @@ element_connector(const FastMat2 &xloc,
       w.rs();
       vaux2.rs();
       for (int j=1;j<=ndim;j++) {
-	dSldW.setel(vaux1.get(1)*w.get(i,j)-vaux1.get(2)*vaux2.get(j,2)+vaux1.get(3)*vaux2.get(j,3),i,j);
+	dSldW.setel(vaux1.get(1)*w.get(i,j)-vaux1.get(2)
+                    *vaux2.get(j,2)+vaux1.get(3)*vaux2.get(j,3),i,j);
 
 	for (int k=1;k<=ndim;k++) {
-	  d2SldW2.setel(d2SldW2.get(i,j,i,k)+w.get(i,k)*w.get(i,j)/vaux1.get(1),i,j,i,k);
-	  d2SldW2.setel(d2SldW2.get(i,j,i,k)+vaux2.get(k,2)*vaux2.get(j,2)/vaux1.get(2),i,j,i,k);
-	  d2SldW2.setel(d2SldW2.get(i,j,i,k)+vaux2.get(k,3)*vaux2.get(j,3)/vaux1.get(3),i,j,i,k);
-	  d2SldW2.setel(d2SldW2.get(i,j,ind[i+1],k)-vaux2.get(k,2)*vaux2.get(j,2)/vaux1.get(2),i,j,ind[i+1],k);
-	  d2SldW2.setel(d2SldW2.get(i,j,ind[i-1],k)-vaux2.get(k,3)*vaux2.get(j,3)/vaux1.get(3),i,j,ind[i-1],k);
+	  d2SldW2.setel(d2SldW2.get(i,j,i,k)
+                        +w.get(i,k)*w.get(i,j)/vaux1.get(1),i,j,i,k);
+	  d2SldW2.setel(d2SldW2.get(i,j,i,k)
+                        +vaux2.get(k,2)*vaux2.get(j,2)/vaux1.get(2),i,j,i,k);
+	  d2SldW2.setel(d2SldW2.get(i,j,i,k)
+                        +vaux2.get(k,3)*vaux2.get(j,3)/vaux1.get(3),i,j,i,k);
+	  d2SldW2.setel(d2SldW2.get(i,j,ind[i+1],k)
+                        -vaux2.get(k,2)*vaux2.get(j,2)/vaux1.get(2),
+                        i,j,ind[i+1],k);
+	  d2SldW2.setel(d2SldW2.get(i,j,ind[i-1],k)-vaux2.get(k,3)
+                        *vaux2.get(j,3)/vaux1.get(3),i,j,ind[i-1],k);
 	  if (k==j) {
-	    d2SldW2.setel(d2SldW2.get(i,j,i,k)+vaux1.get(1)+vaux1.get(2)+vaux1.get(3),i,j,i,k);
-	    d2SldW2.setel(d2SldW2.get(i,j,ind[i+1],k)-vaux1.get(2),i,j,ind[i+1],k);
-	    d2SldW2.setel(d2SldW2.get(i,j,ind[i-1],k)-vaux1.get(3),i,j,ind[i-1],k);
+	    d2SldW2.setel(d2SldW2.get(i,j,i,k)+vaux1.get(1)
+                          +vaux1.get(2)+vaux1.get(3),i,j,i,k);
+	    d2SldW2.setel(d2SldW2.get(i,j,ind[i+1],k)
+                          -vaux1.get(2),i,j,ind[i+1],k);
+	    d2SldW2.setel(d2SldW2.get(i,j,ind[i-1],k)
+                          -vaux1.get(3),i,j,ind[i-1],k);
 	  }
 	}
       }
@@ -288,11 +335,14 @@ element_connector(const FastMat2 &xloc,
   d2Q.axpy(mat1,-2./Sl);
 
   mat.prod(dQ,dQ,1,2,3,4).scale((distor_exp-1)/Q);
-  mat.axpy(d2Q,1.).scale(distor_exp*c_distor*pow(Q,distor_exp-1.));
+  mat.axpy(d2Q,1.).scale(distor_exp
+                         *c_distor*pow(Q,distor_exp-1.));
 
   mat1.prod(dVdu,dVdu,1,2,3,4);
-  mat.axpy(mat1,volume_exp*c_volume/pow(Vref,volume_exp)*(volume_exp-1.)*pow(V-Vref,volume_exp-2.));
-  mat.axpy(d2Vdu2,volume_exp*c_volume/pow(Vref,volume_exp)*pow(V-Vref,volume_exp-1.)).scale(-1.);
+  mat.axpy(mat1,volume_exp*c_volume/pow(Vref,volume_exp)
+           *(volume_exp-1.)*pow(V-Vref,volume_exp-2.));
+  mat.axpy(d2Vdu2,volume_exp*c_volume/pow(Vref,volume_exp)
+           *pow(V-Vref,volume_exp-1.)).scale(-1.);
 
   if (use_ref_mesh) {
     res2.prod(res,iT0,1,-1,-1,2);
@@ -300,4 +350,9 @@ element_connector(const FastMat2 &xloc,
     mat2.prod(mat,iT0,1,-1,3,4,-1,2);
     mat.prod(mat2,iT0,1,2,3,-1,-1,4);
   }
+  res_delta.set(res).scale(2.0);
+  int nen = nel*ndof;
+  export_vals(res_h,res);
+  export_vals(res_delta_h,res_delta);
+  export_vals(mat_h,mat);
 }
