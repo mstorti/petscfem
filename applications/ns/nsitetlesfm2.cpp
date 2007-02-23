@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: nsitetlesfm2.cpp,v 1.76 2007/01/30 19:03:44 mstorti Exp $
+//$Id: nsitetlesfm2.cpp,v 1.76.18.1 2007/02/23 21:41:22 mstorti Exp $
 
 #include <src/fem.h>
 #include <src/utils.h>
@@ -129,6 +129,11 @@ assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
   //o Pointer to old coordinates in
   //  #nodedata# array excluding the first #ndim# values
   SGETOPTDEF(int,indx_ALE_xold,1);
+  //o Assert `fractional_step' is not used. 
+  SGETOPTDEF(int,fractional_step,0);
+  PETSCFEM_ASSERT0(!fractional_step,
+                   "This elemset is to be used only \n"
+                   "with the monolithic version. ");  
 
   // allocate local vecs
   int kdof;
