@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: bccnsasmfm2.cpp,v 1.3 2007/01/30 19:03:44 mstorti Exp $
+//$Id: bccnsasmfm2.cpp,v 1.3.18.1 2007/02/24 02:24:50 mstorti Exp $
 
 #include <src/fem.h>
 #include <src/utils.h>
@@ -81,7 +81,7 @@ int bcconv_nsasm_fm2::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
   }
 
   // Get arguments from arg_list
-  double *locst,*locst2,*retval,*retvalmat;
+  double *locst=NULL,*locst2=NULL,*retval=NULL,*retvalmat=NULL;
   if (comp_mat) {
     retvalmat = arg_data_v[0].retval;
   }
@@ -142,7 +142,7 @@ int bcconv_nsasm_fm2::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
   // Definiciones para descargar el lazo interno
   double detJaco,p_star,T_star,wpgdet;
 
-  int elem, ipg,node, jdim, kloc,lloc,ldof;
+  int elem=0, ipg,node, jdim, kloc,lloc,ldof;
 
   FMatrix Jaco(ndimel,ndim),resmom(nel,ndim),normal(ndim),matij(ndof,ndof),resther(nel);
 

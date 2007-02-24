@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: nssupg.cpp,v 1.16 2003/07/02 23:22:19 mstorti Exp $
+//$Id: nssupg.cpp,v 1.16.112.1 2007/02/24 02:13:03 mstorti Exp $
 
 #include <src/fem.h>
 #include <src/utils.h>
@@ -79,15 +79,15 @@ int ns_sup_g::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
   int nen = nel*ndof;
 
   // Get arguments from arg_list
-  double *locst,*locst2,*retval,*retvalmat;
+  double *locst=NULL,*locst2=NULL,*retval=NULL,*retvalmat=NULL;
   if (comp_mat) {
     retvalmat = arg_data_v[0].retval;
   } 
 
   // rec_Dt is the reciprocal of Dt (i.e. 1/Dt)
   // for steady solutions it is set to 0. (Dt=inf)
-  GlobParam *glob_param;
-  double *hmin,Dt,rec_Dt;
+  GlobParam *glob_param=NULL;
+  double *hmin=NULL,Dt=NAN,rec_Dt=NAN;
   int ja_hmin;
 #define WAS_SET arg_data_v[ja_hmin].was_set
   if (comp_mat_res) {

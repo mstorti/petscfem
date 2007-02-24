@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: genload.cpp,v 1.15 2007/02/20 14:57:47 mstorti Exp $
+//$Id: genload.cpp,v 1.15.8.1 2007/02/24 02:20:09 mstorti Exp $
 #include <src/fem.h>
 #include <src/utils.h>
 #include <src/readmesh.h>
@@ -70,16 +70,16 @@ int GenLoad::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
   int nen = nel*ndof;
 
   // Get arguments from arg_list
-  double *locst,*locst2,*retval,*retvalmat;
+  double *locst=NULL,*locst2=NULL,*retval=NULL,*retvalmat=NULL;
   if (comp_mat) {
     retvalmat = arg_data_v[0].retval;
   } 
 
   // rec_Dt is the reciprocal of Dt (i.e. 1/Dt)
   // for steady solutions it is set to 0. (Dt=inf)
-  GlobParam *glob_param;
-  double *hmin,Dt,rec_Dt;
-  int ja_hmin;
+  GlobParam *glob_param=NULL;
+  double *hmin=NULL,Dt=NAN,rec_Dt=NAN;
+  int ja_hmin=0;
 #define WAS_SET arg_data_v[ja_hmin].was_set
   if (comp_mat_res) {
     int ja=0;

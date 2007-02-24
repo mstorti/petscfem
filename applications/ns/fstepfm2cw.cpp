@@ -79,9 +79,10 @@ int fracstep_fm2_cw::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
     exit(1);
   }
 
-  double *locst,*locst2,*retval,*retvalmat,*retvalmat_mom,*retvalmat_poi,
-    *retvalmat_prj;
-  WallData *wall_data;
+  double *locst=NULL,*locst2=NULL,*retval=NULL,*retvalmat=NULL,
+    *retvalmat_mom=NULL,*retvalmat_poi=NULL,
+    *retvalmat_prj=NULL;
+  WallData *wall_data=NULL;
 
   // rec_Dt is the reciprocal of Dt (i.e. 1/Dt)
   // for steady solutions it is set to 0. (Dt=inf)
