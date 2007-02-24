@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: fstepfm2.cpp,v 1.37 2006/02/18 22:40:47 mstorti Exp $
+//$Id: fstepfm2.cpp,v 1.37.32.1 2007/02/24 02:18:35 mstorti Exp $
  
 #include <src/fem.h>
 #include <src/utils.h>
@@ -124,8 +124,9 @@ int fracstep::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
     exit(1);
   }
 
-  double *locst,*locst2,*retval,*retvalmat,*retvalmat_mom,*retvalmat_poi,
-    *retvalmat_prj;
+  double *locst=NULL,*locst2=NULL,*retval=NULL,
+    *retvalmat=NULL,*retvalmat_mom=NULL,*retvalmat_poi=NULL,
+    *retvalmat_prj=NULL;
 
   WallData *wall_data_p=NULL;
   if (get_nearest_wall_element) {
@@ -140,8 +141,8 @@ int fracstep::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
   // rec_Dt is the reciprocal of Dt (i.e. 1/Dt)
   // for steady solutions it is set to 0. (Dt=inf)
   GlobParam *glob_param=NULL;
-  double Dt,rec_Dt;
-  arg_data *A_mom_arg,*A_poi_arg,*A_prj_arg;
+  double Dt=NAN,rec_Dt=NAN;
+  arg_data *A_mom_arg=NULL,*A_poi_arg=NULL,*A_prj_arg=NULL;
   if (comp_mat_prof) {
     int ja=0;
     retvalmat_mom = arg_data_v[ja++].retval;
@@ -471,7 +472,7 @@ int fracstep::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
       }
     }
 
-    double shear_vel;
+    double shear_vel=NAN;
     if (comp_res_mom) {
       int wall_elem;
       if (LES && A_van_Driest>0.) {
@@ -570,7 +571,7 @@ int fracstep::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
 
 	// Smagorinsky turbulence model
 	double nu_eff;
-	double van_D,ywall;
+	double van_D=NAN,ywall=NAN;
 	if (LES) {
 
 	strain_rate.set(grad_u_star);
