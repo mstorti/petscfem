@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: ffadvfm2.cpp,v 1.54 2007/02/04 14:10:09 mstorti Exp $
+//$Id: ffadvfm2.cpp,v 1.54.16.1 2007/02/24 01:01:25 mstorti Exp $
 
 #include <stdio.h>
 #include <string.h>
@@ -1073,7 +1073,7 @@ void newadvecfm2_ff_t::compute_flux(COMPUTE_FLUX_ARGS) {
       assert(advdf_e);
       
       double Volume = advdf_e->volume();
-      double Delta;
+      double Delta=NAN;
       if (ndim==2) Delta = sqrt(Volume);
       if (ndim==3) Delta = cbrt(Volume);
 
