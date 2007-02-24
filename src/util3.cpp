@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-// $Id: util3.cpp,v 1.14 2007/01/30 19:03:44 mstorti Exp $
+// $Id: util3.cpp,v 1.14.18.1 2007/02/24 12:31:10 mstorti Exp $
 #include <cstring>
 #include <cstdio>
 #include <cassert>
@@ -116,7 +116,7 @@ int DXSplit::parse(const char *line) {
   tokenize(line,tokens);
   int ntoken = tokens.size();
   vector<int> nodes;
-  int j=0, ierr, node, subnel;
+  int j=0, ierr, node, subnel=0;
   Subelem se;
 
   splitting.clear();
