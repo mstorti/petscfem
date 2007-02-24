@@ -1,5 +1,5 @@
 #__INSERT_LICENSE__
-# $Id: Makefile,v 1.27.10.1 2007/02/24 16:07:44 mstorti Exp $ 
+# $Id: Makefile,v 1.27.10.2 2007/02/24 16:19:03 mstorti Exp $ 
 
 .PHONY: distcont distmap distmat dist_graph
 
@@ -13,7 +13,7 @@ tests: distcont distmap distmat dist_graph tests_sb
 #w Tests the distributed container class
 distcont: distcont.bin
 	$(MPIRUN) -machinefile machi.dat -np 2 distcont.bin \
-		10 100 1e-12   $(RDR) $(call in_backg,distcont.sal.tmp)
+		10 100 1e-12   $(call in_backg,distcont.sal.tmp)
 
 dm2: distmat.bin
 	$(MPIRUN) -machinefile machi.dat -np 2 distmat.bin \
@@ -22,14 +22,14 @@ dm2: distmat.bin
 #w check basic template (map<int,double>)
 distmap: distmap.bin
 	$(MPIRUN) -machinefile machi.dat -np 3 distmap.bin \
-		100 10000 1e-12 g $(RDR) $(call in_backg,distmapg.sal.tmp)
+		100 10000 1e-12 g $(call in_backg,distmapg.sal.tmp)
 	$(MPIRUN) -machinefile machi.dat -np 3 distmap.bin \
-		100 10000 1e-12 s $(RDR) > $(call in_backg,distmaps.sal.tmp)
+		100 10000 1e-12 s $(call in_backg,distmaps.sal.tmp)
 
 #w check DistMatrix class
 distmat: distmat.bin
 	$(MPIRUN) -machinefile machi.dat -np 3  distmat.bin \
-		100 10000 1e-12 0 $(RDR) $(call in_backg,distmat.sal.tmp)
+		100 10000 1e-12 0 $(call in_backg,distmat.sal.tmp)
 
 SRCS = $(wildcard *.cpp)
 
@@ -123,7 +123,7 @@ test_sync_buffer: testsb.bin
 
 #w Test `KeyedOutputBuffer' class
 test_kob_plain: testsb.bin
-	$(MPIRUN) -np $(NPSB) testsb.bin -k 1 -s 1 -p 1 -n 1 
+	$(MPIRUN) -np $(NPSB) testsb.bin -k 1 -s 1 -p 1 -n 1 \
 		$(call in_backg,$@.output.tmp)
 
 #w Test `KeyedOutputBuffer' class with no sorting
