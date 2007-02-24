@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: nsid.cpp,v 1.9 2003/09/22 10:14:30 mstorti Exp $
+//$Id: nsid.cpp,v 1.10 2007/02/24 14:45:08 mstorti Exp $
 
 #include <src/fem.h>
 #include <src/utils.h>
@@ -67,7 +67,7 @@ int ns_id::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
   nnod = dofmap->nnod;
 
   // Get arguments from arg_list
-  double *locst,*locst2,*retval,*retvalmat;
+  double *locst=NULL,*locst2=NULL,*retval=NULL,*retvalmat=NULL;
 
   if (comp_mat_res) {
     int ja=0;

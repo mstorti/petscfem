@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-/* $Id: nsirot.cpp,v 1.7 2007/01/30 19:03:44 mstorti Exp $ */
+/* $Id: nsirot.cpp,v 1.8 2007/02/24 14:45:08 mstorti Exp $ */
 
 #include <src/fem.h>
 #include <src/utils.h>
@@ -117,17 +117,17 @@ int nsi_rot::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
   }
 
   // Get arguments from arg_list
-  double *locst,*locst2,*retval,*retvalmat;
-  WallData *wall_data;
+  double *locst=NULL,*locst2=NULL,*retval=NULL,*retvalmat=NULL;
+  WallData *wall_data=NULL;
   if (comp_mat) {
     retvalmat = arg_data_v[0].retval;
   } else if (get_nearest_wall_element) {
     wall_data = (WallData *)arg_data_v[0].user_data;
   }
 
-  GlobParam *glob_param;
-  double *hmin,rec_Dt;
-  int ja_hmin;
+  GlobParam *glob_param=NULL;
+  double *hmin=NULL,rec_Dt=NAN;
+  int ja_hmin=0;
 #define WAS_SET arg_data_v[ja_hmin].was_set
   if (comp_mat_res) {
     int ja=0;
@@ -317,8 +317,8 @@ int nsi_rot::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
 
   FastMat2 P_supg, W_supg, W_supg_t, dmatw,
            grad_div_u(4,nel,ndim,nel,ndim);
-  double *grad_div_u_cache;
-  int grad_div_u_was_cached;
+  double *grad_div_u_cache=NULL;
+  int grad_div_u_was_cached=0;
 
   int elem, ipg,node, jdim, kloc,lloc,ldof;
 

@@ -1,6 +1,6 @@
 // -*- mode: C++ -*- 
 /*__INSERT_LICENSE__*/
-// $Id: dvector2.h,v 1.35 2007/01/30 19:03:44 mstorti Exp $
+// $Id: dvector2.h,v 1.36 2007/02/24 14:45:08 mstorti Exp $
 #ifndef PETSCFEM_DVECTOR2_H
 #define PETSCFEM_DVECTOR2_H
 
@@ -245,7 +245,7 @@ int dvector<float>::printe(FILE *fid,float t);
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 template<class T>
-T dvector<T>::new_t_elem() { T t; return t; }
+T dvector<T>::new_t_elem() { T t=T(); return t; }
 
 template<>
 double dvector<double>::new_t_elem();

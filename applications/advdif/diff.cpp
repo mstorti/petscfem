@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: diff.cpp,v 1.11 2007/02/23 16:31:14 mstorti Exp $
+//$Id: diff.cpp,v 1.12 2007/02/24 14:45:08 mstorti Exp $
 extern int comp_mat_each_time_step_g,
   consistent_supg_matrix_g,
   local_time_step_g;
@@ -87,7 +87,7 @@ void Diff::new_assemble(arg_data_list &arg_data_v,const Nodedata *nodedata,
   double lambda_max;
   int jdtmin;
   GlobParam *glob_param=NULL;
-  double alpha,rec_Dt;
+  double alpha=1.0,rec_Dt=0.0;
 
   // The trapezoidal rule integration parameter 
   arg_data *staten_a=NULL,*stateo_a=NULL,*retval=NULL,*fdj_jac=NULL,

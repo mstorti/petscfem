@@ -1,13 +1,11 @@
 ################################################################
-# $Id: TODO,v 1.257 2007/02/23 16:31:14 mstorti Exp $
+# $Id: TODO,v 1.258 2007/02/24 14:45:07 mstorti Exp $
 TODO: [Mainly fixes go here...]
 =====
 
-* mmmove2 doesn't work with FastMat2 cached -> FIX
-* doesn't compile without `pthreads' (this was fixed?? -> check)
-* in advdif: setting ndim=3 but using 2d elements gives a FastMat2
-  error. Should be detected earlier?
 * using nsi_tet_les_fm2 with fractional step produces  SEGV
+* In test/sector/Makefile: change '-chmod +w sector.depl'
+       by calls to make-depl
 * Absorbing b.c.'s: 
     Make emphasis in the doc that the normal is the exterior normal to
     the fluid. 
@@ -151,6 +149,12 @@ TODO: [Mainly fixes go here...]
 DONE:
 =====
 
+* in advdif: setting ndim=3 but using 2d elements gives a FastMat2
+  error. Should be detected earlier? CAN'T REPRODUCE 2007-02-23 21:12:58
+* doesn't compile without `pthreads' FIXED:= in  `beta-3.49.73'
+* mmmove2 doesn't work with FastMat2 cached -> FIX
+  2007-02-23 14:23:35 FIXED:= `before_chunk()' must be called _before_
+   the element loop
 * read-bad-state-gives-error: When reading an incomplete state should
    give an error. (See notes.txt)
    FIXED: Added `check_initial_state_correct_size' option in version `beta-3.49.70'

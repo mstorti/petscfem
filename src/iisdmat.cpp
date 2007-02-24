@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: iisdmat.cpp,v 1.71 2007/01/30 19:03:44 mstorti Exp $
+//$Id: iisdmat.cpp,v 1.72 2007/02/24 14:45:08 mstorti Exp $
 // fixme:= this may not work in all applications
 #ifndef _GNU_SOURCE
 #define _GNU_SOURCE
@@ -166,7 +166,7 @@ int PFPETScMat::build_sles() {
   // warning:= avoiding `const' restriction!!
   ierr = KSPSetType(ksp,(char *)KSP_method.c_str()); CHKERRQ(ierr);
   if (KSP_method=="gmres") {
-    int (*fcn )(KSP,int);
+    int (*fcn )(KSP,int)=NULL;
     //o Orthogonalization method used in conjunction with GMRES. 
     // May be  {\tt unmodified\_gram\_schmidt},
     //  #modified_gram_schmidt#  or {\tt ir\_orthog} (default). (Iterative refinement).

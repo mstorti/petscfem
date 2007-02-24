@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: nsitetlesfm2.cpp,v 1.76 2007/01/30 19:03:44 mstorti Exp $
+//$Id: nsitetlesfm2.cpp,v 1.77 2007/02/24 14:45:08 mstorti Exp $
 
 #include <src/fem.h>
 #include <src/utils.h>
@@ -83,8 +83,8 @@ assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
   }
 
   // Get arguments from arg_list
-  double *locst,*locst2,*retval,*retvalmat;
-  WallData *wall_data;
+  double *locst=NULL,*locst2=NULL,*retval=NULL,*retvalmat=NULL;
+  WallData *wall_data=NULL;
   if (comp_mat) {
     retvalmat = arg_data_v[0].retval;
   } else if (get_nearest_wall_element) {
@@ -98,9 +98,9 @@ assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
 
   // rec_Dt is the reciprocal of Dt (i.e. 1/Dt)
   // for steady solutions it is set to 0. (Dt=inf)
-  GlobParam *glob_param;
-  double *hmin,Dt,rec_Dt;
-  int ja_hmin;
+  GlobParam *glob_param=NULL;
+  double *hmin=NULL,Dt=INFINITY,rec_Dt=0.0;
+  int ja_hmin=INT_MAX;
 #define WAS_SET arg_data_v[ja_hmin].was_set
   if (comp_mat_res) {
     int ja=0;
@@ -129,6 +129,11 @@ assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
   //o Pointer to old coordinates in
   //  #nodedata# array excluding the first #ndim# values
   SGETOPTDEF(int,indx_ALE_xold,1);
+  //o Assert `fractional_step' is not used. 
+  SGETOPTDEF(int,fractional_step,0);
+  PETSCFEM_ASSERT0(!fractional_step,
+                   "This elemset is to be used only \n"
+                   "with the monolithic version. ");  
 
   // allocate local vecs
   int kdof;
@@ -225,8 +230,8 @@ assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
 
   FastMat2 P_supg, W_supg, W_supg_t, dmatw,
     grad_div_u(4,nel,ndim,nel,ndim),P_pspg(2,ndim,nel),dshapex(2,ndim,nel);
-  double *grad_div_u_cache;
-  int grad_div_u_was_cached;
+  double *grad_div_u_cache=NULL;
+  int grad_div_u_was_cached=0;
 
   int elem, ipg,node, jdim, kloc,lloc,ldof;
 
@@ -384,7 +389,7 @@ assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
       Hloc.rs();
     }
     
-    double shear_vel;
+    double shear_vel=NAN;
     int wall_elem;
     if (LES && comp_mat_res && A_van_Driest>0.) {
 #ifdef USE_ANN
@@ -488,7 +493,7 @@ assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
 	}
 
 	// Smagorinsky turbulence model
-	double nu_eff,van_D,ywall;
+	double nu_eff=NAN,van_D=NAN,ywall=NAN;
 	if (LES) {
 	  double tr = (double) tmp15.prod(strain_rate,strain_rate,-1,-2,-1,-2);
 	  //	  double van_D;

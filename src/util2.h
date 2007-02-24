@@ -1,6 +1,6 @@
 // -*- mode: c++ -*-
 /*__INSERT_LICENSE__*/
-//$Id: util2.h,v 1.16 2007/02/23 16:31:14 mstorti Exp $
+//$Id: util2.h,v 1.17 2007/02/24 14:45:08 mstorti Exp $
 #ifndef UTIL2_H
 #define UTIL2_H
 
@@ -70,6 +70,7 @@ private:
   /// structures for `libc' time function calls.
   double start_time;
 public:
+  HPChrono() : start_time(0) { }
   /// return elapsed CPU time from start
   double elapsed() const {return gettod()-start_time;};
   /// reset start time to actual time

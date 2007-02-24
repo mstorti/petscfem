@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: adaptor.cpp,v 1.17 2007/02/23 16:31:14 mstorti Exp $
+//$Id: adaptor.cpp,v 1.18 2007/02/24 14:45:08 mstorti Exp $
 
 #include <src/fem.h>
 #include <src/utils.h>
@@ -149,7 +149,7 @@ int adaptor::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
   int nu=nodedata->nu;
 
   // Get arguments from arg_list
-  double *locst,*locst2,*retval,*retvalmat;
+  double *locst=NULL,*locst2=NULL,*retval=NULL,*retvalmat=NULL;
 
   if (!use_arg_handles) {
     if (comp_mat) 

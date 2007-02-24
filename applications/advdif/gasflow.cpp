@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: gasflow.cpp,v 1.48 2007/02/04 14:10:09 mstorti Exp $
+//$Id: gasflow.cpp,v 1.49 2007/02/24 14:45:08 mstorti Exp $
 
 #include <src/fem.h>
 #include <src/texthash.h>
@@ -558,7 +558,7 @@ void gasflow_ff::compute_flux(const FastMat2 &U,
 #define pi M_PI
       double Volume = advdf_e->volume();
       int axi = advdf_e->axi;
-      double h_grid;
+      double h_grid=NAN;
 
       if (ndim==2 | (ndim==3 && axi>0)) {
 	h_grid = sqrt(4.*Volume/pi);

@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: state.cpp,v 1.9 2007/01/30 19:03:44 mstorti Exp $
+//$Id: state.cpp,v 1.10 2007/02/24 14:45:08 mstorti Exp $
 
 #include "sttfilter.h"
  
@@ -16,7 +16,9 @@ State & State::axpy(double alpha,const State &v) {
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 #undef __FUNC__
 #define __FUNC__ "State::State(const State &v)"
-State::State(const State &v) : time(v.time) {
+State::State(const State &v) 
+  : vec(NULL), 
+    time(v.time) {
   vec = new Vec;
   int ierr = VecDuplicate(*v.vec,vec); ierr=0;
   assert(ierr==0); ierr=0;

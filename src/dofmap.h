@@ -1,6 +1,6 @@
 // -*- mode: c++ -*-
 /*__INSERT_LICENSE__*/
-//$Id: dofmap.h,v 1.24 2007/01/30 19:03:44 mstorti Exp $
+//$Id: dofmap.h,v 1.25 2007/02/24 14:45:08 mstorti Exp $
  
 #ifndef DOFMAP_H
 #define DOFMAP_H
@@ -28,11 +28,13 @@ class TimeData {};
 //   virtual double time() const;
 // };
 
-class Time : public TimeData{public:
+class Time : public TimeData { 
+public:
   double time() const {return time_;};
   void set(const double t) {time_=t;};
   void inc(const double dt) {time_+=dt;};
   operator double() const {return time_;};
+  Time() : time_(0.0) { }
 private:
   double time_;
 };
