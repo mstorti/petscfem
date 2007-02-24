@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: nsilesther.cpp,v 1.34.18.1 2007/02/24 01:30:16 mstorti Exp $
+//$Id: nsilesther.cpp,v 1.34.18.2 2007/02/24 12:06:57 mstorti Exp $
 
 #include <src/fem.h>
 #include <src/utils.h>
@@ -257,14 +257,14 @@ int nsi_tet_les_ther::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
   GPdata gp_data(geometry.c_str(),ndim,nel,npg,GP_FASTMAT2);
 
   // Definiciones para descargar el lazo interno
-  double detJaco, UU, u2, Peclet, psi, tau_supg, tau_pspg, div_u_star,
-    p_star,wpgdet,velmod,tol,h_supg,fz,delta_supg,Uh;
-  double tau_supg_th,T_star,dT,tmp1_th,tmp2_th;
+  double detJaco, UU, u2, Peclet, psi, tau_supg=NAN, tau_pspg=NAN, div_u_star,
+    p_star,wpgdet,velmod,tol,h_supg,fz,delta_supg=NAN,Uh;
+  double tau_supg_th=NAN,T_star,dT,tmp1_th,tmp2_th;
 
   FastMat2 P_supg, W_supg, W_supg_t, dmatw, W_supg_th,P_supg_th,
            grad_div_u(4,nel,ndim,nel,ndim);
-  double *grad_div_u_cache;
-  int grad_div_u_was_cached;
+  double *grad_div_u_cache=NULL;
+  int grad_div_u_was_cached=0;
 
   int elem, ipg,node, jdim, kloc,lloc,ldof;
 
@@ -292,7 +292,7 @@ int nsi_tet_les_ther::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
 
   double tmp12;
 //  double nu_eff, mu_eff, mu_l , kappa_eff;
-  double nu_eff, mu_eff, mu_l;
+  double nu_eff=NAN, mu_eff=NAN, mu_l=NAN;
   double tsf = temporal_stability_factor;
 
   FMatrix eye(ndim,ndim),seed,one_nel,matloc_prof(nen,nen);
@@ -410,7 +410,7 @@ int nsi_tet_les_ther::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
     pcol_star.set(pcol_new).scale(alpha).axpy(pcol,1-alpha);
     Tcol_star.set(Tcol_new).scale(alpha).axpy(Tcol,1-alpha);
 
-    double shear_vel;
+    double shear_vel=NAN;
     int wall_elem;
     if (LES && comp_mat_res && A_van_Driest>0.) {
 #ifdef USE_ANN
