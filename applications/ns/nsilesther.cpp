@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: nsilesther.cpp,v 1.34 2007/01/30 19:03:44 mstorti Exp $
+//$Id: nsilesther.cpp,v 1.34.18.1 2007/02/24 01:30:16 mstorti Exp $
 
 #include <src/fem.h>
 #include <src/utils.h>
@@ -92,17 +92,17 @@ int nsi_tet_les_ther::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
   }
 
   // Get arguments from arg_list
-  double *locst,*locst2,*retval,*retvalmat;
-  WallData *wall_data;
+  double *locst=NULL,*locst2=NULL,*retval=NULL,*retvalmat=NULL;
+  WallData *wall_data=NULL;
   if (comp_mat || comp_mat_th) {
     retvalmat = arg_data_v[0].retval;
   } else if (get_nearest_wall_element) {
     wall_data = (WallData *)arg_data_v[0].user_data;
   }
 
-  GlobParam *glob_param;
-  double *hmin,Dt,rec_Dt;
-  int ja_hmin;
+  GlobParam *glob_param=NULL;
+  double *hmin=NULL,Dt=NAN,rec_Dt=NAN;
+  int ja_hmin=0;
 #define WAS_SET arg_data_v[ja_hmin].was_set
   if (comp_mat_res || comp_mat_res_th) {
     int ja=0;
