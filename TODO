@@ -1,9 +1,11 @@
 ################################################################
-# $Id: TODO,v 1.257.2.2 2007/02/23 17:31:38 mstorti Exp $
+# $Id: TODO,v 1.257.2.3 2007/02/24 00:14:04 mstorti Exp $
 TODO: [Mainly fixes go here...]
 =====
 
 * using nsi_tet_les_fm2 with fractional step produces  SEGV
+* In test/sector/Makefile: change '-chmod +w sector.depl'
+       by calls to make-depl
 * Absorbing b.c.'s: 
     Make emphasis in the doc that the normal is the exterior normal to
     the fluid. 
@@ -148,7 +150,7 @@ DONE:
 =====
 
 * in advdif: setting ndim=3 but using 2d elements gives a FastMat2
-  error. Should be detected earlier?
+  error. Should be detected earlier? CAN'T REPRODUCE 2007-02-23 21:12:58
 * doesn't compile without `pthreads' FIXED:= in  `beta-3.49.73'
 * mmmove2 doesn't work with FastMat2 cached -> FIX
   2007-02-23 14:23:35 FIXED:= `before_chunk()' must be called _before_
