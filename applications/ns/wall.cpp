@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: wall.cpp,v 1.24 2007/02/18 21:49:37 mstorti Exp $
+//$Id: wall.cpp,v 1.24.12.1 2007/02/24 01:29:09 mstorti Exp $
 
 #include <src/fem.h>
 #include <src/utils.h>
@@ -146,8 +146,8 @@ int wall::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
   int nu=nodedata->nu;
 
   // Get arguments from arg_list
-  double *locst,*locst2,*retval,*retvalmat,
-    *retvalmat_poi,*retvalmat_prj;
+  double *locst=NULL,*locst2=NULL,*retval=NULL,*retvalmat=NULL,
+    *retvalmat_poi=NULL,*retvalmat_prj=NULL;
 
   //o The $y^+$ coordinate of the computational boundary
   TGETOPTDEF(thash,double,y_wall_plus,25.);
