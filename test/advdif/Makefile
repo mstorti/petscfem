@@ -1,5 +1,5 @@
 #__INSERT_LICENSE__
-# $Id: Makefile,v 1.30 2007/02/20 14:57:47 mstorti Exp $ 
+# $Id: Makefile,v 1.30.10.1 2007/02/24 15:59:05 mstorti Exp $ 
 
 .PHONY: plano data run sine 
 
@@ -99,7 +99,7 @@ plano.con plano.nod: plano.m
 
 advec: advec.depl
 	-$(MPIRUN) -np 1 -machinefile machi.dat $(ADVDIF) \
-			-case advec.depl
+			-case advec.depl $(call in_backg,$@)
 
 # .gdbinit:
 # 	echo file advdif >$@
@@ -145,7 +145,7 @@ sine.data: sine.data.epl
 #NP := $(shell procsel $(PETSCFEM_PROCTABLE))
 run: data
 	-rm -f dummy $(output_files_$(case))
-	-$(MPIRUN) -np 1 $(ADVDIF) -case $(case).depl > $(case).out
+	-$(MPIRUN) -np 1 $(ADVDIF) -case $(case).depl </dev/null > $(case).out
 
 # Tests to be done:
 # * Convergence to analityc solution

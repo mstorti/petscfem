@@ -1,4 +1,4 @@
-# $Id: Makefile,v 1.1 2003/02/17 14:53:21 mstorti Exp $ 
+# $Id: Makefile,v 1.1.114.1 2007/02/24 15:56:57 mstorti Exp $ 
 
 .PHONY: $(plano_list)
 plano_list = plano_cons plano_cons_auto plano_local plano_auto plano_local_nm \
@@ -19,7 +19,7 @@ plano_fm2_weak:   EPERLFLAGS = "-d fm2_weak=1"
 
 plano_%: 
 	$(MAKE) EPERLFLAGS=$(EPERLFLAGS) plano.depl
-	-$(MPIRUN) -np 1 $(ADV) -case plano.depl &> $@.sal
+	-$(MPIRUN) -np 1 $(ADV) -case plano.depl </dev/null &> $@.sal
 
 local_clean::
 	-rm -rf *.sal

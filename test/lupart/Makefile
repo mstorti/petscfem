@@ -1,5 +1,5 @@
 #__INSERT_LICENSE__
-# $Id: Makefile,v 1.47 2007/02/20 14:57:47 mstorti Exp $ 
+# $Id: Makefile,v 1.47.10.1 2007/02/24 16:03:00 mstorti Exp $ 
 
 .PHONY: force all run tests data
 
@@ -116,8 +116,10 @@ $(NAME).depl: force
 NPP := $(shell procsel $(PETSCFEM_PROCTABLE))
 NP := 1 
 test_case: test_case_data
-	if [ -e save.state ] ; then cp save.state save.state.tmp ; fi
-	-$(MPIRUN) -np $(NP) $(PROG) -case $(NAME).depl  > output.case_$(case).tmp
+	if [ -e save.state ] ;				\
+		then cp save.state save.state.tmp ; fi
+	-$(MPIRUN) -np $(NP) $(PROG) -case $(NAME).depl	\
+		</dev/null > output.case_$(case).tmp
 
 local_clean::
 	-rm -rf mat.output system.dat save.state data.m

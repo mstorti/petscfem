@@ -1,5 +1,5 @@
 #__INSERT_LICENSE__
-# $Id: Makefile,v 1.8 2007/02/20 14:57:47 mstorti Exp $ 
+# $Id: Makefile,v 1.8.10.1 2007/02/24 16:02:13 mstorti Exp $ 
 
 .PHONY: force all run tests data
 
@@ -19,7 +19,7 @@ NP := $(shell procsel $(PETSCFEM_PROCTABLE))
 test_case_%: 
 	$(MAKE) EPERLFLAGS='-d case=$*' data
 	-$(MPIRUN) -machinefile machi.dat -np 1 $(ADVDIF) \
-			-case genload.depl > output.case_$*.tmp
+			-case genload.depl </dev/null > output.case_$*.tmp
 	if [ -e save.state.tmp ] ; then mv save.state.tmp save.case_$*.tmp ; fi
 
 data: genload.depl
