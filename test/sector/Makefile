@@ -1,5 +1,5 @@
 #__INSERT_LICENSE__
-# $Id: Makefile,v 1.12 2007/02/20 14:57:47 mstorti Exp $ 
+# $Id: Makefile,v 1.12.10.1 2007/02/24 15:50:28 mstorti Exp $ 
 
 .PHONY: constraint_bug chunk_size_process sector iprops triangle lap_per
 
@@ -15,8 +15,7 @@ tests: sector chunk_size_process triangle lap_per
 #----<*>----------<*>----------<*>----------<*>----------<*>----------<*>-----
 #w Test on an angular sector, uses constraints. 
 sector: sector.depl $(LAPLACE)
-	-$(MPIRUN) -np 1 $(LAPLACE) -case sector.depl >/dev/null
-	-mv sector.sal sector0.sal
+	-$(MPIRUN) -np 1 $(LAPLACE) -case sector.depl $(call in_backg,sector)
 
 #----<*>----------<*>----------<*>----------<*>----------<*>----------<*>-----
 NP := 2
@@ -30,17 +29,20 @@ chunk_size_process: $(LAPLACE)
 #
 	-chmod +w sector.depl 
 	$(EPERL) -P -d chunk_size=1 sector.epl >sector.depl
-	-$(MPIRUN) $(MCH) -np $(NP) $(LAPLACE) -case sector.depl >/dev/null
+	-$(MPIRUN) $(MCH) -np $(NP) $(LAPLACE) -case sector.depl \
+		$(call in_backg,$@-1)
 	mv sector.sal sector_chunk1.sal
 #
 	-chmod +w sector.depl 
 	$(EPERL) -P -d chunk_size=10 sector.epl >sector.depl
-	-$(MPIRUN) $(MCH) -np $(NP) $(LAPLACE) -case sector.depl >/dev/null
+	-$(MPIRUN) $(MCH) -np $(NP) $(LAPLACE) -case sector.depl \
+		$(call in_backg,$@-2)
 	mv sector.sal sector_chunk10.sal
 #
 	-chmod +w sector.depl 
 	$(EPERL) -P -d chunk_size=100 sector.epl >sector.depl
-	-$(MPIRUN) $(MCH) -np $(NP) $(LAPLACE) -case sector.depl >/dev/null
+	-$(MPIRUN) $(MCH) -np $(NP) $(LAPLACE) -case sector.depl \
+		$(call in_backg,$@-3)
 	mv sector.sal sector_chunk100.sal
 	-rm machi.dat
 
@@ -53,19 +55,21 @@ triangle: triangle_npg3 triangle_npg4 triangle_npg7
 triangle_npg3:
 	-chmod +w sector.depl 
 	$(EPERL) -P -d triangle=1 -d npg=3 sector.epl >sector.depl
-	-$(MPIRUN) -np 1 $(LAPLACE) -case sector.depl  >/dev/null
+	-$(MPIRUN) -np 1 $(LAPLACE) -case sector.depl \
+		$(call in_backg,$@)
 	mv sector.sal sector_triangle_npg3.sal
 
 triangle_npg4:
 	-chmod +w sector.depl 
 	$(EPERL) -P -d triangle=1 -d npg=4 sector.epl >sector.depl
-	-$(MPIRUN) -np 1 $(LAPLACE) -case sector.depl  >/dev/null
+	-$(MPIRUN) -np 1 $(LAPLACE) -case sector.depl  \
+		$(call in_backg,$@)
 	mv sector.sal sector_triangle_npg4.sal
 
 triangle_npg7:
 	-chmod +w sector.depl 
 	$(EPERL) -P -d triangle=1 -d npg=7 sector.epl >sector.depl
-	-$(MPIRUN) -np 1 $(LAPLACE) -case sector.depl  >/dev/null
+	-$(MPIRUN) -np 1 $(LAPLACE) -case sector.depl $(call in_backg,$@)
 	mv sector.sal sector_triangle_npg7.sal
 
 #----<*>----------<*>----------<*>----------<*>----------<*>----------<*>-----
@@ -78,7 +82,8 @@ iprops:
 #----<*>----------<*>----------<*>----------<*>----------<*>----------<*>-----
 #w Lapace on a square with periodic b.c.'s
 lap_per: lap_per.dat laplace
-	-$(MPIRUN) -np 1 $(LAPLACE) -case lap_per.dat >/dev/null
+	-$(MPIRUN) -np 1 $(LAPLACE) -case lap_per.dat \
+		$(call in_backg,$@)
 
 LOC_PROG := laplace
 PROG := $(LAPLACE)
