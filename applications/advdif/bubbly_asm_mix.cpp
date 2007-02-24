@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: bubbly_asm_mix.cpp,v 1.7 2005/10/25 14:06:25 mstorti Exp $
+//$Id: bubbly_asm_mix.cpp,v 1.7.34.1 2007/02/24 01:09:27 mstorti Exp $
 //
 //
 // <<<<<<<<<<<<<<<<<< VERSION ASM >>>>>>>>>>>>>>>>>>>>>>>>
@@ -856,7 +856,7 @@ void bubbly_ff::compute_flux(const FastMat2 &U,
 #define pi M_PI
 
   double Volume = advdf_e->volume();
-  double Delta;
+  double Delta=NAN;
   if (ndim==2) Delta = sqrt(Volume);
   if (ndim==3) Delta = cbrt(Volume);
 
