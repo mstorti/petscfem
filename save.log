@@ -4830,3 +4830,6 @@ tag: beta-3.51.12 on Fri, 23 Feb 2007 13:21:40 -0300 by mstorti in minerva.cerid
 ----------
 tag: beta-3.51.13 on Fri, 23 Feb 2007 13:31:40 -0300 by mstorti in minerva.ceride.gov.ar
      > Merged from `mstorti-v2-branch'
+----------
+tag: beta-3.51.14 on Sat, 24 Feb 2007 09:09:46 -0300 by mstorti in spider
+     > Fixed uninitialized variables
