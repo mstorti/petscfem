@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: utils.cpp,v 1.17 2007/01/30 19:03:44 mstorti Exp $
+//$Id: utils.cpp,v 1.17.18.1 2007/02/24 00:45:32 mstorti Exp $
  
 #include <src/debug.h>
 #include <stdio.h>
@@ -172,7 +172,7 @@ int irand(int n) {
 int mini(int n,...) {
   va_list list;
   va_start(list,n);
-  int min,item;
+  int min=INT_MIN,item;
   for (int kk=0; kk<n; kk++) {
     item = va_arg(list,int);
     min = ( kk==0 ? item : ( min < item ? min : item));
@@ -185,7 +185,7 @@ int mini(int n,...) {
 int maxi(int n,...) {
   va_list list;
   va_start(list,n);
-  int max,item;
+  int max=INT_MIN,item;
   for (int kk=0; kk<n; kk++) {
     item = va_arg(list,int);
     max = ( kk==0 ? item : ( max > item ? max : item));
@@ -198,7 +198,7 @@ int maxi(int n,...) {
 double maxd(int n,...) {
   va_list list;
   va_start(list,n);
-  double max,item;
+  double max=-INFINITY,item;
   for (int kk=0; kk<n; kk++) {
     item = va_arg(list,double);
     max = ( kk==0 ? item : ( max > item ? max : item));

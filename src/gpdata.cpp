@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: gpdata.cpp,v 1.44 2007/01/30 19:03:44 mstorti Exp $
+//$Id: gpdata.cpp,v 1.44.18.1 2007/02/24 00:35:16 mstorti Exp $
 
 #include "petscsles.h"
 #include <math.h>
@@ -10,13 +10,14 @@
 #include <src/utils.h>
 #include <src/gpdata.h>
 
-#define GPERROR \
-    {PFEM_TRACE(""); \
-    PetscPrintf(PETSC_COMM_WORLD,"Not implemented combination: geometry=\"%s\","\
-           "nel=%d, npg=%d, ndimel=%d, \n", \
-	   geom,nel,npg,ndimel); \
-    PetscFinalize(); \
-		       exit(0);} \
+#define GPERROR                                         \
+    {PFEM_TRACE("");                                    \
+     PetscPrintf(PETSC_COMM_WORLD,                      \
+       "Not implemented combination: geometry=\"%s\","  \
+       "nel=%d, npg=%d, ndimel=%d, \n",                 \
+       geom,nel,npg,ndimel);                            \
+     PetscFinalize();                                   \
+     exit(0);}
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 #undef __FUNC__
@@ -174,7 +175,7 @@ GPdata::GPdata(const char *geom,int ndimel,int nel,int npg_,int
     assert(ndimel==3);
     assert(nel==6);
     assert(npg==1 || npg==6 || npg==8); // other cases may be considered
-    int npg_seg, npg_tri;
+    int npg_seg=0, npg_tri=0;
     if (npg==1) { npg_seg=1; npg_tri=1; }
     else if (npg==6) { npg_seg=2; npg_tri=3; }
     else if (npg==8) { npg_seg=2; npg_tri=4; }

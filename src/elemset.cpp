@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: elemset.cpp,v 1.96 2007/02/23 03:05:01 mstorti Exp $
+//$Id: elemset.cpp,v 1.96.4.1 2007/02/24 00:32:27 mstorti Exp $
 
 #ifndef _GNU_SOURCE
 #define _GNU_SOURCE
@@ -20,11 +20,12 @@
 #include <src/timestat.h>
 #include <src/util3.h>
 #include <src/autostr.h>
+#include <src/stat.h>
 
 // iteration modes
 #define NOT_INCLUDE_GHOST_ELEMS 0
 #define INCLUDE_GHOST_ELEMS 1
-extern int MY_RANK,SIZE;
+#include <src/stat.h>
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 #define LOCST(iele,j,k) VEC3(locst,iele,j,nel,k,ndof)
@@ -181,63 +182,6 @@ int vector_assoc_gather(vector<double> *vector_assoc,
 }
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
-class Stat {
-public:
-  double vmin,vmax,sum;
-  int count,initialized;
-  Stat() {initialized=0;}
-  void reset() {initialized=0;}
-  void add(double val) {
-    if (!initialized) {
-      initialized = 1;
-      vmin = val;
-      vmax = val;
-      count = 1;
-      sum = val;
-    } else {
-      if (val<vmin) vmin = val;
-      if (val>vmax) vmax = val;
-      sum += val;
-      count++;
-    }
-  }
-  double avrg() { 
-    assert(initialized);
-    return sum/double(count);
-  }
-  double min() { 
-    assert(initialized);
-    return vmin;
-  }
-  double max() { 
-    assert(initialized);
-    return vmax;
-  }
-  int n() {
-    assert(initialized);
-    return count;
-  }
-  double total() {
-    assert(initialized);
-    return sum;
-  }
-  void print_stat(char * s= NULL) {
-    if (s) PetscPrintf(PETSC_COMM_WORLD,
-		       "Event %s ------------------------\n",s);
-    if (initialized) {
-      PetscSynchronizedPrintf(PETSC_COMM_WORLD, 
-			      "[%d] total: %g, max: %g, min: "
-			      "%g, avrg: %g, count: %d\n",
-			      MY_RANK, total(), max(), min(), 
-			      avrg(), n());
-    } else {
-      PetscSynchronizedPrintf(PETSC_COMM_WORLD,"[not initialized]\n");
-    }
-    PetscSynchronizedFlush(PETSC_COMM_WORLD);
-  }
-};
-
-//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 void Elemset::clear_error() { error_code_m=0; }
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
@@ -303,7 +247,7 @@ int assemble(Mesh *mesh,arg_list argl,
   arg_data_list arg_data_v(narg);
 
   // pref:= Local values (reference state for finite difference jacobian).
-  double *pref,fdj;
+  double *pref=NULL,fdj;
 
   MPI_Comm_rank(PETSC_COMM_WORLD,&myrank);
 
@@ -319,7 +263,7 @@ int assemble(Mesh *mesh,arg_list argl,
   // difference approximation to jacobian. 
   // j_pert:= this points to which argument is the vector to be
   // perturbed. 
-  int any_fdj = 0,j_pert;  
+  int any_fdj = 0,j_pert=0;  
   // any_include_ghost_elems:= any_not_include_ghost_elems=0:=
   // Flag whether any argument corresponds to that iteration mode. 
   // Iteration modes are mutually exclusive, so that we must check
@@ -503,7 +447,8 @@ int assemble(Mesh *mesh,arg_list argl,
 
     if (any_fdj) pref = new double[chunk_size*ndoft];
 
-    int el_start = 0, chunk = 0, el_last, last_chunk=0;
+    int el_start = 0, chunk = 0, 
+      el_last=0, last_chunk=0;
 
     //#define DEBUG_CHUNK_PROCESSING
 #ifdef DEBUG_CHUNK_PROCESSING
