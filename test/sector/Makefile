@@ -1,5 +1,5 @@
 #__INSERT_LICENSE__
-# $Id: Makefile,v 1.12.10.1 2007/02/24 15:50:28 mstorti Exp $ 
+# $Id: Makefile,v 1.12.10.2 2007/02/24 18:37:23 mstorti Exp $ 
 
 .PHONY: constraint_bug chunk_size_process sector iprops triangle lap_per
 
@@ -16,6 +16,7 @@ tests: sector chunk_size_process triangle lap_per
 #w Test on an angular sector, uses constraints. 
 sector: sector.depl $(LAPLACE)
 	-$(MPIRUN) -np 1 $(LAPLACE) -case sector.depl $(call in_backg,sector)
+	-mv sector.sal sector0.sal
 
 #----<*>----------<*>----------<*>----------<*>----------<*>----------<*>-----
 NP := 2

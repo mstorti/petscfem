@@ -1,4 +1,4 @@
-# $Id: Makefile,v 1.113.10.1 2007/02/24 16:31:30 mstorti Exp $ 
+# $Id: Makefile,v 1.113.10.2 2007/02/24 18:37:23 mstorti Exp $ 
 
 .PHONY: all run  compile lclean laplace adv nso laplace_tests force \
         ctest gprof srfgath
@@ -57,7 +57,7 @@ mesh:
 run: 
 	$(MAKE) mesh
 	-${MPIRUN} $(NL) $(MCH) -np $(NP) $(PROG) \
-		-case $(CASE).depl $(call in_backg,$@)
+		-case $(CASE).depl $(call in_backg,$@$(case))
 
 local_sw::
 	chmod 755 mkmpeg*.sh
@@ -123,14 +123,10 @@ k:
 #w Basic test for block uploading. This somewhat trivial since
 #w for NS the profile is full. 
 block_uploading:
-	$(MAKE) CASE=$(CASE_NAME) case=plain_bupl0 run \
-		> $(CASE_NAME).out.plain_bupl0.tmp
-	$(MAKE) CASE=$(CASE_NAME) case=plain_bupl1 run \
-		> $(CASE_NAME).out.plain_bupl1.tmp
-	$(MAKE) CASE=$(CASE_NAME) case=plain_bupl2 run \
-		> $(CASE_NAME).out.plain_bupl2.tmp
-	$(OCTAVE) check_plain.m				\
-		> $(CASE_NAME).plain-bupl.verif.tmp
+	$(MAKE) CASE=$(CASE_NAME) case=plain_bupl0 run 
+	$(MAKE) CASE=$(CASE_NAME) case=plain_bupl1 run 
+	$(MAKE) CASE=$(CASE_NAME) case=plain_bupl2 run 
+	$(OCTAVE) check_plain.m > $(CASE_NAME).plain-bupl.verif.tmp
 
 #---<*>---//---<*>---//---<*>---//---<*>---//---<*>---// 
 #w Checks the surf-gatherer class
