@@ -61,3 +61,8 @@ lk:
 	$(MAKE) -C $(PETSCFEM_DIR) $(LOC_PROG)
 	ln -f $(PROG) $(LOC_PROG)
 
+## Allows selectively redirecting
+in_backg = </dev/null >$(1).out.tmp
+# in_backg = 
+
+redir = </dev/null >$(1)

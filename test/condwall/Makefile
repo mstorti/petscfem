@@ -1,4 +1,4 @@
-# $Id: Makefile,v 1.12 2005/05/19 16:50:31 mstorti Exp $ 
+# $Id: Makefile,v 1.12.48.1 2007/02/24 16:19:03 mstorti Exp $ 
 
 default: condwall
 
@@ -23,11 +23,15 @@ condwall:
 #w Makes local link for running with debugger
 movwall.efn: movwall.cpp $(LIBPETSCFEM)
 
+IN_BACKG := </dev/null >burgers.$(CASE).out.tmp
+# IN_BACKG := 
+
 #w Runs program
 run: movwall.efn
 	mkstepsdir.pl
 	make-depl $(CASE).epl $(CASE).depl
-	-${MPIRUN} $(MCH) -np $(NP) $(PROG) -case $(CASE).depl
+	-${MPIRUN} $(MCH) -np $(NP) $(PROG) -case $(CASE).depl \
+		$(IN_BACKG)
 
 #w Makes some cleaning
 cw_shell_hook_init:
