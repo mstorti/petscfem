@@ -1,4 +1,4 @@
-# $Id: Makefile,v 1.113.10.2 2007/02/24 18:37:23 mstorti Exp $ 
+# $Id: Makefile,v 1.113.10.3 2007/02/24 21:47:00 mstorti Exp $ 
 
 .PHONY: all run  compile lclean laplace adv nso laplace_tests force \
         ctest gprof srfgath
@@ -133,7 +133,7 @@ block_uploading:
 srfgath:
 	$(MAKE) case=srfgath mesh
 	-${MPIRUN} $(NL) $(MCH) -np $(NP) $(PROG) \
-		-case $(CASE).depl > $(CASE).srfgath-output.tmp
+		-case $(CASE).depl </dev/null > $(CASE).srfgath-output.tmp
 	octave -qH check_srfgath.m > verif-srfgath.tmp
 
 #================================================================
