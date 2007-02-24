@@ -1,16 +1,19 @@
 // -*- mode: C++ -*- 
 /*__INSERT_LICENSE__*/
-// $Id: stat.h,v 1.1 2002/08/23 12:12:21 mstorti Exp $
+// $Id: stat.h,v 1.1.120.1 2007/02/24 02:56:42 mstorti Exp $
 #ifndef STAT_H
 #define STAT_H
+
+extern int MY_RANK,SIZE;
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 class Stat {
 public:
   double vmin,vmax,sum;
   int count,initialized;
-  Stat() {initialized=0;}
-  void reset() {initialized=0;}
+  Stat() : vmin(NAN), vmax(NAN), sum(NAN), 
+           count(0), initialized(0) { }
+  void reset() { initialized=0; }
   void add(double val) {
     if (!initialized) {
       initialized = 1;
