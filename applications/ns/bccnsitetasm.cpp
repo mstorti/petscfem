@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: bccnsitetasm.cpp,v 1.4 2007/01/30 19:03:44 mstorti Exp $
+//$Id: bccnsitetasm.cpp,v 1.4.18.1 2007/02/24 02:31:45 mstorti Exp $
 
 #include <src/fem.h>
 #include <src/utils.h>
@@ -76,7 +76,7 @@ int bcconv_nsi_tet_asm::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
   }
 
   // Get arguments from arg_list
-  double *locst,*locst2,*retval,*retvalmat;
+  double *locst=NULL,*locst2=NULL,*retval=NULL,*retvalmat=NULL;
   if (comp_mat) {
     retvalmat = arg_data_v[0].retval;
   }
@@ -137,7 +137,7 @@ int bcconv_nsi_tet_asm::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
   // Definiciones para descargar el lazo interno
   double detJaco,p_star,wpgdet;
 
-  int elem, ipg,node, jdim, kloc,lloc,ldof;
+  int elem=0, ipg,node, jdim, kloc,lloc,ldof;
 
   FMatrix Jaco(ndimel,ndim),resmom(nel,ndim),normal(ndim),matij(ndim+1,ndim+1);
   FMatrix rescont(nel),res_alpha_g(nel,nphases);
