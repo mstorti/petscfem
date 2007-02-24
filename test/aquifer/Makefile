@@ -1,4 +1,4 @@
-# $Id: Makefile,v 1.31 2007/02/20 14:57:47 mstorti Exp $ 
+# $Id: Makefile,v 1.31.10.1 2007/02/24 16:26:47 mstorti Exp $ 
 
 .PHONY:  force data test_plain test_var_eta test_transient rung run runs
 
@@ -113,7 +113,7 @@ data: force
 #w Runs program
 rung: data force
 	-${MPIRUN} $(MCH) -np $(np) $(PROG) \
-			-case $(CASE).depl > output.$(casen).out.tmp
+		-case $(CASE).depl $(call redir,output.$(casen).out.tmp)
 
 ###--------<*>--------<*>--------<*>--------<*>--------<*>--------<*>
 #w Detects positive slope.

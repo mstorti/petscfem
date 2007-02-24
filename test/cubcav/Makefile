@@ -1,4 +1,4 @@
-# $Id: Makefile,v 1.113 2007/02/20 14:57:47 mstorti Exp $ 
+# $Id: Makefile,v 1.113.10.1 2007/02/24 16:31:30 mstorti Exp $ 
 
 .PHONY: all run  compile lclean laplace adv nso laplace_tests force \
         ctest gprof srfgath
@@ -56,7 +56,8 @@ mesh:
 #w Runs program, use `mkmesh=0' or 1 to control mesh creation
 run: 
 	$(MAKE) mesh
-	-${MPIRUN} $(NL) $(MCH) -np $(NP) $(PROG) -case $(CASE).depl
+	-${MPIRUN} $(NL) $(MCH) -np $(NP) $(PROG) \
+		-case $(CASE).depl $(call in_backg,$@)
 
 local_sw::
 	chmod 755 mkmpeg*.sh
@@ -72,8 +73,9 @@ nettest = $(PETSCFEM_DIR)/tools/nettest.bin
 
 .PHONY: nettest
 nettest:
-	NP=`procsel -n ./proctable.geronimo` ;  \
-	$(MPIRUN) -machinefile machi.dat -np $$NP $(nettest)
+	NP=`procsel -n ./proctable.geronimo` ;			\
+	$(MPIRUN) -machinefile machi.dat -np $$NP $(nettest)	\
+		$(call in_backg,$@)
 
 dxo: viewer.dx.tmp
 
