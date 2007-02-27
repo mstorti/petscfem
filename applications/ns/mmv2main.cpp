@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: mmv2main.cpp,v 1.2.6.1 2007/02/26 21:48:38 mstorti Exp $
+//$Id: mmv2main.cpp,v 1.2.6.2 2007/02/27 00:56:47 mstorti Exp $
 #include <src/debug.h>
 #include <malloc.h>
 
@@ -21,7 +21,6 @@
 static char help[] = "PETSc-FEM Navier Stokes module\n\n";
 
 extern int MY_RANK,SIZE;
-double mmv_d2fd,mmv_dfd;
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 /** Creates hooks depending on the name. 
@@ -480,27 +479,11 @@ int mmove2_main() {
       argl.arg_add(&hmin,VECTOR_MIN,"hmin");
       argl.arg_add(&glob_param,USER_DATA,"glob_param");
 
-      mmv_d2fd=0.0;
-      mmv_dfd=0.0;
       debug.trace("Before residual computation...");
       ierr = assemble(mesh,argl,dofmap,"comp_mat_res",&time);
       CHKERRA(ierr);
       debug.trace("After residual computation.");
 
-#if 1
-    printf("res: ");
-    ierr = VecView(res,PETSC_VIEWER_STDOUT_WORLD);
-    CHKERRA(ierr);
-
-    printf("res_delta: ");
-    ierr = VecView(res_delta,PETSC_VIEWER_STDOUT_WORLD);
-    CHKERRA(ierr);
-    printf("mmv_d2fd: %f, mmv_dfd %f\n",mmv_d2fd,mmv_dfd);
-#endif
-      
-      PetscFinalize();
-      exit(0);
- 
       if (!print_linear_system_and_stop || solve_system) {
 	debug.trace("Before solving linear system...");
 	ierr = Ap->solve(res,dx); CHKERRA(ierr); 

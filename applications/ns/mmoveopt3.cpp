@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: mmoveopt3.cpp,v 1.10.2.1 2007/02/26 21:48:38 mstorti Exp $
+//$Id: mmoveopt3.cpp,v 1.10.2.2 2007/02/27 00:56:47 mstorti Exp $
 
 #include <src/fem.h>
 #include <src/utils.h>
@@ -16,7 +16,6 @@
 #include "mmoveopt3.h"
 
 extern GlobParam *GLOB_PARAM;
-extern double mmv_d2fd,mmv_dfd;
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 void mesh_move_opt3::before_chunk(const char *jobinfo) {
