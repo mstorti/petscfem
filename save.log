@@ -4842,3 +4842,5 @@ tag: beta-3.51.16 on Sat, 24 Feb 2007 11:47:08 -0300 by mstorti in aquiles
 ----------
 tag: beta-3.51.17 on Tue, 27 Feb 2007 18:11:10 -0300 by mstorti in minerva.ceride.gov.ar
      > Implementing `use_full_jacobian' on `nsitetlesf.cpp'
+----------
+tag: beta-3.51.18 on Thu, 01 Mar 2007 20:08:19 -0300 by mstorti in 
