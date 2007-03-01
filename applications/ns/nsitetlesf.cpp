@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: nsitetlesf.cpp,v 1.1.2.2 2007/02/27 21:10:32 mstorti Exp $
+//$Id: nsitetlesf.cpp,v 1.1.2.3 2007/03/01 21:36:11 mstorti Exp $
 
 #include <src/fem.h>
 #include <src/utils.h>
@@ -247,7 +247,7 @@ assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
     ucols_star,pcol_star,pcol_new,pcol,fm_p_star,tmp1,tmp2,tmp3,tmp4,tmp5,tmp6,
     massm,tmp7,tmp8,tmp9,tmp10,tmp11,tmp13,tmp14,tmp15,dshapex_c,xc,
     wall_coords(ndim),dist_to_wall,tmp16,tmp162,tmp17,tmp18,tmp19,
-    tmp23,tmp24;
+    tmp23,tmp24,tmp25;
   FastMat2 tmp20(2,nel,nel),tmp21,vel_supg;
 
   double tmp12;
@@ -731,10 +731,15 @@ assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
           if (use_full_jacobian) {
             // Jacobian term for convective term
             // W_j . N_k \dep u_a/x_b
-            tmp23.prod(SHAPE,grad_u,2,3,1);
+            tmp23.prod(SHAPE,grad_u_star,2,3,1);
+
             tmp24.prod(W_supg,tmp23,1,2,3,4);
             matlocf.is(2,1,ndim).is(4,1,ndim)
               .axpy(tmp24,wpgdet*rho).rs();
+
+            tmp25.prod(P_pspg,tmp23,-1,1,-1,2,3);
+            matlocf.ir(2,ndof).is(4,1,ndim)
+              .axpy(tmp25,wpgdet*rho).rs();
           }
 	}
 
