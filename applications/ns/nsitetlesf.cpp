@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: nsitetlesf.cpp,v 1.1.2.3 2007/03/01 21:36:11 mstorti Exp $
+//$Id: nsitetlesf.cpp,v 1.1.2.4 2007/03/01 23:07:37 mstorti Exp $
 
 #include <src/fem.h>
 #include <src/utils.h>
@@ -739,7 +739,7 @@ assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
 
             tmp25.prod(P_pspg,tmp23,-1,1,-1,2,3);
             matlocf.ir(2,ndof).is(4,1,ndim)
-              .axpy(tmp25,wpgdet*rho).rs();
+              .axpy(tmp25,-wpgdet*rho).rs();
           }
 	}
 
