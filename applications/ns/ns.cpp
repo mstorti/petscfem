@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: ns.cpp,v 1.193.8.1 2007/03/06 18:52:17 mstorti Exp $
+//$Id: ns.cpp,v 1.193.8.2 2007/03/06 20:14:26 mstorti Exp $
 #include <src/debug.h>
 #include <malloc.h>
 
@@ -355,6 +355,10 @@ int main(int argc,char **args) {
   // was accessed. Useful for detecting if an option was used or not.
   GETOPTDEF(int,report_option_access,1);
 
+  //o Print, each `dump_van_driest_freq' steps the van Driest
+  // factor and related info to a file. 
+  GETOPTDEF(int,dump_van_driest_freq,0);
+
   if (print_some_file=="<none>")
     print_some_file = "";
   set<int> node_list;
@@ -487,7 +491,9 @@ int main(int argc,char **args) {
   int update_jacobian_this_step,
     update_jacobian_this_iter, tstep_start=1;
   for (int tstep=tstep_start; tstep<=nstep; tstep++) {
+
     TSTEP=tstep; //debug:=
+    glob_param.step=tstep;
     time_old.set(time.time());
     time_star.set(time.time()+alpha*Dt);
     time.inc(Dt);
@@ -566,6 +572,13 @@ int main(int argc,char **args) {
       
       double normres_external;
       for (int inwt=0; inwt<nnwt; inwt++) {
+
+        if (inwt==0 && dump_van_driest_freq>0 
+            && (tstep%dump_van_driest_freq)==0) {
+          char line[200];
+          sprintf(line,"van-driest-step%d-proc%d.tmp",tstep,MY_RANK);
+          dump_file = fopen(line,"w");
+        }
 
 	glob_param.inwt = inwt;
 	// Initialize step
@@ -759,6 +772,11 @@ int main(int argc,char **args) {
 		      normres_external,tol_newton);
 	  break;
 	}
+
+        if (dump_file) {
+          fclose(dump_file);
+          dump_file = NULL;
+        }
 
       } // end of loop over Newton subiteration (inwt)
 
@@ -1065,7 +1083,6 @@ int main(int argc,char **args) {
 #ifdef DEBUG_MALLOC_USE
   fclose(malloc_log);
 #endif
-  fclose(dump_file);
   PetscFinalize();
   exit(0);
 }

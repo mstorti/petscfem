@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: nsitetlesfm2.cpp,v 1.77.6.1 2007/03/06 18:52:17 mstorti Exp $
+//$Id: nsitetlesfm2.cpp,v 1.77.6.2 2007/03/06 20:14:26 mstorti Exp $
 
 #include <src/fem.h>
 #include <src/utils.h>
@@ -507,17 +507,9 @@ assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
 	    double y_plus = ywall*shear_vel/VISC;
 	    van_D = 1.-exp(-y_plus/A_van_Driest);
 
-            static int dump_flag_open=0;
-            if (!dump_flag_open) {
-              dump_flag_open=1;
-              char line[200];
-              sprintf(line,"van-driest-%d.dat",MY_RANK);
-              dump_file = fopen(line,"w");
-            }
-            if (ipg==0) {
+            if (dump_file && ipg==0) 
               fprintf(dump_file,"%d %f %f %f %f\n",k,ywall,y_plus,
                       shear_vel,van_D);
-            }
 
 	  } else van_D = 1.;
 	  

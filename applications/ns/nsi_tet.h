@@ -1,6 +1,6 @@
 // -*- mode: C++ -*-
 /*__INSERT_LICENSE__*/
-//$Id: nsi_tet.h,v 1.55 2006/07/26 10:31:49 mstorti Exp $
+//$Id: nsi_tet.h,v 1.55.34.1 2007/03/06 20:14:26 mstorti Exp $
 #ifndef PETSCFEM_NSI_TET_H  
 #define PETSCFEM_NSI_TET_H
 
@@ -211,6 +211,8 @@ struct GlobParam {
   double Dt;
   /// do not include temporal term (steady solutions)
   int steady;
+  /// Time step 
+  int step;
   /// Newton iteration
   int inwt;
   // States
