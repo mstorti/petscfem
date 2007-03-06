@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: nsitetlesfm2.cpp,v 1.77 2007/02/24 14:45:08 mstorti Exp $
+//$Id: nsitetlesfm2.cpp,v 1.77.6.1 2007/03/06 18:52:17 mstorti Exp $
 
 #include <src/fem.h>
 #include <src/utils.h>
@@ -8,6 +8,9 @@
 #include <src/fastmat2.h>
 
 #include "nsi_tet.h"
+
+FILE* dump_file=NULL;
+extern int MY_RANK,SIZE;
 
 #define ADD_GRAD_DIV_U_TERM
 #define STANDARD_UPWIND
@@ -494,6 +497,7 @@ assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
 
 	// Smagorinsky turbulence model
 	double nu_eff=NAN,van_D=NAN,ywall=NAN;
+        // printf("LES %d, A_van_Driest %f\n",LES,A_van_Driest);
 	if (LES) {
 	  double tr = (double) tmp15.prod(strain_rate,strain_rate,-1,-2,-1,-2);
 	  //	  double van_D;
@@ -502,6 +506,19 @@ assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
 	    ywall = sqrt(dist_to_wall.sum_square_all());
 	    double y_plus = ywall*shear_vel/VISC;
 	    van_D = 1.-exp(-y_plus/A_van_Driest);
+
+            static int dump_flag_open=0;
+            if (!dump_flag_open) {
+              dump_flag_open=1;
+              char line[200];
+              sprintf(line,"van-driest-%d.dat",MY_RANK);
+              dump_file = fopen(line,"w");
+            }
+            if (ipg==0) {
+              fprintf(dump_file,"%d %f %f %f %f\n",k,ywall,y_plus,
+                      shear_vel,van_D);
+            }
+
 	  } else van_D = 1.;
 	  
 	  double nu_t = SQ(C_smag*Delta*van_D)*sqrt(2*tr);

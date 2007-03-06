@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: ns.cpp,v 1.193 2007/02/23 16:31:14 mstorti Exp $
+//$Id: ns.cpp,v 1.193.8.1 2007/03/06 18:52:17 mstorti Exp $
 #include <src/debug.h>
 #include <malloc.h>
 
@@ -23,6 +23,7 @@ static char help[] = "PETSc-FEM Navier Stokes module\n\n";
 
 extern int MY_RANK,SIZE;
 WallData wall_data;
+extern FILE* dump_file;
 
 int fsi_main();
 int struct_main();
@@ -1064,6 +1065,7 @@ int main(int argc,char **args) {
 #ifdef DEBUG_MALLOC_USE
   fclose(malloc_log);
 #endif
+  fclose(dump_file);
   PetscFinalize();
   exit(0);
 }
