@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: nsitetlesfm2.cpp,v 1.77.6.3 2007/03/07 00:56:14 mstorti Exp $
+//$Id: nsitetlesfm2.cpp,v 1.77.6.4 2007/03/07 12:13:58 mstorti Exp $
 
 #include <src/fem.h>
 #include <src/utils.h>
@@ -9,7 +9,6 @@
 
 #include "nsi_tet.h"
 
-FILE* dump_file=NULL;
 #include "vand.h"
 
 #define ADD_GRAD_DIV_U_TERM
@@ -509,14 +508,15 @@ assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
 	    double y_plus = ywall*shear_vel/VISC;
 	    van_D = 1.-exp(-y_plus/A_van_Driest);
 
-            if (dump_file && ipg==0) {
+            if (vd_dump_flag && ipg==0) {
+              // printf("%d %f %f %f %f\n",k,ywall,y_plus,
+              // shear_vel,van_D);
               vd_elems_loc.push(k);
               vd_data_loc.push(ywall);
               vd_data_loc.push(y_plus);
               vd_data_loc.push(shear_vel);
               vd_data_loc.push(van_D);
             }
-
 	  } else van_D = 1.;
 	  
 	  double nu_t = SQ(C_smag*Delta*van_D)*sqrt(2*tr);
