@@ -1,5 +1,5 @@
 #__INSERT_LICENSE__
- # $Id: Makefile,v 1.83.6.1 2007/02/27 21:10:32 mstorti Exp $ 
+ # $Id: Makefile,v 1.83.6.1.2.1 2007/03/07 17:07:59 mstorti Exp $ 
 
 .PHONY: all run lclean save compile
 
@@ -59,7 +59,7 @@ odocns: ../../doc/odocns.tex ../../doc/odocnse.tex \
 ../../doc/odocnsfs.tex: nssupg.cpp ../../doc/nsdoc.tex
 	$(run_odoc)
 
-ns.o : CCPPFLAGS += -O0
+## ns.o wallke.o : CCPPFLAGS += -O0 -g
 
 #compdate.o: CPPFLAGS += "-DPETSCFEM_HOSTNAME=\"$(shell uname -a | sed s/\#//g)\""
 noafs:

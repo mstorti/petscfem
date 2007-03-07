@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: ns.cpp,v 1.193.8.4 2007/03/07 12:13:58 mstorti Exp $
+//$Id: ns.cpp,v 1.193.8.5 2007/03/07 17:07:12 mstorti Exp $
 #include <src/debug.h>
 #include <malloc.h>
 
@@ -474,7 +474,6 @@ int main(int argc,char **args) {
     argl.clear();
     argl.arg_add(A_tet,PROFILE|PFMAT);
     ierr = assemble(mesh,argl,dofmap,"comp_mat",&time); CHKERRA(ierr); 
-
   } else {
     argl.clear();
     argl.arg_add(A_mom,PROFILE|PFMAT);
@@ -853,7 +852,7 @@ int main(int argc,char **args) {
                       vd_dbuff.buff(),rcvcnts.buff(),displs.buff(), 
                       MPI_DOUBLE,0,PETSC_COMM_WORLD);
 
-          int ierr=0;
+          ierr=0;
           if (!MY_RANK) {
             for (int j=0; j<nelems; j++) {
               int elem=vd_ebuff.e(j);
@@ -875,17 +874,20 @@ int main(int argc,char **args) {
               
             }
 
+#if 0
             char line[200];
-            sprintf(line,"van-driest-step%d.tmp",MY_RANK);
+            sprintf(line,"van-driest-step%d.tmp",tstep);
             FILE *dump_file = fopen(line,"w");
-            if (!MY_RANK) printf("Dumping van Driest factors "
-                                 "step %d, inwt %d\n",tstep,inwt);
+            printf("Dumping van Driest factors "
+                   "step %d, inwt %d, file %s\n",tstep,inwt,line);
             for (int j=0; j<nelems; j++) {
               fprintf(dump_file,"%d ",j);
               for (int k=0; k<VD_DATA_SIZE; k++)
                 fprintf(dump_file,"%g ",vd_data.e(j*VD_DATA_SIZE+k));
               fprintf(dump_file,"\n");
             }
+            fclose(dump_file);
+#endif
                 
           }
           CHECK_PAR_ERR(ierr,"Error computing van Driest data\n");
