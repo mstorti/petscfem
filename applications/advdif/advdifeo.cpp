@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-// $Id: advdifeo.cpp,v 1.17 2007/02/23 16:31:14 mstorti Exp $
+// $Id: advdifeo.cpp,v 1.17.4.1 2007/03/07 12:12:24 mstorti Exp $
 
 extern int comp_mat_each_time_step_g,
   consistent_supg_matrix_g,
@@ -158,7 +158,7 @@ void AdvDif::new_assemble(arg_data_list &arg_data_v,const Nodedata *nodedata,
   // lambda_max:= the maximum eigenvalue of the jacobians.
   // used to compute the critical time step. 
   vector<double> *dtmin;
-  double lambda_max;
+  double lambda_max=NAN;
   int jdtmin;
   GlobParam *glob_param=NULL;
   // The trapezoidal rule integration parameter 
