@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: ns.cpp,v 1.193.8.5 2007/03/07 17:07:12 mstorti Exp $
+//$Id: ns.cpp,v 1.193.8.6 2007/03/07 19:11:27 mstorti Exp $
 #include <src/debug.h>
 #include <malloc.h>
 
@@ -578,8 +578,6 @@ int main(int argc,char **args) {
 
         if (!inwt && dump_van_driest_freq>0 
             && !(tstep%dump_van_driest_freq)) {
-          if (!MY_RANK) printf("Dumping van Driest factors "
-                               "step %d, inwt %d\n",tstep,inwt);
           vd_dump_flag=1;
           vd_elems_loc.clear();
           vd_data_loc.clear();
@@ -874,7 +872,9 @@ int main(int argc,char **args) {
               
             }
 
-#if 0
+//           if (!MY_RANK) printf("Dumping van Driest factors "
+//                                "step %d, inwt %d\n",tstep,inwt);
+#if 1
             char line[200];
             sprintf(line,"van-driest-step%d.tmp",tstep);
             FILE *dump_file = fopen(line,"w");
