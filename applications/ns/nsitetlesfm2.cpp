@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: nsitetlesfm2.cpp,v 1.77.6.2 2007/03/06 20:14:26 mstorti Exp $
+//$Id: nsitetlesfm2.cpp,v 1.77.6.3 2007/03/07 00:56:14 mstorti Exp $
 
 #include <src/fem.h>
 #include <src/utils.h>
@@ -10,7 +10,7 @@
 #include "nsi_tet.h"
 
 FILE* dump_file=NULL;
-extern int MY_RANK,SIZE;
+#include "vand.h"
 
 #define ADD_GRAD_DIV_U_TERM
 #define STANDARD_UPWIND
@@ -289,6 +289,8 @@ assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
 
   FastMatCacheList cache_list;
   FastMat2::activate_cache(&cache_list);
+  vd_elems.clear();
+  vd_data.clear();
 
   int ielh=-1;
   for (int k=el_start; k<=el_last; k++) {
@@ -507,9 +509,13 @@ assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
 	    double y_plus = ywall*shear_vel/VISC;
 	    van_D = 1.-exp(-y_plus/A_van_Driest);
 
-            if (dump_file && ipg==0) 
-              fprintf(dump_file,"%d %f %f %f %f\n",k,ywall,y_plus,
-                      shear_vel,van_D);
+            if (dump_file && ipg==0) {
+              vd_elems_loc.push(k);
+              vd_data_loc.push(ywall);
+              vd_data_loc.push(y_plus);
+              vd_data_loc.push(shear_vel);
+              vd_data_loc.push(van_D);
+            }
 
 	  } else van_D = 1.;
 	  

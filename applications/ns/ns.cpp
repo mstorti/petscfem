@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: ns.cpp,v 1.193.8.2 2007/03/06 20:14:26 mstorti Exp $
+//$Id: ns.cpp,v 1.193.8.3 2007/03/07 00:56:14 mstorti Exp $
 #include <src/debug.h>
 #include <malloc.h>
 
@@ -13,6 +13,10 @@
 #include <src/hook.h>
 #include <src/iisdmatstat.h>
 
+#include "vand.h"
+dvector<int> vd_elems_loc,vd_ebuff,vd_elems;
+dvector<double> vd_data_loc,vd_dbuff,vd_data;
+
 // PETSc now doesn't have the string argument that represents the variable name
 // so that I will use this wrapper until I find how to set names in Ascii matlab viewers.
 #define PetscViewerSetFormat_WRAPPER(viewer,format,name) \
@@ -23,7 +27,6 @@ static char help[] = "PETSc-FEM Navier Stokes module\n\n";
 
 extern int MY_RANK,SIZE;
 WallData wall_data;
-extern FILE* dump_file;
 
 int fsi_main();
 int struct_main();
@@ -573,11 +576,15 @@ int main(int argc,char **args) {
       double normres_external;
       for (int inwt=0; inwt<nnwt; inwt++) {
 
+        if (!MY_RANK) printf("Dumping van Driest factors "
+                             "step %d, inwt %d\n",tstep,inwt);
         if (inwt==0 && dump_van_driest_freq>0 
             && (tstep%dump_van_driest_freq)==0) {
           char line[200];
           sprintf(line,"van-driest-step%d-proc%d.tmp",tstep,MY_RANK);
           dump_file = fopen(line,"w");
+          if (!MY_RANK) printf("Dumping van Driest factors "
+                               "step %d, inwt %d\n",tstep,inwt);
         }
 
 	glob_param.inwt = inwt;
@@ -774,8 +781,87 @@ int main(int argc,char **args) {
 	}
 
         if (dump_file) {
+          int nelems=0,nelemsh=0;
+          vd_elems_loc.defrag();
+          vd_data_loc.defrag();
+          nelemsh = vd_elems_loc.size();
+          PetscSynchronizedPrintf(PETSC_COMM_WORLD,
+                                  "[%d] elems %d, data %d\n",
+                                  MY_RANK,nelemsh, 
+                                  vd_data_loc.size());
+          PetscSynchronizedFlush(PETSC_COMM_WORLD); 
+
+          dvector<int> displs,rcvcnts,nelemshv;
+          if (!MY_RANK) {
+            displs.mono(SIZE);
+            rcvcnts.mono(SIZE);
+            nelemshv.mono(SIZE);
+          }
+          MPI_Gather(&nelemsh,1,MPI_INT,
+                     nelemshv.buff(),1,MPI_INT,0,PETSC_COMM_WORLD);
+
+          if (!MY_RANK) {
+            nelems=0;
+            for (int j=0; j<SIZE; j++) {
+              printf("[%d] nelemsh %d\n",j,nelemshv.e(j));
+              nelems += nelemshv.e(j);
+              rcvcnts.e(j) = nelemshv.e(j);
+            }
+            displs.e(0)=0;
+            for (int j=1; j<SIZE; j++) 
+              displs.e(j) = displs.e(j-1) + rcvcnts.e(j-1);
+            
+            printf("nelems %d\n",nelems);
+            vd_ebuff.mono(nelems);
+            vd_dbuff.mono(VD_DATA_SIZE*nelems);
+            vd_elems.mono(nelems);
+            vd_data.mono(VD_DATA_SIZE*nelems);
+            for (int j=0; j<SIZE; j++) {
+              printf("j %d, rcvcnts %d, displs %d\n",
+                     j,rcvcnts.e(j),displs.e(j));
+            }
+          }
+
+          MPI_Gatherv(vd_elems_loc.buff(),nelemsh,MPI_INT,
+                      vd_ebuff.buff(),rcvcnts.buff(),displs.buff(), 
+                      MPI_INT,0,PETSC_COMM_WORLD);
+
+          if (!MY_RANK) {
+            for (int j=0; j<SIZE; j++) 
+              rcvcnts.e(j) = VD_DATA_SIZE*nelemshv.e(j);
+              
+            displs.e(0)=0;
+            for (int j=1; j<SIZE; j++) 
+              displs.e(j) = displs.e(j-1) + rcvcnts.e(j-1);
+            
+            for (int j=0; j<SIZE; j++) {
+              printf("j %d, rcvcnts %d, displs %d\n",
+                     j,rcvcnts.e(j),displs.e(j));
+            }
+          }
+
+          MPI_Gatherv(vd_data_loc.buff(),nelemsh,MPI_INT,
+                      vd_dbuff.buff(),rcvcnts.buff(),displs.buff(), 
+                      MPI_DOUBLE,0,PETSC_COMM_WORLD);
+
+          if (!MY_RANK) {
+            for (int j=0; j<nelems; j++) {
+              printf("%d -> elem %d ",j,vd_ebuff.e(j));
+              for (int k=0; k<VD_DATA_SIZE; k++)
+                printf("%f ",vd_dbuff.e(j*VD_DATA_SIZE+k));
+              printf("\n");
+            }
+          }
+
+#if 0
           fclose(dump_file);
+          // fprintf(dump_file,"%d %f %f %f %f\n",k,ywall,y_plus,
+          // shear_vel,van_D);
+
           dump_file = NULL;
+#endif
+          PetscFinalize();
+          exit(0);
         }
 
       } // end of loop over Newton subiteration (inwt)
