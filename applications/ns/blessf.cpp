@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-/* $Id: blessf.cpp,v 1.47.16.1 2007/02/19 20:23:56 mstorti Exp $ */
+/* $Id: blessf.cpp,v 1.47.16.2 2007/03/08 19:22:16 dalcinl Exp $ */
 
 #include <src/debug.h>
 #include <malloc.h>
@@ -42,6 +42,7 @@
 #include "./condwallpen.h"
 #include "./bubblyqint.h"
 #include "./bubblyqint.h"
+#include "./nsitetlesf.h"
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:
 #undef __FUNC__
@@ -69,6 +70,7 @@ void bless_elemset(char *type,Elemset *& elemset) {
     SET_ELEMSET_TYPE(ld_elasticity_load)
 
     SET_ELEMSET_TYPE(nsi_tet_les_fm2)
+    SET_ELEMSET_TYPE(nsi_tet_les_full)
     SET_ELEMSET_TYPE(nsi_tet_les_comp)
     SET_ELEMSET_TYPE(nsi_tet_les_ther)
     SET_ELEMSET_TYPE(nsi_tet_les_asm)
