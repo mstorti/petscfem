@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: ns.cpp,v 1.193.8.8 2007/03/13 00:25:21 mstorti Exp $
+//$Id: ns.cpp,v 1.193.8.9 2007/03/13 01:06:37 mstorti Exp $
 #include <src/debug.h>
 #include <malloc.h>
 
@@ -790,7 +790,7 @@ int main(int argc,char **args) {
             vd->vd_elems_loc.defrag();
             vd->vd_data_loc.defrag();
             nelemsh = vd->vd_elems_loc.size();
-#define VD_DUMP_DBG
+            // #define VD_DUMP_DBG
 #ifdef VD_DUMP_DBG
             PetscSynchronizedPrintf(PETSC_COMM_WORLD,
                                     "[%d] elems %d, data %d\n",
