@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: ns.cpp,v 1.193.8.7 2007/03/13 00:10:41 mstorti Exp $
+//$Id: ns.cpp,v 1.193.8.8 2007/03/13 00:25:21 mstorti Exp $
 #include <src/debug.h>
 #include <malloc.h>
 
@@ -578,6 +578,13 @@ int main(int argc,char **args) {
         if (!inwt && dump_van_driest_freq>0 
             && !(tstep%dump_van_driest_freq)) {
           vd_dump_flag=1;
+          vd_map_t::iterator q = vd_map.begin();
+          while (q!=vd_map.end()) {
+            VDDumpData *vd = q->second;
+            vd->vd_elems_loc.clear();
+            vd->vd_data_loc.clear();
+            q++;
+          }
         }
 
 	glob_param.inwt = inwt;
@@ -783,12 +790,12 @@ int main(int argc,char **args) {
             vd->vd_elems_loc.defrag();
             vd->vd_data_loc.defrag();
             nelemsh = vd->vd_elems_loc.size();
-            // #define VD_DUMP_DBG
+#define VD_DUMP_DBG
 #ifdef VD_DUMP_DBG
             PetscSynchronizedPrintf(PETSC_COMM_WORLD,
                                     "[%d] elems %d, data %d\n",
                                     MY_RANK,nelemsh, 
-                                    vd_data_loc.size());
+                                    vd->vd_data_loc.size());
             PetscSynchronizedFlush(PETSC_COMM_WORLD); 
 #endif
             dvector<int> displs,rcvcnts,nelemshv;

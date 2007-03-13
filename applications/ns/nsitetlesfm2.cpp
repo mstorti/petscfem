@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: nsitetlesfm2.cpp,v 1.77.6.5 2007/03/13 00:10:41 mstorti Exp $
+//$Id: nsitetlesfm2.cpp,v 1.77.6.6 2007/03/13 00:25:21 mstorti Exp $
 
 #include <src/fem.h>
 #include <src/utils.h>
@@ -289,8 +289,6 @@ assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
   vd_map_t::iterator q = vd_map.find(ename);
   if (q==vd_map.end()) {
     vd_map[ename] = new VDDumpData;
-    vd_map[ename]->vd_elems_loc.clear();
-    vd_map[ename]->vd_data_loc.clear();
   }
   VDDumpData *vd_data = vd_map[ename];
 
@@ -518,9 +516,6 @@ assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
 
             if (vd_dump_flag && ipg==0) {
               
-              vd_data->vd_elems_loc.clear();
-              vd_data->vd_data_loc.clear();
-
               // printf("%d %f %f %f %f\n",k,ywall,y_plus,
               // shear_vel,van_D);
               vd_data->vd_elems_loc.push(k);
