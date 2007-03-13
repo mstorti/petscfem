@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: getprop.cpp,v 1.17.22.1 2007/03/07 17:10:09 mstorti Exp $
+//$Id: getprop.cpp,v 1.17.22.2 2007/03/13 00:11:18 mstorti Exp $
   
 #include "fem.h"
 #include "readmesh.h"
@@ -184,20 +184,25 @@ int get_prop(int & iprop,GHashTable *props,TextHashTable *thash,
   // looks int the properties-per-element table
   phe = (props_hash_entry *)g_hash_table_lookup(props,(void *)name);
   if(phe!=NULL) {
+    //    printf("entry phe is: %d %d\n",phe->width,phe->position);
     int w = phe->width;
     if (n!=w) ierr = 1; CHKERRA(ierr); 
     for (int k=0; k<w; k++) {
       elprpsindx[iprop]=(phe->position)+k;
       propel[iprop]=0.;
+      //      printf("set elprpsindx[%d] = %d\n",iprop,elprpsindx[iprop]);
       iprop++;
     }
     return 0;
   }
 
   // looks in the elemset table
-  ierr = get_double(thash,name,&propel[iprop],1,n); CHKERRA(ierr);
+  double val=NAN;
+  ierr = get_double(thash,name,&val,1,n); CHKERRA(ierr);
   for (int k=0; k<n; k++) {
     elprpsindx[iprop]=-1;
+    propel[iprop]=val;
+    //    printf("set elprpsindx[%d] = %d\n",iprop,elprpsindx[iprop]);
     iprop++;
   }
   return 0;
