@@ -1,5 +1,5 @@
 #__INSERT_LICENSE__
-# $Id: Makefile,v 1.12 2007/02/20 14:57:47 mstorti Exp $ 
+# $Id: Makefile,v 1.13 2007/03/13 01:31:21 mstorti Exp $ 
 
 .PHONY: force all run tests data
 
@@ -64,11 +64,15 @@ burgers.depl: burgers.epl data.m force
 ################################################################
 # TESTS FOR THE NEW FLUX FUNCTIONS...
 
+# for use in background
+IN_BACKG := </dev/null >burgers.$(CASE).out.tmp
+# for debugging
+# IN_BACKG :=
+
 NP := $(shell procsel $(PETSCFEM_PROCTABLE))
 run: 
 	make-depl burgers.epl burgers.depl 
-	-$(MPIRUN) -np 1 $(ADVDIF)		\
-			-case burgers.depl > burgers.$(CASE).out.tmp
+	-$(MPIRUN) -np 1 $(ADVDIF) -case burgers.depl $(IN_BACKG)
 	if [ -f save.state.tmp ] ;					\
 		then mv -f save.state.tmp save.state.$(CASE).tmp ;	\
 	fi

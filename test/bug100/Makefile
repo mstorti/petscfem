@@ -1,5 +1,5 @@
 #__INSERT_LICENSE__
-# $Id: Makefile,v 1.3 2007/02/20 14:57:47 mstorti Exp $ 
+# $Id: Makefile,v 1.4 2007/03/13 01:31:21 mstorti Exp $ 
 
 .PHONY: force all run tests data
 
@@ -16,7 +16,7 @@ NP := $(shell procsel $(PETSCFEM_PROCTABLE))
 newff.depl: force
 run: newff.depl
 	-$(MPIRUN) -machinefile machi.dat -np 2 $(ADVDIF) \
-			-case newff.depl > output.tmp
+			-case newff.depl </dev/null > output.tmp
 
 local_clean::
 

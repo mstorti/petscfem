@@ -1,5 +1,5 @@
 #__INSERT_LICENSE__
-# $Id: Makefile,v 1.109 2007/02/20 14:57:47 mstorti Exp $ 
+# $Id: Makefile,v 1.110 2007/03/13 01:31:20 mstorti Exp $ 
 
 .PHONY: all run  compile lclean ns laplace adv nso laplace_tests force	     \
         ctest runtests clean fastmat2_obj plano idmap			     \
@@ -68,7 +68,7 @@ torture_1:
 	echo "NOT OK TESTS: " | tee -a make-tests-$(BOPT).log
 	-runtests.pl -n | tee -a make-tests-$(BOPT).log
 #
-	tar czvf ../make-tests-$(BOPT).tar.gz .
+	tar czvf ../make-tests-$(BOPT).tar.gz -C .. test
 
 #w torture for BOPT=g_c++
 torture_g:
@@ -102,7 +102,7 @@ tests: runtests
 runtests: compile sector oscplate fastmat2 plano idmap constraint_bug 	 \
 	fstack advdif texthash log_vars newff burgers bug100 genload 	 \
 	lupart distmap sparse graph sqcav pfmat aquifer nutatcyl mmove 	 \
-	advec nsgenload idmap cubcav
+	advec nsgenload cubcav
 
 rp: runtests_p
 runtests_p:  oscplate fastmat2 plano idmap fastvec			\

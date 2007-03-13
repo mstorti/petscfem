@@ -1,5 +1,5 @@
 #__INSERT_LICENSE__
-# $Id: Makefile,v 1.13 2007/02/20 14:57:47 mstorti Exp $ 
+# $Id: Makefile,v 1.14 2007/03/13 01:31:21 mstorti Exp $ 
 
 .PHONY: force all run tests data scalar diag full constraint default \
 	test_fstack fstack_global fstack_nodes fstack_nodes2 qconst
@@ -29,7 +29,7 @@ endif
 NPP := $(shell procsel $(PETSCFEM_PROCTABLE))
 run: $(CASE_NAME).depl
 	-$(MPIRUN) -machinefile machi.dat -np $(NP) $(PROG) \
-			-case $< > output.$(case_name).tmp
+			-case $< $(call redir,output.$(case_name).tmp)
 	if [ $$oct_check = yes ] ; then \
 		 $(OCTAVE) check.m > verif.$(case_name).tmp ; fi
 

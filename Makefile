@@ -1,6 +1,6 @@
 # mode: -*- makefile -*-
 #__INSERT_LICENSE__
-#$Id: Makefile,v 1.66 2007/02/23 03:05:01 mstorti Exp $
+#$Id: Makefile,v 1.67 2007/03/13 01:31:20 mstorti Exp $
 
 SHELL = /bin/bash
 
@@ -263,5 +263,18 @@ clean_g:
 #w Updates working directory
 sync:
 	cvs up .
+
+try-undo: 
+	patch -REp0 --dry-run < undo.patch
+
+undo: 
+	patch -REp0 < undo.patch
+
+try-redo: 
+	patch -Ep0 --dry-run < undo.patch
+
+redo: 
+	patch -Ep0 < undo.patch
+
 
 #s

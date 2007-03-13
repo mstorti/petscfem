@@ -1,4 +1,4 @@
-# $Id: Makefile,v 1.113 2007/02/20 14:57:47 mstorti Exp $ 
+# $Id: Makefile,v 1.114 2007/03/13 01:31:21 mstorti Exp $ 
 
 .PHONY: all run  compile lclean laplace adv nso laplace_tests force \
         ctest gprof srfgath
@@ -56,7 +56,8 @@ mesh:
 #w Runs program, use `mkmesh=0' or 1 to control mesh creation
 run: 
 	$(MAKE) mesh
-	-${MPIRUN} $(NL) $(MCH) -np $(NP) $(PROG) -case $(CASE).depl
+	-${MPIRUN} $(NL) $(MCH) -np $(NP) $(PROG) \
+		-case $(CASE).depl $(call in_backg,$@$(case))
 
 local_sw::
 	chmod 755 mkmpeg*.sh
@@ -72,8 +73,9 @@ nettest = $(PETSCFEM_DIR)/tools/nettest.bin
 
 .PHONY: nettest
 nettest:
-	NP=`procsel -n ./proctable.geronimo` ;  \
-	$(MPIRUN) -machinefile machi.dat -np $$NP $(nettest)
+	NP=`procsel -n ./proctable.geronimo` ;			\
+	$(MPIRUN) -machinefile machi.dat -np $$NP $(nettest)	\
+		$(call in_backg,$@)
 
 dxo: viewer.dx.tmp
 
@@ -121,21 +123,17 @@ k:
 #w Basic test for block uploading. This somewhat trivial since
 #w for NS the profile is full. 
 block_uploading:
-	$(MAKE) CASE=$(CASE_NAME) case=plain_bupl0 run \
-		> $(CASE_NAME).out.plain_bupl0.tmp
-	$(MAKE) CASE=$(CASE_NAME) case=plain_bupl1 run \
-		> $(CASE_NAME).out.plain_bupl1.tmp
-	$(MAKE) CASE=$(CASE_NAME) case=plain_bupl2 run \
-		> $(CASE_NAME).out.plain_bupl2.tmp
-	$(OCTAVE) check_plain.m				\
-		> $(CASE_NAME).plain-bupl.verif.tmp
+	$(MAKE) CASE=$(CASE_NAME) case=plain_bupl0 run 
+	$(MAKE) CASE=$(CASE_NAME) case=plain_bupl1 run 
+	$(MAKE) CASE=$(CASE_NAME) case=plain_bupl2 run 
+	$(OCTAVE) check_plain.m > $(CASE_NAME).plain-bupl.verif.tmp
 
 #---<*>---//---<*>---//---<*>---//---<*>---//---<*>---// 
 #w Checks the surf-gatherer class
 srfgath:
 	$(MAKE) case=srfgath mesh
 	-${MPIRUN} $(NL) $(MCH) -np $(NP) $(PROG) \
-		-case $(CASE).depl > $(CASE).srfgath-output.tmp
+		-case $(CASE).depl </dev/null > $(CASE).srfgath-output.tmp
 	octave -qH check_srfgath.m > verif-srfgath.tmp
 
 #================================================================

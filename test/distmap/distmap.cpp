@@ -1,5 +1,5 @@
 /*__INSERT_LICENSE__*/
-// $Id: distmap.cpp,v 1.13 2007/02/20 14:57:47 mstorti Exp $
+// $Id: distmap.cpp,v 1.14 2007/03/13 01:31:21 mstorti Exp $
 #include <cstdio>
 #include <cstdlib>
 #include <ctime>
@@ -69,7 +69,7 @@ combine(const pair<int,double> &p) {
 double maxd(int n,...) {
   va_list list;
   va_start(list,n);
-  double max,item;
+  double max=INT_MIN,item;
   for (int kk=0; kk<n; kk++) {
     item = va_arg(list,double);
     max = ( kk==0 ? item : ( max > item ? max : item));

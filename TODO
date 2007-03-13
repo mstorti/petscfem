@@ -1,8 +1,9 @@
 ################################################################
-# $Id: TODO,v 1.258 2007/02/24 14:45:07 mstorti Exp $
+# $Id: TODO,v 1.259 2007/03/13 01:31:20 mstorti Exp $
 TODO: [Mainly fixes go here...]
 =====
 
+* using `shock_capturing' in `nsi_tet_les_fm2' gives SIGSEGV
 * using nsi_tet_les_fm2 with fractional step produces  SEGV
 * In test/sector/Makefile: change '-chmod +w sector.depl'
        by calls to make-depl

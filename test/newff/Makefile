@@ -1,5 +1,5 @@
 #__INSERT_LICENSE__
-# $Id: Makefile,v 1.31 2007/02/20 14:57:47 mstorti Exp $ 
+# $Id: Makefile,v 1.32 2007/03/13 01:31:21 mstorti Exp $ 
 
 .PHONY: force all run tests data
 
@@ -70,7 +70,8 @@ run:
 	make-depl newff.epl newff.$(CASE).depl -d $(CASE)=1 ;		\
 	if [ -f save.state.tmp ] ; then rm -f save.state.tmp ; fi ;	\
 	$(MPIRUN) -machinefile machi.dat -np $(NP) $(ADVDIF)		\
-			-case newff.$(CASE).depl > newff.$(CASE).out ;	\
+		-case newff.$(CASE).depl				\
+		</dev/null > newff.$(CASE).out ;			\
 	if [ -e save.state.tmp ] ; then					\
 		$(OCTAVE) verif.m > $(CASE).vrf.tmp ; fi
 

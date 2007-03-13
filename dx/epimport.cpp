@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-// $Id: epimport.cpp,v 1.25 2005/04/15 11:56:31 mstorti Exp $
+// $Id: epimport.cpp,v 1.26 2007/03/13 01:31:20 mstorti Exp $
 #include <cassert>
 #include <string>
 #include <vector>
@@ -413,6 +413,7 @@ extern "C" Error m_ExtProgImport(Object *in, Object *out) {
   sprintf(sktport,"c%d",port);
 
   // Entering polling sequence 
+  poll=0;
   while (1) {
     clnt = Sopen(hostname,sktport);
     if (clnt) break;

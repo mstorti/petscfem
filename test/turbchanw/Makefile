@@ -1,5 +1,5 @@
 #__INSERT_LICENSE__
-# $Id: Makefile,v 1.10 2005/07/05 21:47:01 mstorti Exp $ 
+# $Id: Makefile,v 1.11 2007/03/13 01:31:21 mstorti Exp $ 
 
 default: swturb
 
@@ -28,7 +28,8 @@ data:
 $(CASE).depl: force
 $(CASE): data
 	-rm -rf some.tmp
-	-$(MPIRUN) -np 1 $(ADVDIF) -case $(CASE).depl > $(SUBCASE).sal.tmp
+	-$(MPIRUN) -np 1 $(ADVDIF) -case $(CASE).depl \
+		</dev/null > $(SUBCASE).sal.tmp
 	-mv -f state.out.tmp $(SUBCASE).out.tmp
 
 heat:

@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: advdife-gcl.cpp,v 1.14 2007/02/23 16:31:14 mstorti Exp $
+//$Id: advdife-gcl.cpp,v 1.15 2007/03/13 01:31:20 mstorti Exp $
 extern int comp_mat_each_time_step_g,
   consistent_supg_matrix_g,
   local_time_step_g;
@@ -83,7 +83,7 @@ new_assemble_GCL_compliant(arg_data_list &arg_data_v,const Nodedata *nodedata,
   // lambda_max:= the maximum eigenvalue of the jacobians.
   // used to compute the critical time step.
   vector<double> *dtmin;
-  double lambda_max;
+  double lambda_max=NAN;
   int jdtmin;
   GlobParam *glob_param=NULL;
   // The trapezoidal rule integration parameter

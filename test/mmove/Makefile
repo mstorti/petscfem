@@ -1,5 +1,5 @@
 #__INSERT_LICENSE__
-# $Id: Makefile,v 1.21 2007/02/20 14:57:47 mstorti Exp $ 
+# $Id: Makefile,v 1.22 2007/03/13 01:31:21 mstorti Exp $ 
 
 .PHONY: force all run tests data
 
@@ -54,7 +54,7 @@ NP := 1
 test_case: test_case_data
 	if [ ! "$(OCT_SCRIPT)" = "" ] ; then $(OCTAVE) $(OCT_SCRIPT) ; fi
 	-$(MPIRUN) -machinefile machi.dat -np $(NP) $(PROG) \
-			-case $(NAME).depl
+			-case $(NAME).depl $(call in_backg,$@)
 
 local_clean::
 	-rm -rf mat.output system.dat save.state data.m \
