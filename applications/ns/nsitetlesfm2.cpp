@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: nsitetlesfm2.cpp,v 1.77.8.1 2007/03/13 01:39:58 mstorti Exp $
+//$Id: nsitetlesfm2.cpp,v 1.77.8.2 2007/03/13 02:50:34 mstorti Exp $
 
 #include <src/fem.h>
 #include <src/utils.h>
@@ -283,13 +283,19 @@ assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
     matloc_prof.kron(one_nel,seed);
 #endif
 #endif
-
   }
+
+  string ename = name();
+  vd_map_t::iterator q = vd_map.find(ename);
+  if (q==vd_map.end()) {
+    vd_map[ename] = new VDDumpData;
+  }
+  VDDumpData *vd_data = vd_map[ename];
 
   FastMatCacheList cache_list;
   FastMat2::activate_cache(&cache_list);
-  vd_elems.clear();
-  vd_data.clear();
+  vd_data->vd_elems.clear();
+  vd_data->vd_data.clear();
 
   int ielh=-1;
   for (int k=el_start; k<=el_last; k++) {
@@ -509,13 +515,14 @@ assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
 	    van_D = 1.-exp(-y_plus/A_van_Driest);
 
             if (vd_dump_flag && ipg==0) {
+              
               // printf("%d %f %f %f %f\n",k,ywall,y_plus,
               // shear_vel,van_D);
-              vd_elems_loc.push(k);
-              vd_data_loc.push(ywall);
-              vd_data_loc.push(y_plus);
-              vd_data_loc.push(shear_vel);
-              vd_data_loc.push(van_D);
+              vd_data->vd_elems_loc.push(k);
+              vd_data->vd_data_loc.push(ywall);
+              vd_data->vd_data_loc.push(y_plus);
+              vd_data->vd_data_loc.push(shear_vel);
+              vd_data->vd_data_loc.push(van_D);
             }
 	  } else van_D = 1.;
 	  

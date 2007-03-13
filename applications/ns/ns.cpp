@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: ns.cpp,v 1.193.10.1 2007/03/13 01:39:58 mstorti Exp $
+//$Id: ns.cpp,v 1.193.10.2 2007/03/13 02:50:34 mstorti Exp $
 #include <src/debug.h>
 #include <malloc.h>
 
@@ -14,9 +14,8 @@
 #include <src/iisdmatstat.h>
 
 #include "vand.h"
-dvector<int> vd_elems_loc,vd_ebuff,vd_elems;
-dvector<double> vd_data_loc,vd_dbuff,vd_data;
-int vd_dump_flag=0;
+vd_map_t vd_map;
+int vd_dump_flag;
 
 // PETSc now doesn't have the string argument that represents the variable name
 // so that I will use this wrapper until I find how to set names in Ascii matlab viewers.
@@ -578,11 +577,14 @@ int main(int argc,char **args) {
 
         if (!inwt && dump_van_driest_freq>0 
             && !(tstep%dump_van_driest_freq)) {
-          if (!MY_RANK) printf("Dumping van Driest factors "
-                               "step %d, inwt %d\n",tstep,inwt);
           vd_dump_flag=1;
-          vd_elems_loc.clear();
-          vd_data_loc.clear();
+          vd_map_t::iterator q = vd_map.begin();
+          while (q!=vd_map.end()) {
+            VDDumpData *vd = q->second;
+            vd->vd_elems_loc.clear();
+            vd->vd_data_loc.clear();
+            q++;
+          }
         }
 
 	glob_param.inwt = inwt;
@@ -779,118 +781,126 @@ int main(int argc,char **args) {
 	}
 
         if (vd_dump_flag) {
-          int nelems=0,nelemsh=0;
-          vd_elems_loc.defrag();
-          vd_data_loc.defrag();
-          nelemsh = vd_elems_loc.size();
-// #define VD_DUMP_DBG
+          vd_map_t::iterator q = vd_map.begin();
+          if (!MY_RANK) printf("dumping VD for elemset %s\n",
+                               q->first.c_str());
+          VDDumpData *vd = q->second;
+          while (q!=vd_map.end()) {
+            int nelems=0,nelemsh=0;
+            vd->vd_elems_loc.defrag();
+            vd->vd_data_loc.defrag();
+            nelemsh = vd->vd_elems_loc.size();
+            // #define VD_DUMP_DBG
 #ifdef VD_DUMP_DBG
-          PetscSynchronizedPrintf(PETSC_COMM_WORLD,
-                                  "[%d] elems %d, data %d\n",
-                                  MY_RANK,nelemsh, 
-                                  vd_data_loc.size());
-          PetscSynchronizedFlush(PETSC_COMM_WORLD); 
+            PetscSynchronizedPrintf(PETSC_COMM_WORLD,
+                                    "[%d] elems %d, data %d\n",
+                                    MY_RANK,nelemsh, 
+                                    vd->vd_data_loc.size());
+            PetscSynchronizedFlush(PETSC_COMM_WORLD); 
 #endif
-          dvector<int> displs,rcvcnts,nelemshv;
-          if (!MY_RANK) {
-            displs.mono(SIZE);
-            rcvcnts.mono(SIZE);
-            nelemshv.mono(SIZE);
-          }
-          MPI_Gather(&nelemsh,1,MPI_INT,
-                     nelemshv.buff(),1,MPI_INT,0,PETSC_COMM_WORLD);
+            dvector<int> displs,rcvcnts,nelemshv;
+            if (!MY_RANK) {
+              displs.mono(SIZE);
+              rcvcnts.mono(SIZE);
+              nelemshv.mono(SIZE);
+            }
+            MPI_Gather(&nelemsh,1,MPI_INT,
+                       nelemshv.buff(),1,MPI_INT,0,PETSC_COMM_WORLD);
 
-          if (!MY_RANK) {
-            nelems=0;
-            for (int j=0; j<SIZE; j++) {
+            if (!MY_RANK) {
+              nelems=0;
+              for (int j=0; j<SIZE; j++) {
 #ifdef VD_DUMP_DBG
-              printf("[%d] nelemsh %d\n",j,nelemshv.e(j));
+                printf("[%d] nelemsh %d\n",j,nelemshv.e(j));
 #endif 
-             nelems += nelemshv.e(j);
-              rcvcnts.e(j) = nelemshv.e(j);
-            }
-            displs.e(0)=0;
-            for (int j=1; j<SIZE; j++) 
-              displs.e(j) = displs.e(j-1) + rcvcnts.e(j-1);
-            
-#ifdef VD_DUMP_DBG
-            printf("nelems %d\n",nelems);
-#endif
-            vd_ebuff.mono(nelems);
-            vd_dbuff.mono(VD_DATA_SIZE*nelems);
-            vd_elems.mono(nelems);
-            vd_data.mono(VD_DATA_SIZE*nelems);
-#ifdef VD_DUMP_DBG
-            for (int j=0; j<SIZE; j++) {
-              printf("j %d, rcvcnts %d, displs %d\n",
-                     j,rcvcnts.e(j),displs.e(j));
-            }
-#endif
-          }
-
-          MPI_Gatherv(vd_elems_loc.buff(),nelemsh,MPI_INT,
-                      vd_ebuff.buff(),rcvcnts.buff(),displs.buff(), 
-                      MPI_INT,0,PETSC_COMM_WORLD);
-
-          if (!MY_RANK) {
-            for (int j=0; j<SIZE; j++) 
-              rcvcnts.e(j) = VD_DATA_SIZE*nelemshv.e(j);
-              
-            displs.e(0)=0;
-            for (int j=1; j<SIZE; j++) 
-              displs.e(j) = displs.e(j-1) + rcvcnts.e(j-1);
-            
-#ifdef VD_DUMP_DBG
-            for (int j=0; j<SIZE; j++) {
-              printf("j %d, rcvcnts %d, displs %d\n",
-                     j,rcvcnts.e(j),displs.e(j));
-            }
-#endif
-          }
-
-          MPI_Gatherv(vd_data_loc.buff(),nelemsh*VD_DATA_SIZE,MPI_DOUBLE,
-                      vd_dbuff.buff(),rcvcnts.buff(),displs.buff(), 
-                      MPI_DOUBLE,0,PETSC_COMM_WORLD);
-
-          ierr=0;
-          if (!MY_RANK) {
-            for (int j=0; j<nelems; j++) {
-              int elem=vd_ebuff.e(j);
-              if (elem>=nelems) { 
-                PETSCFEM_ASSERT(elem<nelems,"got elem out of range, "
-                                "elem %d, nelems %d\n",elem,nelems); 
-                ierr=1; 
-                break; 
+                nelems += nelemshv.e(j);
+                rcvcnts.e(j) = nelemshv.e(j);
               }
-#if 0
-              printf("%d -> elem %d ",j,vd_ebuff.e(j));
-              for (int k=0; k<VD_DATA_SIZE; k++)
-                printf("%g ",vd_dbuff.e(j*VD_DATA_SIZE+k));
-              printf("\n");
+              displs.e(0)=0;
+              for (int j=1; j<SIZE; j++) 
+                displs.e(j) = displs.e(j-1) + rcvcnts.e(j-1);
+            
+#ifdef VD_DUMP_DBG
+              printf("nelems %d\n",nelems);
 #endif
-              for (int k=0; k<VD_DATA_SIZE; k++)
-                vd_data.e(elem*VD_DATA_SIZE+k) =
-                  vd_dbuff.e(j*VD_DATA_SIZE+k);
-              
+              vd->vd_ebuff.mono(nelems);
+              vd->vd_dbuff.mono(VD_DATA_SIZE*nelems);
+              vd->vd_elems.mono(nelems);
+              vd->vd_data.mono(VD_DATA_SIZE*nelems);
+#ifdef VD_DUMP_DBG
+              for (int j=0; j<SIZE; j++) {
+                printf("j %d, rcvcnts %d, displs %d\n",
+                       j,rcvcnts.e(j),displs.e(j));
+              }
+#endif
             }
 
-#if 0
-            char line[200];
-            sprintf(line,"van-driest-step%d.tmp",tstep);
-            FILE *dump_file = fopen(line,"w");
-            printf("Dumping van Driest factors "
-                   "step %d, inwt %d, file %s\n",tstep,inwt,line);
-            for (int j=0; j<nelems; j++) {
-              fprintf(dump_file,"%d ",j);
-              for (int k=0; k<VD_DATA_SIZE; k++)
-                fprintf(dump_file,"%g ",vd_data.e(j*VD_DATA_SIZE+k));
-              fprintf(dump_file,"\n");
+            MPI_Gatherv(vd->vd_elems_loc.buff(),nelemsh,MPI_INT,
+                        vd->vd_ebuff.buff(),rcvcnts.buff(),displs.buff(), 
+                        MPI_INT,0,PETSC_COMM_WORLD);
+
+            if (!MY_RANK) {
+              for (int j=0; j<SIZE; j++) 
+                rcvcnts.e(j) = VD_DATA_SIZE*nelemshv.e(j);
+              
+              displs.e(0)=0;
+              for (int j=1; j<SIZE; j++) 
+                displs.e(j) = displs.e(j-1) + rcvcnts.e(j-1);
+            
+#ifdef VD_DUMP_DBG
+              for (int j=0; j<SIZE; j++) {
+                printf("j %d, rcvcnts %d, displs %d\n",
+                       j,rcvcnts.e(j),displs.e(j));
+              }
+#endif
             }
-            fclose(dump_file);
+
+            MPI_Gatherv(vd->vd_data_loc.buff(),nelemsh*VD_DATA_SIZE,MPI_DOUBLE,
+                        vd->vd_dbuff.buff(),rcvcnts.buff(),displs.buff(), 
+                        MPI_DOUBLE,0,PETSC_COMM_WORLD);
+
+            ierr=0;
+            if (!MY_RANK) {
+              for (int j=0; j<nelems; j++) {
+                int elem=vd->vd_ebuff.e(j);
+                if (elem>=nelems) { 
+                  PETSCFEM_ASSERT(elem<nelems,"got elem out of range, "
+                                  "elem %d, nelems %d\n",elem,nelems); 
+                  ierr=1; 
+                  break; 
+                }
+#if 0
+                printf("%d -> elem %d ",j,vd_ebuff.e(j));
+                for (int k=0; k<VD_DATA_SIZE; k++)
+                  printf("%g ",vd->vd_dbuff.e(j*VD_DATA_SIZE+k));
+                printf("\n");
+#endif
+                for (int k=0; k<VD_DATA_SIZE; k++)
+                  vd->vd_data.e(elem*VD_DATA_SIZE+k) =
+                    vd->vd_dbuff.e(j*VD_DATA_SIZE+k);
+              
+              }
+
+#if 1
+              char line[2000];
+              sprintf(line,"van-driest-%s-step%d.tmp",
+                      q->first.c_str(),tstep);
+              FILE *dump_file = fopen(line,"w");
+              printf("Dumping van Driest factors "
+                     "step %d, inwt %d, file %s\n",tstep,inwt,line);
+              for (int j=0; j<nelems; j++) {
+                fprintf(dump_file,"%d ",j);
+                for (int k=0; k<VD_DATA_SIZE; k++)
+                  fprintf(dump_file,"%g ",vd->vd_data.e(j*VD_DATA_SIZE+k));
+                fprintf(dump_file,"\n");
+              }
+              fclose(dump_file);
 #endif
                 
+            }
+            CHECK_PAR_ERR(ierr,"Error computing van Driest data\n");
+            q++;
           }
-          CHECK_PAR_ERR(ierr,"Error computing van Driest data\n");
           vd_dump_flag = 0;
         }
 
