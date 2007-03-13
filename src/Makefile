@@ -1,5 +1,5 @@
 #__INSERT_LICENSE__
-# $Id: Makefile,v 1.105.4.2 2007/03/08 21:49:39 mstorti Exp $ 
+# $Id: Makefile,v 1.105.4.3 2007/03/13 01:23:17 mstorti Exp $ 
 
 .PHONY: all run lclean save compile default
 
@@ -93,7 +93,8 @@ readlist.h: readlist.eperl
 	if [ -e readlist.h ] ; then chmod +w readlist.h ; fi
 	$(EPERL) readlist.eperl > readlist.h
 	chmod -w readlist.h
-pfmat.o dofmap2.o: CCPPFLAGS += -O0
+
+pfmat.o dofmap2.o : CCPPFLAGS += -O0
 
 
 version.cpp: version.cppin ../VERSION
