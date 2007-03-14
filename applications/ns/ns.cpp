@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: ns.cpp,v 1.193.10.2 2007/03/13 02:50:34 mstorti Exp $
+//$Id: ns.cpp,v 1.193.10.3 2007/03/14 17:40:10 mstorti Exp $
 #include <src/debug.h>
 #include <malloc.h>
 
@@ -784,13 +784,13 @@ int main(int argc,char **args) {
           vd_map_t::iterator q = vd_map.begin();
           if (!MY_RANK) printf("dumping VD for elemset %s\n",
                                q->first.c_str());
-          VDDumpData *vd = q->second;
           while (q!=vd_map.end()) {
+            VDDumpData *vd = q->second;
             int nelems=0,nelemsh=0;
             vd->vd_elems_loc.defrag();
             vd->vd_data_loc.defrag();
             nelemsh = vd->vd_elems_loc.size();
-            // #define VD_DUMP_DBG
+#define VD_DUMP_DBG
 #ifdef VD_DUMP_DBG
             PetscSynchronizedPrintf(PETSC_COMM_WORLD,
                                     "[%d] elems %d, data %d\n",
