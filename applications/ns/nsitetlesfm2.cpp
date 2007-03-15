@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: nsitetlesfm2.cpp,v 1.77.8.3 2007/03/15 02:49:11 mstorti Exp $
+//$Id: nsitetlesfm2.cpp,v 1.77.8.4 2007/03/15 13:11:55 mstorti Exp $
 
 #include <src/fem.h>
 #include <src/utils.h>
@@ -20,6 +20,17 @@ extern TextHashTable *GLOBAL_OPTIONS;
 #define STOP {PetscFinalize(); exit(0);}
    
 #define MAXPROP 100
+
+void nsi_tet_les_fm2::
+before_assemble(arg_data_list &arg_datav,Nodedata *nodedata,
+                Dofmap *dofmap, const char *jobinfo,int myrank,
+                int el_start,int el_last,int iter_mode,
+                const TimeData *time_data) {
+  string ename = name();
+  vd_map_t::iterator q = vd_map.find(ename);
+  if (q==vd_map.end())
+    vd_map[ename] = new VDDumpData;
+}
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 #undef __FUNC__
@@ -286,10 +297,7 @@ assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
   }
 
   string ename = name();
-  vd_map_t::iterator q = vd_map.find(ename);
-  if (q==vd_map.end()) {
-    vd_map[ename] = new VDDumpData;
-  }
+  assert(vd_map.find(ename)!=vd_map.end());
   VDDumpData *vd_data = vd_map[ename];
 
   FastMatCacheList cache_list;

@@ -1,6 +1,6 @@
 // -*- mode: C++ -*-
 /*__INSERT_LICENSE__*/
-//$Id: nsi_tet.h,v 1.55.36.1 2007/03/13 01:39:58 mstorti Exp $
+//$Id: nsi_tet.h,v 1.55.36.2 2007/03/15 13:11:55 mstorti Exp $
 #ifndef PETSCFEM_NSI_TET_H  
 #define PETSCFEM_NSI_TET_H
 
@@ -38,6 +38,10 @@ public:
 //-------<*>-------<*>-------<*>-------<*>-------<*>------- 
 class nsi_tet_les_fm2 : public ns_volume_element { 
 public: 
+  void before_assemble(arg_data_list &arg_datav,Nodedata *nodedata,
+		       Dofmap *dofmap, const char *jobinfo,int myrank,
+		       int el_start,int el_last,int iter_mode,
+		       const TimeData *time_data);
   ASSEMBLE_FUNCTION;
 };
 
