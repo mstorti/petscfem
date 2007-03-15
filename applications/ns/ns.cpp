@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: ns.cpp,v 1.193.10.3 2007/03/14 17:40:10 mstorti Exp $
+//$Id: ns.cpp,v 1.193.10.4 2007/03/15 02:49:11 mstorti Exp $
 #include <src/debug.h>
 #include <malloc.h>
 
@@ -322,10 +322,10 @@ int main(int argc,char **args) {
   //    damping factor is not used 
   GETOPTDEF(int,A_van_Driest,0);
 
-  if(A_van_Driest>0) { 
-    PetscPrintf(PETSC_COMM_WORLD,"--- Don forget to refresh Wall_Data -- \n");
-    PetscPrintf(PETSC_COMM_WORLD,"--- using update_wall_data global option -- \n");
-  }
+  if(A_van_Driest>0) 
+    PetscPrintf(PETSC_COMM_WORLD,
+                "--- Don't forget to refresh Wall_Data -- \n"
+                "--- using update_wall_data global option -- \n");
 
   //o Use IISD (Interface Iterative Subdomain Direct) or not.
   GETOPTDEF(int,use_iisd,0);
@@ -781,11 +781,20 @@ int main(int argc,char **args) {
 	}
 
         if (vd_dump_flag) {
+          dvector<int> displs,rcvcnts,nelemshv;
+          if (!MY_RANK) {
+            displs.mono(SIZE);
+            rcvcnts.mono(SIZE);
+            nelemshv.mono(SIZE);
+          }
+          dvector<int> vd_ebuff;
+          dvector<double> vd_dbuff,vd_data;
+
           vd_map_t::iterator q = vd_map.begin();
-          if (!MY_RANK) printf("dumping VD for elemset %s\n",
-                               q->first.c_str());
           while (q!=vd_map.end()) {
             VDDumpData *vd = q->second;
+            if (!MY_RANK) printf("dumping VD for elemset %s\n",
+                                 q->first.c_str());
             int nelems=0,nelemsh=0;
             vd->vd_elems_loc.defrag();
             vd->vd_data_loc.defrag();
@@ -798,12 +807,6 @@ int main(int argc,char **args) {
                                     vd->vd_data_loc.size());
             PetscSynchronizedFlush(PETSC_COMM_WORLD); 
 #endif
-            dvector<int> displs,rcvcnts,nelemshv;
-            if (!MY_RANK) {
-              displs.mono(SIZE);
-              rcvcnts.mono(SIZE);
-              nelemshv.mono(SIZE);
-            }
             MPI_Gather(&nelemsh,1,MPI_INT,
                        nelemshv.buff(),1,MPI_INT,0,PETSC_COMM_WORLD);
 
@@ -823,10 +826,9 @@ int main(int argc,char **args) {
 #ifdef VD_DUMP_DBG
               printf("nelems %d\n",nelems);
 #endif
-              vd->vd_ebuff.mono(nelems);
-              vd->vd_dbuff.mono(VD_DATA_SIZE*nelems);
-              vd->vd_elems.mono(nelems);
-              vd->vd_data.mono(VD_DATA_SIZE*nelems);
+              vd_ebuff.mono(nelems);
+              vd_dbuff.mono(VD_DATA_SIZE*nelems);
+              vd_data.mono(VD_DATA_SIZE*nelems);
 #ifdef VD_DUMP_DBG
               for (int j=0; j<SIZE; j++) {
                 printf("j %d, rcvcnts %d, displs %d\n",
@@ -836,7 +838,7 @@ int main(int argc,char **args) {
             }
 
             MPI_Gatherv(vd->vd_elems_loc.buff(),nelemsh,MPI_INT,
-                        vd->vd_ebuff.buff(),rcvcnts.buff(),displs.buff(), 
+                        vd_ebuff.buff(),rcvcnts.buff(),displs.buff(), 
                         MPI_INT,0,PETSC_COMM_WORLD);
 
             if (!MY_RANK) {
@@ -856,13 +858,13 @@ int main(int argc,char **args) {
             }
 
             MPI_Gatherv(vd->vd_data_loc.buff(),nelemsh*VD_DATA_SIZE,MPI_DOUBLE,
-                        vd->vd_dbuff.buff(),rcvcnts.buff(),displs.buff(), 
+                        vd_dbuff.buff(),rcvcnts.buff(),displs.buff(), 
                         MPI_DOUBLE,0,PETSC_COMM_WORLD);
 
             ierr=0;
             if (!MY_RANK) {
               for (int j=0; j<nelems; j++) {
-                int elem=vd->vd_ebuff.e(j);
+                int elem=vd_ebuff.e(j);
                 if (elem>=nelems) { 
                   PETSCFEM_ASSERT(elem<nelems,"got elem out of range, "
                                   "elem %d, nelems %d\n",elem,nelems); 
@@ -876,8 +878,8 @@ int main(int argc,char **args) {
                 printf("\n");
 #endif
                 for (int k=0; k<VD_DATA_SIZE; k++)
-                  vd->vd_data.e(elem*VD_DATA_SIZE+k) =
-                    vd->vd_dbuff.e(j*VD_DATA_SIZE+k);
+                  vd_data.e(elem*VD_DATA_SIZE+k) =
+                    vd_dbuff.e(j*VD_DATA_SIZE+k);
               
               }
 
@@ -891,10 +893,13 @@ int main(int argc,char **args) {
               for (int j=0; j<nelems; j++) {
                 fprintf(dump_file,"%d ",j);
                 for (int k=0; k<VD_DATA_SIZE; k++)
-                  fprintf(dump_file,"%g ",vd->vd_data.e(j*VD_DATA_SIZE+k));
+                  fprintf(dump_file,"%g ",vd_data.e(j*VD_DATA_SIZE+k));
                 fprintf(dump_file,"\n");
               }
               fclose(dump_file);
+              vd_ebuff.clear();
+              vd_dbuff.clear();
+              vd_data.clear();
 #endif
                 
             }

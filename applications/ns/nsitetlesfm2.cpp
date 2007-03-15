@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: nsitetlesfm2.cpp,v 1.77.8.2 2007/03/13 02:50:34 mstorti Exp $
+//$Id: nsitetlesfm2.cpp,v 1.77.8.3 2007/03/15 02:49:11 mstorti Exp $
 
 #include <src/fem.h>
 #include <src/utils.h>
@@ -294,8 +294,6 @@ assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
 
   FastMatCacheList cache_list;
   FastMat2::activate_cache(&cache_list);
-  vd_data->vd_elems.clear();
-  vd_data->vd_data.clear();
 
   int ielh=-1;
   for (int k=el_start; k<=el_last; k++) {

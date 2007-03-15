@@ -1,6 +1,6 @@
 // -*- mode: c++ -*-
 //__INSERT_LICENSE__
-// $Id: vand.h,v 1.1.4.2 2007/03/13 02:50:34 mstorti Exp $
+// $Id: vand.h,v 1.1.4.3 2007/03/15 02:49:11 mstorti Exp $
 #ifndef PETSCFEM_VAND_H
 #define PETSCFEM_VAND_H
 
@@ -8,9 +8,8 @@
 #include <map>
 
 struct VDDumpData {
-  int vd_dump_flag;
-  dvector<int> vd_elems_loc,vd_ebuff,vd_elems;
-  dvector<double> vd_data_loc,vd_dbuff,vd_data;
+  dvector<int> vd_elems_loc;
+  dvector<double> vd_data_loc;
 };
 
 typedef map <string,VDDumpData *> vd_map_t;
