@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: adaptor.cpp,v 1.18.2.1 2007/03/20 17:27:19 mstorti Exp $
+//$Id: adaptor.cpp,v 1.18.2.2 2007/03/20 17:41:23 mstorti Exp $
 
 #include <src/fem.h>
 #include <src/utils.h>
@@ -17,7 +17,7 @@ extern TextHashTable *GLOBAL_OPTIONS;
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>
 void adaptor::export_vals(adaptor::ArgHandle h,
                           double *vals,int s) {
-  PETSCFEM_ASSERT0(elem>=0,
+  PETSCFEM_ASSERT0(elem>=0 && ielh>=0,
                    "Current element not set. "
                    "`export_vals()' was called probably from outside \n"
                    "adaptor' element loop\n");

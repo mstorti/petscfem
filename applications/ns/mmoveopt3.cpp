@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: mmoveopt3.cpp,v 1.10.2.3 2007/03/20 17:27:19 mstorti Exp $
+//$Id: mmoveopt3.cpp,v 1.10.2.4 2007/03/20 17:43:29 mstorti Exp $
 
 #include <src/fem.h>
 #include <src/utils.h>
@@ -16,10 +16,6 @@
 #include "mmoveopt3.h"
 
 extern GlobParam *GLOB_PARAM;
-extern double mmv_delta,mmv_d2fd,mmv_dfd;
-extern double min_quality,min_volume;
-extern double mmv_functional;
-extern int    tarea,tangled_mesh;
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 void mesh_move_opt3::before_chunk(const char *jobinfo) {
@@ -59,9 +55,6 @@ void mesh_move_opt3::before_chunk(const char *jobinfo) {
     d2SldW2.resize(4,ndim,ndim,ndim,ndim).set(0.);
     w.resize(2,ndim,ndim).set(0.);
     w0.resize(2,ndim,ndim).set(0.);
-
-//     d2Vdu2.resize(4,nel,ndim,nel,ndim).set(0.);
-//     d2Sldu2.resize(4,nel,ndim,nel,ndim).set(0.);
 
     tmp2.resize(2,ndim+1,ndim+1);
     xreg.resize(2,ndim+1,ndim+1);
@@ -125,8 +118,6 @@ void mesh_move_opt3::before_chunk(const char *jobinfo) {
   TGETOPTDEF_ND(thash,double,relax_factor,1.);
   //o If true, then the reference mesh is used as the optimal mesh. 
   TGETOPTDEF_ND(thash,int,use_ref_mesh,1);
-  //o Relaxation factor for matrix nondiagonal terms in the untangling stage
-  TGETOPTDEF_ND(thash,double,relax_matrix_factor,1.0);
 }
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
@@ -284,14 +275,14 @@ element_connector(const FastMat2 &xloc,
       w.rs();
       vaux2.rs();
       for (int j=1;j<=ndim;j++) {
-	dSldW.setel(vaux1.get(1)*w.get(i,j)
-		    -vaux1.get(2)*vaux2.get(j,2)+vaux1.get(3)*vaux2.get(j,3),i,j);
+	dSldW.setel(vaux1.get(1)*w.get(i,j)-vaux1.get(2)
+                    *vaux2.get(j,2)+vaux1.get(3)*vaux2.get(j,3),i,j);
 
 	for (int k=1;k<=ndim;k++) {
 	  d2SldW2.setel(d2SldW2.get(i,j,i,k)
-			+w.get(i,k)*w.get(i,j)/vaux1.get(1),i,j,i,k);
+                        +w.get(i,k)*w.get(i,j)/vaux1.get(1),i,j,i,k);
 	  d2SldW2.setel(d2SldW2.get(i,j,i,k)
-			+vaux2.get(k,2)*vaux2.get(j,2)/vaux1.get(2),i,j,i,k);
+                        +vaux2.get(k,2)*vaux2.get(j,2)/vaux1.get(2),i,j,i,k);
 	  d2SldW2.setel(d2SldW2.get(i,j,i,k)
                         +vaux2.get(k,3)*vaux2.get(j,3)/vaux1.get(3),i,j,i,k);
 	  d2SldW2.setel(d2SldW2.get(i,j,ind[i+1],k)
@@ -314,93 +305,54 @@ element_connector(const FastMat2 &xloc,
     d2SldW2.scale(3.);
 
   }
-  double el_quality = C*V/Sl;
-  min_quality = (min_quality > el_quality ? el_quality : min_quality);
-  min_volume  = (min_volume > V ? V : min_volume);
+  if (V<=0.0) set_error(1);
 
-  // h = h(V,\delta)
-  double h = 0.5*(V+pow(pow(V,2.)+4.*pow(mmv_delta,2.),0.5));
-  double dh1 = 0.5*(1.+V/pow(pow(V,2.)+4.*pow(mmv_delta,2.),0.5));
-  double dh2 = 2.*mmv_delta/pow(pow(V,2.)+4.*pow(mmv_delta,2.),0.5);
-  double d2h11 = 2.*pow(mmv_delta,2.)/pow(pow(V,2.)+4.*pow(mmv_delta,2.),1.5);
-  double d2h22 = 2.*pow(V,2.)/pow(pow(V,2.)+4.*pow(mmv_delta,2.),1.5);
+  Q = C*V/Sl;
 
-  Q = C*h/Sl;
+  dVdu.prod(dVdW,dWdu,-1,-2,-1,-2,1,2);
+  dSldu.prod(dSldW,dWdu,-1,-2,-1,-2,1,2);
 
-  mmv_functional += pow(Q,distor_exp);
+  tmp.prod(d2VdW2,dWdu,1,2,-1,-2,-1,-2,3,4);
+  d2Vdu2.prod(tmp,dWdu,-1,-2,3,4,-1,-2,1,2);
+  tmp.prod(d2SldW2,dWdu,1,2,-1,-2,-1,-2,3,4);
+  d2Sldu2.prod(tmp,dWdu,-1,-2,3,4,-1,-2,1,2);
 
-  if (tarea > 0){
+  dQ.set(dVdu).scale(Sl).rest(dSldu.scale(V)).scale(C/pow(Sl,2));
 
-    dVdu.prod(dVdW,dWdu,-1,-2,-1,-2,1,2);
-    dSldu.prod(dSldW,dWdu,-1,-2,-1,-2,1,2);
+  dSldu.scale(1./V);
 
-    tmp.prod(d2VdW2,dWdu,1,2,-1,-2,-1,-2,3,4);
-    d2Vdu2.prod(tmp,dWdu,-1,-2,3,4,-1,-2,1,2);
-    tmp.prod(d2SldW2,dWdu,1,2,-1,-2,-1,-2,3,4);
-    d2Sldu2.prod(tmp,dWdu,-1,-2,3,4,-1,-2,1,2);
-    
-    dQ.set(dVdu).scale(dh1*Sl).rest(dSldu.scale(h)).scale(C/pow(Sl,2));
+  res.set(dQ).scale(distor_exp*c_distor*pow(Q,distor_exp-1.));
+  res.axpy(dVdu,volume_exp*c_volume/Vref*pow(V/Vref-1.,volume_exp-1.));
+  res.scale(1.0/relax_factor_now);
 
-    dSldu.scale(1./h);
-  
-    d2Q.set(d2Vdu2).scale(Sl);
-    mat1.prod(dVdu,dSldu,1,2,3,4);
-    d2Q.axpy(mat1,1.);
-    mat1.prod(dSldu,dVdu,1,2,3,4);
-    d2Q.axpy(mat1,-1.).scale(dh1);
-    d2Q.axpy(d2Sldu2,-h);
-    mat1.prod(dVdu,dVdu,1,2,3,4);
-    d2Q.axpy(mat1,d2h11*Sl).scale(C/pow(Sl,2));
-    mat1.prod(dQ,dSldu,1,2,3,4);
-    d2Q.axpy(mat1,-2./Sl);
+  d2Q.set(d2Vdu2).scale(Sl);
+  mat1.prod(dVdu,dSldu,1,2,3,4);
+  d2Q.axpy(mat1,1.);
+  mat1.prod(dSldu,dVdu,1,2,3,4);
+  d2Q.axpy(mat1,-1.);
+  d2Q.axpy(d2Sldu2,-V).scale(C/pow(Sl,2));
+  mat1.prod(dQ,dSldu,1,2,3,4);
+  d2Q.axpy(mat1,-2./Sl);
 
-    res.set(dQ).scale(distor_exp*c_distor*pow(Q,distor_exp-1.));
-    res.axpy(dVdu,volume_exp*c_volume/Vref*pow(V/Vref-1.,volume_exp-1.));
-    res.scale(1.0/relax_factor_now);
-    
-    mmv_dfd += distor_exp*c_distor*pow(Q,distor_exp-1.)*C/Sl*dh2;
-    
-    mat.prod(dQ,dQ,1,2,3,4).scale((distor_exp-1)/Q);
-    mat.axpy(d2Q,1.).scale(distor_exp
-			   *c_distor*pow(Q,distor_exp-1.));
-    
-    mat1.prod(dVdu,dVdu,1,2,3,4);
-    mat.axpy(mat1,volume_exp*c_volume/pow(Vref,volume_exp)
-	     *(volume_exp-1.)*pow(V-Vref,volume_exp-2.));
-    mat.axpy(d2Vdu2,volume_exp*c_volume/pow(Vref,volume_exp)
-	     *pow(V-Vref,volume_exp-1.)).scale(-1.);
-    
-    if (use_ref_mesh) {
-      res2.prod(res,iT0,1,-1,-1,2);
-      res.set(res2);
-      mat2.prod(mat,iT0,1,-1,3,4,-1,2);
-      mat.prod(mat2,iT0,1,2,3,-1,-1,4);
-    }
+  mat.prod(dQ,dQ,1,2,3,4).scale((distor_exp-1)/Q);
+  mat.axpy(d2Q,1.).scale(distor_exp
+                         *c_distor*pow(Q,distor_exp-1.));
 
-    // Ver si esta va aca!!!
-    // Relajo los terminos de acople de la matriz
-    //  if (tangled_mesh){
-    for (int i=1;i<=ndim;i++){
-      for (int j=1;j<=ndim;j++){
-	if (i!=j){
-	  mat.ir(4,j).ir(2,i).scale(relax_matrix_factor);
-	  mat.rs();
-	}
-      }
-    }
-    //  }
+  mat1.prod(dVdu,dVdu,1,2,3,4);
+  mat.axpy(mat1,volume_exp*c_volume/pow(Vref,volume_exp)
+           *(volume_exp-1.)*pow(V-Vref,volume_exp-2.));
+  mat.axpy(d2Vdu2,volume_exp*c_volume/pow(Vref,volume_exp)
+           *pow(V-Vref,volume_exp-1.)).scale(-1.);
 
-    //  res_delta.set(res).scale(2.0);
-    mat2.set(dVdu).scale(-2.*mmv_delta*V*Sl/pow(pow(V,2.)+4.*pow(mmv_delta,2.),1.5));
-    mat2.axpy(dSldu,dh2).scale(C/pow(Sl,2.));
-    res_delta.set(dQ).scale((distor_exp-1)/Q*C/Sl*dh2);
-    res_delta.axpy(mat2,-1.).scale(distor_exp*c_distor*pow(Q,distor_exp-1.)).scale(-1.);
-    
-    mmv_d2fd += -distor_exp*c_distor*pow(Q,distor_exp-1.)*((distor_exp-1.)/Q*pow(C/Sl*dh2,2.)+C/Sl*d2h22);
-
-    int nen = nel*ndof;
-    export_vals(res_h,res);
-    export_vals(res_delta_h,res_delta);
-    export_vals(mat_h,mat);
+  if (use_ref_mesh) {
+    res2.prod(res,iT0,1,-1,-1,2);
+    res.set(res2);
+    mat2.prod(mat,iT0,1,-1,3,4,-1,2);
+    mat.prod(mat2,iT0,1,2,3,-1,-1,4);
   }
+  res_delta.set(res).scale(2.0);
+  int nen = nel*ndof;
+  export_vals(res_h,res);
+  export_vals(res_delta_h,res_delta);
+  export_vals(mat_h,mat);
 }
