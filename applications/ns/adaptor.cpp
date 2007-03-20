@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: adaptor.cpp,v 1.18 2007/02/24 14:45:08 mstorti Exp $
+//$Id: adaptor.cpp,v 1.18.2.1 2007/03/20 17:27:19 mstorti Exp $
 
 #include <src/fem.h>
 #include <src/utils.h>
@@ -20,7 +20,7 @@ void adaptor::export_vals(adaptor::ArgHandle h,
   PETSCFEM_ASSERT0(elem>=0,
                    "Current element not set. "
                    "`export_vals()' was called probably from outside \n"
-                   "1adaptor' element loop\n");
+                   "adaptor' element loop\n");
   int index = h.index();
   arg_data &arg = (*arg_data_vp)[index];
   PETSCFEM_ASSERT0(!(h==NullArgHandle),
@@ -43,7 +43,7 @@ void adaptor::export_vals(adaptor::ArgHandle h,
                     "Not exporting correct size. \n"
                     "exported %d, required %d\n",s,rowsz);  
   }
-  memcpy(retval+elem*rowsz,vals,rowsz*sizeof(double));
+  memcpy(retval+ielh*rowsz,vals,rowsz*sizeof(double));
 }
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>
@@ -135,7 +135,7 @@ int adaptor::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
   //  from/to `adaptor'. 
   TGETOPTDEF(thash,int,use_arg_handles,0);
   //o Use caches for FastMat2 matrices
-  TGETOPTDEF(thash,int,use_fastmat2_cache,0);
+  TGETOPTDEF(thash,int,use_fastmat2_cache,1);
 
   PETSCFEM_ASSERT(npg>=0,"npg should be non-negative, npg %d\n",npg);  
   PETSCFEM_ASSERT(ndim>=0,"ndim should be non-negative, ndim %d\n",ndim);  
@@ -252,7 +252,7 @@ int adaptor::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
   if (use_fastmat2_cache) 
     FastMat2::activate_cache(&cache_list);
 
-  int ielh=-1;
+  ielh=-1;
   for (int k=el_start; k<=el_last; k++) {
     if (!compute_this_elem(k,this,myrank,iter_mode)) continue;
     FastMat2::reset_cache();
@@ -323,7 +323,7 @@ int adaptor::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
         matlocf.export_vals(&(RETVALMAT(ielh,0,0,0,0)));
     }
   }
-  elem = -1;
+  ielh = elem = -1;
   after_chunk(jobinfo);
   FastMat2::void_cache();
   FastMat2::deactivate_cache();

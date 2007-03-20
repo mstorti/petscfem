@@ -1,6 +1,6 @@
 // -*- mode: C++ -*-
 /*__INSERT_LICENSE__*/
-//$Id: adaptor.h,v 1.16 2007/02/23 03:05:01 mstorti Exp $
+//$Id: adaptor.h,v 1.16.6.1 2007/03/20 17:27:19 mstorti Exp $
 #ifndef PETSCFEM_ADAPTOR_H
 #define PETSCFEM_ADAPTOR_H
 
@@ -14,6 +14,8 @@ private:
   /// Flags whether the elements have been initialized or not
   int elem_init_flag, use_fastmat2_cache;
   arg_data_list *arg_data_vp;
+  /// Index of element local to chunk
+  int ielh;
 public: 
   adaptor();
   /// This should not be defined by the user...
