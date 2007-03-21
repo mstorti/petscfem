@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: adaptor.cpp,v 1.18 2007/02/24 14:45:08 mstorti Exp $
+//$Id: adaptor.cpp,v 1.18.8.1 2007/03/21 12:26:19 mstorti Exp $
 
 #include <src/fem.h>
 #include <src/utils.h>
@@ -87,6 +87,7 @@ adaptor::get_arg_handle(const string &key,
 adaptor::adaptor() : elem_init_flag(0), 
                      use_fastmat2_cache(1),
                      arg_data_vp(NULL),
+                     ielhg(-1) ,
                      elem(-1)
                      { }
 
