@@ -1,6 +1,6 @@
 // -*- mode: c++ -*-
 //__INSERT_LICENSE__
-// $Id: gtemplates.h,v 1.10 2005/01/05 12:21:53 mstorti Exp $
+// $Id: gtemplates.h,v 1.10.72.1 2007/03/25 03:19:40 mstorti Exp $
 #ifndef PETSCFEM_GTEMPLATES_H
 #define PETSCFEM_GTEMPLATES_H
 
@@ -40,8 +40,10 @@ public:
     : GeomObject::Template(3,GeomObject::OrientedTriT, 
 			   2,5,perm_v,
 			   "OrientedTri") { }
-  int size(GeomObject::Type t) const { }
-  const int* nodes(GeomObject::Type t,int j) const { }
+  int size(GeomObject::Type t) const { return 0; }
+  const int* nodes(GeomObject::Type t,int j) const { 
+    assert(0);
+  }
 };
 
 extern OrientedTriTemplateClass 
