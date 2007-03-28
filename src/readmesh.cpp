@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: readmesh.cpp,v 1.123 2007/02/24 14:45:08 mstorti Exp $
+//$Id: readmesh.cpp,v 1.123.2.1 2007/03/28 11:33:21 mstorti Exp $
 #ifndef _GNU_SOURCE 
 #define _GNU_SOURCE 
 #endif
@@ -43,11 +43,14 @@ extern "C" {
 #include <src/dvecpar.h>
 #include <src/dvecpar2.h>
 
+#define TRACE_READMESH
 #undef TRACE
-#if 0
+#ifdef TRACE_READMESH
+// #define TRACE(n)				\
+//   ierr = MPI_Barrier(PETSC_COMM_WORLD);		\
+//   PetscPrintf(PETSC_COMM_WORLD,"trace " #n "\n")
 #define TRACE(n)				\
-  ierr = MPI_Barrier(PETSC_COMM_WORLD);		\
-  PetscPrintf(PETSC_COMM_WORLD,"trace " #n "\n")
+   GLOBAL_DEBUG->trace("readmesh trace " #n);
 #else
 #define TRACE(n)
 #endif
@@ -115,6 +118,11 @@ int read_mesh(Mesh *& mesh,char *fcase,Dofmap *& dofmap,
   PETSCFEM_ASSERT(fstack->ok(),"read_mesh: "
 		  "Couldn't open file \"%s\"\n",fcase);
   if (myrank==0) fstack->set_echo_stream(stdout);
+
+#ifdef TRACE_READMESH
+    GLOBAL_DEBUG->activate("print");
+    Debug::init();
+#endif
 
   // Initialize number of eqs.
   neq=0;
@@ -1599,8 +1607,14 @@ if (!(bool_cond)) { PetscPrintf(PETSC_COMM_WORLD, 				\
       }
     }
 
-    da_sort (elemset->ghost_elems,int_cmp,NULL);
+    TRACE(4.1);
+    
+    // da_sort (elemset->ghost_elems,int_cmp,NULL);
     int nghostel = da_length(elemset->ghost_elems);
+    if (nghostel>0) {
+      int *dap = (int *)da_ref(elemset->ghost_elems,0);
+      sort(dap,dap+nghostel);
+    }
 
     TRACE(5);
     if (size>1) {
