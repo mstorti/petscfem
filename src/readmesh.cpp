@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: readmesh.cpp,v 1.123.2.1 2007/03/28 11:33:21 mstorti Exp $
+//$Id: readmesh.cpp,v 1.123.2.2 2007/03/28 11:46:31 mstorti Exp $
 #ifndef _GNU_SOURCE 
 #define _GNU_SOURCE 
 #endif
@@ -43,12 +43,9 @@ extern "C" {
 #include <src/dvecpar.h>
 #include <src/dvecpar2.h>
 
-#define TRACE_READMESH
-#undef TRACE
+//#define TRACE_READMESH
 #ifdef TRACE_READMESH
-// #define TRACE(n)				\
-//   ierr = MPI_Barrier(PETSC_COMM_WORLD);		\
-//   PetscPrintf(PETSC_COMM_WORLD,"trace " #n "\n")
+#undef TRACE
 #define TRACE(n)				\
    GLOBAL_DEBUG->trace("readmesh trace " #n);
 #else
