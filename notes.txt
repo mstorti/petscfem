@@ -12055,14 +12055,6 @@ FIXED
 > -Testing: "Distributed graph 2proc." on file "distmap/dist_graph.np2.out.tmp"...not OK.
 > -        --->  Couldn't find "row 0:  1 "
 O sea que desaparecieron 2 y aparecio 1 y ahora no puede abrir 3 mas. 
-%
-%=== Thu Apr  5 22:17:20 2007 mstorti@prandtl  beta-3.51.22
-%
-%----- 22:17:20 -----: Added comment in prandtl@mstorti-v4-branch
-%
-%----- 01:41:25 -----: Added comment in aquiles@mstorti-v4-branch
-%
-%----- 01:51:37 -----: Added comment again in prandtl@mstorti-v4-branch
 
 # Current line ===========  %
 # Local Variables: $
