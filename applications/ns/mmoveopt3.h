@@ -1,6 +1,6 @@
 // -*- mode: C++ -*-
 /*__INSERT_LICENSE__*/
-//$Id: mmoveopt3.h,v 1.5 2007/02/23 03:05:01 mstorti Exp $
+//$Id: mmoveopt3.h,v 1.5.6.2 2007/03/20 17:43:29 mstorti Exp $
 
 #ifndef MMOVEOPT3_H
 #define MMOVEOPT3_H

@@ -1,5 +1,4 @@
 #__INSERT_LICENSE__
-# $Id: Makefile,v 1.23 2007/03/13 01:31:21 mstorti Exp $ 
 
 tests = nutcyl test_rigid test_strip \
 	test_strip_prism test_strip_prism_inv test_strip2d test_strip2d_inv

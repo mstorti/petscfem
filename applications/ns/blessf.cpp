@@ -1,5 +1,4 @@
 //__INSERT_LICENSE__
-/* $Id: blessf.cpp,v 1.48 2007/03/13 01:31:20 mstorti Exp $ */
 
 #include <src/debug.h>
 #include <malloc.h>

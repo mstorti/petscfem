@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-// $Id: getsurf.cpp,v 1.32 2005/01/17 21:52:21 mstorti Exp $
+// $Id: getsurf.cpp,v 1.32.70.1 2007/03/25 03:19:40 mstorti Exp $
 
 #include <string>
 #include <list>
@@ -184,9 +184,9 @@ void getsurf(GetSurfCtx &ctx,
     }
     assert(nopp=1);
     if (verbose) {
-      printf("elem %d, ");
+      printf("elem %d, ",q->second.elem);
       go.print();
-      printf("face %d, ",q->second.elem,q->second.face);
+      printf("face %d, ",q->second.face);
       face.print();
       printf("opposing node %d\n",opp_node);
     }

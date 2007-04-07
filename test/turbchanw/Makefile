@@ -1,5 +1,4 @@
 #__INSERT_LICENSE__
-# $Id: Makefile,v 1.11 2007/03/13 01:31:21 mstorti Exp $ 
 
 default: swturb
 

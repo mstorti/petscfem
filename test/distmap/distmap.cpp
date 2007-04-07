@@ -1,5 +1,4 @@
 /*__INSERT_LICENSE__*/
-// $Id: distmap.cpp,v 1.14 2007/03/13 01:31:21 mstorti Exp $
 #include <cstdio>
 #include <cstdlib>
 #include <ctime>

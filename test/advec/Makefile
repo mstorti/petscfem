@@ -1,5 +1,4 @@
 #__INSERT_LICENSE__
-# $Id: Makefile,v 1.23 2007/03/13 01:31:21 mstorti Exp $ 
 
 .PHONY: force all run default skew parallel_cone skew_cone rotating_cone	\
 	skew_noise parallel_cone_noise skew_cone_noise rotating_cone_noise	\

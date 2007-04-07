@@ -1,6 +1,6 @@
 // -*- mode: c++ -*-
 //__INSERT_LICENSE__
-// $Id: femref.h,v 1.63 2005/01/17 18:37:04 mstorti Exp $
+// $Id: femref.h,v 1.63.70.1 2007/03/25 03:19:40 mstorti Exp $
 #ifndef PETSCFEM_FEMREF_H
 #define PETSCFEM_FEMREF_H
 
@@ -47,6 +47,7 @@ public:
     GeomObject::Type type;
     /// The name of the shape
     const char *label;
+    virtual ~Template() {}
     /// Ctor from info
     Template(int sz,GeomObject::Type t,
 	     int dim_a,int nperms_a,
@@ -94,7 +95,7 @@ public:
   /// Returns the #enum# type. 
   Type type() const { return go_template->type;}
   /// Constructor of empty object
-  GeomObject() : canonical(0), go_template(NULL) { }
+  GeomObject() : go_template(NULL), canonical(0) { }
   /// Constructor with info
   GeomObject(Type t,const int *nodes_a=NULL);
   /** Bring to canonical ordering by permuting the
@@ -145,6 +146,7 @@ public:
   /// Local nodes connected to subobject #j# and type
   virtual const int 
   *nodes(int j,GeomObject::Type &t) const { assert(0); }
+  virtual ~Splitter() {}
 };
 
 typedef double
@@ -216,6 +218,7 @@ public:
       obj = obj_a; t = ta; subobj = subobj_a; 
     }
   };
+  virtual ~Mesh() {}
   /** Set object #go# to the object pointed
       by iterator #it# */
   virtual void set(iterator it,GeomObject &go)=0;

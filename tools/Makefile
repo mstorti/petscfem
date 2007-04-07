@@ -77,7 +77,7 @@ MPDRUN := $(MPI_HOME1)/bin/mpdrun
 #w Runs test of bandwith between all processors
 run_nettest: nettest.bin
 #	$(MPIRUN) -np $(NP) -nolocal -machinefile ./machi.dat $<
-	$(MPDRUN) -1 -np $(NP) -a nettest $<
+	$(MPDRUN) -1 -a nettest  -machinefile machi.dat -np $(NP) $<
 
 #w Conversion form Abekas YUV format (used by DX) to standard  YUV
 dxyuv: CFLAGS = -O3 -funroll-loops

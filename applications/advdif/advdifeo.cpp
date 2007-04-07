@@ -1,5 +1,4 @@
 //__INSERT_LICENSE__
-// $Id: advdifeo.cpp,v 1.18 2007/03/13 01:31:20 mstorti Exp $
 
 extern int comp_mat_each_time_step_g,
   consistent_supg_matrix_g,

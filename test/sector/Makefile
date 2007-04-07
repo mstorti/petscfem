@@ -1,5 +1,4 @@
 #__INSERT_LICENSE__
-# $Id: Makefile,v 1.13 2007/03/13 01:31:21 mstorti Exp $ 
 
 .PHONY: constraint_bug chunk_size_process sector iprops triangle lap_per
 

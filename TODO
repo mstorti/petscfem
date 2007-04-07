@@ -1,5 +1,4 @@
 ################################################################
-# $Id: TODO,v 1.259 2007/03/13 01:31:20 mstorti Exp $
 TODO: [Mainly fixes go here...]
 =====
 
@@ -12,7 +11,7 @@ TODO: [Mainly fixes go here...]
     the fluid. 
 * `$ make sw' crash if `DX' not installed
 * In `gatherer.cpp' default value for `ndimel' should be `ndim', not
-  `ndim-1'. In `set_pg_values' we should pass `Jaco' alqways, and `n'
+  `ndim-1'. In `set_pg_values' we should pass `Jaco' always, and `n'
   (the normal) should be passed as a public member in the class. 
 * Running large problem FS with (procsel -l) (0 weight in server) leads
   to dead-lock apparently in `iisdcr.cpp'   

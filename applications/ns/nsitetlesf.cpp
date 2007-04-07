@@ -1,5 +1,4 @@
 //__INSERT_LICENSE__
-//$Id: nsitetlesf.cpp,v 1.2 2007/03/13 01:32:06 mstorti Exp $
 
 #include <src/fem.h>
 #include <src/utils.h>

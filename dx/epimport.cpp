@@ -1,5 +1,4 @@
 //__INSERT_LICENSE__
-// $Id: epimport.cpp,v 1.26 2007/03/13 01:31:20 mstorti Exp $
 #include <cassert>
 #include <string>
 #include <vector>

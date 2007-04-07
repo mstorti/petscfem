@@ -1,4 +1,3 @@
-# $Id: Makefile,v 1.4 2007/03/13 01:31:21 mstorti Exp $ 
 
 .PHONY: force all run tests default strip gasflow nozzle  vtubei
 

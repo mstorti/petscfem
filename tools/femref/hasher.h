@@ -1,6 +1,6 @@
 // -*- mode: c++ -*-
 //__INSERT_LICENSE__
-// $Id: hasher.h,v 1.11 2005/05/19 00:46:54 mstorti Exp $
+// $Id: hasher.h,v 1.11.48.1 2007/03/25 03:19:40 mstorti Exp $
 #ifndef PETSCFEM_HASHER_H
 #define PETSCFEM_HASHER_H
 
@@ -11,6 +11,7 @@ extern "C" {
 
 class BaseHasher {
 public:
+  virtual ~BaseHasher() {}
   virtual void reset()=0;
   virtual void hash(int w)=0;
   virtual void hash(int *w,int n)=0;
@@ -79,7 +80,7 @@ private:
   void hashf(int x) {
     unsigned long int tmp;
     state ^= x;
-    for (int j=0; j<n; j++) {
+    for (unsigned int j=0; j<n; j++) {
       tmp = state + c;
       state = tmp*tmp;
       state ^= m;
@@ -87,13 +88,13 @@ private:
   }
 public:
   FastHasher() 
-    : state(0), 
+    : 
 #if 1
       c(0x238e1f29), m(0x6b8b4567),
 #else
       c(54841), m(0x5c32b3a3), 
 #endif
-      n(1) { }
+      n(1), state(0) { }
   void reset() { state = c; }
   void hash(int w) { hashf(w); }
   void hash(int *w,int n) {

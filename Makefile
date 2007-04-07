@@ -1,6 +1,5 @@
 # mode: -*- makefile -*-
 #__INSERT_LICENSE__
-#$Id: Makefile,v 1.67 2007/03/13 01:31:20 mstorti Exp $
 
 SHELL = /bin/bash
 

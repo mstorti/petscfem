@@ -1,4 +1,3 @@
-# $Id: Makefile,v 1.2 2007/03/13 01:31:21 mstorti Exp $ 
 
 .PHONY: $(plano_list)
 plano_list = plano_cons plano_cons_auto plano_local plano_auto plano_local_nm \

@@ -1,5 +1,4 @@
 //__INSERT_LICENSE__
-//$Id: getprop.cpp,v 1.18 2007/03/13 01:31:20 mstorti Exp $
   
 #include "fem.h"
 #include "readmesh.h"
