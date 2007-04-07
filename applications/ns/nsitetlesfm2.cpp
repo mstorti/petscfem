@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: nsitetlesfm2.cpp,v 1.77 2007/02/24 14:45:08 mstorti Exp $
+//$Id: nsitetlesfm2.cpp,v 1.77.8.4 2007/03/15 13:11:55 mstorti Exp $
 
 #include <src/fem.h>
 #include <src/utils.h>
@@ -8,6 +8,8 @@
 #include <src/fastmat2.h>
 
 #include "nsi_tet.h"
+
+#include "vand.h"
 
 #define ADD_GRAD_DIV_U_TERM
 #define STANDARD_UPWIND
@@ -18,6 +20,17 @@ extern TextHashTable *GLOBAL_OPTIONS;
 #define STOP {PetscFinalize(); exit(0);}
    
 #define MAXPROP 100
+
+void nsi_tet_les_fm2::
+before_assemble(arg_data_list &arg_datav,Nodedata *nodedata,
+                Dofmap *dofmap, const char *jobinfo,int myrank,
+                int el_start,int el_last,int iter_mode,
+                const TimeData *time_data) {
+  string ename = name();
+  vd_map_t::iterator q = vd_map.find(ename);
+  if (q==vd_map.end())
+    vd_map[ename] = new VDDumpData;
+}
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 #undef __FUNC__
@@ -281,8 +294,11 @@ assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
     matloc_prof.kron(one_nel,seed);
 #endif
 #endif
-
   }
+
+  string ename = name();
+  assert(vd_map.find(ename)!=vd_map.end());
+  VDDumpData *vd_data = vd_map[ename];
 
   FastMatCacheList cache_list;
   FastMat2::activate_cache(&cache_list);
@@ -494,6 +510,7 @@ assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
 
 	// Smagorinsky turbulence model
 	double nu_eff=NAN,van_D=NAN,ywall=NAN;
+        // printf("LES %d, A_van_Driest %f\n",LES,A_van_Driest);
 	if (LES) {
 	  double tr = (double) tmp15.prod(strain_rate,strain_rate,-1,-2,-1,-2);
 	  //	  double van_D;
@@ -502,6 +519,17 @@ assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
 	    ywall = sqrt(dist_to_wall.sum_square_all());
 	    double y_plus = ywall*shear_vel/VISC;
 	    van_D = 1.-exp(-y_plus/A_van_Driest);
+
+            if (vd_dump_flag && ipg==0) {
+              
+              // printf("%d %f %f %f %f\n",k,ywall,y_plus,
+              // shear_vel,van_D);
+              vd_data->vd_elems_loc.push(k);
+              vd_data->vd_data_loc.push(ywall);
+              vd_data->vd_data_loc.push(y_plus);
+              vd_data->vd_data_loc.push(shear_vel);
+              vd_data->vd_data_loc.push(van_D);
+            }
 	  } else van_D = 1.;
 	  
 	  double nu_t = SQ(C_smag*Delta*van_D)*sqrt(2*tr);

@@ -1,5 +1,4 @@
 //__INSERT_LICENSE__
-//$Id: adaptor.cpp,v 1.18.2.2 2007/03/20 17:41:23 mstorti Exp $
 
 #include <src/fem.h>
 #include <src/utils.h>

@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: ns.cpp,v 1.193 2007/02/23 16:31:14 mstorti Exp $
+//$Id: ns.cpp,v 1.193.10.5 2007/03/15 13:11:55 mstorti Exp $
 #include <src/debug.h>
 #include <malloc.h>
 
@@ -12,6 +12,10 @@
 #include <src/pfmat.h>
 #include <src/hook.h>
 #include <src/iisdmatstat.h>
+
+#include "vand.h"
+vd_map_t vd_map;
+int vd_dump_flag;
 
 // PETSc now doesn't have the string argument that represents the variable name
 // so that I will use this wrapper until I find how to set names in Ascii matlab viewers.
@@ -318,10 +322,10 @@ int main(int argc,char **args) {
   //    damping factor is not used 
   GETOPTDEF(int,A_van_Driest,0);
 
-  if(A_van_Driest>0) { 
-    PetscPrintf(PETSC_COMM_WORLD,"--- Don forget to refresh Wall_Data -- \n");
-    PetscPrintf(PETSC_COMM_WORLD,"--- using update_wall_data global option -- \n");
-  }
+  if(A_van_Driest>0) 
+    PetscPrintf(PETSC_COMM_WORLD,
+                "--- Don't forget to refresh Wall_Data -- \n"
+                "--- using update_wall_data global option -- \n");
 
   //o Use IISD (Interface Iterative Subdomain Direct) or not.
   GETOPTDEF(int,use_iisd,0);
@@ -353,6 +357,10 @@ int main(int argc,char **args) {
   //o Print, after execution, a report of the times a given option
   // was accessed. Useful for detecting if an option was used or not.
   GETOPTDEF(int,report_option_access,1);
+
+  //o Print, each `dump_van_driest_freq' steps the van Driest
+  // factor and related info to a file. 
+  GETOPTDEF(int,dump_van_driest_freq,0);
 
   if (print_some_file=="<none>")
     print_some_file = "";
@@ -465,7 +473,6 @@ int main(int argc,char **args) {
     argl.clear();
     argl.arg_add(A_tet,PROFILE|PFMAT);
     ierr = assemble(mesh,argl,dofmap,"comp_mat",&time); CHKERRA(ierr); 
-
   } else {
     argl.clear();
     argl.arg_add(A_mom,PROFILE|PFMAT);
@@ -486,7 +493,9 @@ int main(int argc,char **args) {
   int update_jacobian_this_step,
     update_jacobian_this_iter, tstep_start=1;
   for (int tstep=tstep_start; tstep<=nstep; tstep++) {
+
     TSTEP=tstep; //debug:=
+    glob_param.step=tstep;
     time_old.set(time.time());
     time_star.set(time.time()+alpha*Dt);
     time.inc(Dt);
@@ -565,6 +574,18 @@ int main(int argc,char **args) {
       
       double normres_external;
       for (int inwt=0; inwt<nnwt; inwt++) {
+
+        if (!inwt && dump_van_driest_freq>0 
+            && !(tstep%dump_van_driest_freq)) {
+          vd_dump_flag=1;
+          vd_map_t::iterator q = vd_map.begin();
+          while (q!=vd_map.end()) {
+            VDDumpData *vd = q->second;
+            vd->vd_elems_loc.clear();
+            vd->vd_data_loc.clear();
+            q++;
+          }
+        }
 
 	glob_param.inwt = inwt;
 	// Initialize step
@@ -758,6 +779,135 @@ int main(int argc,char **args) {
 		      normres_external,tol_newton);
 	  break;
 	}
+
+        if (vd_dump_flag) {
+          dvector<int> displs,rcvcnts,nelemshv;
+          if (!MY_RANK) {
+            displs.mono(SIZE);
+            rcvcnts.mono(SIZE);
+            nelemshv.mono(SIZE);
+          }
+          dvector<int> vd_ebuff;
+          dvector<double> vd_dbuff,vd_data;
+
+          vd_map_t::iterator q = vd_map.begin();
+          while (q!=vd_map.end()) {
+            VDDumpData *vd = q->second;
+            if (!MY_RANK) printf("dumping VD for elemset %s\n",
+                                 q->first.c_str());
+            int nelems=0,nelemsh=0;
+            vd->vd_elems_loc.defrag();
+            vd->vd_data_loc.defrag();
+            nelemsh = vd->vd_elems_loc.size();
+            // #define VD_DUMP_DBG
+#ifdef VD_DUMP_DBG
+            PetscSynchronizedPrintf(PETSC_COMM_WORLD,
+                                    "[%d] elems %d, data %d\n",
+                                    MY_RANK,nelemsh, 
+                                    vd->vd_data_loc.size());
+            PetscSynchronizedFlush(PETSC_COMM_WORLD); 
+#endif
+            MPI_Gather(&nelemsh,1,MPI_INT,
+                       nelemshv.buff(),1,MPI_INT,0,PETSC_COMM_WORLD);
+
+            if (!MY_RANK) {
+              nelems=0;
+              for (int j=0; j<SIZE; j++) {
+#ifdef VD_DUMP_DBG
+                printf("[%d] nelemsh %d\n",j,nelemshv.e(j));
+#endif 
+                nelems += nelemshv.e(j);
+                rcvcnts.e(j) = nelemshv.e(j);
+              }
+              displs.e(0)=0;
+              for (int j=1; j<SIZE; j++) 
+                displs.e(j) = displs.e(j-1) + rcvcnts.e(j-1);
+            
+#ifdef VD_DUMP_DBG
+              printf("nelems %d\n",nelems);
+#endif
+              vd_ebuff.mono(nelems);
+              vd_dbuff.mono(VD_DATA_SIZE*nelems);
+              vd_data.mono(VD_DATA_SIZE*nelems);
+#ifdef VD_DUMP_DBG
+              for (int j=0; j<SIZE; j++) {
+                printf("j %d, rcvcnts %d, displs %d\n",
+                       j,rcvcnts.e(j),displs.e(j));
+              }
+#endif
+            }
+
+            MPI_Gatherv(vd->vd_elems_loc.buff(),nelemsh,MPI_INT,
+                        vd_ebuff.buff(),rcvcnts.buff(),displs.buff(), 
+                        MPI_INT,0,PETSC_COMM_WORLD);
+
+            if (!MY_RANK) {
+              for (int j=0; j<SIZE; j++) 
+                rcvcnts.e(j) = VD_DATA_SIZE*nelemshv.e(j);
+              
+              displs.e(0)=0;
+              for (int j=1; j<SIZE; j++) 
+                displs.e(j) = displs.e(j-1) + rcvcnts.e(j-1);
+            
+#ifdef VD_DUMP_DBG
+              for (int j=0; j<SIZE; j++) {
+                printf("j %d, rcvcnts %d, displs %d\n",
+                       j,rcvcnts.e(j),displs.e(j));
+              }
+#endif
+            }
+
+            MPI_Gatherv(vd->vd_data_loc.buff(),nelemsh*VD_DATA_SIZE,MPI_DOUBLE,
+                        vd_dbuff.buff(),rcvcnts.buff(),displs.buff(), 
+                        MPI_DOUBLE,0,PETSC_COMM_WORLD);
+
+            ierr=0;
+            if (!MY_RANK) {
+              for (int j=0; j<nelems; j++) {
+                int elem=vd_ebuff.e(j);
+                if (elem>=nelems) { 
+                  PETSCFEM_ASSERT(elem<nelems,"got elem out of range, "
+                                  "elem %d, nelems %d\n",elem,nelems); 
+                  ierr=1; 
+                  break; 
+                }
+#if 0
+                printf("%d -> elem %d ",j,vd_ebuff.e(j));
+                for (int k=0; k<VD_DATA_SIZE; k++)
+                  printf("%g ",vd->vd_dbuff.e(j*VD_DATA_SIZE+k));
+                printf("\n");
+#endif
+                for (int k=0; k<VD_DATA_SIZE; k++)
+                  vd_data.e(elem*VD_DATA_SIZE+k) =
+                    vd_dbuff.e(j*VD_DATA_SIZE+k);
+              
+              }
+
+#if 1
+              char line[2000];
+              sprintf(line,"van-driest-%s-step%d.tmp",
+                      q->first.c_str(),tstep);
+              FILE *dump_file = fopen(line,"w");
+              printf("Dumping van Driest factors "
+                     "step %d, inwt %d, file %s\n",tstep,inwt,line);
+              for (int j=0; j<nelems; j++) {
+                fprintf(dump_file,"%d ",j);
+                for (int k=0; k<VD_DATA_SIZE; k++)
+                  fprintf(dump_file,"%g ",vd_data.e(j*VD_DATA_SIZE+k));
+                fprintf(dump_file,"\n");
+              }
+              fclose(dump_file);
+              vd_ebuff.clear();
+              vd_dbuff.clear();
+              vd_data.clear();
+#endif
+                
+            }
+            CHECK_PAR_ERR(ierr,"Error computing van Driest data\n");
+            q++;
+          }
+          vd_dump_flag = 0;
+        }
 
       } // end of loop over Newton subiteration (inwt)
 
