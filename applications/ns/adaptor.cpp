@@ -87,7 +87,6 @@ adaptor::get_arg_handle(const string &key,
 adaptor::adaptor() : elem_init_flag(0), 
                      use_fastmat2_cache(1),
                      arg_data_vp(NULL),
-                     ielhg(-1) ,
                      elem(-1)
                      { }
 

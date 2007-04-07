@@ -61,13 +61,8 @@ INSTALLATION
        <http://fedora.redhat.com/>
 
        I guess it should be relatively easy to install in other processor
-<<<<<<< README
-       architectures (SPARC or Alpha) running GNU/Linux and also on other Unix
-       flavorâ€™s.
-=======
        architectures (SPARC or Alpha) running GNU/Linux and also on other Unix
        flavor's.
->>>>>>> 1.63
 
        Required Software
 
@@ -188,11 +183,7 @@ INSTALLATION
        installed, you have to define the variables in the CONFIGURATION VARI-
        ABLES section in file $(PETSCFEM_DIR)/Makefile.base.
 
-<<<<<<< README
-       ·   First you have to set the "PETSC_BOPT" variable which is the
-=======
        ?   First you have to set the "PETSC_BOPT" variable which is the
->>>>>>> 1.63
            default value for the "PETSc" "BOPT" variable, which sets the opti-
            mization level to be used in compilation. You can set it to
 
@@ -217,18 +208,10 @@ INSTALLATION
            This compiles the Navier-Stokes module with optimization enabled
            independently of the "PETSC_BOPT" default value.
 
-<<<<<<< README
-       ·   The "PROF_FLAGS" variables allows you to turn on profiling. By
-=======
        ?   The "PROF_FLAGS" variables allows you to turn on profiling. By
->>>>>>> 1.63
            default, profiling is deactivated.
 
-<<<<<<< README
-       ·   Other configuration variables are defined in a file "Make-
-=======
        ?   Other configuration variables are defined in a file "Make-
->>>>>>> 1.63
            file.defs", but normally they are set only when you first install
            PETSc-FEM, so the best is to put "Makefile.defs" in the directory
            immediately above PETSc-FEM directory (i.e. "$(PETSCFEM_DIR)/..").
@@ -307,4 +290,4 @@ AUTHORS
 
 
 
-perl v5.8.8                       2007-03-12                         README(1)
+perl v5.8.8                       2007-04-07                         README(1)
