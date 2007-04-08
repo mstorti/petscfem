@@ -61,13 +61,8 @@ INSTALLATION
        <http://fedora.redhat.com/>
 
        I guess it should be relatively easy to install in other processor
-<<<<<<< README
-       architectures (SPARC or Alpha) running GNU/Linux and also on other Unix
-       flavor’s.
-=======
        architectures (SPARC or Alpha) running GNU/Linux and also on other Unix
        flavor's.
->>>>>>> 1.63
 
        Required Software
 
