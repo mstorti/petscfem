@@ -44,8 +44,10 @@ void mesh_move_opt3::before_chunk(const char *jobinfo) {
   if (comp_mat_res) {
     res_h = get_arg_handle("res",
                            "No handle for `res'\n");
+#if 0    
     res_delta_h = get_arg_handle("res_delta",
                                  "No handle for `res_delta'\n");
+#endif
     mat_h = get_arg_handle("A","No handle for `A'\n");
 
     dVdW.resize(2,ndim,ndim).set(0.);
@@ -118,6 +120,8 @@ void mesh_move_opt3::before_chunk(const char *jobinfo) {
   TGETOPTDEF_ND(thash,double,relax_factor,1.);
   //o If true, then the reference mesh is used as the optimal mesh. 
   TGETOPTDEF_ND(thash,int,use_ref_mesh,1);
+  //o If true, then the reference mesh is used as the optimal mesh. 
+  TGETOPTDEF_ND(thash,double,use_ref_mesh_fac,1.0);
 }
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
@@ -135,8 +139,12 @@ element_connector(const FastMat2 &xloc,
   // `y' coordinates are real
   // `x' coordinates are in the metric where the reference
   // element is `regular'
+#if 0
+  xref.set(xloc).scale(use_ref_mesh_fac)
+    .axpy(xreg,1.0-use_ref_mesh_fac);
+#else
   xref.set(xloc);
- 
+#endif
   if (use_ref_mesh) {
     tmp4.prod(xref,tmp3,-1,1,-1,2);
     tmp4.is(2,1,ndim);
@@ -350,9 +358,9 @@ element_connector(const FastMat2 &xloc,
     mat2.prod(mat,iT0,1,-1,3,4,-1,2);
     mat.prod(mat2,iT0,1,2,3,-1,-1,4);
   }
-  res_delta.set(res).scale(2.0);
+  // res_delta.set(res).scale(2.0);
   int nen = nel*ndof;
   export_vals(res_h,res);
-  export_vals(res_delta_h,res_delta);
+  // export_vals(res_delta_h,res_delta);
   export_vals(mat_h,mat);
 }

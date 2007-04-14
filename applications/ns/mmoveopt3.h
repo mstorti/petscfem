@@ -31,7 +31,7 @@ private:
     mat2,res2,res_delta;
   /// Parameters
   double distor_exp,c_distor,c_volume,c_relax,
-    volume_exp,relax_factor;
+    volume_exp,relax_factor,use_ref_mesh_fac;
   int use_ref_mesh;
   ArgHandle res_delta_h, res_h, mat_h;
 public: 

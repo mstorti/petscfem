@@ -384,7 +384,7 @@ int mmove2_main() {
     debug.trace("After residual computation.");
 
     // #ifdef MMV_DBG
-#if 1
+#if 0
     printf("res: ");
     ierr = VecView(res,PETSC_VIEWER_STDOUT_WORLD);
     printf("res_delta: ");
