@@ -116,7 +116,11 @@ void mesh_move_opt3::before_chunk(const char *jobinfo) {
   TGETOPTDEF_ND(thash,double,c_distor,1.);
   //o Relaxation factor
   TGETOPTDEF_ND(thash,double,relax_factor,1.);
-  //o If true, then the reference mesh is used as the optimal mesh. 
+  //o If true, then the reference mesh is used as the optimal mesh.
+  //  #use_ref_mesh# may be a floating point number, in that case
+  //  the reference element is taken as an intermediate shape betwen
+  //  the shape of the element in the original mesh (#use_ref_mesh=1#)
+  //  and the shape of of the regular element (#use_ref_mesh=0#)
   TGETOPTDEF_ND(thash,double,use_ref_mesh,1.0);
   PETSCFEM_ASSERT(use_ref_mesh>=0 && use_ref_mesh<=1.0,
                   "use_ref_mesh should be in range [0,1]. use_ref_mesh: %f",
