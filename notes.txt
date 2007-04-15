@@ -12098,12 +12098,6 @@ FIXED
 > -Testing: "Distributed graph 2proc." on file "distmap/dist_graph.np2.out.tmp"...not OK.
 > -        --->  Couldn't find "row 0:  1 "
 O sea que desaparecieron 2 y aparecio 1 y ahora no puede abrir 3 mas. 
-<<<<<<< HEAD:notes.txt
-%
-
-
-=======
->>>>>>> mstorti-v4-branch:notes.txt
 
 # Current line ===========  %
 # Local Variables: $
