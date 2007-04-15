@@ -12099,14 +12099,11 @@ FIXED
 > -        --->  Couldn't find "row 0:  1 "
 O sea que desaparecieron 2 y aparecio 1 y ahora no puede abrir 3 mas. 
 
-%=== Sun Apr 15 10:15:58 2007 mstorti@prandtl  mstorti-v5-root-6-g2482442
+%=== Sun Apr 15 10:51:45 2007 mstorti@prandtl
 %
-%----- 10:15:58 -----: 
+%-- 10:51:45 -- mstorti-v5-root-7-g2183ab7 -----: 
 
 # Current line ===========  %
 # Local Variables: $
-# eval: (local-set-key "\C-cD" (quote notes-insert-date)) $
-# eval: (local-set-key "\C-ct" (quote notes-insert-time)) $
-# eval: (setq paragraph-separate "[ \t\f%]*$") $
-# eval: (setq paragraph-start "[ \t\n\f%]") $
+# eval: (my-notes-mode) $
 # End: $
