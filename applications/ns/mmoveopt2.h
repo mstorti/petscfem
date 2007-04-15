@@ -27,12 +27,11 @@ private:
   FastMat2 dVdW,dSldW,dWdu,d2VdW2,d2SldW2,d2Vdu2,
     d2Sldu2,x,w,dVdu,dSldu,dQ,d2Q,tmp,mat1,
     vaux,vaux1,vaux2,w0,x0,epsilon_LC,dx;
-  FastMat2 y,y0,xref,tmp2,xreg,tmp3,tmp4,T0,iT0,
-    mat2,res2;
+  FastMat2 y,y0,xref,tmp2,xreg,tmp3,tmp4,T1,iTalpha,
+    mat2,res2,QQ,D,VV,iVV,tmp5,tmp6;
   /// Parameters
   double distor_exp,c_distor,c_volume,c_relax,
-    volume_exp,relax_factor;
-  int use_ref_mesh;
+    volume_exp,relax_factor, use_ref_mesh;
 
 public: 
   /** Initializes the elemset. Reads parameters, 

@@ -34,6 +34,13 @@ void mesh_move_opt2::init() {
   w.resize(2,ndim,ndim).set(0.);
   w0.resize(2,ndim,ndim).set(0.);
 
+  QQ.resize(2,ndim,ndim);
+  D.resize(1,ndim);
+  VV.resize(2,ndim,ndim);
+  iVV.resize(2,ndim,ndim);
+  tmp5.resize(2,ndim,ndim);
+  tmp6.resize(2,ndim,ndim);
+
   tmp2.resize(2,ndim+1,ndim+1);
   xreg.resize(2,ndim+1,ndim+1);
   double xreg_v_tri[] = {0.,0.,1.0,1.0,0.,1.0,0.5,sqrt(3.0)/2.0,1.0};
@@ -94,7 +101,10 @@ void mesh_move_opt2::init() {
   //o Relaxation factor
   TGETOPTDEF_ND(thash,double,relax_factor,1.);
   //o If true, then the reference mesh is used as the optimal mesh. 
-  TGETOPTDEF_ND(thash,int,use_ref_mesh,1);
+  TGETOPTDEF_ND(thash,double,use_ref_mesh,1.0);
+  PETSCFEM_ASSERT(use_ref_mesh>=0 && use_ref_mesh<=1.0,
+                  "use_ref_mesh should be in range [0,1]. use_ref_mesh: %f",
+                  use_ref_mesh);  
 }
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
@@ -112,21 +122,56 @@ element_connector(const FastMat2 &xloc,
   // `y' coordinates are real
   // `x' coordinates are in the metric where the reference
   // element is `regular'
-  xref.set(xloc);
- 
-  if (use_ref_mesh) {
+  xreg.is(1,1,ndim);
+  xref.ctr(xreg,2,1).scale(1.0-use_ref_mesh)
+    .axpy(xloc,use_ref_mesh);
+  xreg.rs();
+
+  if (use_ref_mesh > 0.0) {
     tmp4.prod(xref,tmp3,-1,1,-1,2);
     tmp4.is(2,1,ndim);
-    T0.set(tmp4);
-    // T0.print("T0:");
+
+    // We want a smoothly blended reference element
+    // xref(alpha) that goes, from a pure regular element
+    // for alpha=0 to the ref1 element for alpha=1.
+    
+    // T1 is the transformation from the regular to the
+    // reference element, i.e. xref1 = T1 xreg + x0. 
+
+    // Then T1 is decomposed as T1 = Q*O with
+    // `O' orthogonal and `Q' spd.  Then we take the
+    // ref(alpha) element as xref = T(alpha) xreg
+    // with Talpha = Q^alpha * O.
+
+    T1.set(tmp4);
     tmp4.rs();
-    iT0.inv(T0);
+
+    if (use_ref_mesh< 1.0) {
+      // def QQ(ndim,ndim)
+      // def D(ndim)
+      QQ.prod(T1,T1,1,-1,2,-1);
+      D.seig(QQ,VV);
+      // def iV(ndim,ndim)
+      iVV.inv(VV);
+      for (int j=1; j<=ndim; j++) {
+        double dd = D.get(j);
+        dd = pow(dd,-(1.0-use_ref_mesh)/2.0);
+        VV.ir(2,j).scale(dd);
+      }
+      VV.rs();
+      // def tmp5(ndim,ndim)
+      // def tmp6(ndim,ndim)
+      tmp5.prod(VV,iVV,1,-1,-1,2);
+      tmp6.prod(tmp5,T1,1,-1,-1,2);
+      iTalpha.inv(tmp6);
+      
+    } else iTalpha.inv(T1);
 
     y.set(xloc).add(state_new);
     y0.set(xloc).add(state_old);
     
-    x.prod(iT0,y,2,-1,1,-1);
-    x0.prod(iT0,y0,2,-1,1,-1);
+    x.prod(iTalpha,y,2,-1,1,-1);
+    x0.prod(iTalpha,y0,2,-1,1,-1);
   } else {
     x.set(xloc).add(state_new);
     x0.set(xloc).add(state_old);
@@ -294,10 +339,10 @@ element_connector(const FastMat2 &xloc,
   mat.axpy(mat1,volume_exp*c_volume/pow(Vref,volume_exp)*(volume_exp-1.)*pow(V-Vref,volume_exp-2.));
   mat.axpy(d2Vdu2,volume_exp*c_volume/pow(Vref,volume_exp)*pow(V-Vref,volume_exp-1.)).scale(-1.);
 
-  if (use_ref_mesh) {
-    res2.prod(res,iT0,1,-1,-1,2);
+  if (use_ref_mesh > 0.0) {
+    res2.prod(res,iTalpha,1,-1,-1,2);
     res.set(res2);
-    mat2.prod(mat,iT0,1,-1,3,4,-1,2);
-    mat.prod(mat2,iT0,1,2,3,-1,-1,4);
+    mat2.prod(mat,iTalpha,1,-1,3,4,-1,2);
+    mat.prod(mat2,iTalpha,1,2,3,-1,-1,4);
   }
 }
