@@ -130,6 +130,8 @@ element_connector(const FastMat2 &xloc,
   if (use_ref_mesh > 0.0) {
     tmp4.prod(xref,tmp3,-1,1,-1,2);
     tmp4.is(2,1,ndim);
+    T1.set(tmp4);
+    tmp4.rs();
 
     // We want a smoothly blended reference element
     // xref(alpha) that goes, from a pure regular element
@@ -143,26 +145,24 @@ element_connector(const FastMat2 &xloc,
     // ref(alpha) element as xref = T(alpha) xreg
     // with Talpha = Q^alpha * O.
 
-    T1.set(tmp4);
-    tmp4.rs();
-
     if (use_ref_mesh< 1.0) {
-      // def QQ(ndim,ndim)
-      // def D(ndim)
+      // QQ = T1*T1'
       QQ.prod(T1,T1,1,-1,2,-1);
+      // [V,D] = eig(QQ)
       D.seig(QQ,VV);
-      // def iV(ndim,ndim)
       iVV.inv(VV);
+      // VV = VV * D^{-(1-alpha)/2}
       for (int j=1; j<=ndim; j++) {
         double dd = D.get(j);
         dd = pow(dd,-(1.0-use_ref_mesh)/2.0);
         VV.ir(2,j).scale(dd);
       }
       VV.rs();
-      // def tmp5(ndim,ndim)
-      // def tmp6(ndim,ndim)
+      // tmp5 = Q^{-(1-alpha)}
       tmp5.prod(VV,iVV,1,-1,-1,2);
+      // tmp6 = T(alpha) = Q^{-(1-alpha)} * T1
       tmp6.prod(tmp5,T1,1,-1,-1,2);
+      // iTalpha = inv(T(alpha))
       iTalpha.inv(tmp6);
       
     } else iTalpha.inv(T1);
