@@ -388,10 +388,10 @@ int mmove_main() {
     scal=0;
     ierr = VecSet(&scal,res); CHKERRA(ierr);
     ierr = Ap->clean_mat(); CHKERRA(ierr); 
-    debug.trace("Before residual computation...");
+    debug.trace("Before residual computation... (linear predictor)");
     ierr = assemble(mesh,argl,dofmap,"comp_mat_res",&time);
     CHKERRA(ierr);
-    debug.trace("After residual computation.");
+    debug.trace("After residual computation (linear predictor)");
 
 #ifdef MMV_DBG
     printf("res: ");
@@ -416,10 +416,10 @@ int mmove_main() {
     scal=0;
     ierr = VecSet(&scal,resp); CHKERRA(ierr);
     ierr = Ap->clean_mat(); CHKERRA(ierr); 
-    debug.trace("Before residual computation...");
+    debug.trace("Before residual computation... (linear predictor)");
     ierr = assemble(mesh,argl,dofmap,"comp_mat_res",&time);
     CHKERRA(ierr);
-    debug.trace("After residual computation.");
+    debug.trace("After residual computation. (linear predictor)");
 
 #ifdef MMV_DBG
     printf("resp: ");
