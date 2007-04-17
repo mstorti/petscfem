@@ -32,3 +32,6 @@ options2.texi
 options3.texi
 *.log
 pod2htm[d|i].tmp
+.ID_MAP
+.IMG_PARAMS
+.ORIG_MAP

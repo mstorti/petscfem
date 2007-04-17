@@ -12098,17 +12098,28 @@ FIXED
 > -Testing: "Distributed graph 2proc." on file "distmap/dist_graph.np2.out.tmp"...not OK.
 > -        --->  Couldn't find "row 0:  1 "
 O sea que desaparecieron 2 y aparecio 1 y ahora no puede abrir 3 mas. 
-<<<<<<< HEAD:notes.txt
+
+%=== Sun Apr 15 10:51:45 2007 mstorti@prandtl
 %
-
-
-=======
->>>>>>> mstorti-v4-branch:notes.txt
+%-- 10:51:45 -- mstorti-v5-root-7-g2183ab7 -----: 
+Retomando el tema del `mesh-move'. 
+%
+Le voy a agregar un `use_ref_mesh_fac' que hace que para 
+%
+use_ref_mesh_fac=1.0 -> equivalente a use_ref_mesh=1
+use_ref_mesh_fac=0.0 -> equivalente a use_ref_mesh=0
+%
+Es decir que extiende en forma continua el concepto del
+`use_ref_mesh'. Todavia no tengo en claro como hacerlo ya que habria
+que buscar el elemento regular lo mas parecido posible al de
+referencia. 
+%
+Resulta que al agregar el tema de
+los `arg_handles' para la nueva version dejo de andar la que estaba
+andando. Asi que genero un nuevo elemset `mesh_move_opt3' que funciona
+como antes y a ese le voy a agregar el tema del `use_ref_mesh_fac'. 
 
 # Current line ===========  %
 # Local Variables: $
-# eval: (local-set-key "\C-cD" (quote notes-insert-date)) $
-# eval: (local-set-key "\C-ct" (quote notes-insert-time)) $
-# eval: (setq paragraph-separate "[ \t\f%]*$") $
-# eval: (setq paragraph-start "[ \t\n\f%]") $
+# eval: (my-notes-mode) $
 # End: $
