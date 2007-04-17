@@ -544,23 +544,15 @@ int mmove_main() {
       scal= relfac/alpha;
       ierr = VecAXPY(&scal,dx,x);
 
-#if 0
-      ierr = VecView(x,PETSC_VIEWER_STDOUT_WORLD); CHKERRA(ierr);
-      PetscFinalize();
-      exit(0);
-#endif
-
-      // fixme:= SHOULD WE CHECK HERE FOR NEWTON CONVERGENCE?
+      if (normres < tol_newton) {
+        PetscPrintf(PETSC_COMM_WORLD,
+                    "Tolerance on newton loop reached:  "
+                    "|| R ||_0,  norm_res =%g < tol = %g\n",
+                    normres,tol_newton);
+        break;
+      }
 
     } // end of loop over Newton subiteration (inwt)
-
-    if (normres_external < tol_newton) {
-      PetscPrintf(PETSC_COMM_WORLD,
-		  "Tolerance on newton loop reached:  "
-		  "|| R ||_0,  norm_res =%g < tol = %g\n",
-		  normres_external,tol_newton);
-      break;
-    }
 
     // error difference
     scal = -1.0;
