@@ -17,7 +17,7 @@ FastSumHasher shasher;
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 GeomObject::GeomObject(Type t,const int *nodes_a) 
-  :  canonical(0), go_template(NULL) { init(t,nodes_a); }
+  :  go_template(NULL), canonical(0) { init(t,nodes_a); }
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 void GeomObject::init(Type t,const int *nodes_a) {
@@ -177,7 +177,7 @@ GeomObject::Template
 ::Template(int sz,GeomObject::Type t,
 	   int dim_a,int nperms_a,const int *perms,
 	   const char *label_a) 
-  : size_m(sz), type(t), dim_m(dim_a), nperms_m(nperms_a),
+  : size_m(sz), dim_m(dim_a), nperms_m(nperms_a), type(t), 
     label(label_a) {
   // Copy external array to internal
   perms_v.resize(nperms_m*size_m);
@@ -405,7 +405,7 @@ void rand_perm(vector<int> &perm,int N,int M=-1) {
 /// Ctor from dimensions and shape
 UniformMesh::
 UniformMesh(const GeomObject::Template &tmpl_a,int ndim_a) 
-  : tmpl(&tmpl_a), nel(tmpl_a.size_m), ndim(ndim_a) { 
+  : ndim(ndim_a), nel(tmpl_a.size_m), tmpl(&tmpl_a) { 
   // reshape dvectors to specicied shape
   coords.reshape(2,0,ndim);
   connec.reshape(2,0,nel);
