@@ -1,5 +1,5 @@
 ///__INSERT_LICENSE__
-//$Id: fastmat2.cpp,v 1.26 2007/02/23 03:05:01 mstorti Exp $
+//$Id$
 
 #include <cmath>
 #include <cstdio>
@@ -9,14 +9,7 @@ using namespace std;
 #include "fastmat2.h"
 
 int FastMat2::cache_dbg=0;
-
-#if 0
-static void fill_to_length(Indx &indx,int m) {
-  int n = indx.size();
-  for (int j=0; j<m-n; j++)
-    indx.push_back(0);
-}
-#endif
+int fasmat2_cache_debug_private=1;
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 void FastMat2::get_cache_position(FastMatCachePosition & pos) {
@@ -547,7 +540,14 @@ void FastMat2::print(const char *s) const {
       printf("%f\n",*store);
     }
   }
-  // return *this;
+#if 1
+  if (fasmat2_cache_debug_private) {
+    for (unsigned int j=0; j<cache_list_stack.size(); j++) {
+      FastMatCachePosition &cp = cache_list_stack[j];
+      printf("cache_list %p, pos %d\n",cp.first,cp.second);
+    }
+  }
+#endif
 }
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>
@@ -750,7 +750,7 @@ FastMatCache::FastMatCache() {
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 FastMatCache::~FastMatCache() {
-  printf("deleting FM2 %p\n",this);
+  // printf("deleting FM2 %p\n",this);
   delete A;
   A = NULL;
   delete B;
