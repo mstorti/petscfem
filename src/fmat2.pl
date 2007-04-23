@@ -6,7 +6,7 @@ FastMatCache *cache;
 if (was_cached) {
   cache = cache_list_begin[position_in_cache++];
 #ifdef FM2_CACHE_DBG
-  printf ("reusing cache: ");
+  if (FastMat2::cache_dbg) printf ("reusing cache: ");
 #endif
 } else if (!use_cache) {
   cache = new FastMatCache;
@@ -18,11 +18,11 @@ if (was_cached) {
     cache_list_size = cache_list->size();
   position_in_cache++;
 #ifdef FM2_CACHE_DBG
-  printf ("defining cache: ");
+  if (FastMat2::cache_dbg) printf ("defining cache: ");
 #endif
 }
 #ifdef FM2_CACHE_DBG
-printf(" cache_list %p, cache %p, position_in_cache %d\n",
+  if (FastMat2::cache_dbg)printf(" cache_list %p, cache %p, position_in_cache %d\n",
        cache_list,cache,position_in_cache-1);
 #endif
 //EOF

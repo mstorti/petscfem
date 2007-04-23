@@ -72,8 +72,6 @@ using namespace std;
 /// Prints a FastMat2 matrix.
 #define FMSHV(a) (a).print(#a)
 
-//#define FM2_CACHE_DBG
-
 //enum IndxOPT { LIST };
 
 // The following is obsolete. Now it is defined in a `fastlib' vector
@@ -256,6 +254,7 @@ typedef double scalar_fun_t(double);
 /// Fast matrices. Supposed to be faster than Newmat
 class FastMat2 {
 public:
+  static int cache_dbg;
   //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
   /** Default constructor
       @author M. Storti
