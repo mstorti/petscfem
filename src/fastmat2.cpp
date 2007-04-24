@@ -757,6 +757,12 @@ FastMatCache::~FastMatCache() {
   B = NULL;
   delete sc;
   sc = NULL;
+  for (unsigned k=0; k<branch.size(); k++) {
+    if (branch[k]) {
+      delete branch[k];
+      branch[k] = NULL;
+    }
+  }
 }
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
