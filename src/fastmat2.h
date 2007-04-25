@@ -203,7 +203,13 @@ public:
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 // Forward declarations
 class FastMatCacheList;
-typedef pair<FastMatCacheList *,int> FastMatCachePosition;
+
+class FastMatCachePosition :
+  public pair<FastMatCacheList *,int> {
+public:
+  FastMatCachePosition();
+  ~FastMatCachePosition();
+};
 
 class FastMatSubCache {
 public:
@@ -239,7 +245,8 @@ struct OperationCount {
 //typedef vector<FastMatCache *> FastMatCacheList;
 class FastMatCacheList : public vector<FastMatCache *> {
 public:
-  FastMatCacheList() {list_size=0;}
+  FastMatCacheList();
+  ~FastMatCacheList();
   // Operation count
   //  OperationCount op_count;
   //  void print_count_statistics();
