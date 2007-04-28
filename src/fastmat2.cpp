@@ -266,7 +266,6 @@ void FastMat2::activate_cache(FastMatCacheList *cache_list_) {
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 void purge_cache_list(FastMatCacheList *cache_list) {
   FastMatCache **cache_list_begin,*cache;
-  FastMatCacheList cl;
   if (!cache_list) return;
 #ifdef FM2_CACHE_DBG
   if (FastMat2::cache_dbg) printf(" ---> purging cache_list %p\n",cache_list);
@@ -800,12 +799,14 @@ FastMatCache::~FastMatCache() {
   B = NULL;
   delete sc;
   sc = NULL;
+#if 0
   for (unsigned k=0; k<branch.size(); k++) {
     if (branch[k]) {
       delete branch[k];
       branch[k] = NULL;
     }
   }
+#endif
 }
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
