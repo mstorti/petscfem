@@ -12119,6 +12119,141 @@ los `arg_handles' para la nueva version dejo de andar la que estaba
 andando. Asi que genero un nuevo elemset `mesh_move_opt3' que funciona
 como antes y a ese le voy a agregar el tema del `use_ref_mesh_fac'. 
 
+%=== Mon Apr 30 09:31:45 2007 mstorti@prandtl
+%
+%-- 09:31:45 -- mstorti-v5-root-v0-11-g52aca65 -----: 
+--------------------------------
+--------------------------------
+CORRO TODOS LOS TESTS: CON G-C++. 
+--------------------------------
+--------------------------------
+> Start section: "All tests"
+> Summary: "All tests" -- OK: 157.  Not OK: 12. Couldn't open: 8. Total: 177
+> -------------------------
+> COULDN'T OPEN: 
+> can't open sqcav/output.CASE_sqcav.np_1.case_dx_file1.out.tmp
+> can't open sqcav/output.CASE_sqcav.np_1.case_dx_file3.out.tmp
+> can't open sqcav/output.CASE_sqcav.np_1.case_dx_synchro.out.tmp
+> can't open sqcav/output.CASE_sqcav.np_1.case_dx_allf.out.tmp
+> can't open sqcav/output.CASE_sqcav.np_2.case_dx_file1.out.tmp
+> can't open sqcav/output.CASE_sqcav.np_2.case_dx_file3.out.tmp
+> can't open sqcav/output.CASE_sqcav.np_2.case_dx_synchro.out.tmp
+> can't open sqcav/output.CASE_sqcav.np_2.case_dx_allf.out.tmp
+> -------------------------
+> NOT OK TESTS: 
+> --------
+> Start section: "Misc tests."
+> Testing: "Idmap class" on file "idmap/tidmap.sal"...not OK.
+>         --->  Couldn't find "Column permutations: maximum error: "
+> Summary: "Misc tests." -- OK: 24.  Not OK: 1. Couldn't open: 0. Total: 25
+> --------
+> Start section: "New flux function tests."
+> Testing: "newff/test case adv_temp_cp" on file "newff/adv_temp_cp.vrf.tmp"...not OK.
+>         --->  Couldn't find "rel. max error  <tol\(.*\) OK\? 1"
+> Testing: "newff/test case full_full_jacs" on file "newff/full_full_jacs.vrf.tmp"...not OK.
+>         --->  Couldn't find "rel. max error  <tol\(.*\) OK\? 1"
+> Testing: "newff/test case full_full_jacs_cp" on file "newff/full_full_jacs_cp.vrf.tmp"...not OK.
+>         --->  Couldn't find "rel. max error  <tol\(.*\) OK\? 1"
+> Testing: "newff/test case full_full_jacs_adv_cp" on file "newff/full_full_jacs_adv_cp.vrf.tmp"...not OK.
+>         --->  Couldn't find "rel. max error  <tol\(.*\) OK\? 1"
+> Testing: "newff/test case full_full_jacs_t" on file "newff/full_full_jacs_t.vrf.tmp"...not OK.
+>         --->  Couldn't find "rel. max error  <tol\(.*\) OK\? 1"
+> Testing: "newff/test case full_full_jacs_tr" on file "newff/full_full_jacs_tr.vrf.tmp"...not OK.
+>         --->  Couldn't find "rel. max error  <tol\(.*\) OK\? 1"
+> Testing: "newff/test case full_full_jacs_wf" on file "newff/full_full_jacs_wf.vrf.tmp"...not OK.
+>         --->  Couldn't find "rel. max error  <tol\(.*\) OK\? 1"
+> Summary: "New flux function tests." -- OK: 13.  Not OK: 7. Couldn't open: 0. Total: 20
+> --------
+> Start section: "Linear advection (advdif) tests."
+> Testing: "Steady advection skew to the mesh" on file "advec/skew_noise.verif.tmp"...not OK.
+>         --->  Couldn't find "Under shoot < tol OK \? 1"
+> Summary: "Linear advection (advdif) tests." -- OK: 7.  Not OK: 1. Couldn't open: 0. Total: 8
+> --------
+> Start section: "IISD solver. Checking with advdif"
+> Testing: "newff/test case adv_temp_cp_iisd" on file "newff/adv_temp_cp_iisd.vrf.tmp"...not OK.
+>         --->  Couldn't find "rel. max error  <tol\(.*\) OK\? 1"
+> Testing: "newff/test case full_full_jacs_iisd" on file "newff/full_full_jacs_iisd.vrf.tmp"...not OK.
+>         --->  Couldn't find "rel. max error  <tol\(.*\) OK\? 1"
+> Summary: "IISD solver. Checking with advdif" -- OK: 7.  Not OK: 2. Couldn't open: 0. Total: 9
+> --------
+> Start section: "Graph Partitioning"
+> Testing: "Distributed graph 3proc." on file "distmap/dist_graph.np3.out.tmp"...not OK.
+>         --->  Couldn't find "[2] proc"
+> Summary: "Graph Partitioning" -- OK: 2.  Not OK: 1. Couldn't open: 0. Total: 3
+> 
+> --------------------------------------------------
+> 
+> --------
+> Start section: "All tests"
+> Summary: "All tests" -- OK: 157.  Not OK: 12. Couldn't open: 8. Total: 177
+--------------------------------
+--------------------------------
+CORRO TODOS LOS TESTS: CON O-C++. 
+--------------------------------
+--------------------------------
+> --------
+> Start section: "All tests"
+> Summary: "All tests" -- OK: 156.  Not OK: 13. Couldn't open: 8. Total: 177
+> -------------------------
+> COULDN'T OPEN: 
+> can't open sqcav/output.CASE_sqcav.np_1.case_dx_file1.out.tmp
+> can't open sqcav/output.CASE_sqcav.np_1.case_dx_file3.out.tmp
+> can't open sqcav/output.CASE_sqcav.np_1.case_dx_synchro.out.tmp
+> can't open sqcav/output.CASE_sqcav.np_1.case_dx_allf.out.tmp
+> can't open sqcav/output.CASE_sqcav.np_2.case_dx_file1.out.tmp
+> can't open sqcav/output.CASE_sqcav.np_2.case_dx_file3.out.tmp
+> can't open sqcav/output.CASE_sqcav.np_2.case_dx_synchro.out.tmp
+> can't open sqcav/output.CASE_sqcav.np_2.case_dx_allf.out.tmp
+> -------------------------
+> NOT OK TESTS: 
+> --------
+> Start section: "Navier-Stokes tests."
+> Testing: "Square cavity with fract. step, Re1000, N=20" on file "sqcav/check.fs.verif.tmp"...not OK.
+>         --->  Couldn't find "Square cavity at Re=1000. Error < tol OK \? 1"
+> Summary: "Navier-Stokes tests." -- OK: 15.  Not OK: 1. Couldn't open: 0. Total: 16
+> --------
+> Start section: "Misc tests."
+> Testing: "Idmap class" on file "idmap/tidmap.sal"...not OK.
+>         --->  Couldn't find "Column permutations: maximum error: "
+> Summary: "Misc tests." -- OK: 24.  Not OK: 1. Couldn't open: 0. Total: 25
+> --------
+> Start section: "New flux function tests."
+> Testing: "newff/test case adv_temp_cp" on file "newff/adv_temp_cp.vrf.tmp"...not OK.
+>         --->  Couldn't find "rel. max error  <tol\(.*\) OK\? 1"
+> Testing: "newff/test case full_full_jacs" on file "newff/full_full_jacs.vrf.tmp"...not OK.
+>         --->  Couldn't find "rel. max error  <tol\(.*\) OK\? 1"
+> Testing: "newff/test case full_full_jacs_cp" on file "newff/full_full_jacs_cp.vrf.tmp"...not OK.
+>         --->  Couldn't find "rel. max error  <tol\(.*\) OK\? 1"
+> Testing: "newff/test case full_full_jacs_adv_cp" on file "newff/full_full_jacs_adv_cp.vrf.tmp"...not OK.
+>         --->  Couldn't find "rel. max error  <tol\(.*\) OK\? 1"
+> Testing: "newff/test case full_full_jacs_t" on file "newff/full_full_jacs_t.vrf.tmp"...not OK.
+>         --->  Couldn't find "rel. max error  <tol\(.*\) OK\? 1"
+> Testing: "newff/test case full_full_jacs_tr" on file "newff/full_full_jacs_tr.vrf.tmp"...not OK.
+>         --->  Couldn't find "rel. max error  <tol\(.*\) OK\? 1"
+> Testing: "newff/test case full_full_jacs_wf" on file "newff/full_full_jacs_wf.vrf.tmp"...not OK.
+>         --->  Couldn't find "rel. max error  <tol\(.*\) OK\? 1"
+> Summary: "New flux function tests." -- OK: 13.  Not OK: 7. Couldn't open: 0. Total: 20
+> --------
+> Start section: "IISD solver. Checking with advdif"
+> Testing: "newff/test case adv_temp_cp_iisd" on file "newff/adv_temp_cp_iisd.vrf.tmp"...not OK.
+>         --->  Couldn't find "rel. max error  <tol\(.*\) OK\? 1"
+> Testing: "newff/test case full_full_jacs_iisd" on file "newff/full_full_jacs_iisd.vrf.tmp"...not OK.
+>         --->  Couldn't find "rel. max error  <tol\(.*\) OK\? 1"
+> Summary: "IISD solver. Checking with advdif" -- OK: 7.  Not OK: 2. Couldn't open: 0. Total: 9
+> --------
+> Start section: "Graph Partitioning"
+> Testing: "Distributed graph 2proc." on file "distmap/dist_graph.np2.out.tmp"...not OK.
+>         --->  Couldn't find "row 0:  1 "
+> Testing: "Distributed graph 3proc." on file "distmap/dist_graph.np3.out.tmp"...not OK.
+>         --->  Couldn't find "row 0:  "
+> Summary: "Graph Partitioning" -- OK: 1.  Not OK: 2. Couldn't open: 0. Total: 3
+> 
+> --------------------------------------------------
+> 
+> --------
+> Start section: "All tests"
+> Summary: "All tests" -- OK: 156.  Not OK: 13. Couldn't open: 8. Total: 177
+
 # Current line ===========  %
 # Local Variables: $
 # eval: (my-notes-mode) $
