@@ -384,7 +384,7 @@ int mmove2_main() {
     debug.trace("After residual computation.");
 
     // #ifdef MMV_DBG
-#if 1
+#if 0
     printf("res: ");
     ierr = VecView(res,PETSC_VIEWER_STDOUT_WORLD);
     printf("res_delta: ");
@@ -457,7 +457,7 @@ int mmove2_main() {
     //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
     // NEWTON-RAPHSON ALGORITHM
     
-    double normres_external;
+    double normres_external=NAN;
     for (int inwt=0; inwt<nnwt; inwt++) {
       
       glob_param.inwt = inwt;

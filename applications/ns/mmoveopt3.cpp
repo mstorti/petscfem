@@ -44,8 +44,10 @@ void mesh_move_opt3::before_chunk(const char *jobinfo) {
   if (comp_mat_res) {
     res_h = get_arg_handle("res",
                            "No handle for `res'\n");
+#if 0    
     res_delta_h = get_arg_handle("res_delta",
                                  "No handle for `res_delta'\n");
+#endif
     mat_h = get_arg_handle("A","No handle for `A'\n");
 
     dVdW.resize(2,ndim,ndim).set(0.);
@@ -360,9 +362,9 @@ element_connector(const FastMat2 &xloc,
     mat2.prod(mat,iT0,1,-1,3,4,-1,2);
     mat.prod(mat2,iT0,1,2,3,-1,-1,4);
   }
-  res_delta.set(res).scale(2.0);
+  // res_delta.set(res).scale(2.0);
   int nen = nel*ndof;
   export_vals(res_h,res);
-  export_vals(res_delta_h,res_delta);
+  // export_vals(res_delta_h,res_delta);
   export_vals(mat_h,mat);
 }
