@@ -8,8 +8,6 @@ using namespace std;
 #include "fem.h"
 #include "fastmat2.h"
 
-int FastMat2::cache_dbg=0;
-
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>
 FastMatCachePosition::FastMatCachePosition() {
   first = NULL;
@@ -42,13 +40,35 @@ FastMatCacheList::~FastMatCacheList() {
 }
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
-void FastMat2::get_cache_position(FastMatCachePosition & pos) {
+void FastMat2::CacheCtx::get_cache_position(FastMatCachePosition & pos) {
   pos.first = cache_list;
   pos.second = position_in_cache;
 }
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
-void FastMat2::branch(void) {
+void FastMat2::CacheCtx::deactivate_cache(void) {
+  was_cached_save = was_cached;
+  use_cache=0; 
+  was_cached=0; 
+}
+
+void FastMat2::deactivate_cache() {
+  global_cache_ctx.deactivate_cache();
+}
+
+FastMat2::CacheCtx::CacheCtx() 
+  : cache_list_root(NULL), 
+    cache_list(NULL), 
+    cache_list_begin(NULL),
+    cache_list_size(0) { }
+
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+void FastMat2::branch() {
+  global_cache_ctx.branch();
+}
+
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+void FastMat2::CacheCtx::branch() {
 
   if (!use_cache) return;
   FastMatCache *cache;
@@ -97,6 +117,11 @@ void FastMat2::branch(void) {
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 void FastMat2::choose(const int j) {
+  global_cache_ctx.choose(j);
+}
+
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+void FastMat2::CacheCtx::choose(const int j) {
 
   FastMatCache *cache;
 
@@ -133,6 +158,7 @@ void FastMat2::choose(const int j) {
 
 }
 
+#if 0
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 void FastMat2::leave(void) {
 
@@ -355,13 +381,12 @@ void IndexFilter::print(void) const  {
 }
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
-FastMat2::FastMat2(void) {
-  defined=0;
-  store=NULL;
-}
+FastMat2::FastMat2(void) 
+  : defined(0), store(NULL), ctx(&global_cache_ctx)  { }
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
-FastMat2::FastMat2(const Indx & dims_) {
+FastMat2::FastMat2(const Indx & dims_) 
+  : ctx(&global_cache_ctx) {
   create_from_indx(dims_);
 }
 
@@ -474,7 +499,8 @@ void FastMat2::create_from_indx(const Indx & dims_) {
 }
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
-FastMat2::FastMat2(const int m,INT_VAR_ARGS_ND) {
+FastMat2::FastMat2(const int m,INT_VAR_ARGS_ND) 
+  : ctx(&global_cache_ctx) {
   //  assert(m>0);
   Indx indx;
 #ifdef USE_VAR_ARGS
@@ -809,11 +835,4 @@ FastMatCache::~FastMatCache() {
 #endif
 }
 
-//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
-#if 0
-double FastMat2::sum_square_all() const {
-  static FastMat2 retval(0);
-  retval.sum_square(*this);
-  return *retval.store;
-}
 #endif

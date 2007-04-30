@@ -257,10 +257,43 @@ public:
 typedef double scalar_fun_with_args_t(double,void*);
 typedef double scalar_fun_t(double);
 
+
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
-/// Fast matrices. Supposed to be faster than Newmat
+/// Fast matrices
 class FastMat2 {
 public:
+  class CacheCtx {
+  public:
+    /// Root of cache lists
+    FastMatCacheList *cache_list_root;
+    /// Current list of caches
+    FastMatCacheList *cache_list;
+    /// Cache-list stack
+    vector<FastMatCachePosition> cache_list_stack;
+    /// Position in cache\_list
+    int position_in_cache;
+    /// begin of cache\_list
+    FastMatCache **cache_list_begin;
+    /// size of cache list
+    int cache_list_size;
+    /// Use cache?
+    int use_cache;
+    /// Was computed this cache list
+    int was_cached;
+    /// save was\_cached if use deactivate\_cache()
+    int was_cached_save;
+    /// Operation count
+    OperationCount op_count;
+    void get_cache_position(FastMatCachePosition & pos);
+    void deactivate_cache();
+    void branch();
+    void choose(const int j);
+    friend class FastMat2;
+    CacheCtx();
+  };
+  CacheCtx *ctx;
+  static CacheCtx global_cache_ctx;
+  /// Controls debugging
   static int cache_dbg;
   //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
   /** Default constructor
@@ -1206,26 +1239,6 @@ private:
   Indx absindx;
   /// was the matriz defined? 
   int defined;
-  /// Root of cache lists
-  static FastMatCacheList *cache_list_root;
-  /// Current list of caches
-  static FastMatCacheList *cache_list;
-  /// Cache-list stack
-  static vector<FastMatCachePosition> cache_list_stack;
-  /// Position in cache\_list
-  static int position_in_cache;
-  /// begin of cache\_list
-  static FastMatCache **cache_list_begin;
-  /// size of cache list
-  static int cache_list_size;
-  /// Use cache?
-  static int use_cache;
-  /// Was computed this cache list
-  static int was_cached;
-  /// save was\_cached if use deactivate\_cache()
-  static int was_cached_save;
-  /// Operation count
-  static OperationCount op_count;
   int comp_storage_size(const Indx & indx) const;
   /// creates storage and freezes dimensions
   void define_matrix(void);
@@ -1244,13 +1257,6 @@ private:
   /// auxiliary.  prints matrices with 1 indices.
   void print1(const Indx & indxp,const Indx & fdims) const;
 };
-
-//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
-inline void FastMat2::deactivate_cache(void) {
-  was_cached_save=was_cached;
-  use_cache=0; 
-  was_cached=0; 
-}
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 /// For 2 indices matrices
