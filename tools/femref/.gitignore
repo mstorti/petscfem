@@ -2,3 +2,4 @@ cube2.dx
 *.log
 mpiguile
 mpitest
+*.so

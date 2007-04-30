@@ -13,8 +13,8 @@ using namespace std;
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 UniformMesh::visitor::visitor() 
   : mesh(NULL), 
-    etree_p(NULL), trace(0),
-    node_comb(NULL), visit_mode(UniformMesh::Natural) { }
+    etree_p(NULL), 
+    visit_mode(UniformMesh::Natural), trace(0), node_comb(NULL) { }
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 void UniformMesh::visitor::init(UniformMesh &mesh_a,int elem_a) {
@@ -359,7 +359,8 @@ bool UniformMesh::visitor::end_elem() {
     return elem >= mesh->nelem;
   } else if (visit_mode==UniformMesh::BreadthFirst) {
     return nvisited > mesh->nelem;
-  }
+  } else assert(0);
+  return false;
 }
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 

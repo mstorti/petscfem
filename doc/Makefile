@@ -131,7 +131,8 @@ info:
 
 #w Make html home-page
 index.html: index.tex
-	/usr/local/latex2html/latex2html -init_file latex2html.init \
+	/usr/local/latex2html/latex2html    \
+		-init_file latex2html.init	\
 		-no_subdir -split 0 index
 
 #w Make the README in text and html format

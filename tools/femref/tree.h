@@ -47,8 +47,8 @@ private:
     friend class tree;
     tree<T> *tree_p;
     cell *ptr,*prev,*father_p;
-    iterator(cell *p,cell *prev_a,cell *father_a,tree<T> *t) : ptr(p), 
-      prev(prev_a), tree_p(t), father_p(father_a) { }
+    iterator(cell *p,cell *prev_a,cell *father_a,tree<T> *t) : 
+      tree_p(t), ptr(p), prev(prev_a), father_p(father_a) { }
   public:
     cell *cell_ptr() { return ptr; }
     iterator(const iterator &q) {
@@ -61,8 +61,8 @@ private:
     T *operator->() { return &ptr->t; }
     bool operator!=(iterator q) { return ptr!=q.ptr; }
     bool operator==(iterator q) { return ptr==q.ptr; }
-    iterator() : ptr(NULL), prev(NULL), 
-		 tree_p(NULL), father_p(NULL) { }
+    iterator() : 
+		 tree_p(NULL), ptr(NULL), prev(NULL), father_p(NULL) { }
 
     iterator lchild() { 
       return iterator(ptr->left_child,

@@ -138,6 +138,10 @@ CPPFLAGS := 					\
 	$(ANN_CPPFLAGS)			\
 	$(SUPERLU_CPPFLAGS) -DMPICH_IGNORE_CXX_SEEK
 
+ifeq ($(BOPT),g_c++)
+CPPFLAGS += -DFM2_CACHE_DBG
+endif
+
 ifeq ($(USE_DYNAMICALLY_LOADED_EXTENDED_FUNCTIONS),yes) 
 CPPFLAGS += -DUSE_DLEF
 endif
@@ -424,4 +428,3 @@ compdate.o: CPPFLAGS += "-DPETSCFEM_HOSTNAME=\"$(shell uname -a)\""
 compdate.cpp:
 	perl -pe 's/__MODULE__/$(PETSCFEM_MODULE)/' < $(PETSCFEM_DIR)/tools/compdate.cppin > $@
 
- 
