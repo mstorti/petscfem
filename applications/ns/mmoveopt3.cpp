@@ -116,8 +116,15 @@ void mesh_move_opt3::before_chunk(const char *jobinfo) {
   TGETOPTDEF_ND(thash,double,c_distor,1.);
   //o Relaxation factor
   TGETOPTDEF_ND(thash,double,relax_factor,1.);
-  //o If true, then the reference mesh is used as the optimal mesh. 
-  TGETOPTDEF_ND(thash,int,use_ref_mesh,1);
+  //o If true, then the reference mesh is used as the optimal mesh.
+  //  #use_ref_mesh# may be a floating point number, in that case
+  //  the reference element is taken as an intermediate shape betwen
+  //  the shape of the element in the original mesh (#use_ref_mesh=1#)
+  //  and the shape of of the regular element (#use_ref_mesh=0#)
+  TGETOPTDEF_ND(thash,double,use_ref_mesh,1.0);
+  PETSCFEM_ASSERT(use_ref_mesh>=0 && use_ref_mesh<=1.0,
+                  "use_ref_mesh should be in range [0,1]. use_ref_mesh: %f",
+                  use_ref_mesh);  
 }
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
@@ -135,9 +142,12 @@ element_connector(const FastMat2 &xloc,
   // `y' coordinates are real
   // `x' coordinates are in the metric where the reference
   // element is `regular'
-  xref.set(xloc);
+  xreg.is(1,1,ndim);
+  xref.set(xloc).scale(use_ref_mesh)
+    .axpy(xreg,1.0-use_ref_mesh);
+  xreg.rs();
  
-  if (use_ref_mesh) {
+  if (use_ref_mesh>0.0) {
     tmp4.prod(xref,tmp3,-1,1,-1,2);
     tmp4.is(2,1,ndim);
     T0.set(tmp4);
@@ -344,7 +354,7 @@ element_connector(const FastMat2 &xloc,
   mat.axpy(d2Vdu2,volume_exp*c_volume/pow(Vref,volume_exp)
            *pow(V-Vref,volume_exp-1.)).scale(-1.);
 
-  if (use_ref_mesh) {
+  if (use_ref_mesh>0.0) {
     res2.prod(res,iT0,1,-1,-1,2);
     res.set(res2);
     mat2.prod(mat,iT0,1,-1,3,4,-1,2);
