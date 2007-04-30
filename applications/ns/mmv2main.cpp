@@ -457,7 +457,7 @@ int mmove2_main() {
     //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
     // NEWTON-RAPHSON ALGORITHM
     
-    double normres_external;
+    double normres_external=NAN;
     for (int inwt=0; inwt<nnwt; inwt++) {
       
       glob_param.inwt = inwt;
