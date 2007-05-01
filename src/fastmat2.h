@@ -296,6 +296,7 @@ public:
     void print_count_statistics();
     void activate_cache(FastMatCacheList *cache_list_);
     void void_cache(void);
+    FastMatCache *step();
     friend class FastMat2;
     CacheCtx();
   };

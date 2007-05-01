@@ -50,35 +50,12 @@ FastMat2 &
 FastMat2::eig(const FastMat2 & A, 
 	      FastMat2 *VR, FastMat2 *VL) { 
 
-  FastMatCache *cache;
-
-if (was_cached) {
-  cache = cache_list_begin[position_in_cache++];
-#ifdef FM2_CACHE_DBG
-  if (FastMat2::cache_dbg) printf ("reusing cache: ");
-#endif
-} else if (!use_cache) {
-  cache = new FastMatCache;
-} else {
-  cache = new FastMatCache;
-  cache_list->push_back(cache);
-  cache_list_begin = &*cache_list->begin();
-  cache_list->list_size =
-    cache_list_size = cache_list->size();
-  position_in_cache++;
-#ifdef FM2_CACHE_DBG
-  if (FastMat2::cache_dbg) printf ("defining cache: ");
-#endif
-}
-#ifdef FM2_CACHE_DBG
-  if (FastMat2::cache_dbg)printf(" cache_list %p, cache %p, position_in_cache %d\n",
-       cache_list,cache,position_in_cache-1);
-#endif
+  FastMatCache *cache = ctx->step();
 ;
 
   ns_eig_cache *sc;
   int symmetric = 0;
-  if (!was_cached) {
+  if (!ctx->was_cached) {
     Indx Adims;
     A.get_dims(Adims);
     int ndims = Adims.size();
@@ -167,7 +144,7 @@ if (was_cached) {
   if (sc->clev) for (int j=0; j<m2; j++) *(sc->VL[j]) = sc->VL_c[j];
   if (sc->crev) for (int j=0; j<m2; j++) *(sc->VR[j]) = sc->VR_c[j];
 
-  if (!use_cache) delete cache;
+  if (!ctx->use_cache) delete cache;
   return *this;
 }
 
@@ -218,35 +195,12 @@ extern "C" void dsyev_(const char*jobz,const char *uplo,int *n,double *a,int *ld
 FastMat2 &
 FastMat2::seig(const FastMat2 & A, FastMat2 &V,int compute_eigen_vectors) { 
 
-  FastMatCache *cache;
-
-if (was_cached) {
-  cache = cache_list_begin[position_in_cache++];
-#ifdef FM2_CACHE_DBG
-  if (FastMat2::cache_dbg) printf ("reusing cache: ");
-#endif
-} else if (!use_cache) {
-  cache = new FastMatCache;
-} else {
-  cache = new FastMatCache;
-  cache_list->push_back(cache);
-  cache_list_begin = &*cache_list->begin();
-  cache_list->list_size =
-    cache_list_size = cache_list->size();
-  position_in_cache++;
-#ifdef FM2_CACHE_DBG
-  if (FastMat2::cache_dbg) printf ("defining cache: ");
-#endif
-}
-#ifdef FM2_CACHE_DBG
-  if (FastMat2::cache_dbg)printf(" cache_list %p, cache %p, position_in_cache %d\n",
-       cache_list,cache,position_in_cache-1);
-#endif
+  FastMatCache *cache = ctx->step();
 ;
 
   eig_cache *ecache;
   int &cev = compute_eigen_vectors;
-  if (!was_cached) {
+  if (!ctx->was_cached) {
     Indx Adims;
     A.get_dims(Adims);
     int ndims = Adims.size();
@@ -311,7 +265,7 @@ if (was_cached) {
   for (int j=0; j<m; j++) *(ecache->W[j]) = ecache->W_c[j];
   if (cev) for (int j=0; j<m2; j++) *(ecache->V[j]) = ecache->A_c[j];
 
-  if (!use_cache) delete cache;
+  if (!ctx->use_cache) delete cache;
   return *this;
 }
 
@@ -335,33 +289,10 @@ extern "C" void dgesl_(double *a,int *lda,int *n,int *ipvt,double *b,int *job);
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 FastMat2 & FastMat2::inv(const FastMat2 & A) {
 
-  FastMatCache *cache;
-
-if (was_cached) {
-  cache = cache_list_begin[position_in_cache++];
-#ifdef FM2_CACHE_DBG
-  if (FastMat2::cache_dbg) printf ("reusing cache: ");
-#endif
-} else if (!use_cache) {
-  cache = new FastMatCache;
-} else {
-  cache = new FastMatCache;
-  cache_list->push_back(cache);
-  cache_list_begin = &*cache_list->begin();
-  cache_list->list_size =
-    cache_list_size = cache_list->size();
-  position_in_cache++;
-#ifdef FM2_CACHE_DBG
-  if (FastMat2::cache_dbg) printf ("defining cache: ");
-#endif
-}
-#ifdef FM2_CACHE_DBG
-  if (FastMat2::cache_dbg)printf(" cache_list %p, cache %p, position_in_cache %d\n",
-       cache_list,cache,position_in_cache-1);
-#endif
+  FastMatCache *cache = ctx->step();
 ;
 
-  if (!was_cached) {
+  if (!ctx->was_cached) {
     Indx Adims;
     A.get_dims(Adims);
     int ndims = Adims.size();
@@ -410,10 +341,10 @@ if (was_cached) {
     }
 
     // This I don't know if it's correct.
-    op_count.get += m*m;
-    op_count.put += m*m;
-    op_count.mult += m*m*m;
-    op_count.sum += m*m*m;
+    ctx->op_count.get += m*m;
+    ctx->op_count.put += m*m;
+    ctx->op_count.mult += m*m*m;
+    ctx->op_count.sum += m*m*m;
 
   }
 
@@ -477,7 +408,7 @@ if (was_cached) {
 #endif
   }
 
-  if (!use_cache) delete cache;
+  if (!ctx->use_cache) delete cache;
   return *this;
 #undef A
 #undef iA
@@ -486,32 +417,9 @@ if (was_cached) {
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 double FastMat2::trace() {
-  FastMatCache *cache;
-
-if (was_cached) {
-  cache = cache_list_begin[position_in_cache++];
-#ifdef FM2_CACHE_DBG
-  if (FastMat2::cache_dbg) printf ("reusing cache: ");
-#endif
-} else if (!use_cache) {
-  cache = new FastMatCache;
-} else {
-  cache = new FastMatCache;
-  cache_list->push_back(cache);
-  cache_list_begin = &*cache_list->begin();
-  cache_list->list_size =
-    cache_list_size = cache_list->size();
-  position_in_cache++;
-#ifdef FM2_CACHE_DBG
-  if (FastMat2::cache_dbg) printf ("defining cache: ");
-#endif
-}
-#ifdef FM2_CACHE_DBG
-  if (FastMat2::cache_dbg)printf(" cache_list %p, cache %p, position_in_cache %d\n",
-       cache_list,cache,position_in_cache-1);
-#endif
+  FastMatCache *cache = ctx->step();
 ;
-  if (!was_cached) {
+  if (!ctx->was_cached) {
     assert(defined);
     Indx Adims;
     get_dims(Adims);
@@ -528,7 +436,7 @@ if (was_cached) {
     } 
     cache->nelems = n;
     cache->pto = &*cache->to_elems.begin();
-    op_count.put += n;
+    ctx->op_count.put += n;
     ;
   
   }
@@ -541,7 +449,7 @@ if (was_cached) {
     tr += **pto++;
   }
 
-  if (!use_cache) delete cache;
+  if (!ctx->use_cache) delete cache;
   return tr;
 }
 

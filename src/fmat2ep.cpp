@@ -22,41 +22,19 @@ int mem_size(const Indx & indx) {
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 
 //<$cache_op=<<'//EOF';
-FastMatCache *cache;
-
-if (was_cached) {
-  cache = cache_list_begin[position_in_cache++];
-#ifdef FM2_CACHE_DBG
-  if (FastMat2::cache_dbg) printf ("reusing cache: ");
-#endif
-} else if (!use_cache) {
-  cache = new FastMatCache;
-} else {
-  cache = new FastMatCache;
-  cache_list->push_back(cache);
-  cache_list_begin = &*cache_list->begin();
-  cache_list->list_size =
-    cache_list_size = cache_list->size();
-  position_in_cache++;
-#ifdef FM2_CACHE_DBG
-  if (FastMat2::cache_dbg) printf ("defining cache: ");
-#endif
-}
-#ifdef FM2_CACHE_DBG
-  if (FastMat2::cache_dbg) printf(" cache_list %p, cache %p, position_in_cache %d\n",
-       cache_list,cache,position_in_cache-1);
-#endif
+FastMatCache *cache = ctx->step();
 //EOF
 _//>
 //<$CACHE_OPERATIONS = $cache_op;//>
 
+#if 0
 //<$genone=<<'//EOF';
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 FastMat2 & FastMat2::__NAME__(const FastMat2 & A __OTHER_ARGS__) {
 
   __CACHE_OPERATIONS__;
 
-  if (!was_cached  ) {
+  if (!ctx->was_cached  ) {
     assert(A.defined);
     Indx Afdims,fdims;
     A.get_dims(Afdims);
@@ -96,7 +74,7 @@ FastMat2 & FastMat2::__NAME__(const FastMat2 & A __OTHER_ARGS__) {
   while (pto < pto_end) {
     __ELEM_OPERATIONS__;
   }
-  if (!use_cache) delete cache;
+  if (!ctx->use_cache) delete cache;
   return *this;
 }  
 //EOF
@@ -115,7 +93,7 @@ FastMat2 & FastMat2::__NAME__(const double val, INT_VAR_ARGS_ND) {
 
   __CACHE_OPERATIONS__;
 
-  if (!was_cached  ) {
+  if (!ctx->was_cached  ) {
     Indx indx,fdims;
     get_dims(fdims);
     int ndims = fdims.size();
@@ -135,7 +113,7 @@ FastMat2 & FastMat2::__NAME__(const double val, INT_VAR_ARGS_ND) {
 
   __ELEM_OPERATIONS__;
 
-  if (!use_cache) delete cache;
+  if (!ctx->use_cache) delete cache;
   return *this;
 
 }  
@@ -151,7 +129,7 @@ _//>
   while (pto < pto_end) {
     **pto++ = *from++;
   }
-  if (!use_cache) delete cache;
+  if (!ctx->use_cache) delete cache;
   return *this;
 //EOF
 _//>
@@ -162,7 +140,7 @@ FastMat2 & FastMat2::set(const double *a) {
 
   __CACHE_OPERATIONS__;
 
-  if (!was_cached  ) {
+  if (!ctx->was_cached  ) {
     if (!defined) {
       cache->nelems = 0;
       return *this;
@@ -200,7 +178,7 @@ FastMat2 & FastMat2::set(const Matrix & A) {
 
   __CACHE_OPERATIONS__;
 
-  if (!was_cached  ) {
+  if (!ctx->was_cached  ) {
     int m = A.Nrows();
     int n = A.Ncols();
 
@@ -311,7 +289,7 @@ FastMat2 & FastMat2::__NAME__(const FastMat2 & A, __OTHER_ARGS__ __C__
 
   __CACHE_OPERATIONS__;
 
-  if (!was_cached  ) {
+  if (!ctx->was_cached  ) {
     Indx sindx,fdims,Afdims;
     assert(A.defined);
     A.get_dims(Afdims);
@@ -430,7 +408,7 @@ FastMat2 & FastMat2::__NAME__(const FastMat2 & A, __OTHER_ARGS__ __C__
     *lc->target = val;
   }
   __AFTER_ALL_STRIDES__;
-  if (!use_cache) delete cache;
+  if (!ctx->use_cache) delete cache;
   return *this;
 }  
 
@@ -451,7 +429,7 @@ FastMat2 & FastMat2::__NAME__(__FUN_ARGS__) {
 
   __CACHE_OPERATIONS__;
 
-  if (!was_cached  ) {
+  if (!ctx->was_cached  ) {
     assert(defined);
 
     Indx fdims;
@@ -476,7 +454,7 @@ FastMat2 & FastMat2::__NAME__(__FUN_ARGS__) {
     __ELEM_OPERATIONS__;
   }
 
-  if (!use_cache) delete cache;
+  if (!ctx->use_cache) delete cache;
   return *this;
 }  
 //EOF
@@ -489,7 +467,7 @@ FastMat2 & FastMat2::prod(const FastMat2 & A,const FastMat2 & B,const int m,INT_
 
   __CACHE_OPERATIONS__;
 
-  if (!was_cached  ) {
+  if (!ctx->was_cached  ) {
     Indx ia,ib,ii;
 
     Indx Afdims,Bfdims,fdims;
@@ -683,7 +661,7 @@ FastMat2 & FastMat2::prod(const FastMat2 & A,const FastMat2 & B,const int m,INT_
     *(lc->target) = sum;
   }
 
-  if (!use_cache) delete cache;
+  if (!ctx->use_cache) delete cache;
   return *this;
 }
 //EOF
@@ -710,7 +688,7 @@ __CONST__ FastMat2 & FastMat2::export_vals(__ARG__) __CONST__ {
 
   __CACHE_OPERATIONS__;
 
-  if (!was_cached  ) {
+  if (!ctx->was_cached  ) {
     if (!defined) {
       cache->nelems = 0;
       return *this;
@@ -741,7 +719,7 @@ __CONST__ FastMat2 & FastMat2::export_vals(__ARG__) __CONST__ {
   while (pfrom < pfrom_end) {
     *to++ = **pfrom++;
   }
-  if (!use_cache) delete cache;
+  if (!ctx->use_cache) delete cache;
   return *this;
 }  
 //EOF
@@ -755,7 +733,7 @@ FastMat2 & FastMat2::ctr(const FastMat2 & A,const int m,INT_VAR_ARGS_ND) {
   __CACHE_OPERATIONS__;
 
 
-  if (!was_cached  ) {
+  if (!ctx->was_cached  ) {
     Indx ia,ii;
   
     Indx Afdims,fdims;
@@ -883,7 +861,7 @@ FastMat2 & FastMat2::ctr(const FastMat2 & A,const int m,INT_VAR_ARGS_ND) {
     *(lc->target) = sum;
   }
 
-  if (!use_cache) delete cache;
+  if (!ctx->use_cache) delete cache;
   return *this;
 }
 //EOF
@@ -897,7 +875,7 @@ FastMat2 & FastMat2::diag(FastMat2 & A,const int m,INT_VAR_ARGS_ND) {
 
   __CACHE_OPERATIONS__;
 
-  if (!was_cached) {
+  if (!ctx->was_cached) {
     Indx ia,ii;
   
     Indx Afdims;
@@ -982,7 +960,7 @@ FastMat2 & FastMat2::diag(FastMat2 & A,const int m,INT_VAR_ARGS_ND) {
     **pto++ = **pfrom++;
   }
 
-  if (!use_cache) delete cache;
+  if (!ctx->use_cache) delete cache;
   return *this;
 }
 //EOF
@@ -997,7 +975,7 @@ double FastMat2::get(INT_VAR_ARGS_ND) const {
 
   __CACHE_OPERATIONS__;
 
-  if (!was_cached) {
+  if (!ctx->was_cached) {
     Indx indx,fdims;
     get_dims(fdims);
     int ndims = fdims.size();
@@ -1017,7 +995,7 @@ double FastMat2::get(INT_VAR_ARGS_ND) const {
     op_count.get += 1;
   }
 
-  if (!use_cache) delete cache;
+  if (!ctx->use_cache) delete cache;
   return *cache->from;
 }
 //EOF
@@ -1033,7 +1011,7 @@ FastMat2::operator double() const {
   
   __CACHE_OPERATIONS__;
 
-  if (!was_cached) {
+  if (!ctx->was_cached) {
     Indx fdims;
     get_dims(fdims);
     assert(fdims.size()==0);
@@ -1041,7 +1019,7 @@ FastMat2::operator double() const {
     op_count.put += 1;
   }
 
-  if (!use_cache) delete cache;
+  if (!ctx->use_cache) delete cache;
   return *store;
 }
 //EOF
@@ -1054,7 +1032,7 @@ _//>
 double FastMat2::det(void) const{
   __CACHE_OPERATIONS__;
 
-  if (!was_cached) {
+  if (!ctx->was_cached) {
     Indx dims_;
     get_dims(dims_);
     int ndims = dims_.size();
@@ -1101,7 +1079,7 @@ double FastMat2::det(void) const{
     ld = cache->A->LogDeterminant();
     det_ = ld.Value();
   }
-  if (!use_cache) delete cache;
+  if (!ctx->use_cache) delete cache;
   return det_;
 }
 //EOF
@@ -1113,7 +1091,7 @@ _//>
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 FastMat2 & FastMat2::kron(const FastMat2 & A,const FastMat2 & B) {
   __CACHE_OPERATIONS__;
-  if (!was_cached) {
+  if (!ctx->was_cached) {
     Indx Adims,Bdims,dims_;
     A.get_dims(Adims);
     B.get_dims(Bdims);
@@ -1176,7 +1154,7 @@ FastMat2 & FastMat2::kron(const FastMat2 & A,const FastMat2 & B) {
   while  (pto<pto_end) 
     (**pto++) = (**pfrom_a++) * (**pfrom_b++);
 
-  if (!use_cache) delete cache;
+  if (!ctx->use_cache) delete cache;
   return *this;
 
 }    
@@ -1193,7 +1171,7 @@ FastMat2 & FastMat2::eye(const double a) {
 
   __CACHE_OPERATIONS__;
 
-  if (!was_cached  ) {
+  if (!ctx->was_cached  ) {
 
     assert(defined);
 
@@ -1225,7 +1203,7 @@ FastMat2 & FastMat2::eye(const double a) {
     **pto++ = a;
   }
 
-  if (!use_cache) delete cache;
+  if (!ctx->use_cache) delete cache;
   return *this;
 }  
 //EOF
@@ -1247,7 +1225,7 @@ double FastMat2::detsur(FastMat2 *nor) {
   __CACHE_OPERATIONS__;
 
   detsur_cache * dsc;
-  if (!was_cached) {
+  if (!ctx->was_cached) {
     Indx fdims;
     get_dims(fdims);
     assert(fdims.size()==2);
@@ -1320,7 +1298,7 @@ double FastMat2::detsur(FastMat2 *nor) {
     dsc->g.prod(*this,*this,1,-1,2,-1);
     retval = sqrt(dsc->g.det());
   }
-  if (!use_cache) delete cache;
+  if (!ctx->use_cache) delete cache;
   return retval;
 }
 //EOF
@@ -1345,7 +1323,7 @@ FastMat2 & FastMat2::cross(const FastMat2 & a,const FastMat2 & b) {
 
   // Cross product of vectors
   cross_cache *ccache;
-  if (!was_cached) {
+  if (!ctx->was_cached) {
     assert(a.defined);
     assert(a.n()==1);
     assert(b.defined);
@@ -1397,7 +1375,7 @@ FastMat2 & FastMat2::cross(const FastMat2 & a,const FastMat2 & b) {
     *c[0] = *aa[0] * *bb[1] - *aa[1] * *bb[0];
   }    
 
-  if (!use_cache) delete cache;
+  if (!ctx->use_cache) delete cache;
   return *this;
 }
 //EOF
@@ -1411,5 +1389,5 @@ cross_cache::~cross_cache() {
   delete[] c;
 }
 
-
+#endif
 //<=$warn_dont_modify //>
