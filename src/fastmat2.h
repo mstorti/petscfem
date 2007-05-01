@@ -292,6 +292,10 @@ public:
     void resync_was_cached();
     void jump_to(FastMatCachePosition &pos);
     double operation_count(void);
+    void reset_cache(void);
+    void print_count_statistics();
+    void activate_cache(FastMatCacheList *cache_list_);
+    void void_cache(void);
     friend class FastMat2;
     CacheCtx();
   };
