@@ -59,8 +59,12 @@ void FastMat2::deactivate_cache() {
 FastMat2::CacheCtx::CacheCtx() 
   : cache_list_root(NULL), 
     cache_list(NULL), 
+    position_in_cache(0),
     cache_list_begin(NULL),
-    cache_list_size(0) { }
+    cache_list_size(0),
+    use_cache(0),
+    was_cached(0),
+    was_cached_save(0)  { }
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 void FastMat2::branch() {
@@ -240,19 +244,6 @@ double FastMat2::CacheCtx::operation_count(void) {
 }
 
 #if 0
-// Static members of class FastMat2 related to caches
-//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
-FastMatCacheList *FastMat2::cache_list = NULL;
-FastMatCacheList *FastMat2::cache_list_root = NULL;
-int FastMat2::use_cache = 0;
-int FastMat2::was_cached = 0;
-int FastMat2::was_cached_save = 0;
-int FastMat2::position_in_cache=0;
-FastMatCache **FastMat2::cache_list_begin=NULL;
-int FastMat2::cache_list_size;
-vector<FastMatCachePosition> FastMat2::cache_list_stack;
-OperationCount FastMat2::op_count;
-
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 void FastMat2::reset_cache(void) {
 
