@@ -545,11 +545,10 @@ FastMat2::FastMat2(const int m,INT_VAR_ARGS_ND)
   create_from_indx(indx);
 }
 
-#if 0
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 FastMat2 & FastMat2::is(const int index,const int start,const int finish,
 	       const int step) {
-  if (was_cached) return *this;
+  if (ctx->was_cached) return *this;
   assert(defined);
   if (start==0) {
     // If start ==0 resets the filter
@@ -568,7 +567,7 @@ FastMat2 & FastMat2::is(const int index,const int start,const int finish,
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 FastMat2 & FastMat2::ir(const int indx,const int j) {
-  if (was_cached) return *this;
+  if (ctx->was_cached) return *this;
   assert(defined);
   set_indx[indx-1] = j;
   return *this;
@@ -576,7 +575,7 @@ FastMat2 & FastMat2::ir(const int indx,const int j) {
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 FastMat2 & FastMat2::d(const int j1,const int j2) {
-  if (was_cached) return *this;
+  if (ctx->was_cached) return *this;
   assert(defined);
   assert(1<=j1 && j1<=n_dims);
   assert(1<=j2 && j2<=n_dims);
@@ -711,7 +710,7 @@ void FastMat2::print1(const Indx & indxp,const Indx & fdims) const {
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 FastMat2 & FastMat2::rs() {
-  if (was_cached) return *this;
+  if (ctx->was_cached) return *this;
   int ndims = dims.size();
   for (int jd=0; jd<ndims; jd++) {
     dims[jd].reset();
@@ -763,7 +762,7 @@ int IndexFilter::abs_indx(const int j) const {
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 FastMat2 & FastMat2::exc(const int i1,const int i2) {
-  if (was_cached) return *this;
+  if (ctx->was_cached) return *this;
   int x = perm[i1-1];
   perm[i1-1] = perm[i2-1];
   perm[i2-1] = x;
@@ -818,7 +817,7 @@ double * FastMat2::storage_begin() {
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 FastMat2 & FastMat2::eps_LC() {
   // Levi-Civita density tensor
-  if (!was_cached) resize(3,3,3,3);
+  if (!ctx->was_cached) resize(3,3,3,3);
 
   set(0.);
   setel(+1.,1,2,3);
@@ -866,5 +865,3 @@ FastMatCache::~FastMatCache() {
   }
 #endif
 }
-
-#endif
