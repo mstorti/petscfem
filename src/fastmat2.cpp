@@ -432,6 +432,16 @@ FastMat2::FastMat2(const Indx & dims_)
 }
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+FastMat2::FastMat2(CacheCtx *ctx_a) 
+  : ctx(ctx_a), store(NULL), defined(0)  { }
+
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+FastMat2::FastMat2(CacheCtx *ctx_a,const Indx & dims_) 
+  : ctx(ctx_a) {
+  create_from_indx(dims_);
+}
+
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 FastMat2::~FastMat2(void) {
   assert(defined == (store != NULL));
   if (defined) delete[] store;
@@ -542,6 +552,22 @@ void FastMat2::create_from_indx(const Indx & dims_) {
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 FastMat2::FastMat2(const int m,INT_VAR_ARGS_ND) 
   : ctx(&global_cache_ctx) {
+  //  assert(m>0);
+  Indx indx;
+#ifdef USE_VAR_ARGS
+  va_list v;
+  va_start(v,m);
+  read_int_list(m,v,&indx);
+#else
+  READ_INT_ARG_LIST(indx);
+  // assert(m==indx.size());
+#endif
+  create_from_indx(indx);
+}
+
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+FastMat2::FastMat2(CacheCtx *ctx_a,const int m,INT_VAR_ARGS_ND) 
+  : ctx(ctx_a) {
   //  assert(m>0);
   Indx indx;
 #ifdef USE_VAR_ARGS

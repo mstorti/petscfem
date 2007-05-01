@@ -326,6 +326,27 @@ public:
   FastMat2(const Indx & dims_);
 
   //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+  /** Default constructor
+      @author M. Storti
+   */ 
+  FastMat2(CacheCtx *ctx);
+  
+  //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+  /** Constructor from indices (reading with varargs).
+      @author M. Storti
+      @param m (input) the number of indices. 
+      @param INT\_VAR\_ARGS (input) the list of dimensions (m values)
+  */ 
+  FastMat2(CacheCtx *ctx,const int m,INT_VAR_ARGS);
+
+  //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+  /** Constructor from indices
+      @author M. Storti
+      @param dims\_ (input) the vector of dimensions.
+  */ 
+  FastMat2(CacheCtx *ctx,const Indx & dims_);
+
+  //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
   /** Destructor
       @author M. Storti
   */ 
