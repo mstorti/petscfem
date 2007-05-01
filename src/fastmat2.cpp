@@ -185,15 +185,24 @@ void FastMat2::CacheCtx::leave() {
   
 }
 
-#if 0
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 void FastMat2::resync_was_cached(void) {
+  global_cache_ctx.resync_was_cached();
+}
+
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+  void FastMat2::CacheCtx::resync_was_cached(void) {
   if (!use_cache) return;
   was_cached = cache_list->list_size > position_in_cache;
 }
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 void FastMat2::jump_to(FastMatCachePosition &pos) {
+  global_cache_ctx.jump_to(pos);
+}
+
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+void FastMat2::CacheCtx::jump_to(FastMatCachePosition &pos) {
 
   if (!use_cache) return;
 #ifdef FM2_CACHE_DBG
@@ -213,8 +222,12 @@ void FastMat2::jump_to(FastMatCachePosition &pos) {
 }
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:  
-//double FastMatCacheList::operation_count(void) {
 double FastMat2::operation_count(void) {
+  return global_cache_ctx.operation_count();
+}
+
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:  
+double FastMat2::CacheCtx::operation_count(void) {
   double val=0;
   val += op_count.get;
   val += op_count.put;
@@ -226,6 +239,7 @@ double FastMat2::operation_count(void) {
   return val;
 }
 
+#if 0
 // Static members of class FastMat2 related to caches
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 FastMatCacheList *FastMat2::cache_list = NULL;

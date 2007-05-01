@@ -289,6 +289,9 @@ public:
     void branch();
     void choose(const int j);
     void leave(void);
+    void resync_was_cached();
+    void jump_to(FastMatCachePosition &pos);
+    double operation_count(void);
     friend class FastMat2;
     CacheCtx();
   };
