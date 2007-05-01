@@ -1157,7 +1157,7 @@ public:
   /** Deactivates use of the cache
       @author M. Storti
   */ 
-  static inline void deactivate_cache(void);
+  static void deactivate_cache(void);
 
   //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
   /** Resets the cache.

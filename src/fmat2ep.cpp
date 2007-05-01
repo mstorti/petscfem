@@ -27,7 +27,6 @@ FastMatCache *cache = ctx->step();
 _//>
 //<$CACHE_OPERATIONS = $cache_op;//>
 
-#if 0
 //<$genone=<<'//EOF';
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 FastMat2 & FastMat2::__NAME__(const FastMat2 & A __OTHER_ARGS__) {
@@ -62,8 +61,8 @@ FastMat2 & FastMat2::__NAME__(const FastMat2 & A __OTHER_ARGS__) {
     cache->pto = &*cache->to_elems.begin();
     cache->pfrom = &*cache->from_elems.begin();
 
-    op_count.put += cache->nelems;
-    op_count.get += cache->nelems;
+    ctx->op_count.put += cache->nelems;
+    ctx->op_count.get += cache->nelems;
     __COUNT_OPER__;
   }
 
@@ -107,7 +106,7 @@ FastMat2 & FastMat2::__NAME__(const double val, INT_VAR_ARGS_ND) {
     assert(ndims==indx.size());
 #endif
     cache->to = location(indx);
-    op_count.put += 1;
+    ctx->op_count.put += 1;
     __COUNT_OPER__;
   }
 
@@ -159,8 +158,8 @@ FastMat2 & FastMat2::set(const double *a) {
       flag=inc(indx,fdims);
     } 
     cache->pto = &*cache->to_elems.begin();
-    op_count.get += cache->nelems;
-    op_count.get += cache->nelems;
+    ctx->op_count.get += cache->nelems;
+    ctx->op_count.get += cache->nelems;
   }
   const double *from = a;
 
@@ -387,8 +386,8 @@ FastMat2 & FastMat2::__NAME__(const FastMat2 & A, __OTHER_ARGS__ __C__
       if (!inc(findx,ndimsf)) break;
     }
     int ntot = nlines*line_size;
-    op_count.get += ntot;
-    op_count.put += nlines;
+    ctx->op_count.get += ntot;
+    ctx->op_count.put += nlines;
     __COUNT_OPER__;
   }
 
@@ -626,11 +625,11 @@ FastMat2 & FastMat2::prod(const FastMat2 & A,const FastMat2 & B,const int m,INT_
       if (!inc(findx,ndimsf)) break;
     }
     // Hay que contar mejor cuantos elementos hay que traer
-    // op_count.get += cache->nlines*cache->line_size;
+    // ctx->op_count.get += cache->nlines*cache->line_size;
     int ntot = cache->nlines*cache->line_size;
-    op_count.put += cache->nlines*cache->line_size;
-    op_count.sum += ntot;
-    op_count.mult += ntot;
+    ctx->op_count.put += cache->nlines*cache->line_size;
+    ctx->op_count.sum += ntot;
+    ctx->op_count.mult += ntot;
 
   }
 
@@ -842,9 +841,9 @@ FastMat2 & FastMat2::ctr(const FastMat2 & A,const int m,INT_VAR_ARGS_ND) {
       if (!inc(findx,ndimsf)) break;
     }
     int ntot = cache->nlines*cache->line_size;
-    op_count.get += ntot;
-    op_count.put += cache->nlines;
-    op_count.sum += ntot;
+    ctx->op_count.get += ntot;
+    ctx->op_count.put += cache->nlines;
+    ctx->op_count.sum += ntot;
   }
 
   // Perform computations using cached addresses
@@ -946,8 +945,8 @@ FastMat2 & FastMat2::diag(FastMat2 & A,const int m,INT_VAR_ARGS_ND) {
       jj++;
       if (!inc(bindx,fdims)) break;
     }
-    op_count.get += nelems;
-    op_count.put += nelems;
+    ctx->op_count.get += nelems;
+    ctx->op_count.put += nelems;
   }
 
   // Perform computations using cached addresses
@@ -992,7 +991,7 @@ double FastMat2::get(INT_VAR_ARGS_ND) const {
 #endif
 
     cache->from = location(indx);
-    op_count.get += 1;
+    ctx->op_count.get += 1;
   }
 
   if (!ctx->use_cache) delete cache;
@@ -1015,8 +1014,8 @@ FastMat2::operator double() const {
     Indx fdims;
     get_dims(fdims);
     assert(fdims.size()==0);
-    op_count.get += 1;
-    op_count.put += 1;
+    ctx->op_count.get += 1;
+    ctx->op_count.put += 1;
   }
 
   if (!ctx->use_cache) delete cache;
@@ -1139,9 +1138,9 @@ FastMat2 & FastMat2::kron(const FastMat2 & A,const FastMat2 & B) {
       if (!inc(Aindx,Adims)) break;
     }
 
-    op_count.get += nelems;
-    op_count.put += nelems;
-    op_count.mult += nelems;
+    ctx->op_count.get += nelems;
+    ctx->op_count.put += nelems;
+    ctx->op_count.mult += nelems;
   }
 
   // Perform computations using cached addresses
@@ -1192,7 +1191,7 @@ FastMat2 & FastMat2::eye(const double a) {
 
     cache->pto = &*cache->to_elems.begin();
 
-    op_count.put += n;
+    ctx->op_count.put += n;
     __COUNT_OPER__;
   }
 
@@ -1389,5 +1388,4 @@ cross_cache::~cross_cache() {
   delete[] c;
 }
 
-#endif
 //<=$warn_dont_modify //>

@@ -8,6 +8,9 @@ using namespace std;
 #include "fem.h"
 #include "fastmat2.h"
 
+FastMat2::CacheCtx FastMat2::global_cache_ctx;
+int FastMat2::cache_dbg=0;
+
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>
 FastMatCachePosition::FastMatCachePosition() {
   first = NULL;
@@ -46,16 +49,23 @@ void FastMat2::CacheCtx::get_cache_position(FastMatCachePosition & pos) {
 }
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+void FastMat2::get_cache_position(FastMatCachePosition & pos) {
+  global_cache_ctx.get_cache_position(pos);
+}
+
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 void FastMat2::CacheCtx::deactivate_cache(void) {
   was_cached_save = was_cached;
   use_cache=0; 
   was_cached=0; 
 }
 
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 void FastMat2::deactivate_cache() {
   global_cache_ctx.deactivate_cache();
 }
 
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 FastMat2::CacheCtx::CacheCtx() 
   : cache_list_root(NULL), 
     cache_list(NULL), 

@@ -26,7 +26,6 @@ int mem_size(const Indx & indx) {
 
 
 
-#if 0
 
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
@@ -66,8 +65,8 @@ FastMat2 & FastMat2::set(const FastMat2 & A ) {
     cache->pto = &*cache->to_elems.begin();
     cache->pfrom = &*cache->from_elems.begin();
 
-    op_count.put += cache->nelems;
-    op_count.get += cache->nelems;
+    ctx->op_count.put += cache->nelems;
+    ctx->op_count.get += cache->nelems;
     ;
   }
 
@@ -115,9 +114,9 @@ FastMat2 & FastMat2::add(const FastMat2 & A ) {
     cache->pto = &*cache->to_elems.begin();
     cache->pfrom = &*cache->from_elems.begin();
 
-    op_count.put += cache->nelems;
-    op_count.get += cache->nelems;
-    op_count.sum += cache->nelems;
+    ctx->op_count.put += cache->nelems;
+    ctx->op_count.get += cache->nelems;
+    ctx->op_count.sum += cache->nelems;
 ;
   }
 
@@ -165,9 +164,9 @@ FastMat2 & FastMat2::rest(const FastMat2 & A ) {
     cache->pto = &*cache->to_elems.begin();
     cache->pfrom = &*cache->from_elems.begin();
 
-    op_count.put += cache->nelems;
-    op_count.get += cache->nelems;
-    op_count.sum += cache->nelems;
+    ctx->op_count.put += cache->nelems;
+    ctx->op_count.get += cache->nelems;
+    ctx->op_count.sum += cache->nelems;
 ;
   }
 
@@ -215,9 +214,9 @@ FastMat2 & FastMat2::mult(const FastMat2 & A ) {
     cache->pto = &*cache->to_elems.begin();
     cache->pfrom = &*cache->from_elems.begin();
 
-    op_count.put += cache->nelems;
-    op_count.get += cache->nelems;
-    op_count.mult += cache->nelems;
+    ctx->op_count.put += cache->nelems;
+    ctx->op_count.get += cache->nelems;
+    ctx->op_count.mult += cache->nelems;
 ;
   }
 
@@ -265,9 +264,9 @@ FastMat2 & FastMat2::div(const FastMat2 & A ) {
     cache->pto = &*cache->to_elems.begin();
     cache->pfrom = &*cache->from_elems.begin();
 
-    op_count.put += cache->nelems;
-    op_count.get += cache->nelems;
-    op_count.div += cache->nelems;
+    ctx->op_count.put += cache->nelems;
+    ctx->op_count.get += cache->nelems;
+    ctx->op_count.div += cache->nelems;
 ;
   }
 
@@ -315,9 +314,9 @@ FastMat2 & FastMat2::rcp(const FastMat2 & A ,double c) {
     cache->pto = &*cache->to_elems.begin();
     cache->pfrom = &*cache->from_elems.begin();
 
-    op_count.put += cache->nelems;
-    op_count.get += cache->nelems;
-    op_count.div += cache->nelems;
+    ctx->op_count.put += cache->nelems;
+    ctx->op_count.get += cache->nelems;
+    ctx->op_count.div += cache->nelems;
 ;
   }
 
@@ -365,10 +364,10 @@ FastMat2 & FastMat2::axpy(const FastMat2 & A ,double alpha) {
     cache->pto = &*cache->to_elems.begin();
     cache->pfrom = &*cache->from_elems.begin();
 
-    op_count.put += cache->nelems;
-    op_count.get += cache->nelems;
-    op_count.mult += cache->nelems;
-op_count.sum += cache->nelems;
+    ctx->op_count.put += cache->nelems;
+    ctx->op_count.get += cache->nelems;
+    ctx->op_count.mult += cache->nelems;
+ctx->op_count.sum += cache->nelems;
 ;
   }
 
@@ -407,7 +406,7 @@ FastMat2 & FastMat2::setel(const double val, INT_VAR_ARGS_ND) {
     assert(ndims==indx.size());
 #endif
     cache->to = location(indx);
-    op_count.put += 1;
+    ctx->op_count.put += 1;
     ;
   }
 
@@ -437,8 +436,8 @@ FastMat2 & FastMat2::addel(const double val, INT_VAR_ARGS_ND) {
     assert(ndims==indx.size());
 #endif
     cache->to = location(indx);
-    op_count.put += 1;
-    op_count.sum += 1;
+    ctx->op_count.put += 1;
+    ctx->op_count.sum += 1;
 ;
   }
 
@@ -468,8 +467,8 @@ FastMat2 & FastMat2::multel(const double val, INT_VAR_ARGS_ND) {
     assert(ndims==indx.size());
 #endif
     cache->to = location(indx);
-    op_count.put += 1;
-    op_count.mult += 1;
+    ctx->op_count.put += 1;
+    ctx->op_count.mult += 1;
 ;
   }
 
@@ -510,8 +509,8 @@ FastMat2 & FastMat2::set(const double *a) {
       flag=inc(indx,fdims);
     } 
     cache->pto = &*cache->to_elems.begin();
-    op_count.get += cache->nelems;
-    op_count.get += cache->nelems;
+    ctx->op_count.get += cache->nelems;
+    ctx->op_count.get += cache->nelems;
   }
   const double *from = a;
 
@@ -594,7 +593,7 @@ FastMat2 & FastMat2::set(const Matrix & A) {
    'INI_LOOP' => 'val=0'
    'NAME' => 'sum'
    'ELEM_OPERATIONS' => 'val += **pa++'
-   'COUNT_OPER' => 'op_count.sum += ntot;
+   'COUNT_OPER' => 'ctx->op_count.sum += ntot;
 '
    'OTHER_ARGS' => ''
    'C' => ''
@@ -705,9 +704,9 @@ FastMat2 & FastMat2::sum(const FastMat2 & A,
       if (!inc(findx,ndimsf)) break;
     }
     int ntot = nlines*line_size;
-    op_count.get += ntot;
-    op_count.put += nlines;
-    op_count.sum += ntot;
+    ctx->op_count.get += ntot;
+    ctx->op_count.put += nlines;
+    ctx->op_count.sum += ntot;
 ;
   }
 
@@ -743,8 +742,8 @@ double FastMat2::sum_all() const {
    'INI_LOOP' => 'val=0'
    'NAME' => 'sum_square'
    'ELEM_OPERATIONS' => 'aux= **pa++; val += aux*aux'
-   'COUNT_OPER' => 'op_count.sum += ntot;
-op_count.mult += ntot;
+   'COUNT_OPER' => 'ctx->op_count.sum += ntot;
+ctx->op_count.mult += ntot;
 '
    'OTHER_ARGS' => ''
    'C' => ''
@@ -855,10 +854,10 @@ FastMat2 & FastMat2::sum_square(const FastMat2 & A,
       if (!inc(findx,ndimsf)) break;
     }
     int ntot = nlines*line_size;
-    op_count.get += ntot;
-    op_count.put += nlines;
-    op_count.sum += ntot;
-op_count.mult += ntot;
+    ctx->op_count.get += ntot;
+    ctx->op_count.put += nlines;
+    ctx->op_count.sum += ntot;
+ctx->op_count.mult += ntot;
 ;
   }
 
@@ -894,8 +893,8 @@ double FastMat2::sum_square_all() const {
    'INI_LOOP' => 'val=0'
    'NAME' => 'sum_abs'
    'ELEM_OPERATIONS' => 'val += fabs(**pa++)'
-   'COUNT_OPER' => 'op_count.sum += ntot;
-op_count.abs += ntot;
+   'COUNT_OPER' => 'ctx->op_count.sum += ntot;
+ctx->op_count.abs += ntot;
 '
    'OTHER_ARGS' => ''
    'C' => ''
@@ -1006,10 +1005,10 @@ FastMat2 & FastMat2::sum_abs(const FastMat2 & A,
       if (!inc(findx,ndimsf)) break;
     }
     int ntot = nlines*line_size;
-    op_count.get += ntot;
-    op_count.put += nlines;
-    op_count.sum += ntot;
-op_count.abs += ntot;
+    ctx->op_count.get += ntot;
+    ctx->op_count.put += nlines;
+    ctx->op_count.sum += ntot;
+ctx->op_count.abs += ntot;
 ;
   }
 
@@ -1045,8 +1044,8 @@ double FastMat2::sum_abs_all() const {
    'INI_LOOP' => 'val=0'
    'NAME' => 'norm_p'
    'ELEM_OPERATIONS' => 'val += pow(fabs(**pa++),p)'
-   'COUNT_OPER' => 'op_count.sum += ntot;
-op_count.abs += ntot;
+   'COUNT_OPER' => 'ctx->op_count.sum += ntot;
+ctx->op_count.abs += ntot;
 '
    'OTHER_ARGS' => 'const double p'
    'C' => ','
@@ -1157,10 +1156,10 @@ FastMat2 & FastMat2::norm_p(const FastMat2 & A, const double p ,
       if (!inc(findx,ndimsf)) break;
     }
     int ntot = nlines*line_size;
-    op_count.get += ntot;
-    op_count.put += nlines;
-    op_count.sum += ntot;
-op_count.abs += ntot;
+    ctx->op_count.get += ntot;
+    ctx->op_count.put += nlines;
+    ctx->op_count.sum += ntot;
+ctx->op_count.abs += ntot;
 ;
   }
 
@@ -1196,8 +1195,8 @@ double FastMat2::norm_p_all(const double p) const {
    'INI_LOOP' => 'val=0'
    'NAME' => 'norm_p'
    'ELEM_OPERATIONS' => 'val += int_pow(fabs(**pa++),p)'
-   'COUNT_OPER' => 'op_count.sum += ntot;
-op_count.abs += ntot;
+   'COUNT_OPER' => 'ctx->op_count.sum += ntot;
+ctx->op_count.abs += ntot;
 '
    'OTHER_ARGS' => 'const int p'
    'C' => ','
@@ -1308,10 +1307,10 @@ FastMat2 & FastMat2::norm_p(const FastMat2 & A, const int p ,
       if (!inc(findx,ndimsf)) break;
     }
     int ntot = nlines*line_size;
-    op_count.get += ntot;
-    op_count.put += nlines;
-    op_count.sum += ntot;
-op_count.abs += ntot;
+    ctx->op_count.get += ntot;
+    ctx->op_count.put += nlines;
+    ctx->op_count.sum += ntot;
+ctx->op_count.abs += ntot;
 ;
   }
 
@@ -1347,7 +1346,7 @@ double FastMat2::norm_p_all(const int p) const {
    'INI_LOOP' => 'f.pre()'
    'NAME' => 'assoc'
    'ELEM_OPERATIONS' => 'f.set(f.fun2(**pa++,f.v()))'
-   'COUNT_OPER' => 'op_count.mult += 1;
+   'COUNT_OPER' => 'ctx->op_count.mult += 1;
 '
    'OTHER_ARGS' => 'Fun2 &f'
    'C' => ','
@@ -1458,9 +1457,9 @@ FastMat2 & FastMat2::assoc(const FastMat2 & A, Fun2 &f ,
       if (!inc(findx,ndimsf)) break;
     }
     int ntot = nlines*line_size;
-    op_count.get += ntot;
-    op_count.put += nlines;
-    op_count.mult += 1;
+    ctx->op_count.get += ntot;
+    ctx->op_count.put += nlines;
+    ctx->op_count.mult += 1;
 ;
   }
 
@@ -1496,8 +1495,8 @@ double FastMat2::assoc_all(Fun2 &f) const {
    'INI_LOOP' => 'val=**pa++;'
    'NAME' => 'max'
    'ELEM_OPERATIONS' => 'aux=**pa++; if (aux>val) val=aux'
-   'COUNT_OPER' => 'op_count.sum += ntot;
-op_count.fun += ntot;
+   'COUNT_OPER' => 'ctx->op_count.sum += ntot;
+ctx->op_count.fun += ntot;
 '
    'OTHER_ARGS' => ''
    'C' => ''
@@ -1608,10 +1607,10 @@ FastMat2 & FastMat2::max(const FastMat2 & A,
       if (!inc(findx,ndimsf)) break;
     }
     int ntot = nlines*line_size;
-    op_count.get += ntot;
-    op_count.put += nlines;
-    op_count.sum += ntot;
-op_count.fun += ntot;
+    ctx->op_count.get += ntot;
+    ctx->op_count.put += nlines;
+    ctx->op_count.sum += ntot;
+ctx->op_count.fun += ntot;
 ;
   }
 
@@ -1647,8 +1646,8 @@ double FastMat2::max_all() const {
    'INI_LOOP' => 'val=**pa++;'
    'NAME' => 'min'
    'ELEM_OPERATIONS' => 'aux=**pa++; if (aux<val) val=aux'
-   'COUNT_OPER' => 'op_count.sum += ntot;
-op_count.fun += ntot;
+   'COUNT_OPER' => 'ctx->op_count.sum += ntot;
+ctx->op_count.fun += ntot;
 '
    'OTHER_ARGS' => ''
    'C' => ''
@@ -1759,10 +1758,10 @@ FastMat2 & FastMat2::min(const FastMat2 & A,
       if (!inc(findx,ndimsf)) break;
     }
     int ntot = nlines*line_size;
-    op_count.get += ntot;
-    op_count.put += nlines;
-    op_count.sum += ntot;
-op_count.fun += ntot;
+    ctx->op_count.get += ntot;
+    ctx->op_count.put += nlines;
+    ctx->op_count.sum += ntot;
+ctx->op_count.fun += ntot;
 ;
   }
 
@@ -1798,9 +1797,9 @@ double FastMat2::min_all() const {
    'INI_LOOP' => 'val=fabs(**pa++);'
    'NAME' => 'max_abs'
    'ELEM_OPERATIONS' => 'aux=fabs(**pa++); if (aux>val) val=aux'
-   'COUNT_OPER' => 'op_count.sum += ntot;
-op_count.fun += ntot;
-op_count.abs += ntot;
+   'COUNT_OPER' => 'ctx->op_count.sum += ntot;
+ctx->op_count.fun += ntot;
+ctx->op_count.abs += ntot;
 '
    'OTHER_ARGS' => ''
    'C' => ''
@@ -1911,11 +1910,11 @@ FastMat2 & FastMat2::max_abs(const FastMat2 & A,
       if (!inc(findx,ndimsf)) break;
     }
     int ntot = nlines*line_size;
-    op_count.get += ntot;
-    op_count.put += nlines;
-    op_count.sum += ntot;
-op_count.fun += ntot;
-op_count.abs += ntot;
+    ctx->op_count.get += ntot;
+    ctx->op_count.put += nlines;
+    ctx->op_count.sum += ntot;
+ctx->op_count.fun += ntot;
+ctx->op_count.abs += ntot;
 ;
   }
 
@@ -1951,9 +1950,9 @@ double FastMat2::max_abs_all() const {
    'INI_LOOP' => 'val=fabs(**pa++);'
    'NAME' => 'min_abs'
    'ELEM_OPERATIONS' => 'aux=fabs(**pa++); if (aux<val) val=aux'
-   'COUNT_OPER' => 'op_count.sum += ntot;
-op_count.fun += ntot;
-op_count.abs += ntot;
+   'COUNT_OPER' => 'ctx->op_count.sum += ntot;
+ctx->op_count.fun += ntot;
+ctx->op_count.abs += ntot;
 '
    'OTHER_ARGS' => ''
    'C' => ''
@@ -2064,11 +2063,11 @@ FastMat2 & FastMat2::min_abs(const FastMat2 & A,
       if (!inc(findx,ndimsf)) break;
     }
     int ntot = nlines*line_size;
-    op_count.get += ntot;
-    op_count.put += nlines;
-    op_count.sum += ntot;
-op_count.fun += ntot;
-op_count.abs += ntot;
+    ctx->op_count.get += ntot;
+    ctx->op_count.put += nlines;
+    ctx->op_count.sum += ntot;
+ctx->op_count.fun += ntot;
+ctx->op_count.abs += ntot;
 ;
   }
 
@@ -2475,11 +2474,11 @@ FastMat2 & FastMat2::prod(const FastMat2 & A,const FastMat2 & B,const int m,INT_
       if (!inc(findx,ndimsf)) break;
     }
     // Hay que contar mejor cuantos elementos hay que traer
-    // op_count.get += cache->nlines*cache->line_size;
+    // ctx->op_count.get += cache->nlines*cache->line_size;
     int ntot = cache->nlines*cache->line_size;
-    op_count.put += cache->nlines*cache->line_size;
-    op_count.sum += ntot;
-    op_count.mult += ntot;
+    ctx->op_count.put += cache->nlines*cache->line_size;
+    ctx->op_count.sum += ntot;
+    ctx->op_count.mult += ntot;
 
   }
 
@@ -2812,9 +2811,9 @@ FastMat2 & FastMat2::ctr(const FastMat2 & A,const int m,INT_VAR_ARGS_ND) {
       if (!inc(findx,ndimsf)) break;
     }
     int ntot = cache->nlines*cache->line_size;
-    op_count.get += ntot;
-    op_count.put += cache->nlines;
-    op_count.sum += ntot;
+    ctx->op_count.get += ntot;
+    ctx->op_count.put += cache->nlines;
+    ctx->op_count.sum += ntot;
   }
 
   // Perform computations using cached addresses
@@ -2914,8 +2913,8 @@ FastMat2 & FastMat2::diag(FastMat2 & A,const int m,INT_VAR_ARGS_ND) {
       jj++;
       if (!inc(bindx,fdims)) break;
     }
-    op_count.get += nelems;
-    op_count.put += nelems;
+    ctx->op_count.get += nelems;
+    ctx->op_count.put += nelems;
   }
 
   // Perform computations using cached addresses
@@ -2958,7 +2957,7 @@ double FastMat2::get(INT_VAR_ARGS_ND) const {
 #endif
 
     cache->from = location(indx);
-    op_count.get += 1;
+    ctx->op_count.get += 1;
   }
 
   if (!ctx->use_cache) delete cache;
@@ -2979,8 +2978,8 @@ FastMat2::operator double() const {
     Indx fdims;
     get_dims(fdims);
     assert(fdims.size()==0);
-    op_count.get += 1;
-    op_count.put += 1;
+    ctx->op_count.get += 1;
+    ctx->op_count.put += 1;
   }
 
   if (!ctx->use_cache) delete cache;
@@ -3099,9 +3098,9 @@ FastMat2 & FastMat2::kron(const FastMat2 & A,const FastMat2 & B) {
       if (!inc(Aindx,Adims)) break;
     }
 
-    op_count.get += nelems;
-    op_count.put += nelems;
-    op_count.mult += nelems;
+    ctx->op_count.get += nelems;
+    ctx->op_count.put += nelems;
+    ctx->op_count.mult += nelems;
   }
 
   // Perform computations using cached addresses
@@ -3150,8 +3149,8 @@ FastMat2 & FastMat2::eye(const double a) {
 
     cache->pto = &*cache->to_elems.begin();
 
-    op_count.put += n;
-    op_count.mult += 1;
+    ctx->op_count.put += n;
+    ctx->op_count.mult += 1;
 ;
   }
 
@@ -3340,7 +3339,6 @@ cross_cache::~cross_cache() {
   delete[] c;
 }
 
-#endif
 // DON'T EDIT MANUALLY THIS FILE !!!!!!
 // This files automatically generated by ePerl from 
 // the corresponding file (omitting the _eperl) name.
