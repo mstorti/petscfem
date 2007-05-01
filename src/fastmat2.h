@@ -266,6 +266,8 @@ public:
   public:
     /// Root of cache lists
     FastMatCacheList *cache_list_root;
+    /// Root list of caches for this ctx
+    FastMatCacheList cache_list_internal;
     /// Current list of caches
     FastMatCacheList *cache_list;
     /// Cache-list stack
@@ -295,6 +297,7 @@ public:
     void reset_cache(void);
     void print_count_statistics();
     void activate_cache(FastMatCacheList *cache_list_);
+    void init();
     void void_cache(void);
     FastMatCache *step();
     friend class FastMat2;

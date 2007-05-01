@@ -634,22 +634,58 @@ FastMat2 & FastMat2::prod(const FastMat2 & A,const FastMat2 & B,const int m,INT_
   }
 
   // Perform computations using cached addresses
-  int nlines = cache->nlines;
+  int 
+    nlines = cache->nlines,
+    mm=cache->line_size;
   double **pa,**pb,**pa_end,sum,*paa,*pbb,*paa_end;
   for (int j=0; j<nlines; j++) {
     LineCache *lc = cache->line_cache_start+j;
     pa = lc->starta;
     pb = lc->startb;
+    int
+      &inca = lc->inca,
+      &incb = lc->incb;
     if (lc->linear) {
-      paa = *pa;
-      pbb = *pb;
-      paa_end = paa + lc->inca * cache->line_size;
-      sum=0.;
-      while (paa<paa_end) {
-	sum += (*paa)*(*pbb);
-	paa += lc->inca;
-	pbb += lc->incb;
-      }
+#if 1
+        sum=0.;
+        paa = *pa;
+        pbb = *pb;
+//         if (inca==1 && incb==1) {
+//           for (int k=0; k<mm; k++) {
+//             sum += (*paa)*(*pbb);
+//             paa++; pbb++;
+//           }
+//         } else 
+        if (inca==1) {
+          for (int k=0; k<mm; k++) {
+            sum += (*paa)*(*pbb);
+            paa++;
+            pbb += incb;
+          }
+        } else if (incb==1) {
+          for (int k=0; k<mm; k++) {
+            sum += (*paa)*(*pbb);
+            paa += inca;
+            pbb++;
+          }
+        } else {
+          for (int k=0; k<mm; k++) {
+            sum += (*paa)*(*pbb);
+            paa += inca;
+            pbb += incb;
+          }
+        }
+#else
+        paa = *pa;
+        pbb = *pb;
+        paa_end = paa + lc->inca * cache->line_size;
+        sum=0.;
+        while (paa<paa_end) {
+          sum += (*paa)*(*pbb);
+          paa += lc->inca;
+          pbb += lc->incb;
+        }
+#endif
     } else {
       pa_end = pa + cache->line_size;
       sum=0.;

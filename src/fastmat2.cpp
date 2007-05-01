@@ -326,6 +326,11 @@ void FastMat2::CacheCtx
 }
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+void FastMat2::CacheCtx::init() {
+  activate_cache(&cache_list_internal);
+}
+
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 void purge_cache_list(FastMatCacheList *cache_list) {
   FastMatCache **cache_list_begin,*cache;
   if (!cache_list) return;
