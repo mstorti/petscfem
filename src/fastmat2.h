@@ -288,6 +288,7 @@ public:
     void deactivate_cache();
     void branch();
     void choose(const int j);
+    void leave(void);
     friend class FastMat2;
     CacheCtx();
   };

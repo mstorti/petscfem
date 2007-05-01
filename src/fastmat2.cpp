@@ -158,9 +158,12 @@ void FastMat2::CacheCtx::choose(const int j) {
 
 }
 
-#if 0
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
-void FastMat2::leave(void) {
+void FastMat2::leave() {
+  global_cache_ctx.leave();
+}
+
+void FastMat2::CacheCtx::leave() {
 
   if (!use_cache) return;
   FastMatCachePosition *last_pos;
@@ -182,6 +185,7 @@ void FastMat2::leave(void) {
   
 }
 
+#if 0
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 void FastMat2::resync_was_cached(void) {
   if (!use_cache) return;
