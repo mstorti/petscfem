@@ -185,6 +185,12 @@ int adaptor::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
       alpha = glob_param->alpha;
     } 
   }
+
+  if (comp_mat_res) {
+    rec_Dt = 1./glob_param->Dt;
+    if (glob_param->steady) rec_Dt=0.;
+  }
+
   // allocate local vecs
   nen = nel*ndof;
   FastMat2 veccontr(2,nel,ndof),veccontrp(2,nel,ndof),
