@@ -12254,6 +12254,24 @@ CORRO TODOS LOS TESTS: CON O-C++.
 > Start section: "All tests"
 > Summary: "All tests" -- OK: 156.  Not OK: 13. Couldn't open: 8. Total: 177
 
+%=== Sat May  5 11:38:50 2007 mstorti@prandtl
+%
+%-- 11:38:50 -- mstorti-v6-root-2-g9d3f9e6 -----: Some warnings that remain
+ns.cpp: In function 'int main(int, char**)':
+ns.cpp:58: warning: 'A_prj' may be used uninitialized in this function
+ns.cpp:58: warning: 'A_poi' may be used uninitialized in this function
+ns.cpp:58: warning: 'A_mom' may be used uninitialized in this function
+ns.cpp:58: warning: 'A_tet_c' may be used uninitialized in this function
+ns.cpp:58: warning: 'A_tet' may be used uninitialized in this function
+ns.cpp:566: warning: 'normres_external' may be used uninitialized in this function
+%
+%-- 11:41:17 -- mstorti-v6-root-2-g9d3f9e6 -----: 
+mmoveopt2.cpp: In member function 'virtual void mesh_move_opt2::element_connector(const FastMat2&, const FastMat2&, const FastMat2&, FastMat2&, FastMat2&)':
+mmoveopt2.cpp:117: warning: 'Vref' may be used uninitialized in this function
+mmoveopt2.cpp:117: warning: 'Sl' may be used uninitialized in this function
+mmoveopt2.cpp:117: warning: 'V' may be used uninitialized in this function
+mmoveopt2.cpp:117: warning: 'C' may be used uninitialized in this function
+
 # Current line ===========  %
 # Local Variables: $
 # eval: (my-notes-mode) $

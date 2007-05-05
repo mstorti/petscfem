@@ -55,7 +55,8 @@ int main(int argc,char **args) {
 
   Vec x, xp, dx, xold, dx_step, res; // approx solution, RHS, residual
   PetscViewer matlab;
-  PFMat *A_tet, *A_tet_c, *A_mom, *A_poi, *A_prj;;	// linear system matrix 
+  PFMat *A_tet=NULL, *A_tet_c=NULL, 
+    *A_mom=NULL, *A_poi=NULL, *A_prj=NULL;	// linear system matrix 
   double  norm, *sol, scal;	// norm of solution error
   int     ierr, i, n = 10, size, node,
     jdof, k, kk, nfixa,
@@ -563,7 +564,7 @@ int main(int argc,char **args) {
       //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
       // TET ALGORITHM
       
-      double normres_external;
+      double normres_external=NAN;
       for (int inwt=0; inwt<nnwt; inwt++) {
 
 	glob_param.inwt = inwt;
