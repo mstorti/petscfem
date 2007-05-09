@@ -181,6 +181,8 @@ int Dofmap::mult(Mat A,Vec x,Vec y) { // y =A*x
   assert(!ierr);
   ierr = VecGetArray(y,&yp);
   assert(!ierr);
+
+  w.resize(nrow);
   
   for (int j=0; j<nrow; j++) w[j]=0.0;
   qxpy(&w[0],xp,1.0);
