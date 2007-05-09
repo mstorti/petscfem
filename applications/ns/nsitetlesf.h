@@ -7,6 +7,7 @@
 //-------<*>-------<*>-------<*>-------<*>-------<*>------- 
 class nsi_tet_les_full : public ns_volume_element { 
 public: 
+  ASK_FUNCTION;
   ASSEMBLE_FUNCTION;
 };
 

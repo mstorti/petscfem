@@ -25,6 +25,11 @@ static int
 get_geometry_default(int ndim, int nel, string& geometry)
 {
   switch (ndim) {
+  case  1: 
+    switch (nel) {
+    case  2: geometry = string("cartesian1d"); break;
+    default: return -1;
+    } break;
   case  2: 
     switch (nel) {
     case  3: geometry = string("triangle");    break;
@@ -51,10 +56,28 @@ get_npgauss_default(const string& geometry, int &npg)
   else if (geometry  == "prismatic")   npg = 6;
   else if (geometry  == "triangle")    npg = 3;
   else if (geometry  == "cartesian2d") npg = 4;
+  else if (geometry  == "cartesian1d") npg = 2;
   return 0;
 }
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+#undef __FUNC__
+#define __FUNC__ "nsi_tet_les_full::ask(char *,int &)"
+int nsi_tet_les_full::
+ask(const char *jobinfo,int &skip_elemset) {
+  skip_elemset = 1;
+  // default
+  DONT_SKIP_JOBINFO(comp_mat);
+  DONT_SKIP_JOBINFO(comp_res);
+  DONT_SKIP_JOBINFO(comp_mat_res);
+  DONT_SKIP_JOBINFO(get_nearest_wall_element);
+  // special
+  DONT_SKIP_JOBINFO(comp_mat_mass);
+  DONT_SKIP_JOBINFO(comp_mat_advec);
+  DONT_SKIP_JOBINFO(comp_mat_poisson);
+  return 0;
+}
+
 #undef __FUNC__
 #define __FUNC__ "nsi_tet_les_full::assemble"
 int nsi_tet_les_full::
@@ -62,11 +85,29 @@ assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
 	 Dofmap *dofmap,const char *jobinfo,int myrank,
 	 int el_start,int el_last,int iter_mode,
 	 const TimeData *time_) {
-
+  // default
   GET_JOBINFO_FLAG(comp_mat);
-  GET_JOBINFO_FLAG(comp_mat_res);
   GET_JOBINFO_FLAG(comp_res);
+  GET_JOBINFO_FLAG(comp_mat_res);
   GET_JOBINFO_FLAG(get_nearest_wall_element);
+  // special
+  GET_JOBINFO_FLAG(comp_mat_mass);
+  GET_JOBINFO_FLAG(comp_mat_advec);
+  GET_JOBINFO_FLAG(comp_mat_poisson);
+
+  int update_matrix=0;
+  if(comp_mat_mass) {
+    comp_res = 1;
+    update_matrix = 1;
+  }
+  if(comp_mat_advec) {
+    comp_res = 1;
+    update_matrix = 1;
+  }
+  if(comp_mat_poisson) {
+    comp_res = 1;
+    update_matrix = 1;
+  }
 
   // Essentially treat comp_res as comp_mat_res but
   // with the side effect of update_jacobian=1
@@ -153,7 +194,10 @@ assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
     locst = arg_data_v[ja++].locst;
     locst2 = arg_data_v[ja++].locst;
     retval = arg_data_v[ja++].retval;
-    if (update_jacobian) retvalmat = arg_data_v[ja++].retval;
+    if (update_jacobian) 
+      retvalmat = arg_data_v[ja++].retval;
+    else if (update_matrix)   
+      retvalmat = arg_data_v[ja++].retval;
     hmin = &*(arg_data_v[ja++].vector_assoc)->begin();
     ja_hmin=ja;
     glob_param = (GlobParam *)(arg_data_v[ja++].user_data);
@@ -162,11 +206,15 @@ assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
     wall_data = (WallData *)arg_data_v[ja++].user_data;
   } 
 
+  //o Use Stokes form of NS equations. 
+  SGETOPTDEF(int,stokes_form,0);
+  //o Explicit treatement of advection velocity. 
+  SGETOPTDEF(int,oseen_form,0);
+  //o Use Laplace form of NS equations. 
+  SGETOPTDEF(int,laplace_form,0);
   //o Use a weak form for the gradient of pressure term.
   SGETOPTDEF(int,weak_form,1);
 
-  //o Add shock-capturing term.
-  SGETOPTDEF(double,shock_capturing_factor,0);
   //o Add pressure controlling term. 
   SGETOPTDEF(double,pressure_control_coef,0.);
   assert(pressure_control_coef>=0.);
@@ -189,7 +237,7 @@ assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
   int kdof;
   FastMat2 veccontr(2,nel,ndof),xloc(2,nel,ndim),locstate(2,nel,ndof), 
     locstate2(2,nel,ndof),xpg,G_body(1,ndim),
-    vrel;
+    vrel(1,ndim);
 
   if (ndof != ndim+1) {
     PetscPrintf(PETSC_COMM_WORLD,"ndof != ndim+1\n"); CHKERRA(1);
@@ -231,26 +279,33 @@ assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
   SGETOPTDEF(int,update_wall_data,0);
   assert(!((A_van_Driest>0)&&(update_wall_data==0)));
 
-  //o Explicit treatement of advection velocity. 
-  SGETOPTDEF(int,use_explicit_advection,0);
+  //o Add LSIC stabilization
+  SGETOPTDEF(int,use_lsic,0);
   //o Explicit treatement of SUPG and PSPG stabilization terms. 
   SGETOPTDEF(int,use_explicit_upwind,0);
-  if (use_explicit_advection) use_explicit_upwind = 1;
+  if (oseen_form) use_explicit_upwind = 1;
 
-  //o Scale the SUPG and PSPG stabilization term. 
-  SGETOPTDEF(double,tau_fac,1.);  // Scale upwind
-  //o Scales the PSPG stabilization term. 
-  SGETOPTDEF(double,tau_supg_fac,1.);  // Scale upwind
-  SGETOPTDEF(double,tau_pspg_fac,1.);  // Scale upwind
   //o Adjust the stability parameters, taking into account
   // the time step. If the  #steady#  option is in effect,
   // (which is equivalent to $\Dt=\infty$) then
   //  #temporal_stability_factor#  is set to 0.
   SGETOPTDEF(double,temporal_stability_factor,0.);  // Scale upwind
   if (comp_mat_res && glob_param->steady) temporal_stability_factor=0;
+
+  //o Scale the all the stabilization term. 
+  SGETOPTDEF(double,tau_fac,1.);  // Scale upwind
+  //o Scales the SUPG stabilization term. 
+  SGETOPTDEF(double,tau_supg_fac,1.);  // Scale upwind
+  //o Scales the PSPG stabilization term. 
+  SGETOPTDEF(double,tau_pspg_fac,1.);  // Scale upwind
+  //o Scales the LSIC stabilization term. 
+  SGETOPTDEF(double,tau_lsic_fac,1.);  // Scale upwind
   //o Add to the  #tau_pspg#  term, so that you can stabilize with a term
   //  independently of $h$. (Mainly for debugging purposes). 
+
+  SGETOPTDEF(double,additional_tau_supg,0.);  // Scale upwind
   SGETOPTDEF(double,additional_tau_pspg,0.);  // Scale upwind
+  SGETOPTDEF(double,additional_tau_lsic,0.);  // Scale upwind
 
   //o Scale the residual term. 
   SGETOPTDEF(double,residual_factor,1.);
@@ -275,11 +330,13 @@ assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
   int nprops=iprop;
   
   // Definiciones para descargar el lazo interno
-  double detJaco, UU, u2, Peclet, psi, tau_supg, tau_pspg, div_u_star,
-    p_star,wpgdet,velmod,tol,h_supg,fz,delta_supg,Uh;
+  double detJaco, UU, u2, Peclet, psi, 
+    tau_supg, tau_pspg, tau_lsic,
+    div_u_star,p_star,wpgdet,velmod,tol,h_supg,fz,Uh;
 
   FastMat2 P_supg, W_supg, W_supg_t, dmatw,
     P_pspg(2,ndim,nel),dshapex(2,ndim,nel);
+  FMatrix respert;
 
   int elem, ipg,node, jdim, kloc,lloc,ldof;
 
@@ -294,7 +351,10 @@ assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
     wall_coords(ndim),dist_to_wall,tmp16,tmp162,tmp17,tmp18,tmp19,
     tmp23,tmp24,tmp25,
     tmp26,tmp27,tmp28,tmp29,tmp30;
-  FastMat2 tmp20(2,nel,nel),tmp21,vel_supg;
+  FastMat2 tmp20(2,nel,nel),tmp21,vel_supg(1,ndim);
+
+  double pdyn; FMatrix grad_pdyn(ndim); 
+  FMatrix tmp40,tmp41,tmp42,tmp43,tmp44,tmp45;
 
   double tmp12;
   double tsf = temporal_stability_factor;
@@ -434,7 +494,10 @@ assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
       // fin modificado x Beto
 
       double h_pspg,Delta;
-      if (ndim==2) {
+      if (ndim==1) {
+	h_pspg = Delta = Area;
+	//PFEMERRQ("Only dimensions 2 and 3 allowed for this element.\n");
+      } else if (ndim==2) {
 	h_pspg = sqrt(4.*Area/pi);
 	Delta = sqrt(Area);
       } else if (ndim==3 && axi==0) {
@@ -476,7 +539,6 @@ assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
 
 	// state variables and gradient
 	u.prod(SHAPE,ucols,-1,-1,1);
-
 	p_star = double(tmp8.prod(SHAPE,pcol_star,-1,-1));
 	u_star.prod(SHAPE,ucols_star,-1,-1,1);
 
@@ -484,10 +546,16 @@ assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
 	grad_u_star.prod(dshapex,ucols_star,1,-1,-1,2);
 	grad_p_star.prod(dshapex,pcol_star,1,-1,-1);
 
-	strain_rate.set(grad_u_star);
-	grad_u_star.t();
-	strain_rate.add(grad_u_star).scale(0.5);
-	grad_u_star.rs();
+	if (laplace_form) {
+	  strain_rate.set(grad_u_star);
+	  strain_rate.scale(0.5);
+	} else {
+	  strain_rate.set(grad_u_star);
+	  grad_u_star.t();
+	  strain_rate.add(grad_u_star);
+	  grad_u_star.rs();
+	  strain_rate.scale(0.5);
+	}
 
 	v_mesh.set(0.0);
 	if (ALE_flag) {
@@ -515,21 +583,18 @@ assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
 	if (print_van_Driest && (k % 1==0)) 
 	  printf("element %d , y: %f,van_D: %f, nu_eff: %f\n",
 		 ielh, ywall, van_D,nu_eff);
-#if 0
+#if 1
+	// XXX tau_supg and tau_pspg computed in u^n
+	vel_supg.set(u).rest(v_mesh).rs();
+#else
 	if (use_explicit_upwind)
 	  vel_supg.set(u).rest(v_mesh).rs();
 	else
 	  vel_supg.set(u_star).rest(v_mesh).rs();
-#else
-	vel_supg.set(u).rest(v_mesh).rs();
 #endif
-        if (axi>0) {
-          vel_supg.setel(0.,axi);
-        }
-
-	u2 = vel_supg.sum_square_all();
+        if (axi>0) { vel_supg.setel(0.,axi); }
 	
-#ifdef STANDARD_UPWIND
+	u2 = vel_supg.sum_square_all();
 	
 	velmod = sqrt(u2);
         tol=1.0e-16;
@@ -546,83 +611,78 @@ assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
         }
 	FastMat2::leave();
 
-	Peclet = velmod * h_supg / (2. * nu_eff);
-
-        tau_supg = tsf*SQ(2.*rec_Dt)+SQ(2.*velmod/h_supg)
-	  +9.*SQ(4.*nu_eff/SQ(h_supg));
+        tau_supg = 
+	  tsf*SQ(2.*rec_Dt) +
+	  SQ(2.*velmod/h_supg) +
+	  9.*SQ(4.*nu_eff/SQ(h_supg));
         tau_supg = 1./sqrt(tau_supg);
 
-        tau_pspg = tsf*SQ(2.*rec_Dt)+SQ(2.*velmod/h_pspg)
-	  +9.*SQ(4.*nu_eff/SQ(h_pspg));
-
+        tau_pspg = 
+	  tsf*SQ(2.*rec_Dt) +
+	  SQ(2.*velmod/h_pspg) +
+	  9.*SQ(4.*nu_eff/SQ(h_pspg));
         tau_pspg = 1./sqrt(tau_pspg);
 
-        fz = (Peclet < 3. ? Peclet/3. : 1.);
-        delta_supg = 0.5*h_supg*velmod*fz;
+	Peclet = velmod * h_supg / (2. * nu_eff);
+        fz = (Peclet < 3.) ? Peclet/3. : 1.;
+        tau_lsic = 0.5*velmod*h_supg*fz;
 	
-	if (tau_fac != 1.) {
-	  tau_pspg *= tau_fac;
-	  tau_supg *= tau_fac;
+	if (stokes_form) { 
+	  tau_supg = 0.0;
+	  tau_pspg = 0.0;
+	  tau_pspg += tsf*SQ(2.*rec_Dt);
+	  tau_pspg += 9.*SQ(4.*nu_eff/SQ(h_pspg));
+	  tau_pspg = 1./sqrt(tau_pspg);
 	}
+
+	tau_pspg *= tau_fac;
+	tau_supg *= tau_fac;
+	tau_lsic *= tau_fac;
+
 	tau_pspg *= tau_supg_fac;
 	tau_pspg *= tau_pspg_fac;
+	tau_lsic *= tau_lsic_fac;
 
-#else
-	assert(0); // esto esta desactivado... 
-	if(u2<=1e-6*(2. * Uh * nu_eff)) {
-	  Peclet=0.;
-	  psi=0.;
-	  tau_supg=0.;
-	} else {
-	  Peclet = u2 / (2. * Uh * nu_eff);
-	  psi = 1./tanh(Peclet)-1/Peclet;
-	  tau_supg = psi/(2.*Uh);
-	}
-
-	// PSPG parameter for the stabilization of the
-	// incompressibility conditions
-	tau_pspg = h_pspg*h_pspg/ 2. / ( 6.*nu_eff + sqrt(u2)*h_pspg ) ;
-	PFEMERRQ("Not implemented yet shock capturing with standard upwind\n");
-	double delta_supg=1e-8;
-#endif
+	tau_supg += additional_tau_supg;
 	tau_pspg += additional_tau_pspg;
-	
-	delta_supg *= shock_capturing_factor;
+	tau_lsic += additional_tau_lsic;
 
+#if 1
+	// XXX tau_supg and tau_pspg computed in u^n
 	if (use_explicit_upwind)
 	  vel_supg.set(u).rest(v_mesh).rs();
 	else
 	  vel_supg.set(u_star).rest(v_mesh).rs();
-	if (axi>0) {
-          vel_supg.setel(0.,axi);
-        }
+	if (axi>0) { vel_supg.setel(0.,axi); }
+#endif
+
+	if (stokes_form) { 
+	  vrel.set(0.); 
+	  vel_supg.set(0.);
+	} else if (oseen_form) { 
+	  vrel.set(u).rest(v_mesh).rs(); 
+	} else { 
+	  vrel.set(u_star).rest(v_mesh).rs(); 
+	}
 	
 	// P_supg es un vector fila
-	//	P_supg.prod(u,dshapex,-1,-1,1).scale(tau_supg);
 	P_supg.prod(vel_supg,dshapex,-1,-1,1).scale(tau_supg);
 
-	// Weight function 
+	// Weight function, W = N + P_supg
 	W_supg.set(P_supg).add(SHAPE);
 
 	// Pressure stabilizing term
 	P_pspg.set(dshapex).scale(tau_pspg/rho);  //debug:=
 
 	// implicit version - General Trapezoidal rule - parameter alpha
-	if (use_explicit_advection)
-	  vrel.set(u).rest(v_mesh).rs();
-	else
-	  vrel.set(u_star).rest(v_mesh).rs();
-	dmatu.prod(vrel,grad_u_star,-1,-1,1);
-	
 	du.set(u_star).rest(u);
+	dmatu.prod(vrel,grad_u_star,-1,-1,1);
 	dmatu.axpy(du,rec_Dt/alpha).rest(G_body);
 	
-	div_u_star = double(tmp10.prod(dshapex,ucols_star,-1,-2,-2,-1));
-
 	// Galerkin - momentum
 	// resmom tiene que tener nel*ndim
 	dresmom.t().prod(dmatu,SHAPE,1,2).rs();
-	resmom.axpy(dresmom,-wpgdet * rho);
+	resmom.axpy(dresmom,-rho*wpgdet);
 
 	if (weak_form) {
 	  tmp1.set(strain_rate).scale(2*nu_eff).axpy(eye,-p_star);
@@ -634,60 +694,86 @@ assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
 	  resmom.axpy(tmp11,-wpgdet);
 	}
 
-	// SUPG perturbation - momentum
-	tmp3.set(grad_p_star).axpy(dmatu,rho);
-	tmp4.prod(P_supg,tmp3,1,2);
-	resmom.axpy(tmp4,-wpgdet);
+	// Galerkin - continuity
+	div_u_star = double(tmp10.prod(dshapex,ucols_star,-1,-2,-2,-1));
+	rescont.axpy(SHAPE,wpgdet*div_u_star);
 
-        // shock capturing term - momentum
-	if (delta_supg != 0.) {
-	  resmom.axpy(dshapex.t(),-wpgdet*delta_supg*rho*div_u_star);
+	// SUPG/PSPG perturbation - residual
+	tmp3.set(grad_p_star).axpy(dmatu,rho);
+	respert.set(tmp3).scale(wpgdet);
+
+	// SUPG perturbation - momentum
+	tmp4.prod(P_supg,respert,1,2);
+	resmom.rest(tmp4);
+
+	// PSPG perturbation - continuity
+	tmp5.prod(P_pspg,respert,-1,1,-1);
+	rescont.add(tmp5);
+	
+        // LSIC perturbation - momentum
+	if (use_lsic) {
+	  resmom.axpy(dshapex.t(),-tau_lsic*rho*div_u_star*wpgdet);
 	  dshapex.rs();
 	}
 
-	// Galerkin - continuity
-	rescont.axpy(SHAPE,wpgdet*div_u_star);
-
-	// PSPG perturbation - continuity
-	tmp5.prod(P_pspg,tmp3,-1,1,-1);
-	rescont.axpy(tmp5,wpgdet);
-	
 	// Penalization term?
 	if (pressure_control_coef) {
-	  double p_star = tmp21.prod(SHAPE,pcol_star,-1,-1).get();
+	  //double p_star = tmp21.prod(SHAPE,pcol_star,-1,-1).get();
 	  rescont.axpy(SHAPE,pressure_control_coef*p_star*wpgdet);
 	}
+
+#if 0
+#define DYNAMIC_PRESSURE
+#endif
+#ifdef DYNAMIC_PRESSURE
+	pdyn = 0.5 * rho * double(tmp15.prod(u_star,u_star,-1,-1));
+	grad_pdyn.prod(grad_u_star,u_star,1,-1,-1).scale(rho);
+	
+	resmom.axpy(dshapex.t(),-wpgdet*pdyn);
+	dshapex.rs();
+	
+	tmp4.prod(P_supg,grad_pdyn,1,2);
+	resmom.axpy(tmp4,+wpgdet);
+	
+	tmp5.prod(P_pspg,grad_pdyn,-1,1,-1);
+	rescont.axpy(tmp5,-wpgdet);
+	
+	respert.axpy(grad_pdyn,-wpgdet);
+#endif
 
 	if (update_jacobian) {
 
 	  // temporal part + convective (Galerkin)
 	  massm.prod(vrel,dshapex,-1,-1,1);
 	  massm.axpy(SHAPE,rec_Dt/alpha);
-	  matlocmom.prod(W_supg,massm,1,2).scale(rho);
+	  matlocmom.prod(W_supg,massm,1,2).scale(rho*wpgdet);
 	  
 	  // diffusive part
 	  tmp7.prod(dshapex,dshapex,-1,1,-1,2);
-	  matlocmom.axpy(tmp7,nu_eff);
-	  
+	  matlocmom.axpy(tmp7,nu_eff*wpgdet);
+
 	  // dmatw =  rho * ((1/Dt)*SHAPE + u * dshapex);
 	  dmatw.set(massm).scale(rho);
 
-#if 1
-	  for (int iloc=1; iloc<=nel; iloc++) {
-	    for (int jloc=1; jloc<=nel; jloc++) {
-	      double c = wpgdet*matlocmom.get(iloc,jloc);
-	      for (int ii=1; ii<=ndim; ii++) {
-		// matloc.ir(1,iloc).ir(2,ii).ir(3,jloc).ir(4,ii);
-		matlocf.addel(c,iloc,ii,jloc,ii);
-	      }
-	    }
-	  }
-#else
 	  for (int ii=1; ii<=ndim; ii++) {
 	    matlocf.ir(2,ii).ir(4,ii)
-	      .axpy(matlocmom, wpgdet).rs();
+	      .add(matlocmom).rs();
 	  }
-#endif
+
+	  if (!laplace_form) {
+	    tmp19.set(dshapex).scale(nu_eff*wpgdet);
+	    tmp18.prod(dshapex,tmp19,2,3,4,1);
+	    matlocf.is(2,1,ndim).is(4,1,ndim)
+	      .add(tmp18).rs();
+	  }
+
+	  if (use_lsic) {
+	    tmp19.set(dshapex).scale(tau_lsic*rho*wpgdet);
+	    tmp18.prod(dshapex,tmp19,2,1,4,3);
+	    matlocf.is(2,1,ndim).is(4,1,ndim)
+	      .add(tmp18).rs();
+	  }
+
 	  if (weak_form) {
 	    tmp16.prod(P_supg,dshapex,1,2,3).scale(wpgdet);
 	    tmp162.prod(dshapex,SHAPE,2,1,3).scale(-wpgdet);
@@ -706,17 +792,6 @@ assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
 	  matlocf.rest(tmp17);
 	  matlocf.rs();
 
-	  tmp19.set(dshapex).scale(nu_eff*wpgdet);
-	  tmp18.prod(dshapex,tmp19,2,3,4,1);
-	  matlocf.is(2,1,ndim).is(4,1,ndim)
-	    .add(tmp18).rs();
-	  if (delta_supg != 0.) {
-	    tmp19.set(dshapex).scale(delta_supg*rho*wpgdet);
-	    tmp18.prod(dshapex,tmp19,2,1,4,3);
-	    matlocf.is(2,1,ndim).is(4,1,ndim)
-	      .add(tmp18).rs();
-	  }
-
 	  tmp13.prod(P_pspg,dshapex,-1,1,-1,2);
 	  matlocf.ir(2,ndof).ir(4,ndof)
 	    .axpy(tmp13,-wpgdet).rs();
@@ -728,9 +803,28 @@ assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
 	      .axpy(tmp13,-wpgdet).rs();
 	  }
 
-          if (use_full_jacobian) {
+#ifdef DYNAMIC_PRESSURE
+	  tmp40.prod(SHAPE,dshapex,1,3,2).scale(wpgdet*rho);
+	  tmp41.prod(tmp40,u_star,3,1,2,4);
+	  matlocf.is(2,1,ndim).is(4,1,ndim)
+	    .add(tmp41).rs();
+
+	  tmp42.prod(dshapex,u_star,1,2,3); 
+	  tmp43.prod(grad_u_star,SHAPE,1,3,2);
+	  tmp43.add(tmp42);
+	  
+	  tmp44.prod(P_supg,tmp43,1,2,3,4).scale(-wpgdet*rho);
+	  matlocf.is(2,1,ndim).is(4,1,ndim)
+	    .add(tmp44).rs();
+
+	  tmp45.prod(P_pspg,tmp43,-1,1,-1,2,3).scale(wpgdet*rho);
+	  matlocf.ir(2,ndof).is(4,1,ndim)
+	    .add(tmp45).rs();
+#endif
+
+	  if (use_full_jacobian) {
 	    // Jacobian term for advective term
-	    if (!use_explicit_advection) {
+	    if (!oseen_form && !stokes_form) {
 	      tmp23.prod(SHAPE,grad_u_star,2,3,1);
 	      // W * N  \dep u/ \dep x
 	      tmp24.prod(W_supg,tmp23,1,2,3,4);
@@ -742,22 +836,105 @@ assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
 		.axpy(tmp25,-rho*wpgdet).rs();
 	    }
             // Jacobian term for SUPG perturbation
-	    if (!use_explicit_upwind) {
-	      tmp28.set(grad_p_star).axpy(dmatu,rho).scale(wpgdet);
-#if 0
-	      double der_tau_supg = 0.0;
-	      tmp26.prod(vel_supg,vel_supg,1,2).
-		scale(der_tau_supg/(velmod?velmod:1.0));
-	      tmp26.axpy(eye,tau_supg);
-#else
+	    if (!use_explicit_upwind && !stokes_form) {
+#if 1         // XXX tau_supg computed in u^n
 	      tmp26.set(eye).scale(tau_supg);
+#else         /* XXX we should try to compute der_tau_supg*/ 
+	      double der_tau_supg = 0.0;
+	      double mod_vel_supg = velmod?velmod:1.0;
+	      tmp26.prod(vel_supg,vel_supg,1,2)
+		.scale(der_tau_supg/mod_vel_supg);
+	      tmp26.axpy(eye,tau_supg);
 #endif
 	      tmp27.prod(tmp26,dshapex,1,-1,-1,2);
+	      tmp28.set(respert);
 	      tmp29.prod(tmp27,tmp28,1,2,3);
 	      tmp30.prod(SHAPE,tmp29,3,4,1,2);
 	      matlocf.is(2,1,ndim).is(4,1,ndim)
 	      	.add(tmp30).rs();
 	    }
+	  }
+	}
+	
+	if (comp_mat_mass) {
+
+	  tmp23.set(SHAPE).scale(wpgdet);
+	  tmp24.prod(SHAPE,tmp23,1,2);
+	  matlocmom.set(tmp24);
+
+	  double tau = 1./3.*SQ(h_pspg)/4.;
+	  tmp25.set(dshapex).scale(tau*wpgdet);
+	  tmp26.prod(dshapex,tmp25,-1,1,-1,2);
+	  matlocmom.add(tmp26);
+
+	  for (int ii=1; ii<=ndof; ii++) {
+	    matlocf.ir(2,ii).ir(4,ii)
+	      .add(matlocmom).rs();
+	  }
+	}
+
+	if (comp_mat_advec) {
+#if 1
+	  massm.prod(vrel,dshapex,-1,-1,1);
+	  matlocmom.prod(SHAPE,massm,1,2).scale(rho*wpgdet);
+
+	  for (int ii=1; ii<=ndof; ii++) {
+	    matlocf.ir(2,ii).ir(4,ii)
+	      .add(matlocmom).rs();
+	  }
+
+#elif 0
+	  massm.prod(vrel,dshapex,-1,-1,1);
+	  massm.axpy(SHAPE,rec_Dt/alpha).scale(rho*wpgdet);
+	  matlocmom.prod(SHAPE,massm,1,2);
+
+	  tmp7.prod(dshapex,dshapex,-1,1,-1,2);
+	  matlocmom.axpy(tmp7,nu_eff*wpgdet);
+	  
+	  for (int ii=1; ii<=ndof; ii++) {
+	    matlocf.ir(2,ii).ir(4,ii)
+	      .add(matlocmom).rs();
+	  }
+#elif 0
+	  massm.prod(vrel,dshapex,-1,-1,1);
+	  matlocmom.prod(SHAPE,massm,1,2).scale(rho*wpgdet);
+
+	  //double qqq = div_u_star;//grad_p_star.sum_all();
+	  //tmp25.set(SHAPE).scale(qqq).scale(rho*wpgdet);
+	  //tmp26.prod(SHAPE,tmp25,1,2);
+	  //matlocmom.add(tmp26);
+	  
+	  for (int ii=1; ii<=ndof; ii++) {
+	    matlocf.ir(2,ii).ir(4,ii)
+	      .add(matlocmom).rs();
+	  }
+
+	  tmp23.prod(grad_u_star,dshapex,1,-1,-1,2);
+	  tmp24.prod(W_supg,tmp23,1,3,2);
+
+	  //tmp23.prod(SHAPE,grad_u_star,2,3,1);
+	  //tmp24.prod(dshapex,tmp23,-1,1,-1,2,3);
+	  
+	  matlocf.ir(2,ndof).is(4,1,ndim)
+	    .axpy(tmp24,rho*wpgdet).rs();
+#endif
+	}
+
+	if (comp_mat_poisson) {
+
+	  tmp23.set(dshapex).scale(wpgdet);
+	  tmp24.prod(dshapex,tmp23,-1,1,-1,2);
+	  matlocmom.set(tmp24);
+
+	  double tau = (rec_Dt ? 1/(2*rec_Dt) : 0);
+	  tmp25.set(SHAPE).scale(tau*wpgdet);
+	  tmp26.prod(SHAPE,tmp25,1,2);
+	  matlocmom.add(tmp26);
+
+	  
+	  for (int ii=1; ii<=ndof; ii++) {
+	    matlocf.ir(2,ii).ir(4,ii)
+	      .add(matlocmom).rs();
 	  }
 	}
 
@@ -787,6 +964,10 @@ assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
       if (update_jacobian) {
 	if (jacobian_factor!=1.)
 	  matlocf.scale(jacobian_factor);
+	matlocf.export_vals(&(RETVALMAT(ielh,0,0,0,0)));
+      }
+
+      if (update_matrix) {
 	matlocf.export_vals(&(RETVALMAT(ielh,0,0,0,0)));
       }
       
