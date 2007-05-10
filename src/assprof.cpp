@@ -65,10 +65,10 @@ int assemble(Mesh *mesh,arg_list argl,
       ARGVJ.x = x;
       ARGVJ.ghost_vec = ghost_vec;
       
-      ierr = VecScatterBegin(*x,*ghost_vec,INSERT_VALUES,
-			     SCATTER_FORWARD,*dofmap->ghost_scatter); CHKERRA(ierr); 
-      ierr = VecScatterEnd(*x,*ghost_vec,INSERT_VALUES,
-			   SCATTER_FORWARD,*dofmap->ghost_scatter); CHKERRA(ierr); 
+      ierr = VecScatterBegin(*dofmap->ghost_scatter,*x,*ghost_vec,
+			     INSERT_VALUES,SCATTER_FORWARD); CHKERRA(ierr); 
+      ierr = VecScatterEnd(*dofmap->ghost_scatter,*x,*ghost_vec,
+			   INSERT_VALUES,SCATTER_FORWARD); CHKERRA(ierr); 
       ierr = VecGetArray(*ghost_vec,
 			 &(ARGVJ.ghost_vals)); CHKERRQ(ierr);
       ierr = VecGetArray(*x,&(ARGVJ.sstate)); CHKERRQ(ierr);

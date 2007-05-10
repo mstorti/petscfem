@@ -557,5 +557,29 @@ void detj_error(double &detJaco,int elem);
 // CHKERRA is now obsolete in PETSc (see changes for PETSc 2.1)
 #define CHKERRA CHKERRQ
 
+
+#if (PETSC_VERSION_MAJOR    == 2 && \
+     PETSC_VERSION_MINOR    == 3 && \
+     PETSC_VERSION_SUBMINOR == 2 && \
+     PETSC_VERSION_RELEASE  == 1)
+#define VecScatterBegin(ctx,x,y,im,sm) \
+        VecScatterBegin((x),(y),(im),(sm),(ctx))
+#define VecScatterEnd(ctx,x,y,im,sm) \
+        VecScatterEnd((x),(y),(im),(sm),(ctx))
+#endif
+
+#if (PETSC_VERSION_MAJOR    == 2 && \
+     PETSC_VERSION_MINOR    == 3 && \
+     PETSC_VERSION_SUBMINOR == 2 && \
+     PETSC_VERSION_RELEASE  == 1)
+#define KSPMonitorSet KSPSetMonitor
+#define KSPMonitorCancel KSPClearMonitor
+#define KSPMonitorDefault  KSPDefaultMonitor
+#define KSPMonitorTrueResidualNorm KSPTrueMonitor
+#define KSPMonitorSolution KSPVecViewMonitor
+#define KSPMonitorLG KSPLGMonitor
+#endif
+
+
 #endif
 //@}

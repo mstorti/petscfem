@@ -1701,10 +1701,10 @@ if (!(bool_cond)) { PetscPrintf(PETSCFEM_COMM_WORLD, 				\
   PetscPrintf(PETSCFEM_COMM_WORLD,"vector x en read_mesh\n");
   ierr = VecView(x,PETSC_VIEWER_STDOUT_WORLD); CHKERRA(ierr);
   PetscPrintf(PETSCFEM_COMM_WORLD,"================\n");
-  ierr = VecScatterBegin(x,ghost_vec,INSERT_VALUES,
-			 SCATTER_FORWARD,dofmap->ghost_scatter); CHKERRA(ierr); 
-  ierr = VecScatterEnd(x,ghost_vec,INSERT_VALUES,
-		       SCATTER_FORWARD,dofmap->ghost_scatter); CHKERRA(ierr); 
+  ierr = VecScatterBegin(dofmap->ghost_scatter,x,ghost_vec,
+			 INSERT_VALUES,SCATTER_FORWARD); CHKERRA(ierr); 
+  ierr = VecScatterEnd(dofmap->ghost_scatter,x,ghost_vec,
+		       INSERT_VALUES,SCATTER_FORWARD); CHKERRA(ierr); 
   
   double *array;
   ierr = VecGetArray(ghost_vec,&array); CHKERRQ(ierr);

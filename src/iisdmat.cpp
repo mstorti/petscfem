@@ -23,18 +23,6 @@
 #include <src/debug.h>
 #include <src/iisdmatstat.h>
 
-#if (PETSC_VERSION_MAJOR    == 2 && \
-     PETSC_VERSION_MINOR    == 3 && \
-     PETSC_VERSION_SUBMINOR == 2 && \
-     PETSC_VERSION_RELEASE  == 1)
-#define KSPMonitorSet KSPSetMonitor
-#define KSPMonitorCancel KSPClearMonitor
-#define KSPMonitorDefault  KSPDefaultMonitor
-#define KSPMonitorTrueResidualNorm KSPTrueMonitor
-#define KSPMonitorSolution KSPVecViewMonitor
-#define KSPMonitorLG KSPLGMonitor
-#endif
-
 //#define PF_CHKERRQ(ierr) assert(ierr)
 #define PF_CHKERRQ(ierr) CHKERRQ(ierr)
 

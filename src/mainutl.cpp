@@ -116,10 +116,10 @@ int print_vector(const char *filename,const Vec x,const Dofmap *dofmap,
   // the version of get_nodal_value() with ghost_values. 
   int neql = (myrank==0 ? dofmap->neq : 0);
   int ierr = VecCreateSeq(PETSC_COMM_SELF,neql,&vseq);  CHKERRQ(ierr);
-  ierr = VecScatterBegin(x,vseq,INSERT_VALUES,
-			 SCATTER_FORWARD,*dofmap->scatter_print); CHKERRA(ierr); 
-  ierr = VecScatterEnd(x,vseq,INSERT_VALUES,
-		       SCATTER_FORWARD,*dofmap->scatter_print); CHKERRA(ierr); 
+  ierr = VecScatterBegin(*dofmap->scatter_print,x,vseq,
+			 INSERT_VALUES,SCATTER_FORWARD); CHKERRA(ierr); 
+  ierr = VecScatterEnd(*dofmap->scatter_print,x,vseq,
+		       INSERT_VALUES,SCATTER_FORWARD); CHKERRA(ierr); 
   ierr = VecGetArray(vseq,&vseq_vals); CHKERRQ(ierr);
  
   if (myrank==0) try {
@@ -159,10 +159,10 @@ int state2fields(double *fields,const Vec x,const Dofmap *dofmap,
   // the version of get_nodal_value() with ghost_values. 
   int neql = (!MY_RANK ? dofmap->neq : 0);
   int ierr = VecCreateSeq(PETSC_COMM_SELF,neql,&vseq);  CHKERRQ(ierr);
-  ierr = VecScatterBegin(x,vseq,INSERT_VALUES,
-			 SCATTER_FORWARD,*dofmap->scatter_print); CHKERRA(ierr); 
-  ierr = VecScatterEnd(x,vseq,INSERT_VALUES,
-		       SCATTER_FORWARD,*dofmap->scatter_print); CHKERRA(ierr); 
+  ierr = VecScatterBegin(*dofmap->scatter_print,x,vseq,
+			 INSERT_VALUES,SCATTER_FORWARD); CHKERRA(ierr); 
+  ierr = VecScatterEnd(*dofmap->scatter_print,x,vseq,
+		       INSERT_VALUES,SCATTER_FORWARD); CHKERRA(ierr); 
   ierr = VecGetArray(vseq,&vseq_vals); CHKERRQ(ierr);
  
   if (!MY_RANK) {
@@ -208,12 +208,10 @@ int print_some(const char *filename,const Vec x,Dofmap *dofmap,
   int neql = (myrank==0 ? dofmap->neq : 0);
   ierr = VecCreateSeq(PETSC_COMM_SELF,neql,&vseq);  CHKERRQ(ierr);
 
-  ierr = VecScatterBegin(x,vseq,INSERT_VALUES,
-			 SCATTER_FORWARD,
-			 *(dofmap->scatter_print)); CHKERRA(ierr); 
-  ierr = VecScatterEnd(x,vseq,INSERT_VALUES,
-		       SCATTER_FORWARD,
-		       *(dofmap->scatter_print)); CHKERRA(ierr); 
+  ierr = VecScatterBegin(*(dofmap->scatter_print),x,vseq,
+			 INSERT_VALUES,SCATTER_FORWARD); CHKERRA(ierr); 
+  ierr = VecScatterEnd(*(dofmap->scatter_print),x,vseq,
+		       INSERT_VALUES,SCATTER_FORWARD); CHKERRA(ierr); 
 
   ierr = VecGetArray(vseq,&sol); CHKERRA(ierr); 
   if (myrank==0) {
