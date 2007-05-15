@@ -44,6 +44,8 @@
 #include "./bubblyqint.h"
 #include "./nsitetlesf.h"
 
+#include "./poiboltz.h"
+
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:
 #undef __FUNC__
 #define __FUNC__ "bless_elemset"
@@ -120,6 +122,8 @@ void bless_elemset(char *type,Elemset *& elemset) {
     SET_ELEMSET_TYPE(dl_penalize)
 
     SET_ELEMSET_TYPE_ALIAS(interpolation,interpolation_ns)
+
+    SET_ELEMSET_TYPE(poisson_boltzmann)
 
     {
       // PETSCFEM_ERROR("not known elemset type: \"%s\"\n",type);

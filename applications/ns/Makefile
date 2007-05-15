@@ -19,7 +19,8 @@ LIBOBJS = ns.o nsitetlesfm2.o bccnsfm2.o wall.o nsvol.o walldata.o	\
 	bccnsitetasm.o nsitetasm_avgvol.o ns_gasflow.o bccns_gasflow.o	\
 	mmoveopt.o elast2.o  bccnsitetasm_avgvol.o ns_fsi.o elastld.o   \
 	nsstruct.o errestim.o mmoveopt3.o bubblyqint.o mmvmain.o        \
-	nsitetlesf.o
+	nsitetlesf.o \
+	poiboltz.o
 
 MYOBJS = 
 
