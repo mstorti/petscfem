@@ -49,6 +49,7 @@ extern "C" {
 #define TRACE(n)				\
    GLOBAL_DEBUG->trace("readmesh trace " #n);
 #else
+#undef TRACE
 #define TRACE(n)
 #endif
 

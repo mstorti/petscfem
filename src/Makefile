@@ -95,13 +95,12 @@ readlist.h: readlist.eperl
 
 pfmat.o dofmap2.o : CCPPFLAGS += -O0
 
-
 version.cpp: version.cppin ../VERSION
 	rm -f version.cpp
 	$(EPERL) version.cppin >version.cpp
 	-chmod -w version.cpp
-version.o: CPPFLAGS += -DPETSC_BOPT_FLAG="\"$(BOPT)\""
 
+version.o: CPPFLAGS += -DPETSC_BOPT_FLAG="\"$(BOPT)\""
 
 .SECONDARY: tryme$(osfx).o 
 tryme: CPPFLAGS = 
