@@ -12272,6 +12272,14 @@ mmoveopt2.cpp:117: warning: 'Sl' may be used uninitialized in this function
 mmoveopt2.cpp:117: warning: 'V' may be used uninitialized in this function
 mmoveopt2.cpp:117: warning: 'C' may be used uninitialized in this function
 
+%=== Sun May 27 10:04:40 2007 mstorti@prandtl
+%
+%-- 10:04:40 -- mstorti-v6-1-8-gd6ec9ef -----
+Descrubro un error en dx/epimport.cpp, cuando se cachean las
+conectividades habria que verificar que la clave del cacheo sea para
+cada elemset. Si no esta colisionando y hay que desactivar el cacheo
+cuando hay varios elemsets. 
+
 # Current line ===========  %
 # Local Variables: $
 # eval: (my-notes-mode) $

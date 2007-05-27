@@ -617,7 +617,8 @@ extern "C" Error m_ExtProgImport(Object *in, Object *out) {
 	  // state->stat();
 	  Object data = state->dx_object();
 
-	  DXMessage("Data is rank %d, size %d, nnod %d",state->rank,state->size,state->nnod);
+	  DXMessage("Data is rank %d, size %d, nnod %d",
+                    state->rank,state->size,state->nnod);
 
 	  Field field = DXNewField();
 	  if (!field) goto error;
