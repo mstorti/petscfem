@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: tempfun.cpp,v 1.16 2007/02/24 14:45:08 mstorti Exp $
+//$Id: tempfun.cpp,v 1.15.102.1 2007/02/19 20:23:56 mstorti Exp $
 
 #include <math.h>
 
@@ -47,7 +47,7 @@ double cos_function(TextHashTable *thash,const TimeData *t,
   SGETOPTDEF(double,phase,0.);
 
   if (omega<0. && frequency<0. && period<0) {
-    PetscPrintf(PETSC_COMM_WORLD,
+    PetscPrintf(PETSCFEM_COMM_WORLD,
 		"cos_function: not defined any of omega/frequency/period\n");
     PetscFinalize();
     exit(0);
@@ -72,7 +72,7 @@ double sin_function(TextHashTable *thash,const TimeData *t,
   SGETOPTDEF(double,phase,0.);
 
   if (omega<0. && frequency<0. && period<0) {
-    PetscPrintf(PETSC_COMM_WORLD,
+    PetscPrintf(PETSCFEM_COMM_WORLD,
 		"sin_function: not defined any of omega/frequency/period\n");
     PetscFinalize();
     exit(0);
@@ -96,7 +96,7 @@ double smooth_ramp_function(TextHashTable *thash,const TimeData *t,
   SGETOPTDEF(double,start_value,0.);
   SGETOPTDEF(double,end_value,1.);
   if (time_scale<0.) {
-    PetscPrintf(PETSC_COMM_WORLD,
+    PetscPrintf(PETSCFEM_COMM_WORLD,
 		"smooth_ramp_function: You mut specify '"
 		"a positive `time_scale' parameter");
     PetscFinalize();
@@ -185,7 +185,7 @@ double piecewise_function(TextHashTable *thash,const TimeData *t,
   } else {
     // double tstar = start_time + (time-start_time) % (end_time-start_time);
     double tstar = start_time + fmod(time-start_time,end_time-start_time);
-    double t1=NAN,t2=NAN,f1=NAN,f2=NAN;
+    double t1=0.0,t2=0.0,f1=0.0,f2=0.0;
     for (int k=0; k<npoints-1; k++) {
       t1 = time_vals[k];
       t2 = time_vals[k+1];
@@ -395,7 +395,7 @@ void OldAmplitude::add_entry(const char * s,
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 void OldAmplitude::print(void) const {
   thash->print();
-  PetscPrintf(PETSC_COMM_WORLD,"amp_function_key: %s\n",amp_function_key);
+  PetscPrintf(PETSCFEM_COMM_WORLD,"amp_function_key: %s\n",amp_function_key);
 }
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
@@ -405,7 +405,7 @@ double OldAmplitude::eval(const TimeData *time_data)  {
   FunctionTable::iterator it;
   it = function_table->find(amp_function_key);
   if (it==function_table->end()) {
-    PetscPrintf(PETSC_COMM_WORLD,
+    PetscPrintf(PETSCFEM_COMM_WORLD,
 		"Not found key \"%s\" in function table\n",
 		amp_function_key);
     PetscFinalize();

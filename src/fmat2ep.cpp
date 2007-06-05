@@ -2,7 +2,7 @@
 //<=$warn_dont_modify //>
 
 //__INSERT_LICENSE__
-//$Id: fmat2ep.cpp,v 1.26 2007/02/23 16:31:14 mstorti Exp $
+//$Id: fmat2ep.cpp,v 1.24.26.1 2007/02/20 18:25:46 dalcinl Exp $
 #include <math.h>
 #include <stdio.h>
 
@@ -27,7 +27,7 @@ FastMatCache *cache;
 if (was_cached) {
   cache = cache_list_begin[position_in_cache++];
 #ifdef FM2_CACHE_DBG
-  if (FastMat2::cache_dbg) printf ("reusing cache: ");
+  printf ("reusing cache: ");
 #endif
 } else if (!use_cache) {
   cache = new FastMatCache;
@@ -39,11 +39,11 @@ if (was_cached) {
     cache_list_size = cache_list->size();
   position_in_cache++;
 #ifdef FM2_CACHE_DBG
-  if (FastMat2::cache_dbg) printf ("defining cache: ");
+  printf ("defining cache: ");
 #endif
 }
 #ifdef FM2_CACHE_DBG
-  if (FastMat2::cache_dbg) printf(" cache_list %p, cache %p, position_in_cache %d\n",
+printf(" cache_list %p, cache %p, position_in_cache %d\n",
        cache_list,cache,position_in_cache-1);
 #endif
 //EOF

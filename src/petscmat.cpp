@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: petscmat.cpp,v 1.14 2007/01/30 19:03:44 mstorti Exp $
+//$Id: petscmat.cpp,v 1.14.10.1 2007/02/19 20:23:56 mstorti Exp $
 
 // fixme:= this may not work in all applications
 
@@ -164,7 +164,6 @@ void PETScMat::clear() {
   ierr = PFPETScMat::clear(); CHKERRQ(ierr); 
   // P is not destroyed, since P points to A
   int ierr = MatDestroy_maybe(A); CHKERRQ(ierr); 
-  CHKERRQ(ierr); 
 }
 #endif
 
@@ -172,7 +171,7 @@ void PETScMat::clear() {
 #undef __FUNC__
 #define __FUNC__ "PETScMat::factor_and_solve"
 int PETScMat::factor_and_solve_a(Vec &res,Vec &dx) {
-  ierr = build_sles(); CHKERRQ(ierr); 
+  ierr = build_ksp(); CHKERRQ(ierr); 
   ierr = solve_only_a(res,dx); CHKERRQ(ierr); 
   return 0;
 }
@@ -181,7 +180,8 @@ int PETScMat::factor_and_solve_a(Vec &res,Vec &dx) {
 #undef __FUNC__
 #define __FUNC__ "PETScMat::solve_only"
 int PETScMat::solve_only_a(Vec &res,Vec &dx) {
-  int ierr = SLESSolve(sles,res,dx,&its_); CHKERRQ(ierr); 
+  int ierr = KSPSolve(ksp,res,dx); CHKERRQ(ierr); 
+  ierr = KSPGetIterationNumber(ksp,&its_); CHKERRQ(ierr);
   return 0;
 }
 
@@ -190,7 +190,7 @@ int PETScMat::solve_only_a(Vec &res,Vec &dx) {
 #define __FUNC__ "PETScMat::view"
 int PETScMat::view(PetscViewer viewer) {
   ierr = MatView(A,viewer); CHKERRQ(ierr); 
-//    ierr = SLESView(sles,PETSC_VIEWER_STDOUT_SELF); CHKERRQ(ierr); 
+//    ierr = KSPView(ksp,PETSC_VIEWER_STDOUT_SELF); CHKERRQ(ierr); 
   return 0;
 }
 

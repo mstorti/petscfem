@@ -1,7 +1,9 @@
 //__INSERT_LICENSE__
-//$Id: sparse.cpp,v 1.36 2007/01/30 19:03:44 mstorti Exp $
+//$Id: sparse.cpp,v 1.36.10.1 2007/02/19 20:23:56 mstorti Exp $
 
 #include <src/sparse2.h>
+
+extern MPI_Comm PETSCFEM_COMM_WORLD;
 
 using namespace Random;
 
@@ -963,14 +965,14 @@ namespace Sparse {
     FSM_ACTIONS
 
   Mat *Mat::dispatch(char *opt,const TextHashTable *t) {
-    Mat *m; 
+    Mat *m=0; 
     if (!strcmp(opt,"PETSc")) {
       m = new PETScMat;
     } else if (!strcmp(opt,"SuperLU")) {
 #ifdef USE_SUPERLU
       m = new SuperLUMat;
 #else
-      PetscPrintf(PETSC_COMM_WORLD,
+      PetscPrintf(PETSCFEM_COMM_WORLD,
 		  "Not compiled with SuperLU library!!\n");
       PetscFinalize();
       exit(0);

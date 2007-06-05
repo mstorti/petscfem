@@ -1,12 +1,12 @@
 // -*- mode: c++ -*-
 /*__INSERT_LICENSE__*/
-//$Id: util2.h,v 1.17 2007/02/24 14:45:08 mstorti Exp $
+//$Id: util2.h,v 1.15.40.2 2007/02/23 19:18:07 dalcinl Exp $
 #ifndef UTIL2_H
 #define UTIL2_H
 
 #include <vector>
 #include <newmat.h>
-#include <petscsles.h>
+#include <petscksp.h>
 #include <src/fstack.h>
 // Where are they defined??
 #undef min
@@ -70,7 +70,6 @@ private:
   /// structures for `libc' time function calls.
   double start_time;
 public:
-  HPChrono() : start_time(0) { }
   /// return elapsed CPU time from start
   double elapsed() const {return gettod()-start_time;};
   /// reset start time to actual time
@@ -132,8 +131,8 @@ int crem(int j, int m);
 int VecDestroy_maybe(Vec &v);
 /// MatDestroy wrapper
 int MatDestroy_maybe(Mat &v);
-/// SLESDestroy wrapper
-int SLESDestroy_maybe(SLES &v);
+/// KSPDestroy wrapper
+int KSPDestroy_maybe(KSP &v);
 //@}
 
 #define DELETE_SCLR(name)			\
@@ -141,6 +140,9 @@ int SLESDestroy_maybe(SLES &v);
 
 #define DELETE_VCTR(name)			\
   if (name) { delete[] name; name=NULL; }
+
+#define DELETE_FUNC(delfunc, name)		\
+  if (name) { delfunc(name); name=NULL; }
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 class MakeTangentSpace {

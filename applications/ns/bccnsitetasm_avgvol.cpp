@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: bccnsitetasm_avgvol.cpp,v 1.3 2007/02/24 14:45:08 mstorti Exp $
+//$Id: bccnsitetasm_avgvol.cpp,v 1.2.10.1 2007/02/19 20:23:56 mstorti Exp $
 
 #include <src/fem.h>
 #include <src/utils.h>
@@ -76,7 +76,7 @@ int bcconv_nsi_tet_asm_avgvol::assemble(arg_data_list &arg_data_v,Nodedata *node
   }
 
   // Get arguments from arg_list
-  double *locst=NULL,*locst2=NULL,*retval=NULL,*retvalmat=NULL;
+  double *locst,*locst2,*retval,*retvalmat;
   if (comp_mat) {
     retvalmat = arg_data_v[0].retval;
   }
@@ -100,7 +100,7 @@ int bcconv_nsi_tet_asm_avgvol::assemble(arg_data_list &arg_data_v,Nodedata *node
     locstate2(nel,ndof),xpg;
 
   if (ndof != ndim+1+nphases) {
-    PetscPrintf(PETSC_COMM_WORLD,"ndof != ndim+1+nphases\n"); CHKERRA(1);
+    PetscPrintf(PETSCFEM_COMM_WORLD,"ndof != ndim+1+nphases\n"); CHKERRA(1);
   }
 
   nen = nel*ndof;
@@ -137,7 +137,7 @@ int bcconv_nsi_tet_asm_avgvol::assemble(arg_data_list &arg_data_v,Nodedata *node
   // Definiciones para descargar el lazo interno
   double detJaco,p_star,wpgdet;
 
-  int elem=0, ipg,node, jdim, kloc,lloc,ldof;
+  int elem, ipg,node, jdim, kloc,lloc,ldof;
 
   FMatrix Jaco(ndimel,ndim),resmom(nel,ndim),normal(ndim),matij(ndim+1,ndim+1);
   FMatrix rescont(nel),res_alpha_g(nel,nphases);
@@ -394,7 +394,7 @@ int bcconv_nsi_tet_asm_avgvol::assemble(arg_data_list &arg_data_v,Nodedata *node
       } else if (comp_mat) {
 	// don't make anything here !!
       } else {
-	PetscPrintf(PETSC_COMM_WORLD,
+	PetscPrintf(PETSCFEM_COMM_WORLD,
 		    "Don't know how to compute jobinfo: %s\n",jobinfo);
 	CHKERRQ(ierr);
       }

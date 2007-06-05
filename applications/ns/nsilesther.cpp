@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: nsilesther.cpp,v 1.35 2007/02/24 14:45:08 mstorti Exp $
+//$Id: nsilesther.cpp,v 1.34.10.1 2007/02/19 20:23:56 mstorti Exp $
 
 #include <src/fem.h>
 #include <src/utils.h>
@@ -59,7 +59,7 @@ int nsi_tet_les_ther::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
 #define RETVALMAT(iele,j,k,p,q) VEC5(retvalmat,iele,j,nel,k,ndof,p,nel,q,ndof)
 
   int ierr=0, axi;
-  // PetscPrintf(PETSC_COMM_WORLD,"entrando a nsilesther\n");
+  // PetscPrintf(PETSCFEM_COMM_WORLD,"entrando a nsilesther\n");
 
 #define NODEDATA(j,k) VEC2(nodedata->nodedata,j,k,nu)
 #define ICONE(j,k) (icone[nel*(j)+(k)])
@@ -92,17 +92,17 @@ int nsi_tet_les_ther::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
   }
 
   // Get arguments from arg_list
-  double *locst=NULL,*locst2=NULL,*retval=NULL,*retvalmat=NULL;
-  WallData *wall_data=NULL;
+  double *locst,*locst2,*retval,*retvalmat;
+  WallData *wall_data;
   if (comp_mat || comp_mat_th) {
     retvalmat = arg_data_v[0].retval;
   } else if (get_nearest_wall_element) {
     wall_data = (WallData *)arg_data_v[0].user_data;
   }
 
-  GlobParam *glob_param=NULL;
-  double *hmin=NULL,Dt=NAN,rec_Dt=NAN;
-  int ja_hmin=0;
+  GlobParam *glob_param;
+  double *hmin,Dt,rec_Dt=0.;
+  int ja_hmin;
 #define WAS_SET arg_data_v[ja_hmin].was_set
   if (comp_mat_res || comp_mat_res_th) {
     int ja=0;
@@ -129,7 +129,7 @@ int nsi_tet_les_ther::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
          locstate2(nel,ndof),xpg,G_body(ndim),gravity(ndim);
 
   if (ndof != ndim+2) {
-    PetscPrintf(PETSC_COMM_WORLD,"ndof != ndim+2\n"); CHKERRA(1);
+    PetscPrintf(PETSCFEM_COMM_WORLD,"ndof != ndim+2\n"); CHKERRA(1);
   }
 
   nen = nel*ndof;
@@ -199,7 +199,7 @@ int nsi_tet_les_ther::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
   else if (axisymmetric=="y") axi=2;
   else if (axisymmetric=="z") axi=3;
   else {
-    PetscPrintf(PETSC_COMM_WORLD,
+    PetscPrintf(PETSCFEM_COMM_WORLD,
 		"Invalid value for \"axisymmetric\" option\n"
 		"axisymmetric=\"%s\"\n",axisymmetric.c_str());
     PetscFinalize();
@@ -257,14 +257,14 @@ int nsi_tet_les_ther::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
   GPdata gp_data(geometry.c_str(),ndim,nel,npg,GP_FASTMAT2);
 
   // Definiciones para descargar el lazo interno
-  double detJaco, UU, u2, Peclet, psi, tau_supg=NAN, tau_pspg=NAN, div_u_star,
-    p_star,wpgdet,velmod,tol,h_supg,fz,delta_supg=NAN,Uh;
-  double tau_supg_th=NAN,T_star,dT,tmp1_th,tmp2_th;
+  double detJaco, UU, u2, Peclet, psi, tau_supg, tau_pspg, div_u_star,
+    p_star,wpgdet,velmod,tol,h_supg,fz,delta_supg,Uh;
+  double tau_supg_th,T_star,dT,tmp1_th,tmp2_th;
 
   FastMat2 P_supg, W_supg, W_supg_t, dmatw, W_supg_th,P_supg_th,
            grad_div_u(4,nel,ndim,nel,ndim);
-  double *grad_div_u_cache=NULL;
-  int grad_div_u_was_cached=0;
+  double *grad_div_u_cache;
+  int grad_div_u_was_cached;
 
   int elem, ipg,node, jdim, kloc,lloc,ldof;
 
@@ -292,7 +292,7 @@ int nsi_tet_les_ther::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
 
   double tmp12;
 //  double nu_eff, mu_eff, mu_l , kappa_eff;
-  double nu_eff=NAN, mu_eff=NAN, mu_l=NAN;
+  double nu_eff, mu_eff, mu_l;
   double tsf = temporal_stability_factor;
 
   FMatrix eye(ndim,ndim),seed,one_nel,matloc_prof(nen,nen);
@@ -410,7 +410,7 @@ int nsi_tet_les_ther::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
     pcol_star.set(pcol_new).scale(alpha).axpy(pcol,1-alpha);
     Tcol_star.set(Tcol_new).scale(alpha).axpy(Tcol,1-alpha);
 
-    double shear_vel=NAN;
+    double shear_vel;
     int wall_elem;
     if (LES && comp_mat_res && A_van_Driest>0.) {
 #ifdef USE_ANN
@@ -888,7 +888,7 @@ int nsi_tet_les_ther::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
       } else if (comp_mat) {
 	// don't make anything here !!
       } else {
-	PetscPrintf(PETSC_COMM_WORLD,
+	PetscPrintf(PETSCFEM_COMM_WORLD,
 		    "Don't know how to compute jobinfo: %s\n",jobinfo);
 	CHKERRQ(ierr);
       }

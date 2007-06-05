@@ -1,4 +1,5 @@
 //__INSERT_LICENSE__
+/* $Id: blessf.cpp,v 1.47.16.2 2007/03/08 19:22:16 dalcinl Exp $ */
 
 #include <src/debug.h>
 #include <malloc.h>
@@ -30,7 +31,6 @@
 #include "./fracstep.h"
 #include "./nsid.h"
 #include "./mmoveopt.h"
-#include "./mmoveopt2.h"
 #include "./mmoveopt3.h"
 #include "./mmove.h"
 #include "./mmove2.h"
@@ -43,6 +43,8 @@
 #include "./bubblyqint.h"
 #include "./bubblyqint.h"
 #include "./nsitetlesf.h"
+
+#include "./poiboltz.h"
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:
 #undef __FUNC__
@@ -107,7 +109,6 @@ void bless_elemset(char *type,Elemset *& elemset) {
     SET_ELEMSET_TYPE(mesh_move_eig_anal)
     SET_ELEMSET_TYPE(mesh_move2)
     SET_ELEMSET_TYPE(mesh_move_opt)
-    SET_ELEMSET_TYPE(mesh_move_opt2)
     SET_ELEMSET_TYPE(mesh_move_opt3)
 
     SET_ELEMSET_TYPE(inviscid_coupling)
@@ -121,9 +122,13 @@ void bless_elemset(char *type,Elemset *& elemset) {
     SET_ELEMSET_TYPE(dl_penalize)
 
     SET_ELEMSET_TYPE_ALIAS(interpolation,interpolation_ns)
-      {
-	PETSCFEM_ERROR("not known elemset type: \"%s\"\n",type);
-      }
+
+    SET_ELEMSET_TYPE(poisson_boltzmann)
+
+    {
+      // PETSCFEM_ERROR("not known elemset type: \"%s\"\n",type);
+      elemset=NULL;
+    }
 }
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:

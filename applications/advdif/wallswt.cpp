@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: wallswt.cpp,v 1.15 2007/02/23 16:31:14 mstorti Exp $
+//$Id: wallswt.cpp,v 1.14.104.2 2007/02/23 19:18:07 dalcinl Exp $
   
 #include <src/fem.h>
 #include <src/utils.h>
@@ -11,7 +11,6 @@
 #include "advective.h"
 
 extern TextHashTable *GLOBAL_OPTIONS;
-extern int MY_RANK,SIZE;
 extern int TSTEP; //debug:=
 #define MAXPROP 100
 

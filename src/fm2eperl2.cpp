@@ -4,7 +4,7 @@
 
 
 //__INSERT_LICENSE__
-//$Id: fmat2ep2.cpp,v 1.12 2007/01/31 15:33:12 mstorti Exp $
+//$Id: fm2eperl2.cpp,v 1.17 2007/01/31 15:33:12 mstorti Exp $
 #include <math.h>
 #include <stdio.h>
 
@@ -55,7 +55,7 @@ FastMat2::eig(const FastMat2 & A,
 if (was_cached) {
   cache = cache_list_begin[position_in_cache++];
 #ifdef FM2_CACHE_DBG
-  if (FastMat2::cache_dbg) printf ("reusing cache: ");
+  printf ("reusing cache: ");
 #endif
 } else if (!use_cache) {
   cache = new FastMatCache;
@@ -67,11 +67,11 @@ if (was_cached) {
     cache_list_size = cache_list->size();
   position_in_cache++;
 #ifdef FM2_CACHE_DBG
-  if (FastMat2::cache_dbg) printf ("defining cache: ");
+  printf ("defining cache: ");
 #endif
 }
 #ifdef FM2_CACHE_DBG
-  if (FastMat2::cache_dbg)printf(" cache_list %p, cache %p, position_in_cache %d\n",
+printf(" cache_list %p, cache %p, position_in_cache %d\n",
        cache_list,cache,position_in_cache-1);
 #endif
 ;
@@ -223,7 +223,7 @@ FastMat2::seig(const FastMat2 & A, FastMat2 &V,int compute_eigen_vectors) {
 if (was_cached) {
   cache = cache_list_begin[position_in_cache++];
 #ifdef FM2_CACHE_DBG
-  if (FastMat2::cache_dbg) printf ("reusing cache: ");
+  printf ("reusing cache: ");
 #endif
 } else if (!use_cache) {
   cache = new FastMatCache;
@@ -235,11 +235,11 @@ if (was_cached) {
     cache_list_size = cache_list->size();
   position_in_cache++;
 #ifdef FM2_CACHE_DBG
-  if (FastMat2::cache_dbg) printf ("defining cache: ");
+  printf ("defining cache: ");
 #endif
 }
 #ifdef FM2_CACHE_DBG
-  if (FastMat2::cache_dbg)printf(" cache_list %p, cache %p, position_in_cache %d\n",
+printf(" cache_list %p, cache %p, position_in_cache %d\n",
        cache_list,cache,position_in_cache-1);
 #endif
 ;
@@ -340,7 +340,7 @@ FastMat2 & FastMat2::inv(const FastMat2 & A) {
 if (was_cached) {
   cache = cache_list_begin[position_in_cache++];
 #ifdef FM2_CACHE_DBG
-  if (FastMat2::cache_dbg) printf ("reusing cache: ");
+  printf ("reusing cache: ");
 #endif
 } else if (!use_cache) {
   cache = new FastMatCache;
@@ -352,11 +352,11 @@ if (was_cached) {
     cache_list_size = cache_list->size();
   position_in_cache++;
 #ifdef FM2_CACHE_DBG
-  if (FastMat2::cache_dbg) printf ("defining cache: ");
+  printf ("defining cache: ");
 #endif
 }
 #ifdef FM2_CACHE_DBG
-  if (FastMat2::cache_dbg)printf(" cache_list %p, cache %p, position_in_cache %d\n",
+printf(" cache_list %p, cache %p, position_in_cache %d\n",
        cache_list,cache,position_in_cache-1);
 #endif
 ;
@@ -491,7 +491,7 @@ double FastMat2::trace() {
 if (was_cached) {
   cache = cache_list_begin[position_in_cache++];
 #ifdef FM2_CACHE_DBG
-  if (FastMat2::cache_dbg) printf ("reusing cache: ");
+  printf ("reusing cache: ");
 #endif
 } else if (!use_cache) {
   cache = new FastMatCache;
@@ -503,11 +503,11 @@ if (was_cached) {
     cache_list_size = cache_list->size();
   position_in_cache++;
 #ifdef FM2_CACHE_DBG
-  if (FastMat2::cache_dbg) printf ("defining cache: ");
+  printf ("defining cache: ");
 #endif
 }
 #ifdef FM2_CACHE_DBG
-  if (FastMat2::cache_dbg)printf(" cache_list %p, cache %p, position_in_cache %d\n",
+printf(" cache_list %p, cache %p, position_in_cache %d\n",
        cache_list,cache,position_in_cache-1);
 #endif
 ;

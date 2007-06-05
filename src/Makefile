@@ -1,4 +1,5 @@
 #__INSERT_LICENSE__
+# $Id: Makefile,v 1.104.4.1 2007/02/19 20:23:56 mstorti Exp $ 
 
 .PHONY: all run lclean save compile default
 
@@ -62,8 +63,7 @@ fm2eperl2.cpp: fmat2ep2.cpp prep.pl fmat2.pl
 	$(EPERL) -B '//<' -E '//>' $< > $@ ; chmod -w $@
 
 ## generation of FSM files is left to `developper' mode
-#ifeq ($(DEVELOPER_MODE),yes)
-ifeq (1,0)
+ifeq ($(DEVELOPER_MODE),yes)
 FSM := matFSM
 $(FSM).cpp $(FSM).h: sparse.sm
 	$(SMC) < $<
@@ -86,14 +86,18 @@ pfmatFSM.cpp  pfmatFSM.h: pfmat.sm
 	chmod -w $*FSM.cpp $*FSM.h
 endif
 
+# This doesn't compile with -O2
+#measperf.o: CCPPFLAGS += -O1 // this doesn't work with the old 'make'
+# measperf.o: measperf.cpp
+#	-${CC} -c ${COPTFLAGS} ${CFLAGS} ${CCPPFLAGS} -O1 $<
+
 local_clean:: local_dist_clean
 	-rm -f version.cpp $(LIBPETSCFEM) # &> /dev/null
 readlist.h: readlist.eperl
 	if [ -e readlist.h ] ; then chmod +w readlist.h ; fi
 	$(EPERL) readlist.eperl > readlist.h
 	chmod -w readlist.h
-
-pfmat.o dofmap2.o : CCPPFLAGS += -O0
+pfmat.o dofmap2.o: CCPPFLAGS += -O0
 
 
 version.cpp: version.cppin ../VERSION
@@ -148,6 +152,3 @@ $(DOC_DIR)/odocrmsh.tex: readmesh.cpp
 
 $(DOC_DIR)/odocdxhook.tex: dxhook.cpp
 	$(run_odoc)
-
-pp:
-	echo $(LIBPETSCFEM)

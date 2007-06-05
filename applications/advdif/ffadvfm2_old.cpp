@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: ffadvfm2_old.cpp,v 1.6 2007/01/30 19:03:44 mstorti Exp $
+//$Id: ffadvfm2_old.cpp,v 1.6.10.1 2007/02/19 20:23:56 mstorti Exp $
 
 #include <stdio.h>
 #include <string.h>
@@ -155,7 +155,7 @@ int advecfm2_ff_t::operator()(ADVDIFFF_ARGS) {
       // I put a scalar tau by the moment
       vel = sqrt(vel);
     } else {
-      PetscPrintf(PETSC_COMM_WORLD,
+      PetscPrintf(PETSCFEM_COMM_WORLD,
 		  "Not a valid number of elements  while entering\n"
 		  "the advective jacobians. Entered na=%d elements,\n"
 		  "and ndim: %d, ndof %d\n"

@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: dofmap3.cpp,v 1.13 2007/01/30 19:03:44 mstorti Exp $
+//$Id: dofmap3.cpp,v 1.13.10.1 2007/02/19 20:23:56 mstorti Exp $
 
 #include <cassert>
 
@@ -181,6 +181,8 @@ int Dofmap::mult(Mat A,Vec x,Vec y) { // y =A*x
   assert(!ierr);
   ierr = VecGetArray(y,&yp);
   assert(!ierr);
+
+  w.resize(nrow);
   
   for (int j=0; j<nrow; j++) w[j]=0.0;
   qxpy(&w[0],xp,1.0);
@@ -235,22 +237,21 @@ void Dofmap::solve(double *xp,double *yp) {
 		       (void (*)(void))(&dofmap_mult));
   assert(!ierr);
 
-  // Define auxiliary SLES
-  SLES sles;
+  // Define auxiliary KSP
   KSP ksp;
   PC pc;
-  ierr = SLESCreate(PETSC_COMM_SELF,&sles); assert(!ierr);
-  ierr = SLESSetOperators(sles,A,
-			  A,SAME_NONZERO_PATTERN); assert(!ierr);
-  ierr = SLESGetKSP(sles,&ksp); assert(!ierr);
-  ierr = SLESGetPC(sles,&pc); assert(!ierr);
+  ierr = KSPCreate(PETSC_COMM_SELF,&ksp); assert(!ierr);
+  ierr = KSPSetOperators(ksp,A,A,SAME_NONZERO_PATTERN); assert(!ierr);
+  ierr = KSPGetPC(ksp,&pc); assert(!ierr);
   ierr = KSPSetType(ksp,KSPCG); assert(!ierr);
   ierr = PCSetType(pc,PCNONE); assert(!ierr);
   // ierr = KSPSetMonitor(ksp,KSPDefaultMonitor,NULL,NULL);
 
   // Solve problem
   int its;
-  ierr = SLESSolve(sles,z,x,&its);
+  ierr = KSPSolve(ksp,z,x);
+  ierr = KSPGetIterationNumber(ksp,&its); assert(!ierr);
+
   assert(its<=100);
   printf("Dofmap::solve: solved projection in %d iters\n",its);
 

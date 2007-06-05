@@ -1,6 +1,6 @@
 // -*- mode: C++ -*- 
 /*__INSERT_LICENSE__*/
-// $Id: iisdmat.h,v 1.32 2004/10/24 16:25:21 mstorti Exp $
+// $Id: iisdmat.h,v 1.32.72.1 2007/02/19 20:23:56 mstorti Exp $
 #ifndef IISDMAT_H
 #define IISDMAT_H
 
@@ -108,14 +108,10 @@ class IISDMat : public PFPETScMat {
   /** Auxiliar sequential vector that contains local dof's in this
       processor */
   Vec y_loc_seq;
-  /// SLES for the interface preconditioning problem 
-  SLES sles_ii;
   /// PC for the for the interface preconditioning problem 
   PC pc_ii;
   /// KSP for the interface preconditioning problem 
   KSP ksp_ii;
-  /// SLES for local solution (en each processor)
-  SLES sles_ll;
   /// PC for local solution (en each processor)
   PC pc_ll;
   /// KSP for local solution (en each processor)
@@ -285,10 +281,13 @@ public:
 
   /// Ctor
   IISDMat(int MM,int NN,const DofPartitioner &pp,MPI_Comm comm_ =
-	  PETSC_COMM_WORLD);
+	  PETSCFEM_COMM_WORLD);
 
   /// The PETSc wrapper function calls this
+  int ksp_ll_view(PetscViewer viewer);
   int pc_apply(Vec x,Vec y); 
+  int pc_view(PetscViewer viewer);
+
   /// Destructor
   ~IISDMat();
 };

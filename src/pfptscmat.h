@@ -1,18 +1,31 @@
 // -*- mode: C++ -*- 
 /*__INSERT_LICENSE__*/
-// $Id: pfptscmat.h,v 1.17 2007/01/30 19:03:44 mstorti Exp $
+// $Id: pfptscmat.h,v 1.17.10.1 2007/02/19 20:23:56 mstorti Exp $
 #ifndef PFPTSCMAT_H
 #define PFPTSCMAT_H
 
 #include <vector>
 
 #include <petsc.h>
-#include <petscsles.h>
+#include <petscksp.h>
 
 #include <src/iisdgraph.h>
 #include <src/graphdv.h>
 #include <src/linkgraph.h>
 #include <src/pfmat.h>
+
+#if (PETSC_VERSION_MAJOR    == 2 && \
+     PETSC_VERSION_MINOR    == 3 && \
+     PETSC_VERSION_SUBMINOR == 2 && \
+     PETSC_VERSION_RELEASE  == 1)
+#define KSPMonitorSet KSPSetMonitor
+#define KSPMonitorCancel KSPClearMonitor
+#define KSPMonitorDefault  KSPDefaultMonitor
+#define KSPMonitorTrueResidualNorm KSPTrueMonitor
+#define KSPMonitorSolution KSPVecViewMonitor
+#define KSPMonitorLG KSPLGMonitor
+#endif
+
 
 class PFPETScMat : public PFMat {
 protected:
@@ -20,8 +33,6 @@ protected:
   int mat_size;
   /// We will have always a PETSc matrix for the system and for the preconditioner
   Mat A,P;
-  /// The PETSc linear solver
-  SLES sles;
   /// The PETSc preconditioner
   PC pc;
   /// Krylov subspace method context
@@ -41,14 +52,22 @@ protected:
   /// number of iterations done
   int its_;
   /// flags whether the system was built or not
-  // int sles_was_built; // now included in `factored'
+  // int ksp_was_built; // now included in `factored'
   /// Defines the KSP method
   string KSP_method;
   /// The options database
   TextHashTable thash;
   /// These are the actions for the state machine
   int factored;
-
+  // define subproblems in Additive Schwarz prec, default is 0.
+  int asm_define_sub_problems;
+  // preconditioning type on each sub-block, default is ilu(0)
+  string asm_sub_preco_type;
+  // number of blocks in ASM prec., default is one block per processor
+  int asm_lblocks;
+  // overlap between blocks in ASM prec., default is 1
+  int asm_overlap;
+  
   /// The partitioner object
   const DofPartitioner &part;
 
@@ -72,7 +91,7 @@ protected:
   /// The communicator
   MPI_Comm comm;
 
-  /// Cleans linear system 'sles'
+  /// Cleans linear system 'ksp'
   int clean_factor_a();
 
   /// Cleans linear matrix entries
@@ -88,7 +107,7 @@ public:
   ~PFPETScMat();
 
   int duplicate_a(MatDuplicateOption op,const PFMat &A);
-  virtual int build_sles();
+  virtual int build_ksp();
   virtual int set_preco(const string & preco_type);
   int monitor(int n,double rnorm);
 

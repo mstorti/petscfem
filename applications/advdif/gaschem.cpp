@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: gaschem.cpp,v 1.18 2007/02/23 16:31:14 mstorti Exp $
+//$Id: gaschem.cpp,v 1.17.84.2 2007/02/23 19:18:07 dalcinl Exp $
 
 #include <src/fem.h>
 #include <src/texthash.h>
@@ -206,7 +206,7 @@ void gaschem_ff::compute_flux(const FastMat2 &U,
     } else if (ndim==3) {
       h_pspg = cbrt(6*Volume/pi);
     } else {
-      PetscPrintf(PETSC_COMM_WORLD,
+      PetscPrintf(PETSCFEM_COMM_WORLD,
 		  "Only dimensions 2 and 3 allowed for this element.\n");
     }
 

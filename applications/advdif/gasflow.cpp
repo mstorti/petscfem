@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: gasflow.cpp,v 1.49 2007/02/24 14:45:08 mstorti Exp $
+//$Id: gasflow.cpp,v 1.48.8.1 2007/02/19 20:23:56 mstorti Exp $
 
 #include <src/fem.h>
 #include <src/texthash.h>
@@ -7,8 +7,6 @@
 #include <src/generror.h>
 
 #include "gasflow.h"
-
-extern int MY_RANK,SIZE;
 
 #define GF_GETOPTDEF_ND(type,var,def)				\
  { if (elemset) { EGETOPTDEF_ND(elemset,type,var,def); }	\
@@ -558,14 +556,14 @@ void gasflow_ff::compute_flux(const FastMat2 &U,
 #define pi M_PI
       double Volume = advdf_e->volume();
       int axi = advdf_e->axi;
-      double h_grid=NAN;
+      double h_grid;
 
       if (ndim==2 | (ndim==3 && axi>0)) {
 	h_grid = sqrt(4.*Volume/pi);
       } else if (ndim==3) {
 	h_grid = cbrt(6*Volume/pi);
       } else {
-	PetscPrintf(PETSC_COMM_WORLD,
+	PetscPrintf(PETSCFEM_COMM_WORLD,
 		    "Only dimensions 2 and 3 allowed for this element.\n");
       }
       double strain_rate_abs = strain_rate.sum_square_all();
@@ -779,7 +777,7 @@ void gasflow_ff::compute_flux(const FastMat2 &U,
     } else if (ndim==3) {
       h_pspg = cbrt(6*Volume/pi);
     } else {
-      PetscPrintf(PETSC_COMM_WORLD,
+      PetscPrintf(PETSCFEM_COMM_WORLD,
 		  "Only dimensions 2 and 3 allowed for this element.\n");
     }
 

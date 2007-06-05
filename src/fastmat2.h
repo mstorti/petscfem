@@ -1,6 +1,6 @@
 // -*- mode: c++ -*-
 /*__INSERT_LICENSE__*/
-//$Id: fastmat2.h,v 1.39 2007/02/23 03:05:01 mstorti Exp $
+//$Id: fastmat2.h,v 1.38 2007/01/30 19:03:44 mstorti Exp $
 
 #ifndef FASTMAT2_H
 #define FASTMAT2_H
@@ -71,6 +71,8 @@ using namespace std;
   
 /// Prints a FastMat2 matrix.
 #define FMSHV(a) (a).print(#a)
+
+//#define FM2_CACHE_DBG
 
 //enum IndxOPT { LIST };
 
@@ -203,13 +205,7 @@ public:
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 // Forward declarations
 class FastMatCacheList;
-
-class FastMatCachePosition :
-  public pair<FastMatCacheList *,int> {
-public:
-  FastMatCachePosition();
-  ~FastMatCachePosition();
-};
+typedef pair<FastMatCacheList *,int> FastMatCachePosition;
 
 class FastMatSubCache {
 public:
@@ -245,8 +241,7 @@ struct OperationCount {
 //typedef vector<FastMatCache *> FastMatCacheList;
 class FastMatCacheList : public vector<FastMatCache *> {
 public:
-  FastMatCacheList();
-  ~FastMatCacheList();
+  FastMatCacheList() {list_size=0;}
   // Operation count
   //  OperationCount op_count;
   //  void print_count_statistics();
@@ -261,7 +256,6 @@ typedef double scalar_fun_t(double);
 /// Fast matrices. Supposed to be faster than Newmat
 class FastMat2 {
 public:
-  static int cache_dbg;
   //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
   /** Default constructor
       @author M. Storti
@@ -288,12 +282,6 @@ public:
       @author M. Storti
   */ 
   ~FastMat2();
-
-  /** Returns the size of the matrix, i.e. the
-      product of its indices. 
-      @return size of matrix */ 
-  int size() const;
-
 
   //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
   /** Returns the jd-th dimension

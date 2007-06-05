@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-/* $Id: nonlr.cpp,v 1.24 2007/02/24 14:45:08 mstorti Exp $ */
+/* $Id: nonlr.cpp,v 1.23.10.1 2007/02/19 20:23:56 mstorti Exp $ */
 
 #include <src/fem.h>
 #include <src/utils.h>
@@ -48,11 +48,11 @@ int NonLinearRes::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
 #define ICONE(j,k) (icone[nel*(j)+(k)]) 
 
   int ierr=0;
-  // PetscPrintf(PETSC_COMM_WORLD,"entrando a nsikeps\n");
+  // PetscPrintf(PETSCFEM_COMM_WORLD,"entrando a nsikeps\n");
 
-  double *locst=NULL,*locst2=NULL,*retval=NULL,*retvalmat=NULL;
-  GlobParam *glob_param=NULL;
-  double *hmin=NULL,Dt,rec_Dt;
+  double *locst,*locst2,*retval,*retvalmat;
+  GlobParam *glob_param;
+  double *hmin,Dt,rec_Dt;
   int ja_hmin;
 #define WAS_SET arg_data_v[ja_hmin].was_set
   if (comp_mat_res || comp_mat_res_ke) {

@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: amplidl.cpp,v 1.12 2003/07/02 02:32:47 mstorti Exp $
+//$Id: amplidl.cpp,v 1.12.104.1 2007/02/19 20:23:56 mstorti Exp $
 
 #ifdef USE_DLEF
 
@@ -19,7 +19,7 @@ DLGeneric::FileHandleTable DLGeneric::file_handle_table;
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 void DLGeneric::print() const {
-  PetscPrintf(PETSC_COMM_WORLD,
+  PetscPrintf(PETSCFEM_COMM_WORLD,
 	      "---generic (dynamically loaded)\" fixa amplitude, \n"
 	      "  file: \"%s\", name: \"%s\"\n"
 	      "options table: \n",ext_filename.c_str(),

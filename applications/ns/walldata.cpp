@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: walldata.cpp,v 1.14 2006/07/10 21:40:27 mstorti Exp $
+//$Id: walldata.cpp,v 1.14.20.1 2007/02/19 20:23:56 mstorti Exp $
  
 #include <src/fem.h>
 //  #include <src/readmesh.h>
@@ -8,8 +8,6 @@
 #include <src/util2.h>
 #include <src/sttfilter.h>
 #include "nsi_tet.h"
-
-extern int MY_RANK,SIZE;
 
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 

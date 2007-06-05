@@ -1,9 +1,9 @@
 //__INSERT_LICENSE__
+// $Id: advdifeo.cpp,v 1.16.10.2 2007/02/23 19:18:07 dalcinl Exp $
 
 extern int comp_mat_each_time_step_g,
   consistent_supg_matrix_g,
   local_time_step_g;
-extern int MY_RANK,SIZE;
   
 #include <vector>
 #include <string>
@@ -56,21 +56,21 @@ void AdvDifFF::get_log_vars(const NewElemset *elemset,int &nlog_vars,
   int ierr=0;
   for (int j=0; j<nlog_vars; j++) {
     if (log_vars_v[j]<=0) {
-      PetscPrintf(PETSC_COMM_WORLD,"Non positive dof in "
+      PetscPrintf(PETSCFEM_COMM_WORLD,"Non positive dof in "
 		  "\"log_vars_list\" entry: dof %d\n",
 		  log_vars_v[j]);
       ierr=1;
     } else if (log_vars_v[j]>ndof) {
-      PetscPrintf(PETSC_COMM_WORLD,"Dof grater that ndof in "
+      PetscPrintf(PETSCFEM_COMM_WORLD,"Dof grater that ndof in "
 		  "\"log_vars_list\" entry: dof %d, ndof %d\n",
 		  log_vars_v[j], ndof);
       ierr=1;
     }
     if (ierr) {
-      PetscPrintf(PETSC_COMM_WORLD,
+      PetscPrintf(PETSCFEM_COMM_WORLD,
 		  "Errors while reading \"log_vars_list\"\n");
       if (log_vars_entry)
-	PetscPrintf(PETSC_COMM_WORLD,
+	PetscPrintf(PETSCFEM_COMM_WORLD,
 		    "In line \"%s\"\n",s.c_str());
       exit(1);
     }
@@ -157,7 +157,7 @@ void AdvDif::new_assemble(arg_data_list &arg_data_v,const Nodedata *nodedata,
   // lambda_max:= the maximum eigenvalue of the jacobians.
   // used to compute the critical time step. 
   vector<double> *dtmin;
-  double lambda_max=NAN;
+  double lambda_max;
   int jdtmin;
   GlobParam *glob_param=NULL;
   // The trapezoidal rule integration parameter 
@@ -496,14 +496,14 @@ void AdvDif::new_assemble(arg_data_list &arg_data_v,const Nodedata *nodedata,
       hloc = 2.*sqrt(hvec.min_all());
 
       dtloc = hloc/lambda_max;
-      // PetscPrintf(PETSC_COMM_WORLD,
+      // PetscPrintf(PETSCFEM_COMM_WORLD,
       // "On element %d, hloc %f, lambda_max %f, dtloc %f\n",
       // k,hloc,lambda_max,dtloc);
 	
       if (dtloc<DTMIN || !WAS_SET) {
 	DTMIN = dtloc;
 	WAS_SET = 1;
-//   	PetscPrintf(PETSC_COMM_WORLD,
+//   	PetscPrintf(PETSCFEM_COMM_WORLD,
 //   		    "setting dtmin: %f, hloc %f, lambda_max: %f\n",
 //   		    DTMIN,hloc,lambda_max);
       }

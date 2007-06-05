@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: wallke.cpp,v 1.27 2007/02/24 14:45:08 mstorti Exp $
+//$Id: wallke.cpp,v 1.25.4.1 2007/02/19 20:23:56 mstorti Exp $
 #include <src/fem.h>
 #include <src/utils.h>
 #include <src/readmesh.h>
@@ -9,7 +9,6 @@
 #include "nsi_tet.h"
 
 extern TextHashTable *GLOBAL_OPTIONS;
-extern int MY_RANK,SIZE;
 extern int TSTEP; //debug:=
 #define MAXPROP 10
 
@@ -144,7 +143,7 @@ int wallke::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
   int nprops=iprop;
 
   // Get arguments from arg_list
-  double *locst=NULL,*locst2=NULL,*retval=NULL,*retvalmat=NULL;
+  double *locst,*locst2,*retval,*retvalmat;
   Elemset *elemset;
 
   //o The $y^+$ coordinate of the computational boundary
@@ -159,7 +158,6 @@ int wallke::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
   SGETOPTDEF(int,lumped_wallke,0);
   //o Density
   SGETOPTDEF(double,rho,1.);
-
 
   SGETOPTDEF(double,viscosity,0.); //o
   PETSCFEM_ASSERT0(viscosity>0.,

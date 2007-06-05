@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: graph.cpp,v 1.21 2007/01/30 19:03:44 mstorti Exp $
+//$Id: graph.cpp,v 1.21.10.1 2007/02/19 20:23:56 mstorti Exp $
 
 #include <src/utils.h>
 #include <src/graph.h>
@@ -260,7 +260,7 @@ void Graph::print() {
   int j;
   for (int proc=0; proc<SIZE; proc++) {
     if (MY_RANK==proc) {
-      MPI_Barrier(PETSC_COMM_WORLD);
+      MPI_Barrier(PETSCFEM_COMM_WORLD);
       if (SIZE>0) printf("[%d] proc\n",proc);
       for (j=0; j<nvrtx_f; j++) {
 	printf("row %d:  ",j);

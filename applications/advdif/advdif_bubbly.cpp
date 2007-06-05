@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: advdif_bubbly.cpp,v 1.14 2007/01/30 19:03:44 mstorti Exp $
+//$Id: advdif_bubbly.cpp,v 1.14.10.1 2007/02/19 20:23:56 mstorti Exp $
 
 #include <src/debug.h>
 #include <set>
@@ -20,7 +20,6 @@ extern GlobParam *GLOB_PARAM;
 
 static char help[] = "Basic finite element program.\n\n";
 
-extern int MY_RANK,SIZE;
 extern int print_internal_loop_conv_g,
   consistent_supg_matrix_g,
   local_time_step_g,
@@ -83,20 +82,16 @@ int bubbly_main() {
   // euler_absorb::flux_fun = &flux_fun_euler;
 
   // elemsetlist =  da_create(sizeof(Elemset *));
-  // PetscInitialize(&argc,&args,(char *)0,help);
+
   print_copyright();
-  PetscPrintf(PETSC_COMM_WORLD,
+  PetscPrintf(PETSCFEM_COMM_WORLD,
 	      "-------- Generic Advective-Diffusive / Bubbly module ---------\n");
 
-  // Get MPI info
-  MPI_Comm_size(PETSC_COMM_WORLD,&SIZE);
-  MPI_Comm_rank(PETSC_COMM_WORLD,&MY_RANK);
-
-  Debug debug2(0,PETSC_COMM_WORLD);
+  Debug debug2(0,PETSCFEM_COMM_WORLD);
 
   ierr = PetscOptionsGetString(PETSC_NULL,"-case",fcase,FLEN,&flg); CHKERRA(ierr);
   if (!flg) {
-    PetscPrintf(PETSC_COMM_WORLD,
+    PetscPrintf(PETSCFEM_COMM_WORLD,
 		"Option \"-case <filename>\" not passed to PETSc-FEM!!\n");
     PetscFinalize();
     exit(0);
@@ -307,7 +302,7 @@ int bubbly_main() {
 
 #if 0
   PetscViewer matlab;
-  ierr = PetscViewerASCIIOpen(PETSC_COMM_WORLD,
+  ierr = PetscViewerASCIIOpen(PETSCFEM_COMM_WORLD,
 			      "matns.m",&matlab); CHKERRA(ierr);
 #endif
   //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:
@@ -324,7 +319,7 @@ int bubbly_main() {
   //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:
   // initialize state vectors
   scal=0;
-  ierr = VecSet(&scal,x); CHKERRA(ierr);
+  ierr = VecSet(x,scal); CHKERRA(ierr);
 
   arg_list argl,arglf;
 
@@ -412,8 +407,8 @@ int bubbly_main() {
       for (int kstage=0; kstage<nstage; kstage++) {
 	
 	scal=0;
-	ierr = VecSet(&scal,res_out); CHKERRA(ierr);
-	ierr = VecSet(&scal,dx_out); CHKERRA(ierr);
+	ierr = VecSet(res_out,scal); CHKERRA(ierr);
+	ierr = VecSet(dx_out,scal); CHKERRA(ierr);
 	
 	if (nstage==1) {
 	  jobinfo_fields = "gasliq";
@@ -445,8 +440,8 @@ int bubbly_main() {
 	  
 	  // Initializes res
 	  scal=0;
-	  ierr = VecSet(&scal,res); CHKERRA(ierr);
-	  ierr = VecSet(&scal,dx); CHKERRA(ierr);
+	  ierr = VecSet(res,scal); CHKERRA(ierr);
+	  ierr = VecSet(dx,scal); CHKERRA(ierr);
 	  
 	  if (comp_mat_each_time_step_g) {
 	    
@@ -510,10 +505,10 @@ int bubbly_main() {
 
 	if (print_linear_system_and_stop &&
 	    inwt==inwt_stop && tstep==time_step_stop) {
-	  PetscPrintf(PETSC_COMM_WORLD,
+	  PetscPrintf(PETSCFEM_COMM_WORLD,
 		      "Printing residual and matrix for debugging and stopping..\n");
 	  PetscViewer matlab;
-	  ierr = PetscViewerASCIIOpen(PETSC_COMM_WORLD,
+	  ierr = PetscViewerASCIIOpen(PETSCFEM_COMM_WORLD,
 				      "mat.output",&matlab); CHKERRA(ierr);
 	  ierr = PetscViewerSetFormat_WRAPPER(matlab,
 					      PETSC_VIEWER_ASCII_MATLAB,"res");
@@ -538,36 +533,30 @@ int bubbly_main() {
 
 	if (inwt_in==0){
 	  scal=1;
-	  ierr = VecAXPY(&scal,res,res_out);
-	  ierr = VecAXPY(&scal,dx,dx_out);
+	  ierr = VecAXPY(res_out,scal,res);
+	  ierr = VecAXPY(dx_out,scal,dx);
 	}
 
 	ierr  = VecNorm(res,NORM_2,&normres); CHKERRA(ierr);
-	PetscPrintf(PETSC_COMM_WORLD,
+	PetscPrintf(PETSCFEM_COMM_WORLD,
 		    "Newton subiter (inner) %d, stage  %d, norm_res  = %10.3e\n",
 		    inwt_in,kstage,normres);
 	scal=omega_newton_in/alpha;
-	ierr = VecAXPY(&scal,dx,x);
+	ierr = VecAXPY(x,scal,dx);
 	if (normres < tol_newton) break;
 
 	}  // end of inwt (inner) loop
 
 	} // end of kstage loop
 
-      // convergence check and update
-      //      scal=1;
-      //      ierr = VecAXPY(&scal,res_out,res);
-      //      ierr = VecAXPY(&scal,dx_out,dx);
-
       ierr = VecCopy(res_out,res);
 
       ierr  = VecNorm(res,NORM_2,&normres); CHKERRA(ierr);
       if (inwt==0) normres_ext = normres;
-      PetscPrintf(PETSC_COMM_WORLD,
+      PetscPrintf(PETSCFEM_COMM_WORLD,
 		  "Newton subiter (outer) %d, norm_res  = %10.3e\n",
 		  inwt,normres);
       //      scal=omega_newton;
-      //      ierr = VecAXPY(&scal,dx,x);
       if (normres < tol_newton) break;
     }  // end of inwt (outer) loop
 
@@ -596,11 +585,11 @@ int bubbly_main() {
     double delta_u;
     ierr = VecCopy(x,dx);
     scal=-1.;
-    ierr = VecAXPY(&scal,xold,dx);
+    ierr = VecAXPY(dx,scal,xold);
     ierr  = VecNorm(dx,NORM_2,&delta_u); CHKERRA(ierr);
 
     if (tstep % nsave == 0){
-      PetscPrintf(PETSC_COMM_WORLD,
+      PetscPrintf(PETSCFEM_COMM_WORLD,
 		  " --------------------------------------\n"
 		  "Time step: %d\n"
 		  " --------------------------------------\n",
@@ -641,7 +630,7 @@ int bubbly_main() {
       }
     }
 
-    PetscPrintf(PETSC_COMM_WORLD,
+    PetscPrintf(PETSCFEM_COMM_WORLD,
 		"time_step %d, time: %g, delta_u = %10.3e\n",
 		tstep,time_,delta_u);
     print_vector_rota(save_file_pattern.c_str(),x,dofmap,

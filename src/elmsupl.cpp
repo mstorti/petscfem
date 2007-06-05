@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: elmsupl.cpp,v 1.31 2007/01/30 19:03:44 mstorti Exp $
+//$Id: elmsupl.cpp,v 1.31.10.1 2007/02/19 20:23:56 mstorti Exp $
 
 #ifndef _GNU_SOURCE
 #define _GNU_SOURCE
@@ -25,7 +25,6 @@
 // iteration modes
 #define NOT_INCLUDE_GHOST_ELEMS 0
 #define INCLUDE_GHOST_ELEMS 1
-extern int MY_RANK,SIZE;
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 #define LOCST(iele,j,k) VEC3(locst,iele,j,nel,k,ndof)
@@ -419,14 +418,14 @@ int Elemset::upload_vector_fast(int nel,int ndof,Dofmap *dofmap,
   }
 #if 0
   if (load_mat) {
-    PetscSynchronizedFlush(PETSC_COMM_WORLD); 
+    PetscSynchronizedFlush(PETSCFEM_COMM_WORLD); 
     int any_A_LL_other_stop_all;
     MPI_Allreduce(&any_A_LL_other_stop,
-		  &any_A_LL_other_stop_all,1,MPI_INT,MPI_MAX,PETSC_COMM_WORLD);
+		  &any_A_LL_other_stop_all,1,MPI_INT,MPI_MAX,PETSCFEM_COMM_WORLD);
     if (any_A_LL_other_stop_all) {
-      PetscSynchronizedPrintf(PETSC_COMM_WORLD,
+      PetscSynchronizedPrintf(PETSCFEM_COMM_WORLD,
 			      "[%d] any_A_LL_other: %d\n",MY_RANK,any_A_LL_other_stop);
-      PetscSynchronizedFlush(PETSC_COMM_WORLD); 
+      PetscSynchronizedFlush(PETSCFEM_COMM_WORLD); 
       PetscFinalize();
       exit(0);
     }

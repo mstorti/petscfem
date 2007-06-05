@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: mmoveopt.cpp,v 1.4 2007/02/24 14:45:08 mstorti Exp $
+//$Id: mmoveopt.cpp,v 1.3.20.1 2007/02/19 20:23:56 mstorti Exp $
 
 #include <src/fem.h>
 #include <src/utils.h>
@@ -71,7 +71,7 @@ element_connector(const FastMat2 &xloc,
 		  const FastMat2 &state_new,
 		  FastMat2 &res,FastMat2 &mat) {
 
-  double C=NAN,V=NAN,Sl=NAN,Q=NAN,Vref=NAN;
+  double C=0.,V,Sl,Q,Vref;
   double relax_factor_now = relax_factor;
   if (glob_param->inwt>0) 
     relax_factor_now = 1.0;

@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: state.cpp,v 1.10 2007/02/24 14:45:08 mstorti Exp $
+//$Id: state.cpp,v 1.9.10.1 2007/02/19 20:23:56 mstorti Exp $
 
 #include "sttfilter.h"
  
@@ -7,7 +7,7 @@
 #undef __FUNC__
 #define __FUNC__ "State::axpy(double,const State &)"
 State & State::axpy(double alpha,const State &v) {
-  int ierr = VecAXPY(&alpha,*(v.vec),*vec); 
+  int ierr = VecAXPY(*vec,alpha,*(v.vec));
   assert(ierr==0); ierr=0;
   return *this;
 }
@@ -16,9 +16,7 @@ State & State::axpy(double alpha,const State &v) {
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 #undef __FUNC__
 #define __FUNC__ "State::State(const State &v)"
-State::State(const State &v) 
-  : vec(NULL), 
-    time(v.time) {
+State::State(const State &v) : time(v.time) {
   vec = new Vec;
   int ierr = VecDuplicate(*v.vec,vec); ierr=0;
   assert(ierr==0); ierr=0;
@@ -30,8 +28,10 @@ State::State(const State &v)
 #define __FUNC__ "State::~State()" 
 State::~State() {
   if (vec) {
-    int ierr = VecDestroy(*vec);
-    assert(ierr==0); ierr=0;
+    if (*vec) {
+      int ierr = VecDestroy(*vec);
+      assert(ierr==0); ierr=0;
+    }
     delete vec;
   }
 }
@@ -51,8 +51,7 @@ const State & State::print_some(const char *filename,Dofmap *dofmap,
 #undef __FUNC__
 #define __FUNC__ "State & State::scale(double alpha)"
 State & State::scale(double alpha) {
-  double alpha_ = alpha;
-  int ierr = VecScale(&alpha_,*vec);
+  int ierr = VecScale(*vec,alpha);
   assert(ierr==0); ierr=0;
   return *this;
 }
@@ -62,8 +61,7 @@ State & State::scale(double alpha) {
 #undef __FUNC__
 #define __FUNC__ "State & State::set_cnst(double a)"
 State & State::set_cnst(double a) {
-  double a_ = a;
-  int ierr = VecSet(&a_,*vec);
+  int ierr = VecSet(*vec,a);
   assert(ierr==0); ierr=0;
   return *this;
 }

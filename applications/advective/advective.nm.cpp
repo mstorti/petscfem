@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: advective.nm.cpp,v 1.8 2002/01/14 03:45:05 mstorti Exp $
+//$Id: advective.nm.cpp,v 1.8.120.1 2007/02/19 20:23:56 mstorti Exp $
 
 extern int comp_mat_each_time_step_g,
   consistent_supg_matrix_g,
@@ -112,7 +112,7 @@ int Advective::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
          matloc(nen,nen);
 
 //    if (ndof != ndim+1) {
-//      PetscPrintf(PETSC_COMM_WORLD,"ndof != ndim+1\n"); CHKERRA(1);
+//      PetscPrintf(PETSCFEM_COMM_WORLD,"ndof != ndim+1\n"); CHKERRA(1);
 //    }
   
   nen = nel*ndof;
@@ -345,14 +345,14 @@ int Advective::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
       }
 
       dtloc = hloc/lambda_max;
-      // PetscPrintf(PETSC_COMM_WORLD,
+      // PetscPrintf(PETSCFEM_COMM_WORLD,
       // "On element %d, hloc %f, lambda_max %f, dtloc %f\n",
       // k,hloc,lambda_max,dtloc);
 	
       if (dtloc<DTMIN || !WAS_SET) {
 	DTMIN = dtloc;
 	WAS_SET = 1;
-// 	PetscPrintf(PETSC_COMM_WORLD,
+// 	PetscPrintf(PETSCFEM_COMM_WORLD,
 // 		    "setting dtmin: %f, hloc %f, lambda_max: %f\n",
 // 		    DTMIN,hloc,lambda_max);
       }

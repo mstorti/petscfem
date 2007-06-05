@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: bccnsfm2.cpp,v 1.18 2007/02/24 14:45:08 mstorti Exp $
+//$Id: bccnsfm2.cpp,v 1.17.10.1 2007/02/19 20:23:56 mstorti Exp $
   
 #include <src/fem.h>
 #include <src/utils.h>
@@ -73,7 +73,7 @@ int bcconv_ns_fm2::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
   }
 
   // Get arguments from arg_list
-  double *locst=NULL,*locst2=NULL,*retval=NULL,*retvalmat=NULL;
+  double *locst,*locst2,*retval,*retvalmat;
   if (comp_mat) {
     retvalmat = arg_data_v[0].retval;
   }
@@ -95,7 +95,7 @@ int bcconv_ns_fm2::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
 
 #if 0				// allow nsikeps elemset
   if (ndof != ndim+1) {
-    PetscPrintf(PETSC_COMM_WORLD,"ndof != ndim+1\n"); CHKERRA(1);
+    PetscPrintf(PETSCFEM_COMM_WORLD,"ndof != ndim+1\n"); CHKERRA(1);
   }
 #endif
 
@@ -125,7 +125,7 @@ int bcconv_ns_fm2::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
   // Definiciones para descargar el lazo interno
   double detJaco,p_star,wpgdet;
 
-  int elem=0, ipg,node, jdim, kloc,lloc,ldof;
+  int elem, ipg,node, jdim, kloc,lloc,ldof;
     
   FMatrix Jaco(ndimel,ndim),resmom(nel,ndim),normal(ndim),matij(ndim+1,ndim+1);
           
@@ -235,7 +235,7 @@ int bcconv_ns_fm2::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
       } else if (comp_mat) {
 	// don't make anything here !!
       } else {
-	PetscPrintf(PETSC_COMM_WORLD,
+	PetscPrintf(PETSCFEM_COMM_WORLD,
 		    "Don't know how to compute jobinfo: %s\n",jobinfo);
 	CHKERRQ(ierr);
       }

@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: dofmap.cpp,v 1.22 2007/01/30 19:03:44 mstorti Exp $
+//$Id: dofmap.cpp,v 1.22.10.1 2007/02/19 20:23:56 mstorti Exp $
 
 #include <cassert>
 #include <algorithm>
@@ -25,12 +25,12 @@ using namespace std;
 #undef __FUNC__
 #define __FUNC__ "void fixation_entry::print(void) const"
 void fixation_entry::print(void) const {
-  PetscPrintf(PETSC_COMM_WORLD,"Temporal Amplitude function:\n");
+  PetscPrintf(PETSCFEM_COMM_WORLD,"Temporal Amplitude function:\n");
   if (amp!=NULL) {
     amp->print();
   } else {
-    PetscPrintf(PETSC_COMM_WORLD,"No temporal part!\n");
-    PetscPrintf(PETSC_COMM_WORLD,"value: %f\n",val);
+    PetscPrintf(PETSCFEM_COMM_WORLD,"No temporal part!\n");
+    PetscPrintf(PETSCFEM_COMM_WORLD,"value: %f\n",val);
   }
 }
 
@@ -113,8 +113,10 @@ void Dofmap::get_row(int const & node,
 #undef __FUNC__
 #define __FUNC__ "int Dofmap::edof(const int node,const int field) const"
 int Dofmap::edof(const int node,const int field) const {
+#if !defined(NDEBUG)
   PETSCFEM_ASSERT(node>=1 && node<=nnod,"Node out of range: %d\n",node);
   PETSCFEM_ASSERT(field>=1 && field<=ndof,"Field out of range: %d\n",field);
+#endif
   return (node-1)*ndof+field;
 }
 
@@ -278,8 +280,8 @@ void Dofmap::dof_range(int myrank,int &dof1,int &dof2) {
 int Dofmap::create_MPI_vector(Vec &v) {
 
   int myrank;
-  MPI_Comm_rank(PETSC_COMM_WORLD,&myrank);
-  int ierr = VecCreateMPI(PETSC_COMM_WORLD,neqproc[myrank],neq,&v);
+  MPI_Comm_rank(PETSCFEM_COMM_WORLD,&myrank);
+  int ierr = VecCreateMPI(PETSCFEM_COMM_WORLD,neqproc[myrank],neq,&v);
   CHKERRQ(ierr);
   return ierr;
 }
@@ -290,8 +292,7 @@ int Dofmap::create_MPI_vector(Vec &v) {
 int Dofmap::create_MPI_ghost_vector(Vec &v) {
   
   int myrank, ierr;
-  MPI_Comm_rank(PETSC_COMM_WORLD,&myrank);
-  PetscSynchronizedFlush(PETSC_COMM_WORLD);
+  MPI_Comm_rank(PETSCFEM_COMM_WORLD,&myrank);
   ierr = VecCreateSeq(PETSC_COMM_SELF,
 		      ghost_dofs->size(),&v); CHKERRQ(ierr);
   return ierr;
@@ -300,7 +301,7 @@ int Dofmap::create_MPI_ghost_vector(Vec &v) {
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 int Dofmap::processor(int j) const {
   int size,rank;
-  MPI_Comm_size(PETSC_COMM_WORLD, &size);
+  MPI_Comm_size(PETSCFEM_COMM_WORLD, &size);
 
   for (rank=0; rank<size; rank++)
     if (j>=startproc[rank] && j<startproc[rank+1]) break;
@@ -308,10 +309,17 @@ int Dofmap::processor(int j) const {
 }
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
-Dofmap::Dofmap() : id(NULL), tpwgts(NULL) { }
+Dofmap::Dofmap() : 
+  idmap2(NULL), special_ptr(NULL), sp_eq(NULL), coefs(NULL),
+  comm(PETSCFEM_COMM_WORLD),
+  nnod(0), neq(0), dof1(0), dof2(0), neqf(0), neqtot(0), ndof(0),
+  ident(NULL), ghost_dofs(NULL), id(NULL),  fixa(NULL), q(NULL),
+  startproc(NULL), neqproc(NULL), size(0), tpwgts(NULL), npart(NULL),
+  ghost_scatter(NULL), scatter_print(NULL)
+{ }
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
-Dofmap::~Dofmap() { 
+Dofmap::~Dofmap() {
   DELETE_SCLR(id);
   DELETE_VCTR(tpwgts);
 }

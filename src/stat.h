@@ -1,19 +1,16 @@
 // -*- mode: C++ -*- 
 /*__INSERT_LICENSE__*/
-// $Id: stat.h,v 1.2 2007/02/24 14:45:08 mstorti Exp $
+// $Id: stat.h,v 1.1.112.1 2007/02/19 20:23:56 mstorti Exp $
 #ifndef STAT_H
 #define STAT_H
-
-extern int MY_RANK,SIZE;
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 class Stat {
 public:
   double vmin,vmax,sum;
   int count,initialized;
-  Stat() : vmin(NAN), vmax(NAN), sum(NAN), 
-           count(0), initialized(0) { }
-  void reset() { initialized=0; }
+  Stat() {initialized=0;}
+  void reset() {initialized=0;}
   void add(double val) {
     if (!initialized) {
       initialized = 1;
@@ -49,18 +46,18 @@ public:
     return sum;
   }
   void print_stat(char * s= NULL) {
-    if (s) PetscPrintf(PETSC_COMM_WORLD,
+    if (s) PetscPrintf(PETSCFEM_COMM_WORLD,
 		       "Event %s ------------------------\n",s);
     if (initialized) {
-      PetscSynchronizedPrintf(PETSC_COMM_WORLD, 
+      PetscSynchronizedPrintf(PETSCFEM_COMM_WORLD, 
 			      "[%d] total: %g, max: %g, min: "
 			      "%g, avrg: %g, count: %d\n",
 			      MY_RANK, total(), max(), min(), 
 			      avrg(), n());
     } else {
-      PetscSynchronizedPrintf(PETSC_COMM_WORLD,"[not initialized]\n");
+      PetscSynchronizedPrintf(PETSCFEM_COMM_WORLD,"[not initialized]\n");
     }
-    PetscSynchronizedFlush(PETSC_COMM_WORLD);
+    PetscSynchronizedFlush(PETSCFEM_COMM_WORLD);
   }
 };
 

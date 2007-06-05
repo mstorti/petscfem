@@ -53,7 +53,7 @@ int mmove2_main() {
   string save_file_res;
   BasicObject_application_factory = &BasicObject_ns_factory;
   
-  // ierr = MatCreateShell(PETSC_COMM_WORLD,int m,int n,int M,int N,void *ctx,Mat *Ap)
+  // ierr = MatCreateShell(PETSCFEM_COMM_WORLD,int m,int n,int M,int N,void *ctx,Mat *Ap)
   char fcase[FLEN+1],output_file[FLEN+1];
   Dofmap *dofmap;
   Mesh *mesh;
@@ -63,13 +63,13 @@ int mmove2_main() {
   hmin.resize(1);
 
   print_copyright();
-  PetscPrintf(PETSC_COMM_WORLD,
+  PetscPrintf(PETSCFEM_COMM_WORLD,
               "=============================================\n"
               "-------- MESH-MOVE VERSION 2 MODULE ---------\n"
               "=============================================\n"
               );
 
-  Debug debug(0,PETSC_COMM_WORLD);
+  Debug debug(0,PETSCFEM_COMM_WORLD);
   GLOBAL_DEBUG = &debug;
 
   int activate_debug=0;
@@ -83,7 +83,7 @@ int mmove2_main() {
   ierr = PetscOptionsGetString(PETSC_NULL,"-case",fcase,FLEN,&flg);
   CHKERRA(ierr);
   if (!flg) {
-    PetscPrintf(PETSC_COMM_WORLD,
+    PetscPrintf(PETSCFEM_COMM_WORLD,
 		"Option \"-case <filename>\" not passed to PETSc-FEM!!\n");
     PetscFinalize();
     exit(0);
@@ -92,11 +92,11 @@ int mmove2_main() {
   ierr = PetscOptionsGetString(PETSC_NULL,"-o",output_file,FLEN,&flg);
   CHKERRA(ierr);
   if (flg) { 
-    PetscPrintf(PETSC_COMM_WORLD,"PETSc-FEM: NS module: "
+    PetscPrintf(PETSCFEM_COMM_WORLD,"PETSc-FEM: NS module: "
 		"redirecting output to \"%s\"\n",output_file);
     FILE *new_stdout = fopen(output_file,"w");
     if (!new_stdout) {
-      PetscPrintf(PETSC_COMM_WORLD,"error redirecting output. "
+      PetscPrintf(PETSCFEM_COMM_WORLD,"error redirecting output. "
 		  "Couldn't open \"%s\"\n",output_file);
     } else {
       fclose(stdout);
@@ -491,10 +491,10 @@ int mmove2_main() {
       }
 
       if (print_linear_system_and_stop) {
-	PetscPrintf(PETSC_COMM_WORLD,
+	PetscPrintf(PETSCFEM_COMM_WORLD,
 		    "Printing residual and matrix for"
 		    " debugging and stopping.\n");
-	ierr = PetscViewerASCIIOpen(PETSC_COMM_WORLD,
+	ierr = PetscViewerASCIIOpen(PETSCFEM_COMM_WORLD,
 				    "system.dat",&matlab); CHKERRA(ierr);
 	ierr = PetscViewerSetFormat_WRAPPER(matlab,
 					    PETSC_VIEWER_ASCII_MATLAB,
@@ -520,7 +520,7 @@ int mmove2_main() {
       double normres;
       ierr  = VecNorm(res,NORM_2,&normres); CHKERRA(ierr);
       if (inwt==0) normres_external = normres;
-      PetscPrintf(PETSC_COMM_WORLD,
+      PetscPrintf(PETSCFEM_COMM_WORLD,
 		  "Newton subiter %d, norm_res  = %10.3e\n",
 		  inwt,normres);
 
@@ -534,7 +534,7 @@ int mmove2_main() {
 	nrf_indx += 2;
       }
       relfac = newton_relaxation_factor[nrf_indx-1];
-      if (relfac!=1.) PetscPrintf(PETSC_COMM_WORLD,
+      if (relfac!=1.) PetscPrintf(PETSCFEM_COMM_WORLD,
 				  "relaxation factor %f\n",relfac);
       scal= relfac/alpha;
       ierr = VecAXPY(&scal,dx,x);
@@ -550,7 +550,7 @@ int mmove2_main() {
     } // end of loop over Newton subiteration (inwt)
 
     if (normres_external < tol_newton) {
-      PetscPrintf(PETSC_COMM_WORLD,
+      PetscPrintf(PETSCFEM_COMM_WORLD,
 		  "Tolerance on newton loop reached:  "
 		  "|| R ||_0,  norm_res =%g < tol = %g\n",
 		  normres_external,tol_newton);
@@ -561,7 +561,7 @@ int mmove2_main() {
     scal = -1.0;
     ierr = VecAXPY(&scal,x,dx_step);
     ierr  = VecNorm(dx_step,NORM_2,&norm); CHKERRA(ierr);
-    PetscPrintf(PETSC_COMM_WORLD,"============= delta_u = %10.3e\n",norm);
+    PetscPrintf(PETSCFEM_COMM_WORLD,"============= delta_u = %10.3e\n",norm);
     print_vector_rota(save_file_pattern.c_str(),x,dofmap,&time,
 		      tstep-1,nsaverot,nrec,nfile);
   

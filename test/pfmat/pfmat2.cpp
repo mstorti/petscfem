@@ -1,5 +1,5 @@
 /*__INSERT_LICENSE__*/
-// $Id: pfmat2.cpp,v 1.7 2004/11/07 13:06:48 mstorti Exp $
+// $Id: pfmat2.cpp,v 1.7.70.1 2007/02/19 20:23:56 mstorti Exp $
 
 // Tests for the `PFMat' class
 
@@ -271,7 +271,7 @@ int main(int argc,char **args) {
 	  double scal = -1.;
 	  ierr  = VecNorm(xex,NORM_2,&normex); CHKERRA(ierr);
 
-	  ierr = VecAXPY(&scal,xex,x); CHKERRA(ierr);
+	  ierr = VecAXPY(x,scal,xex); CHKERRA(ierr);
 	  ierr  = VecNorm(x,NORM_2,&norm); CHKERRA(ierr);
 
 	  int this_ok = norm/normex<=tol;

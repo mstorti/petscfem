@@ -1,5 +1,5 @@
 /*__INSERT_LICENSE__*/
-// $Id: distmat.cpp,v 1.16 2007/01/30 19:03:44 mstorti Exp $
+// $Id: distmat.cpp,v 1.16.10.1 2007/02/19 20:23:56 mstorti Exp $
 #include <cstdio>
 #include <cstdlib>
 #include <cmath>
@@ -12,8 +12,6 @@
 #include <src/buffpack.h>
 #include <src/maximizr.h>
 #include <src/distmat.h>
-
-extern int MY_RANK,SIZE;
 
 IntRowPartitioner::~IntRowPartitioner() {}
 

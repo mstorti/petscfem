@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: fstack.cpp,v 1.21 2007/02/24 14:45:08 mstorti Exp $
+//$Id: fstack.cpp,v 1.18.10.1 2007/02/19 20:23:56 mstorti Exp $
 #include <stdlib.h>
 #include "fstack.h"
 
@@ -49,14 +49,9 @@ void FileStack::close(void) {
 #define __FUNC__ "FileStack::FileStack" 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 FileStack::FileStack(const char *filename) : 
-  file_stack(NULL),
   file_at_top(NULL),
   echo_stream (NULL), 
-  echo(0), 
-  read_buffer(NULL),
-  buf(NULL), bufr(NULL),linecopy(NULL),
-  abufr(NULL),abuf(NULL),
-  quiet(0), 
+  echo(0), quiet(0), 
   last_error_m(read_ok) {
 
   open(filename);
@@ -102,7 +97,7 @@ int FileStack::open(const char *filename) {
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 int FileStack::get_line(char * & line) {
   char /*ch, *chp,*/ *token, *bufrp;
-  int len,lenn,readlen,contnd=0;
+  int len,lenn,readlen,contnd=0;/*,ierr;*/
   len=0;
 
   // resets line
@@ -200,7 +195,6 @@ int FileStack::get_line(char * & line) {
 	if (!quiet)
 	  printf("Couldn't open file \"%s\"!!\n",token);
 	last_error_m = cant_open;
-        da_pop(file_stack,&file_at_top);
 	return 1;
       }
       file_names.push_back(token_cpy);

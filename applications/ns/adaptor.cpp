@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: adaptor.cpp,v 1.18.2.2 2007/03/20 17:41:23 mstorti Exp $
+//$Id: adaptor.cpp,v 1.15.20.1 2007/02/19 20:23:56 mstorti Exp $
 
 #include <src/fem.h>
 #include <src/utils.h>
@@ -14,81 +14,8 @@ extern TextHashTable *GLOBAL_OPTIONS;
    
 #define MAXPROP 100
 
-//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>
-void adaptor::export_vals(adaptor::ArgHandle h,
-                          double *vals,int s) {
-  PETSCFEM_ASSERT0(elem>=0 && ielh>=0,
-                   "Current element not set. "
-                   "`export_vals()' was called probably from outside \n"
-                   "adaptor' element loop\n");
-  int index = h.index();
-  arg_data &arg = (*arg_data_vp)[index];
-  PETSCFEM_ASSERT0(!(h==NullArgHandle),
-                   "Invalid handle");
-  PETSCFEM_ASSERT(index>=0 && index<int(nargs()),
-                  "Invalid handle index, index %d, nargs\n",
-                  index,nargs());  
-  double *retval = arg.retval;
-  int rowsz=-1;
-  if (arg.options & OUT_VECTOR) rowsz=nel*ndof;
-  else if (arg.options &OUT_MATRIX) 
-    rowsz=nel*ndof*nel*ndof;
-  else {
-    PETSCFEM_ERROR("Invalid argument for output. \n"
-                   "arginfo \"%s\", index %d\n",
-                   arg.arginfo.c_str(),index);  
-  }
-  if (s>=0) {
-    PETSCFEM_ASSERT(s==rowsz,
-                    "Not exporting correct size. \n"
-                    "exported %d, required %d\n",s,rowsz);  
-  }
-  memcpy(retval+ielh*rowsz,vals,rowsz*sizeof(double));
-}
-
-//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>
-void adaptor::export_vals(ArgHandle h,FastMat2 &a) {
-  export_vals(h,a.storage_begin(),a.size());
-}
-
-//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>
-adaptor::ArgHandle adaptor::NullArgHandle;
-
-//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>
-size_t adaptor::nargs() const {
-  return arg_data_vp->size();
-}
-
-//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>
-bool adaptor::ArgHandle::
-operator==(ArgHandle b) const {
-  return index_m==b.index_m;
-}
-
-//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>
-adaptor::ArgHandle 
-adaptor::get_arg_handle(const string &key,
-                        const char* errmess) const {
-  ArgHandle handle = NullArgHandle;
-  if (arg_data_vp) {
-    for (unsigned int j=0; j<arg_data_vp->size(); j++) {
-      if ((*arg_data_vp)[j].arginfo == key) {
-        handle = ArgHandle(j);
-        break;
-      }
-    }
-  }
-  if (errmess && handle==NullArgHandle)
-    petscfem_error(errmess);
-  return handle;
-}
-
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
-adaptor::adaptor() : elem_init_flag(0), 
-                     use_fastmat2_cache(1),
-                     arg_data_vp(NULL),
-                     elem(-1)
-                     { }
+adaptor::adaptor() : elem_init_flag(0) { }
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 void adaptor::after_assemble(const char *jobinfo) {
@@ -106,11 +33,11 @@ int adaptor::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
 		      const TimeData *time_) {
 
   int kloc,node;
-  arg_data_vp = &arg_data_v;
 
   GET_JOBINFO_FLAG(comp_mat);
   GET_JOBINFO_FLAG(comp_mat_res);
   GET_JOBINFO_FLAG(comp_res);
+  GET_JOBINFO_FLAG(get_nearest_wall_element);
 
   assert(!comp_res);
 
@@ -120,7 +47,7 @@ int adaptor::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
 #define RETVALMAT(iele,j,k,p,q) VEC5(retvalmat,iele,j,nel,k,ndof,p,nel,q,ndof)
 
   int ierr=0;
-  // PetscPrintf(PETSC_COMM_WORLD,"entrando a nsilesther\n");
+  // PetscPrintf(PETSCFEM_COMM_WORLD,"entrando a nsilesther\n");
 
 #define NODEDATA(j,k) VEC2(nodedata->nodedata,j,k,nu)
 #define ICONE(j,k) (icone[nel*(j)+(k)]) 
@@ -131,60 +58,37 @@ int adaptor::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
   TGETOPTDEF_ND(thash,int,npg,0);
   // ierr = get_int(thash,"npg",&npg); CHKERRA(ierr);
   TGETOPTDEF_ND(thash,int,ndim,0); //nd
-  //o Use #arg-handles# for manipulation of argumentes
-  //  from/to `adaptor'. 
-  TGETOPTDEF(thash,int,use_arg_handles,0);
-  //o Use caches for FastMat2 matrices
-  TGETOPTDEF(thash,int,use_fastmat2_cache,1);
-
-  PETSCFEM_ASSERT(npg>=0,"npg should be non-negative, npg %d\n",npg);  
-  PETSCFEM_ASSERT(ndim>=0,"ndim should be non-negative, ndim %d\n",ndim);  
-
+  assert(npg>=0);  
+  assert(ndim>0);
   TGETOPTDEF_ND(thash,int,ndimel,ndim);
-  PETSCFEM_ASSERT(ndimel>=0 && ndimel<=ndim,
-                  "Incorrect value for `ndimel': \n",ndimel);
+  assert(ndimel>=0 && ndimel<=ndim);
   int nen = nel*ndof;
 
   // Unpack nodedata
   int nu=nodedata->nu;
 
   // Get arguments from arg_list
-  double *locst=NULL,*locst2=NULL,*retval=NULL,*retvalmat=NULL;
+  double *locst,*locst2,*retval,*retvalmat;
 
-  if (!use_arg_handles) {
-    if (comp_mat) 
-      retvalmat = arg_data_v[0].retval;
-    if (comp_mat_res) {
-      int ja=0;
-      locst = arg_data_v[ja++].locst;
-      locst2 = arg_data_v[ja++].locst;
-      retval = arg_data_v[ja++].retval;
-      retvalmat = arg_data_v[ja++].retval;
-      ja++;
-      glob_param = (GlobParam *)(arg_data_v[ja++].user_data);
-      alpha = glob_param->alpha;
-    } 
-  } else {
+  if (comp_mat) retvalmat = arg_data_v[0].retval;
 
-#define GET_INDEX(key)                                  \
-    handle = get_arg_handle(key,                        \
-          "can't get arg handle for key " key "\n");    \
-    index = handle.index();
+  double *hmin,Dt;
+  int ja_hmin;
+#define WAS_SET arg_data_v[ja_hmin].was_set
+  if (comp_mat_res) {
+    int ja=0;
+    locst = arg_data_v[ja++].locst;
+    locst2 = arg_data_v[ja++].locst;
+    retval = arg_data_v[ja++].retval;
+    retvalmat = arg_data_v[ja++].retval;
+    ja++;
+    ja_hmin=ja;
+    glob_param = (GlobParam *)(arg_data_v[ja++].user_data);
+    rec_Dt = 1./glob_param->Dt;
+    alpha = glob_param->alpha;
+    if (glob_param->steady) rec_Dt=0.;
+  } 
 
-    ArgHandle handle;
-    int index;
-    if (comp_mat) {
-      GET_INDEX("A"); retvalmat = arg_data_v[index].retval;
-    } else if (comp_mat_res) {
-      GET_INDEX("state"); locst = arg_data_v[index].locst;
-      GET_INDEX("state_old"); locst2 = arg_data_v[index].locst;
-      GET_INDEX("res"); retval = arg_data_v[index].retval;
-      GET_INDEX("A"); retvalmat = arg_data_v[index].retval;
-      GET_INDEX("glob_param"); 
-      glob_param = (GlobParam *)(arg_data_v[index].user_data);
-      alpha = glob_param->alpha;
-    } 
-  }
   // allocate local vecs
   nen = nel*ndof;
   FastMat2 veccontr(2,nel,ndof),veccontrp(2,nel,ndof),
@@ -195,6 +99,11 @@ int adaptor::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
     matlocf_fdj(4,nel,ndof,nel,ndof),
     matloc_prof(4,nel,ndof,nel,ndof), tmp;
     
+
+  // Physical properties
+  int iprop=0, elprpsindx[MAXPROP]; double propel[MAXPROP];
+  int nprops=iprop;
+
   nH = nu-ndim;
   Hloc.resize(2,nel,nH);
 
@@ -247,16 +156,15 @@ int adaptor::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
   // *outside* the element loop
   if (comp_mat_res) init();
 
-  before_chunk(jobinfo);
   FastMatCacheList cache_list;
-  if (use_fastmat2_cache) 
-    FastMat2::activate_cache(&cache_list);
+  FastMat2::activate_cache(&cache_list);
 
-  ielh=-1;
+  int ielh=-1;
   for (int k=el_start; k<=el_last; k++) {
     if (!compute_this_elem(k,this,myrank,iter_mode)) continue;
     FastMat2::reset_cache();
-    ielh++; elem=k;
+    ielh++;
+    elem=k;
     // load_props(propel,elprpsindx,nprops,&(ELEMPROPS(k,0)));
 
     // Load local node coordinates in local vector
@@ -277,15 +185,14 @@ int adaptor::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
     matlocf.set(0.);
     veccontr.set(0.);
 
-    if(comp_mat && !use_arg_handles)
+    if(comp_mat)
       matloc_prof.export_vals(&(RETVALMAT(ielh,0,0,0,0)));
 
     if (comp_mat_res) {
       // Users have to implement this function with the physics of
       // the problem.
       element_connector(xloc,locstate2,locstate,veccontr,matlocf);
-      if (!use_arg_handles)
-        veccontr.export_vals(&(RETVAL(ielh,0,0)));
+      veccontr.export_vals(&(RETVAL(ielh,0,0)));
 
       if (jacobian_fdj_compute) {
 	double epsil = jacobian_fdj_epsilon;
@@ -319,17 +226,13 @@ int adaptor::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
 	  matlocf.set(matlocf_fdj);
 	  matlocf_fdj.rs();
       }
-      if (!use_arg_handles)
-        matlocf.export_vals(&(RETVALMAT(ielh,0,0,0,0)));
+      matlocf.export_vals(&(RETVALMAT(ielh,0,0,0,0)));
     }
   }
-  ielh = elem = -1;
-  after_chunk(jobinfo);
   FastMat2::void_cache();
   FastMat2::deactivate_cache();
 
   if (comp_mat_res) clean();
-  arg_data_vp = NULL;
   return 0;
 }
 

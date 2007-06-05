@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: nsid.cpp,v 1.10 2007/02/24 14:45:08 mstorti Exp $
+//$Id: nsid.cpp,v 1.9.98.1 2007/02/19 20:23:56 mstorti Exp $
 
 #include <src/fem.h>
 #include <src/utils.h>
@@ -56,7 +56,7 @@ int ns_id::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
 #define RETVALMAT(iele,j,k,p,q) VEC5(retvalmat,iele,j,nel,k,ndof,p,nel,q,ndof)
 
   int ierr=0;
-  // PetscPrintf(PETSC_COMM_WORLD,"entrando a nsi_tet\n");
+  // PetscPrintf(PETSCFEM_COMM_WORLD,"entrando a nsi_tet\n");
 
   // TGETOPTDEF(thash,int,ndim,0); //nd
   int nen = nel*ndof;
@@ -67,7 +67,7 @@ int ns_id::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
   nnod = dofmap->nnod;
 
   // Get arguments from arg_list
-  double *locst=NULL,*locst2=NULL,*retval=NULL,*retvalmat=NULL;
+  double *locst,*locst2,*retval,*retvalmat;
 
   if (comp_mat_res) {
     int ja=0;

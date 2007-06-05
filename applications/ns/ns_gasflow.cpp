@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: ns_gasflow.cpp,v 1.4 2007/02/24 14:45:08 mstorti Exp $
+//$Id: ns_gasflow.cpp,v 1.3.10.1 2007/02/19 20:23:56 mstorti Exp $
 
 #include <src/fem.h>
 #include <src/utils.h>
@@ -251,7 +251,7 @@ assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
 #define RETVALMAT(iele,j,k,p,q) VEC5(retvalmat,iele,j,nel,k,ndof,p,nel,q,ndof)
 
   int ierr=0, axi;
-  // PetscPrintf(PETSC_COMM_WORLD,"entrando a nsi_tet\n");
+  // PetscPrintf(PETSCFEM_COMM_WORLD,"entrando a nsi_tet\n");
 
 #define NODEDATA(j,k) VEC2(nodedata->nodedata,j,k,nu)
 #define ICONE(j,k) (icone[nel*(j)+(k)]) 
@@ -287,8 +287,8 @@ assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
   }
 
   // Get arguments from arg_list
-  double *locst=NULL,*locst2=NULL,*retval=NULL,*retvalmat=NULL;
-  WallData *wall_data=NULL;
+  double *locst,*locst2,*retval,*retvalmat;
+  WallData *wall_data;
   if (comp_mat) {
     retvalmat = arg_data_v[0].retval;
   } else if (get_nearest_wall_element) {
@@ -302,9 +302,9 @@ assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
 
   // rec_Dt is the reciprocal of Dt (i.e. 1/Dt)
   // for steady solutions it is set to 0. (Dt=inf)
-  GlobParam *glob_param=NULL;
-  double *hmin=NULL,Dt=NAN,rec_Dt=NAN;
-  int ja_hmin=0;
+  GlobParam *glob_param;
+  double *hmin,Dt,rec_Dt=0.0;
+  int ja_hmin;
 #define WAS_SET arg_data_v[ja_hmin].was_set
   if (comp_mat_res) {
     int ja=0;
@@ -340,7 +340,7 @@ assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
     locstate2(2,nel,ndof),xpg,G_body(1,ndim),vrel,Id_ndim(2,ndim,ndim);
 
   if (ndof != ndim+2) {
-    PetscPrintf(PETSC_COMM_WORLD,"ndof != ndim+1\n"); CHKERRA(1);
+    PetscPrintf(PETSCFEM_COMM_WORLD,"ndof != ndim+1\n"); CHKERRA(1);
   }
 
   nen = nel*ndof;
@@ -358,7 +358,7 @@ assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
   else if (axisymmetric=="y") axi=2;
   else if (axisymmetric=="z") axi=3;
   else {
-    PetscPrintf(PETSC_COMM_WORLD,
+    PetscPrintf(PETSCFEM_COMM_WORLD,
 		"Invalid value for \"axisymmetric\" option\n"
 		"axisymmetric=\"%s\"\n",axisymmetric.c_str());
     PetscFinalize();
@@ -458,8 +458,8 @@ assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
 
   FastMat2 P_supg, W_supg, W_supg_t, dmatw,
     grad_div_u(4,nel,ndim,nel,ndim),P_pspg(2,ndim,nel),dshapex(2,ndim,nel);
-  double *grad_div_u_cache=NULL;
-  int grad_div_u_was_cached=0;
+  double *grad_div_u_cache;
+  int grad_div_u_was_cached;
 
   int elem, ipg,node, jdim, kloc,lloc,ldof;
 
@@ -659,7 +659,7 @@ assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
       Hloc.rs();
     }
     
-    double shear_vel=NAN;
+    double shear_vel;
     int wall_elem;
     if (LES && comp_mat_res && A_van_Driest>0.) {
 #ifdef USE_ANN
@@ -923,7 +923,7 @@ assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
       } else if (comp_mat) {
 	// don't make anything here !!
       } else {
-	PetscPrintf(PETSC_COMM_WORLD,
+	PetscPrintf(PETSCFEM_COMM_WORLD,
 		    "Don't know how to compute jobinfo: %s\n",jobinfo);
 	CHKERRQ(ierr);
       }

@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: wall.cpp,v 1.25 2007/02/24 14:45:08 mstorti Exp $
+//$Id: wall.cpp,v 1.24.4.1 2007/02/19 20:23:56 mstorti Exp $
 
 #include <src/fem.h>
 #include <src/utils.h>
@@ -10,7 +10,6 @@
 #include "nsi_tet.h"
 
 extern TextHashTable *GLOBAL_OPTIONS;
-extern int MY_RANK,SIZE;
 extern int TSTEP; //debug:=
 #define MAXPROP 100
 
@@ -64,7 +63,7 @@ int wall::ask(const char *jobinfo,int &skip_elemset) {
     double *recv_buff = new double[nelem];
     ierr = MPI_Allreduce((void *)elemprops_add,
 			 (void *)recv_buff,nelem,MPI_DOUBLE,
-			 MPI_SUM,PETSC_COMM_WORLD); CHKERRQ(ierr);
+			 MPI_SUM,PETSCFEM_COMM_WORLD); CHKERRQ(ierr);
     for (int j=0; j<nelem; j++) elemprops_add[j] = recv_buff[j];
     delete[] recv_buff;
   }
@@ -146,8 +145,8 @@ int wall::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
   int nu=nodedata->nu;
 
   // Get arguments from arg_list
-  double *locst=NULL,*locst2=NULL,*retval=NULL,*retvalmat=NULL,
-    *retvalmat_poi=NULL,*retvalmat_prj=NULL;
+  double *locst,*locst2,*retval,*retvalmat,
+    *retvalmat_poi,*retvalmat_prj;
 
   //o The $y^+$ coordinate of the computational boundary
   TGETOPTDEF(thash,double,y_wall_plus,25.);

@@ -1,8 +1,8 @@
 //__INSERT_LICENSE__
+//$Id: advdife-gcl.cpp,v 1.13.4.2 2007/02/23 19:18:07 dalcinl Exp $
 extern int comp_mat_each_time_step_g,
   consistent_supg_matrix_g,
   local_time_step_g;
-extern int MY_RANK,SIZE;
 
 #include <vector>
 #include <string>
@@ -82,7 +82,7 @@ new_assemble_GCL_compliant(arg_data_list &arg_data_v,const Nodedata *nodedata,
   // lambda_max:= the maximum eigenvalue of the jacobians.
   // used to compute the critical time step.
   vector<double> *dtmin;
-  double lambda_max=NAN;
+  double lambda_max;
   int jdtmin;
   GlobParam *glob_param=NULL;
   // The trapezoidal rule integration parameter
@@ -176,7 +176,7 @@ new_assemble_GCL_compliant(arg_data_list &arg_data_v,const Nodedata *nodedata,
   else if (axisymmetric=="y") axi=2;
   else if (axisymmetric=="z") axi=3;
   else {
-    PetscPrintf(PETSC_COMM_WORLD,
+    PetscPrintf(PETSCFEM_COMM_WORLD,
 		"Invalid value for \"axisymmetric\" option\n"
 		"axisymmetric=\"%s\"\n",axisymmetric.c_str());
     PetscFinalize();

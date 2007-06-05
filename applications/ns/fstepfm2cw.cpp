@@ -12,7 +12,6 @@
 #include "./fracstep.h"
 
 #define MAXPROP 100
-extern int MY_RANK,SIZE;
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 int fracstep_fm2_cw::ask(const char *jobinfo,int &skip_elemset) {
@@ -79,10 +78,9 @@ int fracstep_fm2_cw::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
     exit(1);
   }
 
-  double *locst=NULL,*locst2=NULL,*retval=NULL,*retvalmat=NULL,
-    *retvalmat_mom=NULL,*retvalmat_poi=NULL,
-    *retvalmat_prj=NULL;
-  WallData *wall_data=NULL;
+  double *locst,*locst2,*retval,*retvalmat,*retvalmat_mom,*retvalmat_poi,
+    *retvalmat_prj;
+  WallData *wall_data;
 
   // rec_Dt is the reciprocal of Dt (i.e. 1/Dt)
   // for steady solutions it is set to 0. (Dt=inf)
@@ -138,7 +136,7 @@ int fracstep_fm2_cw::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
     locstate(2,nel,ndof),locstate2(2,nel,ndof);
 
   if (ndof != ndim+1) {
-    PetscPrintf(PETSC_COMM_WORLD,"ndof != ndim+1\n"); CHKERRA(1);
+    PetscPrintf(PETSCFEM_COMM_WORLD,"ndof != ndim+1\n"); CHKERRA(1);
   }
 
   string ename = name();

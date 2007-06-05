@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-/* $Id: nsikepsrot.cpp,v 1.36 2007/02/24 14:45:08 mstorti Exp $ */
+/* $Id: nsikepsrot.cpp,v 1.35.10.1 2007/02/19 20:23:56 mstorti Exp $ */
 
 #include <src/fem.h>
 #include <src/utils.h>
@@ -89,7 +89,7 @@ int nsi_tet_keps_rot::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
 #define RETVALMAT(iele,j,k,p,q) VEC5(retvalmat,iele,j,nel,k,ndof,p,nel,q,ndof)
 
   int ierr=0, axi;
-  // PetscPrintf(PETSC_COMM_WORLD,"entrando a nsikeps\n");
+  // PetscPrintf(PETSCFEM_COMM_WORLD,"entrando a nsikeps\n");
 
 #define NODEDATA(j,k) VEC2(nodedata->nodedata,j,k,nu)
   //#define ICONE(j,k) (icone[nel*(j)+(k)]) 
@@ -131,17 +131,17 @@ int nsi_tet_keps_rot::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
   }
 
   // Get arguments from arg_list
-  double *locst=NULL,*locst2=NULL,*retval=NULL,*retvalmat=NULL;
-  WallData *wall_data=NULL;
+  double *locst,*locst2,*retval,*retvalmat;
+  WallData *wall_data;
   if (comp_mat || comp_mat_ke) {
     retvalmat = arg_data_v[0].retval;
   } else if (get_nearest_wall_element) {
     wall_data = (WallData *)arg_data_v[0].user_data;
   }
 
-  GlobParam *glob_param=NULL;
-  double *hmin=NULL,rec_Dt=NAN;
-  int ja_hmin=0;
+  GlobParam *glob_param;
+  double *hmin,rec_Dt=0.;
+  int ja_hmin;
 #define WAS_SET arg_data_v[ja_hmin].was_set
   if (comp_mat_res || comp_mat_res_ke) {
     int ja=0;
@@ -187,7 +187,7 @@ int nsi_tet_keps_rot::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
   FMatrix acel_rot(ndim),waux1(ndim),waux2(ndim);
 
   if (ndof != ndim+3) {
-    PetscPrintf(PETSC_COMM_WORLD,"ndof != ndim+3\n"); CHKERRA(1);
+    PetscPrintf(PETSCFEM_COMM_WORLD,"ndof != ndim+3\n"); CHKERRA(1);
   }
 
   nen = nelr*ndof;
@@ -236,7 +236,7 @@ int nsi_tet_keps_rot::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
   else if (axisymmetric=="y") axi=2;
   else if (axisymmetric=="z") axi=3;
   else {
-    PetscPrintf(PETSC_COMM_WORLD,
+    PetscPrintf(PETSCFEM_COMM_WORLD,
 		"Invalid value for \"axisymmetric\" option\n"
 		"axisymmetric=\"%s\"\n",axisymmetric.c_str());
     PetscFinalize();
@@ -296,14 +296,13 @@ int nsi_tet_keps_rot::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
   GPdata gp_data(geometry.c_str(),ndim,nelr,npg,GP_FASTMAT2);
 
   // Definiciones para descargar el lazo interno
-  double detJaco, UU, u2, Peclet, psi, tau_supg=NAN, 
-    tau_pspg=NAN, div_u_star, p_star,wpgdet,velmod,
-    tol,h_supg,fz,delta_supg=NAN;
+  double detJaco, UU, u2, Peclet, psi, tau_supg, tau_pspg, div_u_star,
+    p_star,wpgdet,velmod,tol,h_supg,fz,delta_supg;
 
   FastMat2 P_supg, W_supg, W_supg_t, dmatw, 
            grad_div_u(4,nelr,ndim,nelr,ndim);
-  double *grad_div_u_cache=NULL;
-  int grad_div_u_was_cached=0;
+  double *grad_div_u_cache;
+  int grad_div_u_was_cached;
 
   int elem, ipg,node, jdim, kloc,lloc,ldof;
 
@@ -317,8 +316,8 @@ int nsi_tet_keps_rot::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
     massm,tmp7,tmp8,tmp9,tmp10,tmp11,tmp13,tmp14,tmp15,dshapex_c,xc,
     wall_coords(ndim),dist_to_wall,tmp16,tmp162,tmp17,tmp18,tmp19,tmp20;
 
-  double tau_supg_k=NAN,kap,kap_star,dkap,tmp1_ke,tmp2_ke;
-  double tau_supg_e=NAN,eps,eps_star,deps;
+  double tau_supg_k,kap,kap_star,dkap,tmp1_ke,tmp2_ke;
+  double tau_supg_e,eps,eps_star,deps;
   FastMat2 W_supg_k,P_supg_k,W_supg_e,P_supg_e;
 
   FMatrix kapcol,kapcol_new,kapcol_star,grad_kap_star(ndim),massm_ke;
@@ -329,15 +328,14 @@ int nsi_tet_keps_rot::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
 
   FMatrix reskap(nelr),reseps(nelr);
 
-  double diff_coe_kap=NAN,diff_coe_eps=NAN,Pkap,Peps,
-    Peps_2,eps_over_kap,kap_over_eps;
+  double diff_coe_kap,diff_coe_eps,Pkap,Peps,Peps_2,eps_over_kap,kap_over_eps;
   double strain_rate_scalar,Jaco_kk,Jaco_ke,Jaco_ek,Jaco_ee;
   FMatrix Jaco_k(2),Jaco_e(2);
 
   double tmp12;
   double nu_eff;
   double tsf = temporal_stability_factor;
-  double mix_length_inv,delta_supg_k=NAN,delta_supg_e=NAN;
+  double mix_length_inv,delta_supg_k,delta_supg_e;
   //  double fk,fe,fv,eps_before_ctff,dfkdk,dfvdv,dfede,dfedk,vaux,GG,dflidli;
   double fk,fe,fv,eps_before_ctff,dfkdk,dfvdv,dfede,dfedk,GG,dflidli;
   double lambda_1,lambda_2,lambda_max;
@@ -1083,7 +1081,7 @@ int nsi_tet_keps_rot::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
       } else if (comp_mat) {
 	// don't make anything here !!
       } else {
-	PetscPrintf(PETSC_COMM_WORLD,
+	PetscPrintf(PETSCFEM_COMM_WORLD,
 		    "Don't know how to compute jobinfo: %s\n",jobinfo);
 	CHKERRQ(ierr);
       }

@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: nsitetlesfm2.cpp,v 1.77 2007/02/24 14:45:08 mstorti Exp $
+//$Id: nsitetlesfm2.cpp,v 1.76.10.1 2007/02/19 20:23:56 mstorti Exp $
 
 #include <src/fem.h>
 #include <src/utils.h>
@@ -47,7 +47,7 @@ assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
 #define RETVALMAT(iele,j,k,p,q) VEC5(retvalmat,iele,j,nel,k,ndof,p,nel,q,ndof)
 
   int ierr=0, axi;
-  // PetscPrintf(PETSC_COMM_WORLD,"entrando a nsi_tet\n");
+  // PetscPrintf(PETSCFEM_COMM_WORLD,"entrando a nsi_tet\n");
 
 #define NODEDATA(j,k) VEC2(nodedata->nodedata,j,k,nu)
 #define ICONE(j,k) (icone[nel*(j)+(k)]) 
@@ -83,8 +83,8 @@ assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
   }
 
   // Get arguments from arg_list
-  double *locst=NULL,*locst2=NULL,*retval=NULL,*retvalmat=NULL;
-  WallData *wall_data=NULL;
+  double *locst,*locst2,*retval,*retvalmat;
+  WallData *wall_data;
   if (comp_mat) {
     retvalmat = arg_data_v[0].retval;
   } else if (get_nearest_wall_element) {
@@ -98,9 +98,9 @@ assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
 
   // rec_Dt is the reciprocal of Dt (i.e. 1/Dt)
   // for steady solutions it is set to 0. (Dt=inf)
-  GlobParam *glob_param=NULL;
-  double *hmin=NULL,Dt=INFINITY,rec_Dt=0.0;
-  int ja_hmin=INT_MAX;
+  GlobParam *glob_param;
+  double Dt,rec_Dt=0.;
+  double *hmin=NULL; int ja_hmin=0;
 #define WAS_SET arg_data_v[ja_hmin].was_set
   if (comp_mat_res) {
     int ja=0;
@@ -109,7 +109,7 @@ assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
     retval = arg_data_v[ja++].retval;
     if (update_jacobian) retvalmat = arg_data_v[ja++].retval;
     hmin = &*(arg_data_v[ja++].vector_assoc)->begin();
-    ja_hmin=ja;
+    ja_hmin=ja-1;
     glob_param = (GlobParam *)(arg_data_v[ja++].user_data);
     rec_Dt = 1./glob_param->Dt;
     if (glob_param->steady) rec_Dt=0.;
@@ -129,11 +129,6 @@ assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
   //o Pointer to old coordinates in
   //  #nodedata# array excluding the first #ndim# values
   SGETOPTDEF(int,indx_ALE_xold,1);
-  //o Assert `fractional_step' is not used. 
-  SGETOPTDEF(int,fractional_step,0);
-  PETSCFEM_ASSERT0(!fractional_step,
-                   "This elemset is to be used only \n"
-                   "with the monolithic version. ");  
 
   // allocate local vecs
   int kdof;
@@ -142,7 +137,7 @@ assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
     vrel;
 
   if (ndof != ndim+1) {
-    PetscPrintf(PETSC_COMM_WORLD,"ndof != ndim+1\n"); CHKERRA(1);
+    PetscPrintf(PETSCFEM_COMM_WORLD,"ndof != ndim+1\n"); CHKERRA(1);
   }
 
   nen = nel*ndof;
@@ -163,7 +158,7 @@ assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
   else if (axisymmetric=="y") axi=2;
   else if (axisymmetric=="z") axi=3;
   else {
-    PetscPrintf(PETSC_COMM_WORLD,
+    PetscPrintf(PETSCFEM_COMM_WORLD,
 		"Invalid value for \"axisymmetric\" option\n"
 		"axisymmetric=\"%s\"\n",axisymmetric.c_str());
     PetscFinalize();
@@ -188,6 +183,8 @@ assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
   SGETOPTDEF(double,tau_fac,1.);  // Scale upwind
   //o Scales the PSPG stabilization term. 
   SGETOPTDEF(double,tau_pspg_fac,1.);  // Scale upwind
+  //o Scales the SUPG stabilization term. 
+  SGETOPTDEF(double,tau_supg_fac,1.);  // Scale upwind
   //o Scale the residual term. 
   SGETOPTDEF(double,residual_factor,1.);
   //o Scale the jacobian term. 
@@ -230,8 +227,8 @@ assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
 
   FastMat2 P_supg, W_supg, W_supg_t, dmatw,
     grad_div_u(4,nel,ndim,nel,ndim),P_pspg(2,ndim,nel),dshapex(2,ndim,nel);
-  double *grad_div_u_cache=NULL;
-  int grad_div_u_was_cached=0;
+  double *grad_div_u_cache;
+  int grad_div_u_was_cached;
 
   int elem, ipg,node, jdim, kloc,lloc,ldof;
 
@@ -389,7 +386,7 @@ assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
       Hloc.rs();
     }
     
-    double shear_vel=NAN;
+    double shear_vel;
     int wall_elem;
     if (LES && comp_mat_res && A_van_Driest>0.) {
 #ifdef USE_ANN
@@ -493,7 +490,7 @@ assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
 	}
 
 	// Smagorinsky turbulence model
-	double nu_eff=NAN,van_D=NAN,ywall=NAN;
+	double nu_eff,van_D,ywall;
 	if (LES) {
 	  double tr = (double) tmp15.prod(strain_rate,strain_rate,-1,-2,-1,-2);
 	  //	  double van_D;
@@ -567,6 +564,7 @@ assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
 	  tau_pspg *= tau_fac;
 	  tau_supg *= tau_fac;
 	}
+	tau_supg *= tau_supg_fac;
 	tau_pspg *= tau_pspg_fac;
 
 #else
@@ -729,7 +727,7 @@ assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
       } else if (comp_mat) {
 	// don't make anything here !!
       } else {
-	PetscPrintf(PETSC_COMM_WORLD,
+	PetscPrintf(PETSCFEM_COMM_WORLD,
 		    "Don't know how to compute jobinfo: %s\n",jobinfo);
 	CHKERRQ(ierr);
       }

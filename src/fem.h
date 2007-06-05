@@ -1,6 +1,6 @@
 // -*- mode: c++ -*-
 /*__INSERT_LICENSE__*/
-//$Id: fem.h,v 1.39 2007/01/30 19:03:44 mstorti Exp $
+//$Id: fem.h,v 1.39.10.1 2007/02/19 20:23:56 mstorti Exp $
 
 #ifndef FEM_H
 #define FEM_H
@@ -8,8 +8,14 @@
 using namespace std;
 
 #include <newmatio.h>
-#include <petscsles.h>
+#include <petscksp.h>
 #include <stdlib.h>
+
+
+extern MPI_Comm PETSCFEM_COMM_WORLD;
+extern int MY_RANK,SIZE;
+int PetscFemInitialize(int *argc,char ***args,const char file[],const char help[]);
+
 
 // Libretto has some incompatibilities with recent versions
 // of compilers, so I have a fixed version of the header in ./src
@@ -260,7 +266,7 @@ using namespace std;
     @author M. Storti
     @param s string of error message
 */ 
-#define PFEMERRQ(s) {PetscPrintf(PETSC_COMM_WORLD,s); CHKERRQ(1);}
+#define PFEMERRQ(s) {PetscPrintf(PETSCFEM_COMM_WORLD,s); CHKERRQ(1);}
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 /** Sets an error condition and back-traces (main).
@@ -269,7 +275,7 @@ using namespace std;
     @author M. Storti
     @param s string of error message
 */ 
-#define PFEMERRA(s) {PetscPrintf(PETSC_COMM_WORLD,s); CHKERRA(1);}
+#define PFEMERRA(s) {PetscPrintf(PETSCFEM_COMM_WORLD,s); CHKERRA(1);}
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 /** Sets an error condition depending on error code and back-traces
@@ -281,7 +287,7 @@ using namespace std;
     @param ierr error code (input)
     @param s string of error message */
 #define PFEMERRCQ(ierr,s) if (ierr)				\
-         {PetscPrintf(PETSC_COMM_WORLD,s); CHKERRQ(ierr);}
+         {PetscPrintf(PETSCFEM_COMM_WORLD,s); CHKERRQ(ierr);}
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 /** Sets an error condition depending on error code and back-traces
@@ -292,7 +298,7 @@ using namespace std;
     @author M. Storti
     @param ierr error code (input)
     @param s string of error message */
-#define PFEMERRCA(ierr,s) if (ierr) {PetscPrintf(PETSC_COMM_WORLD,s); assert(0);}
+#define PFEMERRCA(ierr,s) if (ierr) {PetscPrintf(PETSCFEM_COMM_WORLD,s); assert(0);}
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 /** Issues an error (with #PetscPrintf(...))# and
@@ -335,7 +341,7 @@ if (!(bool_cond)) {PETSCFEM_ERROR0("Assertion failed: \"" #bool_cond	\
 void petscfem_error(const char *templ,...);
 void petscfem_assert(int bool_cond,const char *templ,...);
 
-#define PFEM_TRACE(s) PetscPrintf(PETSC_COMM_WORLD,		\
+#define PFEM_TRACE(s) PetscPrintf(PETSCFEM_COMM_WORLD,		\
      "<%s>. At file " __FILE__ ", line %d\n",s,__LINE__)
 
 //-------<*>-------<*>-------<*>-------<*>-------<*>------- 
@@ -410,7 +416,7 @@ public:
 #define SHM(x) cout << #x ": " << x << endl
 
 /// Prints a trace
-#define TRACE(s) PetscPrintf(PETSC_COMM_WORLD,">>>TRACE <" \
+#define TRACE(s) PetscPrintf(PETSCFEM_COMM_WORLD,">>>TRACE <" \
                    #s ">  (%s:%d)\n",__FILE__,__LINE__)
 
 /// Prints a variable with printf()
@@ -550,6 +556,30 @@ void detj_error(double &detJaco,int elem);
 
 // CHKERRA is now obsolete in PETSc (see changes for PETSc 2.1)
 #define CHKERRA CHKERRQ
+
+
+#if (PETSC_VERSION_MAJOR    == 2 && \
+     PETSC_VERSION_MINOR    == 3 && \
+     PETSC_VERSION_SUBMINOR == 2 && \
+     PETSC_VERSION_RELEASE  == 1)
+#define VecScatterBegin(ctx,x,y,im,sm) \
+        VecScatterBegin((x),(y),(im),(sm),(ctx))
+#define VecScatterEnd(ctx,x,y,im,sm) \
+        VecScatterEnd((x),(y),(im),(sm),(ctx))
+#endif
+
+#if (PETSC_VERSION_MAJOR    == 2 && \
+     PETSC_VERSION_MINOR    == 3 && \
+     PETSC_VERSION_SUBMINOR == 2 && \
+     PETSC_VERSION_RELEASE  == 1)
+#define KSPMonitorSet KSPSetMonitor
+#define KSPMonitorCancel KSPClearMonitor
+#define KSPMonitorDefault  KSPDefaultMonitor
+#define KSPMonitorTrueResidualNorm KSPTrueMonitor
+#define KSPMonitorSolution KSPVecViewMonitor
+#define KSPMonitorLG KSPLGMonitor
+#endif
+
 
 #endif
 //@}

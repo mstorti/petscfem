@@ -1,13 +1,11 @@
 //__INSERT_LICENSE__
-//$Id: shllhook.cpp,v 1.5 2003/11/24 03:40:58 mstorti Exp $
+//$Id: shllhook.cpp,v 1.5.88.1 2007/02/19 20:23:56 mstorti Exp $
 
 #include <string>
 #include <cstdlib>
 
 #include <src/fem.h>
 #include <src/shllhook.h>
-
-extern int MY_RANK, SIZE;
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 void shell_hook::init(Mesh &mesh,Dofmap &dofmap,const char *name) {

@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: bubbly_asm.cpp,v 1.2 2007/02/23 16:31:14 mstorti Exp $
+//$Id: bubbly_asm.cpp,v 1.1.72.2 2007/02/23 19:18:07 dalcinl Exp $
 //
 //
 // <<<<<<<<<<<<<<<<<< VERSION ASM >>>>>>>>>>>>>>>>>>>>>>>>
@@ -819,7 +819,7 @@ if (0) {
     } else if (ndim==3) {
       h_pspg = cbrt(6*Volume/pi);
     } else {
-      PetscPrintf(PETSC_COMM_WORLD,
+      PetscPrintf(PETSCFEM_COMM_WORLD,
 		  "Only dimensions 2 and 3 allowed for this element.\n");
     }
 

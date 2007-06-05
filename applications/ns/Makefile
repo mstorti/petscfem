@@ -1,4 +1,5 @@
 #__INSERT_LICENSE__
+ # $Id: Makefile,v 1.82.16.2 2007/03/08 19:22:16 dalcinl Exp $ 
 
 .PHONY: all run lclean save compile
 
@@ -16,9 +17,10 @@ LIBOBJS = ns.o nsitetlesfm2.o bccnsfm2.o wall.o nsvol.o walldata.o	\
 	condwall.o condwallpen.o nspenal.o nsroblgml.o fstepfm2cw.o	\
 	nsitetlesc.o condwall-new.o mmove2.o nsitetasm.o		\
 	bccnsitetasm.o nsitetasm_avgvol.o ns_gasflow.o bccns_gasflow.o	\
-	mmoveopt.o elast2.o  bccnsitetasm_avgvol.o ns_fsi.o elastld.o	\
-	nsstruct.o errestim.o mmoveopt3.o bubblyqint.o mmvmain.o 	\
-	mmv2main.o nsitetlesf.o mmoveopt2.o
+	mmoveopt.o elast2.o  bccnsitetasm_avgvol.o ns_fsi.o elastld.o   \
+	nsstruct.o errestim.o mmoveopt3.o bubblyqint.o mmvmain.o        \
+	nsitetlesf.o \
+	poiboltz.o
 
 MYOBJS = 
 
@@ -33,10 +35,10 @@ include $(PETSCFEM_DIR)/Makefile.base
 
 # CPPFLAGS += -DROSI_COUPLING_MODULE
 
-%.cppi: %.cpp
-	g++ $(CPPFLAGS) -I /usr/local/mpich-1.2.0/include/ \
-		-I/home/mstorti/PETSC/petsc-2.0.24/bmake/linux/ \
-		-I/home/mstorti/PETSC/petsc-2.0.24/include/ -E $< > $@
+#%.cppi: %.cpp
+#	g++ $(CPPFLAGS) -I /usr/local/mpich-1.2.0/include/ \
+#		-I/home/mstorti/PETSC/petsc-2.0.24/bmake/linux/ \
+#		-I/home/mstorti/PETSC/petsc-2.0.24/include/ -E $< > $@
 
 # documentation of options with the script `odoc.pl'
 odocns: ../../doc/odocns.tex ../../doc/odocnse.tex \
@@ -58,7 +60,7 @@ odocns: ../../doc/odocns.tex ../../doc/odocnse.tex \
 ../../doc/odocnsfs.tex: nssupg.cpp ../../doc/nsdoc.tex
 	$(run_odoc)
 
-## ns.o wallke.o : CCPPFLAGS += -O0 -g
+ns.o : CCPPFLAGS += -O0
 
 #compdate.o: CPPFLAGS += "-DPETSCFEM_HOSTNAME=\"$(shell uname -a | sed s/\#//g)\""
 noafs:

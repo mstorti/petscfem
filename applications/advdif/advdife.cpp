@@ -1,8 +1,8 @@
 //__INSERT_LICENSE__
+//$Id: advdife.cpp,v 1.125.8.2 2007/02/23 19:18:07 dalcinl Exp $
 extern int comp_mat_each_time_step_g,
   consistent_supg_matrix_g,
   local_time_step_g;
-extern int MY_RANK,SIZE;
 
 #include <vector>
 #include <string>
@@ -61,21 +61,21 @@ void NewAdvDifFF::get_log_vars(int &nlog_vars,const int *& log_vars) {
   int ierr=0;
   for (int j=0; j<nlog_vars; j++) {
     if (log_vars_v[j]<=0) {
-      PetscPrintf(PETSC_COMM_WORLD,"Non positive dof in "
+      PetscPrintf(PETSCFEM_COMM_WORLD,"Non positive dof in "
 		  "\"log_vars_list\" entry: dof %d\n",
 		  log_vars_v[j]);
       ierr=1;
     } else if (log_vars_v[j]>ndof) {
-      PetscPrintf(PETSC_COMM_WORLD,"Dof grater that ndof in "
+      PetscPrintf(PETSCFEM_COMM_WORLD,"Dof grater that ndof in "
 		  "\"log_vars_list\" entry: dof %d, ndof %d\n",
 		  log_vars_v[j], ndof);
       ierr=1;
     }
     if (ierr) {
-      PetscPrintf(PETSC_COMM_WORLD,
+      PetscPrintf(PETSCFEM_COMM_WORLD,
 		  "Errors while reading \"log_vars_list\"\n");
       if (log_vars_entry)
-	PetscPrintf(PETSC_COMM_WORLD,
+	PetscPrintf(PETSCFEM_COMM_WORLD,
 		    "In line \"%s\"\n",s.c_str());
       exit(1);
     }
@@ -151,21 +151,21 @@ before_assemble(arg_data_list &arg_datav,Nodedata *nodedata,
 }
 
 void NewAdvDifFF::get_C(FastMat2 &C) {
-  PetscPrintf(PETSC_COMM_WORLD,
+  PetscPrintf(PETSCFEM_COMM_WORLD,
 	      "Not defined get_C() virtual function\n"
 	      "in the flux function object.\n");
   assert(0);
 }
 
 void NewAdvDifFF::get_Cp(FastMat2 &Cp) {
-  PetscPrintf(PETSC_COMM_WORLD,
+  PetscPrintf(PETSCFEM_COMM_WORLD,
 	      "Not defined get_Cp() virtual function\n"
 	      "in the flux function object.\n");
   assert(0);
 }
 
 void NewAdvDifFF::get_Ajac(FastMat2 &Ajac) {
-  PetscPrintf(PETSC_COMM_WORLD,
+  PetscPrintf(PETSCFEM_COMM_WORLD,
 	      "Not defined get_Ajac() virtual function\n"
 	      "in the flux function object.\n");
   assert(0);
@@ -191,6 +191,8 @@ void NewAdvDif::new_assemble(arg_data_list &arg_data_v,const Nodedata *nodedata,
   GET_JOBINFO_FLAG(comp_prof);
 
   int ierr=0;
+
+  int locdof,kldof,lldof;
 
   NSGETOPTDEF(int,npg,0); //nd
   NSGETOPTDEF(int,ndim,0); //nd
@@ -223,18 +225,20 @@ void NewAdvDif::new_assemble(arg_data_list &arg_data_v,const Nodedata *nodedata,
     exit(1);
   }
 
+  double *retvalt;
   time_m = double(* (const Time *) time_data);
 
   // lambda_max:= the maximum eigenvalue of the jacobians.
   // used to compute the critical time step.
-  double lambda_max=NAN;
+  vector<double> *dtmin;
+  double lambda_max;
   int jdtmin;
   GlobParam *glob_param=NULL;
   // The trapezoidal rule integration parameter
 #define ALPHA (glob_param->alpha)
 #define DT (glob_param->Dt)
   arg_data *staten=NULL,*stateo=NULL,*retval=NULL,
-    *jac_prof=NULL,*Ajac=NULL;
+    *fdj_jac=NULL,*jac_prof=NULL,*Ajac=NULL;
   if (comp_res) {
     int j=-1;
     stateo = &arg_data_v[++j]; //[0]
@@ -310,7 +314,7 @@ void NewAdvDif::new_assemble(arg_data_list &arg_data_v,const Nodedata *nodedata,
   else if (axisymmetric=="y") axi=2;
   else if (axisymmetric=="z") axi=3;
   else {
-    PetscPrintf(PETSC_COMM_WORLD,
+    PetscPrintf(PETSCFEM_COMM_WORLD,
 		"Invalid value for \"axisymmetric\" option\n"
 		"axisymmetric=\"%s\"\n",axisymmetric.c_str());
     PetscFinalize();
@@ -403,7 +407,7 @@ void NewAdvDif::new_assemble(arg_data_list &arg_data_v,const Nodedata *nodedata,
   GPdata gp_data_low(geometry.c_str(),ndimel,nel,1,GP_FASTMAT2);
 
   double detJaco, wpgdet, delta_sc, delta_sc_old;
-  int ipg;
+  int elem, ipg,node, jdim, kloc,lloc,ldof;
   double lambda_max_pg;
 
   dshapex.resize(2,ndimel,nel);
@@ -1391,8 +1395,8 @@ void NewAdvDifFF::get_bcconv_factor(FastMat2 &bcconv_factor) {
 
   bcconv_factor.set(1.);
 
-  elemset->get_double("bcconv_factor",
-                      *bcconv_factor.storage_begin(),1,ndof);
+  int ierr = elemset->get_double("bcconv_factor",
+		     *bcconv_factor.storage_begin(),1,ndof);
 
   /*
   const char *line;

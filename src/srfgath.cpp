@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: srfgath.cpp,v 1.18 2007/02/23 16:31:14 mstorti Exp $
+//$Id: srfgath.cpp,v 1.16.10.2 2007/02/23 19:18:07 dalcinl Exp $
 
 #include <src/fem.h>
 #include <src/utils.h>
@@ -258,7 +258,7 @@ int SurfGatherer::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
 
   int ja = 0;
   double *locst = arg_data_v[ja++].locst;
-  double *locst2 = arg_data_v[ja++].locst;
+  //double *locst2 = arg_data_v[ja++].locst;
   //int options = arg_data_v[ja].options;
   vector<double> *values = arg_data_v[ja++].vector_assoc;
   int nvalues = values->size();

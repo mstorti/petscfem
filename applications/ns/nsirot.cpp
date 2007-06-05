@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-/* $Id: nsirot.cpp,v 1.8 2007/02/24 14:45:08 mstorti Exp $ */
+/* $Id: nsirot.cpp,v 1.7.10.1 2007/02/19 20:23:56 mstorti Exp $ */
 
 #include <src/fem.h>
 #include <src/utils.h>
@@ -84,7 +84,7 @@ int nsi_rot::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
 #define RETVALMAT(iele,j,k,p,q) VEC5(retvalmat,iele,j,nel,k,ndof,p,nel,q,ndof)
 
   int ierr=0;
-  // PetscPrintf(PETSC_COMM_WORLD,"entrando a nsikeps\n");
+  // PetscPrintf(PETSCFEM_COMM_WORLD,"entrando a nsikeps\n");
 
 #define NODEDATA(j,k) VEC2(nodedata->nodedata,j,k,nu)
 #define ICONE(j,k) (icone[nel*(j)+(k)])
@@ -117,17 +117,17 @@ int nsi_rot::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
   }
 
   // Get arguments from arg_list
-  double *locst=NULL,*locst2=NULL,*retval=NULL,*retvalmat=NULL;
-  WallData *wall_data=NULL;
+  double *locst,*locst2,*retval,*retvalmat;
+  WallData *wall_data;
   if (comp_mat) {
     retvalmat = arg_data_v[0].retval;
   } else if (get_nearest_wall_element) {
     wall_data = (WallData *)arg_data_v[0].user_data;
   }
 
-  GlobParam *glob_param=NULL;
-  double *hmin=NULL,rec_Dt=NAN;
-  int ja_hmin=0;
+  GlobParam *glob_param;
+  double *hmin,rec_Dt=0.;
+  int ja_hmin;
 #define WAS_SET arg_data_v[ja_hmin].was_set
   if (comp_mat_res) {
     int ja=0;
@@ -151,7 +151,7 @@ int nsi_rot::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
   SGETOPTDEF(int,axisymmetric,0);
 
   if (weak_form==0 && axisymmetric!=0) {
-    PetscPrintf(PETSC_COMM_WORLD,"weak_form=0 & axisymmetric \n"); CHKERRA(1);
+    PetscPrintf(PETSCFEM_COMM_WORLD,"weak_form=0 & axisymmetric \n"); CHKERRA(1);
   }
 
   // allocate local vecs
@@ -175,7 +175,7 @@ int nsi_rot::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
   FMatrix acel_rot(ndim),waux1(ndim),waux2(ndim);
 
   if (ndof != ndim+1) {
-    PetscPrintf(PETSC_COMM_WORLD,"ndof != ndim+1\n"); CHKERRA(1);
+    PetscPrintf(PETSCFEM_COMM_WORLD,"ndof != ndim+1\n"); CHKERRA(1);
   }
 
   nen = nel*ndof;
@@ -317,8 +317,8 @@ int nsi_rot::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
 
   FastMat2 P_supg, W_supg, W_supg_t, dmatw,
            grad_div_u(4,nel,ndim,nel,ndim);
-  double *grad_div_u_cache=NULL;
-  int grad_div_u_was_cached=0;
+  double *grad_div_u_cache;
+  int grad_div_u_was_cached;
 
   int elem, ipg,node, jdim, kloc,lloc,ldof;
 
@@ -724,7 +724,7 @@ int nsi_rot::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
       } else if (comp_mat) {
 	// don't make anything here !!
       } else {
-	PetscPrintf(PETSC_COMM_WORLD,
+	PetscPrintf(PETSCFEM_COMM_WORLD,
 		    "Don't know how to compute jobinfo: %s\n",jobinfo);
 	CHKERRQ(ierr);
       }

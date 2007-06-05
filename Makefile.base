@@ -1,12 +1,19 @@
 # mode: -*- makefile -*-
 #__INSERT_LICENSE__
+#$Id: Makefile.base,v 1.216.10.2 2007/02/20 18:30:44 dalcinl Exp $
 
 #p [in Makefile.base]
 #s General
 
 ######  begin of CONGIGURATION VARIABLES section  ####################
+
 #  Configure this variable!! (either g_c++ or O_c++) 
-PETSC_BOPT = g_c++
+#BOPT =
+
+ifeq ($(BOPT),)
+BOPT = g_c++
+endif
+export BOPT
 
 # uncomment in order to use the `gprof' profiler
 # PROF_FLAGS = -pg
@@ -21,12 +28,9 @@ PETSC_BOPT = g_c++
 # variables inside.
 include $(PETSCFEM_DIR)/../Makefile.defs
 # include ../Makefile.defs
+
 ######  end of CONGIGURATION VARIABLES section  ####################
 
-ifeq ($(BOPT),)
-BOPT = $(PETSC_BOPT)
-endif
-export BOPT
 
 # This allows to specify whether optimized version (compiler -O2
 # flag) or the debugger version (compiler -g flag) should be generated
@@ -43,9 +47,28 @@ GNU_C_COMPILER = gcc  # gcc or egcs
 # `PETSC_ROOT_DIR' and  versions of PETSc-FEM newer than beta-3.04 will
 # specify the version of PETSc needed through the variable
 # `PETSC_VERSION_USED_BY_PETSCFEM' and define their own `PETSC_DIR' variable. 
+
+export PETSCFEM_DIR
+
 ifneq ($(PETSC_ROOT_DIR),)
-PETSC_VERSION_USED_BY_PETSCFEM=2.1.6
+PETSC_VERSION_USED_BY_PETSCFEM=2.3.2-p8
 PETSC_DIR=$(PETSC_ROOT_DIR)/petsc-$(PETSC_VERSION_USED_BY_PETSCFEM)
+endif
+
+ifeq ($(BOPT),g_c++)
+ifneq ($(PETSC_ARCH_G),)
+PETSC_ARCH = $(PETSC_ARCH_G)
+endif
+endif
+
+ifeq ($(BOPT),O_c++) 
+ifneq ($(PETSC_ARCH_O),)
+PETSC_ARCH=$(PETSC_ARCH_O)
+endif
+endif
+
+ifeq ($(PETSC_ARCH),)
+PETSC_ARCH=linux-gnu-$(BOPT)
 endif
 
 ifeq ($(PETSC_DIR),)
@@ -53,18 +76,27 @@ $(error Not defined PETSC_DIR or PETSC_ROOT_DIR variables)
 endif
 
 ifeq ($(shell if [ ! -d $(PETSC_DIR) ] ; then echo ok ; fi),ok)
-# $(error Cant find PETSC_DIR directory "$(PETSC_DIR)")
+	$(error Cannot find directory "$(PETSC_DIR)")
 endif
+ifeq ($(shell if [ ! -d $(PETSC_DIR)/bmake/$(PETSC_ARCH) ] ; then echo ok ; fi),ok)
+	$(error Cannot find directory $(PETSC_DIR)/lib/$(PETSC_ARCH)")
+endif
+ifeq ($(shell if [ ! -d $(PETSC_DIR)/lib/$(PETSC_ARCH) ] ; then echo ok ; fi),ok)
+	$(error Cannot find directory $(PETSC_DIR)/lib/$(PETSC_ARCH)")
+endif
+export LD_LIBRARY_PATH=$(PETSC_DIR)/lib/$(PETSC_ARCH)
+
+
 
 # If the $(SUPERLU) variable is not set, then we do not compile with
 # the SuperLU library
 ifneq ($(SUPERLU),)
-SUPERLU_CPPFLAGS = -DUSE_SUPERLU -I$(SUPERLU)
+SUPERLU_CPPFLAGS = -I$(SUPERLU) -DUSE_SUPERLU
 # I managed to compile the Superlu lib with both debugger and
 # optimization options, and generated `libsuperlu_O.a' and
 # `libsuperlu_g.a' libraries.
-ifeq ($(SUPERLULIB),)
-SUPERLULIB = $(SUPERLU)/libsuperlu.a
+ifeq ($(SUPERLU_LIB),)
+SUPERLU_LIB = $(SUPERLU)/libsuperlu.a
 endif
 endif
 export SUPERLU
@@ -89,9 +121,6 @@ ifeq ($(USE_SEPARATE_COMPILATION),)
 osfx =
 endif
 
-export PETSCFEM_DIR
-export LD_LIBRARY_PATH=$(PETSC_DIR)/lib/lib$(BOPT)/$(PETSC_ARCH)
-
 ifeq ($(GNUCXX),)
 GNUCXX = g++  # it can be also egcs++. You need to have compat-egcs and
 	      # compat-egcs++ installed
@@ -106,11 +135,7 @@ ifeq ($(TAGINCL),)
 TAGINCL = --etags-include
 endif
 
-ifeq ($(PETSC_VERSION_USED_BY_PETSCFEM),2.0.24)
-include ${PETSC_DIR}/bmake/$(PETSC_ARCH)/base
-else
 include ${PETSC_DIR}/bmake/common/base
-endif
 
 # here goes -frepo if needed
 # CPPFLAGS         := -frepo $(PROF_FLAGS)
@@ -121,13 +146,11 @@ else
 LIBRETTO_INCLUDE_FLAGS = -I/$(LIBRETTO_I)
 endif
 
-ifeq ($(DEVELOPER_MODE),yes)
-WARN_FLAGS := -Wall -Wno-unused-variable -fno-strict-aliasing 
-endif
 
 CPPFLAGS := 					\
 	$(WARN_FLAGS)				\
 	$(PROF_FLAGS)        			\
+	-DMPICH_IGNORE_CXX_SEEK                 \
 	-I$(MPI_HOME)/include			\
 	-I$(PETSC_DIR)/include			\
 	-I$(PETSC_DIR)/bmake/$(PETSC_ARCH)	\
@@ -136,11 +159,7 @@ CPPFLAGS := 					\
 	-I$(PETSCFEM_DIR) -I$(MESCHACH)	\
 	$(LIBRETTO_INCLUDE_FLAGS)		\
 	$(ANN_CPPFLAGS)			\
-	$(SUPERLU_CPPFLAGS) -DMPICH_IGNORE_CXX_SEEK
-
-ifeq ($(BOPT),g_c++)
-CPPFLAGS += -DFM2_CACHE_DBG
-endif
+	$(SUPERLU_CPPFLAGS)
 
 ifeq ($(USE_DYNAMICALLY_LOADED_EXTENDED_FUNCTIONS),yes) 
 CPPFLAGS += -DUSE_DLEF
@@ -275,7 +294,7 @@ distclean:
 	for dir in $(CLEAN_DIRS) ; do $(MAKE) -C $$dir distclean  ; done
 
 ## PETSc Libraries used by most PETSc-FEM applications
-PETSCFEM_PETSC_LIBS := ${PETSC_SLES_LIB}
+PETSCFEM_PETSC_LIBS := ${PETSC_KSP_LIB}
 
 LD_LIBRARY_PATH += -Wl,-rpath -Wl,$(MPI_HOME)/lib
 MPI_LDFLAGS := -lmpichcxx -lmpich -lpthread -lrt
@@ -283,34 +302,34 @@ MPI_LDFLAGS := -lmpichcxx -lmpich -lpthread -lrt
 LDFLAGS = -Wl,-E,-rpath,$(LD_LIBRARY_PATH)	\
           $(PROG_LIB)				\
 	  -L$(PETSCFEM_DIR)/src			\
-          -lpetscfem$(osfx)			\
+	  -lpetscfem$(osfx)   			\
           $(PROG_LIB)				\
           -lpetscfem$(osfx)			\
-          -L$(METIS) -L/usr/local/lib		\
-          -lmetis  -L$(NEWMAT)  -lnewmat	\
-          -lglib -L$(LIBRETTO_LIB) -libretto	\
+          -L$(METIS) -lmetis 			\
+	  -L$(NEWMAT) -lnewmat -lnewmat 	\
+	  -L/usr/local/lib -lglib               \
+	  -L$(LIBRETTO_LIB) -libretto	        \
           $(ANN_LDFLAGS)			\
           -lc ${PETSCFEM_PETSC_LIBS}		\
           $(MESCHACH)/libmes.a			\
-          $(SUPERLULIB) $(SSL_LDFLAGS)		\
+          $(SUPERLU_LIB) $(SSL_LDFLAGS)		\
 	  $(PTHREADS_LIB)			\
           $(ANN_LDFLAGS) 			\
           $(MPI_LDFLAGS) 
 
-LDFLAGS_NO_PROG_LIB =				\
-	  -Wl,-rpath,$(LD_LIBRARY_PATH)		\
-	  -L$(PETSCFEM_DIR)/src			\
-          -lpetscfem$(osfx)			\
-          -L$(METIS) -L/usr/local/lib		\
-          -lmetis  -L$(NEWMAT)  -lnewmat	\
-          -lglib -L$(LIBRETTO_LIB) -libretto	\
-          $(ANN_LDFLAGS)			\
-          -lc ${PETSCFEM_PETSC_LIBS}		\
-          $(MESCHACH)/libmes.a			\
-          $(SUPERLULIB) $(SSL_LDFLAGS)		\
-	  $(PTHREADS_LIB)			\
-          $(ANN_LDFLAGS)			\
-          $(MPI_LDFLAGS) 
+LDFLAGS_NO_PROG_LIB =					\
+	  -L$(PETSCFEM_DIR)/src	 -lpetscfem$(osfx)	\
+          -L/usr/local/lib -lglib  			\
+          -L$(METIS) -lmetis                    	\
+	  -L$(NEWMAT) -lnewmat -lnewmat                	\
+          -L$(LIBRETTO_LIB) -libretto	      		\
+          $(ANN_LDFLAGS)				\
+          -lc ${PETSCFEM_PETSC_LIBS}			\
+          $(MESCHACH)/libmes.a				\
+          $(SUPERLU_LIB) $(SSL_LDFLAGS)			\
+	  $(PTHREADS_LIB)				\
+          $(MPI_LDFLAGS)                                \
+	  -Wl,-rpath,$(LD_LIBRARY_PATH)			\
 
 EFN_LDFLAGS =	
 
@@ -428,3 +447,22 @@ compdate.o: CPPFLAGS += "-DPETSCFEM_HOSTNAME=\"$(shell uname -a)\""
 compdate.cpp:
 	perl -pe 's/__MODULE__/$(PETSCFEM_MODULE)/' < $(PETSCFEM_DIR)/tools/compdate.cppin > $@
 
+
+CXX := g++
+CXX_CLINKER := ${CXX}
+
+ifeq ($(BOPT),O_c++)
+COPTFLAGS := -DNDEBUG -O3 -funroll-loops
+else
+COPTFLAGS := -g3
+endif
+
+%.o: %.cpp
+	$(CXX) -c -o $@ ${COPTFLAGS} ${CFLAGS} ${CCPPFLAGS} $<
+
+qq:
+	@echo COPTFLAGS : ${COPTFLAGS}
+	@echo BS_INCLUDE : ${BS_INCLUDE}
+	@echo CPPFLAGS : ${CPPFLAGS}
+	@echo CFLAGS : ${CFLAGS}
+	@echo CXX : ${CXX}

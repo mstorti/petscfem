@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: bccns_gasflow.cpp,v 1.4 2007/02/24 14:45:08 mstorti Exp $
+//$Id: bccns_gasflow.cpp,v 1.3.10.1 2007/02/19 20:23:56 mstorti Exp $
 
 #include <src/fem.h>
 #include <src/utils.h>
@@ -121,12 +121,12 @@ int bcconv_ns_gasflow::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
     exit(1);
   }
 
-  GlobParam *glob_param=NULL;
-  double *hmin=NULL,rec_Dt=NAN;
-  int ja_hmin=0;
+  GlobParam *glob_param;
+  double *hmin,rec_Dt=0.;
+  int ja_hmin;
 
   // Get arguments from arg_list
-  double *locst=NULL,*locst2=NULL,*retval=NULL,*retvalmat=NULL;
+  double *locst,*locst2,*retval,*retvalmat;
   if (comp_mat) {
     retvalmat = arg_data_v[0].retval;
   }
@@ -165,7 +165,7 @@ int bcconv_ns_gasflow::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
   else if (axisymmetric=="y") axi=2;
   else if (axisymmetric=="z") axi=3;
   else {
-    PetscPrintf(PETSC_COMM_WORLD,
+    PetscPrintf(PETSCFEM_COMM_WORLD,
 		"Invalid value for \"axisymmetric\" option\n"
 		"axisymmetric=\"%s\"\n",axisymmetric.c_str());
     PetscFinalize();
@@ -213,7 +213,7 @@ int bcconv_ns_gasflow::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
   // Definiciones para descargar el lazo interno
   double detJaco,rho_star,p_star,wpgdet;
 
-  int elem=0, ipg,node, jdim, kloc,lloc,ldof;
+  int elem, ipg,node, jdim, kloc,lloc,ldof;
 
   FMatrix Jaco(ndimel,ndim),normal(ndim);
 
@@ -337,7 +337,7 @@ int bcconv_ns_gasflow::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
       } else if (comp_mat) {
 	// don't make anything here !!
       } else {
-	PetscPrintf(PETSC_COMM_WORLD,
+	PetscPrintf(PETSCFEM_COMM_WORLD,
 		    "Don't know how to compute jobinfo: %s\n",jobinfo);
 	CHKERRQ(ierr);
       }

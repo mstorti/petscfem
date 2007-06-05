@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-// $Id: util3.cpp,v 1.15 2007/02/24 14:45:08 mstorti Exp $
+// $Id: util3.cpp,v 1.14.10.1 2007/02/19 20:23:56 mstorti Exp $
 #include <cstring>
 #include <cstdio>
 #include <cassert>
@@ -7,8 +7,6 @@
 #include <vector>
 #include <mpi.h>
 #include <src/util3.h>
-
-extern int MY_RANK;
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 int string2int(string &s,int &n) {
@@ -116,7 +114,7 @@ int DXSplit::parse(const char *line) {
   tokenize(line,tokens);
   int ntoken = tokens.size();
   vector<int> nodes;
-  int j=0, ierr, node, subnel=0;
+  int j=0, ierr, node, subnel;
   Subelem se;
 
   splitting.clear();
@@ -160,6 +158,9 @@ void DXSplit::dx_type(int j,string &dx_type,int &subnel,vector<int> &nodes) {
 }
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+
+extern int MY_RANK;
+
 void petscfem_print_date(void) {
   if (!MY_RANK) {
     time_t t = time(NULL);
