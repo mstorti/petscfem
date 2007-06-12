@@ -21,7 +21,7 @@ Topic :: Software Development :: Libraries :: Python Modules
 keywords = """
 scientific computing
 parallel computing
-finite elemets method
+finite elements method
 """
 
 metadata = {
@@ -45,20 +45,19 @@ from os import environ as env
 from posixpath import expanduser, abspath, join
 
 MPI_DIR      = env.get('MPI_DIR')    or '/usr/local/mpich2/1.0.5'
-PETSC_DIR    = env.get('PETSC_DIR')  or '/usr/local/petsc/2.3.2'
+PETSC_DIR    = env.get('PETSC_DIR')  or '/usr/local/petsc/2.3.3'
 PETSC_ARCH   = env.get('PETSC_ARCH') or 'linux-gnu'
+PETSCFEM_DIR = env.get('PETSCFEM_DIR') or abspath('..')
+SOFT         = abspath(join(PETSCFEM_DIR, '..', 'SOFT'))
 
-GLIB1    = '/usr/include/glib-1.2'
-GLIB2    = '/usr/lib/glib/include'
-
-SOFT  = expanduser('/u/mstorti/SOFT')
-NEWMAT   = join(SOFT, 'NEWMAT/src')
+GLIB1    = '/usr/lib/glib/include'
+GLIB2    = '/usr/include/glib-1.2'
+NEWMAT   = join(SOFT, 'newmat-1.0', 'src')
 LIBRETTO = join(SOFT, 'libretto-2.1')
 MESCHACH = join(SOFT, 'meschach-1.2')
 METIS    = join(SOFT, 'metis-4.0')
-ANN      = join(SOFT, 'ann_1.1')
+ANN      = join(SOFT, 'ann-1.1.1')
 
-PETSCFEM_DIR = env.get('PETSCFEM_DIR') or abspath('..')
 
 BOPT = env.get('BOPT') or 'g'
 if PETSC_ARCH.endswith('O_c++') or  PETSC_ARCH.endswith('O'):
@@ -88,13 +87,13 @@ config = {
                       'petscksp', 'petscdm', 'petscmat', 'petscvec', 'petsc',
                       'newmat',
                       'ibretto',
-                      'mes',
+                      'meschach',
                       'metis',
                       'ANN',],
     
     'library_dirs' : [join(MPI_DIR, 'lib'),
+                      join(PETSC_DIR, 'lib'),
                       join(PETSC_DIR, 'lib', PETSC_ARCH),
-                      '/usr/local/lib',expanduser('~/lib'),
                       NEWMAT, LIBRETTO, MESCHACH, METIS,
                       join(ANN, 'lib')],
     'runtime_library_dirs' : []
@@ -109,11 +108,12 @@ def ext_modules(Extension):
                        + config['include_dirs']
 
     if BOPT in ('g', 'g_c++'):
-        PETSCFEM_LIBRARY = ['petscfem_g', 'ns_g'] * 2 + config['libraries']
+        PETSCFEM_LIBRARY = ['petscfem_g', 'ns_g'] * 2
     elif BOPT in ('O',  'O_c++'):
-        PETSCFEM_LIBRARY = ['petscfem_O', 'ns_O'] * 2 + config['libraries']
+        PETSCFEM_LIBRARY = ['petscfem_O', 'ns_O'] * 2
     else:
         raise SystemExit('invalid BOPT: %s' % BOPT)
+    PETSCFEM_LIBRARY +=  config['libraries']
     PETSCFEM_LIBDIR = [join(PETSCFEM_DIR, 'src'),
                        join(PETSCFEM_DIR, 'applications/ns') ] \
                             + config['library_dirs']
@@ -129,9 +129,9 @@ def ext_modules(Extension):
         pass
     depends = glob('src/kernel/*.i') + glob('src/kernel/*.h')
 
+    PETSCFEM_LIBRARY   += MKL_LIB
     PETSCFEM_LIBDIR    += MKL_DIR
     PETSCFEM_RT_LIBDIR += MKL_DIR
-    PETSCFEM_LIBRARY   += MKL_LIB
 
     petscfem = Extension('pf4py.kernel._core',
                          sources=sources,

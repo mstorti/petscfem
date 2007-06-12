@@ -103,6 +103,9 @@ export SUPERLU
 
 # If the $(ANN_HOME) variable is not set then doesn't compile with the
 # ANN library
+ifneq ($(ANN),)
+ANN_HOME=$(ANN)
+endif
 ifneq ($(ANN_HOME),)
 ANN_CPPFLAGS = -DUSE_ANN -I$(ANN_HOME)/include
 #ANN_LDFLAGS = -lANN -L$(ANN_HOME)/lib -lANN 
@@ -139,6 +142,12 @@ include ${PETSC_DIR}/bmake/common/base
 
 # here goes -frepo if needed
 # CPPFLAGS         := -frepo $(PROF_FLAGS)
+
+ifeq ($(LIBRETTO_INC),)
+LIBRETTO_INCLUDE_FLAGS = 
+else
+LIBRETTO_INCLUDE_FLAGS = -I/$(LIBRETTO_INC)
+endif
 
 ifeq ($(LIBRETTO_I),)
 LIBRETTO_INCLUDE_FLAGS = 
@@ -311,7 +320,7 @@ LDFLAGS = -Wl,-E,-rpath,$(LD_LIBRARY_PATH)	\
 	  -L$(LIBRETTO_LIB) -libretto	        \
           $(ANN_LDFLAGS)			\
           -lc ${PETSCFEM_PETSC_LIBS}		\
-          $(MESCHACH)/libmes.a			\
+          $(MESCHACH)/meschach.a		\
           $(SUPERLU_LIB) $(SSL_LDFLAGS)		\
 	  $(PTHREADS_LIB)			\
           $(ANN_LDFLAGS) 			\
@@ -325,7 +334,7 @@ LDFLAGS_NO_PROG_LIB =					\
           -L$(LIBRETTO_LIB) -libretto	      		\
           $(ANN_LDFLAGS)				\
           -lc ${PETSCFEM_PETSC_LIBS}			\
-          $(MESCHACH)/libmes.a				\
+          $(MESCHACH)/meschach.a			\
           $(SUPERLU_LIB) $(SSL_LDFLAGS)			\
 	  $(PTHREADS_LIB)				\
           $(MPI_LDFLAGS)                                \
