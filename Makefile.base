@@ -468,10 +468,3 @@ endif
 
 %.o: %.cpp
 	$(CXX) -c -o $@ ${COPTFLAGS} ${CFLAGS} ${CCPPFLAGS} $<
-
-qq:
-	@echo COPTFLAGS : ${COPTFLAGS}
-	@echo BS_INCLUDE : ${BS_INCLUDE}
-	@echo CPPFLAGS : ${CPPFLAGS}
-	@echo CFLAGS : ${CFLAGS}
-	@echo CXX : ${CXX}
