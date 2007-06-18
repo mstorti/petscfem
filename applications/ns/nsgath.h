@@ -1,6 +1,6 @@
 // -*- mode: C++ -*-
 /*__INSERT_LICENSE__*/
-//$Id mstorti-v6-1-8-g102fe0f Sun May 27 19:01:23 2007 -0300$
+//$Id mstorti-v6-1-9-g57b2b31 Mon Jun 18 00:13:23 2007 -0300$
 #ifndef NS_GATHERER_H
 #define NS_GATHERER_H
 
@@ -40,10 +40,11 @@ private:
     double yp1,yp2,c1,c2,clog;
     double residual(double x,void *user_data);
     wall_law_solver_t();
+    friend class force_integrator;
   } wall_law_solver;
-  friend class wall_law_solver_t;
   
 public:
+  force_integrator() {}
   /// perform several checks and initialization
   void init();
   /// set forces 

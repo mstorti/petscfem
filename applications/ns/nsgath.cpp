@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id mstorti-v6-1-8-g102fe0f Sun May 27 19:01:23 2007 -0300$
+//$Id mstorti-v6-1-9-g57b2b31 Mon Jun 18 00:13:23 2007 -0300$
 
 #include <src/fem.h>
 #include <src/utils.h>
@@ -16,20 +16,31 @@ void force_integrator::init() {
   //o Dimension of the embedding space
   TGETOPTNDEF(thash,int,ndim,none);
   ndim_m = ndim;
+
   //o Dimension of the element
   TGETOPTNDEF(thash,int,ndimel,ndim-1); 
+
   //o Viscosity
   TGETOPTDEF_ND(thash,double,viscosity,NAN); 
+
   //o Density
-  TGETOPTDEF_ND(thash,double,rho,NAN); 
+  TGETOPTDEF_ND(thash,double,rho,1.0); 
+
   //o Distance to the wall
   TGETOPTDEF_ND(thash,double,y_wall,NAN); 
+
   //o Add wall-law contribution
   TGETOPTDEF_ND(thash,int,add_wall_law_contrib,0); 
-  PETSCFEM_ASSERT0(!add_wall_law_contrib || 
-                  (!isnan(y_wall) && !isnan(rho) && !isnan(viscosity)),
-                  "add_wall_law_contrib was set, but not physical "
-                  "values were given")
+
+  if (add_wall_law_contrib) {
+    PETSCFEM_ASSERT0(!add_wall_law_contrib || 
+                     (!isnan(y_wall) && !isnan(rho) && !isnan(viscosity)),
+                     "add_wall_law_contrib was set, but not physical "
+                     "values were given");
+    PETSCFEM_ASSERT0(viscosity>=0,"viscosity must be non-negative"); 
+    PETSCFEM_ASSERT0(rho>=0,"Density must be non-negative"); 
+    PETSCFEM_ASSERT0(y_wall>=0,"Wall-law must be non-negative"); 
+  }
 
   assert(ndimel==ndim-1);
   assert(gather_length==ndim || gather_length==2*ndim);
@@ -75,12 +86,12 @@ void force_integrator::set_pg_values(vector<double> &pg_values,FastMat2 &u,
     // used here is the same used in the wall-law element!!
     u.is(1,1,ndim_m);
     double u2 = u.norm_p_all();
+    u.rs();
     double Re_wall = rho*u2*y_wall/viscosity;
     // Now we have to invert the relation Re_wall = y+ f(y+)
     // for y+, where f() is the universal law of the wall
     
     // force.axpy(u,);
-    u.rs();
   }
   // export forces to return vector
   force.export_vals(&*pg_values.begin());
