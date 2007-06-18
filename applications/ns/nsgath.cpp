@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id mstorti-v6-1-9-g57b2b31 Mon Jun 18 00:13:23 2007 -0300$
+//$Id mstorti-v6-1-10-ga4bad50 Mon Jun 18 12:39:32 2007 -0300$
 
 #include <src/fem.h>
 #include <src/utils.h>
@@ -87,7 +87,15 @@ void force_integrator::set_pg_values(vector<double> &pg_values,FastMat2 &u,
     u.is(1,1,ndim_m);
     double u2 = u.norm_p_all();
     u.rs();
-    double Re_wall = rho*u2*y_wall/viscosity;
+    wall_law_solver.Re_wall = rho*u2*y_wall/viscosity;
+    for (double rw=0.0; rw<10000; rw+=1.0) {
+      wall_law_solver.Re_wall = rw;
+      double yplus = wall_law_solver.sol();
+      printf("Re_wall %f, yplus %f\n",
+             wall_law_solver.Re_wall, yplus);
+    }
+    PetscFinalize();
+    exit(0);
     // Now we have to invert the relation Re_wall = y+ f(y+)
     // for y+, where f() is the universal law of the wall
     
