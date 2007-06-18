@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: nsgath.cpp,v 1.3 2005/04/01 21:23:04 mstorti Exp $
+//$Id mstorti-v6-1-8-g102fe0f Sun May 27 19:01:23 2007 -0300$
 
 #include <src/fem.h>
 #include <src/utils.h>
@@ -16,8 +16,21 @@ void force_integrator::init() {
   //o Dimension of the embedding space
   TGETOPTNDEF(thash,int,ndim,none);
   ndim_m = ndim;
-  //o Dimenson of the element
+  //o Dimension of the element
   TGETOPTNDEF(thash,int,ndimel,ndim-1); 
+  //o Viscosity
+  TGETOPTDEF_ND(thash,double,viscosity,NAN); 
+  //o Density
+  TGETOPTDEF_ND(thash,double,rho,NAN); 
+  //o Distance to the wall
+  TGETOPTDEF_ND(thash,double,y_wall,NAN); 
+  //o Add wall-law contribution
+  TGETOPTDEF_ND(thash,int,add_wall_law_contrib,0); 
+  PETSCFEM_ASSERT0(!add_wall_law_contrib || 
+                  (!isnan(y_wall) && !isnan(rho) && !isnan(viscosity)),
+                  "add_wall_law_contrib was set, but not physical "
+                  "values were given")
+
   assert(ndimel==ndim-1);
   assert(gather_length==ndim || gather_length==2*ndim);
   compute_moment = (gather_length==2*ndim);
@@ -30,12 +43,45 @@ void force_integrator::init() {
   get_double(thash,"moment_center",x_center.storage_begin(),1,ndim);  
 }
 
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>
+force_integrator::wall_law_solver_t
+::wall_law_solver_t() {
+  yp1 = 5;
+  yp2 = 30;
+  clog = 2.5;
+  c1 = -yp1*log(yp1)+yp1;
+  c2 = yp1*log(yp2)+c1 -clog*log(yp2);
+}
+
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>
+double force_integrator::wall_law_solver_t
+::residual(double yplus,void *user_data) {
+  double f;
+  if (yplus<yp1) f = yplus;
+  else if (yplus<yp2) f = yp1*log(yplus)+c1;
+  else f = clog*log(yplus)+c2;
+  return Re_wall - yplus*f;
+}
+
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 void force_integrator::set_pg_values(vector<double> &pg_values,FastMat2 &u,
 				     FastMat2 &uold,FastMat2 &xpg,FastMat2 &n,
 				     double wpgdet,double time) {
   // Force contribution = normal * pressure * weight of Gauss point
-  force.set(n).scale(-wpgdet*u.get(4));
+  force.set(n).scale(-wpgdet*u.get(ndim_m+1));
+  if (add_wall_law_contrib) {
+    // Add contribution following wall-law
+    // FIXME:= we should check here that the wall law
+    // used here is the same used in the wall-law element!!
+    u.is(1,1,ndim_m);
+    double u2 = u.norm_p_all();
+    double Re_wall = rho*u2*y_wall/viscosity;
+    // Now we have to invert the relation Re_wall = y+ f(y+)
+    // for y+, where f() is the universal law of the wall
+    
+    // force.axpy(u,);
+    u.rs();
+  }
   // export forces to return vector
   force.export_vals(&*pg_values.begin());
   if (compute_moment) {

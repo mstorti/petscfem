@@ -1,11 +1,12 @@
 // -*- mode: C++ -*-
 /*__INSERT_LICENSE__*/
-//$Id: nsgath.h,v 1.4 2006/02/14 23:48:30 mstorti Exp $
+//$Id mstorti-v6-1-8-g102fe0f Sun May 27 19:01:23 2007 -0300$
 #ifndef NS_GATHERER_H
 #define NS_GATHERER_H
 
 #include <src/gatherer.h>
 #include <src/fastmat2.h>
+#include <src/secant.h>
 
 extern int MY_RANK;
 
@@ -30,7 +31,18 @@ private:
   */
   FastMat2 force,moment,x_center,dx;
   /// Flag to compute moments or not, number of dimensions
-  int compute_moment, ndim_m;
+  int compute_moment, ndim_m, add_wall_law_contrib;
+  /// Physical constants for wall-force type b.c.
+  double rho, viscosity, y_wall;
+
+  class wall_law_solver_t : public Secant {
+    double Re_wall;
+    double yp1,yp2,c1,c2,clog;
+    double residual(double x,void *user_data);
+    wall_law_solver_t();
+  } wall_law_solver;
+  friend class wall_law_solver_t;
+  
 public:
   /// perform several checks and initialization
   void init();
