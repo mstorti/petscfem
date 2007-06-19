@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id mstorti-v6-1-10-ga4bad50 Mon Jun 18 12:39:32 2007 -0300$
+//$Id mstorti-v6-1-11-g23c052c Mon Jun 18 13:08:24 2007 -0300$
 
 #include <src/fem.h>
 #include <src/utils.h>
@@ -32,6 +32,7 @@ void force_integrator::init() {
   //o Add wall-law contribution
   TGETOPTDEF_ND(thash,int,add_wall_law_contrib,0); 
 
+  nu = NAN;
   if (add_wall_law_contrib) {
     PETSCFEM_ASSERT0(!add_wall_law_contrib || 
                      (!isnan(y_wall) && !isnan(rho) && !isnan(viscosity)),
@@ -40,6 +41,7 @@ void force_integrator::init() {
     PETSCFEM_ASSERT0(viscosity>=0,"viscosity must be non-negative"); 
     PETSCFEM_ASSERT0(rho>=0,"Density must be non-negative"); 
     PETSCFEM_ASSERT0(y_wall>=0,"Wall-law must be non-negative"); 
+    nu = viscosity/rho;
   }
 
   assert(ndimel==ndim-1);
@@ -74,6 +76,16 @@ double force_integrator::wall_law_solver_t
   return Re_wall - yplus*f;
 }
 
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>
+double force_integrator::wall_law_solver_t
+::fdot(double yplus) {
+  double fd;
+  if (yplus<yp1) fd = 1;
+  else if (yplus<yp2) fd = yp1/yplus;
+  else fd = clog/yplus;
+  return fd;
+}
+
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 void force_integrator::set_pg_values(vector<double> &pg_values,FastMat2 &u,
 				     FastMat2 &uold,FastMat2 &xpg,FastMat2 &n,
@@ -85,21 +97,21 @@ void force_integrator::set_pg_values(vector<double> &pg_values,FastMat2 &u,
     // FIXME:= we should check here that the wall law
     // used here is the same used in the wall-law element!!
     u.is(1,1,ndim_m);
-    double u2 = u.norm_p_all();
-    u.rs();
-    wall_law_solver.Re_wall = rho*u2*y_wall/viscosity;
-    for (double rw=0.0; rw<10000; rw+=1.0) {
-      wall_law_solver.Re_wall = rw;
-      double yplus = wall_law_solver.sol();
-      printf("Re_wall %f, yplus %f\n",
-             wall_law_solver.Re_wall, yplus);
-    }
-    PetscFinalize();
-    exit(0);
+    double uu = u.norm_p_all();
     // Now we have to invert the relation Re_wall = y+ f(y+)
     // for y+, where f() is the universal law of the wall
-    
-    // force.axpy(u,);
+    wall_law_solver.Re_wall = uu*y_wall/nu;
+    double yplus = wall_law_solver.sol();
+    double coeff;
+    if (yplus>wall_law_solver.yp1) {
+      double ustar = nu*yplus/y_wall;
+      double tau_wall = rho*ustar*ustar;
+      coeff = tau_wall/uu;
+    } else {
+      coeff = viscosity/y_wall;
+    }
+    force.axpy(u,-coeff);
+    u.rs();
   }
   // export forces to return vector
   force.export_vals(&*pg_values.begin());

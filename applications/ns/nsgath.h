@@ -1,6 +1,6 @@
 // -*- mode: C++ -*-
 /*__INSERT_LICENSE__*/
-//$Id mstorti-v6-1-9-g57b2b31 Mon Jun 18 00:13:23 2007 -0300$
+//$Id mstorti-v6-1-11-g23c052c Mon Jun 18 13:08:24 2007 -0300$
 #ifndef NS_GATHERER_H
 #define NS_GATHERER_H
 
@@ -33,12 +33,13 @@ private:
   /// Flag to compute moments or not, number of dimensions
   int compute_moment, ndim_m, add_wall_law_contrib;
   /// Physical constants for wall-force type b.c.
-  double rho, viscosity, y_wall;
+  double rho, viscosity, y_wall, nu;
 
   class wall_law_solver_t : public Secant {
     double Re_wall;
     double yp1,yp2,c1,c2,clog;
-    double residual(double x,void *user_data);
+    double residual(double yplus,void *user_data);
+    double fdot(double yplus);
     wall_law_solver_t();
     friend class force_integrator;
   } wall_law_solver;
