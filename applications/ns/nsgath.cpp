@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id mstorti-v6-1-11-g23c052c Mon Jun 18 13:08:24 2007 -0300$
+//$Id mstorti-v6-1-12-g6e9e9eb Mon Jun 18 21:40:11 2007 -0300$
 
 #include <src/fem.h>
 #include <src/utils.h>
@@ -90,8 +90,9 @@ double force_integrator::wall_law_solver_t
 void force_integrator::set_pg_values(vector<double> &pg_values,FastMat2 &u,
 				     FastMat2 &uold,FastMat2 &xpg,FastMat2 &n,
 				     double wpgdet,double time) {
+  force.set(0.0);
   // Force contribution = normal * pressure * weight of Gauss point
-  force.set(n).scale(-wpgdet*u.get(ndim_m+1));
+  force.axpy(n,-u.get(ndim_m+1));
   if (add_wall_law_contrib) {
     // Add contribution following wall-law
     // FIXME:= we should check here that the wall law
@@ -113,6 +114,7 @@ void force_integrator::set_pg_values(vector<double> &pg_values,FastMat2 &u,
     force.axpy(u,-coeff);
     u.rs();
   }
+  force.scale(wpgdet);
   // export forces to return vector
   force.export_vals(&*pg_values.begin());
   if (compute_moment) {
