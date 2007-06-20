@@ -9,6 +9,11 @@ class nsi_tet_les_full : public ns_volume_element {
 public: 
   ASK_FUNCTION;
   ASSEMBLE_FUNCTION;
+public: 
+  virtual void bf_init(Nodedata*) { }
+  virtual void bf_eval_el(int iel) { }
+  virtual void bf_eval_pg(FastMat2& shape,FastMat2& dshape,
+			  FastMat2& body_force) { }
 };
 
 #endif

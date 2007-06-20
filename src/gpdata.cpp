@@ -656,5 +656,48 @@ GPdata::~GPdata() {
     delete[] FM2_dshapexi;
   }
 }
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+int GPdata::
+get_default_geom(int ndim, int nel, string& geometry)
+{
+  switch (ndim) {
+  case  1: 
+    switch (nel) {
+    case  2: geometry = string("cartesian1d"); break;
+    default: return -1;
+    } break;
+  case  2: 
+    switch (nel) {
+    case  3: geometry = string("triangle");    break;
+    case  4: geometry = string("cartesian2d"); break;
+    default: return -1;
+    } break;
+  case  3:      					 
+    switch (nel) {
+    case  4: geometry = string("tetra");       break;
+    case  6: geometry = string("prismatic");   break;
+    case  8: geometry = string("cartesian3d"); break;
+    default: return -1;
+    } break;
+  default: return -1;
+  }
+  return 0;
+}
+int GPdata::
+get_default_npg(const string& geometry, int &npg)
+{
+  if      (geometry  == "tetra")       npg = 4;
+  else if (geometry  == "cartesian3d") npg = 8;
+  else if (geometry  == "prismatic")   npg = 6;
+  else if (geometry  == "triangle")    npg = 3;
+  else if (geometry  == "cartesian2d") npg = 4;
+  else if (geometry  == "cartesian1d") npg = 2;
+  else return -1;
+  return 0;
+}
+
+
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 
 #undef GPERROR
+

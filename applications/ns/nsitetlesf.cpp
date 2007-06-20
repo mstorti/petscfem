@@ -20,47 +20,6 @@ extern TextHashTable *GLOBAL_OPTIONS;
 #define MAXPROP 100
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
-
-static int 
-get_geometry_default(int ndim, int nel, string& geometry)
-{
-  switch (ndim) {
-  case  1: 
-    switch (nel) {
-    case  2: geometry = string("cartesian1d"); break;
-    default: return -1;
-    } break;
-  case  2: 
-    switch (nel) {
-    case  3: geometry = string("triangle");    break;
-    case  4: geometry = string("cartesian2d"); break;
-    default: return -1;
-    } break;
-  case  3:      					 
-    switch (nel) {
-    case  4: geometry = string("tetra");       break;
-    case  6: geometry = string("prismatic");   break;
-    case  8: geometry = string("cartesian3d"); break;
-    default: return -1;
-    } break;
-  default: return -1;
-  }
-  return 0;
-}
-
-static int 
-get_npgauss_default(const string& geometry, int &npg)
-{
-  if      (geometry  == "tetra")       npg = 4;
-  else if (geometry  == "cartesian3d") npg = 8;
-  else if (geometry  == "prismatic")   npg = 6;
-  else if (geometry  == "triangle")    npg = 3;
-  else if (geometry  == "cartesian2d") npg = 4;
-  else if (geometry  == "cartesian1d") npg = 2;
-  return 0;
-}
-
-//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 #undef __FUNC__
 #define __FUNC__ "nsi_tet_les_full::ask(char *,int &)"
 int nsi_tet_les_full::
@@ -148,12 +107,12 @@ assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
   //o Type of element geometry to define Gauss Point data
   TGETOPTDEF_S(thash,string,geometry,default);
   if(geometry == "default") {
-    get_geometry_default(ndim, nel, geometry);
+    GPdata::get_default_geom(ndim, nel, geometry);
   }
   //o Number of Gauss points.
   TGETOPTDEF(thash,int,npg,-1);
   if (npg == -1) {
-    get_npgauss_default(geometry, npg);
+    GPdata::get_default_npg(geometry, npg);
   }
 
   GPdata gp_data(geometry.c_str(),ndim,nel,npg,GP_FASTMAT2);
@@ -236,7 +195,7 @@ assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
   // allocate local vecs
   int kdof;
   FastMat2 veccontr(2,nel,ndof),xloc(2,nel,ndim),locstate(2,nel,ndof), 
-    locstate2(2,nel,ndof),xpg,G_body(1,ndim),
+    locstate2(2,nel,ndof),xpg,G_body(1,ndim),F_body(1,ndim),
     vrel(1,ndim);
 
   if (ndof != ndim+1) {
@@ -312,6 +271,10 @@ assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
   //o Scale the jacobian term. 
   SGETOPTDEF(double,jacobian_factor,1.);
 
+  //o XXX Write me
+  SGETOPTDEF(int,body_force,0);
+  
+
   double &alpha = glob_param->alpha;
 
   //o _T: double[ndim] _N: G_body _D: null vector 
@@ -374,6 +337,8 @@ assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
     matloc_prof.set(1.);
 
   }
+
+  if (body_force) this->bf_init(nodedata);
 
   FastMatCacheList cache_list;
   FastMat2::activate_cache(&cache_list);
@@ -469,13 +434,21 @@ assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
       PETSCFEM_ERROR0("Not compiled with ANN library!!\n");
 #endif
     }
-#define DSHAPEXI (*gp_data.FM2_dshapexi[ipg])
-#define SHAPE    (*gp_data.FM2_shape[ipg])
-#define WPG      (gp_data.wpg[ipg])
-#define WPG_SUM  (gp_data.wpg_sum)
+
+    if (body_force) this->bf_eval_el(k);
 
     // loop over Gauss points
     for (ipg=0; ipg<npg; ipg++) {
+
+// #define DSHAPEXI (*gp_data.FM2_dshapexi[ipg])
+// #define SHAPE    (*gp_data.FM2_shape[ipg])
+// #define WPG      (gp_data.wpg[ipg])
+// #define WPG_SUM  (gp_data.wpg_sum)
+
+      FastMat2& DSHAPEXI = *gp_data.FM2_dshapexi[ipg];
+      FastMat2& SHAPE    = *gp_data.FM2_shape[ipg];
+      double    WPG      = gp_data.wpg[ipg];
+      double    WPG_SUM  = gp_data.wpg_sum;
 
       Jaco.prod(DSHAPEXI,xloc,1,-1,-1,2);
 
@@ -678,6 +651,13 @@ assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
 	du.set(u_star).rest(u);
 	dmatu.prod(vrel,grad_u_star,-1,-1,1);
 	dmatu.axpy(du,rec_Dt/alpha).rest(G_body);
+
+	if (body_force) {
+	  F_body.set(0.);
+	  this->bf_eval_pg(SHAPE,dshapex,F_body);
+	  dmatu.rest(F_body);
+	}
+	
 	
 	// Galerkin - momentum
 	// resmom tiene que tener nel*ndim
@@ -985,7 +965,7 @@ assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
   return 0;
 }
 
-#undef SHAPE    
-#undef DSHAPEXI 
-#undef WPG      
-#undef SQ
+// #undef SHAPE    
+// #undef DSHAPEXI 
+// #undef WPG      
+// #undef WPG_SUM

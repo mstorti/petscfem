@@ -353,11 +353,15 @@ void petscfem_assert(int bool_cond,const char *templ,...);
 */ 
 class Nodedata {
 public:
+  ~Nodedata();
+  Nodedata();
   double *nodedata;
   int nnod,ndim,nu;
+  typedef pair<int,double*> Field;
+  typedef map<string,Field> FieldMap;
+  FieldMap fields;
   TextHashTable *options;
-  Nodedata();
-  ~Nodedata();
+  bool get_field(const string&,int*,double**);
 };
 
 class Elemset;

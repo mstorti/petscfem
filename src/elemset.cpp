@@ -1088,12 +1088,33 @@ Elemset::~Elemset() {
 Nodedata::Nodedata() : 
   nodedata(NULL), 
   nnod(0), ndim(0), nu(0),
+  fields(),
   options(NULL)
 { }
-
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 Nodedata::~Nodedata() {
   DELETE_VCTR(nodedata);
+  FieldMap::iterator i = fields.begin();
+  FieldMap::iterator e = fields.end();
+  while (i != e) {
+    DELETE_VCTR(i->second.second); i++;
+  }
   DELETE_SCLR(options);
 }
-
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+bool 
+Nodedata::get_field(const string& name,int* cols,double** data)
+{
+  FieldMap::iterator m = fields.find(name);
+  if (m == fields.end()) {
+    if (cols) *cols = 0;
+    if (data) *data = 0;
+    return false;
+  } else {
+    Field& field = m->second;
+    if (cols) *cols = field.first;
+    if (data) *data = field.second;
+    return true;
+  }
+}
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 

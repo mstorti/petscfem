@@ -43,6 +43,7 @@
 #include "./bubblyqint.h"
 #include "./bubblyqint.h"
 #include "./nsitetlesf.h"
+#include "./nsitetlesfbf.h"
 
 #include "./poiboltz.h"
 
@@ -72,7 +73,7 @@ void bless_elemset(char *type,Elemset *& elemset) {
     SET_ELEMSET_TYPE(ld_elasticity_load)
 
     SET_ELEMSET_TYPE(nsi_tet_les_fm2)
-    SET_ELEMSET_TYPE(nsi_tet_les_full)
+    SET_ELEMSET_TYPE(nsi_tet_les_full_bf)
     SET_ELEMSET_TYPE(nsi_tet_les_comp)
     SET_ELEMSET_TYPE(nsi_tet_les_ther)
     SET_ELEMSET_TYPE(nsi_tet_les_asm)

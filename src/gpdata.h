@@ -89,6 +89,11 @@ public:
   edge edges_begin();
   edge edges_end();
   int nedges();
+
+public:
+  static int get_default_geom(int ndim, int nel, string& geometry);
+  static int get_default_npg(const string& geometry, int &npg);
+
 };
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
