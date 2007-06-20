@@ -72,7 +72,7 @@ nettest.bin: nettest.o
 
 NP = $(shell procsel -n $(PETSCFEM_PROCTABLE))
 # NP = $(shell procsel -n ./proctable)
-MPDRUN := $(MPI_HOME1)/bin/mpdrun
+MPDRUN := $(MPI_DIR)/bin/mpdrun
 
 #w Runs test of bandwith between all processors
 run_nettest: nettest.bin
