@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-// $Id: project4.cpp,v 1.9 2005/10/16 03:12:47 mstorti Exp $
+// $Id mstorti-v6-2-1-g23d6622 Wed Jun 20 11:58:02 2007 -0300$
 
 #include <cstdio>
 #include <src/fastmat2.h>
@@ -43,53 +43,6 @@ void read_mesh(dvector<double> &xnod1,const char *XNOD1,
 int main() {
 
 #if 0
-#define XNOD1 "square1.nod.tmp"
-#define ICONE1 "square1.con.tmp"
-#define STATE1 "square1.dat.tmp"
-#define XNOD2 "square2.nod.tmp"
-#endif
-
-#if 0
-#define DATA_DIR "./fluent"
-#define XNOD1 DATA_DIR "/fluent.nod"
-#define STATE1 DATA_DIR "/fluent.forces"
-#define ICONE1 DATA_DIR "/fluent.con"
-#define ICONE2 DATA_DIR "/patran.con"
-#define XNOD2 DATA_DIR "/patran.nod"
-#endif
-
-#if 0
-#define XNOD1  "./mesh1.nod"
-#define ICONE1 "./mesh1.con"
-#define XNOD2  "./mesh1.nod"
-#define STATE1 "./mesh1.nod"
-#endif
-
-#if 0
-#define XNOD1  "./mesh3.nod"
-#define ICONE1 "./mesh3.con"
-#define STATE1 "./mesh3.nod"
-#define XNOD2  "./mesh3.nod"
-#endif
-
-#if 0
-#define DATA_DIR "/u/mstorti/PETSC/COMP-CORNER/euler-mach-10-run2"
-#define XNOD1  DATA_DIR "/comp_corner_Ma_10_Euler.nod.tmp"
-  // #define ICONE1 DATA_DIR "/comp_corner_Ma_10_Euler.con.tmp"
-#define ICONE1 DATA_DIR "/comp-corner-tri.con.tmp"
-#define STATE1 DATA_DIR "/comp_corner_Ma_10_Euler.state.tmp"
-#define XNOD2  DATA_DIR "/test-points.dat"
-#endif
-
-#if 0
-#define DATA_DIR "/u/mstorti/PETSC/COMP-CORNER/viscous"
-#define XNOD1  DATA_DIR "/comp_corner_Ma_5_low_Rey_ref_3.nod.tmp"
-#define ICONE1 DATA_DIR "/comp_corner_Ma_5_low_Rey_ref_3.con-tri.tmp"
-#define STATE1 DATA_DIR "/comp_corner_Ma_5_low_Rey_ref_3.state.tmp"
-#define XNOD2  DATA_DIR "/xtest.dat"
-#endif
-
-#if 1
 #define DATA_DIR1 "/home/mstorti/PETSC/petscfem-cases/sqcav-ther-Ra1.6e9-N100"
 #define DATA_DIR "/home/mstorti/PETSC/petscfem-cases/sqcav-ther"
 #define XNOD1  DATA_DIR1 "/sqcav-ther.nod.tmp"
@@ -98,10 +51,17 @@ int main() {
 #define XNOD2  DATA_DIR "/sqcav-ther.nod.tmp"
 #endif
 
+#if 1
+#define XNOD1  "./xnod1.tmp"
+#define ICONE1 "./icone1.tmp"
+#define STATE1 "./u.tmp"
+#define XNOD2  "./xnod2.tmp"
+#endif
+
   int ndim = 2;
   int ndimel = 2;
   int nel = ndim+1; // Only for simplices right now
-  int ndof = 4;
+  int ndof = 1;
 
   dvector<double> xnod1, xnod2, u1, u2,
     area1, area2;
@@ -123,7 +83,7 @@ int main() {
   fem_interp.init(10,ndof,ndimel,xnod1,ico1);
   u2.clear();
   fem_interp.interp(xnod2,u1,u2);
-  u2.print(DATA_DIR "/u2-interp.dat");
+  u2.print("./u2-interp.dat");
 
 #if 0
   dvector<int> ico2;

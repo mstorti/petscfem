@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-// $Id: project.cpp,v 1.24 2005/04/28 15:43:04 mstorti Exp $
+// $Id mstorti-v6-2-1-g23d6622 Wed Jun 20 11:58:02 2007 -0300$
 
 #include <cstdio>
 #include <src/fastmat2.h>
@@ -21,9 +21,7 @@ void FemInterp::clear() {
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 FemInterp::FemInterp() : 
-  kdtree(NULL), 
-  use_cache(1), tol(1e-6), 
-  pts(NULL) {}
+  kdtree(NULL), pts(NULL), use_cache(1), tol(1e-6) {}
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 FemInterp::~FemInterp() { clear(); }
