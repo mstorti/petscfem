@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-// $Id mstorti-v6-2-2-g58bbd08 Wed Jun 20 18:46:16 2007 -0300$
+// $Id mstorti-v6-2-3-g3ca77a7 Wed Jun 20 19:15:52 2007 -0300$
 
 #include <cstdio>
 #include <unistd.h>
@@ -56,6 +56,7 @@ int main(int argc,char **argv) {
   char *icone1f = strdup("icone1.tmp");
   char *state1f = strdup("state1.tmp");
   char *xnod2f = strdup("xnod2.tmp");
+  char *state2f = strdup("state2.tmp");
   char c;
 
 #define GETOPT_GET(c,fmt,name)			\
@@ -63,13 +64,13 @@ int main(int argc,char **argv) {
       sscanf(optarg,fmt,&name);			\
       break;
 #define SEP "          "
-  while ((c = getopt(argc, argv, "hd:l:e:f:x:i:s:y:")) != -1) {
+  while ((c = getopt(argc, argv, "hd:l:e:f:x:i:s:y:o:")) != -1) {
     switch (c) {
     case 'h':
       printf(" usage: $ project4.bin -d <NDIM>\n"
 	     SEP "-l <NDIMEL> -e <NEL> -f <NDOF>\n"
 	     SEP "-x <XNOD1> -i <ICONE1> -s <STATE1>\n"
-	     SEP "-y <XNOD2>\n"
+	     SEP "-y <XNOD2> -s <STATE2>\n"
              );
       exit(0);
       GETOPT_GET('d',"%d",ndim);
@@ -85,6 +86,9 @@ int main(int argc,char **argv) {
       break;
     case 's':
       state1f = strdup(optarg);
+      break;
+    case 'o':
+      state2f = strdup(optarg);
       break;
     case 'y':
       xnod2f = strdup(optarg);
