@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id mstorti-v6-1-12-g6e9e9eb Mon Jun 18 21:40:11 2007 -0300$
+//$Id mstorti-v6-1-13-g0ac0d48 Tue Jun 19 00:01:36 2007 -0300$
 
 #include <src/fem.h>
 #include <src/utils.h>
@@ -31,6 +31,12 @@ void force_integrator::init() {
 
   //o Add wall-law contribution
   TGETOPTDEF_ND(thash,int,add_wall_law_contrib,0); 
+
+  //o Affects pressure term contribution
+  TGETOPTDEF_ND(thash,double,p_mask,1.0); 
+
+  //o Affects viscous term contribution
+  TGETOPTDEF_ND(thash,double,visc_mask,1.0); 
 
   nu = NAN;
   if (add_wall_law_contrib) {
@@ -92,7 +98,7 @@ void force_integrator::set_pg_values(vector<double> &pg_values,FastMat2 &u,
 				     double wpgdet,double time) {
   force.set(0.0);
   // Force contribution = normal * pressure * weight of Gauss point
-  force.axpy(n,-u.get(ndim_m+1));
+  force.axpy(n,-p_mask*u.get(ndim_m+1));
   if (add_wall_law_contrib) {
     // Add contribution following wall-law
     // FIXME:= we should check here that the wall law
@@ -111,7 +117,7 @@ void force_integrator::set_pg_values(vector<double> &pg_values,FastMat2 &u,
     } else {
       coeff = viscosity/y_wall;
     }
-    force.axpy(u,-coeff);
+    force.axpy(u,-coeff*visc_mask);
     u.rs();
   }
   force.scale(wpgdet);
