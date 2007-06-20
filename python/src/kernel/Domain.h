@@ -57,6 +57,10 @@ public:
   DTable<double>& getNodedata() const;
   void            setNodedata(const DTable<double>& nodedata);
 
+  DTable<double>& getField(const std::string& name) const;
+  void            setField(const std::string& name,
+			   DTable<double>& data);
+
   Elemset& getElemset(int index) const;
   void     addElemset(const Elemset& elemset);
   

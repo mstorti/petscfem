@@ -85,6 +85,22 @@ Domain::setNodedata(const DTable<double>& nodetable)
   this->mesh->setNodedata(nodetable);
 }
 
+DTable<double>& 
+Domain::getField(const std::string& name) const
+{
+  return this->mesh->getField(name);
+}
+
+void  
+Domain::setField(const std::string& name,
+		 DTable<double>& data)
+{
+  const std::pair<int,int>& shape = data.getShape();
+  if (this->nnod != shape.first)
+    throw Error("Domain: rows != nnod in nodedata");
+  this->mesh->setField(name,data);
+}
+
 Elemset& 
 Domain::getElemset(int index) const
 {

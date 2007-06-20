@@ -448,6 +448,8 @@ class Mesh(Object):
         """
         return _core.Mesh_setNodedata(*args)
 
+    def getField(*args): return _core.Mesh_getField(*args)
+    def setField(*args): return _core.Mesh_setField(*args)
     def getPartitioning(*args): return _core.Mesh_getPartitioning(*args)
     def getSize(*args):
         """getSize(self) -> int"""
@@ -720,6 +722,8 @@ class Domain(Object):
         """
         return _core.Domain_setNodedata(*args)
 
+    def getField(*args): return _core.Domain_getField(*args)
+    def setField(*args): return _core.Domain_setField(*args)
     def getElemset(*args):
         """
         getElemset(self, index) -> Elemset

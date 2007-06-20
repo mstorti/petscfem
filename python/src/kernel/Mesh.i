@@ -6,6 +6,7 @@ PF4PY_NAMESPACE_END
 
 PF4PY_NAMESPACE_BEGIN
 %newobject Mesh::getNodedata;
+%newobject Mesh::getField;
 %newobject Mesh::getElemset;
 %newobject Mesh::getOptions;
 PF4PY_NAMESPACE_END

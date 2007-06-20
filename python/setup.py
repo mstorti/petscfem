@@ -52,8 +52,8 @@ SOFT         = abspath(join(PETSCFEM_DIR, '..', 'SOFT'))
 
 GLIB1    = '/usr/lib/glib/include'
 GLIB2    = '/usr/include/glib-1.2'
-NEWMAT   = join(SOFT, 'newmat-1.0', 'src')
 LIBRETTO = join(SOFT, 'libretto-2.1')
+NEWMAT   = join(SOFT, 'newmat-1.0')
 MESCHACH = join(SOFT, 'meschach-1.2')
 METIS    = join(SOFT, 'metis-4.0')
 ANN      = join(SOFT, 'ann-1.1.1')
@@ -75,27 +75,37 @@ MKL_LIB = []
 # --------------------------------------------------------------------
 
 config = {
-    'define_macros': [ ('MPICH_SKIP_MPICXX', None)],
+    'define_macros': [('MPICH_SKIP_MPICXX', None),
+                      ('USE_ANN', None),
+                       ],
     'include_dirs' : [join(MPI_DIR, 'include'),
                       join(PETSC_DIR, 'bmake', PETSC_ARCH),
                       join(PETSC_DIR, 'include'),
-                      GLIB1, GLIB2, NEWMAT, LIBRETTO, MESCHACH, METIS,
-                      join(ANN, 'include')],
+                      join(LIBRETTO, 'include'),
+                      join(NEWMAT, 'src'),
+                      join(ANN, 'include'),
+                      GLIB1, GLIB2,
+                      MESCHACH, METIS,
+                      ],
     
-    'libraries'    : ['glib',
-                      'mpich',
+    'libraries'    : ['mpich',
                       'petscksp', 'petscdm', 'petscmat', 'petscvec', 'petsc',
+                      'glib',
                       'newmat',
                       'ibretto',
                       'meschach',
                       'metis',
-                      'ANN',],
+                      'ANN',
+                      ],
     
     'library_dirs' : [join(MPI_DIR, 'lib'),
                       join(PETSC_DIR, 'lib'),
                       join(PETSC_DIR, 'lib', PETSC_ARCH),
-                      NEWMAT, LIBRETTO, MESCHACH, METIS,
-                      join(ANN, 'lib')],
+                      join(LIBRETTO, 'lib'),
+                      join(ANN, 'lib'),
+                      join(NEWMAT, 'src'),
+                      MESCHACH, METIS,
+                      ],
     'runtime_library_dirs' : []
     }
 
@@ -108,9 +118,9 @@ def ext_modules(Extension):
                        + config['include_dirs']
 
     if BOPT in ('g', 'g_c++'):
-        PETSCFEM_LIBRARY = ['petscfem_g', 'ns_g'] * 2
+        PETSCFEM_LIBRARY = ['ns_g', 'petscfem_g'] * 2
     elif BOPT in ('O',  'O_c++'):
-        PETSCFEM_LIBRARY = ['petscfem_O', 'ns_O'] * 2
+        PETSCFEM_LIBRARY = ['ns_O', 'petscfem_O'] * 2
     else:
         raise SystemExit('invalid BOPT: %s' % BOPT)
     PETSCFEM_LIBRARY +=  config['libraries']
@@ -179,6 +189,10 @@ def setup():
         def finalize_options(self):
             _build_src.finalize_options(self)
             self.inplace = True
+            try:
+                swig_opts = self.swig_opts
+            except AttributeError:
+                swig_opts = self.swigflags
             for flag in ('-O',
                          #'-nodefaultctor',
                          #'-nodefaultdtor',
@@ -187,7 +201,7 @@ def setup():
                          '-noh',
                          '-nodirvtable', # bug in swig 1.3.29
                          ):
-                self.swigflags.append(flag)
+                swig_opts.append(flag)
             
             
     setup(packages     = ['pf4py',

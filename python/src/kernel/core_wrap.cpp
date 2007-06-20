@@ -9513,6 +9513,110 @@ fail:
 }
 
 
+SWIGINTERN PyObject *_wrap_Mesh_getField(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
+  PyObject *resultobj = 0;
+  PETScFEM::Mesh *arg1 = (PETScFEM::Mesh *) 0 ;
+  std::string *arg2 = 0 ;
+  PETScFEM::DTable<double > *result = 0 ;
+  void *argp1 = 0 ;
+  int res1 = 0 ;
+  int res2 = SWIG_OLDOBJ ;
+  PyObject *swig_obj[2] ;
+  
+  if (!SWIG_Python_UnpackTuple(args,"Mesh_getField",2,2,swig_obj)) SWIG_fail;
+  res1 = SWIG_ConvertPtr(swig_obj[0], &argp1,SWIGTYPE_p_PETScFEM__Mesh, 0 |  0 );
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "Mesh_getField" "', argument " "1"" of type '" "PETScFEM::Mesh const *""'"); 
+  }
+  arg1 = reinterpret_cast< PETScFEM::Mesh * >(argp1);
+  {
+    std::string *ptr = (std::string *)0;
+    res2 = SWIG_AsPtr_std_string(swig_obj[1], &ptr);
+    if (!SWIG_IsOK(res2)) {
+      SWIG_exception_fail(SWIG_ArgError(res2), "in method '" "Mesh_getField" "', argument " "2"" of type '" "std::string const &""'"); 
+    }
+    if (!ptr) {
+      SWIG_exception_fail(SWIG_ValueError, "invalid null reference " "in method '" "Mesh_getField" "', argument " "2"" of type '" "std::string const &""'"); 
+    }
+    arg2 = ptr;
+  }
+  {
+    try {
+      {
+        PETScFEM::DTable<double > &_result_ref = ((PETScFEM::Mesh const *)arg1)->getField((std::string const &)*arg2);
+        result = (PETScFEM::DTable<double > *) &_result_ref;
+      } 
+    }
+    PF4PY_CATCH_DIRECTORS
+    PF4PY_CATCH_PETSCFEM
+    PF4PY_CATCH_STDEXC
+    PF4PY_CATCH_UNKNOWN
+  }
+  resultobj = SWIG_NewPointerObj(SWIG_as_voidptr(result), SWIGTYPE_p_PETScFEM__DTableTdouble_t, SWIG_POINTER_OWN |  0 );
+  if (SWIG_IsNewObj(res2)) delete arg2;
+  result->incref();
+  return resultobj;
+fail:
+  if (SWIG_IsNewObj(res2)) delete arg2;
+  return NULL;
+}
+
+
+SWIGINTERN PyObject *_wrap_Mesh_setField(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
+  PyObject *resultobj = 0;
+  PETScFEM::Mesh *arg1 = (PETScFEM::Mesh *) 0 ;
+  std::string *arg2 = 0 ;
+  PETScFEM::DTable<double > *arg3 = 0 ;
+  void *argp1 = 0 ;
+  int res1 = 0 ;
+  int res2 = SWIG_OLDOBJ ;
+  void *argp3 = 0 ;
+  int res3 = 0 ;
+  PyObject *swig_obj[3] ;
+  
+  if (!SWIG_Python_UnpackTuple(args,"Mesh_setField",3,3,swig_obj)) SWIG_fail;
+  res1 = SWIG_ConvertPtr(swig_obj[0], &argp1,SWIGTYPE_p_PETScFEM__Mesh, 0 |  0 );
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "Mesh_setField" "', argument " "1"" of type '" "PETScFEM::Mesh *""'"); 
+  }
+  arg1 = reinterpret_cast< PETScFEM::Mesh * >(argp1);
+  {
+    std::string *ptr = (std::string *)0;
+    res2 = SWIG_AsPtr_std_string(swig_obj[1], &ptr);
+    if (!SWIG_IsOK(res2)) {
+      SWIG_exception_fail(SWIG_ArgError(res2), "in method '" "Mesh_setField" "', argument " "2"" of type '" "std::string const &""'"); 
+    }
+    if (!ptr) {
+      SWIG_exception_fail(SWIG_ValueError, "invalid null reference " "in method '" "Mesh_setField" "', argument " "2"" of type '" "std::string const &""'"); 
+    }
+    arg2 = ptr;
+  }
+  res3 = SWIG_ConvertPtr(swig_obj[2], &argp3, SWIGTYPE_p_PETScFEM__DTableTdouble_t,  0 );
+  if (!SWIG_IsOK(res3)) {
+    SWIG_exception_fail(SWIG_ArgError(res3), "in method '" "Mesh_setField" "', argument " "3"" of type '" "PETScFEM::DTable<double > &""'"); 
+  }
+  if (!argp3) {
+    SWIG_exception_fail(SWIG_ValueError, "invalid null reference " "in method '" "Mesh_setField" "', argument " "3"" of type '" "PETScFEM::DTable<double > &""'"); 
+  }
+  arg3 = reinterpret_cast< PETScFEM::DTable<double > * >(argp3);
+  {
+    try {
+      (arg1)->setField((std::string const &)*arg2,*arg3); 
+    }
+    PF4PY_CATCH_DIRECTORS
+    PF4PY_CATCH_PETSCFEM
+    PF4PY_CATCH_STDEXC
+    PF4PY_CATCH_UNKNOWN
+  }
+  resultobj = SWIG_Py_Void();
+  if (SWIG_IsNewObj(res2)) delete arg2;
+  return resultobj;
+fail:
+  if (SWIG_IsNewObj(res2)) delete arg2;
+  return NULL;
+}
+
+
 SWIGINTERN PyObject *_wrap_Mesh_getPartitioning(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
   PyObject *resultobj = 0;
   PETScFEM::Mesh *arg1 = (PETScFEM::Mesh *) 0 ;
@@ -11373,6 +11477,109 @@ SWIGINTERN PyObject *_wrap_Domain_setNodedata(PyObject *SWIGUNUSEDPARM(self), Py
   resultobj = SWIG_Py_Void();
   return resultobj;
 fail:
+  return NULL;
+}
+
+
+SWIGINTERN PyObject *_wrap_Domain_getField(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
+  PyObject *resultobj = 0;
+  PETScFEM::Domain *arg1 = (PETScFEM::Domain *) 0 ;
+  std::string *arg2 = 0 ;
+  PETScFEM::DTable<double > *result = 0 ;
+  void *argp1 = 0 ;
+  int res1 = 0 ;
+  int res2 = SWIG_OLDOBJ ;
+  PyObject *swig_obj[2] ;
+  
+  if (!SWIG_Python_UnpackTuple(args,"Domain_getField",2,2,swig_obj)) SWIG_fail;
+  res1 = SWIG_ConvertPtr(swig_obj[0], &argp1,SWIGTYPE_p_PETScFEM__Domain, 0 |  0 );
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "Domain_getField" "', argument " "1"" of type '" "PETScFEM::Domain const *""'"); 
+  }
+  arg1 = reinterpret_cast< PETScFEM::Domain * >(argp1);
+  {
+    std::string *ptr = (std::string *)0;
+    res2 = SWIG_AsPtr_std_string(swig_obj[1], &ptr);
+    if (!SWIG_IsOK(res2)) {
+      SWIG_exception_fail(SWIG_ArgError(res2), "in method '" "Domain_getField" "', argument " "2"" of type '" "std::string const &""'"); 
+    }
+    if (!ptr) {
+      SWIG_exception_fail(SWIG_ValueError, "invalid null reference " "in method '" "Domain_getField" "', argument " "2"" of type '" "std::string const &""'"); 
+    }
+    arg2 = ptr;
+  }
+  {
+    try {
+      {
+        PETScFEM::DTable<double > &_result_ref = ((PETScFEM::Domain const *)arg1)->getField((std::string const &)*arg2);
+        result = (PETScFEM::DTable<double > *) &_result_ref;
+      } 
+    }
+    PF4PY_CATCH_DIRECTORS
+    PF4PY_CATCH_PETSCFEM
+    PF4PY_CATCH_STDEXC
+    PF4PY_CATCH_UNKNOWN
+  }
+  resultobj = SWIG_NewPointerObj(SWIG_as_voidptr(result), SWIGTYPE_p_PETScFEM__DTableTdouble_t, 0 |  0 );
+  if (SWIG_IsNewObj(res2)) delete arg2;
+  return resultobj;
+fail:
+  if (SWIG_IsNewObj(res2)) delete arg2;
+  return NULL;
+}
+
+
+SWIGINTERN PyObject *_wrap_Domain_setField(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
+  PyObject *resultobj = 0;
+  PETScFEM::Domain *arg1 = (PETScFEM::Domain *) 0 ;
+  std::string *arg2 = 0 ;
+  PETScFEM::DTable<double > *arg3 = 0 ;
+  void *argp1 = 0 ;
+  int res1 = 0 ;
+  int res2 = SWIG_OLDOBJ ;
+  void *argp3 = 0 ;
+  int res3 = 0 ;
+  PyObject *swig_obj[3] ;
+  
+  if (!SWIG_Python_UnpackTuple(args,"Domain_setField",3,3,swig_obj)) SWIG_fail;
+  res1 = SWIG_ConvertPtr(swig_obj[0], &argp1,SWIGTYPE_p_PETScFEM__Domain, 0 |  0 );
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "Domain_setField" "', argument " "1"" of type '" "PETScFEM::Domain *""'"); 
+  }
+  arg1 = reinterpret_cast< PETScFEM::Domain * >(argp1);
+  {
+    std::string *ptr = (std::string *)0;
+    res2 = SWIG_AsPtr_std_string(swig_obj[1], &ptr);
+    if (!SWIG_IsOK(res2)) {
+      SWIG_exception_fail(SWIG_ArgError(res2), "in method '" "Domain_setField" "', argument " "2"" of type '" "std::string const &""'"); 
+    }
+    if (!ptr) {
+      SWIG_exception_fail(SWIG_ValueError, "invalid null reference " "in method '" "Domain_setField" "', argument " "2"" of type '" "std::string const &""'"); 
+    }
+    arg2 = ptr;
+  }
+  res3 = SWIG_ConvertPtr(swig_obj[2], &argp3, SWIGTYPE_p_PETScFEM__DTableTdouble_t,  0 );
+  if (!SWIG_IsOK(res3)) {
+    SWIG_exception_fail(SWIG_ArgError(res3), "in method '" "Domain_setField" "', argument " "3"" of type '" "PETScFEM::DTable<double > &""'"); 
+  }
+  if (!argp3) {
+    SWIG_exception_fail(SWIG_ValueError, "invalid null reference " "in method '" "Domain_setField" "', argument " "3"" of type '" "PETScFEM::DTable<double > &""'"); 
+  }
+  arg3 = reinterpret_cast< PETScFEM::DTable<double > * >(argp3);
+  {
+    try {
+      (arg1)->setField((std::string const &)*arg2,*arg3); 
+    }
+    PF4PY_CATCH_DIRECTORS
+    PF4PY_CATCH_PETSCFEM
+    PF4PY_CATCH_STDEXC
+    PF4PY_CATCH_UNKNOWN
+  }
+  resultobj = SWIG_Py_Void();
+  if (SWIG_IsNewObj(res2)) delete arg2;
+  return resultobj;
+fail:
+  if (SWIG_IsNewObj(res2)) delete arg2;
   return NULL;
 }
 
@@ -13500,6 +13707,8 @@ static PyMethodDef SwigMethods[] = {
 	 { (char *)"delete_Mesh", (PyCFunction)_wrap_delete_Mesh, METH_O, NULL},
 	 { (char *)"Mesh_getNodedata", (PyCFunction)_wrap_Mesh_getNodedata, METH_O, NULL},
 	 { (char *)"Mesh_setNodedata", _wrap_Mesh_setNodedata, METH_VARARGS, NULL},
+	 { (char *)"Mesh_getField", _wrap_Mesh_getField, METH_VARARGS, NULL},
+	 { (char *)"Mesh_setField", _wrap_Mesh_setField, METH_VARARGS, NULL},
 	 { (char *)"Mesh_getPartitioning", _wrap_Mesh_getPartitioning, METH_VARARGS, NULL},
 	 { (char *)"Mesh_getSize", (PyCFunction)_wrap_Mesh_getSize, METH_O, NULL},
 	 { (char *)"Mesh_getElemset", _wrap_Mesh_getElemset, METH_VARARGS, NULL},
@@ -13544,6 +13753,8 @@ static PyMethodDef SwigMethods[] = {
 	 { (char *)"Domain_setOptions", _wrap_Domain_setOptions, METH_VARARGS, NULL},
 	 { (char *)"Domain_getNodedata", (PyCFunction)_wrap_Domain_getNodedata, METH_O, NULL},
 	 { (char *)"Domain_setNodedata", _wrap_Domain_setNodedata, METH_VARARGS, NULL},
+	 { (char *)"Domain_getField", _wrap_Domain_getField, METH_VARARGS, NULL},
+	 { (char *)"Domain_setField", _wrap_Domain_setField, METH_VARARGS, NULL},
 	 { (char *)"Domain_getElemset", _wrap_Domain_getElemset, METH_VARARGS, NULL},
 	 { (char *)"Domain_addElemset", _wrap_Domain_addElemset, METH_VARARGS, NULL},
 	 { (char *)"Domain_setFixation", _wrap_Domain_setFixation, METH_VARARGS, NULL},

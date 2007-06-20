@@ -29,6 +29,7 @@ protected:
   int                     nnod;
   RefVal<DTable<double> > nodedata;
   std::vector<int>        nodepart;
+  RefMap<std::string,DTable<double> > fields;
   RefVec<Elemset>         elemsets;
   RefVal<Options>         options;
 
@@ -56,6 +57,10 @@ protected:
 public:
   DTable<double>& getNodedata() const;
   void            setNodedata(const DTable<double>& nodedata);
+
+  DTable<double>& getField(const std::string& name) const;
+  void            setField(const std::string& name,
+			   DTable<double>& data);
 
 public:
   void getPartitioning(std::vector<int>& part) const;

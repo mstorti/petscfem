@@ -62,18 +62,18 @@ public:
   void setPTable(const PTable<int>&    proptable);
   void setPTable(const PTable<double>& proptable);
   
-  PTable<int>& Elemset::getPTableI() const
+  PTable<int>& getPTableI() const
   { 
     if (!this->proptable_i) 
       throw Error("Elemset: integer property table not set");
     return this->proptable_i;
-  };
-  PTable<double>& Elemset::getPTableS() const
+  }
+  PTable<double>& getPTableS() const
   { 
     if (!this->proptable_s) 
       throw Error("Elemset: scalar property table not set");
     return this->proptable_s;
-  };
+  }
   
 };
 

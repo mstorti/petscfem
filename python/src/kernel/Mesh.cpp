@@ -8,6 +8,56 @@
 #include <dofmap.h>
 #include <readmesh.h>
 
+PF4PY_NAMESPACE_BEGIN
+static inline void 
+sync(Mesh::Impl* mesh, DTable<double>& nodetable, int ndim)
+{
+  if (mesh == NULL) return;
+  const std::pair<int,int>& shape = nodetable.getShape();
+  if (mesh->nodedata == NULL) mesh->nodedata = new ::Nodedata;
+  mesh->nodedata->ndim     = ndim;
+  mesh->nodedata->nnod     = shape.first;
+  mesh->nodedata->nu       = shape.second;
+  mesh->nodedata->nodedata = nodetable;
+}
+typedef pair<int,double*>      FieldEntry;
+typedef map<string,FieldEntry> FieldMap;
+static inline void 
+sync(Mesh::Impl* mesh, const std::string& name, DTable<double>& data)
+{
+  if (mesh == NULL) return;
+  if (mesh->nodedata == NULL) mesh->nodedata = new ::Nodedata;
+  FieldMap&   fields = mesh->nodedata->fields;
+  FieldEntry& entry = fields[name];
+  const std::pair<int,int>& shape = data.getShape();
+  entry.first  = shape.second;
+  entry.second = data;
+}
+typedef RefMap<std::string,DTable<double> > MeshFieldMap;
+static inline void 
+sync(Mesh::Impl* mesh, const MeshFieldMap& fields)
+{
+  MeshFieldMap::const_iterator i = fields.begin();
+  MeshFieldMap::const_iterator e = fields.end();
+  while (i != e) { sync(mesh, i->first, *(i->second)); i++; }
+}
+
+static inline void
+sync(Mesh::Impl* mesh, Elemset::Impl* elemset)
+{
+  if (mesh == NULL) return;
+  if (elemset == NULL) return;
+  da_append(mesh->elemsetlist, &elemset);
+}
+static inline void 
+sync(Mesh::Impl* mesh, Options& options)
+{
+  if (mesh == NULL) return;
+  mesh->global_options     = options;
+  if (mesh->nodedata != NULL)
+    mesh->nodedata->options  = options;
+}
+PF4PY_NAMESPACE_END
 
 PF4PY_NAMESPACE_BEGIN
 class Mesh::Proxy
@@ -30,6 +80,7 @@ public:
     if (mesh->nodedata) {
       mesh->nodedata->nodedata = NULL;
       mesh->nodedata->options  = NULL;
+      mesh->nodedata->fields.clear();
     }
     PF4PY_DELETE_SCLR(mesh->nodedata);
     // + elemsetlist
@@ -60,6 +111,7 @@ public:
     mesh->nodedata->nu       = nu;
     mesh->nodedata->nodedata = nodetable;
     mesh->nodedata->options  = options;
+    sync(mesh, M->fields);
     // create elemsetlist
     std::size_t i, n = M->getSize();
     mesh->elemsetlist = da_create_len(sizeof(Elemset::Impl*), n);
@@ -90,36 +142,6 @@ PF4PY_NAMESPACE_END
 
 
 PF4PY_NAMESPACE_BEGIN
-static inline void 
-sync(Mesh::Impl* mesh, DTable<double>& nodetable, int ndim)
-{
-  if (mesh == NULL) return;
-  const std::pair<int,int>& shape = nodetable.getShape();
-  if (mesh->nodedata == NULL) mesh->nodedata = new ::Nodedata;
-  mesh->nodedata->ndim     = ndim;
-  mesh->nodedata->nnod     = shape.first;
-  mesh->nodedata->nu       = shape.second;
-  mesh->nodedata->nodedata = nodetable;
-}
-static inline void 
-sync(Mesh::Impl* mesh, Elemset::Impl* elemset)
-{
-  if (mesh == NULL) return;
-  if (elemset == NULL) return;
-  da_append(mesh->elemsetlist, &elemset);
-}
-static inline void 
-sync(Mesh::Impl* mesh, Options& options)
-{
-  if (mesh == NULL) return;
-  mesh->global_options     = options;
-  if (mesh->nodedata != NULL)
-    mesh->nodedata->options  = options;
-}
-
-PF4PY_NAMESPACE_END
-
-PF4PY_NAMESPACE_BEGIN
 
 Mesh::~Mesh()
 { }
@@ -129,6 +151,7 @@ Mesh::Mesh()
     nnod(0),
     nodedata(),
     nodepart(),
+    fields(),
     elemsets(),
     options(),
     proxy()
@@ -141,6 +164,7 @@ Mesh::Mesh(const Mesh& mesh)
     nnod(mesh.nnod),
     nodedata(mesh.nodedata),
     nodepart(mesh.nodepart),
+    fields(mesh.fields),
     elemsets(mesh.elemsets),
     options(mesh.options),
     proxy()
@@ -153,6 +177,7 @@ Mesh::Mesh(MPI_Comm comm, int ndim, int nnod)
     nnod(nnod),
     nodedata(),
     nodepart((nnod<0)?0:nnod, 1),
+    fields(),
     elemsets(),
     options(new Options()),
     proxy()
@@ -182,6 +207,24 @@ Mesh::setNodedata(const DTable<double>& nodetable)
   // set node table
   this->nodedata = nodetable;
   sync(*this, this->nodedata, this->ndim);
+}
+
+DTable<double>& 
+Mesh::getField(const std::string& name) const
+{
+  DTable<double>* entry = this->fields.get(name);
+  if (!entry) throw Error("Mesh: field not found");
+  return  *entry;
+}
+
+void
+Mesh::setField(const std::string& name, DTable<double>& data)
+{
+  const std::pair<int,int>& shape = data.getShape();
+  if (shape.first != this->nnod)
+    throw Error("Mesh: rows != nnod in data");
+  this->fields.set(name, &data);
+  sync(*this, name, data);
 }
 
 void 

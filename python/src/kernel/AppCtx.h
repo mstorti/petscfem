@@ -25,7 +25,7 @@ public:
     typedef ::arg_list Impl;
   protected:
     Args(const Args&);
-    Args operator=(const Args&);
+    Args& operator=(const Args&);
   protected:
     std::auto_ptr< Args::Impl > impl;
   public:
