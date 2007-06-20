@@ -1,6 +1,6 @@
 // -*- mode: C++ -*-
 /*__INSERT_LICENSE__*/
-//$Id mstorti-v6-1-13-g0ac0d48 Tue Jun 19 00:01:36 2007 -0300$
+//$Id mstorti-v6-2 Wed Jun 20 11:23:16 2007 -0300$
 #ifndef NS_GATHERER_H
 #define NS_GATHERER_H
 
@@ -31,7 +31,7 @@ private:
   */
   FastMat2 force,moment,x_center,dx;
   /// Flag to compute moments or not, number of dimensions
-  int compute_moment, ndim_m, add_wall_law_contrib;
+  int compute_moment, ndim, ndimel, add_wall_law_contrib;
   /// Physical constants for wall-force type b.c.
   double rho, viscosity, y_wall, nu, p_mask, visc_mask;
 

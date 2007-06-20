@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id mstorti-v6-1-13-g0ac0d48 Tue Jun 19 00:01:36 2007 -0300$
+//$Id mstorti-v6-2 Wed Jun 20 11:23:16 2007 -0300$
 
 #include <src/fem.h>
 #include <src/utils.h>
@@ -14,11 +14,12 @@
 void force_integrator::init() {
   int ierr;
   //o Dimension of the embedding space
-  TGETOPTNDEF(thash,int,ndim,none);
-  ndim_m = ndim;
+  TGETOPTDEF_ND(thash,int,ndim,-1);
+  PETSCFEM_ASSERT0(ndim>=0,"ndim is required and must be non-negative");  
 
   //o Dimension of the element
-  TGETOPTNDEF(thash,int,ndimel,ndim-1); 
+  TGETOPTDEF_ND(thash,int,ndimel,ndim-1); 
+  PETSCFEM_ASSERT0(ndimel>=0,"ndimel must be non-negative");  
 
   //o Viscosity
   TGETOPTDEF_ND(thash,double,viscosity,NAN); 
@@ -98,12 +99,12 @@ void force_integrator::set_pg_values(vector<double> &pg_values,FastMat2 &u,
 				     double wpgdet,double time) {
   force.set(0.0);
   // Force contribution = normal * pressure * weight of Gauss point
-  force.axpy(n,-p_mask*u.get(ndim_m+1));
+  force.axpy(n,-p_mask*u.get(ndim+1));
   if (add_wall_law_contrib) {
     // Add contribution following wall-law
     // FIXME:= we should check here that the wall law
     // used here is the same used in the wall-law element!!
-    u.is(1,1,ndim_m);
+    u.is(1,1,ndim);
     double uu = u.norm_p_all();
     // Now we have to invert the relation Re_wall = y+ f(y+)
     // for y+, where f() is the universal law of the wall
@@ -129,7 +130,7 @@ void force_integrator::set_pg_values(vector<double> &pg_values,FastMat2 &u,
     // Moment contribution = force X dx
     moment.cross(force,dx);
     // export forces to return vector
-    moment.export_vals(&*pg_values.begin()+ndim_m);
+    moment.export_vals(&*pg_values.begin()+ndim);
 #if 0
 #define SHM(name) name.print(#name ": ")
     SHM(xpg);
