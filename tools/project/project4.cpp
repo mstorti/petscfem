@@ -1,7 +1,8 @@
 //__INSERT_LICENSE__
-// $Id mstorti-v6-2-1-g23d6622 Wed Jun 20 11:58:02 2007 -0300$
+// $Id mstorti-v6-2-2-g58bbd08 Wed Jun 20 18:46:16 2007 -0300$
 
 #include <cstdio>
+#include <unistd.h>
 #include <src/fastmat2.h>
 #include <src/dvector.h>
 #include <src/dvector2.h>
@@ -40,23 +41,7 @@ void read_mesh(dvector<double> &xnod1,const char *XNOD1,
 }
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
-int main() {
-
-#if 0
-#define DATA_DIR1 "/home/mstorti/PETSC/petscfem-cases/sqcav-ther-Ra1.6e9-N100"
-#define DATA_DIR "/home/mstorti/PETSC/petscfem-cases/sqcav-ther"
-#define XNOD1  DATA_DIR1 "/sqcav-ther.nod.tmp"
-#define ICONE1 DATA_DIR1 "/sqcav-ther.con-tri.tmp"
-#define STATE1 DATA_DIR "/sqcav-ther.state-7418"
-#define XNOD2  DATA_DIR "/sqcav-ther.nod.tmp"
-#endif
-
-#if 1
-#define XNOD1  "./xnod1.tmp"
-#define ICONE1 "./icone1.tmp"
-#define STATE1 "./u.tmp"
-#define XNOD2  "./xnod2.tmp"
-#endif
+int main(int argc,char **argv) {
 
   int ndim = 2;
   int ndimel = 2;
@@ -67,8 +52,56 @@ int main() {
     area1, area2;
   dvector<int> ico1;
 
-  read_mesh(xnod1,XNOD1, xnod2,XNOD2,
-	    u1,STATE1, u2,ico1,ICONE1,
+  char *xnod1f = strdup("xnod1.tmp");
+  char *icone1f = strdup("icone1.tmp");
+  char *state1f = strdup("state1.tmp");
+  char *xnod2f = strdup("xnod2.tmp");
+  char c;
+
+#define GETOPT_GET(c,fmt,name)			\
+    case c:					\
+      sscanf(optarg,fmt,&name);			\
+      break;
+#define SEP "          "
+  while ((c = getopt(argc, argv, "hd:l:e:f:x:i:s:y:")) != -1) {
+    switch (c) {
+    case 'h':
+      printf(" usage: $ project4.bin -d <NDIM>\n"
+	     SEP "-l <NDIMEL> -e <NEL> -f <NDOF>\n"
+	     SEP "-x <XNOD1> -i <ICONE1> -s <STATE1>\n"
+	     SEP "-y <XNOD2>\n"
+             );
+      exit(0);
+      GETOPT_GET('d',"%d",ndim);
+      GETOPT_GET('l',"%d",ndimel);
+      GETOPT_GET('e',"%d",nel);
+      GETOPT_GET('f',"%d",ndof);
+
+    case 'x':
+      xnod1f = strdup(optarg);
+      break;
+    case 'i':
+      icone1f = strdup(optarg);
+      break;
+    case 's':
+      state1f = strdup(optarg);
+      break;
+    case 'y':
+      xnod2f = strdup(optarg);
+      break;
+    default:
+      if (isprint (optopt))
+	fprintf (stderr, "Unknown option `-%c'.\n", optopt);
+      else
+	fprintf (stderr,
+		 "Unknown option character `\\x%x'.\n",
+		 optopt);
+      abort ();
+    }
+  }
+
+  read_mesh(xnod1,xnod1f, xnod2,xnod2f,
+	    u1,state1f,u2,ico1,icone1f,
 	    ndim,ndimel,nel,ndof);
 
 #if 0 // Si los datos vienen `concentrados' por nodos.
