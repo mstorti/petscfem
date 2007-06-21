@@ -6,7 +6,7 @@ default: project3.bin
 SRCS := project.cpp project2.cpp project3.cpp project4.cpp \
 	project-wrp.cpp
 
-# BOPT := O_c++
+BOPT := O_c++
 PETSCFEM_DIR = ../..
 include $(PETSCFEM_DIR)/Makefile.base
 OMKFLS = 

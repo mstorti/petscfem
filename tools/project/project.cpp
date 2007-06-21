@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-// $Id mstorti-v6-2-4-g6ea5ba5 Wed Jun 20 19:46:30 2007 -0300$
+// $Id mstorti-v6-2-5-g353f91d Thu Jun 21 11:46:15 2007 -0300$
 
 #include <cstdio>
 #include <mpi.h>
@@ -113,8 +113,8 @@ void FemInterp::interp(const dvector<double> &xnod2,
   assert(xnod2.size(1) == ndim);
   ui.a_resize(2,nnod2,ndof).defrag();
 
-  double d2min;			// Minimum distance to elements in mesh1
-  int k1min;			// Element in mesh1 with minimum distance
+  double d2min=NAN;			// Minimum distance to elements in mesh1
+  int k1min=0;			// Element in mesh1 with minimum distance
 
   nn_idx_v.resize(knbr);
   ANNidx *nn_idx = &nn_idx_v[0];
