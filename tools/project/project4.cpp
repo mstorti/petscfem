@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-// $Id mstorti-v6-2-3-g3ca77a7 Wed Jun 20 19:15:52 2007 -0300$
+// $Id mstorti-v6-2-8-g27bcb6d Thu Jun 21 13:40:10 2007 -0300$
 
 #include <cstdio>
 #include <unistd.h>
@@ -120,7 +120,7 @@ int main(int argc,char **argv) {
   fem_interp.init(10,ndof,ndimel,xnod1,ico1);
   u2.clear();
   fem_interp.interp(xnod2,u1,u2);
-  u2.print("./u2-interp.dat");
+  u2.print(state2f);
 
 #if 0
   dvector<int> ico2;
