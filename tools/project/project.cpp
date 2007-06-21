@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-// $Id mstorti-v6-2-5-g353f91d Thu Jun 21 11:46:15 2007 -0300$
+// $Id mstorti-v6-2-6-g5a60bbe Thu Jun 21 12:32:45 2007 -0300$
 
 #include <cstdio>
 #include <mpi.h>
@@ -129,9 +129,11 @@ void FemInterp::interp(const dvector<double> &xnod2,
   int nelem_check = knbr;
   printf("start interpolation...\n");
   double start = MPI_Wtime();
+  if(use_cache) FastMat2::activate_cache(&cache_list);
+  FastMat2::get_cache_position(cp3);
   for (int n2=0; n2<nnod2; n2++) {
+    FastMat2::jump_to(cp3);
     x2.set(&xnod2.e(n2,0));
-    if(use_cache) FastMat2::activate_cache(&cache_list);
     for (int j=0; j<ndim; j++) 
       nn[j] = xnod2.e(n2,j);
     kdtree->annkSearch(nn,knbr,nn_idx,nn_dist,0.0);
@@ -142,9 +144,10 @@ void FemInterp::interp(const dvector<double> &xnod2,
 #endif
     int q;
 
+    FastMat2::get_cache_position(cp2);
     for (q=0; q<nelem_check; q++) {
+      FastMat2::jump_to(cp2);
       int k = (q<knbr ? nn_idx[q] : q-knbr);
-      FastMat2::reset_cache();
       C.is(1,1,ndim);
       for (int j=0; j<nel; j++) {
 	int node = icone.e(k,j);
@@ -237,15 +240,18 @@ void FemInterp::interp(const dvector<double> &xnod2,
       // Form distance vector
       dx2.set(x2).rest(x2prj);
       double d2 = dx2.norm_p_all(2.0);
+      FastMat2::branch();
       if (q==0 || d2<d2min) {
+        FastMat2::choose(0);
 	d2min = d2;
 	k1min = k;
 	Lmin.set(L);
 	x2prjmin.set(x2prj);
       }
+      FastMat2::leave();
       if (d2min<tol) break;
     }
-    FastMat2::deactivate_cache();
+    FastMat2::resync_was_cached();
     // x2.print("x2");
     // printf("tries %d\n",q+1);
     // x2prjmin.print("x2prjmin");
