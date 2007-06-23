@@ -1,5 +1,5 @@
 #!/usr/bin/perl
-#$Id: runtests.pl,v 1.127 2007/02/20 14:57:47 mstorti Exp $
+#$Id mstorti-v6-2-8-g27bcb6d Thu Jun 21 13:40:10 2007 -0300$
 #__INSERT_LICENSE__
 
 require '../tools/myexpect.pl';
@@ -595,6 +595,14 @@ expect("fstack/tfstack.out","FileStack class",read_file('fstack/tfstack.ans'));
 #------/*/------/*/------/*/------/*/------/*/------/*/------/*/ 
 expect("fstack/fstack3.out.tmp","FileStack class reads length one lines",
        read_file('fstack/fstack3.ans'));
+
+#------/*/------/*/------/*/------/*/------/*/------/*/------/*/ 
+expect("project/verif.tmp","Projection between meshes. 2D example.",
+       "erro<tol 1");
+
+#------/*/------/*/------/*/------/*/------/*/------/*/------/*/ 
+expect("project/verif3d.tmp","Projection between meshes. 3D example.",
+       "erro<tol 1");
 
 #------/*/------/*/------/*/------/*/------/*/------/*/------/*/ 
 expect("fstack/fstack2.verif.tmp","FileStack class, file name and line pos.",<<'EOT');

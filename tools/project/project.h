@@ -1,6 +1,6 @@
 // -*- mode: c++ -*-
 //__INSERT_LICENSE__
-// $Id: project.h,v 1.2 2005/03/09 01:29:06 mstorti Exp $
+// $Id mstorti-v6-2-6-g5a60bbe Thu Jun 21 12:32:45 2007 -0300$
 #ifndef PETSCFEM_PROJECT_H
 #define PETSCFEM_PROJECT_H
 
@@ -24,8 +24,8 @@ private:
     x13,x1, nor,L, b,u1_loc, u2,
     Lmin;
 
-  FastMatCachePosition cp,cp1;
-  FastMatCacheList cache_list;
+  FastMatCachePosition cp,cp1,cp2,cp3;
+  FastMatCacheList cache_list, cache_list2;
 
   vector<int> restricted;
 public:
