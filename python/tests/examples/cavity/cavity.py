@@ -69,7 +69,7 @@ domain.addElemset(elemset)
 
 # boundary conditions
 # + pressure
-#domain.setFixation(0, ndim, 0.0)            # p  = 0 (idof 3)
+domain.setFixation(0, ndim, 0.0)            # p  = 0 (idof 3)
 
 # + velocity
 for k in wall:
@@ -95,16 +95,21 @@ else:
     from pf4py.solvers import TransientSolver as Solver
 
 if opts.getBool('schur', False):
-    #solver = Solver(domain, mat_type='is')
-    solver = Solver(domain)
+    solver = Solver(domain, mat_type='is')
+    #solver = Solver(domain)
     opts["ksp_type"] = "preonly"
     opts["pc_type"]   = "schur"
     opts["pc_schur_local_ccsize"] = 5000
     opts["pc_schur_print_stats"]  = 1
 
+    opts["pc_schur_strip_layers"]  = 2
+    opts["sub_strip_ksp_type"]  = 'gmres'
+    opts["sub_strip_ksp_max_it"]  = 5
+
     opts["sub_ksp_type"] = "gmres"
     opts["sub_ksp_gmres_restart"] = 1000
-    opts["sub_pc_type"]       = "bjacobi"
+    #opts["sub_pc_type"]       = "jacobi"
+    #opts["sub_pc_type"]       = "bjacobi"
     #opts["sub_ksp_right_pc"]  = 1
 
     if 'ksp_monitor' in opts:
@@ -128,7 +133,11 @@ else:
     """.split(); ostr = ' '.join(ostr)
     PETSc.Options.insertString(ostr)
     
-    
+
+#J = solver.jacobian
+#J.convert('aijmumps', J)
+
+
 if steady:
     snes = solver.snes
 else:
@@ -214,6 +223,7 @@ else:
     #ksp.setMonitor(mon.ksp)
     pass
 
+
 log.beg('solver.run()')
 sol = solver.run(u0)
 log.end('solver.run()')
@@ -241,7 +251,7 @@ vx1 = vx[:,N//2]
 
 xx = yy = numpy.linspace(0,1,N)
 
-#raise SystemExit
+raise SystemExit
 
 if PETSc.COMM_WORLD.getSize() > 1: raise SystemExit
 
