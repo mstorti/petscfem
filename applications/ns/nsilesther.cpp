@@ -547,7 +547,7 @@ int nsi_tet_les_ther::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
 	      // Smagorinsky turbulence model
 	      if (LES) {
 		double tr = (double) tmp15.prod(strain_rate,strain_rate,-1,-2,-1,-2);
-		double van_D;
+		double van_D=NAN;
 		if (A_van_Driest>0.) {
 		  dist_to_wall.prod(SHAPE,xloc,-1,-1,1).rest(wall_coords);
 		  double ywall = sqrt(dist_to_wall.sum_square_all());

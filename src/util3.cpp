@@ -112,7 +112,7 @@ ssize_t Sgetline(char **lineptr, size_t *N_a,Socket *sock) {
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 int DXSplit::parse(const char *line) {
   vector<string> tokens;
-  string *token;
+  string *token=NULL;
   tokenize(line,tokens);
   int ntoken = tokens.size();
   vector<int> nodes;

@@ -338,7 +338,7 @@ make_tangent(const FastMat2 &normal) {
     // we choose the versor along the 'j' axis, with `j' the direction
     // such that `|n_j|' is minimum. 
     int j=0;
-    double amin;
+    double amin=NAN;
     for (int k=1; k<=ndim; k++) {
       double anj = fabs(normal.get(k));
       if (k==1 || anj<amin) {
