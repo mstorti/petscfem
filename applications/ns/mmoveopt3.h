@@ -1,6 +1,6 @@
 // -*- mode: C++ -*-
 /*__INSERT_LICENSE__*/
-//$Id: mmoveopt3.h,v 1.5.6.2 2007/03/20 17:43:29 mstorti Exp $
+//$Id mstorti-v6-3-2-gbae6cc7 Sat Jun 23 11:19:58 2007 -0300$
 
 #ifndef MMOVEOPT3_H
 #define MMOVEOPT3_H
@@ -31,7 +31,8 @@ private:
     mat2,res2,res_delta;
   /// Parameters
   double distor_exp,c_distor,c_volume,c_relax,
-    volume_exp,relax_factor, use_ref_mesh;
+    volume_exp,relax_factor, use_ref_mesh,
+    relax_matrix_factor;
   ArgHandle res_delta_h, res_h, mat_h;
 public: 
   /** Initializes the elemset. Reads parameters, 

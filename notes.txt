@@ -2464,9 +2464,9 @@ diff -c /home/mstorti/PETSC/petsc-2.0.24/bmake/linux/base_variables.bck /home/ms
 ***************
 *** 1,4 ****
 <<<<<<< HEAD:notes.txt
-! # $Id mstorti-v6-2-9-gc65247f Thu Jun 21 14:23:15 2007 -0300$ 
+! # $Id mstorti-v6-3-2-gbae6cc7 Sat Jun 23 11:19:58 2007 -0300$ 
 =======
-! # $Id mstorti-v6-2-9-gc65247f Thu Jun 21 14:23:15 2007 -0300$ 
+! # $Id mstorti-v6-3-2-gbae6cc7 Sat Jun 23 11:19:58 2007 -0300$ 
 >>>>>>> mstorti-v4-branch:notes.txt
   #
   #     See the file bmake/base_variables.defs for a complete explanation of all these fields
@@ -2474,9 +2474,9 @@ diff -c /home/mstorti/PETSC/petsc-2.0.24/bmake/linux/base_variables.bck /home/ms
 --- 1,5 ----
 ! # -*- mode: makefile -*-
 <<<<<<< HEAD:notes.txt
-! # $Id mstorti-v6-2-9-gc65247f Thu Jun 21 14:23:15 2007 -0300$ 
+! # $Id mstorti-v6-3-2-gbae6cc7 Sat Jun 23 11:19:58 2007 -0300$ 
 =======
-! # $Id mstorti-v6-2-9-gc65247f Thu Jun 21 14:23:15 2007 -0300$ 
+! # $Id mstorti-v6-3-2-gbae6cc7 Sat Jun 23 11:19:58 2007 -0300$ 
 >>>>>>> mstorti-v4-branch:notes.txt
   #
   #     See the file bmake/base_variables.defs for a complete explanation of all these fields
@@ -2569,9 +2569,9 @@ diff -c /home/mstorti/PETSC/petsc-2.0.24/bmake/linux/base_variables.bck2 /home/m
 --- 1,4 ----
 + # -*- mode: makefile -*-
 <<<<<<< HEAD:notes.txt
-  # $Id mstorti-v6-2-9-gc65247f Thu Jun 21 14:23:15 2007 -0300$ 
+  # $Id mstorti-v6-3-2-gbae6cc7 Sat Jun 23 11:19:58 2007 -0300$ 
 =======
-  # $Id mstorti-v6-2-9-gc65247f Thu Jun 21 14:23:15 2007 -0300$ 
+  # $Id mstorti-v6-3-2-gbae6cc7 Sat Jun 23 11:19:58 2007 -0300$ 
 >>>>>>> mstorti-v4-branch:notes.txt
   #
   #     See the file bmake/base_variables.defs for a complete explanation of all these fields
@@ -2653,15 +2653,15 @@ diff -c /home/mstorti/PETSC/petsc-2.0.24/bmake/linux/base_variables.bck /home/ms
 *** 1,4 ****
 <<<<<<< notes.txt
 <<<<<<< HEAD:notes.txt
-! # $Id mstorti-v6-2-9-gc65247f Thu Jun 21 14:23:15 2007 -0300$ 
+! # $Id mstorti-v6-3-2-gbae6cc7 Sat Jun 23 11:19:58 2007 -0300$ 
 =======
-! # $Id mstorti-v6-2-9-gc65247f Thu Jun 21 14:23:15 2007 -0300$ 
+! # $Id mstorti-v6-3-2-gbae6cc7 Sat Jun 23 11:19:58 2007 -0300$ 
 >>>>>>> mstorti-v4-branch:notes.txt
 =======
 <<<<<<< HEAD:notes.txt
-! # $Id mstorti-v6-2-9-gc65247f Thu Jun 21 14:23:15 2007 -0300$ 
+! # $Id mstorti-v6-3-2-gbae6cc7 Sat Jun 23 11:19:58 2007 -0300$ 
 =======
-! # $Id mstorti-v6-2-9-gc65247f Thu Jun 21 14:23:15 2007 -0300$ 
+! # $Id mstorti-v6-3-2-gbae6cc7 Sat Jun 23 11:19:58 2007 -0300$ 
 >>>>>>> mstorti-v4-branch:notes.txt
 >>>>>>> 1.228.2.1
   #
@@ -2671,15 +2671,15 @@ diff -c /home/mstorti/PETSC/petsc-2.0.24/bmake/linux/base_variables.bck /home/ms
 ! # -*- mode: makefile -*-
 <<<<<<< notes.txt
 <<<<<<< HEAD:notes.txt
-! # $Id mstorti-v6-2-9-gc65247f Thu Jun 21 14:23:15 2007 -0300$ 
+! # $Id mstorti-v6-3-2-gbae6cc7 Sat Jun 23 11:19:58 2007 -0300$ 
 =======
-! # $Id mstorti-v6-2-9-gc65247f Thu Jun 21 14:23:15 2007 -0300$ 
+! # $Id mstorti-v6-3-2-gbae6cc7 Sat Jun 23 11:19:58 2007 -0300$ 
 >>>>>>> mstorti-v4-branch:notes.txt
 =======
 <<<<<<< HEAD:notes.txt
-! # $Id mstorti-v6-2-9-gc65247f Thu Jun 21 14:23:15 2007 -0300$ 
+! # $Id mstorti-v6-3-2-gbae6cc7 Sat Jun 23 11:19:58 2007 -0300$ 
 =======
-! # $Id mstorti-v6-2-9-gc65247f Thu Jun 21 14:23:15 2007 -0300$ 
+! # $Id mstorti-v6-3-2-gbae6cc7 Sat Jun 23 11:19:58 2007 -0300$ 
 >>>>>>> mstorti-v4-branch:notes.txt
 >>>>>>> 1.228.2.1
   #
@@ -2774,15 +2774,15 @@ diff -c /home/mstorti/PETSC/petsc-2.0.24/bmake/linux/base_variables.bck2 /home/m
 + # -*- mode: makefile -*-
 <<<<<<< notes.txt
 <<<<<<< HEAD:notes.txt
-  # $Id mstorti-v6-2-9-gc65247f Thu Jun 21 14:23:15 2007 -0300$ 
+  # $Id mstorti-v6-3-2-gbae6cc7 Sat Jun 23 11:19:58 2007 -0300$ 
 =======
-  # $Id mstorti-v6-2-9-gc65247f Thu Jun 21 14:23:15 2007 -0300$ 
+  # $Id mstorti-v6-3-2-gbae6cc7 Sat Jun 23 11:19:58 2007 -0300$ 
 >>>>>>> mstorti-v4-branch:notes.txt
 =======
 <<<<<<< HEAD:notes.txt
-  # $Id mstorti-v6-2-9-gc65247f Thu Jun 21 14:23:15 2007 -0300$ 
+  # $Id mstorti-v6-3-2-gbae6cc7 Sat Jun 23 11:19:58 2007 -0300$ 
 =======
-  # $Id mstorti-v6-2-9-gc65247f Thu Jun 21 14:23:15 2007 -0300$ 
+  # $Id mstorti-v6-3-2-gbae6cc7 Sat Jun 23 11:19:58 2007 -0300$ 
 >>>>>>> mstorti-v4-branch:notes.txt
 >>>>>>> 1.228.2.1
   #
@@ -9641,9 +9641,9 @@ diff -u -r1.5 graphdv.cpp
 +++ src/graphdv.cpp	20 Oct 2004 08:59:14 -0000
 @@ -2,6 +2,7 @@
 <<<<<<< HEAD:notes.txt
- //$Id mstorti-v6-2-9-gc65247f Thu Jun 21 14:23:15 2007 -0300$
+ //$Id mstorti-v6-3-2-gbae6cc7 Sat Jun 23 11:19:58 2007 -0300$
 =======
- //$Id mstorti-v6-2-9-gc65247f Thu Jun 21 14:23:15 2007 -0300$
+ //$Id mstorti-v6-3-2-gbae6cc7 Sat Jun 23 11:19:58 2007 -0300$
 >>>>>>> mstorti-v4-branch:notes.txt
  
  #include <src/graphdv.h>
@@ -9718,9 +9718,9 @@ diff -u -r1.12 util3.cpp
 +++ src/util3.cpp	20 Oct 2004 09:09:51 -0000
 @@ -2,6 +2,7 @@
 <<<<<<< HEAD:notes.txt
- // $Id mstorti-v6-2-9-gc65247f Thu Jun 21 14:23:15 2007 -0300$
+ // $Id mstorti-v6-3-2-gbae6cc7 Sat Jun 23 11:19:58 2007 -0300$
 =======
- // $Id mstorti-v6-2-9-gc65247f Thu Jun 21 14:23:15 2007 -0300$
+ // $Id mstorti-v6-3-2-gbae6cc7 Sat Jun 23 11:19:58 2007 -0300$
 >>>>>>> mstorti-v4-branch:notes.txt
  #include <cstring>
  #include <cstdio>
@@ -12416,6 +12416,14 @@ Corro los tests
 O sea que con respecto a %=== Mon Apr 30 09:31:45 2007,
 mstorti-v5-root-v0-11-g52aca65, estaria OK. (Da uno mas bien en g_c++,
 y da igual en O_c++). 
+
+%=== Tue Jun 26 08:39:57 2007 mstorti@prandtl
+%
+%-- 08:39:57 -- mstorti-v6-3-2-gbae6cc7 -----
+Hago un merge con la version de Ezequiel. Estaba todavia con CVS,
+version `beta-3.51.16'. Hize un diff a pata de los directorios y le
+fui aplicando el patch a mi branch `mstorti-v6-branch'. No habia
+tantas diferencias. Lo termine aplicando todo y compila. 
 
 # Current line ===========  %
 # Local Variables: $

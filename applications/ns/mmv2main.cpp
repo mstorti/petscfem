@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: mmv2main.cpp,v 1.2.6.4 2007/03/20 17:43:29 mstorti Exp $
+//$Id mstorti-v6-3-2-gbae6cc7 Sat Jun 23 11:19:58 2007 -0300$
 #include <src/debug.h>
 #include <malloc.h>
 
@@ -21,6 +21,10 @@
 static char help[] = "PETSc-FEM Navier Stokes module\n\n";
 
 extern int MY_RANK,SIZE;
+double mmv_delta,mmv_d2fd,mmv_dfd;
+double min_quality,min_volume;
+double mmv_functional;
+int    tarea,tangled_mesh;
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 /** Creates hooks depending on the name. 
@@ -41,6 +45,9 @@ int mmove2_main() {
   PetscViewer matlab;
   PFMat *Ap=NULL;	// linear system matrix 
   double  norm, *sol, scal;	// norm of solution error
+  double  mmv_delta_increment,resdelta_dot_dx;
+  double  min_quality_old;
+  double  local_mmv_dfd,local_mmv_d2fd;
   int     ierr, i, n = 10, size, node,
     jdof, k, kk, nfixa,
     kdof, ldof, lloc, nel, nen, neq, nu,
@@ -186,6 +193,20 @@ int mmove2_main() {
   GETOPTDEF(int,nnwt,1);
   //o Tolerance to solve the non-linear system (global Newton).
   GETOPTDEF(double,tol_newton,1e-8);
+  //o 
+  GETOPTDEF(int,use_mmv_predictor,0);
+  //o 
+  GETOPTDEF(double,mmv_h_star,0.75);
+  //o Tolerance relative for the minimum quality in the Newton loop
+  GETOPTDEF(double,tol_rel_quality,1.e-2);
+  //o 
+  GETOPTDEF(double,delta_fraction,0.);
+  //o 
+  GETOPTDEF(int,use_line_search_mmv,0);
+  //o 
+  GETOPTDEF(double,ls_relfac_fraction,2.);
+  //o 
+  GETOPTDEF(double,ls_eta_parameter,1.e-4);
 
   //o _T: vector<double>
   // _N: newton_relaxation_factor
@@ -361,42 +382,101 @@ int mmove2_main() {
 
     time_old.set(time.time());
 
-    // Computes a better starting point based on the solution
-    // of a differential problem
-    // res = RES(u^n,t^n);
-    argl.clear();
-    state.set_time(time);
-    state_old.set_time(time_old);
-    argl.arg_add(&state,IN_VECTOR|USE_TIME_DATA,"state");
-    argl.arg_add(&state_old,IN_VECTOR|USE_TIME_DATA,"state_old");
-    argl.arg_add(&res,OUT_VECTOR,"res");
-    argl.arg_add(&res_delta,OUT_VECTOR,"res_delta");
-    argl.arg_add(Ap,OUT_MATRIX|PFMAT,"A");
-    argl.arg_add(&hmin,VECTOR_MIN,"hmin");
-    argl.arg_add(&glob_param,USER_DATA,"glob_param");
-
-    scal=0;
-    ierr = VecSet(&scal,res); CHKERRA(ierr);
-    ierr = Ap->clean_mat(); CHKERRA(ierr); 
-    debug.trace("Before residual computation...");
-    ierr = assemble(mesh,argl,dofmap,"comp_mat_res",&time);
-    CHKERRA(ierr);
-    debug.trace("After residual computation.");
-
-    // #ifdef MMV_DBG
-#if 0
-    printf("res: ");
-    ierr = VecView(res,PETSC_VIEWER_STDOUT_WORLD);
-    printf("res_delta: ");
-    ierr = VecView(res_delta,PETSC_VIEWER_STDOUT_WORLD);
-    CHKERRA(ierr);
-    PetscFinalize();
-    exit(0);
+    if (use_mmv_predictor){
+      // Computes a better starting point based on the solution
+      // of a differential problem
+      // res = RES(u^n,t^n);
+      tarea = 1; // Tarea = 1 calcula residuo y matriz
+      mmv_functional = mmv_dfd = mmv_d2fd = 0.;
+      min_quality = 1.;
+      min_volume  = 1.e10;
+      argl.clear();
+      state.set_time(time);
+      state_old.set_time(time_old);
+      argl.arg_add(&state,IN_VECTOR|USE_TIME_DATA,"state");
+      argl.arg_add(&state_old,IN_VECTOR|USE_TIME_DATA,"state_old");
+      argl.arg_add(&res,OUT_VECTOR,"res");
+      argl.arg_add(&res_delta,OUT_VECTOR,"res_delta");
+      argl.arg_add(Ap,OUT_MATRIX|PFMAT,"A");
+      argl.arg_add(&hmin,VECTOR_MIN,"hmin");
+      argl.arg_add(&glob_param,USER_DATA,"glob_param");
+      
+      scal=0;
+      ierr = VecSet(&scal,res); CHKERRA(ierr);
+      ierr = Ap->clean_mat(); CHKERRA(ierr); 
+      debug.trace("Before residual computation...");
+      ierr = assemble(mesh,argl,dofmap,"comp_mat_res",&time);
+      CHKERRA(ierr);
+      debug.trace("After residual computation.");
+      
+      // res = RES(u^n,t^n+epsilon);
+      mmv_functional = mmv_dfd = mmv_d2fd = 0.;
+      min_quality = 1.;
+      min_volume  = 1.e10;
+      double epsilon = time_fac_epsilon*Dt;
+      time.inc(epsilon);
+      argl.clear();
+      state.set_time(time);
+      state_old.set_time(time_old);
+      argl.arg_add(&state,IN_VECTOR|USE_TIME_DATA,"state");
+      argl.arg_add(&state_old,IN_VECTOR|USE_TIME_DATA,"state_old");
+      argl.arg_add(&resp,OUT_VECTOR,"res");
+      argl.arg_add(&res_delta,OUT_VECTOR,"res_delta");
+      argl.arg_add(Ap,OUT_MATRIX|PFMAT,"A");
+      argl.arg_add(&hmin,VECTOR_MIN,"hmin");
+      argl.arg_add(&glob_param,USER_DATA,"glob_param");
+      
+      scal=0;
+      ierr = VecSet(&scal,resp); CHKERRA(ierr);
+      ierr = Ap->clean_mat(); CHKERRA(ierr); 
+      debug.trace("Before residual computation...");
+      ierr = assemble(mesh,argl,dofmap,"comp_mat_res",&time);
+      CHKERRA(ierr);
+      debug.trace("After residual computation.");
+      
+#ifdef MMV_DBG
+      printf("resp: ");
+      ierr = VecView(resp,PETSC_VIEWER_STDOUT_WORLD);
+      CHKERRA(ierr);
 #endif
 
-    // res = RES(u^n,t^n+epsilon);
-    double epsilon = time_fac_epsilon*Dt;
-    time.inc(epsilon);
+      // resp = (resp-res)
+      scal = -1.;
+      ierr = VecAXPY(&scal,res,resp); CHKERRQ(ierr); 
+    
+#ifdef MMV_DBG
+      printf("(resp-res)/time_fac_epsilon: ");
+      ierr = VecView(resp,PETSC_VIEWER_STDOUT_WORLD);
+      CHKERRA(ierr);
+#endif
+
+      scal = 1./time_fac_epsilon;
+      ierr = VecScale(&scal,resp);
+      ierr = Ap->solve(resp,dx); CHKERRA(ierr); 
+      
+#ifdef MMV_DBG
+      ierr = Ap->view(matlab); CHKERRA(ierr); 
+      printf("dx: ");
+      ierr = VecView(dx,PETSC_VIEWER_STDOUT_WORLD);
+      CHKERRA(ierr);
+#endif
+
+      // x = x+dx
+      scal = 1.0;
+      ierr = VecAXPY(&scal,dx,x); CHKERRA(ierr); 
+    }
+
+    time.set(time_old.time());
+    time.inc(Dt);
+    // print_vector("state-proj.tmp",x,dofmap,&time);
+
+    // Esto hay que mejorarlo, es solo una propuesta 
+    // para inicializar el delta
+    tarea = 0; // Tarea = 0 solo calcula la calidad, 
+               // no calcula residuo y matriz
+    mmv_functional = mmv_dfd = mmv_d2fd = 0.;
+    min_quality = 1.;
+    min_volume  = 1.e10;
     argl.clear();
     state.set_time(time);
     state_old.set_time(time_old);
@@ -416,57 +496,36 @@ int mmove2_main() {
     CHKERRA(ierr);
     debug.trace("After residual computation.");
 
-#ifdef MMV_DBG
-    printf("resp: ");
-    ierr = VecView(resp,PETSC_VIEWER_STDOUT_WORLD);
-    CHKERRA(ierr);
-#endif
+    min_quality_old = min_quality;
 
-    // resp = (resp-res)
-    scal = -1.;
-    ierr = VecAXPY(&scal,res,resp); CHKERRQ(ierr); 
-    
-#ifdef MMV_DBG
-    printf("(resp-res)/time_fac_epsilon: ");
-    ierr = VecView(resp,PETSC_VIEWER_STDOUT_WORLD);
-    CHKERRA(ierr);
-#endif
+    // tangled_mesh = (min_volume > 0. ? 0 : 1);
+    tangled_mesh   = (mmv_delta <= 1.e-15 ? 0 : 1);
+    mmv_delta    = (min_volume > 1.e-15 ? 0. : \
+		    0.25*mmv_h_star*min_volume/(pow(mmv_h_star,2.)-1.)+1.e-12);
+    printf("delta: %12.10f\n",mmv_delta);
 
-    scal = 1./time_fac_epsilon;
-    ierr = VecScale(&scal,resp);
-    ierr = Ap->solve(resp,dx); CHKERRA(ierr); 
-
-#ifdef MMV_DBG
-    ierr = Ap->view(matlab); CHKERRA(ierr); 
-    printf("dx: ");
-    ierr = VecView(dx,PETSC_VIEWER_STDOUT_WORLD);
-    CHKERRA(ierr);
-#endif
-
-    // x = x+dx
-    scal = 1.0;
-    ierr = VecAXPY(&scal,dx,x); CHKERRA(ierr); 
-
-    time.set(time_old.time());
-    time.inc(Dt);
-    // print_vector("state-proj.tmp",x,dofmap,&time);
- 
     if (!MY_RANK) printf("Time step: %d, time: %g %s\n",
 			 tstep,time.time(),(steady ? " (steady) " : ""));
 
     //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
     // NEWTON-RAPHSON ALGORITHM
     
-    double normres_external=NAN;
+    double normres_external;
     for (int inwt=0; inwt<nnwt; inwt++) {
       
       glob_param.inwt = inwt;
       // Initialize step
       
+      tarea = 1;
+      mmv_functional = mmv_dfd = mmv_d2fd = 0.;
+      min_quality = 1.;
+      min_volume  = 1.e10;
+      
       ierr = Ap->clean_mat(); CHKERRA(ierr); 
 
       scal=0;
       ierr = VecSet(&scal,res); CHKERRA(ierr);
+      ierr = VecSet(&scal,res_delta); CHKERRA(ierr);
 
       argl.clear();
       state.set_time(time);
@@ -483,6 +542,11 @@ int mmove2_main() {
       ierr = assemble(mesh,argl,dofmap,"comp_mat_res",&time);
       CHKERRA(ierr);
       debug.trace("After residual computation.");
+
+      // tangled_mesh   = (min_volume > 0. ? 0 : 1);
+      tangled_mesh   = (mmv_delta <= 1.e-10 ? 0 : 1);
+      local_mmv_dfd  = mmv_dfd;
+      local_mmv_d2fd = mmv_d2fd;
 
       if (!print_linear_system_and_stop || solve_system) {
 	debug.trace("Before solving linear system...");
@@ -538,6 +602,68 @@ int mmove2_main() {
 				  "relaxation factor %f\n",relfac);
       scal= relfac/alpha;
       ierr = VecAXPY(&scal,dx,x);
+
+      ierr = VecDot(res_delta,dx,&resdelta_dot_dx);  CHKERRA(ierr);
+
+      if (use_line_search_mmv) {
+	int    counter=0;
+	double mmv_functional_ini = mmv_functional;
+	double dif_functional,dx_dot_res;
+	ierr = VecDot(res,dx,&dx_dot_res);  CHKERRA(ierr);
+	tarea = 0;
+	relfac = 1.;
+	while (1){
+	  mmv_functional = mmv_dfd = mmv_d2fd = 0.;
+	  min_quality = 1.;
+	  min_volume  = 1.e10;
+	  argl.clear();
+	  argl.arg_add(&state,IN_VECTOR|USE_TIME_DATA,"state");
+	  argl.arg_add(&state_old,IN_VECTOR|USE_TIME_DATA,"state_old");
+	  argl.arg_add(&resp,OUT_VECTOR,"res");
+	  argl.arg_add(&res_delta,OUT_VECTOR,"res_delta");
+	  argl.arg_add(Ap,OUT_MATRIX|PFMAT,"A");
+	  argl.arg_add(&hmin,VECTOR_MIN,"hmin");
+	  argl.arg_add(&glob_param,USER_DATA,"glob_param");
+	
+	  scal=0;
+	  ierr = VecSet(&scal,resp); CHKERRA(ierr);
+	  ierr = Ap->clean_mat(); CHKERRA(ierr); 
+	  debug.trace("Before residual computation...");
+	  ierr = assemble(mesh,argl,dofmap,"comp_mat_res",&time);
+	  CHKERRA(ierr);
+	  debug.trace("After residual computation.");
+
+	  if (min_volume > 0.) break;
+	  dif_functional = fabs(mmv_functional)-
+	    fabs(mmv_functional_ini+relfac*ls_eta_parameter*dx_dot_res);
+	  if (dif_functional < 0.) break;
+
+	  relfac /= ls_relfac_fraction;
+	  scal = (1.-ls_relfac_fraction)/pow(ls_relfac_fraction,++counter);
+	  ierr = VecAXPY(&scal,dx,x);  CHKERRA(ierr);
+
+	  PetscPrintf(PETSC_COMM_WORLD,"relaxation factor %f\n",relfac);
+	}
+      }
+
+      if (relfac==1.){
+	// Incremento de delta
+	mmv_delta_increment = fabs((local_mmv_dfd-0.0*resdelta_dot_dx)/local_mmv_d2fd);
+	if (mmv_delta_increment > (1.-delta_fraction)*mmv_delta) 
+	  mmv_delta_increment = (1.-delta_fraction)*mmv_delta;
+	mmv_delta += -1.*mmv_delta_increment;
+      }
+
+#if 1
+      printf("delta: %12.10f\n",mmv_delta);
+      printf("Min quality: %f\n",min_quality);
+      printf("Min quality old: %f\n",min_quality_old);
+#endif
+
+      if (fabs(min_quality-min_quality_old)/min_quality < tol_rel_quality
+	  && min_quality > 0.) break;
+
+      min_quality_old = min_quality;
 
 #if 0
       ierr = VecView(x,PETSC_VIEWER_STDOUT_WORLD); CHKERRA(ierr);
