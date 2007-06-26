@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id mstorti-v6-3-2-gbae6cc7 Sat Jun 23 11:19:58 2007 -0300$
+//$Id mstorti-v6-3-3-gec4b5ea Tue Jun 26 08:42:29 2007 -0300$
 
 #include <src/fem.h>
 #include <src/utils.h>
@@ -391,38 +391,39 @@ element_connector(const FastMat2 &xloc,
       mat.prod(mat2,iT0,1,2,3,-1,-1,4);
     }
 
-  // Ver si esta va aca!!!
-  // Relajo los terminos de acople de la matriz
-  //  if (tangled_mesh){
-  for (int i=1;i<=ndim;i++){
-    for (int j=1;j<=ndim;j++){
-      if (i!=j){
-        mat.ir(4,j).ir(2,i).scale(relax_matrix_factor);
-        mat.rs();
+    // Ver si esta va aca!!!
+    // Relajo los terminos de acople de la matriz
+    //  if (tangled_mesh){
+    for (int i=1;i<=ndim;i++){
+      for (int j=1;j<=ndim;j++){
+        if (i!=j){
+          mat.ir(4,j).ir(2,i).scale(relax_matrix_factor);
+          mat.rs();
+        }
       }
     }
+    //  }
+    
+    //  res_delta.set(res).scale(2.0);
+    mat2.set(dVdu).scale(-2.*mmv_delta*V*Sl/pow(pow(V,2.)+4.*pow(mmv_delta,2.),1.5));
+    mat2.axpy(dSldu,dh2).scale(C/pow(Sl,2.));
+    res_delta.set(dQ).scale((distor_exp-1)/Q*C/Sl*dh2);
+    res_delta.axpy(mat2,-1.)
+      .scale(distor_exp*c_distor*pow(Q,distor_exp-1.))
+      .scale(-1.);
+    
+    mmv_d2fd += -distor_exp*c_distor*pow(Q,distor_exp-1.)*((distor_exp-1.)/Q*pow(C/Sl*dh2,2.)+C/Sl*d2h22);
+    
+    if (use_ref_mesh>0.0) {
+      res2.prod(res,iT0,1,-1,-1,2);
+      res.set(res2);
+      mat2.prod(mat,iT0,1,-1,3,4,-1,2);
+      mat.prod(mat2,iT0,1,2,3,-1,-1,4);
+    }
+    
+    int nen = nel*ndof;
+    export_vals(res_h,res);
+    export_vals(res_delta_h,res_delta);
+    export_vals(mat_h,mat);
   }
-  //  }
-
-  //  res_delta.set(res).scale(2.0);
-  mat2.set(dVdu).scale(-2.*mmv_delta*V*Sl/pow(pow(V,2.)+4.*pow(mmv_delta,2.),1.5));
-  mat2.axpy(dSldu,dh2).scale(C/pow(Sl,2.));
-  res_delta.set(dQ).scale((distor_exp-1)/Q*C/Sl*dh2);
-  res_delta.axpy(mat2,-1.)
-    .scale(distor_exp*c_distor*pow(Q,distor_exp-1.))
-    .scale(-1.);
-  
-  mmv_d2fd += -distor_exp*c_distor*pow(Q,distor_exp-1.)*((distor_exp-1.)/Q*pow(C/Sl*dh2,2.)+C/Sl*d2h22);
-  
-  if (use_ref_mesh>0.0) {
-    res2.prod(res,iT0,1,-1,-1,2);
-    res.set(res2);
-    mat2.prod(mat,iT0,1,-1,3,4,-1,2);
-    mat.prod(mat2,iT0,1,2,3,-1,-1,4);
-  }
-
-  int nen = nel*ndof;
-  export_vals(res_h,res);
-  export_vals(res_delta_h,res_delta);
-  export_vals(mat_h,mat);
 }
