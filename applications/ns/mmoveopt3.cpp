@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id mstorti-v6-3-3-gec4b5ea Tue Jun 26 08:42:29 2007 -0300$
+//$Id: mmoveopt3.cpp,v 1.10.4.1 2007/02/27 01:15:22 mstorti Exp $
 
 #include <src/fem.h>
 #include <src/utils.h>
@@ -48,10 +48,8 @@ void mesh_move_opt3::before_chunk(const char *jobinfo) {
   if (comp_mat_res) {
     res_h = get_arg_handle("res",
                            "No handle for `res'\n");
-#if 0    
     res_delta_h = get_arg_handle("res_delta",
                                  "No handle for `res_delta'\n");
-#endif
     mat_h = get_arg_handle("A","No handle for `A'\n");
 
     dVdW.resize(2,ndim,ndim).set(0.);
@@ -125,15 +123,8 @@ void mesh_move_opt3::before_chunk(const char *jobinfo) {
   TGETOPTDEF_ND(thash,double,c_distor,1.);
   //o Relaxation factor
   TGETOPTDEF_ND(thash,double,relax_factor,1.);
-  //o If true, then the reference mesh is used as the optimal mesh.
-  //  #use_ref_mesh# may be a floating point number, in that case
-  //  the reference element is taken as an intermediate shape betwen
-  //  the shape of the element in the original mesh (#use_ref_mesh=1#)
-  //  and the shape of of the regular element (#use_ref_mesh=0#)
-  TGETOPTDEF_ND(thash,double,use_ref_mesh,1.0);
-  PETSCFEM_ASSERT(use_ref_mesh>=0 && use_ref_mesh<=1.0,
-                  "use_ref_mesh should be in range [0,1]. use_ref_mesh: %f",
-                  use_ref_mesh);  
+  //o If true, then the reference mesh is used as the optimal mesh. 
+  TGETOPTDEF_ND(thash,int,use_ref_mesh,1);
   //o Relaxation factor for matrix nondiagonal terms in the untangling stage
   TGETOPTDEF_ND(thash,double,relax_matrix_factor,1.0);
 }
@@ -153,12 +144,9 @@ element_connector(const FastMat2 &xloc,
   // `y' coordinates are real
   // `x' coordinates are in the metric where the reference
   // element is `regular'
-  xreg.is(1,1,ndim);
-  xref.set(xloc).scale(use_ref_mesh)
-    .axpy(xreg,1.0-use_ref_mesh);
-  xreg.rs();
+  xref.set(xloc);
  
-  if (use_ref_mesh>0.0) {
+  if (use_ref_mesh) {
     tmp4.prod(xref,tmp3,-1,1,-1,2);
     tmp4.is(2,1,ndim);
     T0.set(tmp4);
@@ -326,8 +314,6 @@ element_connector(const FastMat2 &xloc,
     d2SldW2.scale(3.);
 
   }
-  if (V<=0.0) set_error(1);
-
   double el_quality = C*V/Sl;
   min_quality = (min_quality > el_quality ? el_quality : min_quality);
   min_volume  = (min_volume > V ? V : min_volume);
@@ -396,31 +382,22 @@ element_connector(const FastMat2 &xloc,
     //  if (tangled_mesh){
     for (int i=1;i<=ndim;i++){
       for (int j=1;j<=ndim;j++){
-        if (i!=j){
-          mat.ir(4,j).ir(2,i).scale(relax_matrix_factor);
-          mat.rs();
-        }
+	if (i!=j){
+	  mat.ir(4,j).ir(2,i).scale(relax_matrix_factor);
+	  mat.rs();
+	}
       }
     }
     //  }
-    
+
     //  res_delta.set(res).scale(2.0);
     mat2.set(dVdu).scale(-2.*mmv_delta*V*Sl/pow(pow(V,2.)+4.*pow(mmv_delta,2.),1.5));
     mat2.axpy(dSldu,dh2).scale(C/pow(Sl,2.));
     res_delta.set(dQ).scale((distor_exp-1)/Q*C/Sl*dh2);
-    res_delta.axpy(mat2,-1.)
-      .scale(distor_exp*c_distor*pow(Q,distor_exp-1.))
-      .scale(-1.);
+    res_delta.axpy(mat2,-1.).scale(distor_exp*c_distor*pow(Q,distor_exp-1.)).scale(-1.);
     
     mmv_d2fd += -distor_exp*c_distor*pow(Q,distor_exp-1.)*((distor_exp-1.)/Q*pow(C/Sl*dh2,2.)+C/Sl*d2h22);
-    
-    if (use_ref_mesh>0.0) {
-      res2.prod(res,iT0,1,-1,-1,2);
-      res.set(res2);
-      mat2.prod(mat,iT0,1,-1,3,4,-1,2);
-      mat.prod(mat2,iT0,1,2,3,-1,-1,4);
-    }
-    
+
     int nen = nel*ndof;
     export_vals(res_h,res);
     export_vals(res_delta_h,res_delta);
