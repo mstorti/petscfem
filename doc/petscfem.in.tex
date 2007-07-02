@@ -37,7 +37,7 @@
             urlcolor=red2,citecolor=green2,
             plainpages=false,pdfpagelabels]{hyperref}
 \usepackage{nameref}
-\usepackage{html,htmllist,heqn}
+% \usepackage{html,htmllist,heqn}
 %<: if (!$html) { :>
 \usepackage{algorithm,algorithmic}
 %<: } :>
@@ -146,6 +146,8 @@
 \newcommand{\SSSection}[1]{\subsubsection{#1}}
 \newcommand{\SSSSection}[1]{\paragraph{#1}}
 %\def\defang#1{$\langle${\slshape #1}$\rangle$}
+\def\html#1{}
+\def\latex#1{#1}
 \latex{\newcommand{\funhead}[2]{\boxed{{\tt #1}\textbf{: #2}}}}
 \html{\newcommand{\funhead}[2]{{\Large{\tt #1}\textbf{: #2}}}}
 %
