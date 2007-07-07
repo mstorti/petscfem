@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: mmoveopt.cpp,v 1.4 2007/02/24 14:45:08 mstorti Exp $
+//$Id mstorti-v6-branch-1.0.0-3-g20d2dbe Sun Jul 1 21:14:34 2007 -0300$
 
 #include <src/fem.h>
 #include <src/utils.h>
@@ -53,7 +53,7 @@ void mesh_move_opt::init() {
   //o The functional to be minimized is $\Phi = \sum_{e=1,...,Nel} \q_e^r$,
   // where $\q_e = Vol/\sum_{i} l_i^{n_d}$,
   // and $r={\tt distor\_exp}$.
-  TGETOPTDEF_ND(thash,double,distor_exp,1.);
+  TGETOPTDEF_ND(thash,double,distor_exp,-1.);
 
   TGETOPTDEF_ND(thash,double,volume_exp,2.);
   //o Adds a term $\propto {\tt c\_volume}\,{\rm volume}$ to the functional. 
