@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: mmoveopt2.cpp,v 1.8 2006/09/05 18:51:37 mstorti Exp $
+//$Id mstorti-v6-branch-1.0.0-3-g20d2dbe Sun Jul 1 21:14:34 2007 -0300$
 
 #include <src/fem.h>
 #include <src/utils.h>
@@ -15,6 +15,7 @@
 #include "adaptor.h"
 #include "mmoveopt2.h"
 
+extern int MY_RANK, SIZE;
 extern GlobParam *GLOB_PARAM;
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
@@ -303,7 +304,10 @@ element_connector(const FastMat2 &xloc,
     d2SldW2.scale(3.);
 
   }
-  if (V<=0.0) set_error(1);
+  if (V<=0.0) {
+    printf("[%d] elem %d, vol %g\n",MY_RANK,elem,V);
+    set_error(1);
+  }
 
   Q = C*V/Sl;
 
