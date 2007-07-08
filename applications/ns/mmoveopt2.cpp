@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id mstorti-v6-branch-1.0.0-3-g20d2dbe Sun Jul 1 21:14:34 2007 -0300$
+//$Id mstorti-v6-branch-1.0.0-6-g2e88a5c Sun Jul 8 20:31:48 2007 -0300$
 
 #include <src/fem.h>
 #include <src/utils.h>
@@ -124,8 +124,12 @@ element_connector(const FastMat2 &xloc,
   // `x' coordinates are in the metric where the reference
   // element is `regular'
   xreg.is(1,1,ndim);
+#if 0
   xref.ctr(xreg,2,1).scale(1.0-use_ref_mesh)
     .axpy(xloc,use_ref_mesh);
+#else
+  xref.ctr(xreg,2,1);
+#endif
   xreg.rs();
 
   if (use_ref_mesh > 0.0) {
