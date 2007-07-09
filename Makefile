@@ -275,5 +275,10 @@ try-redo:
 redo: 
 	patch -Ep0 < undo.patch
 
+gpush:
+	git push origin mstorti-v6-branch
+
+gpull:
+	git pull origin mstorti-v6-branch
 
 #s
