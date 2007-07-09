@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id mstorti-v6-branch-1.0.0-6-g2e88a5c Sun Jul 8 20:31:48 2007 -0300$
+//$Id mstorti-v6-branch-1.0.0-7-ga5be6c7 Sun Jul 8 20:42:32 2007 -0300$
 
 #include <src/fem.h>
 #include <src/utils.h>
@@ -128,7 +128,7 @@ element_connector(const FastMat2 &xloc,
   xref.ctr(xreg,2,1).scale(1.0-use_ref_mesh)
     .axpy(xloc,use_ref_mesh);
 #else
-  xref.ctr(xreg,2,1);
+  xref.set(xloc);
 #endif
   xreg.rs();
 
