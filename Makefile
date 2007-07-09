@@ -1,6 +1,6 @@
 # mode: -*- makefile -*-
 #__INSERT_LICENSE__
-
+# $Id mstorti-v6-branch-1.0.0-8-ga9cdcde Sun Jul 8 21:07:10 2007 -0300$
 SHELL = /bin/bash
 
 .PHONY: all run lclean save libpetscfem ns adv laplace doc newdepend tags	\
