@@ -1,6 +1,6 @@
 // -*- mode: C++ -*-
 /*__INSERT_LICENSE__*/
-//$Id: nsi_tet.h,v 1.55 2006/07/26 10:31:49 mstorti Exp $
+//$Id mstorti-v6-branch-1.0.0-11-g90bc539 Sun Jul 8 21:07:42 2007 -0300$
 #ifndef PETSCFEM_NSI_TET_H  
 #define PETSCFEM_NSI_TET_H
 
@@ -432,5 +432,7 @@ void detj_error(double &detJaco,int elem);
     @return a pointer to the hook. */ 
 Hook *ns_hook_factory(const char *name);
 #endif
+
+double smabs(double x);
 
 #endif

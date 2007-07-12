@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: fstepfm2.cpp,v 1.38 2007/02/24 14:45:08 mstorti Exp $
+//$Id mstorti-v6-branch-1.0.0-11-g90bc539 Sun Jul 8 21:07:42 2007 -0300$
  
 #include <src/fem.h>
 #include <src/utils.h>
@@ -55,7 +55,7 @@ int fracstep::ask(const char *jobinfo,int &skip_elemset) {
 }
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>
-static double smabs(double x) {
+double smabs(double x) {
   double y, tol=1e-7;
   if (fabs(x)<tol) y = 1.0/(1.0-x*x/3.0);
   else y = x/tanh(x);
