@@ -7,7 +7,7 @@
 #include <src/fastmat2.h>
 
 #include "./nsi_tet.h"
-#include "./nsitetlesf.h"
+#include "./nsitetlesfd.h"
 
 #define ADD_GRAD_DIV_U_TERM
 #define STANDARD_UPWIND
@@ -648,19 +648,9 @@ assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
 	  // Force acting in direction positive when
 	  // velocity comes in negative direction. 
 	  double darcy = DARCY*darcy_factor_global;
-	  double force = axi_sign*darcy*(au-uu)/2.0;
-	  resmom.ir(2,darcy_axi).axpy(W,wpgdet*force).rs();
-	  if (force>max_force) {
-	    max_force = force;
-	    max_u_neg = uu;
-	  }
-#if 0
-	  if (ipg==0 && k%100==0) 
-	    printf("k %d, uu %f, au %f, darcy %f, force %f, axi_sign %f\n",
-		   k,uu,au,darcy,force,axi_sign);
-#endif
+	  double darcy_force = axi_sign*darcy*(au-uu)/2.0;
+          dmatu.addel(-darcy_force,darcy_axi);
 	}
-
 	
 	div_u_star = double(tmp10.prod(dshapex,ucols_star,-1,-2,-2,-1));
 
