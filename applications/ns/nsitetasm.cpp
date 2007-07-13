@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: nsitetasm.cpp,v 1.7 2007/02/24 14:45:08 mstorti Exp $
+//$Id mstorti-v6-branch-1.0.0-14-gca12697 Fri Jul 13 12:57:55 2007 -0300$
 
 #include <src/fem.h>
 #include <src/utils.h>
@@ -262,6 +262,26 @@ assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
   //				as a function of slag void fraction 
   SGETOPTDEF(int,use_modified_slag_vslip,0);
 
+  //o Axis for selective Darcy term (damps incoming flow
+  //at outlet bdry's)
+  SGETOPTDEF(int,darcy_axi,0); 
+
+  double axi_sign = 1.0;
+  if (darcy_axi<0) {
+    axi_sign = -1.0;
+    darcy_axi = -darcy_axi;
+  }
+  assert(darcy_axi<=ndim);
+
+  //o Reference velocity for selectiv Darcy term. 
+  SGETOPTDEF(double,darcy_uref,-1.0); 
+  if (darcy_axi) { assert(darcy_uref>=0.); }
+
+  //o Reference velocity for selectiv Darcy term. 
+  SGETOPTDEF(double,darcy_factor_global,-1.0); 
+  if (darcy_axi) { assert(darcy_factor_global>=0.); }
+
+
   // allocate local vecs
   int kdof;
   FastMat2 veccontr(2,nel,ndof),xloc(2,nel,ndim),locstate(2,nel,ndof), 
@@ -329,8 +349,11 @@ assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
 
   double pi = 4*atan(1.0);
 
+  // Add props definitions here
   DEFPROP(viscosity);
 #define VISC (*(propel+viscosity_indx))
+  DEFPROP(darcy_factor);
+#define DARCY (*(propel+darcy_factor_indx))
 
   int nprops=iprop;
 
@@ -888,6 +911,19 @@ assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
 	du.set(u_star).rest(u);
 	dmatu.axpy(du,rec_Dt/alpha).rest(G_body);
 	
+	// Selective Darcy term
+	if (darcy_axi) {
+	  // Velocity along `axi' direction
+	  double uu = u_star.get(darcy_axi)*axi_sign;
+	  // Smoothed u^+
+	  double au = smabs(uu/darcy_uref)*darcy_uref;
+	  // Force acting in direction positive when
+	  // velocity comes in negative direction. 
+	  double darcy = DARCY*darcy_factor_global;
+	  double darcy_force = rho*axi_sign*darcy*(au-uu)/2.0;
+          dmatu.addel(-darcy_force,darcy_axi);
+	}
+
 	resmom_prime.set(grad_p_star).axpy(dmatu,rho_m);
 
 	div_u_star = double(tmp10.prod(dshapex,ucols_star,-1,-2,-2,-1));

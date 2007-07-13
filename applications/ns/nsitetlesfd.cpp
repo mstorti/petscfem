@@ -76,6 +76,7 @@ assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
   // Hloc stores the old mesh coordinates
   int nH = nu-ndim;
   FMatrix  Hloc(nel,nH),vloc_mesh(nel,ndim),v_mesh(ndim);
+  FastMat2 darcy_vers(1,ndim);
 
   if(nnod!=nodedata->nnod) {
     printf("nnod from dofmap and nodedata don't coincide\n");
@@ -140,12 +141,15 @@ assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
   //o Axis for selective Darcy term (damps incoming flow
   //at outlet bdry's)
   SGETOPTDEF(int,darcy_axi,0); 
+
   double axi_sign = 1.0;
   if (darcy_axi<0) {
     axi_sign = -1.0;
     darcy_axi = -darcy_axi;
   }
   assert(darcy_axi<=ndim);
+
+  if (darcy_axi) darcy_vers.setel(axi_sign,darcy_axi);
 
   //o Reference velocity for selectiv Darcy term. 
   SGETOPTDEF(double,darcy_uref,-1.0); 
@@ -158,8 +162,7 @@ assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
   // allocate local vecs
   int kdof;
   FastMat2 veccontr(2,nel,ndof),xloc(2,nel,ndim),locstate(2,nel,ndof), 
-    locstate2(2,nel,ndof),xpg,G_body(1,ndim),
-    vrel;
+    locstate2(2,nel,ndof),xpg,G_body(1,ndim),vrel;
 
   if (ndof != ndim+1) {
     PetscPrintf(PETSC_COMM_WORLD,"ndof != ndim+1\n"); CHKERRA(1);
@@ -268,7 +271,7 @@ assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
     massm,tmp7,tmp8,tmp9,tmp10,tmp11,tmp13,tmp14,tmp15,dshapex_c,xc,
     wall_coords(ndim),dist_to_wall,tmp16,tmp162,tmp17,tmp18,tmp19,
     tmp23,tmp24,tmp25;
-  FastMat2 tmp20(2,nel,nel),tmp21,vel_supg;
+  FastMat2 tmp20(2,nel,nel),tmp21,vel_supg,tmp26;
 
   double tmp12;
   double tsf = temporal_stability_factor;
@@ -648,7 +651,7 @@ assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
 	  // Force acting in direction positive when
 	  // velocity comes in negative direction. 
 	  double darcy = DARCY*darcy_factor_global;
-	  double darcy_force = axi_sign*darcy*(au-uu)/2.0;
+	  double darcy_force = rho*axi_sign*darcy*(au-uu)/2.0;
           dmatu.addel(-darcy_force,darcy_axi);
 	}
 	
@@ -774,6 +777,12 @@ assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
             matlocf.ir(2,ndof).is(4,1,ndim)
               .axpy(tmp25,-wpgdet*rho).rs();
           }
+#if 0
+          if (darcy_axi) {
+            tmp26.prod(W_supg,SHAPE,1,2);
+            tmp27.prod(darcy_vers,darcy_vers,1,2).scale(rho*fdarcy_dot);
+          }
+#endif
 	}
 
       } else if (comp_mat) {
