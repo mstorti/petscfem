@@ -43,6 +43,7 @@
 #include "./bubblyqint.h"
 #include "./bubblyqint.h"
 #include "./nsitetlesf.h"
+#include "./nsitetlesfd.h"
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:
 #undef __FUNC__
@@ -71,6 +72,7 @@ void bless_elemset(char *type,Elemset *& elemset) {
 
     SET_ELEMSET_TYPE(nsi_tet_les_fm2)
     SET_ELEMSET_TYPE(nsi_tet_les_full)
+    SET_ELEMSET_TYPE(nsi_tet_les_full_darcy)
     SET_ELEMSET_TYPE(nsi_tet_les_comp)
     SET_ELEMSET_TYPE(nsi_tet_les_ther)
     SET_ELEMSET_TYPE(nsi_tet_les_asm)
