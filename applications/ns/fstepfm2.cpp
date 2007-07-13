@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id mstorti-v6-branch-1.0.0-14-gca12697 Fri Jul 13 12:57:55 2007 -0300$
+//$Id mstorti-v6-branch-1.0.0-15-gc8b4ed8 Fri Jul 13 15:11:39 2007 -0300$
  
 #include <src/fem.h>
 #include <src/utils.h>
@@ -71,6 +71,13 @@ double smabs(double x,double &dydx) {
   return y;
 }
 #endif
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>
+double smabs(double x) {
+  double y, tol=1e-7;
+  if (fabs(x)<tol) y = 1.0/(1.0-x*x/3.0);
+  else y = x/tanh(x);
+  return y;
+}
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 #undef __FUNC__
