@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id mstorti-v6-branch-1.0.0-17-g5f6b99e Fri Jul 13 22:09:16 2007 -0300$
+//$Id mstorti-v6-branch-1.0.0-18-g16b80c6 Fri Jul 13 22:27:39 2007 -0300$
  
 #include <src/fem.h>
 #include <src/utils.h>
@@ -71,7 +71,7 @@ double smabs(double x,double &dydx) {
       sh = sinh(x),
       th = tanh(x);
     y = x/th;
-    dydx = 1.0/th-x/(sh*sh);
+    dydx = 1.0/th - x/(sh*sh);
   }
   return y;
 }
