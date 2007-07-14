@@ -270,7 +270,7 @@ assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
     massm,tmp7,tmp8,tmp9,tmp10,tmp11,tmp13,tmp14,tmp15,dshapex_c,xc,
     wall_coords(ndim),dist_to_wall,tmp16,tmp162,tmp17,tmp18,tmp19,
     tmp23,tmp24,tmp25;
-  FastMat2 tmp20(2,nel,nel),tmp21,vel_supg,tmp26,tmp27,tmp28;
+  FastMat2 tmp20(2,nel,nel),tmp21,vel_supg,tmp26,tmp27,tmp28,tmp29;
 
   double tmp12;
   double tsf = temporal_stability_factor;
@@ -644,17 +644,18 @@ assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
 	// Selective Darcy term
 	if (darcy_axi) {
 	  // Velocity along `axi' direction (with sign)
-	  double uu = u_star.get(darcy_axi)*axi_sign;
+          tmp29.prod(u_star,darcy_vers,-1,-1);
+	  double uu = double(tmp29);
 	  // Smoothed u^+
           double gdot;
 	  double au = smabs(uu/darcy_uref,gdot)*darcy_uref;
 	  // Force acting in direction positive when
 	  // velocity comes in negative direction. 
 	  double darcy = DARCY*darcy_factor_global;
-	  double darcy_force = rho*axi_sign*darcy*(au-uu)/2.0;
+	  double darcy_force = rho*darcy*(au-uu)/2.0;
           // This will be used later for computing the jacobian
           fdarcy_dot = -rho*darcy*(gdot-1.0)/2.0*wpgdet;
-          dmatu.addel(-darcy_force,darcy_axi);
+          dmatu.axpy(darcy_vers,-darcy_force);
 	}
 	
 	div_u_star = double(tmp10.prod(dshapex,ucols_star,-1,-2,-2,-1));
