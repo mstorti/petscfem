@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id mstorti-v6-branch-1.0.0-15-gc8b4ed8 Fri Jul 13 15:11:39 2007 -0300$
+//$Id mstorti-v6-branch-1.0.0-16-g48a39d4 Fri Jul 13 15:14:28 2007 -0300$
  
 #include <src/fem.h>
 #include <src/utils.h>
@@ -55,7 +55,6 @@ int fracstep::ask(const char *jobinfo,int &skip_elemset) {
 }
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>
-#if 0
 double smabs(double x,double &dydx) {
   double y, tol=1e-7;
   if (fabs(x)<tol) {
@@ -64,19 +63,17 @@ double smabs(double x,double &dydx) {
   } else {
     double 
       sh = sinh(x),
-      
-    y = x/tanh(x);
-    dydx = 1/tanh(x)-x/2;
+      th = tanh(x);
+    y = x/th;
+    dydx = 1/th-x/sh;
   }
   return y;
 }
-#endif
+
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>
 double smabs(double x) {
-  double y, tol=1e-7;
-  if (fabs(x)<tol) y = 1.0/(1.0-x*x/3.0);
-  else y = x/tanh(x);
-  return y;
+  double yd;
+  return smabs(x,yd);
 }
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 

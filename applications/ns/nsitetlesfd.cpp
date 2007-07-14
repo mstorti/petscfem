@@ -132,8 +132,6 @@ assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
   SGETOPTDEF(int,indx_ALE_xold,1);
   //o Assert `fractional_step' is not used. 
   SGETOPTDEF(int,fractional_step,0);
-  //o Use full jacobian
-  SGETOPTDEF(int,use_full_jacobian,1);
   PETSCFEM_ASSERT0(!fractional_step,
                    "This elemset is to be used only \n"
                    "with the monolithic version. ");  
@@ -142,13 +140,14 @@ assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
   //at outlet bdry's)
   SGETOPTDEF(int,darcy_axi,0); 
 
-  double axi_sign = 1.0;
+  double axi_sign = 1.0, fdarcy_dot=NAN;
   if (darcy_axi<0) {
     axi_sign = -1.0;
     darcy_axi = -darcy_axi;
   }
   assert(darcy_axi<=ndim);
 
+  darcy_vers.set(0.0);
   if (darcy_axi) darcy_vers.setel(axi_sign,darcy_axi);
 
   //o Reference velocity for selectiv Darcy term. 
@@ -271,7 +270,7 @@ assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
     massm,tmp7,tmp8,tmp9,tmp10,tmp11,tmp13,tmp14,tmp15,dshapex_c,xc,
     wall_coords(ndim),dist_to_wall,tmp16,tmp162,tmp17,tmp18,tmp19,
     tmp23,tmp24,tmp25;
-  FastMat2 tmp20(2,nel,nel),tmp21,vel_supg,tmp26;
+  FastMat2 tmp20(2,nel,nel),tmp21,vel_supg,tmp26,tmp27,tmp28;
 
   double tmp12;
   double tsf = temporal_stability_factor;
@@ -644,14 +643,17 @@ assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
 
 	// Selective Darcy term
 	if (darcy_axi) {
-	  // Velocity along `axi' direction
+	  // Velocity along `axi' direction (with sign)
 	  double uu = u_star.get(darcy_axi)*axi_sign;
 	  // Smoothed u^+
-	  double au = smabs(uu/darcy_uref)*darcy_uref;
+          double gdot;
+	  double au = smabs(uu/darcy_uref,gdot)*darcy_uref;
 	  // Force acting in direction positive when
 	  // velocity comes in negative direction. 
 	  double darcy = DARCY*darcy_factor_global;
 	  double darcy_force = rho*axi_sign*darcy*(au-uu)/2.0;
+          // This will be used later for computing the jacobian
+          fdarcy_dot = -rho*darcy*(gdot-1.0)/2.0*wpgdet;
           dmatu.addel(-darcy_force,darcy_axi);
 	}
 	
@@ -764,23 +766,25 @@ assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
 	      grad_div_u.add(tmp18);
 	    }
 	  }
-          if (use_full_jacobian) {
-            // Jacobian term for convective term
-            // W_j . N_k \dep u_a/x_b
-            tmp23.prod(SHAPE,grad_u_star,2,3,1);
+          // Jacobian term for convective term
+          // W_j . N_k \dep u_a/x_b
+          tmp23.prod(SHAPE,grad_u_star,2,3,1);
+          
+          tmp24.prod(W_supg,tmp23,1,2,3,4);
+          matlocf.is(2,1,ndim).is(4,1,ndim)
+            .axpy(tmp24,wpgdet*rho).rs();
+          
+          tmp25.prod(P_pspg,tmp23,-1,1,-1,2,3);
+          matlocf.ir(2,ndof).is(4,1,ndim)
+            .axpy(tmp25,-wpgdet*rho).rs();
 
-            tmp24.prod(W_supg,tmp23,1,2,3,4);
-            matlocf.is(2,1,ndim).is(4,1,ndim)
-              .axpy(tmp24,wpgdet*rho).rs();
-
-            tmp25.prod(P_pspg,tmp23,-1,1,-1,2,3);
-            matlocf.ir(2,ndof).is(4,1,ndim)
-              .axpy(tmp25,-wpgdet*rho).rs();
-          }
-#if 0
+#if 1
           if (darcy_axi) {
             tmp26.prod(W_supg,SHAPE,1,2);
-            tmp27.prod(darcy_vers,darcy_vers,1,2).scale(rho*fdarcy_dot);
+            tmp27.prod(darcy_vers,darcy_vers,1,2)
+              .scale(fdarcy_dot);
+            tmp28.prod(tmp26,tmp27,1,3,2,4);
+            matlocf.is(2,1,ndim).is(4,1,ndim).add(tmp28).rs();
           }
 #endif
 	}

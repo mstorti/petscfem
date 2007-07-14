@@ -1,6 +1,6 @@
 // -*- mode: C++ -*-
 /*__INSERT_LICENSE__*/
-//$Id mstorti-v6-branch-1.0.0-11-g90bc539 Sun Jul 8 21:07:42 2007 -0300$
+//$Id mstorti-v6-branch-1.0.0-16-g48a39d4 Fri Jul 13 15:14:28 2007 -0300$
 #ifndef PETSCFEM_NSI_TET_H  
 #define PETSCFEM_NSI_TET_H
 
@@ -434,5 +434,6 @@ Hook *ns_hook_factory(const char *name);
 #endif
 
 double smabs(double x);
+double smabs(double x,double &dydx);
 
 #endif
