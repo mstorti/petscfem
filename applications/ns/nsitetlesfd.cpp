@@ -417,6 +417,10 @@ assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
     
     double shear_vel=NAN;
     int wall_elem;
+    // Add Darcy term for this element?
+    // int darcy_p = darcy_axi && DARCY && darcy_factor_global;
+    int darcy_p = darcy_axi;
+
     if (LES && comp_mat_res && A_van_Driest>0.) {
 #ifdef USE_ANN
       if (!wall_data) { set_error(2); return 1; }
@@ -642,7 +646,10 @@ assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
 	dmatu.axpy(du,rec_Dt/alpha).rest(G_body);
 
 	// Selective Darcy term
-	if (darcy_axi) {
+	FastMat2::branch();
+	if (darcy_p) {
+	  FastMat2::choose(0);
+          double darcy = DARCY*darcy_factor_global;
 	  // Velocity along `axi' direction (with sign)
           tmp29.prod(u_star,darcy_vers,-1,-1);
 	  double uu = double(tmp29);
@@ -651,12 +658,12 @@ assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
 	  double au = smabs(uu/darcy_uref,gdot)*darcy_uref;
 	  // Force acting in direction positive when
 	  // velocity comes in negative direction. 
-	  double darcy = DARCY*darcy_factor_global;
 	  double darcy_force = rho*darcy*(au-uu)/2.0;
           // This will be used later for computing the jacobian
           fdarcy_dot = -rho*darcy*(gdot-1.0)/2.0*wpgdet;
           dmatu.axpy(darcy_vers,-darcy_force);
 	}
+        FastMat2::leave();
 	
 	div_u_star = double(tmp10.prod(dshapex,ucols_star,-1,-2,-2,-1));
 
@@ -779,15 +786,16 @@ assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
           matlocf.ir(2,ndof).is(4,1,ndim)
             .axpy(tmp25,-wpgdet*rho).rs();
 
-#if 1
-          if (darcy_axi) {
+          FastMat2::branch();
+          if (darcy_p) {
+            FastMat2::choose(0);
             tmp26.prod(W_supg,SHAPE,1,2);
             tmp27.prod(darcy_vers,darcy_vers,1,2)
               .scale(fdarcy_dot);
             tmp28.prod(tmp26,tmp27,1,3,2,4);
             matlocf.is(2,1,ndim).is(4,1,ndim).add(tmp28).rs();
           }
-#endif
+          FastMat2::leave();
 	}
 
       } else if (comp_mat) {
