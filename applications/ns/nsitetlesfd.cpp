@@ -418,8 +418,7 @@ assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
     double shear_vel=NAN;
     int wall_elem;
     // Add Darcy term for this element?
-    // int darcy_p = darcy_axi && DARCY && darcy_factor_global;
-    int darcy_p = darcy_axi;
+    int darcy_p = darcy_axi && DARCY && darcy_factor_global;
 
     if (LES && comp_mat_res && A_van_Driest>0.) {
 #ifdef USE_ANN
