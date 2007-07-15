@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-// $Id mstorti-v6-branch-1.0.0-22-gb09667d Sat Jul 14 11:33:29 2007 -0300$
+// $Id mstorti-v6-branch-1.0.0-23-gb1710be Sat Jul 14 11:34:48 2007 -0300$
 
 #include <src/fem.h>
 #include <src/utils.h>
@@ -656,6 +656,8 @@ assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
 	  // Smoothed u^+
           double gdot;
 	  double au = smabs(uu/darcy_uref,gdot)*darcy_uref;
+//           printf("uu %f, darcy_uref %f, au %f, gdot %f\n",
+//                  uu,darcy_uref,au,gdot);
 	  // Force acting in direction positive when
 	  // velocity comes in negative direction. 
 	  double darcy_force = rho*darcy*(au-uu)/2.0;
