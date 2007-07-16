@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id mstorti-v6-branch-1.0.0-23-gb1710be Sat Jul 14 11:34:48 2007 -0300$
+//$Id mstorti-v6-branch-1.0.0-24-g9e74a3d Sun Jul 15 19:56:25 2007 -0300$
 
 #include <src/fem.h>
 #include <src/utils.h>
@@ -920,6 +920,7 @@ assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
 	// Selective Darcy term
 	FastMat2::branch();
 	if (darcy_p) {
+          FastMat2::choose(0);
           double darcy = DARCY*darcy_factor_global;
 	  // Velocity along `axi' direction (with sign)
           tmp29.prod(u_star,darcy_vers,-1,-1);
