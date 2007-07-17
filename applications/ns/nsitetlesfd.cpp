@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-// $Id mstorti-v6-branch-1.0.0-24-g9e74a3d Sun Jul 15 19:56:25 2007 -0300$
+// $Id mstorti-v6-branch-1.0.0-25-ga7a26ad Sun Jul 15 23:47:07 2007 -0300$
 
 #include <src/fem.h>
 #include <src/utils.h>
@@ -788,7 +788,6 @@ assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
           matlocf.ir(2,ndof).is(4,1,ndim)
             .axpy(tmp25,-wpgdet*rho).rs();
 
-#if 0
           FastMat2::branch();
           if (darcy_p) {
             FastMat2::choose(0);
@@ -799,7 +798,6 @@ assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
             matlocf.is(2,1,ndim).is(4,1,ndim).add(tmp28).rs();
           }
           FastMat2::leave();
-#endif
 	}
 
       } else if (comp_mat) {

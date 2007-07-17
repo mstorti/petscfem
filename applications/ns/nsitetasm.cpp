@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id mstorti-v6-branch-1.0.0-24-g9e74a3d Sun Jul 15 19:56:25 2007 -0300$
+//$Id mstorti-v6-branch-1.0.0-25-ga7a26ad Sun Jul 15 23:47:07 2007 -0300$
 
 #include <src/fem.h>
 #include <src/utils.h>
@@ -381,7 +381,7 @@ assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
 
   FastMat2 P_supg, W_supg, W_supg_t, dmatw,
     grad_div_u(4,nel,ndim,nel,ndim),P_pspg(2,ndim,nel),dshapex(2,ndim,nel);
-  FastMat2 tmp26,tmp27,tmp28,tmp29;
+  FastMat2 tmp26,tmp27,tmp28,tmp29, tmp23,tmp24, tmp25;
   double *grad_div_u_cache=NULL;
   int grad_div_u_was_cached=0;
 
@@ -1238,6 +1238,21 @@ assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
 	      grad_div_u.add(tmp18);
 	    }
 	  }
+
+#if 0
+          // Jacobian term for convective term
+          // W_j . N_k \dep u_a/x_b
+          tmp23.prod(SHAPE,grad_u_star,2,3,1);
+          
+          tmp24.prod(W_supg,tmp23,1,2,3,4);
+          matlocf.is(2,1,ndim).is(4,1,ndim)
+            .axpy(tmp24,wpgdet*rho_m).rs();
+          
+          tmp25.prod(P_pspg,tmp23,-1,1,-1,2,3);
+          matlocf.ir(2,ndof).is(4,1,ndim)
+            .axpy(tmp25,-wpgdet*rho_m).rs();
+#endif
+
           FastMat2::branch();
           if (darcy_p) {
             FastMat2::choose(0);
