@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id mstorti-v6-2 Wed Jun 20 11:23:16 2007 -0300$
+//$Id mstorti-v6-branch-1.0.0-27-g166139f Tue Jul 17 21:42:15 2007 -0300$
 
 #include <src/fem.h>
 #include <src/utils.h>
@@ -128,7 +128,7 @@ void force_integrator::set_pg_values(vector<double> &pg_values,FastMat2 &u,
     // Position offset of local point to center of moments
     dx.set(xpg).rest(x_center);
     // Moment contribution = force X dx
-    moment.cross(force,dx);
+    moment.cross(dx,force);
     // export forces to return vector
     moment.export_vals(&*pg_values.begin()+ndim);
 #if 0
