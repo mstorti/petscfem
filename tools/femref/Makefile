@@ -2,8 +2,8 @@
 .PHONY: all
 
 N := 4
-OPT := -O2 -funroll-loops
-# OPT := -g
+# OPT := -O2 -funroll-loops
+OPT := -g
 
 PROG := myhash$(N).bin
 default: libfemref.so

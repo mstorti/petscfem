@@ -148,7 +148,9 @@ public:
   }
   int size() { return npoints; }
   int get(const vector<double> &x,
-	  vector<double> &ngbrs,double tol_a=NAN) {
+	  vector<double> &xngbrs,
+          vector<int> &ngbrs,
+          double tol_a=NAN) {
     if (isnan(tol_a)) tol_a=tol;
     assert(tol_a<=tol);
     assert(x.size() == (unsigned int)ndim);
@@ -162,7 +164,8 @@ public:
       if (d<=tol_a) {
 	OK++;
 	for (int j=0; j<ndim; j++) 
-	  ngbrs.push_back(coords[c*ndim+j]);
+	  xngbrs.push_back(coords[c*ndim+j]);
+        ngbrs.push_back(c);
       }
     }
     return OK;
@@ -210,7 +213,8 @@ void check1() {
 	xtry.push_back(coords[k*ndim+j]);
     }
     vector<double> found;
-    hashed_coords.get(xtry,found);
+    vector<int> indx;
+    hashed_coords.get(xtry,found,indx);
     bad += (found.size()==0 != q);
   }
   printf("checking %f\n",chrono.elapsed());
@@ -248,23 +252,28 @@ void check2() {
   printf("insertion %f, table_insert %f, other %f, cand_avg %f\n",
 	 chrono.elapsed(),TABLE_INSERT,OTHER,CAND_AVG/npoints);
   int bad=0;
-#if 0
+
+#if 1
   read_file("xs.tmp",xtest);
-  int ntest = coords.size();
+  int ntest = xtest.size();
   assert(ntest % ndim ==0);
   ntest = ntest/ndim;
   printf("read %d test points\n",ntest);
 
   chrono.reset();
+  vector<double> xtry(ndim), found;
+  vector<int> indx;
   for (int j=0; j<ntest; j++) {
-    vector<double> xtry;
-    vector<double> found;
+    found.clear();
+    indx.clear();
     for (int k=0; k<ndim; k++) 
       xtry[k] = xtest[ndim*j+k];
-    bad += (hashed_coords.get(xtry,found)!=1);
+    bad += (hashed_coords.get(xtry,found,indx)!=1);
+    assert(indx.size()==1);
+    printf("j %d, ngbr %d\n",j,indx[0]);
   }
   printf("checking %f\n",chrono.elapsed());
-  printf("total %d, OK %d, bad %d\n",nnod,nnod-bad,bad);
+  printf("total %d, OK %d, bad %d\n",ntest,ntest-bad,bad);
 #endif
 }
 
