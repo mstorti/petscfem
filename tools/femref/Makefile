@@ -2,8 +2,13 @@
 .PHONY: all
 
 N := 4
-# OPT := -O2 -funroll-loops
+ifeq (1,0)
+OPT := -O2 -funroll-loops
+BOPT := O_c++
+else
 OPT := -g
+BOPT := g_c++
+endif
 
 PROG := myhash$(N).bin
 default: libfemref.so
@@ -33,7 +38,6 @@ CPP_FILES := femref2 hasher md5r gtemplates visitor combiner \
 SRCS := $(CPP_FILES=.cpp) getsurf.cpp femref.cpp  myhash.cpp myhash2.cpp \
 	myhash3.cpp myhash4.cpp myhash5.cpp trytree.cpp 
 
-BOPT := g_c++
 PETSCFEM_DIR = ../..
 include $(PETSCFEM_DIR)/Makefile.base
 OMKFLS = 
