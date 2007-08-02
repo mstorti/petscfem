@@ -2,7 +2,7 @@
 .PHONY: all
 
 N := 4
-ifeq (1,0)
+ifeq (1,1)
 OPT := -O2 -funroll-loops
 BOPT := O_c++
 else
