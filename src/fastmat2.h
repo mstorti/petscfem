@@ -1,6 +1,6 @@
 // -*- mode: c++ -*-
 /*__INSERT_LICENSE__*/
-//$Id: fastmat2.h,v 1.39 2007/02/23 03:05:01 mstorti Exp $
+//$Id mstorti-v6-branch-1.0.1 Fri Aug 17 13:46:01 2007 -0300$
 
 #ifndef FASTMAT2_H
 #define FASTMAT2_H
@@ -401,6 +401,15 @@ public:
       @return a reference to the matrix.
    */ 
   void print(int rowsz,const char *s=NULL) const;
+
+  //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+  /** Prints the matrix with a fixed rowsize. 
+      @author M. Storti
+      @param rowsz (input) the row size
+      @param s (input) An optional string to print.
+      @return a reference to the matrix.
+   */ 
+  void dump(FILE *stream=stdout,int rowsz=0) const;
 
   //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
   /** Prints dimensions of the matrix.

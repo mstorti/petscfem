@@ -1,5 +1,5 @@
 ///__INSERT_LICENSE__
-//$Id$
+//$Id mstorti-v6-branch-1.0.1 Fri Aug 17 13:46:01 2007 -0300$
 
 #include <cmath>
 #include <cstdio>
@@ -704,6 +704,25 @@ void FastMat2::print(int rowsz,
     printf(" %g",*location(indx));
     counter++;
     if (counter==rowsz) {
+      printf("\n");
+      counter=0;
+    }
+    if (!inc(indx,fdims)) break;
+  }
+}
+
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>
+void FastMat2::dump(FILE *stream,int rowsz) const {
+  Indx fdims;
+  get_dims(fdims);
+  int nd = fdims.size();
+  Indx indx(nd,1);
+  int counter = 0;
+  assert(rowsz>=0);
+  while (1) {
+    printf(" %g",*location(indx));
+    counter++;
+    if (rowsz>0 && counter==rowsz) {
       printf("\n");
       counter=0;
     }
