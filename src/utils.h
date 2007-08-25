@@ -1,6 +1,6 @@
 // -*- mode: C++ -*-
 /*__INSERT_LICENSE__*/
-//$Id: utils.h,v 1.19 2005/09/18 20:34:09 mstorti Exp $
+//$Id mstorti-v6-branch-1.0.1-1-geb6dc7a Mon Aug 20 13:13:13 2007 -0300$
 
 #ifndef UTILS_H
 #define UTILS_H
@@ -98,6 +98,14 @@ int mini(int n,...);
   @return the maximum of these integers
 */ 
 int maxi(int n,...);
+
+/** Minimum value of a set of doubles.
+  @author M. Storti
+  @param n number of double values
+  @param ... set of double
+  @return the minimum of these doubles
+*/ 
+double mind(int n,...);
 
 /** Maximum value of a set of doubles.
   @author M. Storti

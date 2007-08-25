@@ -1,5 +1,5 @@
 ///__INSERT_LICENSE__
-//$Id mstorti-v6-branch-1.0.1 Fri Aug 17 13:46:01 2007 -0300$
+//$Id mstorti-v6-branch-1.0.1-1-geb6dc7a Mon Aug 20 13:13:13 2007 -0300$
 
 #include <cmath>
 #include <cstdio>
@@ -720,10 +720,10 @@ void FastMat2::dump(FILE *stream,int rowsz) const {
   int counter = 0;
   assert(rowsz>=0);
   while (1) {
-    printf(" %g",*location(indx));
+    fprintf(stream," %g",*location(indx));
     counter++;
     if (rowsz>0 && counter==rowsz) {
-      printf("\n");
+      fprintf(stream,"\n");
       counter=0;
     }
     if (!inc(indx,fdims)) break;

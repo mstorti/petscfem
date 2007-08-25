@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: utils.cpp,v 1.18 2007/02/24 14:45:08 mstorti Exp $
+//$Id mstorti-v6-branch-1.0.1-1-geb6dc7a Mon Aug 20 13:13:13 2007 -0300$
  
 #include <src/debug.h>
 #include <stdio.h>
@@ -205,6 +205,19 @@ double maxd(int n,...) {
   }
   va_end(list);
   return max;
+}
+
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+double mind(int n,...) {
+  va_list list;
+  va_start(list,n);
+  double min=-INFINITY,item;
+  for (int kk=0; kk<n; kk++) {
+    item = va_arg(list,double);
+    min = ( kk==0 ? item : ( min < item ? min : item));
+  }
+  va_end(list);
+  return min;
 }
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
