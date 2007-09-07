@@ -28,7 +28,7 @@ LIBRETTO = $(PF_PKG_DIR)
 MESCHACH = $(PF_PKG_DIR)
 METIS    = $(PF_PKG_DIR)
 NEWMAT   = $(PF_PKG_DIR)
-SSL      =
+SSL      = $(PF_PKG_DIR)
 SUPERLU  =
 
 ANN_INC_DIR = $(ANN)/include

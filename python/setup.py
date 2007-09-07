@@ -55,6 +55,7 @@ LIBRETTO = PF_PKG_DIR
 MESCHACH = PF_PKG_DIR
 NEWMAT   = PF_PKG_DIR
 METIS    = PF_PKG_DIR
+SSL      = PF_PKG_DIR
 GLIB     = '/usr/include/glib-2.0'
 GLIBCFG  = '/usr/lib/glib-2.0/include'
 
@@ -82,33 +83,32 @@ config = {
                       join(PETSC_DIR, PETSC_ARCH, 'include'),
                       join(PETSC_DIR, 'bmake', PETSC_ARCH),
                       join(PETSC_DIR, 'include'),
+                      GLIB, GLIBCFG,
                       join(ANN,       'include'),
                       join(LIBRETTO,  'include'),
                       join(NEWMAT,    'include/newmat'),
                       join(MESCHACH,  'include/meschach'),
                       join(METIS,     'include/metis'),
-                      GLIB, GLIBCFG,
+                      join(SSL,       'include/SSL'),
                       ],
     
-    'libraries'    : ['mpich',
-                      'petscksp', 'petscdm', 'petscmat', 'petscvec', 'petsc',
-                      'glib',
-                      'newmat',
-                      'ibretto',
-                      'meschach',
-                      'metis',
-                      'ANN',
+    'libraries'    : ['petscksp', 'petscdm',
+                      'petscmat', 'petscvec',
+                      'petsc', 'mpich', 'glib',
+                      'ANN',  'ibretto', 'meschach',
+                      'metis', 'newmat', 'simpleskts'
                       ],
     
-    'library_dirs' : [join(MPI_DIR, 'lib'),
+    'library_dirs' : [join(MPI_DIR,   'lib'),
                       join(PETSC_DIR, 'lib'),
                       join(PETSC_DIR, PETSC_ARCH, 'lib'),
                       join(PETSC_DIR, 'lib', PETSC_ARCH),
-                      join(ANN,      'lib'),
-                      join(LIBRETTO, 'lib'),
-                      join(NEWMAT,   'lib'),
-                      join(MESCHACH, 'lib'),
-                      join(METIS,    'lib'),
+                      join(ANN,       'lib'),
+                      join(LIBRETTO,  'lib'),
+                      join(MESCHACH,  'lib'),
+                      join(METIS,     'lib'),
+                      join(NEWMAT,    'lib'),
+                      join(SSL,       'lib'),
                       ],
     'runtime_library_dirs' : []
     }
