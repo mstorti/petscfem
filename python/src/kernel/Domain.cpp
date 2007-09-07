@@ -842,7 +842,6 @@ Domain::buildState(double time, Vec solution, Vec state) const
     PetscFree(sttbuff);
     // restore solution array
     VecRestoreArray(solution,&sol_array);
-    PetscObjectStateDecrease((PetscObject)solution);
     //
   } else {
     PetscMemzero(stt_array,gdofs*sizeof(PetscScalar));
@@ -905,8 +904,8 @@ Domain::buildSolution(double time, Vec state, Vec solution) const
   /* check provided solution vector */
   PetscTruth sol_valid; PetscInt sol_size = 0; 
   if (solution != PETSC_NULL) {
-    PetscTruth sol_valid; VecValid(solution,&sol_valid);
-    PF4PY_ASSERT(sol_valid == PETSC_TRUE, 
+    VecValid(solution,&sol_valid);
+    PF4PY_ASSERT(sol_valid == PETSC_TRUE,
 		 "provided solution vector is not valid");
     VecGetLocalSize(solution,&sol_size);
     PF4PY_ASSERT(sol_size == 0 || sol_size == nnod*ndof, 
@@ -936,7 +935,6 @@ Domain::buildSolution(double time, Vec state, Vec solution) const
       dofmap_apply(dofmap,time,stt_array,sol_array);
     /* array of state vector was not touched */
     VecRestoreArray(scatter.second, &stt_array);
-    PetscObjectStateDecrease((PetscObject)scatter.second);
   }
   VecRestoreArray(solution, &sol_array);
 

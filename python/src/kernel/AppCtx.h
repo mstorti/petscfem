@@ -79,7 +79,7 @@ public:
 
 PF4PY_NAMESPACE_END
 
-
+// ---------------------------------------------------------------- //
 
 PF4PY_NAMESPACE_BEGIN
 
@@ -97,7 +97,6 @@ protected:
   virtual bool profile(const Domain* domain,
 		       std::vector<int>& xadj,
 		       std::vector<int>& adjncy) const;
-
   virtual void assemble(const Domain* domain,
 			const std::string& jobname,
 			double t, Vec x,
@@ -116,6 +115,43 @@ public:
 
 PF4PY_NAMESPACE_END
 
+// ---------------------------------------------------------------- //
+
+PF4PY_NAMESPACE_BEGIN
+
+class AppAD
+  : public AppCtx
+{
+private:
+  AppAD& operator=(const AppAD&);
+
+protected:
+  virtual bool sdgraph(const Domain* domain,
+		       std::vector<int>& dofs,
+		       std::vector<int>& xadj,
+		       std::vector<int>& adjncy) const;
+  virtual bool profile(const Domain* domain,
+		       std::vector<int>& xadj,
+		       std::vector<int>& adjncy) const;
+  virtual void assemble(const Domain* domain,
+			const std::string& jobname,
+			double t, Vec x, 
+			Vec r, Mat J) const;
+  virtual void assemble(const Domain* domain, 
+			const std::string& jobname,
+			double t1, Vec x1, 
+			double t0, Vec x0, 
+			Vec r, Mat J, double alpha) const;
+public:
+  ~AppAD();
+  AppAD(const AppAD& ad);
+  AppAD();
+
+};
+
+PF4PY_NAMESPACE_END
+
+// ---------------------------------------------------------------- //
 
 #endif // PF4PY_APPCTX_H
 

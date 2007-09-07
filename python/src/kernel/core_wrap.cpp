@@ -2988,40 +2988,41 @@ namespace Swig {
 #define SWIGTYPE_p_Impl swig_types[0]
 #define SWIGTYPE_p_MPI_Comm swig_types[1]
 #define SWIGTYPE_p_PETScFEM__Amplitude swig_types[2]
-#define SWIGTYPE_p_PETScFEM__AppCtx swig_types[3]
-#define SWIGTYPE_p_PETScFEM__AppNS swig_types[4]
-#define SWIGTYPE_p_PETScFEM__Comm swig_types[5]
-#define SWIGTYPE_p_PETScFEM__DTableTdouble_t swig_types[6]
-#define SWIGTYPE_p_PETScFEM__DTableTint_t swig_types[7]
-#define SWIGTYPE_p_PETScFEM__Dofset swig_types[8]
-#define SWIGTYPE_p_PETScFEM__Domain swig_types[9]
-#define SWIGTYPE_p_PETScFEM__Elemset swig_types[10]
-#define SWIGTYPE_p_PETScFEM__Mesh swig_types[11]
-#define SWIGTYPE_p_PETScFEM__Object swig_types[12]
-#define SWIGTYPE_p_PETScFEM__Options swig_types[13]
-#define SWIGTYPE_p_PETScFEM__PTableTdouble_t swig_types[14]
-#define SWIGTYPE_p_PETScFEM__PTableTint_t swig_types[15]
-#define SWIGTYPE_p__p_Mat swig_types[16]
-#define SWIGTYPE_p__p_Vec swig_types[17]
-#define SWIGTYPE_p_allocator_type swig_types[18]
-#define SWIGTYPE_p_char swig_types[19]
-#define SWIGTYPE_p_difference_type swig_types[20]
-#define SWIGTYPE_p_double swig_types[21]
-#define SWIGTYPE_p_first_type swig_types[22]
-#define SWIGTYPE_p_int swig_types[23]
-#define SWIGTYPE_p_key_type swig_types[24]
-#define SWIGTYPE_p_mapped_type swig_types[25]
-#define SWIGTYPE_p_p__p_Mat swig_types[26]
-#define SWIGTYPE_p_p__p_Vec swig_types[27]
-#define SWIGTYPE_p_second_type swig_types[28]
-#define SWIGTYPE_p_size_type swig_types[29]
-#define SWIGTYPE_p_std__invalid_argument swig_types[30]
-#define SWIGTYPE_p_std__vectorTdouble_std__allocatorTdouble_t_t swig_types[31]
-#define SWIGTYPE_p_std__vectorTint_std__allocatorTint_t_t swig_types[32]
-#define SWIGTYPE_p_swig__PySwigIterator swig_types[33]
-#define SWIGTYPE_p_value_type swig_types[34]
-static swig_type_info *swig_types[36];
-static swig_module_info swig_module = {swig_types, 35, 0, 0, 0, 0};
+#define SWIGTYPE_p_PETScFEM__AppAD swig_types[3]
+#define SWIGTYPE_p_PETScFEM__AppCtx swig_types[4]
+#define SWIGTYPE_p_PETScFEM__AppNS swig_types[5]
+#define SWIGTYPE_p_PETScFEM__Comm swig_types[6]
+#define SWIGTYPE_p_PETScFEM__DTableTdouble_t swig_types[7]
+#define SWIGTYPE_p_PETScFEM__DTableTint_t swig_types[8]
+#define SWIGTYPE_p_PETScFEM__Dofset swig_types[9]
+#define SWIGTYPE_p_PETScFEM__Domain swig_types[10]
+#define SWIGTYPE_p_PETScFEM__Elemset swig_types[11]
+#define SWIGTYPE_p_PETScFEM__Mesh swig_types[12]
+#define SWIGTYPE_p_PETScFEM__Object swig_types[13]
+#define SWIGTYPE_p_PETScFEM__Options swig_types[14]
+#define SWIGTYPE_p_PETScFEM__PTableTdouble_t swig_types[15]
+#define SWIGTYPE_p_PETScFEM__PTableTint_t swig_types[16]
+#define SWIGTYPE_p__p_Mat swig_types[17]
+#define SWIGTYPE_p__p_Vec swig_types[18]
+#define SWIGTYPE_p_allocator_type swig_types[19]
+#define SWIGTYPE_p_char swig_types[20]
+#define SWIGTYPE_p_difference_type swig_types[21]
+#define SWIGTYPE_p_double swig_types[22]
+#define SWIGTYPE_p_first_type swig_types[23]
+#define SWIGTYPE_p_int swig_types[24]
+#define SWIGTYPE_p_key_type swig_types[25]
+#define SWIGTYPE_p_mapped_type swig_types[26]
+#define SWIGTYPE_p_p__p_Mat swig_types[27]
+#define SWIGTYPE_p_p__p_Vec swig_types[28]
+#define SWIGTYPE_p_second_type swig_types[29]
+#define SWIGTYPE_p_size_type swig_types[30]
+#define SWIGTYPE_p_std__invalid_argument swig_types[31]
+#define SWIGTYPE_p_std__vectorTdouble_std__allocatorTdouble_t_t swig_types[32]
+#define SWIGTYPE_p_std__vectorTint_std__allocatorTint_t_t swig_types[33]
+#define SWIGTYPE_p_swig__PySwigIterator swig_types[34]
+#define SWIGTYPE_p_value_type swig_types[35]
+static swig_type_info *swig_types[37];
+static swig_module_info swig_module = {swig_types, 36, 0, 0, 0, 0};
 #define SWIG_TypeQuery(name) SWIG_TypeQueryModule(&swig_module, &swig_module, name)
 #define SWIG_MangledTypeQuery(name) SWIG_MangledTypeQueryModule(&swig_module, &swig_module, name)
 
@@ -3553,11 +3554,28 @@ _PyArray_TypeObjectFromType(int type)
 #define PyPF_FLOAT  PyArray_DOUBLE
 
 
-namespace numpy
-{
+namespace numpy {
+
   template<typename T> static char typechar() { return '\0'; }
   template<> static char typechar<int>()      { return  'i'; }
   template<> static char typechar<double>()   { return  'f'; }
+
+  template<typename T>
+  static PyObject* 
+  array_interface(const PF4PY_NAMESPACE::DTable<T>* self)
+  {
+    const std::pair<int,int>& shape = self->getShape();
+    const std::vector<T>&     data  = self->getArray();
+    void* array = const_cast<T*>(&data[0]); 
+    char endian = PyArray_NATIVE;
+    char kind   = typechar<T>();
+    int  elsize = sizeof(T);
+    return Py_BuildValue("{sNsNsNsN}",
+			 "shape",   Py_BuildValue("ii", shape.first, shape.second),
+			 "typestr", PyString_FromFormat("%c%c%d", endian, kind, elsize),
+			 "data",    Py_BuildValue("NO", PyLong_FromVoidPtr(array), Py_False),
+			 "version", PyInt_FromLong(3));
+  }
 }
 
 
@@ -5021,26 +5039,6 @@ namespace swig {
 	};
       }
     
-
-namespace numpy{
-  template<typename T>
-  static PyObject* 
-  array_interface(const PF4PY_NAMESPACE::DTable<T>* self)
-  {
-    const std::pair<int,int>& shape = self->getShape();
-    const std::vector<T>&     data  = self->getArray();
-    void* array = const_cast<T*>(&data[0]); 
-    char endian = PyArray_NATIVE;
-    char kind   = typechar<T>();
-    int  elsize = sizeof(T);
-    return Py_BuildValue("{sNsNsNsN}",
-			 "shape",   Py_BuildValue("ii", shape.first, shape.second),
-			 "typestr", PyString_FromFormat("%c%c%d", endian, kind, elsize),
-			 "data",    Py_BuildValue("NO", PyLong_FromVoidPtr(array), Py_False),
-			 "version", PyInt_FromLong(3));
-  }
-}
-
 
 #define PETScFEM_DTable_Sl_int_Sg____array_interface___get(_t) numpy::array_interface(_t)
 #define PETScFEM_DTable_Sl_int_Sg____array_interface___set(_t, _val) \
@@ -11038,6 +11036,121 @@ SWIGINTERN PyObject *AppNS_swiginit(PyObject *SWIGUNUSEDPARM(self), PyObject *ar
   return SWIG_Python_InitShadowInstance(args);
 }
 
+SWIGINTERN PyObject *_wrap_delete_AppAD(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
+  PyObject *resultobj = 0;
+  PETScFEM::AppAD *arg1 = (PETScFEM::AppAD *) 0 ;
+  void *argp1 = 0 ;
+  int res1 = 0 ;
+  PyObject *swig_obj[1] ;
+  
+  if (!args) SWIG_fail;
+  swig_obj[0] = args;
+  res1 = SWIG_ConvertPtr(swig_obj[0], &argp1,SWIGTYPE_p_PETScFEM__AppAD, SWIG_POINTER_DISOWN |  0 );
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "delete_AppAD" "', argument " "1"" of type '" "PETScFEM::AppAD *""'"); 
+  }
+  arg1 = reinterpret_cast< PETScFEM::AppAD * >(argp1);
+  {
+    try {
+      arg1->decref();
+    }
+    PF4PY_CATCH_DIRECTORS
+    PF4PY_CATCH_PETSCFEM
+    PF4PY_CATCH_STDEXC
+    PF4PY_CATCH_UNKNOWN
+  }
+  resultobj = SWIG_Py_Void();
+  return resultobj;
+fail:
+  return NULL;
+}
+
+
+SWIGINTERN PyObject *_wrap_new_AppAD__SWIG_0(PyObject *SWIGUNUSEDPARM(self), int nobjs, PyObject **swig_obj) {
+  PyObject *resultobj = 0;
+  PETScFEM::AppAD *arg1 = 0 ;
+  PETScFEM::AppAD *result = 0 ;
+  void *argp1 = 0 ;
+  int res1 = 0 ;
+  
+  if ((nobjs < 1) || (nobjs > 1)) SWIG_fail;
+  res1 = SWIG_ConvertPtr(swig_obj[0], &argp1, SWIGTYPE_p_PETScFEM__AppAD,  0  | 0);
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "new_AppAD" "', argument " "1"" of type '" "PETScFEM::AppAD const &""'"); 
+  }
+  if (!argp1) {
+    SWIG_exception_fail(SWIG_ValueError, "invalid null reference " "in method '" "new_AppAD" "', argument " "1"" of type '" "PETScFEM::AppAD const &""'"); 
+  }
+  arg1 = reinterpret_cast< PETScFEM::AppAD * >(argp1);
+  {
+    try {
+      result = (PETScFEM::AppAD *)new PETScFEM::AppAD((PETScFEM::AppAD const &)*arg1); 
+    }
+    PF4PY_CATCH_DIRECTORS
+    PF4PY_CATCH_PETSCFEM
+    PF4PY_CATCH_STDEXC
+    PF4PY_CATCH_UNKNOWN
+  }
+  resultobj = SWIG_NewPointerObj(SWIG_as_voidptr(result), SWIGTYPE_p_PETScFEM__AppAD, SWIG_POINTER_NEW |  0 );
+  result->incref();
+  return resultobj;
+fail:
+  return NULL;
+}
+
+
+SWIGINTERN PyObject *_wrap_new_AppAD__SWIG_1(PyObject *SWIGUNUSEDPARM(self), int nobjs, PyObject **SWIGUNUSEDPARM(swig_obj)) {
+  PyObject *resultobj = 0;
+  PETScFEM::AppAD *result = 0 ;
+  
+  if ((nobjs < 0) || (nobjs > 0)) SWIG_fail;
+  {
+    try {
+      result = (PETScFEM::AppAD *)new PETScFEM::AppAD(); 
+    }
+    PF4PY_CATCH_DIRECTORS
+    PF4PY_CATCH_PETSCFEM
+    PF4PY_CATCH_STDEXC
+    PF4PY_CATCH_UNKNOWN
+  }
+  resultobj = SWIG_NewPointerObj(SWIG_as_voidptr(result), SWIGTYPE_p_PETScFEM__AppAD, SWIG_POINTER_NEW |  0 );
+  result->incref();
+  return resultobj;
+fail:
+  return NULL;
+}
+
+
+SWIGINTERN PyObject *_wrap_new_AppAD(PyObject *self, PyObject *args) {
+  int argc;
+  PyObject *argv[2];
+  
+  if (!(argc = SWIG_Python_UnpackTuple(args,"new_AppAD",0,1,argv))) SWIG_fail;
+  --argc;
+  if (argc == 0) {
+    return _wrap_new_AppAD__SWIG_1(self, argc, argv);
+  }
+  if (argc == 1) {
+    return _wrap_new_AppAD__SWIG_0(self, argc, argv);
+  }
+  
+fail:
+  SWIG_SetErrorMsg(PyExc_NotImplementedError,"Wrong number of arguments for overloaded function 'new_AppAD'.\n  Possible C/C++ prototypes are:\n    PETScFEM::AppAD(PETScFEM::AppAD const &)\n    PETScFEM::AppAD()\n");
+  return NULL;
+}
+
+
+SWIGINTERN PyObject *AppAD_swigregister(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
+  PyObject *obj;
+  if (!SWIG_Python_UnpackTuple(args,(char*)"swigregister", 1, 1,&obj)) return NULL;
+  SWIG_TypeNewClientData(SWIGTYPE_p_PETScFEM__AppAD, SWIG_NewClientData(obj));
+  return SWIG_Py_Void();
+}
+
+SWIGINTERN PyObject *AppAD_swiginit(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
+  return SWIG_Python_InitShadowInstance(args);
+}
+
  
 #define PETScFEM_Domain_ndim_get(self) self->getNDim() 
 
@@ -13743,6 +13856,10 @@ static PyMethodDef SwigMethods[] = {
 	 { (char *)"new_AppNS", _wrap_new_AppNS, METH_VARARGS, NULL},
 	 { (char *)"AppNS_swigregister", AppNS_swigregister, METH_VARARGS, NULL},
 	 { (char *)"AppNS_swiginit", AppNS_swiginit, METH_VARARGS, NULL},
+	 { (char *)"delete_AppAD", (PyCFunction)_wrap_delete_AppAD, METH_O, NULL},
+	 { (char *)"new_AppAD", _wrap_new_AppAD, METH_VARARGS, NULL},
+	 { (char *)"AppAD_swigregister", AppAD_swigregister, METH_VARARGS, NULL},
+	 { (char *)"AppAD_swiginit", AppAD_swiginit, METH_VARARGS, NULL},
 	 { (char *)"delete_Domain", (PyCFunction)_wrap_delete_Domain, METH_O, NULL},
 	 { (char *)"new_Domain", _wrap_new_Domain, METH_VARARGS, NULL},
 	 { (char *)"Domain_getComm", (PyCFunction)_wrap_Domain_getComm, METH_O, NULL},
@@ -13806,6 +13923,9 @@ static void *_p_PETScFEM__PTableTint_tTo_p_PETScFEM__Object(void *x) {
 static void *_p_PETScFEM__PTableTdouble_tTo_p_PETScFEM__Object(void *x) {
     return (void *)((PETScFEM::Object *)  ((PETScFEM::PTable<double > *) x));
 }
+static void *_p_PETScFEM__AppADTo_p_PETScFEM__Object(void *x) {
+    return (void *)((PETScFEM::Object *) (PETScFEM::AppCtx *) ((PETScFEM::AppAD *) x));
+}
 static void *_p_PETScFEM__DomainTo_p_PETScFEM__Object(void *x) {
     return (void *)((PETScFEM::Object *)  ((PETScFEM::Domain *) x));
 }
@@ -13824,9 +13944,13 @@ static void *_p_PETScFEM__CommTo_p_MPI_Comm(void *x) {
 static void *_p_PETScFEM__AppNSTo_p_PETScFEM__AppCtx(void *x) {
     return (void *)((PETScFEM::AppCtx *)  ((PETScFEM::AppNS *) x));
 }
+static void *_p_PETScFEM__AppADTo_p_PETScFEM__AppCtx(void *x) {
+    return (void *)((PETScFEM::AppCtx *)  ((PETScFEM::AppAD *) x));
+}
 static swig_type_info _swigt__p_Impl = {"_p_Impl", "Impl *", 0, 0, (void*)0, 0};
 static swig_type_info _swigt__p_MPI_Comm = {"_p_MPI_Comm", "MPI_Comm *", 0, 0, (void*)0, 0};
 static swig_type_info _swigt__p_PETScFEM__Amplitude = {"_p_PETScFEM__Amplitude", "PETScFEM::Amplitude *", 0, 0, (void*)0, 0};
+static swig_type_info _swigt__p_PETScFEM__AppAD = {"_p_PETScFEM__AppAD", "PETScFEM::AppAD *", 0, 0, (void*)0, 0};
 static swig_type_info _swigt__p_PETScFEM__AppCtx = {"_p_PETScFEM__AppCtx", "PETScFEM::AppCtx *", 0, 0, (void*)0, 0};
 static swig_type_info _swigt__p_PETScFEM__AppNS = {"_p_PETScFEM__AppNS", "PETScFEM::AppNS *", 0, 0, (void*)0, 0};
 static swig_type_info _swigt__p_PETScFEM__Comm = {"_p_PETScFEM__Comm", "PETScFEM::Comm *", 0, 0, (void*)0, 0};
@@ -13864,6 +13988,7 @@ static swig_type_info *swig_type_initial[] = {
   &_swigt__p_Impl,
   &_swigt__p_MPI_Comm,
   &_swigt__p_PETScFEM__Amplitude,
+  &_swigt__p_PETScFEM__AppAD,
   &_swigt__p_PETScFEM__AppCtx,
   &_swigt__p_PETScFEM__AppNS,
   &_swigt__p_PETScFEM__Comm,
@@ -13901,7 +14026,8 @@ static swig_type_info *swig_type_initial[] = {
 static swig_cast_info _swigc__p_Impl[] = {  {&_swigt__p_Impl, 0, 0, 0},{0, 0, 0, 0}};
 static swig_cast_info _swigc__p_MPI_Comm[] = {  {&_swigt__p_MPI_Comm, 0, 0, 0},  {&_swigt__p_PETScFEM__Comm, _p_PETScFEM__CommTo_p_MPI_Comm, 0, 0},{0, 0, 0, 0}};
 static swig_cast_info _swigc__p_PETScFEM__Amplitude[] = {  {&_swigt__p_PETScFEM__Amplitude, 0, 0, 0},{0, 0, 0, 0}};
-static swig_cast_info _swigc__p_PETScFEM__AppCtx[] = {  {&_swigt__p_PETScFEM__AppCtx, 0, 0, 0},  {&_swigt__p_PETScFEM__AppNS, _p_PETScFEM__AppNSTo_p_PETScFEM__AppCtx, 0, 0},{0, 0, 0, 0}};
+static swig_cast_info _swigc__p_PETScFEM__AppAD[] = {  {&_swigt__p_PETScFEM__AppAD, 0, 0, 0},{0, 0, 0, 0}};
+static swig_cast_info _swigc__p_PETScFEM__AppCtx[] = {  {&_swigt__p_PETScFEM__AppCtx, 0, 0, 0},  {&_swigt__p_PETScFEM__AppNS, _p_PETScFEM__AppNSTo_p_PETScFEM__AppCtx, 0, 0},  {&_swigt__p_PETScFEM__AppAD, _p_PETScFEM__AppADTo_p_PETScFEM__AppCtx, 0, 0},{0, 0, 0, 0}};
 static swig_cast_info _swigc__p_PETScFEM__AppNS[] = {  {&_swigt__p_PETScFEM__AppNS, 0, 0, 0},{0, 0, 0, 0}};
 static swig_cast_info _swigc__p_PETScFEM__Comm[] = {  {&_swigt__p_PETScFEM__Comm, 0, 0, 0},{0, 0, 0, 0}};
 static swig_cast_info _swigc__p_PETScFEM__DTableTdouble_t[] = {  {&_swigt__p_PETScFEM__DTableTdouble_t, 0, 0, 0},{0, 0, 0, 0}};
@@ -13910,7 +14036,7 @@ static swig_cast_info _swigc__p_PETScFEM__Dofset[] = {  {&_swigt__p_PETScFEM__Do
 static swig_cast_info _swigc__p_PETScFEM__Domain[] = {  {&_swigt__p_PETScFEM__Domain, 0, 0, 0},{0, 0, 0, 0}};
 static swig_cast_info _swigc__p_PETScFEM__Elemset[] = {  {&_swigt__p_PETScFEM__Elemset, 0, 0, 0},{0, 0, 0, 0}};
 static swig_cast_info _swigc__p_PETScFEM__Mesh[] = {  {&_swigt__p_PETScFEM__Mesh, 0, 0, 0},{0, 0, 0, 0}};
-static swig_cast_info _swigc__p_PETScFEM__Object[] = {  {&_swigt__p_PETScFEM__AppCtx, _p_PETScFEM__AppCtxTo_p_PETScFEM__Object, 0, 0},  {&_swigt__p_PETScFEM__Amplitude, _p_PETScFEM__AmplitudeTo_p_PETScFEM__Object, 0, 0},  {&_swigt__p_PETScFEM__DTableTdouble_t, _p_PETScFEM__DTableTdouble_tTo_p_PETScFEM__Object, 0, 0},  {&_swigt__p_PETScFEM__PTableTdouble_t, _p_PETScFEM__PTableTdouble_tTo_p_PETScFEM__Object, 0, 0},  {&_swigt__p_PETScFEM__AppNS, _p_PETScFEM__AppNSTo_p_PETScFEM__Object, 0, 0},  {&_swigt__p_PETScFEM__Mesh, _p_PETScFEM__MeshTo_p_PETScFEM__Object, 0, 0},  {&_swigt__p_PETScFEM__Dofset, _p_PETScFEM__DofsetTo_p_PETScFEM__Object, 0, 0},  {&_swigt__p_PETScFEM__Object, 0, 0, 0},  {&_swigt__p_PETScFEM__DTableTint_t, _p_PETScFEM__DTableTint_tTo_p_PETScFEM__Object, 0, 0},  {&_swigt__p_PETScFEM__PTableTint_t, _p_PETScFEM__PTableTint_tTo_p_PETScFEM__Object, 0, 0},  {&_swigt__p_PETScFEM__Domain, _p_PETScFEM__DomainTo_p_PETScFEM__Object, 0, 0},  {&_swigt__p_PETScFEM__Options, _p_PETScFEM__OptionsTo_p_PETScFEM__Object, 0, 0},  {&_swigt__p_PETScFEM__Elemset, _p_PETScFEM__ElemsetTo_p_PETScFEM__Object, 0, 0},{0, 0, 0, 0}};
+static swig_cast_info _swigc__p_PETScFEM__Object[] = {  {&_swigt__p_PETScFEM__AppAD, _p_PETScFEM__AppADTo_p_PETScFEM__Object, 0, 0},  {&_swigt__p_PETScFEM__DTableTint_t, _p_PETScFEM__DTableTint_tTo_p_PETScFEM__Object, 0, 0},  {&_swigt__p_PETScFEM__PTableTint_t, _p_PETScFEM__PTableTint_tTo_p_PETScFEM__Object, 0, 0},  {&_swigt__p_PETScFEM__Amplitude, _p_PETScFEM__AmplitudeTo_p_PETScFEM__Object, 0, 0},  {&_swigt__p_PETScFEM__Elemset, _p_PETScFEM__ElemsetTo_p_PETScFEM__Object, 0, 0},  {&_swigt__p_PETScFEM__DTableTdouble_t, _p_PETScFEM__DTableTdouble_tTo_p_PETScFEM__Object, 0, 0},  {&_swigt__p_PETScFEM__PTableTdouble_t, _p_PETScFEM__PTableTdouble_tTo_p_PETScFEM__Object, 0, 0},  {&_swigt__p_PETScFEM__Domain, _p_PETScFEM__DomainTo_p_PETScFEM__Object, 0, 0},  {&_swigt__p_PETScFEM__Mesh, _p_PETScFEM__MeshTo_p_PETScFEM__Object, 0, 0},  {&_swigt__p_PETScFEM__AppNS, _p_PETScFEM__AppNSTo_p_PETScFEM__Object, 0, 0},  {&_swigt__p_PETScFEM__Options, _p_PETScFEM__OptionsTo_p_PETScFEM__Object, 0, 0},  {&_swigt__p_PETScFEM__Dofset, _p_PETScFEM__DofsetTo_p_PETScFEM__Object, 0, 0},  {&_swigt__p_PETScFEM__AppCtx, _p_PETScFEM__AppCtxTo_p_PETScFEM__Object, 0, 0},  {&_swigt__p_PETScFEM__Object, 0, 0, 0},{0, 0, 0, 0}};
 static swig_cast_info _swigc__p_PETScFEM__Options[] = {  {&_swigt__p_PETScFEM__Options, 0, 0, 0},{0, 0, 0, 0}};
 static swig_cast_info _swigc__p_PETScFEM__PTableTdouble_t[] = {  {&_swigt__p_PETScFEM__PTableTdouble_t, 0, 0, 0},{0, 0, 0, 0}};
 static swig_cast_info _swigc__p_PETScFEM__PTableTint_t[] = {  {&_swigt__p_PETScFEM__PTableTint_t, 0, 0, 0},{0, 0, 0, 0}};
@@ -13938,6 +14064,7 @@ static swig_cast_info *swig_cast_initial[] = {
   _swigc__p_Impl,
   _swigc__p_MPI_Comm,
   _swigc__p_PETScFEM__Amplitude,
+  _swigc__p_PETScFEM__AppAD,
   _swigc__p_PETScFEM__AppCtx,
   _swigc__p_PETScFEM__AppNS,
   _swigc__p_PETScFEM__Comm,

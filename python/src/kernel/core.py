@@ -658,6 +658,16 @@ class AppNS(AppCtx):
 AppNS_swigregister = _core.AppNS_swigregister
 AppNS_swigregister(AppNS)
 
+class AppAD(AppCtx):
+    """Proxy of C++ AppAD class"""
+    thisown = _swig_property(lambda x: x.this.own(), lambda x, v: x.this.own(v), doc='The membership flag')
+    __repr__ = _swig_repr
+    __swig_destroy__ = _core.delete_AppAD
+    def __init__(self, *args): 
+        _core.AppAD_swiginit(self,_core.new_AppAD(*args))
+AppAD_swigregister = _core.AppAD_swigregister
+AppAD_swigregister(AppAD)
+
 class Domain(Object):
     """Proxy of C++ Domain class"""
     thisown = _swig_property(lambda x: x.this.own(), lambda x, v: x.this.own(v), doc='The membership flag')

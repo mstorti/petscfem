@@ -6,6 +6,7 @@
 #include <fem.h>
 #include <dofmap.h>
 
+// ---------------------------------------------------------------- //
 
 PF4PY_NAMESPACE_BEGIN
 
@@ -71,10 +72,15 @@ AppCtx::assemble(const Domain* domain, const AppCtx::Args* args)
 
 PF4PY_NAMESPACE_END
 
-// the following is a vile hack to avoid residual uploading 
+// ---------------------------------------------------------------- //
+
+/* 
+   the following is a vile hack to avoid residual uploading 
+*/
+
 typedef void (*VecOp)(void);
 #define VECOP_SET_VALUES ((VecOperation)19)
-static PetscErrorCode setvals_empty
+static PetscErrorCode vec_setvals_empty
 (Vec vec,PetscInt n,const PetscInt i[],const PetscScalar v[],InsertMode addv)
 { return 0; }
 #undef __FUNCT__
@@ -83,9 +89,11 @@ static PetscErrorCode VecCreateEmpty(MPI_Comm comm, Vec *empty) {
   PetscErrorCode ierr;
   PetscFunctionBegin;
   ierr = VecCreateSeqWithArray(comm,0,PETSC_NULL,empty);CHKERRQ(ierr);
-  ierr = VecSetOperation(*empty,VECOP_SET_VALUES,(VecOp)setvals_empty);CHKERRQ(ierr);
+  ierr = VecSetOperation(*empty,VECOP_SET_VALUES,(VecOp)vec_setvals_empty);CHKERRQ(ierr);
   PetscFunctionReturn(0);
 }
+
+// ---------------------------------------------------------------- //
 
 #include "sttfilter.h"
 
@@ -113,184 +121,7 @@ struct State : public ::State {
 
 PF4PY_NAMESPACE_END
 
-#include <applications/ns/nsi_tet.h>
-
-PF4PY_NAMESPACE_BEGIN
-
-struct ArgsNS : public AppCtx::Args {
-  Time           tstar;
-  State          state1, state0;
-  vector<double> hmin;
-  WallData*      wall_data;
-  GlobParam      glob_param;
-  Vec            res, stt, dummy;
-  Mat            Jac;
-  //const char*    jobinfo;
-  std::string    jobinfo;
-
-  static const char COMP_PROFILE[];
-  static const char COMP_RES[];
-  static const char COMP_RES_JAC[];
-
-  ArgsNS() : Args(),
-	     tstar(), state1(), state0(),
-	     hmin(1), wall_data(NULL), glob_param(),
-	     res(PETSC_NULL), stt(PETSC_NULL), dummy(PETSC_NULL),
-	     Jac(PETSC_NULL),
-	     //jobinfo(NULL)
-	     jobinfo()
-  { }
-  ~ArgsNS() 
-  {
-    PF4PY_PETSC_DESTROY(VecDestroy, this->stt);
-    PF4PY_PETSC_DESTROY(VecDestroy, this->dummy);
-    PF4PY_DELETE_SCLR(this->wall_data);
-  }
-  
-  //const char* job()  const { return this->jobinfo; }
-  const char* job()  const { return this->jobinfo.c_str(); }
-  const Time* time() const { return &this->tstar;  }
-  
-  void pack(const std::string& jobname,
-	    double t1, Vec x1,
-	    double t0, Vec x0,
-	    Vec r, Mat J,
-	    double alpha, bool steady)
-  {
-    Args::Impl* argl = this->argl();
-
-    double Dt = t1 - t0;
-    if (Dt == 0.0) {
-      steady = true;
-      alpha = 1.0;
-      Dt = 1.0;
-    }
-
-    // clear arg list
-    argl->clear();
-
-    // tstart:  t^* = t^0 + alpha * (t^1 - t^0)
-    this->tstar.set(t0 + alpha * (t1-t0));
-
-    // add new state
-    this->state1.set(t1, x1);
-    argl->arg_add(&this->state1, IN_VECTOR | USE_TIME_DATA);
-
-    // add old state
-#if 0
-    if (x0 == PETSC_NULL) {
-      if (this->stt == PETSC_NULL) {
-	PF4PY_PETSC_CALL(VecDuplicate, (x1, &this->stt));
-      }
-      PF4PY_PETSC_CALL(VecCopy, (x1, this->stt));
-      this->state0.set(t0, this->stt);
-    } else {
-      this->state0.set(t0, x0);
-    }
-#else
-    this->state0.set(t0, (x0!=PETSC_NULL) ? x0 : x1);
-#endif
-    argl->arg_add(&this->state0, IN_VECTOR | USE_TIME_DATA);
-
-    // add residual vector and jacobian matrix
-    this->res = r;
-    this->Jac = J;
-    if (this->res == PETSC_NULL) {
-      if (this->dummy == PETSC_NULL) {
-	PF4PY_PETSC_CALL(VecCreateEmpty, (PETSC_COMM_SELF, &this->dummy));
-      }
-      argl->arg_add(&this->dummy, OUT_VECTOR);
-    } else {
-      argl->arg_add(&this->res, OUT_VECTOR);
-    }
-    if (this->Jac == PETSC_NULL) {
-      this->jobinfo = ArgsNS::COMP_RES;
-    } else {
-      argl->arg_add(&this->Jac, OUT_MATRIX);
-      this->jobinfo = ArgsNS::COMP_RES_JAC;
-    }
-
-    if (!jobname.empty()) {
-      this->jobinfo = std::string("comp_") + jobname;
-    }
-
-    // add hmin (XXX: What is this arg for???)
-    argl->arg_add(&this->hmin, VECTOR_MIN);
-    
-    // setup and add global parameters
-    this->glob_param.steady    = steady ? 1 : 0;
-    this->glob_param.alpha     = alpha;
-    this->glob_param.Dt        = Dt;
-    this->glob_param.inwt      = 0; // XXX: this is ok?
-    this->glob_param.state     = &this->state1;
-    this->glob_param.state_old = &this->state0;
-    argl->arg_add(&this->glob_param, USER_DATA);
-  
-    // add wall_data
-    argl->arg_add(this->wall_data, USER_DATA);
-  }
-  
-};
-
-const char ArgsNS::COMP_PROFILE[] = "comp_mat";
-const char ArgsNS::COMP_RES[]     = "comp_res";
-const char ArgsNS::COMP_RES_JAC[] = "comp_mat_res";
-
-PF4PY_NAMESPACE_END
-
-
-
-PF4PY_NAMESPACE_BEGIN
-
-AppNS::~AppNS()
-{ }
-
-AppNS::AppNS(const AppNS& ns)
-  : AppCtx(ns)
-{
-  this->args.reset(new ArgsNS);
-}
-
-AppNS::AppNS()
-  :  AppCtx()
-{ 
-  this->args.reset(new ArgsNS);
-}
-
-void
-AppNS::assemble(const Domain* domain,
-		const std::string& jobname,
-		double t, Vec x,
-		Vec r, Mat J) const
-{
-  ArgsNS* args = reinterpret_cast<ArgsNS*>(this->args.get());
-  args->pack(jobname, t, x, t, PETSC_NULL, r, J, 1.0, true);
-
-  AppCtx::assemble(domain, args);
-
-  if (r != PETSC_NULL) PF4PY_PETSC_CALL(VecScale, (r, -1));
-}
-
-void
-AppNS::assemble(const Domain* domain,
-		const std::string& jobname,
-		double t1, Vec x1,
-		double t0, Vec x0,
-		Vec r, Mat J, double alpha) const
-{
-  if (alpha == 0.0) 
-    throw Error("AppNX: invalid value, 'alpha' == 0.0");
-
-  ArgsNS* args = reinterpret_cast<ArgsNS*>(this->args.get());
-  args->pack(jobname, t1, x1, t0, x0, r, J, alpha, false);
-
-  AppCtx::assemble(domain, args);
-  
-  if (r != PETSC_NULL) PF4PY_PETSC_CALL(VecScale, (r, -1.0/alpha));
-}
-
-PF4PY_NAMESPACE_END
-
+// ---------------------------------------------------------------- //
 
 #include <pfmat.h>
 #include <pfptscmat.h>
@@ -358,7 +189,6 @@ struct AdjGraph : public StoreGraph {
   void scatter() {}
   void clear() { this->dmap.clear(); }
 };
-
 
 struct ProfileAdj : public Profile {
 
@@ -489,6 +319,172 @@ struct ProfileAdjSd : public Profile {
 
 PF4PY_NAMESPACE_END
 
+// ---------------------------------------------------------------- //
+
+
+#include <applications/ns/nsi_tet.h>
+
+PF4PY_NAMESPACE_BEGIN
+
+struct ArgsNS : public AppCtx::Args {
+  Time           tstar;
+  State          state1, state0;
+  vector<double> hmin;
+  WallData*      wall_data;
+  GlobParam      glob_param;
+  Vec            res, dummy_res;
+  Mat            Jac, dummy_Jac;
+  std::string    jobinfo;
+
+  static const char COMP_PROFILE[];
+  static const char COMP_RES[];
+  static const char COMP_RES_JAC[];
+
+  ArgsNS() : Args(),
+	     tstar(), state1(), state0(),
+	     hmin(1), wall_data(NULL), glob_param(),
+	     res(PETSC_NULL), dummy_res(PETSC_NULL),
+	     Jac(PETSC_NULL), dummy_Jac(PETSC_NULL),
+	     jobinfo()
+  { }
+  ~ArgsNS() 
+  {
+    PF4PY_DELETE_SCLR(this->wall_data);
+    PF4PY_PETSC_DESTROY(VecDestroy, this->dummy_res);
+    PF4PY_PETSC_DESTROY(MatDestroy, this->dummy_Jac);
+  }
+  
+  const char* job()  const { return this->jobinfo.c_str(); }
+  const Time* time() const { return &this->tstar;  }
+  
+  void pack(const std::string& jobname,
+	    double t1, Vec x1,
+	    double t0, Vec x0,
+	    Vec r, Mat J,
+	    double alpha, bool steady)
+  {
+    Args::Impl* argl = this->argl();
+
+    double Dt = t1 - t0;
+    if (Dt == 0.0) {
+      steady = true;
+      alpha = 1.0;
+      Dt = 1.0;
+    }
+
+    // clear arg list
+    argl->clear();
+
+    // tstart:  t^* = t^0 + alpha * (t^1 - t^0)
+    this->tstar.set(t0 + alpha * (t1-t0));
+
+    // add new state
+    this->state1.set(t1, x1);
+    argl->arg_add(&this->state1, IN_VECTOR | USE_TIME_DATA);
+
+    // add old state
+    this->state0.set(t0, (x0!=PETSC_NULL) ? x0 : x1);
+    argl->arg_add(&this->state0, IN_VECTOR | USE_TIME_DATA);
+
+    // add residual vector and jacobian matrix
+    this->res = r;
+    this->Jac = J;
+    if (this->res == PETSC_NULL) {
+      if (this->dummy_res == PETSC_NULL) 
+	PF4PY_PETSC_CALL(VecCreateEmpty, (PETSC_COMM_SELF, &this->dummy_res));
+      argl->arg_add(&this->dummy_res, OUT_VECTOR);
+    } else {
+      argl->arg_add(&this->res, OUT_VECTOR);
+    }
+    if (this->Jac == PETSC_NULL) {
+      this->jobinfo = ArgsNS::COMP_RES;
+    } else {
+      argl->arg_add(&this->Jac, OUT_MATRIX);
+      this->jobinfo = ArgsNS::COMP_RES_JAC;
+    }
+
+    if (!jobname.empty()) {
+      this->jobinfo = std::string("comp_") + jobname;
+    }
+
+    // add hmin (XXX: What is this arg for???)
+    argl->arg_add(&this->hmin, VECTOR_MIN);
+    
+    // setup and add global parameters
+    this->glob_param.steady    = steady ? 1 : 0;
+    this->glob_param.alpha     = alpha;
+    this->glob_param.Dt        = Dt;
+    this->glob_param.inwt      = 0; // XXX: this is ok?
+    this->glob_param.state     = &this->state1;
+    this->glob_param.state_old = &this->state0;
+    argl->arg_add(&this->glob_param, USER_DATA);
+  
+    // add wall_data
+    argl->arg_add(this->wall_data, USER_DATA);
+  }
+  
+};
+
+const char ArgsNS::COMP_PROFILE[] = "comp_mat";
+const char ArgsNS::COMP_RES[]     = "comp_res";
+const char ArgsNS::COMP_RES_JAC[] = "comp_mat_res";
+
+PF4PY_NAMESPACE_END
+
+
+
+PF4PY_NAMESPACE_BEGIN
+
+AppNS::~AppNS()
+{ }
+
+AppNS::AppNS(const AppNS& ns)
+  : AppCtx(ns)
+{
+  this->args.reset(new ArgsNS);
+}
+
+AppNS::AppNS()
+  :  AppCtx()
+{ 
+  this->args.reset(new ArgsNS);
+}
+
+void
+AppNS::assemble(const Domain* domain,
+		const std::string& jobname,
+		double t, Vec x,
+		Vec r, Mat J) const
+{
+  ArgsNS* args = reinterpret_cast<ArgsNS*>(this->args.get());
+  args->pack(jobname, t, x, t, PETSC_NULL, r, J, 1.0, true);
+
+  AppCtx::assemble(domain, args);
+
+  if (r != PETSC_NULL) PF4PY_PETSC_CALL(VecScale, (r, -1));
+}
+
+void
+AppNS::assemble(const Domain* domain,
+		const std::string& jobname,
+		double t1, Vec x1,
+		double t0, Vec x0,
+		Vec r, Mat J, double alpha) const
+{
+  if (alpha == 0.0) 
+    throw Error("AppNX: invalid value, 'alpha' == 0.0");
+
+  ArgsNS* args = reinterpret_cast<ArgsNS*>(this->args.get());
+  args->pack(jobname, t1, x1, t0, x0, r, J, alpha, false);
+
+  AppCtx::assemble(domain, args);
+  
+  if (r != PETSC_NULL) PF4PY_PETSC_CALL(VecScale, (r, -1.0/alpha));
+}
+
+PF4PY_NAMESPACE_END
+
+
 PF4PY_NAMESPACE_BEGIN
 
 bool
@@ -525,7 +521,6 @@ AppNS::profile(const Domain* domain,
   Dofset::Impl* dofmap = dofset;
   if (dofmap == NULL) throw Error("Domain: dofset not ready");
   
-  //Profile A(dofset, Profile::CSR);
   ProfileAdj A(dofset);
 
   ArgsNS* args = reinterpret_cast<ArgsNS*>(this->args.get());
@@ -544,46 +539,7 @@ AppNS::profile(const Domain* domain,
 PF4PY_NAMESPACE_END
 
 
-
-
-
-// --------------------------------------
-
-
-PF4PY_NAMESPACE_BEGIN
-
-class AppAD
-  : public AppCtx
-{
-private:
-  AppAD& operator=(const AppAD&);
-
-protected:
-  virtual bool sdgraph(const Domain* domain,
-		       std::vector<int>& dofs,
-		       std::vector<int>& xadj,
-		       std::vector<int>& adjncy) const;
-  virtual bool profile(const Domain* domain,
-		       std::vector<int>& xadj,
-		       std::vector<int>& adjncy) const;
-  virtual void assemble(const Domain* domain,
-			const std::string& jobname,
-			double t, Vec x, 
-			Vec r, Mat J) const;
-  virtual void assemble(const Domain* domain, 
-			const std::string& jobname,
-			double t1, Vec x1, 
-			double t0, Vec x0, 
-			Vec r, Mat J, double alpha) const;
-public:
-  ~AppAD();
-  AppAD(const AppAD& ad);
-  AppAD();
-
-};
-
-PF4PY_NAMESPACE_END
-
+// ---------------------------------------------------------------- //
 
 
 PF4PY_NAMESPACE_BEGIN
@@ -594,9 +550,8 @@ struct ArgsAD : public AppCtx::Args {
   vector<double> hmin;
   WallData*      wall_data;
   GlobParam      glob_param;
-  Vec            res, stt, dummy;
-  Mat            Jac;
-  //const char*    jobinfo;
+  Vec            res, dummy_res;
+  Mat            Jac, dummy_Jac;
   std::string    jobinfo;
 
   static const char COMP_PROFILE[];
@@ -606,19 +561,17 @@ struct ArgsAD : public AppCtx::Args {
   ArgsAD() : Args(),
 	     tstar(), state1(), state0(),
 	     hmin(1), wall_data(NULL), glob_param(),
-	     res(PETSC_NULL), stt(PETSC_NULL), dummy(PETSC_NULL),
-	     Jac(PETSC_NULL),
-	     //jobinfo(NULL)
+	     res(PETSC_NULL), dummy_res(PETSC_NULL),
+	     Jac(PETSC_NULL), dummy_Jac(PETSC_NULL),
 	     jobinfo()
   { }
   ~ArgsAD() 
   {
-    PF4PY_PETSC_DESTROY(VecDestroy, this->stt);
-    PF4PY_PETSC_DESTROY(VecDestroy, this->dummy);
+    PF4PY_PETSC_DESTROY(VecDestroy, this->dummy_res);
+    PF4PY_PETSC_DESTROY(MatDestroy, this->dummy_Jac);
     PF4PY_DELETE_SCLR(this->wall_data);
   }
   
-  //const char* job()  const { return this->jobinfo; }
   const char* job()  const { return this->jobinfo.c_str(); }
   const Time* time() const { return &this->tstar;  }
   
@@ -648,25 +601,16 @@ struct ArgsAD : public AppCtx::Args {
     argl->arg_add(&this->state1, IN_VECTOR | USE_TIME_DATA);
 
     // add old state
-    if (x0 == PETSC_NULL) {
-      if (this->stt == PETSC_NULL) {
-	PF4PY_PETSC_CALL(VecDuplicate, (x1, &this->stt));
-      }
-      PF4PY_PETSC_CALL(VecCopy, (x1, this->stt));
-      this->state0.set(t0, this->stt);
-    } else {
-      this->state0.set(t0, x1);
-    }
+    this->state0.set(t0, (x0!=PETSC_NULL) ? x0 : x1);
     argl->arg_add(&this->state0, IN_VECTOR | USE_TIME_DATA);
 
     // add residual vector and jacobian matrix
     this->res = r;
     this->Jac = J;
     if (this->res == PETSC_NULL) {
-      if (this->dummy == PETSC_NULL) {
-	PF4PY_PETSC_CALL(VecCreateEmpty, (PETSC_COMM_SELF, &this->dummy));
-      }
-      argl->arg_add(&this->dummy, OUT_VECTOR);
+      if (this->dummy_res == PETSC_NULL)
+	PF4PY_PETSC_CALL(VecCreateEmpty, (PETSC_COMM_SELF, &this->dummy_res));
+      argl->arg_add(&this->dummy_res, OUT_VECTOR);
     } else {
       argl->arg_add(&this->res, OUT_VECTOR);
     }
@@ -788,7 +732,6 @@ AppAD::profile(const Domain* domain,
   Dofset::Impl* dofmap = dofset;
   if (dofmap == NULL) throw Error("Domain: dofset not ready");
   
-  //Profile A(dofset, Profile::CSR);
   ProfileAdj A(dofset);
 
   ArgsAD* args = reinterpret_cast<ArgsAD*>(this->args.get());
@@ -805,3 +748,5 @@ AppAD::profile(const Domain* domain,
 }
 
 PF4PY_NAMESPACE_END
+
+// ---------------------------------------------------------------- //

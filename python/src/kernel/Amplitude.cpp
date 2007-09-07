@@ -71,14 +71,13 @@ Amplitude::~Amplitude()
 { }
 
 Amplitude::Amplitude(const Amplitude& a)
-  : kind(a.kind),
-    impl(new AmpProxy(this))
-    
+  : impl(new AmpProxy(this)),
+    kind(a.kind)
   { }
 
 Amplitude::Amplitude(Kind kind)
-  : kind(kind),
-    impl(new AmpProxy(this))
+  : impl(new AmpProxy(this)),
+    kind(kind)
 { }
 
 Amplitude&
