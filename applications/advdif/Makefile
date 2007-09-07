@@ -6,9 +6,10 @@
 PROG = advdif
 PETSCFEM_MODULE = Advective-Diffusive
 PETSCFEM_DIR   = ../..
-MYOBJS = 
 
-LIBOBJS = advdife.o advdifeo.o advdif.o ffadvfm2_old.o ffburg.o		\
+PROGOBJ = advdif.o
+
+LIBOBJS = advdifglb.o advdife.o advdifeo.o  ffadvfm2_old.o ffburg.o	\
 	ffswfm2t.o wallswt.o bccadvfm2.o bccadvfm2_old.o ffadvfm2.o	\
 	ffburg_old.o enthalpy.o genload.o linhff.o diff.o aquifer.o	\
 	stream.o blessf.o bubbly_full.o bubbly_asm.o advec.o compdate.o	\
@@ -16,6 +17,8 @@ LIBOBJS = advdife.o advdifeo.o advdif.o ffadvfm2_old.o ffburg.o		\
 	streamsw1d.o id.o gaschem.o nonlres.o fm2funm.o			\
 	bubbly_asm_mix.o lagmul.o advabso.o gasflwgth.o svenant1d.o	\
 	advpenal.o advdif_fsi.o absolay.o advdife-gcl.o
+
+MYOBJS = 
 
 .INTERMEDIATE: $(LIBOBJS) 
 

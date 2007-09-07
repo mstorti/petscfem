@@ -18,13 +18,14 @@
 
 static char help[] = "Basic finite element program.\n\n";
 
-GlobParam *GLOB_PARAM;
 
-int print_internal_loop_conv_g=0,
-  consistent_supg_matrix_g=0,
-  local_time_step_g=0,
-  comp_mat_each_time_step_g=0,
-  verify_jacobian_with_numerical_one;
+extern int print_internal_loop_conv_g;
+extern int consistent_supg_matrix_g;
+extern int  local_time_step_g;
+extern int  comp_mat_each_time_step_g;
+extern int  verify_jacobian_with_numerical_one;
+
+extern GlobParam *GLOB_PARAM;
 
 #define VECVIEW(name,label) \
 ierr = PetscViewerSetFormat(matlab, \

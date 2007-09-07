@@ -42,7 +42,7 @@
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 #undef __FUNC__
-#define __FUNC__ "bless_elemset"
+#define __FUNC__ "bless_elemset_advdif"
 void bless_elemset_advdif(char *type,Elemset *& elemset) {
   // General linear advective-diffusive system
     SET_ELEMSET_TYPE(advdif_advecfm2)

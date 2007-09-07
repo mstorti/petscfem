@@ -7,7 +7,9 @@ PROG = ns
 PETSCFEM_DIR   = ../..
 PETSCFEM_MODULE = Navier-Stokes
 
-LIBOBJS = ns.o nsitetlesfm2.o bccnsfm2.o wall.o nsvol.o walldata.o	\
+PROGOBJ = ns.o
+
+LIBOBJS = nsglb.o nsitetlesfm2.o bccnsfm2.o wall.o nsvol.o walldata.o	\
 	nsilesther.o bccnstherfm2.o nsikeps.o nsikepsrot.o		\
 	wallke.o nonlr.o lagmul.o nssup.o nssupg.o nssupr.o nsid.o	\
 	nsres.o adaptor.o elast.o adappg.o qharm.o qharmm.o		\
@@ -22,7 +24,7 @@ LIBOBJS = ns.o nsitetlesfm2.o bccnsfm2.o wall.o nsvol.o walldata.o	\
 	nsitetlesf.o nsitetlesfbf.o \
 	poiboltz.o
 
-MYOBJS = 
+MYOBJS =
 
 
 TAGFLAGS = $(TAGINCL)="../../src/TAGS"

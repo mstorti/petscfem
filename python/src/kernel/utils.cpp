@@ -34,6 +34,7 @@ metis_part(MPI_Comm comm, int nelemfat,Mesh *mesh,
 #undef  ICONE
 #define ICONE(j,k) (icone[nel*(j)+(k)]) 
 
+#if 0
 #undef  __FUNC__
 #define __FUNC__ "mesh_setup"
 int 
@@ -370,7 +371,7 @@ mesh_setup_old(MPI_Comm comm, Mesh* mesh,
 
   PetscFunctionReturn(0);
 }
-
+#endif
 
 
 #undef  __FUNC__
@@ -1064,7 +1065,6 @@ setup_mesh(MPI_Comm comm, ::Mesh* mesh,
   assert(mesh != NULL);
   GlobalVars gvars(comm, mesh->global_options, mesh, NULL);
   int ierr = ::mesh_setup(comm, mesh, nodepart, weights);
-  //int ierr = ::mesh_setup_old(comm, mesh, nodepart, weights);
   if (ierr) throw Error(ierr, "PETSc-FEM error in mesh setup");
 }
 

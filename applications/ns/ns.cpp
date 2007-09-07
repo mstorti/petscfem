@@ -21,8 +21,6 @@
 #include <applications/ns/nsi_tet.h>
 static char help[] = "PETSc-FEM Navier Stokes module\n\n";
 
-WallData wall_data;
-
 int fsi_main();
 int struct_main();
 int mmove_main();
@@ -33,19 +31,19 @@ int mmove_main();
     @return a pointer to the hook. */ 
 Hook *ns_hook_factory(const char *name);
 
-vector<double> data_pts;
-vector<ElemToPtr> elemset_pointer;
-
-//debug:=
-int TSTEP=0;
-int fractional_step;
-int reuse_mat;
-
 //-------<*>-------<*>-------<*>-------<*>-------<*>------- 
-#undef __FUNC__
-GlobParam *GLOB_PARAM;
 
-double FLUID_TIME; // needed for FSI-HOOKS
+
+extern vector<double>    data_pts;
+extern vector<ElemToPtr> elemset_pointer;
+
+extern int TSTEP;
+extern int fractional_step;
+extern int reuse_mat;
+extern double FLUID_TIME;
+
+extern WallData   wall_data;
+extern GlobParam* GLOB_PARAM;
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 
@@ -59,6 +57,7 @@ void bless_elemset(char *type,Elemset *& elemset) {
 }
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+#undef __FUNC__
 #define __FUNC__ "main"
 int main(int argc,char **args) {
 

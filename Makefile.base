@@ -373,10 +373,11 @@ $(PROG): $(PROG_bin)
 #	perl -pe 's/__DATE__/'`date date --iso-8601=seconds`'/' \
 #		< compdate.cppin > compdate.cpp
 
-$(PROG_BIN): $(MYOBJS) $(PROG_LIB) $(LIBPETSCFEM)
+$(PROG_BIN): $(MYOBJS) $(PROG_LIB) $(PROGOBJ) $(LIBPETSCFEM)
 	$(MAKE) -W compdate.cpp "$(PROG_LIB)(compdate.o)"
 	if [ -e $@ ] ; then rm $@ ; fi
-	${CXX_CLINKER} $(PROF_FLAGS) -o $@ $(MYOBJS) $(OTHER_OBJS) $(LDFLAGS)
+	${CXX_CLINKER} $(PROF_FLAGS) -o $@ $(PROGOBJ) $(MYOBJS) $(OTHER_OBJS) $(LDFLAGS)
+	rm $(PROGOBJ)
 
 $(LIBPETSCFEM)(%.o): force
 	$(MAKE) -C $(PETSCFEM_DIR)/src 'libpetscfem$(osfx).a($*.o)'
