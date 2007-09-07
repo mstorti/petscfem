@@ -26,7 +26,7 @@ export BOPT
 # `Makefile.defs' is included in the PETSc-FEM directory, copy it to
 # the directory _above_ the PETSC-FEM directory and configure the
 # variables inside.
-include $(PETSCFEM_DIR)/../Makefile.defs
+include $(PETSCFEM_DIR)/Makefile.defs
 # include ../Makefile.defs
 
 ######  end of CONGIGURATION VARIABLES section  ####################
@@ -50,36 +50,7 @@ GNU_C_COMPILER = gcc  # gcc or egcs
 
 export PETSCFEM_DIR
 
-ifeq ($(BOPT),g_c++)
-ifneq ($(PETSC_ARCH_G),)
-PETSC_ARCH = $(PETSC_ARCH_G)
-endif
-endif
-
-ifeq ($(BOPT),O_c++) 
-ifneq ($(PETSC_ARCH_O),)
-PETSC_ARCH=$(PETSC_ARCH_O)
-endif
-endif
-
-ifeq ($(PETSC_ARCH),)
-PETSC_ARCH=linux-gnu-$(BOPT)
-endif
-
-# ifeq ($(PETSC_DIR),)
-# $(error Not defined PETSC_DIR or PETSC_ROOT_DIR variables)
-# endif
-
-# ifeq ($(shell if [ ! -d $(PETSC_DIR) ] ; then echo ok ; fi),ok)
-# 	$(error Cannot find directory "$(PETSC_DIR)")
-# endif
-# ifeq ($(shell if [ ! -d $(PETSC_DIR)/bmake/$(PETSC_ARCH) ] ; then echo ok ; fi),ok)
-# 	$(error Cannot find directory $(PETSC_DIR)/lib/$(PETSC_ARCH)")
-# endif
-# ifeq ($(shell if [ ! -d $(PETSC_DIR)/lib/$(PETSC_ARCH) ] ; then echo ok ; fi),ok)
-# 	$(error Cannot find directory $(PETSC_DIR)/lib/$(PETSC_ARCH)")
-# endif
-export LD_LIBRARY_PATH=$(PETSC_DIR)/lib/$(PETSC_ARCH)
+#export LD_LIBRARY_PATH=$(PETSC_DIR)/lib/$(PETSC_ARCH):$(PETSC_DIR)/$(PETSC_ARCH)/lib
 
 
 ifeq ($(BOPT),O_c++) 
@@ -95,8 +66,7 @@ osfx =
 endif
 
 ifeq ($(GNUCXX),)
-GNUCXX = g++  # it can be also egcs++. You need to have compat-egcs and
-	      # compat-egcs++ installed
+GNUCXX = g++
 endif
 
 CFLAGS	         =
@@ -108,83 +78,115 @@ ifeq ($(TAGINCL),)
 TAGINCL = --etags-include
 endif
 
+## MPICH
+ifneq ($(MPI_DIR),)
+MPI_CPPFLAGS = -DMPICH_IGNORE_CXX_SEEK -I$(MPI_INC_DIR)
+MPI_LDFLAGS  = -Wl,-rpath,$(MPI_LIB_DIR) -L$(MPI_LIB_DIR) -l$(MPI_LIBNAME)
+endif
+
+## PETSc
+ifeq ($(BOPT),g_c++)
+ifneq ($(PETSC_ARCH_G),)
+PETSC_ARCH=$(PETSC_ARCH_G)
+endif
+endif
+ifeq ($(BOPT),O_c++) 
+ifneq ($(PETSC_ARCH_O),)
+PETSC_ARCH=$(PETSC_ARCH_O)
+endif
+endif
+ifeq ($(PETSC_ARCH),)
+PETSC_ARCH=linux-gnu-$(BOPT)
+endif
+ifneq ($(PETSC_DEV),)
+include ${PETSC_DIR}/conf/base
+else
 include ${PETSC_DIR}/bmake/common/base
+endif
 PACKAGES_INCLUDES = ${MPI_INCLUDE} ${X11_INCLUDE} ${BLASLAPACK_INCLUDE}
 PACKAGES_LIBS     = ${MPI_LIB} ${X11_LIB} ${BLASLAPACK_LIB}
 
-LIBRETTO_HOME     = $(LIBRETTO)
-LIBRETTO_INCLUDE  = $(LIBRETTO_HOME)/include
-LIBRETTO_LIB_DIR  = $(LIBRETTO_HOME)/lib
-LIBRETTO_CPPFLAGS = -I$(LIBRETTO_INCLUDE)
-LIBRETTO_LDFLAGS  = $(LIBRETTO_LIB_DIR)/libibretto.a
-#LIBRETTO_LDFLAGS  = -Wl,-path,$(LIBRETTO_LIB_DIR) -L$(LIBRETTO_LIB_DIR) -libretto
+PETSC_CPPFLAGS = ${PETSC_INCLUDE}
+PETSC_LDFLAGS  = ${PETSC_KSP_LIB}
 
-MESCHACH_HOME     = $(MESCHACH)
-MESCHACH_INCLUDE  = $(MESCHACH_HOME)
-MESCHACH_LIB_DIR  = $(MESCHACH_HOME)
-MESCHACH_CPPFLAGS = -I$(MESCHACH_INCLUDE)
-MESCHACH_LDFLAGS  = $(MESCHACH_LIB_DIR)/libmeschach.a
-#MESCHACH_LDFLAGS  = -L$(MESCHACH_LIB_DIR) -lmeschach
-
-NEWMAT_HOME     = $(NEWMAT)
-NEWMAT_INCLUDE  = $(NEWMAT_HOME)/src
-NEWMAT_LIB_DIR  = $(NEWMAT_HOME)/src
-NEWMAT_CPPFLAGS = -I$(NEWMAT_INCLUDE)
-NEWMAT_LDFLAGS  = $(NEWMAT_LIB_DIR)/libnewmat.a
-#NEWMAT_LDFLAGS  = -L$(NEWMAT_LIB_DIR) -lnewmat
-
-METIS_HOME     = $(METIS)
-METIS_INCLUDE  = $(METIS_HOME)/Lib
-METIS_LIB_DIR  = $(METIS_HOME)
-METIS_CPPFLAGS = -I$(METIS_INCLUDE)
-METIS_LDFLAGS  = $(METIS_LIB_DIR)/libmetis.a
-#METIS_LDFLAGS  = -L$(METIS_LIB_DIR) -lmetis
-
+## ANN
 ifneq ($(ANN),)
-ANN_HOME=$(ANN)
-ANN_INCLUDE  = $(ANN_HOME)/include
-ANN_LIB_DIR  = $(ANN_HOME)/lib
-ANN_CPPFLAGS = -DUSE_ANN -I$(ANN_INCLUDE)
-ANN_LDFLAGS  = $(ANN_LIB_DIR)/libANN.a
-#ANN_LDFLAGS  = -L$(ANN_LIB_DIR) -lANN
+ANN_CPPFLAGS = -DUSE_ANN -I$(ANN_INC_DIR)
+ANN_LDFLAGS  = $(ANN_LIB_DIR)/lib$(ANN_LIBNAME).a
+#ANN_LDFLAGS  = -L$(ANN_LIB_DIR) -l$(ANN_LIBNAME)
 endif
 
-ifneq ($(SUPERLU),)
-SUPERLU_HOME     = $(SUPERLU)
-SUPERLU_INCLUDE  = $(SUPERLU_HOME)/include
-SUPERLU_LIB_DIR  = $(SUPERLU_HOME)/lib
-SUPERLU_CPPFLAGS =  -DUSE_SUPERLU -I$(SUPERLU_INCLUDE)
-SUPERLU_LDFLAGS  = $(SUPERLU_LIB_DIR)/libsuperlu.a
-#SUPERLU_LDFLAGS  = -L$(SUPERLU_LIB_DIR) -lsuperlu
+## GLIB
+GLIB_CPPFLAGS = -I$(GLIB_INC_DIR) -I$(GLIB_INC_CFG)
+GLIB_LDFLAGS  = -Wl,-rpath,$(GLIB_LIB_DIR) -L$(GLIB_LIB_DIR) -l$(GLIB_LIBNAME)
+
+## LIBRETTO
+ifneq ($(LIBRETTO),)
+LIBRETTO_CPPFLAGS = -I$(LIBRETTO_INC_DIR)
+LIBRETTO_LDFLAGS  = $(LIBRETTO_LIB_DIR)/lib$(LIBRETTO_LIBNAME).a
+#LIBRETTO_LDFLAGS  = -Wl,-rpath,$(LIBRETTO_LIB_DIR) -L$(LIBRETTO_LIB_DIR) -l$(LIBRETTO_LIBNAME)
 endif
+
+## MESCHACH
+ifneq ($(MESCHACH),)
+MESCHACH_CPPFLAGS = -I$(MESCHACH_INC_DIR)
+MESCHACH_LDFLAGS  = $(MESCHACH_LIB_DIR)/lib$(MESCHACH_LIBNAME).a
+#MESCHACH_LDFLAGS  = -L$(MESCHACH_LIB_DIR) -l$(MESCHACH_LIBNAME)
+endif
+
+## METIS
+ifneq ($(METIS),)
+METIS_CPPFLAGS = -I$(METIS_INC_DIR)
+METIS_LDFLAGS  = $(METIS_LIB_DIR)/lib$(METIS_LIBNAME).a
+#METIS_LDFLAGS  = -L$(METIS_LIB_DIR) -l$(METIS_LIBNAME)
+endif
+
+## NEWMAT
+ifneq ($(NEWMAT),)
+NEWMAT_CPPFLAGS = -I$(NEWMAT_INC_DIR)
+NEWMAT_LDFLAGS  = $(NEWMAT_LIB_DIR)/lib$(NEWMAT_LIBNAME).a
+#NEWMAT_LDFLAGS  = -L$(NEWMAT_LIB_DIR) -l$(NEWMAT_LIBNAME)
+endif
+
+## SSL
+ifneq ($(SSL),)
+SSL_CPPFLAGS =  -DUSE_SSL -I$(SSL_INC_DIR)
+SSL_LDFLAGS  = $(SSL_LIB_DIR)/lib$(SSL_LIBNAME).a
+#SSL_LDFLAGS  = -L$(SSL_LIB_DIR) -lib$(SSL_LIBNAME)
+endif
+
+## SUPERLU
+ifneq ($(SUPERLU),)
+SUPERLU_CPPFLAGS =  -DUSE_SUPERLU -I$(SUPERLU_INC_DIR)
+SUPERLU_LDFLAGS  = $(SUPERLU_LIB_DIR)/lib$(SUPERLU_LIBNAME).a
+#SUPERLU_LDFLAGS  = -L$(SUPERLU_LIB_DIR) -lib$(SUPERLU_LIBNAME)
+endif
+
+
 
 # here goes -frepo if needed
-# CPPFLAGS         := -frepo $(PROF_FLAGS)
+# CPPFLAGS := -frepo $(PROF_FLAGS)
 
 CPPFLAGS := 					\
 	$(WARN_FLAGS)				\
 	$(PROF_FLAGS)        			\
-	-DMPICH_IGNORE_CXX_SEEK                 \
-	-I$(MPI_DIR)/include			\
-	-I$(PETSC_DIR)				\
-	-I$(PETSC_DIR)/include			\
-	-I$(PETSC_DIR)/bmake/$(PETSC_ARCH)	\
-	${BS_INCLUDE} -I$(GLIB)			\
+	$(MPI_CPPFLAGS)				\
+	$(PETSC_CPPFLAGS)			\
 	-I$(PETSCFEM_DIR) 			\
+	$(GLIB_CPPFLAGS)		        \
 	$(LIBRETTO_CPPFLAGS)			\
 	$(MESCHACH_CPPFLAGS)	        	\
 	$(NEWMAT_CPPFLAGS)	        	\
 	$(METIS_CPPFLAGS)			\
 	$(ANN_CPPFLAGS)			        \
-	$(SUPERLU_CPPFLAGS)
+	$(SSL_CPPFLAGS)				\
+	$(SUPERLU_CPPFLAGS)			\
 
 ifeq ($(USE_DYNAMICALLY_LOADED_EXTENDED_FUNCTIONS),yes) 
 CPPFLAGS += -DUSE_DLEF
 endif
 
 ifneq ($(SSL),)
-CPPFLAGS += -DUSE_SSL -I$(SSL)
-SSL_LDFLAGS := $(SSL)/simpleskts.a
 ifeq ($(USE_DX),)
 USE_DX := yes
 endif
@@ -311,7 +313,7 @@ distclean:
 	for dir in $(CLEAN_DIRS) ; do $(MAKE) -C $$dir distclean  ; done
 
 ## PETSc Libraries used by most PETSc-FEM applications
-PETSCFEM_PETSC_LIBS := ${PETSC_KSP_LIB}
+#PETSCFEM_PETSC_LIBS := ${PETSC_KSP_LIB}
 
 LD_LIBRARY_PATH += -Wl,-rpath -Wl,$(MPI_DIR)/lib
 MPI_LDFLAGS := -lmpichcxx -lmpich -lpthread -lrt
@@ -322,32 +324,33 @@ LDFLAGS = -Wl,-E,-rpath,$(LD_LIBRARY_PATH)	\
 	  -L$(PETSCFEM_DIR)/src			\
 	  -lpetscfem$(osfx)   			\
           $(PROG_LIB)				\
-          -lpetscfem$(osfx)			\
-	  -L/usr/local/lib -lglib               \
-          -lc ${PETSCFEM_PETSC_LIBS}		\
+          -lpetscfem$(osfx) -lc			\
+	  $(MPI_LDFLAGS)			\
+          $(ANN_LDFLAGS) 			\
+          $(GLIB_LDFLAGS)			\
 	  $(LIBRETTO_LDFLAGS)  			\
           $(MESCHACH_LDFLAGS)			\
-          $(NEWMAT_LDFLAGS)			\
           $(METIS_LDFLAGS) 			\
-          $(ANN_LDFLAGS) 			\
+          $(NEWMAT_LDFLAGS)			\
+          $(SSL_LDFLAGS) 			\
           $(SUPERLU_LDFLAGS) 			\
 	  $(SSL_LDFLAGS)			\
+	  $(PETSC_LDFLAGS)			\
           $(MPI_LDFLAGS) 			\
 
 LDFLAGS_NO_PROG_LIB =					\
 	  $(PTHREADS_LIB)				\
-	  -L$(PETSCFEM_DIR)/src	 -lpetscfem$(osfx)	\
-          -L/usr/local/lib -lglib  			\
+	  -L$(PETSCFEM_DIR)/src	-lpetscfem$(osfx) -lc	\
+          $(ANN_LDFLAGS)				\
+          $(GLIB_LDFLAGS)				\
           $(LIBRETTO_LDFLAGS)				\
 	  $(MESCHACH_LDFLAGS)				\
-	  $(NEWMAT_LDFLAGS)				\
           $(METIS_LDFLAGS)				\
-          $(ANN_LDFLAGS)				\
-          $(SUPERLU_LDFLAGS)				\
-          -lc ${PETSCFEM_PETSC_LIBS}			\
+	  $(NEWMAT_LDFLAGS)				\
 	  $(SSL_LDFLAGS)				\
+          $(SUPERLU_LDFLAGS)				\
+	  $(PETSC_LDFLAGS)				\
           $(MPI_LDFLAGS)                                \
-	  -Wl,-rpath,$(LD_LIBRARY_PATH)			\
 
 EFN_LDFLAGS =	
 

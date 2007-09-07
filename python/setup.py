@@ -28,14 +28,14 @@ metadata = {
     'name'             : name,
     'version'          : version,
     'author'           : 'Lisandro Dalcin',
-    'author_email'     : 'dalcinl@users.sourceforge.net',
-    'url'              : 'http://www.cimec.org.ar/python',
+    'author_email'     : 'dalcinl@gmail.com',
+    'url'              : 'http://www.cimec.org.ar/petscfem',
     'classifiers'      : [c for c in classifiers.split('\n') if c],
     'keywords'         : [k for k in keywords.split('\n')    if k],
     'license'          : 'Public Domain',
     'platforms'        : ['POSIX'],
     'maintainer'       : 'Lisandro Dalcin',
-    'maintainer_email' : 'dalcinl@users.sourceforge.net',
+    'maintainer_email' : 'dalcinl@dalcinl.com',
     }
 
 # --------------------------------------------------------------------
@@ -48,15 +48,15 @@ MPI_DIR      = env.get('MPI_DIR')    or '/usr/local/mpich2/1.0.5'
 PETSC_DIR    = env.get('PETSC_DIR')  or '/usr/local/petsc/2.3.3'
 PETSC_ARCH   = env.get('PETSC_ARCH') or 'linux-gnu'
 PETSCFEM_DIR = env.get('PETSCFEM_DIR') or abspath('..')
-SOFT         = abspath(join(PETSCFEM_DIR, '..', 'SOFT'))
+PF_PKG_DIR   = abspath(join(PETSCFEM_DIR, '..', 'petscfem-packages'))
 
-GLIB1    = '/usr/lib/glib/include'
-GLIB2    = '/usr/include/glib-1.2'
-LIBRETTO = join(SOFT, 'libretto-2.1')
-NEWMAT   = join(SOFT, 'newmat-1.0')
-MESCHACH = join(SOFT, 'meschach-1.2')
-METIS    = join(SOFT, 'metis-4.0')
-ANN      = join(SOFT, 'ann-1.1.1')
+ANN      = PF_PKG_DIR
+LIBRETTO = PF_PKG_DIR
+MESCHACH = PF_PKG_DIR
+NEWMAT   = PF_PKG_DIR
+METIS    = PF_PKG_DIR
+GLIB     = '/usr/include/glib-2.0'
+GLIBCFG  = '/usr/lib/glib-2.0/include'
 
 
 BOPT = env.get('BOPT') or 'g'
@@ -79,13 +79,15 @@ config = {
                       ('USE_ANN', None),
                        ],
     'include_dirs' : [join(MPI_DIR, 'include'),
+                      join(PETSC_DIR, PETSC_ARCH, 'include'),
                       join(PETSC_DIR, 'bmake', PETSC_ARCH),
                       join(PETSC_DIR, 'include'),
-                      join(LIBRETTO, 'include'),
-                      join(NEWMAT, 'src'),
-                      join(ANN, 'include'),
-                      GLIB1, GLIB2,
-                      MESCHACH, METIS,
+                      join(ANN,       'include'),
+                      join(LIBRETTO,  'include'),
+                      join(NEWMAT,    'include/newmat'),
+                      join(MESCHACH,  'include/meschach'),
+                      join(METIS,     'include/metis'),
+                      GLIB, GLIBCFG,
                       ],
     
     'libraries'    : ['mpich',
@@ -100,11 +102,13 @@ config = {
     
     'library_dirs' : [join(MPI_DIR, 'lib'),
                       join(PETSC_DIR, 'lib'),
+                      join(PETSC_DIR, PETSC_ARCH, 'lib'),
                       join(PETSC_DIR, 'lib', PETSC_ARCH),
+                      join(ANN,      'lib'),
                       join(LIBRETTO, 'lib'),
-                      join(ANN, 'lib'),
-                      join(NEWMAT, 'src'),
-                      MESCHACH, METIS,
+                      join(NEWMAT,   'lib'),
+                      join(MESCHACH, 'lib'),
+                      join(METIS,    'lib'),
                       ],
     'runtime_library_dirs' : []
     }
