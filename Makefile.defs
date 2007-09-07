@@ -56,7 +56,7 @@ NEWMAT_INC_DIR = $(NEWMAT)/include/newmat
 NEWMAT_LIB_DIR = $(NEWMAT)/lib
 NEWMAT_LIBNAME = newmat
 
-SSL_INC_DIR = $(SSL)/include/SSL
+SSL_INC_DIR = $(SSL)/include
 SSL_LIB_DIR = $(SSL)/lib
 SSL_LIBNAME = simpleskts
 

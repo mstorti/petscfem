@@ -7,7 +7,7 @@
 
 #include "libretto.h"
 #ifdef USE_SSL
-#include <HDR/sockets.h>
+#include <SSL/sockets.h>
 #endif
 #include <glib.h>
 

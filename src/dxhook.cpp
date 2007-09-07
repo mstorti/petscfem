@@ -17,7 +17,7 @@
 #ifdef USE_SSL
 
 #include <src/sockbuff.h>
-#include <HDR/sockets.h>
+#include <SSL/sockets.h>
 
 // I didn't found a definition for this
 #ifndef IPPORT_MAX

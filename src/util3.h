@@ -5,7 +5,7 @@
 #define PETSCFEM_UTIL3_H
 #include <string>
 #ifdef USE_SSL
-#include <HDR/sockets.h>
+#include <SSL/sockets.h>
 #endif
 
 using namespace std;

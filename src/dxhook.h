@@ -9,7 +9,7 @@
 #include <pthread.h>
 #endif
 #ifdef USE_SSL
-#include <HDR/sockets.h>
+#include <SSL/sockets.h>
 #endif
 #include <src/dvector.h>
 
