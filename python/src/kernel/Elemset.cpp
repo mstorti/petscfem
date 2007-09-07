@@ -5,6 +5,21 @@
 #include <fem.h>
 #include <readmesh.h>
 
+void bless_elemset0(char *,Elemset *&);
+void bless_elemset_ns(char *,Elemset *&);
+//void bless_elemset_advdif(char *,Elemset *&);
+
+void 
+bless_elemset(char *type,Elemset *& elemset) {
+  elemset=NULL;
+  bless_elemset0(type,elemset);
+  if (elemset) return;
+  bless_elemset_ns(type, elemset);
+  if (elemset) return;
+  //bless_elemset_advdif(type, elemset);
+}
+
+
 PF4PY_NAMESPACE_BEGIN
 static ::Elemset*
 create(const std::string& type)

@@ -48,6 +48,17 @@ GlobParam *GLOB_PARAM;
 double FLUID_TIME; // needed for FSI-HOOKS
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+
+void bless_elemset_ns(char*, Elemset *&);
+
+void bless_elemset(char *type,Elemset *& elemset) {
+  elemset=NULL;
+  bless_elemset0(type,elemset);
+  if (elemset) return;
+  bless_elemset_ns(type, elemset);
+}
+
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 #define __FUNC__ "main"
 int main(int argc,char **args) {
 

@@ -43,11 +43,8 @@
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 #undef __FUNC__
 #define __FUNC__ "bless_elemset"
-void bless_elemset(char *type,Elemset *& elemset) {
-  elemset=NULL;
-  bless_elemset0(type,elemset);
-  if (elemset) return;
-    // General linear advective-diffusive system
+void bless_elemset_advdif(char *type,Elemset *& elemset) {
+  // General linear advective-diffusive system
     SET_ELEMSET_TYPE(advdif_advecfm2)
     SET_ELEMSET_TYPE(bcconv_adv_advecfm2)
     // new version
@@ -106,7 +103,6 @@ void bless_elemset(char *type,Elemset *& elemset) {
     SET_ELEMSET_TYPE(dl_penalize)
 
     {
-      // PETSCFEM_ERROR("not known elemset type: \"%s\"\n",type);
       elemset=NULL;
     }
 }

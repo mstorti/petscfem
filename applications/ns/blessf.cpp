@@ -49,11 +49,8 @@
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:
 #undef __FUNC__
-#define __FUNC__ "bless_elemset"
-void bless_elemset(char *type,Elemset *& elemset) {
-  elemset=NULL;
-  bless_elemset0(type,elemset);
-  if (elemset) return;
+#define __FUNC__ "bless_elemset_ns"
+void bless_elemset_ns(char *type,Elemset *& elemset) {
   //  SET_ELEMSET_TYPE(internal)
   //    SET_ELEMSET_TYPE(fracstep) Por ahora lo desactivamos hasta que
   // hagamos la interfase
@@ -128,7 +125,6 @@ void bless_elemset(char *type,Elemset *& elemset) {
     SET_ELEMSET_TYPE(poisson_boltzmann)
 
     {
-      // PETSCFEM_ERROR("not known elemset type: \"%s\"\n",type);
       elemset=NULL;
     }
 }

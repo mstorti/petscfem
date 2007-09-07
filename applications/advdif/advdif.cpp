@@ -42,6 +42,17 @@ int fsi_main();
 Hook *advdif_hook_factory(const char *name);
 
 //-------<*>-------<*>-------<*>-------<*>-------<*>------- 
+
+void bless_elemset_advdif(char*, Elemset *&);
+
+void bless_elemset(char *type,Elemset *& elemset) {
+  elemset=NULL;
+  bless_elemset0(type,elemset);
+  if (elemset) return;
+  bless_elemset_advdif(type, elemset);
+}
+
+//-------<*>-------<*>-------<*>-------<*>-------<*>------- 
 #undef __FUNC__
 #define __FUNC__ "main"
 int main(int argc,char **args) {
