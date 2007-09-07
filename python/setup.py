@@ -120,17 +120,16 @@ def ext_modules(Extension):
     PETSCFEM_DIR = abspath('..')
     PETSCFEM_INCLUDE = [PETSCFEM_DIR, join(PETSCFEM_DIR, 'src')] \
                        + config['include_dirs']
-
-    if BOPT in ('g', 'g_c++'):
-        PETSCFEM_LIBRARY = ['ns_g', 'petscfem_g'] * 2
-    elif BOPT in ('O',  'O_c++'):
-        PETSCFEM_LIBRARY = ['ns_O', 'petscfem_O'] * 2
-    else:
-        raise SystemExit('invalid BOPT: %s' % BOPT)
+    if BOPT[0] not in ('g', 'O'): raise SystemExit('invalid BOPT: %s' % BOPT)
+    osfx = '_%s' % BOPT[0]
+    PETSCFEM_LIBRARY = ['ns'       + osfx,
+                        'advdif'   + osfx,
+                        'petscfem' + osfx, ] #* 2
     PETSCFEM_LIBRARY +=  config['libraries']
     PETSCFEM_LIBDIR = [join(PETSCFEM_DIR, 'src'),
-                       join(PETSCFEM_DIR, 'applications/ns') ] \
-                            + config['library_dirs']
+                       join(PETSCFEM_DIR, 'applications/ns'),
+                       join(PETSCFEM_DIR, 'applications/advdif'),
+                       ] + config['library_dirs']
     PETSCFEM_RT_LIBDIR = PETSCFEM_LIBDIR \
                           + config['runtime_library_dirs']
     

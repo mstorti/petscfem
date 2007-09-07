@@ -722,9 +722,9 @@ dofmap_solve(Dofset::Impl* dofmap,
 
   assert(state    != NULL);
   assert(solution != NULL);
-  int nnod = dofmap->nnod;
-  int ndof = dofmap->ndof;
-  int nrow = nnod*ndof;
+  //int nnod = dofmap->nnod;
+  //int ndof = dofmap->ndof;
+  //int nrow = nnod*ndof;
   int ncol = dofmap->neqtot;
 
   PetscFunctionBegin;
@@ -874,7 +874,7 @@ dofmap_apply(Dofset::Impl* dofmap,
   assert(u != NULL);
   int nnod = dofmap->nnod;
   int ndof = dofmap->ndof;
-  int neq  = dofmap->neq;
+  //int neq  = dofmap->neq;
   Time time; time.set(t);
   for (int i=0; i<nnod; i++)
     for (int j=0; j<ndof; j++)
