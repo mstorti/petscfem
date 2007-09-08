@@ -25,32 +25,18 @@ class SEqSys:
     STRUCTURE = PETSc.Mat.Structure.SAME_NONZERO_PATTERN
 
     def __init__(self):
-        self._skip_res = False
+        pass
 
     def computeResidual(self, snes, x, R):
+        domain = snes.getAppCtx()
         R.zeroEntries()
-        if self._skip_res:
-            self._skip_res = False
-            return
-        J, P, _ = snes.getJacobian()
-        mffd = J.getType() == PETSc.Mat.Type.MFFD
-        domain = snes.getApplicationContext()
-        if mffd:
-            domain.assemble(0.0, x, R, None)
-        else:
-            J.zeroEntries()
-            domain.assemble(0.0, x, R, J)
+        domain.assemble(0.0, x, R, None)
         
     def computeJacobian(self, snes, x, J, P):
-        if snes.its == snes.max_it - 1:
-            self._skip_res = True
-        J, P, _ = snes.getJacobian()
-        mffd = J.getType() == PETSc.Mat.Type.MFFD
-        domain = snes.getApplicationContext()
-        if mffd:
-            P.zeroEntries()
-            domain.assemble(0.0, x, None, P)
-            J.assemble()
+        domain = snes.getAppCtx()
+        P.zeroEntries()
+        domain.assemble(0.0, x, None, P)
+        if J != P: J.assemble()
         return self.STRUCTURE
 
 

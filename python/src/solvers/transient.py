@@ -35,34 +35,19 @@ class TEqSys:
         self._skip_res = False
     
     def computeResidual(self, ts, t, u, R):
-        R.zeroEntries()
-        if self._skip_res:
-            self._skip_res = False
-            return
         t0 = t - ts.getTimeStep()
         u0 = ts.getSolution()
-        J, P, _ = ts.getJacobian()
-        mffd = J.getType() == PETSc.Mat.Type.MFFD
-        domain = ts.getApplicationContext()
-        if mffd:
-            domain.assemble(t, u, t0, u0, R, None, self.alpha)
-        else:
-            J.zeroEntries()
-            domain.assemble(t, u, t0, u0, R, J, self.alpha)
+        domain = ts.getAppCtx()
+        R.zeroEntries()
+        domain.assemble(t, u, t0, u0, R, None, self.alpha)
         
     def computeJacobian(self, ts, t, u, J, P):
-        snes = ts.getSNES()
-        if snes.its == snes.max_it - 1:
-            self._skip_res = True
         t0 = t - ts.getTimeStep()
         u0 = ts.getSolution()
-        J, P, _ = snes.getJacobian()
-        mffd = J.getType() == PETSc.Mat.Type.MFFD
-        domain = ts.getApplicationContext()
-        if mffd:
-            P.zeroEntries()
-            domain.assemble(t, u, t0, u0, None, P, self.alpha)
-            J.assemble()
+        domain = ts.getAppCtx()
+        P.zeroEntries()
+        domain.assemble(t, u, t0, u0, None, P, self.alpha)
+        if J != P: J.assemble()
         return self.STRUCTURE
 
 
@@ -91,11 +76,11 @@ class TransientSolver:
         self.ts.setSolution(self.state)
         self.ts.setFunction(self.eqsys.computeResidual, self.residual)
         self.ts.setJacobian(self.eqsys.computeJacobian, self.jacobian)
-        self.ts.setApplicationContext(domain)
+        self.ts.setAppCtx(domain)
         
     def run(self, u0=None):
         from numpy import asarray
-        domain = self.ts.getApplicationContext()
+        domain = self.ts.getAppCtx()
         # build initial solution
         if u0 is not None:
             u0 = asarray(u0, dtype=PETSc.Scalar)
