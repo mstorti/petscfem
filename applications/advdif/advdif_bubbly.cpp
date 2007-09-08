@@ -16,8 +16,6 @@
 
 #include <time.h>
 
-extern GlobParam *GLOB_PARAM;
-
 static char help[] = "Basic finite element program.\n\n";
 
 extern int print_internal_loop_conv_g,

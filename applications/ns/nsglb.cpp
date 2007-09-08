@@ -24,5 +24,4 @@ int reuse_mat       = 0;
 
 double FLUID_TIME=0;
 
-WallData   wall_data;
-GlobParam *GLOB_PARAM=0;
+WallData wall_data;

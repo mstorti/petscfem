@@ -12,7 +12,7 @@ State & State::axpy(double alpha,const State &v) {
   return *this;
 }
 
-
+
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 #undef __FUNC__
 #define __FUNC__ "State::State(const State &v)"

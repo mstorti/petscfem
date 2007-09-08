@@ -195,4 +195,29 @@ public:
 		  set<int> & node_list);
 };
 
+// Global Parameters struct passed to NS and Adv-Diff
+struct GlobParam {
+  /// if set to one then Dt=infty
+  int steady;
+  /// trapezoidal temporal integarion rule parameter
+  double alpha;
+  /// time step
+  double Dt;
+  /// Newton iteration
+  int inwt;
+  /// Current time
+  TimeData *time;
+  /// State vectors;
+  Vec x,xold;
+  // States
+  State *state,*state_old;
+  /// Constructor
+  GlobParam() 
+    : steady(0), alpha(0), Dt(1.), inwt(0),
+      time(0), x(0), xold(0), state(0), state_old(0)
+  {}
+};
+
+extern GlobParam *GLOB_PARAM;
+
 #endif

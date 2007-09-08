@@ -141,3 +141,6 @@ void LPFilterGroup::update(Time time) {
     }
   }
 }  
+
+GlobParam *GLOB_PARAM=0;
+

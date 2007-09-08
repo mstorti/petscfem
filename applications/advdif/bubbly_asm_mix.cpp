@@ -10,6 +10,7 @@
 #include <src/fem.h>
 #include <src/texthash.h>
 #include <src/getprop.h>
+#include <src/sttfilter.h>
 
 #include "bubbly_asm_mix.h"
 
@@ -32,8 +33,6 @@ public:
 */
 
 extern const char * jobinfo_fields;
-
-extern GlobParam *GLOB_PARAM;
 
 int bubbly::ask(const char *jobinfo,int &skip_elemset) {
 

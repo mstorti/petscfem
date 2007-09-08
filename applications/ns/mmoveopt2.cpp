@@ -15,8 +15,6 @@
 #include "adaptor.h"
 #include "mmoveopt2.h"
 
-extern GlobParam *GLOB_PARAM;
-
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 void mesh_move_opt2::init() {
 

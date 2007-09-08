@@ -21,8 +21,6 @@ public:
 
 extern const char * jobinfo_fields;
 
-extern GlobParam *GLOB_PARAM;
-
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:
 void bubbly_ff::start_chunk(int &ret_options) {
   int ierr;

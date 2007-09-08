@@ -35,13 +35,9 @@ extern vector<ElemToPtr> elemset_pointer;
 extern int TSTEP;
 extern int fractional_step;
 extern int reuse_mat;
-
-
-//-------<*>-------<*>-------<*>-------<*>-------<*>------- 
-#undef __FUNC__
-extern GlobParam *GLOB_PARAM;
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+#undef __FUNC__
 #define __FUNC__ "struct_main"
 int struct_main() {
 

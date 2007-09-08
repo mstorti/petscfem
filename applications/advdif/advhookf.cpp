@@ -8,8 +8,6 @@
 #include <src/dxhook.h>
 #include "./advective.h"
 
-extern GlobParam *GLOB_PARAM;
-
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 class advdif_dx_hook : public dx_hook {
   Vec state() { return GLOB_PARAM->x; }

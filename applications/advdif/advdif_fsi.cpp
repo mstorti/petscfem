@@ -18,14 +18,6 @@
 
 static char help[] = "Basic finite element program.\n\n";
 
-extern GlobParam *GLOB_PARAM;
-/*
-extern int print_internal_loop_conv_g=0,
-  consistent_supg_matrix_g=0,
-  local_time_step_g=0,
-  comp_mat_each_time_step_g=0,
-  verify_jacobian_with_numerical_one;
-*/
 extern int print_internal_loop_conv_g,
   consistent_supg_matrix_g,
   local_time_step_g,

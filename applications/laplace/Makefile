@@ -6,7 +6,8 @@
 PROG = laplace
 PETSCFEM_DIR   = ../..
 
-LIBOBJS = genload.o lapla.o laplace.o compdate.o
+PROGOBJ = laplace.o
+LIBOBJS = genload.o lapla.o compdate.o
 MYOBJS = 
 SRCS := $(MYOBJS:.o=.cpp) $(LIBOBJS:.o=.cpp)
 

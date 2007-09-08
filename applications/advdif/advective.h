@@ -630,24 +630,6 @@ public:
   virtual ~GenLoad()=0;
 };
 
-/// Global parameters passed to the elemsets
-struct GlobParam {
-  /// trapezoidal temporal integarion rule parameter
-  double alpha;
-  /// time step
-  double Dt;
-  /// if set to one then Dt=infty
-  int steady;
-  /// State vectors;
-  Vec x,xold;
-  /// Current time
-  TimeData *time;
-  /// Constructor
-  GlobParam() : alpha(0), Dt(1.), steady(0) {}
-};
-
-extern GlobParam *GLOB_PARAM;
-
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 /** Transforms state vector from logarithmic. The indices of fields
     logarithmically tranformed are listed in #log_vars#. 

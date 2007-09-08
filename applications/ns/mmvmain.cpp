@@ -29,11 +29,9 @@ extern WallData wall_data;
 Hook *ns_hook_factory(const char *name);
 
 //-------<*>-------<*>-------<*>-------<*>-------<*>------- 
-#undef __FUNC__
-extern GlobParam *GLOB_PARAM;
 
-//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
-#define __FUNC__ "struct_main"
+#undef __FUNC__
+#define __FUNC__ "mmove_main"
 int mmove_main() {
 
   Vec x, dx, xold, dx_step, res, resp; // approx solution, RHS, residual

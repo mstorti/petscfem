@@ -9,8 +9,6 @@
 #include <src/rhhook.h>
 #include "./nsi_tet.h"
 
-extern GlobParam *GLOB_PARAM;
-
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 class ns_dx_hook : public dx_hook {
 private:

@@ -43,7 +43,6 @@ extern int reuse_mat;
 extern double FLUID_TIME;
 
 extern WallData   wall_data;
-extern GlobParam* GLOB_PARAM;
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 

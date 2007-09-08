@@ -584,6 +584,5 @@ void detj_error(double &detJaco,int elem);
 #define KSPMonitorLG KSPLGMonitor
 #endif
 
-
 #endif
 //@}

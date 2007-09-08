@@ -15,7 +15,6 @@
 #include "adaptor.h"
 #include "mmove.h"
 
-extern GlobParam *GLOB_PARAM;
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 void mesh_move_eig_anal::init() {

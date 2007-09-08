@@ -25,8 +25,6 @@ extern int  local_time_step_g;
 extern int  comp_mat_each_time_step_g;
 extern int  verify_jacobian_with_numerical_one;
 
-extern GlobParam *GLOB_PARAM;
-
 #define VECVIEW(name,label) \
 ierr = PetscViewerSetFormat(matlab, \
 		       PETSC_VIEWER_ASCII_MATLAB,#label); \

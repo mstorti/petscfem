@@ -28,11 +28,8 @@ extern int MY_RANK,SIZE;
     @return a pointer to the hook. */ 
 extern Hook *ns_hook_factory(const char *name);
 
-//-------<*>-------<*>-------<*>-------<*>-------<*>------- 
-#undef __FUNC__
-extern GlobParam *GLOB_PARAM;
-
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+#undef __FUNC__
 #define __FUNC__ "struct_main"
 int mmove2_main() {
 
