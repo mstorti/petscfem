@@ -36,7 +36,13 @@ Domain::Domain(int ndim, int nnod, int ndof)
   
   this->mesh   = new Mesh   (this->comm, this->ndim, this->nnod);
   this->dofset = new Dofset (this->comm, this->nnod, this->ndof);
+#if   defined(WITH_APP_NS)
   this->appctx = new AppNS  ();
+#elif defined(WITH_APP_AD)
+  this->appctx = new AppAD  ();
+#else
+  this->appctx = new AppNS  ();
+#endif
 }
 
 Domain::Domain(int ndim, int nnod, int ndof, MPI_Comm comm)

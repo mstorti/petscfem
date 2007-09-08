@@ -124,7 +124,7 @@ def ext_modules(Extension):
     osfx = '_%s' % BOPT[0]
     PETSCFEM_LIBRARY = ['ns'       + osfx,
                         'advdif'   + osfx,
-                        'petscfem' + osfx, ] #* 2
+                        'petscfem' + osfx, ] * 2
     PETSCFEM_LIBRARY +=  config['libraries']
     PETSCFEM_LIBDIR = [join(PETSCFEM_DIR, 'src'),
                        join(PETSCFEM_DIR, 'applications/ns'),

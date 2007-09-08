@@ -93,6 +93,24 @@ static PetscErrorCode VecCreateEmpty(MPI_Comm comm, Vec *empty) {
   PetscFunctionReturn(0);
 }
 
+/* 
+   the following is a vile hack to avoid jacobian uploading 
+*/
+
+typedef void (*MatOp)(void);
+static PetscErrorCode mat_setvals_empty
+(Mat mat,PetscInt m,const PetscInt i[],PetscInt n,const PetscInt j[],const PetscScalar v[],InsertMode addv)
+{ return 0; }
+#undef __FUNCT__
+#define __FUNCT__ "MatCreateEmpty"
+static PetscErrorCode MatCreateEmpty(MPI_Comm comm, Mat *empty) {
+  PetscErrorCode ierr;
+  PetscFunctionBegin;
+  ierr = MatCreateShell(comm,0,0,0,0,PETSC_NULL,empty);CHKERRQ(ierr);
+  ierr = MatShellSetOperation(*empty,MATOP_SET_VALUES,(MatOp)mat_setvals_empty);CHKERRQ(ierr);
+  PetscFunctionReturn(0);
+}
+
 // ---------------------------------------------------------------- //
 
 #include "sttfilter.h"
@@ -322,7 +340,8 @@ PF4PY_NAMESPACE_END
 // ---------------------------------------------------------------- //
 
 
-#include <applications/ns/nsi_tet.h>
+//#include <applications/ns/nsi_tet.h>
+class WallData;
 
 PF4PY_NAMESPACE_BEGIN
 
@@ -349,7 +368,7 @@ struct ArgsNS : public AppCtx::Args {
   { }
   ~ArgsNS() 
   {
-    PF4PY_DELETE_SCLR(this->wall_data);
+    //PF4PY_DELETE_SCLR(this->wall_data); XXX
     PF4PY_PETSC_DESTROY(VecDestroy, this->dummy_res);
     PF4PY_PETSC_DESTROY(MatDestroy, this->dummy_Jac);
   }
@@ -415,8 +434,11 @@ struct ArgsNS : public AppCtx::Args {
     this->glob_param.alpha     = alpha;
     this->glob_param.Dt        = Dt;
     this->glob_param.inwt      = 0; // XXX: this is ok?
+    this->glob_param.time      = &this->tstar;
     this->glob_param.state     = &this->state1;
     this->glob_param.state_old = &this->state0;
+    this->glob_param.x         = this->state1._vs;
+    this->glob_param.xold      = this->state0._vs;
     argl->arg_add(&this->glob_param, USER_DATA);
   
     // add wall_data
@@ -541,6 +563,15 @@ PF4PY_NAMESPACE_END
 
 // ---------------------------------------------------------------- //
 
+#ifdef WITH_APP_AD
+extern int local_time_step_g;
+extern int consistent_supg_matrix_g;
+extern int comp_mat_each_time_step_g;
+#else
+static int local_time_step_g;
+static int consistent_supg_matrix_g;
+static int comp_mat_each_time_step_g;
+#endif
 
 PF4PY_NAMESPACE_BEGIN
 
@@ -567,9 +598,9 @@ struct ArgsAD : public AppCtx::Args {
   { }
   ~ArgsAD() 
   {
+    //PF4PY_DELETE_SCLR(this->wall_data); XXX
     PF4PY_PETSC_DESTROY(VecDestroy, this->dummy_res);
     PF4PY_PETSC_DESTROY(MatDestroy, this->dummy_Jac);
-    PF4PY_DELETE_SCLR(this->wall_data);
   }
   
   const char* job()  const { return this->jobinfo.c_str(); }
@@ -589,6 +620,8 @@ struct ArgsAD : public AppCtx::Args {
       alpha = 1.0;
       Dt = 1.0;
     }
+    
+    local_time_step_g = 0;
 
     // clear arg list
     argl->clear();
@@ -596,17 +629,16 @@ struct ArgsAD : public AppCtx::Args {
     // tstart:  t^* = t^0 + alpha * (t^1 - t^0)
     this->tstar.set(t0 + alpha * (t1-t0));
 
-    // add new state
-    this->state1.set(t1, x1);
-    argl->arg_add(&this->state1, IN_VECTOR | USE_TIME_DATA);
-
     // add old state
     this->state0.set(t0, (x0!=PETSC_NULL) ? x0 : x1);
     argl->arg_add(&this->state0, IN_VECTOR | USE_TIME_DATA);
 
-    // add residual vector and jacobian matrix
+    // add new state
+    this->state1.set(t1, x1);
+    argl->arg_add(&this->state1, IN_VECTOR | USE_TIME_DATA);
+
+    // add residual vector
     this->res = r;
-    this->Jac = J;
     if (this->res == PETSC_NULL) {
       if (this->dummy_res == PETSC_NULL)
 	PF4PY_PETSC_CALL(VecCreateEmpty, (PETSC_COMM_SELF, &this->dummy_res));
@@ -614,23 +646,40 @@ struct ArgsAD : public AppCtx::Args {
     } else {
       argl->arg_add(&this->res, OUT_VECTOR);
     }
+
+    // add hmin
+    argl->arg_add(&this->hmin, VECTOR_MIN);
+
+    // add  jacobian matrix
+    this->Jac = J;
     if (this->Jac == PETSC_NULL) {
+      if (this->dummy_Jac == PETSC_NULL)
+	PF4PY_PETSC_CALL(MatCreateEmpty, (PETSC_COMM_SELF, &this->dummy_Jac));
+      argl->arg_add(&this->dummy_Jac, OUT_MATRIX);
       this->jobinfo = ArgsAD::COMP_RES;
+      
+      consistent_supg_matrix_g  = 0;
+      comp_mat_each_time_step_g = 0;
+
     } else {
       argl->arg_add(&this->Jac, OUT_MATRIX);
       this->jobinfo = ArgsAD::COMP_RES_JAC;
+
+      consistent_supg_matrix_g  = 1;
+      comp_mat_each_time_step_g = 1;
+
     }
 
-    // add hmin (XXX: What is this arg for???)
-    argl->arg_add(&this->hmin, VECTOR_MIN);
-    
     // setup and add global parameters
     this->glob_param.steady    = steady?1:0;
     this->glob_param.alpha     = alpha;
     this->glob_param.Dt        = Dt;
-    this->glob_param.inwt      = 0; // XXX: this is ok?
+    this->glob_param.inwt      = 0;
+    this->glob_param.time      = &this->tstar;
     this->glob_param.state     = &this->state1;
     this->glob_param.state_old = &this->state0;
+    this->glob_param.x         = this->state1._vs;
+    this->glob_param.xold      = this->state0._vs;
     argl->arg_add(&this->glob_param, USER_DATA);
   
     // add wall_data
@@ -641,7 +690,7 @@ struct ArgsAD : public AppCtx::Args {
 
 const char ArgsAD::COMP_PROFILE[] = "comp_prof";
 const char ArgsAD::COMP_RES[]     = "comp_res";
-const char ArgsAD::COMP_RES_JAC[] = "comp_mat_res";
+const char ArgsAD::COMP_RES_JAC[] = "comp_res";
 
 PF4PY_NAMESPACE_END
 
