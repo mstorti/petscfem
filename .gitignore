@@ -1,2 +1,7 @@
+*~
+*.o
+*_[g|O].a
+*_[g|O].bin
+makefile.d
 README
 README.html
