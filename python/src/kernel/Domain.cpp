@@ -9,6 +9,14 @@
 
 PF4PY_NAMESPACE_BEGIN
 
+AppCtx* AppCtx_create(const std::string& type)
+{
+  if (type == "NS") return new AppNS();
+  if (type == "AD") return new AppAD();
+  throw Error("Domain: invalid application type, only 'NS' or 'AD'");
+  return NULL;
+}
+
 Domain::~Domain()
 { }
 
@@ -17,16 +25,18 @@ Domain::Domain(const Domain& domain)
     ndim(domain.ndim), 
     nnod(domain.nnod), 
     ndof(domain.ndof),
+    type(domain.type),
+    appctx(domain.appctx),
     mesh(domain.mesh),
-    dofset(domain.dofset),
-    appctx(domain.appctx)
+    dofset(domain.dofset)
 { }
 
-Domain::Domain(int ndim, int nnod, int ndof)
+Domain::Domain(const std::string& type, int ndim, int nnod, int ndof)
   : comm(PETSC_COMM_WORLD),
-    ndim(ndim), 
-    nnod(nnod), 
-    ndof(ndof)
+    ndim(ndim),
+    nnod(nnod),
+    ndof(ndof),
+    type(type)
 {
   if (comm==MPI_COMM_NULL) throw Error("Domain: null communicator");
   if (ndim<1)              throw Error("Domain: ndim < 1");
@@ -34,18 +44,12 @@ Domain::Domain(int ndim, int nnod, int ndof)
   if (nnod<0)              throw Error("Domain: nnod < 0");
   if (ndof<1)              throw Error("Domain: ndof < 1");
   
+  this->appctx = AppCtx_create(this->type);
   this->mesh   = new Mesh   (this->comm, this->ndim, this->nnod);
   this->dofset = new Dofset (this->comm, this->nnod, this->ndof);
-#if   defined(WITH_APP_NS)
-  this->appctx = new AppNS  ();
-#elif defined(WITH_APP_AD)
-  this->appctx = new AppAD  ();
-#else
-  this->appctx = new AppNS  ();
-#endif
 }
 
-Domain::Domain(int ndim, int nnod, int ndof, MPI_Comm comm)
+Domain::Domain(const std::string& type, int ndim, int nnod, int ndof, MPI_Comm comm)
   : comm(comm), 
     ndim(ndim), 
     nnod(nnod), 
@@ -57,9 +61,14 @@ Domain::Domain(int ndim, int nnod, int ndof, MPI_Comm comm)
   if (nnod<0)              throw Error("Domain: nnod < 0");
   if (ndof<1)              throw Error("Domain: ndof < 1");
   
+  this->appctx = AppCtx_create(this->type);
   this->mesh   = new Mesh   (this->comm, this->ndim, this->nnod);
   this->dofset = new Dofset (this->comm, this->nnod, this->ndof);
-  this->appctx = new AppNS  ();
+}
+
+const std::string& Domain::getType() const 
+{ 
+  return this->type;
 }
 
 Options&
@@ -317,13 +326,6 @@ Domain::getDofset() const
 {
   if (!this->dofset) throw Error("Domain: dofset not created");
   return this->dofset;
-}
-
-AppCtx&
-Domain::getAppCtx() const
-{
-  if (!this->appctx) throw Error("Domain: appctx not created");
-  return this->appctx;
 }
 
 static void 

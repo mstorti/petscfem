@@ -6,24 +6,17 @@
 #include <readmesh.h>
 
 void bless_elemset0(char *,Elemset *&);
+void bless_elemset_ns(char *,Elemset *&);
+void bless_elemset_advdif(char *,Elemset *&);
+
 #define bless_pf(t,e) \
 do { bless_elemset0(t,e); if (e) return; } while(0)
 
-#ifdef WITH_APP_NS
-void bless_elemset_ns(char *,Elemset *&);
 #define bless_ns(t,e) \
 do { bless_elemset_ns(t,e); if (e) return; } while(0)
-#else
-#define bless_ns(t,e) do{}while(0)
-#endif
 
-#ifdef WITH_APP_AD
-void bless_elemset_advdif(char *,Elemset *&);
 #define bless_ad(t,e) \
 do { bless_elemset_advdif(t,e); if (e) return; } while(0)
-#else
-#define bless_ad(a,b) do{}while(0)
-#endif
 
 
 void 

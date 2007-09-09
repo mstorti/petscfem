@@ -32,24 +32,27 @@ private:
 
 protected:
   MPI_Comm       comm;
-
+  
   int            ndim;
   int            nnod;
   int            ndof;
 
+  std::string    type;
+  RefVal<AppCtx> appctx;
   RefVal<Mesh>   mesh;
   RefVal<Dofset> dofset;
-  RefVal<AppCtx> appctx;
   
 public:
   ~Domain();
-  Domain(int ndim, int nnod, int ndof);
-  Domain(int ndim, int nnod, int ndof, MPI_Comm comm);
+  Domain(const std::string& type, int ndim, int nnod, int ndof);
+  Domain(const std::string& type, int ndim, int nnod, int ndof, MPI_Comm comm);
 
   Comm getComm() const { return this->comm; }
   int  getNDim() const { return this->ndim; }
   int  getNNod() const { return this->nnod; }
   int  getNDof() const { return this->ndof; }
+
+  const std::string& getType() const;
 
   Options& getOptions() const;
   void     setOptions(const Options& options);
@@ -86,7 +89,6 @@ public:
   
   Mesh&   getMesh()   const;
   Dofset& getDofset() const;
-  AppCtx& getAppCtx() const;
 
   void setUp();
 

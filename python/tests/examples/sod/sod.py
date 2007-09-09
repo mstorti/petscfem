@@ -7,20 +7,6 @@ import numpy
 from petsc4py import PETSc
 from pf4py.kernel import *
 
-class Log:
-    def __init__(self):
-        self.total = 0.0
-    def beg(self, msg=''):
-        PETSc.Sys.Print('%s: start ...\n' % msg)
-        self.tic = PETSc.Log.getTime()
-    def end(self, msg=''):
-        self.tac = PETSc.Log.getTime()
-        elapsed = self.tac - self.tic
-        self.total += elapsed
-        PETSc.Sys.Print('%s: elapsed: %f, total: %f\n' % (msg, elapsed, self.total) )
-
-log = Log()
-
 opts = PETSc.Options()
 
 D   = opts.getInt('D', 2)
@@ -43,9 +29,12 @@ elemconn = DTableI(icone+1)
 nnod, ndim = nodedata.getShape()
 ndof = ndim+2
 
-domain = Domain(ndim, nnod, ndof)
+domain = Domain('AD', ndim, nnod, ndof)
 
 domain.setNodedata(nodedata)
+
+
+R = opts.getReal('R', 287)
 
 #elemset = Elemset('nsi_tet_les_full', elemconn)
 elemset = Elemset('gasflow', elemconn)
@@ -57,7 +46,7 @@ elemset.setOptions({
     'geometry'   : 'cartesian%dd' % ndim,
     'npg'        : str(2**ndim),
 
-    'LES'    : str(0),
+    #'LES'    : str(0),
     #'C_smag' : str(0.18),
 
     'Rgas'   : str(287.),
@@ -89,17 +78,17 @@ from pf4py.solvers import TransientSolver as Solver
 
 solver = Solver(domain)
 
-ts = solver.ts
+ts   = solver.ts
 snes = ts.snes
 ksp  = snes.ksp
-pc = ksp.pc
+pc   = ksp.pc
 
 snes.rtol  = 1e-6
 snes.atol  = 1e-12
 
-T0 = opts.getScalar('T0', 0.00)
-dT = opts.getScalar('dT', 0.0001)
-nT = opts.getInt('nT', 61)
+T0 = opts.getReal('T0', 0.00)
+dT = opts.getReal('dT', 0.0001)
+nT = opts.getInt ('nT', 10)
 T = T0 + nT*dT*1.001
 
 ts.setTime(T0)
@@ -116,30 +105,23 @@ ts.setFromOptions()
 #ts.setUseFDColoring(True)
 
 
-rhoL = opts.getScalar('rhoL', 1.)
-rhoR = opts.getScalar('rhoR', .125)
+rhoL = opts.getReal('rhoL', 1.0)
+rhoR = opts.getReal('rhoR', 0.125)
+pL   = opts.getReal('pL',   1e5)
+pR   = opts.getReal('pR',   1e4)
 
-pL = opts.getScalar('pL', 1e5)
-pR = opts.getScalar('pR', 1e4)
-
-uini = numpy.asarray(solver.solution)
+uini = numpy.zeros([nnod, ndof])
 uini.shape = (nnod, -1)
 uini[:, 0]      = numpy.where(xnod[:,0] <= x0, rhoL, rhoR)
 uini[:, 1:ndof] = 0.
-uini[:, ndof-1] = numpy.where(xnod[:,0] <= x0, pL, pR)
+uini[:, ndof-1] = numpy.where(xnod[:,0] <= x0, pL,   pR)
 
 
-log.beg('solver.run()')
 try:
     sol = solver.run(uini)
 except RuntimeError:
     PETSc.Error.view()
-except PETSc.Error, e:
-    e.view()
-log.end('solver.run()')
-
-raise SystemExit
-
+    raise
 
 sol = sol.copy()
 
@@ -154,7 +136,7 @@ if PETSc.COMM_WORLD.getSize() > 1: raise SystemExit
 try:
     from matplotlib import pylab
 except ImportError:
-    print "'matplotlib.pylab' not available"
+    print "'matplotlib' not available"
     raise SystemExit
 
 pylab.figure()

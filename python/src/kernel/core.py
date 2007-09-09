@@ -675,14 +675,16 @@ class Domain(Object):
     __swig_destroy__ = _core.delete_Domain
     def __init__(self, *args): 
         """
-        __init__(self, ndim, nnod, ndof) -> Domain
+        __init__(self, type, ndim, nnod, ndof) -> Domain
         Parameters:
+           type: string value
            ndim: int value
            nnod: int value
            ndof: int value
 
-        __init__(self, ndim, nnod, ndof, comm) -> Domain
+        __init__(self, type, ndim, nnod, ndof, comm) -> Domain
         Parameters:
+           type: string value
            ndim: int value
            nnod: int value
            ndof: int value
@@ -706,6 +708,7 @@ class Domain(Object):
         """getNDof(self) -> int"""
         return _core.Domain_getNDof(*args)
 
+    def getType(*args): return _core.Domain_getType(*args)
     def getOptions(*args):
         """getOptions(self) -> Options"""
         return _core.Domain_getOptions(*args)
@@ -810,10 +813,6 @@ class Domain(Object):
     def getDofset(*args):
         """getDofset(self) -> Dofset"""
         return _core.Domain_getDofset(*args)
-
-    def getAppCtx(*args):
-        """getAppCtx(self) -> AppCtx"""
-        return _core.Domain_getAppCtx(*args)
 
     def setUp(*args):
         """setUp(self)"""

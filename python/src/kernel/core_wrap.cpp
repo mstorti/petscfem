@@ -11192,23 +11192,31 @@ fail:
 
 SWIGINTERN PyObject *_wrap_new_Domain__SWIG_0(PyObject *SWIGUNUSEDPARM(self), int nobjs, PyObject **swig_obj) {
   PyObject *resultobj = 0;
-  int arg1 ;
+  std::string *arg1 = 0 ;
   int arg2 ;
   int arg3 ;
+  int arg4 ;
   PETScFEM::Domain *result = 0 ;
-  int val1 ;
-  int ecode1 = 0 ;
+  int res1 = SWIG_OLDOBJ ;
   int val2 ;
   int ecode2 = 0 ;
   int val3 ;
   int ecode3 = 0 ;
+  int val4 ;
+  int ecode4 = 0 ;
   
-  if ((nobjs < 3) || (nobjs > 3)) SWIG_fail;
-  ecode1 = SWIG_AsVal_int(swig_obj[0], &val1);
-  if (!SWIG_IsOK(ecode1)) {
-    SWIG_exception_fail(SWIG_ArgError(ecode1), "in method '" "new_Domain" "', argument " "1"" of type '" "int""'");
-  } 
-  arg1 = static_cast< int >(val1);
+  if ((nobjs < 4) || (nobjs > 4)) SWIG_fail;
+  {
+    std::string *ptr = (std::string *)0;
+    res1 = SWIG_AsPtr_std_string(swig_obj[0], &ptr);
+    if (!SWIG_IsOK(res1)) {
+      SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "new_Domain" "', argument " "1"" of type '" "std::string const &""'"); 
+    }
+    if (!ptr) {
+      SWIG_exception_fail(SWIG_ValueError, "invalid null reference " "in method '" "new_Domain" "', argument " "1"" of type '" "std::string const &""'"); 
+    }
+    arg1 = ptr;
+  }
   ecode2 = SWIG_AsVal_int(swig_obj[1], &val2);
   if (!SWIG_IsOK(ecode2)) {
     SWIG_exception_fail(SWIG_ArgError(ecode2), "in method '" "new_Domain" "', argument " "2"" of type '" "int""'");
@@ -11219,9 +11227,14 @@ SWIGINTERN PyObject *_wrap_new_Domain__SWIG_0(PyObject *SWIGUNUSEDPARM(self), in
     SWIG_exception_fail(SWIG_ArgError(ecode3), "in method '" "new_Domain" "', argument " "3"" of type '" "int""'");
   } 
   arg3 = static_cast< int >(val3);
+  ecode4 = SWIG_AsVal_int(swig_obj[3], &val4);
+  if (!SWIG_IsOK(ecode4)) {
+    SWIG_exception_fail(SWIG_ArgError(ecode4), "in method '" "new_Domain" "', argument " "4"" of type '" "int""'");
+  } 
+  arg4 = static_cast< int >(val4);
   {
     try {
-      result = (PETScFEM::Domain *)new PETScFEM::Domain(arg1,arg2,arg3); 
+      result = (PETScFEM::Domain *)new PETScFEM::Domain((std::string const &)*arg1,arg2,arg3,arg4); 
     }
     PF4PY_CATCH_DIRECTORS
     PF4PY_CATCH_PETSCFEM
@@ -11229,36 +11242,46 @@ SWIGINTERN PyObject *_wrap_new_Domain__SWIG_0(PyObject *SWIGUNUSEDPARM(self), in
     PF4PY_CATCH_UNKNOWN
   }
   resultobj = SWIG_NewPointerObj(SWIG_as_voidptr(result), SWIGTYPE_p_PETScFEM__Domain, SWIG_POINTER_NEW |  0 );
+  if (SWIG_IsNewObj(res1)) delete arg1;
   result->incref();
   return resultobj;
 fail:
+  if (SWIG_IsNewObj(res1)) delete arg1;
   return NULL;
 }
 
 
 SWIGINTERN PyObject *_wrap_new_Domain__SWIG_1(PyObject *SWIGUNUSEDPARM(self), int nobjs, PyObject **swig_obj) {
   PyObject *resultobj = 0;
-  int arg1 ;
+  std::string *arg1 = 0 ;
   int arg2 ;
   int arg3 ;
-  MPI_Comm arg4 ;
+  int arg4 ;
+  MPI_Comm arg5 ;
   PETScFEM::Domain *result = 0 ;
-  int val1 ;
-  int ecode1 = 0 ;
+  int res1 = SWIG_OLDOBJ ;
   int val2 ;
   int ecode2 = 0 ;
   int val3 ;
   int ecode3 = 0 ;
-  void *argp4 ;
-  int res4 = 0 ;
+  int val4 ;
+  int ecode4 = 0 ;
+  void *argp5 ;
+  int res5 = 0 ;
   
-  arg4 = MPI_COMM_NULL;
-  if ((nobjs < 4) || (nobjs > 4)) SWIG_fail;
-  ecode1 = SWIG_AsVal_int(swig_obj[0], &val1);
-  if (!SWIG_IsOK(ecode1)) {
-    SWIG_exception_fail(SWIG_ArgError(ecode1), "in method '" "new_Domain" "', argument " "1"" of type '" "int""'");
-  } 
-  arg1 = static_cast< int >(val1);
+  arg5 = MPI_COMM_NULL;
+  if ((nobjs < 5) || (nobjs > 5)) SWIG_fail;
+  {
+    std::string *ptr = (std::string *)0;
+    res1 = SWIG_AsPtr_std_string(swig_obj[0], &ptr);
+    if (!SWIG_IsOK(res1)) {
+      SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "new_Domain" "', argument " "1"" of type '" "std::string const &""'"); 
+    }
+    if (!ptr) {
+      SWIG_exception_fail(SWIG_ValueError, "invalid null reference " "in method '" "new_Domain" "', argument " "1"" of type '" "std::string const &""'"); 
+    }
+    arg1 = ptr;
+  }
   ecode2 = SWIG_AsVal_int(swig_obj[1], &val2);
   if (!SWIG_IsOK(ecode2)) {
     SWIG_exception_fail(SWIG_ArgError(ecode2), "in method '" "new_Domain" "', argument " "2"" of type '" "int""'");
@@ -11269,22 +11292,27 @@ SWIGINTERN PyObject *_wrap_new_Domain__SWIG_1(PyObject *SWIGUNUSEDPARM(self), in
     SWIG_exception_fail(SWIG_ArgError(ecode3), "in method '" "new_Domain" "', argument " "3"" of type '" "int""'");
   } 
   arg3 = static_cast< int >(val3);
+  ecode4 = SWIG_AsVal_int(swig_obj[3], &val4);
+  if (!SWIG_IsOK(ecode4)) {
+    SWIG_exception_fail(SWIG_ArgError(ecode4), "in method '" "new_Domain" "', argument " "4"" of type '" "int""'");
+  } 
+  arg4 = static_cast< int >(val4);
   {
-    res4 = SWIG_ConvertPtr(swig_obj[3], &argp4, SWIGTYPE_p_MPI_Comm,  0  | 0);
-    if (!SWIG_IsOK(res4)) {
-      SWIG_exception_fail(SWIG_ArgError(res4), "in method '" "new_Domain" "', argument " "4"" of type '" "MPI_Comm""'"); 
+    res5 = SWIG_ConvertPtr(swig_obj[4], &argp5, SWIGTYPE_p_MPI_Comm,  0  | 0);
+    if (!SWIG_IsOK(res5)) {
+      SWIG_exception_fail(SWIG_ArgError(res5), "in method '" "new_Domain" "', argument " "5"" of type '" "MPI_Comm""'"); 
     }  
-    if (!argp4) {
-      SWIG_exception_fail(SWIG_ValueError, "invalid null reference " "in method '" "new_Domain" "', argument " "4"" of type '" "MPI_Comm""'");
+    if (!argp5) {
+      SWIG_exception_fail(SWIG_ValueError, "invalid null reference " "in method '" "new_Domain" "', argument " "5"" of type '" "MPI_Comm""'");
     } else {
-      MPI_Comm * temp = reinterpret_cast< MPI_Comm * >(argp4);
-      arg4 = *temp;
-      if (SWIG_IsNewObj(res4)) delete temp;
+      MPI_Comm * temp = reinterpret_cast< MPI_Comm * >(argp5);
+      arg5 = *temp;
+      if (SWIG_IsNewObj(res5)) delete temp;
     }
   }
   {
     try {
-      result = (PETScFEM::Domain *)new PETScFEM::Domain(arg1,arg2,arg3,arg4); 
+      result = (PETScFEM::Domain *)new PETScFEM::Domain((std::string const &)*arg1,arg2,arg3,arg4,arg5); 
     }
     PF4PY_CATCH_DIRECTORS
     PF4PY_CATCH_PETSCFEM
@@ -11292,28 +11320,30 @@ SWIGINTERN PyObject *_wrap_new_Domain__SWIG_1(PyObject *SWIGUNUSEDPARM(self), in
     PF4PY_CATCH_UNKNOWN
   }
   resultobj = SWIG_NewPointerObj(SWIG_as_voidptr(result), SWIGTYPE_p_PETScFEM__Domain, SWIG_POINTER_NEW |  0 );
+  if (SWIG_IsNewObj(res1)) delete arg1;
   result->incref();
   return resultobj;
 fail:
+  if (SWIG_IsNewObj(res1)) delete arg1;
   return NULL;
 }
 
 
 SWIGINTERN PyObject *_wrap_new_Domain(PyObject *self, PyObject *args) {
   int argc;
-  PyObject *argv[5];
+  PyObject *argv[6];
   
-  if (!(argc = SWIG_Python_UnpackTuple(args,"new_Domain",0,4,argv))) SWIG_fail;
+  if (!(argc = SWIG_Python_UnpackTuple(args,"new_Domain",0,5,argv))) SWIG_fail;
   --argc;
-  if (argc == 3) {
+  if (argc == 4) {
     return _wrap_new_Domain__SWIG_0(self, argc, argv);
   }
-  if (argc == 4) {
+  if (argc == 5) {
     return _wrap_new_Domain__SWIG_1(self, argc, argv);
   }
   
 fail:
-  SWIG_SetErrorMsg(PyExc_NotImplementedError,"Wrong number of arguments for overloaded function 'new_Domain'.\n  Possible C/C++ prototypes are:\n    PETScFEM::Domain(int,int,int)\n    PETScFEM::Domain(int,int,int,MPI_Comm)\n");
+  SWIG_SetErrorMsg(PyExc_NotImplementedError,"Wrong number of arguments for overloaded function 'new_Domain'.\n  Possible C/C++ prototypes are:\n    PETScFEM::Domain(std::string const &,int,int,int)\n    PETScFEM::Domain(std::string const &,int,int,int,MPI_Comm)\n");
   return NULL;
 }
 
@@ -11436,6 +11466,40 @@ SWIGINTERN PyObject *_wrap_Domain_getNDof(PyObject *SWIGUNUSEDPARM(self), PyObje
     PF4PY_CATCH_UNKNOWN
   }
   resultobj = SWIG_From_int(static_cast< int >(result));
+  return resultobj;
+fail:
+  return NULL;
+}
+
+
+SWIGINTERN PyObject *_wrap_Domain_getType(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
+  PyObject *resultobj = 0;
+  PETScFEM::Domain *arg1 = (PETScFEM::Domain *) 0 ;
+  std::string *result = 0 ;
+  void *argp1 = 0 ;
+  int res1 = 0 ;
+  PyObject *swig_obj[1] ;
+  
+  if (!args) SWIG_fail;
+  swig_obj[0] = args;
+  res1 = SWIG_ConvertPtr(swig_obj[0], &argp1,SWIGTYPE_p_PETScFEM__Domain, 0 |  0 );
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "Domain_getType" "', argument " "1"" of type '" "PETScFEM::Domain const *""'"); 
+  }
+  arg1 = reinterpret_cast< PETScFEM::Domain * >(argp1);
+  {
+    try {
+      {
+        std::string const &_result_ref = ((PETScFEM::Domain const *)arg1)->getType();
+        result = (std::string *) &_result_ref;
+      } 
+    }
+    PF4PY_CATCH_DIRECTORS
+    PF4PY_CATCH_PETSCFEM
+    PF4PY_CATCH_STDEXC
+    PF4PY_CATCH_UNKNOWN
+  }
+  resultobj = SWIG_From_std_string(static_cast< std::string >(*result));
   return resultobj;
 fail:
   return NULL;
@@ -12307,41 +12371,6 @@ SWIGINTERN PyObject *_wrap_Domain_getDofset(PyObject *SWIGUNUSEDPARM(self), PyOb
     PF4PY_CATCH_UNKNOWN
   }
   resultobj = SWIG_NewPointerObj(SWIG_as_voidptr(result), SWIGTYPE_p_PETScFEM__Dofset, SWIG_POINTER_OWN |  0 );
-  result->incref();
-  return resultobj;
-fail:
-  return NULL;
-}
-
-
-SWIGINTERN PyObject *_wrap_Domain_getAppCtx(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
-  PyObject *resultobj = 0;
-  PETScFEM::Domain *arg1 = (PETScFEM::Domain *) 0 ;
-  PETScFEM::AppCtx *result = 0 ;
-  void *argp1 = 0 ;
-  int res1 = 0 ;
-  PyObject *swig_obj[1] ;
-  
-  if (!args) SWIG_fail;
-  swig_obj[0] = args;
-  res1 = SWIG_ConvertPtr(swig_obj[0], &argp1,SWIGTYPE_p_PETScFEM__Domain, 0 |  0 );
-  if (!SWIG_IsOK(res1)) {
-    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "Domain_getAppCtx" "', argument " "1"" of type '" "PETScFEM::Domain const *""'"); 
-  }
-  arg1 = reinterpret_cast< PETScFEM::Domain * >(argp1);
-  {
-    try {
-      {
-        PETScFEM::AppCtx &_result_ref = ((PETScFEM::Domain const *)arg1)->getAppCtx();
-        result = (PETScFEM::AppCtx *) &_result_ref;
-      } 
-    }
-    PF4PY_CATCH_DIRECTORS
-    PF4PY_CATCH_PETSCFEM
-    PF4PY_CATCH_STDEXC
-    PF4PY_CATCH_UNKNOWN
-  }
-  resultobj = SWIG_NewPointerObj(SWIG_as_voidptr(result), SWIGTYPE_p_PETScFEM__AppCtx, SWIG_POINTER_OWN |  0 );
   result->incref();
   return resultobj;
 fail:
@@ -13866,6 +13895,7 @@ static PyMethodDef SwigMethods[] = {
 	 { (char *)"Domain_getNDim", (PyCFunction)_wrap_Domain_getNDim, METH_O, NULL},
 	 { (char *)"Domain_getNNod", (PyCFunction)_wrap_Domain_getNNod, METH_O, NULL},
 	 { (char *)"Domain_getNDof", (PyCFunction)_wrap_Domain_getNDof, METH_O, NULL},
+	 { (char *)"Domain_getType", (PyCFunction)_wrap_Domain_getType, METH_O, NULL},
 	 { (char *)"Domain_getOptions", (PyCFunction)_wrap_Domain_getOptions, METH_O, NULL},
 	 { (char *)"Domain_setOptions", _wrap_Domain_setOptions, METH_VARARGS, NULL},
 	 { (char *)"Domain_getNodedata", (PyCFunction)_wrap_Domain_getNodedata, METH_O, NULL},
@@ -13879,7 +13909,6 @@ static PyMethodDef SwigMethods[] = {
 	 { (char *)"Domain_setConstraint", _wrap_Domain_setConstraint, METH_VARARGS, NULL},
 	 { (char *)"Domain_getMesh", (PyCFunction)_wrap_Domain_getMesh, METH_O, NULL},
 	 { (char *)"Domain_getDofset", (PyCFunction)_wrap_Domain_getDofset, METH_O, NULL},
-	 { (char *)"Domain_getAppCtx", (PyCFunction)_wrap_Domain_getAppCtx, METH_O, NULL},
 	 { (char *)"Domain_setUp", (PyCFunction)_wrap_Domain_setUp, METH_O, NULL},
 	 { (char *)"Domain_allocateSolution", _wrap_Domain_allocateSolution, METH_VARARGS, NULL},
 	 { (char *)"Domain_allocateState", _wrap_Domain_allocateState, METH_VARARGS, NULL},

@@ -563,15 +563,9 @@ PF4PY_NAMESPACE_END
 
 // ---------------------------------------------------------------- //
 
-#ifdef WITH_APP_AD
 extern int local_time_step_g;
 extern int consistent_supg_matrix_g;
 extern int comp_mat_each_time_step_g;
-#else
-static int local_time_step_g;
-static int consistent_supg_matrix_g;
-static int comp_mat_each_time_step_g;
-#endif
 
 PF4PY_NAMESPACE_BEGIN
 

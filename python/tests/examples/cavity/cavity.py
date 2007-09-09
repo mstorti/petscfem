@@ -41,7 +41,7 @@ nnod, ndim = nodedata.getShape()
 ndof = ndim+1
 
 
-domain = Domain(ndim, nnod, ndof)
+domain = Domain('NS', ndim, nnod, ndof)
 
 domain.setNodedata(nodedata)
 
