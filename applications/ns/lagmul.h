@@ -9,6 +9,7 @@
     It may not work for restrictions that involve
     fields in more that one node. 
 */ 
+#define LagrangeMult LagrangeMultNS
 class LagrangeMult : public Elemset {
  private:
   /// Stores internal matrix with coordinates of nodes

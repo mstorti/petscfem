@@ -13,7 +13,7 @@ fastmat fastmat2 fem fm2eperl fm2eperl2 fstack getarray getprop gpdata		\
 graph graphdv idmap iisdcr iisdgraph iisdmat linkgraph mainutl			\
 measperf metisprt petscmat pfmat propef randomg readmesh secant sparse		\
 spdirect spsolve state sttfilter tempfun tempfun2 texthash texthf		\
-timestat util2 util3 utils version gatherer hook dlhook dxhook dxelmst autostr	\
+timestat util2 util3 utils gatherer hook dlhook dxhook dxelmst autostr		\
 cloud cloud2 surf2vol pfobject fm2temp shllhook dvector interpola elmsupl	\
 dofmap3 iisdmat2 generror syncbuff srfgath blessf spetscmat elmsupl2 lagmul	\
 penalize dvecpar rhhook

@@ -10,6 +10,7 @@
 /** Generic surface flux element. See documentation 
     on the similar `advdif' elemset. In a future they
     will be unified. */
+#define GenLoad GenLoadNS
 class GenLoad : public Elemset { 
 public:
   /** These are to pass the state of the `H' quantities on the

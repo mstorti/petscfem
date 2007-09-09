@@ -24,6 +24,6 @@ swig:
 
 
 rebuild:
+	rm -rf build/lib*/pf4py/kernel/_core.so
 	make -C .. ns_all
-	rm -rf build/lib.linux-i686-2.4/pf4py/kernel/_core.so
 	make

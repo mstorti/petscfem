@@ -10,6 +10,7 @@
 //#include "streamsw1d.h"
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:
+#define NonLinearRes NonLinearResAD
 class NonLinearRes : public NewElemset {
  public:
   ASK_FUNCTION;
@@ -48,6 +49,7 @@ class NonLinearRes : public NewElemset {
     It may not work for restrictions that involve
     fields in more that one node. 
 */ 
+#define LagrangeMult LagrangeMultAD
 class LagrangeMult : public NewElemset {
  public:
   ASK_FUNCTION;

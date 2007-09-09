@@ -23,7 +23,7 @@ extern int print_internal_loop_conv_g,
   local_time_step_g,
   comp_mat_each_time_step_g;
 
-const char * jobinfo_fields;
+extern const char * jobinfo_fields;
 
 #define VECVIEW(name,label) \
 ierr = PetscViewerSetFormat(matlab, \

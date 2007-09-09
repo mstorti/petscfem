@@ -596,7 +596,24 @@ public:
   ASK_FUNCTION;
 };
 
+#define GenLoad GenLoadAD
 class GenLoad;
+class HFilmFun;
+
+/// Generic surface flux element
+class GenLoad : public NewElemset { 
+  /** These are to pass the state of the `H' quantities on the
+      internal and external layers. `Hin' is an alias for `H'
+  */
+  FastMat2 H_m,H_out_m;
+public: 
+  const FastMat2 &H,&H_out,&H_in;
+  GenLoad() : H(H_m), H_out(H_out_m), H_in(H_m) {}
+  HFilmFun *h_film_fun;
+  NewAssembleFunction new_assemble;
+  ASK_FUNCTION;
+  virtual ~GenLoad()=0;
+};
 
 /// Generic surface flux function (film function) element
 class HFilmFun {
@@ -615,20 +632,6 @@ public:
   HFilmFun(GenLoad *e);
 };
 
-/// Generic surface flux element
-class GenLoad : public NewElemset { 
-  /** These are to pass the state of the `H' quantities on the
-      internal and external layers. `Hin' is an alias for `H'
-  */
-  FastMat2 H_m,H_out_m;
-public: 
-  const FastMat2 &H,&H_out,&H_in;
-  GenLoad() : H(H_m), H_out(H_out_m), H_in(H_m) {}
-  HFilmFun *h_film_fun;
-  NewAssembleFunction new_assemble;
-  ASK_FUNCTION;
-  virtual ~GenLoad()=0;
-};
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 /** Transforms state vector from logarithmic. The indices of fields

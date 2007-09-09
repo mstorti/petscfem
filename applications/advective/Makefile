@@ -6,11 +6,10 @@
 PROG = adv
 PETSCFEM_DIR   = ../..
 
-PROGOBJ = advective.o
+PROGOBJ = advective.o compdate.o
 LIBOBJS = advecfm2.o adv.o absorb.o				\
-		ffshallw.o ffadvec.o ffeulerfm2.o			\
-		ffswfm2.o ffswfm2t.o bcconv_adv.o ffeuler.o bccadvfm2.o	\
-		compdate.o
+	ffshallw.o ffadvec.o ffeulerfm2.o			\
+	ffswfm2.o ffswfm2t.o bcconv_adv.o ffeuler.o bccadvfm2.o
 PETSCFEM_MODULE = Advective
 MYOBJS = 
 TAGFLAGS = $(TAGINCL)="../../src/TAGS"

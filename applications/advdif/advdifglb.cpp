@@ -22,4 +22,6 @@ int  local_time_step_g                  = 0;
 int  comp_mat_each_time_step_g          = 0;
 int  verify_jacobian_with_numerical_one = 0;
 
+const char * jobinfo_fields = 0;
+
 //-------<*>-------<*>-------<*>-------<*>-------<*>------- 

@@ -3,6 +3,10 @@
 #ifndef PETSCFEM_FM2FUNM_H
 #define PETSCFEM_FM2FUNM_H
 
+#define FastMat2_fund    FastMat2_fund_advdif
+#define FastMat2_funm    FastMat2_funm_advdif
+#define FastMat2_funm_ff FastMat2_funm_ff_advdif
+
 class FastMat2_fund {
 public:
   virtual ~FastMat2_fund() {}
