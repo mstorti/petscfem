@@ -61,7 +61,7 @@ GLIBCFG  = '/usr/lib/glib-2.0/include'
 
 
 BOPT = env.get('BOPT') or 'g'
-if PETSC_ARCH.endswith('O_c++') or  PETSC_ARCH.endswith('O'):
+if PETSC_ARCH.endswith('O_c++') or PETSC_ARCH.endswith('O'):
     BOPT = 'O'
 if PETSC_ARCH.endswith('g_c++') or PETSC_ARCH.endswith('g'):
     BOPT = 'g'
@@ -93,10 +93,11 @@ config = {
                       ],
     
     'libraries'    : ['petscksp', 'petscdm',
-                      'petscmat', 'petscvec',
-                      'petsc', 'mpich', 'glib',
+                      'petscmat', 'petscvec', 'petsc',
+                      'mpich',
                       'ANN',  'ibretto', 'meschach',
-                      'metis', 'newmat', 'simpleskts'
+                      'metis', 'newmat', 'simpleskts',
+                      'glib-2.0', 'pthread',
                       ],
     
     'library_dirs' : [join(MPI_DIR,   'lib'),
