@@ -6,7 +6,9 @@
 
 ## MPI
 ## ---
+ifeq ($(MPI_DIR),)
 MPI_DIR     = /usr/local/mpich2/1.0.5
+endif
 MPI_INC_DIR = $(MPI_DIR)/include
 MPI_LIB_DIR = $(MPI_DIR)/lib
 MPI_LIBNAME = mpich
@@ -15,7 +17,9 @@ MPI_LIBNAME = mpich
 ## PETSc
 ## -----
 PETSC_DEV    =
+ifeq ($(PETSC_DIR),)
 PETSC_DIR    = /usr/local/petsc/2.3.3
+endif
 PETSC_ARCH_G = linux-gnu
 PETSC_ARCH_O = linux-gnu-O
 
