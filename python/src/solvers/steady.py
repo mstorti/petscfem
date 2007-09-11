@@ -69,7 +69,7 @@ class SteadySolver:
         
     def run(self, u0=None):
         from numpy import asarray
-        domain = self.snes.getApplicationContext()
+        domain = self.snes.getAppCtx()
         # build initial solution
         if u0 is not None:
             u0 = asarray(u0, dtype=PETSc.Scalar)
