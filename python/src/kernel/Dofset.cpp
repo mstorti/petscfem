@@ -57,12 +57,15 @@ public:
     PF4PY_PETSC_DESTROY(VecScatterDestroy, *(dofmap->scatter_print));
   }
 
-  Proxy(Dofset* dofset) 
-    : _ptr(new Dofset::Impl),
+  Proxy(Dofset* dofset, Dofset::Impl* impl)
+    : _ptr(impl),
       _neqproc(),
       _ghost_scatter(0),
       _scatter_print(0)
   {
+    Dofset::Impl* dofmap = *this;
+    if (dofmap == NULL) return;
+    
     Comm comm = dofset->getComm();
     int  nnod = dofset->getNNod();
     int  ndof = dofset->getNDof();
@@ -77,7 +80,6 @@ public:
     std::vector<int>&   ghost_dofs = dofset->ghosts;
     //ghost_dofs.reserve(??);
 
-    Dofset::Impl* dofmap = *this;
     dofmap->comm          = MPI_COMM_NULL;
     dofmap->ident         = NULL;
     dofmap->ghost_dofs    = NULL;
@@ -318,8 +320,8 @@ Dofset::setup(Domain* domain)
   Mesh::Impl*   mesh   = domain->getMesh();
   if (mesh == NULL) throw Error("Dofset: mesh is not ready");
   // create dofmap
-  this->proxy.reset(new Dofset::Proxy(this));
-  Dofset::Impl* dofmap = *this;
+  Dofset::Impl* dofmap = new Dofset::Impl;
+  this->proxy.reset(new Dofset::Proxy(this, dofmap));
   // fill idmap
   this->proxy->fill_idmap(mesh);
   // add fixations

@@ -376,6 +376,7 @@ class Elemset(Object):
     __swig_destroy__ = _core.delete_Elemset
     def __init__(self, *args): 
         """
+        __init__(self) -> Elemset
         __init__(self, type) -> Elemset
         Parameters:
            type: string value
@@ -396,6 +397,15 @@ class Elemset(Object):
     def getType(*args):
         """getType(self) -> string"""
         return _core.Elemset_getType(*args)
+
+    def setType(*args):
+        """
+        setType(self, type)
+        Parameters:
+           type: string value
+
+        """
+        return _core.Elemset_setType(*args)
 
     def getOptions(*args):
         """getOptions(self) -> Options"""
@@ -423,8 +433,8 @@ class Elemset(Object):
         """
         return _core.Elemset_setData(*args)
 
-    def setPTable(*args): return _core.Elemset_setPTable(*args)
     def getPTableI(*args): return _core.Elemset_getPTableI(*args)
+    def setPTable(*args): return _core.Elemset_setPTable(*args)
     def getPTableS(*args): return _core.Elemset_getPTableS(*args)
 Elemset_swigregister = _core.Elemset_swigregister
 Elemset_swigregister(Elemset)

@@ -234,10 +234,12 @@ if __name__ == '__main__':
         except ValueError:
             pass
     if BOPT in ('g',  'g_c++'):
-        try:
-            cflags.remove('-DNDEBUG')
-        except ValueError:
-            pass
+        for flag in ('-DNDEBUG', '-O', '-O2', '-O3'):
+            try:
+                cflags.remove(flag)
+            except ValueError:
+                pass
+        cflags.append('-g3')
     elif BOPT in ('O',  'O_c++'):
         try:
             cflags.remove('-g')

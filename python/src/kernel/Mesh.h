@@ -25,13 +25,14 @@ public:
   typedef ::Mesh Impl;
 
 protected:
-  int                     ndim;
-  int                     nnod;
-  RefVal<DTable<double> > nodedata;
-  std::vector<int>        nodepart;
+  int               ndim;
+  int               nnod;
+  std::vector<int>  nodepart;
+
+  RefVal<DTable<double> >             nodedata;
   RefMap<std::string,DTable<double> > fields;
-  RefVec<Elemset>         elemsets;
-  RefVal<Options>         options;
+  RefVec<Elemset>                     elemsets;
+  RefVal<Options>                     options;
 
 #if !defined(SWIG)
 protected:

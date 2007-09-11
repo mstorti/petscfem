@@ -112,6 +112,7 @@ public:
   { this->incref_all(); }
   RefVec(const std::vector<T*>& rv) : std::vector<T*>(rv)
   { this->incref_all(); }
+  inline bool operator!() const { return this->empty(); }
   void clear() 
   { this->decref_all(); std::vector<T*>::clear(); }
   T* get(std::size_t k) const {
@@ -172,6 +173,7 @@ public:
   { this->incref_all(); }
   RefSet(const std::set<T*>& rs) : std::set<T*>(rs)
   { this->incref_all(); }
+  inline bool operator!() const { return this->empty(); }
   void clear() {
     this->decref_all();
     std::set<T*>::clear();
@@ -224,6 +226,7 @@ public:
     const_iter e = this->end();
     while (m != e) (m++)->second->incref();
   }
+  inline bool operator!() const { return this->empty(); }
   void clear() {
     const_iter m = this->begin();
     const_iter e = this->end();

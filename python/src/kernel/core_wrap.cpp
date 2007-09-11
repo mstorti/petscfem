@@ -5094,7 +5094,7 @@ namespace numpy{
   {
     typedef std::pair<std::string,int> FieldEntry;
     typedef std::vector<FieldEntry>    FieldList;
-    const FieldList&          fields = self->getFields();
+    //const FieldList&          fields = self->getFields();
     const std::pair<int,int>& shape  = self->getShape();
     const std::vector<T>&     data   = self->getArray();
     void* array = const_cast<T*>(&data[0]);
@@ -8866,7 +8866,29 @@ fail:
 }
 
 
-SWIGINTERN PyObject *_wrap_new_Elemset__SWIG_0(PyObject *SWIGUNUSEDPARM(self), int nobjs, PyObject **swig_obj) {
+SWIGINTERN PyObject *_wrap_new_Elemset__SWIG_0(PyObject *SWIGUNUSEDPARM(self), int nobjs, PyObject **SWIGUNUSEDPARM(swig_obj)) {
+  PyObject *resultobj = 0;
+  PETScFEM::Elemset *result = 0 ;
+  
+  if ((nobjs < 0) || (nobjs > 0)) SWIG_fail;
+  {
+    try {
+      result = (PETScFEM::Elemset *)new PETScFEM::Elemset(); 
+    }
+    PF4PY_CATCH_DIRECTORS
+    PF4PY_CATCH_PETSCFEM
+    PF4PY_CATCH_STDEXC
+    PF4PY_CATCH_UNKNOWN
+  }
+  resultobj = SWIG_NewPointerObj(SWIG_as_voidptr(result), SWIGTYPE_p_PETScFEM__Elemset, SWIG_POINTER_NEW |  0 );
+  result->incref();
+  return resultobj;
+fail:
+  return NULL;
+}
+
+
+SWIGINTERN PyObject *_wrap_new_Elemset__SWIG_1(PyObject *SWIGUNUSEDPARM(self), int nobjs, PyObject **swig_obj) {
   PyObject *resultobj = 0;
   std::string *arg1 = 0 ;
   PETScFEM::Elemset *result = 0 ;
@@ -8903,7 +8925,7 @@ fail:
 }
 
 
-SWIGINTERN PyObject *_wrap_new_Elemset__SWIG_1(PyObject *SWIGUNUSEDPARM(self), int nobjs, PyObject **swig_obj) {
+SWIGINTERN PyObject *_wrap_new_Elemset__SWIG_2(PyObject *SWIGUNUSEDPARM(self), int nobjs, PyObject **swig_obj) {
   PyObject *resultobj = 0;
   std::string *arg1 = 0 ;
   PETScFEM::DTable<int > *arg2 = 0 ;
@@ -8951,7 +8973,7 @@ fail:
 }
 
 
-SWIGINTERN PyObject *_wrap_new_Elemset__SWIG_2(PyObject *SWIGUNUSEDPARM(self), int nobjs, PyObject **swig_obj) {
+SWIGINTERN PyObject *_wrap_new_Elemset__SWIG_3(PyObject *SWIGUNUSEDPARM(self), int nobjs, PyObject **swig_obj) {
   PyObject *resultobj = 0;
   std::string *arg1 = 0 ;
   PETScFEM::DTable<int > *arg2 = 0 ;
@@ -9018,18 +9040,21 @@ SWIGINTERN PyObject *_wrap_new_Elemset(PyObject *self, PyObject *args) {
   
   if (!(argc = SWIG_Python_UnpackTuple(args,"new_Elemset",0,3,argv))) SWIG_fail;
   --argc;
-  if (argc == 1) {
+  if (argc == 0) {
     return _wrap_new_Elemset__SWIG_0(self, argc, argv);
   }
-  if (argc == 2) {
+  if (argc == 1) {
     return _wrap_new_Elemset__SWIG_1(self, argc, argv);
   }
-  if (argc == 3) {
+  if (argc == 2) {
     return _wrap_new_Elemset__SWIG_2(self, argc, argv);
+  }
+  if (argc == 3) {
+    return _wrap_new_Elemset__SWIG_3(self, argc, argv);
   }
   
 fail:
-  SWIG_SetErrorMsg(PyExc_NotImplementedError,"Wrong number of arguments for overloaded function 'new_Elemset'.\n  Possible C/C++ prototypes are:\n    PETScFEM::Elemset(std::string const &)\n    PETScFEM::Elemset(std::string const &,PETScFEM::DTable<int > const &)\n    PETScFEM::Elemset(std::string const &,PETScFEM::DTable<int > const &,PETScFEM::Options const &)\n");
+  SWIG_SetErrorMsg(PyExc_NotImplementedError,"Wrong number of arguments for overloaded function 'new_Elemset'.\n  Possible C/C++ prototypes are:\n    PETScFEM::Elemset()\n    PETScFEM::Elemset(std::string const &)\n    PETScFEM::Elemset(std::string const &,PETScFEM::DTable<int > const &)\n    PETScFEM::Elemset(std::string const &,PETScFEM::DTable<int > const &,PETScFEM::Options const &)\n");
   return NULL;
 }
 
@@ -9064,6 +9089,50 @@ SWIGINTERN PyObject *_wrap_Elemset_getType(PyObject *SWIGUNUSEDPARM(self), PyObj
   resultobj = SWIG_From_std_string(static_cast< std::string >(*result));
   return resultobj;
 fail:
+  return NULL;
+}
+
+
+SWIGINTERN PyObject *_wrap_Elemset_setType(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
+  PyObject *resultobj = 0;
+  PETScFEM::Elemset *arg1 = (PETScFEM::Elemset *) 0 ;
+  std::string *arg2 = 0 ;
+  void *argp1 = 0 ;
+  int res1 = 0 ;
+  int res2 = SWIG_OLDOBJ ;
+  PyObject *swig_obj[2] ;
+  
+  if (!SWIG_Python_UnpackTuple(args,"Elemset_setType",2,2,swig_obj)) SWIG_fail;
+  res1 = SWIG_ConvertPtr(swig_obj[0], &argp1,SWIGTYPE_p_PETScFEM__Elemset, 0 |  0 );
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "Elemset_setType" "', argument " "1"" of type '" "PETScFEM::Elemset *""'"); 
+  }
+  arg1 = reinterpret_cast< PETScFEM::Elemset * >(argp1);
+  {
+    std::string *ptr = (std::string *)0;
+    res2 = SWIG_AsPtr_std_string(swig_obj[1], &ptr);
+    if (!SWIG_IsOK(res2)) {
+      SWIG_exception_fail(SWIG_ArgError(res2), "in method '" "Elemset_setType" "', argument " "2"" of type '" "std::string const &""'"); 
+    }
+    if (!ptr) {
+      SWIG_exception_fail(SWIG_ValueError, "invalid null reference " "in method '" "Elemset_setType" "', argument " "2"" of type '" "std::string const &""'"); 
+    }
+    arg2 = ptr;
+  }
+  {
+    try {
+      (arg1)->setType((std::string const &)*arg2); 
+    }
+    PF4PY_CATCH_DIRECTORS
+    PF4PY_CATCH_PETSCFEM
+    PF4PY_CATCH_STDEXC
+    PF4PY_CATCH_UNKNOWN
+  }
+  resultobj = SWIG_Py_Void();
+  if (SWIG_IsNewObj(res2)) delete arg2;
+  return resultobj;
+fail:
+  if (SWIG_IsNewObj(res2)) delete arg2;
   return NULL;
 }
 
@@ -9259,6 +9328,41 @@ fail:
 }
 
 
+SWIGINTERN PyObject *_wrap_Elemset_getPTableI(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
+  PyObject *resultobj = 0;
+  PETScFEM::Elemset *arg1 = (PETScFEM::Elemset *) 0 ;
+  PETScFEM::PTable<int > *result = 0 ;
+  void *argp1 = 0 ;
+  int res1 = 0 ;
+  PyObject *swig_obj[1] ;
+  
+  if (!args) SWIG_fail;
+  swig_obj[0] = args;
+  res1 = SWIG_ConvertPtr(swig_obj[0], &argp1,SWIGTYPE_p_PETScFEM__Elemset, 0 |  0 );
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "Elemset_getPTableI" "', argument " "1"" of type '" "PETScFEM::Elemset const *""'"); 
+  }
+  arg1 = reinterpret_cast< PETScFEM::Elemset * >(argp1);
+  {
+    try {
+      {
+        PETScFEM::PTable<int > &_result_ref = ((PETScFEM::Elemset const *)arg1)->getPTableI();
+        result = (PETScFEM::PTable<int > *) &_result_ref;
+      } 
+    }
+    PF4PY_CATCH_DIRECTORS
+    PF4PY_CATCH_PETSCFEM
+    PF4PY_CATCH_STDEXC
+    PF4PY_CATCH_UNKNOWN
+  }
+  resultobj = SWIG_NewPointerObj(SWIG_as_voidptr(result), SWIGTYPE_p_PETScFEM__PTableTint_t, SWIG_POINTER_OWN |  0 );
+  result->incref();
+  return resultobj;
+fail:
+  return NULL;
+}
+
+
 SWIGINTERN PyObject *_wrap_Elemset_setPTable__SWIG_1(PyObject *SWIGUNUSEDPARM(self), int nobjs, PyObject **swig_obj) {
   PyObject *resultobj = 0;
   PETScFEM::Elemset *arg1 = (PETScFEM::Elemset *) 0 ;
@@ -9321,41 +9425,6 @@ check_1:
   
 fail:
   SWIG_SetErrorMsg(PyExc_NotImplementedError,"Wrong number of arguments for overloaded function 'Elemset_setPTable'.\n  Possible C/C++ prototypes are:\n    setPTable(PETScFEM::PTable<int > const &)\n    setPTable(PETScFEM::PTable<double > const &)\n");
-  return NULL;
-}
-
-
-SWIGINTERN PyObject *_wrap_Elemset_getPTableI(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
-  PyObject *resultobj = 0;
-  PETScFEM::Elemset *arg1 = (PETScFEM::Elemset *) 0 ;
-  PETScFEM::PTable<int > *result = 0 ;
-  void *argp1 = 0 ;
-  int res1 = 0 ;
-  PyObject *swig_obj[1] ;
-  
-  if (!args) SWIG_fail;
-  swig_obj[0] = args;
-  res1 = SWIG_ConvertPtr(swig_obj[0], &argp1,SWIGTYPE_p_PETScFEM__Elemset, 0 |  0 );
-  if (!SWIG_IsOK(res1)) {
-    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "Elemset_getPTableI" "', argument " "1"" of type '" "PETScFEM::Elemset const *""'"); 
-  }
-  arg1 = reinterpret_cast< PETScFEM::Elemset * >(argp1);
-  {
-    try {
-      {
-        PETScFEM::PTable<int > &_result_ref = ((PETScFEM::Elemset const *)arg1)->getPTableI();
-        result = (PETScFEM::PTable<int > *) &_result_ref;
-      } 
-    }
-    PF4PY_CATCH_DIRECTORS
-    PF4PY_CATCH_PETSCFEM
-    PF4PY_CATCH_STDEXC
-    PF4PY_CATCH_UNKNOWN
-  }
-  resultobj = SWIG_NewPointerObj(SWIG_as_voidptr(result), SWIGTYPE_p_PETScFEM__PTableTint_t, SWIG_POINTER_OWN |  0 );
-  result->incref();
-  return resultobj;
-fail:
   return NULL;
 }
 
@@ -13837,12 +13906,13 @@ static PyMethodDef SwigMethods[] = {
 	 { (char *)"delete_Elemset", (PyCFunction)_wrap_delete_Elemset, METH_O, NULL},
 	 { (char *)"new_Elemset", _wrap_new_Elemset, METH_VARARGS, NULL},
 	 { (char *)"Elemset_getType", (PyCFunction)_wrap_Elemset_getType, METH_O, NULL},
+	 { (char *)"Elemset_setType", _wrap_Elemset_setType, METH_VARARGS, NULL},
 	 { (char *)"Elemset_getOptions", (PyCFunction)_wrap_Elemset_getOptions, METH_O, NULL},
 	 { (char *)"Elemset_setOptions", _wrap_Elemset_setOptions, METH_VARARGS, NULL},
 	 { (char *)"Elemset_getData", (PyCFunction)_wrap_Elemset_getData, METH_O, NULL},
 	 { (char *)"Elemset_setData", _wrap_Elemset_setData, METH_VARARGS, NULL},
-	 { (char *)"Elemset_setPTable", _wrap_Elemset_setPTable, METH_VARARGS, NULL},
 	 { (char *)"Elemset_getPTableI", (PyCFunction)_wrap_Elemset_getPTableI, METH_O, NULL},
+	 { (char *)"Elemset_setPTable", _wrap_Elemset_setPTable, METH_VARARGS, NULL},
 	 { (char *)"Elemset_getPTableS", (PyCFunction)_wrap_Elemset_getPTableS, METH_O, NULL},
 	 { (char *)"Elemset_swigregister", Elemset_swigregister, METH_VARARGS, NULL},
 	 { (char *)"Elemset_swiginit", Elemset_swiginit, METH_VARARGS, NULL},

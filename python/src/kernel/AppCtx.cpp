@@ -340,7 +340,6 @@ PF4PY_NAMESPACE_END
 // ---------------------------------------------------------------- //
 
 
-//#include <applications/ns/nsi_tet.h>
 class WallData;
 
 PF4PY_NAMESPACE_BEGIN

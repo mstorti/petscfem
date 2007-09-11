@@ -86,6 +86,7 @@ vlid = 1
 domain.setFixation(nods, 0, vlid) # vx = 1
 
 domain.setUp()
+#domain.setUp()
 
 steady = opts.getBool('steady', False)
 

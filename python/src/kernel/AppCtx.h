@@ -104,7 +104,7 @@ protected:
   virtual void assemble(const Domain* domain,
 			const std::string& jobname,
 			double t1, Vec x1,
-			double t0, Vec x0, 
+			double t0, Vec x0,
 			Vec r, Mat J, double alpha) const;
 public:
   ~AppNS();
@@ -135,12 +135,12 @@ protected:
 		       std::vector<int>& adjncy) const;
   virtual void assemble(const Domain* domain,
 			const std::string& jobname,
-			double t, Vec x, 
+			double t, Vec x,
 			Vec r, Mat J) const;
   virtual void assemble(const Domain* domain, 
 			const std::string& jobname,
-			double t1, Vec x1, 
-			double t0, Vec x0, 
+			double t1, Vec x1,
+			double t0, Vec x0,
 			Vec r, Mat J, double alpha) const;
 public:
   ~AppAD();

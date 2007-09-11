@@ -31,7 +31,7 @@ namespace numpy{
   {
     typedef std::pair<std::string,int> FieldEntry;
     typedef std::vector<FieldEntry>    FieldList;
-    const FieldList&          fields = self->getFields();
+    //const FieldList&          fields = self->getFields();
     const std::pair<int,int>& shape  = self->getShape();
     const std::vector<T>&     data   = self->getArray();
     void* array = const_cast<T*>(&data[0]);

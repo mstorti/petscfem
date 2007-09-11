@@ -47,6 +47,7 @@ sync(Mesh::Impl* mesh, Elemset::Impl* elemset)
 {
   if (mesh == NULL) return;
   if (elemset == NULL) return;
+  if (mesh->elemsetlist == NULL) mesh->elemsetlist = da_create(sizeof(Elemset::Impl*));
   da_append(mesh->elemsetlist, &elemset);
 }
 static inline void 
@@ -54,8 +55,8 @@ sync(Mesh::Impl* mesh, Options& options)
 {
   if (mesh == NULL) return;
   mesh->global_options     = options;
-  if (mesh->nodedata != NULL)
-    mesh->nodedata->options  = options;
+  if (mesh->nodedata == NULL) mesh->nodedata = new ::Nodedata;
+  mesh->nodedata->options  = options;
 }
 PF4PY_NAMESPACE_END
 
@@ -89,10 +90,11 @@ public:
     mesh->global_options = NULL;
   }
 
-  Proxy(Mesh* M)
-    : _ptr(new Mesh::Impl)
+  Proxy(Mesh* M, Mesh::Impl* impl)
+    : _ptr(impl)
   {
     Mesh::Impl* mesh = *this;
+    if (mesh == NULL) return;
     // init mesh members
     mesh->nodedata = NULL;
     mesh->elemsetlist = NULL;
@@ -103,6 +105,8 @@ public:
     int             nnod      = M->nnod;
     int             nu        = nodetable.getShape().second;
     Options&        options   = M->getOptions();
+    // set mesh options
+    mesh->global_options = options;
     // create nodedata
     mesh->nodedata = new ::Nodedata;
     // init nodedata members
@@ -113,21 +117,14 @@ public:
     mesh->nodedata->options  = options;
     sync(mesh, M->fields);
     // create elemsetlist
-    std::size_t i, n = M->getSize();
+    std::size_t i, n = M->elemsets.size();
     mesh->elemsetlist = da_create_len(sizeof(Elemset::Impl*), n);
+    if(mesh->elemsetlist == NULL) throw Error("Mesh: allocating darray for elemset list");
     // fill elemsetlist
-    if(mesh->elemsetlist == NULL)
-      throw Error("Mesh: allocating darray for elemset list");
-    for (i=0; i<n; i++) {
-      Elemset::Impl* elemset = NULL;
-      da_set(mesh->elemsetlist, i, &elemset);
-    }
     for (i=0; i<n; i++) {
       Elemset::Impl* elemset = M->getElemset((int)i);
       da_set(mesh->elemsetlist, i, &elemset);
     }
-    // set mesh options
-    mesh->global_options = mesh->nodedata->options;
   }
 }; // class Mesh::Proxy
 
@@ -149,8 +146,8 @@ Mesh::~Mesh()
 Mesh::Mesh()
   : ndim(1),
     nnod(0),
-    nodedata(),
     nodepart(),
+    nodedata(),
     fields(),
     elemsets(),
     options(),
@@ -162,8 +159,8 @@ Mesh::Mesh()
 Mesh::Mesh(const Mesh& mesh)
   : ndim(mesh.ndim),
     nnod(mesh.nnod),
-    nodedata(mesh.nodedata),
     nodepart(mesh.nodepart),
+    nodedata(mesh.nodedata),
     fields(mesh.fields),
     elemsets(mesh.elemsets),
     options(mesh.options),
@@ -175,8 +172,8 @@ Mesh::Mesh(const Mesh& mesh)
 Mesh::Mesh(MPI_Comm comm, int ndim, int nnod)
   : ndim(ndim),
     nnod(nnod),
-    nodedata(),
     nodepart((nnod<0)?0:nnod, 1),
+    nodedata(),
     fields(),
     elemsets(),
     options(new Options()),
@@ -190,8 +187,7 @@ Mesh::Mesh(MPI_Comm comm, int ndim, int nnod)
 DTable<double>& 
 Mesh::getNodedata() const
 {
-  if (!this->nodedata) 
-    throw Error("Mesh: nodedata not set");
+  if (!this->nodedata) throw Error("Mesh: nodedata not set");
   return this->nodedata;
 }
 
@@ -200,10 +196,8 @@ Mesh::setNodedata(const DTable<double>& nodetable)
 {
   // check node table
   const std::pair<int,int>& shape = nodetable.getShape();
-  if (this->nnod != shape.first)
-    throw Error("Mesh: rows != nnod in nodedata");
-  if (this->ndim > shape.second)
-    throw Error("Mesh: cols < ndim in nodedata");
+  if (this->nnod != shape.first) throw Error("Mesh: rows != nnod in nodedata");
+  if (this->ndim > shape.second) throw Error("Mesh: cols < ndim in nodedata");
   // set node table
   this->nodedata = nodetable;
   sync(*this, this->nodedata, this->ndim);
@@ -221,8 +215,7 @@ void
 Mesh::setField(const std::string& name, DTable<double>& data)
 {
   const std::pair<int,int>& shape = data.getShape();
-  if (shape.first != this->nnod)
-    throw Error("Mesh: rows != nnod in data");
+  if (shape.first != this->nnod) throw Error("Mesh: rows != nnod in data");
   this->fields.set(name, &data);
   sync(*this, name, data);
 }
@@ -244,8 +237,7 @@ Elemset&
 Mesh::getElemset(int i) const
 {
   Elemset* e = this->elemsets.get(static_cast<std::size_t>(i));
-  if (e == NULL) 
-    throw Error("Mesh: elemset not found, index out of range");
+  if (e == NULL) throw Error("Mesh: elemset not found, index out of range");
   return *e;
 }
 
@@ -295,27 +287,15 @@ void setup_mesh(MPI_Comm, Mesh::Impl*, std::vector<int>&, std::vector<float>&);
 void 
 Mesh::setup(Domain* domain)
 {
-  if (!this->nodedata) 
-    throw Error("Mesh: nodedata not set");
-  if (this->elemsets.empty())
-    throw Error("Mesh: empty elemset list");
-  if (!this->options)
-    throw Error("Mesh: options not set");
-
-  // create mesh
-  this->proxy.reset(new Mesh::Proxy(this));
-  Mesh::Impl* mesh = *this;
-  int ndof = domain->getNDof();
+  if (!this->nodedata)  throw Error("Mesh: nodedata not set");
+  if (!this->elemsets)  throw Error("Mesh: empty elemset list");
+  if (!this->options)   throw Error("Mesh: options not set");
   // initialize elemsets
-  std::size_t i, n = da_length(mesh->elemsetlist);
-  for (i=0; i<n; i++) {
-    Elemset::Impl** eptr = (Elemset::Impl**) da_ref(mesh->elemsetlist, i);
-    assert (eptr != NULL);
-    Elemset::Impl* elemset = *eptr;
-    assert (elemset != NULL);
-    elemset->ndof = ndof;
-    elemset->initialize();
-  }
+  std::size_t i=0, n = this->elemsets.size();
+  while (i!=n) this->elemsets.get(i++)->setup(domain);
+  // create mesh
+  Mesh::Impl* mesh = new Mesh::Impl;
+  this->proxy.reset(new Mesh::Proxy(this, mesh));
   // mesh partitioning
   MPI_Comm            comm  = domain->getComm();
   Options::Impl*      thash = domain->getOptions();
