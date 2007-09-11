@@ -4,6 +4,7 @@
 PF4PY_NAMESPACE_BEGIN
 %newobject Domain::getOptions;
 %newobject Domain::getNodedata;
+%newobject Domain::getField;
 %newobject Domain::getElemset;
 %newobject Domain::getMesh;
 %newobject Domain::getDofset;

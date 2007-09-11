@@ -458,8 +458,25 @@ class Mesh(Object):
         """
         return _core.Mesh_setNodedata(*args)
 
-    def getField(*args): return _core.Mesh_getField(*args)
-    def setField(*args): return _core.Mesh_setField(*args)
+    def getField(*args):
+        """
+        getField(self, name) -> DTableS
+        Parameters:
+           name: string value
+
+        """
+        return _core.Mesh_getField(*args)
+
+    def setField(*args):
+        """
+        setField(self, name, data)
+        Parameters:
+           name: string value
+           data: DTable<double> instance
+
+        """
+        return _core.Mesh_setField(*args)
+
     def getPartitioning(*args): return _core.Mesh_getPartitioning(*args)
     def getSize(*args):
         """getSize(self) -> int"""
@@ -718,7 +735,10 @@ class Domain(Object):
         """getNDof(self) -> int"""
         return _core.Domain_getNDof(*args)
 
-    def getType(*args): return _core.Domain_getType(*args)
+    def getType(*args):
+        """getType(self) -> string"""
+        return _core.Domain_getType(*args)
+
     def getOptions(*args):
         """getOptions(self) -> Options"""
         return _core.Domain_getOptions(*args)
@@ -745,8 +765,25 @@ class Domain(Object):
         """
         return _core.Domain_setNodedata(*args)
 
-    def getField(*args): return _core.Domain_getField(*args)
-    def setField(*args): return _core.Domain_setField(*args)
+    def getField(*args):
+        """
+        getField(self, name) -> DTableS
+        Parameters:
+           name: string value
+
+        """
+        return _core.Domain_getField(*args)
+
+    def setField(*args):
+        """
+        setField(self, name, data)
+        Parameters:
+           name: string value
+           data: DTable<double> instance
+
+        """
+        return _core.Domain_setField(*args)
+
     def getElemset(*args):
         """
         getElemset(self, index) -> Elemset

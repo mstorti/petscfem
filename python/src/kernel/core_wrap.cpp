@@ -11766,8 +11766,9 @@ SWIGINTERN PyObject *_wrap_Domain_getField(PyObject *SWIGUNUSEDPARM(self), PyObj
     PF4PY_CATCH_STDEXC
     PF4PY_CATCH_UNKNOWN
   }
-  resultobj = SWIG_NewPointerObj(SWIG_as_voidptr(result), SWIGTYPE_p_PETScFEM__DTableTdouble_t, 0 |  0 );
+  resultobj = SWIG_NewPointerObj(SWIG_as_voidptr(result), SWIGTYPE_p_PETScFEM__DTableTdouble_t, SWIG_POINTER_OWN |  0 );
   if (SWIG_IsNewObj(res2)) delete arg2;
+  result->incref();
   return resultobj;
 fail:
   if (SWIG_IsNewObj(res2)) delete arg2;

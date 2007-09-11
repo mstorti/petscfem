@@ -94,6 +94,8 @@ PF4PY_NAMESPACE_BEGIN
 %docstring(Mesh::Mesh);
 %docstring(Mesh::getNodedata);
 %docstring(Mesh::setNodedata);
+%docstring(Mesh::getField);
+%docstring(Mesh::setField);
 %docstring(Mesh::getSize);
 %docstring(Mesh::getElemset);
 %docstring(Mesh::addElemset);
@@ -146,11 +148,16 @@ PF4PY_NAMESPACE_BEGIN
 %docstring(Domain::getNNod);
 %docstring(Domain::getNDof);
 
+%docstring(Domain::getType);
+
 %docstring(Domain::getOptions);
 %docstring(Domain::setOptions);
 
 %docstring(Domain::getNodedata);
 %docstring(Domain::setNodedata);
+
+%docstring(Domain::getField);
+%docstring(Domain::setField);
 
 %docstring(Domain::getElemset);
 %docstring(Domain::setElemset);
