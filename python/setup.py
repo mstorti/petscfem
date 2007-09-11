@@ -65,6 +65,9 @@ if PETSC_ARCH.endswith('O_c++') or PETSC_ARCH.endswith('O'):
     BOPT = 'O'
 if PETSC_ARCH.endswith('g_c++') or PETSC_ARCH.endswith('g'):
     BOPT = 'g'
+if BOPT[0] not in ('g', 'O'):
+    raise SystemExit('invalid BOPT: %s' % BOPT)
+BOPT = BOPT[0]
 
 #MKL_DIR = ['/opt/intel/mkl/9.0/lib/32']
 #MKL_LIB = ['mkl_lapack', 'mkl_def', 'guide', 'vml', 'pthread']
@@ -77,8 +80,9 @@ MKL_LIB = []
 
 config = {
     'define_macros': [('MPICH_SKIP_MPICXX', None),
-                      ('USE_ANN', None),
-                       ],
+                      ('OMPI_SKIP_MPICXX',  None),
+                      ],
+
     'include_dirs' : [join(MPI_DIR, 'include'),
                       join(PETSC_DIR, PETSC_ARCH, 'include'),
                       join(PETSC_DIR, 'bmake', PETSC_ARCH),
@@ -111,29 +115,28 @@ config = {
                       join(NEWMAT,    'lib'),
                       join(SSL,       'lib'),
                       ],
-    'runtime_library_dirs' : []
     }
 
 def ext_modules(Extension):
     from os.path import abspath, join
 
-    PETSCFEM_MACROS = config['define_macros']
-    PETSCFEM_DIR = abspath('..')
-    PETSCFEM_INCLUDE = [PETSCFEM_DIR, join(PETSCFEM_DIR, 'src')] \
-                       + config['include_dirs']
-    if BOPT[0] not in ('g', 'O'): raise SystemExit('invalid BOPT: %s' % BOPT)
-    osfx = '_%s' % BOPT[0]
+    PETSCFEM_MACROS  = [('USE_ANN', None),
+                        ('USE_SSL', None),
+                        ] + config['define_macros']
+    PETSCFEM_INCLUDE = [PETSCFEM_DIR,
+                        join(PETSCFEM_DIR, 'src'),
+                        ] + config['include_dirs']
+    osfx = '_%s' % BOPT
     PETSCFEM_LIBRARY = ['ns'       + osfx,
                         'advdif'   + osfx,
-                        'petscfem' + osfx, ] * 2
-    PETSCFEM_LIBRARY +=  config['libraries']
-    PETSCFEM_LIBDIR = [join(PETSCFEM_DIR, 'src'),
-                       join(PETSCFEM_DIR, 'applications/ns'),
-                       join(PETSCFEM_DIR, 'applications/advdif'),
-                       ] + config['library_dirs']
-    PETSCFEM_RT_LIBDIR = PETSCFEM_LIBDIR \
-                          + config['runtime_library_dirs']
-    
+                        'petscfem' + osfx,
+                        ] * 2 + config['libraries']
+    PETSCFEM_LIBDIR  = [join(PETSCFEM_DIR, 'src'),
+                        join(PETSCFEM_DIR, 'applications/ns'),
+                        join(PETSCFEM_DIR, 'applications/advdif'),
+                        ] + config['library_dirs']
+    PETSCFEM_LIBRARY += MKL_LIB
+    PETSCFEM_LIBDIR  += MKL_DIR
     from glob import glob
     sources = glob('src/kernel/core.i')
     sources += glob('src/kernel/*.cpp')
@@ -143,10 +146,6 @@ def ext_modules(Extension):
         pass
     depends = glob('src/kernel/*.i') + glob('src/kernel/*.h')
 
-    PETSCFEM_LIBRARY   += MKL_LIB
-    PETSCFEM_LIBDIR    += MKL_DIR
-    PETSCFEM_RT_LIBDIR += MKL_DIR
-
     petscfem = Extension('pf4py.kernel._core',
                          sources=sources,
                          depends=depends,
@@ -154,7 +153,7 @@ def ext_modules(Extension):
                          include_dirs         = PETSCFEM_INCLUDE,
                          libraries            = PETSCFEM_LIBRARY,
                          library_dirs         = PETSCFEM_LIBDIR,
-                         runtime_library_dirs = PETSCFEM_RT_LIBDIR,
+                         runtime_library_dirs = PETSCFEM_LIBDIR,
                          language='c++',
                        )
     return [petscfem]
@@ -206,7 +205,6 @@ def setup():
                          '-nodirvtable', # bug in swig 1.3.29
                          ):
                 swig_opts.append(flag)
-            
             
     setup(packages     = ['pf4py',
                           'pf4py.kernel',
