@@ -203,19 +203,6 @@ public:
 };
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
-/// Global parameters used by NS
-// struct GlobParam {
-//   /// Trapezoidal rule integration parameter
-//   double alpha;
-//   /// time step
-//   double Dt;
-//   /// do not include temporal term (steady solutions)
-//   int steady;
-//   /// Newton iteration
-//   int inwt;
-//   // States
-//   State *state,*state_old;
-// };
 
 void wall_fun(double yp,double &f,double &fprime);
 
