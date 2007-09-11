@@ -1,6 +1,7 @@
 if __name__ == '__main__':
     import sys, petsc4py
-    petsc4py.init(sys.argv)
+    if 'petsc4py.PETSc' not in sys.modules:
+        petsc4py.init(sys.argv)
     del sys, petsc4py
 
 import numpy

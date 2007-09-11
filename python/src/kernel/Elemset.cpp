@@ -342,6 +342,8 @@ Elemset::setup(Domain* domain)
   if      (app == "NS") elemset = bless_ns(this->type);
   else if (app == "AD") elemset = bless_ad(this->type);
   else throw Error("Elemset: invalid domain application type");
+  if (elemset == NULL) throw Error("Elemset: unknown type '" + this->type +
+				   "' for application '" + app + "'");
   this->proxy.reset(new Elemset::Proxy(this, elemset));
   // initialize elemset
   sync(elemset, this->type, (::Elemset::anon));
