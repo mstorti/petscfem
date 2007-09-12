@@ -38,7 +38,7 @@ include $(PETSCFEM_DIR)/Makefile.defs
 ifeq ($(USE_SEPARATE_COMPILATION),)
 USE_SEPARATE_COMPILATION = yes
 endif
-GNU_C_COMPILER = gcc  # gcc or egcs
+GNU_C_COMPILER = gcc -fPIC  # gcc or egcs
 
 # From version beta-3.04 on, PETSc-FEM must be compiled with a
 # specific version of PETSc. If you work with different versions of
@@ -471,7 +471,7 @@ compdate.cpp:
 	perl -pe 's/__MODULE__/$(PETSCFEM_MODULE)/' < $(PETSCFEM_DIR)/tools/compdate.cppin > $@
 
 
-CXX := g++
+CXX := g++ -fPIC
 CXX_CLINKER := ${CXX}
 
 ifeq ($(BOPT),O_c++)

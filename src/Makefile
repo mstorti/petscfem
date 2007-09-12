@@ -107,18 +107,18 @@ version.cpp: version.cppin ../VERSION
 version.o: CPPFLAGS += -DPETSC_BOPT_FLAG="\"$(BOPT)\""
 
 
-.SECONDARY: tryme$(osfx).o 
-tryme: CPPFLAGS = 
-tryme: secant.o tryme.o
-	g++ -o tryme tryme.o secant.o 
-secant.o: secant.cpp secant.h
-tryme.o: tryme.cpp secant.h
+#.SECONDARY: tryme$(osfx).o 
+#tryme: CPPFLAGS = 
+#tryme: secant.o tryme.o
+#	g++ -o tryme tryme.o secant.o 
+#secant.o: secant.cpp secant.h
+#tryme.o: tryme.cpp secant.h
 
-secant.o: secant.cpp
-	g++ -fPIC -c $<
+#secant.o: secant.cpp
+#	g++ -fPIC -c $<
 
-tryme.o: tryme.cpp
-	g++ -c $<
+#tryme.o: tryme.cpp
+#	g++ -c $<
 
 local_clean::
 	-rm -rf tryme *.tab.*
