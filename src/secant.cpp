@@ -10,11 +10,11 @@
 #undef __FUNC__
 #define __FUNC__ "double Secant::sol(void)" 
 double Secant::sol(void) {
-  // The sequence order is x1 -> x0 -> x2
-  double f0,f1,x1,x2,f2;
-  f0=residual(x0);
   assert(epsilon>0);
-  x1=x0+epsilon;
+  // The sequence order is x1 -> x0 -> x2
+  double f0,f1,x1,x2,f2; 
+  x1 = x0+epsilon;   x2=x0;
+  f0 = residual(x0); f2=f0;
   f1 = residual(x1);
   int j;
   for (j=0; j<maxits; j++) {

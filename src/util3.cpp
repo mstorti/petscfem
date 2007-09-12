@@ -114,7 +114,7 @@ int DXSplit::parse(const char *line) {
   tokenize(line,tokens);
   int ntoken = tokens.size();
   vector<int> nodes;
-  int j=0, ierr, node, subnel;
+  int j=0, ierr=0, node=-1, subnel=-1;
   Subelem se;
 
   splitting.clear();
