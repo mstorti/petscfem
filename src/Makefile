@@ -115,7 +115,7 @@ secant.o: secant.cpp secant.h
 tryme.o: tryme.cpp secant.h
 
 secant.o: secant.cpp
-	g++ -c $<
+	g++ -fPIC -c $<
 
 tryme.o: tryme.cpp
 	g++ -c $<
