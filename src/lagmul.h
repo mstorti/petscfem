@@ -6,13 +6,11 @@
 
 #include <src/penalize.h>
 
-#define LagrangeMult GLagrangeMult
-
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 /** Generic nonlinear restriction element. 
     It may not work for restrictions that involve
     fields in more than one node. */ 
-class LagrangeMult : public NewElemset {
+class GLagrangeMult : public NewElemset {
 private:
   /// Stores internal matrix with coordinates of nodes
   FastMat2 xloc_m;
@@ -44,7 +42,7 @@ public:
       elemset. */
   void initialize();
   /** Initialize the elemset. This is called in the
-      LagrangeMult::initialize() function so that it is
+      GLagrangeMult::initialize() function so that it is
       called before all chunks. And it is called even if
       there are not elements in this processor */
   virtual void lm_initialize() {}
@@ -84,7 +82,7 @@ public:
   /// Called after the loop over all elements
   virtual void close() {}
   /// Make it pure virtual. 
-  virtual ~LagrangeMult()=0;
+  virtual ~GLagrangeMult()=0;
 
   virtual void 
   get_comp_flags(const char *jobinfo,
@@ -110,8 +108,8 @@ public:
     on a separate #Restriction# object, instead of deriving the
     the same Lagrange multiplier object. This allows the
     same restriction object to be used by several elemsets, 
-    like #Penalize# and #LagrangeMult#. */ 
-class ROBLagrangeMult : public LagrangeMult {
+    like #Penalize# and #GLagrangeMult#. */ 
+class ROBLagrangeMult : public GLagrangeMult {
 private:
   int nr;
   Restriction *restr;
@@ -147,7 +145,5 @@ public:
   }
   // void element_hook(ElementIterator &element);
 };
-
-#undef LagrangeMult
 
 #endif
