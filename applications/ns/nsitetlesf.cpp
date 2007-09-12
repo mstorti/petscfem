@@ -239,7 +239,7 @@ assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
   assert(!((A_van_Driest>0)&&(update_wall_data==0)));
 
   //o Add LSIC stabilization
-  SGETOPTDEF(int,use_lsic,0);
+  SGETOPTDEF(int,use_lsic,1);
   //o Explicit treatement of SUPG and PSPG stabilization terms. 
   SGETOPTDEF(int,use_explicit_upwind,0);
   if (oseen_form) use_explicit_upwind = 1;
@@ -247,9 +247,10 @@ assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
   //o Adjust the stability parameters, taking into account
   // the time step. If the  #steady#  option is in effect,
   // (which is equivalent to $\Dt=\infty$) then
-  //  #temporal_stability_factor#  is set to 0.
-  SGETOPTDEF(double,temporal_stability_factor,0.);  // Scale upwind
-  if (comp_mat_res && glob_param->steady) temporal_stability_factor=0;
+  //  #tst_factor#  is set to 0.
+  SGETOPTDEF(int,use_tst, 1);  // Scale upwind
+  SGETOPTDEF(double,tst_factor,1.);  // Scale upwind
+  if (comp_mat_res && glob_param->steady) use_tst=0;
 
   //o Scale the all the stabilization term. 
   SGETOPTDEF(double,tau_fac,1.);  // Scale upwind
@@ -320,7 +321,7 @@ assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
   FMatrix tmp40,tmp41,tmp42,tmp43,tmp44,tmp45;
 
   double tmp12;
-  double tsf = temporal_stability_factor;
+  double tsf = use_tst ? tst_factor : 0.0;
 
   FMatrix eye(ndim,ndim),seed,one_nel,matloc_prof(nen,nen);
 
