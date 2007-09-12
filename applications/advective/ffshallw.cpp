@@ -142,5 +142,5 @@ int flux_fun_shallow(FLUX_FUN_ARGS) {
     // Si H esta definido como positivo hacia abajo. 
     // G_source.Rows(1,ndim) =  (g * (h-HH)) * grad_H;
   }
-
+  return 0;
 }

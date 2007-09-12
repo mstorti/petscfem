@@ -245,7 +245,7 @@ int dvector<float>::printe(FILE *fid,float t);
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 template<class T>
-T dvector<T>::new_t_elem() { T t; return t; }
+T dvector<T>::new_t_elem() { return T(); }
 
 template<>
 double dvector<double>::new_t_elem();

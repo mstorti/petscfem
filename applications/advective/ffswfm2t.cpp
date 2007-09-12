@@ -248,4 +248,5 @@ int flux_fun_shallowfm2t(FLUX_FUN_ARGS_FM2) {
     G_source.setel(P_h+P_k-h*eps,4);
     G_source.setel((C_1*P_h-C_2*eps*h)*eps/(ket<ket_min ? ket_min : ket)+P_e,5);
   }
+  return 0;
 }

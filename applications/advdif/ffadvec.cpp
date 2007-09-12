@@ -17,7 +17,7 @@
 #define __FUNC__ "int flux_fun_advec()"
 int flux_fun_advec(FLUX_FUN_ARGS) {
 
-  int ierr;
+  int ierr=0;
 
   if (ndim!=2) {
     PFEMERRQ("Stop with \"mojito\" drinking!! 2D Only\n");
@@ -72,6 +72,7 @@ int flux_fun_advec(FLUX_FUN_ARGS) {
 	
   if (options & COMP_SOURCE) G_source = 0.;
 
+  return 0;
 }
 
 

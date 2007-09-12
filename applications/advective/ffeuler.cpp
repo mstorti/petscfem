@@ -558,4 +558,5 @@ int flux_fun_euler_FM(FLUX_FUN_ARGS_FM) {
 #endif
     }
   }
+  return 0;
 }

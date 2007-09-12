@@ -193,5 +193,5 @@ int flux_fun_shallowfm2(FLUX_FUN_ARGS_FM2) {
     G_source.is(1,1,ndim).set(grad_H.ir(2,1)).scale(-g*h).rs();
     grad_H.rs();
   }
-
+  return 0;
 }
