@@ -4,6 +4,7 @@
 #define PF4PY_DOMAIN_H
 
 #include <memory>
+#include <utility>
 #include <vector>
 #include "petscfem4py.h"
 
@@ -41,6 +42,8 @@ protected:
   RefVal<AppCtx> appctx;
   RefVal<Mesh>   mesh;
   RefVal<Dofset> dofset;
+  
+  std::pair<VecScatter,Vec> scatter;
   
 public:
   ~Domain();

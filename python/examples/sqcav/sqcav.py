@@ -29,7 +29,7 @@ xnod, icone, wall = BoxMesh([N,N], bbox=[(0,L), (0,L)])
 
 nnod, ndim = xnod.shape
 ndof = ndim + 1 
-domain = Domain('NS', ndim, nnod, ndof)
+domain = Domain('NS', ndim, nnod, ndof, PETSc.COMM_WORLD)
 domain.setNodedata(DTableS(xnod))
 elemset = Elemset('nsi_tet_les_full')
 elemset.setData(DTableI(icone+1))
@@ -97,6 +97,9 @@ vx = soln[:,0].reshape(N,N)
 vy = soln[:,1].reshape(N,N)
 p  = soln[:,2].reshape(N,N)
 u  = numpy.sqrt(vx**2 + vy**2)
+
+
+if domain.getComm().getSize() > 1: raise SystemExit
 
 try:
     from matplotlib import pylab

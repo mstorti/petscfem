@@ -18,7 +18,10 @@ AppCtx* AppCtx_create(const std::string& type)
 }
 
 Domain::~Domain()
-{ }
+{ 
+  PF4PY_PETSC_DESTROY(VecScatterDestroy, this->scatter.first);
+  PF4PY_PETSC_DESTROY(VecDestroy,        this->scatter.second);
+}
 
 Domain::Domain(const Domain& domain)
   : comm(domain.comm), 
@@ -28,7 +31,8 @@ Domain::Domain(const Domain& domain)
     type(domain.type),
     appctx(domain.appctx),
     mesh(domain.mesh),
-    dofset(domain.dofset)
+    dofset(domain.dofset),
+    scatter(PETSC_NULL,PETSC_NULL)
 { }
 
 Domain::Domain(const std::string& type, int ndim, int nnod, int ndof)
@@ -36,7 +40,8 @@ Domain::Domain(const std::string& type, int ndim, int nnod, int ndof)
     ndim(ndim),
     nnod(nnod),
     ndof(ndof),
-    type(type)
+    type(type),
+    scatter(PETSC_NULL,PETSC_NULL)
 {
   if (comm==MPI_COMM_NULL) throw Error("Domain: null communicator");
   if (ndim<1)              throw Error("Domain: ndim < 1");
@@ -53,7 +58,9 @@ Domain::Domain(const std::string& type, int ndim, int nnod, int ndof, MPI_Comm c
   : comm(comm), 
     ndim(ndim), 
     nnod(nnod), 
-    ndof(ndof)
+    ndof(ndof),
+    type(type),
+    scatter(PETSC_NULL,PETSC_NULL)
 {
   if (comm==MPI_COMM_NULL) throw Error("Domain: null communicator");
   if (ndim<1)              throw Error("Domain: ndim < 1");
@@ -93,10 +100,8 @@ void
 Domain::setNodedata(const DTable<double>& nodetable)
 {
   const std::pair<int,int>& shape = nodetable.getShape();
-  if (this->nnod != shape.first)
-    throw Error("Domain: rows != nnod in nodedata");
-  if (this->ndim > shape.second)
-    throw Error("Domain: cols < ndim in nodedata");
+  if (this->nnod != shape.first) throw Error("Domain: rows != nnod in nodedata");
+  if (this->ndim > shape.second) throw Error("Domain: cols < ndim in nodedata");
   this->mesh->setNodedata(nodetable);
 }
 
@@ -111,8 +116,7 @@ Domain::setField(const std::string& name,
 		 DTable<double>& data)
 {
   const std::pair<int,int>& shape = data.getShape();
-  if (this->nnod != shape.first)
-    throw Error("Domain: rows != nnod in nodedata");
+  if (this->nnod != shape.first) throw Error("Domain: rows != nnod in nodedata");
   this->mesh->setField(name,data);
 }
 
@@ -330,7 +334,7 @@ Domain::getDofset() const
 
 static void 
 mk_vec(Vec& o, Comm comm, const std::pair<int,int>& sizes,
-       const std::string& type, const std::string& name)
+       const std::string& type, const std::string& name, int bs=-1)
 {
   PetscTruth valid;
   PetscInt n, N;
@@ -341,6 +345,7 @@ mk_vec(Vec& o, Comm comm, const std::pair<int,int>& sizes,
       n = sizes.first; N = sizes.second;
       PF4PY_PETSC_CALL(VecCreate, (comm, &o));
       PF4PY_PETSC_CALL(VecSetSizes, (o, n, N));
+      if (bs > 0) PF4PY_PETSC_CALL(VecSetBlockSize, (o, bs));
       // set object type
       if (!otype) otype = (comm.getSize() == 1) ? VECSEQ : VECMPI;
       PF4PY_PETSC_CALL(VecSetType, (o, otype));
@@ -368,6 +373,7 @@ mk_vec(Vec& o, Comm comm, const std::pair<int,int>& sizes,
     if (n < 0 || N < 0) {
       n = sizes.first; N = sizes.second;
       PF4PY_PETSC_CALL(VecSetSizes, (o, n, N));
+      if (bs > 0) PF4PY_PETSC_CALL(VecSetBlockSize, (o, bs));
       if (!otype) otype = (comm.getSize() == 1) ? VECSEQ : VECMPI;
     }
     if (otype) PF4PY_PETSC_CALL(VecSetType, (o, otype));
@@ -463,7 +469,7 @@ Domain::allocateSolution(Vec& u) const
   int      nnod = this->getNNod();
   int      ndof = this->getNDof();
   std::pair<int,int> sizes(nnod*ndof,nnod*ndof);
-  mk_vec(u, comm, sizes, VECSEQ, "solution");
+  mk_vec(u, comm, sizes, VECSEQ, "solution", ndof);
 }
 
 void 
@@ -621,79 +627,6 @@ Domain::assemble(const std::string& jobname,
   this->appctx->assemble(this, jobname, t1, x1, t0, x0, r, J, alpha);
 }
 
-#if 0
-// This is a simple Richardon iteration with Jacobi preconditioning to
-// solve the overdetermined problem Q*x=y.
-// The problem is solved in a least-square sense: Q'*Q*x = Q*y.
-// The Richardson/Jacobi iteration is then
-// x^{n+1} = x^{n} + inv(D)*(y - Q'*Q*x^{n}), where D = diag(Q'*Q)
-static std::string
-dofmap_solve(Dofset::Impl* dofmap,
-	     double *x, double *y,
-	     int& iter, double& r0, double& r,
-	     double rtol=1e-10, double atol=1e-10, int niter=100, 
-	     double omega=1.0)
-{
-  assert(x != NULL);
-  assert(y != NULL);
-  int nnod = dofmap->nnod;
-  int ndof = dofmap->ndof;
-  int nrow = nnod*ndof;
-  int ncol = dofmap->neqtot;
-  int m;
-  vector<double> dv(ncol, 0.0); double *d = &dv[0];
-  vector<double> zv(nrow, 0.0); double *z = &zv[0];
-  vector<double> vv(nrow, 0.0); double *v = &vv[0];
-  vector<double> wv(ncol, 0.0); double *w = &wv[0];
-  // z <- Q'*y
-  dofmap->qtxpy(z, y, 1.0);
-  // d <- diag(Q'*Q)
-  for (int j=0; j<nrow; j++) {
-    int kdof = j % ndof + 1;
-    int node = (j / ndof) + 1;
-    const int *dofs;
-    const double *coef;
-    dofmap->get_row(node,kdof,m,&dofs,&coef);
-    for (int k=0; k<m; k++) {
-      int dof = dofs[k]-1;
-      d[dof] += square(coef[k]);
-    }
-  }
-  for (int j=0; j<ncol; j++) 
-    if (d[j] == 0.0) d[j] = 1.0;
-
-  for (iter=0; iter<niter; iter++) {
-    // v <- Q*x
-    for (int j=0; j<nrow; j++) v[j]=0.0; // memset(v, 0, sizeof(double)*nrow);
-    dofmap->qxpy(v, x, 1.0);
-    // w <- Q'*Q*x
-    for (int j=0; j<ncol; j++) w[j]=0.0; // memset(w, 0, sizeof(double)*ncol);
-    dofmap->qtxpy(w, v, 1.0);
-    // x <- x + omega *D^(-1)(z - w) 
-    // D = diag(Q), z = Q'*y; w = Q'*Q*x
-    r = 0.0;
-    for (int j=0; j<ncol; j++) {
-      x[j] += omega*(z[j]-w[j])/d[j];
-      r += square(z[j]-w[j]);
-    }
-    r = sqrt(r);
-    //printf("i: %3d |r|: %f\n", iter, r);
-    if (iter==0) r0 = r;
-    if (r < atol || r < rtol*r0) break;
-  }
-  if (iter < niter) return "";
-  std::stringstream message;
-  message << "Domain: projection did not converge "
-	  << "in "   << niter << " iterations. "
-	  << "rtol: " << rtol << ", "
-	  << "|r0|: " << r0   << ", "
-	  << "atol: " << atol << ", "
-	  << "|r|: "  << r    << "";
-  return message.str();
-}
-#endif
-
-
 // We have to solve the system Q*x = y. 
 // In this version we solve it with the CG
 // on the normal equations. Normally the matrix Q
@@ -714,10 +647,10 @@ PetscErrorCode dofmap_multQtQ(Mat A,Vec x,Vec y)
 }
 #undef __FUNC__
 #define __FUNC__ "dofmap::solve"
-static std::string
+static PetscErrorCode
 dofmap_solve(Dofset::Impl* dofmap,
 	     double *state, double *solution,
-	     int& iter, double& r0, double& r,
+	     int& iter, double& r0, double& r, std::string &failmsg,
 	     double rtol=1e-5, double atol=1e-10, int maxit=100)
 {
   PetscInt its;
@@ -779,8 +712,8 @@ dofmap_solve(Dofset::Impl* dofmap,
   ierr = MatDestroy(H);
   ierr = KSPDestroy(ksp);
   
-  if (its < maxit) PetscFunctionReturn("");
-  
+  failmsg.clear();
+  if (its < maxit) PetscFunctionReturn(0);
   std::stringstream message;
   message << "Domain: projection did not converge "
 	  << "in "    << maxit << " iterations. "
@@ -788,14 +721,16 @@ dofmap_solve(Dofset::Impl* dofmap,
 	  << "|r0|: " << r0   << ", "
 	  << "atol: " << atol << ", "
 	  << "|r|: "  << r    << "";
-
-  PetscFunctionReturn(message.str());
+  failmsg = message.str();
+  PetscFunctionReturn(0);
 }
 
 
 int
 Domain::buildState(double time, Vec solution, Vec state) const
 {
+  PetscErrorCode ierr=0;
+
   assert(time == time);
 
   Dofset::Impl* dofmap = *this->dofset;
@@ -813,62 +748,64 @@ Domain::buildState(double time, Vec solution, Vec state) const
   int root = 0;
 
   /* check provided state vector */
-  PetscTruth stt_valid; VecValid(state,&stt_valid);
+  PetscTruth stt_valid=PETSC_FALSE; 
+  PetscInt   n=0, N=0; 
+  ierr = VecValid(state,&stt_valid);
   PF4PY_ASSERT(stt_valid == PETSC_TRUE, "provided state vector is not valid");
-  PetscInt n, N; VecGetLocalSize(state,&n); VecGetSize(state,&N);
+  ierr = VecGetLocalSize(state,&n); 
+  ierr = VecGetSize(state,&N);
   PF4PY_ASSERT(ldofs == n,"provided state vector has wrong local size");
   PF4PY_ASSERT(gdofs == N,"provided state vector has wrong global size");
 
   /* check provided solution vector */
   if (rank == root) {
-    PetscTruth sol_valid; VecValid(solution,&sol_valid);
+    PetscTruth sol_valid=PETSC_FALSE;
+    PetscInt   sol_size=0;
+    ierr = VecValid(solution,&sol_valid);
     PF4PY_ASSERT(sol_valid == PETSC_TRUE, "provided solution vector is not valid");
-    PetscInt sol_size; VecGetLocalSize(solution,&sol_size);
+    ierr = VecGetLocalSize(solution,&sol_size);
     PF4PY_ASSERT(sol_size == nnod*ndof,   "provided solution vector has wrong local size ");
   }
   
-  /* create scatter */
-  std::pair<VecScatter,Vec> scatter(PETSC_NULL,PETSC_NULL);
-  if (!scatter.first) PF4PY_PETSC_CALL(VecScatterCreateToAll,
-				       (state, &scatter.first, &scatter.second));
+  /* create/reuse scatter */
+  typedef std::pair<VecScatter,Vec> ScatterPair;
+  ScatterPair& scatter = const_cast<ScatterPair&>(this->scatter);
+  if (!scatter.first) {
+    ierr = VecScatterCreateToAll(state, &scatter.first, &scatter.second);
+  }
   
-  std::string result;
-
   /* build state in root processor */
-  int i=0; double r0=0.0; double r=0.0;
-  PetscScalar* stt_array;
-  VecGetArray(scatter.second,&stt_array);
+  int i=0; double r0=0.0; double r=0.0; 
+  std::string failmsg;
+  PetscScalar* stt_array = NULL;
+  ierr = VecGetArray(scatter.second,&stt_array);
   if (rank == root) {
-    // get solution array
-    PetscScalar* sol_array;
-    VecGetArray(solution,&sol_array);
-    // solve
+    PetscScalar* sol_array = PETSC_NULL;
     PetscScalar* sttbuff = PETSC_NULL;
-    PetscMalloc(dofmap->neqtot*sizeof(PetscScalar), &sttbuff);
-    result = dofmap_solve(dofmap, &sttbuff[0], sol_array, i, r0, r);
-    PetscMemcpy(stt_array, &sttbuff[0], dofmap->neq*sizeof(PetscScalar));
-    PetscFree(sttbuff);
+    // get solution array
+    ierr = VecGetArray(solution,&sol_array);
+    // solve
+    ierr = PetscMalloc(dofmap->neqtot*sizeof(PetscScalar), &sttbuff);
+    ierr = dofmap_solve(dofmap, &sttbuff[0], sol_array, i, r0, r, failmsg);
+    ierr = PetscMemcpy(stt_array, &sttbuff[0], dofmap->neq*sizeof(PetscScalar));
+    ierr = PetscFree(sttbuff);
     // restore solution array
-    VecRestoreArray(solution,&sol_array);
+    ierr = VecRestoreArray(solution,&sol_array);
     //
   } else {
-    PetscMemzero(stt_array,gdofs*sizeof(PetscScalar));
+    ierr = PetscMemzero(stt_array,gdofs*sizeof(PetscScalar));
   }
-  VecRestoreArray(scatter.second,&stt_array);
-  MPI_Bcast(&i, 1, MPI_INT, root, comm);
+  ierr = VecRestoreArray(scatter.second,&stt_array);
+  ierr = MPI_Bcast(&i, 1, MPI_INT, root, comm);
 
   /* scatter state values to all processors */
-  VecZeroEntries(state);
-  PF4PY_PETSC_CALL(VecScatterBegin, (scatter.first, scatter.second, state,
-				     ADD_VALUES, SCATTER_REVERSE));
-  PF4PY_PETSC_CALL(VecScatterEnd,   (scatter.first, scatter.second, state, 
-				     ADD_VALUES, SCATTER_REVERSE));
+  ierr = VecZeroEntries(state);
+  ierr = VecScatterBegin(scatter.first, scatter.second, state,
+			 ADD_VALUES, SCATTER_REVERSE);
+  ierr = VecScatterEnd  (scatter.first, scatter.second, state, 
+			 ADD_VALUES, SCATTER_REVERSE);
   
-  /* destroy scatter */
-  PF4PY_PETSC_DESTROY(VecScatterDestroy, scatter.first);
-  PF4PY_PETSC_DESTROY(VecDestroy,        scatter.second);
-
-  if (result.size() > 0) throw Error(result);
+  if (failmsg.size() > 0) throw Error(failmsg);
   
   return i;
 }
@@ -882,7 +819,6 @@ dofmap_apply(Dofset::Impl* dofmap,
   assert(u != NULL);
   int nnod = dofmap->nnod;
   int ndof = dofmap->ndof;
-  //int neq  = dofmap->neq;
   Time time; time.set(t);
   for (int i=0; i<nnod; i++)
     for (int j=0; j<ndof; j++)
@@ -892,7 +828,8 @@ dofmap_apply(Dofset::Impl* dofmap,
 void 
 Domain::buildSolution(double time, Vec state, Vec solution) const
 {
-  
+  PetscErrorCode ierr=0;
+
   Dofset::Impl* dofmap = this->getDofset();
   if (dofmap == NULL) throw Error("Domain: dofset not ready");
 
@@ -903,54 +840,53 @@ Domain::buildSolution(double time, Vec state, Vec solution) const
   int gdofs = sizes.second;
 
   /* check provided state vector */
-  PetscTruth stt_valid; VecValid(state,&stt_valid);
+  PetscTruth stt_valid=PETSC_FALSE; 
+  PetscInt   n=0, N=0; 
+  ierr = VecValid(state,&stt_valid);
   PF4PY_ASSERT(stt_valid == PETSC_TRUE, "provided state vector is not valid");
-  PetscInt n, N; VecGetLocalSize(state,&n); VecGetSize(state,&N);
+  ierr = VecGetLocalSize(state,&n); 
+  ierr = VecGetSize(state,&N);
   PF4PY_ASSERT(ldofs == n, "provided state vector has wrong local size");
   PF4PY_ASSERT(gdofs == N, "provided state vector has wrong global size");
 
   /* check provided solution vector */
-  PetscTruth sol_valid; PetscInt sol_size = 0; 
+  PetscTruth sol_valid=PETSC_FALSE;
+  PetscInt   sol_size=0;
   if (solution != PETSC_NULL) {
-    VecValid(solution,&sol_valid);
+    ierr = VecValid(solution,&sol_valid);
     PF4PY_ASSERT(sol_valid == PETSC_TRUE,
 		 "provided solution vector is not valid");
-    VecGetLocalSize(solution,&sol_size);
+    ierr = VecGetLocalSize(solution,&sol_size);
     PF4PY_ASSERT(sol_size == 0 || sol_size == nnod*ndof, 
 		 "provided solution vector has wrong local size ");
   }
   
-  /* create scatter */
-  std::pair<VecScatter,Vec> scatter(PETSC_NULL,PETSC_NULL);
-  if (!scatter.first) PF4PY_PETSC_CALL(VecScatterCreateToAll,
-				       (state, &scatter.first, &scatter.second));
+  /* create/reuse scatter */
+  typedef std::pair<VecScatter,Vec> ScatterPair;
+  ScatterPair& scatter = const_cast<ScatterPair&>(this->scatter);
+  if (!scatter.first) {
+    ierr = VecScatterCreateToAll(state, &scatter.first, &scatter.second);
+  }
+  
   /* scatter state values to all processors */
-  PF4PY_PETSC_CALL(VecScatterBegin, (scatter.first, state, scatter.second,
-				     INSERT_VALUES, SCATTER_FORWARD));
-  PF4PY_PETSC_CALL(VecScatterEnd,   (scatter.first, state, scatter.second,
-				     INSERT_VALUES,SCATTER_FORWARD));
+  ierr = VecScatterBegin(scatter.first, state, scatter.second,
+			 INSERT_VALUES, SCATTER_FORWARD);
+  ierr = VecScatterEnd  (scatter.first, state, scatter.second,
+			 INSERT_VALUES,SCATTER_FORWARD);
   
   /* user does not want solution on this processor */
-  if (solution == PETSC_NULL) goto exit;
+  if (solution == PETSC_NULL) return;
   
-  PetscScalar* sol_array;
-  VecGetArray(solution, &sol_array);
-  if (sol_size > 0 && sol_array != NULL) {
-    PetscScalar* stt_array;
-    VecGetArray(scatter.second, &stt_array);
-    //
-    if (sol_array != NULL)
-      dofmap_apply(dofmap,time,stt_array,sol_array);
-    /* array of state vector was not touched */
-    VecRestoreArray(scatter.second, &stt_array);
+  PetscScalar* sol_array=NULL;
+  PetscScalar* stt_array=NULL;
+  ierr = VecGetArray(solution, &sol_array);
+  ierr = VecGetArray(scatter.second, &stt_array);
+  if (sol_size > 0 && sol_array != NULL && stt_array != NULL) {
+    dofmap_apply(dofmap,time,stt_array,sol_array);
   }
-  VecRestoreArray(solution, &sol_array);
+  ierr = VecRestoreArray(scatter.second, &stt_array);
+  ierr = VecRestoreArray(solution, &sol_array);
 
- exit:
-  /* destroy scatter */
-  PF4PY_PETSC_DESTROY(VecScatterDestroy, scatter.first);
-  PF4PY_PETSC_DESTROY(VecDestroy,        scatter.second);
 }
-
 
 PF4PY_NAMESPACE_END
