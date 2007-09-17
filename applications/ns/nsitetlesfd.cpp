@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-// $Id mstorti-v6-branch-1.0.0-26-gc29951a Tue Jul 17 19:39:48 2007 -0300$
+// $Id mstorti-v6-branch-1.0.1-3-gcb2faca Wed Sep 5 16:24:40 2007 -0300$
 
 #include <src/fem.h>
 #include <src/utils.h>
@@ -150,6 +150,21 @@ assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
 
   darcy_vers.set(0.0);
   if (darcy_axi) darcy_vers.setel(axi_sign,darcy_axi);
+
+  const char *line = NULL;
+  thash->get_entry("darcy_vers",line);
+  if (line) {
+    vector<double> v;
+    read_double_array(v,line);
+    assert(v.size()==(unsigned int)ndim);
+    darcy_vers.set(&v[0]);
+    double a = darcy_vers.norm_p_all();
+    darcy_vers.scale(1.0/a);
+    // This is to flag that Darcy term is in effect
+    // however it is set to a dummy dimension (ndim+1)
+    // in order to assur that it is NOT used as a dimension
+    darcy_axi = ndim+1;
+  }
 
   //o Reference velocity for selectiv Darcy term. 
   SGETOPTDEF(double,darcy_uref,-1.0); 
