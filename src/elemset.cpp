@@ -26,14 +26,6 @@
 #define INCLUDE_GHOST_ELEMS 1
 extern int MY_RANK,SIZE;
 
-//---:---<*>---:---<*>---:a---<*>---:---<*>---:---<*>---:---<*>---: 
-#if (PETSC_VERSION_MAJOR    == 2 && \
-     PETSC_VERSION_MINOR    == 3 && \
-     PETSC_VERSION_SUBMINOR == 3)
-#if (PETSC_VERSION_RELEASE  == 1)
-#define MatSetOption(mat,opt,flg) MatSetOption((mat),(opt))
-#endif
-#endif
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 #define LOCST(iele,j,k) VEC3(locst,iele,j,nel,k,ndof)
 #define RETVAL(iele,j,k) VEC3(retval,iele,j,nel,k,ndof)

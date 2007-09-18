@@ -24,16 +24,6 @@
 #include <src/iisdmatstat.h>
 
 
-//---:---<*>---:---<*>---:a---<*>---:---<*>---:---<*>---:---<*>---: 
-#if (PETSC_VERSION_MAJOR    == 2 && \
-     PETSC_VERSION_MINOR    == 3 && \
-     PETSC_VERSION_SUBMINOR == 3)
-#if (PETSC_VERSION_RELEASE  == 1)
-#define MatSetOption(mat,opt,flg) MatSetOption((mat),(opt))
-#endif
-#endif
-//---:---<*>---:---<*>---:a---<*>---:---<*>---:---<*>---:---<*>---: 
-
 //#define PF_CHKERRQ(ierr) assert(ierr)
 #define PF_CHKERRQ(ierr) CHKERRQ(ierr)
 

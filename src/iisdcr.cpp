@@ -28,14 +28,6 @@ void trace(const char *label) {
 #endif
 
 //---:---<*>---:---<*>---:a---<*>---:---<*>---:---<*>---:---<*>---: 
-#if (PETSC_VERSION_MAJOR    == 2 && \
-     PETSC_VERSION_MINOR    == 3 && \
-     PETSC_VERSION_SUBMINOR == 3)
-#if (PETSC_VERSION_RELEASE  == 1)
-#define MatSetOption(mat,opt,flg) MatSetOption((mat),(opt))
-#endif
-#endif
-//---:---<*>---:---<*>---:a---<*>---:---<*>---:---<*>---:---<*>---: 
 #undef __FUNC__
 #define __FUNC__ "IISD_mult"
 int IISD_mult(Mat A,Vec x,Vec y) {

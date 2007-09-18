@@ -13,16 +13,6 @@
 #include <src/petscmat.h>
 #include <src/graph.h>
 
-//---:---<*>---:---<*>---:a---<*>---:---<*>---:---<*>---:---<*>---: 
-#if (PETSC_VERSION_MAJOR    == 2 && \
-     PETSC_VERSION_MINOR    == 3 && \
-     PETSC_VERSION_SUBMINOR == 3)
-#if (PETSC_VERSION_RELEASE  == 1)
-#define MatSetOption(mat,opt,flg) MatSetOption((mat),(opt))
-#endif
-#endif
-//---:---<*>---:---<*>---:a---<*>---:---<*>---:---<*>---:---<*>---: 
-
 extern int MY_RANK,SIZE;
 
 PETScMat::~PETScMat() {clear();}
