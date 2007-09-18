@@ -13,6 +13,16 @@
 #include <src/petscmat.h>
 #include <src/graph.h>
 
+//---:---<*>---:---<*>---:a---<*>---:---<*>---:---<*>---:---<*>---: 
+#if (PETSC_VERSION_MAJOR    == 2 && \
+     PETSC_VERSION_MINOR    == 3 && \
+     PETSC_VERSION_SUBMINOR == 3)
+#if (PETSC_VERSION_RELEASE  == 1)
+#define MatSetOption(mat,opt,flg) MatSetOption((mat),(opt))
+#endif
+#endif
+//---:---<*>---:---<*>---:a---<*>---:---<*>---:---<*>---:---<*>---: 
+
 extern int MY_RANK,SIZE;
 
 PETScMat::~PETScMat() {clear();}
@@ -141,12 +151,12 @@ int PETScMat::create_a() {
 			  PETSC_NULL,d_nnz,PETSC_NULL,o_nnz,&A);
   CHKERRQ(ierr); 
   if (mat_new_nonzero_allocation_err) {
-    ierr =  MatSetOption(A, MAT_NEW_NONZERO_ALLOCATION_ERR);
+    ierr =  MatSetOption(A, MAT_NEW_NONZERO_ALLOCATION_ERR, PETSC_TRUE);
     CHKERRQ(ierr); 
   }
   if (symmetric) {
     if (!myrank) printf("is symmetric\n");
-    ierr =  MatSetOption(A,MAT_SYMMETRIC);
+    ierr =  MatSetOption(A, MAT_SYMMETRIC, PETSC_TRUE);
     CHKERRQ(ierr); 
   }
   // P and A are pointers (in PETSc), otherwise this may be somewhat risky

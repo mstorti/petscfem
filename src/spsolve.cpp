@@ -3,6 +3,16 @@
 
 #include "sparse2.h"
 
+//---:---<*>---:---<*>---:a---<*>---:---<*>---:---<*>---:---<*>---: 
+#if (PETSC_VERSION_MAJOR    == 2 && \
+     PETSC_VERSION_MINOR    == 3 && \
+     PETSC_VERSION_SUBMINOR == 3)
+#if (PETSC_VERSION_RELEASE  == 1)
+#define MatSetOption(mat,opt,flg) MatSetOption((mat),(opt))
+#endif
+#endif
+//---:---<*>---:---<*>---:a---<*>---:---<*>---:---<*>---:---<*>---: 
+
 extern "C" {
   int PrintInt10(char *name, int len, int *x);
 }
@@ -172,7 +182,7 @@ namespace Sparse {
 
     ierr = MatCreateSeqAIJ(PETSC_COMM_SELF,m,m,
 			   PETSC_NULL,d_nnz_p,&A); assert(!ierr);
-    ierr =  MatSetOption(A, MAT_NEW_NONZERO_ALLOCATION_ERR);
+    ierr =  MatSetOption(A,MAT_NEW_NONZERO_ALLOCATION_ERR,PETSC_TRUE);
     for (j=0; j<m; j++) {
       row = find(j);
       assert(row != e);

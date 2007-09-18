@@ -28,6 +28,14 @@ void trace(const char *label) {
 #endif
 
 //---:---<*>---:---<*>---:a---<*>---:---<*>---:---<*>---:---<*>---: 
+#if (PETSC_VERSION_MAJOR    == 2 && \
+     PETSC_VERSION_MINOR    == 3 && \
+     PETSC_VERSION_SUBMINOR == 3)
+#if (PETSC_VERSION_RELEASE  == 1)
+#define MatSetOption(mat,opt,flg) MatSetOption((mat),(opt))
+#endif
+#endif
+//---:---<*>---:---<*>---:a---<*>---:---<*>---:---<*>---:---<*>---: 
 #undef __FUNC__
 #define __FUNC__ "IISD_mult"
 int IISD_mult(Mat A,Vec x,Vec y) {
@@ -758,7 +766,7 @@ int IISDMat::create_a() {
 			 PETSC_NULL,&*nnz[D][L][I].begin(),
 			 PETSC_NULL,&*nnz[O][L][I].begin(),
 			 &A_LI); CHKERRQ(ierr); 
-  ierr =  MatSetOption(A_LI, MAT_NEW_NONZERO_ALLOCATION_ERR);
+  ierr =  MatSetOption(A_LI,MAT_NEW_NONZERO_ALLOCATION_ERR,PETSC_TRUE);
   CHKERRQ(ierr); 
     
   ierr = MatCreateMPIAIJ(comm,n_int,n_loc,
@@ -766,7 +774,7 @@ int IISDMat::create_a() {
 			 PETSC_NULL,&*nnz[D][I][L].begin(),
 			 PETSC_NULL,&*nnz[O][I][L].begin(),
 			 &A_IL); CHKERRQ(ierr); 
-  ierr =  MatSetOption(A_IL, MAT_NEW_NONZERO_ALLOCATION_ERR);
+  ierr =  MatSetOption(A_IL,MAT_NEW_NONZERO_ALLOCATION_ERR,PETSC_TRUE);
   CHKERRQ(ierr); 
   
   ierr = MatCreateMPIAIJ(comm,n_int,n_int,
@@ -774,7 +782,7 @@ int IISDMat::create_a() {
 			 PETSC_NULL,&*nnz[D][I][I].begin(),
 			 PETSC_NULL,&*nnz[O][I][I].begin(),
 			 &A_II); CHKERRQ(ierr); 
-  ierr =  MatSetOption(A_II, MAT_NEW_NONZERO_ALLOCATION_ERR);
+  ierr =  MatSetOption(A_II,MAT_NEW_NONZERO_ALLOCATION_ERR,PETSC_TRUE);
   CHKERRQ(ierr); 
   
   ierr = MatStashSetInitialSize(A_II,300000,0);
@@ -787,7 +795,7 @@ int IISDMat::create_a() {
 			   PETSC_NULL,&*isp_d_nnz.begin(),
 			   PETSC_NULL,&*isp_o_nnz.begin(),
 			   &A_II_isp); CHKERRQ(ierr); 
-    ierr =  MatSetOption(A_II_isp, MAT_NEW_NONZERO_ALLOCATION_ERR);
+    ierr =  MatSetOption(A_II_isp,MAT_NEW_NONZERO_ALLOCATION_ERR,PETSC_TRUE);
     CHKERRQ(ierr); 
     // ierr = MatStashSetInitialSize(A_II,300000,0);
     // CHKERRQ(ierr); 

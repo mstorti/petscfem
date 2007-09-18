@@ -23,6 +23,17 @@
 #include <src/debug.h>
 #include <src/iisdmatstat.h>
 
+
+//---:---<*>---:---<*>---:a---<*>---:---<*>---:---<*>---:---<*>---: 
+#if (PETSC_VERSION_MAJOR    == 2 && \
+     PETSC_VERSION_MINOR    == 3 && \
+     PETSC_VERSION_SUBMINOR == 3)
+#if (PETSC_VERSION_RELEASE  == 1)
+#define MatSetOption(mat,opt,flg) MatSetOption((mat),(opt))
+#endif
+#endif
+//---:---<*>---:---<*>---:a---<*>---:---<*>---:---<*>---:---<*>---: 
+
 //#define PF_CHKERRQ(ierr) assert(ierr)
 #define PF_CHKERRQ(ierr) CHKERRQ(ierr)
 
@@ -612,7 +623,7 @@ int IISDMat::clean_mat_a() {
     ierr = MatDestroy_maybe(A_LL); PF_CHKERRQ(ierr); 
     ierr = MatCreateSeqAIJ(PETSC_COMM_SELF,n_loc,n_loc,PETSC_NULL,
 			   &*d_nnz_LL.begin(),&A_LL); PF_CHKERRQ(ierr); 
-    ierr =  MatSetOption(A_LL, MAT_NEW_NONZERO_ALLOCATION_ERR);
+    ierr =  MatSetOption(A_LL,MAT_NEW_NONZERO_ALLOCATION_ERR,PETSC_TRUE);
     CHKERRQ(ierr); 
     ierr=MatZeroEntries(A_LL); PF_CHKERRQ(ierr);
   } else if (local_solver == SuperLU) {

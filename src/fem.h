@@ -584,5 +584,17 @@ void detj_error(double &detJaco,int elem);
 #define KSPMonitorLG KSPLGMonitor
 #endif
 
+#if (PETSC_VERSION_MAJOR    == 2 && \
+     PETSC_VERSION_MINOR    == 3 && \
+     PETSC_VERSION_SUBMINOR == 2 && \
+     PETSC_VERSION_RELEASE  == 1)   \
+                ||                  \
+    (PETSC_VERSION_MAJOR    == 2 && \
+     PETSC_VERSION_MINOR    == 3 && \
+     PETSC_VERSION_SUBMINOR == 3 && \
+     PETSC_VERSION_RELEASE  == 1)
+#define MatSetOption(mat,opt,flg) MatSetOption( (mat), (assert(flg),(opt)) )
+#endif
+
 #endif
 //@}
