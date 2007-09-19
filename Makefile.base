@@ -426,5 +426,6 @@ gprof: petscfem.prof
 compdate.o: CPPFLAGS += "-DPETSCFEM_HOSTNAME=\"$(shell uname -a)\""
 
 compdate.cpp:
-	perl -pe 's/__MODULE__/$(PETSCFEM_MODULE)/' < $(PETSCFEM_DIR)/tools/compdate.cppin > $@
+	perl -pe 's/__MODULE__/$(PETSCFEM_MODULE)/' < \
+		$(PETSCFEM_DIR)/tools/compdate.cppin > $@
 

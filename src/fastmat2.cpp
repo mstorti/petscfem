@@ -1,5 +1,5 @@
 ///__INSERT_LICENSE__
-//$Id mstorti-v6-branch-1.0.1-1-geb6dc7a Mon Aug 20 13:13:13 2007 -0300$
+//$Id mstorti-v6-branch-1.0.1-4-g668487f Mon Sep 17 00:25:06 2007 -0300$
 
 #include <cmath>
 #include <cstdio>
@@ -51,6 +51,19 @@ void FastMat2::CacheCtx::get_cache_position(FastMatCachePosition & pos) {
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 void FastMat2::get_cache_position(FastMatCachePosition & pos) {
   global_cache_ctx.get_cache_position(pos);
+}
+
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+int FastMat2::CacheCtx
+::check_cache_position(FastMatCachePosition & pos) {
+  if (!pos.first) {
+    get_cache_position(pos);
+    return 0;
+  } else {
+    FastMatCachePosition pos2;
+    get_cache_position(pos);
+    return pos2==pos;
+  }
 }
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 

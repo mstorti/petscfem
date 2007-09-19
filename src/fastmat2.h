@@ -1,6 +1,6 @@
 // -*- mode: c++ -*-
 /*__INSERT_LICENSE__*/
-//$Id mstorti-v6-branch-1.0.1 Fri Aug 17 13:46:01 2007 -0300$
+//$Id mstorti-v6-branch-1.0.1-4-g668487f Mon Sep 17 00:25:06 2007 -0300$
 
 #ifndef FASTMAT2_H
 #define FASTMAT2_H
@@ -287,6 +287,7 @@ public:
     /// Operation count
     OperationCount op_count;
     void get_cache_position(FastMatCachePosition & pos);
+    int check_cache_position(FastMatCachePosition & pos);
     void deactivate_cache();
     void branch();
     void choose(const int j);
