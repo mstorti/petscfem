@@ -4,7 +4,7 @@
 
 
 //__INSERT_LICENSE__
-//$Id: fmat2ep.cpp,v 1.26 2007/02/23 16:31:14 mstorti Exp $
+//$Id mstorti-v6-branch-1.0.1-5-ge86f38c Wed Sep 19 13:06:15 2007 -0300$
 #include <math.h>
 #include <stdio.h>
 
