@@ -2,7 +2,7 @@
 //<=$warn_dont_modify //>
 
 //__INSERT_LICENSE__
-//$Id: fmat2ep.cpp,v 1.26 2007/02/23 16:31:14 mstorti Exp $
+//$Id mstorti-v6-branch-1.0.1-5-ge86f38c Wed Sep 19 13:06:15 2007 -0300$
 #include <math.h>
 #include <stdio.h>
 
@@ -413,7 +413,7 @@ FastMat2 & FastMat2::__NAME__(const FastMat2 & A, __OTHER_ARGS__ __C__
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 double FastMat2::__NAME___all(__OTHER_ARGS__) const {
-  static FastMat2 retval(0);
+  static FastMat2 retval(ctx,0);
   retval.__NAME__(*this __C__ __OTHER_ARGS_P__);
   return *retval.store;
 }

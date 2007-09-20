@@ -1,5 +1,5 @@
 ///__INSERT_LICENSE__
-//$Id mstorti-v6-branch-1.0.1-4-g668487f Mon Sep 17 00:25:06 2007 -0300$
+//$Id mstorti-v6-branch-1.0.1-5-ge86f38c Wed Sep 19 13:06:15 2007 -0300$
 
 #include <cmath>
 #include <cstdio>
@@ -58,10 +58,10 @@ int FastMat2::CacheCtx
 ::check_cache_position(FastMatCachePosition & pos) {
   if (!pos.first) {
     get_cache_position(pos);
-    return 0;
+    return 1;
   } else {
     FastMatCachePosition pos2;
-    get_cache_position(pos);
+    get_cache_position(pos2);
     return pos2==pos;
   }
 }

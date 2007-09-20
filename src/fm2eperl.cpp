@@ -732,7 +732,7 @@ FastMat2 & FastMat2::sum(const FastMat2 & A,
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 double FastMat2::sum_all() const {
-  static FastMat2 retval(0);
+  static FastMat2 retval(ctx,0);
   retval.sum(*this  );
   return *retval.store;
 }
@@ -883,7 +883,7 @@ ctx->op_count.mult += ntot;
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 double FastMat2::sum_square_all() const {
-  static FastMat2 retval(0);
+  static FastMat2 retval(ctx,0);
   retval.sum_square(*this  );
   return *retval.store;
 }
@@ -1034,7 +1034,7 @@ ctx->op_count.abs += ntot;
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 double FastMat2::sum_abs_all() const {
-  static FastMat2 retval(0);
+  static FastMat2 retval(ctx,0);
   retval.sum_abs(*this  );
   return *retval.store;
 }
@@ -1185,7 +1185,7 @@ ctx->op_count.abs += ntot;
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 double FastMat2::norm_p_all(const double p) const {
-  static FastMat2 retval(0);
+  static FastMat2 retval(ctx,0);
   retval.norm_p(*this , p);
   return *retval.store;
 }
@@ -1336,7 +1336,7 @@ ctx->op_count.abs += ntot;
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 double FastMat2::norm_p_all(const int p) const {
-  static FastMat2 retval(0);
+  static FastMat2 retval(ctx,0);
   retval.norm_p(*this , p);
   return *retval.store;
 }
@@ -1485,7 +1485,7 @@ FastMat2 & FastMat2::assoc(const FastMat2 & A, Fun2 &f ,
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 double FastMat2::assoc_all(Fun2 &f) const {
-  static FastMat2 retval(0);
+  static FastMat2 retval(ctx,0);
   retval.assoc(*this , f);
   return *retval.store;
 }
@@ -1636,7 +1636,7 @@ ctx->op_count.fun += ntot;
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 double FastMat2::max_all() const {
-  static FastMat2 retval(0);
+  static FastMat2 retval(ctx,0);
   retval.max(*this  );
   return *retval.store;
 }
@@ -1787,7 +1787,7 @@ ctx->op_count.fun += ntot;
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 double FastMat2::min_all() const {
-  static FastMat2 retval(0);
+  static FastMat2 retval(ctx,0);
   retval.min(*this  );
   return *retval.store;
 }
@@ -1940,7 +1940,7 @@ ctx->op_count.abs += ntot;
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 double FastMat2::max_abs_all() const {
-  static FastMat2 retval(0);
+  static FastMat2 retval(ctx,0);
   retval.max_abs(*this  );
   return *retval.store;
 }
@@ -2093,7 +2093,7 @@ ctx->op_count.abs += ntot;
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 double FastMat2::min_abs_all() const {
-  static FastMat2 retval(0);
+  static FastMat2 retval(ctx,0);
   retval.min_abs(*this  );
   return *retval.store;
 }
