@@ -38,7 +38,6 @@ include $(PETSCFEM_DIR)/Makefile.defs
 ifeq ($(USE_SEPARATE_COMPILATION),)
 USE_SEPARATE_COMPILATION = yes
 endif
-GNU_C_COMPILER = gcc -fPIC  # gcc or egcs
 
 # From version beta-3.04 on, PETSc-FEM must be compiled with a
 # specific version of PETSc. If you work with different versions of
@@ -50,8 +49,12 @@ GNU_C_COMPILER = gcc -fPIC  # gcc or egcs
 
 export PETSCFEM_DIR
 
-#export LD_LIBRARY_PATH=$(PETSC_DIR)/lib/$(PETSC_ARCH):$(PETSC_DIR)/$(PETSC_ARCH)/lib
-
+ifeq ($(BOPT),O)
+BOPT = O_c++
+endif
+ifeq ($(BOPT),g)
+BOPT = g_c++
+endif
 
 ifeq ($(BOPT),O_c++) 
 opt_level = O
@@ -76,12 +79,6 @@ BISON = bison -d
 
 ifeq ($(TAGINCL),)
 TAGINCL = --etags-include
-endif
-
-## MPICH
-ifneq ($(MPI_DIR),)
-MPI_CPPFLAGS = -DMPICH_IGNORE_CXX_SEEK -I$(MPI_INC_DIR)
-MPI_LDFLAGS  = -Wl,-rpath,$(MPI_LIB_DIR) -L$(MPI_LIB_DIR) -l$(MPI_LIBNAME)
 endif
 
 ## PETSc
@@ -167,20 +164,21 @@ endif
 # here goes -frepo if needed
 # CPPFLAGS := -frepo $(PROF_FLAGS)
 
-CPPFLAGS := 					\
-	$(WARN_FLAGS)				\
-	$(PROF_FLAGS)        			\
-	$(MPI_CPPFLAGS)				\
-	$(PETSC_CPPFLAGS)			\
-	-I$(PETSCFEM_DIR) 			\
-	$(GLIB_CPPFLAGS)		        \
-	$(LIBRETTO_CPPFLAGS)			\
-	$(MESCHACH_CPPFLAGS)	        	\
-	$(NEWMAT_CPPFLAGS)	        	\
-	$(METIS_CPPFLAGS)			\
-	$(ANN_CPPFLAGS)			        \
-	$(SSL_CPPFLAGS)				\
-	$(SUPERLU_CPPFLAGS)			\
+CPPFLAGS := \
+	-DMPICH_SKIP_MPICXX 	\
+	-DOMPI_SKIP_MPICXX 	\
+	$(WARN_FLAGS)		\
+	$(PROF_FLAGS)        	\
+	$(PETSC_CPPFLAGS)	\
+	-I$(PETSCFEM_DIR) 	\
+	$(GLIB_CPPFLAGS)	\
+	$(LIBRETTO_CPPFLAGS)	\
+	$(MESCHACH_CPPFLAGS)	\
+	$(NEWMAT_CPPFLAGS)	\
+	$(METIS_CPPFLAGS)	\
+	$(ANN_CPPFLAGS)		\
+	$(SSL_CPPFLAGS)		\
+	$(SUPERLU_CPPFLAGS)	\
 
 ifeq ($(USE_DYNAMICALLY_LOADED_EXTENDED_FUNCTIONS),yes) 
 CPPFLAGS += -DUSE_DLEF
@@ -315,9 +313,6 @@ distclean:
 ## PETSc Libraries used by most PETSc-FEM applications
 #PETSCFEM_PETSC_LIBS := ${PETSC_KSP_LIB}
 
-LD_LIBRARY_PATH += -Wl,-rpath -Wl,$(MPI_DIR)/lib
-MPI_LDFLAGS := -lmpichcxx -lmpich -lpthread -lrt
-
 LDFLAGS = -Wl,-E,-rpath,$(LD_LIBRARY_PATH)	\
           $(PROG_LIB)				\
 	  $(PTHREADS_LIB)			\
@@ -325,7 +320,6 @@ LDFLAGS = -Wl,-E,-rpath,$(LD_LIBRARY_PATH)	\
 	  -lpetscfem$(osfx)   			\
           $(PROG_LIB)				\
           -lpetscfem$(osfx) -lc			\
-	  $(MPI_LDFLAGS)			\
           $(ANN_LDFLAGS) 			\
           $(GLIB_LDFLAGS)			\
 	  $(LIBRETTO_LDFLAGS)  			\
@@ -336,7 +330,6 @@ LDFLAGS = -Wl,-E,-rpath,$(LD_LIBRARY_PATH)	\
           $(SUPERLU_LDFLAGS) 			\
 	  $(SSL_LDFLAGS)			\
 	  $(PETSC_LDFLAGS)			\
-          $(MPI_LDFLAGS) 			\
 
 LDFLAGS_NO_PROG_LIB =					\
 	  $(PTHREADS_LIB)				\
@@ -350,7 +343,6 @@ LDFLAGS_NO_PROG_LIB =					\
 	  $(SSL_LDFLAGS)				\
           $(SUPERLU_LDFLAGS)				\
 	  $(PETSC_LDFLAGS)				\
-          $(MPI_LDFLAGS)                                \
 
 EFN_LDFLAGS =	
 
@@ -471,6 +463,7 @@ compdate.cpp:
 	perl -pe 's/__MODULE__/$(PETSCFEM_MODULE)/' < $(PETSCFEM_DIR)/tools/compdate.cppin > $@
 
 
+CC  := gcc -fPIC
 CXX := g++ -fPIC
 CXX_CLINKER := ${CXX}
 
@@ -480,5 +473,9 @@ else
 COPTFLAGS := -g3
 endif
 
+
 %.o: %.cpp
-	$(CXX) -c -o $@ ${COPTFLAGS} ${CFLAGS} ${CCPPFLAGS} $<
+	$(CXX) -c ${COPTFLAGS} ${CFLAGS} ${CPPFLAGS} -o $@ $<
+
+%.o: %.c
+	$(CC) -c ${COPTFLAGS} ${CFLAGS} ${CPPFLAGS} -o $@ $<

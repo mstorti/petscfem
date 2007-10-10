@@ -20,7 +20,7 @@ local_depend: getarraypars.tab.c getarraypars.tab.h
 tryme.o: tryme.cpp
 
 %.o: %.c
-	$(GNU_C_COMPILER) -c $(CPPFLAGS) $(CFLAGS) $< -o $@
+	$(CC) -c $(CPPFLAGS) $(CFLAGS) $< -o $@
 
 local_clean::
 	-$(RM) -rf tryme *.tab.*

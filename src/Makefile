@@ -131,9 +131,6 @@ local_depend: getarrgr.tab.c getarrgr.tab.h
 
 getarrgr.tab.o: getarrgr.tab.c
 
-%.o: %.c
-	$(GNU_C_COMPILER) -c $(CPPFLAGS) $(CFLAGS) $< -o $@
-
 odocsrc: $(DOC_DIR)/odociisd.tex $(DOC_DIR)/odociisdm.tex \
 		$(DOC_DIR)/odocelems.tex $(DOC_DIR)/odocrmsh.tex \
 		$(DOC_DIR)/odocdxhook.tex
