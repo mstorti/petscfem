@@ -1,6 +1,6 @@
 #!/usr/bin/perl
 #__INSERT_LICENSE__
-# $Id: odoc.pl,v 1.25 2005/11/06 14:07:37 mstorti Exp $
+# $Id mstorti-v6-branch-1.0.1-8-gb1dd839 Thu Sep 20 13:43:44 2007 -0300$
 
 @odoc=();
 
@@ -355,7 +355,7 @@ call as, for instance
 
 =item *
 
-B<Wiki syntax:> A set of words between tow stars (as in C<*foo bar
+B<Wiki syntax:> A set of words between two stars (as in C<*foo bar
 zoo*>) is bolded in the outoput (using C<\textbf{}>,
 i.e. C<\textbf{foo bar zoo}>). Also, C<_foo bar_> expands to italic
 (using C<\emph{}>) and C<#bar zoo#> expands to monospace (using
