@@ -1,4 +1,4 @@
-PETSCFEM_DIR := ../
+PETSCFEM_DIR := ../..
 
 run:
 	octave -qH mksqcav.m
