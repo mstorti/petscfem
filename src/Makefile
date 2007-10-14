@@ -118,6 +118,7 @@ tryme.o: tryme.cpp
 local_clean::
 	-rm -rf tryme *.tab.*
 
+ifeq ($(DEVELOPER_MODE),yes)
 local_depend: getarrgr.tab.c getarrgr.tab.h
 
 #.INTERMEDIATE: *.tab.*
@@ -125,6 +126,7 @@ local_depend: getarrgr.tab.c getarrgr.tab.h
 	$(BISON) $<
 
 getarrgr.tab.o: getarrgr.tab.c
+endif
 
 %.o: %.c
 	$(GNU_C_COMPILER) -c $(CPPFLAGS) $(CFLAGS) $< -o $@
@@ -147,6 +149,3 @@ $(DOC_DIR)/odocrmsh.tex: readmesh.cpp
 
 $(DOC_DIR)/odocdxhook.tex: dxhook.cpp
 	$(run_odoc)
-
-pp:
-	echo $(LIBPETSCFEM)
