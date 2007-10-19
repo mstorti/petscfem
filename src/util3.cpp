@@ -60,7 +60,7 @@ void tokenize(const char *line,vector<string> &tokens) {
     @param (input) the socket where the line is read. 
     @return number of bytes read */ 
 ssize_t Sgetline(char **lineptr, size_t *N_a,Socket *sock) {
-  unsigned int &N = *N_a;	// use reference for better readbility
+  size_t &N = *N_a;	// use reference for better readbility
   char * new_line_ptr = NULL, *q, *q0, *qe;
   // At any time the buffer is #N# bytes long and we have
   // read already #read_so_far# bytes.
