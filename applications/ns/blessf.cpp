@@ -44,6 +44,7 @@
 #include "./bubblyqint.h"
 #include "./nsitetlesf.h"
 #include "./nsitetlesfd.h"
+#include "./truss.h"
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:
 #undef __FUNC__
@@ -111,6 +112,7 @@ void bless_elemset(char *type,Elemset *& elemset) {
     SET_ELEMSET_TYPE(mesh_move_opt)
     SET_ELEMSET_TYPE(mesh_move_opt2)
     SET_ELEMSET_TYPE(mesh_move_opt3)
+    SET_ELEMSET_TYPE(truss)
 
     SET_ELEMSET_TYPE(inviscid_coupling)
 
