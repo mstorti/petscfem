@@ -1,11 +1,11 @@
 // -*- mode: C++ -*-
 /*__INSERT_LICENSE__*/
-//$Id mstorti-v6-branch-1.0.2-8-ge5d52ed Sun Oct 14 10:36:32 2007 -0300$
+//$Id mstorti-v6-branch-1.0.2-9-g5c6b966 Tue Oct 23 16:52:48 2007 -0300$
 
 #ifndef TRUSS_H
 #define TRUSS_H
 
-class  truss : public adaptor { 
+class truss : public adaptor { 
 private:
   /// Auxiliary variables
   FastMat2 G;
