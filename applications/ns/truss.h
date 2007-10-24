@@ -1,6 +1,6 @@
 // -*- mode: C++ -*-
 /*__INSERT_LICENSE__*/
-//$Id mstorti-v6-branch-1.0.2-9-g5c6b966 Tue Oct 23 16:52:48 2007 -0300$
+//$Id mstorti-v6-branch-1.0.2-10-gac227da Tue Oct 23 16:55:19 2007 -0300$
 
 #ifndef TRUSS_H
 #define TRUSS_H
@@ -8,7 +8,7 @@
 class truss : public adaptor { 
 private:
   /// Auxiliary variables
-  FastMat2 G;
+  FastMat2 len, xlocc, dx;
 public: 
   /** Initializes the elemset. Reads parameters, 
       resizes auxiliary matrices. 

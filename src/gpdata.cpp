@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: gpdata.cpp,v 1.45 2007/02/24 14:45:08 mstorti Exp $
+//$Id mstorti-v6-branch-1.0.2-10-gac227da Tue Oct 23 16:55:19 2007 -0300$
 
 #include "petscsles.h"
 #include <math.h>
@@ -473,6 +473,11 @@ GPdata::GPdata(const char *geom,int ndimel,int nel,int npg_,int
 	  dshapexi[ipg](1,iloc)=dsxidxi;
 	}
       }
+
+#ifdef USE_DX
+      splitting.parse("1 2 lines");
+#endif
+
     } else if (ndimel==2) {
       Matrix xinode(2,4);
       xinode << -1 << 1 << 1 << -1 << -1 << -1 << 1 << 1;

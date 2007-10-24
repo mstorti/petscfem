@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-// $Id: util3.cpp,v 1.15 2007/02/24 14:45:08 mstorti Exp $
+// $Id mstorti-v6-branch-1.0.2-10-gac227da Tue Oct 23 16:55:19 2007 -0300$
 #include <cstring>
 #include <cstdio>
 #include <cassert>
@@ -129,6 +129,7 @@ int DXSplit::parse(const char *line) {
     while (j<ntoken) {
       token = &tokens[j++];
       if (0) {} // tricky
+      DX_CHECK(lines,2)
       DX_CHECK(quads,4)
 	DX_CHECK(cubes,8)
 	DX_CHECK(triangles,3)
