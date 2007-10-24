@@ -1,6 +1,6 @@
 // -*- mode: c++ -*-
 /*__INSERT_LICENSE__*/
-//$Id: fastmat2.h,v 1.38 2007/01/30 19:03:44 mstorti Exp $
+//$Id merge-with-petsc-233-50-g0ace95e Fri Oct 19 17:49:52 2007 -0300$
 
 #ifndef FASTMAT2_H
 #define FASTMAT2_H
@@ -253,9 +253,54 @@ typedef double scalar_fun_with_args_t(double,void*);
 typedef double scalar_fun_t(double);
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
-/// Fast matrices. Supposed to be faster than Newmat
+/// Fast matrices. 
 class FastMat2 {
 public:
+  class CacheCtx {
+  public:
+    /// Root of cache lists
+    FastMatCacheList *cache_list_root;
+    /// Root list of caches for this ctx
+    FastMatCacheList cache_list_internal;
+    /// Current list of caches
+    FastMatCacheList *cache_list;
+    /// Cache-list stack
+    vector<FastMatCachePosition> cache_list_stack;
+    /// Position in cache\_list
+    int position_in_cache;
+    /// begin of cache\_list
+    FastMatCache **cache_list_begin;
+    /// size of cache list
+    int cache_list_size;
+    /// Use cache?
+    int use_cache;
+    /// Was computed this cache list
+    int was_cached;
+    /// save was\_cached if use deactivate\_cache()
+    int was_cached_save;
+    /// Operation count
+    OperationCount op_count;
+    void get_cache_position(FastMatCachePosition & pos);
+    int check_cache_position(FastMatCachePosition & pos);
+    void deactivate_cache();
+    void branch();
+    void choose(const int j);
+    void leave(void);
+    void resync_was_cached();
+    void jump_to(FastMatCachePosition &pos);
+    double operation_count(void);
+    void reset_cache(void);
+    void print_count_statistics();
+    void activate_cache(FastMatCacheList *cache_list_);
+    void init();
+    void void_cache(void);
+    FastMatCache *step();
+    friend class FastMat2;
+    CacheCtx();
+  };
+  CacheCtx *ctx;
+  static CacheCtx global_cache_ctx;
+   /// Controls debugging
   //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
   /** Default constructor
       @author M. Storti
@@ -276,6 +321,27 @@ public:
       @param dims\_ (input) the vector of dimensions.
   */ 
   FastMat2(const Indx & dims_);
+
+  //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+  /** Default constructor
+      @author M. Storti
+   */ 
+  FastMat2(CacheCtx *ctx);
+  
+  //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+  /** Constructor from indices (reading with varargs).
+      @author M. Storti
+      @param m (input) the number of indices. 
+      @param INT\_VAR\_ARGS (input) the list of dimensions (m values)
+  */ 
+  FastMat2(CacheCtx *ctx,const int m,INT_VAR_ARGS);
+
+  //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+  /** Constructor from indices
+      @author M. Storti
+      @param dims\_ (input) the vector of dimensions.
+  */ 
+  FastMat2(CacheCtx *ctx,const Indx & dims_);
 
   //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
   /** Destructor
@@ -323,6 +389,15 @@ public:
       @return a reference to the matrix.
    */ 
   void print(int rowsz,const char *s=NULL) const;
+
+  //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+  /** Prints the matrix with a fixed rowsize. 
+      @author M. Storti
+      @param rowsz (input) the row size
+      @param s (input) An optional string to print.
+      @return a reference to the matrix.
+   */ 
+  void dump(FILE *stream=stdout,int rowsz=0) const;
 
   //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
   /** Prints dimensions of the matrix.
@@ -1103,7 +1178,7 @@ public:
   /** Deactivates use of the cache
       @author M. Storti
   */ 
-  static inline void deactivate_cache(void);
+  static void deactivate_cache(void);
 
   //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
   /** Resets the cache.
@@ -1194,26 +1269,6 @@ private:
   Indx absindx;
   /// was the matriz defined? 
   int defined;
-  /// Root of cache lists
-  static FastMatCacheList *cache_list_root;
-  /// Current list of caches
-  static FastMatCacheList *cache_list;
-  /// Cache-list stack
-  static vector<FastMatCachePosition> cache_list_stack;
-  /// Position in cache\_list
-  static int position_in_cache;
-  /// begin of cache\_list
-  static FastMatCache **cache_list_begin;
-  /// size of cache list
-  static int cache_list_size;
-  /// Use cache?
-  static int use_cache;
-  /// Was computed this cache list
-  static int was_cached;
-  /// save was\_cached if use deactivate\_cache()
-  static int was_cached_save;
-  /// Operation count
-  static OperationCount op_count;
   int comp_storage_size(const Indx & indx) const;
   /// creates storage and freezes dimensions
   void define_matrix(void);
@@ -1232,13 +1287,6 @@ private:
   /// auxiliary.  prints matrices with 1 indices.
   void print1(const Indx & indxp,const Indx & fdims) const;
 };
-
-//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
-inline void FastMat2::deactivate_cache(void) {
-  was_cached_save=was_cached;
-  use_cache=0; 
-  was_cached=0; 
-}
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 /// For 2 indices matrices

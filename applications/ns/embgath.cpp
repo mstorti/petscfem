@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: embgath.cpp,v 1.41.22.1 2007/02/19 20:23:56 mstorti Exp $
+//$Id merge-with-petsc-233-50-g0ace95e Fri Oct 19 17:49:52 2007 -0300$
 
 #include <src/fem.h>
 #include <src/utils.h>
@@ -362,7 +362,7 @@ void visc_force_integrator
     dx.set(xpg).rest(x_center);
     SHV(dx);
     // Moment contribution = force X dx
-    moment.cross(force,dx);
+    moment.cross(dx,force);
     SHV(moment);
     // export forces to return vector
     moment.export_vals(&*pg_values.begin()+ndim_m);

@@ -2,7 +2,7 @@
 //<=$warn_dont_modify //>
 
 //__INSERT_LICENSE__
-//$Id: fmat2ep2.cpp,v 1.12 2007/01/31 15:33:12 mstorti Exp $
+//$Id merge-with-petsc-233-50-g0ace95e Fri Oct 19 17:49:52 2007 -0300$
 #include <math.h>
 #include <stdio.h>
 
@@ -51,7 +51,7 @@ FastMat2::eig(const FastMat2 & A,
 
   ns_eig_cache *sc;
   int symmetric = 0;
-  if (!was_cached) {
+  if (!ctx->was_cached) {
     Indx Adims;
     A.get_dims(Adims);
     int ndims = Adims.size();
@@ -140,7 +140,7 @@ FastMat2::eig(const FastMat2 & A,
   if (sc->clev) for (int j=0; j<m2; j++) *(sc->VL[j]) = sc->VL_c[j];
   if (sc->crev) for (int j=0; j<m2; j++) *(sc->VR[j]) = sc->VR_c[j];
 
-  if (!use_cache) delete cache;
+  if (!ctx->use_cache) delete cache;
   return *this;
 }
 //EOF
@@ -198,7 +198,7 @@ FastMat2::seig(const FastMat2 & A, FastMat2 &V,int compute_eigen_vectors) {
 
   eig_cache *ecache;
   int &cev = compute_eigen_vectors;
-  if (!was_cached) {
+  if (!ctx->was_cached) {
     Indx Adims;
     A.get_dims(Adims);
     int ndims = Adims.size();
@@ -263,7 +263,7 @@ FastMat2::seig(const FastMat2 & A, FastMat2 &V,int compute_eigen_vectors) {
   for (int j=0; j<m; j++) *(ecache->W[j]) = ecache->W_c[j];
   if (cev) for (int j=0; j<m2; j++) *(ecache->V[j]) = ecache->A_c[j];
 
-  if (!use_cache) delete cache;
+  if (!ctx->use_cache) delete cache;
   return *this;
 }
 //EOF
@@ -293,7 +293,7 @@ FastMat2 & FastMat2::inv(const FastMat2 & A) {
 
   __CACHE_OPERATIONS__;
 
-  if (!was_cached) {
+  if (!ctx->was_cached) {
     Indx Adims;
     A.get_dims(Adims);
     int ndims = Adims.size();
@@ -342,10 +342,10 @@ FastMat2 & FastMat2::inv(const FastMat2 & A) {
     }
 
     // This I don't know if it's correct.
-    op_count.get += m*m;
-    op_count.put += m*m;
-    op_count.mult += m*m*m;
-    op_count.sum += m*m*m;
+    ctx->op_count.get += m*m;
+    ctx->op_count.put += m*m;
+    ctx->op_count.mult += m*m*m;
+    ctx->op_count.sum += m*m*m;
 
   }
 
@@ -409,7 +409,7 @@ FastMat2 & FastMat2::inv(const FastMat2 & A) {
 #endif
   }
 
-  if (!use_cache) delete cache;
+  if (!ctx->use_cache) delete cache;
   return *this;
 #undef A
 #undef iA
@@ -422,7 +422,7 @@ _//>
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 double FastMat2::trace() {
   __CACHE_OPERATIONS__;
-  if (!was_cached) {
+  if (!ctx->was_cached) {
     assert(defined);
     Indx Adims;
     get_dims(Adims);
@@ -439,7 +439,7 @@ double FastMat2::trace() {
     } 
     cache->nelems = n;
     cache->pto = &*cache->to_elems.begin();
-    op_count.put += n;
+    ctx->op_count.put += n;
     __COUNT_OPER__;
   
   }
@@ -452,7 +452,7 @@ double FastMat2::trace() {
     tr += **pto++;
   }
 
-  if (!use_cache) delete cache;
+  if (!ctx->use_cache) delete cache;
   return tr;
 }
 //EOF

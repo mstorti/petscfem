@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-/* $Id: blessf.cpp,v 1.47.16.2 2007/03/08 19:22:16 dalcinl Exp $ */
+/* $Id merge-with-petsc-233-50-g0ace95e Fri Oct 19 17:49:52 2007 -0300$ */
 
 #include <src/debug.h>
 #include <malloc.h>
@@ -44,6 +44,8 @@
 #include "./bubblyqint.h"
 #include "./nsitetlesf.h"
 #include "./nsitetlesfbf.h"
+#include "./nsitetlesfd.h"
+#include "./truss.h"
 
 #include "./poiboltz.h"
 
@@ -71,6 +73,7 @@ void bless_elemset_ns(char *type,Elemset *& elemset) {
 
     SET_ELEMSET_TYPE(nsi_tet_les_fm2)
     SET_ELEMSET_TYPE(nsi_tet_les_full)
+    SET_ELEMSET_TYPE(nsi_tet_les_full_darcy)
     SET_ELEMSET_TYPE(nsi_tet_les_full_bf)
     SET_ELEMSET_TYPE(nsi_tet_les_comp)
     SET_ELEMSET_TYPE(nsi_tet_les_ther)
@@ -109,6 +112,7 @@ void bless_elemset_ns(char *type,Elemset *& elemset) {
     SET_ELEMSET_TYPE(mesh_move2)
     SET_ELEMSET_TYPE(mesh_move_opt)
     SET_ELEMSET_TYPE(mesh_move_opt3)
+    SET_ELEMSET_TYPE(truss)
 
     SET_ELEMSET_TYPE(inviscid_coupling)
 

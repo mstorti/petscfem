@@ -1,7 +1,8 @@
 //__INSERT_LICENSE__
-// $Id: project.cpp,v 1.24 2005/04/28 15:43:04 mstorti Exp $
+// $Id merge-with-petsc-233-50-g0ace95e Fri Oct 19 17:49:52 2007 -0300$
 
 #include <cstdio>
+#include <mpi.h>
 #include <src/fastmat2.h>
 #include <src/dvector.h>
 #include <src/dvector2.h>
@@ -21,9 +22,7 @@ void FemInterp::clear() {
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 FemInterp::FemInterp() : 
-  kdtree(NULL), 
-  use_cache(1), tol(1e-6), 
-  pts(NULL) {}
+  kdtree(NULL), pts(NULL), use_cache(1), tol(1e-6) {}
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 FemInterp::~FemInterp() { clear(); }
@@ -52,12 +51,16 @@ void FemInterp::init(int knbr_a, int ndof_a, int ndimel_a,
   icone.clone(icone_a);
 
   // Build ANN octree
+  printf("computing element centers ...\n");
+  double start = MPI_Wtime();
   FastMat2 xe(1,ndim),xn(1,ndim);
   double inel = 1./nel;
   pts = annAllocPts(nelem,ndim);
   // fixme:= should `pts' be freed after??
   // seems that no
+  FastMat2::activate_cache(&cache_list2);
   for (int k=0; k<nelem; k++) {
+    FastMat2::reset_cache();
     xe.set(0.);
     for (int j=0; j<nel; j++) {
       int node = icone.e(k,j);
@@ -68,7 +71,15 @@ void FemInterp::init(int knbr_a, int ndof_a, int ndimel_a,
     for (int j=0; j<ndim; j++)
       pts[k][j] = xe.get(j+1);
   }
+  FastMat2::deactivate_cache();
+  printf("end computing element centers... elapsed %f\n",
+         MPI_Wtime()-start);
+
+  printf("loading points in ann-tree ...\n");
+  start = MPI_Wtime();
   kdtree = new ANNkd_tree(pts,nelem,ndim);
+  printf("end loading points in ann-tree... elapsed %f\n",
+         MPI_Wtime()-start);
 
   nd1 = ndim+1;
   C.resize(2,nd1,nd1);
@@ -102,8 +113,8 @@ void FemInterp::interp(const dvector<double> &xnod2,
   assert(xnod2.size(1) == ndim);
   ui.a_resize(2,nnod2,ndof).defrag();
 
-  double d2min;			// Minimum distance to elements in mesh1
-  int k1min;			// Element in mesh1 with minimum distance
+  double d2min=NAN;			// Minimum distance to elements in mesh1
+  int k1min=0;			// Element in mesh1 with minimum distance
 
   nn_idx_v.resize(knbr);
   ANNidx *nn_idx = &nn_idx_v[0];
@@ -116,9 +127,13 @@ void FemInterp::interp(const dvector<double> &xnod2,
   // the `knbr' elements reported by `ANN'. 
   // int nelem_check = (ndimel==ndim? nelem+knbr : knbr);
   int nelem_check = knbr;
+  printf("start interpolation...\n");
+  double start = MPI_Wtime();
+  if(use_cache) FastMat2::activate_cache(&cache_list);
+  FastMat2::get_cache_position(cp3);
   for (int n2=0; n2<nnod2; n2++) {
+    FastMat2::jump_to(cp3);
     x2.set(&xnod2.e(n2,0));
-    if(use_cache) FastMat2::activate_cache(&cache_list);
     for (int j=0; j<ndim; j++) 
       nn[j] = xnod2.e(n2,j);
     kdtree->annkSearch(nn,knbr,nn_idx,nn_dist,0.0);
@@ -129,9 +144,10 @@ void FemInterp::interp(const dvector<double> &xnod2,
 #endif
     int q;
 
+    FastMat2::get_cache_position(cp2);
     for (q=0; q<nelem_check; q++) {
+      FastMat2::jump_to(cp2);
       int k = (q<knbr ? nn_idx[q] : q-knbr);
-      FastMat2::reset_cache();
       C.is(1,1,ndim);
       for (int j=0; j<nel; j++) {
 	int node = icone.e(k,j);
@@ -224,15 +240,18 @@ void FemInterp::interp(const dvector<double> &xnod2,
       // Form distance vector
       dx2.set(x2).rest(x2prj);
       double d2 = dx2.norm_p_all(2.0);
+      FastMat2::branch();
       if (q==0 || d2<d2min) {
+        FastMat2::choose(0);
 	d2min = d2;
 	k1min = k;
 	Lmin.set(L);
 	x2prjmin.set(x2prj);
       }
+      FastMat2::leave();
       if (d2min<tol) break;
     }
-    FastMat2::deactivate_cache();
+    FastMat2::resync_was_cached();
     // x2.print("x2");
     // printf("tries %d\n",q+1);
     // x2prjmin.print("x2prjmin");
@@ -250,6 +269,7 @@ void FemInterp::interp(const dvector<double> &xnod2,
     tryav += q+1;
     u2.export_vals(&ui.e(n2,0));
   }
+  printf("end interpolation... elapsed %f\n",MPI_Wtime()-start);
   annDeallocPt(nn);
   // delete[] nn_idx;
   printf("Averg. nbr of tries %f\n",tryav/nnod2);

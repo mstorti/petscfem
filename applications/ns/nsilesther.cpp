@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: nsilesther.cpp,v 1.34.10.1 2007/02/19 20:23:56 mstorti Exp $
+//$Id merge-with-petsc-233-50-g0ace95e Fri Oct 19 17:49:52 2007 -0300$
 
 #include <src/fem.h>
 #include <src/utils.h>
@@ -547,7 +547,7 @@ int nsi_tet_les_ther::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
 	      // Smagorinsky turbulence model
 	      if (LES) {
 		double tr = (double) tmp15.prod(strain_rate,strain_rate,-1,-2,-1,-2);
-		double van_D;
+		double van_D=NAN;
 		if (A_van_Driest>0.) {
 		  dist_to_wall.prod(SHAPE,xloc,-1,-1,1).rest(wall_coords);
 		  double ywall = sqrt(dist_to_wall.sum_square_all());

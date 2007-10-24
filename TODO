@@ -2,6 +2,8 @@
 TODO: [Mainly fixes go here...]
 =====
 
+* In FastMat2, static declarations should be removed, otherwise it is
+   not reentrant.
 * using `shock_capturing' in `nsi_tet_les_fm2' gives SIGSEGV
 * using nsi_tet_les_fm2 with fractional step produces  SEGV
 * In test/sector/Makefile: change '-chmod +w sector.depl'
@@ -149,6 +151,8 @@ TODO: [Mainly fixes go here...]
 DONE:
 =====
 
+* In `ns.cpp' some warnings about uninitialized variables remain (see
+notes.txt) FIXED 2007-05-05 11:43:19
 * in advdif: setting ndim=3 but using 2d elements gives a FastMat2
   error. Should be detected earlier? CAN'T REPRODUCE 2007-02-23 21:12:58
 * doesn't compile without `pthreads' FIXED:= in  `beta-3.49.73'

@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: utils.cpp,v 1.17.10.1 2007/02/19 20:23:56 mstorti Exp $
+//$Id merge-with-petsc-233-50-g0ace95e Fri Oct 19 17:49:52 2007 -0300$
  
 #include <src/debug.h>
 #include <stdio.h>
@@ -206,6 +206,19 @@ double maxd(int n,...) {
   }
   va_end(list);
   return max;
+}
+
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+double mind(int n,...) {
+  va_list list;
+  va_start(list,n);
+  double min=-INFINITY,item;
+  for (int kk=0; kk<n; kk++) {
+    item = va_arg(list,double);
+    min = ( kk==0 ? item : ( min < item ? min : item));
+  }
+  va_end(list);
+  return min;
 }
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 

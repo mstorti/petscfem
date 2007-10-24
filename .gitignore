@@ -5,3 +5,4 @@
 makefile.d
 README
 README.html
+*.patch

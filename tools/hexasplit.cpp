@@ -1,5 +1,5 @@
 /*__INSERT_LICENSE__*/
-// $Id: hexasplit.cpp,v 1.9 2003/07/03 04:32:11 mstorti Exp $
+// $Id merge-with-petsc-233-50-g0ace95e Fri Oct 19 17:49:52 2007 -0300$
 
 #ifndef _GNU_SOURCE
 #define _GNU_SOURCE
@@ -81,6 +81,7 @@ int main (int argc, char **argv) {
     nelem++;
     for (int k=0; k<NEL; k++) {
       token = strtok((k==0? line : NULL)," ");
+      assert(token);
       int nread = sscanf(token,"%d",&node);
       assert(nread==1);
       icone.push(node);

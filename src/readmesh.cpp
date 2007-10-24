@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: readmesh.cpp,v 1.122.10.1 2007/02/19 20:23:56 mstorti Exp $
+//$Id merge-with-petsc-233-50-g0ace95e Fri Oct 19 17:49:52 2007 -0300$
 #ifndef _GNU_SOURCE 
 #define _GNU_SOURCE 
 #endif
@@ -49,6 +49,7 @@ extern "C" {
   ierr = MPI_Barrier(PETSCFEM_COMM_WORLD);		\
   PetscPrintf(PETSCFEM_COMM_WORLD,"trace " #n "\n")
 #else
+#undef TRACE
 #define TRACE(n)
 #endif
 

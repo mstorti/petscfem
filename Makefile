@@ -1,6 +1,6 @@
 # mode: -*- makefile -*-
 #__INSERT_LICENSE__
-#$Id: Makefile,v 1.65.20.1 2007/02/19 20:23:56 mstorti Exp $
+#$Id merge-with-petsc-233-50-g0ace95e Fri Oct 19 17:49:52 2007 -0300$
 
 SHELL = /bin/bash
 
@@ -266,6 +266,11 @@ clean_g:
 clean_O:
 	-${RM} `find . -name '*_O.a'` `find . -name '*_O.bin'` 
 
+gpush:
+	git push origin mstorti-v6-branch
+
+gpull:
+	git pull origin mstorti-v6-branch
 
 #w Updates working directory
 sync:

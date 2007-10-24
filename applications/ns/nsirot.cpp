@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-/* $Id: nsirot.cpp,v 1.7.10.1 2007/02/19 20:23:56 mstorti Exp $ */
+/* $Id merge-with-petsc-233-50-g0ace95e Fri Oct 19 17:49:52 2007 -0300$ */
 
 #include <src/fem.h>
 #include <src/utils.h>
@@ -312,8 +312,8 @@ int nsi_rot::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
   GPdata gp_data(geometry.c_str(),ndim,nel,npg,GP_FASTMAT2);
 
   // Definiciones para descargar el lazo interno
-  double detJaco, UU, u2, Peclet, psi, tau_supg, tau_pspg, div_u_star,
-    p_star,wpgdet,velmod,tol,h_supg,fz,delta_supg,Uh;
+  double detJaco, UU, u2, Peclet, psi, tau_supg=NAN, tau_pspg=NAN, div_u_star,
+    p_star,wpgdet,velmod,tol,h_supg,fz,delta_supg=NAN,Uh;
 
   FastMat2 P_supg, W_supg, W_supg_t, dmatw,
            grad_div_u(4,nel,ndim,nel,ndim);

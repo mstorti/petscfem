@@ -4,7 +4,7 @@
 
 
 //__INSERT_LICENSE__
-//$Id: fmat2ep.cpp,v 1.24.26.1 2007/02/20 18:25:46 dalcinl Exp $
+//$Id merge-with-petsc-233-50-g0ace95e Fri Oct 19 17:49:52 2007 -0300$
 #include <math.h>
 #include <stdio.h>
 
@@ -88,8 +88,8 @@ printf(" cache_list %p, cache %p, position_in_cache %d\n",
     cache->pto = &*cache->to_elems.begin();
     cache->pfrom = &*cache->from_elems.begin();
 
-    op_count.put += cache->nelems;
-    op_count.get += cache->nelems;
+    ctx->op_count.put += cache->nelems;
+    ctx->op_count.get += cache->nelems;
     ;
   }
 
@@ -160,9 +160,9 @@ printf(" cache_list %p, cache %p, position_in_cache %d\n",
     cache->pto = &*cache->to_elems.begin();
     cache->pfrom = &*cache->from_elems.begin();
 
-    op_count.put += cache->nelems;
-    op_count.get += cache->nelems;
-    op_count.sum += cache->nelems;
+    ctx->op_count.put += cache->nelems;
+    ctx->op_count.get += cache->nelems;
+    ctx->op_count.sum += cache->nelems;
 ;
   }
 
@@ -233,9 +233,9 @@ printf(" cache_list %p, cache %p, position_in_cache %d\n",
     cache->pto = &*cache->to_elems.begin();
     cache->pfrom = &*cache->from_elems.begin();
 
-    op_count.put += cache->nelems;
-    op_count.get += cache->nelems;
-    op_count.sum += cache->nelems;
+    ctx->op_count.put += cache->nelems;
+    ctx->op_count.get += cache->nelems;
+    ctx->op_count.sum += cache->nelems;
 ;
   }
 
@@ -306,9 +306,9 @@ printf(" cache_list %p, cache %p, position_in_cache %d\n",
     cache->pto = &*cache->to_elems.begin();
     cache->pfrom = &*cache->from_elems.begin();
 
-    op_count.put += cache->nelems;
-    op_count.get += cache->nelems;
-    op_count.mult += cache->nelems;
+    ctx->op_count.put += cache->nelems;
+    ctx->op_count.get += cache->nelems;
+    ctx->op_count.mult += cache->nelems;
 ;
   }
 
@@ -379,9 +379,9 @@ printf(" cache_list %p, cache %p, position_in_cache %d\n",
     cache->pto = &*cache->to_elems.begin();
     cache->pfrom = &*cache->from_elems.begin();
 
-    op_count.put += cache->nelems;
-    op_count.get += cache->nelems;
-    op_count.div += cache->nelems;
+    ctx->op_count.put += cache->nelems;
+    ctx->op_count.get += cache->nelems;
+    ctx->op_count.div += cache->nelems;
 ;
   }
 
@@ -452,9 +452,9 @@ printf(" cache_list %p, cache %p, position_in_cache %d\n",
     cache->pto = &*cache->to_elems.begin();
     cache->pfrom = &*cache->from_elems.begin();
 
-    op_count.put += cache->nelems;
-    op_count.get += cache->nelems;
-    op_count.div += cache->nelems;
+    ctx->op_count.put += cache->nelems;
+    ctx->op_count.get += cache->nelems;
+    ctx->op_count.div += cache->nelems;
 ;
   }
 
@@ -525,10 +525,10 @@ printf(" cache_list %p, cache %p, position_in_cache %d\n",
     cache->pto = &*cache->to_elems.begin();
     cache->pfrom = &*cache->from_elems.begin();
 
-    op_count.put += cache->nelems;
-    op_count.get += cache->nelems;
-    op_count.mult += cache->nelems;
-op_count.sum += cache->nelems;
+    ctx->op_count.put += cache->nelems;
+    ctx->op_count.get += cache->nelems;
+    ctx->op_count.mult += cache->nelems;
+ctx->op_count.sum += cache->nelems;
 ;
   }
 
@@ -539,7 +539,7 @@ op_count.sum += cache->nelems;
   while (pto < pto_end) {
     **pto++ += alpha * **pfrom++;
   }
-  if (!use_cache) delete cache;
+  if (!ctx->use_cache) delete cache;
   return *this;
 }  
 
@@ -697,14 +697,14 @@ printf(" cache_list %p, cache %p, position_in_cache %d\n",
     assert(ndims==indx.size());
 #endif
     cache->to = location(indx);
-    op_count.put += 1;
-    op_count.mult += 1;
+    ctx->op_count.put += 1;
+    ctx->op_count.mult += 1;
 ;
   }
 
   *cache->to *= val;
 
-  if (!use_cache) delete cache;
+  if (!ctx->use_cache) delete cache;
   return *this;
 
 }  
@@ -762,8 +762,8 @@ printf(" cache_list %p, cache %p, position_in_cache %d\n",
       flag=inc(indx,fdims);
     } 
     cache->pto = &*cache->to_elems.begin();
-    op_count.get += cache->nelems;
-    op_count.get += cache->nelems;
+    ctx->op_count.get += cache->nelems;
+    ctx->op_count.get += cache->nelems;
   }
   const double *from = a;
 
@@ -773,7 +773,7 @@ printf(" cache_list %p, cache %p, position_in_cache %d\n",
   while (pto < pto_end) {
     **pto++ = *from++;
   }
-  if (!use_cache) delete cache;
+  if (!ctx->use_cache) delete cache;
   return *this;
 ;
 
@@ -852,7 +852,7 @@ printf(" cache_list %p, cache %p, position_in_cache %d\n",
   while (pto < pto_end) {
     **pto++ = *from++;
   }
-  if (!use_cache) delete cache;
+  if (!ctx->use_cache) delete cache;
   return *this;
 ;
 
@@ -869,7 +869,7 @@ printf(" cache_list %p, cache %p, position_in_cache %d\n",
    'INI_LOOP' => 'val=0'
    'NAME' => 'sum'
    'ELEM_OPERATIONS' => 'val += **pa++'
-   'COUNT_OPER' => 'op_count.sum += ntot;
+   'COUNT_OPER' => 'ctx->op_count.sum += ntot;
 '
    'OTHER_ARGS' => ''
    'C' => ''
@@ -1003,9 +1003,9 @@ printf(" cache_list %p, cache %p, position_in_cache %d\n",
       if (!inc(findx,ndimsf)) break;
     }
     int ntot = nlines*line_size;
-    op_count.get += ntot;
-    op_count.put += nlines;
-    op_count.sum += ntot;
+    ctx->op_count.get += ntot;
+    ctx->op_count.put += nlines;
+    ctx->op_count.sum += ntot;
 ;
   }
 
@@ -1025,13 +1025,13 @@ printf(" cache_list %p, cache %p, position_in_cache %d\n",
     *lc->target = val;
   }
   ;
-  if (!use_cache) delete cache;
+  if (!ctx->use_cache) delete cache;
   return *this;
 }  
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 double FastMat2::sum_all() const {
-  static FastMat2 retval(0);
+  static FastMat2 retval(ctx,0);
   retval.sum(*this  );
   return *retval.store;
 }
@@ -1041,8 +1041,8 @@ double FastMat2::sum_all() const {
    'INI_LOOP' => 'val=0'
    'NAME' => 'sum_square'
    'ELEM_OPERATIONS' => 'aux= **pa++; val += aux*aux'
-   'COUNT_OPER' => 'op_count.sum += ntot;
-op_count.mult += ntot;
+   'COUNT_OPER' => 'ctx->op_count.sum += ntot;
+ctx->op_count.mult += ntot;
 '
    'OTHER_ARGS' => ''
    'C' => ''
@@ -1176,10 +1176,10 @@ printf(" cache_list %p, cache %p, position_in_cache %d\n",
       if (!inc(findx,ndimsf)) break;
     }
     int ntot = nlines*line_size;
-    op_count.get += ntot;
-    op_count.put += nlines;
-    op_count.sum += ntot;
-op_count.mult += ntot;
+    ctx->op_count.get += ntot;
+    ctx->op_count.put += nlines;
+    ctx->op_count.sum += ntot;
+ctx->op_count.mult += ntot;
 ;
   }
 
@@ -1199,13 +1199,13 @@ op_count.mult += ntot;
     *lc->target = val;
   }
   ;
-  if (!use_cache) delete cache;
+  if (!ctx->use_cache) delete cache;
   return *this;
 }  
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 double FastMat2::sum_square_all() const {
-  static FastMat2 retval(0);
+  static FastMat2 retval(ctx,0);
   retval.sum_square(*this  );
   return *retval.store;
 }
@@ -1215,8 +1215,8 @@ double FastMat2::sum_square_all() const {
    'INI_LOOP' => 'val=0'
    'NAME' => 'sum_abs'
    'ELEM_OPERATIONS' => 'val += fabs(**pa++)'
-   'COUNT_OPER' => 'op_count.sum += ntot;
-op_count.abs += ntot;
+   'COUNT_OPER' => 'ctx->op_count.sum += ntot;
+ctx->op_count.abs += ntot;
 '
    'OTHER_ARGS' => ''
    'C' => ''
@@ -1350,10 +1350,10 @@ printf(" cache_list %p, cache %p, position_in_cache %d\n",
       if (!inc(findx,ndimsf)) break;
     }
     int ntot = nlines*line_size;
-    op_count.get += ntot;
-    op_count.put += nlines;
-    op_count.sum += ntot;
-op_count.abs += ntot;
+    ctx->op_count.get += ntot;
+    ctx->op_count.put += nlines;
+    ctx->op_count.sum += ntot;
+ctx->op_count.abs += ntot;
 ;
   }
 
@@ -1373,13 +1373,13 @@ op_count.abs += ntot;
     *lc->target = val;
   }
   ;
-  if (!use_cache) delete cache;
+  if (!ctx->use_cache) delete cache;
   return *this;
 }  
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 double FastMat2::sum_abs_all() const {
-  static FastMat2 retval(0);
+  static FastMat2 retval(ctx,0);
   retval.sum_abs(*this  );
   return *retval.store;
 }
@@ -1389,8 +1389,8 @@ double FastMat2::sum_abs_all() const {
    'INI_LOOP' => 'val=0'
    'NAME' => 'norm_p'
    'ELEM_OPERATIONS' => 'val += pow(fabs(**pa++),p)'
-   'COUNT_OPER' => 'op_count.sum += ntot;
-op_count.abs += ntot;
+   'COUNT_OPER' => 'ctx->op_count.sum += ntot;
+ctx->op_count.abs += ntot;
 '
    'OTHER_ARGS' => 'const double p'
    'C' => ','
@@ -1524,10 +1524,10 @@ printf(" cache_list %p, cache %p, position_in_cache %d\n",
       if (!inc(findx,ndimsf)) break;
     }
     int ntot = nlines*line_size;
-    op_count.get += ntot;
-    op_count.put += nlines;
-    op_count.sum += ntot;
-op_count.abs += ntot;
+    ctx->op_count.get += ntot;
+    ctx->op_count.put += nlines;
+    ctx->op_count.sum += ntot;
+ctx->op_count.abs += ntot;
 ;
   }
 
@@ -1547,13 +1547,13 @@ op_count.abs += ntot;
     *lc->target = val;
   }
   ;
-  if (!use_cache) delete cache;
+  if (!ctx->use_cache) delete cache;
   return *this;
 }  
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 double FastMat2::norm_p_all(const double p) const {
-  static FastMat2 retval(0);
+  static FastMat2 retval(ctx,0);
   retval.norm_p(*this , p);
   return *retval.store;
 }
@@ -1563,8 +1563,8 @@ double FastMat2::norm_p_all(const double p) const {
    'INI_LOOP' => 'val=0'
    'NAME' => 'norm_p'
    'ELEM_OPERATIONS' => 'val += int_pow(fabs(**pa++),p)'
-   'COUNT_OPER' => 'op_count.sum += ntot;
-op_count.abs += ntot;
+   'COUNT_OPER' => 'ctx->op_count.sum += ntot;
+ctx->op_count.abs += ntot;
 '
    'OTHER_ARGS' => 'const int p'
    'C' => ','
@@ -1698,10 +1698,10 @@ printf(" cache_list %p, cache %p, position_in_cache %d\n",
       if (!inc(findx,ndimsf)) break;
     }
     int ntot = nlines*line_size;
-    op_count.get += ntot;
-    op_count.put += nlines;
-    op_count.sum += ntot;
-op_count.abs += ntot;
+    ctx->op_count.get += ntot;
+    ctx->op_count.put += nlines;
+    ctx->op_count.sum += ntot;
+ctx->op_count.abs += ntot;
 ;
   }
 
@@ -1721,13 +1721,13 @@ op_count.abs += ntot;
     *lc->target = val;
   }
   ;
-  if (!use_cache) delete cache;
+  if (!ctx->use_cache) delete cache;
   return *this;
 }  
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 double FastMat2::norm_p_all(const int p) const {
-  static FastMat2 retval(0);
+  static FastMat2 retval(ctx,0);
   retval.norm_p(*this , p);
   return *retval.store;
 }
@@ -1737,7 +1737,7 @@ double FastMat2::norm_p_all(const int p) const {
    'INI_LOOP' => 'f.pre()'
    'NAME' => 'assoc'
    'ELEM_OPERATIONS' => 'f.set(f.fun2(**pa++,f.v()))'
-   'COUNT_OPER' => 'op_count.mult += 1;
+   'COUNT_OPER' => 'ctx->op_count.mult += 1;
 '
    'OTHER_ARGS' => 'Fun2 &f'
    'C' => ','
@@ -1871,9 +1871,9 @@ printf(" cache_list %p, cache %p, position_in_cache %d\n",
       if (!inc(findx,ndimsf)) break;
     }
     int ntot = nlines*line_size;
-    op_count.get += ntot;
-    op_count.put += nlines;
-    op_count.mult += 1;
+    ctx->op_count.get += ntot;
+    ctx->op_count.put += nlines;
+    ctx->op_count.mult += 1;
 ;
   }
 
@@ -1893,13 +1893,13 @@ printf(" cache_list %p, cache %p, position_in_cache %d\n",
     *lc->target = val;
   }
   f.post_all();
-  if (!use_cache) delete cache;
+  if (!ctx->use_cache) delete cache;
   return *this;
 }  
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 double FastMat2::assoc_all(Fun2 &f) const {
-  static FastMat2 retval(0);
+  static FastMat2 retval(ctx,0);
   retval.assoc(*this , f);
   return *retval.store;
 }
@@ -1909,8 +1909,8 @@ double FastMat2::assoc_all(Fun2 &f) const {
    'INI_LOOP' => 'val=**pa++;'
    'NAME' => 'max'
    'ELEM_OPERATIONS' => 'aux=**pa++; if (aux>val) val=aux'
-   'COUNT_OPER' => 'op_count.sum += ntot;
-op_count.fun += ntot;
+   'COUNT_OPER' => 'ctx->op_count.sum += ntot;
+ctx->op_count.fun += ntot;
 '
    'OTHER_ARGS' => ''
    'C' => ''
@@ -2044,10 +2044,10 @@ printf(" cache_list %p, cache %p, position_in_cache %d\n",
       if (!inc(findx,ndimsf)) break;
     }
     int ntot = nlines*line_size;
-    op_count.get += ntot;
-    op_count.put += nlines;
-    op_count.sum += ntot;
-op_count.fun += ntot;
+    ctx->op_count.get += ntot;
+    ctx->op_count.put += nlines;
+    ctx->op_count.sum += ntot;
+ctx->op_count.fun += ntot;
 ;
   }
 
@@ -2067,13 +2067,13 @@ op_count.fun += ntot;
     *lc->target = val;
   }
   ;
-  if (!use_cache) delete cache;
+  if (!ctx->use_cache) delete cache;
   return *this;
 }  
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 double FastMat2::max_all() const {
-  static FastMat2 retval(0);
+  static FastMat2 retval(ctx,0);
   retval.max(*this  );
   return *retval.store;
 }
@@ -2083,8 +2083,8 @@ double FastMat2::max_all() const {
    'INI_LOOP' => 'val=**pa++;'
    'NAME' => 'min'
    'ELEM_OPERATIONS' => 'aux=**pa++; if (aux<val) val=aux'
-   'COUNT_OPER' => 'op_count.sum += ntot;
-op_count.fun += ntot;
+   'COUNT_OPER' => 'ctx->op_count.sum += ntot;
+ctx->op_count.fun += ntot;
 '
    'OTHER_ARGS' => ''
    'C' => ''
@@ -2218,10 +2218,10 @@ printf(" cache_list %p, cache %p, position_in_cache %d\n",
       if (!inc(findx,ndimsf)) break;
     }
     int ntot = nlines*line_size;
-    op_count.get += ntot;
-    op_count.put += nlines;
-    op_count.sum += ntot;
-op_count.fun += ntot;
+    ctx->op_count.get += ntot;
+    ctx->op_count.put += nlines;
+    ctx->op_count.sum += ntot;
+ctx->op_count.fun += ntot;
 ;
   }
 
@@ -2241,13 +2241,13 @@ op_count.fun += ntot;
     *lc->target = val;
   }
   ;
-  if (!use_cache) delete cache;
+  if (!ctx->use_cache) delete cache;
   return *this;
 }  
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 double FastMat2::min_all() const {
-  static FastMat2 retval(0);
+  static FastMat2 retval(ctx,0);
   retval.min(*this  );
   return *retval.store;
 }
@@ -2257,9 +2257,9 @@ double FastMat2::min_all() const {
    'INI_LOOP' => 'val=fabs(**pa++);'
    'NAME' => 'max_abs'
    'ELEM_OPERATIONS' => 'aux=fabs(**pa++); if (aux>val) val=aux'
-   'COUNT_OPER' => 'op_count.sum += ntot;
-op_count.fun += ntot;
-op_count.abs += ntot;
+   'COUNT_OPER' => 'ctx->op_count.sum += ntot;
+ctx->op_count.fun += ntot;
+ctx->op_count.abs += ntot;
 '
    'OTHER_ARGS' => ''
    'C' => ''
@@ -2393,11 +2393,11 @@ printf(" cache_list %p, cache %p, position_in_cache %d\n",
       if (!inc(findx,ndimsf)) break;
     }
     int ntot = nlines*line_size;
-    op_count.get += ntot;
-    op_count.put += nlines;
-    op_count.sum += ntot;
-op_count.fun += ntot;
-op_count.abs += ntot;
+    ctx->op_count.get += ntot;
+    ctx->op_count.put += nlines;
+    ctx->op_count.sum += ntot;
+ctx->op_count.fun += ntot;
+ctx->op_count.abs += ntot;
 ;
   }
 
@@ -2417,13 +2417,13 @@ op_count.abs += ntot;
     *lc->target = val;
   }
   ;
-  if (!use_cache) delete cache;
+  if (!ctx->use_cache) delete cache;
   return *this;
 }  
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 double FastMat2::max_abs_all() const {
-  static FastMat2 retval(0);
+  static FastMat2 retval(ctx,0);
   retval.max_abs(*this  );
   return *retval.store;
 }
@@ -2433,9 +2433,9 @@ double FastMat2::max_abs_all() const {
    'INI_LOOP' => 'val=fabs(**pa++);'
    'NAME' => 'min_abs'
    'ELEM_OPERATIONS' => 'aux=fabs(**pa++); if (aux<val) val=aux'
-   'COUNT_OPER' => 'op_count.sum += ntot;
-op_count.fun += ntot;
-op_count.abs += ntot;
+   'COUNT_OPER' => 'ctx->op_count.sum += ntot;
+ctx->op_count.fun += ntot;
+ctx->op_count.abs += ntot;
 '
    'OTHER_ARGS' => ''
    'C' => ''
@@ -2569,11 +2569,11 @@ printf(" cache_list %p, cache %p, position_in_cache %d\n",
       if (!inc(findx,ndimsf)) break;
     }
     int ntot = nlines*line_size;
-    op_count.get += ntot;
-    op_count.put += nlines;
-    op_count.sum += ntot;
-op_count.fun += ntot;
-op_count.abs += ntot;
+    ctx->op_count.get += ntot;
+    ctx->op_count.put += nlines;
+    ctx->op_count.sum += ntot;
+ctx->op_count.fun += ntot;
+ctx->op_count.abs += ntot;
 ;
   }
 
@@ -2593,13 +2593,13 @@ op_count.abs += ntot;
     *lc->target = val;
   }
   ;
-  if (!use_cache) delete cache;
+  if (!ctx->use_cache) delete cache;
   return *this;
 }  
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 double FastMat2::min_abs_all() const {
-  static FastMat2 retval(0);
+  static FastMat2 retval(ctx,0);
   retval.min_abs(*this  );
   return *retval.store;
 }
@@ -2946,7 +2946,7 @@ printf(" cache_list %p, cache %p, position_in_cache %d\n",
     **to = (*fun_)(**to,user_args); **to++;
   }
 
-  if (!use_cache) delete cache;
+  if (!ctx->use_cache) delete cache;
   return *this;
 }  
 
@@ -3141,31 +3141,67 @@ printf(" cache_list %p, cache %p, position_in_cache %d\n",
       if (!inc(findx,ndimsf)) break;
     }
     // Hay que contar mejor cuantos elementos hay que traer
-    // op_count.get += cache->nlines*cache->line_size;
+    // ctx->op_count.get += cache->nlines*cache->line_size;
     int ntot = cache->nlines*cache->line_size;
-    op_count.put += cache->nlines*cache->line_size;
-    op_count.sum += ntot;
-    op_count.mult += ntot;
+    ctx->op_count.put += cache->nlines*cache->line_size;
+    ctx->op_count.sum += ntot;
+    ctx->op_count.mult += ntot;
 
   }
 
   // Perform computations using cached addresses
-  int nlines = cache->nlines;
+  int 
+    nlines = cache->nlines,
+    mm=cache->line_size;
   double **pa,**pb,**pa_end,sum,*paa,*pbb,*paa_end;
   for (int j=0; j<nlines; j++) {
     LineCache *lc = cache->line_cache_start+j;
     pa = lc->starta;
     pb = lc->startb;
+    int
+      &inca = lc->inca,
+      &incb = lc->incb;
     if (lc->linear) {
-      paa = *pa;
-      pbb = *pb;
-      paa_end = paa + lc->inca * cache->line_size;
-      sum=0.;
-      while (paa<paa_end) {
-	sum += (*paa)*(*pbb);
-	paa += lc->inca;
-	pbb += lc->incb;
-      }
+#if 1
+        sum=0.;
+        paa = *pa;
+        pbb = *pb;
+//         if (inca==1 && incb==1) {
+//           for (int k=0; k<mm; k++) {
+//             sum += (*paa)*(*pbb);
+//             paa++; pbb++;
+//           }
+//         } else 
+        if (inca==1) {
+          for (int k=0; k<mm; k++) {
+            sum += (*paa)*(*pbb);
+            paa++;
+            pbb += incb;
+          }
+        } else if (incb==1) {
+          for (int k=0; k<mm; k++) {
+            sum += (*paa)*(*pbb);
+            paa += inca;
+            pbb++;
+          }
+        } else {
+          for (int k=0; k<mm; k++) {
+            sum += (*paa)*(*pbb);
+            paa += inca;
+            pbb += incb;
+          }
+        }
+#else
+        paa = *pa;
+        pbb = *pb;
+        paa_end = paa + lc->inca * cache->line_size;
+        sum=0.;
+        while (paa<paa_end) {
+          sum += (*paa)*(*pbb);
+          paa += lc->inca;
+          pbb += lc->incb;
+        }
+#endif
     } else {
       pa_end = pa + cache->line_size;
       sum=0.;
@@ -3176,7 +3212,7 @@ printf(" cache_list %p, cache %p, position_in_cache %d\n",
     *(lc->target) = sum;
   }
 
-  if (!use_cache) delete cache;
+  if (!ctx->use_cache) delete cache;
   return *this;
 }
 
@@ -3448,7 +3484,7 @@ printf(" cache_list %p, cache %p, position_in_cache %d\n",
   while (pfrom < pfrom_end) {
     *to++ = **pfrom++;
   }
-  if (!use_cache) delete cache;
+  if (!ctx->use_cache) delete cache;
   return *this;
 }  
 
@@ -3593,9 +3629,9 @@ printf(" cache_list %p, cache %p, position_in_cache %d\n",
       if (!inc(findx,ndimsf)) break;
     }
     int ntot = cache->nlines*cache->line_size;
-    op_count.get += ntot;
-    op_count.put += cache->nlines;
-    op_count.sum += ntot;
+    ctx->op_count.get += ntot;
+    ctx->op_count.put += cache->nlines;
+    ctx->op_count.sum += ntot;
   }
 
   // Perform computations using cached addresses
@@ -3612,7 +3648,7 @@ printf(" cache_list %p, cache %p, position_in_cache %d\n",
     *(lc->target) = sum;
   }
 
-  if (!use_cache) delete cache;
+  if (!ctx->use_cache) delete cache;
   return *this;
 }
 
@@ -3718,8 +3754,8 @@ printf(" cache_list %p, cache %p, position_in_cache %d\n",
       jj++;
       if (!inc(bindx,fdims)) break;
     }
-    op_count.get += nelems;
-    op_count.put += nelems;
+    ctx->op_count.get += nelems;
+    ctx->op_count.put += nelems;
   }
 
   // Perform computations using cached addresses
@@ -3732,7 +3768,7 @@ printf(" cache_list %p, cache %p, position_in_cache %d\n",
     **pto++ = **pfrom++;
   }
 
-  if (!use_cache) delete cache;
+  if (!ctx->use_cache) delete cache;
   return *this;
 }
 
@@ -3785,10 +3821,10 @@ printf(" cache_list %p, cache %p, position_in_cache %d\n",
 #endif
 
     cache->from = location(indx);
-    op_count.get += 1;
+    ctx->op_count.get += 1;
   }
 
-  if (!use_cache) delete cache;
+  if (!ctx->use_cache) delete cache;
   return *cache->from;
 }
 
@@ -3914,7 +3950,7 @@ printf(" cache_list %p, cache %p, position_in_cache %d\n",
     ld = cache->A->LogDeterminant();
     det_ = ld.Value();
   }
-  if (!use_cache) delete cache;
+  if (!ctx->use_cache) delete cache;
   return det_;
 }
 
@@ -3995,9 +4031,9 @@ printf(" cache_list %p, cache %p, position_in_cache %d\n",
       if (!inc(Aindx,Adims)) break;
     }
 
-    op_count.get += nelems;
-    op_count.put += nelems;
-    op_count.mult += nelems;
+    ctx->op_count.get += nelems;
+    ctx->op_count.put += nelems;
+    ctx->op_count.mult += nelems;
   }
 
   // Perform computations using cached addresses
@@ -4010,7 +4046,7 @@ printf(" cache_list %p, cache %p, position_in_cache %d\n",
   while  (pto<pto_end) 
     (**pto++) = (**pfrom_a++) * (**pfrom_b++);
 
-  if (!use_cache) delete cache;
+  if (!ctx->use_cache) delete cache;
   return *this;
 
 }    
@@ -4069,8 +4105,8 @@ printf(" cache_list %p, cache %p, position_in_cache %d\n",
 
     cache->pto = &*cache->to_elems.begin();
 
-    op_count.put += n;
-    op_count.mult += 1;
+    ctx->op_count.put += n;
+    ctx->op_count.mult += 1;
 ;
   }
 
@@ -4081,7 +4117,7 @@ printf(" cache_list %p, cache %p, position_in_cache %d\n",
     **pto++ = a;
   }
 
-  if (!use_cache) delete cache;
+  if (!ctx->use_cache) delete cache;
   return *this;
 }  
 
@@ -4197,7 +4233,7 @@ printf(" cache_list %p, cache %p, position_in_cache %d\n",
     dsc->g.prod(*this,*this,1,-1,2,-1);
     retval = sqrt(dsc->g.det());
   }
-  if (!use_cache) delete cache;
+  if (!ctx->use_cache) delete cache;
   return retval;
 }
 
@@ -4295,7 +4331,7 @@ printf(" cache_list %p, cache %p, position_in_cache %d\n",
     *c[0] = *aa[0] * *bb[1] - *aa[1] * *bb[0];
   }    
 
-  if (!use_cache) delete cache;
+  if (!ctx->use_cache) delete cache;
   return *this;
 }
 
@@ -4304,7 +4340,6 @@ cross_cache::~cross_cache() {
   delete[] b;
   delete[] c;
 }
-
 
 // DON'T EDIT MANUALLY THIS FILE !!!!!!
 // This files automatically generated by ePerl from 

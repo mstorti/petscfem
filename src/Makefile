@@ -1,5 +1,5 @@
 #__INSERT_LICENSE__
-# $Id: Makefile,v 1.104.4.1 2007/02/19 20:23:56 mstorti Exp $ 
+# $Id merge-with-petsc-233-50-g0ace95e Fri Oct 19 17:49:52 2007 -0300$ 
 
 .PHONY: all run lclean save compile default
 
@@ -99,13 +99,12 @@ readlist.h: readlist.eperl
 	chmod -w readlist.h
 pfmat.o dofmap2.o: CCPPFLAGS += -O0
 
-
 version.cpp: version.cppin ../VERSION
 	rm -f version.cpp
 	$(EPERL) version.cppin >version.cpp
 	-chmod -w version.cpp
-version.o: CPPFLAGS += -DPETSC_BOPT_FLAG="\"$(BOPT)\""
 
+version.o: CPPFLAGS += -DPETSC_BOPT_FLAG="\"$(BOPT)\""
 
 #.SECONDARY: tryme$(osfx).o 
 #tryme: CPPFLAGS = 
@@ -123,6 +122,7 @@ version.o: CPPFLAGS += -DPETSC_BOPT_FLAG="\"$(BOPT)\""
 local_clean::
 	-rm -rf tryme *.tab.*
 
+ifeq ($(DEVELOPER_MODE),yes)
 local_depend: getarrgr.tab.c getarrgr.tab.h
 
 #.INTERMEDIATE: *.tab.*
@@ -130,6 +130,7 @@ local_depend: getarrgr.tab.c getarrgr.tab.h
 	$(BISON) $<
 
 getarrgr.tab.o: getarrgr.tab.c
+endif
 
 odocsrc: $(DOC_DIR)/odociisd.tex $(DOC_DIR)/odociisdm.tex \
 		$(DOC_DIR)/odocelems.tex $(DOC_DIR)/odocrmsh.tex \

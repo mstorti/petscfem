@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: mmove.cpp,v 1.24 2005/09/25 20:28:59 mstorti Exp $
+//$Id merge-with-petsc-233-50-g0ace95e Fri Oct 19 17:49:52 2007 -0300$
 
 #include <src/fem.h>
 #include <src/utils.h>
@@ -67,7 +67,7 @@ void mesh_move_eig_anal::init() {
   //o The functional to be minimized is $\Phi = \sum_{e=1,...,Nel} \phi_e^r$,
   // where $\phi_e = \sum_{i\neq j} (\lambda_i-\lambda_j)^2/Vol^{2/n_d}$,
   // and $r={\tt distor\_exp}$. 
-  TGETOPTDEF_ND(thash,double,distor_exp,1.);
+  TGETOPTDEF_ND(thash,double,distor_exp,-1.);
   //o Adds a term $\propto {\tt c\_volume}\,{\rm volume}$ to the functionala. 
   TGETOPTDEF_ND(thash,double,c_volume,0.);
   //o Compute an initial ``predictor'' step with this relaxation scale. 

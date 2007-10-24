@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: mmoveopt3.cpp,v 1.8.16.1 2007/02/19 20:23:56 mstorti Exp $
+//$Id merge-with-petsc-233-50-g0ace95e Fri Oct 19 17:49:52 2007 -0300$
 
 #include <src/fem.h>
 #include <src/utils.h>
@@ -14,6 +14,11 @@
 #include "nsi_tet.h"
 #include "adaptor.h"
 #include "mmoveopt3.h"
+
+extern double mmv_delta,mmv_d2fd,mmv_dfd;
+extern double min_quality,min_volume;
+extern double mmv_functional;
+extern int    tarea,tangled_mesh;
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 void mesh_move_opt3::init() {
@@ -93,6 +98,8 @@ void mesh_move_opt3::init() {
   TGETOPTDEF_ND(thash,double,relax_factor,1.);
   //o If true, then the reference mesh is used as the optimal mesh. 
   TGETOPTDEF_ND(thash,int,use_ref_mesh,1);
+  //o Relaxation factor for matrix nondiagonal terms in the untangling stage
+  TGETOPTDEF_ND(thash,double,relax_matrix_factor,1.0);
 }
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 

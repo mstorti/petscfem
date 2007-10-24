@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: nsitetasm.cpp,v 1.6.10.1 2007/02/19 20:23:56 mstorti Exp $
+//$Id merge-with-petsc-233-50-g0ace95e Fri Oct 19 17:49:52 2007 -0300$
 
 #include <src/fem.h>
 #include <src/utils.h>
@@ -262,6 +262,29 @@ assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
   //				as a function of slag void fraction 
   SGETOPTDEF(int,use_modified_slag_vslip,0);
 
+  FastMat2 darcy_vers(1,ndim);
+  //o Axis for selective Darcy term (damps incoming flow
+  //at outlet bdry's)
+  SGETOPTDEF(int,darcy_axi,0); 
+
+  double axi_sign = 1.0, fdarcy_dot=NAN;
+  if (darcy_axi<0) {
+    axi_sign = -1.0;
+    darcy_axi = -darcy_axi;
+  }
+  assert(darcy_axi<=ndim);
+  darcy_vers.set(0.0);
+  if (darcy_axi) darcy_vers.setel(axi_sign,darcy_axi);
+
+  //o Reference velocity for selectiv Darcy term. 
+  SGETOPTDEF(double,darcy_uref,-1.0); 
+  if (darcy_axi) { assert(darcy_uref>=0.); }
+
+  //o Reference velocity for selectiv Darcy term. 
+  SGETOPTDEF(double,darcy_factor_global,-1.0); 
+  if (darcy_axi) { assert(darcy_factor_global>=0.); }
+
+
   // allocate local vecs
   int kdof;
   FastMat2 veccontr(2,nel,ndof),xloc(2,nel,ndim),locstate(2,nel,ndof), 
@@ -329,8 +352,11 @@ assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
 
   double pi = 4*atan(1.0);
 
+  // Add props definitions here
   DEFPROP(viscosity);
 #define VISC (*(propel+viscosity_indx))
+  DEFPROP(darcy_factor);
+#define DARCY (*(propel+darcy_factor_indx))
 
   int nprops=iprop;
 
@@ -354,7 +380,9 @@ assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
     p_star,wpgdet,velmod,tol,h_supg,fz,delta_supg,Uh;
 
   FastMat2 P_supg, W_supg, W_supg_t, dmatw,
-    grad_div_u(4,nel,ndim,nel,ndim),P_pspg(2,ndim,nel),dshapex(2,ndim,nel);
+    grad_div_u(4,nel,ndim,nel,ndim),P_pspg(2,ndim,nel),
+    dshapex(2,ndim,nel);
+  FastMat2 tmp26,tmp27,tmp28,tmp29, tmp23,tmp24, tmp25;
   double *grad_div_u_cache;
   int grad_div_u_was_cached;
 
@@ -623,6 +651,8 @@ assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
     
     double shear_vel;
     int wall_elem;
+    // Add Darcy term for this element?
+    int darcy_p = darcy_axi && DARCY && darcy_factor_global;
     if (LES && comp_mat_res && A_van_Driest>0.) {
 #ifdef USE_ANN
       if (!wall_data) { set_error(2); return 1; }
@@ -888,6 +918,28 @@ assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
 	du.set(u_star).rest(u);
 	dmatu.axpy(du,rec_Dt/alpha).rest(G_body);
 	
+	// Selective Darcy term
+	FastMat2::branch();
+	if (darcy_p) {
+          FastMat2::choose(0);
+          double darcy = DARCY*darcy_factor_global;
+	  // Velocity along `axi' direction (with sign)
+          tmp29.prod(u_star,darcy_vers,-1,-1);
+	  double uu = double(tmp29);
+	  // Smoothed u^+
+          double gdot;
+	  double au = smabs(uu/darcy_uref,gdot)*darcy_uref;
+//           printf("uu %f, darcy_uref %f, au %f, gdot %f\n",
+//                  uu,darcy_uref,au,gdot);
+	  // Force acting in direction positive when
+	  // velocity comes in negative direction. 
+	  double darcy_force = rho*darcy*(au-uu)/2.0;
+          // This will be used later for computing the jacobian
+          fdarcy_dot = -rho*darcy*(gdot-1.0)/2.0*wpgdet;
+          dmatu.axpy(darcy_vers,-darcy_force);
+	}
+        FastMat2::leave();
+
 	resmom_prime.set(grad_p_star).axpy(dmatu,rho_m);
 
 	div_u_star = double(tmp10.prod(dshapex,ucols_star,-1,-2,-2,-1));
@@ -1187,6 +1239,31 @@ assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
 	      grad_div_u.add(tmp18);
 	    }
 	  }
+
+#if 0
+          // Jacobian term for convective term
+          // W_j . N_k \dep u_a/x_b
+          tmp23.prod(SHAPE,grad_u_star,2,3,1);
+          
+          tmp24.prod(W_supg,tmp23,1,2,3,4);
+          matlocf.is(2,1,ndim).is(4,1,ndim)
+            .axpy(tmp24,wpgdet*rho_m).rs();
+          
+          tmp25.prod(P_pspg,tmp23,-1,1,-1,2,3);
+          matlocf.ir(2,ndof).is(4,1,ndim)
+            .axpy(tmp25,-wpgdet*rho_m).rs();
+#endif
+
+          FastMat2::branch();
+          if (darcy_p) {
+            FastMat2::choose(0);
+            tmp26.prod(W_supg,SHAPE,1,2);
+            tmp27.prod(darcy_vers,darcy_vers,1,2)
+              .scale(fdarcy_dot);
+            tmp28.prod(tmp26,tmp27,1,3,2,4);
+            matlocf.is(2,1,ndim).is(4,1,ndim).add(tmp28).rs();
+          }
+          FastMat2::leave();
 	}
 
       } else if (comp_mat) {

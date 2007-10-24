@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: fstepfm2.cpp,v 1.37.24.1 2007/02/19 20:23:56 mstorti Exp $
+//$Id merge-with-petsc-233-50-g0ace95e Fri Oct 19 17:49:52 2007 -0300$
  
 #include <src/fem.h>
 #include <src/utils.h>
@@ -54,11 +54,33 @@ int fracstep::ask(const char *jobinfo,int &skip_elemset) {
 }
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>
-static double smabs(double x) {
+// This is a function that approximates the absolute function
+// and has the nice properties of being infinite differentiable
+// and has monotone increasing derivative. It has a removable
+// singularity at x=0
+double smabs(double x,double &dydx) {
   double y, tol=1e-7;
-  if (fabs(x)<tol) y = 1.0/(1.0-x*x/3.0);
-  else y = x/tanh(x);
+  if (fabs(x)<tol) {
+    // Remove singularity using a polynomial expansion
+    y = 1.0+x*x/3.0;
+    dydx = (2.0/3.0)*x;
+  } else {
+    // Use the complete expression
+    double 
+      sh = sinh(x),
+      th = tanh(x);
+    y = x/th;
+    dydx = 1.0/th - x/(sh*sh);
+  }
   return y;
+}
+
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>
+// This is a reduced version that only returns the function
+// not the derivativae
+double smabs(double x) {
+  double yd;
+  return smabs(x,yd);
 }
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 

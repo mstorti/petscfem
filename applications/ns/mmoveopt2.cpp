@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: mmoveopt2.cpp,v 1.8 2006/09/05 18:51:37 mstorti Exp $
+//$Id merge-with-petsc-233-50-g0ace95e Fri Oct 19 17:49:52 2007 -0300$
 
 #include <src/fem.h>
 #include <src/utils.h>
@@ -14,6 +14,8 @@
 #include "nsi_tet.h"
 #include "adaptor.h"
 #include "mmoveopt2.h"
+
+extern int MY_RANK, SIZE;
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 void mesh_move_opt2::init() {
@@ -112,7 +114,7 @@ element_connector(const FastMat2 &xloc,
 		  const FastMat2 &state_new,
 		  FastMat2 &res,FastMat2 &mat) {
 
-  double C,V,Sl,Q,Vref;
+  double C=NAN,V=NAN,Sl=NAN,Q=NAN,Vref=NAN;
   double relax_factor_now = relax_factor;
   if (glob_param->inwt>0) 
     relax_factor_now = 1.0;
@@ -121,8 +123,12 @@ element_connector(const FastMat2 &xloc,
   // `x' coordinates are in the metric where the reference
   // element is `regular'
   xreg.is(1,1,ndim);
+#if 0
   xref.ctr(xreg,2,1).scale(1.0-use_ref_mesh)
     .axpy(xloc,use_ref_mesh);
+#else
+  xref.set(xloc);
+#endif
   xreg.rs();
 
   if (use_ref_mesh > 0.0) {
@@ -301,7 +307,10 @@ element_connector(const FastMat2 &xloc,
     d2SldW2.scale(3.);
 
   }
-  if (V<=0.0) set_error(1);
+  if (V<=0.0) {
+    printf("[%d] elem %d, vol %g\n",MY_RANK,elem,V);
+    set_error(1);
+  }
 
   Q = C*V/Sl;
 

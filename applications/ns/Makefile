@@ -1,5 +1,5 @@
 #__INSERT_LICENSE__
- # $Id: Makefile,v 1.82.16.2 2007/03/08 19:22:16 dalcinl Exp $ 
+ # $Id merge-with-petsc-233-50-g0ace95e Fri Oct 19 17:49:52 2007 -0300$ 
 
 .PHONY: all run lclean save compile
 
@@ -20,8 +20,8 @@ LIBOBJS = nsglb.o nsitetlesfm2.o bccnsfm2.o wall.o nsvol.o walldata.o	\
 	nsitetlesc.o condwall-new.o mmove2.o nsitetasm.o		\
 	bccnsitetasm.o nsitetasm_avgvol.o ns_gasflow.o bccns_gasflow.o	\
 	mmoveopt.o elast2.o  bccnsitetasm_avgvol.o elastld.o   		\
-	errestim.o mmoveopt3.o bubblyqint.o         			\
-	nsitetlesf.o nsitetlesfbf.o poiboltz.o
+	errestim.o mmoveopt3.o bubblyqint.o nsitetlesf.o nsitetlesfbf.o \
+	poiboltz.o mmoveopt2.o truss.o
 
 MYOBJS =
 

@@ -21,7 +21,7 @@ sub template_subst {
 sub count_oper {
     my $ret="";
     while (my $oper = shift()) {
-	$ret .= "op_count.$oper += cache->nelems;\n";
+	$ret .= "ctx->op_count.$oper += cache->nelems;\n";
     }
     return $ret;
 }
@@ -59,7 +59,7 @@ sub gen_setel {
 sub copg {
     my $ret="";
     while (my $oper = shift()) {
-	$ret .= "op_count.$oper += $count_oper_size;\n";
+	$ret .= "ctx->op_count.$oper += $count_oper_size;\n";
     }
     return $ret;
 }

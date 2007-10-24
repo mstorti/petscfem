@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-// $Id: util3.cpp,v 1.14.10.1 2007/02/19 20:23:56 mstorti Exp $
+// $Id merge-with-petsc-233-50-g0ace95e Fri Oct 19 17:49:52 2007 -0300$
 #include <cstring>
 #include <cstdio>
 #include <cassert>
@@ -110,7 +110,7 @@ ssize_t Sgetline(char **lineptr, size_t *N_a,Socket *sock) {
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 int DXSplit::parse(const char *line) {
   vector<string> tokens;
-  string *token=0;
+  string *token=NULL;
   tokenize(line,tokens);
   int ntoken = tokens.size();
   vector<int> nodes;
@@ -127,6 +127,7 @@ int DXSplit::parse(const char *line) {
     while (j<ntoken) {
       token = &tokens[j++];
       if (0) {} // tricky
+      DX_CHECK(lines,2)
       DX_CHECK(quads,4)
 	DX_CHECK(cubes,8)
 	DX_CHECK(triangles,3)

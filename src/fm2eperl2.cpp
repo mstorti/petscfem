@@ -4,7 +4,7 @@
 
 
 //__INSERT_LICENSE__
-//$Id: fmat2ep2.cpp,v 1.12 2007/01/31 15:33:12 mstorti Exp $
+//$Id merge-with-petsc-233-50-g0ace95e Fri Oct 19 17:49:52 2007 -0300$
 #include <math.h>
 #include <stdio.h>
 
@@ -167,7 +167,7 @@ printf(" cache_list %p, cache %p, position_in_cache %d\n",
   if (sc->clev) for (int j=0; j<m2; j++) *(sc->VL[j]) = sc->VL_c[j];
   if (sc->crev) for (int j=0; j<m2; j++) *(sc->VR[j]) = sc->VR_c[j];
 
-  if (!use_cache) delete cache;
+  if (!ctx->use_cache) delete cache;
   return *this;
 }
 
@@ -311,7 +311,7 @@ printf(" cache_list %p, cache %p, position_in_cache %d\n",
   for (int j=0; j<m; j++) *(ecache->W[j]) = ecache->W_c[j];
   if (cev) for (int j=0; j<m2; j++) *(ecache->V[j]) = ecache->A_c[j];
 
-  if (!use_cache) delete cache;
+  if (!ctx->use_cache) delete cache;
   return *this;
 }
 
@@ -410,10 +410,10 @@ printf(" cache_list %p, cache %p, position_in_cache %d\n",
     }
 
     // This I don't know if it's correct.
-    op_count.get += m*m;
-    op_count.put += m*m;
-    op_count.mult += m*m*m;
-    op_count.sum += m*m*m;
+    ctx->op_count.get += m*m;
+    ctx->op_count.put += m*m;
+    ctx->op_count.mult += m*m*m;
+    ctx->op_count.sum += m*m*m;
 
   }
 
@@ -477,7 +477,7 @@ printf(" cache_list %p, cache %p, position_in_cache %d\n",
 #endif
   }
 
-  if (!use_cache) delete cache;
+  if (!ctx->use_cache) delete cache;
   return *this;
 #undef A
 #undef iA
@@ -528,7 +528,7 @@ printf(" cache_list %p, cache %p, position_in_cache %d\n",
     } 
     cache->nelems = n;
     cache->pto = &*cache->to_elems.begin();
-    op_count.put += n;
+    ctx->op_count.put += n;
     ;
   
   }
@@ -541,7 +541,7 @@ printf(" cache_list %p, cache %p, position_in_cache %d\n",
     tr += **pto++;
   }
 
-  if (!use_cache) delete cache;
+  if (!ctx->use_cache) delete cache;
   return tr;
 }
 

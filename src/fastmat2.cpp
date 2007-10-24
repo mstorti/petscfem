@@ -1,5 +1,5 @@
 ///__INSERT_LICENSE__
-//$Id: fastmat2.cpp,v 1.25 2007/01/30 19:03:44 mstorti Exp $
+//$Id merge-with-petsc-233-50-g0ace95e Fri Oct 19 17:49:52 2007 -0300$
 
 #include <cmath>
 #include <cstdio>
@@ -7,6 +7,8 @@
 using namespace std;
 #include "fem.h"
 #include "fastmat2.h"
+
+FastMat2::CacheCtx FastMat2::global_cache_ctx;
 
 #if 0
 static void fill_to_length(Indx &indx,int m) {
@@ -17,12 +19,57 @@ static void fill_to_length(Indx &indx,int m) {
 #endif
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
-void FastMat2::get_cache_position(FastMatCachePosition & pos) {
+void FastMat2::CacheCtx::get_cache_position(FastMatCachePosition & pos) {
     pos = FastMatCachePosition(cache_list,position_in_cache);
 }
 
+void FastMat2::get_cache_position(FastMatCachePosition & pos) {
+  global_cache_ctx.get_cache_position(pos);
+}
+
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
-void FastMat2::branch(void) {
+int FastMat2::CacheCtx
+::check_cache_position(FastMatCachePosition & pos) {
+  if (!pos.first) {
+    get_cache_position(pos);
+    return 1;
+  } else {
+    FastMatCachePosition pos2;
+    get_cache_position(pos2);
+    return pos2==pos;
+  }
+}
+
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+void FastMat2::CacheCtx::deactivate_cache(void) {
+  was_cached_save = was_cached;
+  use_cache=0; 
+  was_cached=0; 
+}
+
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+void FastMat2::deactivate_cache() {
+  global_cache_ctx.deactivate_cache();
+}
+
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+FastMat2::CacheCtx::CacheCtx() 
+  : cache_list_root(NULL), 
+    cache_list(NULL), 
+    position_in_cache(0),
+    cache_list_begin(NULL),
+    cache_list_size(0),
+    use_cache(0),
+    was_cached(0),
+    was_cached_save(0)  { }
+
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+void FastMat2::branch() {
+  global_cache_ctx.branch();
+}
+
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+void FastMat2::CacheCtx::branch() {
 
   if (!use_cache) return;
   FastMatCache *cache;
@@ -62,6 +109,11 @@ void FastMat2::branch(void) {
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 void FastMat2::choose(const int j) {
+  global_cache_ctx.choose(j);
+}
+
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+void FastMat2::CacheCtx::choose(const int j) {
 
   FastMatCache *cache;
 
@@ -95,7 +147,12 @@ void FastMat2::choose(const int j) {
 }
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
-void FastMat2::leave(void) {
+void FastMat2::leave() {
+  global_cache_ctx.leave();
+}
+
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+void FastMat2::CacheCtx::leave() {
 
   if (!use_cache) return;
   FastMatCachePosition *last_pos;
@@ -119,12 +176,22 @@ void FastMat2::leave(void) {
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 void FastMat2::resync_was_cached(void) {
+  global_cache_ctx.resync_was_cached();
+}
+
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+  void FastMat2::CacheCtx::resync_was_cached(void) {
   if (!use_cache) return;
   was_cached = cache_list->list_size > position_in_cache;
 }
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 void FastMat2::jump_to(FastMatCachePosition &pos) {
+  global_cache_ctx.jump_to(pos);
+}
+
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+void FastMat2::CacheCtx::jump_to(FastMatCachePosition &pos) {
 
   if (!use_cache) return;
 #ifdef FM2_CACHE_DBG
@@ -144,8 +211,12 @@ void FastMat2::jump_to(FastMatCachePosition &pos) {
 }
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:  
-//double FastMatCacheList::operation_count(void) {
 double FastMat2::operation_count(void) {
+  return global_cache_ctx.operation_count();
+}
+
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:  
+double FastMat2::CacheCtx::operation_count(void) {
   double val=0;
   val += op_count.get;
   val += op_count.put;
@@ -157,21 +228,13 @@ double FastMat2::operation_count(void) {
   return val;
 }
 
-// Static members of class FastMat2 related to caches
-//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
-FastMatCacheList *FastMat2::cache_list = NULL;
-FastMatCacheList *FastMat2::cache_list_root = NULL;
-int FastMat2::use_cache = 0;
-int FastMat2::was_cached = 0;
-int FastMat2::was_cached_save = 0;
-int FastMat2::position_in_cache=0;
-FastMatCache **FastMat2::cache_list_begin=NULL;
-int FastMat2::cache_list_size;
-vector<FastMatCachePosition> FastMat2::cache_list_stack;
-OperationCount FastMat2::op_count;
-
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 void FastMat2::reset_cache(void) {
+  global_cache_ctx.reset_cache();
+}
+
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+void FastMat2::CacheCtx::reset_cache(void) {
 
   if (!use_cache) {
     op_count=OperationCount();
@@ -194,6 +257,11 @@ void FastMat2::reset_cache(void) {
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 void FastMat2::print_count_statistics(void) {
+  global_cache_ctx.print_count_statistics();
+}
+
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+void FastMat2::CacheCtx::print_count_statistics(void) {
   printf("Summary of operation counts:\n"
 	 "     get:  %d\n"
 	 "     put:  %d\n"
@@ -212,7 +280,14 @@ void FastMat2::print_count_statistics(void) {
 }
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
-void FastMat2::activate_cache(FastMatCacheList *cache_list_) {
+void FastMat2
+::activate_cache(FastMatCacheList *clp) {
+  global_cache_ctx.activate_cache(clp);
+}
+
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+void FastMat2::CacheCtx
+::activate_cache(FastMatCacheList *cache_list_) {
   use_cache=1;
   assert(cache_list_root != NULL || cache_list_ !=NULL);
   if (cache_list_!=NULL) {
@@ -222,6 +297,11 @@ void FastMat2::activate_cache(FastMatCacheList *cache_list_) {
   } else {
     was_cached=was_cached_save;
   }
+}
+
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+void FastMat2::CacheCtx::init() {
+  activate_cache(&cache_list_internal);
 }
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
@@ -252,6 +332,11 @@ void purge_cache_list(FastMatCacheList *cache_list) {
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 void FastMat2::void_cache(void) { 
+  global_cache_ctx.void_cache();
+}
+
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+void FastMat2::CacheCtx::void_cache(void) { 
   if (use_cache && cache_list) {
     purge_cache_list(cache_list);
     cache_list->resize(0);
@@ -309,13 +394,22 @@ void IndexFilter::print(void) const  {
 }
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
-FastMat2::FastMat2(void) {
-  defined=0;
-  store=NULL;
+FastMat2::FastMat2(void) 
+  : ctx(&global_cache_ctx), store(NULL), defined(0)  { }
+
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+FastMat2::FastMat2(const Indx & dims_) 
+  : ctx(&global_cache_ctx) {
+  create_from_indx(dims_);
 }
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
-FastMat2::FastMat2(const Indx & dims_) {
+FastMat2::FastMat2(CacheCtx *ctx_a) 
+  : ctx(ctx_a), store(NULL), defined(0)  { }
+
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+FastMat2::FastMat2(CacheCtx *ctx_a,const Indx & dims_) 
+  : ctx(ctx_a) {
   create_from_indx(dims_);
 }
 
@@ -328,7 +422,7 @@ FastMat2::~FastMat2(void) {
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 FastMat2 & FastMat2::reshape(const int ndims, INT_VAR_ARGS_ND) {
 
-  if (was_cached) return *this;
+  if (ctx->was_cached) return *this;
   assert(ndims>0);
   Indx dims_;
 #ifdef USE_VAR_ARGS
@@ -366,7 +460,7 @@ FastMatSubCache::~FastMatSubCache() {}
 FastMat2 & FastMat2::resize(const int ndims, INT_VAR_ARGS_ND) {
 
   // This can't be cached
-  if (was_cached) {
+  if (ctx->was_cached) {
     printf("fastmat2: can't call resize() while in cached mode\n");
     exit(0);
   }
@@ -394,7 +488,7 @@ FastMat2 & FastMat2::resize(const int ndims, INT_VAR_ARGS_ND) {
 FastMat2 & FastMat2::clear() {
 
   // This can't be cached
-  if (was_cached) {
+  if (ctx->was_cached) {
     printf("fastmat2: can't call clear() while in cached mode\n");
     exit(0);
   }
@@ -428,7 +522,24 @@ void FastMat2::create_from_indx(const Indx & dims_) {
 }
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
-FastMat2::FastMat2(const int m,INT_VAR_ARGS_ND) {
+FastMat2::FastMat2(const int m,INT_VAR_ARGS_ND) 
+  : ctx(&global_cache_ctx) {
+  //  assert(m>0);
+  Indx indx;
+#ifdef USE_VAR_ARGS
+  va_list v;
+  va_start(v,m);
+  read_int_list(m,v,&indx);
+#else
+  READ_INT_ARG_LIST(indx);
+  // assert(m==indx.size());
+#endif
+  create_from_indx(indx);
+}
+
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+FastMat2::FastMat2(CacheCtx *ctx_a,const int m,INT_VAR_ARGS_ND) 
+  : ctx(ctx_a) {
   //  assert(m>0);
   Indx indx;
 #ifdef USE_VAR_ARGS
@@ -445,7 +556,7 @@ FastMat2::FastMat2(const int m,INT_VAR_ARGS_ND) {
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 FastMat2 & FastMat2::is(const int index,const int start,const int finish,
 	       const int step) {
-  if (was_cached) return *this;
+  if (ctx->was_cached) return *this;
   assert(defined);
   if (start==0) {
     // If start ==0 resets the filter
@@ -464,7 +575,7 @@ FastMat2 & FastMat2::is(const int index,const int start,const int finish,
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 FastMat2 & FastMat2::ir(const int indx,const int j) {
-  if (was_cached) return *this;
+  if (ctx->was_cached) return *this;
   assert(defined);
   set_indx[indx-1] = j;
   return *this;
@@ -472,7 +583,7 @@ FastMat2 & FastMat2::ir(const int indx,const int j) {
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 FastMat2 & FastMat2::d(const int j1,const int j2) {
-  if (was_cached) return *this;
+  if (ctx->was_cached) return *this;
   assert(defined);
   assert(1<=j1 && j1<=n_dims);
   assert(1<=j2 && j2<=n_dims);
@@ -561,6 +672,25 @@ void FastMat2::print(int rowsz,
   }
 }
 
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>
+void FastMat2::dump(FILE *stream,int rowsz) const {
+  Indx fdims;
+  get_dims(fdims);
+  int nd = fdims.size();
+  Indx indx(nd,1);
+  int counter = 0;
+  assert(rowsz>=0);
+  while (1) {
+    fprintf(stream," %g",*location(indx));
+    counter++;
+    if (rowsz>0 && counter==rowsz) {
+      fprintf(stream,"\n");
+      counter=0;
+    }
+    if (!inc(indx,fdims)) break;
+  }
+}
+
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 void FastMat2::printd(char *s) {
   Indx fdims;
@@ -601,7 +731,7 @@ void FastMat2::print1(const Indx & indxp,const Indx & fdims) const {
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 FastMat2 & FastMat2::rs() {
-  if (was_cached) return *this;
+  if (ctx->was_cached) return *this;
   int ndims = dims.size();
   for (int jd=0; jd<ndims; jd++) {
     dims[jd].reset();
@@ -653,7 +783,7 @@ int IndexFilter::abs_indx(const int j) const {
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 FastMat2 & FastMat2::exc(const int i1,const int i2) {
-  if (was_cached) return *this;
+  if (ctx->was_cached) return *this;
   int x = perm[i1-1];
   perm[i1-1] = perm[i2-1];
   perm[i2-1] = x;
@@ -708,7 +838,7 @@ double * FastMat2::storage_begin() {
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 FastMat2 & FastMat2::eps_LC() {
   // Levi-Civita density tensor
-  if (!was_cached) resize(3,3,3,3);
+  if (!ctx->was_cached) resize(3,3,3,3);
 
   set(0.);
   setel(+1.,1,2,3);
@@ -748,11 +878,31 @@ FastMatCache::~FastMatCache() {
   sc = NULL;
 }
 
-//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
-#if 0
-double FastMat2::sum_square_all() const {
-  static FastMat2 retval(0);
-  retval.sum_square(*this);
-  return *retval.store;
-}
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>
+FastMatCache *FastMat2::CacheCtx::step() {
+  FastMatCache *cache;
+  if (was_cached) {
+    cache = cache_list_begin[position_in_cache++];
+#ifdef FM2_CACHE_DBG
+    if (FastMat2::cache_dbg) printf ("reusing cache: ");
 #endif
+  } else if (!use_cache) {
+    cache = new FastMatCache;
+  } else {
+    cache = new FastMatCache;
+    cache_list->push_back(cache);
+    cache_list_begin = &*cache_list->begin();
+    cache_list->list_size =
+      cache_list_size = cache_list->size();
+    position_in_cache++;
+#ifdef FM2_CACHE_DBG
+    if (FastMat2::cache_dbg) printf ("defining cache: ");
+#endif
+  }
+#ifdef FM2_CACHE_DBG
+  if (FastMat2::cache_dbg) 
+    printf(" cache_list %p, cache %p, position_in_cache %d\n",
+           cache_list,cache,position_in_cache-1);
+#endif
+  return cache;
+}

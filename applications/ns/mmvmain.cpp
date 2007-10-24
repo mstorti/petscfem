@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: mmvmain.cpp,v 1.10.10.1 2007/02/19 20:23:56 mstorti Exp $
+//$Id merge-with-petsc-233-50-g0ace95e Fri Oct 19 17:49:52 2007 -0300$
 #include <src/debug.h>
 #include <malloc.h>
 
@@ -385,10 +385,10 @@ int mmove_main() {
     scal=0;
     ierr = VecSet(res,scal); CHKERRA(ierr);
     ierr = Ap->clean_mat(); CHKERRA(ierr); 
-    debug.trace("Before residual computation...");
+    debug.trace("Before residual computation... (linear predictor 0)");
     ierr = assemble(mesh,argl,dofmap,"comp_mat_res",&time);
     CHKERRA(ierr);
-    debug.trace("After residual computation.");
+    debug.trace("After residual computation (linear predictor 0)");
 
 #ifdef MMV_DBG
     printf("res: ");
@@ -413,10 +413,10 @@ int mmove_main() {
     scal=0;
     ierr = VecSet(resp,scal); CHKERRA(ierr);
     ierr = Ap->clean_mat(); CHKERRA(ierr); 
-    debug.trace("Before residual computation...");
+    debug.trace("Before residual computation... (linear predictor)");
     ierr = assemble(mesh,argl,dofmap,"comp_mat_res",&time);
     CHKERRA(ierr);
-    debug.trace("After residual computation.");
+    debug.trace("After residual computation (linear predictor)");
 
 #ifdef MMV_DBG
     printf("resp: ");

@@ -1,6 +1,6 @@
 // -*- mode: C++ -*-
 /*__INSERT_LICENSE__*/
-//$Id: mmoveopt3.h,v 1.4 2006/09/02 22:53:53 mstorti Exp $
+//$Id merge-with-petsc-233-50-g0ace95e Fri Oct 19 17:49:52 2007 -0300$
 
 #ifndef MMOVEOPT3_H
 #define MMOVEOPT3_H
@@ -31,7 +31,7 @@ private:
     mat2,res2;
   /// Parameters
   double distor_exp,c_distor,c_volume,c_relax,
-    volume_exp,relax_factor;
+    volume_exp,relax_factor,relax_matrix_factor;
   int use_ref_mesh;
 
 public: 
