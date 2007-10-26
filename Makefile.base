@@ -1,6 +1,6 @@
 # mode: -*- makefile -*-
 #__INSERT_LICENSE__
-#$Id merge-with-petsc-233-51-ga15f4d7 Wed Oct 24 19:21:27 2007 -0300$
+#$Id merge-with-petsc-233-52-g3182b2b Thu Oct 25 22:14:27 2007 -0300$
 
 #p [in Makefile.base]
 #s General
@@ -329,7 +329,7 @@ LDFLAGS = -Wl,-E,-rpath,$(LD_LIBRARY_PATH)	\
           $(SSL_LDFLAGS) 			\
           $(SUPERLU_LDFLAGS) 			\
 	  $(SSL_LDFLAGS)			\
-	  $(PETSC_LDFLAGS)			\
+	  $(PETSC_LDFLAGS) 
 
 LDFLAGS_NO_PROG_LIB =					\
 	  $(PTHREADS_LIB)				\
@@ -342,7 +342,7 @@ LDFLAGS_NO_PROG_LIB =					\
 	  $(NEWMAT_LDFLAGS)				\
 	  $(SSL_LDFLAGS)				\
           $(SUPERLU_LDFLAGS)				\
-	  $(PETSC_LDFLAGS)				\
+	  $(PETSC_LDFLAGS)
 
 EFN_LDFLAGS =	
 
