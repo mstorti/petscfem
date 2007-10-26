@@ -1,5 +1,5 @@
 #__INSERT_LICENSE__
-# $Id merge-with-petsc-233-50-g0ace95e Fri Oct 19 17:49:52 2007 -0300$ 
+# $Id merge-with-petsc-233-53-g55c6e64 Fri Oct 26 12:06:39 2007 -0300$ 
 
 .PHONY: all run lclean save compile default
 
@@ -119,10 +119,10 @@ version.o: CPPFLAGS += -DPETSC_BOPT_FLAG="\"$(BOPT)\""
 #tryme.o: tryme.cpp
 #	g++ -c $<
 
+ifeq ($(DEVELOPER_MODE),yes)
 local_clean::
 	-rm -rf tryme *.tab.*
 
-ifeq ($(DEVELOPER_MODE),yes)
 local_depend: getarrgr.tab.c getarrgr.tab.h
 
 #.INTERMEDIATE: *.tab.*
