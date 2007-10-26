@@ -89,4 +89,5 @@ SMC = smc
 # generate the doc.
 LATEX2HTML = /usr/local/latex2html/latex2html
 
-DEVELOPER_MODE := yes
+#DEVELOPER_MODE := yes
+DEVELOPER_MODE := no
