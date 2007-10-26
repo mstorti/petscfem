@@ -1,6 +1,6 @@
 # -*- mode: makefile -*-
 #__INSERT_LICENSE__
-#$Id: Makefile.defs,v 1.7 2004/07/15 18:56:24 rodrigop Exp $
+#$Id merge-with-petsc-233-51-ga15f4d7 Wed Oct 24 19:21:27 2007 -0300$
 
 # This is PETSc-FEM `Makefile.defs' file for host: generic
 
@@ -8,9 +8,9 @@
 ## -----
 PETSC_DEV    =
 ifeq ($(PETSC_DIR),)
-PETSC_DIR    = /usr/local/petsc/2.3.3
+PETSC_DIR    = $(HOME)/PETSC/petsc-2.3.3-p0
 endif
-PETSC_ARCH_G = linux-gnu
+PETSC_ARCH_G = linux-gnu-O
 PETSC_ARCH_O = linux-gnu-O
 
 
@@ -88,3 +88,5 @@ SMC = smc
 # Points to the Latex2html program. Only needed if you want to
 # generate the doc.
 LATEX2HTML = /usr/local/latex2html/latex2html
+
+DEVELOPER_MODE := yes
