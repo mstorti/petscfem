@@ -3,6 +3,10 @@
 *_[g|O].a
 *_[g|O].bin
 makefile.d
-README
+README 
 README.html
+undo.patch
+*~
+.#*
+make-tests-*.tar.gz
 *.patch

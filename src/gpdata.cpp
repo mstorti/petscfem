@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id merge-with-petsc-233-50-g0ace95e Fri Oct 19 17:49:52 2007 -0300$
+//$Id merge-with-petsc-233-55-g52bd457 Fri Oct 26 13:57:07 2007 -0300$
 
 #include "petscksp.h"
 #include <math.h>
@@ -10,13 +10,14 @@
 #include <src/utils.h>
 #include <src/gpdata.h>
 
-#define GPERROR \
-    {PFEM_TRACE(""); \
-    PetscPrintf(PETSCFEM_COMM_WORLD,"Not implemented combination: geometry=\"%s\","\
-           "nel=%d, npg=%d, ndimel=%d, \n", \
-	   geom,nel,npg,ndimel); \
-    PetscFinalize(); \
-		       exit(0);} \
+#define GPERROR                                         \
+    {PFEM_TRACE("");                                    \
+     PetscPrintf(PETSC_COMM_WORLD,                      \
+       "Not implemented combination: geometry=\"%s\","  \
+       "nel=%d, npg=%d, ndimel=%d, \n",                 \
+       geom,nel,npg,ndimel);                            \
+     PetscFinalize();                                   \
+     exit(0);}
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 #undef __FUNC__
@@ -77,7 +78,7 @@ void cart_prod(int npg,int nel,int nel_lay,
     double coef2[] = {-0.5, 0.5};
     double coef3[] = {-1.5,2.0,-0.5};
     double coef4[] = {-(11./6.), +(18./6.), -( 9./6.), +( 2./6.)};
-    double *coef = 0;
+    double *coef;
     if (nlay == 2) coef = coef2;
     else if (nlay==3) coef = coef3;
     else if (nlay==4) coef = coef4;

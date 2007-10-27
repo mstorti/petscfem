@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: wallke.cpp,v 1.25.4.1 2007/02/19 20:23:56 mstorti Exp $
+//$Id merge-with-petsc-233-55-g52bd457 Fri Oct 26 13:57:07 2007 -0300$
 #include <src/fem.h>
 #include <src/utils.h>
 #include <src/readmesh.h>
@@ -143,7 +143,7 @@ int wallke::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
   int nprops=iprop;
 
   // Get arguments from arg_list
-  double *locst,*locst2,*retval,*retvalmat;
+  double *locst=NULL,*locst2=NULL,*retval=NULL,*retvalmat=NULL;
   Elemset *elemset;
 
   //o The $y^+$ coordinate of the computational boundary

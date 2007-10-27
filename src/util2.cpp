@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id merge-with-petsc-233-50-g0ace95e Fri Oct 19 17:49:52 2007 -0300$
+//$Id merge-with-petsc-233-55-g52bd457 Fri Oct 26 13:57:07 2007 -0300$
   
 #include <stdio.h>
 #include <cassert>
@@ -136,7 +136,7 @@ int non_symm_eigenvals(const Matrix &A,Matrix &lambda,Matrix &Vre,
     /* extract eigenvalues */
     schur_evals(AA,evals_re,evals_im);
 
-    double min_la=0., max_la=.0, kmax, absla;
+    double min_la=INFINITY, max_la=-INFINITY, kmax, absla;
     for (int k=0; k<m; k++) {
       absla = sqrt(evals_re->ve[k]*evals_re->ve[k] 
 		   +evals_im->ve[k]*evals_im->ve[k]);

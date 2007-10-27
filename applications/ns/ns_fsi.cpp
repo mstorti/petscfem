@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: ns_fsi.cpp,v 1.11.10.1 2007/02/19 20:23:56 mstorti Exp $
+//$Id merge-with-petsc-233-55-g52bd457 Fri Oct 26 13:57:07 2007 -0300$
 #include <src/debug.h>
 #include <malloc.h>
 
@@ -43,7 +43,8 @@ int fsi_main() {
 
   Vec x, xp, dx, xold, dx_step, res; // approx solution, RHS, residual
   PetscViewer matlab;
-  PFMat *A_tet=0, *A_tet_c=0, *A_mom=0, *A_poi=0, *A_prj=0;	// linear system matrix 
+  PFMat *A_tet=NULL, *A_tet_c=NULL, *A_mom=NULL, 
+    *A_poi=NULL, *A_prj=NULL;	// linear system matrix 
   double  norm, *sol, scal;	// norm of solution error
   int     ierr, i, n = 10, size, node,
     jdof, k, kk, nfixa,
@@ -550,7 +551,7 @@ int fsi_main() {
 	//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 	// TET ALGORITHM
       
-	double normres_external = 0.0;
+	double normres_external=NAN;
 	for (int inwt=0; inwt<nnwt; inwt++) {
 
 	  glob_param.inwt = inwt;

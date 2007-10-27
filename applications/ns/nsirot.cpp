@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-/* $Id merge-with-petsc-233-50-g0ace95e Fri Oct 19 17:49:52 2007 -0300$ */
+/* $Id merge-with-petsc-233-55-g52bd457 Fri Oct 26 13:57:07 2007 -0300$ */
 
 #include <src/fem.h>
 #include <src/utils.h>
@@ -117,17 +117,17 @@ int nsi_rot::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
   }
 
   // Get arguments from arg_list
-  double *locst,*locst2,*retval,*retvalmat;
-  WallData *wall_data;
+  double *locst=NULL,*locst2=NULL,*retval=NULL,*retvalmat=NULL;
+  WallData *wall_data=NULL;
   if (comp_mat) {
     retvalmat = arg_data_v[0].retval;
   } else if (get_nearest_wall_element) {
     wall_data = (WallData *)arg_data_v[0].user_data;
   }
 
-  GlobParam *glob_param;
-  double *hmin,rec_Dt=0.;
-  int ja_hmin;
+  GlobParam *glob_param=NULL;
+  double *hmin=NULL,rec_Dt=NAN;
+  int ja_hmin=0;
 #define WAS_SET arg_data_v[ja_hmin].was_set
   if (comp_mat_res) {
     int ja=0;
@@ -317,8 +317,8 @@ int nsi_rot::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
 
   FastMat2 P_supg, W_supg, W_supg_t, dmatw,
            grad_div_u(4,nel,ndim,nel,ndim);
-  double *grad_div_u_cache;
-  int grad_div_u_was_cached;
+  double *grad_div_u_cache=NULL;
+  int grad_div_u_was_cached=0;
 
   int elem, ipg,node, jdim, kloc,lloc,ldof;
 

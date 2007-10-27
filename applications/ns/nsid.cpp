@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: nsid.cpp,v 1.9.98.1 2007/02/19 20:23:56 mstorti Exp $
+//$Id merge-with-petsc-233-55-g52bd457 Fri Oct 26 13:57:07 2007 -0300$
 
 #include <src/fem.h>
 #include <src/utils.h>
@@ -67,7 +67,7 @@ int ns_id::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
   nnod = dofmap->nnod;
 
   // Get arguments from arg_list
-  double *locst,*locst2,*retval,*retvalmat;
+  double *locst=NULL,*locst2=NULL,*retval=NULL,*retvalmat=NULL;
 
   if (comp_mat_res) {
     int ja=0;

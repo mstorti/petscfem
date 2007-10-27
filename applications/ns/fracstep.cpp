@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: fracstep.cpp,v 1.13.100.1 2007/02/19 20:23:56 mstorti Exp $
+//$Id merge-with-petsc-233-55-g52bd457 Fri Oct 26 13:57:07 2007 -0300$
  
 #include <src/fem.h>
 #include <src/utils.h>
@@ -88,14 +88,15 @@ int fracstep::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
     exit(1);
   }
 
-  double *locst,*locst2,*retval,*retvalmat,*retvalmat_mom,*retvalmat_poi,
-    *retvalmat_prj;
+  double *locst=NULL,*locst2=NULL,*retval=NULL,
+    *retvalmat=NULL,*retvalmat_mom=NULL,*retvalmat_poi=NULL,
+    *retvalmat_prj=NULL;
 
   // rec_Dt is the reciprocal of Dt (i.e. 1/Dt)
   // for steady solutions it is set to 0. (Dt=inf)
   GlobParam *glob_param=NULL;
-  double Dt=0.0;
-  arg_data *A_mom_arg,*A_poi_arg,*A_prj_arg;
+  double Dt=NAN;
+  arg_data *A_mom_arg=NULL,*A_poi_arg=NULL,*A_prj_arg=NULL;
   if (comp_mat_prof) {
     int ja=0;
     retvalmat_mom = arg_data_v[ja++].retval;

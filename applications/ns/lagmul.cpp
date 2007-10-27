@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-/* $Id: lagmul.cpp,v 1.13.10.1 2007/02/19 20:23:56 mstorti Exp $ */
+/* $Id merge-with-petsc-233-55-g52bd457 Fri Oct 26 13:57:07 2007 -0300$ */
 
 #include <src/fem.h>
 #include <src/utils.h>
@@ -55,7 +55,8 @@ int LagrangeMult::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
   int nr,ierr=0,jr,jfic,kfic,dofic;
   // PetscPrintf(PETSCFEM_COMM_WORLD,"entrando a nsikeps\n");
 
-  double *locst,*locst2,*retval,*retvalmat,lambda,rr;
+  double *locst=NULL,*locst2=NULL,*retval=NULL,
+    *retvalmat=NULL,lambda,rr;
   GlobParam *glob_param;
   double *hmin,Dt,rec_Dt;
   int ja_hmin;

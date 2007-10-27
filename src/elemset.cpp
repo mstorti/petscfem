@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: elemset.cpp,v 1.95.10.1 2007/02/19 20:23:56 mstorti Exp $
+//$Id merge-with-petsc-233-55-g52bd457 Fri Oct 26 13:57:07 2007 -0300$
 
 #ifndef _GNU_SOURCE
 #define _GNU_SOURCE
@@ -20,11 +20,11 @@
 #include <src/timestat.h>
 #include <src/util3.h>
 #include <src/autostr.h>
+#include <src/stat.h>
 
 // iteration modes
 #define NOT_INCLUDE_GHOST_ELEMS 0
 #define INCLUDE_GHOST_ELEMS 1
-extern int MY_RANK,SIZE;
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 #define LOCST(iele,j,k) VEC3(locst,iele,j,nel,k,ndof)
@@ -303,7 +303,7 @@ int assemble(Mesh *mesh,arg_list argl,
   arg_data_list arg_data_v(narg);
 
   // pref:= Local values (reference state for finite difference jacobian).
-  double *pref=0,fdj;
+  double *pref=NULL,fdj;
 
   MPI_Comm_rank(PETSCFEM_COMM_WORLD,&myrank);
 
@@ -319,7 +319,7 @@ int assemble(Mesh *mesh,arg_list argl,
   // difference approximation to jacobian. 
   // j_pert:= this points to which argument is the vector to be
   // perturbed. 
-  int any_fdj = 0,j_pert=0;
+  int any_fdj = 0,j_pert=0;  
   // any_include_ghost_elems:= any_not_include_ghost_elems=0:=
   // Flag whether any argument corresponds to that iteration mode. 
   // Iteration modes are mutually exclusive, so that we must check
@@ -329,7 +329,8 @@ int assemble(Mesh *mesh,arg_list argl,
     /// Copy the options to the arg_data_v structure. 
     ARGVJ.options = argl[j].options; 
     ARGVJ.must_flush = 0;
-    // PetscPrintf(PETSCFEM_COMM_WORLD,"Argument %d\n",j);
+    ARGVJ.arginfo = argl[j].arginfo;
+    // PetscPrintf(PETSC_COMM_WORLD,"Argument %d\n",j);
     if (argl[j].options & DOWNLOAD_VECTOR) {
       Vec *x;
       if (argl[j].options & USE_TIME_DATA) {
@@ -505,7 +506,8 @@ int assemble(Mesh *mesh,arg_list argl,
 
     if (any_fdj) pref = new double[chunk_size*ndoft];
 
-    int el_start = 0, chunk = 0, el_last=0, last_chunk=0;
+    int el_start = 0, chunk = 0, 
+      el_last=0, last_chunk=0;
 
     //#define DEBUG_CHUNK_PROCESSING
 #ifdef DEBUG_CHUNK_PROCESSING

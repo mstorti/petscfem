@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id merge-with-petsc-233-50-g0ace95e Fri Oct 19 17:49:52 2007 -0300$
+//$Id merge-with-petsc-233-55-g52bd457 Fri Oct 26 13:57:07 2007 -0300$
 #include <src/debug.h>
 #include <malloc.h>
 
@@ -459,7 +459,7 @@ int mmove_main() {
     //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
     // NEWTON-RAPHSON ALGORITHM
     
-    double normres_external = 0.0;
+    double normres_external=NAN;
     for (int inwt=0; inwt<nnwt; inwt++) {
       
       glob_param.inwt = inwt;

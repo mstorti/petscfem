@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: gatherer.cpp,v 1.6.22.1 2007/02/19 20:23:56 mstorti Exp $
+//$Id merge-with-petsc-233-55-g52bd457 Fri Oct 26 13:57:07 2007 -0300$
 
 #include <src/fem.h>
 #include <src/utils.h>
@@ -114,7 +114,7 @@ int gatherer::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
       Jaco.prod(DSHAPEXI,xloc,1,-1,-1,2);
 
       double detJaco;
-      FastMat2 *norjac=0;
+      FastMat2 *norjac=NULL;
       if (ndimel==ndim) {
 	detJaco = Jaco.det();
 	norjac = &Jaco;

@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id merge-with-petsc-233-50-g0ace95e Fri Oct 19 17:49:52 2007 -0300$
+//$Id merge-with-petsc-233-55-g52bd457 Fri Oct 26 13:57:07 2007 -0300$
 
 #include <src/fem.h>
 #include <src/utils.h>
@@ -200,8 +200,8 @@ assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
   }
 
   // Get arguments from arg_list
-  double *locst,*locst2,*retval,*retvalmat;
-  WallData *wall_data;
+  double *locst=NULL,*locst2=NULL,*retval=NULL,*retvalmat=NULL;
+  WallData *wall_data=NULL;
   if (comp_mat) {
     retvalmat = arg_data_v[0].retval;
   } else if (get_nearest_wall_element) {
@@ -215,9 +215,9 @@ assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
 
   // rec_Dt is the reciprocal of Dt (i.e. 1/Dt)
   // for steady solutions it is set to 0. (Dt=inf)
-  GlobParam *glob_param;
-  double *hmin,Dt,rec_Dt=0.0;
-  int ja_hmin;
+  GlobParam *glob_param=NULL;
+  double *hmin=NULL,Dt=NAN,rec_Dt=NAN;
+  int ja_hmin=0;
 #define WAS_SET arg_data_v[ja_hmin].was_set
   if (comp_mat_res) {
     int ja=0;
@@ -383,8 +383,8 @@ assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
     grad_div_u(4,nel,ndim,nel,ndim),P_pspg(2,ndim,nel),
     dshapex(2,ndim,nel);
   FastMat2 tmp26,tmp27,tmp28,tmp29, tmp23,tmp24, tmp25;
-  double *grad_div_u_cache;
-  int grad_div_u_was_cached;
+  double *grad_div_u_cache=NULL;
+  int grad_div_u_was_cached=0;
 
   int elem, ipg,node, jdim, kloc,lloc,ldof;
 
@@ -458,7 +458,7 @@ assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
   //o Direction of gravity
   TGETOPTDEF(thash,int,g_dir,ndim);
 
-  double rho_g,vslip,rho_m,rho_m_old,arho_l,arho_g,vslip_m,alpha_l,alpha_g;
+  double rho_g=NAN,vslip,rho_m,rho_m_old,arho_l,arho_g,vslip_m,alpha_l,alpha_g;
   double d_bubble,visco_m_eff,visco_t,visco_g,visco_g_eff;
   vector<int> alpha_indx_vp;
   int vl_indx = 1;

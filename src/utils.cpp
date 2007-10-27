@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id merge-with-petsc-233-50-g0ace95e Fri Oct 19 17:49:52 2007 -0300$
+//$Id merge-with-petsc-233-55-g52bd457 Fri Oct 26 13:57:07 2007 -0300$
  
 #include <src/debug.h>
 #include <stdio.h>
@@ -173,7 +173,7 @@ int irand(int n) {
 int mini(int n,...) {
   va_list list;
   va_start(list,n);
-  int min=-1,item;
+  int min=INT_MIN,item;
   for (int kk=0; kk<n; kk++) {
     item = va_arg(list,int);
     min = ( kk==0 ? item : ( min < item ? min : item));
@@ -186,7 +186,7 @@ int mini(int n,...) {
 int maxi(int n,...) {
   va_list list;
   va_start(list,n);
-  int max=-1,item;
+  int max=INT_MIN,item;
   for (int kk=0; kk<n; kk++) {
     item = va_arg(list,int);
     max = ( kk==0 ? item : ( max > item ? max : item));
@@ -199,7 +199,7 @@ int maxi(int n,...) {
 double maxd(int n,...) {
   va_list list;
   va_start(list,n);
-  double max=-1,item;
+  double max=-INFINITY,item;
   for (int kk=0; kk<n; kk++) {
     item = va_arg(list,double);
     max = ( kk==0 ? item : ( max > item ? max : item));

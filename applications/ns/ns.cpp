@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id merge-with-petsc-233-50-g0ace95e Fri Oct 19 17:49:52 2007 -0300$
+//$Id merge-with-petsc-233-55-g52bd457 Fri Oct 26 13:57:07 2007 -0300$
 #include <src/debug.h>
 #include <malloc.h>
 
@@ -24,6 +24,7 @@ static char help[] = "PETSc-FEM Navier Stokes module\n\n";
 int fsi_main();
 int struct_main();
 int mmove_main();
+int mmove2_main();
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 /** Creates hooks depending on the name. 
@@ -96,6 +97,7 @@ int main(int argc,char **args) {
     if (!strcmp(code_name,"fsi")) return fsi_main();
     if (!strcmp(code_name,"struct")) return struct_main();
     if (!strcmp(code_name,"mmove")) return mmove_main();
+    if (!strcmp(code_name,"mmove2")) return mmove2_main();
     PETSCFEM_ERROR("Unknown -code option: \"%s\"\n",code_name);
   }
 
@@ -451,15 +453,6 @@ int main(int argc,char **args) {
     ierr = VecDuplicate(x,&xp); CHKERRA(ierr);
   }
 
-  if (!fractional_step) {
-    A_tet->set_prefix("ns-");
-  } else {
-    A_mom->set_prefix("fs-mom-");
-    A_poi->set_prefix("fs-poi-");
-    A_prj->set_prefix("fs-prj-");
-  }
-
-
   ierr = VecDuplicate(x,&xold); CHKERRA(ierr);
   ierr = VecDuplicate(x,&dx_step); CHKERRA(ierr);
   ierr = VecDuplicate(x,&dx); CHKERRA(ierr);
@@ -628,7 +621,8 @@ int main(int argc,char **args) {
 	argl.arg_add(&glob_param,USER_DATA);
 	argl.arg_add(&wall_data,USER_DATA);
 
-	const char *jobinfo = (update_jacobian_this_iter ? "comp_mat_res" : "comp_res");
+	const char *jobinfo = (update_jacobian_this_iter 
+                               ? "comp_mat_res" : "comp_res");
 
 	// In order to measure performance
 	if (measure_performance) {

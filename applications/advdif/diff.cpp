@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: diff.cpp,v 1.10.40.2 2007/02/23 19:18:07 dalcinl Exp $
+//$Id merge-with-petsc-233-55-g52bd457 Fri Oct 26 13:57:07 2007 -0300$
 extern int comp_mat_each_time_step_g,
   consistent_supg_matrix_g,
   local_time_step_g;
@@ -86,7 +86,7 @@ void Diff::new_assemble(arg_data_list &arg_data_v,const Nodedata *nodedata,
   double lambda_max;
   int jdtmin;
   GlobParam *glob_param=NULL;
-  double alpha,rec_Dt;
+  double alpha=1.0,rec_Dt=0.0;
 
   // The trapezoidal rule integration parameter 
   arg_data *staten_a=NULL,*stateo_a=NULL,*retval=NULL,*fdj_jac=NULL,

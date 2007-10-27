@@ -1,6 +1,6 @@
 // -*- mode: c++ -*-
 /*__INSERT_LICENSE__*/
-//$Id merge-with-petsc-233-50-g0ace95e Fri Oct 19 17:49:52 2007 -0300$
+//$Id merge-with-petsc-233-55-g52bd457 Fri Oct 26 13:57:07 2007 -0300$
 
 #ifndef FASTMAT2_H
 #define FASTMAT2_H
@@ -205,7 +205,13 @@ public:
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 // Forward declarations
 class FastMatCacheList;
-typedef pair<FastMatCacheList *,int> FastMatCachePosition;
+
+class FastMatCachePosition :
+  public pair<FastMatCacheList *,int> {
+public:
+  FastMatCachePosition();
+  ~FastMatCachePosition();
+};
 
 class FastMatSubCache {
 public:
@@ -241,7 +247,8 @@ struct OperationCount {
 //typedef vector<FastMatCache *> FastMatCacheList;
 class FastMatCacheList : public vector<FastMatCache *> {
 public:
-  FastMatCacheList() {list_size=0;}
+  FastMatCacheList();
+  ~FastMatCacheList();
   // Operation count
   //  OperationCount op_count;
   //  void print_count_statistics();
@@ -300,7 +307,9 @@ public:
   };
   CacheCtx *ctx;
   static CacheCtx global_cache_ctx;
-   /// Controls debugging
+  /// Controls debugging
+  static int cache_dbg;
+
   //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
   /** Default constructor
       @author M. Storti
@@ -348,6 +357,12 @@ public:
       @author M. Storti
   */ 
   ~FastMat2();
+
+  /** Returns the size of the matrix, i.e. the
+      product of its indices. 
+      @return size of matrix */ 
+  int size() const;
+
 
   //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
   /** Returns the jd-th dimension

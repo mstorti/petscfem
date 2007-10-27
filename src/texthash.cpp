@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: texthash.cpp,v 1.24.10.1 2007/02/19 20:23:56 mstorti Exp $
+//$Id merge-with-petsc-233-55-g52bd457 Fri Oct 26 13:57:07 2007 -0300$
  
 #include <iostream>
 #include <sstream>
@@ -69,45 +69,6 @@ unsigned int text_hash_func (const void *v) {
 #define __FUNC__ "TextHashTable::TextHashTable ()"
 TextHashTable::TextHashTable () {
   hash = g_hash_table_new(&g_str_hash,&g_str_equal);
-}
-
-//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
-#undef __FUNC__
-#define __FUNC__ "void TextHashTable::set_entries"
-void TextHashTable
-::set_entries(const std::map<std::string,std::string>& M) {
-  using namespace std;
-  map<string,string>::const_iterator m = M.begin();
-  while (m != M.end()) {
-    const char* key = m->first.c_str();
-    const char* val = m->second.c_str(); 
-    this->set_entry(key,val);
-    m++;
-  }
-}
-
-//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
-#undef __FUNC__
-#define __FUNC__ "void TextHashTable::set_entry"
-void TextHashTable::set_entry(const char * key,const char * value) {
-  TextHashTableVal *vold,*vnew;
-  char *orig_key, *keycp;
-  void *orig_key_v, *vold_v;
-  int keylen, exists;
-  keylen=strlen(key);
-  exists = g_hash_table_lookup_extended (hash,key,&orig_key_v,&vold_v);
-  // vold = (TextHashTableVal *)g_hash_table_lookup(hash,key);
-  if (exists) {
-    vold = (TextHashTableVal *) vold_v;
-    orig_key = (char *) orig_key_v;
-    if (!strcmp(vold->s,value)) return;
-    delete vold;
-    keycp = orig_key; // reuse old key
-  } else keycp = local_copy(key);
-
-  vnew = new TextHashTableVal(value);
-  // copy strings on new 
-  g_hash_table_insert (hash,keycp,vnew);
 }
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
@@ -349,6 +310,46 @@ const TextHashTable * TextHashTable::find(const string &name) {
   const TextHashTable *table = NULL;
   if (k!=thash_table.end()) table = k->second;
   return table;
+}
+
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+
+static void 
+fill_std_map(void *p, void *q, void *m) {
+  typedef TextHashTableVal THTVal;
+  typedef std::map<std::string,std::string> MapStr;
+  THTVal* thtval = reinterpret_cast<THTVal*>(q);
+  MapStr& mapstr = *(reinterpret_cast<MapStr*>(m));
+  const char* key = reinterpret_cast<const char*>(p);
+  const char* val = reinterpret_cast<const char*>(thtval->s);
+  mapstr[key] = val;
+}
+
+void TextHashTable::
+get_entries(std::map<std::string,std::string>& M) const {
+  void* m = reinterpret_cast<void*>(&M);
+  g_hash_table_foreach (this->hash, &fill_std_map, m);
+}
+
+
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+#undef __FUNC__
+#define __FUNC__ "int remove_hash_entry(void *p, void *q, void *u)"
+static int remove_hash_entry(void *p, void *q, void *u) {
+  char *pp; TextHashTableVal *qq;
+  pp = (char*) p;
+  delete[] pp;
+  qq = (TextHashTableVal*) q;
+  delete qq;
+  return 1;
+}
+
+#undef __FUNC__
+#define __FUNC__ "TextHashTable::del_entries()"
+void TextHashTable::del_entries() {
+  g_hash_table_foreach_remove (hash, &remove_hash_entry, NULL);
+  included_tables.resize(0);
+  included_tables_names.resize(0);
 }
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 

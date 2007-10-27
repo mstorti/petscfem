@@ -1,6 +1,6 @@
 // -*- mode: c++ -*-
 /*__INSERT_LICENSE__*/
-//$Id: util2.h,v 1.15.40.2 2007/02/23 19:18:07 dalcinl Exp $
+//$Id merge-with-petsc-233-55-g52bd457 Fri Oct 26 13:57:07 2007 -0300$
 #ifndef UTIL2_H
 #define UTIL2_H
 
@@ -70,6 +70,7 @@ private:
   /// structures for `libc' time function calls.
   double start_time;
 public:
+  HPChrono() : start_time(0) { }
   /// return elapsed CPU time from start
   double elapsed() const {return gettod()-start_time;};
   /// reset start time to actual time

@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id merge-with-petsc-233-50-g0ace95e Fri Oct 19 17:49:52 2007 -0300$
+//$Id merge-with-petsc-233-55-g52bd457 Fri Oct 26 13:57:07 2007 -0300$
 
 #include <src/fem.h>
 #include <src/utils.h>
@@ -160,7 +160,7 @@ int embedded_gatherer::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
 
   //o Type of element geometry to define Gauss Point data
   TGETOPTDEF_S(thash,string,geometry,quad2hexa);
-  GPdata *gp_data_p=0;
+  GPdata *gp_data_p=NULL;
   if (geometry=="quad2hexa") 
     gp_data_p = new GPdata("cartesian2d",ndimel,4,npg,GP_FASTMAT2);
   else if (geometry=="tri2prism") 
