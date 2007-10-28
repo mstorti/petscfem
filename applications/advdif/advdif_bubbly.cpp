@@ -50,14 +50,14 @@ int bubbly_main() {
 //  PFMat *A_stage,*AA_stage;	   // linear system matrix
   vector<PFMat *> A_stage,AA_stage;
 
-  double  *sol, scal, normres, normres_ext;    /* norm of solution error */
+  double  *sol, scal, normres, normres_ext=NAN;    /* norm of solution error */
   int     ierr, i, n = 10, col[3], its, size, node,
     jdof, k, kk, nfixa,
     kdof, ldof, lloc, ndim, nel, nen, neq, nu,
     myrank;
 //  int nnwt_in,nstage=2;
-  int nnwt_in;
-  double omega_newton_in;
+  int nnwt_in=0;
+  double omega_newton_in=NAN;
 
 
   PetscTruth flg;

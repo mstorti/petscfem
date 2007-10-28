@@ -965,7 +965,7 @@ namespace Sparse {
     FSM_ACTIONS
 
   Mat *Mat::dispatch(char *opt,const TextHashTable *t) {
-    Mat *m; 
+    Mat *m=NULL; 
     if (!strcmp(opt,"PETSc")) {
       m = new PETScMat;
     } else if (!strcmp(opt,"SuperLU")) {

@@ -1343,11 +1343,9 @@ printf(label ": min %g, max %g\n",val##_min,val##_max)
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:
 double NewAdvDif::volume() const {
-  if (volume_flag) {
-    return Volume;
-  } else {
-    assert(0); // Not valid at this moment;
-  }
+  // Check call is valid at this moment;
+  assert(volume_flag);
+  return Volume;
 }
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:

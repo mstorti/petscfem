@@ -78,7 +78,7 @@ void cart_prod(int npg,int nel,int nel_lay,
     double coef2[] = {-0.5, 0.5};
     double coef3[] = {-1.5,2.0,-0.5};
     double coef4[] = {-(11./6.), +(18./6.), -( 9./6.), +( 2./6.)};
-    double *coef;
+    double *coef=NULL;
     if (nlay == 2) coef = coef2;
     else if (nlay==3) coef = coef3;
     else if (nlay==4) coef = coef4;
