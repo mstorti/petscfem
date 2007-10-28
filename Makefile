@@ -167,10 +167,6 @@ advdif_all:
 	$(MAKE) BOPT=g_c++ advdif
 	$(MAKE) BOPT=O_c++ advdif
 
-#w Builds th advective systems module (Euler, shallow water)
-adv: libpetscfem
-	$(MAKE) -C applications/advective adv$(osfx).bin
-
 #w Builds the Advective/diffusive systems module (NS-compresible,
 #w 		(shallow water+diffusive and turbulent terms, 
 #w               linear advection diffusion, burgers
@@ -187,7 +183,6 @@ advdif_g:
 #w Make Advdif module (optimized version)
 advdif_O:
 	$(MAKE) BOPT=O_c++ advdif
-
 
 #w Builds th advective systems module (Euler, shallow water)
 adv: libpetscfem

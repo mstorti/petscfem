@@ -20,7 +20,8 @@ static void fill_to_length(Indx &indx,int m) {
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 void FastMat2::CacheCtx::get_cache_position(FastMatCachePosition & pos) {
-    pos = FastMatCachePosition(cache_list,position_in_cache);
+  pos.first = cache_list;
+  pos.second = position_in_cache;
 }
 
 void FastMat2::get_cache_position(FastMatCachePosition & pos) {
