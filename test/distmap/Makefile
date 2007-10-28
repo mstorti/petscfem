@@ -4,6 +4,7 @@
 
 ## Redirection from /dev/null to avoid error from mpiexec on output
 ## Set to blank to run interactive
+redir := 
 
 #s Local Targets
 #w all tests

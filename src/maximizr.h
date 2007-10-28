@@ -14,7 +14,7 @@ public:
   void reset() {ini=0;};
   const T &t;
   const double &max;
-  Maximizer() : ini(0), max_(0), max(max_), t(t_) {};
+  Maximizer() : ini(0), t(t_), max_(0), max(max_) {};
   void scan(T &tt,double val);
 };
 

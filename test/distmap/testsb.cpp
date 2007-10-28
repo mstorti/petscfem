@@ -128,7 +128,7 @@ int main(int argc,char **argv) {
     sort_by_key=1,print_keys=1,print_newlines=1;
 
   PetscTruth flg;
-  PetscInitialize(&argc,&argv,NULL,NULL);
+  PetscFemInitialize(&argc,&argv,NULL,NULL);
   MPI_Comm_size (MPI_COMM_WORLD, &SIZE);
   MPI_Comm_rank (MPI_COMM_WORLD, &MY_RANK);
 

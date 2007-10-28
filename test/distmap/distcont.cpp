@@ -131,13 +131,12 @@ int main(int argc,char **argv) {
   vector<double> vec,vecc;
   srand (time (0));
   /// Initializes MPI
-  PetscInitialize(&argc,&argv,0,0);
+  PetscFemInitialize(&argc,&argv,0,0);
 
   // wait_from_console("starting..."); 
 
-  // MPI_Init(&argc,&argv);
-  MPI_Comm_size (MPI_COMM_WORLD, &SIZE);
-  MPI_Comm_rank (MPI_COMM_WORLD, &MY_RANK);
+  MPI_Comm_size (PETSCFEM_COMM_WORLD, &SIZE);
+  MPI_Comm_rank (PETSCFEM_COMM_WORLD, &MY_RANK);
 
   if (argc!=4) {
     PetscPrintf(PETSC_COMM_WORLD,"argc: %d\n",argc);
@@ -156,9 +155,9 @@ int main(int argc,char **argv) {
   PetscPrintf(PETSC_COMM_WORLD,"Args: M %d, N %d, tol %g\n",
 	      M,N,tol);
 
-  MPI_Bcast (&M, 1, MPI_INT, root,MPI_COMM_WORLD);
-  MPI_Bcast (&N, 1, MPI_INT, root,MPI_COMM_WORLD);
-  MPI_Bcast (&tol, 1, MPI_DOUBLE, root,MPI_COMM_WORLD);
+  MPI_Bcast (&M, 1, MPI_INT, root,PETSCFEM_COMM_WORLD);
+  MPI_Bcast (&N, 1, MPI_INT, root,PETSCFEM_COMM_WORLD);
+  MPI_Bcast (&tol, 1, MPI_DOUBLE, root,PETSCFEM_COMM_WORLD);
   
   vec.resize(M,0);
   vecc.resize(M,0);
@@ -173,7 +172,7 @@ int main(int argc,char **argv) {
   }
 
   S.scatter();
-  MPI_Allreduce(&*vec.begin(),&*vecc.begin(),M,MPI_DOUBLE,MPI_SUM,MPI_COMM_WORLD);
+  MPI_Allreduce(&*vec.begin(),&*vecc.begin(),M,MPI_DOUBLE,MPI_SUM,PETSCFEM_COMM_WORLD);
 
   err = 0;
   for (j=0; j<N; j++) {
@@ -192,7 +191,7 @@ int main(int argc,char **argv) {
 			  "[%d] max error -> %g\n",MY_RANK,err);
   PetscSynchronizedFlush(PETSC_COMM_WORLD);
 
-  MPI_Reduce(&err,&errb,1,MPI_DOUBLE,MPI_MAX,root,MPI_COMM_WORLD);
+  MPI_Reduce(&err,&errb,1,MPI_DOUBLE,MPI_MAX,root,PETSCFEM_COMM_WORLD);
 
   PetscPrintf(PETSC_COMM_WORLD,
 	      "max error over all processors -> %g\n"
