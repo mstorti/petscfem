@@ -12425,6 +12425,13 @@ version `beta-3.51.16'. Hize un diff a pata de los directorios y le
 fui aplicando el patch a mi branch `mstorti-v6-branch'. No habia
 tantas diferencias. Lo termine aplicando todo y compila. 
 
+%=== Sun Oct 28 17:21:36 2007 mstorti@prandtl
+%
+%-- 17:21:36 -- merge-with-petsc-233-62-gd768041 -----
+Tratando de correr todos los tests despues del merge. 
+%
+* El runtests.pl no anda bien con la salida del test `idmap'.
+
 # Current line ===========  %
 # Local Variables: $
 # eval: (my-notes-mode) $

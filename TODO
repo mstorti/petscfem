@@ -3,7 +3,7 @@ TODO: [Mainly fixes go here...]
 =====
 
 * In FastMat2, static declarations should be removed, otherwise it is
-   not reentrant.
+   not reentrant. (I think this is done already, CHECK).
 * using `shock_capturing' in `nsi_tet_les_fm2' gives SIGSEGV
 * using nsi_tet_les_fm2 with fractional step produces  SEGV
 * In test/sector/Makefile: change '-chmod +w sector.depl'
