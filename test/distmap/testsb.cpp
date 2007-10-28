@@ -15,7 +15,7 @@
 #include <src/syncbuff.h>
 #include <src/syncbuff2.h>
 
-int SIZE, MY_RANK;
+//int SIZE, MY_RANK;
 
 using namespace std;
 

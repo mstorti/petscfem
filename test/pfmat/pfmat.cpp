@@ -51,10 +51,10 @@ int main(int argc,char **args) {
   double tol=1e-10;
   // debug.activate();
   int myrank,size;
-  PetscInitialize(&argc,&args,NULL,NULL);
+  PetscFemInitialize(&argc,&args,NULL,NULL);
 
-  MPI_Comm_size(PETSC_COMM_WORLD,&size);
-  MPI_Comm_rank(PETSC_COMM_WORLD,&myrank);
+  MPI_Comm_size(PETSCFEM_COMM_WORLD,&size);
+  MPI_Comm_rank(PETSCFEM_COMM_WORLD,&myrank);
 
   double cond,L,Q0,rand_coef=1.;
   int Nelem=10, debug_print=0, nmat;
@@ -64,7 +64,7 @@ int main(int argc,char **args) {
   if (myrank==0 && argc>++arg)
     sscanf(args[arg],"%d",&Nelem);
   ierr = MPI_Bcast (&Nelem, 
-		    1, MPI_INT, 0,MPI_COMM_WORLD); CHKERRA(ierr); 
+		    1, MPI_INT, 0,PETSCFEM_COMM_WORLD); CHKERRA(ierr); 
   int N=Nelem-1;
   PetscPrintf(PETSC_COMM_WORLD,"Nelem %d  (Number of elements)\n",Nelem);
 
@@ -72,7 +72,7 @@ int main(int argc,char **args) {
   if (myrank==0 && argc>++arg)
     sscanf(args[arg],"%d",&debug_print);
   ierr = MPI_Bcast (&debug_print, 
-		    1, MPI_INT, 0,MPI_COMM_WORLD); CHKERRA(ierr); 
+		    1, MPI_INT, 0,PETSCFEM_COMM_WORLD); CHKERRA(ierr); 
   PetscPrintf(PETSC_COMM_WORLD,"debug_print %d  "
 	      "(print debugging information)\n",debug_print);
 
@@ -81,7 +81,7 @@ int main(int argc,char **args) {
   if (myrank==0 && argc>++arg)
     sscanf(args[arg],"%d",&nsolve);
   ierr = MPI_Bcast (&nsolve, 1, 
-		    MPI_INT, 0,MPI_COMM_WORLD); CHKERRA(ierr); 
+		    MPI_INT, 0,PETSCFEM_COMM_WORLD); CHKERRA(ierr); 
   PetscPrintf(PETSC_COMM_WORLD,
 	      "nsolve %d  (repeats solution stage nsolve times\n",
 	      nsolve);
@@ -91,7 +91,7 @@ int main(int argc,char **args) {
   if (myrank==0 && argc>++arg) 
     sscanf(args[arg],"%d",&iisd_subpart);
   ierr = MPI_Bcast (&iisd_subpart, 
-		    1, MPI_INT, 0,MPI_COMM_WORLD); CHKERRA(ierr); 
+		    1, MPI_INT, 0,PETSCFEM_COMM_WORLD); CHKERRA(ierr); 
   PetscPrintf(PETSC_COMM_WORLD,"iisd_subpart %d  "
 	      "(number of partitions for subpartitioning"
 	      " inside each processor)\n",iisd_subpart);
@@ -101,7 +101,7 @@ int main(int argc,char **args) {
   if (myrank==0 && argc>++arg) 
     sscanf(args[arg],"%d",&nmat);
   ierr = MPI_Bcast (&nmat, 
-		    1, MPI_INT, 0,MPI_COMM_WORLD); CHKERRA(ierr); 
+		    1, MPI_INT, 0,PETSCFEM_COMM_WORLD); CHKERRA(ierr); 
   PetscPrintf(PETSC_COMM_WORLD,"nmat %d  (solve with nmat matrices)\n",nmat);
 
   CHKOPT(rnd);
@@ -109,7 +109,7 @@ int main(int argc,char **args) {
   if (myrank==0 && argc>++arg) 
     sscanf(args[arg],"%d",&rand_flag);
   ierr = MPI_Bcast (&rand_flag, 
-		    1, MPI_INT, 0,MPI_COMM_WORLD); CHKERRA(ierr); 
+		    1, MPI_INT, 0,PETSCFEM_COMM_WORLD); CHKERRA(ierr); 
   PetscPrintf(PETSC_COMM_WORLD,"rand_flag %d  (use a randomly "
 	      "perturbated Q0, k and L\n",rand_flag);
 
@@ -118,7 +118,7 @@ int main(int argc,char **args) {
   if (myrank==0 && argc>++arg) 
     sscanf(args[arg],"%d",&mat_type);
   ierr = MPI_Bcast (&mat_type, 
-		    1, MPI_INT, 0,MPI_COMM_WORLD); CHKERRA(ierr); 
+		    1, MPI_INT, 0,PETSCFEM_COMM_WORLD); CHKERRA(ierr); 
   PetscPrintf(PETSC_COMM_WORLD,
 	      "mat_type %d (%s)\n",mat_type,
 	      (mat_type==0 ? "IISDMat/PETSc" :
@@ -130,7 +130,7 @@ int main(int argc,char **args) {
   CHKOPT(q);
   q_type=0; // 0 -> cnst, 1 -> propto x
   if (myrank==0 && argc>++arg) sscanf(args[arg],"%d",&q_type);
-  ierr = MPI_Bcast (&q_type,1, MPI_INT, 0,MPI_COMM_WORLD); CHKERRA(ierr); 
+  ierr = MPI_Bcast (&q_type,1, MPI_INT, 0,PETSCFEM_COMM_WORLD); CHKERRA(ierr); 
   PetscPrintf(PETSC_COMM_WORLD,"q_type %d  (Q0/x dependency, "
 	      "0 -> cnst, 1 -> propto x)\n",q_type);
 
@@ -201,8 +201,8 @@ int main(int argc,char **args) {
       L = 1. + rand_coef * ::drand();
     }
 
-    ierr = MPI_Bcast (&cond, 1, MPI_DOUBLE, 0,MPI_COMM_WORLD);
-    ierr = MPI_Bcast (&L, 1, MPI_DOUBLE, 0,MPI_COMM_WORLD);
+    ierr = MPI_Bcast (&cond, 1, MPI_DOUBLE, 0,PETSCFEM_COMM_WORLD);
+    ierr = MPI_Bcast (&L, 1, MPI_DOUBLE, 0,PETSCFEM_COMM_WORLD);
     double h = L/double(Nelem);
     double coef = cond / (h*h);
 
@@ -221,7 +221,7 @@ int main(int argc,char **args) {
 	Q0 = 1. + rand_coef * ::drand();
 	printf("cond %f, Q0 %f, L %f\n",cond,Q0,L);
       }
-      ierr = MPI_Bcast (&Q0, 1, MPI_DOUBLE, 0,MPI_COMM_WORLD);
+      ierr = MPI_Bcast (&Q0, 1, MPI_DOUBLE, 0,PETSCFEM_COMM_WORLD);
 
       if (myrank==0) {
 	for (int j=0; j<N; j++) {
@@ -243,11 +243,11 @@ int main(int argc,char **args) {
       ierr = A.solve(b,x); CHKERRA(ierr); 
 
       if (debug_print) {
-	PetscPrintf(PETSC_COMM_WORLD,"b: \n");
+	PetscPrintf(PETSCFEM_COMM_WORLD,"b: \n");
 	ierr = VecView(b,PETSC_VIEWER_STDOUT_WORLD);
-	PetscPrintf(PETSC_COMM_WORLD,"FEM: \n");
+	PetscPrintf(PETSCFEM_COMM_WORLD,"FEM: \n");
 	ierr = VecView(x,PETSC_VIEWER_STDOUT_WORLD);
-	PetscPrintf(PETSC_COMM_WORLD,"Exact: \n");
+	PetscPrintf(PETSCFEM_COMM_WORLD,"Exact: \n");
 	ierr = VecView(xex,PETSC_VIEWER_STDOUT_WORLD);
       }
 
@@ -259,7 +259,7 @@ int main(int argc,char **args) {
       ierr  = VecNorm(x,NORM_2,&norm); CHKERRA(ierr);
 
       int this_ok = norm/normex<=tol;
-      PetscPrintf(PETSC_COMM_WORLD,"test OK: %d, ||x-xex|| = %g,   "
+      PetscPrintf(PETSCFEM_COMM_WORLD,"test OK: %d, ||x-xex|| = %g,   "
 		  "||x-xex||/||xex|| = %g, tol %g\n",this_ok,
 		  norm,norm/normex,tol);
       if (!this_ok) tests_ok = 0;
@@ -267,6 +267,6 @@ int main(int argc,char **args) {
     A.clean_factor(); 
   }
   A.clear();
-  PetscPrintf(PETSC_COMM_WORLD,"All tests OK ?  %d\n",tests_ok);
+  PetscPrintf(PETSCFEM_COMM_WORLD,"All tests OK ?  %d\n",tests_ok);
   PetscFinalize();
 }

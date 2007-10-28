@@ -31,7 +31,7 @@ sparse: sp.bin
 ifneq ($(SUPERLU),)
 	sp.bin SuperLU > output.sparse.superlu.tmp
 else
-	grep -v '^__' ../sparse.test > output.sparse.superlu.tmp
+	grep -v '^__' ./sparse.test > output.sparse.superlu.tmp
 endif
 
 tryme.bin: tryme.o
