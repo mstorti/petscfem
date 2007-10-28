@@ -18,7 +18,7 @@ plano_fm2_weak:   EPERLFLAGS = "-d fm2_weak=1"
 
 plano_%: 
 	$(MAKE) EPERLFLAGS=$(EPERLFLAGS) plano.depl
-	-$(MPIRUN) -np 1 $(ADV) -case plano.depl </dev/null &> $@.sal
+	-$(MPIEXEC) -n 1 $(ADV) -case plano.depl </dev/null &> $@.sal
 
 local_clean::
 	-rm -rf *.sal
