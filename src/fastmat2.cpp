@@ -1,5 +1,5 @@
 ///__INSERT_LICENSE__
-//$Id merge-with-petsc-233-55-g52bd457 Fri Oct 26 13:57:07 2007 -0300$
+//$Id mstorti-v6-branch-1.0.1-5-ge86f38c Wed Sep 19 13:06:15 2007 -0300$
 
 #include <cmath>
 #include <cstdio>
@@ -9,14 +9,38 @@ using namespace std;
 #include "fastmat2.h"
 
 FastMat2::CacheCtx FastMat2::global_cache_ctx;
+int FastMat2::cache_dbg=0;
 
-#if 0
-static void fill_to_length(Indx &indx,int m) {
-  int n = indx.size();
-  for (int j=0; j<m-n; j++)
-    indx.push_back(0);
-}
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>
+FastMatCachePosition::FastMatCachePosition() {
+  first = NULL;
+  second = -1;
+#ifdef FM2_CACHE_DBG
+  if (FastMat2::cache_dbg) 
+    printf ("in constructor creating cache_position: %p\n",this);
 #endif
+}
+
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>
+FastMatCachePosition::~FastMatCachePosition() {
+#ifdef FM2_CACHE_DBG
+  if (FastMat2::cache_dbg) 
+    printf ("in destructor deleting cache_position: %p\n",this);
+#endif
+}
+
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>
+FastMatCacheList::FastMatCacheList() { 
+  list_size=0; 
+}
+
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>
+FastMatCacheList::~FastMatCacheList() {
+#ifdef FM2_CACHE_DBG
+  if (FastMat2::cache_dbg) 
+    printf ("in destructor deleting cache_list: %p\n",this);
+#endif
+}
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 void FastMat2::CacheCtx::get_cache_position(FastMatCachePosition & pos) {
@@ -24,6 +48,7 @@ void FastMat2::CacheCtx::get_cache_position(FastMatCachePosition & pos) {
   pos.second = position_in_cache;
 }
 
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 void FastMat2::get_cache_position(FastMatCachePosition & pos) {
   global_cache_ctx.get_cache_position(pos);
 }
@@ -182,9 +207,8 @@ void FastMat2::CacheCtx::leave() {
   cache_list_begin = &*cache_list->begin();
   cache_list_stack.pop_back();
 #ifdef FM2_CACHE_DBG
-  if (FastMat2::cache_dbg)
-    printf(", resuming at cache_list %p, position %d, was_cached: %d\n",
-           cache_list,position_in_cache,was_cached);
+  if (FastMat2::cache_dbg) printf(", resuming at cache_list %p, position %d, was_cached: %d\n",
+	 cache_list,position_in_cache,was_cached);
 #endif
   
 }
@@ -898,12 +922,21 @@ FastMatCache::FastMatCache() {
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 FastMatCache::~FastMatCache() {
+  // printf("deleting FM2 %p\n",this);
   delete A;
   A = NULL;
   delete B;
   B = NULL;
   delete sc;
   sc = NULL;
+#if 0
+  for (unsigned k=0; k<branch.size(); k++) {
+    if (branch[k]) {
+      delete branch[k];
+      branch[k] = NULL;
+    }
+  }
+#endif
 }
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>

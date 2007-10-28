@@ -7,7 +7,7 @@ PROG = ns
 PETSCFEM_DIR   = ../..
 PETSCFEM_MODULE = Navier-Stokes
 
-PROGOBJ = ns.o mmvmain.o nsstruct.o ns_fsi.o compdate.o
+PROGOBJ = ns.o mmvmain.o mmv2main.o nsstruct.o ns_fsi.o compdate.o
 
 LIBOBJS = nsglb.o nsitetlesfm2.o bccnsfm2.o wall.o nsvol.o walldata.o	\
 	nsilesther.o bccnstherfm2.o nsikeps.o nsikepsrot.o		\

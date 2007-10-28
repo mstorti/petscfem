@@ -343,7 +343,7 @@ int mmove2_main() {
   //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
   // initialize state vectors
   scal=0;
-  ierr = VecSet(&scal,x); CHKERRA(ierr);
+  ierr = VecSet(x,scal); CHKERRA(ierr);
 
   //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
   // Compute  profiles
@@ -399,7 +399,7 @@ int mmove2_main() {
       argl.arg_add(&glob_param,USER_DATA,"glob_param");
       
       scal=0;
-      ierr = VecSet(&scal,res); CHKERRA(ierr);
+      ierr = VecSet(res,scal); CHKERRA(ierr);
       ierr = Ap->clean_mat(); CHKERRA(ierr); 
       debug.trace("Before residual computation...");
       ierr = assemble(mesh,argl,dofmap,"comp_mat_res",&time);
@@ -424,7 +424,7 @@ int mmove2_main() {
       argl.arg_add(&glob_param,USER_DATA,"glob_param");
       
       scal=0;
-      ierr = VecSet(&scal,resp); CHKERRA(ierr);
+      ierr = VecSet(resp,scal); CHKERRA(ierr);
       ierr = Ap->clean_mat(); CHKERRA(ierr); 
       debug.trace("Before residual computation...");
       ierr = assemble(mesh,argl,dofmap,"comp_mat_res",&time);
@@ -439,7 +439,7 @@ int mmove2_main() {
 
       // resp = (resp-res)
       scal = -1.;
-      ierr = VecAXPY(&scal,res,resp); CHKERRQ(ierr); 
+      ierr = VecAXPY(res,scal,resp); CHKERRQ(ierr); 
     
 #ifdef MMV_DBG
       printf("(resp-res)/time_fac_epsilon: ");
@@ -448,7 +448,7 @@ int mmove2_main() {
 #endif
 
       scal = 1./time_fac_epsilon;
-      ierr = VecScale(&scal,resp);
+      ierr = VecScale(resp,scal);
       ierr = Ap->solve(resp,dx); CHKERRA(ierr); 
       
 #ifdef MMV_DBG
@@ -460,7 +460,7 @@ int mmove2_main() {
 
       // x = x+dx
       scal = 1.0;
-      ierr = VecAXPY(&scal,dx,x); CHKERRA(ierr); 
+      ierr = VecAXPY(dx,scal,x); CHKERRA(ierr); 
     }
 
     time.set(time_old.time());
@@ -486,7 +486,7 @@ int mmove2_main() {
     argl.arg_add(&glob_param,USER_DATA,"glob_param");
 
     scal=0;
-    ierr = VecSet(&scal,resp); CHKERRA(ierr);
+    ierr = VecSet(resp,scal); CHKERRA(ierr);
     ierr = Ap->clean_mat(); CHKERRA(ierr); 
     debug.trace("Before residual computation...");
     ierr = assemble(mesh,argl,dofmap,"comp_mat_res",&time);
@@ -521,8 +521,8 @@ int mmove2_main() {
       ierr = Ap->clean_mat(); CHKERRA(ierr); 
 
       scal=0;
-      ierr = VecSet(&scal,res); CHKERRA(ierr);
-      ierr = VecSet(&scal,res_delta); CHKERRA(ierr);
+      ierr = VecSet(res,scal); CHKERRA(ierr);
+      ierr = VecSet(res_delta,scal); CHKERRA(ierr);
 
       argl.clear();
       state.set_time(time);
@@ -598,7 +598,7 @@ int mmove2_main() {
       if (relfac!=1.) PetscPrintf(PETSCFEM_COMM_WORLD,
 				  "relaxation factor %f\n",relfac);
       scal= relfac/alpha;
-      ierr = VecAXPY(&scal,dx,x);
+      ierr = VecAXPY(dx,scal,x);
 
       ierr = VecDot(res_delta,dx,&resdelta_dot_dx);  CHKERRA(ierr);
 
@@ -623,7 +623,7 @@ int mmove2_main() {
 	  argl.arg_add(&glob_param,USER_DATA,"glob_param");
 	
 	  scal=0;
-	  ierr = VecSet(&scal,resp); CHKERRA(ierr);
+	  ierr = VecSet(resp,scal); CHKERRA(ierr);
 	  ierr = Ap->clean_mat(); CHKERRA(ierr); 
 	  debug.trace("Before residual computation...");
 	  ierr = assemble(mesh,argl,dofmap,"comp_mat_res",&time);
@@ -637,7 +637,7 @@ int mmove2_main() {
 
 	  relfac /= ls_relfac_fraction;
 	  scal = (1.-ls_relfac_fraction)/pow(ls_relfac_fraction,++counter);
-	  ierr = VecAXPY(&scal,dx,x);  CHKERRA(ierr);
+	  ierr = VecAXPY(dx,scal,x);  CHKERRA(ierr);
 
 	  PetscPrintf(PETSC_COMM_WORLD,"relaxation factor %f\n",relfac);
 	}
@@ -682,7 +682,7 @@ int mmove2_main() {
 
     // error difference
     scal = -1.0;
-    ierr = VecAXPY(&scal,x,dx_step);
+    ierr = VecAXPY(x,scal,dx_step);
     ierr  = VecNorm(dx_step,NORM_2,&norm); CHKERRA(ierr);
     PetscPrintf(PETSCFEM_COMM_WORLD,"============= delta_u = %10.3e\n",norm);
     print_vector_rota(save_file_pattern.c_str(),x,dofmap,&time,
