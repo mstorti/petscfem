@@ -41,8 +41,8 @@ args = ne 20 deb 0 nsl 2 $(1) nmat 2 rnd 1 $(2) q 1 $(3)
 
 pfmat = out=output.$(3).tmp ; rm -f $$out ;	\
 	echo   args: $(2) > $$out ;		\
-	$(MPIRUN) -machinefile		\
-        machi.dat -np $(1) ./pfmat.bin $(2) </dev/null >> $$out
+	$(MPIEXEC) -machinefile		\
+        machi.dat -n $(1) ./pfmat.bin $(2) </dev/null >> $$out
 
 pfmat: pfmat.bin iisdmat_petsc petscmat spd_petsc spd_slu
 
@@ -84,7 +84,7 @@ pp:
 	args="ne 20 deb 0 nsl 2 sbdp $$sbdp  nmat 2 rnd		\
 		1 mtyp $$mtyp q 1" ;				\
 	echo  args: $$args > $$out ;				\
-	$(MPIRUN) -np $$np -machinefile				\
+	$(MPIEXEC) -n $$np -machinefile				\
         machi.dat ./pfmat.bin $$args </dev/null  >> $$out  ;	\
 		fi ;						\
 			done ;					\
@@ -95,8 +95,8 @@ args2 = ne 100 deb 0 nsl 2 $(1) nmat 2 nprof 2 $(2) f 0.9
 
 pfmat2 = out=output2.$(3).tmp ; rm -f $$out ;		\
 	echo args: $(2) > $$out ;			\
-	$(MPIRUN) -machinefile				\
-	        machi.dat -np $(1)  ./pfmat2.bin $(2)	\
+	$(MPIEXEC) -machinefile				\
+	        machi.dat -n $(1)  ./pfmat2.bin $(2)	\
 		</dev/null  >> $$out
 
 pfmat2: pfmat2.bin force
@@ -152,6 +152,6 @@ pfmat3.bin: $(LIB_OBJS_LIB) pfmat3.o hashf.o
 	${CXX_CLINKER} -o $@ pfmat3.o hashf.o $(LDFLAGS_NO_PROG_LIB)
 
 pfmat7: pfmat7.bin
-	$(MPIRUN) -np 1 ./pfmat7.bin $(call in_backg,$@)
+	$(MPIEXEC) -n 1 ./pfmat7.bin $(call in_backg,$@)
 
 #s

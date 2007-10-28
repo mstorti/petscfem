@@ -21,7 +21,7 @@ DEPEND_DIRS = $(CLEAN_DIRS)
 
 .PHONY: $(CASE)
 $(CASE): $(CASE).depl
-	-$(MPIRUN) -np 1 $(ADVDIF) -case $(CASE).depl > $(CASE).out
+	-$(MPIEXEC) -n 1 $(ADVDIF) -case $(CASE).depl > $(CASE).out
 	verify.pl > turbchan.ver.tmp
 
 #s

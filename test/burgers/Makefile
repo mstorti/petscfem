@@ -71,7 +71,7 @@ IN_BACKG := </dev/null >burgers.$(CASE).out.tmp
 NP := $(shell procsel $(PETSCFEM_PROCTABLE))
 run: 
 	make-depl burgers.epl burgers.depl 
-	-$(MPIRUN) -np 1 $(ADVDIF) -case burgers.depl $(IN_BACKG)
+	-$(MPIEXEC) -n 1 $(ADVDIF) -case burgers.depl $(IN_BACKG)
 	if [ -f save.state.tmp ] ;					\
 		then mv -f save.state.tmp save.state.$(CASE).tmp ;	\
 	fi

@@ -54,7 +54,7 @@ PROG := $(NS)
 # endif
 NP := 1
 run: $(CASE_NAME).depl
-	-$(MPIRUN) -np $(NP) -machinefile machi.dat $(PROG) -case $< 
+	-$(MPIEXEC) -n $(NP) -machinefile machi.dat $(PROG) -case $< 
 
 $(CASE_NAME).depl: force
 

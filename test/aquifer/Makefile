@@ -111,7 +111,7 @@ data: force
 
 #w Runs program
 rung: data force
-	-${MPIRUN} $(MCH) -np $(np) $(PROG) \
+	-${MPIEXEC} $(MCH) -n $(np) $(PROG) \
 		-case $(CASE).depl $(call redir,output.$(casen).out.tmp)
 
 ###--------<*>--------<*>--------<*>--------<*>--------<*>--------<*>

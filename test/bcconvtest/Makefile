@@ -61,7 +61,7 @@ $(NAME).depl: force
 test_case: test_case_data
 	-rm -f slosh.some_rslt.tmp
 	if [ -e save.state ] ; then cp save.state save.state.tmp ; fi
-	-$(MPIRUN) -np $(NP) -machinefile machi.dat $(PROG) \
+	-$(MPIEXEC) -n $(NP) -machinefile machi.dat $(PROG) \
 			-case $(NAME).depl # | tee output..tmp
 
 local_clean::

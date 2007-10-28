@@ -37,7 +37,7 @@ run: data
 	-rm -f $(CASE_NAME).some_rslt.tmp
 	if [ -e $(CASE_NAME).force.tmp ] ; then rm $(CASE_NAME).force.tmp ; fi
 	if [ -e save.state ] ; then cp save.state save.state.tmp ; fi
-	-$(MPIRUN) $(NL) $(PROG) -case $(CASE_NAME).depl \
+	-$(MPIEXEC) $(NL) $(PROG) -case $(CASE_NAME).depl \
 		$(call redir,petscfem.output.tmp)
 
 local_clean::

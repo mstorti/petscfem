@@ -111,7 +111,6 @@ elseif full_jacs==2
 
   CP=log(Cp)*(eye(ndof)+log((Cp-Cpfluc)/Cp)*(2*rand(size(CP))-1));
   CP=(CP+CP')/2;
-  return
   CP=expm(CP);
   ## CP=myfunm(CP,"exp");
 	      

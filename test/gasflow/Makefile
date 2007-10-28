@@ -47,7 +47,7 @@ nolocal := yes
 include ../les/stabi3d/Makefile.parproc
 # NP := 2
 run: $(CASE_NAME).depl
-	-$(MPIRUN) $(NL) -np $(NP) -machinefile \
+	-$(MPIEXEC) $(NL) -n $(NP) -machinefile \
 		machi.dat $(PROG) -case $< 2>&1
 
 $(CASE_NAME).depl: force

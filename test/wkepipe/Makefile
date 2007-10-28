@@ -32,7 +32,7 @@ $(NAME).depl: force
 
 test_case_%: test_case_%_data
 	if [ -e save.state ] ; then cp save.state save.state.tmp ; fi
-	-$(MPIRUN) -np 1 -machinefile machi.dat $(PROG) \
+	-$(MPIEXEC) -n 1 -machinefile machi.dat $(PROG) \
 			-case $(NAME).depl #> output.case_$*.tmp
 
 local_clean::

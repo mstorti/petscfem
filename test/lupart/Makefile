@@ -117,7 +117,7 @@ NP := 1
 test_case: test_case_data
 	if [ -e save.state ] ;				\
 		then cp save.state save.state.tmp ; fi
-	-$(MPIRUN) -np $(NP) $(PROG) -case $(NAME).depl	\
+	-$(MPIEXEC) -n $(NP) $(PROG) -case $(NAME).depl	\
 		</dev/null > output.case_$(case).tmp
 
 local_clean::

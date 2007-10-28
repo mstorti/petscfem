@@ -36,7 +36,7 @@ run_shock:
 	$(MAKE) CASE_NAME=gfshock run
 
 run_adre:
-	$(MPIRUN) $(NL) -np $(NP) -machinefile		\
+	$(MPIEXEC) $(NL) -n $(NP) -machinefile		\
 	machi.dat $(PROG) -case adre.epl
 
 run2d:
@@ -82,7 +82,7 @@ mesh:
 
 run:
 	make-depl $(CASE_NAME).epl $(CASE_NAME).depl
-	$(MPIRUN) $(NL) -np $(NP) -machinefile			\
+	$(MPIEXEC) $(NL) -n $(NP) -machinefile			\
 	machi.dat $(PROG) -case $(CASE_NAME).depl 
 
 # STEPS_DIR := ./STEPS
@@ -117,7 +117,7 @@ endif
 
 dx: 
 	make-depl $(CASE_NAME).epl $(CASE_NAME)-dx.depl -d dx=1
-	-$(MPIRUN) $(NL) -np $(NP) -machinefile		\
+	-$(MPIEXEC) $(NL) -n $(NP) -machinefile		\
 	machi.dat $(PROG) -case $(CASE_NAME)-dx.depl # > $(CASE_NAME).log
 
 yuv_compress:
