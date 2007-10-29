@@ -12531,6 +12531,11 @@ algun momento paso a -1 por defecto. Una posibilidad es hacer que para
 este elemento este por defecto en +1.0, pero entonces hay un problema
 de inconsistencia con los otros. Prefiero hacer que en este elemento
 elevar la diferencia de los autovalores a `-distor_exp'. 
+%
+%-- 10:02:45 -- mstorti-v7-root-17-ge3dc152 -----
+Arreglado el error en los tests en `nutatcyl': antes calculaba mal los
+momentos (signo al reves). Entonces tuve que cambiar todos los signos
+de momentos en los scripts `chec*.m' que hacen el chequeo. 
 
 # Current line ===========  %
 # Local Variables: $
