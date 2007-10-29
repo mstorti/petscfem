@@ -1,8 +1,8 @@
 // -*- mode: C++ -*-
 /*__INSERT_LICENSE__*/
-//$Id: adaptor.h,v 1.15 2006/04/11 00:48:10 mstorti Exp $
-#ifndef ADAPTOR_H
-#define ADAPTOR_H
+//$Id merge-with-petsc-233-55-g52bd457 Fri Oct 26 13:57:07 2007 -0300$
+#ifndef PETSCFEM_ADAPTOR_H
+#define PETSCFEM_ADAPTOR_H
 
 //-------<*>-------<*>-------<*>-------<*>-------<*>------- 
 /** Generic class that allows the user not make explicitly the element
@@ -12,7 +12,10 @@
 class adaptor : public ns_volume_element { 
 private:
   /// Flags whether the elements have been initialized or not
-  int elem_init_flag;
+  int elem_init_flag, use_fastmat2_cache;
+  arg_data_list *arg_data_vp;
+  /// Index of element local to chunk
+  int ielh;
 public: 
   adaptor();
   /// This should not be defined by the user...
@@ -42,9 +45,10 @@ public:
   /// Parameters passed to the element from the main
   GlobParam *glob_param;
   /** User defined callback function to be defined by the
-      user. Called {\bf before} the element loop. 
+      user. Called {\bf before} the element loop. May be used for
+      initialization operations. 
   */
-  virtual void init()=0;
+  virtual void init() {}
   /** User defined callback function to be defined by the
       user. Called {\bf after} the element loop. May be used for
       clean-up operations. 
@@ -68,7 +72,31 @@ public:
       initialize().  */ 
   virtual void element_init() { } 
 
+  class ArgHandle {
+    friend class adaptor;
+  private:
+    int index_m;
+    ArgHandle(int indx) : index_m(indx) {}
+  public:
+    ArgHandle() : index_m(-1) {}
+    int index() { return index_m; }
+    bool operator==(ArgHandle b) const;
+  };
+  static ArgHandle NullArgHandle;
+  size_t nargs() const;
+
+  ArgHandle get_arg_handle(const string &key,
+                           const char* errmess=NULL) const;
+
+  void export_vals(ArgHandle h,double *vals,int s=-1); 
+
+  void export_vals(ArgHandle h,FastMat2 &a); 
+
   void after_assemble(const char *jobinfo);
+
+  virtual void before_chunk(const char *jobinfo) { }
+  virtual void after_chunk(const char *jobinfo) { }
+  
   /** Contains constant fields for the element */
   FastMat2 Hloc;
   int nH;
@@ -142,5 +170,7 @@ public:
   FastMat2 &dshapex();
   FastMat2 H, grad_H;
 };
+
+#define GET_JOBINFO_FLAG_ND(name) name  = !strcmp(jobinfo,#name)
 
 #endif

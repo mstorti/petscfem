@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id merge-with-petsc-233-50-g0ace95e Fri Oct 19 17:49:52 2007 -0300$
+//$Id merge-with-petsc-233-55-g52bd457 Fri Oct 26 13:57:07 2007 -0300$
 #ifndef _GNU_SOURCE 
 #define _GNU_SOURCE 
 #endif
@@ -43,11 +43,11 @@ extern "C" {
 #include <src/dvecpar.h>
 #include <src/dvecpar2.h>
 
+//#define TRACE_READMESH
+#ifdef TRACE_READMESH
 #undef TRACE
-#if 0
 #define TRACE(n)				\
-  ierr = MPI_Barrier(PETSCFEM_COMM_WORLD);		\
-  PetscPrintf(PETSCFEM_COMM_WORLD,"trace " #n "\n")
+   GLOBAL_DEBUG->trace("readmesh trace " #n);
 #else
 #undef TRACE
 #define TRACE(n)
@@ -116,6 +116,11 @@ int read_mesh(Mesh *& mesh,char *fcase,Dofmap *& dofmap,
   PETSCFEM_ASSERT(fstack->ok(),"read_mesh: "
 		  "Couldn't open file \"%s\"\n",fcase);
   if (myrank==0) fstack->set_echo_stream(stdout);
+
+#ifdef TRACE_READMESH
+    GLOBAL_DEBUG->activate("print");
+    Debug::init();
+#endif
 
   // Initialize number of eqs.
   neq=0;
@@ -215,11 +220,11 @@ int read_mesh(Mesh *& mesh,char *fcase,Dofmap *& dofmap,
       dofmap->ndof = ndof;
       node = 0;
       double *row = new double[nu];
-      darray *xnod=0;
+      darray *xnod=NULL;
       const char *data = NULL;
       mesh->nodedata->options->get_entry("data",data);
       assert(data);
-      FileStack *fstack_nodes_data=0;
+      FileStack *fstack_nodes_data=NULL;
       if (!myrank) {
 	fstack_nodes_data = new FileStack(data);
 	ierro = !fstack_nodes_data->ok();
@@ -464,7 +469,7 @@ int read_mesh(Mesh *& mesh,char *fcase,Dofmap *& dofmap,
       DONE:;
       } else {
 	Autobuf *tempo = abuf_create();
-	FileStack *file_connect=0;
+	FileStack *file_connect=NULL;
 	if (!myrank) {
 	  file_connect = new FileStack(data);
 	  ierro = !file_connect->ok();
@@ -1601,8 +1606,14 @@ if (!(bool_cond)) { PetscPrintf(PETSCFEM_COMM_WORLD, 				\
       }
     }
 
-    da_sort (elemset->ghost_elems,int_cmp,NULL);
+    TRACE(4.1);
+    
+    // da_sort (elemset->ghost_elems,int_cmp,NULL);
     int nghostel = da_length(elemset->ghost_elems);
+    if (nghostel>0) {
+      int *dap = (int *)da_ref(elemset->ghost_elems,0);
+      sort(dap,dap+nghostel);
+    }
 
     TRACE(5);
     if (size>1) {

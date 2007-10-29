@@ -378,9 +378,6 @@ $(PROG_BIN): $(MYOBJS) $(PROG_LIB) $(PROGOBJ) $(LIBPETSCFEM)
 		$(MYOBJS) $(OTHER_OBJS) $(LDFLAGS)
 	rm $(PROGOBJ)
 
-qqq:
-	echo PETSC_LDFLAGS $(PETSC_LDFLAGS)
-
 $(LIBPETSCFEM)(%.o): force
 	$(MAKE) -C $(PETSCFEM_DIR)/src 'libpetscfem$(osfx).a($*.o)'
 

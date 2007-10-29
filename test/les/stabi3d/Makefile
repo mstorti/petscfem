@@ -17,7 +17,7 @@ stabi:
 	saverot stabi.some_rslt%d.tmp
 	$(MAKE) $(CASE).depl
 	$(OCTAVE) < mkmesh.m 
-	-$(MPIRUN) -machinefile ./machi.dat -np $(NP) -nolocal $(PROG) -case stabi.depl
+	-$(MPIEXEC) -machinefile ./machi.dat -n $(NP) -nolocal $(PROG) -case stabi.depl
 
 stabi.con-tet.tmp: stabi.con.tmp
 	$(MAKE) -C $(PETSCFEM_DIR)/tools/ hexasplit.bin

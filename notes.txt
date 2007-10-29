@@ -12425,6 +12425,124 @@ version `beta-3.51.16'. Hize un diff a pata de los directorios y le
 fui aplicando el patch a mi branch `mstorti-v6-branch'. No habia
 tantas diferencias. Lo termine aplicando todo y compila. 
 
+%=== Sun Oct 28 17:21:36 2007 mstorti@prandtl
+%
+%-- 17:21:36 -- merge-with-petsc-233-62-gd768041 -----
+Tratando de correr todos los tests despues del merge. 
+%
+* El runtests.pl no anda bien con la salida del test `idmap'.
+* Los tests de mmove no andan
+%
+%-- 23:44:06 -- merge-with-petsc-233-68-g71af734 -----
+Resumen de los tests (da igual para g_c++ y O_c++).
+> --------
+> Start section: "All tests"
+> Summary: "All tests" -- OK: 153.  Not OK: 17. Couldn't open: 9. Total: 179
+
+> --------
+> Start section: "All tests"
+> Summary: "All tests" -- OK: 153.  Not OK: 18. Couldn't open: 8. Total: 179
+> -------------------------
+> COULDN'T OPEN: 
+> can't open sqcav/output.CASE_sqcav.np_1.case_dx_file1.out.tmp
+> can't open sqcav/output.CASE_sqcav.np_1.case_dx_file3.out.tmp
+> can't open sqcav/output.CASE_sqcav.np_1.case_dx_synchro.out.tmp
+> can't open sqcav/output.CASE_sqcav.np_1.case_dx_allf.out.tmp
+> can't open sqcav/output.CASE_sqcav.np_2.case_dx_file1.out.tmp
+> can't open sqcav/output.CASE_sqcav.np_2.case_dx_file3.out.tmp
+> can't open sqcav/output.CASE_sqcav.np_2.case_dx_synchro.out.tmp
+> can't open sqcav/output.CASE_sqcav.np_2.case_dx_allf.out.tmp
+> -------------------------
+> NOT OK TESTS: 
+> --------
+> Start section: "Navier-Stokes tests."
+> Testing: "Square cavity with fract. step, Re1000, N=20" on file "sqcav/check.fs.verif.tmp"...not OK.
+>         --->  Couldn't find "Square cavity at Re=1000. Error < tol OK \? 1"
+> Testing: "Nutating cylinder" on file "nutatcyl/checknutcyl.verif.tmp"...not OK.
+>         --->  Couldn't find "Roll moment OK \? 1"
+> Testing: "Viscous force intgrator on rigid cylinder" on file "nutatcyl/rigid.verif.tmp"...not OK.
+>         --->  Couldn't find "Mz\(rigid\) OK \? 1"
+> Testing: "Viscous force intgrator on linear 3D strip" on file "nutatcyl/strip.verif.tmp"...not OK.
+>         --->  Couldn't find "Fx \[constant acceleration\] OK \? 1"
+> Testing: "Viscous force intgrator on linear 3D strip (prisms)" on file "nutatcyl/stripp.verif.tmp"...not OK.
+>         --->  Couldn't find "Fx \[constant acceleration\] OK \? 1"
+> Testing: "Viscous force intgrator on linear 3D strip (prisms inv.norm.)" on file "nutatcyl/strippi.verif.tmp"...not OK.
+>         --->  Couldn't find "Fx \[constant acceleration\] OK \? 1"
+> Testing: "Max volume ratio large deformation mesh mov." on file "mmove/step3d.verif.tmp"...not OK.
+>         --->  Couldn't find "All tetra volumes > 0 OK \? 1"
+> Summary: "Navier-Stokes tests." -- OK: 9.  Not OK: 7. Couldn't open: 0. Total: 16
+> --------
+> Start section: "Misc tests."
+> Testing: "Idmap class" on file "idmap/tidmap.sal"...not OK.
+>         --->  Couldn't find "Column permutations: maximum error: "
+> Summary: "Misc tests." -- OK: 24.  Not OK: 1. Couldn't open: 0. Total: 25
+> --------
+> Start section: "Advdif tests"
+> Testing: "Readmesh complains about bad file inclusion" on file "nsgenload/output.fstack_global.tmp"...not OK.
+>         --->  Couldn't find "genload.depl"
+> Summary: "Advdif tests" -- OK: 4.  Not OK: 1. Couldn't open: 0. Total: 5
+> --------
+> Start section: "New flux function tests."
+> Testing: "newff/test case adv_temp_cp" on file "newff/adv_temp_cp.vrf.tmp"...not OK.
+>         --->  Couldn't find "rel. max error  <tol\(.*\) OK\? 1"
+> Testing: "newff/test case full_full_jacs_cp" on file "newff/full_full_jacs_cp.vrf.tmp"...not OK.
+>         --->  Couldn't find "rel. max error  <tol\(.*\) OK\? 1"
+> Testing: "newff/test case full_full_jacs_adv_cp" on file "newff/full_full_jacs_adv_cp.vrf.tmp"...not OK.
+>         --->  Couldn't find "rel. max error  <tol\(.*\) OK\? 1"
+> Summary: "New flux function tests." -- OK: 17.  Not OK: 3. Couldn't open: 0. Total: 20
+> --------
+> Start section: "IISD solver. Checking with advdif"
+> Testing: "newff/test case adv_temp_cp_iisd" on file "newff/adv_temp_cp_iisd.vrf.tmp"...not OK.
+>         --->  Couldn't find "rel. max error  <tol\(.*\) OK\? 1"
+> Summary: "IISD solver. Checking with advdif" -- OK: 8.  Not OK: 1. Couldn't open: 0. Total: 9
+> --------
+> Start section: "Graph Partitioning"
+> Testing: "Distributed graph 3proc." on file "distmap/dist_graph.np3.out.tmp"...not OK.
+>         --->  Couldn't find "row 0:  1 "
+> Summary: "Graph Partitioning" -- OK: 2.  Not OK: 1. Couldn't open: 0. Total: 3
+> --------
+> Start section: "Synchronized output on. SyncBuffer and KeyedOutputBuffer classes. "
+> Testing: "Test for the `KeyedOutputBuffer' class plain" on file "distmap/test_kob_plain.output.tmp"...not OK.
+>         --->  Couldn't find "1: 1 2 3 4 5 6 "
+> Testing: "Test for the `KeyedOutputBuffer' class with no sorting" on file "distmap/test_kob_no_sort.output.tmp"...not OK.
+>         --->  Couldn't find "3: 3 4 5 6 "
+> Testing: "Test for the `KeyedOutputBuffer' class with no key printing" on file "distmap/test_kob_no_key_print.output.tmp"...not OK.
+>         --->  Couldn't find "1 2 3 4 5 6 "
+> Testing: "Test for the `KeyedOutputBuffer' class with no newlines" on file "distmap/test_kob_no_newline.output.tmp"...not OK.
+>         --->  Couldn't find "0: 0 1 2 3 4 5 6  (explicit new-line)"
+> Summary: "Synchronized output on. SyncBuffer and KeyedOutputBuffer classes. " -- OK: 1.  Not OK: 4. Couldn't open: 0. Total: 5
+> 
+> --------------------------------------------------
+> 
+> --------
+> Start section: "All tests"
+> Summary: "All tests" -- OK: 153.  Not OK: 18. Couldn't open: 8. Total: 179
+%
+%-- 08:28:00 -- mstorti-v7-root-15-g03380be -----
+No anda el test de `mmove' (step y step3d). En el commit ef623dfa1 si
+andaba. 
+%
+%-- 09:41:53 -- mstorti-v7-root-16-g7002543 -----
+Aparentemente lo que pasaba era que como usaba la formulacion
+`mesh_move' que usa como criterio la diferencia de autovalores, para
+un elemento regular daba un valor muy bajo y despues lo elevaba a
+`distor_exp=-1'. El problema es que antes estaba en +1.0 y despues en
+algun momento paso a -1 por defecto. Una posibilidad es hacer que para
+este elemento este por defecto en +1.0, pero entonces hay un problema
+de inconsistencia con los otros. Prefiero hacer que en este elemento
+elevar la diferencia de los autovalores a `-distor_exp'. 
+%
+%-- 10:02:45 -- mstorti-v7-root-17-ge3dc152 -----
+Arreglado el error en los tests en `nutatcyl': antes calculaba mal los
+momentos (signo al reves). Entonces tuve que cambiar todos los signos
+de momentos en los scripts `chec*.m' que hacen el chequeo. 
+%
+%-- 10:14:38 -- mstorti-v7-root-18-gc1e502b -----
+Fixed `sqcav/test_fs' test. There was a slight change in the
+fractional step solution. I think this is due to some change in the
+solution method. Results look very similar so that I assume this is
+ok. 
+
 # Current line ===========  %
 # Local Variables: $
 # eval: (my-notes-mode) $

@@ -20,7 +20,7 @@ class MyPart : public DofPartitioner {
 
 int main(int argc,char **argv) {
 
-  PetscInitialize(&argc,&argv,NULL,NULL);
+  PetscFemInitialize(&argc,&argv,NULL,NULL);
 
   N=10;
   if (MY_RANK==0 && argc>1) sscanf(argv[1],"%d",&N);

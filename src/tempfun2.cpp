@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: tempfun2.cpp,v 1.5.10.1 2007/02/19 20:23:56 mstorti Exp $
+//$Id merge-with-petsc-233-55-g52bd457 Fri Oct 26 13:57:07 2007 -0300$
 
 #include <math.h>
 
@@ -262,7 +262,7 @@ public:
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 Amplitude *Amplitude::factory(char *& label,
 			      TextHashTable *t) {
-  Amplitude *amp=0;
+  Amplitude *amp=NULL;
   if (!strcmp(label,"gaussian")) {
     amp = new gaussian;
   } else if (!strcmp(label,"piecewise_linear")) {

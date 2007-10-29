@@ -30,27 +30,27 @@ DEPEND_DIRS = $(CLEAN_DIRS)
 test_abso:
 	$(MAKE) $(CASE).depl
 	$(OCTAVE) $(CASE).m
-	-$(MPIRUN) -np $(NP)  -machinefile ./machi.dat $(ADVDIF) -case $(CASE).depl
+	-$(MPIEXEC) -n $(NP)  -machinefile ./machi.dat $(ADVDIF) -case $(CASE).depl
 	$(OCTAVE)  check_test_abso.m
 
 chiquito:
 	$(MAKE) chiquito.depl
-	-$(MPIRUN) -np $(NP)  $(ADVDIF) -case chiquito.depl
+	-$(MPIEXEC) -n $(NP)  $(ADVDIF) -case chiquito.depl
 
 spiral:
 	$(MAKE) spiral.depl
 	$(OCTAVE) spiral.m
-	-$(MPIRUN) -np $(NP)  $(ADVDIF) -case spiral.depl
+	-$(MPIEXEC) -n $(NP)  $(ADVDIF) -case spiral.depl
 
 corner:
 	$(MAKE) corner.depl
 	$(OCTAVE) corner.m
-	-$(MPIRUN) -np $(NP)  $(ADVDIF) -case corner.depl
+	-$(MPIEXEC) -n $(NP)  $(ADVDIF) -case corner.depl
 
 igrec:
 	$(MAKE) igrec.depl
 	$(OCTAVE) igrec.m
-	-$(MPIRUN) -np $(NP)  $(ADVDIF) -case igrec.depl
+	-$(MPIEXEC) -n $(NP)  $(ADVDIF) -case igrec.depl
 
 
 local_clean::

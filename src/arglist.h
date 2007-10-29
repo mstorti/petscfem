@@ -1,6 +1,6 @@
 // -*- mode: C++ -*-
 /*__INSERT_LICENSE__*/
-//$Id: arglist.h,v 1.14.76.1 2007/02/19 20:23:56 mstorti Exp $
+//$Id merge-with-petsc-233-55-g52bd457 Fri Oct 26 13:57:07 2007 -0300$
 
 #ifndef ARGLIST_H
 #define ARGLIST_H
@@ -76,14 +76,9 @@ public:
   string arginfo;
 
   /// Constructor
-  arg_entry() :
-    arg(NULL), options(0), arginfo("") {}
-  arg_entry(const arg_entry& a) :
-    arg(a.arg), options(a.options), arginfo(a.arginfo) {}
-  arg_entry(void *arg_,int options_) :
-    arg(arg_), options(options_), arginfo("") {}
-  arg_entry(void *arg_,int options_, string arginfo_) :
-    arg(arg_), options(options_), arginfo(arginfo_) {}
+  arg_entry(void *arg_,int options_, string arginfo_="") :
+    arg(arg_), options(options_), arginfo(arginfo_) {};
+    
 };
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
@@ -94,10 +89,7 @@ public:
 */ 
 class arg_list : public vector<arg_entry> {
 public:
-  void arg_add(void *arg,int options) {
-    push_back(arg_entry(arg,options));
-  }
-  void arg_add(void *arg,int options,string arginfo) {
+  void arg_add(void *arg,int options,string arginfo="") {
     push_back(arg_entry(arg,options,arginfo));
   }
 };  
@@ -115,6 +107,10 @@ public:
 */ 
 class arg_data {
 public:
+  /** string containing info about what the
+      argument contains and how has to be processed.
+  */
+  string arginfo;
   /// A copy of the options for the corresponding arg\_entry value. 
   int options;
   /// The MPI vector.

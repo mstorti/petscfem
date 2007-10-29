@@ -9,7 +9,8 @@
 #include <src/distmap2.h>
 #include <petsc.h>
 
-int SIZE, MYRANK, M;
+// int SIZE, MY_RANK, M;
+int M;
 
 class TrivialPartitioner {
 public:
@@ -64,6 +65,8 @@ combine(const pair<int,double> &p) {
   }
 };
 
+#if 0
+// Now is defined in utils.cpp
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 double maxd(int n,...) {
   va_list list;
@@ -76,6 +79,7 @@ double maxd(int n,...) {
   va_end(list);
   return max;
 }
+#endif
 
 typedef DistMap<int,double,TrivialPartitioner> Map;
 
@@ -89,11 +93,11 @@ int main(int argc,char **argv) {
   vector<double> vec,vecc;
   srand (time (0));
   /// Initializes MPI
-  PetscInitialize(&argc,&argv,0,0);
+  PetscFemInitialize(&argc,&argv,0,0);
 
   // MPI_Init(&argc,&argv);
   MPI_Comm_size (MPI_COMM_WORLD, &SIZE);
-  MPI_Comm_rank (MPI_COMM_WORLD, &MYRANK);
+  MPI_Comm_rank (MPI_COMM_WORLD, &MY_RANK);
 
   if (argc!=5) {
     PetscPrintf(PETSC_COMM_WORLD,"argc: %d\n",argc);
@@ -140,19 +144,19 @@ int main(int argc,char **argv) {
   S.scatter();
   MPI_Allreduce(&*vec.begin(),&*vecc.begin(),M,MPI_DOUBLE,MPI_SUM,MPI_COMM_WORLD);
 
-//    if (MYRANK==0) 
+//    if (MY_RANK==0) 
 //      for (j=0; j<M; j++) printf("%d -> %f\n",j,vecc[j]);
 
   err = 0;
   for (j=0; j<N; j++) {
-    if (part.processor(j)==MYRANK) {
+    if (part.processor(j)==MY_RANK) {
       k = S.find(j);
       d = (k!=S.end() ? k->second : 0);
       err = maxd(2,err,fabs(d-vecc[j]));
     }
   }
   PetscSynchronizedPrintf(PETSC_COMM_WORLD,
-			  "[%d] max error -> %g\n",MYRANK,err);
+			  "[%d] max error -> %g\n",MY_RANK,err);
   PetscSynchronizedFlush(PETSC_COMM_WORLD);
 
   MPI_Reduce(&err,&errb,1,MPI_DOUBLE,MPI_MAX,root,MPI_COMM_WORLD);

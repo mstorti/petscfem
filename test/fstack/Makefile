@@ -23,17 +23,14 @@ fstack: tfstack.bin
 $(SRC_DIR)/%.o: force
 	$(MAKE) -C $(SRC_DIR) $@
 
-tfstack.bin: tfstack.o $(LIB)(fstack.o)
-#	${CXX_CLINKER} -shared -Wl,-rpath,$(LD_LIBRARY_PATH) 
-	${CXX_CLINKER}	-g -Wl,-rpath,$(LD_LIBRARY_PATH) -o $@ tfstack.o	\
-		$(LIBPETSCFEM) -lc ${PETSCFEM_PETSC_LIBS}			\
-		-L$(LIBRETTO_LIB) -libretto
+tfstack.bin: tfstack.o $(LIBPETSCFEM)
+	${CXX_CLINKER} -o $@ tfstack.o $(LDFLAGS_NO_PROG_LIB)
 
 test_autostr: tautostr.bin
 	$< > test_autostr.output.tmp
 
 tautostr.bin: tautostr.o $(LIB)(autostr.o)
-	${CXX_CLINKER}	-g -Wl,-rpath,$(LD_LIBRARY_PATH) -o $@ tautostr.o	\
-		$(LIBPETSCFEM) -lc 
+	${CXX_CLINKER}	-g -Wl,-rpath,$(LD_LIBRARY_PATH) \
+		-o $@ tautostr.o $(LIBPETSCFEM) -lc 
 
 #

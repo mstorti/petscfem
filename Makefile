@@ -1,6 +1,6 @@
 # mode: -*- makefile -*-
 #__INSERT_LICENSE__
-#$Id merge-with-petsc-233-50-g0ace95e Fri Oct 19 17:49:52 2007 -0300$
+#$Id merge-with-petsc-233-55-g52bd457 Fri Oct 26 13:57:07 2007 -0300$
 
 SHELL = /bin/bash
 
@@ -12,7 +12,11 @@ APPS = ns advdif adv laplace
 APPDIRS = ns advdif advective laplace
 APPDIRS := $(patsubst %,applications/%,$(APPDIRS))
 
-CLEAN_DIRS := src $(APPDIRS) doc test tools dx
+CLEAN_DIRS := src $(APPDIRS) doc test tools
+
+ifeq ($(USE_DX),yes)
+CLEAN_DIRS += dx
+endif
 
 SRCDIRS := src $(APPDIRS) test 
 
@@ -59,7 +63,7 @@ apps_all:
 
 #w Make all `new' (NS and Advdif) applications
 napps_all: 
-	$(MAKE)  ns_all advdif_all
+	$(MAKE) advdif_all ns_all
 
 #w Make `new' (NS and Advdif) applications
 napps: 
@@ -158,6 +162,10 @@ ns_g:
 ns_O:
 	$(MAKE) BOPT=O_c++ ns
 
+#w Make Advdif module (O_c++ and g_c++)
+advdif_all: 
+	$(MAKE) BOPT=g_c++ advdif
+	$(MAKE) BOPT=O_c++ advdif
 
 #w Builds the Advective/diffusive systems module (NS-compresible,
 #w 		(shallow water+diffusive and turbulent terms, 
@@ -175,7 +183,6 @@ advdif_g:
 #w Make Advdif module (optimized version)
 advdif_O:
 	$(MAKE) BOPT=O_c++ advdif
-
 
 #w Builds th advective systems module (Euler, shallow water)
 adv: libpetscfem

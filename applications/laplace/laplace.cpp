@@ -71,7 +71,7 @@ int main(int argc,char **args) {
   }
 
   // Read the mesh
-  read_mesh(mesh,fcase,dofmap,neq,size,myrank);
+  read_mesh(mesh,fcase,dofmap,neq,SIZE,MY_RANK);
   dofmap->create_MPI_vector(x);
 
   ierr = VecDuplicate(x,&res); CHKERRA(ierr);

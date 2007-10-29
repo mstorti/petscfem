@@ -55,7 +55,7 @@ mesh:
 #w Runs program, use `mkmesh=0' or 1 to control mesh creation
 run: 
 	$(MAKE) mesh
-	-${MPIRUN} $(NL) $(MCH) -np $(NP) $(PROG) \
+	-${MPIEXEC} $(NL) $(MCH) -n $(NP) $(PROG) \
 		-case $(CASE).depl $(call in_backg,$@$(case))
 
 local_sw::
@@ -73,7 +73,7 @@ nettest = $(PETSCFEM_DIR)/tools/nettest.bin
 .PHONY: nettest
 nettest:
 	NP=`procsel -n ./proctable.geronimo` ;			\
-	$(MPIRUN) -machinefile machi.dat -np $$NP $(nettest)	\
+	$(MPIEXEC) -machinefile machi.dat -n $$NP $(nettest)	\
 		$(call in_backg,$@)
 
 dxo: viewer.dx.tmp
@@ -83,7 +83,7 @@ viewer.dx.tmp: viewer.dx
 
 dx:
 	$(EPERL) -P -d dx=1 $(CASE_NAME).epl > $(CASE_NAME)_dx.depl
-	${MPIRUN} -np 1 $(PROG) -case $(CASE_NAME)_dx.depl
+	${MPIEXEC} -n 1 $(PROG) -case $(CASE_NAME)_dx.depl
 
 #================================================================
 #w 
@@ -131,7 +131,7 @@ block_uploading:
 #w Checks the surf-gatherer class
 srfgath:
 	$(MAKE) case=srfgath mesh
-	-${MPIRUN} $(NL) $(MCH) -np $(NP) $(PROG) \
+	-${MPIEXEC} $(NL) $(MCH) -n $(NP) $(PROG) \
 		-case $(CASE).depl </dev/null > $(CASE).srfgath-output.tmp
 	octave -qH check_srfgath.m > verif-srfgath.tmp
 

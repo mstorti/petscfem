@@ -21,8 +21,8 @@ MCH = -machinefile ./machi.dat
 PROG := $(NS)
 
 les: les_data
-#	-$(MPIRUN) -np $(NP) $(MCH)  $(PROG) -case les.depl | tee output.out
-	-$(MPIRUN) -np 2 $(MCH)  $(PROG) -case les.depl | tee output.out
+#	-$(MPIEXEC) -n $(NP) $(MCH)  $(PROG) -case les.depl | tee output.out
+	-$(MPIEXEC) -n 2 $(MCH)  $(PROG) -case les.depl | tee output.out
 
 prof: pfemprof.txt
 

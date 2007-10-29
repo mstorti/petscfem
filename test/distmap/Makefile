@@ -4,6 +4,7 @@
 
 ## Redirection from /dev/null to avoid error from mpiexec on output
 ## Set to blank to run interactive
+redir := 
 
 #s Local Targets
 #w all tests
@@ -11,23 +12,23 @@ tests: distcont distmap distmat dist_graph tests_sb
 
 #w Tests the distributed container class
 distcont: distcont.bin
-	$(MPIRUN) -machinefile machi.dat -np 2 distcont.bin \
+	$(MPIEXEC) -machinefile machi.dat -n 2 distcont.bin \
 		10 100 1e-12   $(call redir,distcont.sal.tmp)
 
 dm2: distmat.bin
-	$(MPIRUN) -machinefile machi.dat -np 2 distmat.bin \
+	$(MPIEXEC) -machinefile machi.dat -n 2 distmat.bin \
 		4 4 1e-12 0 $(call redir,$@)
 
 #w check basic template (map<int,double>)
 distmap: distmap.bin
-	$(MPIRUN) -machinefile machi.dat -np 3 distmap.bin \
+	$(MPIEXEC) -machinefile machi.dat -n 3 distmap.bin \
 		100 10000 1e-12 g $(call redir,distmapg.sal.tmp)
-	$(MPIRUN) -machinefile machi.dat -np 3 distmap.bin \
+	$(MPIEXEC) -machinefile machi.dat -n 3 distmap.bin \
 		100 10000 1e-12 s $(call redir,distmaps.sal.tmp)
 
 #w check DistMatrix class
 distmat: distmat.bin
-	$(MPIRUN) -machinefile machi.dat -np 3  distmat.bin \
+	$(MPIEXEC) -machinefile machi.dat -n 3  distmat.bin \
 		100 10000 1e-12 0 $(call redir,distmat.sal.tmp)
 
 SRCS = $(wildcard *.cpp)
@@ -92,9 +93,9 @@ tryme7.bin: tryme7.o $(LIB_OBJS_LIB)
 #w Checks distributed graph class 'StoreGraph'
 dist_graph: tryme7.bin
 	tryme7.bin 20 > dist_graph.np1.out.tmp
-	$(MPIRUN) -machinefile machi.dat -np 2 tryme7.bin 20 \
+	$(MPIEXEC) -machinefile machi.dat -n 2 tryme7.bin 20 \
 		$(call redir,dist_graph.np2.out.tmp)
-	$(MPIRUN) -machinefile machi.dat -np 3 tryme7.bin 20 \
+	$(MPIEXEC) -machinefile machi.dat -n 3 tryme7.bin 20 \
 		$(call redir,dist_graph.np3.out.tmp)
 
 #w
@@ -117,27 +118,27 @@ tests_sb: test_sync_buffer test_kob_plain test_kob_no_sort \
 
 #w Test SyncBuffer class
 test_sync_buffer: testsb.bin
-	$(MPIRUN) -np $(NPSB) testsb.bin -N 10 -k 0 $(RDR) \
+	$(MPIEXEC) -n $(NPSB) testsb.bin -N 10 -k 0 $(RDR) \
 		$(call redir,$@.output.tmp)
 
 #w Test `KeyedOutputBuffer' class
 test_kob_plain: testsb.bin
-	$(MPIRUN) -np $(NPSB) testsb.bin -k 1 -s 1 -p 1 -n 1 \
+	$(MPIEXEC) -n $(NPSB) testsb.bin -k 1 -s 1 -p 1 -n 1 \
 		$(call redir,$@.output.tmp)
 
 #w Test `KeyedOutputBuffer' class with no sorting
 test_kob_no_sort: testsb.bin
-	$(MPIRUN) -np $(NPSB) testsb.bin -k 1 -s 0 -p 1 -n 1 \
+	$(MPIEXEC) -n $(NPSB) testsb.bin -k 1 -s 0 -p 1 -n 1 \
 		$(call redir,$@.output.tmp)
 
 #w Test `KeyedOutputBuffer' class with no key-printing 
 test_kob_no_key_print: testsb.bin
-	$(MPIRUN) -np $(NPSB) testsb.bin -k 1 -s 1 -p 0 -n 1 \
+	$(MPIEXEC) -n $(NPSB) testsb.bin -k 1 -s 1 -p 0 -n 1 \
 		$(call redir,$@.output.tmp)
 
 #w Test `KeyedOutputBuffer' class with no new-lines 
 test_kob_no_newline: testsb.bin
-	$(MPIRUN) -np $(NPSB) testsb.bin -k 1 -s 1 -p 1 -n 0 $(RDR) \
+	$(MPIEXEC) -n $(NPSB) testsb.bin -k 1 -s 1 -p 1 -n 0 $(RDR) \
 		$(call redir,$@.output.tmp)
 
 #s

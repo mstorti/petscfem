@@ -52,7 +52,7 @@ NPP := $(shell procsel $(PETSCFEM_PROCTABLE))
 NP := 1 
 test_case: test_case_data
 	if [ ! "$(OCT_SCRIPT)" = "" ] ; then $(OCTAVE) $(OCT_SCRIPT) ; fi
-	-$(MPIRUN) -machinefile machi.dat -np $(NP) $(PROG) \
+	-$(MPIEXEC) -machinefile machi.dat -n $(NP) $(PROG) \
 			-case $(NAME).depl $(call in_backg,$@)
 
 local_clean::
@@ -61,6 +61,6 @@ local_clean::
 
 link:
 	$(MAKE) -C ../../ ns
-	ln -f $(NS) ns
+	ln -sf $(NS) ns
 
 #s

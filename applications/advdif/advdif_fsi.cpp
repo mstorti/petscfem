@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: advdif_fsi.cpp,v 1.10.10.1 2007/02/19 20:23:56 mstorti Exp $
+//$Id merge-with-petsc-233-55-g52bd457 Fri Oct 26 13:57:07 2007 -0300$
 
 #include <src/debug.h>
 #include <set>
@@ -44,7 +44,7 @@ int fsi_main() {
   Vec     x, dx, dx_step, xold, res; /* approx solution, RHS, residual*/
   PFMat *A,*AA;			// linear system matrix 
   PFMat *A_tet, *A_tet_c;
-  double  *sol, scal, normres, normres_ext;    /* norm of solution error */
+  double  *sol, scal, normres, normres_ext=NAN;    /* norm of solution error */
   int     ierr, i, n = 10, col[3], its, size, node,
     jdof, k, kk, nfixa,
     kdof, ldof, lloc, ndim, nel, nen, neq, nu,

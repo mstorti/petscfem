@@ -14,7 +14,8 @@ tests: sector chunk_size_process triangle lap_per
 #----<*>----------<*>----------<*>----------<*>----------<*>----------<*>-----
 #w Test on an angular sector, uses constraints. 
 sector: sector.depl $(LAPLACE)
-	-$(MPIRUN) -np 1 $(LAPLACE) -case sector.depl $(call in_backg,sector)
+	-$(MPI_HOME)/bin/mpiexec -n 1 $(LAPLACE) \
+		-case sector.depl $(call in_backg,sector)
 	-mv sector.sal sector0.sal
 
 #----<*>----------<*>----------<*>----------<*>----------<*>----------<*>-----
@@ -29,19 +30,19 @@ chunk_size_process: $(LAPLACE)
 #
 	-chmod +w sector.depl 
 	$(EPERL) -P -d chunk_size=1 sector.epl >sector.depl
-	-$(MPIRUN) $(MCH) -np $(NP) $(LAPLACE) -case sector.depl \
+	-$(MPI_HOME)/bin/mpiexec $(MCH) -n $(NP) $(LAPLACE) -case sector.depl \
 		$(call in_backg,$@-1)
 	mv sector.sal sector_chunk1.sal
 #
 	-chmod +w sector.depl 
 	$(EPERL) -P -d chunk_size=10 sector.epl >sector.depl
-	-$(MPIRUN) $(MCH) -np $(NP) $(LAPLACE) -case sector.depl \
+	-$(MPIEXEC) $(MCH) -n $(NP) $(LAPLACE) -case sector.depl \
 		$(call in_backg,$@-2)
 	mv sector.sal sector_chunk10.sal
 #
 	-chmod +w sector.depl 
 	$(EPERL) -P -d chunk_size=100 sector.epl >sector.depl
-	-$(MPIRUN) $(MCH) -np $(NP) $(LAPLACE) -case sector.depl \
+	-$(MPIEXEC) $(MCH) -n $(NP) $(LAPLACE) -case sector.depl \
 		$(call in_backg,$@-3)
 	mv sector.sal sector_chunk100.sal
 	-rm machi.dat
@@ -55,21 +56,21 @@ triangle: triangle_npg3 triangle_npg4 triangle_npg7
 triangle_npg3:
 	-chmod +w sector.depl 
 	$(EPERL) -P -d triangle=1 -d npg=3 sector.epl >sector.depl
-	-$(MPIRUN) -np 1 $(LAPLACE) -case sector.depl \
+	-$(MPIEXEC) -n 1 $(LAPLACE) -case sector.depl \
 		$(call in_backg,$@)
 	mv sector.sal sector_triangle_npg3.sal
 
 triangle_npg4:
 	-chmod +w sector.depl 
 	$(EPERL) -P -d triangle=1 -d npg=4 sector.epl >sector.depl
-	-$(MPIRUN) -np 1 $(LAPLACE) -case sector.depl  \
+	-$(MPIEXEC) -n 1 $(LAPLACE) -case sector.depl  \
 		$(call in_backg,$@)
 	mv sector.sal sector_triangle_npg4.sal
 
 triangle_npg7:
 	-chmod +w sector.depl 
 	$(EPERL) -P -d triangle=1 -d npg=7 sector.epl >sector.depl
-	-$(MPIRUN) -np 1 $(LAPLACE) -case sector.depl $(call in_backg,$@)
+	-$(MPIEXEC) -n 1 $(LAPLACE) -case sector.depl $(call in_backg,$@)
 	mv sector.sal sector_triangle_npg7.sal
 
 #----<*>----------<*>----------<*>----------<*>----------<*>----------<*>-----
@@ -82,7 +83,7 @@ iprops:
 #----<*>----------<*>----------<*>----------<*>----------<*>----------<*>-----
 #w Lapace on a square with periodic b.c.'s
 lap_per: lap_per.dat laplace
-	-$(MPIRUN) -np 1 $(LAPLACE) -case lap_per.dat \
+	-$(MPIEXEC) -n 1 $(LAPLACE) -case lap_per.dat \
 		$(call in_backg,$@)
 
 LOC_PROG := laplace

@@ -14,7 +14,7 @@ Mz = -f0(6);
 
 Vol = pi*RR^2*Lz;
 I = Vol*RR/2;
-Mz_anal = I * omega;
+Mz_anal = -I * omega;
 
 tol = 0.15;
 erro = abs(Mz-Mz_anal);

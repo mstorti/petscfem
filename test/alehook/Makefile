@@ -16,6 +16,6 @@ MCH = -machinefile ./machi.dat
 
 #w Runs program
 run:
-	-${MPIRUN} -np $(np) $(MCH) $(PROG) -case $(CASE).depl \
+	-${MPIEXEC} -n $(np) $(MCH) $(PROG) -case $(CASE).depl \
 	 	      	   > $(output_file)
 

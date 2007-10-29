@@ -23,11 +23,11 @@ data:
 .PHONY: base_flow flux_jaco mass_jaco
 base_flow flux_jaco mass_jaco: 
 	$(MAKE) -W stabi.epl EPERLFLAGS="-d case=$@" stabi.depl
-	-$(MPIRUN) -np 1 $(NS) -case stabi.depl >$@.out.tmp
+	-$(MPIEXEC) -n 1 $(NS) -case stabi.depl >$@.out.tmp
 
 stabi: 
 	$(MAKE) EPERLFLAGS='-d stabi=1' -W stabi.epl stabi.depl
-	-$(MPIRUN) -np 1 $(NS) -case stabi.depl >stabi.out.tmp
+	-$(MPIEXEC) -n 1 $(NS) -case stabi.depl >stabi.out.tmp
 
 local_clean::
 	-rm system.dat flux_jaco.dat

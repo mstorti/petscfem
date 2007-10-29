@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: genload.cpp,v 1.14 2007/01/30 19:03:44 mstorti Exp $
+//$Id merge-with-petsc-233-55-g52bd457 Fri Oct 26 13:57:07 2007 -0300$
 #include <src/fem.h>
 #include <src/utils.h>
 #include <src/readmesh.h>
@@ -70,16 +70,16 @@ int GenLoad::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
   int nen = nel*ndof;
 
   // Get arguments from arg_list
-  double *locst,*locst2,*retval,*retvalmat;
+  double *locst=NULL,*locst2=NULL,*retval=NULL,*retvalmat=NULL;
   if (comp_mat) {
     retvalmat = arg_data_v[0].retval;
   } 
 
   // rec_Dt is the reciprocal of Dt (i.e. 1/Dt)
   // for steady solutions it is set to 0. (Dt=inf)
-  GlobParam *glob_param;
-  double *hmin,Dt,rec_Dt;
-  int ja_hmin;
+  GlobParam *glob_param=NULL;
+  double *hmin=NULL,Dt=NAN,rec_Dt=NAN;
+  int ja_hmin=0;
 #define WAS_SET arg_data_v[ja_hmin].was_set
   if (comp_mat_res) {
     int ja=0;
@@ -356,6 +356,8 @@ void lin_gen_load::start_chunk_c() {
   const_flux_indx = iprop; 
   ierr = get_prop(iprop,elem_prop_names,thash,elprpsindx,propel, 
 		  "const_flux",ndof);
+  PETSCFEM_ASSERT0(!isnan(*(propel+const_flux_indx)),
+                   "Must enter value for \"const_flux\"");  
   nprops = iprop;
 }
 

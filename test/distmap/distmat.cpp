@@ -12,7 +12,7 @@
 #include <src/distmap.h>
 #include <src/distmat.h>
 
-extern int SIZE, MY_RANK;
+//extern int SIZE, MY_RANK;
 int M;
 
 class TrivialPartitioner : public IntRowPartitioner {
@@ -48,7 +48,7 @@ int main(int argc,char **argv) {
   pair<int,int> p;
 
   /// Initializes MPI
-  PetscInitialize(&argc,&argv,0,0);
+  PetscFemInitialize(&argc,&argv,0,0);
 
   DistMatrix S(&part);
   // MPI_Init(&argc,&argv);

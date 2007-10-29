@@ -43,6 +43,6 @@ tryme3.bin: tryme3.o
 
 run3:
 	procsel $(PROCTABLE)
-	mpirun -np 2 -machinefile machi.dat tryme3.bin
+	mpirun -n 2 -machinefile machi.dat tryme3.bin
 
 #s

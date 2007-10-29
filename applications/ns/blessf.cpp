@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-/* $Id merge-with-petsc-233-50-g0ace95e Fri Oct 19 17:49:52 2007 -0300$ */
+/* $Id merge-with-petsc-233-55-g52bd457 Fri Oct 26 13:57:07 2007 -0300$ */
 
 #include <src/debug.h>
 #include <malloc.h>
@@ -31,6 +31,7 @@
 #include "./fracstep.h"
 #include "./nsid.h"
 #include "./mmoveopt.h"
+#include "./mmoveopt2.h"
 #include "./mmoveopt3.h"
 #include "./mmove.h"
 #include "./mmove2.h"
@@ -111,6 +112,7 @@ void bless_elemset_ns(char *type,Elemset *& elemset) {
     SET_ELEMSET_TYPE(mesh_move_eig_anal)
     SET_ELEMSET_TYPE(mesh_move2)
     SET_ELEMSET_TYPE(mesh_move_opt)
+    SET_ELEMSET_TYPE(mesh_move_opt2)
     SET_ELEMSET_TYPE(mesh_move_opt3)
     SET_ELEMSET_TYPE(truss)
 

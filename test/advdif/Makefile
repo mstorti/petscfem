@@ -97,7 +97,7 @@ plano.con plano.nod: plano.m
 	$(OCTAVE) plano.m >/dev/null
 
 advec: advec.depl
-	-$(MPIRUN) -np 1 -machinefile machi.dat $(ADVDIF) \
+	-$(MPIEXEC) -n 1 -machinefile machi.dat $(ADVDIF) \
 			-case advec.depl $(call in_backg,$@)
 
 # .gdbinit:
@@ -132,7 +132,7 @@ sine.data: sine.data.epl
 # 	$(OCTAVE) sine_new.m
 
 # per_elem_prop: .gdbinit advdif.link $(DF) $(OF)
-# 	-$(MPIRUN) -np 1 -machinefile machi.dat $(ADVDIF) \
+# 	-$(MPIEXEC) -n 1 -machinefile machi.dat $(ADVDIF) \
 # 			-case $(DF) > per_elem_prop.out.tmp
 
 # lclean:
@@ -144,7 +144,7 @@ sine.data: sine.data.epl
 #NP := $(shell procsel $(PETSCFEM_PROCTABLE))
 run: data
 	-rm -f dummy $(output_files_$(case))
-	-$(MPIRUN) -np 1 $(ADVDIF) -case $(case).depl </dev/null > $(case).out
+	-$(MPIEXEC) -n 1 $(ADVDIF) -case $(case).depl </dev/null > $(case).out
 
 # Tests to be done:
 # * Convergence to analityc solution
@@ -158,7 +158,7 @@ run: data
 # # For Dt
 # 	-rm $(case).some sine_anal_test.sal sine.depl
 # 	$(MAKE) data
-# 	-$(MPIRUN) -np 1 -machinefile machi.dat $(ADVDIF) \
+# 	-$(MPIEXEC) -n 1 -machinefile machi.dat $(ADVDIF) \
 # 		 -case $(case).depl >/dev/null
 # 	cp save.state save.state.anal.tmp
 # 	cp sine.some sine.some.anal.tmp

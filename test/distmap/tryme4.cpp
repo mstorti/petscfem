@@ -15,7 +15,7 @@ int main(int argc,char **args) {
   Mat A;
   Vec x,b,x2,b2;
 
-  PetscInitialize(&argc,&args,NULL,NULL);
+  PetscFemInitialize(&argc,&args,NULL,NULL);
   ierr = VecCreateSeq(PETSC_COMM_SELF,N,&x);
   ierr = VecCreateSeq(PETSC_COMM_SELF,N,&b);
   ierr = VecCreateSeq(PETSC_COMM_SELF,N,&b2);

@@ -21,7 +21,7 @@ NP := $(shell procsel $(PETSCFEM_PROCTABLE))
 test_case_%: 
 	-if [ ! "$(cont)" = "y" ] ; then rm -f *.tmp ; fi 
 	$(MAKE) EPERLFLAGS='-d case=$* -d cont=$(cont)' data
-	-$(MPIRUN) -np 1 -machinefile machi.dat $(PROG) \
+	-$(MPIEXEC) -n 1 -machinefile machi.dat $(PROG) \
 			-case $(NAME).depl #> output.case_$*.tmp
 #	if [ -e save.state.tmp ] ; then mv save.state.tmp save.case_$*.tmp ; fi
 

@@ -64,7 +64,7 @@ Poisson_ratio 0.3
 local_store
 chunk_size 20
 #else
-distor_exp 1.
+distor_exp -1.
 #endif
 __END_HASH__
 __INCLUDE__ step.con.tmp

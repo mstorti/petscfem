@@ -4,7 +4,7 @@
 #include <stdio.h>
 #include <time.h>
 
-#include <petscsksp.h>
+#include <petscksp.h>
 
 #include <src/fastmat2.h>
 #include <src/fem.h>

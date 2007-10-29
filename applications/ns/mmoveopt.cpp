@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id merge-with-petsc-233-50-g0ace95e Fri Oct 19 17:49:52 2007 -0300$
+//$Id merge-with-petsc-233-55-g52bd457 Fri Oct 26 13:57:07 2007 -0300$
 
 #include <src/fem.h>
 #include <src/utils.h>
@@ -69,7 +69,7 @@ element_connector(const FastMat2 &xloc,
 		  const FastMat2 &state_new,
 		  FastMat2 &res,FastMat2 &mat) {
 
-  double C=0.,V,Sl,Q,Vref;
+  double C=NAN,V=NAN,Sl=NAN,Q=NAN,Vref=NAN;
   double relax_factor_now = relax_factor;
   if (glob_param->inwt>0) 
     relax_factor_now = 1.0;

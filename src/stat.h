@@ -1,6 +1,6 @@
 // -*- mode: C++ -*- 
 /*__INSERT_LICENSE__*/
-// $Id: stat.h,v 1.1.112.1 2007/02/19 20:23:56 mstorti Exp $
+// $Id merge-with-petsc-233-55-g52bd457 Fri Oct 26 13:57:07 2007 -0300$
 #ifndef STAT_H
 #define STAT_H
 
@@ -9,8 +9,9 @@ class Stat {
 public:
   double vmin,vmax,sum;
   int count,initialized;
-  Stat() {initialized=0;}
-  void reset() {initialized=0;}
+  Stat() : vmin(NAN), vmax(NAN), sum(NAN), 
+           count(0), initialized(0) { }
+  void reset() { initialized=0; }
   void add(double val) {
     if (!initialized) {
       initialized = 1;

@@ -75,7 +75,7 @@ int Dofmap::set_constraint(const Constraint &constraint) {
 
   // Look for the max abs.val. coefficient in the restriction
   int set_flag=0,all_non_null_flag=1;
-  double cc, cmax; 
+  double cc, cmax=NAN; 
   row_t::iterator q, qmax, qe = row0.end();
   for (q=row0.begin(); q!=qe; q++) {
     if (fixed_dofs.find(q->first)!=fixed_dofs.end()) continue;

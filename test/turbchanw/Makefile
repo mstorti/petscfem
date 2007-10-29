@@ -27,7 +27,7 @@ data:
 $(CASE).depl: force
 $(CASE): data
 	-rm -rf some.tmp
-	-$(MPIRUN) -np 1 $(ADVDIF) -case $(CASE).depl \
+	-$(MPIEXEC) -n 1 $(ADVDIF) -case $(CASE).depl \
 		</dev/null > $(SUBCASE).sal.tmp
 	-mv -f state.out.tmp $(SUBCASE).out.tmp
 

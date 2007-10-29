@@ -14,7 +14,7 @@ SRCS =
 NP := $(shell procsel $(PETSCFEM_PROCTABLE))
 newff.depl: force
 run: newff.depl
-	-$(MPIRUN) -machinefile machi.dat -np 2 $(ADVDIF) \
+	-$(MPIEXEC) -machinefile machi.dat -n 2 $(ADVDIF) \
 			-case newff.depl </dev/null > output.tmp
 
 local_clean::

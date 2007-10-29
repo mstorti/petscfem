@@ -190,6 +190,7 @@ ChannelShape *ChannelShape::factory(const NewElemset *elemset) {
   } else if (shape=="triangular") {
     return new triang_channel(elemset);
   } else assert(0); // Not valid shape
+  return NULL;
 }
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
@@ -205,6 +206,7 @@ FrictionLaw *FrictionLaw::factory(const NewElemset *elemset) {
   } else if (friction_law=="Manning") {
     return new Manning(elemset);
   } else assert(0); // Not valid friction law
+  return NULL;
 }
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
