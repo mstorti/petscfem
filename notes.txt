@@ -12536,6 +12536,12 @@ elevar la diferencia de los autovalores a `-distor_exp'.
 Arreglado el error en los tests en `nutatcyl': antes calculaba mal los
 momentos (signo al reves). Entonces tuve que cambiar todos los signos
 de momentos en los scripts `chec*.m' que hacen el chequeo. 
+%
+%-- 10:14:38 -- mstorti-v7-root-18-gc1e502b -----
+Fixed `sqcav/test_fs' test. There was a slight change in the
+fractional step solution. I think this is due to some change in the
+solution method. Results look very similar so that I assume this is
+ok. 
 
 # Current line ===========  %
 # Local Variables: $
