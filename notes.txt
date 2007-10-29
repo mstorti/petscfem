@@ -12517,8 +12517,10 @@ Resumen de los tests (da igual para g_c++ y O_c++).
 > --------
 > Start section: "All tests"
 > Summary: "All tests" -- OK: 153.  Not OK: 18. Couldn't open: 8. Total: 179
-
-
+%
+%-- 08:28:00 -- mstorti-v7-root-15-g03380be -----
+No anda el test de `mmove' (step y step3d). En el commit ef623dfa1 si
+andaba. 
 
 # Current line ===========  %
 # Local Variables: $

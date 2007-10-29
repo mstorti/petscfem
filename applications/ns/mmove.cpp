@@ -134,7 +134,10 @@ double mesh_move_eig_anal::dfun(const FastMat2 &D) {
   for (int k=2; k<=ndim; k++)
     for (int l=1; l<k; l++) F += square(D.get(k)-D.get(l));
   F /= pow(vol,2./double(ndim));
-  return pow(F,distor_exp);
+  // For this formulation F goes inversely
+  // to `uglyness' so that we affect `distor_exp'
+  // by a negative coefficient. 
+  return pow(F,-distor_exp);
 #elif 0
   double p=distor_exp;
   double norm_D = D.norm_p_all(p);

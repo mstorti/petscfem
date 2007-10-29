@@ -61,6 +61,6 @@ local_clean::
 
 link:
 	$(MAKE) -C ../../ ns
-	ln -f $(NS) ns
+	ln -sf $(NS) ns
 
 #s
