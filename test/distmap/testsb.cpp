@@ -129,8 +129,8 @@ int main(int argc,char **argv) {
 
   PetscTruth flg;
   PetscFemInitialize(&argc,&argv,NULL,NULL);
-  MPI_Comm_size (MPI_COMM_WORLD, &SIZE);
-  MPI_Comm_rank (MPI_COMM_WORLD, &MY_RANK);
+  MPI_Comm_size (PETSCFEM_COMM_WORLD, &SIZE);
+  MPI_Comm_rank (PETSCFEM_COMM_WORLD, &MY_RANK);
 
   ierr = PetscOptionsGetInt(PETSC_NULL,"-m",&m,&flg);
   CHKERRA(ierr); 
@@ -176,6 +176,7 @@ int main(int argc,char **argv) {
 
     KeyedOutputBuffer kbuff;
   
+    printf("MY_RANK %d, SIZE %d\n",MY_RANK,SIZE);
     k=MY_RANK;
     while (k<N) {
       int roof = k - (k % m) +m;
@@ -190,6 +191,7 @@ int main(int argc,char **argv) {
     kbuff.sort_by_key = sort_by_key;
     KeyedLine::print_keys = print_keys;
     KeyedLine::print_newlines = print_newlines;
+    printf("kbuff size %d\n",kbuff.size());
     if (output) {
       FILE *out = fopen("testsb.output.tmp","w");
       KeyedLine::output = out;

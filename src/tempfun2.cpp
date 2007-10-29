@@ -262,7 +262,7 @@ public:
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 Amplitude *Amplitude::factory(char *& label,
 			      TextHashTable *t) {
-  Amplitude *amp;
+  Amplitude *amp=NULL;
   if (!strcmp(label,"gaussian")) {
     amp = new gaussian;
   } else if (!strcmp(label,"piecewise_linear")) {
