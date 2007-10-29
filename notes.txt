@@ -12431,6 +12431,79 @@ tantas diferencias. Lo termine aplicando todo y compila.
 Tratando de correr todos los tests despues del merge. 
 %
 * El runtests.pl no anda bien con la salida del test `idmap'.
+* Los tests de mmove no andan
+%
+%-- 23:44:06 -- merge-with-petsc-233-68-g71af734 -----
+Da los siguientes tests
+> can't open turbchan/turbchan.ver.tmp
+> can't open sqcav/output.CASE_sqcav.np_1.case_dx_file1.out.tmp
+> can't open sqcav/output.CASE_sqcav.np_1.case_dx_file3.out.tmp
+> can't open sqcav/output.CASE_sqcav.np_1.case_dx_synchro.out.tmp
+> can't open sqcav/output.CASE_sqcav.np_1.case_dx_allf.out.tmp
+> can't open sqcav/output.CASE_sqcav.np_2.case_dx_file1.out.tmp
+> can't open sqcav/output.CASE_sqcav.np_2.case_dx_file3.out.tmp
+> can't open sqcav/output.CASE_sqcav.np_2.case_dx_synchro.out.tmp
+> can't open sqcav/output.CASE_sqcav.np_2.case_dx_allf.out.tmp
+> --------
+> Start section: "Navier-Stokes tests."
+> Testing: "Square cavity with fract. step, Re1000, N=20" on file "sqcav/check.fs.verif.tmp"...not OK.
+>         --->  Couldn't find "Square cavity at Re=1000. Error < tol OK \? 1"
+> Testing: "Nutating cylinder" on file "nutatcyl/checknutcyl.verif.tmp"...not OK.
+>         --->  Couldn't find "Roll moment OK \? 1"
+> Testing: "Viscous force intgrator on rigid cylinder" on file "nutatcyl/rigid.verif.tmp"...not OK.
+>         --->  Couldn't find "Mz\(rigid\) OK \? 1"
+> Testing: "Viscous force intgrator on linear 3D strip" on file "nutatcyl/strip.verif.tmp"...not OK.
+>         --->  Couldn't find "Fx \[constant acceleration\] OK \? 1"
+> Testing: "Viscous force intgrator on linear 3D strip (prisms)" on file "nutatcyl/stripp.verif.tmp"...not OK.
+>         --->  Couldn't find "Fx \[constant acceleration\] OK \? 1"
+> Testing: "Viscous force intgrator on linear 3D strip (prisms inv.norm.)" on file "nutatcyl/strippi.verif.tmp"...not OK.
+>         --->  Couldn't find "Fx \[constant acceleration\] OK \? 1"
+> Testing: "Max volume ratio large deformation mesh mov." on file "mmove/step3d.verif.tmp"...not OK.
+>         --->  Couldn't find "All tetra volumes > 0 OK \? 1"
+> Summary: "Navier-Stokes tests." -- OK: 9.  Not OK: 7. Couldn't open: 0. Total: 16
+> --------
+> Start section: "Misc tests."
+> Testing: "Idmap class" on file "idmap/tidmap.sal"...not OK.
+>         --->  Couldn't find "Column permutations: maximum error: "
+> Summary: "Misc tests." -- OK: 24.  Not OK: 1. Couldn't open: 0. Total: 25
+> --------
+> Start section: "Advdif tests"
+> Testing: "Readmesh complains about bad file inclusion" on file "nsgenload/output.fstack_global.tmp"...not OK.
+>         --->  Couldn't find "genload.depl"
+> Summary: "Advdif tests" -- OK: 4.  Not OK: 1. Couldn't open: 0. Total: 5
+> --------
+> Start section: "New flux function tests."
+> Testing: "newff/test case adv_temp_cp" on file "newff/adv_temp_cp.vrf.tmp"...not OK.
+>         --->  Couldn't find "rel. max error  <tol\(.*\) OK\? 1"
+> Testing: "newff/test case full_full_jacs_cp" on file "newff/full_full_jacs_cp.vrf.tmp"...not OK.
+>         --->  Couldn't find "rel. max error  <tol\(.*\) OK\? 1"
+> Testing: "newff/test case full_full_jacs_adv_cp" on file "newff/full_full_jacs_adv_cp.vrf.tmp"...not OK.
+>         --->  Couldn't find "rel. max error  <tol\(.*\) OK\? 1"
+> Summary: "New flux function tests." -- OK: 17.  Not OK: 3. Couldn't open: 0. Total: 20
+> --------
+> Start section: "IISD solver. Checking with advdif"
+> Testing: "newff/test case adv_temp_cp_iisd" on file "newff/adv_temp_cp_iisd.vrf.tmp"...not OK.
+>         --->  Couldn't find "rel. max error  <tol\(.*\) OK\? 1"
+> Summary: "IISD solver. Checking with advdif" -- OK: 8.  Not OK: 1. Couldn't open: 0. Total: 9
+> --------
+> Start section: "Synchronized output on. SyncBuffer and KeyedOutputBuffer classes. "
+> Testing: "Test for the `KeyedOutputBuffer' class plain" on file "distmap/test_kob_plain.output.tmp"...not OK.
+>         --->  Couldn't find "1: 1 2 3 4 5 6 "
+> Testing: "Test for the `KeyedOutputBuffer' class with no sorting" on file "distmap/test_kob_no_sort.output.tmp"...not OK.
+>         --->  Couldn't find "3: 3 4 5 6 "
+> Testing: "Test for the `KeyedOutputBuffer' class with no key printing" on file "distmap/test_kob_no_key_print.output.tmp"...not OK.
+>         --->  Couldn't find "1 2 3 4 5 6 "
+> Testing: "Test for the `KeyedOutputBuffer' class with no newlines" on file "distmap/test_kob_no_newline.output.tmp"...not OK.
+>         --->  Couldn't find "0: 0 1 2 3 4 5 6  (explicit new-line)"
+> Summary: "Synchronized output on. SyncBuffer and KeyedOutputBuffer classes. " -- OK: 1.  Not OK: 4. Couldn't open: 0. Total: 5
+> 
+> --------------------------------------------------
+> 
+> --------
+> Start section: "All tests"
+> Summary: "All tests" -- OK: 153.  Not OK: 17. Couldn't open: 9. Total: 179
+
+
 
 # Current line ===========  %
 # Local Variables: $
