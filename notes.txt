@@ -12521,6 +12521,16 @@ Resumen de los tests (da igual para g_c++ y O_c++).
 %-- 08:28:00 -- mstorti-v7-root-15-g03380be -----
 No anda el test de `mmove' (step y step3d). En el commit ef623dfa1 si
 andaba. 
+%
+%-- 09:41:53 -- mstorti-v7-root-16-g7002543 -----
+Aparentemente lo que pasaba era que como usaba la formulacion
+`mesh_move' que usa como criterio la diferencia de autovalores, para
+un elemento regular daba un valor muy bajo y despues lo elevaba a
+`distor_exp=-1'. El problema es que antes estaba en +1.0 y despues en
+algun momento paso a -1 por defecto. Una posibilidad es hacer que para
+este elemento este por defecto en +1.0, pero entonces hay un problema
+de inconsistencia con los otros. Prefiero hacer que en este elemento
+elevar la diferencia de los autovalores a `-distor_exp'. 
 
 # Current line ===========  %
 # Local Variables: $
