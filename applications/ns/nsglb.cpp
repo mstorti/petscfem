@@ -25,3 +25,10 @@ int reuse_mat       = 0;
 double FLUID_TIME=0;
 
 WallData wall_data;
+
+
+/* meshmove */
+double mmv_delta,mmv_d2fd,mmv_dfd;
+double min_quality,min_volume;
+double mmv_functional;
+int    tarea,tangled_mesh;

@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id merge-with-petsc-233-50-g0ace95e Fri Oct 19 17:49:52 2007 -0300$
+//$Id: mmv2main.cpp,v 1.2.8.1 2007/02/27 01:15:22 mstorti Exp $
 #include <src/debug.h>
 #include <malloc.h>
 
@@ -21,10 +21,10 @@
 static char help[] = "PETSc-FEM Navier Stokes module\n\n";
 
 extern int MY_RANK,SIZE;
-double mmv_delta,mmv_d2fd,mmv_dfd;
-double min_quality,min_volume;
-double mmv_functional;
-int    tarea,tangled_mesh;
+extern double mmv_delta,mmv_d2fd,mmv_dfd;
+extern double min_quality,min_volume;
+extern double mmv_functional;
+extern int    tarea,tangled_mesh;
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 /** Creates hooks depending on the name. 
@@ -32,8 +32,11 @@ int    tarea,tangled_mesh;
     @return a pointer to the hook. */ 
 extern Hook *ns_hook_factory(const char *name);
 
-//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+//-------<*>-------<*>-------<*>-------<*>-------<*>------- 
 #undef __FUNC__
+extern GlobParam *GLOB_PARAM;
+
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 #define __FUNC__ "struct_main"
 int mmove2_main() {
 
@@ -57,7 +60,7 @@ int mmove2_main() {
   string save_file_res;
   BasicObject_application_factory = &BasicObject_ns_factory;
   
-  // ierr = MatCreateShell(PETSCFEM_COMM_WORLD,int m,int n,int M,int N,void *ctx,Mat *Ap)
+  // ierr = MatCreateShell(PETSC_COMM_WORLD,int m,int n,int M,int N,void *ctx,Mat *Ap)
   char fcase[FLEN+1],output_file[FLEN+1];
   Dofmap *dofmap;
   Mesh *mesh;
@@ -67,13 +70,13 @@ int mmove2_main() {
   hmin.resize(1);
 
   print_copyright();
-  PetscPrintf(PETSCFEM_COMM_WORLD,
+  PetscPrintf(PETSC_COMM_WORLD,
               "=============================================\n"
               "-------- MESH-MOVE VERSION 2 MODULE ---------\n"
               "=============================================\n"
               );
 
-  Debug debug(0,PETSCFEM_COMM_WORLD);
+  Debug debug(0,PETSC_COMM_WORLD);
   GLOBAL_DEBUG = &debug;
 
   int activate_debug=0;
@@ -87,7 +90,7 @@ int mmove2_main() {
   ierr = PetscOptionsGetString(PETSC_NULL,"-case",fcase,FLEN,&flg);
   CHKERRA(ierr);
   if (!flg) {
-    PetscPrintf(PETSCFEM_COMM_WORLD,
+    PetscPrintf(PETSC_COMM_WORLD,
 		"Option \"-case <filename>\" not passed to PETSc-FEM!!\n");
     PetscFinalize();
     exit(0);
@@ -96,11 +99,11 @@ int mmove2_main() {
   ierr = PetscOptionsGetString(PETSC_NULL,"-o",output_file,FLEN,&flg);
   CHKERRA(ierr);
   if (flg) { 
-    PetscPrintf(PETSCFEM_COMM_WORLD,"PETSc-FEM: NS module: "
+    PetscPrintf(PETSC_COMM_WORLD,"PETSc-FEM: NS module: "
 		"redirecting output to \"%s\"\n",output_file);
     FILE *new_stdout = fopen(output_file,"w");
     if (!new_stdout) {
-      PetscPrintf(PETSCFEM_COMM_WORLD,"error redirecting output. "
+      PetscPrintf(PETSC_COMM_WORLD,"error redirecting output. "
 		  "Couldn't open \"%s\"\n",output_file);
     } else {
       fclose(stdout);
@@ -439,7 +442,7 @@ int mmove2_main() {
 
       // resp = (resp-res)
       scal = -1.;
-      ierr = VecAXPY(res,scal,resp); CHKERRQ(ierr); 
+      ierr = VecAXPY(resp,scal,res); CHKERRQ(ierr); 
     
 #ifdef MMV_DBG
       printf("(resp-res)/time_fac_epsilon: ");
@@ -460,7 +463,7 @@ int mmove2_main() {
 
       // x = x+dx
       scal = 1.0;
-      ierr = VecAXPY(dx,scal,x); CHKERRA(ierr); 
+      ierr = VecAXPY(x,scal,dx); CHKERRA(ierr); 
     }
 
     time.set(time_old.time());
@@ -507,7 +510,7 @@ int mmove2_main() {
     //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
     // NEWTON-RAPHSON ALGORITHM
     
-    double normres_external=NAN;
+    double normres_external;
     for (int inwt=0; inwt<nnwt; inwt++) {
       
       glob_param.inwt = inwt;
@@ -552,10 +555,10 @@ int mmove2_main() {
       }
 
       if (print_linear_system_and_stop) {
-	PetscPrintf(PETSCFEM_COMM_WORLD,
+	PetscPrintf(PETSC_COMM_WORLD,
 		    "Printing residual and matrix for"
 		    " debugging and stopping.\n");
-	ierr = PetscViewerASCIIOpen(PETSCFEM_COMM_WORLD,
+	ierr = PetscViewerASCIIOpen(PETSC_COMM_WORLD,
 				    "system.dat",&matlab); CHKERRA(ierr);
 	ierr = PetscViewerSetFormat_WRAPPER(matlab,
 					    PETSC_VIEWER_ASCII_MATLAB,
@@ -581,7 +584,7 @@ int mmove2_main() {
       double normres;
       ierr  = VecNorm(res,NORM_2,&normres); CHKERRA(ierr);
       if (inwt==0) normres_external = normres;
-      PetscPrintf(PETSCFEM_COMM_WORLD,
+      PetscPrintf(PETSC_COMM_WORLD,
 		  "Newton subiter %d, norm_res  = %10.3e\n",
 		  inwt,normres);
 
@@ -595,14 +598,14 @@ int mmove2_main() {
 	nrf_indx += 2;
       }
       relfac = newton_relaxation_factor[nrf_indx-1];
-      if (relfac!=1.) PetscPrintf(PETSCFEM_COMM_WORLD,
+      if (relfac!=1.) PetscPrintf(PETSC_COMM_WORLD,
 				  "relaxation factor %f\n",relfac);
       scal= relfac/alpha;
-      ierr = VecAXPY(dx,scal,x);
+      ierr = VecAXPY(x,scal,dx);
 
       ierr = VecDot(res_delta,dx,&resdelta_dot_dx);  CHKERRA(ierr);
 
-      if (use_line_search_mmv) {
+      if (use_line_search_mmv){
 	int    counter=0;
 	double mmv_functional_ini = mmv_functional;
 	double dif_functional,dx_dot_res;
@@ -637,7 +640,7 @@ int mmove2_main() {
 
 	  relfac /= ls_relfac_fraction;
 	  scal = (1.-ls_relfac_fraction)/pow(ls_relfac_fraction,++counter);
-	  ierr = VecAXPY(dx,scal,x);  CHKERRA(ierr);
+	  ierr = VecAXPY(x,scal,dx);  CHKERRA(ierr);
 
 	  PetscPrintf(PETSC_COMM_WORLD,"relaxation factor %f\n",relfac);
 	}
@@ -673,7 +676,7 @@ int mmove2_main() {
     } // end of loop over Newton subiteration (inwt)
 
     if (normres_external < tol_newton) {
-      PetscPrintf(PETSCFEM_COMM_WORLD,
+      PetscPrintf(PETSC_COMM_WORLD,
 		  "Tolerance on newton loop reached:  "
 		  "|| R ||_0,  norm_res =%g < tol = %g\n",
 		  normres_external,tol_newton);
@@ -682,9 +685,9 @@ int mmove2_main() {
 
     // error difference
     scal = -1.0;
-    ierr = VecAXPY(x,scal,dx_step);
+    ierr = VecAXPY(dx_step,scal,x);
     ierr  = VecNorm(dx_step,NORM_2,&norm); CHKERRA(ierr);
-    PetscPrintf(PETSCFEM_COMM_WORLD,"============= delta_u = %10.3e\n",norm);
+    PetscPrintf(PETSC_COMM_WORLD,"============= delta_u = %10.3e\n",norm);
     print_vector_rota(save_file_pattern.c_str(),x,dofmap,&time,
 		      tstep-1,nsaverot,nrec,nfile);
   
