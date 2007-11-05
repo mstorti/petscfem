@@ -37,7 +37,7 @@ int ns_id::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
 		    int el_start,int el_last,int iter_mode,
 		    const TimeData *time_) {
 
-  GET_JOBINFO_FLAG(comp_mat);
+  GET_JOBINFO_FLAG(comp_prof);
   GET_JOBINFO_FLAG(comp_mat_res);
   GET_JOBINFO_FLAG(comp_res);
   GET_JOBINFO_FLAG(get_nearest_wall_element);
@@ -104,7 +104,7 @@ int ns_id::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
     matlocf(2,nen,nen);
   double lumped_vc; // lumped mass matrix contribution
 
-  if (comp_mat) {
+  if (comp_prof) {
     matloc_prof.set(1.);
   }
 

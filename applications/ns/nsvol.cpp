@@ -13,7 +13,7 @@
 #define __FUNC__ "int ns_volume_element::ask(char *,int &)"
 int ns_volume_element::ask(const char *jobinfo,int &skip_elemset) {
   skip_elemset = 1;
-  DONT_SKIP_JOBINFO(comp_mat);
+  DONT_SKIP_JOBINFO(comp_prof);
   DONT_SKIP_JOBINFO(comp_res);
   DONT_SKIP_JOBINFO(comp_mat_res);
   DONT_SKIP_JOBINFO(get_nearest_wall_element);

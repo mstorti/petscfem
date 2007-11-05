@@ -24,10 +24,10 @@ extern int    tarea,tangled_mesh;
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 void mesh_move_opt3::before_chunk(const char *jobinfo) {
 
-  GET_JOBINFO_FLAG(comp_mat);
+  GET_JOBINFO_FLAG(comp_prof);
   GET_JOBINFO_FLAG(comp_mat_res);
 
-  PETSCFEM_ASSERT(comp_mat || comp_mat_res,
+  PETSCFEM_ASSERT(comp_prof || comp_mat_res,
                   "Only jobinfo=\"comp_mat_res\" processed. \n"
                   "Received unrecognized jobinfo %s\n",jobinfo);  
 

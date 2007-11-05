@@ -138,7 +138,7 @@ int bcconv_fstep_fm2::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
 
   FMatrix matloc_prof(nen,nen);
 
-  //  if (comp_mat) matloc_prof.set(1.);
+  //  if (comp_prof) matloc_prof.set(1.);
     
   FastMatCacheList cache_list;
   FastMat2::activate_cache(&cache_list);
@@ -250,7 +250,7 @@ int bcconv_fstep_fm2::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
     }
 
     /*
-    if(comp_mat) {
+    if(comp_prof) {
       matloc_prof.export_vals(&(RETVALMAT(ielh,0,0,0,0)));
     }      
     */

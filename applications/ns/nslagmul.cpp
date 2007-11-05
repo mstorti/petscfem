@@ -10,7 +10,7 @@ extern TextHashTable *GLOBAL_OPTIONS;
 #define __FUNC__ "NSLagrangeMult::ask"
 int NSLagrangeMult::ask(const char *jobinfo,int &skip_elemset) {
    skip_elemset = 1;
-   DONT_SKIP_JOBINFO(comp_mat);
+   DONT_SKIP_JOBINFO(comp_prof);
    DONT_SKIP_JOBINFO(comp_res);
    DONT_SKIP_JOBINFO(comp_mat_res);
    return 0;
@@ -20,11 +20,11 @@ int NSLagrangeMult::ask(const char *jobinfo,int &skip_elemset) {
 void 
 NSLagrangeMult::
 get_comp_flags(const char *jobinfo,
-	       int &comp_mat_a,int &comp_mat_res_a) {
-  GET_JOBINFO_FLAG(comp_mat);
+	       int &comp_prof_a,int &comp_mat_res_a) {
+  GET_JOBINFO_FLAG(comp_prof);
   GET_JOBINFO_FLAG(comp_res);
   GET_JOBINFO_FLAG(comp_mat_res);
-  comp_mat_a = comp_mat;
+  comp_prof_a = comp_prof;
   comp_mat_res_a = comp_mat_res;
 }
 

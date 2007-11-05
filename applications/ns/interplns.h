@@ -13,7 +13,7 @@ public:
   /// The ask function for the elemset. 
   int ask(const char *jobinfo,int &skip_elemset) {
     skip_elemset = 1;
-    DONT_SKIP_JOBINFO(comp_mat);
+    DONT_SKIP_JOBINFO(comp_prof);
     DONT_SKIP_JOBINFO(comp_res);
     DONT_SKIP_JOBINFO(comp_mat_res);
     return 0;

@@ -34,7 +34,7 @@ int ns_sup::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
   TGETOPTDEF(thash,double,fs_eq_factor,1.);
   assert(nel==2);
 
-  GET_JOBINFO_FLAG(comp_mat);
+  GET_JOBINFO_FLAG(comp_prof);
   GET_JOBINFO_FLAG(comp_mat_res);
   GET_JOBINFO_FLAG(comp_res);
 
@@ -59,7 +59,7 @@ int ns_sup::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
 
   // Get arguments from arg_list
   double *locst=NULL,*locst2=NULL,*retval=NULL,*retvalmat=NULL;
-  if (comp_mat) {
+  if (comp_prof) {
     retvalmat = arg_data_v[0].retval;
   } 
 
@@ -92,7 +92,7 @@ int ns_sup::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
   veccontr.set(0.);
   matlocf.set(0.);
 
-  if (comp_mat) {
+  if (comp_prof) {
     matloc_prof.set(1.);
   }
 
@@ -104,7 +104,7 @@ int ns_sup::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
     if (!compute_this_elem(k,this,myrank,iter_mode)) continue;
     FastMat2::reset_cache();
     ielh++;
-    if(comp_mat) {
+    if(comp_prof) {
 
       matloc_prof.export_vals(&(RETVALMAT(ielh,0,0,0,0)));
       matlocf.export_vals(&(RETVALMAT(ielh,0,0,0,0)));

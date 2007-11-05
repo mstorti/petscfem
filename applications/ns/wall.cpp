@@ -49,7 +49,7 @@ int wall::ask(const char *jobinfo,int &skip_elemset) {
   DONT_SKIP_JOBINFO(comp_shear_vel);
   DONT_SKIP_JOBINFO(comp_mat_res);
   DONT_SKIP_JOBINFO(comp_res_mom); // para FS
-  DONT_SKIP_JOBINFO(comp_mat);
+  DONT_SKIP_JOBINFO(comp_prof);
   DONT_SKIP_JOBINFO(comp_mat_prof); // para FS
 
   // Initialize to 0. all shear_velocities
@@ -123,9 +123,9 @@ int wall::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
 			  const TimeData *time_data) {
 
   // wait_from_console("entra a wall::assemble");
-  GET_JOBINFO_FLAG(comp_mat);
+  GET_JOBINFO_FLAG(comp_prof);
   GET_JOBINFO_FLAG(comp_mat_prof); 
-  comp_mat |= comp_mat_prof;  // para FS
+  comp_prof |= comp_mat_prof;  // para FS
   GET_JOBINFO_FLAG(comp_mat_res);
   GET_JOBINFO_FLAG(comp_res_mom);
   comp_mat_res |= comp_res_mom;  // para FS
@@ -162,7 +162,7 @@ int wall::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
     }
   }
 
-  if (comp_mat) {
+  if (comp_prof) {
     retvalmat = arg_data_v[0].retval;
     if (fractional_step) {
       retvalmat_poi = arg_data_v[1].retval;
@@ -217,7 +217,7 @@ int wall::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
   seed.set(0.);
   for (int j=1; j<=ndim; j++)
     seed.setel(1.,j,j);
-  if (comp_mat) {
+  if (comp_prof) {
     matloc_prof.set(1.);
   }
 
@@ -262,7 +262,7 @@ int wall::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
       continue;
     }
 
-    if(comp_mat) {
+    if(comp_prof) {
       matloc_prof.export_vals(&(RETVALMAT(ielh,0,0,0,0)));
       if (fractional_step) {
 	matloc_prof.export_vals(&(RETVALMAT_POI(ielh,0,0,0,0)));

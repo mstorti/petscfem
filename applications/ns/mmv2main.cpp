@@ -353,7 +353,7 @@ int mmove2_main() {
   debug.trace("Computing profiles...");
   argl.clear();
   argl.arg_add(Ap,PROFILE|PFMAT,"A");
-  ierr = assemble(mesh,argl,dofmap,"comp_mat",&time); CHKERRA(ierr); 
+  ierr = assemble(mesh,argl,dofmap,"comp_prof",&time); CHKERRA(ierr); 
   debug.trace("After computing profile.");
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 

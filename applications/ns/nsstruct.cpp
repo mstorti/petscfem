@@ -446,7 +446,7 @@ int struct_main() {
   if (!fractional_step) {
     argl.clear();
     argl.arg_add(A_tet,PROFILE|PFMAT);
-    ierr = assemble(mesh,argl,dofmap,"comp_mat",&time); CHKERRA(ierr); 
+    ierr = assemble(mesh,argl,dofmap,"comp_prof",&time); CHKERRA(ierr); 
 
   } else {
     argl.clear();

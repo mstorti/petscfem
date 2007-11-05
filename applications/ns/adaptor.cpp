@@ -108,7 +108,7 @@ int adaptor::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
   int kloc,node;
   arg_data_vp = &arg_data_v;
 
-  GET_JOBINFO_FLAG(comp_mat);
+  GET_JOBINFO_FLAG(comp_prof);
   GET_JOBINFO_FLAG(comp_mat_res);
   GET_JOBINFO_FLAG(comp_res);
 
@@ -152,7 +152,7 @@ int adaptor::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
   double *locst=NULL,*locst2=NULL,*retval=NULL,*retvalmat=NULL;
 
   if (!use_arg_handles) {
-    if (comp_mat) 
+    if (comp_prof) 
       retvalmat = arg_data_v[0].retval;
     if (comp_mat_res) {
       int ja=0;
@@ -173,7 +173,7 @@ int adaptor::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
 
     ArgHandle handle;
     int index;
-    if (comp_mat) {
+    if (comp_prof) {
       GET_INDEX("A"); retvalmat = arg_data_v[index].retval;
     } else if (comp_mat_res) {
       GET_INDEX("state"); locst = arg_data_v[index].locst;
@@ -277,7 +277,7 @@ int adaptor::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
     matlocf.set(0.);
     veccontr.set(0.);
 
-    if(comp_mat && !use_arg_handles)
+    if(comp_prof && !use_arg_handles)
       matloc_prof.export_vals(&(RETVALMAT(ielh,0,0,0,0)));
 
     if (comp_mat_res) {

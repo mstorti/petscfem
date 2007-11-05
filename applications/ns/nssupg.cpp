@@ -55,7 +55,7 @@ int ns_sup_g::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
   assert(nel % 2==0); // one layer of nodes is for \eta the other for w
   int nel2 = nel/2;
 
-  GET_JOBINFO_FLAG(comp_mat);
+  GET_JOBINFO_FLAG(comp_prof);
   GET_JOBINFO_FLAG(comp_mat_res);
   GET_JOBINFO_FLAG(comp_res);
 
@@ -80,7 +80,7 @@ int ns_sup_g::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
 
   // Get arguments from arg_list
   double *locst=NULL,*locst2=NULL,*retval=NULL,*retvalmat=NULL;
-  if (comp_mat) {
+  if (comp_prof) {
     retvalmat = arg_data_v[0].retval;
   } 
 
@@ -126,7 +126,7 @@ int ns_sup_g::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
   veccontr.set(0.);
   matlocf.set(0.);
 
-  if (comp_mat) {
+  if (comp_prof) {
     matloc_prof.set(1.);
   }
 
@@ -139,7 +139,7 @@ int ns_sup_g::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
     if (!compute_this_elem(k,this,myrank,iter_mode)) continue;
     FastMat2::reset_cache();
     ielh++;
-    if(comp_mat) {
+    if(comp_prof) {
 
       // this is irrelevant, the profile is passed now
       // via the .profile entry

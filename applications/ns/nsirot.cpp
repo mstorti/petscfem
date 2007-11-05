@@ -63,7 +63,7 @@ int nsi_rot::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
 			       int el_start,int el_last,int iter_mode,
 			       const TimeData *time_) {
 
-  GET_JOBINFO_FLAG(comp_mat);
+  GET_JOBINFO_FLAG(comp_prof);
   GET_JOBINFO_FLAG(comp_mat_res);
   GET_JOBINFO_FLAG(comp_res);
   GET_JOBINFO_FLAG(get_nearest_wall_element);
@@ -119,7 +119,7 @@ int nsi_rot::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
   // Get arguments from arg_list
   double *locst=NULL,*locst2=NULL,*retval=NULL,*retvalmat=NULL;
   WallData *wall_data=NULL;
-  if (comp_mat) {
+  if (comp_prof) {
     retvalmat = arg_data_v[0].retval;
   } else if (get_nearest_wall_element) {
     wall_data = (WallData *)arg_data_v[0].user_data;
@@ -342,7 +342,7 @@ int nsi_rot::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
   FMatrix eye(ndim,ndim),seed,one_nel,matloc_prof(nen,nen);;
   eye.eye();
 
-  if (comp_mat) {
+  if (comp_prof) {
 
     matloc_prof.set(1.);
 
@@ -721,7 +721,7 @@ int nsi_rot::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
 	}
         }
 
-      } else if (comp_mat) {
+      } else if (comp_prof) {
 	// don't make anything here !!
       } else {
 	PetscPrintf(PETSCFEM_COMM_WORLD,
@@ -731,7 +731,7 @@ int nsi_rot::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
 
     }
 
-    if(comp_mat) {
+    if(comp_prof) {
       matloc_prof.export_vals(&(RETVALMAT(ielh,0,0,0,0)));
     }
 

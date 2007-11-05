@@ -110,7 +110,7 @@ double WallFunSecant::residual(double ustar,void *user_data) {
 #define __FUNC__ "int NonLinearRes::ask(const char *jobinfo,int &skip_elemset)"
 int wallke::ask(const char *jobinfo,int &skip_elemset) {
   skip_elemset = 1;
-  DONT_SKIP_JOBINFO(comp_mat);
+  DONT_SKIP_JOBINFO(comp_prof);
   DONT_SKIP_JOBINFO(comp_mat_res);
   return 0;
 }
@@ -122,7 +122,7 @@ int wallke::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
 			  int el_start,int el_last,int iter_mode,
 			  const TimeData *time_data) {
 
-  GET_JOBINFO_FLAG(comp_mat);
+  GET_JOBINFO_FLAG(comp_prof);
   GET_JOBINFO_FLAG(comp_mat_res);
 
   int ierr=0;
@@ -186,7 +186,7 @@ int wallke::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
     }
   }
 
-  if (comp_mat) {
+  if (comp_prof) {
     retvalmat = arg_data_v[0].retval;
   }
 
@@ -230,7 +230,7 @@ int wallke::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
   for (int j=1; j<=ndim; j++) 
     seed.setel(1.,j,j);
 
-  if (comp_mat) {
+  if (comp_prof) {
     matloc_prof.set(1.);
   }
   
@@ -273,7 +273,7 @@ int wallke::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
     ucols_star.set(ucols_new).scale(alpha).axpy(ucols,1-alpha);
     double tol_Ustar = 1e-8;
     
-    if(comp_mat) {
+    if(comp_prof) {
       matloc_prof.export_vals(&(RETVALMAT(ielh,0,0,0,0)));
       continue;
     }      

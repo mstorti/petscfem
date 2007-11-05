@@ -21,7 +21,7 @@ public:
   NSPenalize(Restriction *r) : Penalize(r) { }
   ASK_FUNCTION;
   void get_comp_flags(const char *jobinfo,
-		      int &comp_mat,int &comp_mat_res);
+		      int &comp_prof,int &comp_mat_res);
 
   void
   get_data(arg_data_list &arg_data_v,

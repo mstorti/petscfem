@@ -19,7 +19,7 @@ NonLinearRes::~NonLinearRes() {}
 #define __FUNC__ "int ns_volume_element::ask(char *,int &)"
 int NonLinearRes::ask(const char *jobinfo,int &skip_elemset) {
   skip_elemset = 1;
-  DONT_SKIP_JOBINFO(comp_mat);
+  DONT_SKIP_JOBINFO(comp_prof);
   DONT_SKIP_JOBINFO(comp_res);
   DONT_SKIP_JOBINFO(comp_mat_res);
   return 0;
@@ -36,8 +36,8 @@ int NonLinearRes::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
 
   PETSCFEM_ASSERT0(nel==2,"");
 
-  GET_JOBINFO_FLAG(comp_mat);
-  GET_JOBINFO_FLAG(comp_mat_ke);
+  GET_JOBINFO_FLAG(comp_prof);
+  GET_JOBINFO_FLAG(comp_prof_ke);
   GET_JOBINFO_FLAG(comp_mat_res);
   GET_JOBINFO_FLAG(comp_mat_res_ke);
 
@@ -66,7 +66,7 @@ int NonLinearRes::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
     glob_param = (GlobParam *)(arg_data_v[ja++].user_data);
     rec_Dt = 1./glob_param->Dt;
     if (glob_param->steady) rec_Dt=0.;
-  } else if (comp_mat || comp_mat_ke) {
+  } else if (comp_prof || comp_prof_ke) {
     retvalmat = arg_data_v[0].retval;
   }
 
@@ -94,7 +94,7 @@ int NonLinearRes::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
 
   FastMat2 matloc_prof(4,nel,ndof,nel,ndof),
     matloc(4,nel,ndof,nel,ndof), U(2,2,ndof),R(2,2,ndof);
-  if (comp_mat) matloc_prof.set(1.);
+  if (comp_prof) matloc_prof.set(1.);
 
   init();
   int nr = nres();
@@ -112,7 +112,7 @@ int NonLinearRes::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
     ielh++;
     elem = k;
 
-    if(comp_mat) {
+    if(comp_prof) {
       matloc_prof.export_vals(&(RETVALMAT(ielh,0,0,0,0)));
       continue;
     }      

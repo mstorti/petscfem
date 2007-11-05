@@ -19,7 +19,7 @@ extern TextHashTable *GLOBAL_OPTIONS;
 #define __FUNC__ "int bcconv_nsi_tet_asm_avgvol::ask(char *,int &)"
 int bcconv_nsi_tet_asm_avgvol::ask(const char *jobinfo,int &skip_elemset) {
   skip_elemset = 1;
-  DONT_SKIP_JOBINFO(comp_mat);
+  DONT_SKIP_JOBINFO(comp_prof);
   DONT_SKIP_JOBINFO(comp_res);
   DONT_SKIP_JOBINFO(comp_mat_res);
   return 0;
@@ -33,7 +33,7 @@ int bcconv_nsi_tet_asm_avgvol::assemble(arg_data_list &arg_data_v,Nodedata *node
 			  int el_start,int el_last,int iter_mode,
 			  const TimeData *time_data) {
 
-  GET_JOBINFO_FLAG(comp_mat);
+  GET_JOBINFO_FLAG(comp_prof);
   GET_JOBINFO_FLAG(comp_mat_res);
   GET_JOBINFO_FLAG(comp_res);
   GET_JOBINFO_FLAG(build_nneighbor_tree);
@@ -77,7 +77,7 @@ int bcconv_nsi_tet_asm_avgvol::assemble(arg_data_list &arg_data_v,Nodedata *node
 
   // Get arguments from arg_list
   double *locst=NULL,*locst2=NULL,*retval=NULL,*retvalmat=NULL;
-  if (comp_mat) {
+  if (comp_prof) {
     retvalmat = arg_data_v[0].retval;
   }
 
@@ -180,7 +180,7 @@ int bcconv_nsi_tet_asm_avgvol::assemble(arg_data_list &arg_data_v,Nodedata *node
 
   FMatrix matloc_prof(nen,nen),seed,one_nel;
 
-  //  if (comp_mat) matloc_prof.set(1.);
+  //  if (comp_prof) matloc_prof.set(1.);
 
   // ====================================
 
@@ -391,7 +391,7 @@ int bcconv_nsi_tet_asm_avgvol::assemble(arg_data_list &arg_data_v,Nodedata *node
 	  }
 	}
 	
-      } else if (comp_mat) {
+      } else if (comp_prof) {
 	// don't make anything here !!
       } else {
 	PetscPrintf(PETSCFEM_COMM_WORLD,
@@ -402,7 +402,7 @@ int bcconv_nsi_tet_asm_avgvol::assemble(arg_data_list &arg_data_v,Nodedata *node
     }
 
     // BETO : matloc_prof habria que inicializarlo a cero ???????
-    if(comp_mat) {
+    if(comp_prof) {
       matloc_prof.export_vals(&(RETVALMAT(ielh,0,0,0,0)));
     }
 
