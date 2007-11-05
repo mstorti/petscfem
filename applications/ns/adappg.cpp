@@ -95,8 +95,8 @@ void adaptor_pg::element_connector(const FastMat2 &xloc,
   res.set(0.0);
   mat.set(0.0);
 
-  // loop over Gauss points
   elem_init();
+  // loop over Gauss points
   for (int ipg=0; ipg<npg; ipg++) {
     
     // Select the column of dshapexi correponding to this GP
@@ -136,11 +136,13 @@ void adaptor_pg::element_connector(const FastMat2 &xloc,
       grad_H.prod(dshapex,Hloc,1,-1,-1,2);
     }
     shape.rs();
-
+    
+    if (EVAL_RES) res_pg.set(0.);
+    if (EVAL_MAT) mat_pg.set(0.);
     pg_connector(xpg,state_old_pg,grad_state_old_pg,
 		 state_new_pg,grad_state_new_pg,res_pg,mat_pg);
-    mat.axpy(mat_pg,wpgdet);
-    res.axpy(res_pg,wpgdet);
+    if (EVAL_RES) res.axpy(res_pg,wpgdet);
+    if (EVAL_MAT) mat.axpy(mat_pg,wpgdet);
   }
   elem_end();
 }

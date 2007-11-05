@@ -20,6 +20,9 @@ public:
   adaptor();
   /// This should not be defined by the user...
   ASSEMBLE_FUNCTION;
+  
+  bool EVAL_RES;
+  bool EVAL_MAT;
   /// the reciprocal of the time step. (May be null for steady problems)
   double rec_Dt;
   /// The trapezoidal rule parameter.
