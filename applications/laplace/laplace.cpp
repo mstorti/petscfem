@@ -38,8 +38,8 @@ void bless_elemset(char *type,Elemset *& elemset) {
 
 //-------<*>-------<*>-------<*>-------<*>-------<*>------- 
 #undef __FUNC__
-#define __FUNC__ "main"
-int main(int argc,char **args) {
+#define __FUNC__ "laplace_main"
+int laplace_main(int argc,char **args) {
 
   PetscFemInitialize(&argc,&args,(char *)0,help);
 

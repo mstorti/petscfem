@@ -6,8 +6,9 @@
 PROG = adv
 PETSCFEM_DIR   = ../..
 
-PROGOBJ = advective.o compdate.o
-LIBOBJS = advecfm2.o adv.o absorb.o				\
+PROGOBJ = main.o
+LIBOBJS = adv.o compdate.o 					\
+	advective.o advecfm2.o absorb.o				\
 	ffshallw.o ffadvec.o ffeulerfm2.o			\
 	ffswfm2.o ffswfm2t.o bcconv_adv.o ffeuler.o bccadvfm2.o
 PETSCFEM_MODULE = Advective

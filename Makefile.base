@@ -371,12 +371,10 @@ $(PROG): $(PROG_bin)
 
 $(PROG_BIN): $(MYOBJS) $(PROG_LIB) $(PROGOBJ) $(LIBPETSCFEM)
 	if [ -e $@ ] ; then rm $@ ; fi
-	$(MAKE) -W compdate.cpp compdate.o
 	$(MAKE) -C $(PETSCFEM_DIR)/src -W version.cpp version.o
 	${CXX_CLINKER} $(PROF_FLAGS) -o $@			\
 		$(PROGOBJ) $(PETSCFEM_DIR)/src/version.o	\
 		$(MYOBJS) $(OTHER_OBJS) $(LDFLAGS)
-	rm $(PROGOBJ)
 
 $(LIBPETSCFEM)(%.o): force
 	$(MAKE) -C $(PETSCFEM_DIR)/src 'libpetscfem$(osfx).a($*.o)'

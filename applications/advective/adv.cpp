@@ -61,8 +61,8 @@ ierr = VecView(name,matlab); CHKERRA(ierr)
 
 //-------<*>-------<*>-------<*>-------<*>-------<*>------- 
 #undef __FUNC__
-#define __FUNC__ "main"
-int main(int argc,char **args) {
+#define __FUNC__ "advective_main"
+int advective_main(int argc,char **args) {
 
   PetscFemInitialize(&argc,&args,(char *)0,help);
 

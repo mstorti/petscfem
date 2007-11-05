@@ -46,20 +46,9 @@ extern double FLUID_TIME;
 extern WallData   wall_data;
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
-
-void bless_elemset_ns(char*, Elemset *&);
-
-void bless_elemset(char *type,Elemset *& elemset) {
-  elemset=NULL;
-  bless_elemset0(type,elemset);
-  if (elemset) return;
-  bless_elemset_ns(type, elemset);
-}
-
-//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 #undef __FUNC__
-#define __FUNC__ "main"
-int main(int argc,char **args) {
+#define __FUNC__ "ns_main"
+int ns_main(int argc,char **args) {
 
   PetscFemInitialize(&argc,&args,(char *)0,help);
 
