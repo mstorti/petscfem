@@ -998,6 +998,8 @@ void Elemset::read(FileStack *fstack) {}
 Elemset::Elemset() : type(NULL),
 		     icone(NULL),
 		     epart(NULL), epart2(NULL),
+		     nelprops(0), neliprops(0),
+		     nelprops_add(0), neliprops_add(0),
 		     elemprops(NULL), elemiprops(NULL), 
 		     elemprops_add(NULL), elemiprops_add(NULL),
 		     local_store(NULL),
