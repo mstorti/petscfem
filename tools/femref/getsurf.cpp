@@ -176,7 +176,7 @@ void getsurf(GetSurfCtx &ctx,
 	}
       }
     }
-    int nopp=0, opp_node;
+    int nopp=0, opp_node=-1;
     for (int l=0; l<mesh_nel; l++) {
       if (node_mark[l]==0) {
 	nopp++; opp_node = elem_nodes[l];

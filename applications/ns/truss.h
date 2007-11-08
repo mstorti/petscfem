@@ -9,6 +9,12 @@ class truss : public adaptor {
 private:
   /// Auxiliary variables
   FastMat2 len, xlocc, dx;
+
+  dvector<int> elprpsindx; 
+  int nprops;
+  dvector<double> propel;
+  int krig_indx;
+  double krig_fac;
 public: 
   /** Initializes the elemset. Reads parameters, 
       resizes auxiliary matrices. 

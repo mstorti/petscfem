@@ -376,7 +376,9 @@ $(PROG_BIN): $(MYOBJS) $(PROG_LIB) $(PROGOBJ) $(LIBPETSCFEM)
 	${CXX_CLINKER} $(PROF_FLAGS) -o $@			\
 		$(PROGOBJ) $(PETSCFEM_DIR)/src/version.o	\
 		$(MYOBJS) $(OTHER_OBJS) $(LDFLAGS)
+ifneq ($(DEVELOPER_MODE),yes)
 	rm $(PROGOBJ)
+endif
 
 $(LIBPETSCFEM)(%.o): force
 	$(MAKE) -C $(PETSCFEM_DIR)/src 'libpetscfem$(osfx).a($*.o)'

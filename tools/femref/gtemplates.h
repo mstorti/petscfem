@@ -23,7 +23,8 @@ public:
   const int* nodes(GeomObject::Type t,int j) const { 
     if (t==GeomObject::OrientedTriT) 
       return faces+3*j;
-    else assert(0);
+    assert(0);
+    return NULL;
   }
 };
 
@@ -43,6 +44,7 @@ public:
   int size(GeomObject::Type t) const { return 0; }
   const int* nodes(GeomObject::Type t,int j) const { 
     assert(0);
+    return NULL;
   }
 };
 
@@ -65,6 +67,7 @@ public:
   const int* 
   nodes(GeomObject::Type t,int j) const { 
     assert(0);
+    return NULL;
   }
 };
 
