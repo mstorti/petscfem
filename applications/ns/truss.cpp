@@ -17,11 +17,11 @@ void truss::init() {
 
   //o Perturbation scale length for increment in computing
   // the Jacobian with finite differences. 
-  TGETOPTDEF(thash,int,ndim,-1);
+ TGETOPTDEF_ND(thash,int,ndim,-1);
   assert(ndim>=0);
 
   //o GLobal factor affecting the `krig' option
-  TGETOPTDEF(thash,double,krig_fac,1.0);
+  TGETOPTDEF_ND(thash,double,krig_fac,1.0);
 
   len.resize(1,ndim);
   int nel=2;
@@ -33,8 +33,6 @@ void truss::init() {
   elprpsindx.mono(MAXPROPS);
   propel.mono(MAXPROPS);
   
-  // TGETOPTNDEF_ND(thash,int,ndim,none); //nd
-
   int iprop=0;
   krig_indx = iprop; 
   ierr = get_prop(iprop,elem_prop_names,
@@ -50,8 +48,8 @@ void truss::element_connector(const FastMat2 &xloc,
                               FastMat2 &res,FastMat2 &mat) {
   load_props(propel.buff(),elprpsindx.buff(),nprops,
 	     &(ELEMPROPS(elem,0)));
-  double krig = *(propel.buff()+krig_indx);
-  // printf("elem %d, krig %f\n",elem,krig);
+  double krig = *(propel.buff()+krig_indx) * krig_fac;
+  printf("elem %d, krig %f\n",elem,krig);
 #if 0
   if (rand()%100==0) 
     printf("krig: %f, fac %f\n",
