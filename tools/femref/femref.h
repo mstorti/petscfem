@@ -55,7 +55,7 @@ public:
     /// The number of objects of type #t# this shape has. 
     virtual int size(Type t) const { return 0; }
     /// Local nodes connected to subobject #j# of type #t#. 
-    virtual const int* nodes(Type t,int j) const { assert(0); }
+    virtual const int* nodes(Type t,int j) const { assert(0); return NULL; }
   };
   /// Ptr to shape structure
   Template *go_template;
@@ -123,9 +123,9 @@ public:
 class Splitter {
 public:
   /// Number of subobjetcs of type #t# in this splitting.
-  virtual int size(GeomObject::Type t) const { assert(0); }
+  virtual int size(GeomObject::Type t) const { assert(0); return -1; }
   /// Number of refined nodes this splitting creates
-  int nref_nodes() const { assert(0); }
+  int nref_nodes() const { assert(0); return -1; }
   /** Refined nodes #indx# is created from #nnod# nodes 
       passed by #nodes#. 
       @param indx (input) the refined node index. 
@@ -140,12 +140,12 @@ public:
     const { assert(0); }
   /// Local nodes connected to subobject #j# of type #t#. 
   virtual const int* 
-  nodes(GeomObject::Type t,int j) const { assert(0); }
+  nodes(GeomObject::Type t,int j) const { assert(0); return NULL; }
   /// Total number of subobjetcs
-  virtual int size() const { assert(0); }
+  virtual int size() const { assert(0); return -1; }
   /// Local nodes connected to subobject #j# and type
   virtual const int 
-  *nodes(int j,GeomObject::Type &t) const { assert(0); }
+  *nodes(int j,GeomObject::Type &t) const { assert(0); return NULL; }
   virtual ~Splitter() {}
 };
 

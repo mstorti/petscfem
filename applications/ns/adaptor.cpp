@@ -142,6 +142,9 @@ int adaptor::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
   //o Use caches for FastMat2 matrices
   TGETOPTDEF(thash,int,use_fastmat2_cache,1);
 
+  //o Use #shape()#, #shapexi()# (FEM interpolation)
+  TGETOPTDEF(thash,int,fem_interpolation,1);
+
   PETSCFEM_ASSERT(npg>=0,"npg should be non-negative, npg %d\n",npg);  
   PETSCFEM_ASSERT(ndim>=0,"ndim should be non-negative, ndim %d\n",ndim);  
 
@@ -209,8 +212,7 @@ int adaptor::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
 
   //o Type of element geometry to define Gauss Point data
   TGETOPTDEF_S(thash,string,geometry,cartesian2d);
-  //GPdata gp_data(geom,ndim,nel,npg);
-  GPdata gp_data(geometry.c_str(),ndimel,nel,npg,GP_FASTMAT2);
+
   //o Compute a Finite Difference Jacobian (FDJ) for each element. 
   TGETOPTDEF(thash,int,jacobian_fdj_compute,0);
   //o Scale of perturbation for computation of FDJ's. 
@@ -230,17 +232,22 @@ int adaptor::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
 #define WPG      (gp_data.wpg[ipg])
 
   // Memory allocation and initialization 
-  shape.resize(2,nel,npg);
-  dshapexi.resize(3,ndimel,nel,npg);
-  wpg.resize(1,npg);
-
-  for (int ipg=0; ipg<npg; ipg++) {
-    wpg.setel(WPG,ipg+1);
-    shape.ir(2,ipg+1).set(SHAPE);
-    dshapexi.ir(3,ipg+1).set(DSHAPEXI);
+  //GPdata gp_data(geom,ndim,nel,npg);
+  GPdata gp_data;
+  if (fem_interpolation) {
+    gp_data.init(geometry.c_str(),ndimel,nel,npg,GP_FASTMAT2);
+    shape.resize(2,nel,npg);
+    dshapexi.resize(3,ndimel,nel,npg);
+    wpg.resize(1,npg);
+    
+    for (int ipg=0; ipg<npg; ipg++) {
+      wpg.setel(WPG,ipg+1);
+      shape.ir(2,ipg+1).set(SHAPE);
+      dshapexi.ir(3,ipg+1).set(DSHAPEXI);
+    }
+    shape.rs();
+    dshapexi.rs();
   }
-  shape.rs();
-  dshapexi.rs();
 
   if ((comp_res || comp_mat) && !elem_init_flag) {
     for (elem=el_start; elem<=el_last; elem++) {

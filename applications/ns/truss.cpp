@@ -17,13 +17,28 @@ void truss::init() {
 
   //o Perturbation scale length for increment in computing
   // the Jacobian with finite differences. 
-  TGETOPTDEF(thash,int,ndim,-1);
+ TGETOPTDEF_ND(thash,int,ndim,-1);
   assert(ndim>=0);
+
+  //o GLobal factor affecting the `krig' option
+  TGETOPTDEF_ND(thash,double,krig_fac,1.0);
 
   len.resize(1,ndim);
   int nel=2;
   xlocc.resize(2,nel,ndim);
   dx.resize(2,nel,ndim);
+
+#define ELEMPROPS(j,k) VEC2(elemprops,j,k,nelprops)
+#define MAXPROPS 100
+  elprpsindx.mono(MAXPROPS);
+  propel.mono(MAXPROPS);
+  
+  int iprop=0;
+  krig_indx = iprop; 
+  ierr = get_prop(iprop,elem_prop_names,
+		  thash,elprpsindx.buff(),propel.buff(), 
+		  "krig",1);
+  nprops = iprop;
 }
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
@@ -31,10 +46,19 @@ void truss::element_connector(const FastMat2 &xloc,
                               const FastMat2 &state_old,
                               const FastMat2 &state_new,
                               FastMat2 &res,FastMat2 &mat) {
+  load_props(propel.buff(),elprpsindx.buff(),nprops,
+	     &(ELEMPROPS(elem,0)));
+  double krig = *(propel.buff()+krig_indx) * krig_fac;
+  // printf("elem %d, krig %f\n",elem,krig);
+#if 0
+  if (rand()%100==0) 
+    printf("krig: %f, fac %f\n",
+	   krig,krig_fac);
+#endif
+
   xlocc.set(xloc);
   dx.set(state_new);
 
-  double krig = 1;
   xlocc.ir(1,1);
   len.set(xlocc);
   xlocc.ir(1,2);
@@ -49,7 +73,7 @@ void truss::element_connector(const FastMat2 &xloc,
   dx.rs();
   double len1 = len.norm_p_all();
   
-  double coef = krig*(1.0-len1/len0);
+  double coef = krig*(len0-len1)/(len1*len1);
   res.ir(1,1).set(len).scale(coef);
   res.ir(1,2).set(len).scale(-coef);
   res.rs();

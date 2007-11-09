@@ -17,7 +17,8 @@ FILES_epimport = userepimport.$(OBJEXT) epimport.$(OBJEXT)
 
 BIN = $(BASE)/bin
 
-CFLAGS = -g -I./ -I$(BASE)/include $(DX_CFLAGS) -DUSE_SSL -I$(SSL) -I$(PETSCFEM_DIR)
+CFLAGS = -g -I./ -I$(BASE)/include $(DX_CFLAGS) \
+		-DUSE_SSL -I$(SSL_INC_DIR) -I$(PETSCFEM_DIR)
 
 LDFLAGS = -g -L$(BASE)/lib_$(DXARCH)
 
@@ -30,10 +31,12 @@ BIN = $(BASE)/bin
 
 # create the necessary executable
 epimport: $(FILES_epimport) $(PETSCFEM_DIR)/src/libpetscfem$(osfx).a
-	$(SHARED_LINK) $(DXABI) $(LDFLAGS) -o epimport userepimport.$(OBJEXT)	\
-		epimport.$(OBJEXT) $(DX_RTL_LDFLAGS) $(SYSLIBS)			\
-		$(SSL)/simpleskts.a $(LIBPETSCFEM) -lstdc++			\
+	$(SHARED_LINK) $(DXABI) $(LDFLAGS)			\
+		-o epimport userepimport.$(OBJEXT)		\
+		epimport.$(OBJEXT) $(DX_RTL_LDFLAGS) $(SYSLIBS)	\
+		$(SSL_LIB_DIR)/libsimpleskts.a $(LIBPETSCFEM) -lstdc++	\
 		$(LDFLAGS_NO_PROG_LIB)
+
 epimport.o: epimport.cpp
 	g++ -c $(DXABI) $(DX_RTL_CFLAGS) $(CFLAGS) epimport.cpp
 
@@ -50,8 +53,10 @@ userepimport.o: userepimport.c
 
 dxdumm: DX_RTL_LDFLAGS := 
 dxdumm: dxdumm.o $(PETSCFEM_DIR)/src/libpetscfem$(osfx).a
-	g++ $(DXABI) $(LDFLAGS) -o $@ $@.o $(DX_RTL_LDFLAGS) $(SYSLIBS) \
-		-lDX -lGL  -lnsl -lGLU -lGL $(SSL)/simpleskts.a $(LIBPETSCFEM) -lstdc++
+	g++ $(DXABI) $(LDFLAGS) -o $@ $@.o \
+		$(DX_RTL_LDFLAGS) $(SYSLIBS) \
+		-lDX -lGL  -lnsl -lGLU -lGL \
+		$(SSL_LIB_DIR)/simpleskts.a $(LIBPETSCFEM) -lstdc++
 
 dxdumm.o: dxdumm.cpp
 	g++ -c $(DXABI) $(DX_RTL_CFLAGS) $(CFLAGS) $<

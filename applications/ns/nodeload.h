@@ -2,20 +2,20 @@
 /*__INSERT_LICENSE__*/
 //$Id merge-with-petsc-233-50-g0ace95e Fri Oct 19 17:49:52 2007 -0300$
 
-#ifndef TRUSS_H
-#define TRUSS_H
+#ifndef NODELOAD_H
+#define NODELOAD_H
 
-class truss : public adaptor { 
+class nodeload : public adaptor { 
 private:
   /// Auxiliary variables
-  FastMat2 len, xlocc, dx;
-
   dvector<int> elprpsindx; 
   int nprops;
   dvector<double> propel;
-  int krig_indx, ndim;
-  double krig_fac;
+  int load_indx;
+  double load_fac;
+
 public: 
+  nodeload();
   /** Initializes the elemset. Reads parameters, 
       resizes auxiliary matrices. 
   */ 

@@ -82,6 +82,7 @@ GeomObject::Template* GeomObject::get_template(Type t) {
     SWITCH(OrientedTetra);
   default: assert(0);
   }
+  return NULL;
 }
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
@@ -310,7 +311,7 @@ find(GeomObject &go,list<iterator> *its,iterator &it) {
   dvector<int> p, pe;
   p.mono(sz); pe.mono(sz);
   const int *nodes_p = go.nodes();
-  int emin, emax, jmin;
+  int emin=INT_MAX, emax=INT_MIN, jmin;
   go.print("searching face: ");
   for (int j=0; j<sz; j++) {
     int node = nodes_p[j];

@@ -35,6 +35,8 @@ public:
   int ndimel;
   /// The element number (may be used for printing errors, for instance)
   int elem;
+  /// Use FEM interpolation (shape, dshapexi members)
+  int fem_interpolation;
   ///  Shape function at this GP (size #nel#). 
   FastMat2 shape;
   /// Gradient with respect to master element coordinates (size #ndimel x nel#) 

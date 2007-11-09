@@ -23,6 +23,8 @@
 */ 
 class GPdata {
 public:
+  /// Flags if the object has been initialized
+  int initialized;
   /** Gradient of shape functions with respect to master element
       coordiantes at each GP
   */
@@ -50,7 +52,12 @@ public:
       @param npg (input) number of gauss points
       @param mat_version (input) 
   */ 
-   GPdata(const char *geom,int ndim,int nel,int npg,int mat_version=GP_NEWMAT);
+  GPdata(const char *geom,int ndim,int nel,int npg,int mat_version=GP_NEWMAT);
+
+  GPdata();
+  
+  void init(const char *geom,int ndim,int nel,
+            int npg,int mat_version=GP_NEWMAT);
   /// Destructor
   ~GPdata (void);
   /// number of Gauss points. 

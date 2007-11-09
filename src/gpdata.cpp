@@ -134,8 +134,17 @@ GPdata::edges_end() { return edge(nedges_m,this); }
 int GPdata::nedges() { return nedges_m; }
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
-GPdata::GPdata(const char *geom,int ndimel,int nel,int npg_,int
+GPdata::GPdata(const char *geom,int ndimel,
+               int nel,int npg_,int
 	       mat_version_) {
+  init(geom,ndimel,nel,npg_,mat_version_);
+}
+
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+void GPdata::init(const char *geom,int ndimel,
+                  int nel,int npg_,int
+                  mat_version_) {
+  initialized = 1;
   mat_version = mat_version_;
   npg= npg_;
   int ipg;
@@ -637,31 +646,48 @@ GPdata::GPdata(const char *geom,int ndimel,int nel,int npg_,int
 }
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
-GPdata::~GPdata() {
-  delete[] wpg;
-  delete[] shape;
-  delete[] dshapexi;
-  delete[] dshapex;
-  if (mat_version == GP_FASTMAT) {
-    for (int ipg=0; ipg<npg; ipg++) {
-      delete FM_shape[ipg];
-      delete FM_dshapexi[ipg];
-      // FM_shape[ipg]->~FastMat();
-      // FM_dshapexi[ipg]->~FastMat();
-    }
-    delete[] FM_shape;
-    delete[] FM_dshapexi;
-  } else if (mat_version == GP_FASTMAT2) {
-    for (int ipg=0; ipg<npg; ipg++) {
-      delete FM2_shape[ipg];
-      delete FM2_dshapexi[ipg];
-      // FM_shape[ipg]->~FastMat();
-      // FM_dshapexi[ipg]->~FastMat();
-    }
-    delete[] FM2_shape;
-    delete[] FM2_dshapexi;
-  }
+GPdata::GPdata() {
+  initialized = 0;
+  wpg = NULL;
+  shape = NULL;
+  dshapexi = NULL;
+  dshapex =NULL;
+  FM_shape = NULL;
+  FM_dshapexi = NULL;
+  FM2_shape = NULL;
+  FM2_dshapexi = NULL;
 }
+
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>
+GPdata::~GPdata() {
+  if (initialized) {
+    delete[] wpg;
+    delete[] shape;
+    delete[] dshapexi;
+    delete[] dshapex;
+    if (mat_version == GP_FASTMAT) {
+      for (int ipg=0; ipg<npg; ipg++) {
+        delete FM_shape[ipg];
+        delete FM_dshapexi[ipg];
+        // FM_shape[ipg]->~FastMat();
+        // FM_dshapexi[ipg]->~FastMat();
+      }
+      delete[] FM_shape;
+      delete[] FM_dshapexi;
+    } else if (mat_version == GP_FASTMAT2) {
+      for (int ipg=0; ipg<npg; ipg++) {
+        delete FM2_shape[ipg];
+        delete FM2_dshapexi[ipg];
+        // FM_shape[ipg]->~FastMat();
+        // FM_dshapexi[ipg]->~FastMat();
+      }
+      delete[] FM2_shape;
+      delete[] FM2_dshapexi;
+    }
+  }
+  initialized = 0;
+}
+
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 int GPdata::
 get_default_geom(int ndim, int nel, string& geometry)
