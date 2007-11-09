@@ -47,7 +47,7 @@
 #include "./nsitetlesfbf.h"
 #include "./nsitetlesfd.h"
 #include "./truss.h"
-//#include "./nodeload.h"
+#include "./nodeload.h"
 #include "./poiboltz.h"
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:
@@ -63,7 +63,7 @@ void bless_elemset_ns(char *type,Elemset *& elemset) {
     SET_ELEMSET_TYPE(error_estimator)
     SET_ELEMSET_TYPE(qharmm)
     SET_ELEMSET_TYPE(ns_id)
-      //    SET_ELEMSET_TYPE(nodeload)
+    SET_ELEMSET_TYPE(nodeload)
     SET_ELEMSET_TYPE(ns_sup)
     SET_ELEMSET_TYPE(ns_sup_g)
     SET_ELEMSET_TYPE(ns_sup_res)

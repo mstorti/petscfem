@@ -2,6 +2,7 @@
 TODO: [Mainly fixes go here...]
 =====
 
+* Initialize members to NULL and void values in Gpdata::Gpdata()
 * In FastMat2, static declarations should be removed, otherwise it is
    not reentrant. (I think this is done already, CHECK).
 * using `shock_capturing' in `nsi_tet_les_fm2' gives SIGSEGV

@@ -49,7 +49,7 @@ void truss::element_connector(const FastMat2 &xloc,
   load_props(propel.buff(),elprpsindx.buff(),nprops,
 	     &(ELEMPROPS(elem,0)));
   double krig = *(propel.buff()+krig_indx) * krig_fac;
-  printf("elem %d, krig %f\n",elem,krig);
+  // printf("elem %d, krig %f\n",elem,krig);
 #if 0
   if (rand()%100==0) 
     printf("krig: %f, fac %f\n",

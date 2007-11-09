@@ -11,6 +11,10 @@
 #include "./adaptor.h"
 #include "./nodeload.h"
 
+nodeload::nodeload() {
+  printf("hihi en nodeload()\n");
+}
+
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 void nodeload::init() {
   int ierr;
@@ -20,14 +24,16 @@ void nodeload::init() {
   elprpsindx.mono(MAXPROPS);
   propel.mono(MAXPROPS);
   
-  // TGETOPTNDEF_ND(thash,int,ndim,none); //nd
+  //o Affect all node loads by this factor.
+  TGETOPTDEF_ND(thash,double,load_fac,1.0);
 
   int iprop=0;
-  krig_indx = iprop; 
+  load_indx = iprop; 
   ierr = get_prop(iprop,elem_prop_names,
 		  thash,elprpsindx.buff(),propel.buff(), 
-		  "loads",1);
+		  "loads",ndof);
   nprops = iprop;
+  assert(nel==1);
 }
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
@@ -37,8 +43,8 @@ void nodeload::element_connector(const FastMat2 &xloc,
                               FastMat2 &res,FastMat2 &mat) {
   load_props(propel.buff(),elprpsindx.buff(),nprops,
 	     &(ELEMPROPS(elem,0)));
-  double krig = *(propel.buff()+krig_indx);
-
-  res.rs();
-    
+  double *load_p = (propel.buff()+load_indx);
+  
+  res.set(load_p);
+  if (load_fac!=1.0) res.scale(load_fac);
 }

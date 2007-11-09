@@ -12,8 +12,10 @@ private:
   int nprops;
   dvector<double> propel;
   int load_indx;
+  double load_fac;
 
 public: 
+  nodeload();
   /** Initializes the elemset. Reads parameters, 
       resizes auxiliary matrices. 
   */ 
