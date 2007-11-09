@@ -73,7 +73,7 @@ void truss::element_connector(const FastMat2 &xloc,
   dx.rs();
   double len1 = len.norm_p_all();
   
-  double coef = krig*(len0-len1)/(len1*len1);
+  double coef = krig*(len0-len1)/(len1*len0);
   res.ir(1,1).set(len).scale(coef);
   res.ir(1,2).set(len).scale(-coef);
   res.rs();
