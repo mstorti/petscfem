@@ -17,11 +17,28 @@ void truss::init() {
 
   //o Perturbation scale length for increment in computing
   // the Jacobian with finite differences. 
- TGETOPTDEF_ND(thash,int,ndim,-1);
+  TGETOPTDEF_ND(thash,int,ndim,-1);
   assert(ndim>=0);
 
   //o GLobal factor affecting the `krig' option
   TGETOPTDEF_ND(thash,double,krig_fac,1.0);
+
+  //o Linear density of truss
+  TGETOPTDEF_ND(thash,double,rhol,-1.0);
+
+  //o Linear density of truss
+  TGETOPTDEF_ND(thash,double,Dt,-1.0);
+
+  //o Include inertia effects
+  TGETOPTDEF_ND(thash,int,include_inertia,0);
+  if (include_inertia) {
+    assert(ndof == 2*ndim);
+    assert(rhol >= 0.0);
+    assert(Dt > 0.0);
+  } else assert(ndof==ndim);
+
+  //o Trapezoidal rule parameter
+  TGETOPTDEF_ND(thash,double,alpha,1.0);
 
   len.resize(1,ndim);
   int nel=2;
@@ -57,7 +74,26 @@ void truss::element_connector(const FastMat2 &xloc,
 #endif
 
   xlocc.set(xloc);
-  dx.set(state_new);
+
+  if (!include_inertia) {
+    dx.set(state_new);
+  } else {
+    stnew.set(state_new);
+    stold.set(state_old);
+    stnew.is(2,1,ndim);
+    stold.is(2,1,ndim);
+    dx.set(stnew).scale(alpha)
+      .axpy(stold,1-alpha);
+    dtx.set(stold).rest(stold)
+      .scale(1.0/Dt);
+
+    stnew.rs().is(2,1,ndim);
+    stold.rs().is(2,1,ndim);
+    v.set(stnew).scale(alpha)
+      .axpy(stold,1-alpha);
+    dtv.set(stold).rest(stold)
+      .scale(1.0/Dt);
+  }
 
   xlocc.ir(1,1);
   len.set(xlocc);
@@ -73,9 +109,18 @@ void truss::element_connector(const FastMat2 &xloc,
   dx.rs();
   double len1 = len.norm_p_all();
   
-  double coef = krig*(len0-len1)/(len1*len0);
-  res.ir(1,1).set(len).scale(coef);
-  res.ir(1,2).set(len).scale(-coef);
+  double f = krig*(len0-len1)/(len1*len0);
+  double mass = rhol*len0;
+  if (!include_inertia) {
+    res.ir(1,1).set(len).scale(f);
+    res.ir(1,2).set(len).scale(-f);
+  } else {
+    res.is(2,1,ndim).set(dtx).rest(v);
+    res.rs();
+    res.is(2,ndim+1,2*ndim);
+    res.ir(1,1).set(len).scale(f);
+    res.ir(1,2).set(len).scale(-f);
+    res.add(dtv);
+  }
   res.rs();
-    
 }
