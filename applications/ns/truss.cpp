@@ -84,15 +84,17 @@ void truss::element_connector(const FastMat2 &xloc,
     stold.is(2,1,ndim);
     dx.set(stnew).scale(alpha)
       .axpy(stold,1-alpha);
-    dtx.set(stold).rest(stold)
+    dtx.set(stnew).rest(stold)
       .scale(1.0/Dt);
 
-    stnew.rs().is(2,1,ndim);
-    stold.rs().is(2,1,ndim);
+    stnew.rs().is(2,ndim+1,2*ndim);
+    stold.rs().is(2,ndim+1,2*ndim);
     v.set(stnew).scale(alpha)
       .axpy(stold,1-alpha);
-    dtv.set(stold).rest(stold)
+    dtv.set(stnew).rest(stold)
       .scale(1.0/Dt);
+    stnew.rs();
+    stold.rs();
   }
 
   xlocc.ir(1,1);
@@ -110,17 +112,17 @@ void truss::element_connector(const FastMat2 &xloc,
   double len1 = len.norm_p_all();
   
   double f = krig*(len0-len1)/(len1*len0);
-  double mass = rhol*len0;
+  double mass = rhol*len0/2;
   if (!include_inertia) {
     res.ir(1,1).set(len).scale(f);
     res.ir(1,2).set(len).scale(-f);
   } else {
-    res.is(2,1,ndim).set(dtx).rest(v);
+    res.is(2,1,ndim).set(v).rest(dtx);
     res.rs();
     res.is(2,ndim+1,2*ndim);
     res.ir(1,1).set(len).scale(f);
     res.ir(1,2).set(len).scale(-f);
-    res.add(dtv);
+    res.ir(1).axpy(dtv,-mass);
   }
   res.rs();
 }
