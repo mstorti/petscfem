@@ -12,7 +12,7 @@
 #include "./nodeload.h"
 
 nodeload::nodeload() {
-  printf("hihi en nodeload()\n");
+
 }
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
