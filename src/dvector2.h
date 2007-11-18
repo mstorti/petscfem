@@ -284,6 +284,21 @@ dvector<T>& dvector<T>::read(const char *name) {
   return *this;
 }
 
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>
+template<class T>
+dvector<T>& dvector<T>::readb(const char *name) {
+  assert(nchunks==1);
+  FILE *fid = fopen(name,"r");
+  if (!fid) {
+    printf("dvector<T>::readb(): can't open file \"%s\"\n",name);
+    abort();
+  }
+  int nread = fread(buff(),sizeof(T),size(),fid);
+  fclose(fid);
+  assert(nread==size());
+  return *this;
+}
+
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 template<class T>
 dvector<T>& dvector<T>::cat(FILE *fid) {
