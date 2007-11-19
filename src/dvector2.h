@@ -7,6 +7,7 @@
 #include <cstdarg>
 #include <cassert>
 #include <vector>
+#include <src/fem.h>
 #define CHUNK_SIZE_INIT 10000
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
@@ -287,7 +288,9 @@ dvector<T>& dvector<T>::read(const char *name) {
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>
 template<class T>
 dvector<T>& dvector<T>::readb(const char *name) {
-  assert(nchunks==1);
+  PETSCFEM_ASSERT0(nchunks==1,
+                  "dvector<>::bread() should be applied only "
+                  "with monolithic vectors");  
   FILE *fid = fopen(name,"r");
   if (!fid) {
     printf("dvector<T>::readb(): can't open file \"%s\"\n",name);
@@ -295,7 +298,8 @@ dvector<T>& dvector<T>::readb(const char *name) {
   }
   int nread = fread(buff(),sizeof(T),size(),fid);
   fclose(fid);
-  assert(nread==size());
+  PETSCFEM_ASSERT(nread==size(),"Read %d elems, size of dvector %d",
+                  nread,size());  
   return *this;
 }
 
