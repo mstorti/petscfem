@@ -11,7 +11,7 @@ ifeq ($(PETSC_DIR),)
 PETSC_DIR    = /usr/local/petsc/2.3.3
 endif
 PETSC_ARCH_G = linux-gnu
-PETSC_ARCH_O = linux-gnu-O
+PETSC_ARCH_O = linux-gnu-openmp-O
 
 
 ## OTHERS
