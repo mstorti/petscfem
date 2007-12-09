@@ -157,7 +157,7 @@ void DistCont<Container,ValueType,Partitioner>::scatter() {
   for (k=0; k<size; k++) {
     if (k!=myrank && send_buff_pos[k] != send_buff[k]+SEND(myrank,k)) {
       printf("[%d] incorrect position of send buffer to proc %d: \n"
-	     "send_buff %p, pos %p, diff %d, to_send %d\n",
+	     "send_buff %p, pos %p, diff %ld, to_send %d\n",
 	     myrank,k,
 	     send_buff[k], send_buff_pos[k],
 	     send_buff_pos[k]-send_buff[k], SEND(myrank,k));
