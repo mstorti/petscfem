@@ -843,10 +843,10 @@ assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
 	  tmp24.prod(SHAPE,tmp23,1,2);
 	  matlocmom.set(tmp24);
 
-	  double tau = 1./3.*SQ(h_pspg)/4.;
-	  tmp25.set(dshapex).scale(tau*wpgdet);
-	  tmp26.prod(dshapex,tmp25,-1,1,-1,2);
-	  matlocmom.add(tmp26);
+	  //double tau = 1./3.*SQ(h_pspg)/4.;
+	  //tmp25.set(dshapex).scale(tau*wpgdet);
+	  //tmp26.prod(dshapex,tmp25,-1,1,-1,2);
+	  //matlocmom.add(tmp26);
 
 	  for (int ii=1; ii<=ndof; ii++) {
 	    matlocf.ir(2,ii).ir(4,ii)
@@ -855,63 +855,73 @@ assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
 	}
 
 	if (comp_mat_advec) {
-#if 1
-	  massm.prod(vrel,dshapex,-1,-1,1);
-	  matlocmom.prod(SHAPE,massm,1,2).scale(rho*wpgdet);
+#if 0
+	  tmp23.set(SHAPE).scale(rho*rec_Dt/alpha*wpgdet);
+	  tmp24.prod(SHAPE,tmp23,1,2);
+	  matlocmom.set(tmp24);
+	  
+	  //{double tau = 1./3.*SQ(h_pspg)/4.;
+	  //tmp25.set(dshapex).scale(tau*wpgdet);
+	  //tmp26.prod(dshapex,tmp25,-1,1,-1,2);
+	  //matlocmom.add(tmp26);}
 
 	  for (int ii=1; ii<=ndof; ii++) {
 	    matlocf.ir(2,ii).ir(4,ii)
 	      .add(matlocmom).rs();
 	  }
+#endif
 
-#elif 0
-	  massm.prod(vrel,dshapex,-1,-1,1);
-	  massm.axpy(SHAPE,rec_Dt/alpha).scale(rho*wpgdet);
+#if 0
+	  massm.prod(vrel,dshapex,-1,-1,1).scale(rho*wpgdet);
 	  matlocmom.prod(SHAPE,massm,1,2);
+	  for (int ii=1; ii<=ndof; ii++) {
+	    matlocf.ir(2,ii).ir(4,ii)
+	      .add(matlocmom).rs();
+	  }
+#endif
 
+#if 0
+	  tmp25.set(dshapex).scale(nu_eff*wpgdet);
+	  tmp26.prod(dshapex,tmp25,-1,1,-1,2);
+	  matlocmom.set(tmp26);
+
+	  //{double tau = (rec_Dt ? 1/(2*rec_Dt) : 0);
+	  //tmp23.set(SHAPE).scale(tau*wpgdet);
+	  //tmp24.prod(SHAPE,tmp23,1,2);
+	  //matlocmom.add(tmp24);}
+
+	  for (int ii=1; ii<=ndof; ii++) {
+	    matlocf.ir(2,ii).ir(4,ii)
+	      .add(matlocmom).rs();
+	  }
+#endif
+
+	  /// XXX
+	  // temporal part + convective (Galerkin)
+	  massm.prod(vrel,dshapex,-1,-1,1);
+	  massm.axpy(SHAPE,rec_Dt/alpha);
+	  matlocmom.prod(SHAPE,massm,1,2).scale(rho*wpgdet);
+	  // diffusive part
 	  tmp7.prod(dshapex,dshapex,-1,1,-1,2);
 	  matlocmom.axpy(tmp7,nu_eff*wpgdet);
-	  
+	  ///
 	  for (int ii=1; ii<=ndof; ii++) {
 	    matlocf.ir(2,ii).ir(4,ii)
 	      .add(matlocmom).rs();
 	  }
-#elif 0
-	  massm.prod(vrel,dshapex,-1,-1,1);
-	  matlocmom.prod(SHAPE,massm,1,2).scale(rho*wpgdet);
-
-	  //double qqq = div_u_star;//grad_p_star.sum_all();
-	  //tmp25.set(SHAPE).scale(qqq).scale(rho*wpgdet);
-	  //tmp26.prod(SHAPE,tmp25,1,2);
-	  //matlocmom.add(tmp26);
-	  
-	  for (int ii=1; ii<=ndof; ii++) {
-	    matlocf.ir(2,ii).ir(4,ii)
-	      .add(matlocmom).rs();
-	  }
-
-	  tmp23.prod(grad_u_star,dshapex,1,-1,-1,2);
-	  tmp24.prod(W_supg,tmp23,1,3,2);
-
-	  //tmp23.prod(SHAPE,grad_u_star,2,3,1);
-	  //tmp24.prod(dshapex,tmp23,-1,1,-1,2,3);
-	  
-	  matlocf.ir(2,ndof).is(4,1,ndim)
-	    .axpy(tmp24,rho*wpgdet).rs();
-#endif
+	  /// XXX
 	}
 
 	if (comp_mat_poisson) {
 
-	  tmp23.set(dshapex).scale(wpgdet);
-	  tmp24.prod(dshapex,tmp23,-1,1,-1,2);
-	  matlocmom.set(tmp24);
+	  tmp25.set(dshapex).scale(wpgdet);
+	  tmp26.prod(dshapex,tmp25,-1,1,-1,2);
+	  matlocmom.set(tmp26);
 
-	  double tau = (rec_Dt ? 1/(2*rec_Dt) : 0);
-	  tmp25.set(SHAPE).scale(tau*wpgdet);
-	  tmp26.prod(SHAPE,tmp25,1,2);
-	  matlocmom.add(tmp26);
-
+	  //double tau = (rec_Dt ? (1./(2.*rec_Dt)) : 0);
+	  //tmp23.set(SHAPE).scale(tau*wpgdet);
+	  //tmp24.prod(SHAPE,tmp23,1,2);
+	  //matlocmom.add(tmp24);
 	  
 	  for (int ii=1; ii<=ndof; ii++) {
 	    matlocf.ir(2,ii).ir(4,ii)
