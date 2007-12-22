@@ -8,9 +8,11 @@ use Getopt::Std;
 use English;
 use Data::Dumper;
 
-getopts("wWs:o:he:C:");
+getopts("wWs:o:he:C:f:");
 
 my $wiki_syntax = 1;
+my $include_file = 1;
+$include_file = $opt_f if defined $opt_f;
 
 $wiki_syntax = 0 if $opt_W;
 $wiki_syntax = 1 if $opt_w;
@@ -90,8 +92,6 @@ sub wiki_texi {
 $otargetf="";
 @doclist=();
 while (<>) {
-    printf "file %s\n",current_file();
-    exit(0);
 
     $otarget=$1 if m|//target (\s*)|;
     $otarget="" if m|//end_target|;
@@ -152,11 +152,15 @@ while (<>) {
 	    "no \"_END\" tag in explicit doc: ",
 	    @docf unless $doc=~/_END\s*$/s;
 	    $doc=$`;
+            $file = current_file();
+            my $orig = ($include_file 
+                        ? " (found in file: \\verb+$file+)\n"
+                        : "");
 	    $text = join("","\\item\\verb+$type+ \\verb+$name+ ",
 			 "{\\rm(default=\\verb|$default|)}:\n",
-			 $doc," (found in file: \\verb+$ARGV+)\n",$sep);
+			 $doc,$orig,$sep);
 	    $name = $1 if $name =~ /^\s*(.*)\s*$/;
-	    push @doclist,[$name,$type,$default,$text,$ARGV,$doc,
+	    push @doclist,[$name,$type,$default,$text,$file,$doc,
 			   $wiki_syntax];
 	} elsif (/$tgetopt_pat/o || /$getopt_pat/o) {
 	    $type=$1;
@@ -171,10 +175,13 @@ while (<>) {
 \\item\\verb+$type $name+ {\\rm(default=\\verb|$tdefault|)}:\n
 EOT
 	    $doc = join("",@doc);
-	    $text = join("",$header,$doc,
-			 " (found in file: \\verb+$ARGV+)\n",$sep);
+            my $file = current_file();
+            my $orig = ($include_file 
+                        ? " (found in file: \\verb+$file+)\n"
+                        : "");
+	    $text = join("",$header,$doc,$orig,$sep);
 	    $name = $1 if $name =~ /^\s*(.*)\s*$/;
-	    push @doclist,[$name,$type,$tdefault,$text,$ARGV,$doc,
+	    push @doclist,[$name,$type,$tdefault,$text,$file,$doc,
 			   $wiki_syntax];
 #  	    print "doc: ",join("\n",@doc),"\n";
 #  	    print "type: $type, name: $name, def: $default\n\n";
