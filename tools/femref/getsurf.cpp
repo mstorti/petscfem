@@ -25,7 +25,7 @@ struct FaceIterator {
 typedef multimap<int,FaceIterator> face_table_t;
 typedef pair<int,FaceIterator> ft_pair_t;
 
-#define TRACE(j) printf("trace %d\n",j)
+// #define TRACE(j) printf("trace %d\n",j)
 
 void getsurf(GetSurfCtx &ctx,
 	     const dvector<int> &icone,

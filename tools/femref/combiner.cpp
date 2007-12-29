@@ -14,7 +14,7 @@ using namespace std;
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 void NodeInfoRef::print() {
   printf("(coords \n");
-  for (int j=0; j<coords.size(); j++) 
+  for (unsigned int j=0; j<coords.size(); j++) 
     printf("%f ",coords[j]);
   printf("\n");
 }
