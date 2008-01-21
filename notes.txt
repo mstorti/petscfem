@@ -12581,10 +12581,6 @@ iisdmat.cpp:500:   instantiated from here
 ../src/distmap2.h:123: warning: format '%d' expects type 'int', but argument 6 \
 has type 'long int'
 
-%=== Sun Dec 30 07:33:34 2007 mstorti@prandtl
-%
-%-- 07:33:34 -- mstorti-v8-end-16-gc8bceb1 -----
-
 
 # Current line ===========  %
 # Local Variables: $
