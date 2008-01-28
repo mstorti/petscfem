@@ -13,7 +13,7 @@
 #include <src/dvector.h>
 #include <src/dvector2.h>
 
-int MY_RANK,SIZE;
+extern int MY_RANK,SIZE;
 
 void row_print(LinkGraphRow row) {
   LinkGraphRow::iterator q;
