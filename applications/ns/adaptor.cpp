@@ -173,6 +173,8 @@ int adaptor::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
       ja++;
       glob_param = (GlobParam *)(arg_data_v[ja++].user_data);
       alpha = glob_param->alpha;
+      if (glob_param->steady) rec_Dt=0.;
+      else rec_Dt = 1./glob_param->Dt;
     } 
   } else {
 
@@ -195,6 +197,8 @@ int adaptor::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
       GET_INDEX("glob_param"); 
       glob_param = (GlobParam *)(arg_data_v[index].user_data);
       alpha = glob_param->alpha;
+      if (glob_param->steady) rec_Dt=0.;
+      else rec_Dt = 1./glob_param->Dt;
     } 
   }
   // allocate local vecs
