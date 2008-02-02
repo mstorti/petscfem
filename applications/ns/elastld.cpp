@@ -166,9 +166,6 @@ void ld_elasticity::element_connector(const FastMat2 &xloc,
 #endif
     
     mass_pg.prod(shape,shape,1,2).scale(wpgdet*rec_Dt*rho/alpha);
-    for (int k=1; k<=ndim; k++) 
-      mat.ir(2,ndim+k).ir(4,ndim+k).add(mass_pg);
-    mat.rs();
 
     // Eqs. for displacements: (xnew-xold)/dt - vstar = 0
     dv.set(xnew).rest(xold).scale(rec_Dt).rest(vstar);
@@ -177,12 +174,6 @@ void ld_elasticity::element_connector(const FastMat2 &xloc,
     res.is(2,1,ndim).axpy(tmp2,-wpgdet);
 
     mass_pg.prod(shape,shape,1,2).scale(wpgdet);
-
-    for (int k=1; k<=ndim; k++) {
-      mat.ir(2,k).ir(4,k).axpy(mass_pg,rec_Dt/alpha);
-      mat.ir(2,k).ir(4,ndim+k).axpy(mass_pg,-1.0);
-    }
-    mat.rs();
 
   }
   shape.rs();
