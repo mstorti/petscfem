@@ -1,0 +1,119 @@
+<:                              # starts ePerl block
+#__TRANSCRIPT__
+require "$ENV{'PETSCFEM_DIR'}/test/eperlini.pl";
+$ndim = 2;
+$ndimel = 1;
+require './data_canal1d.pl';
+#__END_TRANSCRIPT__
+#system "octave -qH canal1d.m";
+:>//                            # ends ePerl block
+
+global_options
+<:pr('ndim'):>
+use_log_vars 0
+
+# SUPG conf
+## weak_form 1
+weak_form 0
+
+# time stepping
+nnwt 2
+<:pr('nstep'):>
+alpha 1
+steady 0
+
+initial_state "canal1d.ini.tmp"
+
+# "rotary saving" 
+nsaverot 1
+nfile 100000
+nrec 1
+nsave 1
+save_file_pattern "./STEPS/canal1d.%d.tmp"
+save_file "canal1d.save.state.tmp"
+
+tol_newton 0
+solver "petsc"
+preco_type "lu"
+
+# convergence parameters. Internal GMRES loop. 
+rtol 1.e-6
+atol 0
+dtol 1e10
+maxits 200
+Krylov_dim 200
+#print_linear_system_and_stop 1
+#solve_system 1
+print_internal_loop_conv 1
+<:pr('Dt'):>
+tau_fac 1
+__END_HASH__
+
+# ndim nu ndof
+nodes   <:=$ndim:> 3 <:=$ndof:>
+__INCLUDE__ ./canal1d.nod.tmp
+__END_NODES__
+
+#===========================================================
+table physical_data
+<:pr('gravity'):>
+friction_law "Chezy"
+Ch 110.
+
+#shape "rectangular"
+#width 1.
+
+shape "triangular"
+wall_angle <:=$wall_angle*3.14/180:>
+
+## shape "circular"
+## radius 10
+
+## shape "trapezoidal"
+## wall_angle <:=$wall_angle*3.14/180:>
+## width_bottom 1.0
+
+## shape "circular2"
+## diameter 2
+## angle_ap <:=$angle_ap*3.14/180:>
+
+#shape "doble_rect"
+#<:pr('B1'):>
+#<:pr('B2'):>
+#<:pr('Z1'):>
+
+cfric 0.
+<:pr('ndim'):>
+__END_HASH__
+
+#===========================================================
+elemset streamsw1d 2
+geometry cartesian1d
+npg 2
+_table_include physical_data
+__END_HASH__
+__INCLUDE__ ./canal1d.con.tmp
+__END_ELEMSET__
+
+<:if ($ulsar == 1) {_:>//
+elemset streamsw1d_abso2 <:=$nodele:>
+use_old_state_as_ref 1
+switch_to_ref_on_incoming 1
+Uref <:=$u_out:> <:=$h_out:>
+geometry cartesian1d
+lagrange_diagonal_factor 1.e-3
+lagrange_residual_factor 1.e-3
+props normal[1]
+_table_include physical_data
+__END_HASH__
+__INCLUDE__ ./canal1d.abso-out.tmp
+__END_ELEMSET__
+<:}:>//
+end_elemsets
+
+<:if ($ulsar == 0) {_:>//
+fixa
+__INCLUDE__ ./canal1d.in-fixa.tmp
+__INCLUDE__ ./canal1d.out-fixa.tmp
+__END_FIXA__
+<:}:>//
