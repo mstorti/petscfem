@@ -28,11 +28,13 @@ private:
   NewAdvDifFF *adv_diff_ff;
   FastMat2 dummy,flux,fluxd,A_grad_U,Uref_glob,
     grad_U,Uold,normal,vmesh,vnor,A_jac,S,invS,c,
-    Pi_m,Pi_p,Uref,tmp1,Ulambda,Uo,
+    Pi_m,Pi_p,Uref,tmp1,Ulambda,Uo,Ufluid,
     dU,Cp,invCp,unor;
   int use_old_state_as_ref, use_uref_glob;
   int switch_to_ref_on_incoming;
   int ALE_flag;			
+  // for ndimel~=ndim elemsets and flux functions
+  int ndimel;
   // Per node normal
   Property normal_prop;
   // Velocity of mesh in ALE

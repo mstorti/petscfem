@@ -144,6 +144,48 @@ public:
   }
 };
 
+/// Circular shaped channel 2
+class circular_channel2 : public ChannelShape {
+  Property diameter_prop;
+  Property angle_ap_prop;
+  double diameter;
+  double angle_ap;
+public:
+  circular_channel2(const NewElemset *e) : ChannelShape(e) {}
+
+  /// Initializes the object
+  void init() { 
+    //o geometry of the channel
+    GETOPT_PROP(double,diameter,<required>);
+    elemset->get_prop(diameter_prop,"diameter"); 
+    GETOPT_PROP(double,angle_ap,<required>);
+    elemset->get_prop(angle_ap_prop,"angle_ap"); 
+  }
+  /// Read local element properties
+  void element_hook(ElementIterator element) {
+    diameter = elemset->prop_val(element,diameter_prop); 
+    angle_ap = elemset->prop_val(element,angle_ap_prop); 
+  }
+  
+  /** For a given water depth (with respect to the bottom of the
+      channel) give the fluid area, cross sectional water-line and wet
+      channel perimeter.
+      @param h (input) the water depth
+      @param area (ouput) the fluid cross sectional area
+      @param wl_width (ouput) the fluid cross sectional water line
+      @param perimeter (ouput) the fluid cross sectional perimeter
+  */
+  void geometry(double h,double &area,
+		double &wl_width,double &perimeter) {
+    assert(h>=0.);
+    assert(h<diameter);
+    double sin_ang = sin(angle_ap);
+    area = (angle_ap-sin_ang)*SQ(diameter)/8.;
+    wl_width = diameter*sin(angle_ap/2.);
+    perimeter = angle_ap*diameter/2.;
+  }
+};
+
 /// Triangular shaped channel
 class triang_channel : public ChannelShape {
   Property wall_angle_prop;
@@ -166,6 +208,9 @@ public:
 		double &wl_width,double &perimeter) {
     assert(h>=0.);
     assert(wall_angle>0.);
+//     area=h*h/tan(wall_angle);
+//     wl_width=2.*h/tan(wall_angle);
+//     perimeter=2.*h*sqrt(1.+SQ(1./tan(wall_angle)));
     wl_width=2.*h/tan(wall_angle);
     area=h*wl_width/2.;
     perimeter=2.*(h/sin(wall_angle));
@@ -206,6 +251,58 @@ public:
   }
 };
 
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+/// Rectangular shaped channel
+class drect_channel : public ChannelShape {
+  Property B1_prop;
+  double B1;
+  Property B2_prop;
+  double B2;
+  Property Z1_prop;
+  double Z1;
+public:
+  drect_channel(const NewElemset *e) : ChannelShape(e) {}
+
+  /// Initializes the object
+  void init() { 
+    //o Width of the channel
+    GETOPT_PROP(double,B1,<required>);
+    elemset->get_prop(B1_prop,"B1"); 
+    GETOPT_PROP(double,B2,<required>);
+    elemset->get_prop(B2_prop,"B2"); 
+    GETOPT_PROP(double,Z1,<required>);
+    elemset->get_prop(Z1_prop,"Z1"); 
+  }
+
+  /// Read local element properties
+  void element_hook(ElementIterator element) {
+    B1 = elemset->prop_val(element,B1_prop); 
+    B2 = elemset->prop_val(element,B2_prop); 
+    Z1 = elemset->prop_val(element,Z1_prop); 
+  }
+  
+  /** For a given water depth (with respect to the bottom of the
+      channel) give the fluid area, cross sectional water-line and wet
+      channel perimeter.
+      @param h (input) the water depth
+      @param area (ouput) the fluid cross sectional area
+      @param wl_width (ouput) the fluid cross sectional water line
+      @param perimeter (ouput) the fluid cross sectional perimeter
+  */
+  void geometry(double h,double &area,
+		double &wl_width,double &perimeter) {
+    assert(h>=0.);
+    if (h<=Z1){
+      wl_width  = B1;
+      area      = h*B1;
+      perimeter = 2*h+B1;
+    } else {
+      wl_width  = B2;
+      area      = B1*Z1+B2*(h-Z1);
+      perimeter = 2*h+B2;
+    }
+  }
+};
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 /// Abstract class representing all friction laws

@@ -1219,3 +1219,7 @@ void gasflow_ff:: compute_shocap(double &delta_sc) {
   delta_sc = 0.5*h_supg*velmax*fz2;
 }
 
+void gasflow_ff::set_Ufluid(FastMat2 &Uref, FastMat2 &Ufluid) { 
+      Ufluid.set(Uref.rs().is(1,2,ndim+1));
+      Uref.rs();Ufluid.rs();
+}

@@ -18,6 +18,8 @@
 #include "genload.h"
 #include "aquifer.h"
 #include "stream.h"
+#include "streamsw2dt.h"
+#include "streamsw2d.h"
 
 //#include "bubbly.h"
 #include "bubbly_asm.h"
@@ -59,9 +61,13 @@ void bless_elemset_advdif(char *type,Elemset *& elemset) {
     // Turbulent shallow water
     SET_ELEMSET_TYPE(bcconv_adv_swfm2t)
     SET_ELEMSET_TYPE(advdif_swfm2t)
+    SET_ELEMSET_TYPE(streamsw2dt)
+    SET_ELEMSET_TYPE(streamsw2dt_abso2)
+    SET_ELEMSET_TYPE(streamsw2d)
       //    SET_ELEMSET_TYPE(advdif_swfm1t)
     SET_ELEMSET_TYPE(streamsw1d)
     SET_ELEMSET_TYPE(streamsw1d_abso)
+    SET_ELEMSET_TYPE(streamsw1d_abso2)
 
     SET_ELEMSET_TYPE(wall_swfm2t)
 

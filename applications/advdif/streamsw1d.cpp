@@ -45,7 +45,7 @@ void streamsw1d_ff::start_chunk(int &options) {
   //o Scales friction term.
   EGETOPTDEF_ND(elemset,double,cfric,1.);
   assert(ierr==0);
-
+  EGETOPTDEF_ND(elemset,double,width,1.);
   //o Dimension of the problem. 
   EGETOPTDEF_ND(elemset,int,ndim,0);
   assert(ndim==2);
@@ -161,8 +161,8 @@ void streamsw1d_ff::compute_flux(const FastMat2 &U,
 
   double h=UU.get(ndof);//es la comp 2 de U
   double u=UU.get(1);//
-  channel->geometry(h,area,wl_width,perimeter);
 
+  channel->geometry(h,area,wl_width,perimeter);
   friction_law->flow_Sf(area,perimeter,u,Sf,Sf_jac);
 
   double h_tmp=(h<h_min ? h_min : h);//para terminos de friccion y gravedad
@@ -184,6 +184,16 @@ void streamsw1d_ff::compute_flux(const FastMat2 &U,
   A_jac.ir(1,1).set(ajac).rs();
   A_jac.scale(adv_mask);
 
+    //Enthalpy jacobian
+  Cp.set(0.);
+  Cp.setel(area,1,1);
+  //  Cp.setel(h*wl_width,1,2);
+  Cp.setel(ux*wl_width,1,2);
+  Cp.setel(0.,2,1);
+  Cp.setel(wl_width,2,2);
+  Cp.rs();
+  Cp.scale(tmp_mask);
+
   flux_mom.setel(area*ux*ux,1,1);
   // le agrego el termino con h
   double h_term=0.5*g*area*h;
@@ -202,16 +212,6 @@ void streamsw1d_ff::compute_flux(const FastMat2 &U,
   // Si no es difusivo hay que ponerlo a 0!!!!
   fluxd.set(0.);
 
-  //Enthalpy jacobian
-  Cp.set(0.);
-  Cp.setel(area,1,1);
-  //  Cp.setel(h*wl_width,1,2);
-  Cp.setel(ux*wl_width,1,2);
-  Cp.setel(0.,2,1);
-  Cp.setel(wl_width,2,2);
-  Cp.rs();
-  Cp.scale(tmp_mask);
-  
   if (options & COMP_UPWIND) {
     
     double vel=sqrt(u2);
@@ -254,9 +254,9 @@ void streamsw1d_ff::compute_flux(const FastMat2 &U,
     tau_supg.setel(tau_a,1,1);
   } 
 
-  double pq=grad_U.ir(1,1).get(2); grad_U.rs(); 
-  double ppq=grad_H.get(1,1); grad_H.rs();
   if (options & COMP_SOURCE) {
+    double pq=grad_U.ir(1,1).get(2); grad_U.rs(); 
+    double ppq=grad_H.get(1,1); grad_H.rs();
     G_source
       .set(0.)
       .is(1,1,ndimel)
@@ -290,6 +290,26 @@ void streamsw1d_ff::comp_grad_N_D_grad_N(FastMat2 &grad_N_D_grad_N,
   grad_N_D_grad_N.set(0.);
 }
 
+void streamsw1d_ff::comp_A_jac_n(FastMat2 &A_jac_n, FastMat2 &normal) {
+  A_jac_n.prod(A_jac,normal,-1,1,2,-1);
+  //esta cuenta esta OK!!!
+}
+
+void streamsw1d_ff::set_Ufluid(FastMat2 &Uref, FastMat2 &Ufluid) { 
+  Ufluid.set(Uref.rs().is(1,1,ndimel));
+  Uref.rs();Ufluid.rs();
+}
+
+void streamsw1d_ff::get_Cp(FastMat2 &Cp_a) {
+  Cp_a.set(Cp);
+}
+
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:
+void streamsw1d_ff::get_Ajac(FastMat2 &Ajac_a) {
+  Ajac_a.set(A_jac);
+}
+
+
 void streamsw1d_ff::Riemann_Inv(const FastMat2 &U, const FastMat2 &normal,
 				FastMat2 &Rie, FastMat2 &drdU,
 				FastMat2 &C_U){
@@ -297,7 +317,7 @@ void streamsw1d_ff::Riemann_Inv(const FastMat2 &U, const FastMat2 &normal,
   // FIxME:= gravity: Why this is here again? It is
   // already above...
   //o Gravity of the problem.
-  EGETOPTDEF_ND(elemset,double,gravity,1.);
+  //  EGETOPTDEF_ND(elemset,double,gravity,1.);
   double tmpd,tmpd1,tmpd2,tmpd3,tt,tt2,pp,
     ppg1,ppg,h_eps=1.e-10,signudn=0.0,u_eps=1.e-10;
   // riemann invariants, jacobians and characteristics for sw1d
