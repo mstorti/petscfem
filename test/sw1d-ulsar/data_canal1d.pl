@@ -41,8 +41,6 @@ $mu = $Lx/2;
 $sig = 0.04*$Lx;
 $rc = 0.1*$Lx;
 $A = 0.2;
-## ahora es la altura del bump en el centro, no una relacion de aspecto.
-## rmax=0.;
 
 
 
