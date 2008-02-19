@@ -56,7 +56,6 @@ dtol 1e3
 print_internal_loop_conv 1
 #print_linear_system_and_stop 1
 <:pr('Dt'):>
-#Dt .5
 tau_fac 1.0
 shock_capturing 0
 
