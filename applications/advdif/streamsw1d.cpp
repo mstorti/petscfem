@@ -109,13 +109,6 @@ void streamsw1d_ff::comp_W_Cp_N(FastMat2 &W_Cp_N,const FastMat2 &W,const FastMat
   W_N.prod(W,N,1,2).scale(weight);
   W_Cp_N.prod(W_N,Cp,1,3,2,4);
   W_Cp_N.rs();
-  /*
-    W_Cp_N.ir(2,1).ir(4,1);
-    W_Cp_N.prod(W,N,1,2).scale(weight);
-    W_Cp_N.ir(2,2).ir(4,2);
-    W_Cp_N.prod(W,N,1,2).scale(weight);
-    W_Cp_N.rs();
-  */
 }
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
@@ -187,7 +180,6 @@ void streamsw1d_ff::compute_flux(const FastMat2 &U,
     //Enthalpy jacobian
   Cp.set(0.);
   Cp.setel(area,1,1);
-  //  Cp.setel(h*wl_width,1,2);
   Cp.setel(ux*wl_width,1,2);
   Cp.setel(0.,2,1);
   Cp.setel(wl_width,2,2);
@@ -209,7 +201,6 @@ void streamsw1d_ff::compute_flux(const FastMat2 &U,
   A_jac.set(A_jac_dummy);
 #endif
 
-  // Si no es difusivo hay que ponerlo a 0!!!!
   fluxd.set(0.);
 
   if (options & COMP_UPWIND) {
@@ -225,7 +216,6 @@ void streamsw1d_ff::compute_flux(const FastMat2 &U,
     double gUtmp3=g*grad_H.get(1,1);
     C_jac.setel(wl_width*(gUtmp1+gUtmp2+gUtmp3),1,2);
     C_jac.scale(-1.0);
-    //C_jac.scale(.0); //se lo pongo solo por canal rectangular!!!!!!!!!!! fix this!!
 
     Sf_jac.rs();
     // A_grad_U es ndof x 1
@@ -292,7 +282,6 @@ void streamsw1d_ff::comp_grad_N_D_grad_N(FastMat2 &grad_N_D_grad_N,
 
 void streamsw1d_ff::comp_A_jac_n(FastMat2 &A_jac_n, FastMat2 &normal) {
   A_jac_n.prod(A_jac,normal,-1,1,2,-1);
-  //esta cuenta esta OK!!!
 }
 
 void streamsw1d_ff::set_Ufluid(FastMat2 &Uref, FastMat2 &Ufluid) { 
@@ -333,17 +322,4 @@ void streamsw1d_ff::Riemann_Inv(const FastMat2 &U, const FastMat2 &normal,
   ppg=0.;
   drdU.setel(signudn,1,1).setel(signudn,2,1)
     .setel(ppg+ppg1,1,2).setel(ppg-ppg1,2,2);
-  /* 
-     if ((area<1.e-6) || (wl_width<1.e-7)) {
-     tt=0.0;
-     ppg=0.0;
-     ppg1=0.0;
-     tt2=0.0;
-     } else {
-     tt=2.*sqrt(gravity*area/wl_width);
-     ppg=(tmpd1/area)*(wl_width-1.);
-     ppg1=sqrt(gravity/(wl_width*area));
-     tt2=sqrt(gravity*area/wl_width);
-     }
-  */
 }
