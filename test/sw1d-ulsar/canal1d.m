@@ -1,7 +1,6 @@
 #$Id: canal1d.m,v 1.4 2004/07/15 18:33:23 rodrigop Exp $
 #crea malla y condiciones de borde e iniciales  de sw-1d
 #condiciones absorbentes
-## Number os elements in x, acordarse de poner nodos dummy
 clear;
 source("data.m.tmp");
 slope=0.0; % 10% de la long del rio
