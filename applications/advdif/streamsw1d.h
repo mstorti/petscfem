@@ -137,11 +137,6 @@ public:
 
   //  void comp_P_Cp(FastMat2 &P_Cp,const FastMat2 &P_supg);
 
-  // Should be used only for Absorbing boundary conditions
-//   virtual void comp_A_jac_n(FastMat2 &A_jac_n, FastMat2 &normal) {
-//     assert(0);
-//   }
-
   void comp_grad_N_D_grad_N(FastMat2 &grad_N_D_grad_N,
 			    FastMat2 & grad_N,double w);
 
@@ -199,7 +194,6 @@ class streamsw1d_abso : public AdvDiff_Abs_Nl_Res {
 public:
   //streamsw1d_abso has n nodes [U_N, U_{N-1},U_{N-2}, .. , U_dummy]^t
   streamsw1d_abso() :  AdvDiff_Abs_Nl_Res(new streamsw1d_ff(this)) {
-    // printf("En streamsw1d_abso(): adv_diff_ff: %p\n",adv_diff_ff);
   } //constructor
 };
 
