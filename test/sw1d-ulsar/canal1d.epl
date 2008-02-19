@@ -5,7 +5,6 @@ $ndim = 2;
 $ndimel = 1;
 require './data_canal1d.pl';
 #__END_TRANSCRIPT__
-#system "octave -qH canal1d.m";
 :>//                            # ends ePerl block
 
 global_options
@@ -13,7 +12,6 @@ global_options
 use_log_vars 0
 
 # SUPG conf
-## weak_form 1
 weak_form 0
 
 # time stepping
