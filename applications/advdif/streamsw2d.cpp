@@ -149,6 +149,10 @@ void streamsw2d_ff::comp_P_Cp(FastMat2 &P_Cp,const FastMat2 &P_supg) {
   P_Cp.prod(P_supg,Cp,1,-1,-1,2);
 }
 
+void streamsw2d_ff::set_Ufluid(FastMat2 &Uref, FastMat2 &Ufluid) { 
+  Ufluid.set(Uref.rs().is(1,1,ndim));
+  Uref.rs();Ufluid.rs();
+}
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 void streamsw2d_ff::compute_flux(const FastMat2 &U,
 				 const FastMat2 &iJaco, FastMat2 &H,
