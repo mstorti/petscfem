@@ -7,7 +7,6 @@ tests: test_abso
 
 CASE=canal1d
 
-# PETSCFEM_DIR := /u/rodrigop/PETSC/petscfem-hydro
 PETSCFEM_DIR := ../..
 
 NP := $(shell procsel -n ./proctable)
