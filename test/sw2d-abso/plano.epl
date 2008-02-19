@@ -5,7 +5,6 @@ require "/u/rodrigop/PETSC/petscfem-new-sw2d/test/eperlini.pl";# Initializes ePe
 ## DATA 
 $ndim = 2;
 require './data_plano.pl';
-#$Uref=[$u_out, $v_out, $h_out, $kappa, $epsilon];
 #__END_TRANSCRIPT__
 :>//                            # ends ePerl block
 #
