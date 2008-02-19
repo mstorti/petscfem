@@ -133,7 +133,6 @@ void streamsw2d_ff::enthalpy(FastMat2 &H) {
   H.setel(UU.get(1)*h_tmp,1);
   H.setel(UU.get(2)*h_tmp,2);
   H.setel(h_tmp,3);
-  //esto esta OK!!
 }
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
@@ -143,13 +142,11 @@ void streamsw2d_ff::comp_W_Cp_N(FastMat2 &W_Cp_N,const FastMat2 &W,const FastMat
   W_N.prod(W,N,1,2).scale(weight);
   W_Cp_N.prod(W_N,Cp,1,3,2,4);
   W_Cp_N.rs();
-  //esta cuenta esta OK!!
 }
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 void streamsw2d_ff::comp_P_Cp(FastMat2 &P_Cp,const FastMat2 &P_supg) {
   P_Cp.prod(P_supg,Cp,1,-1,-1,2);
-  //esta cuenta esta OK!!
 }
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
@@ -408,14 +405,12 @@ void streamsw2d_ff::compute_flux(const FastMat2 &U,
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 void streamsw2d_ff::comp_A_grad_N(FastMat2 & A_grad_N,FastMat2 & grad_N) {
   A_grad_N.prod(A_jac,grad_N,-1,2,3,-1,1);
-  //esta cuenta esta OK!!
 }
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 void streamsw2d_ff::comp_N_N_C(FastMat2 &N_N_C,FastMat2 &N,double w) {
   tmp2.prod(N,N,1,2).scale(w);
   N_N_C.prod(tmp2,C_jac,1,3,2,4);
-  //esta cuenta esta OK!!!!
 }
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
@@ -423,7 +418,6 @@ void streamsw2d_ff::comp_N_P_C(FastMat2 &N_P_C, FastMat2 &P_supg,
 			   FastMat2 &N,double w) {
   tmp3.prod(P_supg,C_jac,1,-1,-1,2).scale(w);
   N_P_C.prod(tmp3,N,1,3,2);
-  //esto esta OK!!!
 }
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 void streamsw2d_ff::comp_grad_N_D_grad_N(FastMat2 &grad_N_D_grad_N,
@@ -431,7 +425,6 @@ void streamsw2d_ff::comp_grad_N_D_grad_N(FastMat2 &grad_N_D_grad_N,
   grad_N_D_grad_N.set(0.);
   tmp11.prod(D_jac,grad_N,-1,2,3,4,-1,1).scale(w);
   grad_N_D_grad_N.prod(tmp11,grad_N,1,-1,2,4,-1,3);
-  //esta cuenta esta OK!!!
 }
 
 void streamsw2d_ff::Riemann_Inv(const FastMat2 &U, const FastMat2 &normal,
@@ -458,24 +451,10 @@ void streamsw2d_ff::Riemann_Inv(const FastMat2 &U, const FastMat2 &normal,
 //   ppg=0.;
 //   drdU.setel(signudn,1,1).setel(signudn,2,1)
 //     .setel(ppg+ppg1,1,2).setel(ppg-ppg1,2,2);
-//   /* 
-//      if ((area<1.e-6) || (wl_width<1.e-7)) {
-//      tt=0.0;
-//      ppg=0.0;
-//      ppg1=0.0;
-//      tt2=0.0;
-//      } else {
-//      tt=2.*sqrt(gravity*area/wl_width);
-//      ppg=(tmpd1/area)*(wl_width-1.);
-//      ppg1=sqrt(gravity/(wl_width*area));
-//      tt2=sqrt(gravity*area/wl_width);
-//      }
-//   */
 #endif
 }
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:
 void streamsw2d_ff::comp_A_jac_n(FastMat2 &A_jac_n, FastMat2 &normal) {
   A_jac_n.prod(A_jac,normal,-1,1,2,-1);
-  //esta cuenta esta OK!!!
 }
