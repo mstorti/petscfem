@@ -37,8 +37,6 @@ $h_out = $h_ini;
 $kappa = 0.1;
 $epsilon = 0.1;
 
-#$Uref=[$u_out, $v_out, $h_out, $kappa, $epsilon];
-
 @vars = qw(ndof Courant_fac Dt restart nstep gravity C_mu 
           h_ini u_ini v_ini u_in v_in h_in u_out v_out h_out
           kappa epsilon Nx Ny turbulent Lx Ly ulsar nodele);
