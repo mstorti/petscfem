@@ -126,6 +126,8 @@ public:
   */ 
   void comp_A_n(FastMat2 &A_jac_n, FastMat2 &normal);
 
+  void set_Ufluid(FastMat2 &Uref, FastMat2 &Ufluid);
+
   /** Computes fluxes, upwind parameters etc...
       fixme:= include more doc here ...
   */ 
