@@ -28,7 +28,6 @@ void streamsw2dt_ff::start_chunk(int &options) {
   
   int ierr;
   int nel,nelprops;
-  //  ndimel=1;
   elemset->elem_params(nel,ndof,nelprops);
   //o Acceleration of gravity.
   EGETOPTDEF_ND(elemset,double,gravity,1.);
@@ -135,7 +134,6 @@ void streamsw2dt_ff::enthalpy(FastMat2 &H) {
   H.setel(h_tmp,3);
   H.setel(UU.get(4)*h_tmp,4);
   H.setel(UU.get(5)*h_tmp,5);
-  //esto esta OK!!
 }
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
@@ -145,13 +143,11 @@ void streamsw2dt_ff::comp_W_Cp_N(FastMat2 &W_Cp_N,const FastMat2 &W,const FastMa
   W_N.prod(W,N,1,2).scale(weight);
   W_Cp_N.prod(W_N,Cp,1,3,2,4);
   W_Cp_N.rs();
-  //esta cuenta esta OK!!
 }
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 void streamsw2dt_ff::comp_P_Cp(FastMat2 &P_Cp,const FastMat2 &P_supg) {
   P_Cp.prod(P_supg,Cp,1,-1,-1,2);
-  //esta cuenta esta OK!!
 }
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
@@ -201,9 +197,6 @@ void streamsw2dt_ff::compute_flux(const FastMat2 &U,
   C_P_e = C_2*sqrt(C_mu)*pow(g,1.25)/sqrt(D)/pow(Chezy,2.5);
 
   set_state(U);
-  //UU.rs().set(U);
-  //h = UU.get(ndim+1);
-  //double HH = H.get(1);
   flux_mass.set(UU.is(1,1,ndim));
   UU.rs();
   u.set(flux_mass).scale(1./h);
@@ -242,7 +235,6 @@ void streamsw2dt_ff::compute_flux(const FastMat2 &U,
 
   flux_mom.prod(u,u,1,2).scale(h);
 
-  // double h_term = 0.5*g*(h*h-HH*HH); !! ERROR
   double h_term = 0.5*g*h*h-(2./3.)*ket*h; 
   for (int jdim=1; jdim<=ndim; jdim++) {
     flux_mom.addel(h_term,jdim,jdim);
@@ -461,14 +453,12 @@ void streamsw2dt_ff::compute_flux(const FastMat2 &U,
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 void streamsw2dt_ff::comp_A_grad_N(FastMat2 & A_grad_N,FastMat2 & grad_N) {
   A_grad_N.prod(A_jac,grad_N,-1,2,3,-1,1);
-  //esta cuenta esta OK!!
 }
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 void streamsw2dt_ff::comp_N_N_C(FastMat2 &N_N_C,FastMat2 &N,double w) {
   tmp2.prod(N,N,1,2).scale(w);
   N_N_C.prod(tmp2,C_jac,1,3,2,4);
-  //esta cuenta esta OK!!!!
 }
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
@@ -476,7 +466,6 @@ void streamsw2dt_ff::comp_N_P_C(FastMat2 &N_P_C, FastMat2 &P_supg,
 			   FastMat2 &N,double w) {
   tmp3.prod(P_supg,C_jac,1,-1,-1,2).scale(w);
   N_P_C.prod(tmp3,N,1,3,2);
-  //esto esta OK!!!
 }
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 void streamsw2dt_ff::comp_grad_N_D_grad_N(FastMat2 &grad_N_D_grad_N,
@@ -484,12 +473,10 @@ void streamsw2dt_ff::comp_grad_N_D_grad_N(FastMat2 &grad_N_D_grad_N,
   grad_N_D_grad_N.set(0.);
   tmp11.prod(D_jac,grad_N,-1,2,3,4,-1,1).scale(w);
   grad_N_D_grad_N.prod(tmp11,grad_N,1,-1,2,4,-1,3);
-  //esta ceunta esta OK!!!
 }
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:
 void streamsw2dt_ff::comp_A_jac_n(FastMat2 &A_jac_n, FastMat2 &normal) {
   A_jac_n.prod(A_jac,normal,-1,1,2,-1);
-  //esta cuenta esta OK!!!
 }
 
 void streamsw2dt_ff::set_Ufluid(FastMat2 &Uref, FastMat2 &Ufluid) { 
