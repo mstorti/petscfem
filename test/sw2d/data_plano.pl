@@ -37,7 +37,5 @@ $epsilon = 0.1;
 
 octave_export_vars(">data.m.tmp",@vars);
 
-#system "octave -qH mkplanta.m";
-
 1;
 
