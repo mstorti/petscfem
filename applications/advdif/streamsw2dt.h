@@ -194,7 +194,6 @@ public:
 class streamsw2dt : public NewAdvDif {
 public:
   streamsw2dt() :  NewAdvDif(new streamsw2dt_ff(this)) {
-    // printf("En streamsw2d(): adv_diff_ff: %p\n",adv_diff_ff);
   } //constructor
 };
 
@@ -202,7 +201,6 @@ class streamsw2dt_abso : public AdvDiff_Abs_Nl_Res {
 public:
   //streamsw2d_abso has n nodes [U_N, U_{N-1},U_{N-2}, .. , U_dummy]^t
   streamsw2dt_abso() :  AdvDiff_Abs_Nl_Res(new streamsw2dt_ff(this)/*,new streamsw2d(this)*/) {
-    // printf("En streamsw2d_abso(): adv_diff_ff: %p\n",adv_diff_ff);
   } //constructor
 };
 
