@@ -104,16 +104,16 @@ res(int k,FastMat2 &U,FastMat2 &r,
   // for this element. 
   int use_old_state_as_ref_elem;
   if (switch_to_ref_on_incoming) {
-    
+
+    // Flux Functions writters must add setUfluid funct
+    // in order to extract the fluid velocities from Uref
     // U(3,:) contains the reference value
     // or alternatively the global `Uref' option
     
     if (use_uref_glob) Uref.set(Uref_glob);
     else { U.ir(1,3); Uref.set(U); U.rs(); }
-    //    Uref.rs().is(1,2,ndim+1);
     adv_diff_ff->set_Ufluid(Uref,Ufluid);
     double urefn = unor.prod(Ufluid,normal,-1,-1);
-    //    Uref.rs();
     use_old_state_as_ref_elem = urefn>0;
   } else {
     use_old_state_as_ref_elem 
