@@ -65,7 +65,9 @@ class stratsw2d_ff : public AdvDifFFWEnth {
   // W_N  matrix (prod(W,N))
   FastMat2 W_N;
   // Temp matrix for flux functions
-  FastMat2 tmp1,tmp11,tmp2,tmp22,tmp3,tmp33,tmp4,dev_tens,vref,u1,u2
+  FastMat2 tmp1,tmp11,tmp2,tmp22,tmp3,tmp33,tmp4,
+    dev_tens,vref1,vref2,
+    u1,u2,
     A01,bottom_slope,tmp5,grad_U_psi;
   // Element iterator for hook
   ElementIterator elem_it;
