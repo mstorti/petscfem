@@ -32,6 +32,10 @@ void stratsw2d_ff::start_chunk(int &options) {
   elemset->elem_params(nel,ndof,nelprops);
   //o Acceleration of gravity.
   EGETOPTDEF_ND(elemset,double,gravity,1.);
+  //o rho1
+  EGETOPTDEF_ND(elemset,double,rho1,1.);
+  //o rho2
+  EGETOPTDEF_ND(elemset,double,rho2,1.);
   //o Scale the SUPG upwind term. 
   EGETOPTDEF_ND(elemset,double,tau_fac,1.);
   //o Add shock-capturing term.
@@ -210,16 +214,23 @@ void stratsw2d_ff::compute_flux(const FastMat2 &U,
   }
 
   set_state(U);
-  flux_mass.set(UU.is(1,1,ndim));
-  UU.rs();
-  u.set(flux_mass).scale(1./h);
+  flux_mass1.set(UU1.is(1,1,ndim));
+  UU1.rs();
+  u1.set(flux_mass1).scale(1./h1);
+  flux_mass2.set(UU2.is(1,1,ndim));
+  UU2.rs();
+  u2.set(flux_mass2).scale(1./h2);
 
-  double u2 = u.sum_square_all();
-  double q = sqrt(u2);
+  double uc1 = u1.sum_square_all();
+  double uc2 = u2.sum_square_all();
+  double q1 = sqrt(uc1);
+  double q2 = sqrt(uc2);
 
-  double ux,uy;
-  ux=u.get(1);
-  uy=u.get(2);
+  double ux1,uy1,ux2,uy2;
+  ux1=u1.get(1);
+  uy1=u1.get(2);
+  ux2=u2.get(1);
+  uy2=u2.get(2);
 
   AJACX(1,1) = 2*ux;
   AJACX(1,2) = 0.;
