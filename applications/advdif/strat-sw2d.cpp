@@ -98,8 +98,6 @@ void stratsw2d_ff::start_chunk(int &options) {
   Uintri1.resize(1,ndim);
   Uintri2.resize(1,ndim);
   A01.resize(2,ndof,ndof);
-  dev_tens.resize(2,2,2);
-  tmp5.resize(2,2,2);
   bottom_slope.resize(1,ndim);
   grad_U_psi.resize(2,ndim,ndof);
   tmp33.resize(2,ndof,ndim);
@@ -275,54 +273,7 @@ void stratsw2d_ff::compute_flux(const FastMat2 &U,
   if (options & COMP_UPWIND) {
 
     D_jac.set(0.);
-    double nu_h= nu/h;
-    D_jac.setel( 2.*nu_h   ,1,1,1,1);
-    D_jac.setel(-2.*ux*nu_h,1,1,1,3);
-    
-    D_jac.setel(-uy*nu_h   ,1,1,2,3);
-    D_jac.setel( nu_h      ,1,1,2,2);
-    
-    D_jac.setel( nu_h      ,2,2,1,1);
-    D_jac.setel(-ux*nu_h   ,2,2,1,3);
-    
-    D_jac.setel(-2.*uy*nu_h,2,2,2,3);
-    D_jac.setel( 2.*nu_h   ,2,2,2,2);
-    
-    D_jac.setel( nu_h      ,1,2,2,1);
-    D_jac.setel(-ux*nu_h   ,1,2,2,3);
-    
-    D_jac.setel(-uy*nu_h   ,2,1,1,3);
-    D_jac.setel( nu_h      ,2,1,1,2);
-    
-    D_jac.scale(diff_factor);
-
-    grad_U.is(2,1,2);
-    dev_tens.set(grad_U);
-    tmp5.set(dev_tens).t();
-    dev_tens.add(tmp5);
-
-    dev_tens.scale(nu);
-    grad_U.rs();
-    fluxd.set(0.).is(1,1,2).add(dev_tens).rs();
-    fluxd.scale(diff_factor);
-
-    double vel = sqrt(u2);
-
-    // Code C_jac here...
-
-    double tmp61=SQ(Chezy)*(h<h_min ? h_min : h)*(vel<vel_min ? vel_min : vel);
     C_jac.set(0.);
-
-    C_jac.setel(-g*(SQ(ux)+u2)/tmp61,1,1);
-    C_jac.setel(-g*ux*uy/tmp61,1,2);
-    C_jac.setel(-g*grad_H.get(1,1)+2*g*u2*ux/tmp61,1,3);
-
-    C_jac.setel(-g*(SQ(uy)+u2)/tmp61,2,2);
-    C_jac.setel(-g*ux*uy/tmp61,2,1);
-    C_jac.setel(-g*grad_H.get(2,1)+2*g*u2*uy/tmp61,2,3);
-
-    C_jac.scale(-1.0);
-
     // A_grad_U es ndof x 1
     A_grad_U.rs().prod(A_jac.rs(),grad_U,-1,1,-2,-1,-2);
 
