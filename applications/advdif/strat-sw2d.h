@@ -57,9 +57,9 @@ class stratsw2d_ff : public AdvDifFFWEnth {
   // Temp velocity vector
   FastMat2 UU1,UU2;
   // Mass flux matrix
-  FastMat2 flux_mass;
+  FastMat2 flux_mass1,flux_mass2;
   // Momentum flux matrix
-  FastMat2 flux_mom;
+  FastMat2 flux_mom1,flux_mom2;
   // Cp enthalpy jacobian matrix
   FastMat2 Cp;
   // W_N  matrix (prod(W,N))
