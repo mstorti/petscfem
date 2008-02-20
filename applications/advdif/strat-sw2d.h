@@ -22,6 +22,8 @@ class stratsw2d_ff : public AdvDifFFWEnth {
   int ndimel;
   // dof=4 strat sw2d primitive variables (u1 v1 h1 u2 v2 h2) 
   int ndof;
+  // rho1 and rho2
+  int rho1,rho2;
   // gravity
   double gravity;
   // allow scale stabilization term
