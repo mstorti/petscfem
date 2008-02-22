@@ -36,6 +36,7 @@ void stratsw2d_ff::start_chunk(int &options) {
   EGETOPTDEF_ND(elemset,double,rho1,1.);
   //o rho2
   EGETOPTDEF_ND(elemset,double,rho2,1.);
+  assert(rho1>0. && rho2>0.);
   //o Scale the SUPG upwind term. 
   EGETOPTDEF_ND(elemset,double,tau_fac,1.);
   //o Add shock-capturing term.
@@ -106,6 +107,10 @@ void stratsw2d_ff::start_chunk(int &options) {
   grad_U_psi.resize(2,ndim,ndof);
   tmp33.resize(2,ndof,ndim);
   tmp11.resize(4,nel,ndim,ndof,ndof);
+
+  //strat sw 2d must be used with weak form 0 because flux functions
+  //are not conservative
+  assert(weak_form==0);
 #ifdef USE_A_JAC_DUMMY
   //para debug de caso lineal
   A_jac_dummy.resize(3,ndim,ndof,ndof);  
@@ -226,33 +231,43 @@ void stratsw2d_ff::compute_flux(const FastMat2 &U,
   double q1 = sqrt(uc1);
   double q2 = sqrt(uc2);
 
-  double ux1,uy1,ux2,uy2;
-  ux1=u1.get(1);
-  uy1=u1.get(2);
-  ux2=u2.get(1);
-  uy2=u2.get(2);
+  double u1,v1,u2,v2;
+  u1=u1.get(1);
+  v1=u1.get(2);
+  u2=u2.get(1);
+  v2=u2.get(2);
 
-  AJACX(1,1) = 2*ux;
-  AJACX(1,2) = 0.;
-  AJACX(1,3) = -ux*ux+g*h;
-  AJACX(2,1) = uy;
-  AJACX(2,2) = ux;
-  AJACX(2,3) = -ux*uy;
-  AJACX(3,1) = 1.;
-  AJACX(3,2) = 0.;
-  AJACX(3,3) = 0.;
+  AJACX(1,1)=2*u1;
+  AJACX(1,3)=-1.*SQ(u1)+g*h1;
+  AJACX(1,6)=g*h1*rho2/rho1;
+  AJACX(2,1)=v1;
+  AJACX(2,2)=u1;
+  AJACX(2,3)=-1.*u1*v1;
+  AJACX(3,1)=1.;
+  AJACX(4,3)=g*h2;
+  AJACX(4,4)=2.*u2;
+  AJACX(4,6)=-1.*SQ(u2)+g*h2;
+  AJACX(5,4)=v2;
+  AJACX(5,5)=u2;
+  AJACX(5,6)=-1.*u2*v2;
+  AJACX(6,4)=1.;
 
   A_jac.ir(1,1).set(ajacx);
 
-  AJACY(1,1) = uy;
-  AJACY(1,2) = ux;
-  AJACY(1,3) = -ux*uy;
-  AJACY(2,1) = 0.;
-  AJACY(2,2) = 2*uy;
-  AJACY(2,3) = -uy*uy + g*h;
-  AJACY(3,1) = 0.;
-  AJACY(3,2) = 1.;
-  AJACY(3,3) = 0.;
+  AJACY(1,1)=v1;
+  AJACY(1,2)=u1;
+  AJACY(1,3)=-1.*u1*v1;
+  AJACY(2,2)=2.*v1;
+  AJACY(2,3)=-1.*SQ(v1)+g*h1;
+  AJACY(2,6)=g*h1*rho2/rho1;
+  AJACY(3,2)=1.;
+  AJACY(4,4)=v2;
+  AJACY(4,5)=u2;
+  AJACY(4,6)=-1.*u2*v2;
+  AJACY(5,3)=g*h2;
+  AJACY(5,5)=2*v2;
+  AJACY(5,6)=-1.*SQ(v2)+g*h2;
+  AJACY(6,5)=1.;
 
   A_jac.ir(1,2).set(ajacy).rs();
 
