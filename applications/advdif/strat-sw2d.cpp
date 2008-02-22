@@ -56,28 +56,8 @@ void stratsw2d_ff::start_chunk(int &options) {
   EGETOPTDEF_ND(elemset,double,nu,1.e-5);
   //o Diffusive jacobians factor
   EGETOPTDEF_ND(elemset,double,diff_factor,1.);
-  //o Correcting factor for diffusion in the $k$ transport equation
-  EGETOPTDEF_ND(elemset,double,sigma_k,1.);
-  //o Correcting factor for diffusion in the $\epsilon$ transport equation
-  EGETOPTDEF_ND(elemset,double,sigma_e,1.3);
-  //o Coefficient for shallow water turbulent model
-  EGETOPTDEF_ND(elemset,double,C_mu,0.09);
-  //o Coefficient for shallow water turbulent model
-  EGETOPTDEF_ND(elemset,double,C_1,1.44);
-  //o Coefficient for shallow water turbulent model
-  EGETOPTDEF_ND(elemset,double,C_2,1.92);
-  //o Coefficient for shallow water turbulent model
-  EGETOPTDEF_ND(elemset,double,D,1.);
-  //o Chezy coefficient for bottom friction modelling
-  EGETOPTDEF_ND(elemset,double,Chezy,110);
-  //o Threshold value for $\epsilon$ (clip below this)
-  EGETOPTDEF_ND(elemset,double,eps_min,1e-6);
-  //o Threshold value for $k$ while computing turbulence model.
-  EGETOPTDEF_ND(elemset,double,ket_min,1e-6);
   //o Threshold value for $h$ while computing turbulence model.
   EGETOPTDEF_ND(elemset,double,h_min,1e-6);
-  //o Threshold value for velocity while computing turbulence model.
-  EGETOPTDEF_ND(elemset,double,vel_min,1e-6);
   
   //o Dimension of the problem. 
   EGETOPTDEF_ND(elemset,int,ndim,0);
@@ -200,19 +180,19 @@ void stratsw2d_ff::compute_flux(const FastMat2 &U,
   static double g=gravity;
 
   double tau_a, tau_delta, gU, A01v[9];
-  static vector<double> bottom_slope_v;
+  //  static vector<double> bottom_slope_v;
   ndof = U.dim(1);
   
-  const char *bs;
-  VOID_IT(bottom_slope_v);
-  elemset->get_entry("bottom_slope",bs); 
-  bottom_slope.set(0.);
-  if (bs!=NULL) {
-    read_double_array(bottom_slope_v,bs);
-    assert(bottom_slope_v.size()==(unsigned int)ndim);
-    bottom_slope.set(&*bottom_slope_v.begin());
-  }
-    
+  //  const char *bs;
+  //  VOID_IT(bottom_slope_v);
+  //   elemset->get_entry("bottom_slope",bs); 
+  //   bottom_slope.set(0.);
+  //   if (bs!=NULL) {
+  //     read_double_array(bottom_slope_v,bs);
+  //     assert(bottom_slope_v.size()==(unsigned int)ndim);
+  //     bottom_slope.set(&*bottom_slope_v.begin());
+  //   }
+  
   for (int jj=0; jj<NDOF*NDOF; jj++) {
     ajacx[jj]=0.;
     ajacy[jj]=0.;
@@ -271,16 +251,9 @@ void stratsw2d_ff::compute_flux(const FastMat2 &U,
 
   A_jac.ir(1,2).set(ajacy).rs();
 
-  flux_mom.prod(u,u,1,2).scale(h);
-
-  double h_term = 0.5*g*h*h;
-  for (int jdim=1; jdim<=ndim; jdim++) {
-    flux_mom.addel(h_term,jdim,jdim);
-  }
-  flux.rs().is(1,1,ndim).set(flux_mom);
-  flux.rs().ir(1,3).set(flux_mass);
-  flux.rs();
-
+  flux.set(0.);
+  fluxd.set(0.);
+  
   //Enthalpy jacobian
   Cp.set(0.);
   Cp.setel(h,1,1);
@@ -293,8 +266,6 @@ void stratsw2d_ff::compute_flux(const FastMat2 &U,
   Cp.setel(0.,3,2);
   Cp.setel(1.,3,3);
   Cp.rs();
-
-
 
   if (options & COMP_UPWIND) {
 
