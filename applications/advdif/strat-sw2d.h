@@ -43,10 +43,7 @@ class stratsw2d_ff : public AdvDifFFWEnth {
   // Threshold for shockcapturing
   double shock_capturing_threshold;
   // doubles for turbulent and frivtion models
-  double sigma_k,sigma_e,C_mu,C_1,C_2,
-    D,Chezy,C_P_e,eps_min,ket_min,
-    P_h,P_e,P_k;
-  // h variable
+  // h variables
   double h1,h2;
   // Flux advec Jacobians
   FastMat2 A_jac;
