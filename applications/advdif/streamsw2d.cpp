@@ -165,6 +165,7 @@ void streamsw2d_ff::compute_flux(const FastMat2 &U,
   static double ajacx[NDOF*NDOF],ajacy[NDOF*NDOF];
   int ierr;
   
+  ndof = U.dim(1);
   if ((ndim!=2) || (ndof!=3)) {
     PetscPrintf(PETSC_COMM_WORLD,"Stop shallow_water 2D over 2D domain Only...\n");
     PetscFinalize();
@@ -176,7 +177,6 @@ void streamsw2d_ff::compute_flux(const FastMat2 &U,
 
   double tau_a, tau_delta, gU, A01v[9];
   static vector<double> bottom_slope_v;
-  ndof = U.dim(1);
   
   const char *bs;
   VOID_IT(bottom_slope_v);
