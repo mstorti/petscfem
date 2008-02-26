@@ -172,7 +172,14 @@ void PETScMat::clear() {
 #define __FUNC__ "PETScMat::factor_and_solve"
 int PETScMat::factor_and_solve_a(Vec &res,Vec &dx) {
   ierr = build_ksp(); CHKERRQ(ierr); 
-  ierr = solve_only_a(res,dx); CHKERRQ(ierr); 
+  /* */
+  PC pc;
+  ierr = KSPGetPC(ksp,&pc); CHKERRQ(ierr); 
+  ierr = PCFactorSetZeroPivot(pc,1.0e-20); CHKERRQ(ierr); 
+  ierr = KSPSetOptionsPrefix(ksp,"pf-"); CHKERRQ(ierr); 
+  ierr = KSPSetFromOptions(ksp); CHKERRQ(ierr);
+  /* */
+  ierr = solve_only_a(res,dx); CHKERRQ(ierr);
   return 0;
 }
 
