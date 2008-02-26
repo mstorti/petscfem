@@ -31,6 +31,8 @@ void streamsw2dt_ff::start_chunk(int &options) {
   elemset->elem_params(nel,ndof,nelprops);
   //o Acceleration of gravity.
   EGETOPTDEF_ND(elemset,double,gravity,1.);
+  //o Molecular kinematic viscosity.
+  EGETOPTDEF_ND(elemset,double,nu,1.8e-3);
   //o Scale the SUPG upwind term. 
   EGETOPTDEF_ND(elemset,double,tau_fac,1.);
   //o Add shock-capturing term.
@@ -163,6 +165,7 @@ void streamsw2dt_ff::compute_flux(const FastMat2 &U,
   static double ajacx[NDOF*NDOF],ajacy[NDOF*NDOF];
   int ierr;
   
+  ndof = U.dim(1);
   if ((ndim!=2) || (ndof!=5)) {
     PetscPrintf(PETSC_COMM_WORLD,"Stop turbulent shallow_water 2D over 2D domain Only...\n");
     PetscFinalize();
@@ -174,7 +177,6 @@ void streamsw2dt_ff::compute_flux(const FastMat2 &U,
 
   double tau_a, tau_delta, gU, A01v[9];
   static vector<double> bottom_slope_v;
-  ndof = U.dim(1);
   
   const char *bs;
   VOID_IT(bottom_slope_v);
@@ -262,7 +264,7 @@ void streamsw2dt_ff::compute_flux(const FastMat2 &U,
 
     // Code D_jac here...
     D_jac.set(0.);
-    double nu_t_h= nu_t / h;
+    double nu_t_h= (nu+nu_t)/h;
     D_jac.setel( 2.*nu_t_h   ,1,1,1,1);
     D_jac.setel(-2.*ux*nu_t_h,1,1,1,3);
 
@@ -296,9 +298,10 @@ void streamsw2dt_ff::compute_flux(const FastMat2 &U,
     // Production of kinetic turbulence
     double tmp62 = 0.5*dev_tens.sum_square_all();
 
-    P_h = tmp62*nu_t/h;
+    //    P_h = tmp62*nu_t/h;
+    P_h = tmp62*nu_t_h;
 
-    dev_tens.scale(nu_t);
+    dev_tens.scale(nu_t+nu);
     grad_U.rs();
     fluxd.set(0.).is(1,1,2).add(dev_tens).rs();
 
@@ -368,7 +371,7 @@ void streamsw2dt_ff::compute_flux(const FastMat2 &U,
 
     options |= SCALAR_TAU;
     tau_a = SQ(2.*lam_max/h_supg)
-      +18.*SQ(nu_t/SQ(h_supg));
+      +18.*SQ((nu+nu_t)/SQ(h_supg));
     tau_a = tau_fac/sqrt(tau_a);
 
     double vmax = -1;

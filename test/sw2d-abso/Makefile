@@ -1,5 +1,5 @@
 
-PETSCFEM_DIR = /u/rodrigop/PETSC/petscfem-new-sw2d
+PETSCFEM_DIR = /u/rodrigop/PETSC/petscfem
 
 PFEM_UP_DIR = ..
 
@@ -33,8 +33,8 @@ data:
 run: 
 	mkstepsdir.pl
 	make-depl $(CASE).epl $(CASE).depl 
-	$(MPI_HOME)/bin/mpiexec  -n 1 $(PROG) -case $(CASE).depl
-#	time $(MPI_HOME)/bin/mpirun -1 -machinefile ./machi.dat -n $(NP) $(PROG) -case $(CASE).depl
+#	$(MPI_HOME)/bin/mpiexec  -n 1 $(PROG) -case $(CASE).depl
+	time $(MPI_HOME)/bin/mpirun -1 -machinefile ./machi.dat -n $(NP) $(PROG) -case $(CASE).depl
 
 mpdstart:
 	let NP1=$(NP)+1 ; \

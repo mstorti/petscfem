@@ -1,7 +1,7 @@
 # -*- mode: shell-script -*-
 <:                              # starts ePerl block
 #__TRANSCRIPT__
-require "/u/rodrigop/PETSC/petscfem-new-sw2d/test/eperlini.pl";# Initializes ePerl 
+require "/u/rodrigop/PETSC/petscfem/test/eperlini.pl";# Initializes ePerl 
 ## DATA 
 $ndim = 2;
 require './data_plano.pl';
@@ -41,9 +41,9 @@ save_file_pattern "./STEPS/plano.%d.tmp"
 # omega_newton 0.3
 tol_newton 0
 solver "petsc"
-preco_type "lu"
+##preco_type "lu"
 ##solver "iisd"
-##preco_type "jacobi"
+preco_type "jacobi"
 ##iisd_subpart_auto 1000
 
 maxits 400

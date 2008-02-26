@@ -25,6 +25,8 @@ class streamsw2dt_ff : public AdvDifFFWEnth {
   int ndof;
   // gravity
   double gravity;
+  // Molecular kinematic viscosity
+  double nu;
   // allow scale stabilization term
   double  tau_fac;
   // scale friction term
