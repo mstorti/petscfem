@@ -36,7 +36,7 @@ void stratsw2d_ff::start_chunk(int &options) {
   EGETOPTDEF_ND(elemset,double,rho1,1.);
   //o rho2
   EGETOPTDEF_ND(elemset,double,rho2,1.);
-  assert(rho1>0. && rho2>0.);
+  PETSCFEM_ASSERT0((rho1>0. && rho2>0.),"densities must be positive");
   //o Scale the SUPG upwind term. 
   EGETOPTDEF_ND(elemset,double,tau_fac,1.);
   //o Add shock-capturing term.
@@ -61,11 +61,11 @@ void stratsw2d_ff::start_chunk(int &options) {
   
   //o Dimension of the problem. 
   EGETOPTDEF_ND(elemset,int,ndim,0);
-  assert(ndim==2);
+  PETSCFEM_ASSERT0(ndim==2,"Only 2D Stratified Shallow Water eqs.");
   A_jac.resize(3,ndim,ndof,ndof);
   D_jac.resize(4,ndim,ndim,ndof,ndof);
-  flux_mom1.resize(2,ndim,ndim);
-  flux_mom2.resize(2,ndim,ndim);
+  //  flux_mom1.resize(2,ndim,ndim);
+  //  flux_mom2.resize(2,ndim,ndim);
   C_jac.resize(2,ndof,ndof);
   Cp.resize(2,ndof,ndof);
   W_N.resize(2,nel,nel);
@@ -80,6 +80,7 @@ void stratsw2d_ff::start_chunk(int &options) {
   u2.resize(1,ndim);
   flux_mass1.resize(1,ndim);
   flux_mass2.resize(1,ndim);
+  Uintri.resize(1,ndim);
   Uintri1.resize(1,ndim);
   Uintri2.resize(1,ndim);
   A01.resize(2,ndof,ndof);
@@ -88,9 +89,9 @@ void stratsw2d_ff::start_chunk(int &options) {
   tmp33.resize(2,ndof,ndim);
   tmp11.resize(4,nel,ndim,ndof,ndof);
 
-  //strat sw 2d must be used with weak form 0 because flux functions
-  //are not conservative
-  assert(weak_form==0);
+  // strat sw 2d must be used with weak form 0 because flux functions
+  // are not conservative
+  PETSCFEM_ASSERT0(weak_form==0,"weak_form must be zero for 2D stratified sw eqs.");
 #ifdef USE_A_JAC_DUMMY
   //para debug de caso lineal
   A_jac_dummy.resize(3,ndim,ndof,ndof);  
@@ -179,7 +180,7 @@ void stratsw2d_ff::compute_flux(const FastMat2 &U,
   static int flag=0;
   static double g=gravity;
 
-  double tau_a, tau_delta, gU, A01v[9];
+  double tau_a, tau_delta, gU, A01v[6*6];
   //  static vector<double> bottom_slope_v;
   ndof = U.dim(1);
   
@@ -251,20 +252,21 @@ void stratsw2d_ff::compute_flux(const FastMat2 &U,
 
   A_jac.ir(1,2).set(ajacy).rs();
 
-  flux.set(0.);
+  flux.set(NAN);
   fluxd.set(0.);
   
   //Enthalpy jacobian
   Cp.set(0.);
-  Cp.setel(h,1,1);
-  Cp.setel(0.,1,2);
-  Cp.setel(ux,1,3);
-  Cp.setel(0.,2,1);
-  Cp.setel(h,2,2);
-  Cp.setel(uy,2,3);
-  Cp.setel(0.,3,1);
-  Cp.setel(0.,3,2);
+  Cp.setel(h1,1,1);
+  Cp.setel(u1,1,3);
+  Cp.setel(h1,2,2);
+  Cp.setel(v1,2,3);
   Cp.setel(1.,3,3);
+  Cp.setel(h2,4,4);
+  Cp.setel(u2,4,6);
+  Cp.setel(h2,5,5);
+  Cp.setel(v2,5,6);
+  Cp.setel(1.,6,6);
   Cp.rs();
 
   if (options & COMP_UPWIND) {
@@ -274,9 +276,29 @@ void stratsw2d_ff::compute_flux(const FastMat2 &U,
     // A_grad_U es ndof x 1
     A_grad_U.rs().prod(A_jac.rs(),grad_U,-1,1,-2,-1,-2);
 
-    Uintri.prod(iJaco,u,1,-1,-1);
+    Uintri1.prod(iJaco,u1,1,-1,-1);
+    Uintri2.prod(iJaco,u2,1,-1,-1);
     double h_supg;
 
+    double vel1 = sqrt(uc1);
+    double vel2 = sqrt(uc2);
+
+
+    double vel,h;
+    FastMat2::branch();
+    if (vel1<=vel2){
+      FastMat2::choose(0);
+      vel=vel2;
+      h=h2;
+      Uintri.set(Uintri2);
+    } else {
+      FastMat2::choose(1);
+      vel=vel1;
+      h=h1;
+      Uintri.set(Uintri1);
+    }
+    FastMat2::leave();
+	
     FastMat2::branch();
     if (vel>1e-10) {
       FastMat2::choose(0);
@@ -289,8 +311,7 @@ void stratsw2d_ff::compute_flux(const FastMat2 &U,
     }
     FastMat2::leave();
 
-    lam_max = fabs(sqrt(h*g)+vel);
-
+    double lam_max = fabs(sqrt((h1+h2)*g)+vel);
     options |= SCALAR_TAU;
     tau_a = SQ(2.*lam_max/h_supg);
     tau_a = tau_fac/sqrt(tau_a);
@@ -298,8 +319,9 @@ void stratsw2d_ff::compute_flux(const FastMat2 &U,
     double vmax = -1;
 
     vref.is(1,1,ndim).set(vel*h).rs();
-    double pp = UU.get(ndof);
-    vref.setel(pp,ndof);
+    vref.setel(h,ndim+1).rs();
+    vref.is(1,ndim+2,ndim+3).set(vel*h).rs();
+    vref.setel(h,ndof).rs();
 
     for (int jdof=1; jdof<=ndof; jdof++) {
       double vaux = vref.get(jdof);
@@ -318,22 +340,36 @@ void stratsw2d_ff::compute_flux(const FastMat2 &U,
     FastMat2::branch();
     if (shock_capturing && (vmax > shock_capturing_threshold/h_supg) ) {
       FastMat2::choose(0);
-      // calculo del tensor metrico de Riemann (A0) para transformar de variables 
+      // calculo del tensor metrico de Riemann (A0) para transformar variables 
 
       A01v[0]= 1.;
       A01v[1]= 0. ;
-      A01v[2]= -ux;
+      A01v[2]= -u1;
 
       A01v[3]= 0.;
       A01v[4]= 1.;
-      A01v[5]= -uy;
+      A01v[5]= -v1;
 
-      A01v[6]= -ux;
-      A01v[7]= -uy;
-      A01v[8]= g*h+ux*ux+uy*uy;
+      A01v[6]= -u1;
+      A01v[7]= -v1;
+      A01v[8]= g*h1+u1*u1+v1*v1;
 
-      A01.set(A01v).scale(1./(g*h));
+      // A01.ir(1,1).set(A01v).scale(1./(g*h1)).rs();
 
+      A01v[9]= 1.;
+      A01v[10]= 0. ;
+      A01v[11]= -u2;
+
+      A01v[12]= 0.;
+      A01v[13]= 1.;
+      A01v[14]= -v2;
+
+      A01v[15]= -u2;
+      A01v[16]= -v2;
+      A01v[17]= g*h2+u2*u2+v2*v2;
+
+      // A01.ir(1,2).set(A01v).scale(1./(g*h2)).rs();
+      A01.set(A01v).scale(1./(g*(h1+h2))).rs();
       // calculo del delta shock capturing delta_sc
       double vaux_num,vaux_den;
       tmp1.prod(A01,A_grad_U,1,-1,-1);
@@ -345,7 +381,7 @@ void stratsw2d_ff::compute_flux(const FastMat2 &U,
       tmp4.prod(grad_U_psi,tmp33,-1,-2,-2,-1);
       vaux_den = double(tmp4);
 
-      delta_sc = sqrt(vaux_num / vaux_den);
+      delta_sc = sqrt(vaux_num/vaux_den);
       tau_delta = delta_sc/(lam_max*lam_max);
       
     } // if (shock_capturing ...
@@ -359,16 +395,7 @@ void stratsw2d_ff::compute_flux(const FastMat2 &U,
   } 
 
   if (options & COMP_SOURCE) {
-    grad_H.ir(2,1);
-    G_source
-      .set(0.)
-      .is(1,1,ndim)
-      .add(grad_H)
-      // .add(bottom_slope)  ??????????
-      .scale(-g*h)
-      .axpy(u,-g/SQ(Chezy)*q)
-      .rs();
-    grad_H.rs();
+    G_source.set(0.);
   }
 }
 

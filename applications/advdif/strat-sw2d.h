@@ -52,7 +52,7 @@ class stratsw2d_ff : public AdvDifFFWEnth {
   // Source friction terms Jacobian for newton loop
   FastMat2 C_jac;
   // Velocity vector in intrinsec coordinates
-  FastMat2 Uintri1,Uintri2;
+  FastMat2 Uintri1,Uintri2,Uintri;
   // Temp velocity vector
   FastMat2 UU1,UU2;
   // Mass flux matrix
