@@ -873,7 +873,6 @@ void NewAdvDif::new_assemble(arg_data_list &arg_data_v,const Nodedata *nodedata,
 				  lambda_max_pg, nor,lambda,Vr,Vr_inv,
 				  COMP_SOURCE | COMP_UPWIND);
 	*/
-
 	if (compute_fd_adv_jacobian) {
 	  int check_this = drand()<compute_fd_adv_jacobian_random;
 	  comp_total++;
