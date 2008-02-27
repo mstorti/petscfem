@@ -20,6 +20,7 @@
 #include "stream.h"
 #include "streamsw2dt.h"
 #include "streamsw2d.h"
+#include "strat_sw2d.h"
 
 //#include "bubbly.h"
 #include "bubbly_asm.h"
@@ -47,7 +48,7 @@
 #define __FUNC__ "bless_elemset_advdif"
 void bless_elemset_advdif(char *type,Elemset *& elemset) {
   // General linear advective-diffusive system
-    SET_ELEMSET_TYPE(advdif_advecfm2)
+  SET_ELEMSET_TYPE(advdif_advecfm2)
     SET_ELEMSET_TYPE(bcconv_adv_advecfm2)
     // new version
     SET_ELEMSET_TYPE(newadvdif_advecfm2)
@@ -64,50 +65,53 @@ void bless_elemset_advdif(char *type,Elemset *& elemset) {
     SET_ELEMSET_TYPE(streamsw2dt)
     SET_ELEMSET_TYPE(streamsw2dt_abso2)
     SET_ELEMSET_TYPE(streamsw2d)
-      //    SET_ELEMSET_TYPE(advdif_swfm1t)
+    //    SET_ELEMSET_TYPE(advdif_swfm1t)
     SET_ELEMSET_TYPE(streamsw1d)
     SET_ELEMSET_TYPE(streamsw1d_abso)
     SET_ELEMSET_TYPE(streamsw1d_abso2)
-
+    
+    SET_ELEMSET_TYPE(stratsw2d)
+    SET_ELEMSET_TYPE(stratsw2d_abso2)
+    
     SET_ELEMSET_TYPE(wall_swfm2t)
-
+    
     SET_ELEMSET_TYPE(lin_gen_load)
-
+    
     SET_ELEMSET_TYPE(aquifer)
     SET_ELEMSET_TYPE(stream)
     SET_ELEMSET_TYPE(stream_loss)
-
+    
     SET_ELEMSET_TYPE(bubbly_full)
     SET_ELEMSET_TYPE(bubbly_bcconv_full)
-
+    
     SET_ELEMSET_TYPE(bubbly_asm)
     SET_ELEMSET_TYPE(bubbly_bcconv_asm)
-
+    
     SET_ELEMSET_TYPE(bubbly_asm_mix)
     SET_ELEMSET_TYPE(bubbly_bcconv_asm_mix)
-
+    
     SET_ELEMSET_TYPE(advec)
     SET_ELEMSET_TYPE(gasflow)
     SET_ELEMSET_TYPE(gasflow_twall)
     SET_ELEMSET_TYPE(gasflow_bcconv)
     SET_ELEMSET_TYPE(gasflow_abso)
     SET_ELEMSET_TYPE(gasflow_abso2)
-
+    
     SET_ELEMSET_TYPE(flow_rate_integrator)
     SET_ELEMSET_TYPE(gasflow_force_integrator)
     SET_ELEMSET_TYPE(id)
-
+    
     SET_ELEMSET_TYPE(smoke)
     SET_ELEMSET_TYPE(gaschem)
     SET_ELEMSET_TYPE(gaschem_bcconv)
-
+    
     SET_ELEMSET_TYPE(svenant1d)
     SET_ELEMSET_TYPE(svenant1d_bcconv)
     SET_ELEMSET_TYPE(svenant1d_abso)
     SET_ELEMSET_TYPE(svenant1d_abso2)
-
+    
     SET_ELEMSET_TYPE(dl_penalize)
-
+    
     {
       elemset=NULL;
     }
