@@ -851,13 +851,13 @@ int IISDMat::maybe_factor_and_solve(Vec &res,Vec &dx,int factored=0) {
       ierr = KSPSetOperators(ksp_ll,A_LL,
 			      A_LL,SAME_NONZERO_PATTERN); PF_CHKERRQ(ierr); 
       ierr = KSPGetPC(ksp_ll,&pc_ll); PF_CHKERRQ(ierr); 
+      ierr = KSPSetType(ksp_ll,KSPPREONLY); PF_CHKERRQ(ierr); 
+      ierr = PCSetType(pc_ll,PCLU); PF_CHKERRQ(ierr); 
       /**/
       ierr = PCFactorSetZeroPivot(pc_ll,1.0e-20); PF_CHKERRQ(ierr); 
       ierr = KSPSetOptionsPrefix(ksp_ll,"pf-"); PF_CHKERRQ(ierr); 
       ierr = KSPSetFromOptions(ksp_ll); PF_CHKERRQ(ierr);
       /**/
-      ierr = KSPSetType(ksp_ll,KSPPREONLY); PF_CHKERRQ(ierr); 
-      ierr = PCSetType(pc_ll,PCLU); PF_CHKERRQ(ierr); 
       ierr = PCFactorSetFill(pc_ll,pc_lu_fill); PF_CHKERRQ(ierr); 
       // ierr = PCLUSetMatOrdering(pc_ll,MATORDERING_RCM);
 
@@ -1032,6 +1032,11 @@ int IISDMat::maybe_factor_and_solve(Vec &res,Vec &dx,int factored=0) {
 
 	ierr = KSPSetTolerances(ksp_lll,0,0,1e10,1); PF_CHKERRQ(ierr); 
 	ierr = PCSetType(pc_lll,PCLU); PF_CHKERRQ(ierr); 
+	/**/
+	ierr = PCFactorSetZeroPivot(pc_lll,1.0e-20); PF_CHKERRQ(ierr); 
+	ierr = KSPSetOptionsPrefix(ksp_lll,"pf-"); PF_CHKERRQ(ierr); 
+	ierr = KSPSetFromOptions(ksp_lll); PF_CHKERRQ(ierr);
+	/**/
 	ierr = KSPMonitorSet(ksp_lll,petscfem_null_monitor,PETSC_NULL,NULL);
 
 	if (this->has_prefix()) {
