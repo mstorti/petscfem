@@ -282,7 +282,7 @@ void stratsw2d_ff::compute_flux(const FastMat2 &U,
 
     double vel,h;
     FastMat2::branch();
-    if (vel1<=vel2){
+    if (vel1>=vel2){
       FastMat2::choose(0);
       vel=vel2;
       h=h2;
