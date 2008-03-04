@@ -207,8 +207,8 @@ public:
 
 class streamsw2d_abso2 : public AdvectiveAbso {
 public:
-  streamsw2dt_abso2()
-    :  AdvectiveAbso(new streamsw2dt_ff(this)) { }
+  streamsw2d_abso2()
+    :  AdvectiveAbso(new streamsw2d_ff(this)) { }
 };
 
 #endif
