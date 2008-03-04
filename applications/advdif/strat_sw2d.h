@@ -1,11 +1,12 @@
 // -*- mode: C++ -*- 
-// $Id: streamsw2d.h,v 1.5 2005/02/23 01:40:34 rodrigop Exp $
-#ifndef PETSCFEM_STREAMSW2D_H
-#define PETSCFEM_STREAMSW2D_H
+// $Id: strat_sw2d.h,v 1.5 2005/02/23 01:40:34 rodrigop Exp $
+#ifndef PETSCFEM_STRATSW2D_H
+#define PETSCFEM_STRATSW2D_H
 
 #include "advective.h"
 #include "stream.h"
 #include "nonlres.h"
+#include "advabso.h"
 
 #define GETOPT_PROP(type,name,default) elemset->get_prop(name##_prop,#name)
 
@@ -22,8 +23,10 @@ class stratsw2d_ff : public AdvDifFFWEnth {
   int ndimel;
   // dof=4 strat sw2d primitive variables (u1 v1 h1 u2 v2 h2) 
   int ndof;
+  // weak form must be 0
+  int weak_form;
   // rho1 and rho2
-  int rho1,rho2;
+  double rho1,rho2;
   // gravity
   double gravity;
   // allow scale stabilization term
@@ -54,7 +57,7 @@ class stratsw2d_ff : public AdvDifFFWEnth {
   // Velocity vector in intrinsec coordinates
   FastMat2 Uintri1,Uintri2,Uintri;
   // Temp velocity vector
-  FastMat2 UU1,UU2;
+  FastMat2 UU;
   // Mass flux matrix
   FastMat2 flux_mass1,flux_mass2;
   // Momentum flux matrix
@@ -65,7 +68,7 @@ class stratsw2d_ff : public AdvDifFFWEnth {
   FastMat2 W_N;
   // Temp matrix for flux functions
   FastMat2 tmp1,tmp11,tmp2,tmp22,tmp3,tmp33,tmp4,
-    vref1,vref2,u1,u2,
+    vref,u1m,u2m,
     A01,bottom_slope,grad_U_psi;
   // Element iterator for hook
   ElementIterator elem_it;
@@ -176,6 +179,10 @@ public:
   void Riemann_Inv(const FastMat2 &U, const FastMat2 &normal,
 		   FastMat2 &Rie, FastMat2 &drdU, FastMat2 &C_U);
 
+  void get_Ajac(FastMat2 &Ajac_a);
+
+  void get_Cp(FastMat2 &Cp_a);
+
 #ifdef USE_COMP_P_SUPG
   void comp_P_supg(FastMat2 &P_supg, FastMat2 &grad_N, FastMat2 &tau_supg) {
     P_supg.prod(A_jac,grad_N,-1,2,-1,1)
@@ -185,20 +192,24 @@ public:
 };
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
-// The `streamsw2d' turb. shallow water river or channel element.
-class streamsw2d : public NewAdvDif {
+// The `stratsw2d' turb. shallow water river or channel element.
+class stratsw2d : public NewAdvDif {
 public:
-  streamsw2d() :  NewAdvDif(new stratsw2d_ff(this)) {
-    // printf("En streamsw2d(): adv_diff_ff: %p\n",adv_diff_ff);
+  stratsw2d() :  NewAdvDif(new stratsw2d_ff(this)) {
   } //constructor
 };
 
-class streamsw2d_abso : public AdvDiff_Abs_Nl_Res {
+class stratsw2d_abso : public AdvDiff_Abs_Nl_Res {
 public:
-  //streamsw2d_abso has n nodes [U_N, U_{N-1},U_{N-2}, .. , U_dummy]^t
-  streamsw2d_abso() :  AdvDiff_Abs_Nl_Res(new stratsw2d_ff(this)/*,new streamsw2d(this)*/) {
-    // printf("En streamsw2d_abso(): adv_diff_ff: %p\n",adv_diff_ff);
+  //stratsw2d_abso has n nodes [U_N, U_{N-1},U_{N-2}, .. , U_dummy]^t
+  stratsw2d_abso() :  AdvDiff_Abs_Nl_Res(new stratsw2d_ff(this)) {
   } //constructor
+};
+
+class stratsw2d_abso2 : public AdvectiveAbso {
+public:
+  stratsw2d_abso2()
+    :  AdvectiveAbso(new stratsw2d_ff(this)) { }
 };
 
 #endif

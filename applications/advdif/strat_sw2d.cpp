@@ -1,4 +1,4 @@
-//$Id: strat-sw2d.cpp,v 1.8 2007/01/30 19:03:44 rodrigop Exp $
+//$Id: strat_sw2d.cpp,v 1.8 2007/01/30 19:03:44 rodrigop Exp $
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:
 #include <stdio.h>
 #include <string.h>
@@ -12,7 +12,7 @@
 #include <src/texthash.h>
 #include <src/getprop.h>
 
-#include "strat-sw2d.h"
+#include "strat_sw2d.h"
 
 // State vector U = [u1 v1 h1 u2 v2 h2]
 #define NDOF 6
@@ -33,9 +33,9 @@ void stratsw2d_ff::start_chunk(int &options) {
   //o Acceleration of gravity.
   EGETOPTDEF_ND(elemset,double,gravity,1.);
   //o rho1
-  EGETOPTDEF_ND(elemset,double,rho1,1.);
+  EGETOPTDEF_ND(elemset,double,rho1,0.);
   //o rho2
-  EGETOPTDEF_ND(elemset,double,rho2,1.);
+  EGETOPTDEF_ND(elemset,double,rho2,0.);
   PETSCFEM_ASSERT0((rho1>0. && rho2>0.),"densities must be positive");
   //o Scale the SUPG upwind term. 
   EGETOPTDEF_ND(elemset,double,tau_fac,1.);
@@ -72,12 +72,10 @@ void stratsw2d_ff::start_chunk(int &options) {
   tmp1.resize(1,ndof);
   tmp2.resize(2,nel,nel);
   tmp3.resize(2,ndof,ndof);
-  vref1.resize(1,ndof);
-  vref2.resize(1,ndof);
-  UU1.resize(1,ndim+1);
-  UU2.resize(1,ndim+1);
-  u1.resize(1,ndim);
-  u2.resize(1,ndim);
+  vref.resize(1,ndof);
+  UU.resize(1,ndof);
+  u1m.resize(1,ndim);
+  u2m.resize(1,ndim);
   flux_mass1.resize(1,ndim);
   flux_mass2.resize(1,ndim);
   Uintri.resize(1,ndim);
@@ -91,7 +89,8 @@ void stratsw2d_ff::start_chunk(int &options) {
 
   // strat sw 2d must be used with weak form 0 because flux functions
   // are not conservative
-  PETSCFEM_ASSERT0(weak_form==0,"weak_form must be zero for 2D stratified sw eqs.");
+  EGETOPTDEF_ND(elemset,int,weak_form,1);
+  PETSCFEM_ASSERT0((weak_form==0),"weak_form must be zero for 2D stratified sw eqs.");
 #ifdef USE_A_JAC_DUMMY
   //para debug de caso lineal
   A_jac_dummy.resize(3,ndim,ndof,ndof);  
@@ -113,12 +112,9 @@ stratsw2d_ff::~stratsw2d_ff() {
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 void stratsw2d_ff::set_state(const FastMat2 &U) {
-  UU1.rs().set(U.is(1,1,ndim+1));
-  U.rs();
-  UU2.rs().set(U.is(1,ndim+2,2*ndim));
-  U.rs();UU1.rs();UU2.rs();
-  h1=UU1.get(ndim+1);
-  h2=UU2.get(2*ndim);
+  UU.rs().set(U);
+  h1=UU.get(ndim+1);
+  h2=UU.get(2*(ndim+1));
 }
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
@@ -129,13 +125,13 @@ void stratsw2d_ff::set_state(const FastMat2 &U,const FastMat2 &grad_U) {
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 void stratsw2d_ff::enthalpy(FastMat2 &H) {
   H.set(0.);
-  double h1_tmp=UU1.get(ndim+1);
-  double h2_tmp=UU2.get(ndim+1);
-  H.setel(UU1.get(1)*h1_tmp,1);
-  H.setel(UU1.get(2)*h1_tmp,2);
+  double h1_tmp=UU.get(ndim+1);
+  double h2_tmp=UU.get(2*(ndim+1));
+  H.setel(UU.get(1)*h1_tmp,1);
+  H.setel(UU.get(2)*h1_tmp,2);
   H.setel(h1_tmp,3);
-  H.setel(UU2.get(1)*h2_tmp,4);
-  H.setel(UU2.get(2)*h2_tmp,5);
+  H.setel(UU.get(4)*h2_tmp,4);
+  H.setel(UU.get(5)*h2_tmp,5);
   H.setel(h2_tmp,6);
 }
 
@@ -156,7 +152,7 @@ void stratsw2d_ff::comp_P_Cp(FastMat2 &P_Cp,const FastMat2 &P_supg) {
 void stratsw2d_ff::set_Ufluid(FastMat2 &Uref, FastMat2 &Ufluid) { 
   Ufluid.is(1,1,ndim).set(Uref.rs().is(1,1,ndim));
   Uref.rs();Ufluid.rs();
-  Ufluid.is(1,ndim+1,2*ndim).set(Uref.rs().is(1,ndim+1,2*ndim));
+  Ufluid.is(1,ndim+2,ndim+3).set(Uref.rs().is(1,ndim+2,ndim+3));
   Uref.rs();Ufluid.rs();
 }
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
@@ -171,8 +167,9 @@ void stratsw2d_ff::compute_flux(const FastMat2 &U,
   static double ajacx[NDOF*NDOF],ajacy[NDOF*NDOF];
   int ierr;
   
-  if ((ndim!=2) || (ndof!=3)) {
-    PetscPrintf(PETSC_COMM_WORLD,"Stop shallow_water 2D over 2D domain Only...\n");
+  ndof = U.dim(1);
+  if ((ndim!=2) || (ndof!=6)) {
+    PetscPrintf(PETSC_COMM_WORLD,"Stop stratifief shallow water 2D over 2D domain Only...\n");
     PetscFinalize();
     exit(0);
   }
@@ -182,7 +179,6 @@ void stratsw2d_ff::compute_flux(const FastMat2 &U,
 
   double tau_a, tau_delta, gU, A01v[6*6];
   //  static vector<double> bottom_slope_v;
-  ndof = U.dim(1);
   
   //  const char *bs;
   //  VOID_IT(bottom_slope_v);
@@ -200,23 +196,23 @@ void stratsw2d_ff::compute_flux(const FastMat2 &U,
   }
 
   set_state(U);
-  flux_mass1.set(UU1.is(1,1,ndim));
-  UU1.rs();
-  u1.set(flux_mass1).scale(1./h1);
-  flux_mass2.set(UU2.is(1,1,ndim));
-  UU2.rs();
-  u2.set(flux_mass2).scale(1./h2);
+  flux_mass1.set(UU.is(1,1,ndim));
+  UU.rs();
+  u1m.set(flux_mass1).scale(1./h1);
+  flux_mass2.set(UU.is(1,ndim+2,ndim+3));
+  UU.rs();
+  u2m.set(flux_mass2).scale(1./h2);
 
-  double uc1 = u1.sum_square_all();
-  double uc2 = u2.sum_square_all();
+  double uc1 = u1m.sum_square_all();
+  double uc2 = u2m.sum_square_all();
   double q1 = sqrt(uc1);
   double q2 = sqrt(uc2);
 
   double u1,v1,u2,v2;
-  u1=u1.get(1);
-  v1=u1.get(2);
-  u2=u2.get(1);
-  v2=u2.get(2);
+  u1=u1m.get(1);
+  v1=u1m.get(2);
+  u2=u2m.get(1);
+  v2=u2m.get(2);
 
   AJACX(1,1)=2*u1;
   AJACX(1,3)=-1.*SQ(u1)+g*h1;
@@ -276,8 +272,8 @@ void stratsw2d_ff::compute_flux(const FastMat2 &U,
     // A_grad_U es ndof x 1
     A_grad_U.rs().prod(A_jac.rs(),grad_U,-1,1,-2,-1,-2);
 
-    Uintri1.prod(iJaco,u1,1,-1,-1);
-    Uintri2.prod(iJaco,u2,1,-1,-1);
+    Uintri1.prod(iJaco,u1m,1,-1,-1);
+    Uintri2.prod(iJaco,u2m,1,-1,-1);
     double h_supg;
 
     double vel1 = sqrt(uc1);
@@ -422,6 +418,15 @@ void stratsw2d_ff::comp_grad_N_D_grad_N(FastMat2 &grad_N_D_grad_N,
   grad_N_D_grad_N.set(0.);
   tmp11.prod(D_jac,grad_N,-1,2,3,4,-1,1).scale(w);
   grad_N_D_grad_N.prod(tmp11,grad_N,1,-1,2,4,-1,3);
+}
+
+void stratsw2d_ff::get_Cp(FastMat2 &Cp_a) {
+  Cp_a.set(Cp);
+}
+
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:
+void stratsw2d_ff::get_Ajac(FastMat2 &Ajac_a) {
+  Ajac_a.set(A_jac);
 }
 
 void stratsw2d_ff::Riemann_Inv(const FastMat2 &U, const FastMat2 &normal,

@@ -1,0 +1,116 @@
+# -*- mode: shell-script -*-
+<:                              # starts ePerl block
+#__TRANSCRIPT__
+require "/u/rodrigop/PETSC/petscfem-new-sw2d/test/eperlini.pl";# Initializes ePerl 
+## DATA 
+$ndim = 2;
+require './data_plano.pl';
+#__END_TRANSCRIPT__
+:>//                            # ends ePerl block
+#
+#===========================================================
+global_options
+
+# <:pr('C_mu'):>
+
+use_log_vars 0
+
+# SUPG conf
+weak_form 0
+
+# time stepping
+nnwt 2
+<:pr('nstep'):>
+alpha 1
+
+#steady
+<:if ($restart == 0) {_:>//
+initial_state "./plano.ini.tmp"
+<:} else {:>//
+## initial_state room.ini.tmp
+initial_state "./STEPS-h1/plano.9.tmp"
+<:}:>//
+
+# "rotary saving" 
+nsaverot 1
+nsave 1
+nrec 1
+nfile 10000
+save_file "./plano.save-state.tmp"
+save_file_pattern "./STEPS/plano.%d.tmp"
+# omega_newton 0.3
+tol_newton 0
+solver "petsc"
+preco_type "lu"
+##solver "iisd"
+##preco_type "jacobi"
+##iisd_subpart_auto 1000
+
+maxits 400
+Krylov_dim 400
+
+# convergence parameters. Internal GMRES loop. 
+rtol 1.e-5
+atol 0
+dtol 1e3
+print_internal_loop_conv 1
+#print_linear_system_and_stop 1
+<:pr('Dt'):>
+#Dt .5
+tau_fac 1.0
+shock_capturing 0
+<:pr('ndim'):> 
+
+ALE_flag 0
+
+<:pr('gravity'):>
+<:pr('rho1'):>
+<:pr('rho2'):>
+
+__END_HASH__
+
+# ndim nu ndof
+nodes  <:=$ndim:>  3  <:=$ndof:>
+__INCLUDE__ ./plano.nod.tmp
+
+__END_NODES__
+#===========================================================
+elemset stratsw2d 4
+geometry cartesian2d
+ndim 2
+<:pr('rho1'):>
+<:pr('rho2'):>
+npg 4
+#diff_factor 1.0
+#compute_fd_adv_jacobian 3
+#compute_dDdU_term 0
+#C_mu 0.0
+#C_1 0.
+#C_2 0.
+#Chezy 110
+__END_HASH__
+__INCLUDE__ plano.con.tmp
+__END_ELEMSET__
+
+
+<:if ($ulsar == 1) {_:>//
+elemset stratsw2d_abso2 <:=$nodele:>
+use_old_state_as_ref 1
+<:} else {:>//
+elemset stratsw2d_abso2 <:=$nodele:>
+Uref <:=$u1_out:> <:=$v1_out:> <:=$h1_out:> <:=$u2_out:> <:=$v2_out:> <:=$h2_out:> 
+<:}:>//
+props normal[2]
+#normal 1.0 0.0
+dx 0
+## switch_to_ref_on_incoming 1
+__END_HASH__
+__INCLUDE__ plano.abso-out.tmp
+__END_ELEMSET__
+
+
+end_elemsets
+
+constraint
+__INCLUDE__ plano.constr-wall-peri.tmp
+__END_CONSTRAINT__
