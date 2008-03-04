@@ -6,6 +6,7 @@
 #include "advective.h"
 #include "stream.h"
 #include "nonlres.h"
+#include "./advabso.h"
 
 #define GETOPT_PROP(type,name,default) elemset->get_prop(name##_prop,#name)
 
@@ -41,9 +42,9 @@ class streamsw2d_ff : public AdvDifFFWEnth {
   // Threshold for shockcapturing
   double shock_capturing_threshold;
   // doubles for turbulent and frivtion models
-  double sigma_k,sigma_e,C_mu,C_1,C_2,
-    D,Chezy,C_P_e,eps_min,ket_min,
-    P_h,P_e,P_k;
+  double C_mu,C_1,C_2,
+    D,Chezy,C_P_e,
+    P_h;
   // h variable
   double h;
   // Flux advec Jacobians
@@ -169,6 +170,9 @@ public:
   */
   int dim() const { return 2; } //lo mismo que para el elemset stream de KWM
 
+  void get_Ajac(FastMat2 &Ajac_a);
+
+  void get_Cp(FastMat2 &Cp_a);
   /*
     Riemann Invariants calculus for Absorbent boundary conditions
     Rie, drdU  matrix declaration in boundary element routine rank=1 x ndof
@@ -199,6 +203,12 @@ public:
   streamsw2d_abso() :  AdvDiff_Abs_Nl_Res(new streamsw2d_ff(this)/*,new streamsw2d(this)*/) {
     // printf("En streamsw2d_abso(): adv_diff_ff: %p\n",adv_diff_ff);
   } //constructor
+};
+
+class streamsw2d_abso2 : public AdvectiveAbso {
+public:
+  streamsw2dt_abso2()
+    :  AdvectiveAbso(new streamsw2dt_ff(this)) { }
 };
 
 #endif
