@@ -46,8 +46,8 @@ void streamsw2d_ff::start_chunk(int &options) {
   //o Threshold value for velocity.
   EGETOPTDEF_ND(elemset,double,vel_min,1e-6);
   assert(ierr==0);
-  //o Kinematic viscosity (nu=mu/rho)
-  EGETOPTDEF_ND(elemset,double,nu,1.e-5);
+  //o Kinematic viscosity (nu_m=mu/rho)
+  EGETOPTDEF_ND(elemset,double,nu_m,1.e-5);
   //o Diffusive jacobians factor
   EGETOPTDEF_ND(elemset,double,diff_factor,1.);
   //o Chezy coefficient for bottom friction modelling
@@ -190,6 +190,20 @@ void streamsw2d_ff::compute_flux(const FastMat2 &U,
   ux=u.get(1);
   uy=u.get(2);
 
+  //Enthalpy jacobian
+  Cp.set(0.);
+  Cp.setel(h,1,1);
+  Cp.setel(0.,1,2);
+  Cp.setel(ux,1,3);
+  Cp.setel(0.,2,1);
+  Cp.setel(h,2,2);
+  Cp.setel(uy,2,3);
+  Cp.setel(0.,3,1);
+  Cp.setel(0.,3,2);
+  Cp.setel(1.,3,3);
+  Cp.rs();
+
+
   AJACX(1,1) = 2*ux;
   AJACX(1,2) = 0.;
   AJACX(1,3) = -ux*ux+g*h;
@@ -224,25 +238,10 @@ void streamsw2d_ff::compute_flux(const FastMat2 &U,
   flux.rs().ir(1,3).set(flux_mass);
   flux.rs();
 
-  //Enthalpy jacobian
-  Cp.set(0.);
-  Cp.setel(h,1,1);
-  Cp.setel(0.,1,2);
-  Cp.setel(ux,1,3);
-  Cp.setel(0.,2,1);
-  Cp.setel(h,2,2);
-  Cp.setel(uy,2,3);
-  Cp.setel(0.,3,1);
-  Cp.setel(0.,3,2);
-  Cp.setel(1.,3,3);
-  Cp.rs();
-
-
-
   if (options & COMP_UPWIND) {
 
     D_jac.set(0.);
-    double nu_h= nu/h;
+    double nu_h= nu_m/h;
     D_jac.setel( 2.*nu_h   ,1,1,1,1);
     D_jac.setel(-2.*ux*nu_h,1,1,1,3);
     
@@ -268,7 +267,7 @@ void streamsw2d_ff::compute_flux(const FastMat2 &U,
     tmp5.set(dev_tens).t();
     dev_tens.add(tmp5);
 
-    dev_tens.scale(nu);
+    dev_tens.scale(nu_m);
     grad_U.rs();
     fluxd.set(0.).is(1,1,2).add(dev_tens).rs();
     fluxd.scale(diff_factor);
