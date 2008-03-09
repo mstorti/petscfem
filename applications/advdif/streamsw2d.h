@@ -32,7 +32,7 @@ class streamsw2d_ff : public AdvDifFFWEnth {
   // diffussive term factor
   double diff_factor;
   // kinematic viscosity (nu=mu/rho)
-  double nu;
+  double nu_m;
   // Threshold for h
   double h_min;
   // Threshold for v
