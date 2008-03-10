@@ -35,6 +35,10 @@ void streamsw2d_ff::start_chunk(int &options) {
   EGETOPTDEF_ND(elemset,double,tau_fac,1.);
   //o Add shock-capturing term.
   EGETOPTDEF_ND(elemset,int,shock_capturing,0);
+  //o Add shock-capturing factor term.
+  EGETOPTDEF_ND(elemset,double,shocap_fac,1);
+  //o Add shock-capturing exponent.
+  EGETOPTDEF_ND(elemset,double,shocap_beta,1);
   // o Add shock-capturing term if relative variation of variables
   // inside the element exceeds this.
   // _T: double[ndim]/double[ndim*ndof]/double[ndim*ndof*ndof] 
@@ -46,6 +50,8 @@ void streamsw2d_ff::start_chunk(int &options) {
   //o Threshold value for velocity.
   EGETOPTDEF_ND(elemset,double,vel_min,1e-6);
   assert(ierr==0);
+  //o fluid density (rho)
+  EGETOPTDEF_ND(elemset,double,rho,1000);
   //o Kinematic viscosity (nu_m=mu/rho)
   EGETOPTDEF_ND(elemset,double,nu_m,1.e-5);
   //o Diffusive jacobians factor
@@ -224,6 +230,10 @@ void streamsw2d_ff::compute_flux(const FastMat2 &U,
   AJACY(3,2) = 1.;
   AJACY(3,3) = 0.;
 
+  grad_U.ir(2,ndof);
+  grad_h.set(grad_U);
+  grad_U.rs();
+
   A_jac.ir(1,2).set(ajacy).rs();
 
   flux_mom.prod(u,u,1,2).scale(h);
@@ -293,7 +303,6 @@ void streamsw2d_ff::compute_flux(const FastMat2 &U,
     A_grad_U.rs().prod(A_jac.rs(),grad_U,-1,1,-2,-1,-2);
 
     Uintri.prod(iJaco,u,1,-1,-1);
-    double h_supg;
 
     FastMat2::branch();
     if (vel>1e-10) {
@@ -332,44 +341,46 @@ void streamsw2d_ff::compute_flux(const FastMat2 &U,
     // Shock Capturing term. If not used return tau_supg as usual and
     // delta_sc=0.
     tau_delta = 0; delta_sc=0.;
+    if (shock_capturing) compute_shocap(delta_sc);
 
-    FastMat2::branch();
-    if (shock_capturing && (vmax > shock_capturing_threshold/h_supg) ) {
-      FastMat2::choose(0);
-      // calculo del tensor metrico de Riemann (A0) para transformar de variables 
+//     FastMat2::branch();
+//     if (shock_capturing && (vmax > shock_capturing_threshold/h_supg) ) {
+//       FastMat2::choose(0);
+//       // calculo del tensor metrico de Riemann (A0) para transformar de variables 
 
-      A01v[0]= 1.;
-      A01v[1]= 0. ;
-      A01v[2]= -ux;
+//       A01v[0]= 1.;
+//       A01v[1]= 0. ;
+//       A01v[2]= -ux;
 
-      A01v[3]= 0.;
-      A01v[4]= 1.;
-      A01v[5]= -uy;
+//       A01v[3]= 0.;
+//       A01v[4]= 1.;
+//       A01v[5]= -uy;
 
-      A01v[6]= -ux;
-      A01v[7]= -uy;
-      A01v[8]= g*h+ux*ux+uy*uy;
+//       A01v[6]= -ux;
+//       A01v[7]= -uy;
+//       A01v[8]= g*h+ux*ux+uy*uy;
 
-      A01.set(A01v).scale(1./(g*h));
+//       A01.set(A01v).scale(1./(g*h));
 
-      // calculo del delta shock capturing delta_sc
-      double vaux_num,vaux_den;
-      tmp1.prod(A01,A_grad_U,1,-1,-1);
-      tmp22.prod(A_grad_U,tmp1,-1,-1);
-      vaux_num = double(tmp22);
+//       // calculo del delta shock capturing delta_sc
+//       double vaux_num,vaux_den;
+//       tmp1.prod(A01,A_grad_U,1,-1,-1);
+//       tmp22.prod(A_grad_U,tmp1,-1,-1);
+//       vaux_num = double(tmp22);
 
-      grad_U_psi.prod(iJaco,grad_U,1,-1,-1,2);
-      tmp33.prod(A01,grad_U_psi,1,-1,2,-1);
-      tmp4.prod(grad_U_psi,tmp33,-1,-2,-2,-1);
-      vaux_den = double(tmp4);
+//       grad_U_psi.prod(iJaco,grad_U,1,-1,-1,2);
+//       tmp33.prod(A01,grad_U_psi,1,-1,2,-1);
+//       tmp4.prod(grad_U_psi,tmp33,-1,-2,-2,-1);
+//       vaux_den = double(tmp4);
 
-      delta_sc = sqrt(vaux_num / vaux_den);
-      tau_delta = delta_sc/(lam_max*lam_max);
+//       delta_sc = sqrt(vaux_num / vaux_den);
+//       tau_delta = delta_sc/(lam_max*lam_max);
       
-    } // if (shock_capturing ...
+//     } // if (shock_capturing ...
 
-    FastMat2::leave();
+//     FastMat2::leave();
 
+    tau_delta = delta_sc/(lam_max*lam_max);
     double tau_supg_d = ((tau_a-tau_delta)>0 ? (tau_a-tau_delta) : 0);
     options |= SCALAR_TAU;
     tau_supg.setel(tau_supg_d,1,1);
@@ -461,25 +472,22 @@ void streamsw2d_ff::compute_shocap(double &delta_sc) {
   const FastMat2 &grad_N = *advdf_e->grad_N();
   double tol=1.0e-16;
   
-  r_dir.set(vref);
+  r_dir.set(u);
   r_dir_mod = sqrt(r_dir.sum_square_all());
   
-  double sonic_speed = sqrt(g*h);
+  double vel = sqrt(u.sum_square_all());
+  double sonic_speed = sqrt(gravity*h);
   double Peclet = vel*h_supg/(2.*nu_m);
   double velmax = vel+sonic_speed;
   
   double tol_shoc = 1e-10;
   // compute j direction , along density gradient
-  grad_U.ir(2,ndof);
-  double h_shoc, grad_rho_mod = sqrt(grad_U.sum_square_all());
-  grad_U.rs();
+  double h_shoc, grad_h_mod = sqrt(grad_h.sum_square_all());
   FastMat2::branch();
-  if(grad_rho_mod>tol_shoc) {
+  if(grad_h_mod>tol_shoc) {
     FastMat2::choose(0);
-    jvec.set(grad_rho).scale(1.0/grad_rho_mod);
-    
-    svec.set(jvec);
-    h_rgn = double(tmp9.prod(grad_N,svec,-1,1,-1).sum_abs_all());
+    jvec.set(grad_h).scale(1.0/grad_h_mod);
+    h_rgn = double(tmp9.prod(grad_N,jvec,-1,1,-1).sum_abs_all());
     h_rgn = h_rgn/2.0;
     h_rgn = (h_rgn < tol ? tol : h_rgn);
     h_shoc = 1.0/h_rgn;
@@ -489,10 +497,10 @@ void streamsw2d_ff::compute_shocap(double &delta_sc) {
     h_shoc = h_supg;
   }
   FastMat2::leave();
-  double fz = grad_rho_mod*h_shoc/rho;
+  double fz = grad_h_mod*h_shoc/rho;
   fz = pow(fz,shocap_beta);
   delta_sc_aniso = 0.5*h_shoc*velmax*fz;
   
-  double fz2 = (Peclet < 3. ? Peclet/3. : 1.);
-  delta_sc = 0.5*h_supg*velmax*fz2;
+  //  double fz2 = (Peclet < 3. ? Peclet/3. : 1.);
+  delta_sc = 0.5*h_supg*velmax*fz*shocap_fac;
 }
