@@ -31,6 +31,8 @@ class streamsw2d_ff : public AdvDifFFWEnth {
   double cfric;
   // diffussive term factor
   double diff_factor;
+  // fluid density (rho)
+  double rho;
   // kinematic viscosity (nu=mu/rho)
   double nu_m;
   // Threshold for h
@@ -72,8 +74,9 @@ class streamsw2d_ff : public AdvDifFFWEnth {
   ElementIterator elem_it;
   // for shock capt operator
   const NewAdvDif *advdf_e;
-  FastMat2 r_dir,jvec,tmp9;
-  double r_dir_mod;
+  FastMat2 r_dir,jvec,tmp9,grad_h;
+  double r_dir_mod,shocap_beta,shocap_fac,h_rgn,h_shoc,
+    delta_sc_aniso,h_supg;
   //#define USE_A_JAC_DUMMY
 #ifdef USE_A_JAC_DUMMY
   FastMat2 A_jac_dummy;
