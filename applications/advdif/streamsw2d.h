@@ -69,7 +69,7 @@ class streamsw2d_ff : public AdvDifFFWEnth {
   FastMat2 W_N;
   // Temp matrix for flux functions
   FastMat2 tmp1,tmp11,tmp2,tmp22,tmp3,tmp33,tmp4,dev_tens,vref,u,
-    A01,bottom_slope,tmp5,grad_U_psi;
+    bottom_slope,tmp5,grad_U_psi;
   // Element iterator for hook
   ElementIterator elem_it;
   // for shock capt operator
