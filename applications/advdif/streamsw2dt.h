@@ -25,8 +25,10 @@ class streamsw2dt_ff : public AdvDifFFWEnth {
   int ndof;
   // gravity
   double gravity;
+  // fluid density (rho)
+  double rho;
   // Molecular kinematic viscosity
-  double nu;
+  double nu_m;
   // allow scale stabilization term
   double  tau_fac;
   // scale friction term
@@ -65,13 +67,18 @@ class streamsw2dt_ff : public AdvDifFFWEnth {
   FastMat2 W_N;
   // Temp matrix for flux functions
   FastMat2 tmp1,tmp11,tmp2,tmp22,tmp3,tmp33,tmp4,dev_tens,vref,u,
-    A01,bottom_slope,tmp5,grad_U_psi,tmp20,vel;
+    bottom_slope,tmp5,grad_U_psi,tmp20,vel;
   // Element iterator for hook
   ElementIterator elem_it;
   // for tangent vector computation
   MakeTangentSpace maktgsp;
   // for linear abso computing
   int linear_abso;
+  // for shock capt operator
+  const NewAdvDif *advdf_e;
+  FastMat2 r_dir,jvec,tmp9,grad_h;
+  double r_dir_mod,shocap_beta,shocap_fac,h_rgn,h_shoc,
+    delta_sc_aniso,h_supg;
 
   //#define USE_A_JAC_DUMMY
 #ifdef USE_A_JAC_DUMMY
@@ -182,6 +189,8 @@ public:
   void get_Ajac(FastMat2 &Ajac_a);
 
   void get_Cp(FastMat2 &Cp_a);
+
+  void compute_shocap(double &delta_sc);
 
 #ifdef USE_COMP_P_SUPG
   void comp_P_supg(FastMat2 &P_supg, FastMat2 &grad_N, FastMat2 &tau_supg) {
