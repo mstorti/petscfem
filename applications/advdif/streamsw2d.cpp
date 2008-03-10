@@ -49,7 +49,6 @@ void streamsw2d_ff::start_chunk(int &options) {
   EGETOPTDEF_ND(elemset,double,h_min,1e-6);
   //o Threshold value for velocity.
   EGETOPTDEF_ND(elemset,double,vel_min,1e-6);
-  assert(ierr==0);
   //o fluid density (rho)
   EGETOPTDEF_ND(elemset,double,rho,1000);
   //o Kinematic viscosity (nu_m=mu/rho)
@@ -63,7 +62,7 @@ void streamsw2d_ff::start_chunk(int &options) {
   
   //o Dimension of the problem. 
   EGETOPTDEF_ND(elemset,int,ndim,0);
-  assert(ndim==2);
+  PETSCFEM_ASSERT0(ndim==2,"Only Shallow Water 2D eqs.");
   A_jac.resize(3,ndim,ndof,ndof);
   D_jac.resize(4,ndim,ndim,ndof,ndof);
   flux_mom.resize(2,ndim,ndim);
@@ -248,7 +247,7 @@ void streamsw2d_ff::compute_flux(const FastMat2 &U,
 
   if (options & COMP_UPWIND) {
     advdf_e = dynamic_cast<const NewAdvDif *>(elemset);
-    assert(advdf_e);
+    PETSCFEM_ASSERT0(advdf_e,"No advdif elemset define in streamsw2d");
 
     D_jac.set(0.);
     double nu_h= nu_m/h;
@@ -341,50 +340,13 @@ void streamsw2d_ff::compute_flux(const FastMat2 &U,
     // Shock Capturing term. If not used return tau_supg as usual and
     // delta_sc=0.
     tau_delta = 0; delta_sc=0.;
+
     if (shock_capturing) compute_shocap(delta_sc);
-
-//     FastMat2::branch();
-//     if (shock_capturing && (vmax > shock_capturing_threshold/h_supg) ) {
-//       FastMat2::choose(0);
-//       // calculo del tensor metrico de Riemann (A0) para transformar de variables 
-
-//       A01v[0]= 1.;
-//       A01v[1]= 0. ;
-//       A01v[2]= -ux;
-
-//       A01v[3]= 0.;
-//       A01v[4]= 1.;
-//       A01v[5]= -uy;
-
-//       A01v[6]= -ux;
-//       A01v[7]= -uy;
-//       A01v[8]= g*h+ux*ux+uy*uy;
-
-//       A01.set(A01v).scale(1./(g*h));
-
-//       // calculo del delta shock capturing delta_sc
-//       double vaux_num,vaux_den;
-//       tmp1.prod(A01,A_grad_U,1,-1,-1);
-//       tmp22.prod(A_grad_U,tmp1,-1,-1);
-//       vaux_num = double(tmp22);
-
-//       grad_U_psi.prod(iJaco,grad_U,1,-1,-1,2);
-//       tmp33.prod(A01,grad_U_psi,1,-1,2,-1);
-//       tmp4.prod(grad_U_psi,tmp33,-1,-2,-2,-1);
-//       vaux_den = double(tmp4);
-
-//       delta_sc = sqrt(vaux_num / vaux_den);
-//       tau_delta = delta_sc/(lam_max*lam_max);
-      
-//     } // if (shock_capturing ...
-
-//     FastMat2::leave();
 
     tau_delta = delta_sc/(lam_max*lam_max);
     double tau_supg_d = ((tau_a-tau_delta)>0 ? (tau_a-tau_delta) : 0);
     options |= SCALAR_TAU;
     tau_supg.setel(tau_supg_d,1,1);
-
   } 
 
   if (options & COMP_SOURCE) {
@@ -477,7 +439,6 @@ void streamsw2d_ff::compute_shocap(double &delta_sc) {
   
   double vel = sqrt(u.sum_square_all());
   double sonic_speed = sqrt(gravity*h);
-  double Peclet = vel*h_supg/(2.*nu_m);
   double velmax = vel+sonic_speed;
   
   double tol_shoc = 1e-10;
@@ -500,7 +461,6 @@ void streamsw2d_ff::compute_shocap(double &delta_sc) {
   double fz = grad_h_mod*h_shoc/rho;
   fz = pow(fz,shocap_beta);
   delta_sc_aniso = 0.5*h_shoc*velmax*fz;
-  
-  //  double fz2 = (Peclet < 3. ? Peclet/3. : 1.);
+
   delta_sc = 0.5*h_supg*velmax*fz*shocap_fac;
 }
