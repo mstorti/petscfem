@@ -54,8 +54,6 @@ void streamsw2d_ff::start_chunk(int &options) {
   EGETOPTDEF_ND(elemset,double,Chezy,110);
   //o Threshold value for $h$ while computing turbulence model.
   EGETOPTDEF_ND(elemset,double,h_min,1e-6);
-  //o Threshold value for velocity while computing turbulence model.
-  EGETOPTDEF_ND(elemset,double,vel_min,1e-6);
   
   //o Dimension of the problem. 
   EGETOPTDEF_ND(elemset,int,ndim,0);
@@ -239,6 +237,8 @@ void streamsw2d_ff::compute_flux(const FastMat2 &U,
   flux.rs();
 
   if (options & COMP_UPWIND) {
+    advdf_e = dynamic_cast<const NewAdvDif *>(elemset);
+    assert(advdf_e);
 
     D_jac.set(0.);
     double nu_h= nu_m/h;
@@ -454,4 +454,45 @@ void streamsw2d_ff::get_Cp(FastMat2 &Cp_a) {
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:
 void streamsw2d_ff::get_Ajac(FastMat2 &Ajac_a) {
   Ajac_a.set(A_jac);
+}
+
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:
+void streamsw2d_ff::compute_shocap(double &delta_sc) {
+  const FastMat2 &grad_N = *advdf_e->grad_N();
+  double tol=1.0e-16;
+  
+  r_dir.set(vref);
+  r_dir_mod = sqrt(r_dir.sum_square_all());
+  
+  double sonic_speed = sqrt(g*h);
+  double Peclet = vel*h_supg/(2.*nu_m);
+  double velmax = vel+sonic_speed;
+  
+  double tol_shoc = 1e-10;
+  // compute j direction , along density gradient
+  grad_U.ir(2,ndof);
+  double h_shoc, grad_rho_mod = sqrt(grad_U.sum_square_all());
+  grad_U.rs();
+  FastMat2::branch();
+  if(grad_rho_mod>tol_shoc) {
+    FastMat2::choose(0);
+    jvec.set(grad_rho).scale(1.0/grad_rho_mod);
+    
+    svec.set(jvec);
+    h_rgn = double(tmp9.prod(grad_N,svec,-1,1,-1).sum_abs_all());
+    h_rgn = h_rgn/2.0;
+    h_rgn = (h_rgn < tol ? tol : h_rgn);
+    h_shoc = 1.0/h_rgn;
+  } else {
+    FastMat2::choose(1);
+    jvec.set(0.);
+    h_shoc = h_supg;
+  }
+  FastMat2::leave();
+  double fz = grad_rho_mod*h_shoc/rho;
+  fz = pow(fz,shocap_beta);
+  delta_sc_aniso = 0.5*h_shoc*velmax*fz;
+  
+  double fz2 = (Peclet < 3. ? Peclet/3. : 1.);
+  delta_sc = 0.5*h_supg*velmax*fz2;
 }
