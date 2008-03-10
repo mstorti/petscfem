@@ -70,7 +70,10 @@ class streamsw2d_ff : public AdvDifFFWEnth {
     A01,bottom_slope,tmp5,grad_U_psi;
   // Element iterator for hook
   ElementIterator elem_it;
-
+  // for shock capt operator
+  const NewAdvDif *advdf_e;
+  FastMat2 r_dir,jvec,tmp9;
+  double r_dir_mod;
   //#define USE_A_JAC_DUMMY
 #ifdef USE_A_JAC_DUMMY
   FastMat2 A_jac_dummy;
@@ -179,6 +182,8 @@ public:
   */
   void Riemann_Inv(const FastMat2 &U, const FastMat2 &normal,
 		   FastMat2 &Rie, FastMat2 &drdU, FastMat2 &C_U);
+
+  void compute_shocap(double &delta_sc);
 
 #ifdef USE_COMP_P_SUPG
   void comp_P_supg(FastMat2 &P_supg, FastMat2 &grad_N, FastMat2 &tau_supg) {
