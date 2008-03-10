@@ -76,7 +76,6 @@ void streamsw2d_ff::start_chunk(int &options) {
   u.resize(1,ndim);
   flux_mass.resize(1,ndim);
   Uintri.resize(1,ndim);
-  A01.resize(2,ndof,ndof);
   dev_tens.resize(2,2,2);
   tmp5.resize(2,2,2);
   bottom_slope.resize(1,ndim);
@@ -163,7 +162,7 @@ void streamsw2d_ff::compute_flux(const FastMat2 &U,
   static int flag=0;
   static double g=gravity;
 
-  double tau_a, tau_delta, gU, A01v[9];
+  double tau_a, tau_delta, gU;
   static vector<double> bottom_slope_v;
   
   const char *bs;
@@ -247,7 +246,7 @@ void streamsw2d_ff::compute_flux(const FastMat2 &U,
 
   if (options & COMP_UPWIND) {
     advdf_e = dynamic_cast<const NewAdvDif *>(elemset);
-    PETSCFEM_ASSERT0(advdf_e,"No advdif elemset define in streamsw2d");
+    PETSCFEM_ASSERT0(advdf_e,"No advdif elemset defined in streamsw2d");
 
     D_jac.set(0.);
     double nu_h= nu_m/h;
