@@ -72,9 +72,9 @@ class streamsw2d_ff : public AdvDifFFWEnth {
     bottom_slope,tmp5,grad_U_psi;
   // Element iterator for hook
   ElementIterator elem_it;
-  // for shock capt operator
+  // shock capt operator stuff
   const NewAdvDif *advdf_e;
-  FastMat2 r_dir,jvec,tmp9,grad_h;
+  FastMat2 r_dir,jvec,grad_h,tmp9;
   double r_dir_mod,shocap_beta,shocap_fac,h_rgn,h_shoc,
     delta_sc_aniso,h_supg;
   //#define USE_A_JAC_DUMMY
