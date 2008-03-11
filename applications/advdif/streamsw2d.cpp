@@ -82,6 +82,8 @@ void streamsw2d_ff::start_chunk(int &options) {
   grad_U_psi.resize(2,ndim,ndof);
   tmp33.resize(2,ndof,ndim);
   tmp11.resize(4,nel,ndim,ndof,ndof);
+  r_dir.resize(1,ndim);
+  jvec.resize(1,ndim);
 #ifdef USE_A_JAC_DUMMY
   //para debug de caso lineal
   A_jac_dummy.resize(3,ndim,ndof,ndof);  
