@@ -101,6 +101,9 @@ void streamsw2dt_ff::start_chunk(int &options) {
   tmp33.resize(2,ndof,ndim);
   tmp11.resize(4,nel,ndim,ndof,ndof);
   maktgsp.init(ndim);
+  r_dir.resize(1,ndim);
+  jvec.resize(1,ndim);
+  tmp9.resize(1,ndof);
 
 #ifdef USE_A_JAC_DUMMY
   //para debug de caso lineal
