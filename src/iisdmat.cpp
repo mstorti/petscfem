@@ -144,6 +144,8 @@ int PFPETScMat::build_ksp() {
   TGETOPTDEF_ND_PF(thash,int,asm_define_sub_problems,0);
   //o Chooses the preconditioning for block problems in ASM method.
   TGETOPTDEF_S_PF(thash,string,asm_sub_preco_type,ilu);
+  //o Chooses the preconditioning for block problems in ASM method.
+  TGETOPTDEF_S_PF(thash,string,asm_sub_ksp_type,preonly);
   //o Chooses the number of local blocks in ASM
   TGETOPTDEF_ND_PF(thash,int,asm_lblocks,1);
   //o Chooses the overlap of blocks in ASM
@@ -179,7 +181,7 @@ int PFPETScMat::build_ksp() {
     PETSCFEM_ASSERT0(asm_overlap>=0,"Overlap in ASM prec must be non-negative");
 
     if (asm_lblocks>1) ierr = PCASMSetLocalSubdomains(pc,asm_lblocks,PETSC_NULL);CHKERRQ(ierr);
-    if (asm_define_sub_problems && asm_lblocks>1){
+    if (asm_define_sub_problems){
       int        nlocal,first;  /* number of local subblocks, first local subblock */
       KSP        *subksp;             /* KSP context for subblock */
       PC         subpc;              /* PC context for subblock */
@@ -192,8 +194,8 @@ int PFPETScMat::build_ksp() {
       for (int j=0; j<nlocal; j++) {
  	ierr = KSPGetPC(subksp[j],&subpc); CHKERRQ(ierr);
  	ierr = PCSetType(subpc,(char *)asm_sub_preco_type.c_str()); CHKERRQ(ierr);
- 	ierr = KSPSetType(subksp[j],(char *)KSP_method.c_str());  CHKERRQ(ierr);
- 	ierr = KSPSetTolerances(subksp[j],1.e-7,PETSC_DEFAULT,PETSC_DEFAULT,PETSC_DEFAULT); CHKERRQ(ierr);
+ 	ierr = KSPSetType(subksp[j],(char *)asm_sub_ksp_type.c_str());  CHKERRQ(ierr);
+	//ierr = KSPSetTolerances(subksp[j],1.e-7,PETSC_DEFAULT,PETSC_DEFAULT,PETSC_DEFAULT); CHKERRQ(ierr);
  	//ierr = PCView(subpc,PETSC_VIEWER_STDOUT_WORLD);
       }
     }
