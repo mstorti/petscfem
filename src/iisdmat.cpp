@@ -210,9 +210,10 @@ int PFPETScMat::build_ksp() {
       ierr = PCASMGetSubKSP(pc,&nlocal,&first,&subksp); CHKERRQ(ierr);
       //ierr = PCView(pc,PETSC_VIEWER_STDOUT_WORLD); CHKERRQ(ierr);    
       for (int j=0; j<nlocal; j++) {
+	ierr = KSPSetType(subksp[j],(char *)asm_sub_ksp_type.c_str());  CHKERRQ(ierr);
 	ierr = KSPGetPC(subksp[j],&subpc); CHKERRQ(ierr);
 	ierr = PCSetType(subpc,(char *)asm_sub_preco_type.c_str()); CHKERRQ(ierr);
-	ierr = KSPSetType(subksp[j],(char *)asm_sub_ksp_type.c_str());  CHKERRQ(ierr);
+	ierr = PCFactorSetZeroPivot(subpc,1.0e-20); CHKERRQ(ierr); 
       }
     }
   } else
