@@ -148,6 +148,8 @@ int PFPETScMat::build_ksp() {
   TGETOPTDEF_ND_PF(thash,int,asm_lblocks,1);
   //o Chooses the overlap of blocks in ASM
   TGETOPTDEF_ND_PF(thash,int,asm_overlap,1);
+  //o Chooses the restriction/extension type in ASM
+  TGETOPTDEF_S_PF(thash,string,asm_type,restrict);
   //o Uses right or left preconditioning. Default is  #right#  for
   // GMRES. 
   TGETOPTDEF_S_PF(thash,string,preco_side,<ksp-dependent>);
@@ -173,21 +175,40 @@ int PFPETScMat::build_ksp() {
     MPI_Comm_size(PETSCFEM_COMM_WORLD,&nprocs);
     
     ierr = PCSetType(pc,PCASM);CHKERRQ(ierr);
-    //    ierr = PCASMSetType(pc,PC_ASM_BASIC);CHKERRQ(ierr);
-    ierr = PCASMSetOverlap(pc,asm_overlap);
-    PETSCFEM_ASSERT0(asm_overlap>=0,"Overlap in ASM prec must be non-negative");
+    if (asm_type == "restrict") {
+      ierr = PCASMSetType(pc,PC_ASM_RESTRICT);CHKERRQ(ierr);
+    } else if (asm_type == "basic") {
+      ierr = PCASMSetType(pc,PC_ASM_BASIC);CHKERRQ(ierr);
+    } else if (asm_type == "interpolate") {
+      ierr = PCASMSetType(pc,PC_ASM_INTERPOLATE);CHKERRQ(ierr);
+    } else if (asm_type == "none") {
+      ierr = PCASMSetType(pc,PC_ASM_NONE);CHKERRQ(ierr);
+    } else {
+      PETSCFEM_ERROR("PFPETScMat::build_ksp():: "
+		     "Bad \"asm_type\": %s\n",
+		     asm_type.c_str());  
+    }
+    if (KSP_method == "cg") { // special case
+      ierr = PCASMSetType(pc,PC_ASM_BASIC);CHKERRQ(ierr);
+    }
 
-    if (asm_lblocks>1) ierr = PCASMSetLocalSubdomains(pc,asm_lblocks,PETSC_NULL);CHKERRQ(ierr);
+    PETSCFEM_ASSERT0(asm_overlap>=0,"Overlap in ASM prec must be non-negative");
+    ierr = PCASMSetOverlap(pc,asm_overlap);CHKERRQ(ierr);
+
+    PETSCFEM_ASSERT0(asm_lblocks>0,"Local blocks in ASM prec must be positive");
+    if (asm_lblocks>1) { 
+      ierr = PCASMSetLocalSubdomains(pc,asm_lblocks,PETSC_NULL);CHKERRQ(ierr); 
+    }
+
     {
       int        nlocal,first;  /* number of local subblocks, first local subblock */
-      KSP        *subksp;             /* KSP context for subblock */
-      PC         subpc;              /* PC context for subblock */
+      KSP        *subksp;       /* KSP context for subblock */
+      PC         subpc;         /* PC context for subblock */
       
       ierr = KSPSetUp(ksp);CHKERRQ(ierr);
       //Extract array of KSP for the local blocks
       ierr = PCASMGetSubKSP(pc,&nlocal,&first,&subksp); CHKERRQ(ierr);
       //ierr = PCView(pc,PETSC_VIEWER_STDOUT_WORLD); CHKERRQ(ierr);    
-      assert(asm_lblocks>0);
       for (int j=0; j<nlocal; j++) {
 	ierr = KSPGetPC(subksp[j],&subpc); CHKERRQ(ierr);
 	ierr = PCSetType(subpc,(char *)asm_sub_preco_type.c_str()); CHKERRQ(ierr);
