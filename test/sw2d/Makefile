@@ -1,8 +1,3 @@
-
-PETSCFEM_DIR = /u/rodrigop/PETSC/petscfem-new-sw2d
-
-PFEM_UP_DIR = ..
-
 include $(PETSCFEM_DIR)/Makefile.base
 
 ADVDIF  = $(PETSCFEM_DIR)/applications/advdif/advdif_O.bin
