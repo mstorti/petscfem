@@ -135,7 +135,6 @@ int Elemset::download_vector(int nel,int ndof,Dofmap *dofmap,
       for (kdof=1; kdof<=ndof; kdof++) {
  	dofmap->get_nodal_value(*nodep,kdof,argd.sstate,
  				argd.ghost_vals,time_d,*w++);
-	//	printf("setting node %d,kdof %d\n",*nodep,kdof);
       }
       nodep++;
     }
@@ -274,7 +273,7 @@ int assemble(Mesh *mesh,arg_list argl,
     ARGVJ.options = argl[j].options; 
     ARGVJ.must_flush = 0;
     ARGVJ.arginfo = argl[j].arginfo;
-    //    PetscPrintf(PETSC_COMM_WORLD,"Argument %d\n",j);
+    // PetscPrintf(PETSC_COMM_WORLD,"Argument %d\n",j);
     if (argl[j].options & DOWNLOAD_VECTOR) {
       Vec *x;
       if (argl[j].options & USE_TIME_DATA) {
@@ -381,7 +380,7 @@ int assemble(Mesh *mesh,arg_list argl,
 
     // ndoft:= size to be passed per element
     ndoft = nel*ndof;
-
+    
     //o Chunk size for the elemset. 
     TGETOPTDEF(elemset->thash,int,chunk_size,ELEM_CHUNK_SIZE);
     //o Call MatAssembly[Begin|End](A, MAT_FLUSH_ASSEMBLY) for
@@ -505,7 +504,7 @@ int assemble(Mesh *mesh,arg_list argl,
 	  download += MPI_Wtime() - upl_s;
 	}
       }
-
+      
 #if 0
       if (!strcmp(jobinfo,"comp_res")) {
 	Chrono chrono;
@@ -582,7 +581,7 @@ int assemble(Mesh *mesh,arg_list argl,
 	for (kloc=0; kloc<nel; kloc++) {
 	  for (kdof=0; kdof<ndof; kdof++) {
 
-//#define DEBUG_ME
+	    //#define DEBUG_ME
 #ifdef DEBUG_ME
 	    printf("kloc %d, kdof %d\n",kloc,kdof);
 #endif
@@ -680,7 +679,7 @@ int assemble(Mesh *mesh,arg_list argl,
 
       wait.add(hpchrono.elapsed());
       hpchrono.start();
-      
+
       // Has finished processing chunks this processor?
       int local_has_finished= (el_last==nelem-1);
 
@@ -803,27 +802,12 @@ int assemble(Mesh *mesh,arg_list argl,
 				MAT_FINAL_ASSEMBLY); CHKERRQ(ierr);
 	ierr = MatAssemblyEnd(*(ARGVJ.A),
 			      MAT_FINAL_ASSEMBLY); CHKERRQ(ierr);
-#if 0 // laura
-	PetscViewer matlab;
-	ierr = PetscViewerASCIIOpen(PETSCFEM_COMM_WORLD,
-			       "argvmat2.output",&matlab); CHKERRA(ierr);
-	ierr = MatView(*(ARGVJ.A),matlab);
-#endif
-
       }
     }
 
     if (argl[j].options & ASSEMBLY_VECTOR) {
       ierr = VecAssemblyBegin(*(ARGVJ.x)); CHKERRQ(ierr);
       ierr = VecAssemblyEnd(*(ARGVJ.x)); CHKERRQ(ierr);
-
-#if 0 // laura
-	PetscViewer matlab;
-	ierr = PetscViewerASCIIOpen(PETSCFEM_COMM_WORLD,
-			       "argv.output",&matlab); CHKERRA(ierr);
-	ierr = VecView(*(ARGVJ.x),matlab);
-#endif
-
     }
 
     if (argl[j].options & UPLOAD_PROFILE) {
