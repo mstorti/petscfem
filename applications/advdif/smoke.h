@@ -21,8 +21,8 @@ class smoke_ff : public AdvDifFFWEnth {
 private:
   int ndim;
   Property u_prop, G_prop;
-  double phi, omega, drdphi, Cr, phieq;
-  FastMat2 u, U, Cp, W_N, A, Uintri;
+  double phi, omega, drdphi, Cr, phieq, diff, tau_fac;
+  FastMat2 u, U, Cp, W_N, A, Uintri, tmp2, tmp0;
   int nel,ndof,nelprops;
   ElementIterator element_m;
   FastMat2Tmp tmp;
