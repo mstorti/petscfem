@@ -44,6 +44,7 @@
 #include "./bubblyqint.h"
 #include "./bubblyqint.h"
 #include "./nsitetlesf.h"
+#include "./nsitetlesls.h"
 #include "./nsitetlesfbf.h"
 #include "./nsitetlesfd.h"
 #include "./truss.h"
@@ -74,6 +75,7 @@ void bless_elemset_ns(char *type,Elemset *& elemset) {
     SET_ELEMSET_TYPE(ld_elasticity_load)
 
     SET_ELEMSET_TYPE(nsi_tet_les_fm2)
+    SET_ELEMSET_TYPE(nsi_tet_les_ls)
     SET_ELEMSET_TYPE(nsi_tet_les_full)
     SET_ELEMSET_TYPE(nsi_tet_les_full_darcy)
     SET_ELEMSET_TYPE(nsi_tet_les_full_bf)
