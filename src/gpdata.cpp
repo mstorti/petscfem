@@ -700,12 +700,14 @@ get_default_geom(int ndim, int nel, string& geometry)
     } break;
   case  2: 
     switch (nel) {
+    case  2: geometry = string("cartesian1d"); break;
     case  3: geometry = string("triangle");    break;
     case  4: geometry = string("cartesian2d"); break;
     default: return -1;
     } break;
-  case  3:      					 
-    switch (nel) {
+  case  3: /* XXX should handle cartesian2d, collision with tetra !!! */
+    switch (nel) { 
+    case  3: geometry = string("triangle");    break;
     case  4: geometry = string("tetra");       break;
     case  6: geometry = string("prismatic");   break;
     case  8: geometry = string("cartesian3d"); break;
