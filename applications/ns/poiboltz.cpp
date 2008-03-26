@@ -30,6 +30,20 @@ void poisson_boltzmann::elemset_init() {
   //o 
   TGETOPTDEF_ND(thash,double,R,8.314472);
 
+  //o 
+  TGETOPTDEF_ND(thash,double,Debye_length,0.0);
+
+  if (Debye_length == 0.0) {
+
+    A = 2*(ninf*z*F)/(eps*eps0);
+    B = (z*F)/(R*Tabs);
+
+  } else {
+
+    A = 1./(Debye_length*Debye_length);
+    B = 1.0;
+
+  }
  
 }
 
@@ -41,13 +55,17 @@ void poisson_boltzmann::pg_connector(const FastMat2 &xpg,
 				     const FastMat2 &grad_state_new_pg,
 				     FastMat2 &res_pg,FastMat2 &mat_pg) {
 
+  /* 
+   *    Laplacian(phi) = A*sinh(B*phi)
+   */
+
   /* common */
   double psi = state_new_pg.get(1);
 
   /* residual */
   if (EVAL_RES) {
 
-    double sinh_psi = 2*ninf*z*F/(eps*eps0)*sinh(psi*z*F/R/Tabs);
+    double sinh_psi = A*sinh(B*psi);
 
     res_pg
       .prod(dshapex(),grad_state_new_pg,-1,1,-1,2)
@@ -60,7 +78,7 @@ void poisson_boltzmann::pg_connector(const FastMat2 &xpg,
   /* jacobian */
   if (EVAL_MAT) {
 
-    double cosh_psi = 2*ninf*z*z*F*F/(eps*eps0*R*Tabs)*cosh(psi*z*F/R/Tabs);
+    double cosh_psi = A*B*cosh(B*psi);
 
     tmp(1)
       .prod(dshapex(),dshapex(),-1,1,-1,2);

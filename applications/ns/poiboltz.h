@@ -9,14 +9,37 @@
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 class poisson_boltzmann : public adaptor_pg {
 
+  /* 
+   *    Laplacian(phi) = A*sinh(B*phi)
+   *
+   *    A = 2*(ninf*z*F)/(eps*eps0)
+   *    B = (z*F)/(R*Tabs)
+   *
+   */
+
+  //o bulk concentration
   double ninf;
+  //o valence
   int    z;
-  double e;
+  //o valence
+  //o relative permittivity
   double eps;
+  //o vacuum permittivity
   double eps0;
+  //o Faraday constant
   double F;
+  //o absolute temperature
   double Tabs;
+  //o ideal gas constant
   double R;
+
+  // EDL tickness (if given, all values above are ignored)
+  double Debye_length;
+
+  //o A = 2*(ninf*z*F)/(eps*eps0)  [computed at elemset_init()]
+  double A;
+  //o B = (z*F)/(R*Tabs)           [computed at elemset_init()]
+  double B;
 
   FastMat2Tmp tmp;
 
