@@ -32,6 +32,9 @@ void poisson_boltzmann::elemset_init() {
   //o 
   TGETOPTDEF_ND(thash,double,R,8.314472);
 
+  A = 2*ninf*(z*F)/(eps*eps0);
+  B = (z*F)/(R*Tabs);
+
 }
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
