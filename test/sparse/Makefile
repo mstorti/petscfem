@@ -66,23 +66,14 @@ tryme8: tryme8.bin
 	$< > $(basename $<).output.tmp
 
 #w Basic check for dvector class
-tryme7.o: tryme7.cpp 
-	g++ -c $(CXXOPTFLAGS) -o $@ $< -I$(PETSCFEM_DIR)
-
 tryme7.bin: tryme7.o
 	g++ $(CXXOPTFLAGS) -o $@ $< 
 
 #w Checks for dvector class
-tryme8.o: tryme8.cpp 
-	g++ -c $(CXXOPTFLAGS) -o $@ $< -I$(PETSCFEM_DIR)
-
 tryme8.bin: tryme8.o
 	g++ $(CXXOPTFLAGS) -o $@ $< $(LDFLAGS_NO_PROG_LIB)
 
 #w Checks for cloud class
-tryme9.o: tryme9.cpp 
-	g++ -c $(CXXOPTFLAGS) $(CPPFLAGS) -o $@ $<
-
 tryme9.bin: tryme9.o $(LIB_P)
 	g++ $(CXXOPTFLAGS) -o $@ $< $(LDFLAGS_NO_PROG_LIB)
 

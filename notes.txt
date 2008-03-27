@@ -12581,6 +12581,53 @@ iisdmat.cpp:500:   instantiated from here
 ../src/distmap2.h:123: warning: format '%d' expects type 'int', but argument 6 \
 has type 'long int'
 
+%=== Thu Mar 27 11:35:20 2008 mstorti@prandtl
+%
+%-- 11:35:20 -- mstorti-v9-root-114-gd4e8bf2 -----
+%
+Hice el merge de mstorti-v9 y corre el resumen da
+OK: 159.  Not OK: 12. Couldn't open: 8. Total: 179. 
+La ultima vez, daba
+OK: 153.  Not OK: 18. Couldn't open: 8. Total: 179
+con lo cual mejoramos incluso. 
+%
+Los tests que dan mal son los siguientes los siguiente
+%
+> sqcav/check.fs.verif.tmp
+> idmap/tidmap.sal
+> nsgenload/output.fstack_global.tmp
+> newff/adv_temp_cp.vrf.tmp
+> newff/full_full_jacs_cp.vrf.tmp
+> newff/full_full_jacs_adv_cp.vrf.tmp
+> newff/adv_temp_cp_iisd.vrf.tmp
+> distmap/dist_graph.np3.out.tmp
+> distmap/test_kob_plain.output.tmp
+> distmap/test_kob_no_sort.output.tmp
+> distmap/test_kob_no_key_print.output.tmp
+> distmap/test_kob_no_newline.output.tmp
+%
+y antes eran:
+%
+> sqcav/check.fs.verif.tmp
+> nutatcyl/checknutcyl.verif.tmp
+> nutatcyl/rigid.verif.tmp
+> nutatcyl/strip.verif.tmp
+> nutatcyl/stripp.verif.tmp
+> nutatcyl/strippi.verif.tmp
+> mmove/step3d.verif.tmp
+> idmap/tidmap.sal
+> nsgenload/output.fstack_global.tmp
+> newff/adv_temp_cp.vrf.tmp
+> newff/full_full_jacs_cp.vrf.tmp
+> newff/full_full_jacs_adv_cp.vrf.tmp
+> newff/adv_temp_cp_iisd.vrf.tmp
+> distmap/dist_graph.np3.out.tmp
+> distmap/test_kob_plain.output.tmp
+> distmap/test_kob_no_sort.output.tmp
+> distmap/test_kob_no_key_print.output.tmp
+> distmap/test_kob_no_newline.output.tmp
+
+
 
 # Current line ===========  %
 # Local Variables: $
