@@ -102,7 +102,7 @@ void smoke_ff::compute_flux(COMPUTE_FLUX_ARGS) {
   double phi = U.get(1);
   double r = -Cr*(phi*phi-phieq*phieq)*phi;
   // scalar jacobian of reaction term 
-  double drdphi = -Cr*(3.0*phi*phi-phieq*phieq);
+  drdphi = -Cr*(3.0*phi*phi-phieq*phieq);
   // G_source.set(G).axpy(U,Cjac);
   G_source.set(G+r);
   // Set to zero
