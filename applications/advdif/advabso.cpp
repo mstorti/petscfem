@@ -56,12 +56,15 @@ init() {
   if (use_uref_glob || use_old_state_as_ref) assert(nel>=2);
   else assert(nel==3);
 
-  flux.resize(2,ndof,ndim);
-  fluxd.resize(2,ndof,ndim);
+  ndimel = adv_diff_ff->dim();
+  if (ndimel<0) ndimel = ndim;
+
+  flux.resize(2,ndof,ndimel);
+  fluxd.resize(2,ndof,ndimel);
   A_grad_U.resize(1,ndof);
-  grad_U.resize(2,ndim,ndof).set(0.);
-  normal.resize(1,ndim);
-  vmesh.resize(1,ndim);
+  grad_U.resize(2,ndimel,ndof).set(0.);
+  normal.resize(1,ndimel);
+  vmesh.resize(1,ndimel);
   A_jac.resize(2,ndof,ndof);
   S.resize(2,ndof,ndof);
   invS.resize(2,ndof,ndof);
@@ -72,14 +75,14 @@ init() {
   Cp.resize(2,ndof,ndof);
   Uold.resize(2,nel,ndof);
   invCp.resize(2,ndof,ndof);
-
+  Ufluid.resize(1,ndimel);
   if (ALE_flag) {
     get_prop(vmesh_prop,"vmesh");
-    assert(vmesh_prop.length == ndim);
+    assert(vmesh_prop.length == ndimel);
   }
 
   get_prop(normal_prop,"normal");
-  assert(normal_prop.length == ndim);
+  assert(normal_prop.length == ndimel);
   // The state on the reference node
   Uref.resize(1,ndof);
   dU.resize(1,ndof);
@@ -102,19 +105,15 @@ res(int k,FastMat2 &U,FastMat2 &r,
   int use_old_state_as_ref_elem;
   if (switch_to_ref_on_incoming) {
 
-    // Check that `adv_diff_ff'is truly a
-    // gasflow_ff. For other flux-functions one
-    // should say which is the "velocity vector"
-    // that determines the direction of the incoming flow. 
-    assert(dynamic_cast<gasflow_ff*>(adv_diff_ff));
+    // Flux Functions writters must add setUfluid funct
+    // in order to extract the fluid velocities from Uref
     // U(3,:) contains the reference value
     // or alternatively the global `Uref' option
     
     if (use_uref_glob) Uref.set(Uref_glob);
     else { U.ir(1,3); Uref.set(U); U.rs(); }
-    Uref.rs().is(1,2,ndim+1);
-    double urefn = unor.prod(Uref,normal,-1,-1);
-    Uref.rs();
+    adv_diff_ff->set_Ufluid(Uref,Ufluid);
+    double urefn = unor.prod(Ufluid,normal,-1,-1);
     use_old_state_as_ref_elem = urefn>0;
   } else {
     use_old_state_as_ref_elem 
@@ -196,6 +195,8 @@ element_hook(ElementIterator &element) {
   normal.set(prop_array(element,normal_prop));
   if (ALE_flag)
     vmesh.set(prop_array(element,vmesh_prop));
+  adv_diff_ff->element_hook(element);
+    
 #if 0
   int ke,kc;
   element.position(ke,kc);

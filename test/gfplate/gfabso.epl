@@ -95,7 +95,7 @@ data ./gfabso.con.tmp
 __END_HASH__
 
 #if $abso
-#if 1
+#if 0
 elemset gasflow_abso 5
 dx 0
 normal <:=-$norx:> <:=-$nory:> <:=-$norz:>

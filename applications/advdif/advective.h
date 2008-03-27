@@ -407,6 +407,12 @@ public:
 			   FastMat2 &Rie, FastMat2 &drdU, FastMat2 &C_);
 
 
+  /** Sets "Ufluid" state extracted from Uref state and related to
+      particular flux function in order to use ULSAR absorb boundary
+      conditions.
+   */
+  virtual void set_Ufluid(FastMat2 &Uref, FastMat2 &Ufluid) {}
+
   virtual ~NewAdvDifFF()=0;
   //@}
 };

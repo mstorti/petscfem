@@ -132,25 +132,20 @@ int adaptor::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
 #define ELEMPROPS(j,k) VEC2(elemprops,j,k,nelprops)
 #define ELEMIPROPS_ADD(j,k) VEC2(elemiprops_add,j,k,neliprops_add)
 
-  //o Number of Gauss points.
-  TGETOPTDEF_ND(thash,int,npg,0);
-  // ierr = get_int(thash,"npg",&npg); CHKERRA(ierr);
-  TGETOPTDEF_ND(thash,int,ndim,0); //nd
+  //o Number of Dimensions.
+  TGETOPTDEF_ND(thash,int,ndim,nodedata->ndim);
+  PETSCFEM_ASSERT(ndim>=0,
+		  "ndim should be non-negative, ndim %d\n",ndim);  
+  TGETOPTDEF_ND(thash,int,ndimel,ndim);
+  PETSCFEM_ASSERT(ndimel>=0 && ndimel<=ndim,
+                  "Incorrect value for `ndimel': \n",ndimel);
+
   //o Use #arg-handles# for manipulation of argumentes
   //  from/to `adaptor'. 
   TGETOPTDEF(thash,int,use_arg_handles,0);
   //o Use caches for FastMat2 matrices
   TGETOPTDEF(thash,int,use_fastmat2_cache,1);
 
-  //o Use #shape()#, #shapexi()# (FEM interpolation)
-  TGETOPTDEF(thash,int,fem_interpolation,1);
-
-  PETSCFEM_ASSERT(npg>=0,"npg should be non-negative, npg %d\n",npg);  
-  PETSCFEM_ASSERT(ndim>=0,"ndim should be non-negative, ndim %d\n",ndim);  
-
-  TGETOPTDEF_ND(thash,int,ndimel,ndim);
-  PETSCFEM_ASSERT(ndimel>=0 && ndimel<=ndim,
-                  "Incorrect value for `ndimel': \n",ndimel);
   int nen = nel*ndof;
 
   // Unpack nodedata
@@ -214,9 +209,6 @@ int adaptor::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
   nH = nu-ndim;
   Hloc.resize(2,nel,nH);
 
-  //o Type of element geometry to define Gauss Point data
-  TGETOPTDEF_S(thash,string,geometry,cartesian2d);
-
   //o Compute a Finite Difference Jacobian (FDJ) for each element. 
   TGETOPTDEF(thash,int,jacobian_fdj_compute,0);
   //o Scale of perturbation for computation of FDJ's. 
@@ -235,10 +227,19 @@ int adaptor::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
 #define SHAPE    (*gp_data.FM2_shape[ipg])
 #define WPG      (gp_data.wpg[ipg])
 
-  // Memory allocation and initialization 
-  //GPdata gp_data(geom,ndim,nel,npg);
   GPdata gp_data;
+  //o Use #shape()#, #shapexi()# (FEM interpolation)
+  TGETOPTDEF(thash,int,fem_interpolation,1);
   if (fem_interpolation) {
+    //o Type of element geometry to define Gauss Point data
+    TGETOPTDEF_S(thash,string,geometry,default);
+    //o Number of Gauss points.
+    TGETOPTDEF_ND(thash,int,npg,-1);
+    if (geometry == "default") GPdata::get_default_geom(ndimel, nel, geometry);
+    if (npg      == -1       ) GPdata::get_default_npg(geometry, npg);
+    PETSCFEM_ASSERT0(geometry!="default","could not determine geometry");
+    PETSCFEM_ASSERT(npg>=0,"npg should be non-negative, npg %d\n",npg);
+
     gp_data.init(geometry.c_str(),ndimel,nel,npg,GP_FASTMAT2);
     shape.resize(2,nel,npg);
     dshapexi.resize(3,ndimel,nel,npg);

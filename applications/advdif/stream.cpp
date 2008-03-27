@@ -189,6 +189,12 @@ ChannelShape *ChannelShape::factory(const NewElemset *elemset) {
     return new circular_channel(elemset);
   } else if (shape=="triangular") {
     return new triang_channel(elemset);
+  } else if (shape=="trapezoidal") {
+    return new trap_channel(elemset);
+  } else if (shape=="circular2") {
+    return new circular_channel2(elemset);
+  } else if (shape=="doble_rect") {
+    return new drect_channel(elemset);
   } else assert(0); // Not valid shape
   return NULL;
 }

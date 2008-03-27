@@ -16,6 +16,18 @@ PETSC_ARCH_O = linux-gnu-openmp-O
 
 ## OTHERS
 ## ------
+
+UNAME_M=${shell uname -m}
+
+GLIB_INC_DIR = /usr/include/glib-2.0
+ifeq ($(UNAME_M),x86_64)
+GLIB_LIB_DIR = /usr/lib64
+else
+GLIB_LIB_DIR = /usr/lib
+endif
+GLIB_INC_CFG = ${GLIB_LIB_DIR}/glib-2.0/include
+GLIB_LIBNAME = glib-2.0
+
 PF_PKG_DIR = $(PETSCFEM_DIR)/../petscfem-packages
 ANN      = $(PF_PKG_DIR)
 LIBRETTO = $(PF_PKG_DIR)
@@ -28,11 +40,6 @@ SUPERLU  =
 ANN_INC_DIR = $(ANN)/include
 ANN_LIB_DIR = $(ANN)/lib
 ANN_LIBNAME = ANN
-
-GLIB_INC_DIR = /usr/include/glib-2.0
-GLIB_INC_CFG = /usr/lib/glib-2.0/include
-GLIB_LIB_DIR = /usr/lib
-GLIB_LIBNAME = glib-2.0
 
 LIBRETTO_INC_DIR = $(LIBRETTO)/include
 LIBRETTO_LIB_DIR = $(LIBRETTO)/lib

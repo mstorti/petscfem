@@ -215,8 +215,9 @@ public:
   void Riemann_Inv(const FastMat2 &U, const FastMat2 &normal,
 		   FastMat2 &Rie, FastMat2 &drdU, FastMat2 &C_);
 
-  void
-  compute_shock_cap_aniso(double &delta_aniso,
+  void set_Ufluid(FastMat2 &Uref, FastMat2 &Ufluid);
+
+  void compute_shock_cap_aniso(double &delta_aniso,
 			  FastMat2 &jvec);
 };
 

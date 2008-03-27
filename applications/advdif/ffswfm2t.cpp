@@ -304,7 +304,7 @@ int swfm2t_ff_t::operator()(ADVDIFFF_ARGS) {
     tau_delta = 0; delta_sc=0.;
 
     FastMat2::branch();
-    if ( shock_capturing && (vmax > shock_capturing_threshold /h_supg) ) {
+    if (shock_capturing && (vmax > shock_capturing_threshold/h_supg) ) {
       FastMat2::choose(0);
       // calculo del tensor metrico de Riemann (A0) para transformar de variables 
 

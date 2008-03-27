@@ -12,7 +12,8 @@ include $(PETSCFEM_DIR)/Makefile.base
 include $(PETSCFEM_DIR)/test/Makefile.base.test
 
 ifeq ($(CASE_NAME),) 
-CASE_NAME := gftuyere
+#CASE_NAME := gftuyere
+CASE_NAME := gfabso
 endif
 LOC_PROG := advdif
 ifeq ($(PROG),)
@@ -82,8 +83,8 @@ mesh:
 
 run:
 	make-depl $(CASE_NAME).epl $(CASE_NAME).depl
-	$(MPIEXEC) $(NL) -n $(NP) -machinefile			\
-	machi.dat $(PROG) -case $(CASE_NAME).depl 
+	$(MPIEXEC) $(NL) -machinefile machi.dat -n $(NP) \
+	$(PROG) -case $(CASE_NAME).depl 
 
 # STEPS_DIR := ./STEPS
 STEPS_DIR := /u/nnigro/PETSC/RUN/COMPRESSION_CORNER/Tuyere/gfplate/RUN_CRANK-NICHOLSON/STEPS

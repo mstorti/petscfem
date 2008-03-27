@@ -6,7 +6,7 @@
 #include "advective.h"
 #include "stream.h"
 #include "nonlres.h"
-#include "godunov.h"
+#include "./advabso.h"
 
 #define GETOPT_PROP(type,name,default) elemset->get_prop(name##_prop,#name)
 
@@ -24,7 +24,7 @@ class streamsw1d_ff : public AdvDifFFWEnth {
   // dof=2 sw1d primitive variables (u h) 
   int ndof;
   // they must be here (channelshapes and frictionlaws)
-  double area,wl_width,perimeter;
+  double area,wl_width,perimeter,width;
   // gravity
   double gravity;
   // allow scale stabilization term
@@ -137,11 +137,6 @@ public:
 
   //  void comp_P_Cp(FastMat2 &P_Cp,const FastMat2 &P_supg);
 
-  // Should be used only for Absorbing boundary conditions
-  virtual void comp_A_jac_n(FastMat2 &A_jac_n, FastMat2 &normal) {
-    assert(0);
-  }
-
   void comp_grad_N_D_grad_N(FastMat2 &grad_N_D_grad_N,
 			    FastMat2 & grad_N,double w);
 
@@ -155,21 +150,29 @@ public:
   void comp_W_Cp_N(FastMat2 &W_Cp_N,const FastMat2 &W,const FastMat2 &N,
 		   double w);
   //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:
-
+  
   void comp_P_Cp(FastMat2 &P_Cp,const FastMat2 &P_supg);
-
+  
   /** This stream elemset is essentially 1D.
       @return the dimension of this element that is 1
   */
   int dim() const { return 1; } //lo mismo que para el elemset stream de KWM
-
+  
+  void comp_A_jac_n(FastMat2 &A_jac_n, FastMat2 &normal);
+  
+  void set_Ufluid(FastMat2 &Uref, FastMat2 &Ufluid);
+  
+  void get_Cp(FastMat2 &Cp_a);
+  
+  //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:
+  void get_Ajac(FastMat2 &Ajac_a);
   /*
     Riemann Invariants calculus for Absorbent boundary conditions
     Rie, drdU  matrix declaration in boundary element routine rank=1 x ndof
   */
   void Riemann_Inv(const FastMat2 &U, const FastMat2 &normal,
 		   FastMat2 &Rie, FastMat2 &drdU, FastMat2 &C_U);
-
+  
 #ifdef USE_COMP_P_SUPG
   void comp_P_supg(FastMat2 &P_supg, FastMat2 &grad_N, FastMat2 &tau_supg) {
     P_supg.prod(A_jac,grad_N,-1,2,-1,1)
@@ -190,14 +193,14 @@ public:
 class streamsw1d_abso : public AdvDiff_Abs_Nl_Res {
 public:
   //streamsw1d_abso has n nodes [U_N, U_{N-1},U_{N-2}, .. , U_dummy]^t
-  streamsw1d_abso() :  AdvDiff_Abs_Nl_Res(new streamsw1d_ff(this)/*,new streamsw1d(this)*/) {
-    // printf("En streamsw1d_abso(): adv_diff_ff: %p\n",adv_diff_ff);
+  streamsw1d_abso() :  AdvDiff_Abs_Nl_Res(new streamsw1d_ff(this)) {
   } //constructor
 };
-class streamsw1d_abso_godunov : public AdvDiff_Godunov {
+
+class streamsw1d_abso2 : public AdvectiveAbso {
 public:
-  streamsw1d_abso_godunov() :  AdvDiff_Godunov(new streamsw1d_ff(this)) {
-  } //constructor
+  streamsw1d_abso2()
+    :  AdvectiveAbso(new streamsw1d_ff(this)) { }
 };
 
 

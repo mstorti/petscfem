@@ -4,7 +4,7 @@
 default: project3.bin
 
 SRCS := project.cpp project2.cpp project3.cpp project4.cpp \
-	project-wrp.cpp
+	project-wrp.cpp project5.cpp
 
 BOPT := O_c++
 PETSCFEM_DIR = ../..
@@ -28,6 +28,9 @@ project3.bin: project3.o project.o
 	${CXX_CLINKER} -o $@ $^  $(LDFLAGS_NO_PROG_LIB)
 
 project4.bin: project4.o project.o
+	${CXX_CLINKER} -o $@ $^  $(LDFLAGS_NO_PROG_LIB)
+
+project5.bin: project5.o project.o
 	${CXX_CLINKER} -o $@ $^  $(LDFLAGS_NO_PROG_LIB)
 
 yuv_compress:
