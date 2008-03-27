@@ -35,8 +35,8 @@ protected:
   MPI_Comm comm;
   /// This returns the number of processor for a given dof
   Partitioner *part;
-  /// size and rank in the comunicator
-  int size,myrank;
+  /// nprocs and rank in the comunicator
+  int nprocs, myrank;
   /// Type of iteration mode
   iter_mode_t iter_mode;
 public:
