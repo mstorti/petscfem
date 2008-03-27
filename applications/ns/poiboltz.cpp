@@ -16,6 +16,8 @@ void poisson_boltzmann::elemset_init() {
   assert(ndof==1);
   int ierr;
   //o 
+  TGETOPTDEF_ND(thash,double,scale_factor,1.0);
+  //o 
   TGETOPTDEF_ND(thash,double,ninf,1.0e-6);
   //o 
   TGETOPTDEF_ND(thash,int, z,-1);
@@ -30,21 +32,6 @@ void poisson_boltzmann::elemset_init() {
   //o 
   TGETOPTDEF_ND(thash,double,R,8.314472);
 
-  //o 
-  TGETOPTDEF_ND(thash,double,Debye_length,0.0);
-
-  if (Debye_length == 0.0) {
-
-    A = 2*(ninf*z*F)/(eps*eps0);
-    B = (z*F)/(R*Tabs);
-
-  } else {
-
-    A = 1./(Debye_length*Debye_length);
-    B = 1.0;
-
-  }
- 
 }
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
@@ -73,6 +60,7 @@ void poisson_boltzmann::pg_connector(const FastMat2 &xpg,
       .axpy(shape(), sinh_psi)
       .rs()
       .scale(-1);
+
   }
 
   /* jacobian */
@@ -93,6 +81,15 @@ void poisson_boltzmann::pg_connector(const FastMat2 &xpg,
       .set(tmp(1))
       .add(tmp(2))
       .rs();
+
   }
   
+
+  /* res & mat scaling */
+  if (scale_factor != 1.0) {
+    if (EVAL_RES) res_pg.scale(scale_factor);
+    if (EVAL_MAT) mat_pg.scale(scale_factor);
+  }
+  
+
 }

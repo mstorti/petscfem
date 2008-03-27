@@ -17,6 +17,9 @@ class poisson_boltzmann : public adaptor_pg {
    *
    */
 
+  //o scale_factor for residuals and jacobians
+  double scale_factor;
+
   //o bulk concentration
   double ninf;
   //o valence
@@ -32,9 +35,6 @@ class poisson_boltzmann : public adaptor_pg {
   double Tabs;
   //o ideal gas constant
   double R;
-
-  // EDL tickness (if given, all values above are ignored)
-  double Debye_length;
 
   //o A = 2*(ninf*z*F)/(eps*eps0)  [computed at elemset_init()]
   double A;
