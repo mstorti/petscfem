@@ -16,6 +16,8 @@ void poisson_boltzmann::elemset_init() {
   assert(ndof==1);
   int ierr;
   //o 
+  TGETOPTDEF_ND(thash,double,scale_factor,1.0);
+  //o 
   TGETOPTDEF_ND(thash,double,ninf,1.0e-6);
   //o 
   TGETOPTDEF_ND(thash,int, z,-1);
@@ -30,7 +32,9 @@ void poisson_boltzmann::elemset_init() {
   //o 
   TGETOPTDEF_ND(thash,double,R,8.314472);
 
- 
+  A = 2*ninf*(z*F)/(eps*eps0);
+  B = (z*F)/(R*Tabs);
+
 }
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
@@ -40,30 +44,55 @@ void poisson_boltzmann::pg_connector(const FastMat2 &xpg,
 				     const FastMat2 &state_new_pg,
 				     const FastMat2 &grad_state_new_pg,
 				     FastMat2 &res_pg,FastMat2 &mat_pg) {
-  double psi      = state_new_pg.get(1);
-  double sinh_psi = 2*ninf*z*F/(eps*eps0)*sinh(psi*z*F/R/Tabs);
-  double cosh_psi = 2*ninf*z*z*F*F/(eps*eps0*R*Tabs)*cosh(psi*z*F/R/Tabs);
 
-  res_pg
-    .prod(dshapex(),grad_state_new_pg,-1,1,-1,2)
-    .ir(2,1)
-    .axpy(shape(), sinh_psi)
-    .rs()
-    .scale(-1);
+  /* 
+   *    Laplacian(phi) = A*sinh(B*phi)
+   */
 
-  tmp(1)
-    .prod(dshapex(),dshapex(),-1,1,-1,2);
+  /* common */
+  double psi = state_new_pg.get(1);
+
+  /* residual */
+  if (EVAL_RES) {
+
+    double sinh_psi = A*sinh(B*psi);
+
+    res_pg
+      .prod(dshapex(),grad_state_new_pg,-1,1,-1,2)
+      .ir(2,1)
+      .axpy(shape(), sinh_psi)
+      .rs()
+      .scale(-1);
+
+  }
+
+  /* jacobian */
+  if (EVAL_MAT) {
+
+    double cosh_psi = A*B*cosh(B*psi);
+
+    tmp(1)
+      .prod(dshapex(),dshapex(),-1,1,-1,2);
     
-  tmp(2)
-    .prod(shape(),shape(),1,2)
-    .scale(cosh_psi);
+    tmp(2)
+      .prod(shape(),shape(),1,2)
+      .scale(cosh_psi);
+    
+    mat_pg
+      .ir(2,1)
+      .ir(4,1)
+      .set(tmp(1))
+      .add(tmp(2))
+      .rs();
 
-  mat_pg
-    .ir(2,1)
-    .ir(4,1)
-    .set(tmp(1))
-    .add(tmp(2))
-    .rs();
-
+  }
   
+
+  /* res & mat scaling */
+  if (scale_factor != 1.0) {
+    if (EVAL_RES) res_pg.scale(scale_factor);
+    if (EVAL_MAT) mat_pg.scale(scale_factor);
+  }
+  
+
 }

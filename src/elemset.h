@@ -673,8 +673,10 @@ public:
   EvalFun *eval_fun;
   ClearFun *clear_fun;
 
-  Property() : indx(-1), ptr(NULL), length(0), 
-  fun_data(NULL), init_fun(NULL), eval_fun(NULL), clear_fun(NULL) { val.clear(); };
+  Property() 
+  : indx(-1), ptr(NULL), length(0), 
+    fun_data(NULL), init_fun(NULL), eval_fun(NULL), 
+    clear_fun(NULL) { val.clear(); };
 
   ~Property() { if(clear_fun) (*clear_fun)(fun_data); }
 };

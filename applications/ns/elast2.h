@@ -9,7 +9,7 @@
 /// 
 class  elasticity2 : public adaptor { 
 private:
-  double rho,nu;
+  double rho,nu,cdamp;
   int ntens,nen;
   FastMat2 B,C,Jaco,iJaco,strain,stress,
     res_pg,mat_pg1,mat_pg2,mass_pg,dv,a,tmp,tmp2,

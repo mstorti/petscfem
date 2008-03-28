@@ -91,7 +91,8 @@ Tetra2TetraSplitterClass::
 nodes(GeomObject::Type t,int j) const { 
   if (t==GeomObject::TetraT) 
     return &subobj_conn.e(j,0);
-  else assert(0);
+  else PETSCFEM_ERROR0("Not implemeted yet.");
+  return NULL;
 }
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 

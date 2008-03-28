@@ -155,6 +155,11 @@ public:
       @return reference to self  */ 
   dvector<T>& read(const char *name);
 
+  /** Read from a binary file, given its name, like Octave's `aload'.
+      @param name (input) name of file to read
+      @return reference to self  */ 
+  dvector<T>& readb(const char *name);
+
   /** Read from a stream, as much as possible,
       appending to the vector */
   dvector<T>& cat(FILE *fid);

@@ -2,6 +2,7 @@
 TODO: [Mainly fixes go here...]
 =====
 
+* Should print `nodedata' hash table in `readmesh' after reading. 
 * Initialize members to NULL and void values in Gpdata::Gpdata()
 * In FastMat2, static declarations should be removed, otherwise it is
    not reentrant. (I think this is done already, CHECK).

@@ -282,7 +282,7 @@ void NewAdvDif::new_assemble(arg_data_list &arg_data_v,const Nodedata *nodedata,
   //o Report jacobians on random elements (should be in range 0-1).
   NSGETOPTDEF(double,compute_fd_adv_jacobian_random,1.0);
   //o Flag to turn on ALE (Arbitrary Lagrangian-Eulerian) computation. 
-  NSGETOPTDEF(int,ALE_flag,0);
+  NSGETOPTDEF_ND(int,ALE_flag,0);
   //o Pointer to old coordinates in
   //  #nodedata# array excluding the first "ndim" values
   NSGETOPTDEF(int,indx_ALE_xold,1);

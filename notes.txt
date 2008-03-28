@@ -12543,6 +12543,45 @@ fractional step solution. I think this is due to some change in the
 solution method. Results look very similar so that I assume this is
 ok. 
 
+%=== Sat Dec  8 20:26:35 2007 mstorti@prandtl
+%
+%-- 20:26:35 -- mstorti-v8-end-12-g3a64419 -----
+Al compilar en las Opteron me da el siguiente error:
+-------------------
+../src/distcont2.h: In member function void DistCont<Container,
+ValueType, Par\-Wall  -Wno-long-long -Wno-unused-variable  
+    -I/usr/local/petsc/2.3.3 -I/usr/l\
+titioner>::scatter() [with Container = std::map<int, std::set<int, std::less<in\
+t>, std::allocator<int> >, std::less<int>, std::allocator<std::pair<const int, \
+std::set<int, std::less<int>, std::allocator<int> > > > >, ValueType = std::pai\
+r<int, std::set<int, std::less<int>, std::allocator<int> > >, Partitioner = Par\
+../src/iisdgraph.h:79:   instantiated from here
+../src/distcont2.h:159: warning: format %d expects type int, but argument 6\
+ has type long int
+../src/distcont2.h: In member function void DistCont<Container, ValueType, Par\
+titioner>::scatter() [with Container = LinkGraph, ValueType = LinkGraph::Row, P\
+artitioner = LinkGraphRowPart]:
+../src/linkgraph.h:149:   instantiated from here
+../src/distcont2.h:159: warning: format %d expects type int, but argument 6\
+ has type long int
+--------------------
+../src/distcont2.h: In member function void DistCont<Container, ValueType, Par\ -f dofmap3.o
+titioner>::scatter() [with Container = std::list<KeyedLine, std::allocator<Keye\
+dLine> >, ValueType = KeyedLine, Partitioner = TrivialPartitioner<KeyedLine>]:
+../src/syncbuff2.h:28:   instantiated from void SyncBuffer<T>::print() [with T\
+ = KeyedLine]
+syncbuff.cpp:133:   instantiated from here
+../src/distcont2.h:159: warning: format %d expects type int, but argument 6\C -c -DNDEBUG -O3 -funroll-loops  -DMPICH_SKIP_MPICXX -DOMPI_SKIP_MPICX\
+ has type long int
+a
+------------------------
+../src/distmap2.h: In member function 'void DistMap<Key, Val, Partitioner>::sca\
+tter() [with Key = int, Val = Row, Partitioner = IntRowPartitioner]':
+iisdmat.cpp:500:   instantiated from here
+../src/distmap2.h:123: warning: format '%d' expects type 'int', but argument 6 \
+has type 'long int'
+
+
 # Current line ===========  %
 # Local Variables: $
 # eval: (my-notes-mode) $

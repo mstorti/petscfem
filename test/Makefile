@@ -52,6 +52,7 @@ local_clean::
 #w Make all tests for a particular BOPT and keep log
 #w and make a tar with the results
 torture_1:
+	mpdboot
 	$(MAKE) -k runtests 2>&1 | tee make-tests-$(BOPT).log
 #
 	echo "-------------------------" | tee -a  make-tests-$(BOPT).log
