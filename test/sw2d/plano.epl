@@ -19,7 +19,7 @@ use_log_vars 0
 weak_form 0
 
 # time stepping
-nnwt 2
+nnwt 3
 <:pr('nstep'):>
 alpha 1
 
@@ -32,7 +32,7 @@ initial_state "./STEPS-h1/plano.9.tmp"
 <:}:>//
 
 # "rotary saving" 
-nsaverot 1
+nsaverot 2
 nsave 1
 nrec 1
 nfile 10000
@@ -41,7 +41,10 @@ save_file_pattern "./STEPS/plano.%d.tmp"
 # omega_newton 0.3
 tol_newton 0
 solver "petsc"
-preco_type "lu"
+preco_type "asm"
+asm_sub_preco_type "lu"
+asm_overlap 1
+##preco_type "lu"
 ##solver "iisd"
 ##preco_type "jacobi"
 ##iisd_subpart_auto 1000
@@ -50,14 +53,14 @@ maxits 400
 Krylov_dim 400
 
 # convergence parameters. Internal GMRES loop. 
-rtol 1.e-5
+rtol 1.e-6
 atol 0
 dtol 1e3
 print_internal_loop_conv 1
 #print_linear_system_and_stop 1
 <:pr('Dt'):>
 tau_fac 1.0
-shock_capturing 0
+shock_capturing 1
 
 ALE_flag 0
 
@@ -81,13 +84,13 @@ elemset streamsw2d 4
 geometry cartesian2d
 ndim 2
 npg 4
-diff_factor 1.0
+diff_factor 0.0
 #compute_fd_adv_jacobian 3
 #compute_dDdU_term 0
 #C_mu 0.0
 #C_1 0.
 #C_2 0.
-#Chezy 110
+Chezy 110
 __END_HASH__
 __INCLUDE__ plano.con.tmp
 __END_ELEMSET__
@@ -97,14 +100,17 @@ end_elemsets
 #================================================================
 fixa
 __INCLUDE__ ./plano.in-fixa.tmp
+##__INCLUDE__ ./plano.h-fixa-in.tmp
 __INCLUDE__ ./plano.out-fixa.tmp
+__INCLUDE__ ./plano.v-fixa-all.tmp
 <:if ($turbulent == 1) {_:>//
 __INCLUDE__ ./plano.ke-fixa.tmp
 <:}:>//
 __END_FIXA__
 
-#================================================================
+##================================================================
 constraint
-__INCLUDE__ plano.constr-slip-l.tmp
-__INCLUDE__ plano.constr-slip-r.tmp
+#__INCLUDE__ plano.constr-slip-l.tmp
+#__INCLUDE__ plano.constr-slip-r.tmp
+__INCLUDE__ plano.peri-lr.tmp
 __END_CONSTRAINT__

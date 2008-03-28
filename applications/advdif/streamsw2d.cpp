@@ -84,7 +84,7 @@ void streamsw2d_ff::start_chunk(int &options) {
   tmp11.resize(4,nel,ndim,ndof,ndof);
   r_dir.resize(1,ndim);
   jvec.resize(1,ndim);
-  tmp9.resize(1,ndof);
+  tmp9.resize(1,nel);
 #ifdef USE_A_JAC_DUMMY
   //para debug de caso lineal
   A_jac_dummy.resize(3,ndim,ndof,ndof);  
@@ -460,7 +460,7 @@ void streamsw2d_ff::compute_shocap(double &delta_sc) {
     h_shoc = h_supg;
   }
   FastMat2::leave();
-  double fz = grad_h_mod*h_shoc/rho;
+  double fz = grad_h_mod*h_shoc/((h<h_min ? h_min : h));
   fz = pow(fz,shocap_beta);
   delta_sc_aniso = 0.5*h_shoc*velmax*fz;
 
