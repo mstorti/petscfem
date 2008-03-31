@@ -3,7 +3,7 @@
 
 \SSection{Introduction} 
 
-Finite element codes usually have to levels of programming.
+Finite element codes usually have two levels of programming.
 In the outer level a large vector describes the \emph{``state''} of
 the physical system. Usually this vector has as many entries as the
 number of nodes times the number of fields minus the number of
@@ -32,7 +32,7 @@ of the matrices, like columns, rows, or individual elements.
 This is due to the fact that acessing a given element in the matrix
 implies a certain number of arithmetic operations. Otherwise, we can
 copy the row or column in an intermediate object, but then there is an
-overhead du to the copy operations. 
+overhead due to the copy operations. 
 
 The particularity of FastMat2 is that at the first execution of the
 loop the address of the elements used in the operation are cached in
@@ -123,10 +123,10 @@ scalars.
 In lines 9 to 12 the coordinates of the nodes are
 loaded in matrix \verb+x+. The underlying philosophy in FastMat2 is
 that you can set \emph{``views''} of the matrix without actually made
-ani copies of the underlying values. For instance the operation
+any copies of the underlying values. For instance the operation
 \verb+x.ir(1,k)+ (for \emph{``index restriction''}) sets a view of
 \verb+x+ so that index 1 is restricted to take the value $k$ reducing
-in one the number of dimensions of the matrix. As \verb+x+ has to
+in one the number of dimensions of the matrix. As \verb+x+ has two
 indices, the operation \verb+x.ir(1,k)+ gives a matrix of dimension
 one consisting in the $k$-th row of $x$. A call without arguments like
 in \verb+x.ir()+ cancels the restriction. Also, the function \verb+rs()+
@@ -414,11 +414,11 @@ cache to the desired one. After leaving the loop we call to
 \verb+resync_was_cached()+ in order to resync the cache list. 
 
 This is OK if the inner loop is executed at least once the in the
-first execution of the outer loop. It it happens that in the first
+first execution of the outer loop. If it happens that in the first
 execution of the loop the inner loop is not entered, then the cache
 list will contain \verb|block_before,block_after| and when the inner
 block will be entered in subsequent executions of the loop and error
-wil arise since there willl be missimng caches. 
+will arise since there will be missimng caches. 
 
 To fix this we have to combine this with branching as here
 %
@@ -502,7 +502,7 @@ for (int j=0; j<N; j++) {
 %Amortization time
 
 As we mentioned before, When caching is enabled there is a gain in
-speed of ten to one hundreth, and the library is very performant. Off
+speed of ten to one hundreth, and the library is very performant. Of
 course, the first execution of loop is not cached and represents and
 overhead that has to be amortized by executing the loop in cached mode
 many times. The average speed increases when the number of executions
@@ -595,7 +595,7 @@ matrix, otherwise
 operation (sum/max/min etc...) over all this index.
 \end{itemize}
 %
-For instance is we declare \verb+FastMat2 A(4,2,2,3,3)+ then
+For instance if we declare \verb+FastMat2 A(4,2,2,3,3)+ then
 \verb+B.sum(A,-1,2,1,-1)+ means
 %
 \begin{equation} 
@@ -620,12 +620,12 @@ operation. So far we have implemented the following
 \item \verb+FastMat2& min_abs(const FastMat2 & A, const int m=0, ...) +
               Min of absolute value over all selected indices 
 \item \verb+FastMat2& max_abs(const FastMat2 & A, const int m=0, ...) +
-              Min of absolute value over all selected indices 
+              Max of absolute value over all selected indices 
 \end{itemize}
 
 \SSSection{Sum operations over all indices}
 
-When the sum is over all indices the resulting matriz has zero
+When the sum is over all indices the resulting matrix has zero
 dimensions, so that it is a scalar. You can get this scalar by
 creating an auxiliar matrix (with zero dimensions) casting with
 operator \verb+double()+ as in
