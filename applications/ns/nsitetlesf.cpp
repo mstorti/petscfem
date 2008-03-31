@@ -262,11 +262,9 @@ assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
   SGETOPTDEF(double,tau_lsic_fac,1.);  // Scale upwind
   //o Add to the  #tau_pspg#  term, so that you can stabilize with a term
   //  independently of $h$. (Mainly for debugging purposes). 
-
   SGETOPTDEF(double,additional_tau_supg,0.);  // Scale upwind
   SGETOPTDEF(double,additional_tau_pspg,0.);  // Scale upwind
   SGETOPTDEF(double,additional_tau_lsic,0.);  // Scale upwind
-  
   double tau_supg_add = additional_tau_supg;
   double tau_pspg_add = additional_tau_pspg;
   double tau_lsic_add = additional_tau_lsic;
@@ -280,7 +278,11 @@ assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
   SGETOPTDEF(int,body_force,0);
   
 
-  double &alpha = glob_param->alpha;
+  double alpha=NAN;
+  if (comp_mat_res) {
+    alpha = glob_param->alpha;
+    if (glob_param->steady) alpha=1.0;
+  }
 
   //o _T: double[ndim] _N: G_body _D: null vector 
   // _DOC: Vector of gravity acceleration (must be constant). _END
@@ -585,7 +587,7 @@ assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
 	  FastMat2::choose(0);
 	  svec.set(vel_supg).scale(1./velmod);
 	  h_supg = tmp9.prod(dshapex,svec,-1,1,-1).sum_abs_all();
-          h_supg = (h_supg < tol ? tol : h_supg);
+          h_supg = ((h_supg < tol) ? tol : h_supg);
           h_supg = 2./h_supg;
         } else {
           h_supg = h_pspg;
