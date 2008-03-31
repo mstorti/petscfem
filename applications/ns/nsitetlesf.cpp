@@ -266,6 +266,10 @@ assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
   SGETOPTDEF(double,additional_tau_supg,0.);  // Scale upwind
   SGETOPTDEF(double,additional_tau_pspg,0.);  // Scale upwind
   SGETOPTDEF(double,additional_tau_lsic,0.);  // Scale upwind
+  
+  double tau_supg_add = additional_tau_supg;
+  double tau_pspg_add = additional_tau_pspg;
+  double tau_lsic_add = additional_tau_lsic;
 
   //o Scale the residual term. 
   SGETOPTDEF(double,residual_factor,1.);
@@ -537,26 +541,29 @@ assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
 	}
 
 	// Smagorinsky turbulence model
-	double nu_eff=NAN,van_D=NAN,ywall=NAN;
+	double mu_eff=NAN;
 	if (LES) {
+	  double van_D=NAN,ywall=NAN;
 	  double tr = (double) tmp15.prod(strain_rate,strain_rate,-1,-2,-1,-2);
 	  //	  double van_D;
 	  if (A_van_Driest>0.) {
 	    //	    dist_to_wall.prod(SHAPE,xloc,-1,-1,1).rest(wall_coords);
 	    ywall = sqrt(dist_to_wall.sum_square_all());
-	    double y_plus = ywall*shear_vel/VISC;
+	    double y_plus = ywall*shear_vel/(VISC/rho);
 	    van_D = 1.-exp(-y_plus/A_van_Driest);
 	  } else van_D = 1.;
-	  
+
 	  double nu_t = SQ(C_smag*Delta*van_D)*sqrt(2*tr);
-	  nu_eff = VISC + nu_t;
+	  mu_eff = VISC + rho * nu_t;
+
+	  if (print_van_Driest && (k % 1==0))
+	    printf("element %d , y: %f,van_D: %f, nu_eff: %f\n",
+		   ielh, ywall, van_D, mu_eff/rho);
+
 	} else {
-	  nu_eff = VISC;
+	  mu_eff = VISC;
 	}
 
-	if (print_van_Driest && (k % 1==0)) 
-	  printf("element %d , y: %f,van_D: %f, nu_eff: %f\n",
-		 ielh, ywall, van_D,nu_eff);
 #if 1
 	// XXX tau_supg and tau_pspg computed in u^n
 	vel_supg.set(u).rest(v_mesh).rs();
@@ -585,6 +592,8 @@ assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
         }
 	FastMat2::leave();
 
+	double nu_eff = mu_eff/rho;
+
         tau_supg = 
 	  tsf*SQ(2.*rec_Dt) +
 	  SQ(2.*velmod/h_supg) +
@@ -609,17 +618,9 @@ assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
 	  tau_pspg = 1./sqrt(tau_pspg);
 	}
 
-	tau_pspg *= tau_fac;
-	tau_supg *= tau_fac;
-	tau_lsic *= tau_fac;
-
-	tau_pspg *= tau_supg_fac;
-	tau_pspg *= tau_pspg_fac;
-	tau_lsic *= tau_lsic_fac;
-
-	tau_supg += additional_tau_supg;
-	tau_pspg += additional_tau_pspg;
-	tau_lsic += additional_tau_lsic;
+	tau_supg *= (tau_fac * tau_supg_fac); tau_supg += tau_supg_add;
+	tau_pspg *= (tau_fac * tau_pspg_fac); tau_pspg += tau_pspg_add;
+	tau_lsic *= (tau_fac * tau_lsic_fac); tau_lsic += tau_lsic_add;
 
 #if 1
 	// XXX tau_supg and tau_pspg computed in u^n
@@ -661,16 +662,15 @@ assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
 	
 	
 	// Galerkin - momentum
-	// resmom tiene que tener nel*ndim
-	dresmom.t().prod(dmatu,SHAPE,1,2).rs();
+	dresmom.prod(SHAPE,dmatu,1,2);
 	resmom.axpy(dresmom,-rho*wpgdet);
 
 	if (weak_form) {
-	  tmp1.set(strain_rate).scale(2*nu_eff).axpy(eye,-p_star);
+	  tmp1.set(strain_rate).scale(2*mu_eff).axpy(eye,-p_star);
 	  tmp2.prod(dshapex,tmp1,-1,1,-1,2);
 	  resmom.axpy(tmp2,-wpgdet);
 	} else {
-	  tmp6.prod(dshapex,strain_rate,-1,1,-1,2).scale(2*nu_eff);
+	  tmp6.prod(dshapex,strain_rate,-1,1,-1,2).scale(2*mu_eff);
 	  tmp11.prod(SHAPE,grad_p_star,1,2).add(tmp6);
 	  resmom.axpy(tmp11,-wpgdet);
 	}
@@ -703,25 +703,6 @@ assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
 	  rescont.axpy(SHAPE,pressure_control_coef*p_star*wpgdet);
 	}
 
-#if 0
-#define DYNAMIC_PRESSURE
-#endif
-#ifdef DYNAMIC_PRESSURE
-	pdyn = 0.5 * rho * double(tmp15.prod(u_star,u_star,-1,-1));
-	grad_pdyn.prod(grad_u_star,u_star,1,-1,-1).scale(rho);
-	
-	resmom.axpy(dshapex.t(),-wpgdet*pdyn);
-	dshapex.rs();
-	
-	tmp4.prod(P_supg,grad_pdyn,1,2);
-	resmom.axpy(tmp4,+wpgdet);
-	
-	tmp5.prod(P_pspg,grad_pdyn,-1,1,-1);
-	rescont.axpy(tmp5,-wpgdet);
-	
-	respert.axpy(grad_pdyn,-wpgdet);
-#endif
-
 	if (update_jacobian) {
 
 	  // temporal part + convective (Galerkin)
@@ -731,7 +712,7 @@ assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
 	  
 	  // diffusive part
 	  tmp7.prod(dshapex,dshapex,-1,1,-1,2);
-	  matlocmom.axpy(tmp7,nu_eff*wpgdet);
+	  matlocmom.axpy(tmp7,mu_eff*wpgdet);
 
 	  // dmatw =  rho * ((1/Dt)*SHAPE + u * dshapex);
 	  dmatw.set(massm).scale(rho);
@@ -742,7 +723,7 @@ assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
 	  }
 
 	  if (!laplace_form) {
-	    tmp19.set(dshapex).scale(nu_eff*wpgdet);
+	    tmp19.set(dshapex).scale(mu_eff*wpgdet);
 	    tmp18.prod(dshapex,tmp19,2,3,4,1);
 	    matlocf.is(2,1,ndim).is(4,1,ndim)
 	      .add(tmp18).rs();
@@ -784,24 +765,6 @@ assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
 	      .axpy(tmp13,-wpgdet).rs();
 	  }
 
-#ifdef DYNAMIC_PRESSURE
-	  tmp40.prod(SHAPE,dshapex,1,3,2).scale(wpgdet*rho);
-	  tmp41.prod(tmp40,u_star,3,1,2,4);
-	  matlocf.is(2,1,ndim).is(4,1,ndim)
-	    .add(tmp41).rs();
-
-	  tmp42.prod(dshapex,u_star,1,2,3); 
-	  tmp43.prod(grad_u_star,SHAPE,1,3,2);
-	  tmp43.add(tmp42);
-	  
-	  tmp44.prod(P_supg,tmp43,1,2,3,4).scale(-wpgdet*rho);
-	  matlocf.is(2,1,ndim).is(4,1,ndim)
-	    .add(tmp44).rs();
-
-	  tmp45.prod(P_pspg,tmp43,-1,1,-1,2,3).scale(wpgdet*rho);
-	  matlocf.ir(2,ndof).is(4,1,ndim)
-	    .add(tmp45).rs();
-#endif
 
 	  if (use_full_jacobian) {
 	    // Jacobian term for advective term
@@ -855,61 +818,19 @@ assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
 	}
 
 	if (comp_mat_advec) {
-#if 0
-	  tmp23.set(SHAPE).scale(rho*rec_Dt/alpha*wpgdet);
-	  tmp24.prod(SHAPE,tmp23,1,2);
-	  matlocmom.set(tmp24);
-	  
-	  //{double tau = 1./3.*SQ(h_pspg)/4.;
-	  //tmp25.set(dshapex).scale(tau*wpgdet);
-	  //tmp26.prod(dshapex,tmp25,-1,1,-1,2);
-	  //matlocmom.add(tmp26);}
 
-	  for (int ii=1; ii<=ndof; ii++) {
-	    matlocf.ir(2,ii).ir(4,ii)
-	      .add(matlocmom).rs();
-	  }
-#endif
-
-#if 0
-	  massm.prod(vrel,dshapex,-1,-1,1).scale(rho*wpgdet);
-	  matlocmom.prod(SHAPE,massm,1,2);
-	  for (int ii=1; ii<=ndof; ii++) {
-	    matlocf.ir(2,ii).ir(4,ii)
-	      .add(matlocmom).rs();
-	  }
-#endif
-
-#if 0
-	  tmp25.set(dshapex).scale(nu_eff*wpgdet);
-	  tmp26.prod(dshapex,tmp25,-1,1,-1,2);
-	  matlocmom.set(tmp26);
-
-	  //{double tau = (rec_Dt ? 1/(2*rec_Dt) : 0);
-	  //tmp23.set(SHAPE).scale(tau*wpgdet);
-	  //tmp24.prod(SHAPE,tmp23,1,2);
-	  //matlocmom.add(tmp24);}
-
-	  for (int ii=1; ii<=ndof; ii++) {
-	    matlocf.ir(2,ii).ir(4,ii)
-	      .add(matlocmom).rs();
-	  }
-#endif
-
-	  /// XXX
 	  // temporal part + convective (Galerkin)
 	  massm.prod(vrel,dshapex,-1,-1,1);
 	  massm.axpy(SHAPE,rec_Dt/alpha);
 	  matlocmom.prod(SHAPE,massm,1,2).scale(rho*wpgdet);
 	  // diffusive part
 	  tmp7.prod(dshapex,dshapex,-1,1,-1,2);
-	  matlocmom.axpy(tmp7,nu_eff*wpgdet);
-	  ///
+	  matlocmom.axpy(tmp7,mu_eff*wpgdet);
+
 	  for (int ii=1; ii<=ndof; ii++) {
 	    matlocf.ir(2,ii).ir(4,ii)
 	      .add(matlocmom).rs();
 	  }
-	  /// XXX
 	}
 
 	if (comp_mat_poisson) {
@@ -917,11 +838,6 @@ assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
 	  tmp25.set(dshapex).scale(wpgdet);
 	  tmp26.prod(dshapex,tmp25,-1,1,-1,2);
 	  matlocmom.set(tmp26);
-
-	  //double tau = (rec_Dt ? (1./(2.*rec_Dt)) : 0);
-	  //tmp23.set(SHAPE).scale(tau*wpgdet);
-	  //tmp24.prod(SHAPE,tmp23,1,2);
-	  //matlocmom.add(tmp24);
 	  
 	  for (int ii=1; ii<=ndof; ii++) {
 	    matlocf.ir(2,ii).ir(4,ii)
