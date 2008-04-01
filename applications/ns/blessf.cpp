@@ -49,6 +49,8 @@
 #include "./truss.h"
 #include "./nodeload.h"
 #include "./poiboltz.h"
+#include "./electrophoresis.h"
+#include "./electrophoresisM.h"
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:
 #undef __FUNC__
@@ -130,6 +132,10 @@ void bless_elemset_ns(char *type,Elemset *& elemset) {
     SET_ELEMSET_TYPE_ALIAS(interpolation,interpolation_ns)
 
     SET_ELEMSET_TYPE(poisson_boltzmann)
+
+    SET_ELEMSET_TYPE(electrophoresis)
+    
+    SET_ELEMSET_TYPE(electrophoresisM)
 
     {
       elemset=NULL;

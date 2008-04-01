@@ -22,7 +22,8 @@ LIBOBJS = ns.o mmvmain.o mmv2main.o nsstruct.o ns_fsi.o compdate.o      \
 	bccnsitetasm.o nsitetasm_avgvol.o ns_gasflow.o bccns_gasflow.o	\
 	mmoveopt.o elast2.o  bccnsitetasm_avgvol.o elastld.o   		\
 	errestim.o mmoveopt3.o bubblyqint.o nsitetlesf.o nsitetlesfbf.o \
-	poiboltz.o mmoveopt2.o truss.o nsitetlesfd.o nodeload.o
+	poiboltz.o mmoveopt2.o truss.o nsitetlesfd.o nodeload.o \
+	electrophoresis.o  electrophoresisM.o
 
 MYOBJS =
 
