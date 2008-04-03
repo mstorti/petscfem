@@ -35,7 +35,7 @@ void smoke_ff::start_chunk(int &ret_options) {
   PETSCFEM_ASSERT(diffusivity>=0.0,
                   "Diffusivity must be non-negative entereed %g",
                   diffusivity);  
-  diff = diffusivity;
+  diff_max = diffusivity;
 
   //o Factor affecting stabilization term
   EGETOPTDEF_ND(new_adv_dif_elemset,double,tau_fac,1.0);
@@ -49,13 +49,15 @@ void smoke_ff::start_chunk(int &ret_options) {
 
 void smoke_ff::element_hook(ElementIterator &element) {
   element_m = element;
-  u.set(new_adv_dif_elemset->prop_array(element_m,u_prop));
+  if (!use_nodal_vel)  
+    u.set(new_adv_dif_elemset->prop_array(element_m,u_prop));
   A.ir(2,1).ir(3,1).set(u).rs();
 }
 
 void smoke_ff::set_state(const FastMat2 &UU) { 
   U.set(UU);
   phi = U.get(1); 
+  diff = diff_max*mind(2,fabs(phi)/phieq,1.0);
 }
 
 void smoke_ff::comp_A_jac_n(FastMat2 &A_jac_n, FastMat2 &normal) {
