@@ -22,10 +22,19 @@ void smoke_ff::start_chunk(int &ret_options) {
   EGETOPTDEF_ND(new_adv_dif_elemset,int,ndim,0);
   PETSCFEM_ASSERT0(ndim>0,"Dimension must be positive.");  
 
-  elemset->get_prop(u_prop,"u");
+  //o Use nodal velocities
+  EGETOPTDEF_ND(new_adv_dif_elemset,int,use_nodal_vel,0);
+
+  //o Index of velocity in the H fields
+  EGETOPTDEF_ND(new_adv_dif_elemset,int,nodal_vel_indx,1);
+
+  if (!use_nodal_vel) {
+    elemset->get_prop(u_prop,"u");
+    PETSCFEM_ASSERT0(u_prop.length==ndim,
+                     "u property must have length ndim");  
+  }
+
   elemset->get_prop(G_prop,"G");
-  PETSCFEM_ASSERT0(u_prop.length==ndim,
-                   "u property must have length ndim");  
   PETSCFEM_ASSERT0(G_prop.length==0 || G_prop.length==2,
                    "G property, if given, must have length 2");  
   u.resize(1,ndim);
@@ -83,7 +92,16 @@ inline double modulo(double k, double n, int *div=NULL) {
 #endif
 
 void smoke_ff::compute_flux(COMPUTE_FLUX_ARGS) {
-  u.set(new_adv_dif_elemset->prop_array(element_m,u_prop));
+  if (use_nodal_vel) {
+    int n1 = nodal_vel_indx;
+    int n2 = n1 + ndim - 1;
+    PETSCFEM_ASSERT0(H.dim(1)>=n2,"Not enough components in H field");  
+    H.is(1,n1,n2);
+    u.set(H);
+    H.rs();
+  } else {
+    u.set(new_adv_dif_elemset->prop_array(element_m,u_prop));
+  }
   double vel = sqrt(u.sum_square_all());
   double t = new_adv_dif_elemset->time();
   double G = 0.0;
