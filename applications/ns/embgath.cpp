@@ -306,9 +306,16 @@ int embedded_gatherer::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
       if (options & VECTOR_ADD) {
 	for (int j=0; j<gather_length; j++) {
 	  (*values)[gather_pos+j] += pg_values[j];
+          printf(" %f",pg_values[j]);
 	}
+        printf("\n");
       } else PETSCFEM_ERROR0("Doesn't make sense gather values "
                              "and !VECTOR_ADD");
+    }
+    if (store_values_as_props) {
+      int l = k*nelprops+phe.position;
+      for (int j=0; j<gather_length; j++)
+        elemprops[l+j] += pg_values[j];
     }
   }  
   FastMat2::void_cache();
@@ -320,6 +327,15 @@ int embedded_gatherer::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 void embedded_gatherer
 ::after_assemble(const char *jobinfo) {
+  if (store_values_as_props) {
+    for (int k=0; k<nelem; k++) {
+      printf("elem %d, vals ",k);
+      int l = k*nelprops+phe.position;
+      for (int j=0; j<phe.width; j++)
+        printf(" %f",elemprops[l+j]);
+      printf("\n");
+    }
+  }
 }
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
