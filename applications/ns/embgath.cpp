@@ -86,6 +86,58 @@ void embedded_gatherer::initialize() {
   if (identify_volume_elements) 
     identify_volume_elements_fun(GLOBAL_MESH->nodedata->nnod,nel_surf,layers,nelem,
 				 icone,nel,nel_vol,vol_elem,sv_gp_data);
+  //o Position in gather vector
+  TGETOPTDEF_ND(thash,int,gather_pos,0);
+  //o How many gather values will be contributed by this elemset
+  TGETOPTDEF_ND(thash,int,gather_length,0);
+
+  //o Store the computed values in per-element properties table
+  TGETOPTDEF_ND(thash,int,store_values_as_props,0);
+  //o Number of values computed by the gatherer. 
+  TGETOPTDEF(thash,int,store_values_length,gather_length);
+  //o Name of property where gather values are stored
+  TGETOPTDEF_S(thash,string,store_in_property_name,none);
+
+  nvalues = gather_length;
+  if (store_values_as_props) {
+    if (!nvalues) nvalues = store_values_length;
+    PETSCFEM_ASSERT0(store_in_property_name!="none",
+                     "If `store_values_as_props' is set, then "
+                     "`store_in_property_name' is required!!");  
+    props_hash_entry *phep;
+    phep = (props_hash_entry *)
+      g_hash_table_lookup(elem_prop_names,
+                          store_in_property_name.c_str());
+    PETSCFEM_ASSERT(phep," `store_in_property_name' was set "
+                    "as %s, but no such property was defined in the "
+                    "per element property table!",
+                      store_in_property_name.c_str());
+    phe = *phep;
+
+    if (!nvalues) nvalues = phe.width;
+    else PETSCFEM_ASSERT(phe.width==nvalues,
+                         "length of property values does not match "
+                         "the length required by gatherer\n"
+                         "length[%s] = %d and nvalues= %d",
+                         store_in_property_name.c_str(),phe.width,
+                         nvalues);
+  }
+}
+
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+void embedded_gatherer
+::before_assemble(arg_data_list &arg_datav,Nodedata *nodedata,
+                  Dofmap *dofmap, const char *jobinfo,int myrank,
+                  int el_start,int el_last,int iter_mode,
+                  const TimeData *time_data) {
+  if (store_values_as_props) {
+    // Clear props data corresponding to gather values
+    for (int k=0; k<nelem; k++) {
+      int l = k*nelprops+phe.position;
+      for (int j=0; j<phe.width; j++) 
+        elemprops[k+j] = 0.0;
+    }
+  }
 }
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
@@ -99,10 +151,6 @@ int embedded_gatherer::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
   GET_JOBINFO_FLAG(gather);
   assert(gather);
 
-  //o Position in gather vector
-  TGETOPTDEF(thash,int,gather_pos,0);
-  //o How many gather values will be contributed by this elemset
-  TGETOPTDEF_ND(thash,int,gather_length,0);
   //o Dimension of the embedding space
   TGETOPTNDEF(thash,int,ndim,none);
   int ndimel = ndim-1;
@@ -131,10 +179,16 @@ int embedded_gatherer::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
   double *locst2 = arg_data_v[ja++].locst;
   int options = arg_data_v[ja].options;
   vector<double> *values = arg_data_v[ja++].vector_assoc;
-  int nvalues = values->size();
-  assert(gather_pos+gather_length <= nvalues); // check that we don't put values
-				   // beyond the end of global vector
-				   // `values'
+
+  // check that we don't put values beyond the end of global
+  // vector `values'
+  PETSCFEM_ASSERT(static_cast<unsigned int>(gather_pos+gather_length)
+                  <=values->size(),
+                  "Not enough positions in gather vector for this gatherer.\n"
+                  "Element %s, gather_pos %d, gather_length %d\n"
+                  "size of values vector (ngather) %s\n",
+                  name(),gather_pos,gather_length,values->size());
+
   vector<double> pg_values(gather_length);
 
   FastMat2 xloc(2,nel,ndim);
@@ -253,13 +307,19 @@ int embedded_gatherer::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
 	for (int j=0; j<gather_length; j++) {
 	  (*values)[gather_pos+j] += pg_values[j];
 	}
-      } else assert(0);
+      } else PETSCFEM_ERROR0("Doesn't make sense gather values "
+                             "and !VECTOR_ADD");
     }
   }  
   FastMat2::void_cache();
   FastMat2::deactivate_cache();
   delete gp_data_p;
   return 0;
+}
+
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+void embedded_gatherer
+::after_assemble(const char *jobinfo) {
 }
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
