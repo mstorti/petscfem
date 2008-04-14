@@ -338,8 +338,9 @@ void embedded_gatherer
       for (int j=0; j<phe.width; j++)
         send.e(k,j) = elemprops[l+j];
     }
-#if 1
-    if (MY_RANK==1) {
+#define DBG
+#ifdef DBG
+    if (!MY_RANK) {
       printf("BEFORE ALLREDUCE\n");
       for (int k=0; k<nelem; k++) {
         printf("elem %d, vals ",k);
@@ -359,8 +360,8 @@ void embedded_gatherer
     }
     send.clear();
     recv.clear();
-#if 1
-    if (MY_RANK==1) {
+#ifdef DBG
+    if (!MY_RANK) {
       printf("AFTER ALLREDUCE\n");
       for (int k=0; k<nelem; k++) {
         printf("elem %d, vals ",k);
