@@ -50,6 +50,9 @@
 \sloppy
 \bibliographystyle{plain}
 %
+\def\html#1{}
+\def\latex#1{#1}
+\let\latexonly=\latex
 \latex{
 \setlength{\textheight}{22truecm}
 \setlength{\textwidth}{15truecm}
@@ -167,16 +170,16 @@
 \begin{document}
 \sloppy
 %
-\title{\pfem: A General Purpose, Parallel, \\
+\title{\bfseries\pfem: A General Purpose, Parallel, \\
 Multi-Physics FEM Program.\\
 User's Guide}
 \author{
-Mario Storti, Norberto Nigro, Rodrigo Paz, Lisandro Dalcin 
-and Ezequiel Lopez\\ 
-Centro Internacional de M\'etodos Computacionales en Ingenier\'\i{}a
-(CIMEC)\\
+{\bfseries\slshape Mario Storti, Norberto Nigro, Rodrigo Paz, }\\
+{\bfseries\slshape Lisandro Dalcin and Ezequiel Lopez}\\ 
+\htmladdnormallink{Centro Internacional de M\'etodos Computacionales
+  en Ingenier\'\i{}a (CIMEC)}{http://www.cimec.org.ar} \\
 Santa Fe, Argentina\\
-http://venus.ceride.gov.ar/CIMEC, http://www.cimec.org.ar\\
+\url{http://www.cimec.org.ar/petscfem}\\
 }
 \date{\today}
 \maketitle 
@@ -204,24 +207,25 @@ keeping in mind the scope of efficiency.
 % we run from the Makefile a one-liner Perl script ($ perl -pi.bak -e
 % 's/...') that uncomment this lines.
 %
-\input gpl            %__UNCOMMENT_IN_FINAL_VERSION__
-\input prev1          %__UNCOMMENT_IN_FINAL_VERSION__
-\input layout         %__UNCOMMENT_IN_FINAL_VERSION__
-\input thash          %__UNCOMMENT_IN_FINAL_VERSION__
-\input idmap          %__UNCOMMENT_IN_FINAL_VERSION__
-\input compprof       %__UNCOMMENT_IN_FINAL_VERSION__
-\input pfmat          %__UNCOMMENT_IN_FINAL_VERSION__
-\input advec          %__UNCOMMENT_IN_FINAL_VERSION__
-\input advdif         %__UNCOMMENT_IN_FINAL_VERSION__
-\input advdif2        %__UNCOMMENT_IN_FINAL_VERSION__
-\input advabso        %__UNCOMMENT_IN_FINAL_VERSION__
-\input ns             %__UNCOMMENT_IN_FINAL_VERSION__
-\input tests          %__UNCOMMENT_IN_FINAL_VERSION__
-\input fastmat2       %__UNCOMMENT_IN_FINAL_VERSION__
-\input dx             %__UNCOMMENT_IN_FINAL_VERSION__
-\input hook           %__UNCOMMENT_IN_FINAL_VERSION__
-\input syncbuff       %__UNCOMMENT_IN_FINAL_VERSION__
-\input femref         %__UNCOMMENT_IN_FINAL_VERSION__
+%% \input gpl            %__UNCOMMENT_IN_FINAL_VERSION__
+%% \input prev1          %__UNCOMMENT_IN_FINAL_VERSION__
+%% \input layout         %__UNCOMMENT_IN_FINAL_VERSION__
+%% \input thash          %__UNCOMMENT_IN_FINAL_VERSION__
+%% \input idmap          %__UNCOMMENT_IN_FINAL_VERSION__
+%% \input compprof       %__UNCOMMENT_IN_FINAL_VERSION__
+%% \input pfmat          %__UNCOMMENT_IN_FINAL_VERSION__
+%% \input advec          %__UNCOMMENT_IN_FINAL_VERSION__
+%% \input advdif         %__UNCOMMENT_IN_FINAL_VERSION__
+%% \input advdif2        %__UNCOMMENT_IN_FINAL_VERSION__
+%% \input advabso        %__UNCOMMENT_IN_FINAL_VERSION__
+%% \input ns             %__UNCOMMENT_IN_FINAL_VERSION__
+%% \input tests          %__UNCOMMENT_IN_FINAL_VERSION__
+%% \input fastmat2       %__UNCOMMENT_IN_FINAL_VERSION__
+%% \input dx             %__UNCOMMENT_IN_FINAL_VERSION__
+%% \input hook           %__UNCOMMENT_IN_FINAL_VERSION__
+%% \input syncbuff       %__UNCOMMENT_IN_FINAL_VERSION__
+%% \input femref         %__UNCOMMENT_IN_FINAL_VERSION__
+\input gather         %__UNCOMMENT_IN_FINAL_VERSION__
 %
 % These have to be commented out
 %%%% THIS IS TO TRY OUT THE AUXILIARY FILES FOR DOC OPTIONS %%%%%%
@@ -348,6 +352,5 @@ T_s
 %# Current line ===========  
 % Local Variables: *
 % mode: latex *
-% latex-occur-section-regexp: "^\\\\S*ection" *
 % tex-main-file: "petscfem.tex" *
 % End: *
