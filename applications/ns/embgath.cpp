@@ -90,6 +90,7 @@ void embedded_gatherer::initialize() {
   TGETOPTDEF_ND(thash,int,gather_pos,0);
   //o How many gather values will be contributed by this elemset
   TGETOPTDEF_ND(thash,int,gather_length,0);
+  pass_values_as_gather = gather_length>0;
 
   //o Store the computed values in per-element properties table
   TGETOPTDEF_ND(thash,int,store_values_as_props,0);
@@ -150,8 +151,9 @@ int embedded_gatherer::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
 
   int ierr;
 
-  GET_JOBINFO_FLAG(gather);
-  assert(gather);
+  PETSCFEM_ASSERT0(!strcmp(jobinfo,"gather"),
+                   "This routine is supposed to be called "
+                   "only with `gather' jobinfo\n");  
 
   //o Dimension of the embedding space
   TGETOPTNDEF(thash,int,ndim,none);
@@ -180,18 +182,22 @@ int embedded_gatherer::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
   double *locst = arg_data_v[ja++].locst;
   double *locst2 = arg_data_v[ja++].locst;
   int options = arg_data_v[ja].options;
-  vector<double> *values = arg_data_v[ja++].vector_assoc;
+  vector<double> *values = NULL;
 
-  // check that we don't put values beyond the end of global
-  // vector `values'
-  PETSCFEM_ASSERT(static_cast<unsigned int>(gather_pos+gather_length)
-                  <=values->size(),
-                  "Not enough positions in gather vector for this gatherer.\n"
-                  "Element %s, gather_pos %d, gather_length %d\n"
-                  "size of values vector (ngather) %s\n",
-                  name(),gather_pos,gather_length,values->size());
+  if (pass_values_as_gather) {
+    values = arg_data_v[ja++].vector_assoc;
+    
+    // check that we don't put values beyond the end of global
+    // vector `values'
+    PETSCFEM_ASSERT(static_cast<unsigned int>(gather_pos+gather_length)
+                    <=values->size(),
+                    "Not enough positions in gather vector for this gatherer.\n"
+                    "Element %s, gather_pos %d, gather_length %d\n"
+                    "size of values vector (ngather) %s\n",
+                    name(),gather_pos,gather_length,values->size());
+  }
 
-  vector<double> pg_values(gather_length);
+  vector<double> pg_values(nvalues);
 
   FastMat2 xloc(2,nel,ndim);
 
@@ -305,16 +311,18 @@ int embedded_gatherer::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
       
       xpgl.ir(1,1); xpg.set(xpgl); xpgl.rs();
       set_pg_values(pg_values,u,u_old,grad_u,grad_uold,xpg,n,wpgdet,t);
-      if (options & VECTOR_ADD) {
-	for (int j=0; j<gather_length; j++) {
-	  (*values)[gather_pos+j] += pg_values[j];
-	}
-      } else PETSCFEM_ERROR0("Doesn't make sense gather values "
-                             "and !VECTOR_ADD");
+      if (pass_values_as_gather) {
+        if (options & VECTOR_ADD) {
+          for (int j=0; j<nvalues; j++) {
+            (*values)[gather_pos+j] += pg_values[j];
+          }
+        } else PETSCFEM_ERROR0("Doesn't make sense gather values "
+                               "and !VECTOR_ADD");
+      }
     }
     if (store_values_as_props) {
       int l = k*nelprops+phe.position;
-      for (int j=0; j<gather_length; j++)
+      for (int j=0; j<phe.width; j++)
         elemprops[l+j] += pg_values[j];
     }
   }  
@@ -372,7 +380,6 @@ void embedded_gatherer
       }
     }
 #endif
-    
   }
 }
 
@@ -384,13 +391,21 @@ void visc_force_integrator::init() {
   TGETOPTNDEF(thash,int,ndim,none);
   ndim_m = ndim;
 
-  assert(ndim==2 || ndim==3);
+  PETSCFEM_ASSERT0(ndim==2 || ndim==3,"Only for 2D or 3D");  
   if (ndim==3) {
-    assert(gather_length==3 || gather_length==6);
-    compute_moment = (gather_length==6);
+    PETSCFEM_ASSERT(nvalues==3 || nvalues==6,
+                    "In 3D nvalues should have length ndim "
+                    "(compute forces only)\n"
+                    "or 2*ndim (compute forces and moments)\n"
+                    "nvalues = %d\n", nvalues);  
+    compute_moment = (nvalues==6);
   } if (ndim==2) {
-    assert(gather_length==2 || gather_length==3);
-    compute_moment = (gather_length==3);
+    PETSCFEM_ASSERT(nvalues==2 || nvalues==3,
+                    "In 2D nvalues should have length 2 "
+                    "(compute forces only)\n"
+                    "or 3 (compute forces and moments)\n"
+                    "nvalues = %d\n", nvalues);  
+    compute_moment = (nvalues==3);
   }
   force.resize(1,ndim);
   if (ndim==3) moment.resize(1,ndim);

@@ -18,7 +18,7 @@ class embedded_gatherer : public Elemset {
   /// Number of Gauss points. 
   int npg;
   int nel_surf, nel_vol, layer, layers,
-    store_values_as_props;
+    store_values_as_props, pass_values_as_gather;
   props_hash_entry phe;
   // MPI_Datatype stride;
 public: 
