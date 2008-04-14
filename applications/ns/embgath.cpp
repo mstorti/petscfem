@@ -121,6 +121,8 @@ void embedded_gatherer::initialize() {
                          "length[%s] = %d and nvalues= %d",
                          store_in_property_name.c_str(),phe.width,
                          nvalues);
+    // MPI_Type_vector(nelem,nvalues,nelprops,MPI_DOUBLE,&stride);
+    // MPI_Type_commit(&stride);
   }
 }
 
@@ -328,6 +330,7 @@ int embedded_gatherer::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
 void embedded_gatherer
 ::after_assemble(const char *jobinfo) {
   if (store_values_as_props) {
+#if 0
     for (int k=0; k<nelem; k++) {
       printf("elem %d, vals ",k);
       int l = k*nelprops+phe.position;
@@ -335,6 +338,26 @@ void embedded_gatherer
         printf(" %f",elemprops[l+j]);
       printf("\n");
     }
+#endif
+    dvector<double> send,recv;
+    send.mono(nvalues*nelem);
+    send.reshape(2,nelem,nvalues);
+    recv.mono(nvalues*nelem);
+    recv.reshape(2,nelem,nvalues);
+    for (int k=0; k<nelem; k++) {
+      int l = k*nelprops+phe.position;
+      for (int j=0; j<phe.width; j++)
+        send.e(k,j) = elemprops[l+j];
+    }
+    MPI_Allreduce(send.buff(),recv.buff(),send.size(),MPI_DOUBLE,
+                  MPI_SUM,PETSCFEM_COMM_WORLD);
+    for (int k=0; k<nelem; k++) {
+      int l = k*nelprops+phe.position;
+      for (int j=0; j<phe.width; j++)
+        elemprops[l+j] = recv.e(k,j);
+    }
+    send.clear();
+    recv.clear();
   }
 }
 

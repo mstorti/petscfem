@@ -20,6 +20,7 @@ class embedded_gatherer : public Elemset {
   int nel_surf, nel_vol, layer, layers,
     store_values_as_props;
   props_hash_entry phe;
+  // MPI_Datatype stride;
 public: 
   /** Constructor. Initializes the pointer 
       to interpolation/integration element. */
