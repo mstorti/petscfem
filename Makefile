@@ -12,7 +12,7 @@ APPS = ns advdif adv laplace
 APPDIRS = ns advdif advective laplace
 APPDIRS := $(patsubst %,applications/%,$(APPDIRS))
 
-CLEAN_DIRS := src $(APPDIRS) doc test tools
+CLEAN_DIRS := src $(APPDIRS) doc test tools tools/project
 
 ifeq ($(USE_DX),yes)
 CLEAN_DIRS += dx
