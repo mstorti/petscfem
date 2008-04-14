@@ -308,9 +308,7 @@ int embedded_gatherer::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
       if (options & VECTOR_ADD) {
 	for (int j=0; j<gather_length; j++) {
 	  (*values)[gather_pos+j] += pg_values[j];
-          printf(" %f",pg_values[j]);
 	}
-        printf("\n");
       } else PETSCFEM_ERROR0("Doesn't make sense gather values "
                              "and !VECTOR_ADD");
     }
@@ -330,15 +328,6 @@ int embedded_gatherer::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
 void embedded_gatherer
 ::after_assemble(const char *jobinfo) {
   if (store_values_as_props) {
-#if 0
-    for (int k=0; k<nelem; k++) {
-      printf("elem %d, vals ",k);
-      int l = k*nelprops+phe.position;
-      for (int j=0; j<phe.width; j++)
-        printf(" %f",elemprops[l+j]);
-      printf("\n");
-    }
-#endif
     dvector<double> send,recv;
     send.mono(nvalues*nelem);
     send.reshape(2,nelem,nvalues);
@@ -349,6 +338,18 @@ void embedded_gatherer
       for (int j=0; j<phe.width; j++)
         send.e(k,j) = elemprops[l+j];
     }
+#if 1
+    if (MY_RANK==1) {
+      printf("BEFORE ALLREDUCE\n");
+      for (int k=0; k<nelem; k++) {
+        printf("elem %d, vals ",k);
+        int l = k*nelprops+phe.position;
+        for (int j=0; j<phe.width; j++)
+          printf(" %f",elemprops[l+j]);
+        printf("\n");
+      }
+    }
+#endif
     MPI_Allreduce(send.buff(),recv.buff(),send.size(),MPI_DOUBLE,
                   MPI_SUM,PETSCFEM_COMM_WORLD);
     for (int k=0; k<nelem; k++) {
@@ -358,6 +359,19 @@ void embedded_gatherer
     }
     send.clear();
     recv.clear();
+#if 1
+    if (MY_RANK==1) {
+      printf("AFTER ALLREDUCE\n");
+      for (int k=0; k<nelem; k++) {
+        printf("elem %d, vals ",k);
+        int l = k*nelprops+phe.position;
+        for (int j=0; j<phe.width; j++)
+          printf(" %f",elemprops[l+j]);
+        printf("\n");
+      }
+    }
+#endif
+    
   }
 }
 
