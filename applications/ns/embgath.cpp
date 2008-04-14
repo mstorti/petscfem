@@ -93,17 +93,17 @@ void embedded_gatherer::initialize() {
   pass_values_as_gather = gather_length>0;
 
   //o Store the computed values in per-element properties table
-  TGETOPTDEF_ND(thash,int,store_values_as_props,0);
+  TGETOPTDEF_ND(thash,int,pass_values_as_props,0);
   //o Number of values computed by the gatherer. 
   TGETOPTDEF(thash,int,store_values_length,gather_length);
   //o Name of property where gather values are stored
   TGETOPTDEF_S(thash,string,store_in_property_name,none);
 
   nvalues = gather_length;
-  if (store_values_as_props) {
+  if (pass_values_as_props) {
     if (!nvalues) nvalues = store_values_length;
     PETSCFEM_ASSERT0(store_in_property_name!="none",
-                     "If `store_values_as_props' is set, then "
+                     "If `pass_values_as_props' is set, then "
                      "`store_in_property_name' is required!!");  
     props_hash_entry *phep;
     phep = (props_hash_entry *)
@@ -133,7 +133,7 @@ void embedded_gatherer
                   Dofmap *dofmap, const char *jobinfo,int myrank,
                   int el_start,int el_last,int iter_mode,
                   const TimeData *time_data) {
-  if (store_values_as_props) {
+  if (pass_values_as_props) {
     // Clear props data corresponding to gather values
     for (int k=0; k<nelem; k++) {
       int l = k*nelprops+phe.position;
@@ -320,7 +320,7 @@ int embedded_gatherer::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
                                "and !VECTOR_ADD");
       }
     }
-    if (store_values_as_props) {
+    if (pass_values_as_props) {
       int l = k*nelprops+phe.position;
       for (int j=0; j<phe.width; j++)
         elemprops[l+j] += pg_values[j];
@@ -335,7 +335,7 @@ int embedded_gatherer::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 void embedded_gatherer
 ::after_assemble(const char *jobinfo) {
-  if (store_values_as_props) {
+  if (pass_values_as_props) {
     dvector<double> send,recv;
     send.mono(nvalues*nelem);
     send.reshape(2,nelem,nvalues);
@@ -346,7 +346,7 @@ void embedded_gatherer
       for (int j=0; j<phe.width; j++)
         send.e(k,j) = elemprops[l+j];
     }
-#define DBG
+    //#define DBG
 #ifdef DBG
     if (!MY_RANK) {
       printf("BEFORE ALLREDUCE\n");
