@@ -68,6 +68,9 @@ petscfem.pdf: latex
 			petscfem.log ; then break ; fi ;	\
 	done
 
+cpydoc:
+	scp petscfem.pdf venus.ceride.gov.ar:public_html/petscfem
+
 manual.ps.gz: force
 	$(MAKE) -C manual ps
 
