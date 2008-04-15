@@ -1,23 +1,26 @@
 %__INSERT_LICENSE__
-\documentclass[a4paper,11pt]{article} 
+%\documentclass[a4paper,11pt]{article} 
+\documentclass[oneside,a4paper,11pt]{scrartcl}
 %---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:
 % GENERATION OF HTML WITH LATEX2HTML IS OBSOLETE. BECAUSE OF MANY
 % PROBLEMS WE DROPPED GENERATION OF THE HTML VERSION. ONLY PDF
 % GENERATION IS SUPPORTED FROM NOW ON.  
 % ---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:
-\pdfoutput=1 % Running PDFLaTeX 
 \usepackage[pdftex]{graphicx} \pdfcompresslevel=9
-\def\EPSPDF{pdf}
 % \usepackage{showkeys}   %__COMMENT_IN_FINAL_VERSION__
 \usepackage{makeidx}
 \usepackage[colorlinks,linkcolor=blue,
             urlcolor=red2,citecolor=green2,
             plainpages=false,pdfpagelabels]{hyperref}
+%\usepackage{times}
 \usepackage{nameref}
 \usepackage{algorithm,algorithmic}
 \usepackage{amsmath,alltt,mstorti,bfgreek,
-  moreverb,color,url}
+  color,url}
+\usepackage{fancyvrb,relsize}
 %
+\def\UrlFont{\ttfamily \bfseries}
+\definecolor{url}{rgb}{0.6,0.,0.}
 \definecolor{red2}{rgb}{0.6,0.,0.1}
 \definecolor{green2}{rgb}{0.1,0.7,0.1}
 \scrollmode
@@ -30,8 +33,8 @@
 \latex{
 \setlength{\textheight}{22truecm}
 \setlength{\textwidth}{15truecm}
-\advance\hoffset by -1truecm
-\advance\voffset by -2truecm
+%% \advance\hoffset by -1truecm
+%% \advance\voffset by -2truecm
 }
 %<*>---<*>---<*>- MATH DEFINITIONS --<*>---<*>---<*>---<*>---<*> 
 \def\factorial{!}
@@ -39,6 +42,19 @@
 \let!\boldmath
 \def\!{\ifmmode\mskip-\thinmuskip\else\char'74\fi}
 %
+%<*>---<*>---<*>---<*>---<*>---<*>---<*>---<*>---<*>---<*>---<*> 
+% CUSTOMIZE VERB
+\fvset{%
+  fontfamily=courier,
+  formatcom=\color{red2},
+  fontseries=b,
+  fontshape=sl,
+  baselinestretch=0.7,
+  numbers=left,
+  xleftmargin=2pt,
+%  fontsize=\relsize{0},
+  numbersep=3pt}
+%<*>---<*>---<*>---<*>---<*>---<*>---<*>---<*>---<*>---<*>---<*> 
 \newcommand{\rand}{\mathop{\mathrm{rand}}}
 \newcommand{\Nnod}{{N_{\mathrm{nod}}}}
 \newcommand{\dof}{{\mathrm{d.o.f.}}}
@@ -189,9 +205,6 @@ keeping in mind the scope of efficiency.
 \input prev1          %__UNCOMMENT_IN_FINAL_VERSION__
 \input layout         %__UNCOMMENT_IN_FINAL_VERSION__
 \input thash          %__UNCOMMENT_IN_FINAL_VERSION__
-\input idmap          %__UNCOMMENT_IN_FINAL_VERSION__
-\input compprof       %__UNCOMMENT_IN_FINAL_VERSION__
-\input pfmat          %__UNCOMMENT_IN_FINAL_VERSION__
 \input advec          %__UNCOMMENT_IN_FINAL_VERSION__
 \input advdif         %__UNCOMMENT_IN_FINAL_VERSION__
 \input advdif2        %__UNCOMMENT_IN_FINAL_VERSION__
@@ -199,11 +212,15 @@ keeping in mind the scope of efficiency.
 \input ns             %__UNCOMMENT_IN_FINAL_VERSION__
 \input tests          %__UNCOMMENT_IN_FINAL_VERSION__
 \input fastmat2       %__UNCOMMENT_IN_FINAL_VERSION__
-\input dx             %__UNCOMMENT_IN_FINAL_VERSION__
 \input hook           %__UNCOMMENT_IN_FINAL_VERSION__
-\input syncbuff       %__UNCOMMENT_IN_FINAL_VERSION__
-\input femref         %__UNCOMMENT_IN_FINAL_VERSION__
 \input gather         %__UNCOMMENT_IN_FINAL_VERSION__
+%
+\input dx             %__UNCOMMENT_IN_FINAL_VERSION__
+\input idmap          %__UNCOMMENT_IN_FINAL_VERSION__
+\input compprof       %__UNCOMMENT_IN_FINAL_VERSION__
+\input pfmat          %__UNCOMMENT_IN_FINAL_VERSION__
+\input femref         %__UNCOMMENT_IN_FINAL_VERSION__
+\input syncbuff       %__UNCOMMENT_IN_FINAL_VERSION__
 %
 % These have to be commented out
 %%%% THIS IS TO TRY OUT THE AUXILIARY FILES FOR DOC OPTIONS %%%%%%
