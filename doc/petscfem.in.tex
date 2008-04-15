@@ -165,9 +165,10 @@
 %
 %
 %<*>---<*>---<*>---<*>---<*>---<*>---<*>---<*>---<*>---<*>---<*> 
-\input version.tex
+\input VERSION.tex
 \makeindex
 \begin{document}
+\def\ttfont{\ttfamily\bfseries\slshape\selectfont\small}
 \sloppy
 %
 \title{\bfseries\pfem: A General Purpose, Parallel, \\
@@ -180,6 +181,9 @@ User's Guide}
   en Ingenier\'\i{}a (CIMEC)}{http://www.cimec.org.ar} \\
 Santa Fe, Argentina\\
 \url{http://www.cimec.org.ar/petscfem}\\
+    {\ttfont ((version \docversion)}\\
+    {\ttfont (date \docdate)}\\
+    {\ttfont (processed-date \processeddate))}\\
 }
 \date{\today}
 \maketitle 
@@ -188,7 +192,7 @@ Santa Fe, Argentina\\
 \begin{abstract}
 %fixme:= incluir referencia a PETSc
 This is the documentation for \pfem{} (current version 
-{\tt petscfem-\petscfemversion}, a general purpose, parallel,
+{\tt \docversion}, a general purpose, parallel,
 multi-physics FEM program for CFD applications based on
 PETSc. \pfem{} comprises both a library that allows the user to
 develop FEM (or FEM-like, i.e. non-structured mesh oriented) programs, and

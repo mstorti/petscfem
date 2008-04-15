@@ -53,7 +53,9 @@ petscfem.ps: petscfem.dvi
 
 dvi: petscfem.dvi
 
-latex-petscfem: petscfem.tex
+latex-petscfem: 
+	$(MAKE) petscfem.tex
+	docdate.pl
 	$(MAKE) -C OBJ pdf
 	pdflatex petscfem
 
