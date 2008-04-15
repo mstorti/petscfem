@@ -47,24 +47,26 @@ pdf1:
 #w Makes PS version of the reference
 #e manual.ps.gz
 
-.INTERMEDIATE: manual.ps petscfem.ps
-petscfem.ps: petscfem.dvi
-	dvips -o $@ petscfem
-
-dvi: petscfem.dvi
-
 latex-petscfem: 
+	echo 
 	$(MAKE) petscfem.tex
 	docdate.pl
 	$(MAKE) -C OBJ pdf
 	pdflatex petscfem
 
-petscfem.dvi: *.tex
-	$(MAKE) latex
-
 petscfem.pdf: latex
+	docdate.pl
 	$(MAKE) -C OBJ pdf
-	pdflatex petscfem
+	$(MAKE) odoc
+	$(MAKE) petscfem.tex
+	for j in 1 2 3 4 ;					\
+	do echo "On run $$j -------------------------------" ;	\
+		pdflatex petscfem ;				\
+		bibtex petscfem ;				\
+		makeindex petscfem.idx ;			\
+		if ! grep 'LaTeX Warning: .* Rerun '		\
+			petscfem.log ; then break ; fi ;	\
+	done
 
 manual.ps.gz: force
 	$(MAKE) -C manual ps
