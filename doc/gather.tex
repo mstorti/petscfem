@@ -140,6 +140,10 @@ the surface.
   layer on the body skin in order to correctly capture the boundary
   layer.
 
+\item Also, it requires the construction of the connnectivities of
+  these layers, what may be cumbersome, but we will see later that
+  this can be done automatically (see \S\ref{sec:auto-emb}).  
+
 \item The size of the elements in the normal direction are not
   required to be equispaced, i.e. the distances 1-6 and 6-11 are not
   required to be equal or similar. This is important, because normally
@@ -161,7 +165,6 @@ The typical invocation is as follows
 %
 \medskip
 \begin{verbatim}
-
 elemset nsi_tet_les_full 4
 geometry cartesian2d
 __END_HASH__
@@ -195,6 +198,76 @@ surface geomtry are lines and the corresponding volume elemset is
 composed of quads. The other two possibilities implemented so far are
 \verb+tri2prism+ and \verb+quad2hexa+ (see figure~\ref{fg:embgath2}).
 
+Typical invocation is as follows
+The typical invocation is as follows
+%
+\medskip
+\begin{verbatim}
+elemset visc_force_integrator 9
+geometry tri2prism
+__END_HASH__
+...
+1 2 3 4 5 6 7 8 9
+...
+__END__ELEMSET__
+\end{verbatim}
+\medskip
+%
+and
+%
+\medskip
+\begin{verbatim}
+elemset visc_force_integrator 12
+geometry quad2hexa
+__END_HASH__
+...
+1 2 3 4 5 6 7 8 9 10 11 12
+...
+__END__ELEMSET__
+\end{verbatim}
+\medskip
+
+%<*>---<*>---<*>---<*>---<*>---<*>---<*>---<*>---<*>---<*>---<*>
+\subsection{Automatic computation of layer connectivities} 
+\label{sec:auto-emb}  
+
+Sometimes it is somewhat cumbersome to compute the connectivities of
+the embedded gatherer connectivities since it involves the finding of
+layers of nodes inside the adjacent volume element. This can be done
+automatically by PETSc-FEM if the \verb+identify_volume_elements+ is
+activated and the name of the adjacent volume element is passed
+through the option \verb+volume_elemset+ for instance
+%
+\medskip
+\begin{verbatim}
+elemset nsi_tet_les_full 4
+geometry cartesian2d
+name viscous_fluid
+__END_HASH__
+1 2 7 6
+6 7 12 11
+2 3 8 7
+...
+__END__ELEMSET__
+
+elemset visc_force_integrator 6
+volume_elemset viscous_fluid
+identify_volume_elements
+geometry line2quad
+__END_HASH__
+1 2 1 1 1 1
+2 3 1 1 1 1
+3 4 1 1 1 1
+...
+__END__ELEMSET__
+\end{verbatim}
+\medskip
+%
+Note that the nodes in the inner layers of nodes are replaced by 1's. 
+With this setting, the code will inspect the connectivity of the
+\verb+viscous_fluid+ elemset and find the nodes corresponding to the
+inner layers and replace the 1's by the correct n ode number. 
+
 %<*>---<*>---<*>---<*>---<*>---<*>---<*>---<*>---<*>---<*>---<*>
 \subsection{Passing element contributions as per-element properties} 
 
@@ -204,8 +277,47 @@ fluid-structure application involving a fluid and a deformable solid,
 it does not suffice only with the integral of the forces to compute
 the evolution of the solid, but also it is needed the whole
 distribution of forces. In this case what is needed is a list of
-surface elements and the total force for each element. This behavior
-can be 
+surface elements and the total force for each element. 
+
+This behavior can be activated with the \verb+pass_values_as_gather+
+option. This mechanism can be activated \emph{in addition} to the usual
+global \verb+gather_values+ mechanism. The global vector mechanism can
+be deactivated by setting the \verb+gather_length+ to 0, or not
+setting it at all. In summary
+%
+\begin{itemize}
+\compactlist 
+\item If \verb+gather_length>0+  and 
+  \verb+pass_values_as_gather==0+ only the usual 
+  \verb+gather_values+ mechanism is activated.
+\item If \verb+gather_length>0+  and 
+  \verb+pass_values_as_gather==1+ both mechanisms 
+  are activated. 
+\item If \verb+gather_length==0+ and 
+  \verb+pass_values_as_gather==1+
+  only the per-element mechanism is activated. The amount of values to
+  be computed is set with the \verb+store_values_length+ option. 
+\end{itemize}
+%
+The summary of relevant options is
+%
+\begin{itemize}
+\compactlist 
+\item \verb+pass_values_as_gather+ activates the mechanism of passing per
+  element computed values as per-element properties. 
+
+\item \verb+store_values_length+ is an integer indicating how many values
+  are computed by the gatherer. It defaults to
+  \verb+gather_length+. However, if the standard mechanism of the
+  \verb+gather_values+ is deactivated, then the number of computed
+  values must be passed through this option. 
+
+\item \verb+store_in_property_name+ is a string that identifies the
+  per-element property that must be filled with the computed values. 
+  Of course, the user must define such property with the appropriate
+  size. The values in the connectivity table are irrelevant (for
+  instance null values) and will be overwritten by the gatherer. 
+\end{itemize}
 
 %<*>---<*>---<*>---<*>---<*>---<*>---<*>---<*>---<*>---<*>---<*>
 \subsection{Parallel aspects} 
@@ -226,6 +338,62 @@ body.
 Typically a gatherer is created by deriving from the virtual class
 \verb+gatherer+ and implementing the \verb+set_pg_values()+ method
 which is in charge of computing the integrands.
+%
+\medskip
+\begin{verbatim}
+class gatherer {
+// ...
+public:
+  // perform several checks and initialization
+  void init();
+  // add Gauss point contributions
+  void set_pg_values(vector<double> &pg_values,FastMat2 &u,
+		     FastMat2 &uold,FastMat2 &xpg,FastMat2 &Jaco,
+		     double wpgdet,double time);
+};
+\end{verbatim}
+\medskip
+%
+\begin{itemize}
+\compactlist 
+\item The \verb+init()+ function may be used for initialization. The
+  \verb+TGETOPTDEF(thash,....)+ macro can be used for extracting
+  options of the elemset. For instance,
+%
+\medskip
+\begin{verbatim}
+TGETOPTDEF(thash,double,Young_modulus,0.);
+\end{verbatim}
+\medskip 
+
+\item The \verb+set_pg_values(...)+ is the main method. Here the user
+  computes the values to be integrated. Its signature is
+%
+\medskip
+\begin{verbatim}
+  virtual void set_pg_values(vector<double> &pg_values,FastMat2 &u,
+		     FastMat2 &uold,FastMat2 &xpg,FastMat2 &n,
+		     double wpgdet,double time)=0;
+\end{verbatim}
+\medskip
+%
+The argument \verb+pg_values+ are the values to be computed. (\verb+pg+
+stands for Gauss point, since usually this function is called by the
+gatherer class at the Gauss points of integration.) \verb+u+ and
+\verb+uold+  are the states at times $t^n$ and $t^{n+1}$. \verb+xpg+
+are the coordinates of the Gauss point. \verb+n+ is the normal to the
+surface (only relevant if the dimension of the element \verb+ndimel+
+is equal to \verb+ndim-1+). \verb+wpgdet+ is the area of the Gauss
+point (i.e. the Gauss point weight times the Jacobian of the
+transformation to the master element). 
+
+\item Other methods are \verb+void element_hook(int k)+ which is
+  called \emph{before} the Gauss point hook and then can be used in
+  order to pre-compute some stuff for all the Gauss points. \verb+k+
+  is the element number. Finally \verb+void clean()+ can be used after
+  processing all the elements and doing some cleanup. 
+
+\end{itemize}
 
 % Local Variables: *
 % mode: latex *
