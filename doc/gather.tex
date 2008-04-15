@@ -20,6 +20,97 @@ gather operations produce some kind of global data, as for instance
   of heat or volume rate through a surface. 
 \end{itemize}
  
+Gatherers are implemented as \verb+elemsets+ the only difference is
+that they typically only process a special jobinfo named
+\verb+gather+. This jobinfo is processed after the time step,
+i.e. only after the Newton loop, on the converged values. This jobinfo
+task does not assemble vectors or matrices, but a series global values
+stored in a global C++ vector called
+\verb+vector<int> gather_values+. A typical call is as follows (taken
+from \verb+ns.cpp+),
+%
+\medskip
+\begin{verbatim}
+    arglf.clear();
+    arglf.arg_add(&state,IN_VECTOR|USE_TIME_DATA);
+    arglf.arg_add(&state_old,IN_VECTOR|USE_TIME_DATA);
+    arglf.arg_add(&gather_values,VECTOR_ADD);
+    ierr = assemble(mesh,arglf,dofmap,"gather",&time_star);
+    CHKERRA(ierr);
+\end{verbatim}
+\medskip
+%
+Note that three arguments are passed to the \verb+gather+ assemble
+task: the old and new states, and the vector of gathered values. 
+
+%<*>---<*>---<*>---<*>---<*>---<*>---<*>---<*>---<*>---<*>---<*>
+\subsection{Dimensioning the values vector} 
+
+In order to use the gatherers the user must before dimension
+appropriately the array of values with global option
+\verb+ngather+. Then, for each gatherer elemset the user must set the
+options that select a continuous range in this vector, namely
+\verb+gather_pos+ and \verb+gather_length+. The selected range is
+\verb|[gather_pos,gather_pos+gather_length]|. Then, for instance, if
+the (hyopthetical) gatherer elemset \verb+momentum_integrator+ is
+supposed to compute the integral of the momentum (a 3-vector in 3D),
+then we could use as
+
+\medskip
+\begin{verbatim}
+global_options
+...
+ngather 3
+__END_HASH__
+
+
+
+elemset momentum_integrator 4
+...
+gather_pos 0
+gather_length 3
+data ./
+__END_HASH
+\end{verbatim}
+\medskip
+ 
+With this setup, the program will compute for each time step the
+integral of the momentum, at will print these three values on stadard
+output. If a string is passed to the global option \verb+gather_file+
+for instance
+%
+\medskip
+\begin{verbatim}
+...
+ngather 3
+gather_file momentum.out
+...
+\end{verbatim}
+\medskip
+%
+then, instead of reporting the gathered values on standard output they
+are printed on the corresponding file. The file is opened and closed
+at each time step. 
+
+%<*>---<*>---<*>---<*>---<*>---<*>---<*>---<*>---<*>---<*>---<*>
+\subsection{Parallel aspects} 
+
+Of course, PETSc-FEM is in charge of adding the contributions on
+different processors. The resulting sum of contributions over
+\emph{all elements} in \emph{all procesors}.  The sum is available not
+only in the master (\verb+rank=0+), but in all processors (as with an
+\verb+MPI_Allreduce()+ call).  This is important since this global sum
+can be used also in \emph{hooks} in order to perform computations.
+For instance, a gatherer can be used to compute the force on a body,
+and this force can be passed to a hook to compute the movement of the
+body.
+
+%<*>---<*>---<*>---<*>---<*>---<*>---<*>---<*>---<*>---<*>---<*>
+\subsection{Creating a gatherer} 
+
+Typically a gatherer is created by deriving from the virtual class
+\verb+gatherer+ and implementing the \verb+set_pg_values()+ method
+which is in charge of computing the integrands. 
 
 
 % Local Variables: *
