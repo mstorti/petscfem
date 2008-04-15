@@ -1,46 +1,20 @@
 %__INSERT_LICENSE__
 \documentclass[a4paper,11pt]{article} 
-%---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
-% HOW TO ADD MATERIAL HERE
-%
-% 1./ Do not use environment 'align'
-% 2./ Be careful with calls to $!a$ for vector a. Sometimes if
-%     the material inside an equation is too simple latex2html may
-%     not process it.
-% 3./ Do not use the `algorithmic' and 'algorithm. environments.
-%     Latex2Html doesn't like them. 
-% 4./ After adding documentation, please check that it process
-%     OK and that equation numbering is OK in the HTML output. Also that
-%     image processing in the generation of the manual is OK. 
-%
-%---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
-%Section{
-%<: if (!$html) { :>
-\newif\ifpdf 
-\ifx\pdfoutput\undefined
-  \pdffalse % Not running PDFLaTeX 
-  \usepackage[dvips]{graphicx}
-  \def\EPSPDF{eps}
-\else
-  \pdfoutput=1 % Running PDFLaTeX 
-  \pdftrue 
-  \usepackage[pdftex]{graphicx} \pdfcompresslevel=9
-  \def\EPSPDF{pdf}
-\fi
-%<: } else { :>
-\usepackage[dvips]{graphicx}
-\newcommand{\EPSPDF}{eps}
-%<: } :>
+%---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:
+% GENERATION OF HTML WITH LATEX2HTML IS OBSOLETE. BECAUSE OF MANY
+% PROBLEMS WE DROPPED GENERATION OF THE HTML VERSION. ONLY PDF
+% GENERATION IS SUPPORTED FROM NOW ON.  
+% ---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:
+\pdfoutput=1 % Running PDFLaTeX 
+\usepackage[pdftex]{graphicx} \pdfcompresslevel=9
+\def\EPSPDF{pdf}
 % \usepackage{showkeys}   %__COMMENT_IN_FINAL_VERSION__
 \usepackage{makeidx}
 \usepackage[colorlinks,linkcolor=blue,
             urlcolor=red2,citecolor=green2,
             plainpages=false,pdfpagelabels]{hyperref}
 \usepackage{nameref}
-% \usepackage{html,htmllist,heqn}
-%<: if (!$html) { :>
 \usepackage{algorithm,algorithmic}
-%<: } :>
 \usepackage{amsmath,alltt,mstorti,bfgreek,
   moreverb,color,url}
 %
@@ -176,14 +150,14 @@ Multi-Physics FEM Program.\\
 User's Guide}
 \author{
 {\bfseries\slshape Mario Storti, Norberto Nigro, Rodrigo Paz, }\\
-{\bfseries\slshape Lisandro Dalcin and Ezequiel Lopez}\\ 
+{\bfseries\slshape Lisandro Dalc\'\i{}n and Ezequiel L\'opez}\\ 
 \htmladdnormallink{Centro Internacional de M\'etodos Computacionales
   en Ingenier\'\i{}a (CIMEC)}{http://www.cimec.org.ar} \\
 Santa Fe, Argentina\\
 \url{http://www.cimec.org.ar/petscfem}\\
-    {\ttfont ((version \docversion)}\\
-    {\ttfont (date \docdate)}\\
-    {\ttfont (processed-date \processeddate))}\\
+    {\ttfont ((version "\docversion")}\\
+    {\ttfont (date "\docdate")}\\
+    {\ttfont (processed-date "\processeddate"))}\\
 }
 \date{\today}
 \maketitle 
@@ -285,7 +259,7 @@ grants (list grants here...)
 \item[MPI:] Message Passing Interface
 \item[OOP:] Object Oriented Programming
 \item[Perl:] Practical Extraction and Report Language
-\item[PETSC:] Portable Extensible Toolkit for Scientific computations.
+\item[PETSc:] Portable Extensible Toolkit for Scientific computations.
 \item[SUPG:] Streamline Upwind/Petrov Galerkin
 \item[ANN:] Approximate Nearest Neighbor problem. Also refers to the
 library developped by David Mount and Sunil Arya
