@@ -56,7 +56,7 @@ appropriately the array of values with global option
 options that select a continuous range in this vector, namely
 \verb+gather_pos+ and \verb+gather_length+. The selected range is
 \verb|[gather_pos,gather_pos+gather_length]|. Then, for instance, if
-the (hyopthetical) gatherer elemset \verb+momentum_integrator+ is
+the (hypothetical) gatherer elemset \verb+momentum_integrator+ is
 supposed to compute the integral of the momentum (a 3-vector in 3D),
 then we could use as
 
@@ -77,7 +77,7 @@ __END_HASH
 \medskip
 %
 With this setup, the program will compute for each time step the
-integral of the momentum, at will print these three values on stadard
+integral of the momentum, at will print these three values on standard
 output. If a string is passed to the global option \verb+gather_file+
 for instance
 %
@@ -99,7 +99,7 @@ at each time step.
 
 %<*>---<*>---<*>---<*>---<*>---<*>---<*>---<*>---<*>---<*>---<*> 
 \begin{figure*}[htb]
-\centerline{\includegraphics{./OBJ/embgath}}
+\centerline{\includegraphics[scale=0.8]{./OBJ/embgath}}
 \caption{Embedded gatherer element}
 \label{fg:embgath}
 \end{figure*}
@@ -117,7 +117,7 @@ simplicity, in the case a of plane surface) the normal component of
 the gradient can not be determined. 
 
 In order to solve this, a special class of gatherers have been
-developed, namely the \verb+embedded_gatherer+ class. Tipically such
+developed, namely the \verb+embedded_gatherer+ class. Typically such
 an elemset is composed is a surface elemset, associated with a volume
 one. For instance (see figure~\ref{fg:embgath}) the user can have a
 fluid problem with a volume elemset (in 2D) composed of
@@ -140,7 +140,7 @@ the surface.
   layer on the body skin in order to correctly capture the boundary
   layer.
 
-\item Also, it requires the construction of the connnectivities of
+\item Also, it requires the construction of the connectivities of
   these layers, what may be cumbersome, but we will see later that
   this can be done automatically (see \S\ref{sec:auto-emb}).  
 
@@ -194,7 +194,7 @@ __END__ELEMSET__
 %<*>---<*>---<*>---<*>---<*>---<*>---<*>---<*>---<*>---<*>---<*> 
 
 Note that the geometry is special \verb+line2quad+ means that the
-surface geomtry are lines and the corresponding volume elemset is
+surface geometry are lines and the corresponding volume elemset is
 composed of quads. The other two possibilities implemented so far are
 \verb+tri2prism+ and \verb+quad2hexa+ (see figure~\ref{fg:embgath2}).
 
@@ -324,7 +324,7 @@ The summary of relevant options is
 
 Of course, PETSc-FEM is in charge of adding the contributions on
 different processors. The resulting sum of contributions over
-\emph{all elements} in \emph{all procesors}.  The sum is available not
+\emph{all elements} in \emph{all processors}.  The sum is available not
 only in the master (\verb+rank=0+), but in all processors (as with an
 \verb+MPI_Allreduce()+ call).  This is important since this global sum
 can be used also in \emph{hooks} in order to perform computations.
