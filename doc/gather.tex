@@ -317,6 +317,39 @@ The summary of relevant options is
   Of course, the user must define such property with the appropriate
   size. The values in the connectivity table are irrelevant (for
   instance null values) and will be overwritten by the gatherer. 
+
+\item \verb+compute_densities+: 
+  If\verb+compute_densities==0+ then the value set
+  in the per-element property is the integral of the
+  integrand over the element. That is, if the integrand 
+  is $\phi$, the computed value for the element is
+  %
+  \begin{equation} 
+    \verb+value for element e+  
+    = \int_{\Omega_e} \phi
+  \end{equation}
+  % 
+  Conversely, if \verb+compute_densities==1+ the value set is the
+  density of the mean value of the integrand, i.e. 
+  %
+  \begin{equation} 
+    \verb+value for element e+  
+    = \left<\phi\right>_{\Omega_e} 
+    = \frac {1}{|\Omega_e|}\int_{\Omega_e} \phi
+  \end{equation}
+  % 
+
+  For instance, if the integrand $\phi$ is the heat flow through the
+  surface, then if\verb+compute_densities==0+ then the value set in
+  the per-element property is the total heat flow through the element
+  (which has units of energy per unit time), whereas
+  if\verb+compute_densities==1+ then the value set is the mean heat
+  flow density (which has units of energy per unit time and unit
+  surface ). For the traction on a surface, the passed value is the
+  total force on the element in one case (units of force) and the mean
+  skin friction in the other (units of force per unit area). Of
+  course, this option has no effect on the values passed via the
+  global \verb+gather_values+ vector.
 \end{itemize}
 
 %<*>---<*>---<*>---<*>---<*>---<*>---<*>---<*>---<*>---<*>---<*>
@@ -371,26 +404,29 @@ TGETOPTDEF(thash,double,Young_modulus,0.);
 %
 \medskip
 \begin{verbatim}
-  virtual void set_pg_values(vector<double> &pg_values,FastMat2 &u,
+  void set_pg_values(vector<double> &pg_values,FastMat2 &u,
 		     FastMat2 &uold,FastMat2 &xpg,FastMat2 &n,
-		     double wpgdet,double time)=0;
+		     double wpgdet,double time);
 \end{verbatim}
 \medskip
-%
-The argument \verb+pg_values+ are the values to be computed. (\verb+pg+
-stands for Gauss point, since usually this function is called by the
-gatherer class at the Gauss points of integration.) \verb+u+ and
-\verb+uold+  are the states at times $t^n$ and $t^{n+1}$. \verb+xpg+
-are the coordinates of the Gauss point. \verb+n+ is the normal to the
-surface (only relevant if the dimension of the element \verb+ndimel+
-is equal to \verb+ndim-1+). \verb+wpgdet+ is the area of the Gauss
-point (i.e. the Gauss point weight times the Jacobian of the
-transformation to the master element). 
+  %
+  The argument \verb+pg_values+ are the values to be
+  computed. (\verb+pg+ stands for Gauss point, since usually this
+  function is called by the gatherer class at the Gauss points of
+  integration.) \verb+u+ and \verb+uold+ are the states at times $t^n$
+  and $t^{n+1}$. \verb+xpg+ are the coordinates of the Gauss
+  point. \verb+n+ is the normal to the surface (only relevant if the
+  dimension of the element \verb+ndimel+ is equal to
+  \verb+ndim-1+). \verb+wpgdet+ is the area of the Gauss point
+  (i.e. the Gauss point weight times the Jacobian of the
+  transformation to the master element).
 
-\item Other methods are \verb+void element_hook(int k)+ which is
+\item \verb+void element_hook(int k)+ is
   called \emph{before} the Gauss point hook and then can be used in
   order to pre-compute some stuff for all the Gauss points. \verb+k+
-  is the element number. Finally \verb+void clean()+ can be used after
+  is the element number. 
+
+\item \verb+void clean()+ can be used after
   processing all the elements and doing some cleanup. 
 
 \end{itemize}

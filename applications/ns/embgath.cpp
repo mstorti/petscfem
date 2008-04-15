@@ -99,6 +99,27 @@ void embedded_gatherer::initialize() {
   //o Name of property where gather values are stored
   TGETOPTDEF_S(thash,string,store_in_property_name,none);
 
+  //o This option is relevant only if #pass_values_as_props#
+  // is active. If #compute_densities==0# then the value set
+  // in the per-element property is the integral of the
+  // integrand over the element. Conversely, if
+  // #compute_densities==1# the value set is the density of
+  // the mean value of the integrand, i.e. the integral
+  // divided by the area of the element. For instance, if
+  // the integrand is the heat flow through the surface,
+  // then if #compute_densities==0# then the value set in
+  // the per-element property is the total heat flow through
+  // the element (which has units of energy per unit time),
+  // whereas if #compute_densities==1# then the value set is
+  // the mean heat flow density (which has units of energy
+  // per unit time and unit surface ). For the traction on a
+  // surface, the passed value is the total force on the
+  // element in one case (units of force) and the mean skin
+  // friction in the other (units of force per unit
+  // area). This option has no effect on the values passed
+  // via the global #gather_values# vector. 
+  TGETOPTDEF_ND(thash,int,compute_densities,0);
+
   nvalues = gather_length;
   if (pass_values_as_props) {
     if (!nvalues) nvalues = store_values_length;
@@ -255,6 +276,7 @@ int embedded_gatherer::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
     // Let user do some things when starting with an element
     element_hook(k);
 
+    double area=0.0;
     for (int ipg=0; ipg<npg; ipg++) {
       FastMat2 &shape = SHAPE;
       FastMat2 &dshapexi = DSHAPEXI;
@@ -310,6 +332,7 @@ int embedded_gatherer::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
       grad_uold.prod(iJaco,grad_uold_xi,1,-1,-1,2);
       
       xpgl.ir(1,1); xpg.set(xpgl); xpgl.rs();
+      area += wpgdet;
       set_pg_values(pg_values,u,u_old,grad_u,grad_uold,xpg,n,wpgdet,t);
       if (pass_values_as_gather) {
         if (options & VECTOR_ADD) {
@@ -322,8 +345,10 @@ int embedded_gatherer::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
     }
     if (pass_values_as_props) {
       int l = k*nelprops+phe.position;
-      for (int j=0; j<phe.width; j++)
+      for (int j=0; j<phe.width; j++) {
         elemprops[l+j] += pg_values[j];
+        if (compute_densities) elemprops[l+j] /= area;
+      }
     }
   }  
   FastMat2::void_cache();
