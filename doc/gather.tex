@@ -43,6 +43,10 @@ from \verb+ns.cpp+),
 Note that three arguments are passed to the \verb+gather+ assemble
 task: the old and new states, and the vector of gathered values. 
 
+Many gatherer elemsets have the suffix \verb+integrator+ appended to
+their names, for instance \verb+visc_force_integrator+ or
+\verb+volume_integrator+
+
 %<*>---<*>---<*>---<*>---<*>---<*>---<*>---<*>---<*>---<*>---<*>
 \subsection{Dimensioning the values vector} 
 
@@ -93,6 +97,14 @@ at each time step.
 %<*>---<*>---<*>---<*>---<*>---<*>---<*>---<*>---<*>---<*>---<*>
 \subsection{Embedded gatherers} 
 
+%<*>---<*>---<*>---<*>---<*>---<*>---<*>---<*>---<*>---<*>---<*> 
+\begin{figure*}[htb]
+\centerline{\includegraphics{./OBJ/embgath}}
+\caption{Embedded gatherer element}
+\label{fg:embgath}
+\end{figure*}
+%<*>---<*>---<*>---<*>---<*>---<*>---<*>---<*>---<*>---<*>---<*> 
+
 If the elemset has a dimension lower than the embedding space, for
 instance a surface embedded in 3D space, then computing the gradients
 of the variables on the surface can not be done with the information
@@ -105,10 +117,86 @@ simplicity, in the case a of plane surface) the normal component of
 the gradient can not be determined. 
 
 In order to solve this, a special class of gatherers have been
-developed, namely the \verb+embedded_gatherer+ class. 
+developed, namely the \verb+embedded_gatherer+ class. Tipically such
+an elemset is composed is a surface elemset, associated with a volume
+one. For instance (see figure~\ref{fg:embgath}) the user can have a
+fluid problem with a volume elemset (in 2D) composed of
+\verb+cartesian2d+ and wants to compute the viscous traction on the
+solid surface $AB$. For this, she adds an elemset
+\verb+visc_force_integrator+ composed of six-nodes elements composed
+of three layers of segments parallel to the surface as, for instance,
+the element 3-4-8-9-14 (marked with a dashed line in the figure). 
+This special elements can be seen as layers of surface elements,
+parallel to the skin. With the velocity values computed by the
+Navier-Stokes solver at these nodes, the gatherer elemset can compute
+high precision approximations to the normal derivatives of velocity at
+the surface. 
+
+\begin{itemize}
+\compactlist 
+
+\item Note that this requires that the mesh must be somewhat
+  structured near the surface. However, it is usual to add structured
+  layer on the body skin in order to correctly capture the boundary
+  layer.
+
+\item The size of the elements in the normal direction are not
+  required to be equispaced, i.e. the distances 1-6 and 6-11 are not
+  required to be equal or similar. This is important, because normally
+  the layers of nodes are refined towards the surface, as shown in the
+  figure. 
+
+\item The lines of nodes are not required to be normal to the
+  surface. 
+
+\item However, it is required that each row of nodes (for instance the
+  row 1-6-10) must \emph{lay on a smooth curve}. This is required,
+  since in the process of computing high normal derivatives a Taylor
+  expansion is computed in terms of this curves, so the error depends
+  on the higher derivatives (e.g. the curvature) of the line. 
+
+\end{itemize}
+
+The typical invocation is as follows
+%
+\medskip
+\begin{verbatim}
+
+elemset nsi_tet_les_full 4
+geometry cartesian2d
+__END_HASH__
+1 2 7 6
+6 7 12 11
+2 3 8 7
+...
+__END__ELEMSET__
+
+elemset visc_force_integrator 6
+geometry line2quad
+__END_HASH__
+1 2 6 7 11 12
+2 3 7 8 12 13
+3 4 8 9 13 14
+...
+__END__ELEMSET__
+\end{verbatim}
+\medskip
+
+%<*>---<*>---<*>---<*>---<*>---<*>---<*>---<*>---<*>---<*>---<*> 
+\begin{figure*}[htb]
+\centerline{\includegraphics{./OBJ/embgath2}}
+\caption{Embedded gatherer elements in 3D}
+\label{fg:embgath2}
+\end{figure*}
+%<*>---<*>---<*>---<*>---<*>---<*>---<*>---<*>---<*>---<*>---<*> 
+
+Note that the geometry is special \verb+line2quad+ means that the
+surface geomtry are lines and the corresponding volume elemset is
+composed of quads. The other two possibilities implemented so far are
+\verb+tri2prism+ and \verb+quad2hexa+ (see figure~\ref{fg:embgath2}).
 
 %<*>---<*>---<*>---<*>---<*>---<*>---<*>---<*>---<*>---<*>---<*>
-\subsection{Passing element contributions as element properties} 
+\subsection{Passing element contributions as per-element properties} 
 
 For some applications it is desirable to have the individual element
 contributions instead of having their sum. For instance, in a
@@ -138,7 +226,6 @@ body.
 Typically a gatherer is created by deriving from the virtual class
 \verb+gatherer+ and implementing the \verb+set_pg_values()+ method
 which is in charge of computing the integrands.
-
 
 % Local Variables: *
 % mode: latex *
