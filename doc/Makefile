@@ -68,6 +68,7 @@ petscfem.pdf: latex
 			petscfem.log ; then break ; fi ;	\
 	done
 
+#w copies petscfem.pdf to venus server
 cpydoc:
 	scp petscfem.pdf venus.ceride.gov.ar:public_html/petscfem
 
