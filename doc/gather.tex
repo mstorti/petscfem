@@ -63,17 +63,15 @@ global_options
 ngather 3
 __END_HASH__
 
-
-
 elemset momentum_integrator 4
 ...
 gather_pos 0
 gather_length 3
-data ./
+data ./connectivity.dat
 __END_HASH
 \end{verbatim}
 \medskip
- 
+%
 With this setup, the program will compute for each time step the
 integral of the momentum, at will print these three values on stadard
 output. If a string is passed to the global option \verb+gather_file+
@@ -93,6 +91,35 @@ are printed on the corresponding file. The file is opened and closed
 at each time step. 
 
 %<*>---<*>---<*>---<*>---<*>---<*>---<*>---<*>---<*>---<*>---<*>
+\subsection{Embedded gatherers} 
+
+If the elemset has a dimension lower than the embedding space, for
+instance a surface embedded in 3D space, then computing the gradients
+of the variables on the surface can not be done with the information
+on the surface only. This is not an uncommon situation, for instance
+it happens when computing viscous forces of a Newtonian fluid on the
+skin of a solid body. The \emph{gradient} of the velocity field must
+be computed in order to compute the stress on the skin. But 
+if the velocity field is known only on the surface (think, for
+simplicity, in the case a of plane surface) the normal component of
+the gradient can not be determined. 
+
+In order to solve this, a special class of gatherers have been
+developed, namely the \verb+embedded_gatherer+ class. 
+
+%<*>---<*>---<*>---<*>---<*>---<*>---<*>---<*>---<*>---<*>---<*>
+\subsection{Passing element contributions as element properties} 
+
+For some applications it is desirable to have the individual element
+contributions instead of having their sum. For instance, in a
+fluid-structure application involving a fluid and a deformable solid,
+it does not suffice only with the integral of the forces to compute
+the evolution of the solid, but also it is needed the whole
+distribution of forces. In this case what is needed is a list of
+surface elements and the total force for each element. This behavior
+can be 
+
+%<*>---<*>---<*>---<*>---<*>---<*>---<*>---<*>---<*>---<*>---<*>
 \subsection{Parallel aspects} 
 
 Of course, PETSc-FEM is in charge of adding the contributions on
@@ -110,7 +137,7 @@ body.
 
 Typically a gatherer is created by deriving from the virtual class
 \verb+gatherer+ and implementing the \verb+set_pg_values()+ method
-which is in charge of computing the integrands. 
+which is in charge of computing the integrands.
 
 
 % Local Variables: *
