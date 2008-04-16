@@ -19,10 +19,11 @@ class embedded_gatherer : public Elemset {
   int npg;
   int nel_surf, nel_vol, layer, layers,
     pass_values_as_props, pass_values_as_gather,
-    compute_densities,dump_props_to_file,dump_props_freq;
+    compute_densities,dump_props_to_file,
+    dump_props_freq, compute_elem_values;
   string dump_props_file_c;
   props_hash_entry phe;
-  // MPI_Datatype stride;
+  dvector<double> egather;
 public: 
   /** Constructor. Initializes the pointer 
       to interpolation/integration element. */

@@ -93,11 +93,13 @@ void embedded_gatherer::initialize() {
   //o How many gather values will be contributed by this elemset
   TGETOPTDEF_ND(thash,int,gather_length,0);
   pass_values_as_gather = gather_length>0;
+  nvalues = gather_length;
 
   //o Store the computed values in per-element properties table
   TGETOPTDEF_ND(thash,int,pass_values_as_props,0);
   //o Number of values computed by the gatherer. 
   TGETOPTDEF(thash,int,store_values_length,gather_length);
+  if (!nvalues) nvalues = store_values_length;
   //o Name of property where gather values are stored
   TGETOPTDEF_S(thash,string,store_in_property_name,none);
 
@@ -122,9 +124,7 @@ void embedded_gatherer::initialize() {
   // via the global #gather_values# vector. 
   TGETOPTDEF_ND(thash,int,compute_densities,0);
 
-  nvalues = gather_length;
   if (pass_values_as_props) {
-    if (!nvalues) nvalues = store_values_length;
     PETSCFEM_ASSERT0(store_in_property_name!="none",
                      "If `pass_values_as_props' is set, then "
                      "`store_in_property_name' is required!!");  
@@ -145,8 +145,6 @@ void embedded_gatherer::initialize() {
                          "length[%s] = %d and nvalues= %d",
                          store_in_property_name.c_str(),phe.width,
                          nvalues);
-    // MPI_Type_vector(nelem,nvalues,nelprops,MPI_DOUBLE,&stride);
-    // MPI_Type_commit(&stride);
   }
 
   //o Activate dumping of properties to a file
@@ -161,6 +159,9 @@ void embedded_gatherer::initialize() {
   PETSCFEM_ASSERT(dump_props_freq>0,
                   "`dump_props_freq' must be positive, "
                   "dump_props_freq=%d",dump_props_freq);  
+
+  compute_elem_values = 
+    pass_values_as_props || dump_props_to_file;
 }
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
@@ -169,14 +170,11 @@ void embedded_gatherer
                   Dofmap *dofmap, const char *jobinfo,int myrank,
                   int el_start,int el_last,int iter_mode,
                   const TimeData *time_data) {
-  if (pass_values_as_props) {
-    // Clear props data corresponding to gather values
-    for (int k=0; k<nelem; k++) {
-      int l = k*nelprops+phe.position;
-      for (int j=0; j<phe.width; j++) 
-        elemprops[k+j] = 0.0;
-    }
-  }
+  if (compute_elem_values) {
+    egather.mono(nvalues*nelem);
+    egather.reshape(2,nelem,nvalues);
+    egather.set(0.0);
+  }  
 }
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
@@ -358,16 +356,14 @@ int embedded_gatherer::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
         } else PETSCFEM_ERROR0("Doesn't make sense gather values "
                                "and !VECTOR_ADD");
       }
-      if (pass_values_as_props) {
-        int l = k*nelprops+phe.position;
-        for (int j=0; j<phe.width; j++) 
-          elemprops[l+j] += pg_values[j];
+      if (compute_elem_values) {
+        for (int j=0; j<nvalues; j++)
+          egather.e(k,j) += pg_values[j];
       }
     }
-    if (compute_densities) {
-      int l = k*nelprops+phe.position;
-      for (int j=0; j<phe.width; j++) 
-        elemprops[l+j] /= area;
+    if (compute_elem_values && compute_densities) {
+      for (int j=0; j<nvalues; j++)
+        egather.e(k,j)  /= area;
     }
   }  
   FastMat2::void_cache();
@@ -379,17 +375,10 @@ int embedded_gatherer::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 void embedded_gatherer
 ::after_assemble(const char *jobinfo) {
-  if (pass_values_as_props) {
-    dvector<double> send,recv;
-    send.mono(nvalues*nelem);
-    send.reshape(2,nelem,nvalues);
-    recv.mono(nvalues*nelem);
-    recv.reshape(2,nelem,nvalues);
-    for (int k=0; k<nelem; k++) {
-      int l = k*nelprops+phe.position;
-      for (int j=0; j<phe.width; j++)
-        send.e(k,j) = elemprops[l+j];
-    }
+  if (compute_elem_values) {
+    dvector<double> buff;
+    buff.mono(nvalues*nelem);
+    buff.reshape(2,nelem,nvalues);
     //#define DBG
 #ifdef DBG
     if (!MY_RANK) {
@@ -397,33 +386,37 @@ void embedded_gatherer
       for (int k=0; k<nelem; k++) {
         printf("elem %d, vals ",k);
         int l = k*nelprops+phe.position;
-        for (int j=0; j<phe.width; j++)
-          printf(" %f",elemprops[l+j]);
+        for (int j=0; j<nvalues; j++)
+          printf(" %f",egather.e(k,j));
         printf("\n");
       }
     }
 #endif
-    MPI_Allreduce(send.buff(),recv.buff(),send.size(),MPI_DOUBLE,
+    MPI_Allreduce(egather.buff(),buff.buff(),egather.size(),MPI_DOUBLE,
                   MPI_SUM,PETSCFEM_COMM_WORLD);
-    for (int k=0; k<nelem; k++) {
-      int l = k*nelprops+phe.position;
-      for (int j=0; j<phe.width; j++)
-        elemprops[l+j] = recv.e(k,j);
+    egather.clear();
+
+    if (pass_values_as_props) {
+      for (int k=0; k<nelem; k++) {
+        int l = k*nelprops+phe.position;
+        for (int j=0; j<nvalues; j++)
+          elemprops[l+j] = buff.e(k,j);
+      }
     }
-    send.clear();
-    recv.clear();
+
 #ifdef DBG
     if (!MY_RANK) {
       printf("AFTER ALLREDUCE\n");
       for (int k=0; k<nelem; k++) {
         printf("elem %d, vals ",k);
         int l = k*nelprops+phe.position;
-        for (int j=0; j<phe.width; j++)
-          printf(" %f",elemprops[l+j]);
+        for (int j=0; j<nvalues; j++)
+          printf(" %f",buff.e(k,j));
         printf("\n");
       }
     }
 #endif
+
     if (dump_props_to_file && !MY_RANK         
         && (TSTEP%dump_props_freq==0)) {
       AutoString file;
@@ -432,12 +425,13 @@ void embedded_gatherer
       for (int k=0; k<nelem; k++) {
         fprintf(fid,"%d ",k);
         int l = k*nelprops+phe.position;
-        for (int j=0; j<phe.width; j++) 
-          fprintf(fid,"%g ",elemprops[l+j]);
+        for (int j=0; j<nvalues; j++) 
+          fprintf(fid,"%g ",buff.e(k,j));
         fprintf(fid,"\n");
       }
       fclose(fid);
     }
+    buff.clear();
   }
 }
 
