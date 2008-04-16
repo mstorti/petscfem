@@ -279,31 +279,36 @@ the evolution of the solid, but also it is needed the whole
 distribution of forces. In this case what is needed is a list of
 surface elements and the total force for each element. 
 
-This behavior can be activated with the \verb+pass_values_as_gather+
-option. This mechanism can be activated \emph{in addition} to the usual
-global \verb+gather_values+ mechanism. The global vector mechanism can
-be deactivated by setting the \verb+gather_length+ to 0, or not
-setting it at all. In summary
+There are two flavors of this feature.  The simplest one is activated
+with \verb+dump_props_to_file+ and simply stores the data in a file.
+The other possibility is activated with the
+\verb+pass_values_as_props+ option and stores the computed per-element
+values in the per-element properties table. Subsequent parts of the
+code can grab this information using the usual mechanism to query the
+per-element properties table. 
+
+All three mechanism can be activated or deactivated independently of
+the others. In summary
 %
 \begin{itemize}
 \compactlist 
-\item If \verb+gather_length>0+  and 
-  \verb+pass_values_as_gather==0+ only the usual 
-  \verb+gather_values+ mechanism is activated.
-\item If \verb+gather_length>0+  and 
-  \verb+pass_values_as_gather==1+ both mechanisms 
-  are activated. 
-\item If \verb+gather_length==0+ and 
-  \verb+pass_values_as_gather==1+
-  only the per-element mechanism is activated. The amount of values to
-  be computed is set with the \verb+store_values_length+ option. 
+\item Computation of global values is activated with
+  \verb+gather_length>0+. 
+\item Storing the per-element 
+  is activated with the \verb+dump_props_to_file+ option. 
+\item Passing the per-element computed values to other sections of the
+  code via the per-element table is activated with the 
+  \verb+pass_values_as_props+ option.
 \end{itemize}
 %
+In the last two cases the number of values to be computed by the
+gatherer can be set via the \verb+store_values_length+ option. 
+
 The summary of relevant options is
 %
 \begin{itemize}
 \compactlist 
-\item \verb+pass_values_as_gather+ activates the mechanism of passing per
+\item \verb+pass_values_as_props+ activates the mechanism of passing per
   element computed values as per-element properties. 
 
 \item \verb+store_values_length+ is an integer indicating how many values
@@ -350,6 +355,17 @@ The summary of relevant options is
   skin friction in the other (units of force per unit area). Of
   course, this option has no effect on the values passed via the
   global \verb+gather_values+ vector.
+
+\item \verb+dump_props_to_file+ activates the mechanism of storing 
+  per-element computed values in a file. 
+
+\item \verb+dump_props_file+ is the name of the file where the
+  per-element values are written. If it contains a \verb+%d+ format
+  sequence then it is replaced by the time step number (using
+  \verb+printf()+ and friends) .
+
+\item \verb+dump_props_freq+ is the frequency at which the values are
+  dumped to file. 
 \end{itemize}
 
 %<*>---<*>---<*>---<*>---<*>---<*>---<*>---<*>---<*>---<*>---<*>
