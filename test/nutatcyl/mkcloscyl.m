@@ -1,11 +1,6 @@
 ## __INSERT_LICENSE__
 ## $Id: mkcloscyl.m,v 1.1 2002/08/17 22:27:47 mstorti Exp $
 
-## Do not save the history commands when running in batch
-if !index("program_invocation_name","/octave")
-  saving_history = 0;
-endif
-
 source("./data.m.tmp");
 
 rem(n,2)==0 || error("n should be pair, n= %d\n",n);

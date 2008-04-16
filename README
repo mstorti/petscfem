@@ -28,7 +28,7 @@ SYNOPSIS
 LICENSE
        This file belongs to the PETSc - FEM package a library and application
        suite oriented to the Finite Element Method based on PETSc.  Copyright
-       (C) 1999-2007, Mario Alberto Storti, Norberto Marcelo Nigro, Rodrigo
+       (C) 1999-2008, Mario Alberto Storti, Norberto Marcelo Nigro, Rodrigo
        Rafael Paz, Lisandro Dalcin and Ezequiel Lopez, Centro Internacional de
        Metodos Numericos en Ingenieria (CIMEC-Argentina), Universidad Nacional
        del Litoral (UNL-Argentina), Consejo Nacional de Investigaciones Cien-
@@ -183,7 +183,7 @@ INSTALLATION
        installed, you have to define the variables in the CONFIGURATION VARI-
        ABLES section in file $(PETSCFEM_DIR)/Makefile.base.
 
-       *   First you have to set the "PETSC_BOPT" variable which is the
+       ?   First you have to set the "PETSC_BOPT" variable which is the
            default value for the "PETSc" "BOPT" variable, which sets the opti-
            mization level to be used in compilation. You can set it to
 
@@ -208,10 +208,10 @@ INSTALLATION
            This compiles the Navier-Stokes module with optimization enabled
            independently of the "PETSC_BOPT" default value.
 
-       *   The "PROF_FLAGS" variables allows you to turn on profiling. By
+       ?   The "PROF_FLAGS" variables allows you to turn on profiling. By
            default, profiling is deactivated.
 
-       *   Other configuration variables are defined in a file "Make-
+       ?   Other configuration variables are defined in a file "Make-
            file.defs", but normally they are set only when you first install
            PETSc-FEM, so the best is to put "Makefile.defs" in the directory
            immediately above PETSc-FEM directory (i.e. "$(PETSCFEM_DIR)/..").
@@ -290,4 +290,4 @@ AUTHORS
 
 
 
-perl v5.8.8                       2007-02-24                         README(1)
+perl v5.8.8                       2008-04-15                         README(1)

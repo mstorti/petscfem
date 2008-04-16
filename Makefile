@@ -12,7 +12,7 @@ APPS = ns advdif adv laplace
 APPDIRS = ns advdif advective laplace
 APPDIRS := $(patsubst %,applications/%,$(APPDIRS))
 
-CLEAN_DIRS := src $(APPDIRS) doc test tools
+CLEAN_DIRS := src $(APPDIRS) doc test tools tools/project
 
 ifeq ($(USE_DX),yes)
 CLEAN_DIRS += dx
@@ -45,7 +45,7 @@ local_sw::
 		./tools/maketag ./tools/makewhat.pl ./tools/myexpect.pl	\
 		./tools/odoc.pl ./tools/petscload.pl ./tools/pfcpp	\
 		./doc/manual/vrfdocpp.pl ./src/insdeb.pl ./doc/fixul.pl
-	$(MAKE) sync_version depend 
+	$(MAKE) sync_version
 	cd tools; ln -sf hexenco.pl ident2iso ; ln -sf hexenco.pl iso2ident
 
 local_clean::

@@ -296,6 +296,7 @@ int ns_main(int argc,char **args) {
   vector<double> gather_values;
   //o Number of ``gathered'' quantities.
   GETOPTDEF(int,ngather,0);
+  gather_values.resize(ngather,0.);
   //o Print values in this file 
   TGETOPTDEF_S(GLOBAL_OPTIONS,string,gather_file,gather.out);
   // Initialize gather_file
@@ -993,16 +994,13 @@ int ns_main(int argc,char **args) {
 
 
     // Compute gathered quantities, for instance total force on walls
-    if (ngather>0) {
-      gather_values.resize(ngather,0.);
-      for (int j=0; j<ngather; j++) gather_values[j] = 0.;
-      arglf.clear();
-      arglf.arg_add(&state,IN_VECTOR|USE_TIME_DATA);
-      arglf.arg_add(&state_old,IN_VECTOR|USE_TIME_DATA);
-      arglf.arg_add(&gather_values,VECTOR_ADD);
-      ierr = assemble(mesh,arglf,dofmap,"gather",&time_star);
-      CHKERRA(ierr);
-    }
+    for (int j=0; j<ngather; j++) gather_values[j] = 0.;
+    arglf.clear();
+    arglf.arg_add(&state,IN_VECTOR|USE_TIME_DATA);
+    arglf.arg_add(&state_old,IN_VECTOR|USE_TIME_DATA);
+    arglf.arg_add(&gather_values,VECTOR_ADD);
+    ierr = assemble(mesh,arglf,dofmap,"gather",&time_star);
+    CHKERRA(ierr);
 
     hook_list.time_step_post(time_star.time(),tstep,gather_values);
 
