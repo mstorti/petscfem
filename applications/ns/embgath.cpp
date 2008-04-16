@@ -6,7 +6,8 @@
 #include <src/readmesh.h>
 #include <src/getprop.h>
 #include <src/fastmat2.h>
-#include <src/linkgraph.h>
+#include <src/autostr.h>
+//#include <src/linkgraph.h>
 #include <src/cloud.h>
 #include <src/surf2vol.h>
 #include <src/surf2vol2.h>
@@ -15,6 +16,7 @@
 #include "./nsi_tet.h"
 
 extern Mesh *GLOBAL_MESH;
+extern int TSTEP;
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 int embedded_gatherer::ask(const char *jobinfo,int &skip_elemset) {
@@ -146,6 +148,19 @@ void embedded_gatherer::initialize() {
     // MPI_Type_vector(nelem,nvalues,nelprops,MPI_DOUBLE,&stride);
     // MPI_Type_commit(&stride);
   }
+
+  //o Activate dumping of properties to a file
+  TGETOPTDEF_ND(thash,int,dump_props_to_file,0);
+  //o Name of file to dump properties
+  TGETOPTDEF_S(thash,string,dump_props_file,none);
+  if (dump_props_file=="none")
+    dump_props_file = "props.%d.tmp";
+  dump_props_file_c = dump_props_file;
+  //o Frequency to dump properties
+  TGETOPTDEF_ND(thash,int,dump_props_freq,1);
+  PETSCFEM_ASSERT(dump_props_freq>0,
+                  "`dump_props_freq' must be positive, "
+                  "dump_props_freq=%d",dump_props_freq);  
 }
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
@@ -257,6 +272,7 @@ int embedded_gatherer::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
   FastMat2::activate_cache(&cache_list);
 
   int ielh=-1,kloc;
+
   for (int k=el_start; k<=el_last; k++) {
     if (!compute_this_elem(k,this,myrank,iter_mode)) continue;
     FastMat2::reset_cache();
@@ -342,13 +358,16 @@ int embedded_gatherer::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
         } else PETSCFEM_ERROR0("Doesn't make sense gather values "
                                "and !VECTOR_ADD");
       }
-    }
-    if (pass_values_as_props) {
-      int l = k*nelprops+phe.position;
-      for (int j=0; j<phe.width; j++) {
-        elemprops[l+j] += pg_values[j];
-        if (compute_densities) elemprops[l+j] /= area;
+      if (pass_values_as_props) {
+        int l = k*nelprops+phe.position;
+        for (int j=0; j<phe.width; j++) 
+          elemprops[l+j] += pg_values[j];
       }
+    }
+    if (compute_densities) {
+      int l = k*nelprops+phe.position;
+      for (int j=0; j<phe.width; j++) 
+        elemprops[l+j] /= area;
     }
   }  
   FastMat2::void_cache();
@@ -405,6 +424,20 @@ void embedded_gatherer
       }
     }
 #endif
+    if (dump_props_to_file && !MY_RANK         
+        && (TSTEP%dump_props_freq==0)) {
+      AutoString file;
+      file.sprintf(dump_props_file_c.c_str(),TSTEP);
+      FILE *fid = fopen(file.str(),"w");
+      for (int k=0; k<nelem; k++) {
+        fprintf(fid,"%d ",k);
+        int l = k*nelprops+phe.position;
+        for (int j=0; j<phe.width; j++) 
+          fprintf(fid,"%g ",elemprops[l+j]);
+        fprintf(fid,"\n");
+      }
+      fclose(fid);
+    }
   }
 }
 
