@@ -460,7 +460,8 @@ void streamsw2d_ff::compute_shocap(double &delta_sc) {
     h_shoc = h_supg;
   }
   FastMat2::leave();
-  double fz = grad_h_mod*h_shoc/((h<h_min ? h_min : h));
+  //  double fz = grad_h_mod*h_shoc/((h<h_min ? h_min : h));
+  double fz = grad_h_mod*h_shoc/rho;
   fz = pow(fz,shocap_beta);
   delta_sc_aniso = 0.5*h_shoc*velmax*fz;
 
