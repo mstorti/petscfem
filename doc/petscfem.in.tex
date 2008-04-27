@@ -18,6 +18,7 @@
 \usepackage{amsmath,alltt,mstorti,bfgreek,
   color,url}
 \usepackage{fancyvrb,relsize}
+\usepackage[latin1]{inputenc}
 %
 \def\UrlFont{\ttfamily \bfseries}
 \definecolor{url}{rgb}{0.6,0.,0.}
@@ -227,7 +228,7 @@ keeping in mind the scope of efficiency.
 %\input trygetopt.tex %__COMMENT_IN_FINAL_VERSION__
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-\Section*{Authors}
+\Section{Authors}
 %
 \begin{description}
 \item[Mario A. Storti (CIMEC)]
@@ -240,6 +241,8 @@ fluid-structure interaction.
 \item[Lisandro Dalc\'\i{}n (CIMEC)]
 PETSc-FEM Kernel, Python extension language project scripting
 extension, linear algebra, preconditioners.
+\item[Ezequiel López (CIMEC)]
+Mesh relocation algorithms (mesh-move). 
 \end{description}
 %
 Also many people from the following institutions has contributed
@@ -258,9 +261,16 @@ Computational Methods in Engineering, Santa Fe, Argentina}
 \item[UNL] \emph{Universidad Nacional del Litoral}
 \url{http://www.unl.edu.ar}
 \end{description}
-%
-The code has been developed under financement from the following
-grants (list grants here...)
+
+%<*>---<*>---<*>---<*>---<*>---<*>---<*>---<*>---<*>---<*>---<*> 
+\Section{Grants received}
+
+The development of this code has been developed under financement from
+the following grants:
+
+%% To generate this list run $ make projlist in texstuff/curric with
+%% LANG=en. Also edit and strip the section title. 
+\input projlist
 
 \Section{Symbols and Acronyms}
 
