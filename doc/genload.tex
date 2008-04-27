@@ -1,6 +1,43 @@
 %__INSERT_LICENSE__
 \Section{Generic load elemsets}
 
+Generic load elemsets account for surface contributions which
+represent constant terms in the governing equations or either a
+function of the state at the surface. Typical terms that can be
+represented in this way are
+%
+\begin{itemize}
+\compactlist 
+\item External heat loads (like a constant radiation load) in thermal
+  problems: $q=\bar q$
+\item A linear Newtonian cooling term $q= -h(T-\Tinfty)$. 
+\item A nonlinear Newtonian cooling term $q= f(T,\Tinfty)$. 
+\end{itemize}
+ 
+\SSection{Linear generic load elemset}
+
+In the simplest case the load is of the form
+%
+\begin{equation} 
+  !q = !h !U + \bar{!q}
+\end{equation}
+% 
+
+
+This elemset may be \emph{``single-layer''} or
+\emph{``double-layer''} (see figures~\ref{fg:genloadsl} and
+\ref{fg:genloaddl}). Double layer elements can represent a
+lumped thermal resistance, for instance a very thin layer of air
+inside a material of higher conductivity. 
+
+
+The generic elemset is \verb+GenLoad+. There is an instantiation for
+the 
+Generic load elemsets can be extended by the user by deriving the base
+class \verb+GenLoad+ and implement the methos \verb+q(u,flux,jac)+ for
+the single layer case, and \verb+q(u_in.u_out,flux_in,flux_out,jac)+
+in the double layer case. 
+
 %<*>---<*>---<*>---<*>---<*>---<*>---<*>---<*>---<*>---<*>---<*> 
 \begin{figure*}[htb]
 \centerline{\includegraphics[scale=0.8]{./OBJ/genloadsl}}
