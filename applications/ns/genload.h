@@ -44,7 +44,7 @@ public:
       @param u (input) state at the surface (size #ndof#)
       @param flux (output) flux to the surface (size #ndof#)
       @param jac (output) Jacobian of the flux with respect to the 
-      vector state (#jac = (d flux)/(d u)#, size #ndox x ndof#) */ 
+      vector state (#jac = -(d flux)/(d u)#, size #ndof x ndof#) */ 
   virtual void q(FastMat2 &u,FastMat2 &flux,FastMat2 &jac);
   /** Two layer callback flux function. 
       @param uin (input) state at the internal surface (size #ndof#)
@@ -55,10 +55,10 @@ public:
       surface to the exterior surface (size #ndof#)
       @param jac (output) Jacobian of the flux with respect to 
       the state of both surfaces (size #2 x 2 x ndof x ndof#, 
-      where #jac(1,1,.,.)# is the jacobian #(d flux_in)/(d uin)#, 
-      #jac(1,2,.,.) = (d flux_in)/(d u_out)#, 
-      #jac(2,1,.,.) = (d flux_out)/(d u_in)#, 
-      #jac(2,2,.,.) = (d flux_out)/(d u_out)#. */ 
+      where #jac(1,1,.,.)# is the jacobian #-(d flux_in)/(d uin)#, 
+      #jac(1,2,.,.) = -(d flux_in)/(d u_out)#, 
+      #jac(2,1,.,.) = -(d flux_out)/(d u_in)#, 
+      #jac(2,2,.,.) = -(d flux_out)/(d u_out)#. */ 
   virtual void q(FastMat2 &u_in,FastMat2 &u_out,
 		 FastMat2 &flux_in, FastMat2 &flux_out,
 		 FastMat2 &jac);
