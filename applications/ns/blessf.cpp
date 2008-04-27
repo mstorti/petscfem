@@ -36,6 +36,7 @@
 #include "./mmove.h"
 #include "./mmove2.h"
 #include "./genload.h"
+#include "./flowrev.h"
 #include "./invcoupl.h"
 #include "./nullvort.h"
 #include "./interplns.h"
@@ -124,6 +125,7 @@ void bless_elemset_ns(char *type,Elemset *& elemset) {
     SET_ELEMSET_TYPE(inviscid_coupling)
 
     SET_ELEMSET_TYPE(lin_gen_load)
+    SET_ELEMSET_TYPE(flow_reversal)
 
     SET_ELEMSET_TYPE(cond_wall)
     SET_ELEMSET_TYPE(cond_wall_pen)
