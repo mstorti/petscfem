@@ -1,6 +1,6 @@
 // -*- mode: C++ -*-
 /*__INSERT_LICENSE__*/
-//$Id: embgath.h,v 1.22 2006/03/27 19:43:22 mstorti Exp $
+//$Id$
 #ifndef PETSCFEM_EMBGATH_H
 #define PETSCFEM_EMBGATH_H
 

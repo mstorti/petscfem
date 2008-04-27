@@ -16,7 +16,8 @@ void flow_reversal::
 start_chunk() {
   int ierr;
   //o Dimension of the problem
-  TGETOPTNDEF(thash,int,ndim,none);
+  TGETOPTDEF_ND(thash,int,ndim,0);
+  PETSCFEM_ASSERT0(ndim>0,"ndim must be positive");  
 
   //o Penalization coefficient
   TGETOPTNDEF(thash,double,penal_coef,-1.0);
