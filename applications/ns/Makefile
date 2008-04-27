@@ -46,7 +46,7 @@ include $(PETSCFEM_DIR)/Makefile.base
 # documentation of options with the script `odoc.pl'
 odocns: ../../doc/odocns.tex ../../doc/odocnse.tex \
 	../../doc/odocnsb.tex  ../../doc/odocnsw.tex \
-	../../doc/odocnsfs.tex 
+	../../doc/odocnsfs.tex ../../doc/odocflrv.tex 
 
 ../../doc/odocns.tex: ns.cpp 
 	$(run_odoc)
@@ -61,6 +61,9 @@ odocns: ../../doc/odocns.tex ../../doc/odocnse.tex \
 	$(run_odoc)
 
 ../../doc/odocnsfs.tex: nssupg.cpp ../../doc/nsdoc.tex
+	$(run_odoc)
+
+../../doc/odocflrv.tex: flowrev.cpp 
 	$(run_odoc)
 
 ns.o : CCPPFLAGS += -O0

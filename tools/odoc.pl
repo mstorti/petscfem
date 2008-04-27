@@ -22,9 +22,8 @@ $wiki_syntax = 1 if $opt_w;
 #    print <<'EOM';
 
 sub current_file {
-    if ($opt_C && $ARGV =~ /$opt_C/) {
-        $file = $POSTMATCH;
-    }
+    $file = $ARGV;
+    $file = $POSTMATCH if $opt_C && $ARGV =~ /^$opt_C/;
     return $file;
 }
 

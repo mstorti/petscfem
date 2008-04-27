@@ -433,9 +433,9 @@ laplace.link:		LNK=laplace
 # For running odoc.pl (documenting PETSc-FEM options)
 #
 define run_odoc
--chmod +w $@
-$(ODOC) -o $@ $<
--chmod -w $@
+if [ -f $@ ] ; then chmod +w $@ ; fi ; \
+$(ODOC) -o $@ $< ; \
+if [ -f $@ ] ; then chmod -w $@ ; fi
 endef
 
 ifeq (makefile.d,$(wildcard makefile.d)) 

@@ -16,28 +16,6 @@ represented in this way are
  
 \SSection{Linear generic load elemset}
 
-In the simplest case the load is of the form
-%
-\begin{equation} 
-  !q = !h !U + \bar{!q}
-\end{equation}
-% 
-
-
-This elemset may be \emph{``single-layer''} or
-\emph{``double-layer''} (see figures~\ref{fg:genloadsl} and
-\ref{fg:genloaddl}). Double layer elements can represent a
-lumped thermal resistance, for instance a very thin layer of air
-inside a material of higher conductivity. 
-
-
-The generic elemset is \verb+GenLoad+. There is an instantiation for
-the 
-Generic load elemsets can be extended by the user by deriving the base
-class \verb+GenLoad+ and implement the methos \verb+q(u,flux,jac)+ for
-the single layer case, and \verb+q(u_in.u_out,flux_in,flux_out,jac)+
-in the double layer case. 
-
 %<*>---<*>---<*>---<*>---<*>---<*>---<*>---<*>---<*>---<*>---<*> 
 \begin{figure*}[htb]
 \centerline{\includegraphics[scale=0.8]{./OBJ/genloadsl}}
@@ -53,6 +31,73 @@ in the double layer case.
 \label{fg:genloaddl}
 \end{figure*}
 %<*>---<*>---<*>---<*>---<*>---<*>---<*>---<*>---<*>---<*>---<*> 
+
+In the simplest case the load is of the form
+%
+\begin{equation} 
+  \begin{aligned} 
+    !q &= -!h !U + \bar{!q},&&\text{(single layer)}\\
+    !q &= !h (!U_\mathrm{out}-!U) + \bar{!q},&&\text{(double layer)}\\
+  \end{aligned}
+\end{equation}
+% 
+This is implemented by the \verb+lin_gen_load+ elemset. This elemset
+may be \emph{``single-layer''} or \emph{``double-layer''} (see
+figures~\ref{fg:genloadsl} and \ref{fg:genloaddl}). Double layer
+elements can represent a lumped thermal resistance, for instance a
+very thin layer of air inside a material of higher conductivity. In
+the double layer case the number of nodes is twice than in the
+single-layer case. Double layer is activated either by including the
+\verb+double_layer+ option or either if the numer of nodesis twice
+that one specified by the geometry.
+
+The options for the \verb+lin_gen_load+ elemset are
+%
+\begin{itemize}
+\input odocgenl
+\end{itemize}
+
+\SSection{Functional extensions of the elemset}
+
+The generic elemset is \verb+GenLoad+. There is an instantiation for
+the Generic load elemsets can be extended by the user by deriving the
+base class \verb+GenLoad+ and the most important task is to implement
+the methos \verb+q(u,flux,jac)+ for the single layer case, and
+\verb+q(u_in.u_out,flux_in,flux_out,jac)+ in the double layer case.
+
+\SSection{The flow reversal elemset}
+
+This instantiation of \verb+GenLoad+ is useful for avoiding
+instabilities caused by infersion of the flow at an outlet
+boundary. Assume that the Navier-Stokes module computes a velocity
+field $!v$ and some scalar $\phi$ is being advected with this velocity
+field. On an outlet boundary one usually leaves the temperature free,
+that is, no Dirichlet condition is imposed on $\phi$. But if the flow
+is reversed, that is $!v\cdot\nor<0$ ($\nor$ is the external normal to
+the boundary) at some instant, then this boundary condition becomes
+ill-posed and the simulation may diverge. One solution is to switch
+from Neumann to Dirichlet boundary conditions depending on the sign of
+$!v\cdot\nor$, i.e.
+%
+\begin{equation} 
+  !q = \begin{cases}
+    0,& \textrm{ if $!v\cdot\nor\ge0$},\\
+    h(\bar \phi-\phi),& \textrm{ if $!v\cdot\nor>0$},\\
+  \end{cases}
+\end{equation}
+%
+where $h$ is a film coefficient and $\bar phi$ is the value to be
+imposed at the boundary when the flow is reversed. Note that this
+amounts to switch to a Dirichlet condition by \emph{penalization}. For
+$h$ large enough, the value of $\phi$ will converge to
+$\bar\phi$. However, if $h$ is too large, this can affect the
+conditioning of the linear system. 
+
+The options for this elemset are
+%
+\begin{itemize}
+\input odocflrv
+\end{itemize}
 
 % Local Variables: *
 % mode: latex *
