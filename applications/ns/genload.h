@@ -1,8 +1,8 @@
 // -*- mode: C++ -*-
 /*__INSERT_LICENSE__*/
-//$Id: genload.h,v 1.7 2007/01/30 19:03:44 mstorti Exp $
-#ifndef GENLOAD_H
-#define GENLOAD_H
+//$Id$
+#ifndef PETSCFEM_GENLOAD_H
+#define PETSCFEM_GENLOAD_H
 
 #define MAXPROP 100
 
@@ -15,7 +15,7 @@ class GenLoad : public Elemset {
 public:
   /** These are to pass the state of the `H' quantities on the
       internal and external layers. `Hin' is an alias for `H' */
-  FastMat2 H_m,H_out_m;
+  FastMat2 H_m,H_out_m,normal_m;
 protected:
   int nel2;
   // Physical properties
@@ -23,8 +23,9 @@ protected:
   int nprops;
   double propel[MAXPROP];
 public: 
-  const FastMat2 &H,&H_out,&H_in;
-  GenLoad() : H(H_m), H_out(H_out_m), H_in(H_m) {}
+  const FastMat2 &H,&H_out,&H_in,&normal;
+  GenLoad() : H(H_m), H_out(H_out_m), 
+              H_in(H_m), normal(normal_m) {}
   /** Call back function to be called by the elemset before
       a sequence of elements to be computed. This may be used
       by a derived class in order to perform some
@@ -43,7 +44,7 @@ public:
       @param u (input) state at the surface (size #ndof#)
       @param flux (output) flux to the surface (size #ndof#)
       @param jac (output) Jacobian of the flux with respect to the 
-      vector state (#jac = (d flux)/(d u)#, size #ndox x ndof#) */ 
+      vector state (#jac = -(d flux)/(d u)#, size #ndof x ndof#) */ 
   virtual void q(FastMat2 &u,FastMat2 &flux,FastMat2 &jac);
   /** Two layer callback flux function. 
       @param uin (input) state at the internal surface (size #ndof#)
@@ -54,10 +55,10 @@ public:
       surface to the exterior surface (size #ndof#)
       @param jac (output) Jacobian of the flux with respect to 
       the state of both surfaces (size #2 x 2 x ndof x ndof#, 
-      where #jac(1,1,.,.)# is the jacobian #(d flux_in)/(d uin)#, 
-      #jac(1,2,.,.) = (d flux_in)/(d u_out)#, 
-      #jac(2,1,.,.) = (d flux_out)/(d u_in)#, 
-      #jac(2,2,.,.) = (d flux_out)/(d u_out)#. */ 
+      where #jac(1,1,.,.)# is the jacobian #-(d flux_in)/(d uin)#, 
+      #jac(1,2,.,.) = -(d flux_in)/(d u_out)#, 
+      #jac(2,1,.,.) = -(d flux_out)/(d u_in)#, 
+      #jac(2,2,.,.) = -(d flux_out)/(d u_out)#. */ 
   virtual void q(FastMat2 &u_in,FastMat2 &u_out,
 		 FastMat2 &flux_in, FastMat2 &flux_out,
 		 FastMat2 &jac);

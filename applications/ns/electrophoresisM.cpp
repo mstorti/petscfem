@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: qharm.cpp,v 1.5 2003/02/24 00:14:23 mstorti Exp $
+//$Id$
 
 #include <src/fem.h>
 #include <src/utils.h>

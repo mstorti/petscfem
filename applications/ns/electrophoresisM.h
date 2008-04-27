@@ -1,6 +1,6 @@
 // -*- mode: C++ -*- 
 /*__INSERT_LICENSE__*/
-// $Id: qharm.h,v 1.2 2002/12/16 04:11:35 mstorti Exp $
+// $Id$
 #ifndef electrophoresisM_H
 #define electrophoresisM_H
 
