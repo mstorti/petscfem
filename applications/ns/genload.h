@@ -1,8 +1,8 @@
 // -*- mode: C++ -*-
 /*__INSERT_LICENSE__*/
 //$Id: genload.h,v 1.7 2007/01/30 19:03:44 mstorti Exp $
-#ifndef GENLOAD_H
-#define GENLOAD_H
+#ifndef PETSCFEM_GENLOAD_H
+#define PETSCFEM_GENLOAD_H
 
 #define MAXPROP 100
 
@@ -15,7 +15,7 @@ class GenLoad : public Elemset {
 public:
   /** These are to pass the state of the `H' quantities on the
       internal and external layers. `Hin' is an alias for `H' */
-  FastMat2 H_m,H_out_m;
+  FastMat2 H_m,H_out_m,normal_m;
 protected:
   int nel2;
   // Physical properties
@@ -23,8 +23,9 @@ protected:
   int nprops;
   double propel[MAXPROP];
 public: 
-  const FastMat2 &H,&H_out,&H_in;
-  GenLoad() : H(H_m), H_out(H_out_m), H_in(H_m) {}
+  const FastMat2 &H,&H_out,&H_in,&normal;
+  GenLoad() : H(H_m), H_out(H_out_m), 
+              H_in(H_m), normal(normal_m) {}
   /** Call back function to be called by the elemset before
       a sequence of elements to be computed. This may be used
       by a derived class in order to perform some
