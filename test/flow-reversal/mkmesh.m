@@ -21,7 +21,7 @@ left = (1:Ny+1)';
 right = Nx*(Ny+1)+(1:Ny+1)';
 
 tmp = complement(right,[bot;top]);
-pffixa("strip2d.wall.tmp",tmp,[1:2,4]);
+pffixa("strip2d.wall.tmp",tmp,[1:2]);
 pfperi("strip2d.peri.tmp",left,right,1:3);
 
 icor = [right(1:Ny),right(2:Ny+1)];

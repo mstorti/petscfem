@@ -19,11 +19,11 @@ include $(PETSCFEM_DIR)/test/Makefile.base.test
 SRCS = 
 
 test_flowrev:
-	make-depl strip2d.epl strip2d.depl -d mkmesh=0 -d gb=1
+	make-depl strip2d.epl strip2d.depl -d mkmesh=1 -d gb=1
 	-$(MPIEXEC) $(NL) -np $(NP) $(PROG) -case $(CASE_NAME).depl 
 	if [ -f strip2d.state.tmp ] ; \
 		then cp strip2d.state.tmp strip2d.state-right.tmp ; fi
-	make-depl strip2d.epl strip2d.depl -d mkmesh=0 -d gb=1
+	make-depl strip2d.epl strip2d.depl -d mkmesh=1 -d gb=-1
 	-$(MPIEXEC) $(NL) -np $(NP) $(PROG) -case $(CASE_NAME).depl 
 	if [ -f strip2d.state.tmp ] ; \
 		then cp strip2d.state.tmp strip2d.state-left.tmp ; fi

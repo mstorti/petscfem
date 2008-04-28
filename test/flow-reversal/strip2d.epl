@@ -47,9 +47,9 @@ geometry cartesian2d
 viscosity 1e-2
 difu_th 1.0
 rho    1.0 
-Cp     1.0
-kappa  1.0
-betath 1e-4
+Cp     100.0
+kappa  0.1
+betath 0
 
 npg 4
 data ./strip2d.con.tmp
