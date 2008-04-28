@@ -48,7 +48,7 @@ elements can represent a lumped thermal resistance, for instance a
 very thin layer of air inside a material of higher conductivity. In
 the double layer case the number of nodes is twice than in the
 single-layer case. Double layer is activated either by including the
-\verb+double_layer+ option or either if the numer of nodesis twice
+\verb+double_layer+ option or either if the number of nodes is twice
 that one specified by the geometry.
 
 The options for the \verb+lin_gen_load+ elemset are
@@ -62,13 +62,13 @@ The options for the \verb+lin_gen_load+ elemset are
 The generic elemset is \verb+GenLoad+. There is an instantiation for
 the Generic load elemsets can be extended by the user by deriving the
 base class \verb+GenLoad+ and the most important task is to implement
-the methos \verb+q(u,flux,jac)+ for the single layer case, and
+the methods \verb+q(u,flux,jac)+ for the single layer case, and
 \verb+q(u_in.u_out,flux_in,flux_out,jac)+ in the double layer case.
 
 \SSection{The flow reversal elemset}
 
 This instantiation of \verb+GenLoad+ is useful for avoiding
-instabilities caused by infersion of the flow at an outlet
+instabilities caused by inversion of the flow at an outlet
 boundary. Assume that the Navier-Stokes module computes a velocity
 field $!v$ and some scalar $\phi$ is being advected with this velocity
 field. On an outlet boundary one usually leaves the temperature free,
@@ -99,8 +99,83 @@ The options for this elemset are
 \input odocflrv
 \end{itemize}
 
-% Local Variables: *
-% mode: latex *
-% tex-main-file: "petscfem.tex" *
-% End: *
+\SSection{Examples of use of flow reversal elemset}
 
+Typical use in a thermal convection problem associated with an element
+like \verb+nsi_les_ther+ is as follows
+%
+\medskip
+\begin{Verbatim}
+elemset flow_reversal 2
+npg 2
+geometry cartesian1d
+dofs 4
+coefs <PENALIZATION-COEFFICIENT>
+refvals <INLET-TEMPERATURE>
+data <SURFACE-CONNECTIVITY-FILE>
+__END_HASH__
+\end{Verbatim}
+\medskip
+%
+Note that \verb+dof=4+ corresponds to the temperature field.
+\verb+<INLET-TEMPERATURE>+ is the temperature that the user wants to be
+imposed at the boundary if the flow is reverted.
+\verb+<PENALIZATION-COEFFICIENT>+ should be large enough so that the
+temperature approaches \verb+<INLET-TEMPERATURE>+. However, a large
+value has the disadvantage of increasing the condition number of the
+linear system. 
+
+In 3D with a surface of triangular panels the input file section would
+be
+%
+\medskip
+\begin{Verbatim}
+elemset flow_reversal 3
+npg 4
+geometry triangles
+dofs 5
+coefs <PENALIZATION-COEFFICIENT>
+refvals <INLET-TEMPERATURE>
+data <SURFACE-CONNECTIVITY-FILE>
+__END_HASH__
+\end{Verbatim}
+\medskip
+
+This term can be used also with the dofs of the velocity itself, so
+that a lumped Darcy term that tends to prevent the reversal of the
+flow is added. In this case the input file section should be
+%
+\medskip
+\begin{Verbatim}
+elemset flow_reversal 3
+npg 4
+geometry triangles
+# Penalize temperature AND velocity (lumped Darcy term)
+dofs 1 2 3 5
+coefs COEFV COEFV COEFV COEFT
+refvals 0. 0. 0. <TEMPERATURA-DE-ENTRADA>
+data <ARCHIVO-DE-CONECTIVIDADES-DE-SUPERFICIE>
+__END_HASH__
+\end{Verbatim}
+\medskip
+where \verb+COEFV+ is a penalization coefficient for velocity and
+\verb+COEFT+ is a penalization coefficient for temperature. The
+reference value for velocity are null, i.e. if the flow is reverted
+then the penalization term tends make it as small as possible. 
+
+\iffalse
+El ejemplo es un rectangulo de Lx=2 por Ly=1. Es un flujo Poiseuille
+con condiciones periodicas y con un G_body de [1,0] o
+[-1,0]. Dependiendo del signo el flujo va para un lado o para el
+otro. En los contornos left y right (x=0 o x=2) se pone la condicion
+de `flow_reversal' con un refval de 1.0 de manera que cuando G_body =
+[1,0] el flujo es entrante en x=0 y por lo tanto ahi el flow_reversal
+impone T=1. Cuando se pone G_body = [-1,0] al reves, y el
+flow_reversal impone T=1 en x=2. Ojo el coeficiente de penalizacion
+esta bajo de manera que se ven temperaturas en la pared que son del
+orden de 0.9. No lo probe pero aumentando el coeficiente de
+penalizacion la velocidad deberia acercarse mas a uno. 
+
+Repito, en una de esas esto tambien actua de Darcy, es lo siguiente
+que voy a probar. 
+\fi
