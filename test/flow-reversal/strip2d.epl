@@ -29,7 +29,7 @@ save_file_pattern ./STEPS/strip2d.state-%d.tmp
 #else
 nsaverot 0
 #endif
-G_body <:=$gb:> 0.0
+G_body <:=$gb*1e-2:> 0.0
 
 __END_HASH__
 
@@ -45,7 +45,6 @@ name "viscous_fluid_elemset"
 geometry cartesian2d
 
 viscosity 1e-2
-difu_th 1.0
 rho    1.0 
 Cp     100.0
 kappa  0.1

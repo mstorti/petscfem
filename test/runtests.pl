@@ -999,6 +999,9 @@ expect("genload/save.case_genl1d.tmp",
 expect("genload/save.case_genl1dh.tmp",
        "Generic Load, 0d element with hfilm coeff",$genl_check);
 
+expect("flow-reversal/flowrev-verif.tmp",
+       "Flow reversal, temperature check","Test OK . 1");
+
 end_section();
 
 #------/*/------/*/------/*/------/*/------/*/------/*/------/*/ 
