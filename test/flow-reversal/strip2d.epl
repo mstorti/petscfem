@@ -23,9 +23,13 @@ preco_type "lu"
 
 nsave 1
 save_file ./strip2d.state.tmp
-save_file_pattern ./STEPS/strip2d.state-%d.tmp
+#if 0
 nsaverot 5
-G_body -1.0 0.0
+save_file_pattern ./STEPS/strip2d.state-%d.tmp
+#else
+nsaverot 0
+#endif
+G_body <:=$gb:> 0.0
 
 __END_HASH__
 

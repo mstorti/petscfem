@@ -4,7 +4,7 @@
 
 default: run
 
-tests: test_right test_left
+tests: test_flowrev
 
 CASE_NAME := strip2d
 NP := 1
@@ -17,6 +17,17 @@ BOPT := g_c++
 include $(PETSCFEM_DIR)/Makefile.base
 include $(PETSCFEM_DIR)/test/Makefile.base.test
 SRCS = 
+
+test_flowrev:
+	make-depl strip2d.epl strip2d.depl -d mkmesh=0 -d gb=1
+	-$(MPIEXEC) $(NL) -np $(NP) $(PROG) -case $(CASE_NAME).depl 
+	if [ -f strip2d.state.tmp ] ; \
+		then cp strip2d.state.tmp strip2d.state-right.tmp ; fi
+	make-depl strip2d.epl strip2d.depl -d mkmesh=0 -d gb=1
+	-$(MPIEXEC) $(NL) -np $(NP) $(PROG) -case $(CASE_NAME).depl 
+	if [ -f strip2d.state.tmp ] ; \
+		then cp strip2d.state.tmp strip2d.state-left.tmp ; fi
+	octave -qH check.m
 
 mesh:
 	make-depl strip2d.epl strip2d.depl -d mkmesh=1

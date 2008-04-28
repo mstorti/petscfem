@@ -6,7 +6,8 @@ $use_exterior_normal = 1;
 $Lx = 2;
 $Ly = 1;
 $Nx=$Ny=10;
-@vars = qw(Lx Ly Nx Ny use_exterior_normal);
+$gb = 1.0 unless defined $gb;
+@vars = qw(Lx Ly Nx Ny use_exterior_normal gb);
 transcript("", @vars);	# print variables on output and transcript this block
 octave_export_vars(">data.m.tmp",@vars);
 system "octave -qH mkmesh.m" if $mkmesh;
