@@ -170,8 +170,8 @@ int main (int argc, char **argv) {
       }
     }
     assert(!(has_plus && has_minus));
-    if (!(has_plus || has_minus)) 
-      printf("not colored node %d\n",node);
+//     if (!(has_plus || has_minus)) 
+//       printf("not colored node %d\n",node);
     split[node] = (has_plus ? -1 : +1);
 #endif
   }
