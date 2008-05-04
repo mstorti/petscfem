@@ -141,6 +141,7 @@ int main (int argc, char **argv) {
     GSet s;
     graph.set_ngbrs(node,s);
     // iterate on the neighbors of `node'
+#if 0
     for (GSet::iterator r=s.begin(); r!=s.end(); r++) {
       if (split[*r]==0) {
 	// If not already split put it in the queue
@@ -157,6 +158,22 @@ int main (int argc, char **argv) {
 	exit(1);
       }
     }
+#else
+    // This is simpler, I guess...
+    int has_plus=0, has_minus=0;
+    for (GSet::iterator r=s.begin(); r!=s.end(); r++) {
+      if (split[*r]==1) has_plus=1;
+      else if (split[*r]==-1) has_minus=1;
+      else if (split[*r]==0) {
+	front.push_back(*r);
+	split[*r]=QUEUED;
+      }
+    }
+    assert(!(has_plus && has_minus));
+    if (!(has_plus || has_minus)) 
+      printf("not colored node %d\n",node);
+    split[node] = (has_plus ? -1 : +1);
+#endif
   }
 
 #if 0
@@ -182,8 +199,15 @@ int main (int argc, char **argv) {
   for (int k=0; k<nelem; k++) {
     // Connectivity row
     int *row = &icone.ref(k*NEL);
+#if 0
+    int mask = (split[row[0]-1]==1);
+    printf("%d  ",mask);
+    for (int j=0; j<NEL; j++) 
+      printf("%d",(split[row[j]-1]==1)==mask);
+    printf("\n");
+#endif
     // Choose map depending on split value
-    map = (split[row[0]]==1 ? map_up : map_down);
+    map = (split[row[0]-1]==1 ? map_up : map_down);
     // loop over local tetras
     for (int t=0; t<5; t++) {
       // loop over nodes in the tetra
