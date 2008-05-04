@@ -130,51 +130,68 @@ int main (int argc, char **argv) {
   // Arbitrarily start from node `0'.
   // Split start node as `up'
 #define QUEUED (-2)
-  front.push_back(0);
-  split[0]=1;
-  while (front.size()) {
-    // printf("front.size %d\n",front.size());
-    // Take same node from the queue
-    int node = front.front();
-    front.pop_front();
-    // `s' is the set of neighbors of `node'. 
-    GSet s;
-    graph.set_ngbrs(node,s);
-    // iterate on the neighbors of `node'
+  int arbitrary=0;
+  while (1) {
+    // Check all nodes have been colored
+    int not_colored = -1;
+    for (int k=0; k<nnod; k++) {
+      assert(split[k]!=CHECKED);
+      if (!split[k]) {
+        not_colored=k;
+        arbitrary++;
+        break;
+      }
+    }
+    if (not_colored==-1) break;
+    front.push_back(not_colored);
+    split[not_colored]=1;
+    while (front.size()) {
+      // printf("front.size %d\n",front.size());
+      // Take same node from the queue
+      int node = front.front();
+      front.pop_front();
+      // `s' is the set of neighbors of `node'. 
+      GSet s;
+      graph.set_ngbrs(node,s);
+      // iterate on the neighbors of `node'
 #if 0
-    for (GSet::iterator r=s.begin(); r!=s.end(); r++) {
-      if (split[*r]==0) {
-	// If not already split put it in the queue
-	front.push_back(*r);
-	split[*r]=QUEUED;
-      } else if (split[*r]==QUEUED) {
-	// do nothing
-      } else if (split[node]==0 || split[node]==QUEUED) {
-	// if not already marked, mark as the opposite of the neighbor
-	split[node] = -split[*r];
-      } else if (split[*r] == split[node]) {
-	// if already marked and find an incompatible neighbor complain
-	printf("Can't split the mesh!!\n");
-	exit(1);
+      for (GSet::iterator r=s.begin(); r!=s.end(); r++) {
+        if (split[*r]==0) {
+          // If not already split put it in the queue
+          front.push_back(*r);
+          split[*r]=QUEUED;
+        } else if (split[*r]==QUEUED) {
+          // do nothing
+        } else if (split[node]==0 || split[node]==QUEUED) {
+          // if not already marked, mark as the opposite of the neighbor
+          split[node] = -split[*r];
+        } else if (split[*r] == split[node]) {
+          // if already marked and find an incompatible neighbor complain
+          printf("Can't split the mesh!!\n");
+          exit(1);
+        }
       }
-    }
 #else
-    // This is simpler, I guess...
-    int has_plus=0, has_minus=0;
-    for (GSet::iterator r=s.begin(); r!=s.end(); r++) {
-      if (split[*r]==1) has_plus=1;
-      else if (split[*r]==-1) has_minus=1;
-      else if (split[*r]==0) {
-	front.push_back(*r);
-	split[*r]=QUEUED;
+      // This is simpler, I guess...
+      int has_plus=0, has_minus=0;
+      for (GSet::iterator r=s.begin(); r!=s.end(); r++) {
+        if (split[*r]==1) has_plus=1;
+        else if (split[*r]==-1) has_minus=1;
+        else if (split[*r]==0) {
+          front.push_back(*r);
+          split[*r]=QUEUED;
+        }
       }
-    }
-    assert(!(has_plus && has_minus));
-//     if (!(has_plus || has_minus)) 
-//       printf("not colored node %d\n",node);
-    split[node] = (has_plus ? -1 : +1);
+      // if (!(has_plus || has_minus)) arbitrary++;
+      split[node] = (has_plus ? -1 : +1);
 #endif
+    }
   }
+  
+  if (arbitrary>1)
+    printf("%d nodes have been assigned arbitrary colors\n"
+           "[this is not usual, but may be OK if the mesh is disconnected]\n",
+           arbitrary);
 
 #if 0
   for (int k=0; k<nnod; k++) printf("split[%d] = %d\n",k,split[k]);
