@@ -190,8 +190,9 @@ int main (int argc, char **argv) {
   
   if (arbitrary>1)
     printf("%d nodes have been assigned arbitrary colors\n"
-           "[this is not usual, but may be OK if the mesh is disconnected]\n",
-           arbitrary);
+           "[This is not usual, but may be OK if the mesh "
+           "has %d disconnected graphs]\n",
+           arbitrary,arbitrary);
 
 #if 0
   for (int k=0; k<nnod; k++) printf("split[%d] = %d\n",k,split[k]);
