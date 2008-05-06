@@ -156,6 +156,8 @@ int GenLoad::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
 
   // Assume all dofs connected
   if (comp_prof) matloc_prof.set(1.);
+
+  nprops = 0;
   // Call user callback function
   start_chunk();
 
@@ -351,7 +353,7 @@ void lin_gen_load::start_chunk_c() {
   } else v.resize(ndof,0);
 
   U_out_sl.resize(1,ndof).set(&*v.begin());
-  int iprop=0;
+  int iprop = nprops;
   const_flux_indx = iprop; 
   ierr = get_prop(iprop,elem_prop_names,thash,elprpsindx,propel, 
 		  "const_flux",ndof);

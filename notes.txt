@@ -12820,3 +12820,14 @@ Parece que sigue corriendo los mismos tests que antes.
 > --------
 > Start section: "All tests"
 > Summary: "All tests" -- OK: 160.  Not OK: 11. Couldn't open: 8. Total: 179
+
+%=== Tue May  6 20:13:11 2008 mstorti@prandtl
+%
+%-- 20:13:11 -- mstorti-v15-end-8-g036137b -----
+Beto: NSILESTHER:
+%
+yo toque una rutina que luego pensaba dartela para mergear. 
+La nsilesther tenia un error en el calculo de la difusividad termica
+para la estabilizacion (creo) y la corregi. Yo lo recompile y anduvo
+bien. Si queres usar lo de GIT fijate que esa rutina esta tocada, sino
+hace la diferencia con la tuya y miralo
