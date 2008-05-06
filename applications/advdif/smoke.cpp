@@ -57,10 +57,11 @@ void smoke_ff::start_chunk(int &ret_options) {
 }
 
 void smoke_ff::element_hook(ElementIterator &element) {
+#if 0
   element_m = element;
   if (!use_nodal_vel)  
     u.set(new_adv_dif_elemset->prop_array(element_m,u_prop));
-  A.ir(2,1).ir(3,1).set(u).rs();
+#endif
 }
 
 void smoke_ff::set_state(const FastMat2 &UU) { 
@@ -102,6 +103,7 @@ void smoke_ff::compute_flux(COMPUTE_FLUX_ARGS) {
   } else {
     u.set(new_adv_dif_elemset->prop_array(element_m,u_prop));
   }
+  A.ir(2,1).ir(3,1).set(u).rs();
   double vel = sqrt(u.sum_square_all());
   double t = new_adv_dif_elemset->time();
   double G = 0.0;
