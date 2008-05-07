@@ -12831,3 +12831,7 @@ La nsilesther tenia un error en el calculo de la difusividad termica
 para la estabilizacion (creo) y la corregi. Yo lo recompile y anduvo
 bien. Si queres usar lo de GIT fijate que esa rutina esta tocada, sino
 hace la diferencia con la tuya y miralo
+
+%=== Wed May  7 07:17:18 2008 mstorti@prandtl
+%
+%-- 07:17:18 -- mstorti-v15-end-11-ga576124 -----

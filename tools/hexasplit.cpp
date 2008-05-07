@@ -31,13 +31,15 @@ void graph_print(LinkGraphDis &graph, char *s=NULL) {
   }
 }
 
+int DEFAULT_SPLIT = 1;
+
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 int main (int argc, char **argv) {
   char c;
   string icone_file = "icone";
   string icone_tetra = "icone_tetra";
   int dx=0; // Flags whether the mesh is being generated for opendx data explorer
-  while ((c = getopt (argc, argv, "i:o:x")) != -1) {
+  while ((c = getopt (argc, argv, "i:o:xr")) != -1) {
     switch (c) {
     case 'i':
       icone_file = string(optarg);
@@ -49,6 +51,10 @@ int main (int argc, char **argv) {
       printf("Using 0-base (C-style) numeration for "
 	     "nodes (OpenDX Data Explorer)\n");
       dx = 1;
+      break;
+    case 'r':
+      printf("Using reversed split\n");
+      DEFAULT_SPLIT = -1;
       break;
     default:
       abort ();
@@ -135,16 +141,16 @@ int main (int argc, char **argv) {
     // Check all nodes have been colored
     int not_colored = -1;
     for (int k=0; k<nnod; k++) {
-      assert(split[k]!=CHECKED);
+      assert(split[k] != QUEUED);
       if (!split[k]) {
-        not_colored=k;
+        not_colored = k;
         arbitrary++;
         break;
       }
     }
     if (not_colored==-1) break;
     front.push_back(not_colored);
-    split[not_colored]=1;
+    split[not_colored] = DEFAULT_SPLIT;
     while (front.size()) {
       // printf("front.size %d\n",front.size());
       // Take same node from the queue
@@ -182,8 +188,8 @@ int main (int argc, char **argv) {
           split[*r]=QUEUED;
         }
       }
-      // if (!(has_plus || has_minus)) arbitrary++;
-      split[node] = (has_plus ? -1 : +1);
+      if (!(has_plus || has_minus)) split[node] = DEFAULT_SPLIT;
+      else split[node] = (has_plus ? -1 : +1);
 #endif
     }
   }
