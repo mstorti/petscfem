@@ -24,8 +24,8 @@ protected:
   double propel[MAXPROP];
 public: 
   const FastMat2 &H,&H_out,&H_in,&normal;
-  GenLoad() : H(H_m), H_out(H_out_m), 
-              H_in(H_m), normal(normal_m), nprops(0) {}
+  GenLoad() : nprops(0), H(H_m), H_out(H_out_m), 
+              H_in(H_m), normal(normal_m) {}
   /** Call back function to be called by the elemset before
       a sequence of elements to be computed. This may be used
       by a derived class in order to perform some
