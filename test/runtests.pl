@@ -557,6 +557,11 @@ expect("sqcav/verif.g3d.tmp",
        "Adaptor_pg for surfaces. Plane at various angles",
        read_file("sqcav/verif.g3d.ans"));
 
+#------/*/------/*/------/*/------/*/------/*/------/*/------/*/ 
+expect("embgath/embgath-verif.tmp",
+       "Embedded gatherer, dump values per element on file",
+       "Test OK . 1");
+
 end_section();
 
 #------/*/------/*/------/*/------/*/------/*/------/*/------/*/ 

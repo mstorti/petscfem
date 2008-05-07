@@ -115,7 +115,7 @@ tests: runtests
 runtests: compile sector oscplate fastmat2 plano idmap constraint_bug 	 \
 	fstack advdif texthash log_vars newff burgers bug100 genload 	 \
 	lupart distmap sparse graph sqcav pfmat aquifer nutatcyl mmove 	 \
-	advec nsgenload cubcav project
+	advec nsgenload cubcav project 
 
 rp: runtests_p
 runtests_p: advec nsgenload cubcav project
@@ -254,6 +254,7 @@ sector:
 #w Gneric load elemeset for NS
 nsgenload:
 	$(MAKE) -C $@ tests
+	$(MAKE) -C flow-reversal tests
 
 #----<*>----------<*>----------<*>----------<*>----------<*>----------<*>--
 # sw absorbent bc
@@ -270,5 +271,10 @@ cubcav:
 project:
 	$(MAKE) -C ../tools/project project4.bin
 	$(MAKE) -C project tests
+
+#----<*>----------<*>----------<*>----------<*>----------<*>----------<*>--
+# Embedded gatherer test
+embgath:
+	$(MAKE) -C embgath tests
 
 #s

@@ -23,8 +23,9 @@ mesh:
 
 test_strip_perelem: 
 	make-depl strip2d.epl strip2d.depl -d mkmesh=1
-	-$(MPIEXEC) $(NL) -np $(NP) $(PROG) -case $(CASE_NAME).depl 
-	$(OCTAVE) verif.m
+	-$(MPIEXEC) $(NL) -np $(NP) $(PROG) -case $(CASE_NAME).depl \
+		$(call redir,strip2d.output.tmp)
+	$(OCTAVE) verif.m > embgath-verif.tmp
 
 local_clean::
 	-putex
