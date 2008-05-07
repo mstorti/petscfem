@@ -455,7 +455,7 @@ assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
   ierr = get_double(thash,"alpha_source_phases",
 		    alpha_source_vp.storage_begin(),1,nphases);
 
-  //o Direction of gravity
+  //o Direction of g_dir is used for v_slip
   TGETOPTDEF(thash,int,g_dir,ndim);
 
   double rho_g=NAN,vslip,rho_m,rho_m_old,arho_l,arho_g,vslip_m,alpha_l,alpha_g;
@@ -803,12 +803,13 @@ assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
 	}
 	
 	visco_m_eff = alpha_l*visco_l+visco_sato + rho_m*visco_t;
+
 	for (int j=1; j<=nphases; j++) {
 	  alpha_g = alpha_g_vp.get(j);
 	  visco_g = visco_g_vp.get(j);
 	  visco_m_eff += alpha_g*visco_g;
 	}
-	visco_m_eff = (visco_m_eff <= 0 ? 1.0e-15 : visco_m_eff);
+	visco_m_eff = (visco_m_eff <= 0 ? 1.0e-15 : visco_m_eff); // dynamic viscosity for the mixture
 	
 	for (int j=1; j<=nphases; j++) {
  	  //	  rho_g = rho_g_vp.get(j);
@@ -816,7 +817,7 @@ assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
 	  visco_g_eff = visco_t/Sc_number;
 	  visco_g_eff = (visco_g_eff <= 0 ? 1.0e-15 : visco_g_eff);
 	  visco_g_eff_vp.setel(visco_g_eff,j);
-	}
+	}  // visco_g_eff : kinematic viscosity for each disperse phase
 	
 	vel_axi(u,u_axi,axi);
 	u2 = u_axi.sum_square_all();
@@ -824,14 +825,14 @@ assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
 	
 	h_supg = compute_h_supg(u_axi,dshapex,velmod,h_pspg);
 
-	Peclet = velmod * h_supg / (2. * visco_m_eff);
+	Peclet = rho_m * velmod * h_supg / (2. * visco_m_eff);
 	
 	tau_supg = tsf*SQ(2.*rec_Dt)+SQ(2.*velmod/h_supg)
-	  +9.*SQ(4.*visco_m_eff/SQ(h_supg));
+	  +9.*SQ(4.*(visco_m_eff/rho_m)/SQ(h_supg));
 	tau_supg = 1./sqrt(tau_supg);
 
 	tau_pspg = tsf*SQ(2.*rec_Dt)+SQ(2.*velmod/h_pspg)
-	  +9.*SQ(4.*visco_m_eff/SQ(h_pspg));
+	  +9.*SQ(4.*(visco_m_eff/rho_m)/SQ(h_pspg));
 	tau_pspg = 1./sqrt(tau_pspg);
 
 	fz = (Peclet < 3. ? Peclet/3. : 1.);
@@ -885,7 +886,7 @@ assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
 	  v_g_vp_old.ir(2,j);
 	  P_supg_vp.ir(2,j);
 	  h_supg_g = h_supg_vp.get(j);
-	  visco_g = visco_g_eff_vp.get(j);
+	  visco_g = visco_g_eff_vp.get(j);  // kinematic viscosity
 	  velmod_g = velmod_g_vp.get(j);
 	  tau_supg_g = SQ(2.*velmod_g/h_supg_g)+9.*SQ(4.*visco_g/SQ(h_supg_g));
 	  tau_supg_g = 1./sqrt(tau_supg_g);	  
