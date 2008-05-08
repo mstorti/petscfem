@@ -687,10 +687,8 @@ EOT
 
 #------/*/------/*/------/*/------/*/------/*/------/*/------/*/ 
 expect("nsgenload/output.fstack_global.tmp",
-       "Readmesh complains about bad file inclusion",<<'EOT');
-genload.depl
-Couldn.t open file.*dummy_archive
-EOT
+       "Readmesh complains about bad file inclusion",
+        read_file("./nsgenload/output.fstack_global.ans"));
 
 #------/*/------/*/------/*/------/*/------/*/------/*/------/*/ 
 expect("nsgenload/output.fstack_nodes.tmp",
