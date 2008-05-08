@@ -6,7 +6,7 @@
 	constraint_bug fstack sector triangle advdif texthash log_vars	     \
 	newff burgers bug100 nonlr genload lupart distmap sparse graph sqcav \
 	pfmat  aquifer nutatcyl mmove advec nsgenload plate gasflow oscplate \
-	idmap sw_abso cubcav condwall project
+	idmap sw_abso cubcav condwall project embgath
 
 SRCS = $(wildcard *.cpp)
 
