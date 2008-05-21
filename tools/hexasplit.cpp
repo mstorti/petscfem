@@ -8,6 +8,7 @@
 #include <vector>
 #include <deque>
 
+#include <mpi.h>
 #include <src/utils.h>
 #include <src/linkgraph.h>
 #include <src/dvector.h>
@@ -102,6 +103,8 @@ int main (int argc, char **argv) {
   vector<int> split(nnod);
   for (int j=0; j<nelem; j++) split[j]=0;
 
+  printf("Starts building incompatibility graph...\n");
+  double start = MPI_Wtime();
   // Build the graph of incompatibilities. Two nodes are connected
   // by an edge if they are connected by an edge of an hexa. 
   graph.set_chunk_size(nnod/2 < MIN_CHUNK_SIZE ? MIN_CHUNK_SIZE : nnod/2);
@@ -114,6 +117,7 @@ int main (int argc, char **argv) {
 	// the incompatibility table
 	if (incompat[j]!=incompat[k]) graph.add(row[j]-1,row[k]-1);
   }
+  printf("Done, elapsed %.2fsecs\n",MPI_Wtime()-start);
 
 #if 0
   // Print the graph
@@ -136,14 +140,16 @@ int main (int argc, char **argv) {
   // Arbitrarily start from node `0'.
   // Split start node as `up'
 #define QUEUED (-2)
-  int arbitrary=0;
+  int arbitrary=0, colored=0;
+  int first_maybe_not_colored = 0;
   while (1) {
     // Check all nodes have been colored
     int not_colored = -1;
-    for (int k=0; k<nnod; k++) {
+    for (int k=first_maybe_not_colored; k<nnod; k++) {
       assert(split[k] != QUEUED);
       if (!split[k]) {
         not_colored = k;
+        first_maybe_not_colored = k;
         arbitrary++;
         break;
       }
@@ -151,6 +157,7 @@ int main (int argc, char **argv) {
     if (not_colored==-1) break;
     front.push_back(not_colored);
     split[not_colored] = DEFAULT_SPLIT;
+    colored++;
     while (front.size()) {
       // printf("front.size %d\n",front.size());
       // Take same node from the queue
@@ -190,6 +197,9 @@ int main (int argc, char **argv) {
       }
       if (!(has_plus || has_minus)) split[node] = DEFAULT_SPLIT;
       else split[node] = (has_plus ? -1 : +1);
+      colored++;
+      if (colored && colored%10000==0) 
+        printf("colored %d nodes\n",colored);
 #endif
     }
   }
