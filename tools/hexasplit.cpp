@@ -100,8 +100,8 @@ int main (int argc, char **argv) {
   // split[j] may be -1/+1 depending on whether the
   // node is marked up or down. split[j]==0 implies
   // that the node is not split yet. 
-  vector<int> split(nnod);
-  for (int j=0; j<nelem; j++) split[j]=0;
+  vector<int> split(nnod,0);
+  // for (int j=0; j<nele; j++) split[j]=0;
 
   printf("Starts building incompatibility graph...\n");
   double start = MPI_Wtime();
