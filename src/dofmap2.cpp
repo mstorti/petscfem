@@ -1,6 +1,7 @@
 //__INSERT_LICENSE__
 //$Id: dofmap2.cpp,v 1.15 2007/01/30 19:03:44 mstorti Exp $
 
+#include <newmatio.h>
 #include <cassert>
 #include <deque>
 
@@ -11,7 +12,6 @@
 
 using namespace std;
 
-#include <newmat.h>
 
 #include "fem.h"
 #include "getprop.h"

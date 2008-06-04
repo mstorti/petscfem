@@ -1,6 +1,7 @@
 //__INSERT_LICENSE__
 //$Id: dofmap.cpp,v 1.22.10.1 2007/02/19 20:23:56 mstorti Exp $
 
+#include <newmatio.h>
 #include <cassert>
 #include <algorithm>
 

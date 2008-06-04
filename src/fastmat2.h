@@ -5,7 +5,7 @@
 #ifndef FASTMAT2_H
 #define FASTMAT2_H
 
-#include <algorithm>
+#include <climits>
 #include <vector>
 //#include <deque>
 #include <cassert>

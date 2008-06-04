@@ -124,7 +124,7 @@ void DistMap<Key,Val,Partitioner>::scatter() {
 	     "send_buff %p, pos %p, diff %d, to_send %d\n",
 	     myrank,k,
 	     send_buff[k], send_buff_pos[k],
-	     send_buff_pos[k]-send_buff[k], SEND(myrank,k));
+	     int(send_buff_pos[k]-send_buff[k]), SEND(myrank,k));
     }
   }
 

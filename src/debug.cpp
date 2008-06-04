@@ -68,7 +68,7 @@ void Debug::trace(const char *s) {
   char *token;
 #define MXTM 100
   char t[MXTM];
-  char *wsp = " \n\t"; // whitespace
+  const char *wsp = " \n\t"; // whitespace
 
   if (! was_initialized) {
     MPI_Comm_rank(comm,&myrank);
