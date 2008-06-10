@@ -33,8 +33,8 @@ void FileStack::close(void) {
   if (da_length(file_stack)>0 || da_length(read_buffer)>0) {
     if (!quiet)
       printf("FileStack::close(): FileStack not empty!!\n"
-	     "%d files open\n"
-	     "%d lines in the buffer\n",
+	     "%zd files open\n"
+	     "%zd lines in the buffer\n",
 	     da_length(file_stack),da_length(read_buffer));
   }
   if (file_at_top) fclose(file_at_top);

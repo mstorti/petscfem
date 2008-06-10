@@ -43,9 +43,9 @@ class ThashPFMat : public PFMat {
 class SparseDirect : public ThashPFMat {
   TextHashTable thash;
   // Does nothing
-  int build_ksp(TextHashTable *thash,char *name=NULL) {return 0;};
+  int build_ksp(TextHashTable *thash,const char *name=NULL) {return 0;};
 public:
-  SparseDirect(int N,char * opt = "PETSc") {
+  SparseDirect(int N,const char * opt = "PETSc") {
     A_p = Sparse::Mat::dispatch(opt,&thash);
     A_p->resize(N,N);
   }

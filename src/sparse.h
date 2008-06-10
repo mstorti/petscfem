@@ -421,7 +421,7 @@ void MatFSMContext::action() {			\
     TextHashTable thash;
   public:
 
-    static Mat *dispatch(char *opt = "PETSc",
+    static Mat *dispatch(const char *opt = "PETSc",
 			 const TextHashTable *t=NULL);
 
     double *b;

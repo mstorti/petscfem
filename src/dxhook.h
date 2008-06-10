@@ -10,6 +10,7 @@
 #endif
 #ifdef USE_SSL
 #include <SSL/sockets.h>
+#include <src/sslwrp.h>
 #endif
 #include <src/dvector.h>
 
@@ -17,7 +18,7 @@
 class FieldGen {
 public:
   virtual ~FieldGen() {}
-  virtual void init(int ndof,TextHashTable* options,char *name)=0;
+  virtual void init(int ndof,TextHashTable* options,const char *name)=0;
   virtual int n()=0;
   virtual void field(int j,string &name,vector<int> &rank)=0;
   virtual void values(int j,vector<double> &in,vector<double> &out)=0;

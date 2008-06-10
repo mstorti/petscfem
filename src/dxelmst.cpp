@@ -8,6 +8,7 @@
 #include <src/elemset.h>
 #include <src/util3.h>
 #include <src/sockbuff.h>
+#include <src/sslwrp.h>
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 void Elemset::dx_send_connectivities(Socket *sock,
@@ -59,7 +60,7 @@ void Elemset::dx(Socket *sock,Nodedata *nd,double *field_state) {
   if (!MY_RANK) {
     cookie = rand();
     if (dx_cache_connectivities) {
-      Sprintf(sock,"elemset %s %s %d %d %d use_cache\n",name(),type.c_str(),
+      Sprintf_wrp(sock,"elemset %s %s %d %d %d use_cache\n",name(),type.c_str(),
 	      subnel,nelem*nsubelem,cookie);
       
       Sgetline(&buf,&Nbuf,sock);
@@ -73,7 +74,7 @@ void Elemset::dx(Socket *sock,Nodedata *nd,double *field_state) {
       } else PETSCFEM_ERROR("Error in DXHOOK protocol. DX sent \"%s\"\n",
 			    tokens[0].c_str());
     } else {
-      Sprintf(sock,"elemset %s %s %d %d %d\n",name(),type.c_str(),
+      Sprintf_wrp(sock,"elemset %s %s %d %d %d\n",name(),type.c_str(),
 	      subnel,nelem*nsubelem,cookie);
       dx_send_connectivities(sock,nsubelem,subnel,node_indices);
     }

@@ -43,7 +43,7 @@ class FieldGenDefault : public FieldGen {
   int ndof;
   string name;
 public:
-  void init(int ndof_a,TextHashTable* options,char *name_a) { 
+  void init(int ndof_a,TextHashTable* options,const char *name_a) { 
     ndof=ndof_a; 
     name = string(name_a);
   }
@@ -71,7 +71,7 @@ class FieldGenLine : public FieldGen {
   vector<entry> field_list;
 public:
   void parse(const char *line);
-  void init(int ndof_a,TextHashTable* options,char *name_a) { 
+  void init(int ndof_a,TextHashTable* options,const char *name_a) { 
     ndof=ndof_a; 
     name = string(name_a);
   }
@@ -169,7 +169,7 @@ void dx_hook::init(Mesh &mesh_a,Dofmap &dofmap_a,
 		    dx_port, IPPORT_USERRESERVED, IPPORT_MAX);
     printf("dx_hook: starting socket at port: %d\n",dx_port);
     sprintf(skthost,"S%d",dx_port);
-    srvr_root = Sopen("",skthost);
+    srvr_root = Sopen_wrp("",skthost);
     PETSCFEM_ASSERT(srvr_root,"Couldn't open dx port on %s",skthost);
     PetscPrintf(PETSCFEM_COMM_WORLD,"Done.\n");
   }
@@ -481,9 +481,9 @@ void dx_hook::send_state(int step,build_state_fun_t build_state_fun) try {
   if (!MY_RANK) {
     // Send node coordinates
     cookie = rand();
-    Sprintf(srvr,"step %d\n",step);
+    Sprintf_wrp(srvr,"step %d\n",step);
     if (dx_cache_coords) {
-      Sprintf(srvr,"nodes nodes %d %d %d use_cache\n",ndim,nnod,cookie);
+      Sprintf_wrp(srvr,"nodes nodes %d %d %d use_cache\n",ndim,nnod,cookie);
       Sgetline(&buf,&Nbuf,srvr);
       tokenize(buf,tokens2);
       assert(tokens2.size()==1);
@@ -498,7 +498,7 @@ void dx_hook::send_state(int step,build_state_fun_t build_state_fun) try {
 			    tokens2[0].c_str());
       CHECK_COOKIE(nodes);
     } else {
-      Sprintf(srvr,"nodes nodes %d %d %d\n",ndim,nnod,cookie);
+      Sprintf_wrp(srvr,"nodes nodes %d %d %d\n",ndim,nnod,cookie);
       for (int node=0; node<nnod; node++)
 	for (int j=0; j<ndim; j++) sbuff.put((float)*(xnod+node*nu+j));
       sbuff.flush();
@@ -540,7 +540,7 @@ void dx_hook::send_state(int step,build_state_fun_t build_state_fun) try {
 	// Send number of nodes and cookie
 	buff.cat_sprintf(" %d %d",nnod,cookie);
 	// printf("sending state line \"%s\"\n",buff.str());
-	Sprintf(srvr,"%s\n",buff.str());
+	Sprintf_wrp(srvr,"%s\n",buff.str());
 
 	// Send values 
 	vector<double> in(ndof),out(size);
@@ -567,14 +567,14 @@ void dx_hook::send_state(int step,build_state_fun_t build_state_fun) try {
   // Send signal for automatically pairing connections and fields
   if (dx_auto_combine && !MY_RANK) {
     cookie = rand();
-    Sprintf(srvr,"fields_auto %d\n",cookie);
+    Sprintf_wrp(srvr,"fields_auto %d\n",cookie);
     CHECK_COOKIE(fields_auto);
   }
 
   //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
   // Send termination signal
   if (!MY_RANK) {
-    Sprintf(srvr,"end\n");
+    Sprintf_wrp(srvr,"end\n");
     Sclose(srvr);
     srvr = NULL;
   }
@@ -584,7 +584,7 @@ void dx_hook::send_state(int step,build_state_fun_t build_state_fun) try {
 } catch(GenericError e) {
   if (!MY_RANK && srvr) {
     printf("%s\n",e.c_str());
-    Sprintf(srvr,"end\n");
+    Sprintf_wrp(srvr,"end\n");
     Sclose(srvr);
   }
   PetscFinalize();
@@ -606,7 +606,7 @@ void dx_hook::close() {
     // Here we should shut down the connection
     // sending some message to the client
     if (!MY_RANK) {
-      Sprintf(srvr,"end\n");
+      Sprintf_wrp(srvr,"end\n");
       Sclose(srvr);
     }
     set_connection_state(not_connected);

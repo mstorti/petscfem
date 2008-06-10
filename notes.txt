@@ -12894,3 +12894,6 @@ pfmat.cpp:298: warning: deprecated conversion from string constant to 'char*'
 readmesh.cpp: In function 'int read_mesh(Mesh*&, char*, Dofmap*&, int&, int, int)':
 readmesh.cpp:88: warning: deprecated conversion from string constant to 'char*'
 readmesh.cpp:1392: warning: deprecated conversion from string constant to 'char*'
+%
+gaschem.cpp: In member function 'virtual void gaschem_ff::compute_flux(const FastMat2&, const FastMat2&, FastMat2&, FastMat2&, FastMat2&, FastMat2&, FastMat2&, FastMat2&, FastMat2&, FastMat2&, double&, double&, FastMat2&, FastMat2&, FastMat2&, FastMat2&, int)':
+gaschem.cpp:204: warning: suggest parentheses around comparison in operand of |

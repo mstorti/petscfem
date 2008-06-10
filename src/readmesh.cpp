@@ -41,7 +41,6 @@ extern "C" {
 #include <src/getprop.h>
 #include <src/pfobject.h>
 #include <src/dvecpar.h>
-#include <src/dvecpar2.h>
 
 //#define TRACE_READMESH
 #ifdef TRACE_READMESH
@@ -85,7 +84,8 @@ int read_mesh(Mesh *& mesh,char *fcase,Dofmap *& dofmap,
 	      int & neq,int size,int myrank) {
   vector<Amplitude *> amplitude_list;
 
-  char *p1,*p2, *token, *type, *bsp=" \t\n";
+  char *p1,*p2, *token, *type;
+  const char *bsp=" \t\n";
   vector<string> tokens;
   char *line;
   const char *cline;
