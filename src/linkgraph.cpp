@@ -1,8 +1,9 @@
 //__INSERT_LICENSE__
 //$Id: linkgraph.cpp,v 1.14 2006/07/24 04:28:15 mstorti Exp $
 
+#include <cstring>
 #include <src/linkgraph.h>
-#include <src/dvector2.h>
+// #include <src/dvector2.h>
 
 int LinkGraph::CHUNK_SIZE_DEF = 10000;
 int LinkGraph::null = -1;

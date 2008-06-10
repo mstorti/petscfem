@@ -11,7 +11,7 @@
 #include <src/dxhook.h>
 #include <src/autostr.h>
 #include <src/dvector.h>
-#include <src/dvector2.h>
+// #include <src/dvector2.h>
 #include <src/generror.h>
 
 #ifdef USE_SSL

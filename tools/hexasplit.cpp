@@ -12,7 +12,7 @@
 #include <src/utils.h>
 #include <src/linkgraph.h>
 #include <src/dvector.h>
-#include <src/dvector2.h>
+//#include <src/dvector2.h>
 
 extern int MY_RANK,SIZE;
 
