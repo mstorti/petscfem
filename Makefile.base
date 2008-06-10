@@ -8,7 +8,7 @@
 ######  begin of CONGIGURATION VARIABLES section  ####################
 
 #  Configure this variable!! (either g_c++ or O_c++) 
-#BOPT =
+BOPT = g_c++
 
 ifeq ($(BOPT),)
 BOPT = g_c++

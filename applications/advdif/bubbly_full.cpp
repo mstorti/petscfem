@@ -1413,7 +1413,7 @@ if (0) {
     double Volume = advdf_e->volume();
     int axi = advdf_e->axi;
 
-    if (ndim==2 | (ndim==3 && axi>0)) {
+    if ((ndim==2) | (ndim==3 && axi>0)) {
       h_pspg = sqrt(4.*Volume/pi);
     } else if (ndim==3) {
       h_pspg = cbrt(6*Volume/pi);

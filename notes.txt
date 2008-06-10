@@ -12852,3 +12852,45 @@ O_c++: Summary: "All tests" -- OK: 161.  Not OK: 12. Couldn't open: 8. Total: 18
 Con g_c++ habia uno que no se ejecutaba por el `embgath'. Con O_c++
 eso lo arregle y el nuevo que da mal es
 > Testing: "Distributed graph 2proc." on file "distmap/dist_graph.np2.out.tmp"...not OK.
+
+%=== Tue Jun 10 07:00:07 2008 mstorti@galileo
+%
+%-- 07:00:07 -- mstorti-v16-end-14-gd1082ae -----
+%
+bubbly_full.cpp: In member function 'virtual void
+bubbly_full_ff::compute_flux(const FastMat2&, const FastMat2&,
+FastMat2&, FastMat2&, FastMat2&, FastMat2&, FastMat2&, FastMat2&,
+FastMat2&, FastMat2&, double&, double&, FastMat2&, FastMat2&,
+FastMat2&, FastMat2&, int)': bubbly_full.cpp:1416: warning: suggest
+parentheses around comparison in operand of |
+%
+mainutl.cpp: In function 'int readval(int&, char*, double&)':
+mainutl.cpp:21: warning: deprecated conversion from string constant to 'char*'
+mainutl.cpp: In function 'int readval(int&, char*, int&)':
+mainutl.cpp:34: warning: deprecated conversion from string constant to 'char*'
+mainutl.cpp: In function 'int read_vector(const char*, _p_Vec*, Dofmap*, int)':
+mainutl.cpp:287: warning: comparisons like X<=Y<=Z do not have their mathematica
+%
+dxhook.cpp: In member function 'virtual void dx_hook::init(Mesh&, Dofmap&, const char*)':
+dxhook.cpp:172: warning: deprecated conversion from string constant to 'char*'
+dxhook.cpp:207: warning: deprecated conversion from string constant to 'char*'
+dxhook.cpp:216: warning: deprecated conversion from string constant to 'char*'
+dxhook.cpp: In member function 'void dx_hook::send_state(int, int (dx_hook::*)(double*))':
+dxhook.cpp:484: warning: deprecated conversion from string constant to 'char*'
+dxhook.cpp:486: warning: deprecated conversion from string constant to 'char*'
+dxhook.cpp:501: warning: deprecated conversion from string constant to 'char*'
+dxhook.cpp:543: warning: deprecated conversion from string constant to 'char*'
+dxhook.cpp:570: warning: deprecated conversion from string constant to 'char*'
+dxhook.cpp:577: warning: deprecated conversion from string constant to 'char*'
+dxhook.cpp:587: warning: deprecated conversion from string constant to 'char*'
+%
+texthash.cpp: In member function 'void TextHashTable::read(FileStack*&)':
+texthash.cpp:279: warning: deprecated conversion from string constant to 'char*'
+texthash.cpp:289: warning: deprecated conversion from string constant to 'char*'
+%
+pfmat.cpp: In static member function 'static PFMat* PFMat::dispatch(int, DofPartitioner&, const char*)':
+pfmat.cpp:298: warning: deprecated conversion from string constant to 'char*'
+%
+readmesh.cpp: In function 'int read_mesh(Mesh*&, char*, Dofmap*&, int&, int, int)':
+readmesh.cpp:88: warning: deprecated conversion from string constant to 'char*'
+readmesh.cpp:1392: warning: deprecated conversion from string constant to 'char*'

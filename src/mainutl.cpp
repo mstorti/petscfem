@@ -18,7 +18,7 @@
 // If there is a token, but it couldn't be converted
 // to a double, then returns an error (-1). 
 int readval(int &rflag,char *line,double &val) {
-  static char *bsp=" \t";
+  static const char *bsp=" \t";
   char *token;
   token = strtok((rflag==0 ? rflag=1,line : NULL),bsp);
   if (token==NULL) return 0;
@@ -31,7 +31,7 @@ int readval(int &rflag,char *line,double &val) {
 #define __FUNC__ "readval(int&,char *,int&)"
 // Same as for `readval(...double)'
 int readval(int &rflag,char *line,int &val) {
-  static char *bsp=" \t";
+  static const char *bsp=" \t";
   char *token;
   token = strtok((rflag==0 ? rflag=1,line : NULL),bsp);
   if (token==NULL) return 0;
@@ -284,7 +284,7 @@ int read_vector(const char *filename,Vec x,Dofmap *dofmap,int myrank) {
 		    MPI_DOUBLE,0,PETSCFEM_COMM_WORLD);
 
   for (int k=0; k<dofmap->neq; k++) {
-    if (dofmap->dof1 <= k+1 <= dofmap->dof2) {
+    if ((dofmap->dof1 <= k+1) && (k+1 <= dofmap->dof2)) {
       ierr = VecSetValue(x,k,xdof.e(k),INSERT_VALUES);CHKERRQ(ierr);
     }
   }
