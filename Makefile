@@ -47,6 +47,7 @@ local_sw::
 		./doc/manual/vrfdocpp.pl ./src/insdeb.pl ./doc/fixul.pl
 	$(MAKE) sync_version
 	cd tools; ln -sf hexenco.pl ident2iso ; ln -sf hexenco.pl iso2ident
+	$(MAKE) -C src getarrgr.tab.c getarrgr.tab.h
 
 local_clean::
 	cd tools ; rm -f ident2iso ; rm -f iso2ident
