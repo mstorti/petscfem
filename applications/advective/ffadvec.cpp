@@ -72,6 +72,7 @@ int flux_fun_advec(FLUX_FUN_ARGS) {
 	
   if (options & COMP_SOURCE) G_source = 0.;
 
+  return 0;
 }
 
 
