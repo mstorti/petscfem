@@ -12897,3 +12897,22 @@ readmesh.cpp:1392: warning: deprecated conversion from string constant to 'char*
 %
 gaschem.cpp: In member function 'virtual void gaschem_ff::compute_flux(const FastMat2&, const FastMat2&, FastMat2&, FastMat2&, FastMat2&, FastMat2&, FastMat2&, FastMat2&, FastMat2&, FastMat2&, double&, double&, FastMat2&, FastMat2&, FastMat2&, FastMat2&, int)':
 gaschem.cpp:204: warning: suggest parentheses around comparison in operand of |
+
+%=== Tue Jun 10 22:21:06 2008 mstorti@galileo
+%
+%-- 22:21:06 -- mstorti-v16-end-18-g137f5b4 -----
+%
+Estoy corriendo todos los tests. Curiosamente el test lupart/test_iisd
+no anda. Lo comento. Se cuelgan otros tests tambien:
+%
+lupart/test_iisd
+pfmat/iisdmat_petsc
+distmap/distmat
+
+%=== Wed Jun 11 14:41:25 2008 mstorti@galileo
+%
+%-- 14:41:25 -- mstorti-v16-end-19-g2596705 -----
+Encontre el bug. Se debe a que en el `distmap2.h' no se iteraba
+correctamente sobre el contenedor. Se borraba el iterator y se seguia
+a partir de ahi. O sea que por ejemplo se estaba haciendo un ++ sobre
+un iterator invalido.

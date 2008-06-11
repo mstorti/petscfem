@@ -34,7 +34,7 @@ template <class Key,class Val,class Partitioner>
 void DistMap<Key,Val,Partitioner>::scatter() {
   int ierr;
   HPChrono hpc;
-  typename map<Key,Val>::iterator iter;
+  typename map<Key,Val>::iterator iter, next;
   // kv_iterator iter;
   int *to_send,*to_send_buff,/**recv_ok,n_recv_ok,send_ok,*/
     dest,source,my_band_start;
@@ -112,10 +112,23 @@ void DistMap<Key,Val,Partitioner>::scatter() {
   }
 
   // Erase members that do not belong to this processor.
+#if 0
+  DistMap<Key,Val,Partitioner> aux;
   for (iter = this->begin(); iter != this->end(); iter++) {
     k = processor(iter);
-    if (k!=myrank) erase(iter);
+    if (k==myrank) aux.insert(*iter);
   }
+  *this = aux;
+  aux.clear();
+#else
+  iter = this->begin();
+  while(iter != this->end()) {
+    k = processor(iter);
+    next = iter; next++;
+    if (k!=myrank) this->erase(iter);
+    iter = next;
+  }
+#endif
 
   // Check that all buffers must remain at the end
   for (k=0; k<size; k++) {
