@@ -112,21 +112,34 @@ void DistMap<Key,Val,Partitioner>::scatter() {
   }
 
   // Erase members that do not belong to this processor.
-#if 0
+#if 1
+  // This version seems cleaner but needs an auxiliary
+  // container. 
+  // Copy all items remaining in this processor to
+  // auxiliary
   DistMap<Key,Val,Partitioner> aux;
   for (iter = this->begin(); iter != this->end(); iter++) {
     k = processor(iter);
     if (k==myrank) aux.insert(*iter);
   }
-  *this = aux;
+  // Clear this container
+  this->clear();
+  // Recopy all items to this container
+  for (iter = aux.begin(); iter != aux.end(); iter++) 
+    insert(*iter);
+  // Clear the auxiliary container
   aux.clear();
 #else
+  // Erase all items that do not belong to this container.
+  // Be careful about invalid iterators.
   iter = this->begin();
   while(iter != this->end()) {
     k = processor(iter);
-    next = iter; next++;
-    if (k!=myrank) this->erase(iter);
-    iter = next;
+    if (k!=myrank) {
+      next = iter; next++;
+      this->erase(iter);
+      iter = next;
+    } else iter++;
   }
 #endif
 
