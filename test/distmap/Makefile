@@ -2,10 +2,6 @@
 
 .PHONY: distcont distmap distmat dist_graph
 
-## Redirection from /dev/null to avoid error from mpiexec on output
-## Set to blank to run interactive
-redir := 
-
 #s Local Targets
 #w all tests
 tests: distcont distmap distmat dist_graph tests_sb
@@ -43,6 +39,10 @@ DEPEND_DIRS = $(CLEAN_DIRS)
 NPP := $(shell procsel $(PETSCFEM_PROCTABLE))
 
 #LDFLAGS := -L/usr/local/lib -lc ${PETSCFEM_PETSC_LIBS}
+
+## Redirection from /dev/null to avoid error from mpiexec on output
+## Set to blank to run interactive
+redir := 
 
 #w Builds binary 
 distmap.bin: distmap.o 

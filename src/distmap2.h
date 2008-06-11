@@ -112,7 +112,7 @@ void DistMap<Key,Val,Partitioner>::scatter() {
   }
 
   // Erase members that do not belong to this processor.
-#if 1
+#if 0
   // This version seems cleaner but needs an auxiliary
   // container. 
   // Copy all items remaining in this processor to

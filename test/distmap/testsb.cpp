@@ -132,20 +132,20 @@ int main(int argc,char **argv) {
   MPI_Comm_size (PETSCFEM_COMM_WORLD, &SIZE);
   MPI_Comm_rank (PETSCFEM_COMM_WORLD, &MY_RANK);
 
-  ierr = PetscOptionsGetInt(PETSC_NULL,"-m",&m,&flg);
-  CHKERRA(ierr); 
-  ierr = PetscOptionsGetInt(PETSC_NULL,"-N",&N,&flg);
-  CHKERRA(ierr); 
-  ierr = PetscOptionsGetInt(PETSC_NULL,"-k",&keyed,&flg);
-  CHKERRA(ierr); 
-  ierr = PetscOptionsGetInt(PETSC_NULL,"-o",&output,&flg);
-  CHKERRA(ierr); 
-  ierr = PetscOptionsGetInt(PETSC_NULL,"-s",&sort_by_key,&flg);
-  CHKERRA(ierr); 
-  ierr = PetscOptionsGetInt(PETSC_NULL,"-p",&print_keys,&flg);
-  CHKERRA(ierr); 
-  ierr = PetscOptionsGetInt(PETSC_NULL,"-n",&print_newlines,&flg);
-  CHKERRA(ierr); 
+#define GET_INT(key,var,def)                                    \
+  ierr = PetscOptionsGetInt(PETSC_NULL,"-" #key,&var,&flg);     \
+  printf("var %s, flg %d\n",#var,flg);                          \
+  CHKERRA(ierr);                                                \
+  if (!flg) var=def;
+
+  GET_INT(m,m,7);
+  GET_INT(k,keyed,0);
+  GET_INT(o,output,0);
+  GET_INT(N,N,10);
+  printf("N %d\n",N);
+  GET_INT(s,sort_by_key,1);
+  GET_INT(p,print_keys,1);
+  GET_INT(n,print_newlines,1);
 
   if (!keyed) {
     PetscPrintf(PETSC_COMM_WORLD,
@@ -176,7 +176,7 @@ int main(int argc,char **argv) {
 
     KeyedOutputBuffer kbuff;
   
-    printf("MY_RANK %d, SIZE %d\n",MY_RANK,SIZE);
+    // printf("MY_RANK %d, SIZE %d\n",MY_RANK,SIZE);
     k=MY_RANK;
     while (k<N) {
       int roof = k - (k % m) +m;
@@ -185,13 +185,14 @@ int main(int argc,char **argv) {
       for (int jj=0; jj<nelem; jj++) kbuff.cat_printf("%d ",k+jj);
       if (!print_newlines) kbuff.cat_printf(" (explicit new-line)\n");
       kbuff.push(k);
+      // printf("[%d] pushing key %d\n",MY_RANK,k);
       k += SIZE;
     }
 
     kbuff.sort_by_key = sort_by_key;
     KeyedLine::print_keys = print_keys;
     KeyedLine::print_newlines = print_newlines;
-    printf("kbuff size %d\n",kbuff.size());
+    // printf("kbuff size %d\n",kbuff.size());
     if (output) {
       FILE *out = fopen("testsb.output.tmp","w");
       KeyedLine::output = out;

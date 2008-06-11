@@ -7,6 +7,10 @@
 //#include <mpi.h>
 #include <petsc.h>
 
+#include <src/distmap.h>
+#include <src/distmap2.h>
+#include <src/distcont.h>
+#include <src/distcont2.h>
 #include <src/iisdgraph.h>
 #include <src/linkgraph.h>
 
