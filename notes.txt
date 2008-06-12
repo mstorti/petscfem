@@ -13019,3 +13019,9 @@ Testing: "Distributed graph 3proc." on file "distmap/dist_graph.np3.out.tmp"...n
 El de `dist_graph.np3' se debe a la falta de sincronizacion en la
 escritura. Tal vez lo mejor seria hacer que cada proc. escriba en un
 file separado y despues concatenar.
+
+%=== Thu Jun 12 08:41:13 2008 mstorti@galileo
+%
+%-- 08:41:13 -- mstorti-v17-end -----
+Hago merge con `master'. Corre todos los tests, sigue teniendo
+problemas de sincronizacion con los de `graph'. 
