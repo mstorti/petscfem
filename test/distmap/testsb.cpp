@@ -134,15 +134,13 @@ int main(int argc,char **argv) {
 
 #define GET_INT(key,var,def)                                    \
   ierr = PetscOptionsGetInt(PETSC_NULL,"-" #key,&var,&flg);     \
-  printf("var %s, flg %d\n",#var,flg);                          \
   CHKERRA(ierr);                                                \
   if (!flg) var=def;
 
   GET_INT(m,m,7);
   GET_INT(k,keyed,0);
   GET_INT(o,output,0);
-  GET_INT(N,N,10);
-  printf("N %d\n",N);
+  GET_INT(Ne,N,10);
   GET_INT(s,sort_by_key,1);
   GET_INT(p,print_keys,1);
   GET_INT(n,print_newlines,1);

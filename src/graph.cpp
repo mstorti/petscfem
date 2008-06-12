@@ -263,7 +263,7 @@ void Graph::print() {
       MPI_Barrier(PETSCFEM_COMM_WORLD);
       if (SIZE>0) printf("[%d] proc\n",proc);
       for (j=0; j<nvrtx_f; j++) {
-	printf("row %d:  ",j);
+	printf("[%d] row %d:  ",MY_RANK,j);
 	ngbrs_v.clear();
 	set_ngbrs(j,ngbrs_v);
 	qe = ngbrs_v.end();
