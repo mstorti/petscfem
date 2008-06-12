@@ -12990,3 +12990,32 @@ Se agregaron los siguientes
 +        --->  Couldn't find "Cubcav/error wrt.reference solution OK\? > 1"
 +Testing: "Graph partitioning" on file "graph/output.graph.tmp"...not OK.
 +        --->  Couldn't find "110000000000444444444455555555553333333333222222222211111111"
+
+%=== Thu Jun 12 06:45:32 2008 mstorti@galileo
+%
+%-- 06:45:32 -- mstorti-v16-end-26-gab91f15 -----
+AHora corre bastantes mas tests:
+g_c++: Summary: "All tests" -- OK: 167.  Not OK: 6. Couldn't open: 0. Total: 173
+O_c++: Summary: "All tests" -- OK: 166.  Not OK: 7. Couldn't open: 0. Total: 173
+%
+----------------
+g_c++:
+Testing: "Square cavity with fract. step, Re1000, N=20" on file "sqcav/check.fs.verif.tmp"...not OK.
+Testing: "Idmap class" on file "idmap/tidmap.sal"...not OK.
+Testing: "newff/test case adv_temp_cp" on file "newff/adv_temp_cp.vrf.tmp"...not OK.
+Testing: "newff/test case full_full_jacs_cp" on file "newff/full_full_jacs_cp.vrf.tmp"...not OK.
+Testing: "newff/test case full_full_jacs_adv_cp" on file "newff/full_full_jacs_adv_cp.vrf.tmp"...not OK.
+Testing: "newff/test case adv_temp_cp_iisd" on file "newff/adv_temp_cp_iisd.vrf.tmp"...not OK.
+----------------
+O_c++:
+Testing: "Square cavity with fract. step, Re1000, N=20" on file "sqcav/check.fs.verif.tmp"...not OK.
+Testing: "Idmap class" on file "idmap/tidmap.sal"...not OK.
+Testing: "newff/test case adv_temp_cp" on file "newff/adv_temp_cp.vrf.tmp"...not OK.
+Testing: "newff/test case full_full_jacs_cp" on file "newff/full_full_jacs_cp.vrf.tmp"...not OK.
+Testing: "newff/test case full_full_jacs_adv_cp" on file "newff/full_full_jacs_adv_cp.vrf.tmp"...not OK.
+Testing: "newff/test case adv_temp_cp_iisd" on file "newff/adv_temp_cp_iisd.vrf.tmp"...not OK.
+Testing: "Distributed graph 3proc." on file "distmap/dist_graph.np3.out.tmp"...not OK.
+----------------
+El de `dist_graph.np3' se debe a la falta de sincronizacion en la
+escritura. Tal vez lo mejor seria hacer que cada proc. escriba en un
+file separado y despues concatenar.
