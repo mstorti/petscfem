@@ -484,3 +484,9 @@ endif
 
 %.o: %.c
 	$(CC) -c ${COPTFLAGS} ${CFLAGS} ${CPPFLAGS} -o $@ $<
+
+%.so: %.a
+	-rm -f *.o
+	ar x $<
+	g++ -shared -o $@ *.o
+	-rm -f *.o
