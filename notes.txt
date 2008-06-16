@@ -13025,3 +13025,8 @@ file separado y despues concatenar.
 %-- 08:41:13 -- mstorti-v17-end -----
 Hago merge con `master'. Corre todos los tests, sigue teniendo
 problemas de sincronizacion con los de `graph'. 
+
+%=== Mon Jun 16 16:38:33 2008 mstorti@galileo
+%
+%-- 16:38:33 -- mstorti-v17-end-2-g31f4854 -----
+Added trivial note
