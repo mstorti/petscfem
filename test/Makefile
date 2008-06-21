@@ -58,15 +58,15 @@ torture_1:
 #
 	echo "-------------------------" | tee -a  make-tests-$(BOPT).log
 	echo "FULL TEST REPORT: " | tee -a make-tests-$(BOPT).log
-	-runtests.pl -o | tee -a make-tests-$(BOPT).log
+	-./runtests.pl -o | tee -a make-tests-$(BOPT).log
 #
 	echo "-------------------------" | tee -a  make-tests-$(BOPT).log
 	echo "COULDN'T OPEN: " | tee -a make-tests-$(BOPT).log
-	-runtests.pl -o | grep "^can't" | tee -a make-tests-$(BOPT).log
+	-./runtests.pl -o | grep "^can't" | tee -a make-tests-$(BOPT).log
 #
 	echo "-------------------------" | tee -a  make-tests-$(BOPT).log
 	echo "NOT OK TESTS: " | tee -a make-tests-$(BOPT).log
-	-runtests.pl -n | tee -a make-tests-$(BOPT).log
+	-./runtests.pl -n | tee -a make-tests-$(BOPT).log
 #
 	tar czvf ../make-tests-$(BOPT).tar.gz -C .. test
 
@@ -74,15 +74,15 @@ torture_1:
 report:
 	echo "-------------------------" | tee -a  make-tests-$(BOPT).log
 	echo "FULL TEST REPORT: " | tee -a make-tests-$(BOPT).log
-	-runtests.pl -o | tee -a make-tests-$(BOPT).log
+	-./runtests.pl -o | tee -a make-tests-$(BOPT).log
 #
 	echo "-------------------------" | tee -a  make-tests-$(BOPT).log
 	echo "COULDN'T OPEN: " | tee -a make-tests-$(BOPT).log
-	-runtests.pl -o | grep "^can't" | tee -a make-tests-$(BOPT).log
+	-./runtests.pl -o | grep "^can't" | tee -a make-tests-$(BOPT).log
 #
 	echo "-------------------------" | tee -a  make-tests-$(BOPT).log
 	echo "NOT OK TESTS: " | tee -a make-tests-$(BOPT).log
-	-runtests.pl -n | tee -a make-tests-$(BOPT).log
+	-./runtests.pl -n | tee -a make-tests-$(BOPT).log
 
 #w torture for BOPT=g_c++
 torture_g:
@@ -108,7 +108,7 @@ torture:
 #w Verifies results
 tests: runtests
 	@echo "Verifying results..."
-	@runtests.pl
+	@./runtests.pl
 	@echo "Done."
 
 #----<*>----------<*>----------<*>----------<*>----------<*>----------<*>-----
