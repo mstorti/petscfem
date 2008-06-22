@@ -27,8 +27,10 @@ void renorm::init() {
 
   //o Poisson ratio
   TGETOPTDEF_ND(thash,double,mpenal,NAN);
-  PETSCFEM_ASSERT0(!isnan(mpenal),"mpenal is required");  
+  PETSCFEM_ASSERT0(!isnan(mpenal) && nel==2 && ndim==1,
+                   "mpenal only implemented for linear segements");  
 
+  resh.resize(1,nel);
 }
 
 void renorm::element_connector(const FastMat2 &xloc,
@@ -69,6 +71,27 @@ void renorm::element_connector(const FastMat2 &xloc,
     double fphi = phipg*(phipg*phipg-1.0);
     tmp2.set(shape).scale(fphi);
     res.axpy(tmp2,creac*wpgdet);
+
+    double phimax = phi.max_all();
+    double phimin = phi.min_all();
+#if 0
+    if ((phimax>0.0) != (phimin>0.0)) {
+      double
+        x1 = x.getel(xloc,2,1),
+        x2 = x.getel(xloc,2,1),
+        h = fabs(x2-x1),
+        phi1 = phi.getel(1),
+        phi2 = phi.getel(2),
+        xii = -phi1/(phi2-phi1),
+        xi1, xi2;
+      if (phi1>0) xi1 = 0; xi2 = xii;
+      else xi1 = xii; xi2 = 1.0;
+      
+      resh.setel(2,(xi1+xi2)/2);
+      resh.setel(1,1-(xi1+xi2)/2);
+      resh.scale(h*mpenal);
+    }
+#endif
   }
   phi.rs();
   shape.rs();
