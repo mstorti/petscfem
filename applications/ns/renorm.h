@@ -10,7 +10,7 @@
 class  renorm : public adaptor { 
 private:
   double creac, kond, mpenal;
-  FastMat2 phi, tmp, tmp2, grad_phi, phipg, Jaco,iJaco;
+  FastMat2 phi, tmp, tmp2, grad_phi, phipgm, Jaco,iJaco;
 public: 
   void init();
   void element_connector(const FastMat2 &xloc,
