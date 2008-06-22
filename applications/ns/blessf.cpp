@@ -53,6 +53,7 @@
 #include "./poiboltz.h"
 #include "./electrophoresis.h"
 #include "./electrophoresisM.h"
+#include "./renorm.h"
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:
 #undef __FUNC__
@@ -121,6 +122,7 @@ void bless_elemset_ns(char *type,Elemset *& elemset) {
     SET_ELEMSET_TYPE(mesh_move_opt2)
     SET_ELEMSET_TYPE(mesh_move_opt3)
     SET_ELEMSET_TYPE(truss)
+    SET_ELEMSET_TYPE(renorm)
 
     SET_ELEMSET_TYPE(inviscid_coupling)
 
