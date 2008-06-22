@@ -66,7 +66,8 @@ void renorm::element_connector(const FastMat2 &xloc,
     shape.ir(2,ipg+1);
     phipgm.prod(phi,shape,-1,-1);
     double phipg = phipgm; 
-    tmp2.set(shape).scale(phipg);
+    double fphi = phipg*(phipg*phipg-1.0);
+    tmp2.set(shape).scale(fphi);
     res.axpy(tmp2,creac*wpgdet);
   }
   phi.rs();
