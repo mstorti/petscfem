@@ -43,15 +43,17 @@ void renorm::compute_H_term(FastMat2 &phi) {
   double phimin = phi.min_all();
   resh.set(0.0);
 #if 1
+  double 
+    x1 = xlocc.get(1,1),
+    x2 = xlocc.get(2,1),
+    h = fabs(x2-x1);
+
+  double 
+    *phip = phi.storage_begin(),
+    *reshp = resh.storage_begin();
   if ((phimax>0.0) != (phimin>0.0)) {
-    double 
-      *phip = phi.storage_begin(),
-      *reshp = resh.storage_begin();
     if (ndim==1) {
-      double 
-        x1 = xlocc.get(1,1),
-        x2 = xlocc.get(2,1),
-        h = fabs(x2-x1), hliq=NAN, xiav=1.0;
+      double hliq=NAN, xiav=1.0;
       double
         phi1 = phip[0],
         phi2 = phip[1],
@@ -99,9 +101,17 @@ void renorm::compute_H_term(FastMat2 &phi) {
         for (int k=0; k<ndim; k++) 
           xrotp[j*ndim+k] = xlocp[j*ndim+k];
       }
+      // Here we have in xrotp and phirotp
+      // a state element with the positive value
+      // in the first node
+      
     }
-  } 
-  // else hliq = h*(phimax>0.0);
+  } else if (phimin>0.0) {
+    assert(ndim==1 && nel==2);
+    reshp[0] = h/nel;
+    reshp[1] = h/nel;
+  }
+
 #endif
 }
 
@@ -145,14 +155,16 @@ void renorm::element_connector(const FastMat2 &xloc,
     tmp2.set(shape).scale(fphi);
     res.axpy(tmp2,creac*wpgdet);
 
-    if (!isnan(mpenal) && mpenal>0) {
-      xlocc.set(xloc);
-      compute_H_term(phi);
-      res.axpy(resh,mpenal);
-      compute_H_term(phiold);
-      res.axpy(resh,-mpenal);
-    }
   }
+
+  if (!isnan(mpenal) && mpenal>0) {
+    xlocc.set(xloc);
+    compute_H_term(phi);
+    res.axpy(resh,mpenal);
+    compute_H_term(phiold);
+      res.axpy(resh,-mpenal);
+  }
+
   phi.rs();
   phiold.rs();
   shape.rs();
