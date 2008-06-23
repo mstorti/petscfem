@@ -28,9 +28,9 @@ void renorm::init() {
 
   //o Poisson ratio
   TGETOPTDEF_ND(thash,double,mpenal,NAN);
-  PETSCFEM_ASSERT0(!isnan(mpenal) && mpenal>0 
-                   && nel==2 && ndim==1,
-                   "mpenal only implemented for linear segements");  
+  PETSCFEM_ASSERT0(!isnan(mpenal) && mpenal>0 &&
+                   ((nel==2 && ndim==1) || (nel==3 && ndim==2)),
+                   "mpenal only implemented for 1D segments and triangles");  
 
   resh.resize(1,nel);
   C.resize(2,nel,nel);
@@ -120,8 +120,7 @@ void renorm::element_connector(const FastMat2 &xloc,
   phiold.ir(2,1);
   res.ir(2,1);
   for (int ipg=0; ipg<npg; ipg++) {
-    
-    dshapexi.ir(3,ipg+1); // restriccion del indice 3 a ipg+1
+    dshapexi.ir(3,ipg+1);
     Jaco.prod(dshapexi,xloc,1,-1,-1,2);
     
     double detJaco = Jaco.det();
