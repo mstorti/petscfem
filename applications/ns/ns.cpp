@@ -352,6 +352,9 @@ int ns_main(int argc,char **args) {
   // was accessed. Useful for detecting if an option was used or not.
   GETOPTDEF(int,report_option_access,1);
 
+  //o Print total mass (for Level Set Method)
+  GETOPTDEF(int,report_total_mass,0);
+
   if (print_some_file=="<none>")
     print_some_file = "";
   set<int> node_list;
@@ -760,7 +763,8 @@ int ns_main(int argc,char **args) {
 
       } // end of loop over Newton subiteration (inwt)
 
-      if (!MY_RANK) { // prints total mass for level set control
+      if (!MY_RANK && report_total_mass) { 
+        // prints total mass for level set control
 	printf("Total mass %f\n",total_mass);
       }
 
