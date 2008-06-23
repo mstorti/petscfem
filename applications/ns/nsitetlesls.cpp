@@ -14,6 +14,7 @@
 #define USE_FASTMAT
 
 extern TextHashTable *GLOBAL_OPTIONS;
+extern double total_mass;
 
 #define STOP {PetscFinalize(); exit(0);}
    
@@ -302,6 +303,8 @@ assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
   //o Kinematic viscosities for level set
   TGETOPTDEF(thash,double,nu_l,1.);
   TGETOPTDEF(thash,double,nu_g,1.);
+  //o Transition strip for level set
+  TGETOPTDEF(thash,double,epsilon,0.);
   //o Viscosity
   DEFPROP(viscosity);
 #define VISC (*(propel+viscosity_indx))
@@ -328,7 +331,7 @@ assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
     massm,tmp7,tmp8,tmp9,tmp10,tmp11,tmp13,tmp14,tmp15,dshapex_c,xc,
     wall_coords(ndim),dist_to_wall,tmp16,tmp162,tmp17,tmp18,tmp19,
     tmp23,tmp24,tmp25,tmp26,tmp27,tmp28,tmp29,tmp30;
-  FastMat2 tmp20(2,nel,nel),tmp21,vel_supg(1,ndim),r02,v02;
+  FastMat2 tmp20(2,nel,nel),tmp21,vel_supg(1,ndim),r02,v02,qqq;
 
   double pdyn; FMatrix grad_pdyn(ndim); 
   FMatrix tmp40,tmp41,tmp42,tmp43,tmp44,tmp45;
@@ -343,8 +346,9 @@ assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
   double detJaco_axi;
 
   // for nodal computation of rho and nu
-  FastMat2 r01(1,nel),phisum(1,nel),phires(1,nel);
+  FastMat2 r01(1,nel),phisum(1,nel),phires(1,nel),phi0(1,nel),phi(1,nel);
   FastMat2 v01(1,nel);
+  // for calculation of mass 
  
   if (axi) assert(ndim==3);
 
@@ -362,6 +366,7 @@ assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
   FastMat2::activate_cache(&cache_list);
 
   int ielh=-1;
+  //  printf("el_start %d el_last %d\n",el_start,el_last);
   for (int k=el_start; k<=el_last; k++) {
     if (!compute_this_elem(k,this,myrank,iter_mode)) continue;
     FastMat2::reset_cache();
@@ -443,17 +448,38 @@ assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
       Hloc.rs();
     } 
 
+    //    double phi0 = 0.0, phi = 0.0;
+    // auxiliar variable for heaviside smooth function
+    phi0.set(philoc.ir(2,1));
+    philoc.rs();
+    double vphi;
+    for (int nn = 1; nn <= nel; nn++){
+      vphi = double(qqq.set(phi0.ir(1,nn)));
+      phi0.rs();
+      if (0){//(elem==1170) {
+	printf("elem 1170 vphi %f nn %d\n",vphi,nn);
+      }
+      if (abs(vphi)<=0.5){
+	double vv = tanh(pi*vphi/0.5);
+	phi.ir(1,nn).set(vv);
+      } else if (vphi<-0.5){
+	phi.ir(1,nn).set(-1.0);
+      } else if (vphi>0.5){
+	phi.ir(1,nn).set(1.0);
+      }
+      phi.rs();
+    }
     // nodal computation of rho
     if (LEVEL_SET_flag){
       r01.set(0.0);
-      philoc.ir(2,1);
-      phisum.set(philoc);
-      philoc.rs();
+      //      philoc.ir(2,1);
+      phisum.set(phi);
+      //      philoc.rs();
       phisum.add(1.0).scale(rho_l);
-      phires.set(philoc.ir(2,1)).scale(-1.0);
+      phires.set(phi).scale(-1.0);
       phires.add(1.0).scale(rho_g);
       r01.set(phisum).add(phires).scale(0.5);
-      philoc.rs();
+      //      philoc.rs();
     }
 
     // nodal computation of nu
@@ -465,14 +491,20 @@ assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
 	nu_M = nu_g; nu_m = nu_l;
       }	    
       v01.set(0.0);
-      philoc.ir(2,1);
-      phisum.set(philoc);
-      philoc.rs();
+      //      philoc.ir(2,1);
+      phisum.set(phi);
+      //      philoc.rs();
       phisum.add(1.0).scale(nu_l);
-      phires.set(philoc.ir(2,1)).scale(-1.0);
+      phires.set(phi).scale(-1.0);
       phires.add(1.0).scale(nu_g);
       v01.set(phisum).add(phires).scale(0.5);
-      philoc.rs();
+      //      philoc.rs();
+    }
+
+    if (0) { //(elem==1170) {
+      printf("elem 1170\n");
+      v01.print();
+      r01.print();
     }
 
     double shear_vel=NAN;
@@ -495,6 +527,8 @@ assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
     }
 
     if (body_force) this->bf_eval_el(k);
+
+    // variable for calculating total mass over the domain
 
     // loop over Gauss points
     for (ipg=0; ipg<npg; ipg++) {
@@ -575,6 +609,8 @@ assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
 	  rho = double(r02.prod(SHAPE,r01,-1,-1));
 	  if ( rho>rho_l ) rho = rho_l;
 	  if ( rho<rho_g ) rho = rho_g;
+	  // mass calculation
+	  total_mass += rho*wpgdet;
 	  if (0) {//(fabs(rho-1.0)>1e-8) { // debugger
 	    //	  if (fabs(rho)<1e-3) { // debugger
 	    printf("density %f \n",rho);

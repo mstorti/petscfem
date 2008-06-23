@@ -13,6 +13,9 @@
 #include <src/hook.h>
 #include <src/iisdmatstat.h>
 
+// For level set mass control
+double total_mass;
+
 // PETSc now doesn't have the string argument that represents the variable name
 // so that I will use this wrapper until I find how to set names in Ascii matlab viewers.
 #define PetscViewerSetFormat_WRAPPER(viewer,format,name) \
@@ -623,6 +626,7 @@ int ns_main(int argc,char **args) {
 	}
 
 	debug.trace("Before residual computation...");
+	total_mass = 0.0;
 	ierr = assemble(mesh,argl,dofmap,jobinfo,&time_star);
 	CHKERRA(ierr);
 	debug.trace("After residual computation.");
@@ -755,6 +759,10 @@ int ns_main(int argc,char **args) {
 	}
 
       } // end of loop over Newton subiteration (inwt)
+
+      if (!MY_RANK) { // prints total mass for level set control
+	printf("Total mass %f\n",total_mass);
+      }
 
     } else {
     
