@@ -460,28 +460,13 @@ int state2fields(double *fields,const Vec x,const Dofmap *dofmap,
 		 const TimeData *time_data=NULL);
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
-/** Converts a double array in node/field form
-    to a state vector (reduced form). This is the inverse of
-    the #state2fields# function.
-    @author M. Storti
-    @param fields (output) double array where the node/fields form is put. 
-    @param x (input) PETSc MPI vector to be written 
-    @param dofmap (input) corresponding dofmap 
-    @param time_data (input, def=NULL) an external parameter in order to compute
-    external boundary conditions, etc...
-    @return PETSc error code
-*/ 
-int fields2state(const double *fields,Vec x,const Dofmap *dofmap,
-		 const TimeData *time_data) {
-
-//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 /** Reads a vector from a file.
     This can be used for initialization for instance. 
     @author M. Storti
     @param filename file from where to read  the vector. May contain
     relative directories. 
     @param x PETSc MPI vector to be read
-    @param x PETSc sequential working vector
+    @param x PETSc sequantial working vector
     @param dofmap corresponding dofmap 
 */ 
 int read_vector(const char *filename,Vec x,Dofmap *dofmap,int
