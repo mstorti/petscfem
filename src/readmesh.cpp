@@ -868,9 +868,8 @@ if (!(bool_cond)) { PetscPrintf(PETSCFEM_COMM_WORLD, 				\
       if (obj) {
 	obj->read(fstack,mesh,dofmap);
       } else {
-	PetscPrintf(PETSCFEM_COMM_WORLD,"Bad section name in data file.\n"
-		    "line: \"%s\"\n",line);
-	CHKERRQ(1);
+        PETSCFEM_ERROR("Bad section name in data file.\n"
+		    "line: \"%s\"\n",line);  
       }
     }
 
