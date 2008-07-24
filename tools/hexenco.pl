@@ -61,7 +61,7 @@ by modifying the value of C<$ESCAPE_CHAR>.
 
 =head1 AUTHOR
 
-Mario A. Storti C<mstorti@intec.unl.edu.ar>
+Mario A. Storti C<mario.storti@gmail.com>
 
 =cut
 

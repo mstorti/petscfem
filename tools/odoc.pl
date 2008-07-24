@@ -444,7 +444,7 @@ Give help.
 
 =head1 AUTHOR
 
-Mario A. Storti E<lt>mstorti@intec.unl.edu.arE<gt>
+Mario A. Storti E<lt>mario.storti@gmail.comE<gt>
 
 =cut
 

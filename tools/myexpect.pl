@@ -508,7 +508,7 @@ Example:
 
 =head1 AUTHOR
 
-Mario A. Storti <mstorti@intec.unl.edu.ar>
+Mario A. Storti <mario.storti@gmail.com>
 
 =cut
 
