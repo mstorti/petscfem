@@ -1,4 +1,3 @@
-# -*- mode: my-notes -*-
 OK. This is mostly in spanish...  Sorry :-)
 ================================================================
 
@@ -13026,7 +13025,29 @@ file separado y despues concatenar.
 Hago merge con `master'. Corre todos los tests, sigue teniendo
 problemas de sincronizacion con los de `graph'. 
 
-%=== Mon Jun 16 16:38:33 2008 mstorti@galileo
+%=== Tue Jul 29 18:43:34 2008 mstorti@prandtl
 %
-%-- 16:38:33 -- mstorti-v17-end-2-g31f4854 -----
-Added trivial note
+%-- 18:43:34 -- mstorti-v19-end-4-gfa29a94 -----
+Estoy haciendo el merge con respecto al aporte de Ezequiel en 
+mmove y con el gasflow preco. Todo arranco del commit
+obecaea4c7854885948c00f610d29a447a55bf4b4
+(mstorti-v9-root-4-gbecaea4). 
+%
+Lo de mmove esta teoricamente en 
+el commit mstorti-v19-end-4-gfa29a94
+(fa29a9456ad0699da27b083b090115de394c4db2). 
+%
+%-- 19:57:03 -- mstorti-v19-end-4-gfa29a94 -----
+Parece que lo que hizo Ezequiel esta bastante bien. Las cosas dudosas
+son:
+%
+- el ++j en applications/advdif/lagmul.cpp (solo debe hacerse si se
+         usa precondicionamiento)
+- Las funciones `comp_W_Gamma_N()' y `comp_P_Gamma()' estan definidas
+  para `stream'. No estoy seguro si es necesario. Pero creo que
+  tambien se puede dejar. 
+
+# Current line ===========  %
+# Local Variables: $
+# eval: (my-notes-mode) $
+# End: $
