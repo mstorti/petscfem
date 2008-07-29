@@ -157,6 +157,7 @@ int GenLoad::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
   // Assume all dofs connected
   if (comp_prof) matloc_prof.set(1.);
   // Call user callback function
+  nprops=0;
   start_chunk();
 
   // Initialize FastMat2 cache stuff
