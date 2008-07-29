@@ -159,6 +159,7 @@ int GenLoad::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
 
   nprops = 0;
   // Call user callback function
+  nprops=0;
   start_chunk();
 
   // Initialize FastMat2 cache stuff

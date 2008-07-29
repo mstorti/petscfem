@@ -26,6 +26,9 @@ double compute_rho_m_2(FastMat2 &rho_g_vp,FastMat2 &arho_g_vp, FastMat2 &alpha_g
 double compute_rho_m_2_bcc(FastMat2 &rho_g_vp,FastMat2 &arho_g_vp, FastMat2 &alpha_g_vp, 
 		       double &alpha_l, double rho_l, int nphases,const int ndim);
 
+double compute_visco_sato(FastMat2 &d_bubble_vp,FastMat2 &vslip_m_vp, FastMat2 &alpha_g_vp, 
+			  double rho_l,double Sato_model_coef, int nphases);
+
 // compute disperse phase velocities
 void compute_vel_g(const FastMat2 &v_m, FastMat2 &vslip_vp, const FastMat2 &vslip_user_vp, 
 		   FastMat2 &vslip_m_vp, FastMat2 &v_g_vp, const FastMat2 &rho_g_vp, 
