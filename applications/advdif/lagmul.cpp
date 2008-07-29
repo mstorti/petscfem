@@ -43,6 +43,7 @@ get_data(arg_data_list &arg_data_v,
   // arg_data *staten,*stateo,*retval,*fdj_jac,*jac_prof,*Ajac;
   int j=-1;
   stateo = &arg_data_v[++j]; //[0]
+  ++j;// Warning! Para que funcione con doble tiempo
   staten = &arg_data_v[++j]; //[1]
   retval  = &arg_data_v[++j];//[2]
   ++j;//[3] (Not used)

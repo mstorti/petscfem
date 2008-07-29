@@ -17,7 +17,8 @@ LIBOBJS = advdif.o advdif_bubbly.o advdif_fsi.o compdate.o 		\
 	gasflow.o advdfgth.o  advhookf.o smoke.o ctff.o			\
 	streamsw1d.o id.o gaschem.o nonlres.o fm2funm.o			\
 	bubbly_asm_mix.o lagmul.o advabso.o gasflwgth.o svenant1d.o	\
-	advpenal.o absolay.o advdife-gcl.o
+	advpenal.o absolay.o advdife-gcl.o advdif_dual_time.o           \
+	advdife_dual_time.o gasflow_preco.o
 
 MYOBJS = 
 

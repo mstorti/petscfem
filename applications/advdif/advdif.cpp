@@ -37,6 +37,7 @@ ierr = VecView(name,matlab); CHKERRA(ierr)
 
 int bubbly_main();
 int fsi_main();
+int dual_time_main();
 
 Hook *advdif_hook_factory(const char *name);
 
@@ -55,6 +56,7 @@ int advdif_main(int argc,char **args) {
   if (flg) {
     if (!strcmp(code_name,"fsi")) return fsi_main();
     if (!strcmp(code_name,"bubbly")) return bubbly_main();
+    if (!strcmp(code_name,"dual_time")) return dual_time_main();
     PETSCFEM_ERROR("Unknown -code option: \"%s\"\n",code_name);
   }
   
