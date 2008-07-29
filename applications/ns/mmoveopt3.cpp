@@ -318,6 +318,8 @@ element_connector(const FastMat2 &xloc,
   min_quality = (min_quality > el_quality ? el_quality : min_quality);
   min_volume  = (min_volume > V ? V : min_volume);
 
+  if(V < -1e10) xloc.print("Coordenadas del elemento");
+
   // h = h(V,\delta)
   double h = 0.5*(V+pow(pow(V,2.)+4.*pow(mmv_delta,2.),0.5));
   double dh1 = 0.5*(1.+V/pow(pow(V,2.)+4.*pow(mmv_delta,2.),0.5));
