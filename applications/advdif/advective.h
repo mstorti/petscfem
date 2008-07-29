@@ -194,6 +194,26 @@ public:
     assert(0);
   }
 
+  /** Computes the product #(P_Gamma)_(mu,nu) = (P_supg)_(mu,lambda) 
+      preco_(lambda,nu)#
+      @param P_Gamma (output) size #ndof# x #ndof#
+      @param P_supg (input) matricial weight function, size #ndof# x #ndof#
+  */ 
+  virtual void comp_P_Gamma(FastMat2 &P_Ga,const FastMat2 &P_supg) { 
+    PETSCFEM_ERROR0("Not implemented comp_P_Gamma for this flux function");
+  }
+
+  /** Computes the product #(W_Gamma_N)_(p,mu,q,nu) = W_p N_q preco_(mu,nu)#
+      @param W_Ga_N (output) size #nel# x #ndof# x #nel# x #ndof#
+      @param W (input) weight function, size #nel#
+      @param N (input) interpolation function, size #nel#
+      @param w (input) scalar weight
+  */ 
+  virtual void comp_W_Gamma_N(FastMat2 &W_Ga_N,const FastMat2 &W,const FastMat2 &N,
+			      double w) { 
+    PETSCFEM_ERROR0("Not implemented comp_W_Gamma_N for this flux function");
+  }
+
 };
 
 /// Constant Cp for all fields
@@ -398,6 +418,8 @@ public:
 
   virtual void compute_delta_sc_v(FastMat2 &delta_sc_v);
 
+  virtual void get_preco(FastMat2 &preco);
+
   virtual void get_bcconv_factor(FastMat2 &bcconv_factor);
 
   /** Returns the Riemann Invariants and jacobians 
@@ -429,6 +451,8 @@ protected:
   NewAdvDifFF *adv_diff_ff;
   int volume_flag;
   double Volume,rec_Dt_m;
+  /// Declared for psuedo-time discretization
+  double rec_Dpt;
   /// Options returned by the flux function
   int ff_options;
   /// The actual time

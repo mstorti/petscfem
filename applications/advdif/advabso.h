@@ -10,6 +10,8 @@
 #include <src/readmesh.h>
 #include <src/getprop.h>
 #include <src/fastmat2.h>
+#include <src/dvector.h>
+#include <src/autostr.h>
 
 #include <src/lagmul.h>
 #include "./advective.h"
@@ -35,6 +37,9 @@ private:
   int ALE_flag;			
   // for ndimel~=ndim elemsets and flux functions
   int ndimel;
+  int precoflag;
+  string case_name;
+  FastMat2 preco;
   // Per node normal
   Property normal_prop;
   // Velocity of mesh in ALE
@@ -44,6 +49,7 @@ public:
     : adv_diff_ff(ff),
       use_old_state_as_ref(0) {} 
   ~AdvectiveAbso() { delete adv_diff_ff; } 
+  dvector<double> h_ele;
   int nres() { return ndof; }
   void lag_mul_dof(int jr,int &node,int &dof) {
     node = 2; dof=jr;

@@ -3,6 +3,16 @@
 #include "./advabso.h"
 #include "./gasflow.h"
 
+/** Auxiliary function that appends a suffix to the #case_name#
+    for reading a dvector */
+static const char *case_file_name(string &s,char *n) {
+  static AutoString as;
+  as.clear().cat(s.c_str()).cat(n);
+  return as.str();
+}
+
+#define CASE_NAME(name) case_file_name(case_name,name)
+
 static
 double msign(double x) {
   return (x<0. ?  1. : 0.0);
@@ -40,6 +50,15 @@ init() {
   //o Do correction for wave characteristic computation
   //  do to mesh velocity (ALE).
   NSGETOPTDEF_ND(int,ALE_flag,0);
+
+  //o Flags whether we are solving a precondioned
+  // system with the dual time strategy
+  NSGETOPTDEF_ND(int,precoflag,0);
+
+  if (precoflag){
+    NSGETOPTDEF_ND(string,case_name,"<none>");
+    assert(case_name!="<none>");
+  }
 
   vector<double> urefv;
   const char *line;
@@ -90,6 +109,10 @@ init() {
   Ulambda.resize(1,ndof);
   // The state of the outlet node
   Uo.resize(1,ndof);
+
+  preco.resize(2,ndof,ndof);
+  if (precoflag)
+    h_ele.cat(CASE_NAME("_abso.preco-hele.tmp"));
 }
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
@@ -175,7 +198,11 @@ res(int k,FastMat2 &U,FastMat2 &r,
   r.prod(Pi_m,dU,1,-1,-1);
   // The vector of reactions is the pojector on
   // to the incoming wave space: w = Cp * Pi_m
-  tmp1.prod(Cp,Pi_m,1,-1,-1,2);
+  // tmp1.prod(Cp,Pi_m,1,-1,-1,2);
+  if (precoflag){
+    adv_diff_ff->get_preco(preco);
+    tmp1.prod(preco,Pi_m,1,-1,-1,2);
+  } else tmp1.prod(Cp,Pi_m,1,-1,-1,2);
   w.set(0.).ir(1,1).set(tmp1).rs();
   jac.ir(2,1).set(Pi_m);
 #if 0
