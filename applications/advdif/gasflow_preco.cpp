@@ -132,8 +132,8 @@ void gasflow_preco_ff::start_chunk(int &ret_options) {
     old_elemset->thash->get_entry("G_body",line);
     if(line) {
       read_double_array(Uref_v,line);
-    assert(Uref_v.size()==ndof);
-    Uref.set(&Uref_v[0]);
+      assert(int(Uref_v.size())==ndof);
+      Uref.set(&Uref_v[0]);
     }
   } else {
     ierr = elemset->
