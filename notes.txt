@@ -13047,6 +13047,20 @@ son:
   para `stream'. No estoy seguro si es necesario. Pero creo que
   tambien se puede dejar. 
 
+%=== Thu Jul 31 19:59:04 2008 mstorti@prandtl
+%
+%-- 19:59:04 -- mstorti-v19-end-5-g11b0085 -----
+Corro los tests. Me da el resumen
+> Summary: "All tests" -- OK: 165.  Not OK: 8. Couldn't open: 0. Total: 173
+O sea que hay dos mas "not OK". Resultan ser
+> Testing: "Block uploading in cubcav" on file "cubcav/cubcav.plain-bupl.verif.tmp"...not OK.
+> Testing: "Graph partitioning" on file "graph/output.graph.tmp"...not OK.
+Parece que los dos se deben a diferencias entre i386 y x84_64. Cuando
+uso la solucion de referencia que usaba antes (la guardo en
+cubcav/cubcav-i386-sol.ans). Entonces el error da precision de la
+maquina. 
+
+
 # Current line ===========  %
 # Local Variables: $
 # eval: (my-notes-mode) $

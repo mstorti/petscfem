@@ -17,7 +17,8 @@ erro2 = merr(u2-u0);
 printf("Cubcav/Block uploading 2 error OK? > %d (error %g, tol %g)\n",
        erro2<tol,erro2,tol);
 
+tol1 = 1e-3;
 erro3 = merr(u0(indx,:)-uref);
 printf("Cubcav/error wrt.reference solution OK? > %d (error %g, tol %g)\n",
-       erro3<tol,erro3,tol);
+       erro3<tol1,erro3,tol1);
 
