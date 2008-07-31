@@ -125,8 +125,6 @@ block_uploading:
 	$(MAKE) CASE=$(CASE_NAME) case=plain_bupl0 run 
 	$(MAKE) CASE=$(CASE_NAME) case=plain_bupl1 run 
 	$(MAKE) CASE=$(CASE_NAME) case=plain_bupl2 run 
-
-qqq:
 	ARCHI=`uname -i` \
 	$(OCTAVE) check_plain.m > $(CASE_NAME).plain-bupl.verif.tmp
 
