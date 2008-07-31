@@ -4,7 +4,8 @@ u0 = aload("cubcav.state.plain_bupl0.tmp");
 u1 = aload("cubcav.state.plain_bupl1.tmp");
 u2 = aload("cubcav.state.plain_bupl2.tmp");
 
-uref = aload("cubcav.sol");
+file = sprintf("cubcav-%s.ans",getenv("ARCHI"));
+uref = aload(file);
 indx = uref(:,1);
 uref = uref(:,2:5);
 
