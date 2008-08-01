@@ -13060,6 +13060,14 @@ uso la solucion de referencia que usaba antes (la guardo en
 cubcav/cubcav-i386-sol.ans). Entonces el error da precision de la
 maquina. 
 
+%=== Fri Aug  1 06:40:08 2008 mstorti@prandtl
+%
+%-- 06:40:08 -- mstorti-v19-end-8-g1dd1f1d -----
+Esos dos los arregle, pero ahora me tira uno nuevo Testing:
+"Distributed graph 2proc." on file "distmap/dist_graph.np2.out.tmp". 
+%
+%-- 06:49:06 -- mstorti-v19-end-8-g1dd1f1d -----
+
 
 # Current line ===========  %
 # Local Variables: $
