@@ -13065,9 +13065,6 @@ maquina.
 %-- 06:40:08 -- mstorti-v19-end-8-g1dd1f1d -----
 Esos dos los arregle, pero ahora me tira uno nuevo Testing:
 "Distributed graph 2proc." on file "distmap/dist_graph.np2.out.tmp". 
-%
-%-- 06:49:06 -- mstorti-v19-end-8-g1dd1f1d -----
-
 
 # Current line ===========  %
 # Local Variables: $
