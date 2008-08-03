@@ -41,6 +41,17 @@ init() {
   //  do to mesh velocity (ALE).
   NSGETOPTDEF_ND(int,ALE_flag,0);
 
+  //o Turn absorbing boundary condition to `wall' boundary condition
+  NSGETOPTDEF_ND(int,turn_wall,0);
+
+  //o Turn absorbing boundary condition to `wall' boundary condition
+  NSGETOPTDEF_ND(int,vel_indx,-1);
+  PETSCFEM_ASSERT(!turn_wall || vel_indx>=1 && vel_indx+ndim<=ndof,
+                  "vel_indx should point to a valid dof range"
+                  " if turn_wall is activated."
+                  "vel_indx %d, ndim %d, ndof %d\n",
+                  vel_indx,ndim,ndof);  
+  
   vector<double> urefv;
   const char *line;
   get_entry("Uref",line);
@@ -90,6 +101,9 @@ init() {
   Ulambda.resize(1,ndof);
   // The state of the outlet node
   Uo.resize(1,ndof);
+  mask.resize(1,ndof)
+    .set(0.0).is(1,vel_indx,vel_indx+ndim-1).set(1.0).rs();
+  rlam.resize(1,ndof);
 }
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
@@ -100,93 +114,103 @@ res(int k,FastMat2 &U,FastMat2 &r,
       lambda_max_pg=0.0;
   U.ir(1,1); Uo.set(U);
   U.ir(1,2); Ulambda.set(U); U.rs();
-  // As `use_old_state_as_ref' but
-  // for this element. 
-  int use_old_state_as_ref_elem;
-  if (switch_to_ref_on_incoming) {
 
-    // Flux Functions writters must add setUfluid funct
-    // in order to extract the fluid velocities from Uref
-    // U(3,:) contains the reference value
-    // or alternatively the global `Uref' option
+  if (!turn_wall) {
+    // As `use_old_state_as_ref' but
+    // for this element. 
+    int use_old_state_as_ref_elem;
+    if (switch_to_ref_on_incoming) {
+
+      // Flux Functions writters must add setUfluid funct
+      // in order to extract the fluid velocities from Uref
+      // U(3,:) contains the reference value
+      // or alternatively the global `Uref' option
     
-    if (use_uref_glob) Uref.set(Uref_glob);
-    else { U.ir(1,3); Uref.set(U); U.rs(); }
-    adv_diff_ff->set_Ufluid(Uref,Ufluid);
-    double urefn = unor.prod(Ufluid,normal,-1,-1);
-    use_old_state_as_ref_elem = urefn>0;
-  } else {
-    use_old_state_as_ref_elem 
-      = use_old_state_as_ref; 
-  }
+      if (use_uref_glob) Uref.set(Uref_glob);
+      else { U.ir(1,3); Uref.set(U); U.rs(); }
+      adv_diff_ff->set_Ufluid(Uref,Ufluid);
+      double urefn = unor.prod(Ufluid,normal,-1,-1);
+      use_old_state_as_ref_elem = urefn>0;
+    } else {
+      use_old_state_as_ref_elem 
+        = use_old_state_as_ref; 
+    }
 
-  FastMat2::branch();
-  if (use_old_state_as_ref_elem) {
-    FastMat2::choose(0);
-    get_old_state(Uold);
-    Uold.ir(1,1);
-    Uref.set(Uold);
-    Uold.rs();
-  } else {
-    FastMat2::choose(1);
-    if (use_uref_glob) Uref.set(Uref_glob);
-    else { U.ir(1,3); Uref.set(U); U.rs(); }
-  }
-  FastMat2::leave();
+    FastMat2::branch();
+    if (use_old_state_as_ref_elem) {
+      FastMat2::choose(0);
+      get_old_state(Uold);
+      Uold.ir(1,1);
+      Uref.set(Uold);
+      Uold.rs();
+    } else {
+      FastMat2::choose(1);
+      if (use_uref_glob) Uref.set(Uref_glob);
+      else { U.ir(1,3); Uref.set(U); U.rs(); }
+    }
+    FastMat2::leave();
   
-  adv_diff_ff->set_state(Uref,grad_U);
-  adv_diff_ff
-    ->compute_flux(Uref, dummy, dummy, dummy, flux, fluxd,
-		   A_grad_U, grad_U, dummy,
-		   dummy, delta_sc, lambda_max_pg, dummy,
-		   dummy, dummy, dummy, 0);
-  adv_diff_ff->comp_A_jac_n(A_jac,normal);
-  adv_diff_ff->get_Cp(Cp);
-  invCp.inv(Cp);
-  if (ALE_flag) {
-    vnor.prod(vmesh,normal,-1,-1);
-    // A_jac.d(1,2).add(-double(vnor)).rs();
-    double vn = double(vnor);
-    A_jac.axpy(Cp,-vn);
-  }
-  // tmp1 = Cp \ A
-  tmp1.prod(invCp,A_jac,1,-1,-1,2);
-  c.eig(tmp1,S);
-  invS.inv(S);
-  double aimag = c.ir(1,2).sum_square_all();
-  assert(aimag<1e-10);
-  c.ir(1,1);
-  // Pi_m = projector on negative eigenvalues space
-  // Pi_p = projector on positive eigenvalues space
-  // Pi_m + Pi_p = A_jac
-  Pi_m.set(0.).d(1,2)
-    .set(c).fun(msign).rs();
-  c.rs();
-  tmp1.prod(Pi_m,invS,1,-1,-1,2);
-  Pi_m.prod(S,tmp1,1,-1,-1,2);
+    adv_diff_ff->set_state(Uref,grad_U);
+    adv_diff_ff
+      ->compute_flux(Uref, dummy, dummy, dummy, flux, fluxd,
+                     A_grad_U, grad_U, dummy,
+                     dummy, delta_sc, lambda_max_pg, dummy,
+                     dummy, dummy, dummy, 0);
+    adv_diff_ff->comp_A_jac_n(A_jac,normal);
+    adv_diff_ff->get_Cp(Cp);
+    invCp.inv(Cp);
+    if (ALE_flag) {
+      vnor.prod(vmesh,normal,-1,-1);
+      // A_jac.d(1,2).add(-double(vnor)).rs();
+      double vn = double(vnor);
+      A_jac.axpy(Cp,-vn);
+    }
+    // tmp1 = Cp \ A
+    tmp1.prod(invCp,A_jac,1,-1,-1,2);
+    c.eig(tmp1,S);
+    invS.inv(S);
+    double aimag = c.ir(1,2).sum_square_all();
+    assert(aimag<1e-10);
+    c.ir(1,1);
+    // Pi_m = projector on negative eigenvalues space
+    // Pi_p = projector on positive eigenvalues space
+    // Pi_m + Pi_p = A_jac
+    Pi_m.set(0.).d(1,2)
+      .set(c).fun(msign).rs();
+    c.rs();
+    tmp1.prod(Pi_m,invS,1,-1,-1,2);
+    Pi_m.prod(S,tmp1,1,-1,-1,2);
 #if 0
-  tmp1.prod(Pi_p,invS,1,-1,-1,2);
-  Pi_p.prod(S,tmp1,1,-1,-1,2);
-  tmp1.set(Pi_m).add(Pi_p);
+    tmp1.prod(Pi_p,invS,1,-1,-1,2);
+    Pi_p.prod(S,tmp1,1,-1,-1,2);
+    tmp1.set(Pi_m).add(Pi_p);
 #endif
-  // residual is the projection of U-Uref
-  // on to the space of incoming waves
-  dU.set(Uo).rest(Uref);
-  r.prod(Pi_m,dU,1,-1,-1);
-  // The vector of reactions is the pojector on
-  // to the incoming wave space: w = Cp * Pi_m
-  tmp1.prod(Cp,Pi_m,1,-1,-1,2);
-  w.set(0.).ir(1,1).set(tmp1).rs();
-  jac.ir(2,1).set(Pi_m);
+    // residual is the projection of U-Uref
+    // on to the space of incoming waves
+    dU.set(Uo).rest(Uref);
+    r.prod(Pi_m,dU,1,-1,-1);
+    // The vector of reactions is the pojector on
+    // to the incoming wave space: w = Cp * Pi_m
+    tmp1.prod(Cp,Pi_m,1,-1,-1,2);
+    w.set(0.).ir(1,1).set(tmp1).rs();
+    jac.ir(2,1).set(Pi_m);
 #if 0
-  FastMat2::branch();
-  if (nel>=3 && !use_old_state_as_ref_elem) {
-    FastMat2::choose(0);
-    jac.ir(2,3).set(Pi_m).scale(-1.0);
-  }
-  FastMat2::leave();
+    FastMat2::branch();
+    if (nel>=3 && !use_old_state_as_ref_elem) {
+      FastMat2::choose(0);
+      jac.ir(2,3).set(Pi_m).scale(-1.0);
+    }
+    FastMat2::leave();
 #endif
-  jac.rs();
+    jac.rs();
+  } else {
+    r.set(Uo).mult(mask);
+    rlam.set(1.0).rest(mask).mult(Ulambda);
+    r.add(rlam);
+    jac.ir(2,1).d(1,3).set(mask);
+    jac.rs().ir(2,1).d(1,3).set(1.0).rest(mask).rs();
+    w.ctr(jac,3,1,2);
+  }
 }
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 

@@ -23,13 +23,12 @@
 class AdvectiveAbsoWall : public AdvdifLagrangeMult {
 private:
   int ndim,nel,ndof;
-  double Rgas;
   // Pointer to adv-diff flux fun
   NewAdvDifFF *adv_diff_ff;
   FastMat2 dummy,flux,fluxd,A_grad_U,Uref_glob,
     grad_U,Uold,normal,vmesh,vnor,A_jac,S,invS,c,
     Pi_m,Pi_p,Uref,tmp1,Ulambda,Uo,Ufluid,
-    dU,Cp,invCp,unor;
+    dU,Cp,invCp,unor,mask,rlam;
   int use_old_state_as_ref, use_uref_glob;
   int switch_to_ref_on_incoming;
   int ALE_flag;			
@@ -39,10 +38,13 @@ private:
   Property normal_prop;
   // Velocity of mesh in ALE
   Property vmesh_prop;
+  // Turn to wall boundary condition
+  int turn_wall, vel_indx;
 public:
   AdvectiveAbsoWall(NewAdvDifFF *ff) 
     : adv_diff_ff(ff),
-      use_old_state_as_ref(0) {} 
+      use_old_state_as_ref(0),
+      turn_wall(0) {} 
   ~AdvectiveAbsoWall() { delete adv_diff_ff; } 
   int nres() { return ndof; }
   void lag_mul_dof(int jr,int &node,int &dof) {
