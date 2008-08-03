@@ -96,6 +96,7 @@ void bless_elemset_advdif(char *type,Elemset *& elemset) {
     SET_ELEMSET_TYPE(gasflow_bcconv)
     SET_ELEMSET_TYPE(gasflow_abso)
     SET_ELEMSET_TYPE(gasflow_abso2)
+    SET_ELEMSET_TYPE(gasflow_abso_wall)
     
     SET_ELEMSET_TYPE(flow_rate_integrator)
     SET_ELEMSET_TYPE(gasflow_force_integrator)

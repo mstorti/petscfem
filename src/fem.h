@@ -248,7 +248,7 @@ int PetscFemInitialize(int *argc,char ***args,const char file[],const char help[
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 /** Gets a value of type int or double from the general
     element hash table. OOP version. Doesn't define the variable.
-    Example: NSGETOPTDEF(int,n,10)
+    Example: NSGETOPTDEF_ND(int,n,10)
     @author M. Storti
     @param type may be `int' or `double'
     @param name name of the variable

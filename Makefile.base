@@ -7,8 +7,9 @@
 
 ######  begin of CONGIGURATION VARIABLES section  ####################
 
-#  Configure this variable!! (either g_c++ or O_c++) 
-BOPT = g_c++
+#  Configure this variable!! (either g_c++ or O_c++),
+#  it sets the default optimization level.
+#BOPT = 
 
 ifeq ($(BOPT),)
 BOPT = g_c++

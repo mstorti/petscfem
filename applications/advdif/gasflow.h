@@ -6,6 +6,7 @@
 
 #include "./advective.h"
 #include "./advabso.h"
+#include "./advabsow.h"
 #include "./stream.h"
 #include "./nonlres.h"
 
@@ -248,6 +249,13 @@ class gasflow_abso2 : public AdvectiveAbso {
 public:
   gasflow_abso2()
     :  AdvectiveAbso(new gasflow_ff(this)) { }
+};
+
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:
+class gasflow_abso_wall : public AdvectiveAbsoWall {
+public:
+  gasflow_abso_wall()
+    :  AdvectiveAbsoWall(new gasflow_ff(this)) { }
 };
 
 #endif
