@@ -51,6 +51,7 @@ init() {
                   " if turn_wall is activated."
                   "vel_indx %d, ndim %d, ndof %d\n",
                   vel_indx,ndim,ndof);  
+  printf("in AdvectiveAbsoWall::init(): turn_wall %d\n",turn_wall);
   
   vector<double> urefv;
   const char *line;
