@@ -131,7 +131,7 @@ res(int k,FastMat2 &U,FastMat2 &r,
 
   get_connect(node_list);
 
-  int is_wall = turn_wall_fun(k,node_list[0],x,get_time());
+  int is_wall = turn_wall_fun(k+1,node_list[0],x,get_time());
   
   FastMat2::branch();
   if (!is_wall) {

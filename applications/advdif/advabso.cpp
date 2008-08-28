@@ -77,11 +77,24 @@ init() {
   invCp.resize(2,ndof,ndof);
   Ufluid.resize(1,ndimel);
   if (ALE_flag) {
+    //o _T: double array _N: vmesh _D: none
+    // _DOC: Defines the mesh velocity when doing ALE computations.
+    // For simple problems it is entered by the user. For more
+    // complex problems it may be calculated automatically
+    // by the #mvskin# hook activating the #compute_mesh_vel#
+    // option in the elemset. 
+    // _END
     get_prop(vmesh_prop,"vmesh");
     assert(vmesh_prop.length == ndimel);
   }
 
-  get_prop(normal_prop,"normal");
+  //o _T: double array  _N: normal _D: none
+  // _DOC: Defines the normal to the boundary. It
+  // can be set as a constant vector per elemset (usually
+  // for plane boundaries, as in the example above), or
+  // as a per element   value. 
+  // _END
+   get_prop(normal_prop,"normal");
   assert(normal_prop.length == ndimel);
   // The state on the reference node
   Uref.resize(1,ndof);

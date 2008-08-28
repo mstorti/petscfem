@@ -5260,6 +5260,13 @@ respect to an instantaneous inertial frame.
 Exponent of the norm taken
  (found in file: \verb+../applications/ns/errestim.cpp+)
 %----<>----<>----<>----<>----<>----<>----<>----<>----<>----<>
+\item\verb+ double array+ \verb+ normal+ {\rm(default=\verb| none|)}:
+ Defines the normal to the boundary. It
+can be set as a constant vector per elemset (usually
+for plane boundaries, as in the example above), or
+as a per element   value. 
+ (found in file: \verb+../applications/advdif/advabso.cpp+)
+%----<>----<>----<>----<>----<>----<>----<>----<>----<>----<>
 \index{normal\_1d@\verb+normal_1d+}
 \item\verb+double normal_1d+ {\rm(default=\verb|0.|)}:
 
@@ -9904,6 +9911,14 @@ viscosity of the fluid
 
 Viscosity
  (found in file: \verb+../applications/advdif/wallswt.cpp+)
+%----<>----<>----<>----<>----<>----<>----<>----<>----<>----<>
+\item\verb+ double array+ \verb+ vmesh+ {\rm(default=\verb| none|)}:
+ Defines the mesh velocity when doing ALE computations.
+For simple problems it is entered by the user. For more
+complex problems it may be calculated automatically
+by the \verb+mvskin+ hook activating the \verb+compute_mesh_vel+
+option in the elemset. 
+ (found in file: \verb+../applications/advdif/advabso.cpp+)
 %----<>----<>----<>----<>----<>----<>----<>----<>----<>----<>
 \index{volume\_elemset@\verb+volume_elemset+}
 \item\verb+string volume_elemset+ {\rm(default=\verb||)}:

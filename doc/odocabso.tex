@@ -16,6 +16,13 @@ Do correction for wave characteristic computation
 Dimension of the space.
  (found in file: \verb+advabso.cpp+)
 %----<>----<>----<>----<>----<>----<>----<>----<>----<>----<>
+\item\verb+ double array+ \verb+ normal+ {\rm(default=\verb| none|)}:
+ Defines the normal to the boundary. It
+can be set as a constant vector per elemset (usually
+for plane boundaries, as in the example above), or
+as a per element   value. 
+ (found in file: \verb+advabso.cpp+)
+%----<>----<>----<>----<>----<>----<>----<>----<>----<>----<>
 \index{switch\_to\_ref\_on\_incoming@\verb+switch_to_ref_on_incoming+}
 \item\verb+int switch_to_ref_on_incoming+ {\rm(default=\verb|0|)}:
 
@@ -32,6 +39,14 @@ Use special combination for choosing reference state.
 Flags whether to use the old state ad the
 boundary as reference for the linear absorbing
 boundary condition.
+ (found in file: \verb+advabso.cpp+)
+%----<>----<>----<>----<>----<>----<>----<>----<>----<>----<>
+\item\verb+ double array+ \verb+ vmesh+ {\rm(default=\verb| none|)}:
+ Defines the mesh velocity when doing ALE computations.
+For simple problems it is entered by the user. For more
+complex problems it may be calculated automatically
+by the \verb+mvskin+ hook activating the \verb+compute_mesh_vel+
+option in the elemset. 
  (found in file: \verb+advabso.cpp+)
 %----<>----<>----<>----<>----<>----<>----<>----<>----<>----<>
 %-----<>-----<>-----<>-----<>-----<>-----<>-----<>-----<>-----<>-----<>

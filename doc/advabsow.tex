@@ -1,14 +1,69 @@
 %__INSERT_LICENSE__
-% $Id: advabso.tex,v 1.13 2005/08/06 22:29:48 mstorti Exp $ 
+% $Id$ 
+\let\verbb=\Verb
 
 \SSSection{Absorbing/wall boundary conditions} 
 
 In some cases we want to have a boundary condition that switches
 between absorbing and wall. This is useful for instance for simulating
 a sliding hole in a boundary. This kind of b.c. is implemented with
-the \verb+gasflow_abso_wall+ elemset. It has properties similar to
-that elemset, in particular the \verb+normal+ property. 
+the \verbb+gasflow_abso_wall+ elemset. It has properties similar to
+that elemset, in particular the \verbb+normal+ and \verbb+vmesh+
+properties. The difference is that for each boundary node, and at each
+time step the b.c. may switch from absorbing to wall
+(i.e. $!v=0$ or $!v\cdot\nor=0$). This is activated by implmenting the
+virtual function 
 
+\medskip
+\begin{Verbatim}
+int AdvectiveAbsoWall::
+turn_wall_fun(int elem,int node, FastMat2 &x,double t);
+\end{Verbatim}
+\medskip
+
+At run time this function is called for each boundary element and if
+the function returns a true value (1) then the wall boundary condition
+is enforced through Lagrange multipliers or penalization (currently
+only with Lagrange multipliers). If the result returned is a false
+value (0) then the boundary condition is absorbing. 
+The arguments passed to the routine can used by the user to compute
+the desired value, 
+%
+\begin{itemize}
+\compactlist 
+\item \verbb+elem+: the element index (1 base)
+\item \verbb+node+: the element index (1 base)
+\item \verbb+x+: the coordinates of the boundary node (an \verbb+ndim+
+  vector) 
+\item \verbb+t+: the current time. 
+\end{itemize}
+ 
+For instance if the computational domain is the $0\le x,y\le 1$ square
+and the outlet boundary is the segment $x=1, 0\le y\le 1$ then the
+following code makes the upper half of the boundary to be wall and the
+half lower to be absorbing:
+
+\medskip
+\begin{Verbatim}
+int AdvectiveAbsoWall::
+turn_wall_fun(int elem,int node,
+              FastMat2 &x,double t) {
+  return x.get(2)>0.5;
+}
+\end{Verbatim}
+\medskip
+
+(See example \verbb+petscfem-cases/gasflow/dyna-abso-wall3+). 
+
+The \verbb+node+ and \verbb+elem+ indices may be used to perform more
+elaborate tasks, as loading tables from files, or seek per-element
+properties. 
+
+\SSSection{Related Options}
+
+\begin{itemize}
+\input odocabsow
+\end{itemize}
 
 % Local Variables: *
 % mode: latex *
