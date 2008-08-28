@@ -133,7 +133,9 @@ res(int k,FastMat2 &U,FastMat2 &r,
 
   int is_wall = turn_wall_fun(k,node_list[0],x,get_time());
   
+  FastMat2::branch();
   if (!is_wall) {
+    FastMat2::choose(0);
     // As `use_old_state_as_ref' but
     // for this element. 
     int use_old_state_as_ref_elem;
@@ -222,6 +224,7 @@ res(int k,FastMat2 &U,FastMat2 &r,
 #endif
     jac.rs();
   } else {
+    FastMat2::choose(1);
     r.set(Uo).mult(mask);
     rlam.set(1.0).rest(mask).mult(Ulambda);
     r.add(rlam);
@@ -229,6 +232,7 @@ res(int k,FastMat2 &U,FastMat2 &r,
     jac.rs().ir(2,2).d(1,3).set(1.0).rest(mask).rs();
     w.ctr(jac,3,1,2);
   }
+  FastMat2::leave();
 }
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
@@ -244,5 +248,8 @@ element_hook(ElementIterator &element) {
 int AdvectiveAbsoWall::
 turn_wall_fun(int elem,int node,
               FastMat2 &x,double t) {
-  return 0;
+  double y = x.get(2);
+  int is_wall = y>0.5;
+  // printf("elem %d, node %d, y %f, is_wall %d\n",elem,node,y,is_wall);
+  return is_wall;
 }
