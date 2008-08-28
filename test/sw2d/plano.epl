@@ -19,7 +19,7 @@ use_log_vars 0
 weak_form 0
 
 # time stepping
-nnwt 2
+nnwt 15
 <:pr('nstep'):>
 alpha 1
 
@@ -39,7 +39,7 @@ nfile 10000
 save_file "./plano.save-state.tmp"
 save_file_pattern "./STEPS/plano.%d.tmp"
 # omega_newton 0.3
-tol_newton 0
+tol_newton 1.e-9
 solver "petsc"
 preco_type "lu"
 ##solver "iisd"
@@ -53,7 +53,7 @@ Krylov_dim 400
 rtol 1.e-5
 atol 0
 dtol 1e3
-print_internal_loop_conv 1
+print_internal_loop_conv 0
 #print_linear_system_and_stop 1
 <:pr('Dt'):>
 tau_fac 1.0
@@ -81,7 +81,7 @@ elemset streamsw2d 4
 geometry cartesian2d
 ndim 2
 npg 4
-diff_factor 1.0
+diff_factor 0.0
 #compute_fd_adv_jacobian 3
 #compute_dDdU_term 0
 #C_mu 0.0

@@ -6,19 +6,48 @@ y=nod(1:nnod,2);
 h_i=nod(1:nnod,3);
 con=load('plano.con.tmp');
 %con=[con ones(size(con,1),1)];
-dt=0.05;
-field=3;
-for i=0:500
-  i
+dt=0.0133333333333333;
+field=1;
+g=1;
+figure(1);
+for i=0:1000
+  i;
   fil=strcat({'STEPS/plano.'},int2str(i),{'.tmp'});
   u=load(char(fil));
-  h1=u(1:nnod,field);
-  h2=h1+u(1:nnod,field+3);
-  plot(x(1:nnod),h1,'r*');
+  if (field==7)
+    h1=u(1:nnod,1)./sqrt(g.*u(1:nnod,3));
+    h2=u(1:nnod,1+3)./sqrt(g.*u(1:nnod,3+3));
+  end
+  if (field==3)
+    h1=u(1:nnod,field);
+    h2=h1+u(1:nnod,field+3);
+  end
+  if (field==1 | field==2)
+    h1=u(1:nnod,field);
+    h2=u(1:nnod,field+3);
+  end
+  plot(x(1:nnod),h1,'r-');
   hold on;
-  plot(x(1:nnod),h2,'r*');
-  axis([0 2 0.8 2.8]);
-  pause;
+  plot(x(1:nnod),h2,'b-');
+  if(field==1)
+    axis([0 1 0.35 0.55]);
+    grid;
+    anot=char(strcat({'real time: '},num2str(i*dt,4),{' secs. '}));
+    text(0.4,-0.65,anot);
+    legend('fluido 1','fluido 2',3);
+    title('velocities u1 and u2 vs x');
+    xlabel('x [m]'); ylabel('u1 y u2 [m/sec]');
+    box
+    fig=char(strcat({'YUV/plano.'},int2str(i),{'.tiff'}));
+    print('-dtiff',fig);
+  end
+  if(field==3)
+    axis([0.45 0.9 0.95 1.05]);
+    grid;
+  end
+  %  axis([0 2 0.8 2.8]);
+%  pause;
+  pause(0.01);
   hold off;
 end
 if (0)

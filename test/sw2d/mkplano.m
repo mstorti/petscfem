@@ -1,6 +1,6 @@
 source("data.m.tmp");
 
-w=zhomo([0 1 0 0.2],Nx+1,Ny+1,[1 0 1 1 0 1]);
+w=zhomo([0 10 0 0.4],Nx+1,Ny+1,[1 0 1 1 0 1]);
 [xnod,icone]=pfcm2fem(w);
 icone=icone(:,[1 4 3 2]);
 nnod=rows(xnod);

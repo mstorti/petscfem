@@ -8,25 +8,25 @@ $turbulent = 0;
 if ($turbulent) {$ndof= 5;}
 else {$ndof=3;}
 
-$Courant_fac = 1; 		# Dt is computed from this
-$Dt = 0.05;
+$Courant_fac = 1;
+$Dt = 0.15;
 $restart = 0;
 $nstep = 200;
 $gravity = 9.81;
 #initial conditions
-$u_ini = 0.5;
+$u_ini = 0.0;
 $v_ini = 0.0;
 $h_ini = 1.0;
 
 #inlet conditions
-$u_in = 0.5;
+$u_in = 1.0;
 $v_in = 0.0;
 $h_in = 1.0;
 
 #outlet conditions
 $u_out = 0.0;
 $v_out = 0.025;
-$h_out = 0.95;
+$h_out = 1.0;
 
 $kappa = 0.1;
 $epsilon = 0.1;
