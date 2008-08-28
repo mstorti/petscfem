@@ -1,0 +1,49 @@
+fluido 1 abajo
+fluido 2 arriba
+
+Con:
+CFL = 2
+gravity = 1.;
+rho1 = 1.;
+rho2 = 0.5;
+
+#initial conditions
+u1_ini = 0.5;
+v1_ini = 0.;
+h1_ini = 1.0;
+u2_ini = 0.75;
+v2_ini = 0.;
+h2_ini = 1.0;
+
+#inlet conditions (x = 0)
+u1_in = 0.1;
+v1_in = 0.0;
+u2_in = 0.1;
+v2_in = 0.0;
+
+#outlet conditions (x = L)
+h1_out = 1.0;
+h2_out = 1.0;
+
+
+Entonces con:
+
+hx = 1/400 empieza a diverger y se va al carajo a t_real ~= 1.64-1.68
+     secs. La oscilación comienza en x=L;
+
+hx = 1/200 empieza a diverger y se va al carajo a t_real ~= 1.7-1.75
+     secs. La oscilación comienza en x=L;
+
+hx = 1/175 empieza a diverger y se va al carajo a t_real ~= 1.92
+     secs. La oscilación comienza en x=L;
+
+
+hx = 1/150 empieza a oscilar en x=L como con ruido igual que lo
+     anterior a t_real = 2.01 secs, se absorbe esa oscilación, sigue y
+     se termina disipando (a eso tiende). Como el CFL=2 y esto es un
+     poco mas difusivo que CFL=1 o menor puede ser que esa difusion
+     amortigue el ruido ese que aparece.
+
+hx = 1/100 llegué hasta los 13-14 secs y va barbaro, se termina
+     disipando todo.
+
