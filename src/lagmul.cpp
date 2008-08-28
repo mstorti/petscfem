@@ -38,7 +38,7 @@ new_assemble(arg_data_list &arg_data_v,const Nodedata *nodedata,
 	     const ElementList &elemlist,
 	     const TimeData *time_data) try {
 
-  nodedata_m = nodedata_m;
+  nodedata_m = nodedata;
   int comp_mat, comp_mat_res;
   get_comp_flags(jobinfo,comp_mat,comp_mat_res);
 
@@ -57,6 +57,8 @@ new_assemble(arg_data_list &arg_data_v,const Nodedata *nodedata,
     get_data(arg_data_v,stateo,staten,retval,retvalmat);
   else if (comp_mat) 
     get_data(arg_data_v,retvalmat);
+
+  time_m = double(* (const Time *) time_data);
 
   int nelprops,ndof;
   elem_params(nel,ndof,nelprops);
@@ -242,9 +244,28 @@ new_assemble(arg_data_list &arg_data_v,const Nodedata *nodedata,
 // Load local node coordinates in local vector
 void LagrangeMult::
 get_xloc(FastMat2 &xloc,FastMat2 &Hloc) {
+  const int 
+    &nu = nodedata_m->nu,
+    &ndim = nodedata_m->ndim;
+  if (xloc.size()!=nel*ndim || Hloc.size()!=nel*nu) {
+    xloc.resize(2,nel,ndim);
+    Hloc.resize(2,nel,nu);
+  }
   element.node_data(nodedata_m,xloc.storage_begin(),
 		    Hloc.storage_begin());
 }
+
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+// Load local node coordinates in local vector
+void LagrangeMult::
+get_connect(vector<int> &node_list) {
+  node_list.resize(nel);
+  element_connect(element,&node_list[0]);
+}
+
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+double LagrangeMult::
+get_time() { return time_m; }
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 void LagrangeMult::

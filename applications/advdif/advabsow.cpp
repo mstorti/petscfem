@@ -41,17 +41,18 @@ init() {
   //  do to mesh velocity (ALE).
   NSGETOPTDEF_ND(int,ALE_flag,0);
 
-  //o Turn absorbing boundary condition to `wall' boundary condition
-  NSGETOPTDEF_ND(int,turn_wall,0);
+  //o Activate the transition from absorbing boundary condition
+  //  to `wall' boundary condition
+  NSGETOPTDEF_ND(int,activate_turn_wall,1);
 
   //o Turn absorbing boundary condition to `wall' boundary condition
   NSGETOPTDEF_ND(int,vel_indx,-1);
-  PETSCFEM_ASSERT(!turn_wall || vel_indx>=1 && vel_indx+ndim<=ndof,
+  PETSCFEM_ASSERT(!activate_turn_wall 
+                  || vel_indx>=1 && vel_indx+ndim<=ndof,
                   "vel_indx should point to a valid dof range"
                   " if turn_wall is activated."
                   "vel_indx %d, ndim %d, ndof %d\n",
                   vel_indx,ndim,ndof);  
-  // printf("in AdvectiveAbsoWall::init(): turn_wall %d\n",turn_wall);
   
   vector<double> urefv;
   const char *line;
@@ -88,6 +89,7 @@ init() {
   Uold.resize(2,nel,ndof);
   invCp.resize(2,ndof,ndof);
   Ufluid.resize(1,ndimel);
+  x.resize(1,ndim);
   if (ALE_flag) {
     get_prop(vmesh_prop,"vmesh");
     assert(vmesh_prop.length == ndimel);
@@ -105,6 +107,7 @@ init() {
   mask.resize(1,ndof)
     .set(0.0).is(1,vel_indx,vel_indx+ndim-1).set(1.0).rs();
   rlam.resize(1,ndof);
+  node_list.resize(nel);
 }
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
@@ -116,7 +119,21 @@ res(int k,FastMat2 &U,FastMat2 &r,
   U.ir(1,1); Uo.set(U);
   U.ir(1,2); Ulambda.set(U); U.rs();
 
-  if (!turn_wall) {
+  get_xloc(xloc,Hloc);
+
+  xloc.ir(1,1);
+  x.set(xloc);
+  xloc.rs();
+
+  Hloc.ir(1,1);
+  H.set(Hloc);
+  Hloc.rs();
+
+  get_connect(node_list);
+
+  int is_wall = turn_wall_fun(k,node_list[0],x,get_time());
+  
+  if (!is_wall) {
     // As `use_old_state_as_ref' but
     // for this element. 
     int use_old_state_as_ref_elem;
@@ -221,14 +238,11 @@ element_hook(ElementIterator &element) {
   if (ALE_flag)
     vmesh.set(prop_array(element,vmesh_prop));
   adv_diff_ff->element_hook(element);
-    
-#if 0
-  int ke,kc;
-  element.position(ke,kc);
-  if (ke%10==0) {
-    printf("element %d\n",ke);
-    normal.print("normal: ");
-    vmesh.print("vmesh: ");
-  }
-#endif
+}
+
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+int AdvectiveAbsoWall::
+turn_wall_fun(int elem,int node,
+              FastMat2 &x,double t) {
+  return 0;
 }

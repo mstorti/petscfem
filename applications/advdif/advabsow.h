@@ -39,12 +39,14 @@ private:
   // Velocity of mesh in ALE
   Property vmesh_prop;
   // Turn to wall boundary condition
-  int turn_wall, vel_indx;
+  int activate_turn_wall, vel_indx;
+  FastMat2 xloc,Hloc,x,H;
+  vector<int> node_list;
 public:
   AdvectiveAbsoWall(NewAdvDifFF *ff) 
     : adv_diff_ff(ff),
       use_old_state_as_ref(0),
-      turn_wall(0) {} 
+      activate_turn_wall(1) {} 
   ~AdvectiveAbsoWall() { delete adv_diff_ff; } 
   int nres() { return ndof; }
   void lag_mul_dof(int jr,int &node,int &dof) {
@@ -53,6 +55,9 @@ public:
   //element init
   virtual void 
   element_hook(ElementIterator &element);
+  virtual int 
+  turn_wall_fun(int elem,int node,
+                FastMat2 &x,double t);
   void lm_initialize();
   void init();
   void res(int k,FastMat2 &U,FastMat2 &r,
