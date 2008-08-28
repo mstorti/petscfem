@@ -46,7 +46,7 @@ public:
     assert(initialized);
     return sum;
   }
-  void print_stat(char * s= NULL) {
+  void print_stat(const char * s= NULL) {
     if (s) PetscPrintf(PETSCFEM_COMM_WORLD,
 		       "Event %s ------------------------\n",s);
     if (initialized) {

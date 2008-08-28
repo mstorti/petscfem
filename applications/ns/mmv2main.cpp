@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: mmv2main.cpp,v 1.2.8.1 2007/02/27 01:15:22 mstorti Exp $
+//$Id$
 #include <src/debug.h>
 #include <malloc.h>
 
@@ -510,7 +510,7 @@ int mmove2_main() {
     //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
     // NEWTON-RAPHSON ALGORITHM
     
-    double normres_external;
+    double normres_external=NAN;
     for (int inwt=0; inwt<nnwt; inwt++) {
       
       glob_param.inwt = inwt;

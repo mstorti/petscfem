@@ -125,10 +125,19 @@ sub expect {
     $record=0;
     my $inc=1;
     my $skip=1;
+    my $round_look=0;
     my $match_fun = \&match_regexp;
     my $file_changed = 0;
     while ($pattern=shift @pattern) {
 	if ($pattern =~ /^$COMMENT/) { next; }
+	if ($pattern =~ /^__ROUND_LOOK__$/) {
+	    $round_look=1;
+	    next;
+	}
+	if ($pattern =~ /^__NO_ROUND_LOOK__$/) {
+	    $round_look=0;
+	    next;
+	}
 	if ($pattern =~ /^__REWIND__$/) {
 	    $inc=1;
 	    $record=0;
@@ -185,6 +194,7 @@ sub expect {
 	    $match_fun = \&match_regexp;
 	    next;
 	}
+	$record=0 if $round_look;
 	printo "trying pattern: \"$pattern\"...  \n" if $opt_d;
 	while ($record<=$#sal) {
 	    $_ = $sal[$record];
@@ -300,7 +310,7 @@ small perl program like this
    final_check();
 
 In the default mode, C<expect()> takes the first pattern at a time
-and starts scanning the file from the beginning, each lie at a time
+and starts scanning the file from the beginning, each line at a time
 until it finds a line that matches the pattern. Patterns are the usual
 Perl patterns. So that remember to escape asterisks 'C<*>', question
 marks 'C<?>', dots and others. You can leave the dot unescaped since
@@ -347,6 +357,11 @@ matches the following call
    EOT
   
 thanks to the presence of the L<__REWIND__> directive. 
+
+=item C<__ROUND_LOOK__>
+
+Rewind the file after each line, i.e. for each pattern look for it all
+around the output. (Be careful for )
 
 =item C<__BACKWARD__>
 
@@ -493,7 +508,7 @@ Example:
 
 =head1 AUTHOR
 
-Mario A. Storti <mstorti@intec.unl.edu.ar>
+Mario A. Storti <mario.storti@gmail.com>
 
 =cut
 

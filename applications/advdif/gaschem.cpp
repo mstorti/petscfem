@@ -201,7 +201,7 @@ void gaschem_ff::compute_flux(const FastMat2 &U,
     int axi = advdf_e->axi;
     double h_pspg;
 
-    if (ndim==2 | (ndim==3 && axi>0)) {
+    if ((ndim==2) || (ndim==3 && axi>0)) {
       h_pspg = sqrt(4.*Volume/pi);
     } else if (ndim==3) {
       h_pspg = cbrt(6*Volume/pi);

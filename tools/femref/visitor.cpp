@@ -185,9 +185,9 @@ refine(const Splitter* s) {
   q = etree_p->insert(q,ElemRefNode());
   int nrnod = s->nref_nodes();
   GeomObject rfnd;
-  const GeomObject::Template *tmpl;
+  const GeomObject::Template *tmpl=NULL;
   for (int j=0; j<nrnod; j++) {
-    int n; const int *local_nodes;
+    int n; const int *local_nodes=NULL;
     s->ref_node(j,tmpl,n,local_nodes);
     rfnd.init(tmpl->type,local_nodes,w->go.nodes());
     rfnd.make_canonical();

@@ -10,8 +10,8 @@ public:
   GenericError() : string("") { }
   GenericError(string s) : string(s) { }
   // GenericError(char *s) : string(s) { }
-  GenericError(char *s,va_list l);
-  GenericError(char *s,...);
+  GenericError(const char *s,va_list l);
+  GenericError(const char *s,...);
 };
 
 #if 0

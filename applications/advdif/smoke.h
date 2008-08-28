@@ -19,10 +19,10 @@
 */ 
 class smoke_ff : public AdvDifFFWEnth {
 private:
-  int ndim;
+  int ndim, use_nodal_vel, nodal_vel_indx;
   Property u_prop, G_prop;
-  double phi, omega, drdphi, Cr, phieq;
-  FastMat2 u, U, Cp, W_N, A, Uintri;
+  double phi, omega, drdphi, Cr, phieq, diff_max, diff, tau_fac;
+  FastMat2 u, U, Cp, W_N, A, Uintri, tmp2, tmp0;
   int nel,ndof,nelprops;
   ElementIterator element_m;
   FastMat2Tmp tmp;
@@ -35,7 +35,7 @@ public:
   void element_hook(ElementIterator &element);
 
   void set_state(const FastMat2 &U);
-
+ 
   void comp_A_grad_N(FastMat2 & A_grad_N,FastMat2 & grad_N);
 
   void comp_A_jac_n(FastMat2 &A_jac_n, FastMat2 &normal);

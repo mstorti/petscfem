@@ -144,7 +144,7 @@ public:
       @author M. Storti
       @param s optional string
    */
-  void print(char *s = NULL);
+  void print(const char *s = NULL);
 
   //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
   /** Prints the Q matrix by cols. 
@@ -152,7 +152,7 @@ public:
    */
 
   //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
-  void print_by_col(char *s=NULL);
+  void print_by_col(const char *s=NULL);
   /** Checks internal consistency of idmap. 
       Checks that any entry (by row) has the corresponding entry by
       column, and viceversa. Also, that all entries in `special rows'
@@ -209,10 +209,10 @@ private:
 /** @name Class `idmap' utility functions */
 //@{
 /// prints a column with an optional string
-void print(col_t &col,char *s=NULL);
+void print(col_t &col,const char *s=NULL);
 
 /// prints a row with an optional string
-void print(row_t &row,char *s=NULL);
+void print(row_t &row,const char *s=NULL);
 
 /// voids a row
 void erase_null(row_t &row);

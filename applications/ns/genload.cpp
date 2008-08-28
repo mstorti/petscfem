@@ -149,15 +149,17 @@ int GenLoad::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
     // Auxiliary matrices
     tmp1, tmp2, tmp3, tmp4, vecc2, jac1;
 
-  if (double_layer) {
+  if (double_layer) 
     // there are 2x2 ndofxndof matrices
     jac.resize(4,2,2,ndof,ndof);
-    jac1.resize(2,ndof,ndof);
-  }
+  jac1.resize(2,ndof,ndof);
 
   // Assume all dofs connected
   if (comp_prof) matloc_prof.set(1.);
+
+  nprops = 0;
   // Call user callback function
+  nprops=0;
   start_chunk();
 
   // Initialize FastMat2 cache stuff
@@ -213,7 +215,7 @@ int GenLoad::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
 
       // Jacobian of master to global elements
       Jaco.prod(DSHAPEXI,xloc,1,-1,-1,2);
-      double detJaco = Jaco.detsur();
+      double detJaco = Jaco.detsur(&normal_m);
       if (detJaco<=0.) {
 	detj_error(detJaco,elem);
 	set_error(1);
@@ -352,7 +354,7 @@ void lin_gen_load::start_chunk_c() {
   } else v.resize(ndof,0);
 
   U_out_sl.resize(1,ndof).set(&*v.begin());
-  int iprop=0;
+  int iprop = nprops;
   const_flux_indx = iprop; 
   ierr = get_prop(iprop,elem_prop_names,thash,elprpsindx,propel, 
 		  "const_flux",ndof);

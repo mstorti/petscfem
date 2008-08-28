@@ -3,8 +3,8 @@
 //$Id: getprop.h,v 1.7 2004/01/30 03:44:29 mstorti Exp $
  
 
-#ifndef GETPROP_H
-#define GETPROP_H
+#ifndef PETSCFEM_GETPROP_H
+#define PETSCFEM_GETPROP_H
 
 #include <regex.h>
 #include <string>

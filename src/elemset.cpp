@@ -873,7 +873,7 @@ const char * Elemset::name() {
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 void *& Elemset::local_store_address(int k) {
   int kk = epart2[k];
-  assert(e1 <= kk < e2);
+  assert(e1 <= kk && kk < e2);
   return local_store[kk-e1];
 }
 

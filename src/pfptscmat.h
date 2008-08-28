@@ -59,8 +59,8 @@ protected:
   TextHashTable thash;
   /// These are the actions for the state machine
   int factored;
-  // define subproblems in Additive Schwarz prec, default is 0.
-  int asm_define_sub_problems;
+  // ksp solver type on each sub-block, default is preonly (none)
+  string asm_sub_ksp_type;
   // preconditioning type on each sub-block, default is ilu(0)
   string asm_sub_preco_type;
   // number of blocks in ASM prec., default is one block per processor

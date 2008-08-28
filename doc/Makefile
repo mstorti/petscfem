@@ -14,11 +14,11 @@ all: latex index.html all_html ps pdf readme eps
 PETSCFEM_DIR     = ..
 include $(PETSCFEM_DIR)/Makefile.base
 
-ODOCFILES = odocadv.tex odocadvdif.tex odocadvdif2.tex odocadvdife.tex \
-	odocadve.tex odocadvfe.tex odocadvfm2.tex odocadvfs.tex \
-	odocburgers.tex odocgenl.tex \
-	odocns.tex odocnsfs.tex odocnsb.tex odocnse.tex odocnsw.tex odocswfm2t.tex \
-	odociisd.tex odocdxhook.tex
+ODOCFILES = odocadv.tex odocadvdif.tex odocadvdif2.tex 			\
+	odocadvdife.tex odocadve.tex odocadvfe.tex odocadvfm2.tex 	\
+	odocadvfs.tex odocburgers.tex odocgenl.tex odocns.tex 		\
+	odocnsfs.tex odocnsb.tex odocnse.tex odocnsw.tex 		\
+	odocswfm2t.tex odociisd.tex odocdxhook.tex odocflrv.tex
 
 TEXFILES = prev1 layout thash idmap compprof advec \
 		ns tests fastmat2 $(ODOCFILES:.tex=)
@@ -34,28 +34,43 @@ ps: petscfem.ps.gz manual.ps.gz
 #w make PDF
 pdf: petscfem.pdf
 
+pdf1: 
+	$(MAKE) eps 
+	$(MAKE) -C OBJ pdf
+	$(MAKE) odoc
+	$(MAKE) EPERLFLAGS="-d html=0" petscfem.tex
+	pdflatex petscfem
+
 #w Makes PS version of the guide
 #e petscfem.ps.gz
 
 #w Makes PS version of the reference
 #e manual.ps.gz
 
-.INTERMEDIATE: manual.ps petscfem.ps
-petscfem.ps: petscfem.dvi
-	dvips -o $@ petscfem
-
-dvi: petscfem.dvi
-
-latex-petscfem: petscfem.tex
+latex-petscfem: 
+	echo 
+	$(MAKE) petscfem.tex
+	docdate.pl
 	$(MAKE) -C OBJ pdf
 	pdflatex petscfem
-
-petscfem.dvi: *.tex
-	$(MAKE) latex
 
 petscfem.pdf: latex
+	docdate.pl
 	$(MAKE) -C OBJ pdf
-	pdflatex petscfem
+	$(MAKE) odoc
+	$(MAKE) petscfem.tex
+	for j in 1 2 3 4 ;					\
+	do echo "On run $$j -------------------------------" ;	\
+		pdflatex petscfem ;				\
+		bibtex petscfem ;				\
+		makeindex petscfem.idx ;			\
+		if ! grep 'LaTeX Warning: .* Rerun '		\
+			petscfem.log ; then break ; fi ;	\
+	done
+
+#w copies petscfem.pdf to venus server
+cpydoc:
+	scp petscfem.pdf venus.ceride.gov.ar:public_html/petscfem
 
 manual.ps.gz: force
 	$(MAKE) -C manual ps
@@ -80,14 +95,18 @@ manual_html:
 #s Other options
 
 #w process LaTeX on reference
-latex: force eps odoc
+latex: 
+	$(MAKE) eps 
+	$(MAKE) -C OBJ pdf
+	$(MAKE) odoc
 	$(MAKE) EPERLFLAGS="-d html=0" petscfem.tex
-	for j in 1 2 3 4 ; \
-	do echo "On run $$j -------------------------------" ; \
-		latex petscfem ; \
-		bibtex petscfem ; \
-		makeindex petscfem.idx ; \
-		if ! grep 'LaTeX Warning: .* Rerun ' petscfem.log ; then break ; fi ; \
+	for j in 1 2 3 4 ;					\
+	do echo "On run $$j -------------------------------" ;	\
+		pdflatex petscfem ;				\
+		bibtex petscfem ;				\
+		makeindex petscfem.idx ;			\
+		if ! grep 'LaTeX Warning: .* Rerun '		\
+			petscfem.log ; then break ; fi ;	\
 	done
 
 #w make .eps version of the figures

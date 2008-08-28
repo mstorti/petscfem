@@ -551,7 +551,7 @@ int nsi_tet_les_ther::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
 		if (A_van_Driest>0.) {
 		  dist_to_wall.prod(SHAPE,xloc,-1,-1,1).rest(wall_coords);
 		  double ywall = sqrt(dist_to_wall.sum_square_all());
-		  double y_plus = ywall*shear_vel/mu_l;
+		  double y_plus = ywall*shear_vel/(mu_l/rho);   // modified Beto 2/MAY/08
 		  double van_D = 1.-exp(-y_plus/A_van_Driest);
 		} else van_D = 1.;
 

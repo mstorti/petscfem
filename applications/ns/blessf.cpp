@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-/* $Id merge-with-petsc-233-55-g52bd457 Fri Oct 26 13:57:07 2007 -0300$ */
+/* $Id$ */
 
 #include <src/debug.h>
 #include <malloc.h>
@@ -36,6 +36,7 @@
 #include "./mmove.h"
 #include "./mmove2.h"
 #include "./genload.h"
+#include "./flowrev.h"
 #include "./invcoupl.h"
 #include "./nullvort.h"
 #include "./interplns.h"
@@ -44,11 +45,15 @@
 #include "./bubblyqint.h"
 #include "./bubblyqint.h"
 #include "./nsitetlesf.h"
+#include "./nsitetlesls.h"
 #include "./nsitetlesfbf.h"
 #include "./nsitetlesfd.h"
 #include "./truss.h"
 #include "./nodeload.h"
 #include "./poiboltz.h"
+#include "./electrophoresis.h"
+#include "./electrophoresisM.h"
+#include "./renorm.h"
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:
 #undef __FUNC__
@@ -74,6 +79,7 @@ void bless_elemset_ns(char *type,Elemset *& elemset) {
     SET_ELEMSET_TYPE(ld_elasticity_load)
 
     SET_ELEMSET_TYPE(nsi_tet_les_fm2)
+    SET_ELEMSET_TYPE(nsi_tet_les_ls)
     SET_ELEMSET_TYPE(nsi_tet_les_full)
     SET_ELEMSET_TYPE(nsi_tet_les_full_darcy)
     SET_ELEMSET_TYPE(nsi_tet_les_full_bf)
@@ -116,10 +122,12 @@ void bless_elemset_ns(char *type,Elemset *& elemset) {
     SET_ELEMSET_TYPE(mesh_move_opt2)
     SET_ELEMSET_TYPE(mesh_move_opt3)
     SET_ELEMSET_TYPE(truss)
+    SET_ELEMSET_TYPE(renorm)
 
     SET_ELEMSET_TYPE(inviscid_coupling)
 
     SET_ELEMSET_TYPE(lin_gen_load)
+    SET_ELEMSET_TYPE(flow_reversal)
 
     SET_ELEMSET_TYPE(cond_wall)
     SET_ELEMSET_TYPE(cond_wall_pen)
@@ -130,6 +138,10 @@ void bless_elemset_ns(char *type,Elemset *& elemset) {
     SET_ELEMSET_TYPE_ALIAS(interpolation,interpolation_ns)
 
     SET_ELEMSET_TYPE(poisson_boltzmann)
+
+    SET_ELEMSET_TYPE(electrophoresis)
+    
+    SET_ELEMSET_TYPE(electrophoresisM)
 
     {
       elemset=NULL;

@@ -2,10 +2,6 @@
 
 .PHONY: distcont distmap distmat dist_graph
 
-## Redirection from /dev/null to avoid error from mpiexec on output
-## Set to blank to run interactive
-redir := 
-
 #s Local Targets
 #w all tests
 tests: distcont distmap distmat dist_graph tests_sb
@@ -43,6 +39,10 @@ DEPEND_DIRS = $(CLEAN_DIRS)
 NPP := $(shell procsel $(PETSCFEM_PROCTABLE))
 
 #LDFLAGS := -L/usr/local/lib -lc ${PETSCFEM_PETSC_LIBS}
+
+## Redirection from /dev/null to avoid error from mpiexec on output
+## Set to blank to run interactive
+## redir := 
 
 #w Builds binary 
 distmap.bin: distmap.o 
@@ -118,7 +118,7 @@ tests_sb: test_sync_buffer test_kob_plain test_kob_no_sort \
 
 #w Test SyncBuffer class
 test_sync_buffer: testsb.bin
-	$(MPIEXEC) -n $(NPSB) testsb.bin -N 10 -k 0 $(RDR) \
+	$(MPIEXEC) -n $(NPSB) testsb.bin -Ne 10 -k 0 $(RDR) \
 		$(call redir,$@.output.tmp)
 
 #w Test `KeyedOutputBuffer' class

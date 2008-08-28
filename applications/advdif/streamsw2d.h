@@ -6,6 +6,7 @@
 #include "advective.h"
 #include "stream.h"
 #include "nonlres.h"
+#include "./advabso.h"
 
 #define GETOPT_PROP(type,name,default) elemset->get_prop(name##_prop,#name)
 
@@ -30,8 +31,10 @@ class streamsw2d_ff : public AdvDifFFWEnth {
   double cfric;
   // diffussive term factor
   double diff_factor;
+  // fluid density (rho)
+  double rho;
   // kinematic viscosity (nu=mu/rho)
-  double nu;
+  double nu_m;
   // Threshold for h
   double h_min;
   // Threshold for v
@@ -41,9 +44,9 @@ class streamsw2d_ff : public AdvDifFFWEnth {
   // Threshold for shockcapturing
   double shock_capturing_threshold;
   // doubles for turbulent and frivtion models
-  double sigma_k,sigma_e,C_mu,C_1,C_2,
-    D,Chezy,C_P_e,eps_min,ket_min,
-    P_h,P_e,P_k;
+  double C_mu,C_1,C_2,
+    D,Chezy,C_P_e,
+    P_h;
   // h variable
   double h;
   // Flux advec Jacobians
@@ -66,10 +69,14 @@ class streamsw2d_ff : public AdvDifFFWEnth {
   FastMat2 W_N;
   // Temp matrix for flux functions
   FastMat2 tmp1,tmp11,tmp2,tmp22,tmp3,tmp33,tmp4,dev_tens,vref,u,
-    A01,bottom_slope,tmp5,grad_U_psi;
+    bottom_slope,tmp5,grad_U_psi;
   // Element iterator for hook
   ElementIterator elem_it;
-
+  // shock capt operator stuff
+  const NewAdvDif *advdf_e;
+  FastMat2 r_dir,jvec,grad_h,tmp9;
+  double r_dir_mod,shocap_beta,shocap_fac,h_rgn,h_shoc,
+    delta_sc_aniso,h_supg;
   //#define USE_A_JAC_DUMMY
 #ifdef USE_A_JAC_DUMMY
   FastMat2 A_jac_dummy;
@@ -169,12 +176,17 @@ public:
   */
   int dim() const { return 2; } //lo mismo que para el elemset stream de KWM
 
+  void get_Ajac(FastMat2 &Ajac_a);
+
+  void get_Cp(FastMat2 &Cp_a);
   /*
     Riemann Invariants calculus for Absorbent boundary conditions
     Rie, drdU  matrix declaration in boundary element routine rank=1 x ndof
   */
   void Riemann_Inv(const FastMat2 &U, const FastMat2 &normal,
 		   FastMat2 &Rie, FastMat2 &drdU, FastMat2 &C_U);
+
+  void compute_shocap(double &delta_sc);
 
 #ifdef USE_COMP_P_SUPG
   void comp_P_supg(FastMat2 &P_supg, FastMat2 &grad_N, FastMat2 &tau_supg) {
@@ -199,6 +211,12 @@ public:
   streamsw2d_abso() :  AdvDiff_Abs_Nl_Res(new streamsw2d_ff(this)/*,new streamsw2d(this)*/) {
     // printf("En streamsw2d_abso(): adv_diff_ff: %p\n",adv_diff_ff);
   } //constructor
+};
+
+class streamsw2d_abso2 : public AdvectiveAbso {
+public:
+  streamsw2d_abso2()
+    :  AdvectiveAbso(new streamsw2d_ff(this)) { }
 };
 
 #endif

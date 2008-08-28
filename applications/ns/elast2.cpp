@@ -45,6 +45,17 @@ void elasticity2::init() {
   //o Density
   TGETOPTDEF(thash,double,density,0.);
   rho=density;
+
+  //o Characteristic time for damping term
+  TGETOPTDEF(thash,double,tau_damp,NAN);
+  if (isnan(tau_damp)) cdamp=0.0;
+  else {
+    PETSCFEM_ASSERT(tau_damp>0.0,
+                    "tau_damp must be positive, entered %g",
+                    tau_damp);  
+    cdamp = 1.0/tau_damp;
+  }
+
   // Dos opciones para imprimir
   // printf("rec_Dt: %d\n",rec_Dt);
   // SHV(rec_Dt);
@@ -180,7 +191,9 @@ void elasticity2::element_connector(const FastMat2 &xloc,
     // (recordar que Jac debe ser -1/alpha*d(Res)/d(X) 
 
     // Inertia term
-    a.set(vnew).rest(vold);
+    double coef_damp = 1.0;
+    if (cdamp>0.0) coef_damp = 1.0+cdamp/rec_Dt;
+    a.set(vnew).scale(coef_damp).rest(vold);
     tmp.prod(shape,a,-1,-1,1);
     tmp2.prod(shape,tmp,1,2);
     res.is(2,ndim+1,2*ndim).axpy(tmp2,-wpgdet*rec_Dt*rho);
@@ -191,7 +204,7 @@ void elasticity2::element_connector(const FastMat2 &xloc,
     
     mass_pg.prod(shape,shape,1,2).scale(wpgdet*rec_Dt*rho/alpha);
     for (int k=1; k<=ndim; k++) 
-      mat.ir(2,ndim+k).ir(4,ndim+k).add(mass_pg);
+      mat.ir(2,ndim+k).ir(4,ndim+k).axpy(mass_pg,coef_damp);
     mat.rs();
 
     // Jacobian computation

@@ -276,7 +276,8 @@ void TextHashTable::register_name(const string &s) {
 #define __FUNC__ "TextHashTable::read()"
 void TextHashTable::read(FileStack *& fstack) {
   char *line;
-  char *key, *val,*bsp=" \t";
+  const char *key, *val;
+  const char *bsp=" \t";
   int he=0;
   while (!fstack->get_line(line)) {
     if (strstr("__END_HASH__",line)) break;

@@ -6,7 +6,7 @@
 	constraint_bug fstack sector triangle advdif texthash log_vars	     \
 	newff burgers bug100 nonlr genload lupart distmap sparse graph sqcav \
 	pfmat  aquifer nutatcyl mmove advec nsgenload plate gasflow oscplate \
-	idmap sw_abso cubcav condwall project
+	idmap sw_abso cubcav condwall project embgath
 
 SRCS = $(wildcard *.cpp)
 
@@ -15,7 +15,8 @@ DIRS = circ fstack sector les turbchan turbchanw advdif texthash	\
 		wkepipe wallkechan lupart distmap sparse graph sqcav	\
 		pfmat cubcav aquifer bubbly nutatcyl aquifer fastmat2	\
 		nsgenload plate gasflow idmap mmove advec plano		\
-		oscplate spillway sw_abso gfplate condwall project
+		oscplate spillway sw_abso gfplate condwall project 	\
+		embgath flow-reversal
 
 CLEAN_DIRS = $(DIRS)
 DEPEND_DIRS = texthash distmap sparse aquifer plate fstack idmap
@@ -52,21 +53,36 @@ local_clean::
 #w Make all tests for a particular BOPT and keep log
 #w and make a tar with the results
 torture_1:
+	mpdboot
 	$(MAKE) -k runtests 2>&1 | tee make-tests-$(BOPT).log
 #
 	echo "-------------------------" | tee -a  make-tests-$(BOPT).log
 	echo "FULL TEST REPORT: " | tee -a make-tests-$(BOPT).log
-	-runtests.pl -o | tee -a make-tests-$(BOPT).log
+	-./runtests.pl -o | tee -a make-tests-$(BOPT).log
 #
 	echo "-------------------------" | tee -a  make-tests-$(BOPT).log
 	echo "COULDN'T OPEN: " | tee -a make-tests-$(BOPT).log
-	-runtests.pl -o | grep "^can't" | tee -a make-tests-$(BOPT).log
+	-./runtests.pl -o | grep "^can't" | tee -a make-tests-$(BOPT).log
 #
 	echo "-------------------------" | tee -a  make-tests-$(BOPT).log
 	echo "NOT OK TESTS: " | tee -a make-tests-$(BOPT).log
-	-runtests.pl -n | tee -a make-tests-$(BOPT).log
+	-./runtests.pl -n | tee -a make-tests-$(BOPT).log
 #
 	tar czvf ../make-tests-$(BOPT).tar.gz -C .. test
+
+#w report:
+report:
+	echo "-------------------------" | tee -a  make-tests-$(BOPT).log
+	echo "FULL TEST REPORT: " | tee -a make-tests-$(BOPT).log
+	-./runtests.pl -o | tee -a make-tests-$(BOPT).log
+#
+	echo "-------------------------" | tee -a  make-tests-$(BOPT).log
+	echo "COULDN'T OPEN: " | tee -a make-tests-$(BOPT).log
+	-./runtests.pl -o | grep "^can't" | tee -a make-tests-$(BOPT).log
+#
+	echo "-------------------------" | tee -a  make-tests-$(BOPT).log
+	echo "NOT OK TESTS: " | tee -a make-tests-$(BOPT).log
+	-./runtests.pl -n | tee -a make-tests-$(BOPT).log
 
 #w torture for BOPT=g_c++
 torture_g:
@@ -92,7 +108,7 @@ torture:
 #w Verifies results
 tests: runtests
 	@echo "Verifying results..."
-	@runtests.pl
+	@./runtests.pl
 	@echo "Done."
 
 #----<*>----------<*>----------<*>----------<*>----------<*>----------<*>-----
@@ -100,7 +116,7 @@ tests: runtests
 runtests: compile sector oscplate fastmat2 plano idmap constraint_bug 	 \
 	fstack advdif texthash log_vars newff burgers bug100 genload 	 \
 	lupart distmap sparse graph sqcav pfmat aquifer nutatcyl mmove 	 \
-	advec nsgenload cubcav project
+	advec nsgenload cubcav project embgath
 
 rp: runtests_p
 runtests_p: advec nsgenload cubcav project
@@ -239,6 +255,7 @@ sector:
 #w Gneric load elemeset for NS
 nsgenload:
 	$(MAKE) -C $@ tests
+	$(MAKE) -C flow-reversal tests
 
 #----<*>----------<*>----------<*>----------<*>----------<*>----------<*>--
 # sw absorbent bc
@@ -255,5 +272,10 @@ cubcav:
 project:
 	$(MAKE) -C ../tools/project project4.bin
 	$(MAKE) -C project tests
+
+#----<*>----------<*>----------<*>----------<*>----------<*>----------<*>--
+# Embedded gatherer test
+embgath:
+	$(MAKE) -C embgath tests
 
 #s

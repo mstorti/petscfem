@@ -38,7 +38,7 @@ epimport: $(FILES_epimport) $(PETSCFEM_DIR)/src/libpetscfem$(osfx).a
 		$(LDFLAGS_NO_PROG_LIB)
 
 epimport.o: epimport.cpp
-	g++ -c $(DXABI) $(DX_RTL_CFLAGS) $(CFLAGS) epimport.cpp
+	g++ -fPIC -c $(DXABI) $(DX_RTL_CFLAGS) $(CFLAGS) epimport.cpp
 
 # a command to run the user module
 run: epimport 
@@ -49,7 +49,7 @@ userepimport.c: epimport.mdf
 	$(BIN)/mdf2c -m epimport.mdf > userepimport.c
 
 userepimport.o: userepimport.c
-	cc -c $(DXABI) $(DX_RTL_CFLAGS) $(CFLAGS) userepimport.c 
+	cc -fPIC -c $(DXABI) $(DX_RTL_CFLAGS) $(CFLAGS) userepimport.c 
 
 dxdumm: DX_RTL_LDFLAGS := 
 dxdumm: dxdumm.o $(PETSCFEM_DIR)/src/libpetscfem$(osfx).a

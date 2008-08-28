@@ -166,13 +166,21 @@ assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
     darcy_axi = ndim+1;
   }
 
-  //o Reference velocity for selectiv Darcy term. 
+  //o Reference velocity for selective Darcy term. 
   SGETOPTDEF(double,darcy_uref,-1.0); 
-  if (darcy_axi) { assert(darcy_uref>=0.); }
+  if (darcy_axi) {
+    PETSCFEM_ASSERT0(darcy_uref>=0.,
+                     "Darcy ref velocity is required "
+                     "and must be non-negative.");  
+  }
 
-  //o Reference velocity for selectiv Darcy term. 
+  //o Reference velocity for selective Darcy term. 
   SGETOPTDEF(double,darcy_factor_global,-1.0); 
-  if (darcy_axi) { assert(darcy_factor_global>=0.); }
+  if (darcy_axi) { 
+    PETSCFEM_ASSERT0(darcy_factor_global>=0.,
+                     "Darcy global factor is required "
+                     "and must be non-negative.");  
+  }
 
   // allocate local vecs
   int kdof;

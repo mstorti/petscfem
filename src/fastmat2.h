@@ -5,7 +5,7 @@
 #ifndef FASTMAT2_H
 #define FASTMAT2_H
 
-#include <algorithm>
+#include <climits>
 #include <vector>
 //#include <deque>
 #include <cassert>
@@ -1087,8 +1087,8 @@ public:
   /** For a matrix of size #A# of #(n-1)* n# computes the determinant
       #sqrt(det(A*A'))#. This is useful when integrating on surfaces
       in 3D and lines in 2D. If #nor# is not null then computes #nor#
-      as the normal to the surface. 
-      @param nor (ouput) the normal to the surface
+      as the normal (not necessarily a unit vector) to the surface. 
+      @param nor (ouput) the normal to the surface 
       @return determinant of the surface Jacobian
   */ 
   double detsur(FastMat2 *nor=NULL);

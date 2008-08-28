@@ -34,7 +34,7 @@ template <class Key,class Val,class Partitioner>
 void DistMap<Key,Val,Partitioner>::scatter() {
   int ierr;
   HPChrono hpc;
-  typename map<Key,Val>::iterator iter;
+  typename map<Key,Val>::iterator iter, next;
   // kv_iterator iter;
   int *to_send,*to_send_buff,/**recv_ok,n_recv_ok,send_ok,*/
     dest,source,my_band_start;
@@ -112,10 +112,36 @@ void DistMap<Key,Val,Partitioner>::scatter() {
   }
 
   // Erase members that do not belong to this processor.
+#if 0
+  // This version seems cleaner but needs an auxiliary
+  // container. 
+  // Copy all items remaining in this processor to
+  // auxiliary
+  DistMap<Key,Val,Partitioner> aux;
   for (iter = this->begin(); iter != this->end(); iter++) {
     k = processor(iter);
-    if (k!=myrank) erase(iter);
+    if (k==myrank) aux.insert(*iter);
   }
+  // Clear this container
+  this->clear();
+  // Recopy all items to this container
+  for (iter = aux.begin(); iter != aux.end(); iter++) 
+    insert(*iter);
+  // Clear the auxiliary container
+  aux.clear();
+#else
+  // Erase all items that do not belong to this container.
+  // Be careful about invalid iterators.
+  iter = this->begin();
+  while(iter != this->end()) {
+    k = processor(iter);
+    if (k!=myrank) {
+      next = iter; next++;
+      this->erase(iter);
+      iter = next;
+    } else iter++;
+  }
+#endif
 
   // Check that all buffers must remain at the end
   for (k=0; k<size; k++) {
@@ -124,7 +150,7 @@ void DistMap<Key,Val,Partitioner>::scatter() {
 	     "send_buff %p, pos %p, diff %d, to_send %d\n",
 	     myrank,k,
 	     send_buff[k], send_buff_pos[k],
-	     send_buff_pos[k]-send_buff[k], SEND(myrank,k));
+	     int(send_buff_pos[k]-send_buff[k]), SEND(myrank,k));
     }
   }
 

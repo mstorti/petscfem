@@ -8,7 +8,7 @@
 ######  begin of CONGIGURATION VARIABLES section  ####################
 
 #  Configure this variable!! (either g_c++ or O_c++) 
-#BOPT =
+BOPT = g_c++
 
 ifeq ($(BOPT),)
 BOPT = g_c++
@@ -248,7 +248,8 @@ ifneq ($(DEPEND_DIRS),)
 endif
 
 ifeq ($(ETAGS),GNU)
-TAGFLAGS := --regex='/.*[^a-zA-Z0-9_]\([a-zA-Z0-9][a-zA-Z0-9_]*\) *:=/\1/' 
+## TAGFLAGS := --regex-C++='/.*[^a-zA-Z0-9_]\([a-zA-Z0-9][a-zA-Z0-9_]*\) *:=/\1/' 
+TAGFLAGS := -l C++ --regex='/.*[^a-zA-Z0-9_]\([a-zA-Z0-9][a-zA-Z0-9_]*\) *:=/\1/' 
 endif
 TAGS: force
 ifneq ($(SRCS),)
@@ -433,9 +434,9 @@ laplace.link:		LNK=laplace
 # For running odoc.pl (documenting PETSc-FEM options)
 #
 define run_odoc
--chmod +w $@
-$(ODOC) -o $@ $<
--chmod -w $@
+if [ -f $@ ] ; then chmod +w $@ ; fi ; \
+$(ODOC) -o $@ $< ; \
+if [ -f $@ ] ; then chmod -w $@ ; fi
 endef
 
 ifeq (makefile.d,$(wildcard makefile.d)) 
@@ -484,3 +485,9 @@ endif
 
 %.o: %.c
 	$(CC) -c ${COPTFLAGS} ${CFLAGS} ${CPPFLAGS} -o $@ $<
+
+%.so: %.a
+	-rm -f *.o
+	ar x $<
+	g++ -shared -o $@ *.o
+	-rm -f *.o

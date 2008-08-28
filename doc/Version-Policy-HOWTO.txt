@@ -1,5 +1,10 @@
 $Id: Version-Policy-HOWTO.txt,v 1.17 2007/02/20 15:08:26 mstorti Exp $
 
+====================================================================
+THIS HOWTO IS DEPRECATED SINCE PETSCFEM IS BEING MAINTAINED WITH GIT
+====================================================================
+
+
 ;;; usage (do-all-replace major new-unstable)
 (do-all-replace 3 51)
 (below mark0 is the pattern, and below mark1

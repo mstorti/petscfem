@@ -75,15 +75,57 @@ double compute_rho_m(FastMat2 &rho_g_vp,FastMat2 &arho_g_vp, FastMat2 &alpha_g_v
   static FastMat2 Id_vp(2,nphases,nphases); 
   
   double alpha_d_sum = (double) alpha_g_vp.sum_all();
+
+  // cut off disperse void fraction to be between 0 and 1 
+  alpha_d_sum = (alpha_d_sum > 0 ? alpha_d_sum : 0.0);
+  alpha_d_sum = (alpha_d_sum > 1.0 ? 1.0 : alpha_d_sum );
+
   alpha_l = 1.0 - alpha_d_sum;
   
   Id_vp.set(0.).d(1,2);
   Id_vp.set(rho_g_vp).rs();	
-  arho_g_vp.prod(Id_vp,alpha_g_vp,1,-1,-1);
+
   double arho_l = rho_l*alpha_l;
-  double rho_m = arho_l+arho_g_vp.sum_all();
+  double rho_m = arho_l;
+
+  for (int j=1; j<=nphases; j++) {
+    
+    double alpha_g = alpha_g_vp.get(j);
+    double rho_g = rho_g_vp.get(j);
+
+    // cut off disperse void fraction to be between 0 and 1 
+    alpha_g = (alpha_g > 0 ? alpha_g : 0.0);
+    alpha_g = (alpha_g > 1.0 ? 1.0 : alpha_g );
+
+    double arho_g = alpha_g*rho_g;
+    rho_m += arho_g;
+  }
+
+  //  arho_g_vp.prod(Id_vp,alpha_g_vp,1,-1,-1);
 
   return rho_m;
+}
+
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+double compute_visco_sato(FastMat2 &d_bubble_vp,FastMat2 &vslip_m_vp, FastMat2 &alpha_g_vp, 
+			  double rho_l,double Sato_model_coef, int nphases) {
+
+  double visco_sato=0.0;
+	if (nphases==1 && Sato_model_coef>0) {
+	  for (int j=1; j<=nphases; j++) {
+	    double d_bubble = d_bubble_vp.get(j);
+	    double vslip = vslip_m_vp.get(j);
+	    double alpha_g = alpha_g_vp.get(j);
+
+	    // cut off disperse void fraction to be between 0 and 1 
+	    alpha_g = (alpha_g > 0 ? alpha_g : 0.0);
+	    alpha_g = (alpha_g > 1.0 ? 1.0 : alpha_g );
+	    
+	    visco_sato = Sato_model_coef*rho_l*alpha_g*d_bubble*vslip;
+	  }
+	}
+  
+  return visco_sato;
 }
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
@@ -243,6 +285,9 @@ assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
   //o Add shock-capturing term.
   SGETOPTDEF(double,shock_capturing_factor,0.);
 
+  //o Add shock-capturing term for disperse phases .
+  SGETOPTDEF(double,shock_capturing_disperse_factor,0.);
+
   //o Add shock-capturing term.
   SGETOPTDEF(double,shocap,0.);
 
@@ -397,7 +442,7 @@ assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
     ucols_star,pcol_star,pcol_new,pcol,fm_p_star,tmp1,tmp2,tmp3,tmp6,
     massm,tmp8,tmp9,tmp10,tmp11,tmp13,tmp14,tmp15,dshapex_c,xc,
     wall_coords(ndim),dist_to_wall,tmp16,tmp162,tmp17,tmp171,tmp172,
-    tmp173,tmp174,tmp18,tmp19;
+    tmp173,tmp174,tmp175,tmp18,tmp19,tmp190,tmp191,tmp192;
 
   FastMat2 tmp20(2,nel,nel),tmp21;
 
@@ -455,7 +500,7 @@ assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
   ierr = get_double(thash,"alpha_source_phases",
 		    alpha_source_vp.storage_begin(),1,nphases);
 
-  //o Direction of gravity
+  //o Direction of g_dir is used for v_slip
   TGETOPTDEF(thash,int,g_dir,ndim);
 
   double rho_g=NAN,vslip,rho_m,rho_m_old,arho_l,arho_g,vslip_m,alpha_l,alpha_g;
@@ -609,6 +654,8 @@ assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
       }
     }
 
+    double factor_cont= 1.0 , factor_cont_temp= 0.0 ;
+
     matlocmom.set(0.);
     matloc.set(0.);
     matlocf.set(0.);
@@ -635,7 +682,7 @@ assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
       pcol_new.set(locstate.rs().ir(2,ndim+1));
       vfcols_new.set(locstate.rs().is(2,ndim+2,ndim+1+nphases));
       locstate.rs();
-      
+
       ucols_star.set(ucols_new).scale(alpha).axpy(ucols,1-alpha);
       pcol_star.set(pcol_new).scale(alpha).axpy(pcol,1-alpha);
       vfcols_star.set(vfcols_new).scale(alpha).axpy(vfcols,1-alpha);
@@ -791,7 +838,11 @@ assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
 	} else {
 	  visco_t = 0.0;
 	}
-	
+
+	double visco_sato = 0.;
+	visco_sato = compute_visco_sato(d_bubble_vp,vslip_m_vp,alpha_g_vp,rho_l,Sato_model_coef,nphases);
+
+	/*	
 	double visco_sato = 0.;
 	if (nphases==1 && Sato_model_coef>0) {
 	  for (int j=1; j<=nphases; j++) {
@@ -801,14 +852,26 @@ assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
 	    visco_sato = Sato_model_coef*rho_l*alpha_g*d_bubble*vslip;
 	  }
 	}
-	
-	visco_m_eff = alpha_l*visco_l+visco_sato + rho_m*visco_t;
+	*/
+
+	double alpha_l_ctff = alpha_l;
+	alpha_l_ctff = (alpha_l_ctff < 0.0 ? 0.0 : alpha_l_ctff);
+	alpha_l_ctff = (alpha_l_ctff > 1.0 ? 1.0 : alpha_l_ctff);
+
+	visco_m_eff = alpha_l_ctff*visco_l;
+
+	visco_m_eff += visco_sato + rho_m*visco_t;
+
 	for (int j=1; j<=nphases; j++) {
+
 	  alpha_g = alpha_g_vp.get(j);
+	  alpha_g = (alpha_g < 0.0 ? 0.0 : alpha_g);
+	  alpha_g = (alpha_g > 1.0 ? 1.0 : alpha_g);
+	  
 	  visco_g = visco_g_vp.get(j);
 	  visco_m_eff += alpha_g*visco_g;
 	}
-	visco_m_eff = (visco_m_eff <= 0 ? 1.0e-15 : visco_m_eff);
+	visco_m_eff = (visco_m_eff <= 0 ? 1.0e-15 : visco_m_eff); // dynamic viscosity for the mixture
 	
 	for (int j=1; j<=nphases; j++) {
  	  //	  rho_g = rho_g_vp.get(j);
@@ -816,7 +879,7 @@ assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
 	  visco_g_eff = visco_t/Sc_number;
 	  visco_g_eff = (visco_g_eff <= 0 ? 1.0e-15 : visco_g_eff);
 	  visco_g_eff_vp.setel(visco_g_eff,j);
-	}
+	}  // visco_g_eff : kinematic viscosity for each disperse phase
 	
 	vel_axi(u,u_axi,axi);
 	u2 = u_axi.sum_square_all();
@@ -824,14 +887,14 @@ assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
 	
 	h_supg = compute_h_supg(u_axi,dshapex,velmod,h_pspg);
 
-	Peclet = velmod * h_supg / (2. * visco_m_eff);
+	Peclet = rho_m * velmod * h_supg / (2. * visco_m_eff);
 	
 	tau_supg = tsf*SQ(2.*rec_Dt)+SQ(2.*velmod/h_supg)
-	  +9.*SQ(4.*visco_m_eff/SQ(h_supg));
+	  +9.*SQ(4.*(visco_m_eff/rho_m)/SQ(h_supg));
 	tau_supg = 1./sqrt(tau_supg);
 
 	tau_pspg = tsf*SQ(2.*rec_Dt)+SQ(2.*velmod/h_pspg)
-	  +9.*SQ(4.*visco_m_eff/SQ(h_pspg));
+	  +9.*SQ(4.*(visco_m_eff/rho_m)/SQ(h_pspg));
 	tau_pspg = 1./sqrt(tau_pspg);
 
 	fz = (Peclet < 3. ? Peclet/3. : 1.);
@@ -856,7 +919,8 @@ assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
 	// Pressure stabilizing term
 	// use rho_l as a characteristic density to avoid numerical problems
 	// for pressure stabilization
-	P_pspg.set(dshapex).scale(tau_pspg/rho_l);  //debug:=
+	//	P_pspg.set(dshapex).scale(tau_pspg/rho_l);  //debug:=
+	P_pspg.set(dshapex).scale(tau_pspg);  //debug:=
 
 	velmod_g_vp.set(0.);
 	for (int j=1; j<=nphases; j++) {
@@ -885,7 +949,7 @@ assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
 	  v_g_vp_old.ir(2,j);
 	  P_supg_vp.ir(2,j);
 	  h_supg_g = h_supg_vp.get(j);
-	  visco_g = visco_g_eff_vp.get(j);
+	  visco_g = visco_g_eff_vp.get(j);  // kinematic viscosity
 	  velmod_g = velmod_g_vp.get(j);
 	  tau_supg_g = SQ(2.*velmod_g/h_supg_g)+9.*SQ(4.*visco_g/SQ(h_supg_g));
 	  tau_supg_g = 1./sqrt(tau_supg_g);	  
@@ -899,7 +963,7 @@ assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
 	  fz = (Peclet < 3. ? Peclet/3. : 1.);
 	  delta_supg_g = 0.5*h_supg_g*velmod_g*fz;
 
-	  delta_supg_g *= shock_capturing_factor;
+	  delta_supg_g *= shock_capturing_disperse_factor;
 
 	  delta_supg_vp.setel(delta_supg_g,j);
 
@@ -963,16 +1027,21 @@ assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
 	resmom_supg.prod(P_supg,resmom_prime,1,2);
 	resmom.axpy(resmom_supg,-wpgdet);
 
+	// Galerkin - continuity
+	rescont_gal.prod(dshapex,u_star,-1,1,-1);
+	rescont.axpy(rescont_gal,-wpgdet*rho_m);
+
+	double drhomdt = factor_cont_temp*(rho_m-rho_m_old)*(rec_Dt/alpha);
+	rescont.axpy(SHAPE,drhomdt*wpgdet);
+
 	// shock capturing term - momentum
 	resmom.axpy(dshapex.t(),-wpgdet*delta_supg*rho_m*div_u_star);
 	dshapex.rs();
 	tmp6_g.prod(grad_rho_m,u_star,-1,-1);
 	resmom.axpy(dshapex.t(),-wpgdet*delta_supg*double(tmp6_g));
 	dshapex.rs();
-
-	// Galerkin - continuity
-	rescont_gal.prod(dshapex,u_star,-1,1,-1);
-	rescont.axpy(rescont_gal,-wpgdet*rho_m);
+	resmom.axpy(dshapex.t(),-wpgdet*delta_supg*drhomdt);
+	dshapex.rs();
 
 	// PSPG perturbation - continuity
 	rescont_pspg.prod(P_pspg,resmom_prime,-1,1,-1);
@@ -1083,7 +1152,7 @@ assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
 	    // Galerkin contribution --> dR_cont/d_alpha_g
 	    matlocf.rs().ir(2,ndim+1).ir(4,ndim+1+j);
 	    tmp10_g.prod(rescont_gal,SHAPE,1,2);
-	    matlocf.axpy(tmp10_g,(rho_g-rho_l)*wpgdet);
+	    matlocf.axpy(tmp10_g,factor_cont*(rho_g-rho_l)*wpgdet);
 
 	    // termino agregado por la variacion de rho_m con alpha_g
 	    // en las ecuaciones de momento
@@ -1097,9 +1166,16 @@ assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
 	    tmp173.prod(P_pspg,dmatu,-1,1,-1);
 	    tmp174.prod(tmp173,SHAPE,1,2);
 	    matlocf.rs().ir(2,ndim+1).ir(4,ndim+1+j);
-	    matlocf.axpy(tmp174,-(rho_g-rho_l)*wpgdet).rs();	    
+	    matlocf.axpy(tmp174,-(rho_g-rho_l)*wpgdet*factor_cont);	    
+	    
+	    if(1) {
+	      tmp175.prod(SHAPE,SHAPE,1,2).scale((rho_g-rho_l)*rec_Dt/alpha*factor_cont_temp);
+	      //	    PetscPrintf(PETSCFEM_COMM_WORLD," doppo drhomdt [2] \n");
+	      matlocf.axpy(tmp175,-wpgdet*factor_cont).rs();
+	    }
+	    
 	}
-
+	
 	matlocf.rs();
 	double vaux;
 	// extra term in continuity and momentum equations
@@ -1206,15 +1282,15 @@ assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
 	    tmp20.prod(SHAPE,SHAPE,1,2);
 	    tmp13.axpy(tmp20,pressure_control_coef);
 	  }	  
-
+	  
 	  // d_R(cont)/d_vel
 	  matlocf.ir(2,ndim+1).is(4,1,ndim);
-	  tmp17.prod(P_pspg,dmatw,3,1,2).scale(wpgdet);
+	  tmp17.prod(P_pspg,dmatw,3,1,2).scale(wpgdet*factor_cont);
 	  matlocf.rest(tmp17);
-	  tmp17.prod(dshapex,SHAPE,3,1,2).scale(-rho_m*wpgdet);
+	  tmp17.prod(dshapex,SHAPE,3,1,2).scale(-rho_m*wpgdet*factor_cont);
 	  matlocf.rest(tmp17).rs();
 	  // d_R(cont)/d_p
-	  matlocf.ir(2,ndim+1).ir(4,ndim+1).axpy(tmp13,-wpgdet).rs();
+	  matlocf.ir(2,ndim+1).ir(4,ndim+1).axpy(tmp13,-wpgdet*factor_cont).rs();
 
 	  matlocf.rs();
 
@@ -1223,15 +1299,39 @@ assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
 	    tmp18.prod(dshapex,tmp19,2,3,4,1);
 	    matlocf.is(2,1,ndim).is(4,1,ndim).add(tmp18).rs();
 
+	    // shock capturing (LSIC) momentum equation
 	    tmp19.set(dshapex).scale(delta_supg*rho_m*wpgdet);
 	    tmp18.prod(dshapex,tmp19,2,1,4,3);
 	    matlocf.is(2,1,ndim).is(4,1,ndim).add(tmp18).rs();
 
-	    tmp19.set(dshapex).scale(delta_supg*wpgdet);
-	    tmp7_g.prod(grad_rho_m,SHAPE,2,1);
-	    tmp18.prod(tmp7_g,tmp19,1,2,4,3);
-	    matlocf.is(2,1,ndim).is(4,1,ndim).add(tmp18).rs();
-
+	    //  may be an error
+	    if (0){
+	      tmp19.set(dshapex).scale(delta_supg*wpgdet);
+	      tmp7_g.prod(grad_rho_m,SHAPE,2,1);
+	      tmp18.prod(tmp7_g,tmp19,1,2,4,3);
+	      matlocf.is(2,1,ndim).is(4,1,ndim).add(tmp18).rs();
+	      //
+	    } else {
+	      tmp19.set(dshapex).scale(delta_supg*wpgdet);
+	      tmp7_g.prod(grad_rho_m,SHAPE,2,1);
+	      tmp18.prod(tmp19,tmp7_g,2,1,3,4);
+	      matlocf.is(2,1,ndim).is(4,1,ndim).add(tmp18).rs();
+	    }
+	    
+	    if(1) {
+	      // contribution to the matrix for LSIC terms
+	      for (int j=1; j<=nphases; j++) {
+		rho_g = rho_g_vp.get(j);
+		
+		tmp190.set(SHAPE).scale(delta_supg*(rho_g-rho_l)*(factor_cont_temp*rec_Dt/alpha+div_u_star));
+		tmp191.prod(u_star,dshapex,-1,-1,1).scale(delta_supg*(rho_g-rho_l));
+		tmp191.add(tmp190);
+		tmp192.prod(dshapex,tmp191,2,1,3);
+		
+		matlocf.is(2,1,ndim).ir(4,ndim+1+j).axpy(tmp192,wpgdet).rs();
+	      }
+	    }
+	    
 	  } else {
 	    grad_div_u_coef += (delta_supg*rho_m+visco_m_eff)*wpgdet;
 	    if (!grad_div_u_was_cached) {
@@ -1302,7 +1402,7 @@ assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
       //.rs().ir(2,ndim+1).set(rescont).rs();
 
       veccontr.is(2,1,ndim).set(resmom)
-	.rs().ir(2,ndim+1).set(rescont)
+	.rs().ir(2,ndim+1).set(rescont).scale(factor_cont)
 	.rs().is(2,ndim+2,ndim+1+nphases).set(res_alpha_g).rs();
 
 

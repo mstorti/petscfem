@@ -18,7 +18,7 @@ void print_copyright() {
 "----------------------------------<http://www.cimec.org.ar/petscfem>--\n"
 "This is PETSc-FEM, version <:$t=`cat ../VERSION`; chomp $t; print $t:>"
 "   (compiled with BOPT=\"" PETSC_BOPT_FLAG "\")\n"
-"Copyright (C) 1999-2007 Mario A. Storti, Norberto M. Nigro,\n"
+"Copyright (C) 1999-2008 Mario A. Storti, Norberto M. Nigro,\n"
 "   Rodrigo R. Paz, Lisandro Dalcin and Ezequiel Lopez. CIMEC-CONICET-UNL\n"
 "PETSc-FEM comes with ABSOLUTELY NO WARRANTY.  This is free software,\n"
 "and you are welcome to redistribute it under certain conditions.\n"

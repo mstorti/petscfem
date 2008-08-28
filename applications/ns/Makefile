@@ -22,7 +22,9 @@ LIBOBJS = ns.o mmvmain.o mmv2main.o nsstruct.o ns_fsi.o compdate.o      \
 	bccnsitetasm.o nsitetasm_avgvol.o ns_gasflow.o bccns_gasflow.o	\
 	mmoveopt.o elast2.o  bccnsitetasm_avgvol.o elastld.o   		\
 	errestim.o mmoveopt3.o bubblyqint.o nsitetlesf.o nsitetlesfbf.o \
-	poiboltz.o mmoveopt2.o truss.o nsitetlesfd.o nodeload.o
+	poiboltz.o mmoveopt2.o truss.o nsitetlesfd.o nodeload.o         \
+	nsitetlesls.o electrophoresis.o  electrophoresisM.o flowrev.o   \
+	renorm.o
 
 MYOBJS =
 
@@ -45,7 +47,7 @@ include $(PETSCFEM_DIR)/Makefile.base
 # documentation of options with the script `odoc.pl'
 odocns: ../../doc/odocns.tex ../../doc/odocnse.tex \
 	../../doc/odocnsb.tex  ../../doc/odocnsw.tex \
-	../../doc/odocnsfs.tex 
+	../../doc/odocnsfs.tex ../../doc/odocflrv.tex 
 
 ../../doc/odocns.tex: ns.cpp 
 	$(run_odoc)
@@ -60,6 +62,9 @@ odocns: ../../doc/odocns.tex ../../doc/odocnse.tex \
 	$(run_odoc)
 
 ../../doc/odocnsfs.tex: nssupg.cpp ../../doc/nsdoc.tex
+	$(run_odoc)
+
+../../doc/odocflrv.tex: flowrev.cpp 
 	$(run_odoc)
 
 ns.o : CCPPFLAGS += -O0

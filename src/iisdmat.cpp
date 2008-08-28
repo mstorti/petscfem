@@ -140,14 +140,16 @@ int PFPETScMat::build_ksp() {
   TGETOPTDEF_S_ND_PF(thash,string,KSP_method,gmres);
   //o Chooses the preconditioning operator. 
   TGETOPTDEF_S_PF(thash,string,preco_type,jacobi);
-  //o define subproblems in Additive Schwarz prec.
-  TGETOPTDEF_ND_PF(thash,int,asm_define_sub_problems,0);
   //o Chooses the preconditioning for block problems in ASM method.
   TGETOPTDEF_S_PF(thash,string,asm_sub_preco_type,ilu);
+  //o Chooses the preconditioning for block problems in ASM method.
+  TGETOPTDEF_S_PF(thash,string,asm_sub_ksp_type,preonly);
   //o Chooses the number of local blocks in ASM
   TGETOPTDEF_ND_PF(thash,int,asm_lblocks,1);
   //o Chooses the overlap of blocks in ASM
   TGETOPTDEF_ND_PF(thash,int,asm_overlap,1);
+  //o Chooses the restriction/extension type in ASM
+  TGETOPTDEF_S_PF(thash,string,asm_type,restrict);
   //o Uses right or left preconditioning. Default is  #right#  for
   // GMRES. 
   TGETOPTDEF_S_PF(thash,string,preco_side,<ksp-dependent>);
@@ -168,43 +170,53 @@ int PFPETScMat::build_ksp() {
 			 P,SAME_NONZERO_PATTERN); CHKERRQ(ierr);
   ierr = KSPGetPC(ksp,&pc); CHKERRQ(ierr);
 
-#if 1
   if (preco_type=="asm") {
     int nprocs;
     MPI_Comm_size(PETSCFEM_COMM_WORLD,&nprocs);
     
     ierr = PCSetType(pc,PCASM);CHKERRQ(ierr);
-    ierr = PCASMSetType(pc,PC_ASM_BASIC);CHKERRQ(ierr);
-    ierr = PCASMSetOverlap(pc,asm_overlap);
-    assert(asm_overlap>=0);
-    
-    /*
-      if (asm_lblocks==1 && nprocs==1)
-      PETSCFEM_ERROR0("PCASM uniprocessor and one block results in\n"
-      "a direct mewthod (ILU(0))! Please, if you don't want this set the\n"
-      "variables NP > 1 and/or asm_lblocks > 1\n");
-    */
-    if (asm_lblocks>1) ierr = PCASMSetLocalSubdomains(pc,asm_lblocks,PETSC_NULL);CHKERRQ(ierr);
-    if (asm_define_sub_problems && asm_lblocks>1){
+    if (asm_type == "restrict") {
+      ierr = PCASMSetType(pc,PC_ASM_RESTRICT);CHKERRQ(ierr);
+    } else if (asm_type == "basic") {
+      ierr = PCASMSetType(pc,PC_ASM_BASIC);CHKERRQ(ierr);
+    } else if (asm_type == "interpolate") {
+      ierr = PCASMSetType(pc,PC_ASM_INTERPOLATE);CHKERRQ(ierr);
+    } else if (asm_type == "none") {
+      ierr = PCASMSetType(pc,PC_ASM_NONE);CHKERRQ(ierr);
+    } else {
+      PETSCFEM_ERROR("PFPETScMat::build_ksp():: "
+		     "Bad \"asm_type\": %s\n",
+		     asm_type.c_str());  
+    }
+    if (KSP_method == "cg") { // special case
+      ierr = PCASMSetType(pc,PC_ASM_BASIC);CHKERRQ(ierr);
+    }
+
+    PETSCFEM_ASSERT0(asm_overlap>=0,"Overlap in ASM prec must be non-negative");
+    ierr = PCASMSetOverlap(pc,asm_overlap);CHKERRQ(ierr);
+
+    PETSCFEM_ASSERT0(asm_lblocks>0,"Local blocks in ASM prec must be positive");
+    if (asm_lblocks>1) { 
+      ierr = PCASMSetLocalSubdomains(pc,asm_lblocks,PETSC_NULL);CHKERRQ(ierr); 
+    }
+
+    {
       int        nlocal,first;  /* number of local subblocks, first local subblock */
-      KSP        *subksp;             /* KSP context for subblock */
-      PC         subpc;              /* PC context for subblock */
+      KSP        *subksp;       /* KSP context for subblock */
+      PC         subpc;         /* PC context for subblock */
       
       ierr = KSPSetUp(ksp);CHKERRQ(ierr);
       //Extract array of KSP for the local blocks
       ierr = PCASMGetSubKSP(pc,&nlocal,&first,&subksp); CHKERRQ(ierr);
       //ierr = PCView(pc,PETSC_VIEWER_STDOUT_WORLD); CHKERRQ(ierr);    
-      assert(asm_lblocks>0);
       for (int j=0; j<nlocal; j++) {
- 	ierr = KSPGetPC(subksp[j],&subpc); CHKERRQ(ierr);
- 	ierr = PCSetType(subpc,(char *)asm_sub_preco_type.c_str()); CHKERRQ(ierr);
- 	ierr = KSPSetType(subksp[j],(char *)KSP_method.c_str());  CHKERRQ(ierr);
- 	ierr = KSPSetTolerances(subksp[j],1.e-7,PETSC_DEFAULT,PETSC_DEFAULT,PETSC_DEFAULT); CHKERRQ(ierr);
- 	//ierr = PCView(subpc,PETSC_VIEWER_STDOUT_WORLD);
+	ierr = KSPSetType(subksp[j],(char *)asm_sub_ksp_type.c_str());  CHKERRQ(ierr);
+	ierr = KSPGetPC(subksp[j],&subpc); CHKERRQ(ierr);
+	ierr = PCSetType(subpc,(char *)asm_sub_preco_type.c_str()); CHKERRQ(ierr);
+	ierr = PCFactorSetZeroPivot(subpc,1.0e-20); CHKERRQ(ierr); 
       }
     }
   } else
-#endif
     
     set_preco(preco_type);
 
@@ -868,7 +880,7 @@ int IISDMat::maybe_factor_and_solve(Vec &res,Vec &dx,int factored=0) {
 	ierr = KSPSetOperators(ksp_ii,A_II_g,
 				A_II_g,SAME_NONZERO_PATTERN); PF_CHKERRQ(ierr); 
 	ierr = KSPGetPC(ksp_ii,&pc_ii); PF_CHKERRQ(ierr); 
-	// ierr = KSPSetType(ksp_ii,KSPGMRES); PF_CHKERRQ(ierr); 
+	//	ierr = KSPSetType(ksp_ii,KSPGMRES); PF_CHKERRQ(ierr); 
 	ierr = KSPSetType(ksp_ii,KSPRICHARDSON); PF_CHKERRQ(ierr); 
 	ierr = KSPRichardsonSetScale(ksp_ii,interface_full_preco_relax_factor);
 	if(print_interface_full_preco_conv) {
@@ -877,6 +889,10 @@ int IISDMat::maybe_factor_and_solve(Vec &res,Vec &dx,int factored=0) {
 	}
 	ierr = KSPSetTolerances(ksp_ii,0.,0.,1.e10,
 				interface_full_preco_maxits); 
+	/*
+	  ierr = KSPSetTolerances(ksp_ii,1.e-3,0.,1.e10,
+	  interface_full_preco_maxits); 
+	*/
 	PF_CHKERRQ(ierr); 
         ierr = PCSetType(pc_ii,(char *)interface_full_preco_pc.c_str()); 
 	PF_CHKERRQ(ierr); 

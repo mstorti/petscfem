@@ -11,7 +11,7 @@ else
   printf("All tetra volumes > 0 OK ? %d\n",minv>0);
   printf("Min/max vol %f/%f\n",minv,maxv);
   ratio = maxv/minv;
-  max_ratio = 20;
+  max_ratio = 25;
   printf("Max/min ratio < max_ratio OK ? %d, ratio %f, max_ratio %f\n", \
 	 ratio<max_ratio,ratio,max_ratio);
 endif

@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id merge-with-petsc-233-55-g52bd457 Fri Oct 26 13:57:07 2007 -0300$
+//$Id$
 #include <src/debug.h>
 #include <malloc.h>
 
@@ -12,6 +12,9 @@
 #include <src/pfmat.h>
 #include <src/hook.h>
 #include <src/iisdmatstat.h>
+
+// For level set mass control
+double total_mass;
 
 // PETSc now doesn't have the string argument that represents the variable name
 // so that I will use this wrapper until I find how to set names in Ascii matlab viewers.
@@ -296,6 +299,7 @@ int ns_main(int argc,char **args) {
   vector<double> gather_values;
   //o Number of ``gathered'' quantities.
   GETOPTDEF(int,ngather,0);
+  gather_values.resize(ngather,0.);
   //o Print values in this file 
   TGETOPTDEF_S(GLOBAL_OPTIONS,string,gather_file,gather.out);
   // Initialize gather_file
@@ -347,6 +351,9 @@ int ns_main(int argc,char **args) {
   //o Print, after execution, a report of the times a given option
   // was accessed. Useful for detecting if an option was used or not.
   GETOPTDEF(int,report_option_access,1);
+
+  //o Print total mass (for Level Set Method)
+  GETOPTDEF(int,report_total_mass,0);
 
   if (print_some_file=="<none>")
     print_some_file = "";
@@ -622,6 +629,7 @@ int ns_main(int argc,char **args) {
 	}
 
 	debug.trace("Before residual computation...");
+	total_mass = 0.0;
 	ierr = assemble(mesh,argl,dofmap,jobinfo,&time_star);
 	CHKERRA(ierr);
 	debug.trace("After residual computation.");
@@ -754,6 +762,11 @@ int ns_main(int argc,char **args) {
 	}
 
       } // end of loop over Newton subiteration (inwt)
+
+      if (!MY_RANK && report_total_mass) { 
+        // prints total mass for level set control
+	printf("Total mass %f\n",total_mass);
+      }
 
     } else {
     
@@ -993,16 +1006,13 @@ int ns_main(int argc,char **args) {
 
 
     // Compute gathered quantities, for instance total force on walls
-    if (ngather>0) {
-      gather_values.resize(ngather,0.);
-      for (int j=0; j<ngather; j++) gather_values[j] = 0.;
-      arglf.clear();
-      arglf.arg_add(&state,IN_VECTOR|USE_TIME_DATA);
-      arglf.arg_add(&state_old,IN_VECTOR|USE_TIME_DATA);
-      arglf.arg_add(&gather_values,VECTOR_ADD);
-      ierr = assemble(mesh,arglf,dofmap,"gather",&time_star);
-      CHKERRA(ierr);
-    }
+    for (int j=0; j<ngather; j++) gather_values[j] = 0.;
+    arglf.clear();
+    arglf.arg_add(&state,IN_VECTOR|USE_TIME_DATA);
+    arglf.arg_add(&state_old,IN_VECTOR|USE_TIME_DATA);
+    arglf.arg_add(&gather_values,VECTOR_ADD);
+    ierr = assemble(mesh,arglf,dofmap,"gather",&time_star);
+    CHKERRA(ierr);
 
     hook_list.time_step_post(time_star.time(),tstep,gather_values);
 

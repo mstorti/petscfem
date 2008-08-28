@@ -1,6 +1,7 @@
 //__INSERT_LICENSE__
 // $Id: generror.cpp,v 1.5.10.1 2007/02/19 20:23:56 mstorti Exp $
 
+#include <cstdlib>
 #include <string>
 
 using namespace std;
@@ -16,14 +17,14 @@ extern int MY_RANK,SIZE;
 GenericError PETSCFEM_GENERIC_ERROR;
 
 GenericError::
-GenericError(char *s,va_list ap) {
+GenericError(const char *s,va_list ap) {
   AutoString as;
   as.vsprintf(s,ap);
   *this = GenericError(string(as.str()));
 }
 
 GenericError::
-GenericError(char *s,...) {
+GenericError(const char *s,...) {
   AutoString as;
   va_list ap;
 

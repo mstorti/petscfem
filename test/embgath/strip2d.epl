@@ -1,0 +1,127 @@
+<: require './data.pl'; :>//
+
+#default definitions
+#===========================================================
+global_options
+
+ndim <:=$ndim:>
+
+steady 1
+nstep 1
+# nnwt <:= ($ini ? 5 : 1); :>
+nnwt 3
+tol_newton <:= ($ini ? 1e-15 : 0); :>
+<:pr('Dt'):>
+<:pr('maxits'):>
+Krylov_dim <:=$maxits:>
+weak_form
+LES 0
+save_file <:= ($ini ? "strip.state.tmp" : "outvector.out.tmp");:>
+G_body 1 0 0 
+
+alpha 1.
+atol 0
+dtol 1e+3
+
+# SOLVER
+#if 0
+# Direct solver from PETSc
+solver "petsc"
+preco_type "lu"
+#else
+# IISD solver 
+solver "iisd_petsc"
+preco_type "jacobi"
+#if 0 || $flat
+# LU on one processor
+rtol 0
+iisd_subpart 1
+print_internal_loop_conv 0
+#else
+# IISD
+iisd_subpart 4
+rtol 1e-6
+print_internal_loop_conv
+#endif
+#endif
+
+nsave 1
+save_file_pattern "state%d.all.tmp"
+nsaverot 5
+# print_some_file "strip.some.tmp"
+# save_file_some "strip.some_rslt.tmp"
+# nsome 1
+
+#if 0
+# print_residual
+print_dofmap_id
+print_linear_system_and_stop
+solve_system 0
+# verify_jacobian_with_numerical_one 1
+# inwt_stop 2
+#endif
+
+viscosity 1.
+#if $gather
+ngather 3
+gather_file <:= ($use_exterior_normal ? "strip2d.force.tmp" : "strip2di.force.tmp") :>
+#endif
+__END_HASH__
+
+#===========================================================
+# ndim nu ndof
+nodedata  <:=$ndim:> <:=$ndim:> <:=$ndim+1:>
+data ./strip2d.nod.tmp
+__END_HASH__
+
+#===========================================================
+elemset nsi_tet_les_fm2 4
+name "viscous_fluid_elemset"
+geometry cartesian2d
+npg 4
+data ./strip2d.con.tmp
+__END_HASH__
+
+#===========================================================
+elemset visc_force_integrator 6
+geometry "line2quad"
+npg 2
+ndimel 1
+moment_center 0. 0.5
+volume_elemset "viscous_fluid_elemset"
+identify_volume_elements 1
+<:pr('use_exterior_normal'):>
+<:pr('layers'):>
+
+#if $gather
+gather_length 3
+gather_pos 0
+#endif
+
+#if $props
+props forces[3]
+pass_values_as_props
+store_in_property_name forces
+compute_densities 1
+#endif
+
+#if $dump
+store_values_length 3
+dump_props_to_file
+dump_props_file friction.step-%d.tmp
+#endif
+
+data ./strip2d.visc-force-con.tmp
+__END_HASH__
+
+end_elemsets
+
+# Impose b.c.'s on the walls 
+fixa
+1 3 0.0
+__INCLUDE__ ./strip2d.wall.tmp
+__END_FIXA__
+
+constraint
+__INCLUDE__ ./strip2d.peri.tmp
+__END_CONSTRAINT__

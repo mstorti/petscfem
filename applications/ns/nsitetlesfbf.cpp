@@ -27,26 +27,18 @@ bf_init(Nodedata* nodedata)
 { 
   int ierr;
 
-  TGETOPTDEF_S_ND(thash,string,pot1name,pot1);
-  TGETOPTDEF_S_ND(thash,string,pot2name,pot2);
-
-  SGETOPTDEF_ND(double, param1, 0.0 );
-  SGETOPTDEF_ND(double, param2, 0.0 );
+  TGETOPTDEF_S_ND(thash,string,potential_field,potential);
+  TGETOPTDEF_S_ND(thash,string,charge_field,charge);
 
   bool found; int ncols;
-  found = nodedata->get_field(pot1name,&ncols,&field1);
+  found = nodedata->get_field(potential_field,&ncols,&potn_ptr);
   assert(found); assert(ncols==1);
-  found = nodedata->get_field(pot2name,&ncols,&field2);
+  found = nodedata->get_field(charge_field,&ncols,&chrg_ptr);
   assert(found); assert(ncols==1);
 
-  pot1vec.resize(nel);
-  pot2vec.resize(nel);
-
-  pot1col.resize(1,nel);
-  pot2col.resize(1,nel);
-
-  grad_pot1.resize(1,nodedata->ndim);
-  grad_pot2.resize(1,nodedata->ndim);
+  potncol.resize(1,nel);
+  chrgcol.resize(1,nel);
+  grad_potn.resize(1,nodedata->ndim);
 
 }
 
@@ -54,29 +46,26 @@ void nsi_tet_les_full_bf::
 bf_eval_el(int iele)
 { 
   for (int i=0; i<nel; i++) {
-    int node = icone[iele*nel+i];
-    pot1vec[i] = field1[node-1];
-    pot2vec[i] = field2[node-1];
+    int     node = icone[iele*nel+i];
+    double  potn = potn_ptr[node-1];
+    double  chrg = chrg_ptr[node-1];
+    potncol.setel(potn, i+1);
+    chrgcol.setel(chrg, i+1);
   }
-  pot1col.set(&pot1vec[0]);
-  pot2col.set(&pot2vec[0]);
 }
 
 void nsi_tet_les_full_bf::
 bf_eval_pg(FastMat2& SHAPE,FastMat2& DSHAPE, FastMat2& BODY_FORCE)
 {
-  // compute potentials
-  double pot1 = tmp(1).prod(SHAPE,pot1col,-1,-1);
-  double pot2 = tmp(1).prod(SHAPE,pot2col,-1,-1);
-
-  // compute potential gradients
-  grad_pot1.prod(DSHAPE,pot1col,1,-1,-1);
-  grad_pot2.prod(DSHAPE,pot2col,1,-1,-1);
+  // compute potential, charge and grad of potential
+  double potn = tmp(1).prod(SHAPE,potncol,-1,-1);
+  double chrg = tmp(1).prod(SHAPE,chrgcol,-1,-1);
+  grad_potn.prod(DSHAPE,potncol,1,-1,-1);
   
   // compute body force
   BODY_FORCE
-    .axpy(grad_pot1, param1)
-    .axpy(grad_pot2, param2)
+    .set(grad_potn)
+    .scale(-chrg);
     ;
 
 }

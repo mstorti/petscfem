@@ -9,21 +9,16 @@
 
 //-------<*>-------<*>-------<*>-------<*>-------<*>------- 
 class nsi_tet_les_full_bf : nsi_tet_les_full { 
-public: 
-  double param1;
-  double param2;
 
 public: 
-  double* field1;
-  double* field2;
-  string pot1name;
-  string pot2name;
-  vector<double> pot1vec;
-  vector<double> pot2vec;
-  FastMat2 pot1col;
-  FastMat2 pot2col;
-  FastMat2 grad_pot1;
-  FastMat2 grad_pot2;
+  string potential_field;
+  string charge_field;
+
+  double* potn_ptr;
+  double* chrg_ptr;
+  FastMat2 potncol;
+  FastMat2 chrgcol;
+  FastMat2 grad_potn;
   FastMat2Tmp tmp;
 
 public: 

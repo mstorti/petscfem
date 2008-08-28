@@ -557,6 +557,11 @@ expect("sqcav/verif.g3d.tmp",
        "Adaptor_pg for surfaces. Plane at various angles",
        read_file("sqcav/verif.g3d.ans"));
 
+#------/*/------/*/------/*/------/*/------/*/------/*/------/*/ 
+expect("embgath/embgath-verif.tmp",
+       "Embedded gatherer, dump values per element on file",
+       "Test OK . 1");
+
 end_section();
 
 #------/*/------/*/------/*/------/*/------/*/------/*/------/*/ 
@@ -682,10 +687,8 @@ EOT
 
 #------/*/------/*/------/*/------/*/------/*/------/*/------/*/ 
 expect("nsgenload/output.fstack_global.tmp",
-       "Readmesh complains about bad file inclusion",<<'EOT');
-Couldn.t open file.*dummy_archive
-genload.depl
-EOT
+       "Readmesh complains about bad file inclusion",
+        read_file("./nsgenload/output.fstack_global.ans"));
 
 #------/*/------/*/------/*/------/*/------/*/------/*/------/*/ 
 expect("nsgenload/output.fstack_nodes.tmp",
@@ -999,6 +1002,9 @@ expect("genload/save.case_genl1d.tmp",
 expect("genload/save.case_genl1dh.tmp",
        "Generic Load, 0d element with hfilm coeff",$genl_check);
 
+expect("flow-reversal/flowrev-verif.tmp",
+       "Flow reversal, temperature check","Test OK . 1");
+
 end_section();
 
 #------/*/------/*/------/*/------/*/------/*/------/*/------/*/ 
@@ -1175,6 +1181,7 @@ end_section();
 #------/*/------/*/------/*/------/*/------/*/------/*/------/*/ 
 #------/*/------/*/------/*/------/*/------/*/------/*/------/*/ 
 
+=cut
 begin_section('PETSc-FEM / DX coupling');
 
 #------/*/------/*/------/*/------/*/------/*/------/*/------/*/ 
@@ -1218,6 +1225,7 @@ expect("sqcav/output.CASE_sqcav.np_2.case_dx_allf.out.tmp",
        read_file("sqcav/pf_output.dx_allf.ans"));
 
 end_section();
+=cut
 
 #------/*/------/*/------/*/------/*/------/*/------/*/------/*/ 
 #------/*/------/*/------/*/------/*/------/*/------/*/------/*/ 

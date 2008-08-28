@@ -1,3 +1,4 @@
+# -*- mode: my-notes -*-
 OK. This is mostly in spanish...  Sorry :-)
 ================================================================
 
@@ -12543,7 +12544,489 @@ fractional step solution. I think this is due to some change in the
 solution method. Results look very similar so that I assume this is
 ok. 
 
-# Current line ===========  %
-# Local Variables: $
-# eval: (my-notes-mode) $
-# End: $
+%=== Sat Dec  8 20:26:35 2007 mstorti@prandtl
+%
+%-- 20:26:35 -- mstorti-v8-end-12-g3a64419 -----
+Al compilar en las Opteron me da el siguiente error:
+-------------------
+../src/distcont2.h: In member function void DistCont<Container,
+ValueType, Par\-Wall  -Wno-long-long -Wno-unused-variable  
+    -I/usr/local/petsc/2.3.3 -I/usr/l\
+titioner>::scatter() [with Container = std::map<int, std::set<int, std::less<in\
+t>, std::allocator<int> >, std::less<int>, std::allocator<std::pair<const int, \
+std::set<int, std::less<int>, std::allocator<int> > > > >, ValueType = std::pai\
+r<int, std::set<int, std::less<int>, std::allocator<int> > >, Partitioner = Par\
+../src/iisdgraph.h:79:   instantiated from here
+../src/distcont2.h:159: warning: format %d expects type int, but argument 6\
+ has type long int
+../src/distcont2.h: In member function void DistCont<Container, ValueType, Par\
+titioner>::scatter() [with Container = LinkGraph, ValueType = LinkGraph::Row, P\
+artitioner = LinkGraphRowPart]:
+../src/linkgraph.h:149:   instantiated from here
+../src/distcont2.h:159: warning: format %d expects type int, but argument 6\
+ has type long int
+--------------------
+../src/distcont2.h: In member function void DistCont<Container, ValueType, Par\ -f dofmap3.o
+titioner>::scatter() [with Container = std::list<KeyedLine, std::allocator<Keye\
+dLine> >, ValueType = KeyedLine, Partitioner = TrivialPartitioner<KeyedLine>]:
+../src/syncbuff2.h:28:   instantiated from void SyncBuffer<T>::print() [with T\
+ = KeyedLine]
+syncbuff.cpp:133:   instantiated from here
+../src/distcont2.h:159: warning: format %d expects type int, but argument 6\C -c -DNDEBUG -O3 -funroll-loops  -DMPICH_SKIP_MPICXX -DOMPI_SKIP_MPICX\
+ has type long int
+a
+------------------------
+../src/distmap2.h: In member function 'void DistMap<Key, Val, Partitioner>::sca\
+tter() [with Key = int, Val = Row, Partitioner = IntRowPartitioner]':
+iisdmat.cpp:500:   instantiated from here
+../src/distmap2.h:123: warning: format '%d' expects type 'int', but argument 6 \
+has type 'long int'
+
+%=== Thu Mar 27 11:35:20 2008 mstorti@prandtl
+%
+%-- 11:35:20 -- mstorti-v9-root-114-gd4e8bf2 -----
+%
+Hice el merge de mstorti-v9 y corre el resumen da
+OK: 159.  Not OK: 12. Couldn't open: 8. Total: 179. 
+La ultima vez, daba
+OK: 153.  Not OK: 18. Couldn't open: 8. Total: 179
+con lo cual mejoramos incluso. 
+%
+Los tests que dan mal son los siguientes los siguiente
+%
+> sqcav/check.fs.verif.tmp
+> idmap/tidmap.sal
+> nsgenload/output.fstack_global.tmp
+> newff/adv_temp_cp.vrf.tmp
+> newff/full_full_jacs_cp.vrf.tmp
+> newff/full_full_jacs_adv_cp.vrf.tmp
+> newff/adv_temp_cp_iisd.vrf.tmp
+> distmap/dist_graph.np3.out.tmp
+> distmap/test_kob_plain.output.tmp
+> distmap/test_kob_no_sort.output.tmp
+> distmap/test_kob_no_key_print.output.tmp
+> distmap/test_kob_no_newline.output.tmp
+%
+y antes eran:
+%
+> sqcav/check.fs.verif.tmp
+> nutatcyl/checknutcyl.verif.tmp
+> nutatcyl/rigid.verif.tmp
+> nutatcyl/strip.verif.tmp
+> nutatcyl/stripp.verif.tmp
+> nutatcyl/strippi.verif.tmp
+> mmove/step3d.verif.tmp
+> idmap/tidmap.sal
+> nsgenload/output.fstack_global.tmp
+> newff/adv_temp_cp.vrf.tmp
+> newff/full_full_jacs_cp.vrf.tmp
+> newff/full_full_jacs_adv_cp.vrf.tmp
+> newff/adv_temp_cp_iisd.vrf.tmp
+> distmap/dist_graph.np3.out.tmp
+> distmap/test_kob_plain.output.tmp
+> distmap/test_kob_no_sort.output.tmp
+> distmap/test_kob_no_key_print.output.tmp
+> distmap/test_kob_no_newline.output.tmp
+
+%=== Wed Apr 16 06:31:51 2008 mstorti@prandtl
+%
+%-- 06:31:51 -- mstorti-v13-root-9-g5890a71 -----
+Corro los tests da lo mismo que cuando lo corri con v12 
+(mstorti-v9-root-114-gd4e8bf2).
+OK: 159.  Not OK: 12. Couldn't open: 8. Total: 179. 
+%
+================================================================
+            CON G-C++
+================================================================
+-------------------------
+COULDN'T OPEN: 
+can't open sqcav/output.CASE_sqcav.np_1.case_dx_file1.out.tmp
+can't open sqcav/output.CASE_sqcav.np_1.case_dx_file3.out.tmp
+can't open sqcav/output.CASE_sqcav.np_1.case_dx_synchro.out.tmp
+can't open sqcav/output.CASE_sqcav.np_1.case_dx_allf.out.tmp
+can't open sqcav/output.CASE_sqcav.np_2.case_dx_file1.out.tmp
+can't open sqcav/output.CASE_sqcav.np_2.case_dx_file3.out.tmp
+can't open sqcav/output.CASE_sqcav.np_2.case_dx_synchro.out.tmp
+can't open sqcav/output.CASE_sqcav.np_2.case_dx_allf.out.tmp
+-------------------------
+NOT OK TESTS: 
+--------
+> Start section: "Navier-Stokes tests."
+> Testing: "Square cavity with fract. step, Re1000, N=20" on file "sqcav/check.fs.verif.tmp"...not OK.
+>         --->  Couldn't find "Square cavity at Re=1000. Error < tol OK \? 1"
+> Summary: "Navier-Stokes tests." -- OK: 15.  Not OK: 1. Couldn't open: 0. Total: 16
+> --------
+> Start section: "Misc tests."
+> Testing: "Idmap class" on file "idmap/tidmap.sal"...not OK.
+>         --->  Couldn't find "Column permutations: maximum error: "
+> Summary: "Misc tests." -- OK: 24.  Not OK: 1. Couldn't open: 0. Total: 25
+> --------
+> Start section: "New flux function tests."
+> Testing: "newff/test case adv_temp_cp" on file "newff/adv_temp_cp.vrf.tmp"...not OK.
+>         --->  Couldn't find "rel. max error  <tol\(.*\) OK\? 1"
+> Testing: "newff/test case full_full_jacs_cp" on file "newff/full_full_jacs_cp.vrf.tmp"...not OK.
+>         --->  Couldn't find "rel. max error  <tol\(.*\) OK\? 1"
+> Testing: "newff/test case full_full_jacs_adv_cp" on file "newff/full_full_jacs_adv_cp.vrf.tmp"...not OK.
+>         --->  Couldn't find "rel. max error  <tol\(.*\) OK\? 1"
+> Summary: "New flux function tests." -- OK: 17.  Not OK: 3. Couldn't open: 0. Total: 20
+> --------
+> Start section: "IISD solver. Checking with advdif"
+> Testing: "newff/test case adv_temp_cp_iisd" on file "newff/adv_temp_cp_iisd.vrf.tmp"...not OK.
+>         --->  Couldn't find "rel. max error  <tol\(.*\) OK\? 1"
+> Summary: "IISD solver. Checking with advdif" -- OK: 8.  Not OK: 1. Couldn't open: 0. Total: 9
+> --------
+> Start section: "Graph Partitioning"
+> Testing: "Distributed graph 2proc." on file "distmap/dist_graph.np2.out.tmp"...not OK.
+>         --->  Couldn't find "row 0:  1 "
+> Summary: "Graph Partitioning" -- OK: 2.  Not OK: 1. Couldn't open: 0. Total: 3
+> --------
+> Start section: "Synchronized output on. SyncBuffer and KeyedOutputBuffer classes. "
+> Testing: "Test for the `KeyedOutputBuffer' class plain" on file "distmap/test_kob_plain.output.tmp"...not OK.
+>         --->  Couldn't find "1: 1 2 3 4 5 6 "
+> Testing: "Test for the `KeyedOutputBuffer' class with no sorting" on file "distmap/test_kob_no_sort.output.tmp"...not OK.
+>         --->  Couldn't find "3: 3 4 5 6 "
+> Testing: "Test for the `KeyedOutputBuffer' class with no key printing" on file "distmap/test_kob_no_key_print.output.tmp"...not OK.
+>         --->  Couldn't find "1 2 3 4 5 6 "
+> Testing: "Test for the `KeyedOutputBuffer' class with no newlines" on file "distmap/test_kob_no_newline.output.tmp"...not OK.
+>         --->  Couldn't find "0: 0 1 2 3 4 5 6  (explicit new-line)"
+> Summary: "Synchronized output on. SyncBuffer and KeyedOutputBuffer classes. " -- OK: 1.  Not OK: 4. Couldn't open: 0. Total: 5
+> --------
+> Start section: "All tests"
+> Summary: "All tests" -- OK: 160.  Not OK: 11. Couldn't open: 8. Total: 179
+================================================================
+            CON O-C++
+================================================================
+COULDN'T OPEN: 
+can't open sqcav/output.CASE_sqcav.np_1.case_dx_file1.out.tmp
+can't open sqcav/output.CASE_sqcav.np_1.case_dx_file3.out.tmp
+can't open sqcav/output.CASE_sqcav.np_1.case_dx_synchro.out.tmp
+can't open sqcav/output.CASE_sqcav.np_1.case_dx_allf.out.tmp
+can't open sqcav/output.CASE_sqcav.np_2.case_dx_file1.out.tmp
+can't open sqcav/output.CASE_sqcav.np_2.case_dx_file3.out.tmp
+can't open sqcav/output.CASE_sqcav.np_2.case_dx_synchro.out.tmp
+can't open sqcav/output.CASE_sqcav.np_2.case_dx_allf.out.tmp
+-------------------------
+NOT OK TESTS: 
+--------
+> Start section: "Navier-Stokes tests."
+> Testing: "Square cavity with fract. step, Re1000, N=20" on file "sqcav/check.fs.verif.tmp"...not OK.
+>         --->  Couldn't find "Square cavity at Re=1000. Error < tol OK \? 1"
+> Summary: "Navier-Stokes tests." -- OK: 15.  Not OK: 1. Couldn't open: 0. Total: 16
+> --------
+> Start section: "Misc tests."
+> Testing: "Idmap class" on file "idmap/tidmap.sal"...not OK.
+>         --->  Couldn't find "Column permutations: maximum error: "
+> Summary: "Misc tests." -- OK: 24.  Not OK: 1. Couldn't open: 0. Total: 25
+> --------
+> Start section: "New flux function tests."
+> Testing: "newff/test case adv_temp_cp" on file "newff/adv_temp_cp.vrf.tmp"...not OK.
+>         --->  Couldn't find "rel. max error  <tol\(.*\) OK\? 1"
+> Testing: "newff/test case full_full_jacs_cp" on file "newff/full_full_jacs_cp.vrf.tmp"...not OK.
+>         --->  Couldn't find "rel. max error  <tol\(.*\) OK\? 1"
+> Testing: "newff/test case full_full_jacs_adv_cp" on file "newff/full_full_jacs_adv_cp.vrf.tmp"...not OK.
+>         --->  Couldn't find "rel. max error  <tol\(.*\) OK\? 1"
+> Summary: "New flux function tests." -- OK: 17.  Not OK: 3. Couldn't open: 0. Total: 20
+> --------
+> Start section: "IISD solver. Checking with advdif"
+> Testing: "newff/test case adv_temp_cp_iisd" on file "newff/adv_temp_cp_iisd.vrf.tmp"...not OK.
+>         --->  Couldn't find "rel. max error  <tol\(.*\) OK\? 1"
+> Summary: "IISD solver. Checking with advdif" -- OK: 8.  Not OK: 1. Couldn't open: 0. Total: 9
+> --------
+> Start section: "Graph Partitioning"
+> Testing: "Distributed graph 2proc." on file "distmap/dist_graph.np2.out.tmp"...not OK.
+>         --->  Couldn't find "row 0:  1 "
+> Testing: "Distributed graph 3proc." on file "distmap/dist_graph.np3.out.tmp"...not OK.
+>         --->  Couldn't find "row 0:  "
+> Summary: "Graph Partitioning" -- OK: 1.  Not OK: 2. Couldn't open: 0. Total: 3
+> --------
+> Start section: "Synchronized output on. SyncBuffer and KeyedOutputBuffer classes. "
+> Testing: "Test for the `KeyedOutputBuffer' class plain" on file "distmap/test_kob_plain.output.tmp"...not OK.
+>         --->  Couldn't find "1: 1 2 3 4 5 6 "
+> Testing: "Test for the `KeyedOutputBuffer' class with no sorting" on file "distmap/test_kob_no_sort.output.tmp"...not OK.
+>         --->  Couldn't find "3: 3 4 5 6 "
+> Testing: "Test for the `KeyedOutputBuffer' class with no key printing" on file "distmap/test_kob_no_key_print.output.tmp"...not OK.
+>         --->  Couldn't find "1 2 3 4 5 6 "
+> Testing: "Test for the `KeyedOutputBuffer' class with no newlines" on file "distmap/test_kob_no_newline.output.tmp"...not OK.
+>         --->  Couldn't find "0: 0 1 2 3 4 5 6  (explicit new-line)"
+> Summary: "Synchronized output on. SyncBuffer and KeyedOutputBuffer classes. " -- OK: 1.  Not OK: 4. Couldn't open: 0. Total: 5
+> --------------------------------------------------
+> Start section: "All tests"
+> Summary: "All tests" -- OK: 159.  Not OK: 12. Couldn't open: 8. Total: 179
+
+%=== Sun Apr 27 13:01:26 2008 mstorti@prandtl
+%
+%-- 13:01:26 -- mstorti-v13-end-7-g5ce7ac9 -----
+Parece que sigue corriendo los mismos tests que antes. 
+ -------------------------
+> echo "COULDN'T OPEN: " | tee -a make-tests-g_c++.log
+> COULDN'T OPEN: 
+> runtests.pl -o | grep "^can't" | tee -a make-tests-g_c++.log
+> can't open sqcav/output.CASE_sqcav.np_1.case_dx_file1.out.tmp
+> can't open sqcav/output.CASE_sqcav.np_1.case_dx_file3.out.tmp
+> can't open sqcav/output.CASE_sqcav.np_1.case_dx_synchro.out.tmp
+> can't open sqcav/output.CASE_sqcav.np_1.case_dx_allf.out.tmp
+> can't open sqcav/output.CASE_sqcav.np_2.case_dx_file1.out.tmp
+> can't open sqcav/output.CASE_sqcav.np_2.case_dx_file3.out.tmp
+> can't open sqcav/output.CASE_sqcav.np_2.case_dx_synchro.out.tmp
+> can't open sqcav/output.CASE_sqcav.np_2.case_dx_allf.out.tmp
+> echo "-------------------------" | tee -a  make-tests-g_c++.log
+> -------------------------
+> echo "NOT OK TESTS: " | tee -a make-tests-g_c++.log
+> NOT OK TESTS: 
+> runtests.pl -n | tee -a make-tests-g_c++.log
+> --------
+> Start section: "Navier-Stokes tests."
+> Testing: "Square cavity with fract. step, Re1000, N=20" on file "sqcav/check.fs.verif.tmp"...not OK.
+>         --->  Couldn't find "Square cavity at Re=1000. Error < tol OK \? 1"
+> Summary: "Navier-Stokes tests." -- OK: 15.  Not OK: 1. Couldn't open: 0. Total: 16
+> --------
+> Start section: "Misc tests."
+> Testing: "Idmap class" on file "idmap/tidmap.sal"...not OK.
+>         --->  Couldn't find "Column permutations: maximum error: "
+> Summary: "Misc tests." -- OK: 24.  Not OK: 1. Couldn't open: 0. Total: 25
+> --------
+> Start section: "New flux function tests."
+> Testing: "newff/test case adv_temp_cp" on file "newff/adv_temp_cp.vrf.tmp"...not OK.
+>         --->  Couldn't find "rel. max error  <tol\(.*\) OK\? 1"
+> Testing: "newff/test case full_full_jacs_cp" on file "newff/full_full_jacs_cp.vrf.tmp"...not OK.
+>         --->  Couldn't find "rel. max error  <tol\(.*\) OK\? 1"
+> Testing: "newff/test case full_full_jacs_adv_cp" on file "newff/full_full_jacs_adv_cp.vrf.tmp"...not OK.
+>         --->  Couldn't find "rel. max error  <tol\(.*\) OK\? 1"
+> Summary: "New flux function tests." -- OK: 17.  Not OK: 3. Couldn't open: 0. Total: 20
+> --------
+> Start section: "IISD solver. Checking with advdif"
+> Testing: "newff/test case adv_temp_cp_iisd" on file "newff/adv_temp_cp_iisd.vrf.tmp"...not OK.
+>         --->  Couldn't find "rel. max error  <tol\(.*\) OK\? 1"
+> Summary: "IISD solver. Checking with advdif" -- OK: 8.  Not OK: 1. Couldn't open: 0. Total: 9
+> --------
+> Start section: "Graph Partitioning"
+> Testing: "Distributed graph 3proc." on file "distmap/dist_graph.np3.out.tmp"...not OK.
+>         --->  Couldn't find "[0] proc"
+> Summary: "Graph Partitioning" -- OK: 2.  Not OK: 1. Couldn't open: 0. Total: 3
+> --------
+> Start section: "Synchronized output on. SyncBuffer and KeyedOutputBuffer classes. "
+> Testing: "Test for the `KeyedOutputBuffer' class plain" on file "distmap/test_kob_plain.output.tmp"...not OK.
+>         --->  Couldn't find "1: 1 2 3 4 5 6 "
+> Testing: "Test for the `KeyedOutputBuffer' class with no sorting" on file "distmap/test_kob_no_sort.output.tmp"...not OK.
+>         --->  Couldn't find "3: 3 4 5 6 "
+> Testing: "Test for the `KeyedOutputBuffer' class with no key printing" on file "distmap/test_kob_no_key_print.output.tmp"...not OK.
+>         --->  Couldn't find "1 2 3 4 5 6 "
+> Testing: "Test for the `KeyedOutputBuffer' class with no newlines" on file "distmap/test_kob_no_newline.output.tmp"...not OK.
+>         --->  Couldn't find "0: 0 1 2 3 4 5 6  (explicit new-line)"
+> Summary: "Synchronized output on. SyncBuffer and KeyedOutputBuffer classes. " -- OK: 1.  Not OK: 4. Couldn't open: 0. Total: 5
+> 
+> --------------------------------------------------
+> 
+> --------
+> Start section: "All tests"
+> Summary: "All tests" -- OK: 160.  Not OK: 11. Couldn't open: 8. Total: 179
+
+%=== Tue May  6 20:13:11 2008 mstorti@prandtl
+%
+%-- 20:13:11 -- mstorti-v15-end-8-g036137b -----
+Beto: NSILESTHER:
+%
+yo toque una rutina que luego pensaba dartela para mergear. 
+La nsilesther tenia un error en el calculo de la difusividad termica
+para la estabilizacion (creo) y la corregi. Yo lo recompile y anduvo
+bien. Si queres usar lo de GIT fijate que esa rutina esta tocada, sino
+hace la diferencia con la tuya y miralo
+
+%=== Wed May  7 20:46:39 2008 mstorti@prandtl
+%
+%-- 20:46:39 -- mstorti-v16-end-6-g775252b -----
+> VIEJO: Summary: "All tests" -- OK: 160.  Not OK: 11. Couldn't open: 8. Total: 179
+> NUEVO: Summary: "All tests" -- OK: 160.  Not OK: 12. Couldn't open: 9. Total: 181
+%
+Los siguientes tests NOT-OK aparecen ahora
+Testing: "Max volume ratio large deformation mesh mov." on file "mmove/step3d.verif.tmp"...not OK.
+%
+Lo corregi, le subi un poco la tolerancia (de 20 a 25).
+%
+%
+Finalmente da
+%
+g_c++: Summary: "All tests" -- OK: 161.  Not OK: 11. Couldn't open: 9. Total: 181
+O_c++: Summary: "All tests" -- OK: 161.  Not OK: 12. Couldn't open: 8. Total: 181
+%
+Con g_c++ habia uno que no se ejecutaba por el `embgath'. Con O_c++
+eso lo arregle y el nuevo que da mal es
+> Testing: "Distributed graph 2proc." on file "distmap/dist_graph.np2.out.tmp"...not OK.
+
+%=== Tue Jun 10 07:00:07 2008 mstorti@galileo
+%
+%-- 07:00:07 -- mstorti-v16-end-14-gd1082ae -----
+%
+bubbly_full.cpp: In member function 'virtual void
+bubbly_full_ff::compute_flux(const FastMat2&, const FastMat2&,
+FastMat2&, FastMat2&, FastMat2&, FastMat2&, FastMat2&, FastMat2&,
+FastMat2&, FastMat2&, double&, double&, FastMat2&, FastMat2&,
+FastMat2&, FastMat2&, int)': bubbly_full.cpp:1416: warning: suggest
+parentheses around comparison in operand of |
+%
+mainutl.cpp: In function 'int readval(int&, char*, double&)':
+mainutl.cpp:21: warning: deprecated conversion from string constant to 'char*'
+mainutl.cpp: In function 'int readval(int&, char*, int&)':
+mainutl.cpp:34: warning: deprecated conversion from string constant to 'char*'
+mainutl.cpp: In function 'int read_vector(const char*, _p_Vec*, Dofmap*, int)':
+mainutl.cpp:287: warning: comparisons like X<=Y<=Z do not have their mathematica
+%
+dxhook.cpp: In member function 'virtual void dx_hook::init(Mesh&, Dofmap&, const char*)':
+dxhook.cpp:172: warning: deprecated conversion from string constant to 'char*'
+dxhook.cpp:207: warning: deprecated conversion from string constant to 'char*'
+dxhook.cpp:216: warning: deprecated conversion from string constant to 'char*'
+dxhook.cpp: In member function 'void dx_hook::send_state(int, int (dx_hook::*)(double*))':
+dxhook.cpp:484: warning: deprecated conversion from string constant to 'char*'
+dxhook.cpp:486: warning: deprecated conversion from string constant to 'char*'
+dxhook.cpp:501: warning: deprecated conversion from string constant to 'char*'
+dxhook.cpp:543: warning: deprecated conversion from string constant to 'char*'
+dxhook.cpp:570: warning: deprecated conversion from string constant to 'char*'
+dxhook.cpp:577: warning: deprecated conversion from string constant to 'char*'
+dxhook.cpp:587: warning: deprecated conversion from string constant to 'char*'
+%
+texthash.cpp: In member function 'void TextHashTable::read(FileStack*&)':
+texthash.cpp:279: warning: deprecated conversion from string constant to 'char*'
+texthash.cpp:289: warning: deprecated conversion from string constant to 'char*'
+%
+pfmat.cpp: In static member function 'static PFMat* PFMat::dispatch(int, DofPartitioner&, const char*)':
+pfmat.cpp:298: warning: deprecated conversion from string constant to 'char*'
+%
+readmesh.cpp: In function 'int read_mesh(Mesh*&, char*, Dofmap*&, int&, int, int)':
+readmesh.cpp:88: warning: deprecated conversion from string constant to 'char*'
+readmesh.cpp:1392: warning: deprecated conversion from string constant to 'char*'
+%
+gaschem.cpp: In member function 'virtual void gaschem_ff::compute_flux(const FastMat2&, const FastMat2&, FastMat2&, FastMat2&, FastMat2&, FastMat2&, FastMat2&, FastMat2&, FastMat2&, FastMat2&, double&, double&, FastMat2&, FastMat2&, FastMat2&, FastMat2&, int)':
+gaschem.cpp:204: warning: suggest parentheses around comparison in operand of |
+
+%=== Tue Jun 10 22:21:06 2008 mstorti@galileo
+%
+%-- 22:21:06 -- mstorti-v16-end-18-g137f5b4 -----
+%
+Estoy corriendo todos los tests. Curiosamente el test lupart/test_iisd
+no anda. Lo comento. Se cuelgan otros tests tambien:
+%
+lupart/test_iisd
+pfmat/iisdmat_petsc
+distmap/distmat
+
+%=== Wed Jun 11 14:41:25 2008 mstorti@galileo
+%
+%-- 14:41:25 -- mstorti-v16-end-19-g2596705 -----
+Encontre el bug. Se debe a que en el `distmap2.h' no se iteraba
+correctamente sobre el contenedor. Se borraba el iterator y se seguia
+a partir de ahi. O sea que por ejemplo se estaba haciendo un ++ sobre
+un iterator invalido.
+
+%=== Wed Jun 11 17:54:36 2008 mstorti@galileo
+%
+%-- 17:54:36 -- mstorti-v16-end-21-g2818bbf -----
+Corro todos los tests en galileo (x86_64)
+%--------ANTES---------
+g_c++: Summary: "All tests" -- OK: 161.  Not OK: 11. Couldn't open: 9. Total: 181
+O_c++: Summary: "All tests" -- OK: 161.  Not OK: 12. Couldn't open: 8. Total: 181
+%--------AHORA---------
+g_c++: Summary:  "All tests" -- OK: 160.  Not OK: 13. Couldn't open: 8. Total: 181
+O_c++: Summary: "All tests" -- OK: 157.  Not OK: 12. Couldn't open: 12. Total: 181
+%----------------
+Con g_c++:
+> COULDN'T OPEN: 
+> can't open sqcav/output.CASE_sqcav.np_1.case_dx_file1.out.tmp
+> can't open sqcav/output.CASE_sqcav.np_1.case_dx_file3.out.tmp
+> can't open sqcav/output.CASE_sqcav.np_1.case_dx_synchro.out.tmp
+> can't open sqcav/output.CASE_sqcav.np_1.case_dx_allf.out.tmp
+> can't open sqcav/output.CASE_sqcav.np_2.case_dx_file1.out.tmp
+> can't open sqcav/output.CASE_sqcav.np_2.case_dx_file3.out.tmp
+> can't open sqcav/output.CASE_sqcav.np_2.case_dx_synchro.out.tmp
+> can't open sqcav/output.CASE_sqcav.np_2.case_dx_allf.out.tmp
+> -------------------------
+> NOT OK TESTS: 
+> --------
+> Start section: "Navier-Stokes tests."
+> Testing: "Square cavity with fract. step, Re1000, N=20" on file "sqcav/check.fs.verif.tmp"...not OK.
+>         --->  Couldn't find "Square cavity at Re=1000. Error < tol OK \? 1"
+> Summary: "Navier-Stokes tests." -- OK: 15.  Not OK: 1. Couldn't open: 0. Total: 16
+> --------
+> Start section: "Misc tests."
+> Testing: "Block uploading in cubcav" on file "cubcav/cubcav.plain-bupl.verif.tmp"...not OK.
+>         --->  Couldn't find "Cubcav/error wrt.reference solution OK\? > 1"
+> Testing: "Graph partitioning" on file "graph/output.graph.tmp"...not OK.
+>         --->  Couldn't find "110000000000444444444455555555553333333333222222222211111111"
+> Testing: "Idmap class" on file "idmap/tidmap.sal"...not OK.
+>         --->  Couldn't find "Column permutations: maximum error: "
+> Summary: "Misc tests." -- OK: 23.  Not OK: 3. Couldn't open: 0. Total: 26
+> --------
+> Start section: "New flux function tests."
+> Testing: "newff/test case adv_temp_cp" on file "newff/adv_temp_cp.vrf.tmp"...not OK.
+>         --->  Couldn't find "rel. max error  <tol\(.*\) OK\? 1"
+> Testing: "newff/test case full_full_jacs_cp" on file "newff/full_full_jacs_cp.vrf.tmp"...not OK.
+>         --->  Couldn't find "rel. max error  <tol\(.*\) OK\? 1"
+> Testing: "newff/test case full_full_jacs_adv_cp" on file "newff/full_full_jacs_adv_cp.vrf.tmp"...not OK.
+>         --->  Couldn't find "rel. max error  <tol\(.*\) OK\? 1"
+> Summary: "New flux function tests." -- OK: 17.  Not OK: 3. Couldn't open: 0. Total: 20
+> --------
+> Start section: "IISD solver. Checking with advdif"
+> Testing: "newff/test case adv_temp_cp_iisd" on file "newff/adv_temp_cp_iisd.vrf.tmp"...not OK.
+>         --->  Couldn't find "rel. max error  <tol\(.*\) OK\? 1"
+> Summary: "IISD solver. Checking with advdif" -- OK: 8.  Not OK: 1. Couldn't open: 0. Total: 9
+> --------
+> Start section: "Graph Partitioning"
+> Testing: "Distributed graph 3proc." on file "distmap/dist_graph.np3.out.tmp"...not OK.
+>         --->  Couldn't find "row 9:  "
+> Summary: "Graph Partitioning" -- OK: 2.  Not OK: 1. Couldn't open: 0. Total: 3
+> --------
+> Start section: "Synchronized output on. SyncBuffer and KeyedOutputBuffer classes. "
+> Testing: "Test for the `KeyedOutputBuffer' class plain" on file "distmap/test_kob_plain.output.tmp"...not OK.
+>         --->  Couldn't find "1: 1 2 3 4 5 6 "
+> Testing: "Test for the `KeyedOutputBuffer' class with no sorting" on file "distmap/test_kob_no_sort.output.tmp"...not OK.
+>         --->  Couldn't find "3: 3 4 5 6 "
+> Testing: "Test for the `KeyedOutputBuffer' class with no key printing" on file "distmap/test_kob_no_key_print.output.tmp"...not OK.
+>         --->  Couldn't find "1 2 3 4 5 6 "
+> Testing: "Test for the `KeyedOutputBuffer' class with no newlines" on file "distmap/test_kob_no_newline.output.tmp"...not OK.
+>         --->  Couldn't find "0: 0 1 2 3 4 5 6  (explicit new-line)"
+> Summary: "Synchronized output on. SyncBuffer and KeyedOutputBuffer classes. " -- OK: 1.  Not OK: 4. Couldn't open: 0. Total: 5
+%------------------
+Se agregaron los siguientes
++Testing: "Block uploading in cubcav" on file "cubcav/cubcav.plain-bupl.verif.tmp"...not OK.
++        --->  Couldn't find "Cubcav/error wrt.reference solution OK\? > 1"
++Testing: "Graph partitioning" on file "graph/output.graph.tmp"...not OK.
++        --->  Couldn't find "110000000000444444444455555555553333333333222222222211111111"
+
+%=== Thu Jun 12 06:45:32 2008 mstorti@galileo
+%
+%-- 06:45:32 -- mstorti-v16-end-26-gab91f15 -----
+AHora corre bastantes mas tests:
+g_c++: Summary: "All tests" -- OK: 167.  Not OK: 6. Couldn't open: 0. Total: 173
+O_c++: Summary: "All tests" -- OK: 166.  Not OK: 7. Couldn't open: 0. Total: 173
+%
+----------------
+g_c++:
+Testing: "Square cavity with fract. step, Re1000, N=20" on file "sqcav/check.fs.verif.tmp"...not OK.
+Testing: "Idmap class" on file "idmap/tidmap.sal"...not OK.
+Testing: "newff/test case adv_temp_cp" on file "newff/adv_temp_cp.vrf.tmp"...not OK.
+Testing: "newff/test case full_full_jacs_cp" on file "newff/full_full_jacs_cp.vrf.tmp"...not OK.
+Testing: "newff/test case full_full_jacs_adv_cp" on file "newff/full_full_jacs_adv_cp.vrf.tmp"...not OK.
+Testing: "newff/test case adv_temp_cp_iisd" on file "newff/adv_temp_cp_iisd.vrf.tmp"...not OK.
+----------------
+O_c++:
+Testing: "Square cavity with fract. step, Re1000, N=20" on file "sqcav/check.fs.verif.tmp"...not OK.
+Testing: "Idmap class" on file "idmap/tidmap.sal"...not OK.
+Testing: "newff/test case adv_temp_cp" on file "newff/adv_temp_cp.vrf.tmp"...not OK.
+Testing: "newff/test case full_full_jacs_cp" on file "newff/full_full_jacs_cp.vrf.tmp"...not OK.
+Testing: "newff/test case full_full_jacs_adv_cp" on file "newff/full_full_jacs_adv_cp.vrf.tmp"...not OK.
+Testing: "newff/test case adv_temp_cp_iisd" on file "newff/adv_temp_cp_iisd.vrf.tmp"...not OK.
+Testing: "Distributed graph 3proc." on file "distmap/dist_graph.np3.out.tmp"...not OK.
+----------------
+El de `dist_graph.np3' se debe a la falta de sincronizacion en la
+escritura. Tal vez lo mejor seria hacer que cada proc. escriba en un
+file separado y despues concatenar.
+
+%=== Thu Jun 12 08:41:13 2008 mstorti@galileo
+%
+%-- 08:41:13 -- mstorti-v17-end -----
+Hago merge con `master'. Corre todos los tests, sigue teniendo
+problemas de sincronizacion con los de `graph'. 
+
+%=== Mon Jun 16 16:38:33 2008 mstorti@galileo
+%
+%-- 16:38:33 -- mstorti-v17-end-2-g31f4854 -----
+Added trivial note

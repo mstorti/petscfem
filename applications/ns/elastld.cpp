@@ -15,6 +15,8 @@
 #define ELEMPROPS(j,k) VEC2(elemprops,j,k,nelprops)
 #define MAXPROPS 100
 
+//#define USE_YOUNG_PER_ELEM
+
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>
 void ld_elasticity::init() {
 
@@ -24,15 +26,17 @@ void ld_elasticity::init() {
   int ierr, iprop=0;
   Young_modulus_indx = iprop; 
 
+#ifdef USE_YOUNG_PER_ELEM
   //o Young modulus
   ierr = get_prop(iprop,elem_prop_names,
 		  thash,elprpsindx.buff(),propel.buff(), 
 		  "Young_modulus",1);
   nprops = iprop;
-
-//   TGETOPTDEF(thash,double,Young_modulus,0.);
-//   E=Young_modulus;
-//   assert(Young_modulus>0.);
+#else
+  TGETOPTDEF(thash,double,Young_modulus,0.);
+  E=Young_modulus;
+  assert(Young_modulus>0.);
+#endif
 
   //o Poisson ratio
   TGETOPTDEF(thash,double,Poisson_ratio,0.);
@@ -87,11 +91,13 @@ void ld_elasticity::element_connector(const FastMat2 &xloc,
   res.set(0.);
   mat.set(0.);
 
+#ifdef USE_YOUNG_PER_ELEM
   load_props(propel.buff(),elprpsindx.buff(),nprops,
 	     &(ELEMPROPS(elem,0)));
   E = *(propel.buff()+Young_modulus_indx);
+#endif
 
-  // printf("element %d, Young %f\n",elem,Young_modulus);
+  // printf("element %d, Young %f\n",elem,E);
 
   lambda = nu*E/((1+nu)*(1-2*nu));
   mu = E/2/(1+nu);
@@ -160,9 +166,6 @@ void ld_elasticity::element_connector(const FastMat2 &xloc,
 #endif
     
     mass_pg.prod(shape,shape,1,2).scale(wpgdet*rec_Dt*rho/alpha);
-    for (int k=1; k<=ndim; k++) 
-      mat.ir(2,ndim+k).ir(4,ndim+k).add(mass_pg);
-    mat.rs();
 
     // Eqs. for displacements: (xnew-xold)/dt - vstar = 0
     dv.set(xnew).rest(xold).scale(rec_Dt).rest(vstar);
@@ -171,12 +174,6 @@ void ld_elasticity::element_connector(const FastMat2 &xloc,
     res.is(2,1,ndim).axpy(tmp2,-wpgdet);
 
     mass_pg.prod(shape,shape,1,2).scale(wpgdet);
-
-    for (int k=1; k<=ndim; k++) {
-      mat.ir(2,k).ir(4,k).axpy(mass_pg,rec_Dt/alpha);
-      mat.ir(2,k).ir(4,ndim+k).axpy(mass_pg,-1.0);
-    }
-    mat.rs();
 
   }
   shape.rs();

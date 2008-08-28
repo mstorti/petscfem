@@ -1,8 +1,8 @@
 // -*- mode: C++ -*-
 /*__INSERT_LICENSE__*/
-//$Id: embgath.h,v 1.22 2006/03/27 19:43:22 mstorti Exp $
-#ifndef EMBGATH_H
-#define EMBGATH_H
+//$Id$
+#ifndef PETSCFEM_EMBGATH_H
+#define PETSCFEM_EMBGATH_H
 
 #include <src/surf2vol.h>
 
@@ -17,11 +17,18 @@ class embedded_gatherer : public Elemset {
   Surf2Vol *sv_gp_data;
   /// Number of Gauss points. 
   int npg;
-  int nel_surf, nel_vol, layer, layers;
+  int nel_surf, nel_vol, layer, layers,
+    pass_values_as_props, pass_values_as_gather,
+    compute_densities,dump_props_to_file,
+    dump_props_freq, compute_elem_values;
+  string dump_props_file_c;
+  props_hash_entry phe;
+  dvector<double> egather;
 public: 
   /** Constructor. Initializes the pointer 
       to interpolation/integration element. */
-  embedded_gatherer() : sv_gp_data(NULL) { }
+  embedded_gatherer() 
+    : sv_gp_data(NULL) { }
   /** Destructor. Safely destroys #sv_gp_data# because
       initialized to null pointer. */
   ~embedded_gatherer() { delete sv_gp_data; }
@@ -30,7 +37,7 @@ public:
   void initialize();
   /** Number of elements in the global vector 
       that the element will contribute. */
-  int gather_length;
+  int gather_length, gather_pos, nvalues;
   /** Loops over elements and Gauss points. Computes state vectors, 
       gradients, shape functions, and passes them to user as
       callback functions in order to compute contributions. */
@@ -45,6 +52,14 @@ public:
   //@{
   /// Called \emph{before} the element loop. 
   virtual void init() { }
+
+  void 
+  before_assemble(arg_data_list &arg_datav,Nodedata *nodedata,
+		  Dofmap *dofmap, const char *jobinfo,int myrank,
+		  int el_start,int el_last,int iter_mode,
+		  const TimeData *time_data);
+
+  void after_assemble(const char *jobinfo);
 
   /** Called for each element, \emph{before} the Gauss point loop. 
       @param k (input) element number in the elemeset. */ 

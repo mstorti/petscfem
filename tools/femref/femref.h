@@ -7,8 +7,10 @@
 #include <list>
 #include <multimap.h>
 #include <deque>
+#define Mesh __Mesh__
 #include <src/dvector.h>
 #include <src/dvector2.h>
+#undef Mesh
 #include <src/generror.h>
 #include <src/linkgraph.h>
 #include "./tree.h"

@@ -14,8 +14,8 @@ template<class Container,typename ValueType,class Partitioner>
 DistCont<Container,ValueType,Partitioner>::
 DistCont(Partitioner *pp, MPI_Comm comm_,iter_mode_t iter_mode_a) 
     : comm(comm_), iter_mode(iter_mode_a) {
-  // Determine size of the communicator and rank of the processor
-  MPI_Comm_size (comm, &size);
+  // Determine nprocs of the communicator and rank of the processor
+  MPI_Comm_size (comm, &nprocs);
   MPI_Comm_rank (comm, &myrank);
   part=pp;
 }
@@ -32,8 +32,9 @@ belongs(typename Container::const_iterator k,int *plist) const {
 }
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
-// shortcut to access `to_send' as a size x size matrix
-#define SEND(p,q) VEC2(to_send,p,q,size)
+// shortcut to access `to_send' as a nprocs x nprocs matrix
+#undef SEND
+#define SEND(p,q) VEC2(to_send,p,q,nprocs)
 template <class Container,typename ValueType,class Partitioner>
 void DistCont<Container,ValueType,Partitioner>::scatter() {
 #if DEBUG_SPEEDUP
@@ -50,17 +51,17 @@ void DistCont<Container,ValueType,Partitioner>::scatter() {
   int j,k,/*l,*/nsent;
   int sproc,mproc,eproc,band,stage,s1,s2,nrecv,rank,
     size_here,max_local_size,max_recv_buff_size,jd,nproc;
-  int *plist = new int[size];
+  int *plist = new int[nprocs];
 
   // to_send:= `to_send(j,k)' contains the table of how much amount of
   // data has to be sent from processor `j' to processor `k'
-  to_send = new int[size*size];
+  to_send = new int[nprocs*nprocs];
   // auxiliary buffer to perform an `Allreduce'
-  to_send_buff = new int[size*size];
+  to_send_buff = new int[nprocs*nprocs];
   
   // Initialize `to_send' table
-  for (j=0; j<size; j++) {
-    for (k=0; k<size; k++) {
+  for (j=0; j<nprocs; j++) {
+    for (k=0; k<nprocs; k++) {
       SEND(j,k)=0;
     }
   }
@@ -76,16 +77,16 @@ void DistCont<Container,ValueType,Partitioner>::scatter() {
   SEND(myrank,myrank)=0;
 
   // gather/scatter all `to_send' data 
-  MPI_Allreduce(to_send,to_send_buff,size*size,MPI_INT, 
+  MPI_Allreduce(to_send,to_send_buff,nprocs*nprocs,MPI_INT, 
 		MPI_SUM,comm);
   // recopy `to_send_buff' to `to_send'
-  memcpy(to_send,to_send_buff,size*size*sizeof(int));
+  memcpy(to_send,to_send_buff,nprocs*nprocs*sizeof(int));
 
 #if 0
   // debug: print the `to_send' table
   if (myrank==0) {
-    for (j=0; j<size; j++) {
-      for (k=0; k<size; k++) {
+    for (j=0; j<nprocs; j++) {
+      for (k=0; k<nprocs; k++) {
 	if (j != k) printf("%d -> %d: %d\n",j,k,SEND(j,k));
       }
     }
@@ -94,14 +95,14 @@ void DistCont<Container,ValueType,Partitioner>::scatter() {
 
   // allocate memory for auxiliary vectors
   // send_buff:= An array of buffers for sending
-  send_buff = new char *[size];
+  send_buff = new char *[nprocs];
   // send_buff_pos:= an array of positions in each of the buffers
-  send_buff_pos = new char *[size];
+  send_buff_pos = new char *[nprocs];
   // send_rq:= sendings and receives are non-blocking so that we
   // create a `MPI_Request' object for each of them. 
 
   // allocate buffers and initialize data
-  for (k=0; k<size; k++) {
+  for (k=0; k<nprocs; k++) {
     // allocate send buffer to proc `k'
     send_buff[k] = new char[SEND(myrank,k)];
     // initialize position 
@@ -154,13 +155,13 @@ void DistCont<Container,ValueType,Partitioner>::scatter() {
   } else assert(0); // bad iter_mode!!
 
   // Check that all buffers must remain at the end
-  for (k=0; k<size; k++) {
+  for (k=0; k<nprocs; k++) {
     if (k!=myrank && send_buff_pos[k] != send_buff[k]+SEND(myrank,k)) {
       printf("[%d] incorrect position of send buffer to proc %d: \n"
 	     "send_buff %p, pos %p, diff %d, to_send %d\n",
 	     myrank,k,
 	     send_buff[k], send_buff_pos[k],
-	     send_buff_pos[k]-send_buff[k], SEND(myrank,k));
+	     int(send_buff_pos[k]-send_buff[k]),SEND(myrank,k));
     }
   }
 
@@ -168,9 +169,9 @@ void DistCont<Container,ValueType,Partitioner>::scatter() {
   // recv_buff_pos:= positions in the receive buffer
   // recv_buff_pos_end:= end of receive buffer
     
-    // Maximu recv buffer size
+    // Maximu recv buffer nprocs
   max_recv_buff_size=0;
-  for (rank=0; rank < size; rank++) {
+  for (rank=0; rank < nprocs; rank++) {
     if (SEND(rank,myrank) > max_recv_buff_size)
       max_recv_buff_size = SEND(rank,myrank);
   }
@@ -180,7 +181,7 @@ void DistCont<Container,ValueType,Partitioner>::scatter() {
 
   // initially...
   sproc=0;
-  eproc=size;
+  eproc=nprocs;
 
 #if DEBUG_SPEEDUP
   hpc.start();
@@ -298,7 +299,7 @@ void DistCont<Container,ValueType,Partitioner>::scatter() {
   delete[] recv_buff;
 
   // Delete all sent and received buffers
-  for (k=0; k<size; k++) {
+  for (k=0; k<nprocs; k++) {
       delete[] send_buff[k];
   }
 

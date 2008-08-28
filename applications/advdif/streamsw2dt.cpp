@@ -32,11 +32,17 @@ void streamsw2dt_ff::start_chunk(int &options) {
   //o Acceleration of gravity.
   EGETOPTDEF_ND(elemset,double,gravity,1.);
   //o Molecular kinematic viscosity.
-  EGETOPTDEF_ND(elemset,double,nu,1.8e-3);
+  EGETOPTDEF_ND(elemset,double,nu_m,1.8e-3);
+  //o fluid density (rho)
+  EGETOPTDEF_ND(elemset,double,rho,1000);
   //o Scale the SUPG upwind term. 
   EGETOPTDEF_ND(elemset,double,tau_fac,1.);
   //o Add shock-capturing term.
   EGETOPTDEF_ND(elemset,int,shock_capturing,0);
+  //o Add shock-capturing factor term.
+  EGETOPTDEF_ND(elemset,double,shocap_fac,1);
+  //o Add shock-capturing exponent.
+  EGETOPTDEF_ND(elemset,double,shocap_beta,1);
   // o Add shock-capturing term if relative variation of variables
   // inside the element exceeds this.
   // _T: double[ndim]/double[ndim*ndof]/double[ndim*ndof*ndof] 
@@ -88,7 +94,6 @@ void streamsw2dt_ff::start_chunk(int &options) {
   u.resize(1,ndim);
   flux_mass.resize(1,ndim);
   Uintri.resize(1,ndim);
-  A01.resize(2,ndof,ndof);
   dev_tens.resize(2,2,2);
   tmp5.resize(2,2,2);
   bottom_slope.resize(1,ndim);
@@ -96,6 +101,9 @@ void streamsw2dt_ff::start_chunk(int &options) {
   tmp33.resize(2,ndof,ndim);
   tmp11.resize(4,nel,ndim,ndof,ndof);
   maktgsp.init(ndim);
+  r_dir.resize(1,ndim);
+  jvec.resize(1,ndim);
+  tmp9.resize(1,ndof);
 
 #ifdef USE_A_JAC_DUMMY
   //para debug de caso lineal
@@ -175,7 +183,7 @@ void streamsw2dt_ff::compute_flux(const FastMat2 &U,
   static int flag=0;
   static double g=gravity;
 
-  double tau_a, tau_delta, gU, A01v[9];
+  double tau_a, tau_delta, gU;
   static vector<double> bottom_slope_v;
   
   const char *bs;
@@ -233,6 +241,10 @@ void streamsw2dt_ff::compute_flux(const FastMat2 &U,
   AJACY(4,4) = uy;
   AJACY(5,5) = uy;
 
+  grad_U.ir(2,ndim+1);
+  grad_h.set(grad_U);
+  grad_U.rs();
+
   A_jac.ir(1,2).set(ajacy).rs();
 
   flux_mom.prod(u,u,1,2).scale(h);
@@ -261,10 +273,12 @@ void streamsw2dt_ff::compute_flux(const FastMat2 &U,
   Cp.rs();
   
   if (options & COMP_UPWIND) {
+    advdf_e = dynamic_cast<const NewAdvDif *>(elemset);
+    PETSCFEM_ASSERT0(advdf_e,"No advdif elemset defined in streamsw2d");
 
     // Code D_jac here...
     D_jac.set(0.);
-    double nu_t_h= (nu+nu_t)/h;
+    double nu_t_h= (nu_m+nu_t)/h;
     D_jac.setel( 2.*nu_t_h   ,1,1,1,1);
     D_jac.setel(-2.*ux*nu_t_h,1,1,1,3);
 
@@ -301,7 +315,7 @@ void streamsw2dt_ff::compute_flux(const FastMat2 &U,
     //    P_h = tmp62*nu_t/h;
     P_h = tmp62*nu_t_h;
 
-    dev_tens.scale(nu_t+nu);
+    dev_tens.scale(nu_t+nu_m);
     grad_U.rs();
     fluxd.set(0.).is(1,1,2).add(dev_tens).rs();
 
@@ -371,7 +385,7 @@ void streamsw2dt_ff::compute_flux(const FastMat2 &U,
 
     options |= SCALAR_TAU;
     tau_a = SQ(2.*lam_max/h_supg)
-      +18.*SQ((nu+nu_t)/SQ(h_supg));
+      +18.*SQ((nu_m+nu_t)/SQ(h_supg));
     tau_a = tau_fac/sqrt(tau_a);
 
     double vmax = -1;
@@ -394,42 +408,7 @@ void streamsw2dt_ff::compute_flux(const FastMat2 &U,
     // delta_sc=0.
     tau_delta = 0; delta_sc=0.;
 
-    FastMat2::branch();
-    if (shock_capturing && (vmax > shock_capturing_threshold/h_supg) ) {
-      FastMat2::choose(0);
-      // calculo del tensor metrico de Riemann (A0) para transformar de variables 
-
-      A01v[0]= 1.;
-      A01v[1]= 0. ;
-      A01v[2]= -ux;
-
-      A01v[3]= 0.;
-      A01v[4]= 1.;
-      A01v[5]= -uy;
-
-      A01v[6]= -ux;
-      A01v[7]= -uy;
-      A01v[8]= g*h+ux*ux+uy*uy;
-
-      A01.set(A01v).scale(1./(g*h));
-
-      // calculo del delta shock capturing delta_sc
-      double vaux_num,vaux_den;
-      tmp1.prod(A01,A_grad_U,1,-1,-1);
-      tmp22.prod(A_grad_U,tmp1,-1,-1);
-      vaux_num = double(tmp22);
-
-      grad_U_psi.prod(iJaco,grad_U,1,-1,-1,2);
-      tmp33.prod(A01,grad_U_psi,1,-1,2,-1);
-      tmp4.prod(grad_U_psi,tmp33,-1,-2,-2,-1);
-      vaux_den = double(tmp4);
-
-      delta_sc = sqrt(vaux_num / vaux_den);
-      tau_delta = delta_sc/(lam_max*lam_max);
-      
-    } // if (shock_capturing ...
-
-    FastMat2::leave();
+    if (shock_capturing) compute_shocap(delta_sc);
 
     double tau_supg_d = ((tau_a-tau_delta)>0 ? (tau_a-tau_delta) : 0);
     options |= SCALAR_TAU;
@@ -496,6 +475,40 @@ void streamsw2dt_ff::get_Ajac(FastMat2 &Ajac_a) {
   Ajac_a.set(A_jac);
 }
 
+void streamsw2dt_ff::compute_shocap(double &delta_sc) {
+  const FastMat2 &grad_N = *advdf_e->grad_N();
+  double tol=1.0e-16;
+  
+  r_dir.set(u);
+  r_dir_mod = sqrt(r_dir.sum_square_all());
+  
+  double vel = sqrt(u.sum_square_all());
+  double sonic_speed = sqrt(gravity*h);
+  double velmax = vel+sonic_speed;
+  
+  double tol_shoc = 1e-10;
+  // compute j direction , along density gradient
+  double h_shoc, grad_h_mod = sqrt(grad_h.sum_square_all());
+  FastMat2::branch();
+  if(grad_h_mod>tol_shoc) {
+    FastMat2::choose(0);
+    jvec.set(grad_h).scale(1.0/grad_h_mod);
+    h_rgn = double(tmp9.prod(grad_N,jvec,-1,1,-1).sum_abs_all());
+    h_rgn = h_rgn/2.0;
+    h_rgn = (h_rgn < tol ? tol : h_rgn);
+    h_shoc = 1.0/h_rgn;
+  } else {
+    FastMat2::choose(1);
+    jvec.set(0.);
+    h_shoc = h_supg;
+  }
+  FastMat2::leave();
+  double fz = grad_h_mod*h_shoc/rho;
+  fz = pow(fz,shocap_beta);
+  delta_sc_aniso = 0.5*h_shoc*velmax*fz;
+
+  delta_sc = 0.5*h_supg*velmax*fz*shocap_fac;
+}
 
 // Riemann Invs for shallow water 2D, OJO no los estamos usando
 // todavia para abso (REESCRIBIR!)

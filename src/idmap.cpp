@@ -300,7 +300,7 @@ void idmap::check() {
 #if 0
 #undef __FUNC__
 #define __FUNC__ "void print(const col_t &row,char *s==NULL)" 
-void print(col_t &col,char *s=NULL) {
+void print(col_t &col,const char *s=NULL) {
   printf("%s", (s==NULL ? " " : s));
   col_t::iterator it;
   for (it=col.begin(); it!=col.end(); it++) {
@@ -312,8 +312,8 @@ void print(col_t &col,char *s=NULL) {
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 #undef __FUNC__
-#define __FUNC__ "void print(const row_t &row,char *s==NULL)" 
-void print(row_t &row,char *s) {
+#define __FUNC__ "void print(const row_t &row,const char *s==NULL)" 
+void print(row_t &row,const char *s) {
   printf("%s", (s==NULL ? "" : s));
   row_t::iterator it;
   for (it=row.begin(); it!=row.end(); it++) {
@@ -375,8 +375,8 @@ void idmap::get_val(const int i,const int j,double &val) {
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 #undef __FUNC__
-#define __FUNC__ "void idmap::print(char *s==NULL)"
-void idmap::print(char *s) {
+#define __FUNC__ "void idmap::print(const char *s==NULL)"
+void idmap::print(const char *s) {
 
   row_t row;
   printf("%s",(s==NULL ? "" : s));
@@ -391,8 +391,8 @@ void idmap::print(char *s) {
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 #undef __FUNC__
-#define __FUNC__ "void idmap::print_by_col(char *s==NULL)"
-void idmap::print_by_col(char *s) {
+#define __FUNC__ "void idmap::print_by_col(const char *s==NULL)"
+void idmap::print_by_col(const char *s) {
 
   printf("Size of matrix m,n: %d %d\n",m,n);
   row_t col;

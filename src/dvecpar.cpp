@@ -4,16 +4,17 @@
 #include <src/dvecpar.h>
 #include <src/dvecpar2.h>
 
-#define DVECTOR_MPI_TYPE_DEF(stype,TYPE)			\
-template<> MPI_Datatype						\
-dvector_mpi_type<stype>::type() { return MPI_##TYPE; }  	\
-template<>							\
-void								\
-dvector_clone_parallel(dvector<stype> &w,int root);		\
-								\
-template<>							\
-void								\
-dvector_read_parallel(const char *file,				\
+#define DVECTOR_MPI_TYPE_DEF(stype,TYPE)                \
+template<> MPI_Datatype                                 \
+dvector_mpi_type<stype>::type() { return MPI_##TYPE; }  \
+                                                        \
+template                                                \
+void                                                    \
+dvector_clone_parallel(dvector<stype> &w,int root);     \
+                                                        \
+template                                                \
+void                                                    \
+dvector_read_parallel(const char *file,                 \
 		      dvector<stype> &w,int root);
 
 DVECTOR_MPI_TYPE_DEF(int,INT) 

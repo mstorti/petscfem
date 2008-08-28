@@ -10,6 +10,7 @@
 #include <src/utils.h>
 #include <src/maximizr.h>
 #include <src/distmap.h>
+#include <src/distmap2.h>
 #include <src/distmat.h>
 
 //extern int SIZE, MY_RANK;
