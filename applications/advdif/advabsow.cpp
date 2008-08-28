@@ -250,6 +250,5 @@ turn_wall_fun(int elem,int node,
               FastMat2 &x,double t) {
   double y = x.get(2);
   int is_wall = y>0.5;
-  // printf("elem %d, node %d, y %f, is_wall %d\n",elem,node,y,is_wall);
   return is_wall;
 }
