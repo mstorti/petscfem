@@ -14,11 +14,12 @@ all: latex index.html all_html ps pdf readme eps
 PETSCFEM_DIR     = ..
 include $(PETSCFEM_DIR)/Makefile.base
 
-ODOCFILES = odocadv.tex odocadvdif.tex odocadvdif2.tex 			\
-	odocadvdife.tex odocadve.tex odocadvfe.tex odocadvfm2.tex 	\
-	odocadvfs.tex odocburgers.tex odocgenl.tex odocns.tex 		\
-	odocnsfs.tex odocnsb.tex odocnse.tex odocnsw.tex 		\
-	odocswfm2t.tex odociisd.tex odocdxhook.tex odocflrv.tex
+ODOCFILES = odocadv.tex odocadvdif.tex odocadvdif2.tex			\
+	odocadvdife.tex odocadve.tex odocadvfe.tex odocadvfm2.tex	\
+	odocadvfs.tex odocburgers.tex odocgenl.tex odocns.tex		\
+	odocnsfs.tex odocnsb.tex odocnse.tex odocnsw.tex		\
+	odocswfm2t.tex odociisd.tex odocdxhook.tex odocflrv.tex 	\
+	odocabso.tex odocabsow.tex 
 
 TEXFILES = prev1 layout thash idmap compprof advec \
 		ns tests fastmat2 $(ODOCFILES:.tex=)

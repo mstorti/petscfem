@@ -45,7 +45,9 @@ odocadvdif: $(dd)/odocadvdif.tex		\
 	$(dd)/odocburgers.tex			\
 	$(dd)/odocswfm2t.tex			\
 	$(dd)/odocgenl.tex			\
-	$(dd)/odocstream.tex  			\
+	$(dd)/odocstream.tex			\
+	$(dd)/odocabso.tex  			\
+	$(dd)/odocabsow.tex  			\
 	$(dd)/odocdiff.tex  
 
 $(dd)/odocadvdif.tex: advdif.cpp $(dd)/advdif.tex
@@ -78,6 +80,12 @@ $(dd)/odocstream.tex: stream.h stream.cpp
 	-chmod +w $@
 	$(ODOC) -o $@ $^
 	-chmod -w $@
+
+$(dd)/odocabso.tex: advabso.cpp
+	$(run_odoc)
+
+$(dd)/odocabsow.tex: advabsow.cpp
+	$(run_odoc)
 
 local_dist_clean::
 	-rm -f *.o
