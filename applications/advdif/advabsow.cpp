@@ -15,6 +15,27 @@ lm_initialize() {
   adv_diff_ff->start_chunk(ff_options);
 }
 
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>
+TurnWallFun::~TurnWallFun() { }
+
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>
+class MyTurnWallFun : public TurnWallFun {
+private:
+  AdvectiveAbsoWall *elemset;
+public:
+  void 
+  init(AdvectiveAbsoWall *elemset_a) {
+    elemset = elemset_a;
+  }
+  int 
+  is_wall(int elem,int node,FastMat2 &x,double t) {
+    double y = x.get(2);
+    return y>0.5;
+  }
+  ~MyTurnWallFun() { }
+} my_turn_wall_fun;
+
+
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 void AdvectiveAbsoWall::
 init() {
@@ -108,6 +129,7 @@ init() {
     .set(0.0).is(1,vel_indx,vel_indx+ndim-1).set(1.0).rs();
   rlam.resize(1,ndof);
   node_list.resize(nel);
+  turn_wall_fun = &my_turn_wall_fun;
 }
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
@@ -131,7 +153,9 @@ res(int k,FastMat2 &U,FastMat2 &r,
 
   get_connect(node_list);
 
-  int is_wall = turn_wall_fun(k+1,node_list[0],x,get_time());
+  int is_wall = 
+    turn_wall_fun->is_wall(k+1,node_list[0],
+                           x,get_time());
   
   FastMat2::branch();
   if (!is_wall) {
@@ -242,13 +266,4 @@ element_hook(ElementIterator &element) {
   if (ALE_flag)
     vmesh.set(prop_array(element,vmesh_prop));
   adv_diff_ff->element_hook(element);
-}
-
-//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
-int AdvectiveAbsoWall::
-turn_wall_fun(int elem,int node,
-              FastMat2 &x,double t) {
-  double y = x.get(2);
-  int is_wall = y>0.5;
-  return is_wall;
 }
