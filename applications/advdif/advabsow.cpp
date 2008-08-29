@@ -60,6 +60,13 @@ init() {
                   "vel_indx %d, ndim %d, ndof %d\n",
                   vel_indx,ndim,ndof);  
   
+  //o Name of shared file where the turn-wall
+  //  functions is defined. 
+  NSGETOPTDEF(string,ldfilename,"<none>");
+
+  //o Name of turn-wall function class
+  NSGETOPTDEF(string,twf_class_name,"<none>");
+
   vector<double> urefv;
   const char *line;
   get_entry("Uref",line);
@@ -114,19 +121,30 @@ init() {
     .set(0.0).is(1,vel_indx,vel_indx+ndim-1).set(1.0).rs();
   rlam.resize(1,ndof);
   node_list.resize(nel);
-#if 0
-  turn_wall_fun = &my_turn_wall_fun;
-#else
-  void *handle = dlopen("./mvbody.efn",RTLD_LAZY);
-  const char *error = dlerror();
-  assert(handle);
-  assert(!error);
-
-  void *fun = dlsym(handle,"ld_turn_wall_fun_create");
-  assert(fun);
-  TurnWallFunFactory g = TurnWallFunFactory(fun);
-  turn_wall_fun = g();
-#endif
+  if (twf_class_name=="<none>") {
+    // turn_wall_fun = &my_turn_wall_fun;
+    turn_wall_fun = NULL;
+  } else {
+    if (!turn_wall_fun) {
+      PETSCFEM_ASSERT0(ldfilename!="<none>",
+                       "If `twf_class_name' is set, then "
+                       "ldfilename is required");  
+      void *handle = dlopen(ldfilename.c_str(),RTLD_LAZY);
+      const char *error = dlerror();
+      PETSCFEM_ASSERT(handle,"Can't dlopen file %s",
+                      ldfilename.c_str());  
+      PETSCFEM_ASSERT(!error,"Error on dlopening file %s\n"
+                      "returned error \"%s\"",
+                      ldfilename.c_str(),error);
+      
+      string factory_name = twf_class_name+"_factory";
+      TurnWallFunFactory factory = 
+        TurnWallFunFactory(dlsym(handle,factory_name.c_str()));
+      PETSCFEM_ASSERT(factory,"Can't load (i.e. dlsym()) function %s\n",
+                      factory_name.c_str());  
+      turn_wall_fun = factory();
+    }
+  }
 }
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
