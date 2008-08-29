@@ -2,6 +2,7 @@
 // $Id: advabso.cpp,v 1.23 2007/01/30 19:03:44 mstorti Exp $
 #include "./advabso.h"
 #include "./gasflow.h"
+#include <dlfcn.h>
 
 static
 double msign(double x) {
@@ -18,23 +19,7 @@ lm_initialize() {
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>
 TurnWallFun::~TurnWallFun() { }
 
-//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>
-class MyTurnWallFun : public TurnWallFun {
-private:
-  AdvectiveAbsoWall *elemset;
-public:
-  void 
-  init(AdvectiveAbsoWall *elemset_a) {
-    elemset = elemset_a;
-  }
-  int 
-  is_wall(int elem,int node,FastMat2 &x,double t) {
-    double y = x.get(2);
-    return y>0.5;
-  }
-  ~MyTurnWallFun() { }
-} my_turn_wall_fun;
-
+typedef TurnWallFun *(*TurnWallFunFactory)();
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 void AdvectiveAbsoWall::
@@ -129,7 +114,19 @@ init() {
     .set(0.0).is(1,vel_indx,vel_indx+ndim-1).set(1.0).rs();
   rlam.resize(1,ndof);
   node_list.resize(nel);
+#if 0
   turn_wall_fun = &my_turn_wall_fun;
+#else
+  void *handle = dlopen("./mvbody.efn",RTLD_LAZY);
+  const char *error = dlerror();
+  assert(handle);
+  assert(!error);
+
+  void *fun = dlsym(handle,"ld_turn_wall_fun_create");
+  assert(fun);
+  TurnWallFunFactory g = TurnWallFunFactory(fun);
+  turn_wall_fun = g();
+#endif
 }
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
