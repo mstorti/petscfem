@@ -76,4 +76,8 @@ public:
   virtual ~TurnWallFun()=0;
 };
 
+#define DEFINE_TURN_WALL_FUN(name)                      \
+extern "C"                                              \
+TurnWallFun *name##_factory() { return new name; }
+
 #endif
