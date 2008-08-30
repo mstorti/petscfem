@@ -250,7 +250,7 @@ endif
 
 ifeq ($(ETAGS),GNU)
 ## TAGFLAGS := --regex-C++='/.*[^a-zA-Z0-9_]\([a-zA-Z0-9][a-zA-Z0-9_]*\) *:=/\1/' 
-TAGFLAGS := -l C++ --regex='/.*[^a-zA-Z0-9_]\([a-zA-Z0-9][a-zA-Z0-9_]*\) *:=/\1/' 
+TAGFLAGS := -l c++ --regex='/.*[^a-zA-Z0-9_]\([a-zA-Z0-9][a-zA-Z0-9_]*\) *:=/\1/' 
 endif
 TAGS: force
 ifneq ($(SRCS),)
