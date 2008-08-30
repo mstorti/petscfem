@@ -19,6 +19,8 @@ extern int comp_mat_each_time_step_g,
 
 #define MAXPROP 100
 
+extern GlobParam *GLOB_PARAM;
+
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:
 #if 0
 void detj_error(double &detJaco,int elem) {
@@ -136,9 +138,14 @@ before_assemble(arg_data_list &arg_datav,Nodedata *nodedata,
   NSGETOPTDEF_ND(double,compute_fd_adv_jacobian_rel_err_threshold,0.);
   //o Use the GCL compliant versin of the algorithm 
   NSGETOPTDEF_ND(int,use_GCL_compliant,0);
+
+#if 0
   //o Flags whether we are solving a precondioned
   // system with the dual time strategy
   NSGETOPTDEF_ND(int,precoflag,0);
+#else
+  precoflag = GLOB_PARAM->precoflag;
+#endif
 
   A_fd_jac_norm_max = 0.;
   A_fd_jac_norm_min = DBL_MAX;
@@ -255,7 +262,8 @@ void NewAdvDif::new_assemble(arg_data_list &arg_data_v,const Nodedata *nodedata,
     rec_Dt_m = 1./DT;
     if (glob_param->steady) rec_Dt_m = 0.;
 
-// apply ALPHA to time step in order to take into account higher order temporal integration
+    // apply ALPHA to time step in order to take
+    // into account higher order temporal integration
     rec_Dt_m = rec_Dt_m/ALPHA;
 
 #ifdef CHECK_JAC

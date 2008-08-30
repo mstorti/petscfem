@@ -284,6 +284,7 @@ int dual_time_main() {
   GETOPTDEF(double,tol_ps,1e-6);
   glob_param.Dpt = Dpt;
   glob_param.psteady = psteady;
+  glob_param.precoflag = 1;
 
   double Dpt_ini = Dpt;
   Dt_min = Dt;

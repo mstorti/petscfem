@@ -12,6 +12,7 @@
 #include "./lagmul.h"
 
 extern TextHashTable *GLOBAL_OPTIONS;
+extern GlobParam *GLOB_PARAM;
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 #undef __FUNC__
@@ -47,9 +48,13 @@ get_data(arg_data_list &arg_data_v,
 
   // Warning! This is for `double-time' stuff
   // (precoflag, low-mach-preco)
+#if 0
   int ierr;
   NSGETOPTDEF(int,precoflag,0);
   if (precoflag) ++j;
+#else
+  if (GLOB_PARAM->precoflag) ++j;
+#endif
 
   staten = &arg_data_v[++j]; //[1]
   retval  = &arg_data_v[++j];//[2]

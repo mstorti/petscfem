@@ -207,6 +207,8 @@ struct GlobParam {
   int inwt;
   /// Current time
   TimeData *time;
+  /// Flags if using Preco (dual time) formulation
+  int precoflag;
   // o Agrego parametros globales para doble tiempo
   /// pseudo-time step
   double Dpt;
@@ -219,7 +221,7 @@ struct GlobParam {
   /// Constructor
   GlobParam() 
     : steady(0), alpha(0), Dt(1.), inwt(0), time(0), 
-      Dpt(1.), psteady(0), x(0), xold(0), state(0), 
+      precoflag(0), Dpt(1.), psteady(0), x(0), xold(0), state(0), 
       state_old(0)
   {}
 };

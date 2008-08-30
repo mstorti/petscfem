@@ -3,6 +3,8 @@
 #include "./advabso.h"
 #include "./gasflow.h"
 
+extern GlobParam *GLOB_PARAM;
+
 /** Auxiliary function that appends a suffix to the #case_name#
     for reading a dvector */
 static const char *case_file_name(string &s,char *n) {
@@ -51,9 +53,13 @@ init() {
   //  do to mesh velocity (ALE).
   NSGETOPTDEF_ND(int,ALE_flag,0);
 
+#if 0
   //o Flags whether we are solving a precondioned
   // system with the dual time strategy
   NSGETOPTDEF_ND(int,precoflag,0);
+#else
+  precoflag = GLOB_PARAM->precoflag;
+#endif
 
   if (precoflag){
     NSGETOPTDEF_ND(string,case_name,"<none>");
