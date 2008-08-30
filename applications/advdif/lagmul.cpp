@@ -12,6 +12,7 @@
 #include "./lagmul.h"
 
 extern TextHashTable *GLOBAL_OPTIONS;
+extern GlobParam *GLOB_PARAM;
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 #undef __FUNC__
@@ -40,9 +41,21 @@ get_data(arg_data_list &arg_data_v,
 	   arg_data *&staten,
 	   arg_data *&retval,
 	   arg_data *&retvalmat) {
+  
   // arg_data *staten,*stateo,*retval,*fdj_jac,*jac_prof,*Ajac;
   int j=-1;
   stateo = &arg_data_v[++j]; //[0]
+
+  // Warning! This is for `double-time' stuff
+  // (precoflag, low-mach-preco)
+#if 0
+  int ierr;
+  NSGETOPTDEF(int,precoflag,0);
+  if (precoflag) ++j;
+#else
+  if (GLOB_PARAM->precoflag) ++j;
+#endif
+
   staten = &arg_data_v[++j]; //[1]
   retval  = &arg_data_v[++j];//[2]
   ++j;//[3] (Not used)

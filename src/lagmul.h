@@ -24,6 +24,7 @@ private:
   const Nodedata *nodedata_m;
   arg_data *stateo,*staten, 
     *retval, *retvalmat;
+  double time_m;
 public:
   NewAssembleFunction new_assemble;
   /** Returns data (to be derived)
@@ -75,14 +76,26 @@ public:
       @param xloc (output) the coordinates of the nodes
       @param H (output) the vector of constant fields. */ 
   void get_xloc(FastMat2 &xloc,FastMat2 &H);
+
+  /** Returns the connectivities of the element.       
+      @param connect (output) the list of nodes */ 
+  void get_connect(vector<int> &node_list);
+
+  /** The time we are evaluating properties. */
+  double get_time();
+
   /** Returns the old state at nodes. 
       @param Uold (output) the state of the nodes at the
       previous step. (size #nel*ndof#). */ 
   void get_old_state(FastMat2 &Uold);
   /// Called after the loop over all elements
   virtual void close() {}
+
   /// Make it pure virtual. 
   virtual ~GLagrangeMult()=0;
+
+  GLagrangeMult() 
+    : time_m(NAN) { }
 
   virtual void 
   get_comp_flags(const char *jobinfo,

@@ -1,12 +1,11 @@
 // -*- mode: C++ -*-
 /*__INSERT_LICENSE__*/
-// $Id: gasflow.h,v 1.32 2006/06/19 15:50:46 mstorti Exp $
-#ifndef PETSCFEM_GASFLOW_H
-#define PETSCFEM_GASFLOW_H
+// $Id: gasflow_preco.h,v 1.28 2005/05/26 22:07:26 mstorti Exp $
+#ifndef PETSCFEM_GASFLOW_PRECO_H
+#define PETSCFEM_GASFLOW_PRECO_H
 
 #include "./advective.h"
 #include "./advabso.h"
-#include "./advabsow.h"
 #include "./stream.h"
 #include "./nonlres.h"
 
@@ -15,7 +14,7 @@
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:
 /** Flux function for compressible viscous flow
  */
-class gasflow_ff : public AdvDifFFWEnth {
+class gasflow_preco_ff : public AdvDifFFWEnth {
 private:
   int nelprops,nel,ndof,ndim,k_indx,e_indx,vg_indx,vl_indx,
     vl_indxe,vg_indxe,LES;
@@ -30,7 +29,7 @@ private:
   FastMat2 dviscodU,grad_U_norm_c,vel_beta,Gamma_i;
   FastMat2 r_dir,r_dir_aux,grad_velmod;
   FastMat2 grad_U_norm;
-  FastMat2 tmp_P_supg_ALE_1,tmp_P_supg_ALE_2,tmp_P_supg_ALE_3;
+  FastMat2 preco,iprecov,Cpv,tmp1v,tmp2v,tmp3v;
 
   double rho,p,visco,visco_t,visco_eff,cond,cond_t,cond_eff,Tem;
   double tau_fac,temporal_stability_factor;
@@ -40,19 +39,21 @@ private:
   double Pr_t, C_smag;
   double rho_thrsh, p_thrsh;
   int stop_on_neg_val;
-  int tau_scheme,sutherland_law,sutherland_law_implicit,
-    tau_scalar,tau_reversed;
+  int tau_scheme,sutherland_law,sutherland_law_implicit;
   double shocap_beta,Tem_infty,Tem_ref,delta_sc_aniso;
   double shocap,h_rgn,r_dir_mod,r_switch;
-  double Q_body;
 
   double visco_l, visco_bar;
+
+  double beta,Mr,delta,Meps,iCFLc,Mach,alpha,Dt,rec_Dt;
+  int steady,psteady;
 
   vector<int> ip;
   FastMat2 tmp_vel_ndim,tmp_vaux_ndim;
 
   FastMat2 tmp_vj;
   const NewAdvDif *advdf_e;
+  const AdvectiveAbso *advabso_e;
   FastMat2 jvec;
   FastMat2 tmp20,dUabso,Uref;
   MakeTangentSpace maktgsp;
@@ -74,15 +75,15 @@ private:
   void compute_shocap(double &delta_sc);
 
 public:
-  gasflow_ff(NewElemset *elemset=NULL);
+  gasflow_preco_ff(NewElemset *elemset=NULL);
 
-  gasflow_ff(Elemset *elemset=NULL);
+  gasflow_preco_ff(Elemset *elemset=NULL);
 
-  ~gasflow_ff();
+  ~gasflow_preco_ff();
 
   // void set_profile(FastMat2 &seed);
 
-  /** This is called before any other in a loop and may help in
+  /** This is called before any other in a loopnike and may help in
       optimization
       @param ret_options (input/output) this is used by the flux
       function writer for returning some options. Currently the only
@@ -186,11 +187,24 @@ public:
   */
   void comp_P_Cp(FastMat2 &P_Cp,const FastMat2 &P_supg);
 
+  /** Computes the product of the precondition matrix
+      with a shape function and a weight function.
+  */
+  void comp_W_Gamma_N(FastMat2 &W_Ga_N,const FastMat2 &W,
+		      const FastMat2 &N,double weight);
+
+  /** Computes the product of the precondition
+      matrix with an SUPG weight function
+  */
+  void comp_P_Gamma(FastMat2 &P_Ga,const FastMat2 &P_supg);
+
   void get_Cp(FastMat2 &Cp_a);
 
   void get_Ajac(FastMat2 &Ajac_a);
 
   void get_C(FastMat2 &C_a);
+
+  void get_preco(FastMat2 &preco_a);
 
 #define USE_COMP_P_SUPG
 #ifdef USE_COMP_P_SUPG
@@ -216,46 +230,38 @@ public:
   void Riemann_Inv(const FastMat2 &U, const FastMat2 &normal,
 		   FastMat2 &Rie, FastMat2 &drdU, FastMat2 &C_);
 
-  void set_Ufluid(FastMat2 &Uref, FastMat2 &Ufluid);
-
-  void compute_shock_cap_aniso(double &delta_aniso,
+  void
+  compute_shock_cap_aniso(double &delta_aniso,
 			  FastMat2 &jvec);
 };
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:
-/// The elemset corresponding to the `gasflow_ff' flux function.
-class gasflow : public NewAdvDif {
+/// The elemset corresponding to the `gasflow_preco_ff' flux function.
+class gasflow_preco : public NewAdvDif {
 public:
   /** Constructor, creates the flux function object.
       fixme:= should destroy the flux functin.
   */
-  gasflow() :  NewAdvDif(new gasflow_ff(this)) {};
+  gasflow_preco() :  NewAdvDif(new gasflow_preco_ff(this)) {};
 };
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:
-class gasflow_bcconv : public NewBcconv {
+class gasflow_preco_bcconv : public NewBcconv {
 public:
-  gasflow_bcconv() : NewBcconv(new gasflow_ff(this)) {};
+  gasflow_preco_bcconv() : NewBcconv(new gasflow_preco_ff(this)) {};
 };
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:
-class gasflow_abso : public AdvDiff_Abs_Nl_Res {
+class gasflow_preco_abso : public AdvDiff_Abs_Nl_Res {
 public:
-  gasflow_abso() :  AdvDiff_Abs_Nl_Res(new gasflow_ff(this)) { }
+  gasflow_preco_abso() :  AdvDiff_Abs_Nl_Res(new gasflow_preco_ff(this)) { }
 };
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:
-class gasflow_abso2 : public AdvectiveAbso {
+class gasflow_preco_abso2 : public AdvectiveAbso {
 public:
-  gasflow_abso2()
-    :  AdvectiveAbso(new gasflow_ff(this)) { }
-};
-
-//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:
-class gasflow_abso_wall : public AdvectiveAbsoWall {
-public:
-  gasflow_abso_wall()
-    :  AdvectiveAbsoWall(new gasflow_ff(this)) { }
+  gasflow_preco_abso2()
+    :  AdvectiveAbso(new gasflow_preco_ff(this)) { }
 };
 
 #endif

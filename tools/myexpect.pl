@@ -19,6 +19,11 @@ $SEP = "}{";
 $COMMENT = "#>>";
 $WD = ".";
 
+## Allows determining machine architecture
+$archi = `uname -i`;
+chomp $archi;
+$archi = 'i386' if $archi eq 'unknown';
+
 sub P { print @_; }
 
 sub read_file {

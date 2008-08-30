@@ -48,6 +48,8 @@ int mmove2_main() {
   double  mmv_delta_increment,resdelta_dot_dx;
   double  min_quality_old;
   double  local_mmv_dfd,local_mmv_d2fd;
+  double  mmv_functional_g,mmv_dfd_g,mmv_d2fd_g;
+  double  min_quality_g,min_volume_g;
   int     ierr, i, n = 10, size, node,
     jdof, k, kk, nfixa,
     kdof, ldof, lloc, nel, nen, neq, nu,
@@ -400,7 +402,7 @@ int mmove2_main() {
       argl.arg_add(Ap,OUT_MATRIX|PFMAT,"A");
       argl.arg_add(&hmin,VECTOR_MIN,"hmin");
       argl.arg_add(&glob_param,USER_DATA,"glob_param");
-      
+
       scal=0;
       ierr = VecSet(res,scal); CHKERRA(ierr);
       ierr = Ap->clean_mat(); CHKERRA(ierr); 
@@ -408,6 +410,12 @@ int mmove2_main() {
       ierr = assemble(mesh,argl,dofmap,"comp_mat_res",&time);
       CHKERRA(ierr);
       debug.trace("After residual computation.");
+
+      MPI_Allreduce(&mmv_functional, &mmv_functional_g, 1, MPI_DOUBLE, MPI_SUM, MPI_COMM_WORLD);
+      MPI_Allreduce(&mmv_dfd, &mmv_dfd_g, 1, MPI_DOUBLE, MPI_SUM, MPI_COMM_WORLD);
+      MPI_Allreduce(&mmv_d2fd, &mmv_d2fd_g, 1, MPI_DOUBLE, MPI_SUM, MPI_COMM_WORLD);
+      MPI_Allreduce(&min_quality, &min_quality_g, 1, MPI_DOUBLE, MPI_MIN, MPI_COMM_WORLD);
+      MPI_Allreduce(&min_volume, &min_volume_g, 1, MPI_DOUBLE, MPI_MIN, MPI_COMM_WORLD);
       
       // res = RES(u^n,t^n+epsilon);
       mmv_functional = mmv_dfd = mmv_d2fd = 0.;
@@ -433,6 +441,12 @@ int mmove2_main() {
       ierr = assemble(mesh,argl,dofmap,"comp_mat_res",&time);
       CHKERRA(ierr);
       debug.trace("After residual computation.");
+
+      MPI_Allreduce(&mmv_functional, &mmv_functional_g, 1, MPI_DOUBLE, MPI_SUM, MPI_COMM_WORLD);
+      MPI_Allreduce(&mmv_dfd, &mmv_dfd_g, 1, MPI_DOUBLE, MPI_SUM, MPI_COMM_WORLD);
+      MPI_Allreduce(&mmv_d2fd, &mmv_d2fd_g, 1, MPI_DOUBLE, MPI_SUM, MPI_COMM_WORLD);
+      MPI_Allreduce(&min_quality, &min_quality_g, 1, MPI_DOUBLE, MPI_MIN, MPI_COMM_WORLD);
+      MPI_Allreduce(&min_volume, &min_volume_g, 1, MPI_DOUBLE, MPI_MIN, MPI_COMM_WORLD);
       
 #ifdef MMV_DBG
       printf("resp: ");
@@ -496,13 +510,20 @@ int mmove2_main() {
     CHKERRA(ierr);
     debug.trace("After residual computation.");
 
-    min_quality_old = min_quality;
+    MPI_Allreduce(&mmv_functional, &mmv_functional_g, 1, MPI_DOUBLE, MPI_SUM, MPI_COMM_WORLD);
+    MPI_Allreduce(&mmv_dfd, &mmv_dfd_g, 1, MPI_DOUBLE, MPI_SUM, MPI_COMM_WORLD);
+    MPI_Allreduce(&mmv_d2fd, &mmv_d2fd_g, 1, MPI_DOUBLE, MPI_SUM, MPI_COMM_WORLD);
+    MPI_Allreduce(&min_quality, &min_quality_g, 1, MPI_DOUBLE, MPI_MIN, MPI_COMM_WORLD);
+    MPI_Allreduce(&min_volume, &min_volume_g, 1, MPI_DOUBLE, MPI_MIN, MPI_COMM_WORLD);
+
+    min_quality_old = min_quality_g;
 
     // tangled_mesh = (min_volume > 0. ? 0 : 1);
-    tangled_mesh   = (mmv_delta <= 1.e-15 ? 0 : 1);
-    mmv_delta    = (min_volume > 1.e-15 ? 0. : \
-		    0.25*mmv_h_star*min_volume/(pow(mmv_h_star,2.)-1.)+1.e-12);
-    printf("delta: %12.10f\n",mmv_delta);
+    mmv_delta    = (min_volume_g > 1.e-15 ? 0. : \
+		    0.25*mmv_h_star*min_volume_g/(pow(mmv_h_star,2.)-1.)+1.e-10);
+    tangled_mesh = (mmv_delta <= 1.e-15 ? 0 : 1);
+    PetscPrintf(PETSC_COMM_WORLD,"delta: %12.10f\n",mmv_delta);
+    PetscPrintf(PETSC_COMM_WORLD,"min vol: %12.10f\n",min_volume_g);
 
     if (!MY_RANK) printf("Time step: %d, time: %g %s\n",
 			 tstep,time.time(),(steady ? " (steady) " : ""));
@@ -543,10 +564,16 @@ int mmove2_main() {
       CHKERRA(ierr);
       debug.trace("After residual computation.");
 
+      MPI_Allreduce(&mmv_functional, &mmv_functional_g, 1, MPI_DOUBLE, MPI_SUM, MPI_COMM_WORLD);
+      MPI_Allreduce(&mmv_dfd, &mmv_dfd_g, 1, MPI_DOUBLE, MPI_SUM, MPI_COMM_WORLD);
+      MPI_Allreduce(&mmv_d2fd, &mmv_d2fd_g, 1, MPI_DOUBLE, MPI_SUM, MPI_COMM_WORLD);
+      MPI_Allreduce(&min_quality, &min_quality_g, 1, MPI_DOUBLE, MPI_MIN, MPI_COMM_WORLD);
+      MPI_Allreduce(&min_volume, &min_volume_g, 1, MPI_DOUBLE, MPI_MIN, MPI_COMM_WORLD);
+
       // tangled_mesh   = (min_volume > 0. ? 0 : 1);
       tangled_mesh   = (mmv_delta <= 1.e-10 ? 0 : 1);
-      local_mmv_dfd  = mmv_dfd;
-      local_mmv_d2fd = mmv_d2fd;
+      local_mmv_dfd  = mmv_dfd_g;
+      local_mmv_d2fd = mmv_d2fd_g;
 
       if (!print_linear_system_and_stop || solve_system) {
 	debug.trace("Before solving linear system...");
@@ -605,9 +632,9 @@ int mmove2_main() {
 
       ierr = VecDot(res_delta,dx,&resdelta_dot_dx);  CHKERRA(ierr);
 
+      int    counter=0;
       if (use_line_search_mmv){
-	int    counter=0;
-	double mmv_functional_ini = mmv_functional;
+	double mmv_functional_ini = mmv_functional_g;
 	double dif_functional,dx_dot_res;
 	ierr = VecDot(res,dx,&dx_dot_res);  CHKERRA(ierr);
 	tarea = 0;
@@ -633,8 +660,14 @@ int mmove2_main() {
 	  CHKERRA(ierr);
 	  debug.trace("After residual computation.");
 
-	  if (min_volume > 0.) break;
-	  dif_functional = fabs(mmv_functional)-
+	  MPI_Allreduce(&mmv_functional, &mmv_functional_g, 1, MPI_DOUBLE, MPI_SUM, MPI_COMM_WORLD);
+	  MPI_Allreduce(&mmv_dfd, &mmv_dfd_g, 1, MPI_DOUBLE, MPI_SUM, MPI_COMM_WORLD);
+	  MPI_Allreduce(&mmv_d2fd, &mmv_d2fd_g, 1, MPI_DOUBLE, MPI_SUM, MPI_COMM_WORLD);
+	  MPI_Allreduce(&min_quality, &min_quality_g, 1, MPI_DOUBLE, MPI_MIN, MPI_COMM_WORLD);
+	  MPI_Allreduce(&min_volume, &min_volume_g, 1, MPI_DOUBLE, MPI_MIN, MPI_COMM_WORLD);
+
+	  if (min_volume_g > 0.) break;
+	  dif_functional = fabs(mmv_functional_g)-
 	    fabs(mmv_functional_ini+relfac*ls_eta_parameter*dx_dot_res);
 	  if (dif_functional < 0.) break;
 
@@ -643,6 +676,7 @@ int mmove2_main() {
 	  ierr = VecAXPY(x,scal,dx);  CHKERRA(ierr);
 
 	  PetscPrintf(PETSC_COMM_WORLD,"relaxation factor %f\n",relfac);
+	  if (counter > 10) break;
 	}
       }
 
@@ -652,24 +686,29 @@ int mmove2_main() {
 	if (mmv_delta_increment > (1.-delta_fraction)*mmv_delta) 
 	  mmv_delta_increment = (1.-delta_fraction)*mmv_delta;
 	mmv_delta += -1.*mmv_delta_increment;
+	if (min_volume_g <= 0. & mmv_delta < 1e-12)
+	  mmv_delta = 1e-12;
       }
+      if (counter > 10) mmv_delta *= 1.2;
 
 #if 1
-      printf("delta: %12.10f\n",mmv_delta);
-      printf("Min quality: %f\n",min_quality);
-      printf("Min quality old: %f\n",min_quality_old);
+      PetscPrintf(PETSC_COMM_WORLD,"delta: %12.10f\n",mmv_delta);
+      PetscPrintf(PETSC_COMM_WORLD,"Min quality: %f\n",min_quality_g);
+      PetscPrintf(PETSC_COMM_WORLD,"Min quality old: %f\n",min_quality_old);
 #endif
+      
+      if (fabs(min_quality_g-min_quality_old)/min_quality_g < tol_rel_quality 
+      	  && min_quality_g > 0.) break;
 
-      if (fabs(min_quality-min_quality_old)/min_quality < tol_rel_quality
-	  && min_quality > 0.) break;
-
-      min_quality_old = min_quality;
+      min_quality_old = min_quality_g;
 
 #if 0
       ierr = VecView(x,PETSC_VIEWER_STDOUT_WORLD); CHKERRA(ierr);
       PetscFinalize();
       exit(0);
 #endif
+
+      if (normres < tol_newton) break;
 
       // fixme:= SHOULD WE CHECK HERE FOR NEWTON CONVERGENCE?
 

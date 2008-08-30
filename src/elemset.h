@@ -274,8 +274,8 @@ public:
       @param element (input) iterator to the element for which 
       to return the data
       @param nodedata (input) the node coordinate info
-      @param xloc (input) the coordinates of the element nodes
-      @param Hloc (input) the auxiliary data for the nodes
+      @param xloc (output) the coordinates of the element nodes
+      @param Hloc (output) the auxiliary data for the nodes
   */ 
   void element_node_data(const ElementIterator &element,
 			 const Nodedata *nodedata,

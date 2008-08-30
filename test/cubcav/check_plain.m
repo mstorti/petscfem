@@ -4,7 +4,8 @@ u0 = aload("cubcav.state.plain_bupl0.tmp");
 u1 = aload("cubcav.state.plain_bupl1.tmp");
 u2 = aload("cubcav.state.plain_bupl2.tmp");
 
-uref = aload("cubcav.sol");
+file = sprintf("cubcav-%s.ans",getenv("ARCHI"));
+uref = aload(file);
 indx = uref(:,1);
 uref = uref(:,2:5);
 
@@ -17,7 +18,8 @@ erro2 = merr(u2-u0);
 printf("Cubcav/Block uploading 2 error OK? > %d (error %g, tol %g)\n",
        erro2<tol,erro2,tol);
 
+tol1 = 1e-3;
 erro3 = merr(u0(indx,:)-uref);
 printf("Cubcav/error wrt.reference solution OK? > %d (error %g, tol %g)\n",
-       erro3<tol,erro3,tol);
+       erro3<tol1,erro3,tol1);
 

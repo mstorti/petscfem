@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: advdif.cpp,v 1.71.10.2 2007/02/23 19:18:07 dalcinl Exp $
+//$Id: advdif.cpp,v 1.62 2005/03/28 21:06:34 mstorti Exp $
 
 #include <src/debug.h>
 #include <set>
@@ -16,14 +16,16 @@
 
 #include <time.h>
 
-static char help[] = "Basic finite element program.\n\n";
+extern GlobParam *GLOB_PARAM;
 
+extern int MY_RANK,SIZE;
+extern int print_internal_loop_conv_g,
+  consistent_supg_matrix_g,
+  local_time_step_g,
+  comp_mat_each_time_step_g,
+  verify_jacobian_with_numerical_one;
 
-extern int print_internal_loop_conv_g;
-extern int consistent_supg_matrix_g;
-extern int  local_time_step_g;
-extern int  comp_mat_each_time_step_g;
-extern int  verify_jacobian_with_numerical_one;
+extern double local_dt_min;
 
 #define VECVIEW(name,label) \
 ierr = PetscViewerSetFormat(matlab, \
@@ -35,39 +37,22 @@ ierr = VecView(name,matlab); CHKERRA(ierr)
 #define PetscViewerSetFormat_WRAPPER(viewer,format,name) \
           PetscViewerSetFormat(viewer,format)
 
-int bubbly_main();
-int fsi_main();
-int dual_time_main();
-
 Hook *advdif_hook_factory(const char *name);
 
 //-------<*>-------<*>-------<*>-------<*>-------<*>------- 
 #undef __FUNC__
-#define __FUNC__ "advdif_main"
-int advdif_main(int argc,char **args) {
+#define __FUNC__ "main"
+int dual_time_main() {
 
-  PetscFemInitialize(&argc,&args,(char *)0,help);
-  
-#define CNLEN 100
-  PetscTruth flg;
-  char code_name[CNLEN];
-  int ierr = PetscOptionsGetString(PETSC_NULL,"-code",code_name,CNLEN,&flg);
-
-  if (flg) {
-    if (!strcmp(code_name,"fsi")) return fsi_main();
-    if (!strcmp(code_name,"bubbly")) return bubbly_main();
-    if (!strcmp(code_name,"dual_time")) return dual_time_main();
-    PETSCFEM_ERROR("Unknown -code option: \"%s\"\n",code_name);
-  }
-  
-  Vec     x, dx, xold, res; /* approx solution, RHS, residual*/
-  PFMat *A,*AA;			// linear system matrix 
+  Vec x, dx, xold, xold2, res; // approx solution, RHS, residual
+  PFMat *A,*AA;  	// linear system matrix 
   PFMat *A_tet, *A_tet_c;
   double  *sol, scal, normres, normres_ext=NAN;    /* norm of solution error */
-  int     i, n = 10, col[3], its, size, node,
+  int     ierr, i, n = 10, col[3], its, size, node,
     jdof, k, kk, nfixa,
     kdof, ldof, lloc, ndim, nel, nen, neq, nu,
     myrank;
+  PetscTruth flg;
   // nu:= dimension of the state vector per node
   PetscScalar  neg_one = -1.0, one = 1.0, value[3];
   PetscScalar *px;
@@ -83,20 +68,22 @@ int advdif_main(int argc,char **args) {
   GLOB_PARAM = &glob_param;
   string save_file_res;
 
-  // euler_volume::set_flux_fun(&flux_fun_euler);
-  // euler_absorb::flux_fun = &flux_fun_euler;
+  double global_dt_min,Dt_min,normres_ext2=NAN;
 
-  // elemsetlist =  da_create(sizeof(Elemset *));
   print_copyright();
-  PetscPrintf(PETSCFEM_COMM_WORLD,
-	      "-------- Generic Advective-Diffusive  module ---------\n");
+  PetscPrintf(PETSC_COMM_WORLD,
+	      "-------- Generic Advective-Diffusive module / With dual time stepping ---------\n");
 
-  Debug debug(0,PETSCFEM_COMM_WORLD);
-  GLOBAL_DEBUG = &debug;
+  // Get MPI info
+  MPI_Comm_size(PETSC_COMM_WORLD,&SIZE);
+  MPI_Comm_rank(PETSC_COMM_WORLD,&MY_RANK);
+
+  Debug debug(0,PETSC_COMM_WORLD);
+  // GLOBAL_DEBUG = &debug;
 
   ierr = PetscOptionsGetString(PETSC_NULL,"-case",fcase,FLEN,&flg); CHKERRA(ierr);
   if (!flg) {
-    PetscPrintf(PETSCFEM_COMM_WORLD,
+    PetscPrintf(PETSC_COMM_WORLD,
 		"Option \"-case <filename>\" not passed to PETSc-FEM!!\n");
     PetscFinalize();
     exit(0);
@@ -228,7 +215,7 @@ int advdif_main(int argc,char **args) {
 #define ALPHA (glob_param.alpha)
   if (ALPHA>0.) {
     consistent_supg_matrix = 1;
-    auto_time_step=0;		// Don't know how to do auto_time_step
+    // auto_time_step=0;		// Don't know how to do auto_time_step
 				// in the implicit case...
     local_time_step=0;
   }
@@ -242,13 +229,6 @@ int advdif_main(int argc,char **args) {
 
   //o Counts time from here.
   GETOPTDEF(double,start_comp_time,0.);
-  //o Counts time from here. (superseded by
-  //  #start_comp_time# for compatibility with Navier-Stokes
-  //  module). 
-  GETOPTDEF(double,start_time,NAN);
-  if (!isnan(start_time) && start_comp_time!=0.0)
-    start_comp_time = start_time;
-  
   //o Tolerance when solving with the mass matrix. 
   GETOPTDEF(double,tol_mass,1e-3);
   //o Tolerance when solving the sublinear problem
@@ -261,10 +241,9 @@ int advdif_main(int argc,char **args) {
   GETOPTDEF(double,tol_steady,0.);
   //o Relaxation factor for the Newton iteration
   GETOPTDEF(double,omega_newton,1.);
-  //o Computes jacobian of residuals and prints to a file.
-  //  May serve to debug computation of the analytic jacobians. 
+  //
   GETOPTDEF(int,verify_jacobian_with_numerical_one,0);
-
+  //
 #define INF INT_MAX
   //o Update jacobian each $n$-th time step. 
   GETOPTDEF(int,update_jacobian_start_steps,INF);
@@ -287,9 +266,28 @@ int advdif_main(int argc,char **args) {
   FILE *gather_file_f;
   if (MY_RANK==0 && ngather>0) {
     gather_file_f = fopen(gather_file.c_str(),"w");
-    //fprintf(gather_file_f,"");
+    // fprintf(gather_file_f,"");
     fclose(gather_file_f);
   }
+
+  //o The final time in the simulation
+  GETOPTDEF(double,final_comp_time,1e6);
+  //o CFL number based on fluid velocity
+  GETOPTDEF(double,CFL_u,1.);
+  //o Pseudo-time step. 
+  GETOPTDEF(double,Dpt,0.);
+  //o Psuedo-stationary state flag
+  GETOPTDEF(int,psteady,1);
+  //o The number of pseudo-time steps. 
+  GETOPTDEF(int,npstep,10000);
+  //o Tolerance to reach the pseudo-steady state
+  GETOPTDEF(double,tol_ps,1e-6);
+  glob_param.Dpt = Dpt;
+  glob_param.psteady = psteady;
+  glob_param.precoflag = 1;
+
+  double Dpt_ini = Dpt;
+  Dt_min = Dt;
 
   //o Chooses the preconditioning operator. 
   TGETOPTDEF_S(GLOBAL_OPTIONS,string,preco_type,jacobi);
@@ -298,8 +296,8 @@ int advdif_main(int argc,char **args) {
   strcpy(preco_type_,preco_type.c_str());
 
   Time time,time_star;
+  Time pseudo_time;
   time.set(start_comp_time);
-  glob_param.time = &time;
 
   //o The pattern to generate the file name to save in for
   // the rotary save mechanism.
@@ -309,17 +307,13 @@ int advdif_main(int argc,char **args) {
   TGETOPTDEF_S(GLOBAL_OPTIONS,string,save_file,outvector.out);
   save_file_res = save_file + string(".res");
 
-#if 0
-  PetscViewer matlab;
-  ierr = PetscViewerASCIIOpen(PETSCFEM_COMM_WORLD,
-			 "matns.m",&matlab); CHKERRA(ierr);
-#endif
   //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 
   dofmap->create_MPI_vector(x);
 
   // initialize vectors
   ierr = VecDuplicate(x,&xold); CHKERRA(ierr);
+  ierr = VecDuplicate(x,&xold2); CHKERRA(ierr);
   ierr = VecDuplicate(x,&dx); CHKERRA(ierr);
   ierr = VecDuplicate(x,&res); CHKERRA(ierr);
 
@@ -333,11 +327,6 @@ int advdif_main(int argc,char **args) {
   ierr = VecSet(x,scal); CHKERRA(ierr);
 
   arg_list argl,arglf;
-
-  //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
-  // Hook stuff
-  HookList hook_list;
-  hook_list.init(*mesh,*dofmap,advdif_hook_factory);
 
   //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
   // Compute  profiles
@@ -356,6 +345,11 @@ int advdif_main(int argc,char **args) {
   //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
   ierr = opt_read_vector(mesh,x,dofmap,MY_RANK); CHKERRA(ierr);
 
+  //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+  // Hook stuff
+  HookList hook_list;
+  hook_list.init(*mesh,*dofmap,advdif_hook_factory);
+
   //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:
   // This is for taking statistics of the
   // CPU time consumed by a time steptime
@@ -363,6 +357,10 @@ int advdif_main(int argc,char **args) {
 #define STAT_STEPS 5
   double cpu[STAT_STEPS],cpuav;
   int update_jacobian_this_step,update_jacobian_this_iter;
+
+  double delta_u;
+
+  // Time loop
   for (int tstep=1; tstep<=nstep; tstep++) {
     time_star.set(time.time()+alpha*Dt);
     // Take cputime statistics
@@ -388,152 +386,160 @@ int advdif_main(int argc,char **args) {
     ierr = VecCopy(x,xold);
     hook_list.time_step_pre(time_star.time(),tstep);
 
-    for (int inwt=0; inwt<nnwt; inwt++) {
+    local_dt_min  = 1.e10;
 
-      // Initializes res
-      scal=0;
-      ierr = VecSet(res,scal); CHKERRA(ierr);
+    pseudo_time.set(0.);
+    Dpt = Dpt_ini;
+    glob_param.Dpt = Dpt;
+    // Pseudo-time loop
+    for (int ptstep=1; ptstep<=npstep; ptstep++) {    
 
-      if (comp_mat_each_time_step_g) {
+      pseudo_time.set(pseudo_time.time()+Dpt);
 
-	//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
-	// ierr = A->build_ksp(GLOBAL_OPTIONS); CHKERRA(ierr); 
+      PetscPrintf(PETSC_COMM_WORLD,
+		  " Pseudo-time step: %d\n",
+		  ptstep);
+	
+      ierr = VecCopy(x,xold2);
 
-	ierr = A->clean_mat(); CHKERRA(ierr); 
+      // Newton loop
+      for (int inwt=0; inwt<nnwt; inwt++) {
+
+	// Initializes res
+	scal=0;
+	ierr = VecSet(res,scal); CHKERRA(ierr);
+
+	if (comp_mat_each_time_step_g) {
+
+	  //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+	  ierr = A->clean_mat(); CHKERRA(ierr); 
 #ifdef CHECK_JAC
-	ierr = AA->clean_mat(); CHKERRA(ierr);
+	  ierr = AA->clean_mat(); CHKERRA(ierr);
 #endif
-	VOID_IT(argl);
-	argl.arg_add(&xold,IN_VECTOR);
-#ifndef CHECK_JAC
-	argl.arg_add(&x,IN_VECTOR);
-#else
-	argl.arg_add(&x,PERT_VECTOR);
-#endif
-	argl.arg_add(&res,OUT_VECTOR);
-	argl.arg_add(&dtmin,VECTOR_MIN);
-	argl.arg_add(A,OUT_MATRIX|PFMAT);
-	argl.arg_add(&glob_param,USER_DATA);
-#ifdef CHECK_JAC
-	argl.arg_add(AA,OUT_MATRIX_FDJ|PFMAT);
-#endif
-
-	if (measure_performance) {
-	  ierr = measure_performance_fun(mesh,argl,dofmap,"comp_res",
-					 &time_star); CHKERRA(ierr);
-	  PetscFinalize();
-	  exit(0);
-	}
-	debug.trace("Before residual computation...");
-	ierr = assemble(mesh,argl,dofmap,"comp_res",&time_star); CHKERRA(ierr);
-	debug.trace("After residual computation.");
-
-	if (!print_linear_system_and_stop || solve_system) {
-	  debug.trace("Before solving linear system...");
-	  ierr = A->solve(res,dx); CHKERRA(ierr); 
-	  debug.trace("After solving linear system.");
-	}
-      } else {
-
-	VOID_IT(argl);
-	argl.arg_add(&x,IN_VECTOR);
-	argl.arg_add(&res,OUT_VECTOR);
-	argl.arg_add(&dtmin,VECTOR_MIN);
-
-	if (measure_performance) {
-	  ierr = measure_performance_fun(mesh,argl,dofmap,"comp_res",
-					 &time_star); CHKERRA(ierr);
-	  PetscFinalize();
-	  exit(0);
-	}
-	ierr = assemble(mesh,argl,dofmap,"comp_res",&time_star); CHKERRA(ierr);
-
-	if (!print_linear_system_and_stop || solve_system) {
-	  ierr = A->solve(res,dx); CHKERRA(ierr); 
-	}
-      }
-
-      //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:
-      // FEM matrix jacobian debug  (perturbation)
-#if 0
-	PetscViewer matlab;
-	if (verify_jacobian_with_numerical_one) {
-	  ierr = PetscViewerASCIIOpen(PETSCFEM_COMM_WORLD,
-				      "system.dat.tmp",&matlab); CHKERRA(ierr);
-	  ierr = PetscViewerSetFormat_WRAPPER(matlab,
-					      PETSC_VIEWER_ASCII_MATLAB,
-					      "atet"); CHKERRA(ierr);
-	  
-	  ierr = A_tet->view(matlab); CHKERRQ(ierr); 
-	  
-	  ierr = A_tet_c->duplicate(MAT_DO_NOT_COPY_VALUES,*A_tet); CHKERRA(ierr);
-	  ierr = A_tet->clean_mat(); CHKERRA(ierr); 
-	  ierr = A_tet_c->clean_mat(); CHKERRA(ierr); 
-	  
-	  argl.clear();
-	  argl.arg_add(&x,PERT_VECTOR);
+	  VOID_IT(argl);
 	  argl.arg_add(&xold,IN_VECTOR);
-	  argl.arg_add(A_tet_c,OUT_MATRIX_FDJ|PFMAT);
-	  
-	  argl.arg_add(A_tet,OUT_MATRIX|PFMAT);
-	  argl.arg_add(&hmin,VECTOR_MIN);
-
+	  argl.arg_add(&xold2,IN_VECTOR);
+#ifndef CHECK_JAC
+	  argl.arg_add(&x,IN_VECTOR);
+#else
+	  argl.arg_add(&x,PERT_VECTOR);
+#endif
+	  argl.arg_add(&res,OUT_VECTOR);
+	  argl.arg_add(&dtmin,VECTOR_MIN);
+	  argl.arg_add(A,OUT_MATRIX|PFMAT);
 	  argl.arg_add(&glob_param,USER_DATA);
-	  argl.arg_add(wall_data,USER_DATA);
-	  ierr = assemble(mesh,argl,dofmap,jobinfo,
-			  &time_star); CHKERRA(ierr);
+#ifdef CHECK_JAC
+	  argl.arg_add(AA,OUT_MATRIX_FDJ|PFMAT);
+#endif
+
+	  if (measure_performance) {
+	    ierr = measure_performance_fun(mesh,argl,dofmap,"comp_res",
+					   &time_star); CHKERRA(ierr);
+	    PetscFinalize();
+	    exit(0);
+	  }
+	  debug.trace("Before residual computation...");
+	  ierr = assemble(mesh,argl,dofmap,"comp_res",&time_star); CHKERRA(ierr);
+	  debug.trace("After residual computation.");
 	  
-	  ierr = PetscViewerSetFormat_WRAPPER(matlab,
-					      PETSC_VIEWER_ASCII_MATLAB,"atet_fdj"); CHKERRA(ierr);
-	  ierr = A_tet_c->view(matlab); CHKERRQ(ierr); 
+	  if (!print_linear_system_and_stop || solve_system) {
+	    debug.trace("Before solving linear system...");
+	    ierr = A->solve(res,dx); CHKERRA(ierr); 
+	    debug.trace("After solving linear system.");
+	  }
 	  
+	} else {
+	  
+	  VOID_IT(argl);
+	  argl.arg_add(&x,IN_VECTOR);
+	  argl.arg_add(&res,OUT_VECTOR);
+	  argl.arg_add(&dtmin,VECTOR_MIN);
+	  
+	  if (measure_performance) {
+	    ierr = measure_performance_fun(mesh,argl,dofmap,"comp_res",
+					   &time_star); CHKERRA(ierr);
+	    PetscFinalize();
+	    exit(0);
+	  }
+	  ierr = assemble(mesh,argl,dofmap,"comp_res",&time_star); CHKERRA(ierr);
+	  
+	  if (!print_linear_system_and_stop || solve_system) {
+	    ierr = A->solve(res,dx); CHKERRA(ierr); 
+	  }
+	}
+
+	if (print_linear_system_and_stop && 
+	    inwt==inwt_stop && tstep==time_step_stop) {
+	  PetscPrintf(PETSC_COMM_WORLD,
+		      "Printing residual and matrix for debugging and stopping..\n");
+	  PetscViewer matlab;
+	  ierr = PetscViewerASCIIOpen(PETSC_COMM_WORLD,
+				      "mat.output",&matlab); CHKERRA(ierr);
+	  ierr = PetscViewerSetFormat_WRAPPER(matlab, 
+					      PETSC_VIEWER_ASCII_MATLAB,"res");
+	  ierr = VecView(res,matlab);
+	  if (solve_system) {
+	    ierr = PetscViewerSetFormat_WRAPPER(matlab, 
+						PETSC_VIEWER_ASCII_MATLAB,"dx");
+	    ierr = VecView(dx,matlab);
+	  }
+	  ierr = PetscViewerSetFormat_WRAPPER(matlab, 
+					      PETSC_VIEWER_ASCII_MATLAB,"A");
+	  ierr = A->view(matlab);
+	  print_vector(save_file_res.c_str(),res,dofmap,&time); // debug:=
+#ifdef CHECK_JAC
+	  ierr = PetscViewerSetFormat_WRAPPER(matlab, 
+					      PETSC_VIEWER_ASCII_MATLAB,"AA");
+	  ierr = AA->view(matlab);
+#endif
 	  PetscFinalize();
 	  exit(0);
 	}
-#endif
-      
-      if (print_linear_system_and_stop && 
-	  inwt==inwt_stop && tstep==time_step_stop) {
-	PetscPrintf(PETSCFEM_COMM_WORLD,
-		    "Printing residual and matrix for debugging and stopping..\n");
-	PetscViewer matlab;
-	ierr = PetscViewerASCIIOpen(PETSCFEM_COMM_WORLD,
-			       "mat.output",&matlab); CHKERRA(ierr);
-	ierr = PetscViewerSetFormat_WRAPPER(matlab, 
-			       PETSC_VIEWER_ASCII_MATLAB,"res");
-	ierr = VecView(res,matlab);
-	if (solve_system) {
-	  ierr = PetscViewerSetFormat_WRAPPER(matlab, 
-				 PETSC_VIEWER_ASCII_MATLAB,"dx");
-	  ierr = VecView(dx,matlab);
-	}
-	ierr = PetscViewerSetFormat_WRAPPER(matlab, 
-			       PETSC_VIEWER_ASCII_MATLAB,"A");
-	ierr = A->view(matlab);
-	print_vector(save_file_res.c_str(),res,dofmap,&time); // debug:=
-#ifdef CHECK_JAC
-	ierr = PetscViewerSetFormat_WRAPPER(matlab, 
-			       PETSC_VIEWER_ASCII_MATLAB,"AA");
-	ierr = AA->view(matlab);
-#endif
-	PetscFinalize();
-	exit(0);
-      }
+	
+	ierr = VecNorm(res,NORM_2,&normres); CHKERRA(ierr);
+	if (inwt==0) normres_ext = normres;
+	if (ptstep==1 && inwt==0) normres_ext2 = normres;
+	PetscPrintf(PETSC_COMM_WORLD,
+		    "Newton subiter %d, norm_res  = %10.3e\n",
+		    inwt,normres);
+	scal=omega_newton/alpha;
+	ierr = VecAXPY(x,scal,dx);
+	if (normres < tol_newton) break;
 
-      ierr  = VecNorm(res,NORM_2,&normres); CHKERRA(ierr);
-      if (inwt==0) normres_ext = normres;
-      PetscPrintf(PETSCFEM_COMM_WORLD,
-		  "Newton subiter %d, norm_res  = %10.3e\n",
-		  inwt,normres);
-      scal=omega_newton/alpha;
-      ierr = VecAXPY(x,scal,dx);
-      if (normres < tol_newton) break;
-    }
+      } // End newton loop
+
+      pseudo_time.inc(Dpt);
+
+      // Upgrade state vector.
+      //VOID_IT(argl);
+      //argl.arg_add(&x,IN_OUT_VECTOR);
+      //argl.arg_add(&xold,IN_VECTOR);
+      //ierr = assemble(mesh,argl,dofmap,"absorb_bc_proj",&time_star); CHKERRA(ierr);
+      //glob_param.time = &time;
+
+      if (psteady) break;
+      
+      // Reuse dx for computing the delta state vector after re-projecting
+      ierr = VecCopy(x,dx);
+      scal=-1.;
+      ierr = VecAXPY(dx,scal,xold2); 
+      ierr = VecNorm(dx,NORM_2,&delta_u); CHKERRA(ierr);
+
+      // Dpt = Dpt_ini/(delta_u > 1. ? 1. : delta_u);
+      Dpt = Dpt_ini*(normres_ext2/normres);
+      glob_param.Dpt = Dpt;
+
+      PetscPrintf(PETSC_COMM_WORLD," Delta u: %10.3e - Pseudo Dt: %10.3e \n",
+		  delta_u,Dpt);
+
+      if (delta_u < tol_ps) break;
+      
+    } // End psuedo-time loop
 
     // Prints residual and mass matrix in Matlab format
     // Define time step depending on strategy. Automatic time step,
     // local time step, etc... 
-    if (auto_time_step) Dt = Courant*dtmin[0];
+    // if (auto_time_step) Dt = Courant*dtmin[0];
     if (local_time_step) Dt = Courant;
     if (Dt<=0.) {
       PFEMERRQ("error: Dt<=0. You have to set Dt>0 or use "
@@ -542,34 +548,45 @@ int advdif_main(int argc,char **args) {
     // SHV(Dt);
     time.inc(Dt);
 
+    if (auto_time_step) {
+      MPI_Allreduce(&local_dt_min, &global_dt_min, 1, MPI_DOUBLE, MPI_MIN, MPI_COMM_WORLD);
+      double rdt=round(CFL_u*global_dt_min/Dt_min);
+      Dt = (rdt < 1. ? 1. : rdt)*Dt_min;
+      if (time.time()+alpha*Dt > final_comp_time)
+	Dt = (final_comp_time-time.time())/alpha;
+      glob_param.Dt = Dt;
+      PetscPrintf(PETSC_COMM_WORLD," Delta t: %10.3e - %f CAD - Courant Number: %f\n",
+		  Dt,(rdt < 1. ? 1. : rdt),Dt/global_dt_min);
+    }
+
     // Upgrade state vector.
 
     VOID_IT(argl);
     argl.arg_add(&x,IN_OUT_VECTOR);
     argl.arg_add(&xold,IN_VECTOR);
     ierr = assemble(mesh,argl,dofmap,"absorb_bc_proj",&time_star); CHKERRA(ierr);
-
-    double time_=time;
-
+    glob_param.time = &time;
+      
+   double time_=time;
+      
     // Reuse dx for computing the delta state vector after re-projecting
-    double delta_u;
     ierr = VecCopy(x,dx);
     scal=-1.;
     ierr = VecAXPY(dx,scal,xold);
     ierr  = VecNorm(dx,NORM_2,&delta_u); CHKERRA(ierr);
-
+      
     if (tstep % nsave == 0){
-      PetscPrintf(PETSCFEM_COMM_WORLD,
+      PetscPrintf(PETSC_COMM_WORLD,
 		  " --------------------------------------\n"
 		  "Time step: %d\n"
 		  " --------------------------------------\n",
 		  tstep);
-
+	
       print_vector(save_file.c_str(),x,dofmap,&time);
       if (print_residual)
 	print_vector(save_file_res.c_str(),res,dofmap,&time);
     }
-
+      
     if (ngather>0) {
       gather_values.resize(ngather,0.);
       for (int j=0; j<ngather; j++) gather_values[j] = 0.;
@@ -580,9 +597,9 @@ int advdif_main(int argc,char **args) {
       ierr = assemble(mesh,arglf,dofmap,"gather",&time);
       CHKERRA(ierr);
     }
-
+      
     hook_list.time_step_post(time_star.time(),tstep,gather_values);
-
+      
     if (ngather>0) {
       // Print gathered values
       if (MY_RANK==0) {
@@ -599,27 +616,28 @@ int advdif_main(int argc,char **args) {
 	}
       }
     }
-
-    PetscPrintf(PETSCFEM_COMM_WORLD,
+      
+    PetscPrintf(PETSC_COMM_WORLD,
 		"time_step %d, time: %g, delta_u = %10.3e\n",
 		tstep,time_,delta_u);
-
+      
     print_vector_rota(save_file_pattern.c_str(),x,dofmap,
 		      &time,tstep-1,nsaverot,nrec,nfile);
-
+      
     if (print_some_file!="" && tstep % nsome == 0)
       print_some(save_file_some.c_str(),x,dofmap,node_list,&time);
-    
+      
     if (normres_ext < tol_steady) break;
+    if (time_ >= final_comp_time) break;
       
   }
   hook_list.close();
-
+    
   print_vector(save_file.c_str(),x,dofmap,&time);
   if (print_residual) 
     print_vector(save_file_res.c_str(),res,dofmap,&time);
   if (report_option_access && MY_RANK==0) TextHashTable::print_stat();
-
+    
   ierr = VecDestroy(x); CHKERRA(ierr); 
   ierr = VecDestroy(xold); CHKERRA(ierr); 
   ierr = VecDestroy(dx); CHKERRA(ierr); 

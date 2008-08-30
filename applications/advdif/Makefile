@@ -18,7 +18,8 @@ LIBOBJS = advdif.o advdif_bubbly.o advdif_fsi.o compdate.o		\
 	streamsw1d.o id.o gaschem.o nonlres.o fm2funm.o			\
 	bubbly_asm_mix.o lagmul.o advabso.o gasflwgth.o svenant1d.o	\
 	advpenal.o absolay.o advdife-gcl.o streamsw2dt.o		\
-	streamsw2d.o strat_sw2d.o
+	streamsw2d.o strat_sw2d.o advdife_dual_time.o gasflow_preco.o	\
+	streamsw2d.o strat_sw2d.o advabsow.o advdif_dual_time.o   
 
 MYOBJS = 
 
@@ -45,7 +46,9 @@ odocadvdif: $(dd)/odocadvdif.tex		\
 	$(dd)/odocburgers.tex			\
 	$(dd)/odocswfm2t.tex			\
 	$(dd)/odocgenl.tex			\
-	$(dd)/odocstream.tex  			\
+	$(dd)/odocstream.tex			\
+	$(dd)/odocabso.tex  			\
+	$(dd)/odocabsow.tex  			\
 	$(dd)/odocdiff.tex  
 
 $(dd)/odocadvdif.tex: advdif.cpp $(dd)/advdif.tex
@@ -78,6 +81,12 @@ $(dd)/odocstream.tex: stream.h stream.cpp
 	-chmod +w $@
 	$(ODOC) -o $@ $^
 	-chmod -w $@
+
+$(dd)/odocabso.tex: advabso.cpp
+	$(run_odoc)
+
+$(dd)/odocabsow.tex: advabsow.cpp
+	$(run_odoc)
 
 local_dist_clean::
 	-rm -f *.o
