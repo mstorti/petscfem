@@ -13030,7 +13030,7 @@ problemas de sincronizacion con los de `graph'.
 %-- 18:43:34 -- mstorti-v19-end-4-gfa29a94 -----
 Estoy haciendo el merge con respecto al aporte de Ezequiel en 
 mmove y con el gasflow preco. Todo arranco del commit
-obecaea4c7854885948c00f610d29a447a55bf4b4
+becaea4c7854885948c00f610d29a447a55bf4b4
 (mstorti-v9-root-4-gbecaea4). 
 %
 Lo de mmove esta teoricamente en 
