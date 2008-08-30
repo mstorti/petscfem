@@ -207,14 +207,20 @@ struct GlobParam {
   int inwt;
   /// Current time
   TimeData *time;
+  // o Agrego parametros globales para doble tiempo
+  /// pseudo-time step
+  double Dpt;
+  /// if set to one then Dpt=infty
+  int psteady;
   /// State vectors;
   Vec x,xold;
   // States
   State *state,*state_old;
   /// Constructor
   GlobParam() 
-    : steady(0), alpha(0), Dt(1.), inwt(0),
-      time(0), x(0), xold(0), state(0), state_old(0)
+    : steady(0), alpha(0), Dt(1.), inwt(0), time(0), 
+      Dpt(1.), psteady(0), x(0), xold(0), state(0), 
+      state_old(0)
   {}
 };
 

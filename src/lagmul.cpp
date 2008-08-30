@@ -12,6 +12,7 @@
 
 #define LagrangeMult GLagrangeMult
 
+int ADVABSO_CURRENT_ELEMENT=INT_MAX;
 extern TextHashTable *GLOBAL_OPTIONS;
 
 LagrangeMult::~LagrangeMult() {}
@@ -160,6 +161,7 @@ new_assemble(arg_data_list &arg_data_v,const Nodedata *nodedata,
        element!=elemlist.end(); element++) try {
 
     element.position(elem,k_chunk);
+    ADVABSO_CURRENT_ELEMENT = elem;
     FastMat2::reset_cache();
     ielh++;
 
@@ -230,6 +232,7 @@ new_assemble(arg_data_list &arg_data_v,const Nodedata *nodedata,
     set_error(1);
     return;
   } 
+  ADVABSO_CURRENT_ELEMENT = INT_MAX;
   FastMat2::void_cache();
   FastMat2::deactivate_cache();
   close();
