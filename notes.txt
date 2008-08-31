@@ -13069,6 +13069,78 @@ Esos dos los arregle, pero ahora me tira uno nuevo Testing:
 %-- 07:19:33 -- mstorti-v19-end-10-g0e055d0 -----
 O sea que ahora da "not OK 6". 
 
+%=== Sat Aug 30 21:32:24 2008 mstorti@prandtl
+%
+%-- 21:32:24 -- ejlopez-v3-root-5-gff61003 -----
+Hago el merge de lo de preco/dual-time (Ezequiel Lopez). 
+Copio el mail que le envio
+> 
+> Tiene lo del preco/dual-time. Hice unos cambios
+> 
+> * lo del advdife especifico para el preco/dual-time ahora está en
+>  una función `new_assemble_preco', entonces al entrar en
+>  `new_assemble' asse lo siguiente:
+> 
+> >   if (use_GCL_compliant) {
+> >     new_assemble_GCL_compliant(arg_data_v,nodedata,
+> >                                dofmap,jobinfo,elemlist,time_data);
+> >     return;
+> >   } else if (precoflag) {
+> >     new_assemble_preco(arg_data_v,nodedata,
+> >                        dofmap,jobinfo,elemlist,time_data);
+> >     return;
+> >   }
+> 
+> * El precoflag ahora no se lee mas del archivo de datos, sino que
+>  setea en el `dual_time_main()'. Es decir que al llamar al programa
+>  con `-code dual_time' se setea la variable `precoflag' y queda
+>  prendida para toda la corrida. La variable está guardad en
+>  `GLOB_PARAM' así que para verla hay que hacer, por ejemplo
+> 
+>    extern GlobParam *GLOB_PARAM;
+> 
+>    if (GLOB_PARAM->precoflag) {  ...   }
+> 
+>   Si no nos gusta, y queremos volver a pasarla como opción en la
+>   tabla se puede volver atrás.
+> 
+> * El `advabso' ahora quedó el que dejaste vos, es decir con las
+>  modificaciones para el precoflag, que creo eran pocas y no jodían
+>  demasiado.
+> 
+> Yo corrí el ejemplo con el `advabsow' que tenía y corre. Probe a
+> ponerle el precoflag (es decir corriendo con -code dual_time) y
+> también corre, por supuesto reemplazando el elemset `gasflow' por
+> `gasflow_preco'.
+> 
+> Entonces me parece que lo que falta ahora es que le agregues al
+> `advabsow' lo necesario para que ande con el preco/dual-time.
+> 
+> POR FAVOR: fijate de tratar de usar ESTA VERSION que te doy.  Las
+> versiones anteriores que tengas guardalas de referencia, pero trata si
+> es posible de no modificar sobre ellas, o por favor en todo caso
+> tratemos de ver como se puede arreglar manteniendo una version sola
+> del codigo, ya que si no cada vez que hay que hacer un merge se pierde
+> mucho tiempo. No dudes en preguntarme por cualquier cosa.
+> 
+> Mario
+> 
+%
+%-- 21:38:16 -- ejlopez-v3-root-5-gff61003 -----
+Da que corre casi todos los tests:
+> Summary: "All tests" -- OK: 166.  Not OK: 7. Couldn't open: 0. Total: 173
+%
+O sea que se da uno menos el not-ok en 1:
+%
+> Square cavity with fract. step, Re1000, N=20
+> Idmap class
+> newff/test case adv_temp_cp
+> newff/test case full_full_jacs_cp
+> newff/test case full_full_jacs_adv_cp
+> newff/test case adv_temp_cp_iisd
+> Distributed graph 3proc.
+%
+O sea parece que desapareció el "Block uploading in cubcav". 
 
 # Current line ===========  %
 # Local Variables: $
