@@ -41,6 +41,14 @@ public:
   /** Size of string as detected by the position of the #\0# terminator. 
       @return length of string */ 
   int len() const;
+  /** Returns a bool value indicating 
+      if the string contains the null terminator. 
+      @return bool value indacting if 
+      the string contains the null terminator  */ 
+  int is_conformed() const;
+  /** Make the string well conformed. If neeed, add a 
+      a null terminator.  */ 
+  void conform();
   /** Resizes the internal buffer. 
       @param m (input) new size */ 
   void resize(int m);

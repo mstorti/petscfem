@@ -224,6 +224,9 @@ int read_mesh(Mesh *& mesh,char *fcase,Dofmap *& dofmap,
       const char *data = NULL;
       mesh->nodedata->options->get_entry("data",data);
       assert(data);
+      AutoString datas;
+      datas.set(data).deblank();
+      data = datas.str();
       FileStack *fstack_nodes_data=NULL;
       if (!myrank) {
 	fstack_nodes_data = new FileStack(data);
@@ -470,8 +473,6 @@ int read_mesh(Mesh *& mesh,char *fcase,Dofmap *& dofmap,
       } else {
         AutoString datas;
         datas.set(data).deblank();
-        // printf("read \"%s\"\n",data);
-        // printf("deblanked \"%s\"\n",datas.str());
         data = datas.str();
 	Autobuf *tempo = abuf_create();
 	FileStack *file_connect=NULL;

@@ -141,6 +141,20 @@ const AutoString & AutoString::print() const {
 }
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+int AutoString::is_conformed() const {
+  for (int j=n; j>=0; j--) {
+    if (!s[j]) return 1;
+  }
+  return 0;
+}
+
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>
+void AutoString::conform() {
+  if (!is_conformed()) 
+    resize(n+1);
+}
+
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 AutoString & AutoString::print() {
   printf("%s",str());
   return *this;
@@ -149,15 +163,32 @@ AutoString & AutoString::print() {
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>
 AutoString & AutoString::deblank(void) {
   // String should have at least the null terminator
-  int j1=0;
+  assert(n>0);
   // skip trailing white-space 
+  int j1=0;
   while (j1<n && s[j1]!='\0' && 
          (s[j1]==' ' || s[j1]=='\t')) j1++;
   if (j1==n-1) {
     // String is completely blank, simply clear it
     assert(s[j1]=='\0');
     clear();
-    // } else if (s[j1]!="\"") {
+  } else if (s[j1]=='\"') {
+    // If first non-blank character is " then
+    // we take all the string from the following
+    // to the previous of the matching "
+    j1++;
+    int j2=j1;
+    while (j2<n && s[j2]!='\0' && s[j2]!='"') j2++;
+    if (j2>=n || s[j2]!='"' || j2<=j1) {
+      // String is empty
+      clear();
+    } else {
+      int m=j2-j1;
+      // Copy last part of string at beginning
+      if (j1>0) 
+      for (int k=0; k<m; k++) s[k] = s[j1+k];
+      s[m]='\0';
+    }
   } else {
     // Search for end of string
     int j2=j1+1;
