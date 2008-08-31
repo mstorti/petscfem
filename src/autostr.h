@@ -23,7 +23,8 @@ private:
   char *s;
   /// The number of bytes allocated in #s#
   int n;
-  /// Total number of characters allocated by the class
+  /** Total number of characters allocated by all the 
+      the objects in the class */
   static int total;
 public:
   /// Ctor.
@@ -100,6 +101,8 @@ public:
       @param fid (input) file for reading. 
       @return number of characters read. */ 
   int getline(FILE *fid);
+  /** Elliminates leading and trailing and space. */ 
+  AutoString & deblank(void);
 };
 
 #endif

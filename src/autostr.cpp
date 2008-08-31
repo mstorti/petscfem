@@ -145,3 +145,28 @@ AutoString & AutoString::print() {
   printf("%s",str());
   return *this;
 }
+
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>
+AutoString & AutoString::deblank(void) {
+  // String should have at least the null terminator
+  int j1=0;
+  // skip trailing white-space 
+  while (j1<n && s[j1]!='\0' && 
+         (s[j1]==' ' || s[j1]=='\t')) j1++;
+  if (j1==n-1) {
+    // String is completely blank, simply clear it
+    assert(s[j1]=='\0');
+    clear();
+    // } else if (s[j1]!="\"") {
+  } else {
+    // Search for end of string
+    int j2=j1+1;
+    while (s[j2]!='\0' && s[j2]!=' ' && s[j2]!='\t') j2++;
+    int m=j2-j1;
+    // Copy last part of string at beginning
+    if (j1>0) 
+      for (int k=0; k<m; k++) s[k] = s[j1+k];
+    s[m]='\0';
+  }
+  return *this;
+}

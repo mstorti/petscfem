@@ -468,6 +468,11 @@ int read_mesh(Mesh *& mesh,char *fcase,Dofmap *& dofmap,
 	TRACE(-5.3.2.1);
       DONE:;
       } else {
+        AutoString datas;
+        datas.set(data).deblank();
+        // printf("read \"%s\"\n",data);
+        // printf("deblanked \"%s\"\n",datas.str());
+        data = datas.str();
 	Autobuf *tempo = abuf_create();
 	FileStack *file_connect=NULL;
 	if (!myrank) {
