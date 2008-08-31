@@ -13128,10 +13128,11 @@ Copio el mail que le envio
 %
 %-- 21:38:16 -- ejlopez-v3-root-5-gff61003 -----
 Da que corre casi todos los tests:
-> Summary: "All tests" -- OK: 166.  Not OK: 7. Couldn't open: 0. Total: 173
 %
 O sea que se da uno menos el not-ok en 1:
 %
+-------------------------
+g_c++: 
 > Square cavity with fract. step, Re1000, N=20
 > Idmap class
 > newff/test case adv_temp_cp
@@ -13139,8 +13140,17 @@ O sea que se da uno menos el not-ok en 1:
 > newff/test case full_full_jacs_adv_cp
 > newff/test case adv_temp_cp_iisd
 > Distributed graph 3proc.
-%
-O sea parece que desapareció el "Block uploading in cubcav". 
+> Summary: "All tests" -- OK: 166.  Not OK: 7. Couldn't open: 0. Total: 173
+-------------------------
+O_c++: 
+> Square cavity with fract. step, Re1000, N=20
+> Idmap class
+> newff/test case adv_temp_cp
+> newff/test case full_full_jacs_cp
+> newff/test case full_full_jacs_adv_cp
+> newff/test case adv_temp_cp_iisd
+> Summary: "All tests" -- OK: 167.  Not OK: 6. Couldn't open: 0. Total: 173
+-------------------------
 
 # Current line ===========  %
 # Local Variables: $
