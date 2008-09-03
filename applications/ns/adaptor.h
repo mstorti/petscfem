@@ -62,9 +62,8 @@ public:
       clean-up operations. 
   */
   virtual void clean() {};
-  /** User defined callback function to be defined by the
-      user. Called {\bf after} the element loop. May be used for
-      clean-up operations. 
+  /** Callback that computes the residual and jacobian 
+      of the element contribution. 
       @param xloc (input) Coordinates of the nodes.
       @param state_old (input) The state at time $t^n$
       @param state_new (input) The state at time $t^{n+1}$
@@ -76,6 +75,45 @@ public:
 				 const FastMat2 &state_old,
 				 const FastMat2 &state_new,
 				 FastMat2 &res,FastMat2 &mat)=0;
+  /** Callback similar to the #element_connector()#, the
+      difference cames when the option #use_jacobian_fdj# to
+      compute Jacobians of the residual using finite
+      differences is activated. The idea is that each of the
+      callbacks compute a term in the residual.  In the
+      following we use the convention to call #resd#, #matd#
+      the values returned by #element_connector()# and
+      #resa#, #mata# those returned by
+      #element_connector_analytic()#. The residual as seen
+      from the FEM program is the sum of the two,
+      i.e. #res=resd+resa#.  If the Jacobians are computed
+      analytically (i.e.  #use_jacobian_fdj=0#) then the
+      Jacobian will be simply #matd+mata#.  If the Jacobians
+      are computed by finite differences (i.e.
+      #use_jacobian_fdj=1#) then the Jacobian will be
+      #matd_fdj+mata#, where #matd_fdj# is the Jacobian of
+      the #resd# part computed by perturbation of the
+      #element_connector()# analytic function.  Note that
+      #matd# is irrelevant when #use_jacobian_fdj=1#.  The
+      idea is that the computation of FD Jacobians is
+      expensive, so that if some terms of the residual are
+      expensive to compute but their Jacobians can be easily
+      computed analytically, then it is cheaper to separate
+      this part, and leave the FD computation only for the
+      rest.  Another optimization may be to compute
+      expensive stuff that do not depend on the state only
+      once (see doc for #prtb_index()#).
+      @param xloc (input) Coordinates of the nodes.
+      @param state_old (input) The state at time $t^n$
+      @param state_new (input) The state at time $t^{n+1}$
+      @param res (output) residual vector
+      @param mat (input) jacobian of the residual with respect to
+      $x^{n+1}$
+  */
+  virtual void 
+  element_connector_analytic(const FastMat2 &xloc,
+                             const FastMat2 &state_old,
+                             const FastMat2 &state_new,
+                             FastMat2 &resa,FastMat2 &mata) { }
   /** This is called only once for each element after calling 
       initialize().  */ 
   virtual void element_init() { } 
@@ -100,6 +138,13 @@ public:
 
   void export_vals(ArgHandle h,FastMat2 &a); 
 
+  /** Returns the stage we are performinf when computing 
+      Jacobians by finite differences. The stage number 
+      returned may be #j=-1# (no stage), #j=0# (initialization, 
+      reference values), #1<=j<=nen# computing residual 
+      for the 
+      
+      @return stage number */ 
   int prtb_index();
 
   void after_assemble(const char *jobinfo);

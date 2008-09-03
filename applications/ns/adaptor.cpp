@@ -201,11 +201,16 @@ int adaptor::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
   }
   // allocate local vecs
   nen = nel*ndof;
-  FastMat2 veccontr(2,nel,ndof),veccontrp(2,nel,ndof),
+  FastMat2 
+    veccontr(2,nel,ndof),
+    veccontra(2,nel,ndof),
+    veccontrp(2,nel,ndof),
     xloc(2,nel,ndim),
     locstate(2,nel,ndof), locstatep(2,nel,ndof), 
     locstate2(2,nel,ndof), 
-    matlocf(4,nel,ndof,nel,ndof),matlocfp(4,nel,ndof,nel,ndof),
+    matlocf(4,nel,ndof,nel,ndof),
+    matlocfa(4,nel,ndof,nel,ndof),
+    matlocfp(4,nel,ndof,nel,ndof),
     matlocf_fdj(4,nel,ndof,nel,ndof),
     matloc_prof(4,nel,ndof,nel,ndof), tmp;
     
@@ -318,10 +323,15 @@ int adaptor::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
       // with the physics of the problem.
       jpert=0;
       element_connector(xloc,locstate2,locstate,veccontr,matlocf);
+      veccontra.set(0.0);
+      matlocfa.set(0.0);
       jpert=-1;
+      element_connector_analytic(xloc,locstate2,locstate,veccontra,matlocfa);
 
-      if (comp_res && !use_arg_handles)
-        veccontr.export_vals(&(RETVAL(ielh,0,0)));
+      if (comp_res && !use_arg_handles) {
+        veccontra.add(veccontr);
+        veccontra.export_vals(&(RETVAL(ielh,0,0)));
+      }
 
       if (comp_mat && jacobian_fdj_compute) {
 	double epsil = jacobian_fdj_epsilon;
@@ -332,7 +342,7 @@ int adaptor::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
 	for (jpert=1; jpert<=nen; jpert++) {
 	  locstatep.reshape(1,nen).set(locstate)
 	    .addel(epsil,jpert).reshape(2,nel,ndof);
-	  veccontrp.reshape(2,nel,ndof);
+	  veccontrp.reshape(2,nel,ndof).set(0.0);
 	  element_connector(xloc,locstate2,locstatep,veccontrp,matlocfp);
 	  veccontrp.reshape(1,nen);
 	  matlocf_fdj.ir(2,jpert).set(veccontrp)
@@ -352,8 +362,10 @@ int adaptor::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
 	  matlocf.set(matlocf_fdj);
       }
       
-      if (comp_mat && !use_arg_handles)
-        matlocf.export_vals(&(RETVALMAT(ielh,0,0,0,0)));
+      if (comp_mat && !use_arg_handles) {
+        matlocfa.add(matlocf);
+        matlocfa.export_vals(&(RETVALMAT(ielh,0,0,0,0)));
+      }
     }
   }
   
