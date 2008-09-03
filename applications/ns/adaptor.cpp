@@ -88,7 +88,7 @@ adaptor::get_arg_handle(const string &key,
 adaptor::adaptor() : elem_init_flag(0), 
                      use_fastmat2_cache(1),
                      arg_data_vp(NULL),
-                     elem(-1)
+                     jpert(-1), elem(-1)
                      { }
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
@@ -100,6 +100,9 @@ void adaptor::after_assemble(const char *jobinfo) {
       (comp_res || comp_mat || comp_mat_res)
       ) elem_init_flag=1;
 }
+
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>
+int adaptor::prtb_index() { return jpert; }
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 // modif nsi_tet
@@ -313,7 +316,9 @@ int adaptor::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
 
       // Users have to implement this function 
       // with the physics of the problem.
+      jpert=0;
       element_connector(xloc,locstate2,locstate,veccontr,matlocf);
+      jpert=-1;
 
       if (comp_res && !use_arg_handles)
         veccontr.export_vals(&(RETVAL(ielh,0,0)));
@@ -324,15 +329,16 @@ int adaptor::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
 	matlocf_fdj.set(0.).reshape(2,nen,nen);
 	veccontr.reshape(1,nen);
 	locstate.reshape(1,nen);
-	for (int j=1; j<=nen; j++) {
+	for (jpert=1; jpert<=nen; jpert++) {
 	  locstatep.reshape(1,nen).set(locstate)
-	    .addel(epsil,j).reshape(2,nel,ndof);
+	    .addel(epsil,jpert).reshape(2,nel,ndof);
 	  veccontrp.reshape(2,nel,ndof);
 	  element_connector(xloc,locstate2,locstatep,veccontrp,matlocfp);
 	  veccontrp.reshape(1,nen);
-	  matlocf_fdj.ir(2,j).set(veccontrp)
+	  matlocf_fdj.ir(2,jpert).set(veccontrp)
 	    .rest(veccontr).scale(afact).rs();
 	}
+        jpert=-1;
 	matlocf_fdj.reshape(4,nel,ndof,nel,ndof);
 	veccontr.reshape(2,nel,ndof);
 	locstate.reshape(2,nel,ndof);

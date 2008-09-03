@@ -16,6 +16,9 @@ private:
   arg_data_list *arg_data_vp;
   /// Index of element local to chunk
   int ielh;
+  /// Perturbed index, if=-1: not in FDJ loop,
+  /// if 0: reference state, if >0 
+  int jpert;
 public: 
   adaptor();
   /// This should not be defined by the user...
@@ -96,6 +99,8 @@ public:
   void export_vals(ArgHandle h,double *vals,int s=-1); 
 
   void export_vals(ArgHandle h,FastMat2 &a); 
+
+  int prtb_index();
 
   void after_assemble(const char *jobinfo);
 
