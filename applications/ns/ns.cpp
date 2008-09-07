@@ -464,14 +464,14 @@ int ns_main(int argc,char **args) {
   debug.trace("Computing profiles...");
   if (!fractional_step) {
     argl.clear();
-    argl.arg_add(A_tet,PROFILE|PFMAT);
+    argl.arg_add(A_tet,PROFILE|PFMAT,"A");
     ierr = assemble(mesh,argl,dofmap,"comp_prof",&time); CHKERRA(ierr); 
 
   } else {
     argl.clear();
-    argl.arg_add(A_mom,PROFILE|PFMAT);
-    argl.arg_add(A_poi,PROFILE|PFMAT);
-    argl.arg_add(A_prj,PROFILE|PFMAT);
+    argl.arg_add(A_mom,PROFILE|PFMAT,"A_mom");
+    argl.arg_add(A_poi,PROFILE|PFMAT,"A_poi");
+    argl.arg_add(A_prj,PROFILE|PFMAT,"A_prj");
     ierr = assemble(mesh,argl,dofmap,"comp_mat_prof",&time); CHKERRA(ierr); 
   }
   debug.trace("After computing profile.");
@@ -505,9 +505,10 @@ int ns_main(int argc,char **args) {
       PetscPrintf(PETSCFEM_COMM_WORLD,"--- Refreshing Wall_Data -- \n");
 #ifdef USE_ANN
       argl.clear();
-      argl.arg_add(&data_pts,USER_DATA);
-      argl.arg_add(&elemset_pointer,USER_DATA);
-      ierr = assemble(mesh,argl,dofmap,"build_nneighbor_tree",&time); CHKERRQ(ierr); 
+      argl.arg_add(&data_pts,USER_DATA,"data_pts");
+      argl.arg_add(&elemset_pointer,USER_DATA,"eptr");
+      ierr = assemble(mesh,argl,dofmap,
+                      "build_nneighbor_tree",&time); CHKERRQ(ierr); 
       PetscSynchronizedFlush(PETSCFEM_COMM_WORLD);
       dvector<double> buff;
       buff.mono(data_pts.size());
@@ -524,7 +525,7 @@ int ns_main(int argc,char **args) {
       //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
       // Find nearest neighbor for each volume element
       argl.clear();
-      argl.arg_add(&wall_data,USER_DATA);
+      argl.arg_add(&wall_data,USER_DATA,"wall_data");
       ierr = assemble(mesh,argl,dofmap,"get_nearest_wall_element",
 		      &time); CHKERRA(ierr); 
 #else
@@ -582,8 +583,8 @@ int ns_main(int argc,char **args) {
 
 	// Compute wall stresses
 	argl.clear();
-	argl.arg_add(&x,IN_VECTOR);
-	argl.arg_add(&xold,IN_VECTOR);
+	argl.arg_add(&x,IN_VECTOR,"x");
+	argl.arg_add(&xold,IN_VECTOR,"xold");
 	ierr = assemble(mesh,argl,dofmap,"comp_shear_vel",
 			&time_star); CHKERRA(ierr);
 
@@ -609,13 +610,14 @@ int ns_main(int argc,char **args) {
 	argl.clear();
 	state.set_time(time);
 	state_old.set_time(time_old);
-	argl.arg_add(&state,IN_VECTOR|USE_TIME_DATA);
-	argl.arg_add(&state_old,IN_VECTOR|USE_TIME_DATA);
-	argl.arg_add(&res,OUT_VECTOR);
-	if (update_jacobian_this_iter) argl.arg_add(A_tet,OUT_MATRIX|PFMAT);
-	argl.arg_add(&hmin,VECTOR_MIN);
-	argl.arg_add(&glob_param,USER_DATA);
-	argl.arg_add(&wall_data,USER_DATA);
+	argl.arg_add(&state,IN_VECTOR|USE_TIME_DATA,"state");
+	argl.arg_add(&state_old,IN_VECTOR|USE_TIME_DATA,"state_old");
+	argl.arg_add(&res,OUT_VECTOR,"res");
+	if (update_jacobian_this_iter) 
+          argl.arg_add(A_tet,OUT_MATRIX|PFMAT,"A");
+	argl.arg_add(&hmin,VECTOR_MIN,"hmin");
+	argl.arg_add(&glob_param,USER_DATA,"glob_param");
+	argl.arg_add(&wall_data,USER_DATA,"wall_data");
 
 	const char *jobinfo = (update_jacobian_this_iter 
                                ? "comp_mat_res" : "comp_res");
@@ -671,17 +673,18 @@ int ns_main(int argc,char **args) {
 	  ierr = A_tet_c->clean_mat(); CHKERRA(ierr); 
 
 	  argl.clear();
-	  argl.arg_add(&x,PERT_VECTOR);
-	  argl.arg_add(&xold,IN_VECTOR);
-	  argl.arg_add(A_tet_c,OUT_MATRIX_FDJ|PFMAT);
+	  argl.arg_add(&x,PERT_VECTOR,"x");
+	  argl.arg_add(&xold,IN_VECTOR,"xold");
+	  argl.arg_add(A_tet_c,OUT_MATRIX_FDJ|PFMAT,"A_c");
 
 	  update_jacobian_step++;
 	  if (update_jacobian_step >= update_jacobian_steps) 
 	    update_jacobian_step =0;
-	  if (update_jacobian_this_iter) argl.arg_add(A_tet,OUT_MATRIX|PFMAT);
-	  argl.arg_add(&hmin,VECTOR_MIN);
-	  argl.arg_add(&glob_param,USER_DATA);
-	  argl.arg_add(&wall_data,USER_DATA);
+	  if (update_jacobian_this_iter) 
+            argl.arg_add(A_tet,OUT_MATRIX|PFMAT,"A");
+	  argl.arg_add(&hmin,VECTOR_MIN,"hmin");
+	  argl.arg_add(&glob_param,USER_DATA,"glob_param");
+	  argl.arg_add(&wall_data,USER_DATA,"wall_data");
 	  ierr = assemble(mesh,argl,dofmap,jobinfo,
 			  &time_star); CHKERRA(ierr);
 
