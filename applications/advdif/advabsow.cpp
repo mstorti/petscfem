@@ -265,8 +265,10 @@ res(int k,FastMat2 &U,FastMat2 &r,
   } else {
     FastMat2::choose(1);
     r.set(Uo).mult(mask);
+#if 0
     rlam.set(1.0).rest(mask).mult(Ulambda);
     r.add(rlam);
+#endif
     jac.ir(2,1).d(1,3).set(mask);
     jac.rs().ir(2,2).d(1,3).set(1.0).rest(mask).rs();
     w.ctr(jac,3,1,2);
