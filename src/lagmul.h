@@ -27,10 +27,8 @@ private:
   double time_m;
 public:
   NewAssembleFunction new_assemble;
-  /** Returns data (to be derived)
-      @param nr (output) number of restrictions
-      @param nfic (output) number of fictitious nodes
-   */
+  /** Returns numer of restrictions
+      @return number of restrictions */
   virtual int nres()=0;
   /** Return the node/dof pair to be used as lagrange
       multiplier for the #jr#-th restriction.
