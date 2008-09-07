@@ -175,6 +175,9 @@ README.pod: README.podin ../VERSION
 	-chmod -w $@
 	-@rm pod2html-{dir,item}cache &> /dev/null
 
+./README.1: README.pod
+	pod2man -c "" README.pod > $@
+
 CLEAN_DIRS = manual OBJ
 
 local_clean:: local_dist_clean
