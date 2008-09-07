@@ -265,12 +265,15 @@ res(int k,FastMat2 &U,FastMat2 &r,
   } else {
     FastMat2::choose(1);
     r.set(Uo).mult(mask);
-#if 0
+    //#define INCLUDE_ULAMBDA_TERM
+#ifdef INCLUDE_ULAMBDA_TERM
     rlam.set(1.0).rest(mask).mult(Ulambda);
     r.add(rlam);
 #endif
-    jac.ir(2,1).d(1,3).set(mask);
-    jac.rs().ir(2,2).d(1,3).set(1.0).rest(mask).rs();
+    jac.ir(2,1).d(1,3).set(mask).rs();
+#ifdef INCLUDE_ULAMBDA_TERM
+    jac.ir(2,2).d(1,3).set(1.0).rest(mask).rs();
+#endif
     w.ctr(jac,3,1,2);
   }
   FastMat2::leave();
