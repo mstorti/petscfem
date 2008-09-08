@@ -24,8 +24,16 @@ CLIBOBJS_ =  getarrgr.tab
 # Fortran files
 FLIBOBJS_ =  spline seval dgefa
 
+#spline.o: spline.f
+#	gfortran -c spline.f
+#seval.o: seval.f
+#	gfortran -c seval.f
+#dgefa.o: dgefa.f
+#	gfortran -c dgefa.f
+
 spline.o: spline.f
-ssval.o: seval.f
+seval.o: seval.f
+dgefa.o: dgefa.f
 
 LIBOBJS := $(LIBOBJS_:=$(osfx).o) $(FLIBOBJS_:=$(osfx).o) $(CLIBOBJS_:=$(osfx).o) 
 
