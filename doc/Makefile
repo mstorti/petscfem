@@ -35,11 +35,11 @@ ps: petscfem.ps.gz manual.ps.gz
 #w make PDF
 pdf: petscfem.pdf
 
-pdf1: 
-	$(MAKE) eps 
+pdf1:
+	docdate.pl
 	$(MAKE) -C OBJ pdf
-	$(MAKE) odoc
-	$(MAKE) EPERLFLAGS="-d html=0" petscfem.tex
+#	$(MAKE) odoc
+	$(MAKE) petscfem.tex
 	pdflatex petscfem
 
 #w Makes PS version of the guide
@@ -138,10 +138,11 @@ odoc: odoc_all
 	$(MAKE) -C ../applications/advdif odocadvdif
 
 ###--------<*>--------<*>--------<*>--------<*>--------<*>--------<*>
-allcpp = $(shell find .. -name '*.cpp')
+allcpp = $(shell find .. -name '*.cpp' -a ! -name '.\#*')
 odoc_all: 
-	-$(ODOC) -o odocall.tex $(allcpp) &> odocall.log
-	-rm odocall.log
+	echo $(allcpp)
+# 	-$(ODOC) -o odocall.tex $(allcpp) &> odocall.log
+# 	-rm odocall.log
 
 info: 
 	-@$(ODOC) -e options2.texi $(allcpp) &> odoc.log
@@ -156,7 +157,7 @@ index.html: index.tex
 		-no_subdir -split 0 index
 
 #w Make the README in text and html format
-readme: ../README ../README.html
+readme: ../README ../README.html ./README.1
 
 README.pod: README.podin ../VERSION
 	-chmod +w README.pod
