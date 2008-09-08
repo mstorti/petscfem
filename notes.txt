@@ -1,4 +1,3 @@
-# -*- mode: my-notes -*-
 OK. This is mostly in spanish...  Sorry :-)
 ================================================================
 
@@ -13026,7 +13025,155 @@ file separado y despues concatenar.
 Hago merge con `master'. Corre todos los tests, sigue teniendo
 problemas de sincronizacion con los de `graph'. 
 
-%=== Mon Jun 16 16:38:33 2008 mstorti@galileo
+%=== Tue Jul 29 18:43:34 2008 mstorti@prandtl
 %
-%-- 16:38:33 -- mstorti-v17-end-2-g31f4854 -----
-Added trivial note
+%-- 18:43:34 -- mstorti-v19-end-4-gfa29a94 -----
+Estoy haciendo el merge con respecto al aporte de Ezequiel en 
+mmove y con el gasflow preco. Todo arranco del commit
+becaea4c7854885948c00f610d29a447a55bf4b4
+(mstorti-v9-root-4-gbecaea4). 
+%
+Lo de mmove esta teoricamente en 
+el commit mstorti-v19-end-4-gfa29a94
+(fa29a9456ad0699da27b083b090115de394c4db2). 
+%
+%-- 19:57:03 -- mstorti-v19-end-4-gfa29a94 -----
+Parece que lo que hizo Ezequiel esta bastante bien. Las cosas dudosas
+son:
+%
+- el ++j en applications/advdif/lagmul.cpp (solo debe hacerse si se
+         usa precondicionamiento)
+- Las funciones `comp_W_Gamma_N()' y `comp_P_Gamma()' estan definidas
+  para `stream'. No estoy seguro si es necesario. Pero creo que
+  tambien se puede dejar. 
+
+%=== Thu Jul 31 19:59:04 2008 mstorti@prandtl
+%
+%-- 19:59:04 -- mstorti-v19-end-5-g11b0085 -----
+Corro los tests. Me da el resumen
+> Summary: "All tests" -- OK: 165.  Not OK: 8. Couldn't open: 0. Total: 173
+O sea que hay dos mas "not OK". Resultan ser
+> Testing: "Block uploading in cubcav" on file "cubcav/cubcav.plain-bupl.verif.tmp"...not OK.
+> Testing: "Graph partitioning" on file "graph/output.graph.tmp"...not OK.
+Parece que los dos se deben a diferencias entre i386 y x84_64. Cuando
+uso la solucion de referencia que usaba antes (la guardo en
+cubcav/cubcav-i386-sol.ans). Entonces el error da precision de la
+maquina. 
+
+%=== Fri Aug  1 06:40:08 2008 mstorti@prandtl
+%
+%-- 06:40:08 -- mstorti-v19-end-8-g1dd1f1d -----
+Esos dos los arregle, pero ahora me tira uno nuevo Testing:
+"Distributed graph 2proc." on file "distmap/dist_graph.np2.out.tmp". 
+%
+%-- 07:19:33 -- mstorti-v19-end-10-g0e055d0 -----
+O sea que ahora da "not OK 6". 
+
+%=== Sat Aug 30 21:32:24 2008 mstorti@prandtl
+%
+%-- 21:32:24 -- ejlopez-v3-root-5-gff61003 -----
+Hago el merge de lo de preco/dual-time (Ezequiel Lopez). 
+Copio el mail que le envio
+> 
+> Tiene lo del preco/dual-time. Hice unos cambios
+> 
+> * lo del advdife especifico para el preco/dual-time ahora está en
+>  una función `new_assemble_preco', entonces al entrar en
+>  `new_assemble' asse lo siguiente:
+> 
+> >   if (use_GCL_compliant) {
+> >     new_assemble_GCL_compliant(arg_data_v,nodedata,
+> >                                dofmap,jobinfo,elemlist,time_data);
+> >     return;
+> >   } else if (precoflag) {
+> >     new_assemble_preco(arg_data_v,nodedata,
+> >                        dofmap,jobinfo,elemlist,time_data);
+> >     return;
+> >   }
+> 
+> * El precoflag ahora no se lee mas del archivo de datos, sino que
+>  setea en el `dual_time_main()'. Es decir que al llamar al programa
+>  con `-code dual_time' se setea la variable `precoflag' y queda
+>  prendida para toda la corrida. La variable está guardad en
+>  `GLOB_PARAM' así que para verla hay que hacer, por ejemplo
+> 
+>    extern GlobParam *GLOB_PARAM;
+> 
+>    if (GLOB_PARAM->precoflag) {  ...   }
+> 
+>   Si no nos gusta, y queremos volver a pasarla como opción en la
+>   tabla se puede volver atrás.
+> 
+> * El `advabso' ahora quedó el que dejaste vos, es decir con las
+>  modificaciones para el precoflag, que creo eran pocas y no jodían
+>  demasiado.
+> 
+> Yo corrí el ejemplo con el `advabsow' que tenía y corre. Probe a
+> ponerle el precoflag (es decir corriendo con -code dual_time) y
+> también corre, por supuesto reemplazando el elemset `gasflow' por
+> `gasflow_preco'.
+> 
+> Entonces me parece que lo que falta ahora es que le agregues al
+> `advabsow' lo necesario para que ande con el preco/dual-time.
+> 
+> POR FAVOR: fijate de tratar de usar ESTA VERSION que te doy.  Las
+> versiones anteriores que tengas guardalas de referencia, pero trata si
+> es posible de no modificar sobre ellas, o por favor en todo caso
+> tratemos de ver como se puede arreglar manteniendo una version sola
+> del codigo, ya que si no cada vez que hay que hacer un merge se pierde
+> mucho tiempo. No dudes en preguntarme por cualquier cosa.
+> 
+> Mario
+> 
+%
+%-- 21:38:16 -- ejlopez-v3-root-5-gff61003 -----
+Da que corre casi todos los tests:
+%
+O sea que se da uno menos el not-ok en 1:
+%
+-------------------------
+g_c++: 
+> Square cavity with fract. step, Re1000, N=20
+> Idmap class
+> newff/test case adv_temp_cp
+> newff/test case full_full_jacs_cp
+> newff/test case full_full_jacs_adv_cp
+> newff/test case adv_temp_cp_iisd
+> Distributed graph 3proc.
+> Summary: "All tests" -- OK: 166.  Not OK: 7. Couldn't open: 0. Total: 173
+-------------------------
+O_c++: 
+> Square cavity with fract. step, Re1000, N=20
+> Idmap class
+> newff/test case adv_temp_cp
+> newff/test case full_full_jacs_cp
+> newff/test case full_full_jacs_adv_cp
+> newff/test case adv_temp_cp_iisd
+> Summary: "All tests" -- OK: 167.  Not OK: 6. Couldn't open: 0. Total: 173
+-------------------------
+
+%=== Sun Sep  7 23:08:33 2008 mstorti@prandtl
+%
+%-- 23:08:33 -- mstorti-v21-end-18-g97e8d77 -----
+Corre casi todos los tests, menos 5:
+-----
+g_c++/O-c++:
+-------------------------
+COULDN'T OPEN: 
+None
+-------------------------
+NOT OK TESTS: 
+--------
+"Idmap class" --  "idmap/tidmap.sal"
+"newff/test case adv_temp_cp" --  "newff/adv_temp_cp.vrf.tmp"
+"newff/test case full_full_jacs_cp" --  "newff/full_full_jacs_cp.vrf.tmp"
+"newff/test case full_full_jacs_adv_cp" --  "newff/full_full_jacs_adv_cp.vrf.tmp"
+"newff/test case adv_temp_cp_iisd" --  "newff/adv_temp_cp_iisd.vrf.tmp"
+--------------------------------------------------
+Summary: "All tests" -- OK: 168.  Not OK: 5. Couldn't open: 0. Total: 173
+
+
+# Current line ===========  %
+# Local Variables: $
+# eval: (my-notes-mode) $
+# End: $

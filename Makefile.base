@@ -7,8 +7,9 @@
 
 ######  begin of CONGIGURATION VARIABLES section  ####################
 
-#  Configure this variable!! (either g_c++ or O_c++) 
-BOPT = g_c++
+#  Configure this variable!! (either g_c++ or O_c++),
+#  it sets the default optimization level.
+#BOPT = 
 
 ifeq ($(BOPT),)
 BOPT = g_c++
@@ -249,7 +250,7 @@ endif
 
 ifeq ($(ETAGS),GNU)
 ## TAGFLAGS := --regex-C++='/.*[^a-zA-Z0-9_]\([a-zA-Z0-9][a-zA-Z0-9_]*\) *:=/\1/' 
-TAGFLAGS := -l C++ --regex='/.*[^a-zA-Z0-9_]\([a-zA-Z0-9][a-zA-Z0-9_]*\) *:=/\1/' 
+TAGFLAGS := -l c++ --regex='/.*[^a-zA-Z0-9_]\([a-zA-Z0-9][a-zA-Z0-9_]*\) *:=/\1/' 
 endif
 TAGS: force
 ifneq ($(SRCS),)

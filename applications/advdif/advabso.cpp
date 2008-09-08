@@ -3,6 +3,18 @@
 #include "./advabso.h"
 #include "./gasflow.h"
 
+extern GlobParam *GLOB_PARAM;
+
+/** Auxiliary function that appends a suffix to the #case_name#
+    for reading a dvector */
+static const char *case_file_name(string &s,char *n) {
+  static AutoString as;
+  as.clear().cat(s.c_str()).cat(n);
+  return as.str();
+}
+
+#define CASE_NAME(name) case_file_name(case_name,name)
+
 static
 double msign(double x) {
   return (x<0. ?  1. : 0.0);
@@ -41,6 +53,19 @@ init() {
   //  do to mesh velocity (ALE).
   NSGETOPTDEF_ND(int,ALE_flag,0);
 
+#if 0
+  //o Flags whether we are solving a precondioned
+  // system with the dual time strategy
+  NSGETOPTDEF_ND(int,precoflag,0);
+#else
+  precoflag = GLOB_PARAM->precoflag;
+#endif
+
+  if (precoflag){
+    NSGETOPTDEF_ND(string,case_name,"<none>");
+    assert(case_name!="<none>");
+  }
+
   vector<double> urefv;
   const char *line;
   get_entry("Uref",line);
@@ -77,11 +102,24 @@ init() {
   invCp.resize(2,ndof,ndof);
   Ufluid.resize(1,ndimel);
   if (ALE_flag) {
+    //o _T: double array _N: vmesh _D: none
+    // _DOC: Defines the mesh velocity when doing ALE computations.
+    // For simple problems it is entered by the user. For more
+    // complex problems it may be calculated automatically
+    // by the #mvskin# hook activating the #compute_mesh_vel#
+    // option in the elemset. 
+    // _END
     get_prop(vmesh_prop,"vmesh");
     assert(vmesh_prop.length == ndimel);
   }
 
-  get_prop(normal_prop,"normal");
+  //o _T: double array  _N: normal _D: none
+  // _DOC: Defines the normal to the boundary. It
+  // can be set as a constant vector per elemset (usually
+  // for plane boundaries, as in the example above), or
+  // as a per element   value. 
+  // _END
+   get_prop(normal_prop,"normal");
   assert(normal_prop.length == ndimel);
   // The state on the reference node
   Uref.resize(1,ndof);
@@ -90,6 +128,10 @@ init() {
   Ulambda.resize(1,ndof);
   // The state of the outlet node
   Uo.resize(1,ndof);
+
+  preco.resize(2,ndof,ndof);
+  if (precoflag)
+    h_ele.cat(CASE_NAME("_abso.preco-hele.tmp"));
 }
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
@@ -175,7 +217,11 @@ res(int k,FastMat2 &U,FastMat2 &r,
   r.prod(Pi_m,dU,1,-1,-1);
   // The vector of reactions is the pojector on
   // to the incoming wave space: w = Cp * Pi_m
-  tmp1.prod(Cp,Pi_m,1,-1,-1,2);
+  // tmp1.prod(Cp,Pi_m,1,-1,-1,2);
+  if (precoflag){
+    adv_diff_ff->get_preco(preco);
+    tmp1.prod(preco,Pi_m,1,-1,-1,2);
+  } else tmp1.prod(Cp,Pi_m,1,-1,-1,2);
   w.set(0.).ir(1,1).set(tmp1).rs();
   jac.ir(2,1).set(Pi_m);
 #if 0

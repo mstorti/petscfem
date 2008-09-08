@@ -40,6 +40,7 @@
 #include "./gasflwgth.h"
 #include "./svenant1d.h"
 #include "./advpenal.h"
+#include "gasflow_preco.h"
 
 #include <time.h>
 
@@ -96,6 +97,7 @@ void bless_elemset_advdif(char *type,Elemset *& elemset) {
     SET_ELEMSET_TYPE(gasflow_bcconv)
     SET_ELEMSET_TYPE(gasflow_abso)
     SET_ELEMSET_TYPE(gasflow_abso2)
+    SET_ELEMSET_TYPE(gasflow_abso_wall)
     
     SET_ELEMSET_TYPE(flow_rate_integrator)
     SET_ELEMSET_TYPE(gasflow_force_integrator)
@@ -104,7 +106,10 @@ void bless_elemset_advdif(char *type,Elemset *& elemset) {
     SET_ELEMSET_TYPE(smoke)
     SET_ELEMSET_TYPE(gaschem)
     SET_ELEMSET_TYPE(gaschem_bcconv)
-    
+
+    SET_ELEMSET_TYPE(gasflow_preco)
+    SET_ELEMSET_TYPE(gasflow_preco_abso2)
+
     SET_ELEMSET_TYPE(svenant1d)
     SET_ELEMSET_TYPE(svenant1d_bcconv)
     SET_ELEMSET_TYPE(svenant1d_abso)

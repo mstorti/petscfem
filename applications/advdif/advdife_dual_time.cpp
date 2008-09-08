@@ -1,8 +1,9 @@
 //__INSERT_LICENSE__
-//$Id merge-with-petsc-233-55-g52bd457 Fri Oct 26 13:57:07 2007 -0300$
+//$Id: advdife.cpp,v 1.105 2005/05/26 22:07:26 mstorti Exp $
 extern int comp_mat_each_time_step_g,
   consistent_supg_matrix_g,
   local_time_step_g;
+extern int MY_RANK,SIZE;
 
 #include <vector>
 #include <string>
@@ -19,192 +20,32 @@ extern int comp_mat_each_time_step_g,
 
 #define MAXPROP 100
 
-extern GlobParam *GLOB_PARAM;
-
-//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:
-#if 0
-void detj_error(double &detJaco,int elem) {
-  printf("Jacobian of element %d is negative or null\n"
-	 " Jacobian: %f\n",elem,detJaco);
-  detJaco = -detJaco;
-  if (detJaco==0.) detJaco = 1.0;
-}
-#endif
-
-//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:
-#undef __FUNC__
-#define __FUNC__ "int advective::ask(char *,int &)"
-int NewAdvDif::ask(const char *jobinfo,int &skip_elemset) {
-
-   skip_elemset = 1;
-   DONT_SKIP_JOBINFO(comp_res);
-   DONT_SKIP_JOBINFO(comp_prof);
-   return 0;
-}
-
-IdentityEF identity_ef;
-
-//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:
-#undef __FUNC__
-#define __FUNC__ "void AdvDifFF::get_log_vars(int,const int*)"
-void NewAdvDifFF::get_log_vars(int &nlog_vars,const int *& log_vars) {
-  int nel,ndof,nelprops;
-  elemset->elem_params(nel,ndof,nelprops);
-  const char *log_vars_entry;
-  elemset->get_entry("log_vars_list",log_vars_entry);
-  VOID_IT(log_vars_v);
-  string s;
-  if (log_vars_entry) {
-    s=string(log_vars_entry);	// Save local copy
-    read_int_array(log_vars_v,log_vars_entry);
-  }
-  nlog_vars=log_vars_v.size();
-  log_vars = &*log_vars_v.begin();
-  int ierr=0;
-  for (int j=0; j<nlog_vars; j++) {
-    if (log_vars_v[j]<=0) {
-      PetscPrintf(PETSCFEM_COMM_WORLD,"Non positive dof in "
-		  "\"log_vars_list\" entry: dof %d\n",
-		  log_vars_v[j]);
-      ierr=1;
-    } else if (log_vars_v[j]>ndof) {
-      PetscPrintf(PETSCFEM_COMM_WORLD,"Dof grater that ndof in "
-		  "\"log_vars_list\" entry: dof %d, ndof %d\n",
-		  log_vars_v[j], ndof);
-      ierr=1;
-    }
-    if (ierr) {
-      PetscPrintf(PETSCFEM_COMM_WORLD,
-		  "Errors while reading \"log_vars_list\"\n");
-      if (log_vars_entry)
-	PetscPrintf(PETSCFEM_COMM_WORLD,
-		    "In line \"%s\"\n",s.c_str());
-      exit(1);
-    }
-  }
-}
-
-//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:
-#undef __FUNC__
-#define __FUNC__ "void log_transf()"
-void log_transf(FastMat2 &true_lstate,const FastMat2 &lstate,
-		const int nlog_vars,const int *log_vars) {
-  // Copy to log_state
-  true_lstate.set(lstate);
-  // Transform only those fields in log_vars
-  for (int k=0; k<nlog_vars; k++) {
-    int dof=log_vars[k];
-    true_lstate.ir(2,dof);
-    true_lstate.fun(&exp);
-  }
-  true_lstate.ir(2);
-}
-
-NewAdvDifFF::NewAdvDifFF(const NewElemset *elemset_)
-  : elemset(elemset_), new_adv_dif_elemset(NULL), enthalpy_fun(NULL) {
-  // This is ugly!!
-  // assert(new_adv_dif_elemset);
-}
-
-//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:
-#undef __FUNC__
-#define __FUNC__ "NewAdvDif::before_assemble"
-void NewAdvDif::
-before_assemble(arg_data_list &arg_datav,Nodedata *nodedata,
-		Dofmap *dofmap, const char *jobinfo,int myrank,
-		int el_start,int el_last,int iter_mode,
-		const TimeData *time_data) {
-  int ierr;
-  //o Compute finite difference jacobian of fluxes for checking the
-  //  analytical one. For each element the following norms are printed:
-  //  analytical jacobian #|A_a|# , numerical jacobian #|A_n|# and the
-  //  difference #|A_a-A_n|# . Incrementing #compute_fd_adv_jacobian==1#
-  //  increases the verbosity. If #=1# the maximum values over all the
-  //  elemset are printed. If #=2# the errors for all elements are
-  //  reported. Finally, if #=3# also the jacobians themselves are
-  //  printed. For 2 and 3, if #compute_fd_adv_jacobian_elem_list# is
-  //  set, then only those elements are printed. If
-  //  #compute_fd_adv_jacobian_rel_err_threshold# is set then only those
-  //  elements for which the error is greater than the given threshold
-  //  are reported.  Also, be warned that when run in parallel, printing
-  //  for a lot of elements in different processors may be messy.
-  NSGETOPTDEF_ND(int,compute_fd_adv_jacobian,0);
-  //o The perturbation scale for computing the numerical jacobian
-  //  (see #compute_fd_adv_jacobian# ).
-  NSGETOPTDEF_ND(double,compute_fd_adv_jacobian_eps,1e-4);
-  assert(compute_fd_adv_jacobian_eps > 0.);
-  //o Report elements whose relative error in computing
-  //  flux jacobians exceed these value.
-  NSGETOPTDEF_ND(double,compute_fd_adv_jacobian_rel_err_threshold,0.);
-  //o Use the GCL compliant versin of the algorithm 
-  NSGETOPTDEF_ND(int,use_GCL_compliant,0);
-
-#if 0
-  //o Flags whether we are solving a precondioned
-  // system with the dual time strategy
-  NSGETOPTDEF_ND(int,precoflag,0);
-#else
-  precoflag = GLOB_PARAM->precoflag;
-#endif
-
-  A_fd_jac_norm_max = 0.;
-  A_fd_jac_norm_min = DBL_MAX;
-  A_jac_norm_max = 0.;
-  A_jac_norm_min = DBL_MAX;
-  A_jac_err_norm_max = 0.;
-  A_jac_err_norm_min = DBL_MAX;
-  A_rel_err_max = 0.;
-  A_rel_err_min = DBL_MAX;
-  comp_checked=0;
-  comp_total=0;
-
-}
-
-void NewAdvDifFF::get_C(FastMat2 &C) {
-  PetscPrintf(PETSCFEM_COMM_WORLD,
-	      "Not defined get_C() virtual function\n"
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>
+void NewAdvDifFF::get_preco(FastMat2 &preco) {
+  PetscPrintf(PETSC_COMM_WORLD,
+	      "Using dual-time formulation needs definition for get_preco() virtual function\n"
 	      "in the flux function object.\n");
   assert(0);
 }
-
-void NewAdvDifFF::get_Cp(FastMat2 &Cp) {
-  PetscPrintf(PETSCFEM_COMM_WORLD,
-	      "Not defined get_Cp() virtual function\n"
-	      "in the flux function object.\n");
-  assert(0);
-}
-
-void NewAdvDifFF::get_Ajac(FastMat2 &Ajac) {
-  PetscPrintf(PETSCFEM_COMM_WORLD,
-	      "Not defined get_Ajac() virtual function\n"
-	      "in the flux function object.\n");
-  assert(0);
-}
-
-void NewAdvDifFF::compute_delta_sc_v(FastMat2 &delta_sc_v) { }
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:
 #undef __FUNC__
 #define __FUNC__ "NewAdvDif::assemble"
-void NewAdvDif::new_assemble(arg_data_list &arg_data_v,const Nodedata *nodedata,
-			     const Dofmap *dofmap,const char *jobinfo,
-			     const ElementList &elemlist,
-			     const TimeData *time_data) try {
-
-  if (use_GCL_compliant) {
-    new_assemble_GCL_compliant(arg_data_v,nodedata,
-                               dofmap,jobinfo,elemlist,time_data);
-    return;
-  } else if (precoflag) {
-    new_assemble_preco(arg_data_v,nodedata,
-                       dofmap,jobinfo,elemlist,time_data);
-    return;
-  }
+void NewAdvDif
+::new_assemble_preco(arg_data_list &arg_data_v,const Nodedata *nodedata,
+                     const Dofmap *dofmap,const char *jobinfo,
+                     const ElementList &elemlist,
+                     const TimeData *time_data) {
 
   GET_JOBINFO_FLAG(comp_res);
   GET_JOBINFO_FLAG(comp_prof);
 
   int ierr=0;
+
+  int locdof,kldof,lldof;
+
+  int BOOL_COMP_RES=1;
+  int BOOL_COMP_JAC=1;
 
   NSGETOPTDEF(int,npg,0); //nd
   NSGETOPTDEF(int,ndim,0); //nd
@@ -228,7 +69,7 @@ void NewAdvDif::new_assemble(arg_data_list &arg_data_v,const Nodedata *nodedata,
   // the area section of the tube. Its gradient is needed for the
   // source term in the momentum eqs.
   int nH = nu-ndim;
-  //  FMatrix  Hloc(nel,nH),H(nH),vloc_mesh(nel,ndim),v_mesh(ndim);
+  // FMatrix  Hloc(nel,nH),H(nH),vloc_mesh(nel,ndim),v_mesh(ndim);
   FMatrix  Hloc(nel,nH),H(nH),vloc_mesh(nel,ndim);
   //  FastMat2 v_mesh;
 
@@ -237,34 +78,40 @@ void NewAdvDif::new_assemble(arg_data_list &arg_data_v,const Nodedata *nodedata,
     exit(1);
   }
 
+  double *retvalt;
   time_m = double(* (const Time *) time_data);
 
   // lambda_max:= the maximum eigenvalue of the jacobians.
   // used to compute the critical time step.
+  vector<double> *dtmin;
   double lambda_max=NAN;
   int jdtmin;
   GlobParam *glob_param=NULL;
   // The trapezoidal rule integration parameter
 #define ALPHA (glob_param->alpha)
 #define DT (glob_param->Dt)
-  arg_data *staten=NULL,*stateo=NULL,*retval=NULL,
-    *jac_prof=NULL,*Ajac=NULL;
+#define DPT (glob_param->Dpt)
+  arg_data *staten=NULL,*stateo=NULL,*statepo=NULL,*retval=NULL,
+    *fdj_jac=NULL,*jac_prof=NULL,*Ajac=NULL;
   if (comp_res) {
     int j=-1;
-    stateo = &arg_data_v[++j]; //[0]
-    staten = &arg_data_v[++j]; //[1]
-    retval  = &arg_data_v[++j];//[2]
-    jdtmin = ++j;//[3]
+    stateo  = &arg_data_v[++j]; //[0]
+    statepo = &arg_data_v[++j]; //[1]
+    staten  = &arg_data_v[++j]; //[2]
+    retval  = &arg_data_v[++j]; //[3]
+    jdtmin = ++j;//[4]
 #define DTMIN ((*(arg_data_v[jdtmin].vector_assoc))[0])
 #define WAS_SET arg_data_v[jdtmin].was_set
-    Ajac = &arg_data_v[++j];//[4]
+    Ajac = &arg_data_v[++j];//[5]
     glob_param = (GlobParam *)arg_data_v[++j].user_data;;
     rec_Dt_m = 1./DT;
     if (glob_param->steady) rec_Dt_m = 0.;
 
-    // apply ALPHA to time step in order to take
-    // into account higher order temporal integration
+// apply ALPHA to time step in order to take into account higher order temporal integration
     rec_Dt_m = rec_Dt_m/ALPHA;
+
+    rec_Dpt = 1./DPT;
+    if (glob_param->psteady) rec_Dpt = 0.;
 
 #ifdef CHECK_JAC
     fdj_jac = &arg_data_v[++j];
@@ -296,12 +143,12 @@ void NewAdvDif::new_assemble(arg_data_list &arg_data_v,const Nodedata *nodedata,
   NSGETOPTDEF(int,use_Ajac_old,0);
   //o Report jacobians on random elements (should be in range 0-1).
   NSGETOPTDEF(double,compute_fd_adv_jacobian_random,1.0);
-  //o Flag to turn on ALE (Arbitrary Lagrangian-Eulerian) computation. 
-  NSGETOPTDEF_ND(int,ALE_flag,0);
-  //o Pointer to old coordinates in
-  //  #nodedata# array excluding the first "ndim" values
+  //o ALE_flag : flag to ON ALE computation
+  NSGETOPTDEF(int,ALE_flag,0);
+  //o indx_ALE_xold : pointer to old coordinates in
+  //  NODEDATA array excluding the first "ndim" values
   NSGETOPTDEF(int,indx_ALE_xold,1);
-  //o Compute the term non-symmetric term
+  //o Compute the non-symmetric term
   //  correspoding to nonlinearities in the
   //  diffusive Jacobian.
   NSGETOPTDEF(int,compute_dDdU_term,1);
@@ -325,7 +172,7 @@ void NewAdvDif::new_assemble(arg_data_list &arg_data_v,const Nodedata *nodedata,
   else if (axisymmetric=="y") axi=2;
   else if (axisymmetric=="z") axi=3;
   else {
-    PetscPrintf(PETSCFEM_COMM_WORLD,
+    PetscPrintf(PETSC_COMM_WORLD,
 		"Invalid value for \"axisymmetric\" option\n"
 		"axisymmetric=\"%s\"\n",axisymmetric.c_str());
     PetscFinalize();
@@ -404,9 +251,11 @@ void NewAdvDif::new_assemble(arg_data_list &arg_data_v,const Nodedata *nodedata,
   FMatrix veccontr(nel,ndof),veccontr_mass(nel,ndof),
     xloc(nel,ndim),lstate(nel,ndof),
     lstateo(nel,ndof),lstaten(nel,ndof),dUloc_c(nel,ndof),
-    dUloc(nel,ndof),matloc;
+    dUloc(nel,ndof),matloc,
+    lstatepo(nel,ndof);
   FastMat2 true_lstate(2,nel,ndof),
-    true_lstateo(2,nel,ndof),true_lstaten(2,nel,ndof);
+    true_lstateo(2,nel,ndof),true_lstaten(2,nel,ndof),
+    true_lstatepo(2,nel,ndof);
 
   FastMat2 true_lstate_abs(2,nel,ndof);
 
@@ -418,7 +267,7 @@ void NewAdvDif::new_assemble(arg_data_list &arg_data_v,const Nodedata *nodedata,
   GPdata gp_data_low(geometry.c_str(),ndimel,nel,1,GP_FASTMAT2);
 
   double detJaco, wpgdet, delta_sc, delta_sc_old;
-  int ipg;
+  int elem, ipg,node, jdim, kloc,lloc,ldof;
   double lambda_max_pg;
 
   dshapex.resize(2,ndimel,nel);
@@ -428,7 +277,12 @@ void NewAdvDif::new_assemble(arg_data_list &arg_data_v,const Nodedata *nodedata,
     grad_U(ndimel,ndof), A_grad_U(ndof),Ao_grad_U(ndof),
     G_source(ndof), dUdt(ndof), Un(ndof),
     Ho(ndof),Hn(ndof);
-  // FMatrix grad_U_norm(ndimel,ndof);
+
+  // Agregado para computar los terminos pseudo-temporales
+  FMatrix dUdpt(ndof),Upo(ndof),tmp100,tmp210,tmp220;
+  FastMat2 preco(2,ndof,ndof),N_Ga_N(4,nel,ndof,nel,ndof),
+    P_Ga(2,ndof,ndof);
+
   // These are declared but not used
   FMatrix nor,lambda,Vr,Vr_inv,U(ndof),Ualpha(ndof),
     lmass(nel),Id_ndof(ndof,ndof),
@@ -441,7 +295,7 @@ void NewAdvDif::new_assemble(arg_data_list &arg_data_v,const Nodedata *nodedata,
     tmp_sc_v_aniso;
   FMatrix tmp_ALE_01,tmp_ALE_02,
     tmp_ALE_03,tmp_ALE_04,tmp_ALE_05,
-    tmp_ALE_06,tmp_ALE_07;
+   tmp_ALE_06,tmp_ALE_07;
   FastMat2 A_grad_N(3,nel,ndof,ndof),
     grad_N_D_grad_N(4,nel,ndof,nel,ndof),N_N_C(4,nel,ndof,nel,ndof),
     N_P_C(3,ndof,nel,ndof),N_Cp_N(4,nel,ndof,nel,ndof),
@@ -463,8 +317,6 @@ void NewAdvDif::new_assemble(arg_data_list &arg_data_v,const Nodedata *nodedata,
   FMatrix Jaco_low(ndimel,ndim),iJaco_low(ndimel,ndimel);
   double detJaco_low=NAN,wpgdet_low;
   // dshapex_low.resize(2,ndimel,nel);
-
-  // FastMat2 vaux(2,ndim,nel);
 
   if (axi) assert(ndim==3);
 
@@ -511,20 +363,19 @@ void NewAdvDif::new_assemble(arg_data_list &arg_data_v,const Nodedata *nodedata,
       lambda_max=0;
       lstateo.set(element.vector_values(*stateo));
       lstaten.set(element.vector_values(*staten));
+      lstatepo.set(element.vector_values(*statepo));
     }
 
     // State at time t_{n+\alpha}
     lstate.set(0.).axpy(lstaten,ALPHA).axpy(lstateo,(1-ALPHA));
     log_transf(true_lstate ,lstate ,nlog_vars,log_vars);
     log_transf(true_lstateo,lstateo,nlog_vars,log_vars);
+    log_transf(true_lstatepo,lstatepo,nlog_vars,log_vars);
 
     veccontr.set(0.);
     mass.set(0.);
     lmass.set(0.);
     matlocf.set(0.);
-
-    v_mesh.set(0.);
-
     if (lumped_mass) matlocf_mass.set(0.);
 
 #define DSHAPEXI (*gp_data.FM2_dshapexi[ipg])
@@ -570,39 +421,19 @@ void NewAdvDif::new_assemble(arg_data_list &arg_data_v,const Nodedata *nodedata,
     }
     volume_flag = 1;
 
-    if (0){
-      // DEBUG
-      int kk,ielhh;
-      element.position(kk,ielhh);
-      printf("Element %d \n",kk);
-      lstate.print("Estado :");
-      // END DEBUG
-    }
-    
     // nodal computation of mesh velocity
     if (ALE_flag) {
       assert(nH >= ndim);
       assert(indx_ALE_xold >= nH+1-ndim);
       Hloc.is(2,indx_ALE_xold,indx_ALE_xold+ndim-1);
-      vloc_mesh.set(xloc).rest(Hloc).scale(rec_Dt_m*ALPHA).rs();
+      vloc_mesh.set(xloc).rest(Hloc).scale(rec_Dt_m).rs();
       Hloc.rs();
-    }
-
-    if (0){
-      int kk,ielhh;
-      element.position(kk,ielhh);
-      if (rand() % 50 == 0){
-	printf("Element %d \n",kk);
-	xloc.print(" xloc^(n+1) :");
-	Hloc.print(" Hloc^(n+1) :");
-	vloc_mesh.print(" vloc_mesh^(n+1) :");
-      }
     }
     
     if(use_low_gpdata) {
       
       if (comp_res) {
-		
+	
 	// with old state
 	Uo.prod(SHAPE_LOW,true_lstateo,-1,-1,1);
 	adv_diff_ff->enthalpy_fun->enthalpy(Ho,Uo);
@@ -612,63 +443,71 @@ void NewAdvDif::new_assemble(arg_data_list &arg_data_v,const Nodedata *nodedata,
 	grad_U_norm.prod(dshapex,true_lstate_abs,1,-1,-1,2);
 
 	adv_diff_ff->set_state(Uo,grad_Uo);
-
-	if (ALE_flag) v_mesh.prod(SHAPE_LOW,vloc_mesh,-1,-1,1);
-
 	adv_diff_ff->compute_flux(Uo,iJaco_low,H,grad_H,flux,fluxd,
 				  A_grad_U,grad_Uo,G_source,
 				  tau_supg,delta_sc_old,
 				  lambda_max_pg, nor,lambda,Vr,Vr_inv,
 				  COMP_SOURCE | COMP_UPWIND);
-	adv_diff_ff->comp_A_grad_N(Ao_grad_N,dshapex);
+	if (BOOL_COMP_JAC)
+	  adv_diff_ff->comp_A_grad_N(Ao_grad_N,dshapex);
 	
-	if (use_Ajac_old) adv_diff_ff->get_Ajac(Ao);
-	
-	// SHV("antes de comp_P_supg",P_supg);
 	adv_diff_ff->comp_P_supg(P_supg);
-	// SHV("despues de comp_P_supg",P_supg);
-	
+
+	if (use_Ajac_old) adv_diff_ff->get_Ajac(Ao);
+
+	// with pseudo-old state
+	Upo.prod(SHAPE_LOW,true_lstatepo,-1,-1,1);
+
 	// with current state
 	U.prod(SHAPE_LOW,true_lstate,-1,-1,1);
 	adv_diff_ff->enthalpy_fun->enthalpy(Hn,U);
 	grad_U.prod(dshapex,true_lstate,1,-1,-1,2);
 
 	adv_diff_ff->set_state(U,grad_U);
-
 	adv_diff_ff->compute_flux(U,iJaco_low,H,grad_H,flux,fluxd,
 				  A_grad_U,grad_U,G_source,
 				  tau_supg,delta_sc_old,
 				  lambda_max_pg, nor,lambda,Vr,Vr_inv,
 				  COMP_SOURCE | COMP_UPWIND);
-	adv_diff_ff->comp_A_grad_N(A_grad_N,dshapex);
+	if (BOOL_COMP_JAC)
+	  adv_diff_ff->comp_A_grad_N(A_grad_N,dshapex);
 	
+	adv_diff_ff->get_preco(preco);
+
 	if (ALE_flag) {
-	  //	  v_mesh.prod(SHAPE_LOW,vloc_mesh,-1,-1,1);
+	  v_mesh.prod(SHAPE_LOW,vloc_mesh,-1,-1,1);
 	  adv_diff_ff->get_Cp(Cp_bis);
-	  tmp_ALE_01.prod(v_mesh,dshapex,-1,-1,1);
+	  if (BOOL_COMP_JAC){
+	    tmp_ALE_01.prod(v_mesh,dshapex,-1,-1,1);
+	  }
 	  tmp_ALE_02.prod(v_mesh,grad_U,-1,-1,1);
 	}
-
-	//	  if (use_Ajac_old) Ao_grad_U.prod(Ao,grad_U,-1,1,-2,-1,-2);
 
 	tmp11.set(0.).rest(fluxd);
 	tmp8.prod(dshapex,tmp11,-1,1,2,-1);
 	veccontr.axpy(tmp8,wpgdet_low);
+
+	if (BOOL_COMP_JAC){
+	  adv_diff_ff->comp_grad_N_D_grad_N(grad_N_D_grad_N,
+					    dshapex,wpgdet_low);
+	  matlocf.add(grad_N_D_grad_N);
+	}
 	
-	adv_diff_ff->comp_grad_N_D_grad_N(grad_N_D_grad_N,
-					  dshapex,wpgdet_low);
-	matlocf.add(grad_N_D_grad_N);
-	
+	// Psuedo-temporal derivate
+	dUdpt.set(Un).rest(Upo).scale(rec_Dpt);
+	tmp100.prod(preco,dUdpt,1,-1,-1);
+
 	dUdt.set(Hn).rest(Ho).scale(rec_Dt_m);
 	
 	tmp10.set(G_source);	// tmp10 = G - dUdt
 	if (!lumped_mass) tmp10.rest(dUdt);
+	tmp10.rest(tmp100);	// tmp10 = G - dUdt - Gamma*dUdtau
 	
-	tmp1.rs().set(tmp10).rest(A_grad_U); //tmp1= G - dUdt - A_grad_U
+	tmp1.rs().set(tmp10).rest(A_grad_U); //tmp1= G - dUdt - Gamma*dUdtau - A_grad_U
 	
 	if (use_Ajac_old) {
 	  Ao_grad_U.prod(Ao,grad_U,-1,1,-2,-1,-2);
-	  tmp1_old.rs().set(tmp10).rest(Ao_grad_U); //tmp1= G - dUdt - A_grad_U
+	  tmp1_old.rs().set(tmp10).rest(Ao_grad_U); //tmp1= G - dUdt - Gamma*dUdtau - A_grad_U
 	}
 	
 	for (int jel=1; jel<=nel; jel++) {
@@ -685,37 +524,42 @@ void NewAdvDif::new_assemble(arg_data_list &arg_data_v,const Nodedata *nodedata,
 	  
 	  veccontr.axpy(tmp4,wpgdet_low);
 	  
-	  tmp19.set(P_supg).scale(wpgdet_low);
-	  if (use_Ajac_old)
-	    tmp20.prod(tmp19,Ao_grad_N,1,-1,2,-1,3);
-	  else tmp20.prod(tmp19,A_grad_N,1,-1,2,-1,3);
-	  matlocf.add(tmp20);
+	  if (BOOL_COMP_JAC){
+	    tmp19.set(P_supg).scale(wpgdet_low);
+	    if (use_Ajac_old)
+	      tmp20.prod(tmp19,Ao_grad_N,1,-1,2,-1,3);
+	    else tmp20.prod(tmp19,A_grad_N,1,-1,2,-1,3);
+	    matlocf.add(tmp20);
+	  }
 	  
 	  if(!lumped_mass) {
-	    
-	    if(compute_reactive_terms){
-	      // Reactive term in matrix (SUPG term)
-	      adv_diff_ff->comp_N_P_C(N_P_C,P_supg,SHAPE_LOW,wpgdet_low);
-	      matlocf.add(N_P_C);
-	    }
-	    
-	    tmp21.set(SHAPE_LOW).scale(wpgdet_low*rec_Dt_m);
+
 	    adv_diff_ff->enthalpy_fun->comp_P_Cp(P_Cp,P_supg);
-	    tmp22.prod(P_Cp,tmp21,1,3,2);
-	    matlocf.add(tmp22);
+	   
+	    if (BOOL_COMP_JAC){
+	      if(compute_reactive_terms){
+		// Reactive term in matrix (SUPG term)
+		adv_diff_ff->comp_N_P_C(N_P_C,P_supg,SHAPE_LOW,wpgdet_low);
+		matlocf.add(N_P_C);
+	      }
 	    
+	      tmp21.set(SHAPE_LOW).scale(wpgdet_low*rec_Dt_m);
+	      tmp22.prod(P_Cp,tmp21,1,3,2);
+	      matlocf.add(tmp22);
+	    
+	      tmp210.set(SHAPE_LOW).scale(wpgdet_low*rec_Dpt);
+	      adv_diff_ff->enthalpy_fun->comp_P_Gamma(P_Ga,P_supg);
+	      tmp220.prod(P_Ga,tmp210,1,3,2);
+	      matlocf.add(tmp220);
+	    }
+
 	    if (ALE_flag) {
-#if 0
-	      tmp_ALE_07.prod(P_supg,tmp_ALE_01,1,3,2);
-	      matlocf.axpy(tmp_ALE_07,-wpgdet_low);
-	      tmp_ALE_06.prod(P_supg,tmp_ALE_02,1,-1,-1);
-	      veccontr.axpy(tmp_ALE_06,wpgdet_low);
-#else
-	      tmp_ALE_07.prod(P_Cp,tmp_ALE_01,1,3,2);
-	      matlocf.axpy(tmp_ALE_07,-wpgdet_low);
+	      if (BOOL_COMP_JAC){
+		tmp_ALE_07.prod(P_Cp,tmp_ALE_01,1,3,2);
+		matlocf.axpy(tmp_ALE_07,-wpgdet_low);
+	      }
 	      tmp_ALE_06.prod(P_Cp,tmp_ALE_02,1,-1,-1);
 	      veccontr.axpy(tmp_ALE_06,wpgdet_low);
-#endif
 	    }
 	    
 	  }
@@ -725,21 +569,14 @@ void NewAdvDif::new_assemble(arg_data_list &arg_data_v,const Nodedata *nodedata,
 	P_supg.rs();
 	veccontr.rs();
 	
-	//	volume_flag = 0;
-	
       }	      
     }
-#if 0
-    SHV("despues de use_low_gpdata block",matlocf);
-    SHV("despues de use_low_gpdata block",veccontr);
-#endif
 
     // loop over Gauss points
     
     Jaco_av.set(0.);
     for (ipg=0; ipg<npg; ipg++) {
       
-      //      Matrix xpg = SHAPE * xloc;
       Jaco.prod(DSHAPEXI,xloc,1,-1,-1,2);
       Jaco_av.add(Jaco);
 
@@ -764,33 +601,6 @@ void NewAdvDif::new_assemble(arg_data_list &arg_data_v,const Nodedata *nodedata,
       }
       wpgdet = detJaco*WPG;
 
-      /*
-      // Set volume of element. This is somewhat incorrect
-      // because we should loop over Gauss points.
-      // Correct for simplices (tris and tetras) and not
-      // deformed quads and hexas.
-      if (axi >0){
-	ind_axi_1 = (  axi   % 3)+1;
-	ind_axi_2 = ((axi+1) % 3)+1;
-	Jaco_axi.setel(Jaco.get(ind_axi_1,ind_axi_1),1,1);
-	Jaco_axi.setel(Jaco.get(ind_axi_1,ind_axi_2),1,2);
-	Jaco_axi.setel(Jaco.get(ind_axi_2,ind_axi_1),2,1);
-	Jaco_axi.setel(Jaco.get(ind_axi_2,ind_axi_2),2,2);
-	detJaco_axi = Jaco_axi.det();
-	double wpgdet_axi = detJaco_axi*WPG;
-	Volume = 0.5*double(npg)*fabs(wpgdet_axi);
-
-      } else {
-	Volume = double(npg)*wpgdet;
-      }
-
-      volume_flag = 1;
-
-      // This is incorrect. Master elment volume is included in the
-      // Gauss point weight.
-      // Volume = double(npg)*wpgdet/gp_data.master_volume;
-      */
-
       dshapex.prod(iJaco,DSHAPEXI,1,-1,-1,2);
 
       if (nH>0) {
@@ -801,7 +611,6 @@ void NewAdvDif::new_assemble(arg_data_list &arg_data_v,const Nodedata *nodedata,
       if (comp_res) {
 
 	// state variables and gradient
-	//	Un.prod(SHAPE,lstaten,-1,-1,1);
 	Un.prod(SHAPE,lstate,-1,-1,1);
 	adv_diff_ff->enthalpy_fun->enthalpy(Hn,Un);
 	Uo.prod(SHAPE,lstateo,-1,-1,1);
@@ -809,11 +618,8 @@ void NewAdvDif::new_assemble(arg_data_list &arg_data_v,const Nodedata *nodedata,
 	Ualpha.set(0.).axpy(Uo,1-ALPHA).axpy(Un,ALPHA);
 	dUdt.set(Hn).rest(Ho).scale(rec_Dt_m);
 
-	/*
-	  adv_diff_ff->get_Cp(Cp_bis);
-	  dUdt.set(Un).rest(Uo).scale(rec_Dt_m);
-	  dUdt.prod(Cp_bis,dUdt,1,-1,-1);
-	*/
+	Upo.prod(SHAPE,lstatepo,-1,-1,1);
+	dUdpt.set(Un).rest(Upo).scale(rec_Dpt);
 
 	for (int k=0; k<nlog_vars; k++) {
 	  int jdof=log_vars[k];
@@ -837,22 +643,19 @@ void NewAdvDif::new_assemble(arg_data_list &arg_data_v,const Nodedata *nodedata,
 	adv_diff_ff->set_state(Uo,grad_Uo); // fixme:= ojo que le pasamos
 					   // grad_U (y no grad_Uold) ya que
 					   // no nos interesa la parte difusiva
-
-	if (ALE_flag) v_mesh.prod(SHAPE,vloc_mesh,-1,-1,1);
-
 	adv_diff_ff->compute_flux(Uo,iJaco,H,grad_H,flux,fluxd,
 				  A_grad_U,grad_Uo,G_source,
 				  tau_supg,delta_sc_old,
 				  lambda_max_pg, nor,lambda,Vr,Vr_inv,
 				  COMP_SOURCE | COMP_UPWIND);
-	adv_diff_ff->comp_A_grad_N(Ao_grad_N,dshapex);
+	if (BOOL_COMP_JAC)	
+	  adv_diff_ff->comp_A_grad_N(Ao_grad_N,dshapex);
 	Ao_grad_U.set(A_grad_U);
 	if (shocap>0. || shocap_aniso>0.)
 	  adv_diff_ff->get_Cp(Cp_bis_old);
 	if (use_Ajac_old) adv_diff_ff->get_Ajac(Ao);
 	  adv_diff_ff
 	    ->compute_shock_cap_aniso(delta_aniso_old,jvec_old);
-
 
 #define USE_OLD_STATE_FOR_P_SUPG
 #ifdef USE_OLD_STATE_FOR_P_SUPG
@@ -867,7 +670,6 @@ void NewAdvDif::new_assemble(arg_data_list &arg_data_v,const Nodedata *nodedata,
 	adv_diff_ff->set_state(U,grad_U);
 	adv_diff_ff->enthalpy_fun->set_state(U);
 
-	// MODIF BETO 8/6
 	if (!lumped_mass) {
 	  adv_diff_ff->compute_flux(U,iJaco,H,grad_H,flux,fluxd,
 				    A_grad_U,grad_U,G_source,
@@ -881,13 +683,7 @@ void NewAdvDif::new_assemble(arg_data_list &arg_data_v,const Nodedata *nodedata,
 				    lambda_max_pg, nor,lambda,Vr,Vr_inv,
 				    COMP_SOURCE_NOLUMPED | COMP_UPWIND);
 	}
-	/*
-	adv_diff_ff->compute_flux(U,iJaco,H,grad_H,flux,fluxd,
-				  A_grad_U,grad_U,G_source,
-				  tau_supg,delta_sc,
-				  lambda_max_pg, nor,lambda,Vr,Vr_inv,
-				  COMP_SOURCE | COMP_UPWIND);
-	*/
+
 	if (compute_fd_adv_jacobian) {
 	  int check_this = drand()<compute_fd_adv_jacobian_random;
 	  comp_total++;
@@ -955,59 +751,67 @@ void NewAdvDif::new_assemble(arg_data_list &arg_data_v,const Nodedata *nodedata,
 	}
 
 	if (lambda_max_pg>lambda_max) lambda_max=lambda_max_pg;
+	
+	adv_diff_ff->get_preco(preco);
+	tmp100.prod(preco,dUdpt,1,-1,-1);
 
 	tmp10.set(G_source);	// tmp10 = G - dUdt
 	if (!lumped_mass) tmp10.rest(dUdt);
+	tmp10.rest(tmp100);	// tmp10 = G - dUdt - Gamma*dUdtau
 
-	tmp1.rs().set(tmp10).rest(A_grad_U); //tmp1= G - dUdt - A_grad_U
+	tmp1.rs().set(tmp10).rest(A_grad_U); //tmp1= G - dUdt - Gamma*dUdtau - A_grad_U
 
 	if (use_Ajac_old) {
 	  Ao_grad_U.prod(Ao,grad_U,-1,1,-2,-1,-2);
-	  tmp1_old.rs().set(tmp10).rest(Ao_grad_U); //tmp1= G - dUdt - A_grad_U
+	  tmp1_old.rs().set(tmp10).rest(Ao_grad_U); //tmp1= G - dUdt - Gamma*dUdtau - A_grad_U
 	}
+	
+	if (BOOL_COMP_JAC){
+	  if (!lumped_mass) {
+	    adv_diff_ff->enthalpy_fun
+	      ->comp_W_Cp_N(N_Cp_N,SHAPE,SHAPE,
+			    wpgdet*rec_Dt_m);
+	    matlocf.add(N_Cp_N);
+	  }
+	  adv_diff_ff->enthalpy_fun->comp_W_Gamma_N(N_Ga_N,SHAPE,SHAPE,
+						    wpgdet*rec_Dpt);
+	  matlocf.add(N_Ga_N);	
 
-	// MODIF BETO 8/6
-	if (!lumped_mass) {
-	  adv_diff_ff->enthalpy_fun
-	    ->comp_W_Cp_N(N_Cp_N,SHAPE,SHAPE,
-			  wpgdet*rec_Dt_m);
-	  matlocf.add(N_Cp_N);
+	  // A_grad_N.prod(dshapex,A_jac,-1,1,-1,2,3);
+	  adv_diff_ff->comp_A_grad_N(A_grad_N,dshapex);
 	}
-
-	// A_grad_N.prod(dshapex,A_jac,-1,1,-1,2,3);
-	adv_diff_ff->comp_A_grad_N(A_grad_N,dshapex);
 
 	// add ALE Galerkin terms
 	if (ALE_flag) {
-	  // v_mesh.prod(SHAPE,vloc_mesh,-1,-1,1);
+	  v_mesh.prod(SHAPE,vloc_mesh,-1,-1,1);
 	  adv_diff_ff->get_Cp(Cp_bis);
-	  tmp_ALE_01.prod(v_mesh,dshapex,-1,-1,1);
 	  tmp_ALE_02.prod(v_mesh,grad_U,-1,-1,1);
 	  tmp_ALE_03.prod(SHAPE,Cp_bis,1,2,3);
 
 	  tmp_ALE_04.prod(tmp_ALE_03,tmp_ALE_02,1,2,-1,-1);
 	  veccontr.axpy(tmp_ALE_04,wpgdet);
 
-	  tmp_ALE_05.prod(tmp_ALE_03,tmp_ALE_01,1,2,4,3);
-	  matlocf.axpy(tmp_ALE_05,-wpgdet);
+	  if (BOOL_COMP_JAC){
+	    tmp_ALE_01.prod(v_mesh,dshapex,-1,-1,1);
+	    tmp_ALE_05.prod(tmp_ALE_03,tmp_ALE_01,1,2,4,3);
+	    matlocf.axpy(tmp_ALE_05,-wpgdet);
+	  }
+
 	}
 
 	// Termino Galerkin
 	if (weak_form) {
-	  // assert(!lumped_mass && beta_supg==1.); 
-	  // Not implemented yet!!
-	  // weak version
-
-	  //	  tmp11.set(flux).rest(fluxd); // tmp11 = flux_c - flux_d
 	  if (use_low_gpdata){
-	  tmp11.set(flux); // tmp11 = flux_c (viscous part is integrated in 1 PG)
+	    tmp11.set(flux); // tmp11 = flux_c (viscous part is integrated in 1 PG)
 	  } else {
-	  tmp11.set(flux).rest(fluxd); // tmp11 = flux_c - flux_d
+	    tmp11.set(flux).rest(fluxd); // tmp11 = flux_c - flux_d
 	  }
 
-	  tmp23.set(SHAPE).scale(-wpgdet);
-	  tmp14.prod(A_grad_N,tmp23,1,2,4,3);
-	  matlocf.add(tmp14);
+	  if (BOOL_COMP_JAC){
+	    tmp23.set(SHAPE).scale(-wpgdet);
+	    tmp14.prod(A_grad_N,tmp23,1,2,4,3);
+	    matlocf.add(tmp14);
+	  }
 	} else {
 	  // tmp2.prod(SHAPE,tmp1,1,2); // tmp2= SHAPE' * (G - dUdt - A_grad_U)
 	  tmp2.prod(SHAPE,A_grad_U,1,2); // tmp2= SHAPE' * A_grad_U
@@ -1015,19 +819,21 @@ void NewAdvDif::new_assemble(arg_data_list &arg_data_v,const Nodedata *nodedata,
 
 	  //	  tmp11.set(0.).rest(fluxd); // tmp11 = - flux_d
 	  if (use_low_gpdata){
-	  tmp11.set(0.); // tmp11 = 0 (viscous part is integrated in 1 PG)
+	    tmp11.set(0.); // tmp11 = 0 (viscous part is integrated in 1 PG)
 	  } else {
-	  tmp11.set(0.).rest(fluxd); // tmp11 = - flux_d
+	    tmp11.set(0.).rest(fluxd); // tmp11 = - flux_d
 	  }
 
-	  tmp23.set(SHAPE).scale(wpgdet);
-	  tmp14.prod(A_grad_N,tmp23,3,2,4,1);
-	  matlocf.add(tmp14);
+	  if (BOOL_COMP_JAC){
+	    tmp23.set(SHAPE).scale(wpgdet);
+	    tmp14.prod(A_grad_N,tmp23,3,2,4,1);
+	    matlocf.add(tmp14);
+	  }
 	}
 	// tmp8= DSHAPEX * (w*flux_c - flux_d)
 	//	      w = weak_form
 	tmp8.prod(dshapex,tmp11,-1,1,2,-1);
-	tmp9.prod(SHAPE,tmp10,1,2); // tmp9 = SHAPE' * (G - dUdt)
+	tmp9.prod(SHAPE,tmp10,1,2); // tmp9 = SHAPE' * (G - dUdt - Gamma*dUdtau)
 	tmp8.add(tmp9);		// tmp8 = DSHAPEX * tmp11
 	veccontr.axpy(tmp8,wpgdet);
 
@@ -1037,19 +843,23 @@ void NewAdvDif::new_assemble(arg_data_list &arg_data_v,const Nodedata *nodedata,
 	adv_diff_ff->comp_D_grad_N(D_grad_N,tmp17);
 	tmp18.prod(D_grad_N,dshapex,-1,2,4,1,-1,3);
 #endif
-	if(use_low_gpdata==0){
-	  adv_diff_ff->comp_grad_N_D_grad_N(grad_N_D_grad_N,
-					    dshapex,wpgdet);
-	  matlocf.add(grad_N_D_grad_N);
+	if (BOOL_COMP_JAC){
+	  if(use_low_gpdata==0){
+	    adv_diff_ff->comp_grad_N_D_grad_N(grad_N_D_grad_N,
+					      dshapex,wpgdet);
+	    matlocf.add(grad_N_D_grad_N);
+	  }
 	}
 
 	// add non linear contributions of
 	// diffusive matrix, Djac(U) ==> d Djac /dU
-	if (compute_dDdU_term) {
-	  int flag = adv_diff_ff
-	    ->comp_grad_N_dDdU_N(grad_N_dDdU_N,grad_U,
-				 dshapex,SHAPE,wpgdet);
-	  if (flag) matlocf.add(grad_N_dDdU_N);
+	if (BOOL_COMP_JAC){
+	  if (compute_dDdU_term) {
+	    int flag = adv_diff_ff
+	      ->comp_grad_N_dDdU_N(grad_N_dDdU_N,grad_U,
+				   dshapex,SHAPE,wpgdet);
+	    if (flag) matlocf.add(grad_N_dDdU_N);
+	  }
 	}
 
 	// Reactive term in matrix (Galerkin part)
@@ -1059,45 +869,35 @@ void NewAdvDif::new_assemble(arg_data_list &arg_data_v,const Nodedata *nodedata,
 	tmp25.prod(tmp24,C_jac,1,3,2,4); // tmp25 = SHAPE' * SHAPE * C_jac
 #endif
 
-	// MODIF BETO 8/6
-    if(compute_reactive_terms){
-	if (!lumped_mass) {
-	  adv_diff_ff->comp_N_N_C(N_N_C,SHAPE,wpgdet);
-	  matlocf.add(N_N_C);
+	if (BOOL_COMP_JAC){
+	  if(compute_reactive_terms){
+	    if (!lumped_mass) {
+	      adv_diff_ff->comp_N_N_C(N_N_C,SHAPE,wpgdet);
+	      matlocf.add(N_N_C);
+	    }
+	  }
 	}
-    }
 
 	// adding shock-capturing term
 	delta_sc_v.set(0.0);
 	if (shocap>0. ) {
 	  adv_diff_ff->compute_delta_sc_v(delta_sc_v);
-
-/*
-	  adv_diff_ff->get_Cp(Cp_bis);
-	  tmp_shc_grad_U.prod(Cp_bis,grad_U,2,-1,1,-1);
-	  for (int jdf=1; jdf<=ndof; jdf++) {
-	    delta_sc_v.addel(delta_sc,jdf);
-*/
-
-//	  Cp_bis.set(Cp_bis_old);
+	  
 	  tmp_shc_grad_U.prod(Cp_bis_old,grad_U,2,-1,1,-1);
 	  for (int jdf=1; jdf<=ndof; jdf++) {
-	    //	    delta_sc_v.addel(delta_sc,jdf);
 	    delta_sc_v.addel(delta_sc_old,jdf);
 	  }
 
-//		  }
-
-	  tmp_sc.prod(dshapex,dshapex,-1,1,-1,2).scale(shocap*wpgdet);
-	  //	  tmp_sc_v.prod(dshapex,grad_U,-1,1,-1,2);
+	  if (BOOL_COMP_JAC)
+	    tmp_sc.prod(dshapex,dshapex,-1,1,-1,2).scale(shocap*wpgdet);
 	  tmp_sc_v.prod(dshapex,tmp_shc_grad_U,-1,1,-1,2);
 	  for (int jdf=1; jdf<=ndof; jdf++) {
 	    double delta = (double)delta_sc_v.get(jdf);
-	    for (int kdf=1; kdf<=ndof; kdf++) {
-//	      double tmp_shc_1=Cp_bis.get(jdf,kdf);
-	      double tmp_shc_1=Cp_bis_old.get(jdf,kdf);
-	      matlocf.ir(2,jdf).ir(4,kdf).axpy(tmp_sc,delta*tmp_shc_1).rs();
-	      //       matlocf.ir(2,jdf).ir(4,jdf).axpy(tmp_sc,delta).rs();
+	    if (BOOL_COMP_JAC){
+	      for (int kdf=1; kdf<=ndof; kdf++) {
+		double tmp_shc_1=Cp_bis_old.get(jdf,kdf);
+		matlocf.ir(2,jdf).ir(4,kdf).axpy(tmp_sc,delta*tmp_shc_1).rs();
+	      }
 	    }
 	    tmp_sc_v.ir(2,jdf)
 	      .scale(-shocap*delta*wpgdet).rs();
@@ -1110,64 +910,24 @@ void NewAdvDif::new_assemble(arg_data_list &arg_data_v,const Nodedata *nodedata,
 	// adding ANISOTROPIC shock-capturing term
 	// Falta usar el Cp_bis_old aca tambien
 	if (shocap_aniso>0.) {
-//	  double delta_aniso = 0.0;
 	  delta_aniso = 0.0;
 	  adv_diff_ff
 	    ->compute_shock_cap_aniso(delta_aniso,jvec);
-#if 0
-	  double jvec_norm = sqrt(jvec.sum_square_all());
-	  assert(jvec_norm>0.);// fixme:= lanzar execpcion
-	  jvec.scale(1./jvec_norm);
-#endif
 
-#if 0
-	  adv_diff_ff->get_Cp(Cp_bis);
-	  tmp_shc_grad_U.prod(Cp_bis,grad_U,2,-1,1,-1);
-	  tmp_j_grad_U.prod(jvec,tmp_shc_grad_U,-1,-1,1);
-	  tmp_j_gradN.prod(jvec,dshapex,-1,-1,1);
-
-	  tmp_sc_aniso.prod(tmp_j_gradN,tmp_j_gradN,1,2)
-	    .scale(shocap_aniso*wpgdet);
-
-	  tmp_sc_v_aniso.prod(tmp_j_gradN,tmp_j_grad_U,1,2);
-#else
 	  tmp_shc_grad_U.prod(Cp_bis_old,grad_U,2,-1,1,-1);
 	  tmp_j_grad_U.prod(jvec_old,tmp_shc_grad_U,-1,-1,1);
 	  tmp_j_gradN.prod(jvec_old,dshapex,-1,-1,1);
 
-	  tmp_sc_aniso.prod(tmp_j_gradN,tmp_j_gradN,1,2)
-	    .scale(shocap_aniso*wpgdet);
-
 	  tmp_sc_v_aniso.prod(tmp_j_gradN,tmp_j_grad_U,1,2);
 
-#endif
-
-#if 0
-	  for (int jdf=1; jdf<=ndof; jdf++) {
-	    double delta = (double)delta_sc_v.get(jdf);
-	    for (int kdf=1; kdf<=ndof; kdf++) {
-	      double tmp_shc_1=Cp_bis.get(jdf,kdf);
-	      matlocf.ir(2,jdf).ir(4,kdf).axpy(tmp_sc,delta*tmp_shc_1).rs();
-	      //       matlocf.ir(2,jdf).ir(4,jdf).axpy(tmp_sc,delta).rs();
-	    }
-	    tmp_sc_v.ir(2,jdf).scale(-shocap*delta*wpgdet).rs();
-	    delta_sc_v.rs();
+	  if (BOOL_COMP_JAC){
+	    tmp_sc_aniso.prod(tmp_j_gradN,tmp_j_gradN,1,2)
+	      .scale(shocap_aniso*wpgdet);
+	    tmp_matloc_aniso.prod(tmp_sc_aniso,Cp_bis_old,1,3,2,4);
+	    matlocf.axpy(tmp_matloc_aniso,delta_aniso_old);
 	  }
-
-	  veccontr.add(tmp_sc_v);
-#else
-#if 0
-	  tmp_matloc_aniso.prod(tmp_sc_aniso,Cp_bis,1,3,2,4);
-	  matlocf.axpy(tmp_matloc_aniso,delta_aniso);
-	  veccontr.axpy(tmp_sc_v_aniso,
-			-shocap_aniso*delta_aniso*wpgdet);
-#else
-	  tmp_matloc_aniso.prod(tmp_sc_aniso,Cp_bis_old,1,3,2,4);
-	  matlocf.axpy(tmp_matloc_aniso,delta_aniso_old);
 	  veccontr.axpy(tmp_sc_v_aniso,
 			-shocap_aniso*delta_aniso_old*wpgdet);
-#endif
-#endif
 	}
 
 #ifndef USE_OLD_STATE_FOR_P_SUPG
@@ -1186,21 +946,25 @@ void NewAdvDif::new_assemble(arg_data_list &arg_data_v,const Nodedata *nodedata,
 	  
 	  if (use_Ajac_old) {
 	    tmp4.prod(tmp1_old,P_supg,-1,1,-1);
-	    } else {
-	      tmp4.prod(tmp1,P_supg,-1,1,-1);
-	    }
-	    
-	    // veccontr.ir(1,jel).axpy(tmp4,wpgdet);
-	    veccontr.axpy(tmp4,wpgdet);
-	    
+	  } else {
+	    tmp4.prod(tmp1,P_supg,-1,1,-1);
+	  }
+	  
+	  veccontr.axpy(tmp4,wpgdet);
+	  
+	  if (BOOL_COMP_JAC){
 	    tmp19.set(P_supg).scale(wpgdet);
 	    if (use_Ajac_old)
 	      tmp20.prod(tmp19,Ao_grad_N,1,-1,2,-1,3);
 	    else tmp20.prod(tmp19,A_grad_N,1,-1,2,-1,3);
 	    matlocf.add(tmp20);
-	    
-	    if(!lumped_mass) {
-	      
+	  }
+	  
+	  if(!lumped_mass) {
+
+	    adv_diff_ff->enthalpy_fun->comp_P_Cp(P_Cp,P_supg);
+	   
+	    if (BOOL_COMP_JAC){   
 	      if(compute_reactive_terms){
 		// Reactive term in matrix (SUPG term)
 		adv_diff_ff->comp_N_P_C(N_P_C,P_supg,SHAPE,wpgdet);
@@ -1208,36 +972,35 @@ void NewAdvDif::new_assemble(arg_data_list &arg_data_v,const Nodedata *nodedata,
 	      }
 	      
 	      tmp21.set(SHAPE).scale(wpgdet*rec_Dt_m);
-	      adv_diff_ff->enthalpy_fun->comp_P_Cp(P_Cp,P_supg);
 	      tmp22.prod(P_Cp,tmp21,1,3,2);
 	      matlocf.add(tmp22);
-	      
-	      if (ALE_flag) {
-#if 0
-		tmp_ALE_07.prod(P_supg,tmp_ALE_01,1,3,2);
-		matlocf.axpy(tmp_ALE_07,-wpgdet);
-		tmp_ALE_06.prod(P_supg,tmp_ALE_02,1,-1,-1);
-		veccontr.axpy(tmp_ALE_06,wpgdet);
-#else
+	    
+	      tmp210.set(SHAPE).scale(wpgdet*rec_Dpt);
+	      adv_diff_ff->enthalpy_fun->comp_P_Gamma(P_Ga,P_supg);
+	      tmp220.prod(P_Ga,tmp210,1,3,2);
+	      matlocf.add(tmp220);
+	    }
+
+	    if (ALE_flag) {
+	      if (BOOL_COMP_JAC){
 		tmp_ALE_07.prod(P_Cp,tmp_ALE_01,1,3,2);
 		matlocf.axpy(tmp_ALE_07,-wpgdet);
-		tmp_ALE_06.prod(P_Cp,tmp_ALE_02,1,-1,-1);
-		veccontr.axpy(tmp_ALE_06,wpgdet);
-#endif
 	      }
+	      tmp_ALE_06.prod(P_Cp,tmp_ALE_02,1,-1,-1);
+	      veccontr.axpy(tmp_ALE_06,wpgdet);
 	    }
+	  }
 	}
 	matlocf.rs();
 	veccontr.rs();
 	P_supg.rs();
-	  
+	
       } else {
 	
 	printf("Don't know how to compute jobinfo: %s\n",jobinfo);
 	exit(1);
 	
       }
-      //	volume_flag=0;
       
       lmass.axpy(SHAPE,wpgdet);
       
@@ -1246,220 +1009,84 @@ void NewAdvDif::new_assemble(arg_data_list &arg_data_v,const Nodedata *nodedata,
     volume_flag=0;
 
     if (comp_res) {
-
-	// MODIF BETO 8/6
-	if (lumped_mass) {
+      
+      if (lumped_mass) {
 	  
-	  // lumped terms treatment
-	  // temporal and source terms are lumped out of the gauss points loop
-	  for (int j=1; j<=nel; j++) {
+	// lumped terms treatment
+	// temporal and source terms are lumped out of the gauss points loop
+	for (int j=1; j<=nel; j++) {
 	    
-	    /*
-	      lstaten.ir(1,j);
-	      Un.set(lstaten);
-	      lstaten.rs();
-	    */
+	  lstate.ir(1,j);
+	  Un.set(lstate);
+	  lstate.rs();
 	    
-	    lstate.ir(1,j);
-	    Un.set(lstate);
-	    lstate.rs();
+	  lstateo.ir(1,j);
+	  Uo.set(lstateo);
+	  lstateo.rs();
+	  //	adv_diff_ff->set_state(Uo,grad_U);
+	  adv_diff_ff->set_state(Uo);
 	    
-	    lstateo.ir(1,j);
-	    Uo.set(lstateo);
-	    lstateo.rs();
-	    //	adv_diff_ff->set_state(Uo,grad_U);
-	    adv_diff_ff->set_state(Uo);
+	  // adv_diff_ff->enthalpy_fun->enthalpy(Ho,Uo);
+	  adv_diff_ff->enthalpy_fun->enthalpy(Ho,Uo);
 	    
-	    // adv_diff_ff->enthalpy_fun->enthalpy(Ho,Uo);
-	    adv_diff_ff->enthalpy_fun->enthalpy(Ho,Uo);
+	  adv_diff_ff->set_state(Un,grad_U);
+	  adv_diff_ff->compute_flux(Un,iJaco,H,grad_H,flux,fluxd,
+				    A_grad_U,grad_U,G_source,
+				    tau_supg,delta_sc,
+				    lambda_max_pg, nor,lambda,Vr,Vr_inv,
+				    COMP_SOURCE_LUMPED);
+	  adv_diff_ff->enthalpy_fun->enthalpy(Hn,Un);
 	    
-	    adv_diff_ff->set_state(Un,grad_U);
-	    adv_diff_ff->compute_flux(Un,iJaco,H,grad_H,flux,fluxd,
-				      A_grad_U,grad_U,G_source,
-				      tau_supg,delta_sc,
-				      lambda_max_pg, nor,lambda,Vr,Vr_inv,
-				      COMP_SOURCE_LUMPED);
-	    adv_diff_ff->enthalpy_fun->enthalpy(Hn,Un);
+	  Ualpha.set(0.).axpy(Uo,1-ALPHA).axpy(Un,ALPHA);
 	    
-	    Ualpha.set(0.).axpy(Uo,1-ALPHA).axpy(Un,ALPHA);
+	  //	adv_diff_ff->enthalpy_fun->comp_P_Cp(Cp,Id_ndf);
+	  adv_diff_ff->get_Cp(Cp_bis);
+	  Cp_bis.scale(rec_Dt_m);
 	    
-	    //	adv_diff_ff->enthalpy_fun->comp_P_Cp(Cp,Id_ndf);
-	    adv_diff_ff->get_Cp(Cp_bis);
-	    Cp_bis.scale(rec_Dt_m);
+	  dUdt.set(Hn).rest(Ho).scale(rec_Dt_m);
 	    
-	    dUdt.set(Hn).rest(Ho).scale(rec_Dt_m);
+	  for (int k=0; k<nlog_vars; k++) {
+	    int jdof=log_vars[k];
+	    double UU=exp(Ualpha.get(jdof));
+	    dUdt.ir(1,jdof).scale(UU);
+	  }
+	  dUdt.rs();
 	    
-	    for (int k=0; k<nlog_vars; k++) {
-	      int jdof=log_vars[k];
-	      double UU=exp(Ualpha.get(jdof));
-	      dUdt.ir(1,jdof).scale(UU);
-	    }
-	    dUdt.rs();
+	  tmp10.set(G_source).rest(dUdt);	// tmp10 = G - dUdt
 	    
-	    tmp10.set(G_source).rest(dUdt);	// tmp10 = G - dUdt
-	    
+	  if (BOOL_COMP_JAC){
 	    adv_diff_ff->get_C(Cr);
+	    tmp12.set(Cr).add(Cp_bis);
+	  }
 
-            tmp12.set(Cr).add(Cp_bis);
-            
-            double mass_node;
-            mass_node = double(lmass.get(j));
-            veccontr.ir(1,j).axpy(tmp10,mass_node).rs();
-            matlocf.ir(1,j).ir(3,j).axpy(tmp12,mass_node).rs();
-            
-          }
-        }
+	  double mass_node;
+	  mass_node = double(lmass.get(j));
+	  veccontr.ir(1,j).axpy(tmp10,mass_node).rs();
+	  if (BOOL_COMP_JAC)
+	    matlocf.ir(1,j).ir(3,j).axpy(tmp12,mass_node).rs();
+
+	}
+      }
 
       veccontr.export_vals(element.ret_vector_values(*retval));
 #ifdef CHECK_JAC
       veccontr.export_vals(element.ret_fdj_values(*fdj_jac));
 #endif
-      if (comp_mat_each_time_step_g) {
-	matlocf.add(matlocf_fix);
-	matlocf.export_vals(element.ret_mat_values(*Ajac));
+      if (BOOL_COMP_JAC){
+	if (comp_mat_each_time_step_g) {
+	  matlocf.add(matlocf_fix);
+	  matlocf.export_vals(element.ret_mat_values(*Ajac));
+	}
       }
     } else if (comp_prof) {
       matlocf.export_vals(element.ret_mat_values(*jac_prof));
     }
 
-  } catch (GenericError e) {
-    set_error(1);
-    return;
-  }
+       } catch (GenericError e) {
+	 set_error(1);
+	 return;
+       }
 
   FastMat2::void_cache();
-  FastMat2::deactivate_cache();
-} catch (GenericError e) {
-  set_error(1);
-}
-
-//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:
-#undef __FUNC__
-#define __FUNC__ "NewAdvDif::after_assemble"
-void NewAdvDif::
-after_assemble(const char *jobinfo) {
-  if (compute_fd_adv_jacobian && !MY_RANK
-      && !strcmp(jobinfo,"comp_res")) {
-    assert(SIZE==1); // should code after the MPI_Reduce's
-    printf("Flux jacobian comps: total %d, checked %d (%5.2f%%)\n",
-	   comp_total,comp_checked,double(comp_checked)/
-	   double(comp_total)*100.0);
-#undef PRINT
-#define PRINT(label,val) \
-printf(label ": min %g, max %g\n",val##_min,val##_max)
-    PRINT("|A_a|",A_jac_norm);
-    PRINT("|A_n|",A_fd_jac_norm);
-    PRINT("|A_a - A_n|",A_jac_err_norm);
-    PRINT("|A_a - A_n|/|A_n|",A_rel_err);
-#undef PRINT
-  }
-}
-
-//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:
-double NewAdvDif::volume() const {
-  // Check call is valid at this moment;
-  assert(volume_flag);
-  return Volume;
-}
-
-//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:
-const FastMat2 *NewAdvDif::grad_N() const {
-  return &dshapex;
-}
-
-//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:
-void NewAdvDifFF::comp_P_supg(FastMat2 &P_supg) {
-  assert(new_adv_dif_elemset);
-  const NewAdvDif *e = new_adv_dif_elemset;
-  if (e->ff_options & SCALAR_TAU) {
-    double tau_supg_d = e->tau_supg.get(1,1);
-    P_supg.set(e->Ao_grad_N).scale(tau_supg_d);
-  } else {
-    P_supg.prod(e->Ao_grad_N,e->tau_supg,1,2,-1,-1,3);
-  }
-  if (e->use_ALE()) {
-    // FMSHV(e->v_mesh);
-    tmp_P_supg_ALE_1.prod(*(e->grad_N()),e->v_mesh,-1,1,-1);
-    tmp_P_supg_ALE_2.prod(e->Cp,tmp_P_supg_ALE_1,2,3,1);
-    // tmp_P_supg_ALE_3.prod(tmp_P_supg_ALE_2,tau_supg_c,1,2,-1,-1,3);
-    if (e->ff_options & SCALAR_TAU) {
-      double tau_supg_d = e->tau_supg.get(1,1);
-      tmp_P_supg_ALE_3.set(tmp_P_supg_ALE_2).scale(tau_supg_d);
-    } else {
-      tmp_P_supg_ALE_3
-        .prod(tmp_P_supg_ALE_2,e->tau_supg,1,2,-1,-1,3);
-    }
-    P_supg.rest(tmp_P_supg_ALE_3);
-  }
-}
-
-//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:
-void NewAdvDifFF::get_bcconv_factor(FastMat2 &bcconv_factor) {
-
-  int nelprops,nel,ndof;
-  elemset->elem_params(nel,ndof,nelprops);
-
-  bcconv_factor.resize(1,ndof);
-
-  bcconv_factor.set(1.);
-
-  int ierr = elemset->get_double("bcconv_factor",
-		     *bcconv_factor.storage_begin(),1,ndof);
-
-  /*
-  const char *line;
-  elemset->get_entry("bcconv_factor",line);
-  if(line) {
-    read_double_array(bcconv_factor,line);
-    PETSCFEM_ASSERT0(bcconv_factor.size() == ndof,
-		     "bcconv_factor needs ndof values \n");
-  } else bcconv_factor.resize(ndof,1.0);
-  */
-
-}
-
-/*
-//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:
-void NewAdvDifFF::set_profile(FastMat2 &seed) {
-
-  seed.set(1.);
-
-  int nelprops,nel,ndof;
-  elemset->elem_params(nel,ndof,nelprops);
-
-  vector<double> bcconv_factor;
-  const char *line;
-  elemset->get_entry("bcconv_factor",line);
-  if(line) {
-    read_double_array(bcconv_factor,line);
-    PETSCFEM_ASSERT0(bcconv_factor.size() == ndof,
-		     "bcconv_factor needs ndof values \n");
-  } else bcconv_factor.resize(ndof,1.0);
-
-  for (int j=0; j<ndof; j++) {
-	 seed.ir(1,j+1).scale(bcconv_factor[j]).rs();
-	  }
-
-}
-
-*/
-
-//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:
-void NewAdvDifFF::set_profile(FastMat2 &seed) {
-  seed.set(1.);
-}
-
-//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:
-void NewAdvDifFF::Riemann_Inv(const FastMat2 &U, const FastMat2 &normal,
-			      FastMat2 &Rie, FastMat2 &drdU, FastMat2 &C_){
-  PETSCFEM_ERROR0("Not implemented Riemman_Inv() method\n"
-		  "for this flux function\n");
-#undef SHAPE_LOW
-#undef DSHAPEXI_LOW
-#undef WPG_LOW
-
-}
-
-#undef SHAPE
-#undef DSHAPEXI
-#undef WPG
+  FastMat2::deactivate_cache(); 
+} 

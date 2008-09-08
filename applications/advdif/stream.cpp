@@ -29,6 +29,18 @@ void DummyEnthalpyFun::comp_P_Cp(FastMat2 &P_Cp,const FastMat2 &P_supg) {
   s->comp_P_Cp(P_Cp,P_supg);
 }
 
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:
+void DummyEnthalpyFun::comp_W_Gamma_N(FastMat2 &W_Ga_N,const FastMat2 &W,const \
+				      FastMat2 &N,
+                                      double w) {
+  s->comp_W_Gamma_N(W_Ga_N,W,N,w);
+}
+
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:
+void DummyEnthalpyFun::comp_P_Gamma(FastMat2 &P_Ga,const FastMat2 &P_supg) {
+  s->comp_P_Gamma(P_Ga,P_supg);
+}
+
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 void stream_ff::start_chunk(int &ret_options) {
   // fixme:= this is tricky!!

@@ -21,6 +21,9 @@ public:
   void comp_W_Cp_N(FastMat2 &W_Cp_N,const FastMat2 &W,const FastMat2 &N,
 		   double w);
   void comp_P_Cp(FastMat2 &P_Cp,const FastMat2 &P_supg);
+  void comp_W_Gamma_N(FastMat2 &W_Ga_N,const FastMat2 &W,const FastMat2 &N,
+                      double w);
+  void comp_P_Gamma(FastMat2 &P_Ga,const FastMat2 &P_supg);
 };
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
@@ -35,6 +38,10 @@ public:
   virtual void comp_W_Cp_N(FastMat2 &W_Cp_N,const FastMat2 &W,const FastMat2 &N,
 		   double w)=0;
   virtual void comp_P_Cp(FastMat2 &P_Cp,const FastMat2 &P_supg)=0;
+  virtual void comp_W_Gamma_N(FastMat2 &W_Ga_N,const FastMat2 &W,const FastMat2\
+			      &N,
+    double w) {}
+  virtual void comp_P_Gamma(FastMat2 &P_Ga,const FastMat2 &P_supg) {}
 };
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 

@@ -1,8 +1,8 @@
 // -*- mode: C++ -*-
 /*__INSERT_LICENSE__*/
 //$Id: nssup.h,v 1.11 2003/07/06 15:10:18 mstorti Exp $
-#ifndef ROCKNS_H
-#define ROCKNS_H
+#ifndef PETSCFEM_ROCKNS_H
+#define PETSCFEM_ROCKNS_H
 
 #include <src/fem.h>
 #include <src/readmesh.h>

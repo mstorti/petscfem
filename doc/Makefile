@@ -14,11 +14,12 @@ all: latex index.html all_html ps pdf readme eps
 PETSCFEM_DIR     = ..
 include $(PETSCFEM_DIR)/Makefile.base
 
-ODOCFILES = odocadv.tex odocadvdif.tex odocadvdif2.tex 			\
-	odocadvdife.tex odocadve.tex odocadvfe.tex odocadvfm2.tex 	\
-	odocadvfs.tex odocburgers.tex odocgenl.tex odocns.tex 		\
-	odocnsfs.tex odocnsb.tex odocnse.tex odocnsw.tex 		\
-	odocswfm2t.tex odociisd.tex odocdxhook.tex odocflrv.tex
+ODOCFILES = odocadv.tex odocadvdif.tex odocadvdif2.tex			\
+	odocadvdife.tex odocadve.tex odocadvfe.tex odocadvfm2.tex	\
+	odocadvfs.tex odocburgers.tex odocgenl.tex odocns.tex		\
+	odocnsfs.tex odocnsb.tex odocnse.tex odocnsw.tex		\
+	odocswfm2t.tex odociisd.tex odocdxhook.tex odocflrv.tex 	\
+	odocabso.tex odocabsow.tex 
 
 TEXFILES = prev1 layout thash idmap compprof advec \
 		ns tests fastmat2 $(ODOCFILES:.tex=)
@@ -34,11 +35,11 @@ ps: petscfem.ps.gz manual.ps.gz
 #w make PDF
 pdf: petscfem.pdf
 
-pdf1: 
-	$(MAKE) eps 
+pdf1:
+	docdate.pl
 	$(MAKE) -C OBJ pdf
-	$(MAKE) odoc
-	$(MAKE) EPERLFLAGS="-d html=0" petscfem.tex
+#	$(MAKE) odoc
+	$(MAKE) petscfem.tex
 	pdflatex petscfem
 
 #w Makes PS version of the guide
@@ -137,10 +138,11 @@ odoc: odoc_all
 	$(MAKE) -C ../applications/advdif odocadvdif
 
 ###--------<*>--------<*>--------<*>--------<*>--------<*>--------<*>
-allcpp = $(shell find .. -name '*.cpp')
+allcpp = $(shell find .. -name '*.cpp' -a ! -name '.\#*')
 odoc_all: 
-	-$(ODOC) -o odocall.tex $(allcpp) &> odocall.log
-	-rm odocall.log
+	echo $(allcpp)
+# 	-$(ODOC) -o odocall.tex $(allcpp) &> odocall.log
+# 	-rm odocall.log
 
 info: 
 	-@$(ODOC) -e options2.texi $(allcpp) &> odoc.log
@@ -155,7 +157,7 @@ index.html: index.tex
 		-no_subdir -split 0 index
 
 #w Make the README in text and html format
-readme: ../README ../README.html
+readme: ../README ../README.html ./README.1
 
 README.pod: README.podin ../VERSION
 	-chmod +w README.pod
@@ -173,6 +175,9 @@ README.pod: README.podin ../VERSION
 	pod2html README.pod > $@
 	-chmod -w $@
 	-@rm pod2html-{dir,item}cache &> /dev/null
+
+./README.1: README.pod
+	pod2man -c "" README.pod > $@
 
 CLEAN_DIRS = manual OBJ
 

@@ -447,7 +447,7 @@ expect("sqcav/check.iisd.verif.np2.tmp",
 
 #------/*/------/*/------/*/------/*/------/*/------/*/------/*/ 
 expect("graph/output.graph.tmp","Graph partitioning",
-               read_file("graph/answer.txt"));
+               read_file("graph/answer-$archi.txt"));
 
 #------/*/------/*/------/*/------/*/------/*/------/*/------/*/ 
 expect("fastmat2/tfastvec.out.tmp",

@@ -873,6 +873,9 @@ int IISDMat::maybe_factor_and_solve(Vec &res,Vec &dx,int factored=0) {
       ierr = PCFactorSetFill(pc_ll,pc_lu_fill); PF_CHKERRQ(ierr); 
       // ierr = PCLUSetMatOrdering(pc_ll,MATORDERING_RCM);
 
+      ierr = PCFactorSetZeroPivot(pc_ll,1.0e-20); PF_CHKERRQ(ierr); 
+      ierr = KSPSetFromOptions(ksp_ll); PF_CHKERRQ(ierr);
+
       if (use_interface_full_preco) {
 	ierr = KSPDestroy_maybe(ksp_ii); PF_CHKERRQ(ierr); 
 	ierr = KSPCreate(comm,&ksp_ii); PF_CHKERRQ(ierr); 

@@ -12,6 +12,7 @@ getopts("wWs:o:he:C:f:");
 
 my $wiki_syntax = 1;
 my $include_file = 1;
+my $verb_char = '+';
 $include_file = $opt_f if defined $opt_f;
 
 $wiki_syntax = 0 if $opt_W;
@@ -74,7 +75,7 @@ sub wiki2 {
 
 sub wiki {
     my $t = shift();
-    wiki2(\$t,"#","\\verb+","+");
+    wiki2(\$t,"#","\\verb$verb_char","$verb_char");
     wiki2(\$t,"\\*","\\textbf{","}");
     wiki2(\$t,"_","\\emph{","}");
     return $t;
@@ -96,6 +97,7 @@ while (<>) {
     $otarget="" if m|//end_target|;
     $wiki_syntax = 1 if m|//__ENABLE_WIKI__|;
     $wiki_syntax = 0 if m|//__DISABLE_WIKI__|;
+    $verb_char = '|' if m|//__USE_PIPE_FOR_VERB_CHAR__|;
     next if $otarget ne $otargetf;
     if ((/$tgetopt_pat/o || /$getopt_pat/o)
 	&& ! m|//nd|) {
@@ -398,6 +400,14 @@ the previously mentioned wiki characters.
 
 You can deactivate this feature using the special
 C<//__DISABLE_WIKI__> and C<//__ENABLE_WIKI__> commands. 
+
+=item * 
+
+If the string to be expanded with C<#...#> construct contains a plus
+sign C<+> you loose, because by default the string is expanded with 
+the C<\verb+...+> construct. In that case you can include the 
+command C<//__USE_PIPE_FOR_VERB_CHAR__>, and then the C<\verb|...|>
+contruct will be used instead. 
 
 =back
 

@@ -23,7 +23,8 @@ private:
   char *s;
   /// The number of bytes allocated in #s#
   int n;
-  /// Total number of characters allocated by the class
+  /** Total number of characters allocated by all the 
+      the objects in the class */
   static int total;
 public:
   /// Ctor.
@@ -40,6 +41,14 @@ public:
   /** Size of string as detected by the position of the #\0# terminator. 
       @return length of string */ 
   int len() const;
+  /** Returns a bool value indicating 
+      if the string contains the null terminator. 
+      @return bool value indacting if 
+      the string contains the null terminator  */ 
+  int is_conformed() const;
+  /** Make the string well conformed. If neeed, add a 
+      a null terminator.  */ 
+  void conform();
   /** Resizes the internal buffer. 
       @param m (input) new size */ 
   void resize(int m);
@@ -100,6 +109,8 @@ public:
       @param fid (input) file for reading. 
       @return number of characters read. */ 
   int getline(FILE *fid);
+  /** Elliminates leading and trailing and space. */ 
+  AutoString & deblank(void);
 };
 
 #endif

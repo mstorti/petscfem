@@ -88,10 +88,10 @@ TAGINCL = --include
 ETAGS := GNU
 
 # Points to the `smc' binary, the Finite State Machine
-# Compiler. Notmally these are shipped already compiled with PETSc-FEM
+# Compiler. Normally these are shipped already compiled with PETSc-FEM
 # so that you don't need it (unless you change the finite state
 # machine code itself `.sm' or `.sm.in' files). 
-SMC = smc
+SMC = 
 
 # Points to the Latex2html program. Only needed if you want to
 # generate the doc.

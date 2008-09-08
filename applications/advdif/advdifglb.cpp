@@ -25,3 +25,6 @@ int  verify_jacobian_with_numerical_one = 0;
 const char * jobinfo_fields = 0;
 
 //-------<*>-------<*>-------<*>-------<*>-------<*>------- 
+
+// Low-Mach stratgy
+double local_dt_min;
