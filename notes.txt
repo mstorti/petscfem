@@ -13152,6 +13152,27 @@ O_c++:
 > Summary: "All tests" -- OK: 167.  Not OK: 6. Couldn't open: 0. Total: 173
 -------------------------
 
+%=== Sun Sep  7 23:08:33 2008 mstorti@prandtl
+%
+%-- 23:08:33 -- mstorti-v21-end-18-g97e8d77 -----
+Corre casi todos los tests, menos 5:
+-----
+g_c++/O-c++:
+-------------------------
+COULDN'T OPEN: 
+None
+-------------------------
+NOT OK TESTS: 
+--------
+"Idmap class" --  "idmap/tidmap.sal"
+"newff/test case adv_temp_cp" --  "newff/adv_temp_cp.vrf.tmp"
+"newff/test case full_full_jacs_cp" --  "newff/full_full_jacs_cp.vrf.tmp"
+"newff/test case full_full_jacs_adv_cp" --  "newff/full_full_jacs_adv_cp.vrf.tmp"
+"newff/test case adv_temp_cp_iisd" --  "newff/adv_temp_cp_iisd.vrf.tmp"
+--------------------------------------------------
+Summary: "All tests" -- OK: 168.  Not OK: 5. Couldn't open: 0. Total: 173
+
+
 # Current line ===========  %
 # Local Variables: $
 # eval: (my-notes-mode) $
