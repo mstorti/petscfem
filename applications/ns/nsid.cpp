@@ -77,6 +77,7 @@ int ns_id::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
     if (update_jacobian) retvalmat = arg_data_v[ja++].retval;
   } 
 
+  //__USE_PIPE_FOR_VERB_CHAR__
   //o Residual value is
   // #ns_id_fac*(ns_id_cn *(x^n-x_ref) + ns_id_cn1 * (x^{n+1}-x_ref))#
   SGETOPTDEF(double,ns_id_fac,1.);
