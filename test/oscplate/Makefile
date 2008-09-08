@@ -76,7 +76,7 @@ oscplate4: ns
 #w `cos(2*pi*t/T)' case
 oscplate4cos: ns
 	-rm -f tmp_file*.tmp oscsome4c.sal oscsome.sal
-	make-depl oscplate.epl >oscplate4c.depl \
+	make-depl oscplate.epl oscplate4c.depl \
 		-d spline_periodic_fun=1  -d cos_case=1
 	-$(MPIEXEC) -n 1 $(NS) -case oscplate4c.depl $(call in_backg,$@)
 	mv oscsome.sal oscsome4c.sal
@@ -86,8 +86,8 @@ oscplate4cos: ns
 #w `sin(2*pi*t/T-pi/6)' case
 oscplate4_30deg: ns
 	-rm -f tmp_file*.tmp oscsome4_30deg.sal oscsome.sal
-	make-depl oscplate.epl >oscplate4_30deg.depl \
-		 -d spline_periodic_fun=1 -d cos_case=0 -d sin30deg_case=1 \
+	make-depl oscplate.epl oscplate4_30deg.depl \
+		 -d spline_periodic_fun=1 -d cos_case=0 -d sin30deg_case=1
 	-$(MPIEXEC) -n 1 $(NS) -case oscplate4_30deg.depl $(call in_backg,$@)
 	mv oscsome.sal oscsome4_30deg.sal
 	$(OCTAVE) oscplate4_30deg.m &> oscplate4_30dego.sal
