@@ -17,6 +17,13 @@ Do correction for wave characteristic computation
  do to mesh velocity (ALE).
  (found in file: \verb+advabsow.cpp+)
 %----<>----<>----<>----<>----<>----<>----<>----<>----<>----<>
+\index{ldfilename@\verb+ldfilename+}
+\item\verb+string ldfilename+ {\rm(default=\verb|"<none>"|)}:
+
+Name of shared file where the turn-wall
+ functions is defined. 
+ (found in file: \verb+advabsow.cpp+)
+%----<>----<>----<>----<>----<>----<>----<>----<>----<>----<>
 \index{ndim@\verb+ndim+}
 \item\verb+int ndim+ {\rm(default=\verb|0|)}:
 
@@ -31,6 +38,12 @@ Use special combination for choosing reference state.
  normal, \verb+u+ is the flow velocity), then the
  \verb+use_old_state_as_ref+ strategy is used, otherwise the
  state reference is used. 
+ (found in file: \verb+advabsow.cpp+)
+%----<>----<>----<>----<>----<>----<>----<>----<>----<>----<>
+\index{twf\_class\_name@\verb+twf_class_name+}
+\item\verb+string twf_class_name+ {\rm(default=\verb|"<none>"|)}:
+
+Name of turn-wall function class
  (found in file: \verb+advabsow.cpp+)
 %----<>----<>----<>----<>----<>----<>----<>----<>----<>----<>
 \index{use\_old\_state\_as\_ref@\verb+use_old_state_as_ref+}
