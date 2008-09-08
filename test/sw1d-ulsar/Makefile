@@ -11,7 +11,7 @@ PETSCFEM_DIR := ../..
 
 NP := $(shell procsel -n ./proctable)
 
-ADVDIF  = $(PETSCFEM_DIR)/applications/advdif/advdif_O.bin
+ADVDIF  = $(PETSCFEM_DIR)/applications/advdif/advdif_g.bin
 PROG := $(ADVDIF)
 LOC_PROG := advdif
 
