@@ -277,6 +277,7 @@ void Dofmap::solve(double *xp,double *yp) {
   ierr =MatDestroy(A); assert(!ierr);
   ierr = VecDestroy(x); assert(!ierr);
   ierr = VecDestroy(z); assert(!ierr);
+  KSPDestroy(ksp);
   w.clear();
  
 #else
