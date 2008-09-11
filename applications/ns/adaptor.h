@@ -142,8 +142,8 @@ public:
       Jacobians by finite differences. The stage number 
       returned may be #j=-1# (no stage), #j=0# (initialization, 
       reference values), #1<=j<=nen# computing residual 
-      for the 
-      
+      for the perturbation of the #j# component of 
+      the element state vector. 
       @return stage number */ 
   int prtb_index();
 
