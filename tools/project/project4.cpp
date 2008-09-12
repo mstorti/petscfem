@@ -9,6 +9,8 @@
 #include <ANN/ANN.h>
 #include "./project.h"
 
+extern int print_area_coords;
+
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 void read_mesh(dvector<double> &xnod1,const char *XNOD1,
 	       dvector<double> &xnod2,const char *XNOD2,
@@ -47,6 +49,7 @@ int main(int argc,char **argv) {
   int ndimel = 2;
   int nel = ndim+1; // Only for simplices right now
   int ndof = 1;
+  print_area_coords=0;
 
   dvector<double> xnod1, xnod2, u1, u2,
     area1, area2;
@@ -64,7 +67,7 @@ int main(int argc,char **argv) {
       sscanf(optarg,fmt,&name);			\
       break;
 #define SEP "          "
-  while ((c = getopt(argc, argv, "hd:l:e:f:x:i:s:y:o:")) != -1) {
+  while ((c = getopt(argc, argv, "hd:l:e:f:x:i:s:y:o:n:")) != -1) {
     switch (c) {
     case 'h':
       printf(" usage: $ project4.bin -d <NDIM>\n"
@@ -77,6 +80,7 @@ int main(int argc,char **argv) {
       GETOPT_GET('l',"%d",ndimel);
       GETOPT_GET('e',"%d",nel);
       GETOPT_GET('f',"%d",ndof);
+      GETOPT_GET('n',"%d",print_area_coords);
 
     case 'x':
       xnod1f = strdup(optarg);

@@ -10,6 +10,8 @@
 
 #include "./project.h"
 
+int print_area_coords=0;
+
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 void FemInterp::clear() {
   if (kdtree) delete kdtree;
@@ -260,6 +262,13 @@ void FemInterp::interp(const dvector<double> &xnod2,
       u1_loc.ir(2,j);
       int node = icone.e(k1min,j-1);
       u1_loc.set(&u.e(node-1,0));
+    }
+    if (print_area_coords) {
+      printf("n2 %d, elem1 %d, N ",n2+1,k1min+1);
+      const double *L = Lmin.storage_begin();
+      for (int j=0; j<nel; j++)
+        printf("%f ",L[j]);
+      printf("\n");
     }
     u1_loc.rs();
     // Interpolate
