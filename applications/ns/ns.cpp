@@ -87,7 +87,11 @@ int ns_main(int argc,char **args) {
 
   if (flg) {
     if (!strcmp(code_name,"fsi")) return fsi_main();
-    if (!strcmp(code_name,"struct")) return struct_main();
+    if (!strcmp(code_name,"struct")) return struct_main(); // new
+							   // displacement
+							   // formulation
+							   // for
+							   // structure
     if (!strcmp(code_name,"mmove")) return mmove_main();
     if (!strcmp(code_name,"mmove2")) return mmove2_main();
     PETSCFEM_ERROR("Unknown -code option: \"%s\"\n",code_name);
