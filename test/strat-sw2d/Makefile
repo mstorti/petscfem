@@ -1,5 +1,5 @@
 
-PETSCFEM_DIR = /u/rodrigop/PETSC/petscfem
+PETSCFEM_DIR = /home/rodrigop/PETSC/petscfem
 
 PFEM_UP_DIR = ..
 

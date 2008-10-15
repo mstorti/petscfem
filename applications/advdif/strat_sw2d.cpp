@@ -152,7 +152,7 @@ void stratsw2d_ff::comp_P_Cp(FastMat2 &P_Cp,const FastMat2 &P_supg) {
 void stratsw2d_ff::set_Ufluid(FastMat2 &Uref, FastMat2 &Ufluid) { 
   Ufluid.is(1,1,ndim).set(Uref.rs().is(1,1,ndim));
   Uref.rs();Ufluid.rs();
-  Ufluid.is(1,ndim+2,ndim+3).set(Uref.rs().is(1,ndim+2,ndim+3));
+  Ufluid.is(1,ndim+2,ndim+3).set(Uref.is(1,ndim+2,ndim+3));
   Uref.rs();Ufluid.rs();
 }
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 

@@ -1,7 +1,7 @@
 # -*- mode: shell-script -*-
 <:                              # starts ePerl block
 #__TRANSCRIPT__
-require "/u/rodrigop/PETSC/petscfem-new-sw2d/test/eperlini.pl";# Initializes ePerl 
+require "$ENV{'PETSCFEM_DIR'}/test/eperlini.pl";
 ## DATA 
 $ndim = 2;
 require './data_plano.pl';

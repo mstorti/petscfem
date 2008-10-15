@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id merge-with-petsc-233-55-g52bd457 Fri Oct 26 13:57:07 2007 -0300$
+//$Id new structure module with displacement formulation - rodrigop -0300$
 #include <src/debug.h>
 #include <malloc.h>
 
@@ -14,8 +14,8 @@
 
 // PETSc now doesn't have the string argument that represents the variable name
 // so that I will use this wrapper until I find how to set names in Ascii matlab viewers.
-#define PetscViewerSetFormat_WRAPPER(viewer,format,name) \
-          PetscViewerSetFormat(viewer,format)
+#define PetscViewerSetFormat_WRAPPER(viewer,format,name)	\
+  PetscViewerSetFormat(viewer,format)
 
 #include <applications/ns/nsi_tet.h>
 static char help[] = "PETSc-FEM Navier Stokes module\n\n";
@@ -408,14 +408,14 @@ int struct_main() {
 	// A_prj->set_option("symmetric","1");
       } else if (fractional_step_solver_combo=="lu") {
 #define SET_SOLVER_OPTIONS(solv)				\
-    solv = PFMat::dispatch(dofmap->neq,*dofmap,"petsc");	\
-      solv->set_option("preco_type","lu");			\
-      solv->set_option("block_uploading","0");			\
-      solv->set_option("KSP_method",KSPRICHARDSON); 
+	solv = PFMat::dispatch(dofmap->neq,*dofmap,"petsc");	\
+	solv->set_option("preco_type","lu");			\
+	solv->set_option("block_uploading","0");		\
+	solv->set_option("KSP_method",KSPRICHARDSON); 
 
-      SET_SOLVER_OPTIONS(A_mom);
-      SET_SOLVER_OPTIONS(A_poi);
-      SET_SOLVER_OPTIONS(A_prj);
+	SET_SOLVER_OPTIONS(A_mom);
+	SET_SOLVER_OPTIONS(A_poi);
+	SET_SOLVER_OPTIONS(A_prj);
       } else {
 	PETSCFEM_ERROR("Unknown fractional step solver %d\n",
 		       fractional_step_solver_combo.c_str());
@@ -452,7 +452,7 @@ int struct_main() {
   debug.trace("After computing profile.");
   int update_jacobian_step=0;
 
-//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+  //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
   debug.trace("Before reading initial vector...");
   ierr = opt_read_vector(mesh,x,dofmap,MY_RANK); CHKERRA(ierr);
   debug.trace("After reading initial vector...");
