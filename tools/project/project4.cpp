@@ -2,6 +2,7 @@
 // $Id merge-with-petsc-233-50-g0ace95e Fri Oct 19 17:49:52 2007 -0300$
 
 #include <cstdio>
+#include <string>
 #include <unistd.h>
 #include <src/fastmat2.h>
 #include <src/dvector.h>
@@ -9,7 +10,7 @@
 #include <ANN/ANN.h>
 #include "./project.h"
 
-extern int print_area_coords;
+extern string print_area_coords;
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 void read_mesh(dvector<double> &xnod1,const char *XNOD1,
@@ -49,7 +50,7 @@ int main(int argc,char **argv) {
   int ndimel = 2;
   int nel = ndim+1; // Only for simplices right now
   int ndof = 1;
-  print_area_coords=0;
+  print_area_coords = "";
 
   dvector<double> xnod1, xnod2, u1, u2,
     area1, area2;
@@ -80,7 +81,6 @@ int main(int argc,char **argv) {
       GETOPT_GET('l',"%d",ndimel);
       GETOPT_GET('e',"%d",nel);
       GETOPT_GET('f',"%d",ndof);
-      GETOPT_GET('n',"%d",print_area_coords);
 
     case 'x':
       xnod1f = strdup(optarg);
@@ -97,6 +97,9 @@ int main(int argc,char **argv) {
     case 'y':
       xnod2f = strdup(optarg);
       break;
+    case 'n':
+      print_area_coords = string(optarg);
+      break;
     default:
       if (isprint (optopt))
 	fprintf (stderr, "Unknown option `-%c'.\n", optopt);
@@ -107,6 +110,11 @@ int main(int argc,char **argv) {
       abort ();
     }
   }
+
+#if 0
+  printf("print_area_coords: %s, size %d\n",
+         print_area_coords.c_str(),print_area_coords.size());
+#endif
 
   read_mesh(xnod1,xnod1f, xnod2,xnod2f,
 	    u1,state1f,u2,ico1,icone1f,

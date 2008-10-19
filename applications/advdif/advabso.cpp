@@ -7,7 +7,7 @@ extern GlobParam *GLOB_PARAM;
 
 /** Auxiliary function that appends a suffix to the #case_name#
     for reading a dvector */
-static const char *case_file_name(string &s,char *n) {
+static const char *case_file_name(string &s,const char *n) {
   static AutoString as;
   as.clear().cat(s.c_str()).cat(n);
   return as.str();
