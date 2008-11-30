@@ -967,3 +967,13 @@ FastMatCache *FastMat2::CacheCtx::step() {
 #endif
   return cache;
 }
+
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>
+int FastMat2::is_nan() {
+  int sz = size();
+  double *a = storage_begin();
+  for (int j=0; j<sz; j++) 
+    if (isnan(a[j])) return 1;
+  return 0;
+}
+
