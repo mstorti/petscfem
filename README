@@ -17,10 +17,10 @@ SYNOPSIS
        applications based on PETSc . PETSc-FEM comprises both a library that
        allows the user to develop FEM (or FEM-like, i.e.  non-structured mesh
        oriented) programs, and a suite of application programs.  It is written
-       in the C++ language with an OOP (Object Oriented Programming) philoso-
-       phy, keeping in mind the scope of efficiency. PETSc-FEM may run in par-
-       allel using the MPI standard on a variety of architectures, but cur-
-       rently it has been tested in Beowulf clusters only.
+       in the C++ language with an OOP (Object Oriented Programming)
+       philosophy, keeping in mind the scope of efficiency. PETSc-FEM may run
+       in parallel using the MPI standard on a variety of architectures, but
+       currently it has been tested in Beowulf clusters only.
 
        PETSc-FEM is GPL, for further details read the file COPYING in the root
        directory of the distribution.
@@ -31,8 +31,8 @@ LICENSE
        (C) 1999-2008, Mario Alberto Storti, Norberto Marcelo Nigro, Rodrigo
        Rafael Paz, Lisandro Dalcin and Ezequiel Lopez, Centro Internacional de
        Metodos Numericos en Ingenieria (CIMEC-Argentina), Universidad Nacional
-       del Litoral (UNL-Argentina), Consejo Nacional de Investigaciones Cien-
-       tificas y Tecnicas (CONICET-Argentina).
+       del Litoral (UNL-Argentina), Consejo Nacional de Investigaciones
+       Cientificas y Tecnicas (CONICET-Argentina).
 
        This program is free software; you can redistribute it and/or modify it
        under the terms of the GNU General Public License as published by the
@@ -40,9 +40,9 @@ LICENSE
        option) any later version.
 
        This program is distributed in the hope that it will be useful, but
-       WITHOUT ANY WARRANTY; without even the implied warranty of MER-
-       CHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General
-       Public License for more details.
+       WITHOUT ANY WARRANTY; without even the implied warranty of
+       MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+       General Public License for more details.
 
        You should have received a copy of the GNU General Public License along
        with this program; if not, write to the Free Software Foundation, Inc.,
@@ -66,8 +66,8 @@ INSTALLATION
 
        Required Software
 
-       Before installing PETSc-FEM, please verify you have the following pack-
-       ages correctly installed in your system.
+       Before installing PETSc-FEM, please verify you have the following
+       packages correctly installed in your system.
 
        MPI Message Passing Interface. We are currently using MPICH2 1.0.3
            (<http://www.mcs.anl.gov/mpich>) but I think it should be possible
@@ -107,8 +107,8 @@ INSTALLATION
            in some internal parts and has much more functions, so that you
            have to install it. Also, you may prefer Newmat over FastMat2 for
            element calculations since it supports overloading of algebraic
-           operations. See the documentation on FastMat2 in the PETSc-FEM doc-
-           umentation for reasons why to use FastMat2 instead of Newmat.
+           operations. See the documentation on FastMat2 in the PETSc-FEM
+           documentation for reasons why to use FastMat2 instead of Newmat.
 
        METIS
            METIS is a software package for partitioning unstructured graphs,
@@ -116,12 +116,12 @@ INSTALLATION
            sparse matrices. It can be found at <http://www.cs.umn.edu/~metis>.
 
        Meschach
-           The Meschach Library is a numerical library of C routines for per-
-           forming calculations on matrices and vectors. It is used only for
-           some functions that can not be done with Newmat. Currently, it is
-           used in the advective module for performing eigenvalue decomposi-
-           tion of non-symmetric matrices. I think that in a future this func-
-           tionality could be replaced by calls to LAPACK.
+           The Meschach Library is a numerical library of C routines for
+           performing calculations on matrices and vectors. It is used only
+           for some functions that can not be done with Newmat. Currently, it
+           is used in the advective module for performing eigenvalue
+           decomposition of non-symmetric matrices. I think that in a future
+           this functionality could be replaced by calls to LAPACK.
 
        Perl
            If you want to use ePerl then you need to have Perl installed.
@@ -148,14 +148,15 @@ INSTALLATION
            already installed.
 
        Simple Sockets Library (SSL) (optional)
-           The Simple Sockets Library (SSL) allows C programmers to use inter-
-           process communications via Berkeley sockets simply and quickly.
-           Most of the SSL's functions resemble C's file i/o functions, so C
-           programmers will find the SSL easy to learn. Currently used for
-           communication with the IBM Data Explorer visualization tool, but
-           but it might be used for other things in a near future.  [Current
-           version: 2.11a Tue Mar  6 09:46:16 EST 2001] [Note: If you do a web
-           search you can find it as a file "COSMIC.tar.gz" or "ssl.tar.gz"].
+           The Simple Sockets Library (SSL) allows C programmers to use
+           interprocess communications via Berkeley sockets simply and
+           quickly.  Most of the SSL's functions resemble C's file i/o
+           functions, so C programmers will find the SSL easy to learn.
+           Currently used for communication with the IBM Data Explorer
+           visualization tool, but but it might be used for other things in a
+           near future.  [Current version: 2.11a Tue Mar  6 09:46:16 EST 2001]
+           [Note: If you do a web search you can find it as a file
+           "COSMIC.tar.gz" or "ssl.tar.gz"].
 
        Unpacking
 
@@ -180,12 +181,12 @@ INSTALLATION
        Configuring
 
        Once you have all the software mentioned in "Required Software"
-       installed, you have to define the variables in the CONFIGURATION VARI-
-       ABLES section in file $(PETSCFEM_DIR)/Makefile.base.
+       installed, you have to define the variables in the CONFIGURATION
+       VARIABLES section in file $(PETSCFEM_DIR)/Makefile.base.
 
        ?   First you have to set the "PETSC_BOPT" variable which is the
-           default value for the "PETSc" "BOPT" variable, which sets the opti-
-           mization level to be used in compilation. You can set it to
+           default value for the "PETSc" "BOPT" variable, which sets the
+           optimization level to be used in compilation. You can set it to
 
            "PETSC_BOPT = g_c++"
                Compiles for debugging.
@@ -211,17 +212,18 @@ INSTALLATION
        ?   The "PROF_FLAGS" variables allows you to turn on profiling. By
            default, profiling is deactivated.
 
-       ?   Other configuration variables are defined in a file "Make-
-           file.defs", but normally they are set only when you first install
-           PETSc-FEM, so the best is to put "Makefile.defs" in the directory
-           immediately above PETSc-FEM directory (i.e. "$(PETSCFEM_DIR)/..").
-           So that, if you install another version of PETSc-FEM, the settings
-           will be seen immediately by the new version. A version of "Make-
-           file.defs" is included in the PETSc-FEM directory.  Copy it to the
-           directory _above_ the PETSC-FEM directory and configure the vari-
-           ables inside. If you install another version of PETSc-FEM then
-           probably you have not to configure again these variables, unless a
-           new package has been added or you have moved it.
+       ?   Other configuration variables are defined in a file
+           "Makefile.defs", but normally they are set only when you first
+           install PETSc-FEM, so the best is to put "Makefile.defs" in the
+           directory immediately above PETSc-FEM directory (i.e.
+           "$(PETSCFEM_DIR)/..").  So that, if you install another version of
+           PETSc-FEM, the settings will be seen immediately by the new
+           version. A version of "Makefile.defs" is included in the PETSc-FEM
+           directory.  Copy it to the directory _above_ the PETSC-FEM
+           directory and configure the variables inside. If you install
+           another version of PETSc-FEM then probably you have not to
+           configure again these variables, unless a new package has been
+           added or you have moved it.
 
        Compiling
 
@@ -238,34 +240,34 @@ INSTALLATION
        can help you on other useful targets.
 
        If nothing goes wrong you will end with a src/libpetscfem.a library and
-       application binaries (ending in ".bin") in their respective directo-
-       ries, e.g. applications/ns/ns.bin is the Navier-Stokes binary.
+       application binaries (ending in ".bin") in their respective
+       directories, e.g. applications/ns/ns.bin is the Navier-Stokes binary.
 
 DOCUMENTATION
        Documentation for PETSc-FEM is included in the "$(PETSCFEM_DIR)/doc"
        directory. There is basically a reference manual written in LaTeX
        (doc/petscfem.tex), and embedded documentation for the routines to be
        used with "Doc++". In the standard distrib you should find both of them
-       converted to HTML ("LaTeX" is converted with "latex2html") and accessi-
-       ble from doc/index.html. Other formats (perhaps PostScript and PDF) may
-       be also found in the "doc" directory.
+       converted to HTML ("LaTeX" is converted with "latex2html") and
+       accessible from doc/index.html. Other formats (perhaps PostScript and
+       PDF) may be also found in the "doc" directory.
 
 TESTS AND EXAMPLES
        Many tests and examples are in the "$(PETSCFEM_DIR)/test" directory.
 
 WRITING A NEW APPLICATION MODULE
        The best way to start coding an application program is to duplicate a
-       directory (for instance "applications/advdif") or (for instance "appli-
-       cations/ns") to a directory from your own (i.e. outside the
+       directory (for instance "applications/advdif") or (for instance
+       "applications/ns") to a directory from your own (i.e. outside the
        "$(PETSCFEM_DIR)" tree, say "/your/appl/path". Configure the
        "$(PETSCFEM_DIR)" variable in the local makefile (i.e.
-       "/your/appl/path/Makefile").You should have to configure other vari-
-       ables as well, perhaps "$(MYOBJS)" (this is a list of the object (".o")
-       files in this local directory) and "$(PROG)" (the name of the program
-       to be built, without the suffix ".bin").
+       "/your/appl/path/Makefile").You should have to configure other
+       variables as well, perhaps "$(MYOBJS)" (this is a list of the object
+       (".o") files in this local directory) and "$(PROG)" (the name of the
+       program to be built, without the suffix ".bin").
 
 AUTHORS
-       Mario A. Storti* "<mstorti@intec.unl.edu.ar>"
+       Mario A. Storti* "<mario.storti@gmail.com>"
            PETSc-FEM kernel, NS and AdvDif modules.
 
        Norberto M. Nigro* "<nnigro@intec.unl.edu.ar""
@@ -276,18 +278,22 @@ AUTHORS
            interaction, preconditioners.
 
        Lisandro Dalcin* "<dalcinl@intec.unl.edu.ar>"
-           PETSc-FEM kernel, Python extension language project, linear alge-
-           bra, preconditioners, multigrid.
+           PETSc-FEM kernel, Python extension language project, linear
+           algebra, preconditioners, multigrid.
 
        Ezequiel Lopez* "<ezequiellopez@hotmail.com>"
            Mesh relocation algorithms.
 
+       Laura Battaglia* "<lbattaglia@santafe-conicet.gov.ar>"
+           Free surface algorithms.
+
+       Gustavo Rios Rodriguez * "<gusadrr@yahoo.com.ar>"
+           Adaptive refinement.
+
        * CIMEC, Internacional Center for Computational Methods in Engineering,
-       Santa Fe, Argentina.
-       <http://www.cimec.org.ar/petscfem|http://www.cimec.org.ar/petscfem>
-       Ordinary mail: Mario Storti, CIMEC-INTEC, Guemes 3450, 3000 Santa Fe,
-       Argentina.
+       Santa Fe, Argentina.  <http://www.cimec.org.ar/petscfem> Ordinary mail:
+       Mario Storti, CIMEC-INTEC, Guemes 3450, 3000 Santa Fe, Argentina.
 
 
 
-perl v5.8.8                       2008-07-29                         README(1)
+perl v5.10.0                      2008-12-04                         README(1)

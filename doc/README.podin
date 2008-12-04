@@ -341,6 +341,14 @@ preconditioners, multigrid.
 
 Mesh relocation algorithms. 
 
+=item Laura Battaglia* C<< <lbattaglia@santafe-conicet.gov.ar> >>
+
+Free surface algorithms. 
+
+=item Gustavo Rios Rodriguez * C<< <gusadrr@yahoo.com.ar> >>
+
+Adaptive refinement. 
+
 =back 
 
 * CIMEC, Internacional Center for Computational Methods in Engineering,
