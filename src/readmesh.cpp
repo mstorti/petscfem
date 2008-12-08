@@ -65,6 +65,10 @@ void metis_part(int nelemfat,Mesh *mesh,
 		int iisd_subpart,
 		int print_partitioning_statistics);
 
+void match_graph(const dvector<double> &bw,
+                 const dvector<double> &bflux,
+                 dvector<int> &proc);
+
 //-------<*>-------<*>-------<*>-------<*>-------<*>------- 
 #undef ICONE
 #define ICONE(j,k) (icone[nel*(j)+(k)]) 
@@ -1140,7 +1144,7 @@ if (!(bool_cond)) { PetscPrintf(PETSCFEM_COMM_WORLD, 				\
     // random partitioning 
     if (myrank==0) {
       for (int j=0; j < nelemfat; j++) {
-	vpart[j] = int(drand()*double(size));
+	vpart[j] = rand() % size;
 	if (partflag==4)
 	  vpart[j] = int(double(j)/double(nelemfat)*double(size));
 	// Just in case random functions are too close to the limits
@@ -1187,13 +1191,13 @@ if (!(bool_cond)) { PetscPrintf(PETSCFEM_COMM_WORLD, 				\
 		 "print_nodal_partitioning",
 		 &print_nodal_partitioning,1); CHKERRQ(ierr);
   int counter=0;
-#define II_STAT(j,k) VEC2(ii_stat,j,k,size)
-#define II_STAT2(j,k) VEC2(ii_stat2,j,k,size)
+
   dvector<double> ii_stat, ii_stat2;
   ii_stat.a_resize(2,size,size);
   ii_stat2.a_resize(1,size);
   if (print_nodal_partitioning)
-    PetscPrintf(PETSCFEM_COMM_WORLD,"\nNodal partitioning (node/processor): \n");
+    PetscPrintf(PETSCFEM_COMM_WORLD,
+                "\nNodal partitioning (node/processor): \n");
 
   TRACE(-3.1);
   // Node interface between processor statistics
@@ -1212,9 +1216,49 @@ if (!(bool_cond)) { PetscPrintf(PETSCFEM_COMM_WORLD, 				\
       for (P2=0; P2<size; P2++) 
 	ii_stat.e(P1,P2) += ii_stat2.e(P1)*ii_stat2.e(P2);
   }
+
+  //o Prints element partitioning. 
+  GETOPTDEF(int,ncore,0);
+  PETSCFEM_ASSERT(ncore>0,"ncore must be non-negative, given %d",
+                  ncore);
+
+  if (ncore>0 ) {
+    PETSCFEM_ASSERT0(size%ncore==0,
+                     "if ncore is given, numer of "
+                     "processor `size' must be a multiple of ncore");
+    if (!myrank) {
+      dvector<double> bw;
+      // Bandwidths for connection inside and outside the nodes
+      double bw1 = 100.0, bw2 = 1.0;
+      bw.mono(size*size).reshape(2,size,size).set(0.0);
+      for (int j=0; j<size; j++) {
+        int nodej = j/ncore;
+        for (int k=0; k<size; k++) {
+        int nodek = k/ncore;
+        if (j == k) continue;
+        bw.e(j,k) = (nodej==nodek? bw1 : bw2);
+        }
+      }
+      
+      dvector<int> proc;
+      proc.mono(size).reshape(1,size);
+      match_graph(bw,ii_stat,proc);
+      for (int j=0; j<size; j++)
+        printf("domain %d, sent to processor %d\n",
+               j,proc.e(j));
+      for (int j=0; j<nelemfat; j++) {
+        vpart[j] = proc.e(vpart[j]);
+      }
+      ierr = MPI_Bcast (vpart,nelemfat,MPI_INT,0,PETSCFEM_COMM_WORLD);
+    }
+  } 
+  PetscFinalize();
+  exit(0);
+
   TRACE(-3.2);
   if (myrank == 0 && size > 1) {
-    PetscPrintf(PETSCFEM_COMM_WORLD,"---\nInter-processor node connections\n");
+    PetscPrintf(PETSCFEM_COMM_WORLD,
+                "---\nInter-processor node connections\n");
     for (P1=0; P1<size; P1++) 
       for (P2=0; P2<size; P2++) 
 	printf("[%d]-[%d] %.2f\n",P1,P2,ii_stat.e(P1,P2));
