@@ -1214,6 +1214,7 @@ if (!(bool_cond)) { PetscPrintf(PETSCFEM_COMM_WORLD, 				\
     PETSCFEM_ASSERT0(size%ncore==0,
                      "if ncore is given, numer of "
                      "processor `size' must be a multiple of ncore");
+    dvector<int> proc;
     if (!myrank) {
       dvector<double> bw;
       // Bandwidths for connection inside and outside the nodes
@@ -1228,7 +1229,6 @@ if (!(bool_cond)) { PetscPrintf(PETSCFEM_COMM_WORLD, 				\
         }
       }
       
-      dvector<int> proc;
       proc.mono(size).reshape(1,size);
       match_graph(bw,ii_stat,proc);
       for (int j=0; j<size; j++)
@@ -1240,6 +1240,20 @@ if (!(bool_cond)) { PetscPrintf(PETSCFEM_COMM_WORLD, 				\
       }
     }
     ierr = MPI_Bcast (vpart,nelemfat,MPI_INT,0,PETSCFEM_COMM_WORLD);
+    if (!myrank) {
+      dvector<double> ii_stat_cpy;
+      ii_stat_cpy.clone(ii_stat);
+      for (int dj=0; dj<size; dj++) {
+        int pj = proc.e(dj);
+        for (int dk=0; dk<size; dk++) {
+          int pk = proc.e(dk);
+          ii_stat_cpy.e(pj,pk) = ii_stat.e(dj,dk);
+        }
+      }
+      ii_stat.clone(ii_stat_cpy);
+    }
+    ierr = MPI_Bcast (ii_stat.buff(),size*size,
+                      MPI_INT,0,PETSCFEM_COMM_WORLD);
   } 
 
   // nelem_part:= nelem_part[proc] is the number of elements in
@@ -1266,6 +1280,7 @@ if (!(bool_cond)) { PetscPrintf(PETSCFEM_COMM_WORLD, 				\
   }
   ii_stat.clear();
   ii_stat2.clear();
+
   TRACE(-3.3);
   for (node=0; node<nnod; node++) {
     if (n2eptr[node]==n2eptr[node+1]) {
