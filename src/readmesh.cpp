@@ -1160,19 +1160,6 @@ if (!(bool_cond)) { PetscPrintf(PETSCFEM_COMM_WORLD, 				\
   TRACE(-4.1);
   PetscPrintf(PETSCFEM_COMM_WORLD,"Ends partitioning.\n");
 
-  // nelem_part:= nelem_part[proc] is the number of elements in
-  // processor proc. 
-  int *nelem_part = new int[size];
-  for (int proc=0; proc<size; proc++) nelem_part[proc]=0;
-  for (int jj=0; jj<nelemfat; jj++) {
-    nelem_part[vpart[jj]]++;
-    // printf("elem %d in proc %d\n",jj+1,vpart[jj]);
-  }
-  if (size>1 && myrank==0) {
-    for (int proc=0; proc<size; proc++) 
-      printf("%d elements in processor %d\n",nelem_part[proc],proc);
-  }
-
   // Partition nodes. Assign to each node the partition of the first
   // element in tne node2elem list. If there is no element, then
   // assign processor 0 and give a warning.
@@ -1217,12 +1204,13 @@ if (!(bool_cond)) { PetscPrintf(PETSCFEM_COMM_WORLD, 				\
 	ii_stat.e(P1,P2) += ii_stat2.e(P1)*ii_stat2.e(P2);
   }
 
-  //o Prints element partitioning. 
+  //o For multi-core architectures this represent the number
+  //  of cores per node. 
   GETOPTDEF(int,ncore,0);
-  PETSCFEM_ASSERT(ncore>0,"ncore must be non-negative, given %d",
+  PETSCFEM_ASSERT(ncore>=0,"ncore must be non-negative, given %d",
                   ncore);
 
-  if (ncore>0 ) {
+  if (ncore>0) {
     PETSCFEM_ASSERT0(size%ncore==0,
                      "if ncore is given, numer of "
                      "processor `size' must be a multiple of ncore");
@@ -1247,13 +1235,25 @@ if (!(bool_cond)) { PetscPrintf(PETSCFEM_COMM_WORLD, 				\
         printf("domain %d, sent to processor %d\n",
                j,proc.e(j));
       for (int j=0; j<nelemfat; j++) {
+        assert(vpart[j]>=0 && vpart[j]<size);
         vpart[j] = proc.e(vpart[j]);
       }
-      ierr = MPI_Bcast (vpart,nelemfat,MPI_INT,0,PETSCFEM_COMM_WORLD);
     }
+    ierr = MPI_Bcast (vpart,nelemfat,MPI_INT,0,PETSCFEM_COMM_WORLD);
   } 
-  PetscFinalize();
-  exit(0);
+
+  // nelem_part:= nelem_part[proc] is the number of elements in
+  // processor proc. 
+  int *nelem_part = new int[size];
+  for (int proc=0; proc<size; proc++) nelem_part[proc]=0;
+  for (int jj=0; jj<nelemfat; jj++) {
+    nelem_part[vpart[jj]]++;
+    // printf("elem %d in proc %d\n",jj+1,vpart[jj]);
+  }
+  if (size>1 && myrank==0) {
+    for (int proc=0; proc<size; proc++) 
+      printf("%d elements in processor %d\n",nelem_part[proc],proc);
+  }
 
   TRACE(-3.2);
   if (myrank == 0 && size > 1) {
