@@ -41,6 +41,7 @@ extern "C" {
 #include <src/getprop.h>
 #include <src/pfobject.h>
 #include <src/dvecpar.h>
+#include <src/mshpart.h>
 
 //#define TRACE_READMESH
 #ifdef TRACE_READMESH
@@ -55,24 +56,6 @@ extern "C" {
 using namespace std;
 Mesh *GLOBAL_MESH;
 #define IDENT(j,k) VEC2(ident,j,k,ndof)
-
-void metis_part(int nelemfat,Mesh *mesh,
-		const int nelemsets,int *vpart,
-		int *nelemsetptr,int *n2eptr,
-		int *node2elem,int size,const int myrank,
-		const int partflag,float *tpwgts,
-		int max_partgraph_vertices,
-		int iisd_subpart,
-		int print_partitioning_statistics);
-
-void match_graph(const dvector<double> &bw,
-                 const dvector<double> &bflux,
-                 dvector<int> &proc);
-
-void perfo(const dvector<double> &bw,
-           const dvector<double> &bflux,
-           const dvector<int> &proc, double &perfo_max,
-           double &perfo_sum);
 
 //-------<*>-------<*>-------<*>-------<*>-------<*>------- 
 #undef ICONE
@@ -1241,6 +1224,13 @@ if (!(bool_cond)) { PetscPrintf(PETSCFEM_COMM_WORLD, 				\
       double pmax_mg0=NAN, psum_mg0=NAN, pmax_mg1=NAN, psum_mg1=NAN;
       perfo(bw,ii_stat,proc,pmax_mg0,psum_mg0);
 
+      // Random
+      int *proc_p = proc.buff();
+      random_shuffle(proc_p,proc_p+size);
+      double pmax_rnd=NAN,psum_rnd=NAN;
+      perfo(bw,ii_stat,proc,pmax_rnd,psum_rnd);
+      printf("random permut: max %g, sum %g\n",pmax_rnd,psum_rnd);
+
       // Apply matching graph algorithm
       match_graph(bw,ii_stat,proc);
       perfo(bw,ii_stat,proc,pmax_mg1,psum_mg1);
@@ -1259,9 +1249,7 @@ if (!(bool_cond)) { PetscPrintf(PETSCFEM_COMM_WORLD, 				\
         vpart[j] = proc.e(vpart[j]);
       }
     }
-    PetscFinalize();
-    exit(0);
- 
+
     ierr = MPI_Bcast(vpart,nelemfat,MPI_INT,0,PETSCFEM_COMM_WORLD);
     if (!myrank) {
       dvector<double> ii_stat_cpy;
@@ -1303,6 +1291,9 @@ if (!(bool_cond)) { PetscPrintf(PETSCFEM_COMM_WORLD, 				\
   }
   ii_stat.clear();
   ii_stat2.clear();
+
+  PetscFinalize();
+  exit(0);
 
   TRACE(-3.3);
   for (node=0; node<nnod; node++) {
