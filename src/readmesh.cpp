@@ -69,6 +69,11 @@ void match_graph(const dvector<double> &bw,
                  const dvector<double> &bflux,
                  dvector<int> &proc);
 
+void perfo(const dvector<double> &bw,
+           const dvector<double> &bflux,
+           const dvector<int> &proc, double &perfo_max,
+           double &perfo_sum);
+
 //-------<*>-------<*>-------<*>-------<*>-------<*>------- 
 #undef ICONE
 #define ICONE(j,k) (icone[nel*(j)+(k)]) 
@@ -1210,10 +1215,11 @@ if (!(bool_cond)) { PetscPrintf(PETSCFEM_COMM_WORLD, 				\
   PETSCFEM_ASSERT(ncore>=0,"ncore must be non-negative, given %d",
                   ncore);
 
-  if (ncore>0) {
+  if (size>1 && ncore>0) {
     PETSCFEM_ASSERT0(size%ncore==0,
                      "if ncore is given, numer of "
                      "processor `size' must be a multiple of ncore");
+
     dvector<int> proc;
     if (!myrank) {
       dvector<double> bw;
@@ -1230,16 +1236,33 @@ if (!(bool_cond)) { PetscPrintf(PETSCFEM_COMM_WORLD, 				\
       }
       
       proc.mono(size).reshape(1,size);
+      for (int j=0; j<size; j++) proc.e(j) = j;
+      // Compute statistics without matching algorithm
+      double pmax_mg0=NAN, psum_mg0=NAN, pmax_mg1=NAN, psum_mg1=NAN;
+      perfo(bw,ii_stat,proc,pmax_mg0,psum_mg0);
+
+      // Apply matching graph algorithm
       match_graph(bw,ii_stat,proc);
+      perfo(bw,ii_stat,proc,pmax_mg1,psum_mg1);
       for (int j=0; j<size; j++)
         printf("domain %d, sent to processor %d\n",
                j,proc.e(j));
+
+      printf("Bandwidth load performance [w/o algorithm, with, "
+             "improvement ratio]\n");
+      printf("  bw ratio MAX: [%g, %g, %g]\n",
+             pmax_mg0,pmax_mg1,pmax_mg1/pmax_mg0);
+      printf("  bw ratio SUM: [%g, %g, %g]\n",
+             psum_mg0,psum_mg1,psum_mg1/psum_mg0);
       for (int j=0; j<nelemfat; j++) {
         assert(vpart[j]>=0 && vpart[j]<size);
         vpart[j] = proc.e(vpart[j]);
       }
     }
-    ierr = MPI_Bcast (vpart,nelemfat,MPI_INT,0,PETSCFEM_COMM_WORLD);
+    PetscFinalize();
+    exit(0);
+ 
+    ierr = MPI_Bcast(vpart,nelemfat,MPI_INT,0,PETSCFEM_COMM_WORLD);
     if (!myrank) {
       dvector<double> ii_stat_cpy;
       ii_stat_cpy.clone(ii_stat);

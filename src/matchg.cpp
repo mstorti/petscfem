@@ -163,12 +163,14 @@ void match_graph(const dvector<double> &bw,
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>
 // Compute the efficiency of the matching,
-// i.e. the maximum of the bflux(dj,dk)/bflux(pj,pk)
-double perfo(const dvector<double> &bw,
-             const dvector<double> &bflux,
-             const dvector<int> &proc, double &perfo2) {
-  double max_rate = NAN;
-  perfo2 = 0.0;
+// perfo_max = maximum { bflux(dj,dk)/bflux(pj,pk) }
+// perfo_sum = sum { bflux(dj,dk)/bflux(pj,pk) }
+void perfo(const dvector<double> &bw,
+           const dvector<double> &bflux,
+           const dvector<int> &proc, double &perfo_max,
+           double &perfo_sum) {
+  perfo_max = NAN;
+  perfo_sum = 0.0;
   int N = proc.size();
   for (int dj=0; dj<N; dj++) {
     for (int dk=0; dk<N; dk++) {
@@ -176,11 +178,9 @@ double perfo(const dvector<double> &bw,
       int pj = proc.e(dj);
       int pk = proc.e(dk);
       double rate = bflux.e(dj,dk)/bw.e(pj,pk);
-      if (isnan(max_rate) || rate>max_rate) {
-        max_rate = rate;
-      }
-      perfo2 += rate;
+      if (isnan(perfo_max) || rate>perfo_max) 
+        perfo_max = rate;
+      perfo_sum += rate;
     }
   }
-  return max_rate;
 }
