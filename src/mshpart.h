@@ -17,6 +17,9 @@ void match_graph(const dvector<double> &bw,
                  const dvector<double> &bflux,
                  dvector<int> &proc);
 
+void repart(const dvector<double> &bflux,
+            dvector<int> &proc, int ncore);
+
 void perfo(const dvector<double> &bw,
            const dvector<double> &bflux,
            const dvector<int> &proc, double &perfo_max,
