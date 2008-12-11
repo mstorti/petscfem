@@ -1205,6 +1205,10 @@ if (!(bool_cond)) { PetscPrintf(PETSCFEM_COMM_WORLD, 				\
 
     dvector<int> proc;
     if (!myrank) {
+      proc.mono(size).reshape(1,size);
+      for (int j=0; j<size; j++) proc.e(j) = j;
+
+      // Using graph-matching algorithm
       dvector<double> bw;
       // Bandwidths for connection inside and outside the nodes
       double bw1 = 100.0, bw2 = 1.0;
@@ -1217,38 +1221,57 @@ if (!(bool_cond)) { PetscPrintf(PETSCFEM_COMM_WORLD, 				\
         bw.e(j,k) = (nodej==nodek? bw1 : bw2);
         }
       }
-      
-      proc.mono(size).reshape(1,size);
-      for (int j=0; j<size; j++) proc.e(j) = j;
+
       // Compute statistics without matching algorithm
-      double pmax_mg0=NAN, psum_mg0=NAN, pmax_mg1=NAN, psum_mg1=NAN;
-      perfo(bw,ii_stat,proc,pmax_mg0,psum_mg0);
+      double pmax=NAN, psum=NAN;
+      perfo(bw,ii_stat,proc,pmax,psum);
+      printf("natural partition: max %g, sum %g\n",
+             pmax,psum);
 
-      // Random
-      int *proc_p = proc.buff();
-      random_shuffle(proc_p,proc_p+size);
-      double pmax_rnd=NAN,psum_rnd=NAN;
-      perfo(bw,ii_stat,proc,pmax_rnd,psum_rnd);
-      printf("random permut: max %g, sum %g\n",pmax_rnd,psum_rnd);
-
+#if 1
       // Apply matching graph algorithm
       match_graph(bw,ii_stat,proc);
-      perfo(bw,ii_stat,proc,pmax_mg1,psum_mg1);
+      perfo(bw,ii_stat,proc,pmax,psum);
+      printf("match graph algorithm: max %g, sum %g\n",
+             pmax,psum);
+#endif
+
+#if 1
+      // Random, just to verify
+      int *proc_p = proc.buff();
+      random_shuffle(proc_p,proc_p+size);
+      perfo(bw,ii_stat,proc,pmax,psum);
+      printf("random permut: max %g, sum %g\n",pmax,psum);
+#endif
+
+#if 1
+      // Apply partitioning specific for tree like graph
+      repart(ii_stat,proc,ncore);
+      perfo(bw,ii_stat,proc,pmax,psum);
+      printf("tree partitioning: max %g, sum %g\n",
+             pmax,psum);
+#endif
+
       for (int j=0; j<size; j++)
         printf("domain %d, sent to processor %d\n",
                j,proc.e(j));
 
+#if 0
       printf("Bandwidth load performance [w/o algorithm, with, "
              "improvement ratio]\n");
       printf("  bw ratio MAX: [%g, %g, %g]\n",
              pmax_mg0,pmax_mg1,pmax_mg1/pmax_mg0);
       printf("  bw ratio SUM: [%g, %g, %g]\n",
              psum_mg0,psum_mg1,psum_mg1/psum_mg0);
+#endif
       for (int j=0; j<nelemfat; j++) {
         assert(vpart[j]>=0 && vpart[j]<size);
         vpart[j] = proc.e(vpart[j]);
       }
     }
+    PetscFinalize();
+    exit(0);
+ 
 
     ierr = MPI_Bcast(vpart,nelemfat,MPI_INT,0,PETSCFEM_COMM_WORLD);
     if (!myrank) {
