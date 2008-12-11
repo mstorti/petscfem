@@ -1176,20 +1176,20 @@ if (!(bool_cond)) { PetscPrintf(PETSCFEM_COMM_WORLD, 				\
 
   TRACE(-3.1);
   // Node interface between processor statistics
-  int c1,c2,P1,P2;
+  int c1,c2,D1,D2,P1,P2;
   ii_stat.set(0.0);
   for (node=0; node<nnod; node++) {
     ii_stat2.set(0.0);
     for (c1 = n2eptr[node]; c1 < n2eptr[node+1]; c1++) {
-      P1 = vpart[node2elem[c1]];
-      ii_stat2.e(P1) += 1.0;
+      D1 = vpart[node2elem[c1]];
+      ii_stat2.e(D1) += 1.0;
     }
     double mass = n2eptr[node+1]-n2eptr[node];
     if (mass!=0.0) 
       for (int p=0; p<size; p++) ii_stat2.e(p) /= mass;
-    for (P1=0; P1<size; P1++)
-      for (P2=0; P2<size; P2++) 
-	ii_stat.e(P1,P2) += ii_stat2.e(P1)*ii_stat2.e(P2);
+    for (D1=0; D1<size; D1++)
+      for (D2=0; D2<size; D2++) 
+	ii_stat.e(D1,D2) += ii_stat2.e(D1)*ii_stat2.e(D2);
   }
 
   //o For multi-core architectures this represent the number
@@ -1198,15 +1198,15 @@ if (!(bool_cond)) { PetscPrintf(PETSCFEM_COMM_WORLD, 				\
   PETSCFEM_ASSERT(ncore>=0,"ncore must be non-negative, given %d",
                   ncore);
 
+  dvector<int> procmap;
   if (size>1 && ncore>0) {
     PETSCFEM_ASSERT0(size%ncore==0,
                      "if ncore is given, numer of "
                      "processor `size' must be a multiple of ncore");
 
-    dvector<int> proc;
     if (!myrank) {
-      proc.mono(size).reshape(1,size);
-      for (int j=0; j<size; j++) proc.e(j) = j;
+      procmap.mono(size).reshape(1,size);
+      for (int j=0; j<size; j++) procmap.e(j) = j;
 
       // Using graph-matching algorithm
       dvector<double> bw;
@@ -1224,37 +1224,39 @@ if (!(bool_cond)) { PetscPrintf(PETSCFEM_COMM_WORLD, 				\
 
       // Compute statistics without matching algorithm
       double pmax=NAN, psum=NAN;
-      perfo(bw,ii_stat,proc,pmax,psum);
+      perfo(bw,ii_stat,procmap,pmax,psum);
       printf("natural partition: max %g, sum %g\n",
              pmax,psum);
 
 #if 1
       // Apply matching graph algorithm
-      match_graph(bw,ii_stat,proc);
-      perfo(bw,ii_stat,proc,pmax,psum);
+      match_graph(bw,ii_stat,procmap);
+      perfo(bw,ii_stat,procmap,pmax,psum);
       printf("match graph algorithm: max %g, sum %g\n",
              pmax,psum);
 #endif
 
 #if 1
       // Random, just to verify
-      int *proc_p = proc.buff();
+      int *proc_p = procmap.buff();
       random_shuffle(proc_p,proc_p+size);
-      perfo(bw,ii_stat,proc,pmax,psum);
+      perfo(bw,ii_stat,procmap,pmax,psum);
       printf("random permut: max %g, sum %g\n",pmax,psum);
 #endif
 
 #if 1
       // Apply partitioning specific for tree like graph
-      repart(ii_stat,proc,ncore);
-      perfo(bw,ii_stat,proc,pmax,psum);
+      repart(ii_stat,procmap,ncore);
+      perfo(bw,ii_stat,procmap,pmax,psum);
       printf("tree partitioning: max %g, sum %g\n",
              pmax,psum);
 #endif
 
+#if 0
       for (int j=0; j<size; j++)
         printf("domain %d, sent to processor %d\n",
-               j,proc.e(j));
+               j,procmap.e(j));
+#endif
 
 #if 0
       printf("Bandwidth load performance [w/o algorithm, with, "
@@ -1266,21 +1268,18 @@ if (!(bool_cond)) { PetscPrintf(PETSCFEM_COMM_WORLD, 				\
 #endif
       for (int j=0; j<nelemfat; j++) {
         assert(vpart[j]>=0 && vpart[j]<size);
-        vpart[j] = proc.e(vpart[j]);
+        vpart[j] = procmap.e(vpart[j]);
       }
     }
-    PetscFinalize();
-    exit(0);
  
-
     ierr = MPI_Bcast(vpart,nelemfat,MPI_INT,0,PETSCFEM_COMM_WORLD);
     if (!myrank) {
       dvector<double> ii_stat_cpy;
       ii_stat_cpy.clone(ii_stat);
       for (int dj=0; dj<size; dj++) {
-        int pj = proc.e(dj);
+        int pj = procmap.e(dj);
         for (int dk=0; dk<size; dk++) {
-          int pk = proc.e(dk);
+          int pk = procmap.e(dk);
           ii_stat_cpy.e(pj,pk) = ii_stat.e(dj,dk);
         }
       }
@@ -1307,16 +1306,24 @@ if (!(bool_cond)) { PetscPrintf(PETSCFEM_COMM_WORLD, 				\
   if (myrank == 0 && size > 1) {
     PetscPrintf(PETSCFEM_COMM_WORLD,
                 "---\nInter-processor node connections\n");
-    for (P1=0; P1<size; P1++) 
-      for (P2=0; P2<size; P2++) 
-	printf("[%d]-[%d] %.2f\n",P1,P2,ii_stat.e(P1,P2));
+    // compute inverse map
+    dvector<int> dommap;
+    dommap.clone(procmap);
+    for (int dj=0; dj<size; dj++) {
+      int pj = procmap.e(dj);
+      dommap.e(pj) = dj;
+    }
+    for (P1=0; P1<size; P1++) {
+      D1 = dommap.e(P1);
+      for (P2=0; P2<size; P2++) {
+        D2 = dommap.e(P2);
+	printf("[%d]-[%d] %.2f\n",D1,D2,ii_stat.e(D1,D2));
+      }
+    }
     PetscPrintf(PETSCFEM_COMM_WORLD,"\n");
   }
   ii_stat.clear();
   ii_stat2.clear();
-
-  PetscFinalize();
-  exit(0);
 
   TRACE(-3.3);
   for (node=0; node<nnod; node++) {
