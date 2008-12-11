@@ -203,19 +203,20 @@ void repart(const dvector<double> &bflux,
       if (k==j) continue;
       adjncy.e(indx) = k;
       adjwgt.e(indx) = int(edgew_scale*bflux.e(j,k)/bflux_max);
+      if (adjwgt.e(indx)==0) adjwgt.e(indx)=1;
       indx++;
     }
     xadj.e(j+1) = indx;
   }
-
-  int wgtflag=1, numflag=1;
-  assert(ndom%ncore==0);
-  int nparts = ndom/ncore, options[5], edgecut;
   
-  options[0] = 0;
+
+  int wgtflag=1, numflag=0;
+  assert(ndom%ncore==0);
+  int nparts = ndom/ncore, options=0, edgecut;
+  
   METIS_PartGraphKway(&ndom,xadj.buff(),adjncy.buff(),NULL, 
                       adjwgt.buff(),&wgtflag,&numflag,&nparts, 
-                      options,&edgecut,dpart.buff());
+                      &options,&edgecut,dpart.buff());
   PetscFinalize();
   exit(0);
 
