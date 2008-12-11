@@ -208,7 +208,6 @@ void repart(const dvector<double> &bflux,
     }
     xadj.e(j+1) = indx;
   }
-  
 
   int wgtflag=1, numflag=0;
   assert(ndom%ncore==0);
@@ -217,18 +216,14 @@ void repart(const dvector<double> &bflux,
   METIS_PartGraphKway(&ndom,xadj.buff(),adjncy.buff(),NULL, 
                       adjwgt.buff(),&wgtflag,&numflag,&nparts, 
                       &options,&edgecut,dpart.buff());
-  PetscFinalize();
-  exit(0);
 
-//   METIS PartGraphVKway (int *n, idxtype *xadj, idxtype *adjncy, 
-//                         idxtype *vwgt, idxtype *vsize, int *wgtflag,
-//                         int *numflag, int *nparts, int *options, 
-//                         int *volume, idxtype *part);
-
-
-//   METIS_WPartGraphKway(&nvrtx,xadj,adjncy,vwgt, 
-//                        NULL,&wgtflag,&numflag,&nvsubdo, 
-//                        tpwgts_d,&options,&edgecut,vpart);
+  // Number first all domains in dpart=0,
+  // then dpart=1, etc...
+  int p=0;
+  for (int j=0; j<nparts; j++) 
+    for (int k=0; k<ndom; k++) 
+      if (dpart.e(k)==j) proc.e(k)=p++;
+  assert(p==ndom);
 }
 
 
