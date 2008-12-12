@@ -59,7 +59,6 @@ dx_tests_np2: $(dx_tests_np2)
 dx_tests: dx_tests_np1 dx_tests_np2
 
 dx_test_%_np2: 
-	mkselfmachi.sh 2
 	$(MAKE) np=2 dx_hook_test_$*
 
 dx:
@@ -77,7 +76,7 @@ PROG := $(NS)
 ###--------<*>--------<*>--------<*>--------<*>--------<*>--------<*>--------<*> 
 NP = 1
 
-MCH = -machinefile ./machi.dat
+# MCH = -machinefile ./machi.dat
 
 # NP := $(shell procsel $(PETSCFEM_PROCTABLE))
 ifeq ($(np),)
@@ -87,7 +86,6 @@ output_file := output.CASE_$(CASE).np_$(np).case_$(case)$(meas_perf).out.tmp
 
 #w Runs program
 run:  data
-	mkselfmachi.sh $(np)
 	-${MPIEXEC} $(MCH) -n $(np) $(PROG) -case $(CASE).depl \
 	 	      	   $(call redir,$(output_file))
 
@@ -133,7 +131,6 @@ test_re1000:
 ###--------<*>--------<*>--------<*>--------<*>--------<*>--------<*>--------<*> 
 #w IISD for square cavity test in 20x20 mesh on two processors
 test_iisd2: 
-	mkselfmachi.sh 2
 	$(MAKE) case=lu np=1 runs
 	$(MAKE) case=iisd_sbp1 np=2 runs
 	$(MAKE) case=iisd_sbp4 np=2 runs
@@ -153,7 +150,7 @@ test_zero_w_proc:
 	$(MAKE) case=zwproc_ref np=1 data
 	echo $(HOSTNAME) > machi.dat
 	echo 1. > weights.dat
-	-${MPIEXEC} -machinefile ./machi.dat -n 1  $(PROG) -case $(CASE).depl \
+	-${MPIEXEC} $(MCH) -n 1  $(PROG) -case $(CASE).depl \
 	$(REDIR) output.zwproc_ref.out.tmp
 #	Two process:
 	$(MAKE) case=zwproc np=2 data
@@ -161,7 +158,7 @@ test_zero_w_proc:
 	echo $(HOSTNAME) >> machi.dat
 	echo 0. > weights.dat
 	echo 1. >> weights.dat
-	-${MPIEXEC} -machinefile ./machi.dat -n 2  $(PROG) -case $(CASE).depl \
+	-${MPIEXEC} $(MCH)  -n 2  $(PROG) -case $(CASE).depl \
 	$(REDIR) output.zwproc.out.tmp
 #
 	$(OCTAVE) check_zwproc.m > check.zwproc.tmp
@@ -176,29 +173,26 @@ test_zero_w_proc2:
 	$(MAKE) case=zwproc2_ref np=1 data
 	echo $(HOSTNAME) > machi.dat
 	echo 1. >> weights.dat
-	-${MPIEXEC} -machinefile ./machi.dat -n 1  $(PROG) -case $(CASE).depl \
+	-${MPIEXEC} $(MCH)  -n 1  $(PROG) -case $(CASE).depl \
 	$(REDIR) output.zwproc2_ref.out.tmp
 #
 #	Two process:
-	mkselfmachi.sh 2
 	$(MAKE) case=zwproc2 np=2 data
 	echo $(HOSTNAME) > machi.dat
 	echo $(HOSTNAME) >> machi.dat
 	echo 0. > weights.dat
 	echo 1. >> weights.dat
-	-${MPIEXEC} -machinefile ./machi.dat -n 2  $(PROG) -case $(CASE).depl \
+	-${MPIEXEC} $(MCH)  -n 2  $(PROG) -case $(CASE).depl \
 	$(REDIR) output.zwproc2.out.tmp
 #
 	$(OCTAVE) check_zwproc2.m > check.zwproc2.tmp
 
 test_meas_perf:
-	mkselfmachi.sh 2
 	$(MAKE) case=lu np=1 meas_perf=1 runs
 
 ###--------<*>--------<*>--------<*>--------<*>--------<*>--------<*>--------<*>
 #w Tests IISD solver on the square cavity problem
 test_iisd:
-	mkselfmachi.sh 2
 	$(MAKE) case=lu np=1 runs
 	$(MAKE) case=iisd_sbp1 runs
 	$(MAKE) case=iisd_sbp2 runs
@@ -309,7 +303,6 @@ shell_hook_%:
 
 ###--------<*>--------<*>--------<*>--------<*>--------<*>--------<*>--------<*> 
 test_read_ini:
-	mkselfmachi.sh 4
 	$(MAKE) case=read_ini np=4 runs
 	octave -qH check.read_ini.m > verif.read_ini.tmp
 
