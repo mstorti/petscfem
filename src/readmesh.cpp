@@ -1198,15 +1198,18 @@ if (!(bool_cond)) { PetscPrintf(PETSCFEM_COMM_WORLD, 				\
   PETSCFEM_ASSERT(ncore>=0,"ncore must be non-negative, given %d",
                   ncore);
 
+  GETOPTDEF(int,multicore_rand_part,0);
+
   dvector<int> procmap;
+  procmap.mono(size).reshape(1,size);
+  for (int j=0; j<size; j++) procmap.e(j) = j;
+
   if (size>1 && ncore>0) {
     PETSCFEM_ASSERT0(size%ncore==0,
                      "if ncore is given, numer of "
                      "processor `size' must be a multiple of ncore");
 
     if (!myrank) {
-      procmap.mono(size).reshape(1,size);
-      for (int j=0; j<size; j++) procmap.e(j) = j;
 
       // Using graph-matching algorithm
       dvector<double> bw;
@@ -1238,9 +1241,12 @@ if (!(bool_cond)) { PetscPrintf(PETSCFEM_COMM_WORLD, 				\
 
 #if 1
       // Random, just to verify
-      int *proc_p = procmap.buff();
+      dvector<int> procmap_rand;
+      procmap_rand.clone(procmap);
+      procmap_rand.defrag();
+      int *proc_p = procmap_rand.buff();
       random_shuffle(proc_p,proc_p+size);
-      perfo(bw,ii_stat,procmap,pmax,psum);
+      perfo(bw,ii_stat,procmap_rand,pmax,psum);
       printf("random permut: max %g, sum %g\n",pmax,psum);
 #endif
 
@@ -1251,6 +1257,11 @@ if (!(bool_cond)) { PetscPrintf(PETSCFEM_COMM_WORLD, 				\
       printf("tree partitioning: max %g, sum %g\n",
              pmax,psum);
 #endif
+
+      if (multicore_rand_part) {
+        printf("Using random allocation for multicore partitioning...\n");
+        procmap.clone(procmap_rand);
+      }
 
 #if 0
       for (int j=0; j<size; j++)
