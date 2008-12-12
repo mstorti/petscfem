@@ -11,10 +11,7 @@ CASE := bora
 CASE_NAME := $(CASE)
 PROG := getsurf
 
-tests:  bin test2d test3d
-
-bin:
-	$(MAKE) -C ../../tools/project/ project4.bin
+tests:  test2d test3d
 
 test2d:
 	octave -qH mkdata.m

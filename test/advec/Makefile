@@ -64,14 +64,13 @@ advec.depl: force
 
 case := $(CASE_NAME)
 NP := $(shell procsel $(PETSCFEM_PROCTABLE))
-# MCH :=  -machinefile machi.dat 
 run: advec.depl
-	-$(MPIEXEC) $(MCH) -n 2 $(PROG) \
+	-$(MPIEXEC) -machinefile machi.dat -n 2 $(PROG) \
 		-case $(case).depl  $(call redir,advec.$(case_name).out.tmp)
 
 runs: CASE_NAME := smoke
 runs: smoke.depl
-	-$(MPIEXEC) $(MCH) -n 1 $(PROG) \
+	-$(MPIEXEC) -machinefile machi.dat -n 1 $(PROG) \
 		-case $(CASE_NAME).depl $(call in_backg,$@)
 
 smoke.depl: force

@@ -13172,27 +13172,6 @@ NOT OK TESTS:
 --------------------------------------------------
 Summary: "All tests" -- OK: 168.  Not OK: 5. Couldn't open: 0. Total: 173
 
-%=== Fri Dec 12 13:30:03 2008 mstorti@coyote.ceride.gov.ar
-%
-%-- 13:30:03 -- mstorti-v22-end-18-g92435ee -----
-Corre casi todos los test:
------ g_c++/O_c++
-> Start section: "All tests"
-> Summary: "All tests" -- OK: 167.  Not OK: 6. Couldn't open: 0. Total: 173
-> -------------------------
-> COULDN'T OPEN: 
-> -------------------------
-> NOT OK TESTS: 
-> --------
-"Square cavity with fract. step, Re1000, N=20" - "sqcav/check.fs.verif.tmp"
-"Idmap class" - "idmap/tidmap.sal"
-"newff/test case adv_temp_cp" - "newff/adv_temp_cp.vrf.tmp"
-"newff/test case full_full_jacs_cp" - "newff/full_full_jacs_cp.vrf.tmp"
-"newff/test case full_full_jacs_adv_cp" - "newff/full_full_jacs_adv_cp.vrf.tmp"
-"newff/test case adv_temp_cp_iisd" - "newff/adv_temp_cp_iisd.vrf.tmp"...not OK.
-%-------
-O sea que se agrego el primero "sqcav/check.fs.verif.tmp"
-
 
 # Current line ===========  %
 # Local Variables: $

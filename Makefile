@@ -4,9 +4,6 @@
 
 SHELL = /bin/bash
 
-qqq:
-	echo hihihhi
-
 .PHONY: all run lclean save libpetscfem ns adv laplace doc newdepend tags	\
 		sw startwork fm2new sync_version applications apps 		\
 		ns_O ns_g

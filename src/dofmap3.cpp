@@ -201,7 +201,7 @@ void Dofmap::solve(double *xp,double *yp) {
   int nrow = nnod*ndof;
   int ncol = neqtot;
   int m, ierr;
-
+#if 1
   // We have to solve the system Q*x = y. 
   // In this version we solve it with the CG
   // on the normal equations. Normally the matrix Q
@@ -277,6 +277,72 @@ void Dofmap::solve(double *xp,double *yp) {
   ierr =MatDestroy(A); assert(!ierr);
   ierr = VecDestroy(x); assert(!ierr);
   ierr = VecDestroy(z); assert(!ierr);
-  ierr = KSPDestroy(ksp); assert(!ierr);
   w.clear();
+ 
+#else
+  vector<double> zv(nrow,0.0), 
+    vv(nrow,0.0), wv(ncol,0.0),
+    dv(ncol,0.0);
+  double *z = &zv[0], *v = &vv[0],
+    *w = &wv[0], *d = &dv[0];
+  int niter=100;
+  double rtol=1e-10,atol=1e-10,r0;
+  double omega=1;
+  // Make product z=Qy
+  qtxpy(z,y,1.0);
+  // printv(z,nrow,"z");
+  // assert(nrow==ncol);
+  // printf("|z-y| %f\n",diff(z,y,nrow));
+  // Compute diagonal
+
+  //#define DBG
+#ifdef DBG
+  for (int k=0; k<m; k++)
+    printf(" %d %d  %f\n",j,dofs[k]-1,coef[k]);
+  PetscFinalize();
+  exit(0);
+#endif
+
+  for (int j=0; j<nrow; j++) {
+    int kdof = j % ndof + 1;
+    int node = (j / ndof) + 1;
+    const int *dofs;
+    const double *coef;
+    get_row(node,kdof,m,&dofs,&coef);
+    for (int k=0; k<m; k++) {
+      int dof = dofs[k]-1;
+      // assert(dof<ncol);
+      d[dof] += square(coef[k]);
+    }
+  }
+  // printv(d,nrow,"d");
+  int iter;
+  for (iter=0; iter<niter; iter++) { 
+    // v = 0.0;
+    for (int j=0; j<nrow; j++) v[j]=0.0;
+    // v = Q*x
+    qxpy(v,x,1.0);
+    // printf("|v-x| %f\n",diff(v,x,nrow));
+    // printv(v,ncol,"v");
+    // w = Q'*Q*x
+    for (int j=0; j<ncol; j++) w[j]=0.0;
+    qtxpy(w,v,1.0);
+    // printf("|w-v| %f\n",diff(w,v,nrow));
+    // printv(w,nrow,"w");
+    // printf("|z-w| %f\n",diff(z,w,nrow));
+    double res=0.0;
+    for (int j=0; j<ncol; j++) {
+      x[j] += omega*(z[j]-w[j])/d[j];
+      res += square(z[j]-w[j]);
+    }
+    // printv(x,ncol,"x");
+    res = sqrt(res);
+    if (iter==0) r0 = res;
+    if (res<atol || res<rtol*r0) break;
+    // printf("iter %d, res %f\n",iter,res);
+  }
+  if (iter>=niter) 
+    printf("in Dofmap::solve: projection doesn't converge in %d iters.\n"
+	   "rtol %g, res_0 %g, atol %g\n",niter,rtol,r0,atol);
+#endif
 }

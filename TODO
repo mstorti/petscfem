@@ -2,8 +2,6 @@
 TODO: [Mainly fixes go here...]
 =====
 
-* With `print_vector_rota': if nfile is not set, then it does not save
-  correctly. 
 * Should print `nodedata' hash table in `readmesh' after reading. 
 * Initialize members to NULL and void values in Gpdata::Gpdata()
 * In FastMat2, static declarations should be removed, otherwise it is

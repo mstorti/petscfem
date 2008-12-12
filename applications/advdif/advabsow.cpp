@@ -54,7 +54,7 @@ init() {
   //o Turn absorbing boundary condition to `wall' boundary condition
   NSGETOPTDEF_ND(int,vel_indx,-1);
   PETSCFEM_ASSERT(!activate_turn_wall 
-                  || (vel_indx>=1 && vel_indx+ndim<=ndof),
+                  || vel_indx>=1 && vel_indx+ndim<=ndof,
                   "vel_indx should point to a valid dof range"
                   " if turn_wall is activated."
                   "vel_indx %d, ndim %d, ndof %d\n",

@@ -9,10 +9,8 @@
 
 <body style="background-color: white">
 
-
-<!-- INDEX BEGIN -->
-<div name="index">
 <p><a name="__index__"></a></p>
+<!-- INDEX BEGIN -->
 
 <ul>
 
@@ -35,11 +33,9 @@
 	<li><a href="#writing_a_new_application_module">WRITING A NEW APPLICATION MODULE</a></li>
 	<li><a href="#authors">AUTHORS</a></li>
 </ul>
-
-<hr name="index" />
-</div>
 <!-- INDEX END -->
 
+<hr />
 <p>
 </p>
 <h1><a name="name">NAME</a></h1>
@@ -106,7 +102,7 @@ Unix flavor's.</p>
 <p>Before installing PETSc-FEM, please verify you have the following
 packages correctly installed in your system.</p>
 <dl>
-<dt><strong><a name="mpi" class="item">MPI</a></strong>
+<dt><strong><a name="item_mpi">MPI</a></strong>
 
 <dd>
 <p><em>Message Passing Interface</em>. We are currently using MPICH2 1.0.3
@@ -114,7 +110,7 @@ packages correctly installed in your system.</p>
 use other versions of MPI like LAM or OpenMPI.</p>
 </dd>
 </li>
-<dt><strong><a name="petsc" class="item">PETSC</a></strong>
+<dt><strong><a name="item_petsc">PETSC</a></strong>
 
 <dd>
 <p><em>Portable, Extensible Toolkit for Scientific Computation</em>
@@ -122,14 +118,14 @@ and can be found at <a href="http://www.mcs.anl.gov/petsc/">http://www.mcs.anl.g
 of PETSc-FEM compiles with PETSc 2.1.6.</p>
 </dd>
 </li>
-<dt><strong><a name="lapack" class="item">LAPACK</a></strong>
+<dt><strong><a name="item_lapack">LAPACK</a></strong>
 
 <dd>
 <p>This is, in fact, a prerequisite to install PETSc and can be found at 
 <a href="http://www.netlib.org/lapack/">http://www.netlib.org/lapack/</a>.</p>
 </dd>
 </li>
-<dt><strong><a name="libretto" class="item">Libretto</a></strong>
+<dt><strong><a name="item_libretto">Libretto</a></strong>
 
 <dd>
 <p>This is a C library of generic containers and can be found at
@@ -142,16 +138,16 @@ but I found that the STL implementation (at least that one that comes
 with gcc) is rather inefficient.</p>
 </dd>
 </li>
-<dt><strong><a name="glib" class="item">GLIB</a></strong>
+<dt><strong><a name="item_glib">GLIB</a></strong>
 
 <dd>
 <p>GLIB is a library which includes support routines for C such as lists,
 trees, hashes, memory allocation, and many other things. The official
-web site is <a href="http://www.gtk.org/">http://www.gtk.org/</a>. [RedHat RPM packages: <a href="#glib"><code>GLIB</code></a>,
+web site is <a href="http://www.gtk.org/">http://www.gtk.org/</a>. [RedHat RPM packages: <a href="#item_glib"><code>GLIB</code></a>,
 <code>glib-devel</code>]</p>
 </dd>
 </li>
-<dt><strong><a name="newmat" class="item">Newmat</a></strong>
+<dt><strong><a name="item_newmat">Newmat</a></strong>
 
 <dd>
 <p>This is a matrix library to be used mainly at the element routine
@@ -166,7 +162,7 @@ operations. See the documentation on <em>FastMat2</em> in the <em>PETSc-FEM</em>
 documentation for reasons why to use FastMat2 instead of Newmat.</p>
 </dd>
 </li>
-<dt><strong><a name="metis" class="item">METIS</a></strong>
+<dt><strong><a name="item_metis">METIS</a></strong>
 
 <dd>
 <p>METIS is a software package for partitioning unstructured graphs,
@@ -174,7 +170,7 @@ partitioning meshes, and computing fill-reducing orderings of sparse
 matrices. It can be found at <a href="http://www.cs.umn.edu/~metis">http://www.cs.umn.edu/~metis</a>.</p>
 </dd>
 </li>
-<dt><strong><a name="meschach" class="item">Meschach</a></strong>
+<dt><strong><a name="item_meschach">Meschach</a></strong>
 
 <dd>
 <p>The Meschach Library is a numerical library of C routines for
@@ -185,14 +181,14 @@ non-symmetric matrices. I think that in a future this functionality
 could be replaced by calls to LAPACK.</p>
 </dd>
 </li>
-<dt><strong><a name="perl" class="item">Perl</a></strong>
+<dt><strong><a name="item_perl">Perl</a></strong>
 
 <dd>
 <p>If you want to use <strong>ePerl</strong> then you need to have <strong>Perl</strong>
 installed. [RedHat RPM package: <code>perl</code>].</p>
 </dd>
 </li>
-<dt><strong><a name="superlu" class="item">SuperLU (optional)</a></strong>
+<dt><strong><a name="item_superlu">SuperLU (optional)</a></strong>
 
 <dd>
 <p>A collection of ANSI C routines to solve sparse linear systems of
@@ -201,7 +197,7 @@ This package is optional, install it if you think that SuperLU is faster
 than PETSc for direct factorization of sparse matrices.</p>
 </dd>
 </li>
-<dt><strong><a name="ann" class="item">ANN (optional)</a></strong>
+<dt><strong><a name="item_ann">ANN (optional)</a></strong>
 
 <dd>
 <p>This is the <em>Approximate Nearest Neighbor Library</em> and can be found
@@ -211,7 +207,7 @@ Smagorinsky model. However, in a future it may be used more widely for
 some mesh manipulations. Currently it is optional.</p>
 </dd>
 </li>
-<dt><strong><a name="library" class="item">pthreads library (optional)</a></strong>
+<dt><strong><a name="item_library">pthreads library (optional)</a></strong>
 
 <dd>
 <p>This is a POSIX compliant library for threads, currently used for
@@ -221,7 +217,7 @@ It comes with gcc, so that if you use gcc, you probably have it
 already installed.</p>
 </dd>
 </li>
-<dt><strong><a name="library" class="item">Simple Sockets Library (SSL) (optional)</a></strong>
+<dt><strong><a name="item_library">Simple Sockets Library (SSL) (optional)</a></strong>
 
 <dd>
 <p>The Simple Sockets Library (SSL) allows C programmers to use
@@ -250,13 +246,13 @@ all the source files included.</p>
 </p>
 <h2><a name="makefile_variables">Makefile variables</a></h2>
 <dl>
-<dt><strong><a name="__petscfem_dir_" class="item"><code>$(PETSCFEM_DIR)</code></a></strong>
+<dt><strong><a name="item___petscfem_dir_"><code>$(PETSCFEM_DIR)</code></a></strong>
 
 <dd>
 <p>The root of the PETSc-FEM package</p>
 </dd>
 </li>
-<dt><strong><a name="__petsc_arch__" class="item"><code>$(PETSC_ARCH)</code>, <code>$(PETSC_DIR)</code></a></strong>
+<dt><strong><a name="item___petsc_arch__"><code>$(PETSC_ARCH)</code>, <code>$(PETSC_DIR)</code></a></strong>
 
 <dd>
 <p>These are variables relative to PETSc. See documentation.</p>
@@ -268,20 +264,20 @@ all the source files included.</p>
 <h2><a name="configuring">Configuring</a></h2>
 <p>Once you have all the software mentioned in <a href="#required_software">Required Software</a>
 installed, you have to define the variables in the <strong>CONFIGURATION
-VARIABLES</strong> section in file <em class="file">$(PETSCFEM_DIR)/Makefile.base</em>.</p>
+VARIABLES</strong> section in file <em>$(PETSCFEM_DIR)/Makefile.base</em>.</p>
 <ul>
 <li>
 <p>First you have to set the <code>PETSC_BOPT</code> variable which is the default
 value for the <code>PETSc</code> <code>BOPT</code> variable, which sets the
 optimization level to be used in compilation. You can set it to</p>
 <dl>
-<dt><strong><a name="petsc_bopt_g_c" class="item"><code>PETSC_BOPT = g_c++</code></a></strong>
+<dt><strong><a name="item_petsc_bopt__3d_g_c_2b_2b"><code>PETSC_BOPT = g_c++</code></a></strong>
 
 <dd>
 <p>Compiles for debugging.</p>
 </dd>
 </li>
-<dt><strong><a name="petsc_bopt_o_c" class="item"><code>PETSC_BOPT = O_c++</code></a></strong>
+<dt><strong><a name="item_petsc_bopt__3d_o_c_2b_2b"><code>PETSC_BOPT = O_c++</code></a></strong>
 
 <dd>
 <p>Compiles with optimization enabled.</p>
@@ -289,7 +285,7 @@ optimization level to be used in compilation. You can set it to</p>
 </li>
 </dl>
 <p>The optimization level is inherited by the <code>PETSc</code> libraries so that
-if you compile with <a href="#petsc_bopt_o_c"><code>PETSC_BOPT=O_c++</code></a> then not only <code>PETSc-FEM</code>
+if you compile with <code>PETSC_BOPT=O_c++</code> then not only <code>PETSc-FEM</code>
 will be compiled with optimization, but also the <code>PETSc</code> optimized
 libraries will be used. The specific optimization options are set in 
 <code>$(PETSC_DIR)/bmake/$(PETSC_ARCH)/variables</code> (<code>OCXX_COPTFLAGS</code> variable). 
@@ -321,7 +317,7 @@ or you have moved it.</p>
 <p>
 </p>
 <h2><a name="compiling">Compiling</a></h2>
-<p><code>cd</code> to directory <a href="#__petscfem_dir_"><code>$(PETSCFEM_DIR)</code></a> and do</p>
+<p><code>cd</code> to directory <a href="#item___petscfem_dir_"><code>$(PETSCFEM_DIR)</code></a> and do</p>
 <pre>
   $ make depend
   $ make libpetscfem        # to build the library
@@ -330,20 +326,20 @@ or you have moved it.</p>
 <pre>
   $ make what</pre>
 <p>can help you on other useful targets.</p>
-<p>If nothing goes wrong you will end with a <em class="file">src/libpetscfem.a</em> library
+<p>If nothing goes wrong you will end with a <em>src/libpetscfem.a</em> library
 and application binaries (ending in <code>.bin</code>) in their respective
-directories, e.g. <em class="file">applications/ns/ns.bin</em> is the Navier-Stokes binary.</p>
+directories, e.g. <em>applications/ns/ns.bin</em> is the Navier-Stokes binary.</p>
 <p>
 </p>
 <hr />
 <h1><a name="documentation">DOCUMENTATION</a></h1>
 <p>Documentation for <em>PETSc-FEM</em> is included in the
 <code>$(PETSCFEM_DIR)/doc</code> directory. There is basically a reference
-manual written in <em>LaTeX</em> (<em class="file">doc/petscfem.tex</em>), and embedded
+manual written in <em>LaTeX</em> (<em>doc/petscfem.tex</em>), and embedded
 documentation for the routines to be used with <code>Doc++</code>. In the
 standard distrib you should find both of them converted to HTML
 (<code>LaTeX</code> is converted with <code>latex2html</code>) and accessible from
-<em class="file">doc/index.html</em>. Other formats (perhaps PostScript and PDF) may be also
+<em>doc/index.html</em>. Other formats (perhaps PostScript and PDF) may be also
 found in the <code>doc</code> directory.</p>
 <p>
 </p>
@@ -357,8 +353,8 @@ found in the <code>doc</code> directory.</p>
 <p>The best way to start coding an application program is to duplicate a
 directory (for instance <code>applications/advdif</code>) or (for instance
 <code>applications/ns</code>) to a directory from
-your own (i.e. outside the <a href="#__petscfem_dir_"><code>$(PETSCFEM_DIR)</code></a> tree, say
-<code>/your/appl/path</code>. Configure the <a href="#__petscfem_dir_"><code>$(PETSCFEM_DIR)</code></a> variable in the
+your own (i.e. outside the <a href="#item___petscfem_dir_"><code>$(PETSCFEM_DIR)</code></a> tree, say
+<code>/your/appl/path</code>. Configure the <a href="#item___petscfem_dir_"><code>$(PETSCFEM_DIR)</code></a> variable in the
 local makefile (i.e. <code>/your/appl/path/Makefile</code>).You should have to
 configure other variables as well, perhaps <code>$(MYOBJS)</code> (this is a
 list of the object (<code>.o</code>) files in this local directory) and
@@ -369,48 +365,36 @@ list of the object (<code>.o</code>) files in this local directory) and
 <hr />
 <h1><a name="authors">AUTHORS</a></h1>
 <dl>
-<dt><strong><a name="mario_a_storti_mario_storti_gmail_com" class="item">Mario A. Storti* <code>&lt;mario.storti@gmail.com&gt;</code></a></strong>
+<dt><strong><a name="item_mario_a_2e_storti_2a__3cmstorti_40intec_2eunl_2eed">Mario A. Storti* <code>&lt;mstorti@intec.unl.edu.ar&gt;</code></a></strong>
 
 <dd>
 <p>PETSc-FEM kernel, NS and AdvDif modules.</p>
 </dd>
 </li>
-<dt><strong><a name="norberto_m_nigro_nnigro_intec_unl_edu_ar" class="item">Norberto M. Nigro* <code>&lt;nnigro@intec.unl.edu.ar&quot;</code></a></strong>
+<dt><strong><a name="item_norberto_m_2e_nigro_2a__3cnnigro_40intec_2eunl_2ee">Norberto M. Nigro* <code>&lt;nnigro@intec.unl.edu.ar&quot;</code></a></strong>
 
 <dd>
 <p>NS and AdvDif modules, multi-phase flow.</p>
 </dd>
 </li>
-<dt><strong><a name="rodrigo_r_paz_rodrigop_intec_unl_edu_ar" class="item">Rodrigo R. Paz* <code>&lt;rodrigop@intec.unl.edu.ar&gt;</code></a></strong>
+<dt><strong><a name="item_rodrigo_r_2e_paz_2a__3crodrigop_40intec_2eunl_2eed">Rodrigo R. Paz* <code>&lt;rodrigop@intec.unl.edu.ar&gt;</code></a></strong>
 
 <dd>
 <p>AdvDif module, hydrology module, compressible flow, fluid-structure
 interaction, preconditioners.</p>
 </dd>
 </li>
-<dt><strong><a name="lisandro_dalcin_dalcinl_intec_unl_edu_ar" class="item">Lisandro Dalcin* <code>&lt;dalcinl@intec.unl.edu.ar&gt;</code></a></strong>
+<dt><strong><a name="item_lisandro_dalcin_2a__3cdalcinl_40intec_2eunl_2eedu_">Lisandro Dalcin* <code>&lt;dalcinl@intec.unl.edu.ar&gt;</code></a></strong>
 
 <dd>
 <p>PETSc-FEM kernel, Python extension language project, linear algebra,
 preconditioners, multigrid.</p>
 </dd>
 </li>
-<dt><strong><a name="ezequiel_lopez_ezequiellopez_hotmail_com" class="item">Ezequiel Lopez* <code>&lt;ezequiellopez@hotmail.com&gt;</code></a></strong>
+<dt><strong><a name="item_ezequiel_lopez_2a__3cezequiellopez_40hotmail_2ecom">Ezequiel Lopez* <code>&lt;ezequiellopez@hotmail.com&gt;</code></a></strong>
 
 <dd>
 <p>Mesh relocation algorithms.</p>
-</dd>
-</li>
-<dt><strong><a name="laura_battaglia_lbattaglia_santafe_conicet_gov_ar" class="item">Laura Battaglia* <code>&lt;lbattaglia@santafe-conicet.gov.ar&gt;</code></a></strong>
-
-<dd>
-<p>Free surface algorithms.</p>
-</dd>
-</li>
-<dt><strong><a name="gustavo_rios_rodriguez_gusadrr_yahoo_com_ar" class="item">Gustavo Rios Rodriguez * <code>&lt;gusadrr@yahoo.com.ar&gt;</code></a></strong>
-
-<dd>
-<p>Adaptive refinement.</p>
 </dd>
 </li>
 </dl>

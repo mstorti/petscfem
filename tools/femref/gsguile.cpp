@@ -1,15 +1,14 @@
 //__INSERT_LICENSE__
 // $Id: gsguile.cpp,v 1.10 2005/01/17 23:50:54 mstorti Exp $
 
-#include <cstring>
-#include <ctime>
-#include <unistd.h>
-#include <climits>
-
+#include <string>
 #include <list>
 #include <set>
-#include <map>
+#include <ctime>
+#include <unistd.h>
+#include <multimap.h>
 // #include <algorithm>
+#include <limits.h>
 #include "./hasher.h"
 #include <src/fastmat2.h>
 #include <libguile.h>

@@ -111,7 +111,6 @@ data: force
 
 #w Runs program
 rung: data force
-	mkselfmachi.sh $(np)
 	-${MPIEXEC} $(MCH) -n $(np) $(PROG) \
 		-case $(CASE).depl $(call redir,output.$(casen).out.tmp)
 

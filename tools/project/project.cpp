@@ -2,7 +2,6 @@
 // $Id merge-with-petsc-233-50-g0ace95e Fri Oct 19 17:49:52 2007 -0300$
 
 #include <cstdio>
-#include <string>
 #include <mpi.h>
 #include <src/fastmat2.h>
 #include <src/dvector.h>
@@ -10,8 +9,6 @@
 #include <ANN/ANN.h>
 
 #include "./project.h"
-
-string print_area_coords;
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 void FemInterp::clear() {
@@ -132,9 +129,6 @@ void FemInterp::interp(const dvector<double> &xnod2,
   int nelem_check = knbr;
   printf("start interpolation...\n");
   double start = MPI_Wtime();
-  FILE *fid=NULL;
-  if (print_area_coords.size()>0) 
-    fid = fopen(print_area_coords.c_str(),"w");
   if(use_cache) FastMat2::activate_cache(&cache_list);
   FastMat2::get_cache_position(cp3);
   for (int n2=0; n2<nnod2; n2++) {
@@ -267,13 +261,6 @@ void FemInterp::interp(const dvector<double> &xnod2,
       int node = icone.e(k1min,j-1);
       u1_loc.set(&u.e(node-1,0));
     }
-    if (print_area_coords.size()>0) {
-      fprintf(fid,"%d %d ",n2+1,k1min+1);
-      const double *L = Lmin.storage_begin();
-      for (int j=0; j<nel; j++)
-        fprintf(fid,"%f ",L[j]);
-      fprintf(fid,"\n");
-    }
     u1_loc.rs();
     // Interpolate
     Lmin.is(1,1,nel);
@@ -282,8 +269,6 @@ void FemInterp::interp(const dvector<double> &xnod2,
     tryav += q+1;
     u2.export_vals(&ui.e(n2,0));
   }
-  if (print_area_coords.size())
-    fclose(fid);
   printf("end interpolation... elapsed %f\n",MPI_Wtime()-start);
   annDeallocPt(nn);
   // delete[] nn_idx;

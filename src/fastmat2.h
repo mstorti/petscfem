@@ -420,14 +420,7 @@ public:
       @param s (input) An optional string to print.
       @return a reference to the matrix.
   */ 
-  void printd(char *s=NULL);
-
-  //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
-  /** Check if any of the elements in the matrix are NAN. 
-      @author M. Storti
-      @return 1 if any element is NAN, 0 otherwise. 
-  */ 
-  int is_nan();
+  void printd(char *s=NULL) ;
 
   //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
   /** Add a range to the specified index filter. 

@@ -5,7 +5,6 @@
 #define PETSCFEM_HASHER_H
 
 #include <cstdlib>
-#include <cstring>
 extern "C" {
 #include "./md5.h"
 }
