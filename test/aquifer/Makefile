@@ -38,7 +38,7 @@ include $(PETSCFEM_DIR)/test/Makefile.base.test
 NP = 1
 
 PROG := $(ADVDIF)
-MCH = -machinefile ./machi.dat
+# MCH = -machinefile ./machi.dat
 
 NP := $(shell procsel $(PETSCFEM_PROCTABLE))
 ifeq ($(np),)
@@ -111,7 +111,6 @@ data: force
 
 #w Runs program
 rung: data force
-	mkselfmachi.sh $(np)
 	-${MPIEXEC} $(MCH) -n $(np) $(PROG) \
 		-case $(CASE).depl $(call redir,output.$(casen).out.tmp)
 

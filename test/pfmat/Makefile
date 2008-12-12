@@ -39,11 +39,12 @@ NP := $(shell procsel $(PETSCFEM_PROCTABLE))
 
 args = ne 20 deb 0 nsl 2 $(1) nmat 2 rnd 1 $(2) q 1 $(3)
 
-pfmat = out=output.$(3).tmp ; rm -f $$out ;			\
-	echo   args: $(2) > $$out ;				\
-	mkselfmachi.sh $(1) ;					\
-	$(MPIEXEC) -machinefile					\
-        machi.dat -n $(1) ./pfmat.bin $(2) </dev/null >> $$out
+# MCH := -machinefile machi.dat
+
+pfmat = out=output.$(3).tmp ; rm -f $$out ;	\
+	echo   args: $(2) > $$out ;		\
+	$(MPIEXEC) $(MCH) -n $(1)	\
+	./pfmat.bin $(2) </dev/null >> $$out
 
 pfmat: pfmat.bin iisdmat_petsc petscmat spd_petsc spd_slu
 
@@ -85,8 +86,8 @@ pp:
 	args="ne 20 deb 0 nsl 2 sbdp $$sbdp  nmat 2 rnd		\
 		1 mtyp $$mtyp q 1" ;				\
 	echo  args: $$args > $$out ;				\
-	$(MPIEXEC) -n $$np -machinefile				\
-        machi.dat ./pfmat.bin $$args </dev/null  >> $$out  ;	\
+	$(MPIEXEC) -n $$np $(MCH)				\
+		./pfmat.bin $$args </dev/null  >> $$out  ;	\
 		fi ;						\
 			done ;					\
 		done ;						\
@@ -96,9 +97,7 @@ args2 = ne 100 deb 0 nsl 2 $(1) nmat 2 nprof 2 $(2) f 0.9
 
 pfmat2 = out=output2.$(3).tmp ; rm -f $$out ;		\
 	echo args: $(2) > $$out ;			\
-	mkselfmachi.sh $(1) ;				\
-	$(MPIEXEC) -machinefile				\
-	        machi.dat -n $(1)  ./pfmat2.bin $(2)	\
+	$(MPIEXEC) $(MCH) -n $(1)  ./pfmat2.bin $(2)	\
 		</dev/null  >> $$out
 
 pfmat2: pfmat2.bin force
