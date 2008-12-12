@@ -243,6 +243,7 @@ line_count:
 	`find . -name '*.cpp'`			\
 	`find . -name '*.h'`			\
 	`find . -name '*.c'`			\
+	`find . -name '*.f'`			\
 	| wc -l
 
 line_count_all:

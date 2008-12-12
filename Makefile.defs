@@ -10,7 +10,7 @@ PETSC_DEV    =
 ifeq ($(PETSC_DIR),)
 PETSC_DIR    = /usr/local/petsc/2.3.3
 endif
-PETSC_ARCH_G = linux-gnu
+PETSC_ARCH_G = linux-gnu-O
 PETSC_ARCH_O = linux-gnu-O
 
 
@@ -72,6 +72,7 @@ WARN_FLAGS += -Wno-long-long -Wno-unused-variable
 
 # Which GNU compiler is being used (may be egc++ also, not tested however). 
 GNUCXX = g++
+FC := gfortran
 
 # Set to yes/no if you plan to use dynamically loaded functions
 # (extension `.efn'). If you have problems in linking them set to 'no'
