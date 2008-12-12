@@ -26,8 +26,9 @@ NP := 1
 endif
 
 NPP := $(shell procsel $(PETSCFEM_PROCTABLE))
+# MCH := -machinefile machi.dat
 run: $(CASE_NAME).depl
-	-$(MPIEXEC) -machinefile machi.dat -n $(NP) $(PROG) \
+	-$(MPIEXEC) $(MCH) -n $(NP) $(PROG) \
 			-case $< $(call redir,output.$(case_name).tmp)
 	if [ $$oct_check = yes ] ; then \
 		 $(OCTAVE) check.m > verif.$(case_name).tmp ; fi

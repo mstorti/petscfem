@@ -14,10 +14,9 @@ tests: test_case_1 test_case_2a test_case_2b test_case_fstack \
 	test_case_genl1d test_case_genl1dh
 
 .PHONY: data force
-NP := $(shell procsel $(PETSCFEM_PROCTABLE))
 test_case_%: 
 	$(MAKE) EPERLFLAGS='-d case=$*' data
-	-$(MPIEXEC) -machinefile machi.dat -n 1 $(ADVDIF) \
+	-$(MPIEXEC) -n 1 $(ADVDIF) \
 			-case genload.depl </dev/null > output.case_$*.tmp
 	if [ -e save.state.tmp ] ; then mv save.state.tmp save.case_$*.tmp ; fi
 
