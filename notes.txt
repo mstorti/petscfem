@@ -13190,6 +13190,9 @@ Corre casi todos los test:
 "newff/test case full_full_jacs_cp" - "newff/full_full_jacs_cp.vrf.tmp"
 "newff/test case full_full_jacs_adv_cp" - "newff/full_full_jacs_adv_cp.vrf.tmp"
 "newff/test case adv_temp_cp_iisd" - "newff/adv_temp_cp_iisd.vrf.tmp"...not OK.
+%-------
+O sea que se agrego el primero "sqcav/check.fs.verif.tmp"
+
 
 # Current line ===========  %
 # Local Variables: $
