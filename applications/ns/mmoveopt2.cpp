@@ -22,9 +22,11 @@ void mesh_move_opt2::init() {
 
   int ierr;
   
-  assert(ndof==ndim);
-  assert(ndim==2 || ndim==3);
-  assert(nel==ndim+1);
+  PETSCFEM_ASSERT(ndof==ndim,"ndof %d, ndim %d",ndof,ndim);  
+  PETSCFEM_ASSERT(ndim==2 || ndim==3,"ndim %d",ndim);  
+  PETSCFEM_ASSERT(nel==ndim+1,"nel %d, ndim %d",nel,ndim);  
+  if (!MY_RANK) 
+    printf("mesh_move_opt2: ndim %d, nel %d\n",ndim,nel);
 
   dVdW.resize(2,ndim,ndim).set(0.);
   dSldW.resize(2,ndim,ndim).set(0.);
