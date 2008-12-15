@@ -25,8 +25,6 @@ void mesh_move_opt2::init() {
   PETSCFEM_ASSERT(ndof==ndim,"ndof %d, ndim %d",ndof,ndim);  
   PETSCFEM_ASSERT(ndim==2 || ndim==3,"ndim %d",ndim);  
   PETSCFEM_ASSERT(nel==ndim+1,"nel %d, ndim %d",nel,ndim);  
-  if (!MY_RANK) 
-    printf("mesh_move_opt2: ndim %d, nel %d\n",ndim,nel);
 
   dVdW.resize(2,ndim,ndim).set(0.);
   dSldW.resize(2,ndim,ndim).set(0.);
@@ -227,9 +225,21 @@ element_connector(const FastMat2 &xloc,
     dSldW.setel(w.get(2,2)+vaux1.get(2),2,2);
     dSldW.scale(2.);
 
-    d2VdW2.setel(0.5,1,1,2,2).setel(-0.5,1,2,2,1).setel(-0.5,2,1,1,2).setel(0.5,2,2,1,1);
-    d2SldW2.setel(4.,1,1,1,1).setel(4.,1,2,1,2).setel(-2.,1,1,2,1).setel(-2.,1,2,2,2);
-    d2SldW2.setel(-2.,2,1,1,1).setel(-2.,2,2,1,2).setel(4.,2,1,2,1).setel(4.,2,2,2,2);
+    d2VdW2
+      .setel(0.5,1,1,2,2)
+      .setel(-0.5,1,2,2,1)
+      .setel(-0.5,2,1,1,2)
+      .setel(0.5,2,2,1,1);
+    d2SldW2
+      .setel(4.,1,1,1,1)
+      .setel(4.,1,2,1,2)
+      .setel(-2.,1,1,2,1)
+      .setel(-2.,1,2,2,2);
+    d2SldW2
+      .setel(-2.,2,1,1,1)
+      .setel(-2.,2,2,1,2)
+      .setel(4.,2,1,2,1)
+      .setel(4.,2,2,2,2);
   } else if (ndim == 3) {
 
     int ind[5]={3,1,2,3,1};
@@ -259,7 +269,9 @@ element_connector(const FastMat2 &xloc,
     for (int p=1;p<=ndim;p++) {
       for (int q=1;q<=ndim;q++) {
 	for (int r=1;r<=ndim;r++) {
-	  dVdW.ir(1,1).ir(2,p).set(dVdW.get(1,p)+epsilon_LC.get(p,q,r)*w.get(2,q)*w.get(3,r)).rs();
+	  dVdW
+            .ir(1,1).ir(2,p)
+            .set(dVdW.get(1,p)+epsilon_LC.get(p,q,r)*w.get(2,q)*w.get(3,r)).rs();
 	  dVdW.ir(1,2).ir(2,q).set(dVdW.get(2,q)+epsilon_LC.get(p,q,r)*w.get(1,p)*w.get(3,r)).rs();
 	  dVdW.ir(1,3).ir(2,r).set(dVdW.get(3,r)+epsilon_LC.get(p,q,r)*w.get(1,p)*w.get(2,q)).rs();
 
