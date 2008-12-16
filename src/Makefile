@@ -35,7 +35,8 @@ spline.o: spline.f
 seval.o: seval.f
 dgefa.o: dgefa.f
 
-LIBOBJS := $(LIBOBJS_:=$(osfx).o) $(FLIBOBJS_:=$(osfx).o) $(CLIBOBJS_:=$(osfx).o) 
+LIBOBJS := $(LIBOBJS_:=$(osfx).o) $(FLIBOBJS_:=$(osfx).o) \
+	$(CLIBOBJS_:=$(osfx).o) 
 
 .INTERMEDIATE: $(LIBOBJS) 
 
