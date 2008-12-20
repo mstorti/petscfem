@@ -664,8 +664,12 @@ new_assemble_GCL_compliant(arg_data_list &arg_data_v,const Nodedata *nodedata,
         // This is d(JH)/dt (J is the jacobian of the
 
         // ALE transformation
+        // FIX:= 2008-12-20 17:54:04
+        // Hn represents H in time t^{n+alpha} so that it must be affected
+        // by detJaco, not detJaco_new
 	dUdt
-          .set(Hn).scale(detJaco_new/detJaco)
+          // .set(Hn).scale(detJaco_new/detJaco)
+          .set(Hn)
           .axpy(Ho,-detJaco_old/detJaco)
           .scale(rec_Dt_m);
         // This is plain dH/dt
