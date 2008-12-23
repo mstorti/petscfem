@@ -13193,6 +13193,20 @@ Corre casi todos los test:
 %-------
 O sea que se agrego el primero "sqcav/check.fs.verif.tmp"
 
+%=== Tue Dec 23 08:14:02 2008 mstorti@galileo
+%
+%-- 08:14:02 -- mstorti-v23-end-12-g11d133c -----
+Corro los tests, fallan 6 tanto en g_c++ como en O_c++. 
+%
+> "Idmap class" on file "idmap/tidmap.sal"
+> "Read_vector function." on file "sqcav/verif.read_ini.tmp"
+> "newff/test case adv_temp_cp" on file "newff/adv_temp_cp.vrf.tmp"
+> "newff/test case full_full_jacs_cp" on file "newff/full_full_jacs_cp.vrf.tmp"
+> "newff/test case full_full_jacs_adv_cp" on file "newff/full_full_jacs_adv_cp.vrf.tmp"
+> "newff/test case adv_temp_cp_iisd" on file
+> "newff/adv_temp_cp_iisd.vrf.tmp"
+%
+Con respecto a la ultima corrida se agrego "Read_vector function." on file "sqcav/verif.read_ini.tmp"
 
 # Current line ===========  %
 # Local Variables: $
