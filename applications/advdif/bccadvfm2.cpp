@@ -66,6 +66,11 @@ void NewBcconv::new_assemble(arg_data_list &arg_data_v,const Nodedata *nodedata,
   //  you generated, by mistake, the wrong sense of
   //  numeration of nodes in the connectivities. 
   NSGETOPTDEF(int,reverse_normal,0);
+  //o Flag to turn on ALE (Arbitrary Lagrangian-Eulerian) computation. 
+  NSGETOPTDEF(int,ALE_flag,0);
+  //o Pointer to old coordinates in
+  //  #nodedata# array excluding the first "ndim" values
+  NSGETOPTDEF(int,indx_ALE_xold,1);
 
   int  nel,ndof,nelprops;
   elem_params(nel,ndof,nelprops);
@@ -82,7 +87,9 @@ void NewBcconv::new_assemble(arg_data_list &arg_data_v,const Nodedata *nodedata,
   // Unpack nodedata
   int nu=nodedata->nu;
   int nH = nu-ndim;
-  FMatrix  Hloc(nel,nH),H(nH),grad_H(ndimel,nH);
+  FastMat2  Hloc(2,nel,nH),H(1,nH),grad_H(2,ndimel,nH),
+    vloc_mesh(2,nel,ndim), v_mesh(1,ndim),   
+    Cp(2,ndof,ndof);
 
   if(nnod!=nodedata->nnod) {
     printf("nnod from dofmap and nodedata don't coincide\n");
@@ -99,6 +106,7 @@ void NewBcconv::new_assemble(arg_data_list &arg_data_v,const Nodedata *nodedata,
   //	exit(1);
   //  }
 
+  double rec_Dt = NAN;
   if (comp_res) {
     int j=-1;
     stateo = &arg_data_v[++j];
@@ -108,7 +116,11 @@ void NewBcconv::new_assemble(arg_data_list &arg_data_v,const Nodedata *nodedata,
 #define DTMIN ((*(arg_data_v[jdtmin].vector_assoc))[0])
 #define WAS_SET arg_data_v[jdtmin].was_set
     Ajac = &arg_data_v[++j];
+#define ALPHA (glob_param->alpha)
+#define DT (glob_param->Dt)
     glob_param = (GlobParam *)arg_data_v[++j].user_data;;
+    rec_Dt = 1./DT;
+    if (glob_param->steady) rec_Dt = 0.;
 #ifdef CHECK_JAC
     fdj_jac = &arg_data_v[++j];
 #endif
@@ -159,8 +171,6 @@ void NewBcconv::new_assemble(arg_data_list &arg_data_v,const Nodedata *nodedata,
     //    matlocf.set(1.);
   // }
 
-#define ALPHA (glob_param->alpha)
-#define DT (glob_param->Dt)
 
   // allocate local vecs
   int kdof;
@@ -190,13 +200,15 @@ void NewBcconv::new_assemble(arg_data_list &arg_data_v,const Nodedata *nodedata,
 
   int elem, ipg,node, jdim, kloc,lloc,ldof;
 
-  FMatrix Jaco(ndimelf,ndim),flux(ndof,ndimel),fluxd(ndof,ndimel),grad_U(ndim,ndof),
-    A_grad_U(ndof),G_source(ndof),tau_supg(ndof,ndof),    
-    fluxn(ndof),iJaco,normal(ndim),nor,lambda,Vr,Vr_inv,U(ndof);
+  FastMat2 Jaco(2,ndimelf,ndim),flux(2,ndof,ndimel),
+    fluxd(2,ndof,ndimel),grad_U(2,ndim,ndof),
+    A_grad_U(1,ndof),G_source(1,ndof),tau_supg(2,ndof,ndof),    
+    fluxn(1,ndof),iJaco,normal(1,ndim),nor,lambda,Vr,Vr_inv,U(1,ndof),
+    Halpha(1,ndof),ALE_flux(2,ndof,ndim);
 
   FastMat2 A_jac(3,ndim,ndof,ndof),D_jac(4,ndim,ndof,ndof),
     A_jac_n(2,ndof,ndof),C_jac(2,ndof,ndof);
-  FastMat2 tmp1,tmp2,tmp3;
+  FastMat2 tmp1,tmp2,tmp3,tmp4;
 
   FastMatCacheList cache_list;
   if (use_fastmat2_cache) FastMat2::activate_cache(&cache_list);
@@ -228,6 +240,15 @@ void NewBcconv::new_assemble(arg_data_list &arg_data_v,const Nodedata *nodedata,
 
     matlocf.set(0.);
     veccontr.set(0.);
+
+    // nodal computation of mesh velocity
+    if (ALE_flag) {
+      assert(nH >= ndim);
+      assert(indx_ALE_xold >= nH+1-ndim);
+      Hloc.is(2,indx_ALE_xold,indx_ALE_xold+ndim-1);
+      vloc_mesh.set(xloc).rest(Hloc).scale(rec_Dt*ALPHA).rs();
+      Hloc.rs();
+    }
 
     // DUDA: esto no se puede sacar fuera del lazo de los elementos o es lo mismo ???
 #define DSHAPEXI (*gp_data.FM2_dshapexi[ipg])
@@ -270,6 +291,18 @@ void NewBcconv::new_assemble(arg_data_list &arg_data_v,const Nodedata *nodedata,
 				lambda_max_pg, nor,lambda,Vr,Vr_inv,
 				DEFAULT);
 
+      if (ALE_flag) {
+        // If ALE, then the flux must be corrected
+        // by the mesh convected flux:
+        // F = F - v_mesh * H
+        // where H are the conservative variables
+        // (generalized enthalpy)
+	adv_diff_ff->enthalpy_fun->enthalpy(Halpha,U);
+        v_mesh.prod(SHAPE,vloc_mesh,-1,-1,1);
+        ALE_flux.prod(Halpha,v_mesh,1,2);
+        flux.rest(ALE_flux);
+      }
+
       // normal = pvec(Jaco.SubMatrix(1,1,1,ndim).t(),
       // Jaco.SubMatrix(2,2,1,ndim).t());
       fluxn.prod(flux,normal,1,-1,-1);
@@ -277,6 +310,16 @@ void NewBcconv::new_assemble(arg_data_list &arg_data_v,const Nodedata *nodedata,
       veccontr.axpy(tmp1,WPG);
 
       adv_diff_ff->comp_A_jac_n(A_jac_n,normal);
+
+      if (ALE_flag) {
+        // If ALE, then we must modify the flux Jacobian
+        // by the ALE term 
+        adv_diff_ff->get_Cp(Cp);
+        tmp4.prod(v_mesh,normal,-1,-1);
+        double vmeshnor = tmp4;
+        A_jac_n.axpy(Cp,-vmeshnor);
+      }
+      
       // A_jac_n.prod(A_jac,normal,-1,1,2,-1); // A_jac_n = (A_jac)_j n_j
       tmp2.prod(SHAPE,A_jac_n,1,2,3); //
       tmp3.prod(tmp2,SHAPE,1,2,4,3);
