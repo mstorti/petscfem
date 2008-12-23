@@ -11,7 +11,7 @@ tests: distcont distmap distmat dist_graph tests_sb
 #w Tests the distributed container class
 distcont: distcont.bin
 	$(MPIEXEC) $(MCH) -n 2 distcont.bin \
-		10 100 1e-12   $(call redir,distcont.sal.tmp)
+		10 100 1e-12  $(call redir,distcont.sal.tmp)
 
 dm2: distmat.bin
 	$(MPIEXEC) $(MCH) -n 2 distmat.bin \

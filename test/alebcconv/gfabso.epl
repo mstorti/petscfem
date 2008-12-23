@@ -1,0 +1,113 @@
+# -*- mode: shell-script -*-
+# case: <:=$ENV{'case'}:>
+# <: require './data.pl'; :>
+## Derived quantities:
+## ==================
+global_options
+
+# dx <:=$dx:>
+
+nstep 10
+alpha 1.0
+
+initial_state "gfabso.ini.tmp"
+nsave 1
+save_file "gfabso.state.tmp"
+
+#if 0
+save_file_pattern "STEPS/gfabso.state-%d.tmp"
+nsaverot 1
+nrec 1
+nfile 100000000
+#endif
+
+solver "petsc"
+preco_type "lu"
+
+# file containing the weight (speed) of processors
+proc_weights weights.dat
+
+#    Iterative parameters
+tol_tet 1e-5
+tol_newton 1e-10
+atol 0
+rtol 1e-7
+dtol 1e3
+nnwt 5
+
+print_internal_loop_conv
+# print_linear_system_and_stop
+# solve_system 0
+<:pr('Dt'):>
+shocap 0.1
+weak_form 1
+temporal_stability_factor 0
+
+
+ndim 2
+visco 1e-10
+cond  1e-10
+steady 0
+
+#if $dx
+# Para DX
+hook_list advdif_dx_hook my_dx_hook
+dx_auto_combine
+dx_steps 1
+dx_read_state_from_file
+# dx_do_make_command
+dx_cache_coords
+dx_cache_connectivities
+partitioning_method natural
+#endif
+
+ALE_flag 1
+use_GCL_compliant
+
+hook_list dl_generic_hook mvbodyh
+
+mvbodyh.filename ./mvbody.efn
+mvbodyh.prefix mvbodyh
+<:pr('vmesh'):>
+
+normal_indx 0
+vel_indx 2
+
+__END_HASH__
+
+##================================================================
+# ndim nu ndof
+nodedata 2 4 4
+data ./gfabso.nod.tmp
+__END_HASH__
+
+##================================================================
+elemset gasflow 4
+geometry cartesian2d
+dx 1
+npg 4
+data ./gfabso.con.tmp
+__END_HASH__
+
+#if 1 || $use_ALE
+elemset gasflow_bcconv 2
+geometry cartesian1d
+npg 2
+__END_HASH__
+<:=$Nx+1:> <:=2*($Nx+1):>
+<:=$Nx+2:> 1
+__END_ELEMSET__
+#endif
+
+end_elemsets
+
+fixa
+__INCLUDE__ ./gfabso.fixa.tmp
+__END_FIXA__
+
+constraint
+__INCLUDE__ gfabso.peri.tmp
+#if $use_perix
+__INCLUDE__ ./gfabso.perix.tmp
+#endif
+__END_CONSTRAINT__

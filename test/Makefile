@@ -6,7 +6,7 @@
 	constraint_bug fstack sector triangle advdif texthash log_vars	     \
 	newff burgers bug100 nonlr genload lupart distmap sparse graph sqcav \
 	pfmat  aquifer nutatcyl mmove advec nsgenload plate gasflow oscplate \
-	idmap sw_abso cubcav condwall project embgath
+	idmap sw_abso cubcav condwall project embgath alebcconv
 
 SRCS = $(wildcard *.cpp)
 
@@ -116,7 +116,7 @@ tests: runtests
 runtests: compile sector oscplate fastmat2 plano idmap constraint_bug 	 \
 	fstack advdif texthash log_vars newff burgers bug100 genload 	 \
 	lupart distmap sparse graph sqcav pfmat aquifer nutatcyl mmove 	 \
-	advec nsgenload cubcav project embgath
+	advec nsgenload cubcav project embgath alebcconv
 
 rp: runtests_p
 runtests_p: newff burgers bug100 genload 	 \
@@ -279,5 +279,10 @@ project:
 # Embedded gatherer test
 embgath:
 	$(MAKE) -C embgath tests
+
+#----<*>----------<*>----------<*>----------<*>----------<*>----------<*>--
+# Invariance of ALE with bcconv (ALE corrected version)
+alebcconv:
+	$(MAKE) -C alebcconv tests
 
 #s

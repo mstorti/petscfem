@@ -1,0 +1,14 @@
+-*- mode: text; mode: my-notes  -*-
+
+%=== Tue Dec 23 09:14:00 2008 mstorti@galileo
+%
+%-- 09:14:00 -- cases-1.0.41-55-ga42c5d4 -----
+Escribo un test para ver si el ALE es invariante con este BCCONV. Da
+mas o menos invariante, con errores O(1e-3). Pero puede ser que no
+este del todo bien el jacobiano, asi que voy a probar con mas
+nnewton, a ver si la diferencia baja. 
+%
+%-- 09:49:53 -- cases-1.0.41-55-ga42c5d4 -----
+Aumentando el nnwt no baja la diferencia. De todas formas parece
+bastante bien todo. Por ahora voy a agregar el test con un cierto margen
+de error. 
