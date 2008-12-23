@@ -23,12 +23,15 @@ NP := 1
 MCH := 
 endif
 
+SAVE := 0
 run: mvbody.efn	
 	@echo "running with ALE= $(ALE)"
 	rm -f gfabso.state.tmp
 	make-depl $(CASE_NAME).epl $(CASE_NAME).depl -d use_ALE=$(ALE)
+ifeq ($(SAVE),1)
 	mkstepsdir.pl
 	cp $(CASE_NAME).depl $(CASE_NAME).epl ./STEPS
+endif
 	$(MPI_HOME)/bin/mpiexec $(MCH) -a $(CASE_NAME)		\
 		-np $(NP) $(PROG) -case $(CASE_NAME).depl	\
 		$(call redir,output.ALE$(ALE).tmp)
@@ -39,7 +42,7 @@ test_alebcconv:
 	mv -f gfabso.state.tmp gfabso.state-ALE0.tmp
 	$(MAKE) ALE=1 run
 	mv -f gfabso.state.tmp gfabso.state-ALE1.tmp
-	$(OCTAVE) checkinv.m > output.alebcconv.verif.tmp
+	$(OCTAVE) checkinv.m > verif-alebcconv.tmp
 
 prog:
 	$(MAKE) -C $(PETSCFEM_DIR) $(LOC_PROG)

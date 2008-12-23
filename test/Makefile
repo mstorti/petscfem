@@ -16,7 +16,7 @@ DIRS = circ fstack sector les turbchan turbchanw advdif texthash	\
 		pfmat cubcav aquifer bubbly nutatcyl aquifer fastmat2	\
 		nsgenload plate gasflow idmap mmove advec plano		\
 		oscplate spillway sw_abso gfplate condwall project 	\
-		embgath flow-reversal
+		embgath flow-reversal alebcconv
 
 CLEAN_DIRS = $(DIRS)
 DEPEND_DIRS = texthash distmap sparse aquifer plate fstack idmap
