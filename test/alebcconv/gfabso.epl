@@ -39,7 +39,7 @@ print_internal_loop_conv
 # print_linear_system_and_stop
 # solve_system 0
 <:pr('Dt'):>
-# shocap 0.1
+shocap 0.1
 weak_form 1
 temporal_stability_factor 0
 
@@ -89,7 +89,7 @@ npg 4
 data ./gfabso.con.tmp
 __END_HASH__
 
-#if 1 || $use_ALE
+#if $use_ALE
 elemset gasflow_bcconv 2
 geometry cartesian1d
 npg 2

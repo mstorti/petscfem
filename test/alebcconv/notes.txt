@@ -1,5 +1,7 @@
 -*- mode: text; mode: my-notes  -*-
 
+CHECKS THE CORRECTION TO BCCONV FOR ALE FLOWS. 
+
 %=== Tue Dec 23 09:14:00 2008 mstorti@galileo
 %
 %-- 09:14:00 -- cases-1.0.41-55-ga42c5d4 -----
