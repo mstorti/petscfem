@@ -243,6 +243,7 @@ void NewBcconv::new_assemble(arg_data_list &arg_data_v,const Nodedata *nodedata,
 
     // nodal computation of mesh velocity
     if (ALE_flag) {
+      // Compute mesh velocity (at each element node)
       assert(nH >= ndim);
       assert(indx_ALE_xold >= nH+1-ndim);
       Hloc.is(2,indx_ALE_xold,indx_ALE_xold+ndim-1);
@@ -298,8 +299,11 @@ void NewBcconv::new_assemble(arg_data_list &arg_data_v,const Nodedata *nodedata,
         // F = F - v_mesh * H
         // where H are the conservative variables
         // (generalized enthalpy)
+        // Compute conservative variables
 	adv_diff_ff->enthalpy_fun->enthalpy(Halpha,U);
+        // Localize mesh velocity at Gauss point
         v_mesh.prod(SHAPE,vloc_mesh,-1,-1,1);
+        // Compute ALE flux and correct advective flux
         ALE_flux.prod(Halpha,v_mesh,1,2);
         flux.rest(ALE_flux);
       }
