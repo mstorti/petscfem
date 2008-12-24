@@ -372,6 +372,7 @@ $(PROG): $(PROG_bin)
 #		< compdate.cppin > compdate.cpp
 
 $(PROG_BIN): $(MYOBJS) $(PROG_LIB) $(PROGOBJ) $(LIBPETSCFEM)
+	$(MAKE) -W compdate.cpp '$(PROG_LIB)(compdate.o)'
 	if [ -e $@ ] ; then rm $@ ; fi
 	$(MAKE) -C $(PETSCFEM_DIR)/src -W version.cpp version.o
 	${CXX_CLINKER} $(PROF_FLAGS) -o $@			\

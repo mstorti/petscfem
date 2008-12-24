@@ -39,7 +39,7 @@ print_internal_loop_conv
 # print_linear_system_and_stop
 # solve_system 0
 <:pr('Dt'):>
-shocap 0.1
+# shocap 0.1
 weak_form 1
 temporal_stability_factor 0
 

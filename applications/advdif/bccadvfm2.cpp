@@ -246,11 +246,12 @@ void NewBcconv::new_assemble(arg_data_list &arg_data_v,const Nodedata *nodedata,
       assert(nH >= ndim);
       assert(indx_ALE_xold >= nH+1-ndim);
       Hloc.is(2,indx_ALE_xold,indx_ALE_xold+ndim-1);
-      vloc_mesh.set(xloc).rest(Hloc).scale(rec_Dt*ALPHA).rs();
+      vloc_mesh.set(xloc).rest(Hloc).scale(rec_Dt).rs();
       Hloc.rs();
     }
 
-    // DUDA: esto no se puede sacar fuera del lazo de los elementos o es lo mismo ???
+    // DUDA: esto no se puede sacar fuera del lazo
+    // de los elementos o es lo mismo ???
 #define DSHAPEXI (*gp_data.FM2_dshapexi[ipg])
 #define SHAPE    (*gp_data.FM2_shape[ipg])
 #define WPG      (gp_data.wpg[ipg])
