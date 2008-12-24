@@ -2,6 +2,9 @@
 TODO: [Mainly fixes go here...]
 =====
 
+* ADVDIF is not completely invariant under Galilean transformations, 
+  even with the addition of BCCONV+ALE. See test/alebecconv test. 
+  2008-12-24 14:07:52
 * With `print_vector_rota': if nfile is not set, then it does not save
   correctly. 
 * Should print `nodedata' hash table in `readmesh' after reading. 
