@@ -2,6 +2,8 @@
 TODO: [Mainly fixes go here...]
 =====
 
+* In `trcprtf.cpp' check if jacobian of element is null. Perhaps in
+   the first time step? 
 * ADVDIF is not completely invariant under Galilean transformations, 
   even with the addition of BCCONV+ALE. See test/alebecconv test. 
   2008-12-24 14:07:52

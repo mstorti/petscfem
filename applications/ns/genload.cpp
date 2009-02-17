@@ -279,7 +279,8 @@ int GenLoad::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
     }
     // Export residual and jacobian values
     veccontr.export_vals(&(RETVAL(ielh,0,0)));
-    matlocf.export_vals(&(RETVALMAT(ielh,0,0,0,0)));
+    if (update_jacobian) 
+      matlocf.export_vals(&(RETVALMAT(ielh,0,0,0,0)));
   }
   FastMat2::void_cache();
   FastMat2::deactivate_cache();

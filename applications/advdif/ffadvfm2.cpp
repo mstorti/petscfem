@@ -1099,6 +1099,11 @@ void newadvecfm2_ff_t::compute_flux(COMPUTE_FLUX_ARGS) {
     d_jac->comp_fluxd(fluxd,grad_U);
     d_jac->comp_dif_per_field(dif_per_field);
         
+#define USE_SHOCAP
+#ifdef USE_SHOCAP
+    double vel1,h1;
+#endif
+
     for (int k=1; k<=ndof; k++) {
       
       Uintri.ir(1,k);
@@ -1108,6 +1113,10 @@ void newadvecfm2_ff_t::compute_flux(COMPUTE_FLUX_ARGS) {
       // double h_supg = 2.*vel/sqrt(Uintri.sum_square_all());
       double Uh = sqrt(Uintri.sum_square_all()); // this is
 				// approx. 2*U/h
+#ifdef USE_SHOCAP
+      vel1 = vel;
+      h1 = 2*vel1/Uh;
+#endif
       double tau;
       FastMat2::branch();
       if (vel*vel > 20*Uh*alpha) { // remove singularity when D=0
@@ -1133,6 +1142,10 @@ void newadvecfm2_ff_t::compute_flux(COMPUTE_FLUX_ARGS) {
     }
     Uintri.rs();
     delta_sc = 0.;
+#ifdef USE_SHOCAP
+    delta_sc = 0.5*h1*vel1;
+#endif
+
   }
   
   if (options & COMP_SOURCE) {
