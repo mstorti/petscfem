@@ -234,6 +234,7 @@ public:
   vector<FastMatCacheList *> branch;
   Matrix *A,*B;
   FastMatSubCache *sc;
+  string trace_label;
 };
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
@@ -287,6 +288,10 @@ public:
     int was_cached_save;
     /// Operation count
     OperationCount op_count;
+    /// Last trace string seen
+    string last_trace;
+    /// Flag is traceing is on
+    int do_trace;
     void get_cache_position(FastMatCachePosition & pos);
     int check_cache_position(FastMatCachePosition & pos);
     void deactivate_cache();
@@ -301,6 +306,9 @@ public:
     void activate_cache(FastMatCacheList *cache_list_);
     void init();
     void void_cache(void);
+    void set_trace(string label);
+    void set_trace(const char *label);
+    void trace(int state=1);
     FastMatCache *step();
     friend class FastMat2;
     CacheCtx();

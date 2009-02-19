@@ -1101,7 +1101,7 @@ void newadvecfm2_ff_t::compute_flux(COMPUTE_FLUX_ARGS) {
         
 #define USE_SHOCAP
 #ifdef USE_SHOCAP
-    double vel1,h1;
+    double vel1=NAN,h1=NAN;
 #endif
 
     for (int k=1; k<=ndof; k++) {

@@ -87,7 +87,9 @@ FastMat2::CacheCtx::CacheCtx()
     cache_list_size(0),
     use_cache(0),
     was_cached(0),
-    was_cached_save(0)  { }
+    was_cached_save(0),
+    last_trace(""),
+    do_trace(0) { }
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 void FastMat2::branch() {
@@ -956,6 +958,10 @@ FastMatCache *FastMat2::CacheCtx::step() {
     cache_list->list_size =
       cache_list_size = cache_list->size();
     position_in_cache++;
+    cache->trace_label = last_trace;
+    if (do_trace && last_trace != "")
+      printf("defining cache trace label %s\n",
+             last_trace.c_str());
 #ifdef FM2_CACHE_DBG
     if (FastMat2::cache_dbg) printf ("defining cache: ");
 #endif
@@ -965,7 +971,25 @@ FastMatCache *FastMat2::CacheCtx::step() {
     printf(" cache_list %p, cache %p, position_in_cache %d\n",
            cache_list,cache,position_in_cache-1);
 #endif
+  string &s = cache->trace_label;
+  if (do_trace && s != "") 
+    printf("passing through trace %s\n",s.c_str());
   return cache;
+}
+
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>
+void FastMat2::CacheCtx::set_trace(string s) {
+  last_trace = s;
+}
+
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>
+void FastMat2::CacheCtx::set_trace(const char *label) {
+  last_trace = label;
+}
+
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>
+void FastMat2::CacheCtx::trace(int state) {
+  do_trace = state;
 }
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>

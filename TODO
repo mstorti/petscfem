@@ -2,6 +2,8 @@
 TODO: [Mainly fixes go here...]
 =====
 
+* 2009-02-19 08:31:19 ELIMINATE use of static FastMat2 members in
+  _all operations like norm_p_all()!!
 * In `trcprtf.cpp' check if jacobian of element is null. Perhaps in
    the first time step? 
 * ADVDIF is not completely invariant under Galilean transformations, 
