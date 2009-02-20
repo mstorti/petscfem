@@ -3385,12 +3385,15 @@ FastMat2 & FastMat2::eye(const double a) {
   return *this;
 }  
 
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>
 class detsur_cache : public FastMatSubCache {
 public:
   FastMat2 g;
   int m,n;
   double *v[6], *nor_p[3];
-  ~detsur_cache() {};
+  detsur_cache(FastMat2::CacheCtx *ctxp) 
+    : g(ctxp) { }
+  ~detsur_cache() { }
 };
 
 
@@ -3406,7 +3409,7 @@ double FastMat2::detsur(FastMat2 *nor) {
     get_dims(fdims);
     assert(fdims.size()==2);
 
-    dsc = new detsur_cache();
+    dsc = new detsur_cache(ctx);
     assert(dsc);
     dsc->m = dim(1);
     dsc->n = dim(2);

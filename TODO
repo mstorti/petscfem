@@ -2,8 +2,10 @@
 TODO: [Mainly fixes go here...]
 =====
 
-* 2009-02-19 08:31:19 ELIMINATE use of static FastMat2 members in
-  _all operations like norm_p_all()!!
+* In FastMat2: check that FastMat's created in sucaches be linked to 
+  current CacheContext. See commit b3f9a09f2e11b454 for how it was
+  done for the `norm_p_all' and similar functions. 
+  Only cache affected seems to be `detsur_cache'
 * In `trcprtf.cpp' check if jacobian of element is null. Perhaps in
    the first time step? 
 * ADVDIF is not completely invariant under Galilean transformations, 
@@ -162,6 +164,9 @@ TODO: [Mainly fixes go here...]
 DONE:
 =====
 
+* 2009-02-19 08:31:19 ELIMINATE use of static FastMat2 members in
+  _all operations like norm_p_all()!!
+  2009-02-20 12:26:20 DONE 
 * In `ns.cpp' some warnings about uninitialized variables remain (see
 notes.txt) FIXED 2007-05-05 11:43:19
 * in advdif: setting ndim=3 but using 2d elements gives a FastMat2
