@@ -587,6 +587,20 @@ FastMat2 & FastMat2::set(const Matrix & A) {
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 
 
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>
+// This cache is used when converting a "generic-sum"
+// function like `norm_p' or `sum' to the corresponding
+// `_all' version, for instance `norm_p' -> `norm_p_all'. 
+// In that case we need a sub_cache that stores a FastMat2 
+// that is a scalar. 
+class gensum_all_cache : public FastMatSubCache {
+public:
+  FastMat2 tmp;
+  gensum_all_cache(FastMat2::CacheCtx *ctxp) 
+    : tmp(ctxp) { }
+  ~gensum_all_cache() {};
+};
+
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 /* Obtained from pattern $gen_sum with args;
@@ -732,9 +746,26 @@ FastMat2 & FastMat2::sum(const FastMat2 & A,
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 double FastMat2::sum_all() const {
-  static FastMat2 retval(ctx,0);
-  retval.sum(*this  );
-  return *retval.store;
+  FastMatCache *cache = ctx->step();
+;
+
+  gensum_all_cache *gsac=NULL;
+  if (!ctx->was_cached) {
+    gsac = new gensum_all_cache(ctx);
+    assert(gsac);
+    assert(!cache->sc);
+    cache->sc = gsac;
+  }
+
+  gsac = dynamic_cast<gensum_all_cache *> (cache->sc);
+  assert(gsac);
+
+  double retval;
+  FastMat2 &tmp = gsac->tmp;
+  tmp.sum(*this  );
+  retval = double(tmp);
+  if (!ctx->use_cache) delete cache;
+  return retval;
 }
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
@@ -883,9 +914,26 @@ ctx->op_count.mult += ntot;
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 double FastMat2::sum_square_all() const {
-  static FastMat2 retval(ctx,0);
-  retval.sum_square(*this  );
-  return *retval.store;
+  FastMatCache *cache = ctx->step();
+;
+
+  gensum_all_cache *gsac=NULL;
+  if (!ctx->was_cached) {
+    gsac = new gensum_all_cache(ctx);
+    assert(gsac);
+    assert(!cache->sc);
+    cache->sc = gsac;
+  }
+
+  gsac = dynamic_cast<gensum_all_cache *> (cache->sc);
+  assert(gsac);
+
+  double retval;
+  FastMat2 &tmp = gsac->tmp;
+  tmp.sum_square(*this  );
+  retval = double(tmp);
+  if (!ctx->use_cache) delete cache;
+  return retval;
 }
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
@@ -1034,9 +1082,26 @@ ctx->op_count.abs += ntot;
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 double FastMat2::sum_abs_all() const {
-  static FastMat2 retval(ctx,0);
-  retval.sum_abs(*this  );
-  return *retval.store;
+  FastMatCache *cache = ctx->step();
+;
+
+  gensum_all_cache *gsac=NULL;
+  if (!ctx->was_cached) {
+    gsac = new gensum_all_cache(ctx);
+    assert(gsac);
+    assert(!cache->sc);
+    cache->sc = gsac;
+  }
+
+  gsac = dynamic_cast<gensum_all_cache *> (cache->sc);
+  assert(gsac);
+
+  double retval;
+  FastMat2 &tmp = gsac->tmp;
+  tmp.sum_abs(*this  );
+  retval = double(tmp);
+  if (!ctx->use_cache) delete cache;
+  return retval;
 }
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
@@ -1185,9 +1250,26 @@ ctx->op_count.abs += ntot;
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 double FastMat2::norm_p_all(const double p) const {
-  static FastMat2 retval(ctx,0);
-  retval.norm_p(*this , p);
-  return *retval.store;
+  FastMatCache *cache = ctx->step();
+;
+
+  gensum_all_cache *gsac=NULL;
+  if (!ctx->was_cached) {
+    gsac = new gensum_all_cache(ctx);
+    assert(gsac);
+    assert(!cache->sc);
+    cache->sc = gsac;
+  }
+
+  gsac = dynamic_cast<gensum_all_cache *> (cache->sc);
+  assert(gsac);
+
+  double retval;
+  FastMat2 &tmp = gsac->tmp;
+  tmp.norm_p(*this , p);
+  retval = double(tmp);
+  if (!ctx->use_cache) delete cache;
+  return retval;
 }
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
@@ -1336,9 +1418,26 @@ ctx->op_count.abs += ntot;
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 double FastMat2::norm_p_all(const int p) const {
-  static FastMat2 retval(ctx,0);
-  retval.norm_p(*this , p);
-  return *retval.store;
+  FastMatCache *cache = ctx->step();
+;
+
+  gensum_all_cache *gsac=NULL;
+  if (!ctx->was_cached) {
+    gsac = new gensum_all_cache(ctx);
+    assert(gsac);
+    assert(!cache->sc);
+    cache->sc = gsac;
+  }
+
+  gsac = dynamic_cast<gensum_all_cache *> (cache->sc);
+  assert(gsac);
+
+  double retval;
+  FastMat2 &tmp = gsac->tmp;
+  tmp.norm_p(*this , p);
+  retval = double(tmp);
+  if (!ctx->use_cache) delete cache;
+  return retval;
 }
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
@@ -1485,9 +1584,26 @@ FastMat2 & FastMat2::assoc(const FastMat2 & A, Fun2 &f ,
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 double FastMat2::assoc_all(Fun2 &f) const {
-  static FastMat2 retval(ctx,0);
-  retval.assoc(*this , f);
-  return *retval.store;
+  FastMatCache *cache = ctx->step();
+;
+
+  gensum_all_cache *gsac=NULL;
+  if (!ctx->was_cached) {
+    gsac = new gensum_all_cache(ctx);
+    assert(gsac);
+    assert(!cache->sc);
+    cache->sc = gsac;
+  }
+
+  gsac = dynamic_cast<gensum_all_cache *> (cache->sc);
+  assert(gsac);
+
+  double retval;
+  FastMat2 &tmp = gsac->tmp;
+  tmp.assoc(*this , f);
+  retval = double(tmp);
+  if (!ctx->use_cache) delete cache;
+  return retval;
 }
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
@@ -1636,9 +1752,26 @@ ctx->op_count.fun += ntot;
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 double FastMat2::max_all() const {
-  static FastMat2 retval(ctx,0);
-  retval.max(*this  );
-  return *retval.store;
+  FastMatCache *cache = ctx->step();
+;
+
+  gensum_all_cache *gsac=NULL;
+  if (!ctx->was_cached) {
+    gsac = new gensum_all_cache(ctx);
+    assert(gsac);
+    assert(!cache->sc);
+    cache->sc = gsac;
+  }
+
+  gsac = dynamic_cast<gensum_all_cache *> (cache->sc);
+  assert(gsac);
+
+  double retval;
+  FastMat2 &tmp = gsac->tmp;
+  tmp.max(*this  );
+  retval = double(tmp);
+  if (!ctx->use_cache) delete cache;
+  return retval;
 }
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
@@ -1787,9 +1920,26 @@ ctx->op_count.fun += ntot;
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 double FastMat2::min_all() const {
-  static FastMat2 retval(ctx,0);
-  retval.min(*this  );
-  return *retval.store;
+  FastMatCache *cache = ctx->step();
+;
+
+  gensum_all_cache *gsac=NULL;
+  if (!ctx->was_cached) {
+    gsac = new gensum_all_cache(ctx);
+    assert(gsac);
+    assert(!cache->sc);
+    cache->sc = gsac;
+  }
+
+  gsac = dynamic_cast<gensum_all_cache *> (cache->sc);
+  assert(gsac);
+
+  double retval;
+  FastMat2 &tmp = gsac->tmp;
+  tmp.min(*this  );
+  retval = double(tmp);
+  if (!ctx->use_cache) delete cache;
+  return retval;
 }
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
@@ -1940,9 +2090,26 @@ ctx->op_count.abs += ntot;
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 double FastMat2::max_abs_all() const {
-  static FastMat2 retval(ctx,0);
-  retval.max_abs(*this  );
-  return *retval.store;
+  FastMatCache *cache = ctx->step();
+;
+
+  gensum_all_cache *gsac=NULL;
+  if (!ctx->was_cached) {
+    gsac = new gensum_all_cache(ctx);
+    assert(gsac);
+    assert(!cache->sc);
+    cache->sc = gsac;
+  }
+
+  gsac = dynamic_cast<gensum_all_cache *> (cache->sc);
+  assert(gsac);
+
+  double retval;
+  FastMat2 &tmp = gsac->tmp;
+  tmp.max_abs(*this  );
+  retval = double(tmp);
+  if (!ctx->use_cache) delete cache;
+  return retval;
 }
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
@@ -2093,9 +2260,26 @@ ctx->op_count.abs += ntot;
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 double FastMat2::min_abs_all() const {
-  static FastMat2 retval(ctx,0);
-  retval.min_abs(*this  );
-  return *retval.store;
+  FastMatCache *cache = ctx->step();
+;
+
+  gensum_all_cache *gsac=NULL;
+  if (!ctx->was_cached) {
+    gsac = new gensum_all_cache(ctx);
+    assert(gsac);
+    assert(!cache->sc);
+    cache->sc = gsac;
+  }
+
+  gsac = dynamic_cast<gensum_all_cache *> (cache->sc);
+  assert(gsac);
+
+  double retval;
+  FastMat2 &tmp = gsac->tmp;
+  tmp.min_abs(*this  );
+  retval = double(tmp);
+  if (!ctx->use_cache) delete cache;
+  return retval;
 }
 
 

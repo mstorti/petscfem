@@ -271,6 +271,20 @@ for (int j=0; j<sindx.size(); j++) {
 //EOF
 _//>
 
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>
+// This cache is used when converting a "generic-sum"
+// function like `norm_p' or `sum' to the corresponding
+// `_all' version, for instance `norm_p' -> `norm_p_all'. 
+// In that case we need a sub_cache that stores a FastMat2 
+// that is a scalar. 
+class gensum_all_cache : public FastMatSubCache {
+public:
+  FastMat2 tmp;
+  gensum_all_cache(FastMat2::CacheCtx *ctxp) 
+    : tmp(ctxp) { }
+  ~gensum_all_cache() {};
+};
+
 //<$gen_sum=<<'//EOF';
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 /* Obtained from pattern $gen_sum with args;
@@ -413,9 +427,25 @@ FastMat2 & FastMat2::__NAME__(const FastMat2 & A, __OTHER_ARGS__ __C__
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 double FastMat2::__NAME___all(__OTHER_ARGS__) const {
-  static FastMat2 retval(ctx,0);
-  retval.__NAME__(*this __C__ __OTHER_ARGS_P__);
-  return *retval.store;
+  __CACHE_OPERATIONS__;
+
+  gensum_all_cache *gsac=NULL;
+  if (!ctx->was_cached) {
+    gsac = new gensum_all_cache(ctx);
+    assert(gsac);
+    assert(!cache->sc);
+    cache->sc = gsac;
+  }
+
+  gsac = dynamic_cast<gensum_all_cache *> (cache->sc);
+  assert(gsac);
+
+  double retval;
+  FastMat2 &tmp = gsac->tmp;
+  tmp.__NAME__(*this __C__ __OTHER_ARGS_P__);
+  retval = double(tmp);
+  if (!ctx->use_cache) delete cache;
+  return retval;
 }
 
 //EOF
