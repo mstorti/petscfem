@@ -2,6 +2,10 @@
 TODO: [Mainly fixes go here...]
 =====
 
+* Tests sqcav/check.zwproc.tmp and sqcav/check.zwproc2.tmp give now a
+   little error. See comments in notes.txt
+   Mon Feb 23 15:37:21 2009 mstorti@galileo
+   21:46:22 -- mstorti-v24-start-20-g1cf5a46
 * In `trcprtf.cpp' check if jacobian of element is null. Perhaps in
    the first time step? 
 * ADVDIF is not completely invariant under Galilean transformations, 

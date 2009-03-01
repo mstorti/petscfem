@@ -13243,11 +13243,18 @@ mkmesh en ese DIR. Tenia una linea que aparentemente no se usaba y que
 probablemente antes andaba, pero ahora no, por algun cambio en
 octave. 
 %
-Los que dicen ONLY-NOTOK-IN-64BIT al probarlos en aquiles no tuvieron
-problemas. Segun recuerdo habia una diferencia entre 32 y 64 bit. El
-error de toda forma es bajo. 
-%
 "Distributed graph 3proc": al correrlo de nuevo en galileo no hubo
 problema. Creo que se debe a que eran esos tests en que el output
 puede salir `garbled' porque es en paralelo y entonces puede dar
 diferente al correrlo una vez.
+%
+Los que dicen ONLY-NOTOK-IN-64BIT al probarlos en aquiles podria se
+que se deba a que, segun recuerdo habia una diferencia entre 32 y 64
+bit. El error de toda forma es bajo, pero lo repito en aquiles y da
+igual, es decir CON error. O sea que este parece que se agrego. 
+%
+%-- 21:46:22 -- mstorti-v24-start-20-g1cf5a46 -----
+Con respecto a los marcados con ONLY-NOTOK-IN-64BIT:
+En la version `mstorti-v24-start-2-g69f94ea' 
+(commit 69f94ea22e88ec20cb767e5bb138ab866d78c426)
+aparentemente NO daba el error (corrido en aquiles). 
