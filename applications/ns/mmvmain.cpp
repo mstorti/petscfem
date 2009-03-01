@@ -548,6 +548,7 @@ int mmove_main() {
 #endif
 
       // fixme:= SHOULD WE CHECK HERE FOR NEWTON CONVERGENCE?
+      if (normres < tol_newton) break;
 
     } // end of loop over Newton subiteration (inwt)
 
