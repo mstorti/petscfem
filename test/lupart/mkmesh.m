@@ -22,8 +22,8 @@ icone=icone(:,[1 4 3 2]);
 
 ## Don't include the first `nonlr' element, since all variables are
 ## fixed there 
-#nonlr(rows(nonlr),:)=[]; 
-nonlr(1,:)=[];
+# nonlr(rows(nonlr),:)=[]; 
+# nonlr(1,:)=[];
 
 fid = fopen("wallke.fixa_in.tmp","w");
 for jj=1:N+1

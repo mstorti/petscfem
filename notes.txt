@@ -1,3 +1,4 @@
+-*- mode: text; mode: my-notes  -*-
 OK. This is mostly in spanish...  Sorry :-)
 ================================================================
 
@@ -13208,7 +13209,36 @@ Corro los tests, fallan 6 tanto en g_c++ como en O_c++.
 %
 Con respecto a la ultima corrida se agrego "Read_vector function." on file "sqcav/verif.read_ini.tmp"
 
-# Current line ===========  %
-# Local Variables: $
-# eval: (my-notes-mode) $
-# End: $
+%=== Sun Feb 22 23:54:58 2009 mstorti@galileo
+%
+%-- 23:54:58 -- mstorti-v24-start-18-g92bdb53 -----
+Starts running tests.... Last important modification was the change in
+the cache for the _all() functions in FastMat2. 
+
+%=== Mon Feb 23 15:37:21 2009 mstorti@galileo
+%
+%-- 15:37:21 -- mstorti-v24-start-18-g92bdb53 -----
+Gives the following:
+Summary: "All tests" -- OK: 160.  Not OK: 9. Couldn't open: 5. Total: 174
+--- CANT OPEN ---
+FIXED can't open lupart/check_part.verif.tmp
+FIXED can't open lupart/check_direct_petsc.verif.tmp
+FIXED can't open lupart/check_iisd.verif.tmp
+FIXED can't open lupart/check_peri.verif.tmp
+FIXED can't open lupart/check_subpart.verif.tmp
+--- NOT OK ---
+"Square cavity with fract. step, Re1000, N=20" on file "sqcav/check.fs.verif.tmp"...not OK.
+NEW "Sqcav 0weight processor" on file "sqcav/check.zwproc.tmp"...not OK.
+NEW "Sqcav 0weight processor (iisd_subpart=2)" on file "sqcav/check.zwproc2.tmp"...not OK.
+"Idmap class" on file "idmap/tidmap.sal"...not OK.
+"newff/test case adv_temp_cp" on file "newff/adv_temp_cp.vrf.tmp"...not OK.
+"newff/test case full_full_jacs_cp" on file "newff/full_full_jacs_cp.vrf.tmp"...not OK.
+"newff/test case full_full_jacs_adv_cp" on file "newff/full_full_jacs_adv_cp.vrf.tmp"...not OK.
+"newff/test case adv_temp_cp_iisd" on file "newff/adv_temp_cp_iisd.vrf.tmp"...not OK.
+NEW "Distributed graph 3proc." on file "distmap/dist_graph.np3.out.tmp"...not OK.
+%
+%-- 15:47:28 -- mstorti-v24-start-18-g92bdb53 -----
+Todos los que aparecieron en lupart/ es que habia un problema con el
+mkmesh en ese DIR. Tenia una linea que aparentemente no se usaba y que
+probablemente antes andaba, pero ahora no, por algun cambio en
+octave. 
