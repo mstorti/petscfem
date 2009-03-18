@@ -11,6 +11,9 @@
 #include <cassert>
 #include <cstdarg>
 
+#include <list>
+#include <vector>
+
 using namespace std;
 
 #include <newmatio.h>
@@ -264,7 +267,27 @@ typedef double scalar_fun_t(double);
 /// Fast matrices. 
 class FastMat2 {
 public:
+  // This is the CacheCtx base class.
+  // Before migrating to a better CacheCtx class
+  // I separated the generic part in a base class and
+  // there will be at least 2 implementations: CacheCtx1
+  // that is the traditional one and CacheCtx2 with a simpler
+  // way to implement branching. 
   class CacheCtx {
+  public:
+    virtual FastMatCache *step()=0;
+    /// Use cache?
+    int use_cache;
+    /// Was computed this cache list
+    int was_cached;
+    /// Operation count
+    OperationCount op_count;
+    virtual ~CacheCtx()=0;
+  };
+  // This is the original CacheCtx class, each
+  // branch is a vector of caches and at each
+  // branch points there is a vector of new branches. 
+  class CacheCtx1 : public CacheCtx {
   public:
     /// Root of cache lists
     FastMatCacheList *cache_list_root;
@@ -280,14 +303,8 @@ public:
     FastMatCache **cache_list_begin;
     /// size of cache list
     int cache_list_size;
-    /// Use cache?
-    int use_cache;
-    /// Was computed this cache list
-    int was_cached;
     /// save was\_cached if use deactivate\_cache()
     int was_cached_save;
-    /// Operation count
-    OperationCount op_count;
     /// Last trace string seen
     string last_trace;
     /// Flag is traceing is on
@@ -311,10 +328,40 @@ public:
     void trace(int state=1);
     FastMatCache *step();
     friend class FastMat2;
-    CacheCtx();
+    CacheCtx1();
+  };
+  // This is the new CacheCtx class. Branching is simpler.
+  // Each branch is a list<cache> and all branches are
+  // stored in a vector<list<cache>>. 
+  class CacheCtx2 : public CacheCtx {
+  private:
+    typedef std::list<FastMatCache> clist_t;
+    typedef std::vector<clist_t> branchv_t;
+    branchv_t branchv;
+    int branch_indx;
+    clist_t *branch_p;
+    clist_t::iterator q;
+    class Branch {
+      friend class CacheCtx2;
+      // Data for scalar pos
+      int indx;
+      Branch();
+      // Data for array dim pos
+#if 0
+      int rank;
+      vector<int> shape;
+      vector<int> branchs;
+      Branch(int j=-1,int k=-1,int l=-1);
+#endif
+    };
+  public:
+    void clear();
+    void jump(Branch &b);
+    FastMatCache *step();
+    CacheCtx2();
   };
   CacheCtx *ctx;
-  static CacheCtx global_cache_ctx;
+  static CacheCtx1 global_cache_ctx;
   /// Controls debugging
   static int cache_dbg;
 
