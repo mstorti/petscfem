@@ -13258,3 +13258,104 @@ Con respecto a los marcados con ONLY-NOTOK-IN-64BIT:
 En la version `mstorti-v24-start-2-g69f94ea' 
 (commit 69f94ea22e88ec20cb767e5bb138ab866d78c426)
 aparentemente NO daba el error (corrido en aquiles). 
+
+%=== Thu Mar 19 09:51:23 2009 mstorti@galileo
+%
+%-- 09:51:23 -- mstorti-v24-start-23-g7e668d7 -----
+FastMat2::CacheCtx2 
+    . verificar q no hay memory leak OK
+    . verificar eficiencia OK
+    . agregar tool para debugging
+    . verificar reentrancia
+    . migrar trcprtf a CacheCtx2
+%
+%-- 10:35:13 -- mstorti-v24-start-23-g7e668d7 -----
+EFICIENCIA:
+%
+Escribo un test que hace un producto de matrices de nxn, o sea n^3 ops
+y despues un sum_square_all() (n^2 ops). Lo corro con Ctx1 y Ctx2 y
+con cache activado y desactivado:
+%
+Ctx2, 
+cache desactivado: rate 0.007277[Gops/sec]
+cache activado:    rate 0.180785[Gops/sec]
+%
+Ctx1, cache desactivado:
+cache desactivado:   rate 0.007306[Gops/sec]
+cache activado:      rate 0.253570[Gops/sec]
+%
+O sea que hay una diferencia importante con el cache activado. 
+OJO que con Ctx2 hay un jump adicional, porque se hace un flip, en los
+multiplos de 7 se hace a = b*c y en los otros a =c*b. Voy a probar a
+ver si eso tiene un impacto en la eficiencia. En este momento estoy
+con matrices relativamente grandes asi que no deberia tener un impacto
+muy importante. 
+%
+%-- 10:42:43 -- mstorti-v24-start-23-g7e668d7 -----
+SIII!! Con Ctx2 y sin flip da rate 0.254588[Gops/sec], o sea igual al
+otro. O sea que el flip o cambiar de branch tiene un costo
+importante. 
+%
+%-- 10:46:19 -- mstorti-v24-start-23-g7e668d7 -----
+Es bastante curioso. Si hago flip=1 (O sea siempre va por uno de los
+branch) entonces hace 0.25Gops. Si hago el j%13 entonces hace
+0.18. Pero obviamente no puede ser que sea el calculo del modulo (%)
+porque estamos hablando de productos de matrices de 10x10, o sea del
+orden de 2000 operaciones. Debe ser el cambio de branch, pero tampoco
+me parece que justifique semejante ineficiencia. 
+%
+flip=1:         0.25Gops
+flip=!flip:     0.176Gops
+flip=j%13:      0.19Gops
+flip=!(j%13):   0.18Gops
+flip=j%2:       0.19Gops
+%
+%-- 10:55:00 -- mstorti-v24-start-23-g7e668d7 -----
+Me parece que ya se que es. O sea estaba corriendo con n=10, N=100,
+entonces para N=100 el lazo no llegaba a entrar en regimen, y entonces
+si usaba mas de un branch bajaba la performance porque bajaba todavia
+mas la longitud de cada branch. Paso a un lazo de N=1000 y entonces
+aumenta la eficiencia. 
+%
+Ctx2: 0.315827[Gops/sec]
+Ctx1: 0.372179[Gops/sec]
+%
+De todas formas subsiste una diferencia pero estoy convencido que no
+es por el branching. 
+%
+%-- 11:01:42 -- mstorti-v24-start-23-g7e668d7 -----
+Cambio a n=5, N=10000
+%
+Ctx2, 2 branches:        rate 0.212200[Gops/sec]
+Ctx2, 1 branch, 2 jumps: rate 0.216363[Gops/sec]
+Ctx1, 1 branch, 1 jump:  rate 0.212872[Gops/sec]
+%
+Asi que parece estar bien. Voy a revisar un poco mas la influencia de
+la longitud del lazo, a ver si con el nuevo Ctx2 el costo es mayor. 
+%
+%-- 11:22:49 -- mstorti-v24-start-23-g7e668d7 -----
+Bueno, OJO: podria ser que en este caso que hay muy pocas operaciones
+el costo del branching etc... sea comparativamente mayor que en un
+caso real. 
+%
+%-- 11:23:41 -- mstorti-v24-start-23-g7e668d7 -----
+con FASTMAT::CACHECTX2
+N=10000, n=5 inv-rate=4.61[secs/Gops]
+N=1000,  n=5 inv-rate=4.83[secs/Gops]
+N=100,   n=5 inv-rate=6.86[secs/Gops]
+N=50,    n=5 inv-rate=9.05[secs/Gops]
+%
+O sea que el n1/2 anda por 50. Es decir para N=50 el costo de startup
+es igual al calculo real, o sea que la eficiencia baja al 50%. 
+%
+%-- 11:30:30 -- mstorti-v24-start-23-g7e668d7 -----
+con FASTMAT::CACHECTX1
+N=10000, inv-rate=4.64[secs/Gops]
+N=1000,  inv-rate=5.30[secs/Gops]
+N=100,   inv-rate=6.87[secs/Gops]
+N=50,    inv-rate=9.10[secs/Gops]
+%
+%-- 11:32:56 -- mstorti-v24-start-23-g7e668d7 -----
+O sea que el costo fijo es practicamente el mismo. Seguramente lo que
+pasa es que el costo mayor esta en el armado del cache, no en los
+jumps ni en el armado de los branch. 
