@@ -16,34 +16,59 @@ FastMat2
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>
 FastMat2::CacheCtx2
+::~CacheCtx2() { clear(); }
+
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>
+FastMat2::CacheCtx2
 ::Branch::Branch() : indx(-1) { }
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>
 void FastMat2::CacheCtx2::jump(Branch &b) {
   if (b.indx==-1) {
-    branchv.push_back(clist_t());
+    branchv.push_back(new clist_t());
     b.indx = branchv.size()-1;
   }
   branch_indx = b.indx;
-  branch_p = &branchv[branch_indx];
+  branch_p = branchv[branch_indx];
   q = branch_p->begin();
 }
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>
 void FastMat2::CacheCtx2
-::clear() { branchv.clear(); }
+::clear() { 
+  for (unsigned int j=0; j<branchv.size(); j++) 
+    delete branchv[j];
+  branchv.clear(); 
+}
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>
 FastMatCache * 
 FastMat2::CacheCtx2::step() {
   FastMatCache *cache=NULL;
-  if (q != branch_p->end()) {
-    cache = &*q++;
-  } else if (!use_cache) {
-    cache = new FastMatCache;
+  if (use_cache) {
+    if (q != branch_p->end()) {
+      was_cached = 1;
+      cache = &*q++;
+    } else {
+      was_cached = 0;
+      branch_p->push_back(FastMatCache());
+      cache = &branch_p->back();
+    }
+//     printf("was_cached %d, cache %p, branch indx %d (%p)\n",
+//            was_cached,cache,branch_indx,branch_p);
   } else {
-    branch_p->push_back(FastMatCache());
-    cache = &branch_p->back();
+    cache = new FastMatCache;
   }
   return cache;
+}
+
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>
+void FastMat2::CacheCtx2::print() {
+  for (unsigned int j=0; j<branchv.size(); j++) {
+    printf("branch indx %d, ptr %p: ",j,branchv[j]);
+    clist_t &l = *branchv[j];
+    clist_t::iterator q1 = l.begin();
+    while (q1 != l.end()) printf(" %p",&*q1++);
+    printf("\n");
+  }
 }

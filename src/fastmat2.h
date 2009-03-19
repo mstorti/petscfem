@@ -336,29 +336,35 @@ public:
   class CacheCtx2 : public CacheCtx {
   private:
     typedef std::list<FastMatCache> clist_t;
-    typedef std::vector<clist_t> branchv_t;
+    typedef std::vector<clist_t *> branchv_t;
     branchv_t branchv;
     int branch_indx;
     clist_t *branch_p;
     clist_t::iterator q;
+  public:
     class Branch {
+    private:
       friend class CacheCtx2;
       // Data for scalar pos
       int indx;
+    public:
       Branch();
       // Data for array dim pos
 #if 0
+    private:
       int rank;
       vector<int> shape;
       vector<int> branchs;
+    public:
       Branch(int j=-1,int k=-1,int l=-1);
 #endif
     };
-  public:
     void clear();
     void jump(Branch &b);
     FastMatCache *step();
+    void print();
     CacheCtx2();
+    ~CacheCtx2();
   };
   CacheCtx *ctx;
   static CacheCtx1 global_cache_ctx;
