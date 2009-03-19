@@ -13,6 +13,9 @@ int FastMat2::cache_dbg=0;
 
 FastMat2::CacheCtx::~CacheCtx() { }
 
+FastMat2::CacheCtx::CacheCtx() 
+  : use_cache(0), was_cached(0) { }
+
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>
 FastMatCachePosition::FastMatCachePosition() {
   first = NULL;
@@ -510,6 +513,7 @@ FastMat2 & FastMat2::resize(const int ndims, INT_VAR_ARGS_ND) {
   // This can't be cached
   if (ctx->was_cached) {
     printf("fastmat2: can't call resize() while in cached mode\n");
+    abort();
     exit(0);
   }
 

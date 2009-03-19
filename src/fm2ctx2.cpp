@@ -31,6 +31,7 @@ void FastMat2::CacheCtx2::jump(Branch &b) {
   branch_indx = b.indx;
   branch_p = branchv[branch_indx];
   q = branch_p->begin();
+  was_cached = (q != branch_p->end());
 }
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>
@@ -46,13 +47,13 @@ FastMatCache *
 FastMat2::CacheCtx2::step() {
   FastMatCache *cache=NULL;
   if (use_cache) {
-    if (q != branch_p->end()) {
-      was_cached = 1;
+    if (was_cached) {
       cache = &*q++;
+      // was_cached = (q != branch_p->end());
     } else {
-      was_cached = 0;
       branch_p->push_back(FastMatCache());
       cache = &branch_p->back();
+      // was_cached = 0;
     }
 //     printf("was_cached %d, cache %p, branch indx %d (%p)\n",
 //            was_cached,cache,branch_indx,branch_p);

@@ -275,6 +275,7 @@ public:
   // way to implement branching. 
   class CacheCtx {
   public:
+    CacheCtx();
     virtual FastMatCache *step()=0;
     /// Use cache?
     int use_cache;
