@@ -13265,9 +13265,9 @@ aparentemente NO daba el error (corrido en aquiles).
 FastMat2::CacheCtx2 
     . verificar q no hay memory leak OK
     . verificar eficiencia OK
+    . migrar trcprtf a CacheCtx2 OK
+    . verificar reentrancia OK
     . agregar tool para debugging
-    . verificar reentrancia
-    . migrar trcprtf a CacheCtx2
 %
 %-- 10:35:13 -- mstorti-v24-start-23-g7e668d7 -----
 EFICIENCIA:
@@ -13359,3 +13359,14 @@ N=50,    inv-rate=9.10[secs/Gops]
 O sea que el costo fijo es practicamente el mismo. Seguramente lo que
 pasa es que el costo mayor esta en el armado del cache, no en los
 jumps ni en el armado de los branch. 
+%
+%-- 14:20:25 -- mstorti-v24-start-25-g63b456f -----
+Implemento `trcprtf' con CacheCtx2 y en forma relativamente facil
+empieza a andar. Anda a un rate de:
+%
+CacheCtx2 (g_c++): 8.16[sec/Mprtcls]
+          (O_c++): rate 4.49[sec/Mprtcls]
+CacheCtx1 (g_c++): 8.25[sec/Mprtcls]
+          (O_c++): rate 4.75[sec/Mprtcls]
+%
+O sea que la performance con los dos Ctx es muy similar. 

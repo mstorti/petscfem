@@ -238,6 +238,7 @@ public:
   Matrix *A,*B;
   FastMatSubCache *sc;
   string trace_label;
+  string check_label;
 };
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
@@ -277,6 +278,10 @@ public:
   public:
     CacheCtx();
     virtual FastMatCache *step()=0;
+    virtual FastMatCache *step(const char *label,
+                               const FastMat2 *p1=NULL,
+                               const FastMat2 *p2=NULL,
+                               const FastMat2 *p3=NULL);
     /// Use cache?
     int use_cache;
     /// Was computed this cache list
@@ -342,6 +347,7 @@ public:
     int branch_indx;
     clist_t *branch_p;
     clist_t::iterator q;
+    int do_check_labels;
   public:
     class Branch {
     private:
@@ -363,7 +369,12 @@ public:
     void clear();
     void jump(Branch &b);
     FastMatCache *step();
+    FastMatCache *step(const char *label, 
+                       const FastMat2 *p1=NULL,
+                       const FastMat2 *p2=NULL, 
+                       const FastMat2 *p3=NULL);
     void print();
+    void check_labels();
     CacheCtx2();
     ~CacheCtx2();
   };

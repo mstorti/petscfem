@@ -5,14 +5,25 @@
 #include <cstdio>
 
 using namespace std;
-#include "fem.h"
-#include "fastmat2.h"
+#include <src/fem.h>
+#include <src/fastmat2.h>
+#include <src/autostr.h>
+
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>
+FastMatCache *
+FastMat2::CacheCtx::step(const char *label,
+                         const FastMat2 *p1,
+                         const FastMat2 *p2,
+                         const FastMat2 *p3) { 
+  return step(); 
+}
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>
 FastMat2
 ::CacheCtx2::CacheCtx2() :
   branch_indx(-1), 
-  branch_p(NULL) { }
+  branch_p(NULL),
+  do_check_labels(0) { }
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>
 FastMat2::CacheCtx2
@@ -45,18 +56,33 @@ void FastMat2::CacheCtx2
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>
 FastMatCache * 
 FastMat2::CacheCtx2::step() {
+  return step(NULL);
+}
+
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>
+FastMatCache* FastMat2::CacheCtx2
+::step(const char *label, const FastMat2 *p1,
+       const FastMat2 *p2, const FastMat2 *p3) {
   FastMatCache *cache=NULL;
   if (use_cache) {
+    AutoString as;
+    if (do_check_labels) {
+      as.sprintf("%s %p %p %p",label,p1,p2,p3);
+      printf("check_label: %s\n",as.str());
+    }
+    
     if (was_cached) {
       cache = &*q++;
-      // was_cached = (q != branch_p->end());
+      if (do_check_labels)
+        PETSCFEM_ASSERT(as.str()==cache->check_label,
+                        "Failed FastMat2 cache check"
+                        "Cached \"%s\", wanted \"%s\"",
+                        cache->check_label.c_str(),as.str()); 
     } else {
       branch_p->push_back(FastMatCache());
       cache = &branch_p->back();
-      // was_cached = 0;
+      cache->check_label = as.str();
     }
-//     printf("was_cached %d, cache %p, branch indx %d (%p)\n",
-//            was_cached,cache,branch_indx,branch_p);
   } else {
     cache = new FastMatCache;
   }
@@ -73,3 +99,7 @@ void FastMat2::CacheCtx2::print() {
     printf("\n");
   }
 }
+
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>
+void FastMat2::CacheCtx2
+::check_labels() { do_check_labels = 1; }
