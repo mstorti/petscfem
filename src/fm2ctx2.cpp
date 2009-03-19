@@ -68,15 +68,15 @@ FastMatCache* FastMat2::CacheCtx2
     AutoString as;
     if (do_check_labels) {
       as.sprintf("%s %p %p %p",label,p1,p2,p3);
-      printf("check_label: %s\n",as.str());
+      // printf("check_label: %s\n",as.str());
     }
     
     if (was_cached) {
       cache = &*q++;
       if (do_check_labels)
         PETSCFEM_ASSERT(as.str()==cache->check_label,
-                        "Failed FastMat2 cache check"
-                        "Cached \"%s\", wanted \"%s\"",
+                        "Failed FastMat2 cache check, "
+                        "cached: \"%s\", wanted: \"%s\"",
                         cache->check_label.c_str(),as.str()); 
     } else {
       branch_p->push_back(FastMatCache());
