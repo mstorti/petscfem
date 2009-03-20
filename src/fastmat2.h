@@ -378,11 +378,15 @@ public:
     CacheCtx2();
     ~CacheCtx2();
   };
+private:
   CacheCtx *ctx;
-  static CacheCtx1 global_cache_ctx;
+  static CacheCtx1 global_cache_ctx1;
+  static CacheCtx2 global_cache_ctx2;
   /// Controls debugging
-  static int cache_dbg;
+  static int cache_dbg, use_cachectx2_as_default;
+  void set_default_ctx();
 
+public:
   //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
   /** Default constructor
       @author M. Storti

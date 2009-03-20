@@ -8,8 +8,10 @@ using namespace std;
 #include "fem.h"
 #include "fastmat2.h"
 
-FastMat2::CacheCtx1 FastMat2::global_cache_ctx;
+FastMat2::CacheCtx1 FastMat2::global_cache_ctx1;
+FastMat2::CacheCtx2 FastMat2::global_cache_ctx2;
 int FastMat2::cache_dbg=0;
+int FastMat2::use_cachectx2_as_default=0;
 
 FastMat2::CacheCtx::~CacheCtx() { }
 
@@ -55,7 +57,7 @@ void FastMat2::CacheCtx1::get_cache_position(FastMatCachePosition & pos) {
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 void FastMat2::get_cache_position(FastMatCachePosition & pos) {
-  global_cache_ctx.get_cache_position(pos);
+  global_cache_ctx1.get_cache_position(pos);
 }
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
@@ -80,7 +82,7 @@ void FastMat2::CacheCtx1::deactivate_cache(void) {
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 void FastMat2::deactivate_cache() {
-  global_cache_ctx.deactivate_cache();
+  global_cache_ctx1.deactivate_cache();
 }
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
@@ -96,7 +98,7 @@ FastMat2::CacheCtx1::CacheCtx1()
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 void FastMat2::branch() {
-  global_cache_ctx.branch();
+  global_cache_ctx1.branch();
 }
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
@@ -149,7 +151,7 @@ void FastMat2::CacheCtx1::branch() {
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 void FastMat2::choose(const int j) {
-  global_cache_ctx.choose(j);
+  global_cache_ctx1.choose(j);
 }
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
@@ -192,7 +194,7 @@ void FastMat2::CacheCtx1::choose(const int j) {
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 void FastMat2::leave() {
-  global_cache_ctx.leave();
+  global_cache_ctx1.leave();
 }
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
@@ -220,7 +222,7 @@ void FastMat2::CacheCtx1::leave() {
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 void FastMat2::resync_was_cached(void) {
-  global_cache_ctx.resync_was_cached();
+  global_cache_ctx1.resync_was_cached();
 }
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
@@ -231,7 +233,7 @@ void FastMat2::resync_was_cached(void) {
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 void FastMat2::jump_to(FastMatCachePosition &pos) {
-  global_cache_ctx.jump_to(pos);
+  global_cache_ctx1.jump_to(pos);
 }
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
@@ -256,7 +258,7 @@ void FastMat2::CacheCtx1::jump_to(FastMatCachePosition &pos) {
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:  
 double FastMat2::operation_count(void) {
-  return global_cache_ctx.operation_count();
+  return global_cache_ctx1.operation_count();
 }
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:  
@@ -274,7 +276,7 @@ double FastMat2::CacheCtx1::operation_count(void) {
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 void FastMat2::reset_cache(void) {
-  global_cache_ctx.reset_cache();
+  global_cache_ctx1.reset_cache();
 }
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
@@ -301,7 +303,7 @@ void FastMat2::CacheCtx1::reset_cache(void) {
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 void FastMat2::print_count_statistics(void) {
-  global_cache_ctx.print_count_statistics();
+  global_cache_ctx1.print_count_statistics();
 }
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
@@ -326,7 +328,7 @@ void FastMat2::CacheCtx1::print_count_statistics(void) {
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 void FastMat2
 ::activate_cache(FastMatCacheList *clp) {
-  global_cache_ctx.activate_cache(clp);
+  global_cache_ctx1.activate_cache(clp);
 }
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
@@ -383,7 +385,7 @@ void purge_cache_list(FastMatCacheList *cache_list) {
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 void FastMat2::void_cache(void) { 
-  global_cache_ctx.void_cache();
+  global_cache_ctx1.void_cache();
 }
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
@@ -444,14 +446,24 @@ void IndexFilter::print(void) const  {
   }
 }
 
-//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
-FastMat2::FastMat2(void) 
-  : ctx(&global_cache_ctx), store(NULL), defined(0)  { }
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>
+void FastMat2::set_default_ctx(void) {
+  if (use_cachectx2_as_default) 
+    ctx = &global_cache_ctx2;
+  else 
+    ctx = &global_cache_ctx1;
+}
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
-FastMat2::FastMat2(const Indx & dims_) 
-  : ctx(&global_cache_ctx) {
+FastMat2::FastMat2(void) 
+  : store(NULL), defined(0)  { 
+  set_default_ctx();
+}
+
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+FastMat2::FastMat2(const Indx & dims_) {
   create_from_indx(dims_);
+  set_default_ctx();
 }
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
@@ -574,8 +586,9 @@ void FastMat2::create_from_indx(const Indx & dims_) {
 }
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
-FastMat2::FastMat2(const int m,INT_VAR_ARGS_ND) 
-  : ctx(&global_cache_ctx) {
+FastMat2::FastMat2(const int m,
+                   INT_VAR_ARGS_ND) {
+  set_default_ctx();
   //  assert(m>0);
   Indx indx;
 #ifdef USE_VAR_ARGS

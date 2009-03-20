@@ -13370,3 +13370,42 @@ CacheCtx1 (g_c++): 8.25[sec/Mprtcls]
           (O_c++): rate 4.75[sec/Mprtcls]
 %
 O sea que la performance con los dos Ctx es muy similar. 
+
+%=== Thu Mar 19 20:07:31 2009 mstorti@galileo
+%
+%-- 20:07:31 -- mstorti-v24-start-27-ge5d6b10 -----
+Estoy corriendo los tests, la ultima vez tenia esto
+[ Mon Feb 23 15:37:21 2009 mstorti-v24-start-18-g92bdb53]
+%
+> "Square cavity with fract. step, Re1000, N=20"
+> "Idmap class" on file "idmap/tidmap.sal"
+> "newff/test case adv_temp_cp"
+> "newff/test case full_full_jacs_cp"
+> "newff/test case full_full_jacs_adv_cp" 
+> "newff/test case adv_temp_cp_iisd"
+%
+AHORA CON G_C++:
+> "Square cavity with fract. step, Re1000, N=20"
+> NEW "Sqcav 0weight processor"
+> NEW "Sqcav 0weight processor (iisd_subpart=2)" 
+> "Idmap class"
+> "newff/test case adv_temp_cp"
+> "newff/test case full_full_jacs_cp"
+> "newff/test case full_full_jacs_adv_cp"
+> "newff/test case adv_temp_cp_iisd"
+%
+O sea que se agrega 
+> "Sqcav 0weight processor"
+> "Sqcav 0weight processor (iisd_subpart=2)" 
+%
+%-- 21:40:13 -- mstorti-v24-start-27-ge5d6b10 -----
+AHORA CON O_C++:
+> "Square cavity with fract. step, Re1000, N=20"
+> NEW "Sqcav 0weight processor"
+> NEW "Sqcav 0weight processor (iisd_subpart=2)"
+> "Idmap class"
+> "newff/test case adv_temp_cp"
+> "newff/test case full_full_jacs_cp"
+> "newff/test case full_full_jacs_adv_cp"
+> "newff/test case adv_temp_cp_iisd"
+> NEW "Distributed graph 2proc."
