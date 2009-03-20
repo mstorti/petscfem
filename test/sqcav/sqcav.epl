@@ -32,7 +32,7 @@ activate_debug_print
 #endif
 
 # file containing the weight (speed) of processors
-# proc_weights weights.dat
+proc_weights weights.dat
 
 #    Iterative parameters
 tol_tet 1e-5

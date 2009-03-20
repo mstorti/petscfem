@@ -13409,3 +13409,10 @@ AHORA CON O_C++:
 > "newff/test case full_full_jacs_adv_cp"
 > "newff/test case adv_temp_cp_iisd"
 > NEW "Distributed graph 2proc."
+%
+%-- 06:49:48 -- mstorti-v24-start-28-g370d6d4 -----
+NEW "Sqcav 0weight processor": era porque estaba comentada la linea de
+      proc_weights. 
+NEW "Sqcav 0weight processor (iisd_subpart=2)": IDEM
+NEW "Distributed graph 2proc.": es por la inconsistencia en escribir
+      las lineas
