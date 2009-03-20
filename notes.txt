@@ -13416,3 +13416,31 @@ NEW "Sqcav 0weight processor": era porque estaba comentada la linea de
 NEW "Sqcav 0weight processor (iisd_subpart=2)": IDEM
 NEW "Distributed graph 2proc.": es por la inconsistencia en escribir
       las lineas
+
+%=== Fri Mar 20 16:06:00 2009 mstorti@galileo
+%
+%-- 16:06:00 -- mstorti-v24-end-2-g3db44ea -----
+Volviendo a correr con las particulas resulta que la performance baja
+a cerca de 50secs/Mprtcls. Desactivando el check_label() baja a
+16secs/Mprtcls. Pero de todas formas esta como un factor 3-4 por
+encima del que tenia. Corro con la version CTX1 y efectivamente para
+este caso anda en 4.5secs/Mprtcls. 
+%
+%-- 17:38:07 -- mstorti-v24-end-2-g3db44ea -----
+Recupero el estado que tenía cuando hice esas pruebas. Directamente
+exporto una nueva versión en un directorio petscfem-cpy:
+petscfem:    version 63b456 de 2009-03-19 14:17
+trcprtf.cpp: versión 031eec de 2009-03-19 14:44
+%
+%-- 17:41:11 -- mstorti-v24-end-2-g3db44ea -----
+Si efectivamente con esa combinación recupero la tasa de
+4.5~secs/Mprtcls.
+%
+Del mas nuevo al mas viejo
+commit f46ce0500f5d7ec2219ea8d3a1d62dbf4dbd74ba  NOT-OK
+commit 63b456f165bdf6d20997a8e329ffcf1bc07b7632  OK
+%
+O sea que la ineficiencia vino con el agregado del
+check_label(). Pruebo a eliminar la parte del check_label() en step()
+y vuelvo a eficiencias buenas, asi que se ve que antes habia hecho una
+experiencia erronea. 

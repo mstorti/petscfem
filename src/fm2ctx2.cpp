@@ -65,23 +65,29 @@ FastMatCache* FastMat2::CacheCtx2
        const FastMat2 *p2, const FastMat2 *p3) {
   FastMatCache *cache=NULL;
   if (use_cache) {
+    //#define CHECK_LABELS
+#ifdef CHECK_LABELS
     AutoString as;
     if (do_check_labels) {
       as.sprintf("%s %p %p %p",label,p1,p2,p3);
       // printf("check_label: %s\n",as.str());
     }
-    
+#endif
     if (was_cached) {
       cache = &*q++;
+#if CHECK_LABELS
       if (do_check_labels)
         PETSCFEM_ASSERT(as.str()==cache->check_label,
                         "Failed FastMat2 cache check, "
                         "cached: \"%s\", wanted: \"%s\"",
                         cache->check_label.c_str(),as.str()); 
+#endif
     } else {
       branch_p->push_back(FastMatCache());
       cache = &branch_p->back();
+#ifdef CHECK_LABELS
       cache->check_label = as.str();
+#endif
     }
   } else {
     cache = new FastMatCache;
@@ -103,3 +109,46 @@ void FastMat2::CacheCtx2::print() {
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>
 void FastMat2::CacheCtx2
 ::check_labels() { do_check_labels = 1; }
+
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>
+void FastMat2::CacheCtx2
+::Branchv::init(int d0,int d1,int d2,int d3) {
+  PETSCFEM_ASSERT0(shape.size()==0,"cant't resize a branch vector");  
+  PETSCFEM_ASSERT0(rank==0,"cant't resize a branch vector");  
+  if (d0>0) shape.push_back(d0);
+  if (d1>0) shape.push_back(d1);
+  if (d2>0) shape.push_back(d2);
+  if (d3>0) shape.push_back(d3);
+  rank = shape.size();
+  unsigned int sz = 1;
+  for (int j=0; j<rank; j++) sz *= shape[j];
+
+  PETSCFEM_ASSERT0(sz>0,"total number of branchs in "
+                   "branch vector must be positive");  
+  
+  bv.resize(sz);
+}
+
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>
+FastMat2::CacheCtx2
+::Branchv::Branchv(int d0,int d1,int d2,int d3) 
+  : rank(0) { if (d0>=0) init(d0,d1,d2,d3); }
+
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>
+FastMat2::CacheCtx2
+::Branchv::Branchv(const vector<int> &shape_a) {
+  shape = shape_a;
+  rank = bv.size();
+}
+
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>
+FastMat2::CacheCtx2::Branch &
+FastMat2::CacheCtx2::Branchv
+::operator()(int j0,int j1,int j2,int j3 ) {
+  int indx=j0;
+  if (j1>=0) indx = indx*shape[1]+j1;
+  if (j2>=0) indx = indx*shape[2]+j2;
+  if (j3>=0) indx = indx*shape[3]+j3;
+  PETSCFEM_ASSERT0(indx>=0,"indx");
+  return bv[indx];
+}

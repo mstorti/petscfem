@@ -366,6 +366,18 @@ public:
       Branch(int j=-1,int k=-1,int l=-1);
 #endif
     };
+    class Branchv {
+    private:
+      vector<Branch> bv;
+      vector<int> shape;
+      int rank;
+    public:
+      void init(int d1=-1,int d2=-1,int d3=-1,int d4=-1);
+      Branchv(int d1=-1,int d2=-1,int d3=-1,int d4=-1);
+      Branchv(const vector<int> &shape_a);
+      Branch& operator()(int j1=-1,int j2=-1,int j3=-1,int j4=-1);
+      // Branch operator()(const vector<int> &indxs);
+    };
     void clear();
     void jump(Branch &b);
     FastMatCache *step();
