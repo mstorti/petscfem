@@ -18,8 +18,9 @@ using namespace std;
 
 #include <newmatio.h>
 
-#include "fastlib.h"
-#include "readlist.h"
+#include <src/fastlib.h>
+#include <src/readlist.h>
+#include <src/autostr.h>
 
 #define INT_ARG_LIST_DEFAULT_VAL INT_MAX
 /// To be used in variable argument functions. Ex: fun(double,INT\_ARG\_LIST)
@@ -348,6 +349,7 @@ public:
     clist_t *branch_p;
     clist_t::iterator q;
     int do_check_labels;
+    AutoString as;
   public:
     class Branch {
     private:
