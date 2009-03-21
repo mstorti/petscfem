@@ -41,7 +41,7 @@ an internal object, so that in the second ans subsequent executions of
 the loop the addresses are retrieved from the cache. 
 
 %<*>---<*>---<*>---<*>---<*>---<*>---<*>---<*>---<*>---<*>---<*> 
-\SSection{Example}\label{sec:fastmat2_example}  
+\SSSection{Example}\label{sec:fastmat2_example}  
 %
 Consider the following simple example. We are given a 2D finite
 element composed of triangles, i.e. an array \verb+xnod+ of
@@ -255,6 +255,49 @@ so that we define two branch objects \verb+b1,b2+ and do the
 corresponding jumps. 
 
 %<*>---<*>---<*>---<*>---<*>---<*>---<*>---<*>---<*>---<*>---<*> 
+\SSSection{Branching is not always needed} 
+
+However, branching is needed \emph{only} if the instruction sequence
+changes during the same execution of the code. For instance if you
+have a code like this
+%
+\begin{verbatim}
+  FastMat2::CacheCtx2 ctx;
+  ctx.use_cache=1;
+  for (int j=0; j<N; j++) {
+    ctx.jump(b1);
+    // Some FastMat2 code...
+    if (method==1) {
+       // Some FastMat2 code for method 1 ...
+    } else if (method==2) {
+       // Some FastMat2 code for method 2 ...
+    }
+    // More FastMat2 code...
+  }
+\end{verbatim}
+%
+If the \verb+method+ flag is determined at the moment of reading
+the data and then is left unchanged for the whole execution of the
+code, then it is not necessary to protect do branching since the
+instruction sequence will be always the same. 
+
+Moreover if you perform a hevy loop (\verb+N+ large) with some value
+for \verb+method+, and then you change \verb+method+, then branching
+is still not needed, provided that the cache structure (\verb+ctx+) is
+rebuilt, as in the code above. However, if the \verb+ctx+ is a global
+variable, and \verb+method+ changed you only have to clear the cache
+structure
+%
+\begin{verbatim}
+  // ctx is some global variable
+  if (method!=last_used_method) ctx.clear();
+  ctx.use_cache=1;
+  for (int j=0; j<N; j++) {
+     //...
+  }
+\end{verbatim}
+
+%<*>---<*>---<*>---<*>---<*>---<*>---<*>---<*>---<*>---<*>---<*> 
 \SSSection{Cache mismatch} 
 
 The cache process may fail if a \emph{cache mismatch} is produced. For
@@ -312,23 +355,191 @@ that is
 \end{itemize}
  
 %<*>---<*>---<*>---<*>---<*>---<*>---<*>---<*>---<*>---<*>---<*> 
-\SSSection{Branch arrays} 
+\SSSection{Branch arrays} \label{sec:branchv}  
 
-If some branching is performed, then you should need a branch object
-for each branch. 
+If some cases you need branching to a certain number of branches, and
+doing it by hand is cumbersome. You should need a branch object
+for each branch, so you can either define a plain STL \verb+vector<>+
+of branches or use the \verb+FastMat2::CacheCtx2::Branchv+
+class. Consider the following code,
+%
+\begin{verbatim}
+  FastMat2::CacheCtx2 ctx;
+  FastMat2::CacheCtx2::Branch b1;
+  FastMat2::CacheCtx2::Branchv b2v(5);
+  FastMat2 x(&ctx,2,5,3);
+  int N = 10000;
+  ctx.use_cache = 1;
+  double sum=0;
+  for (int j=0; j<N; j++) {
+    ctx.jump(b1);
+    x.fun(rnd);
+    int k = rand()%5;
+    ctx.jump(b2v(k));
+    x.ir(1,k+1);
+    sum += x.norm_p_all();
+    x.rs();
+  }
+  ctx.use_cache = 0;
+\end{verbatim}
+%
+At each iteration of the loop you randomly generate a matrix \verb+x+
+of 5x3. Then you randomly pick a row of it, take its norm and
+accumulate on variable \verb+sum+. If you omit in the code the
+\verb+ctx.jump(b2v(k))+ line, then there is only the main \verb+b1+
+branch, and when the \verb+norm_p_all()+ instruction is executed it
+can be reached with a different value of \verb+k+ so that it will not
+give an error but it will compute with the \verb+k+ stored in the
+cache. 
+
+As mentioned above you can either define a plain STL \verb+vector<>+
+of branches or use the \verb+FastMat2::CacheCtx2::Branchv+ class, as
+shown above. The branch array can be given dimensions either at the
+constructor as above, or with the \verb+init+ method,
+%
+\begin{verbatim}
+  FastMat2::CacheCtx2::Branchv b2v;
+  // ... later...
+  b2v.init(5);
+\end{verbatim}
+%
+Multi dimensional arrays can be created, just give more integer
+arguments. Currently, up to 4 dimensions are allowed. 
+
+Please note that, in the case above, if just the same columns is
+visited always then the branching is not needed, for instance, int eh
+following code
+%
+\begin{verbatim}
+  int k = 3;
+  for (int j=0; j<N; j++) {
+    ctx.jump(b1);
+    x.fun(rnd);
+    x.ir(1,k);
+    sum += x.norm_p_all();
+    x.rs();
+  }
+\end{verbatim}
+% 
+the second branching is not neededm because we use the mask
+\emph{always} with the third column. Moreover, in the following case
+%
+\begin{verbatim}
+  for (int j=0; j<N; j++) {
+    ctx.jump(b1);
+    x.fun(rnd);
+    for (int k=1; k<=5; k++) {
+      x.ir(1,k);
+      sum += x.sum_square_all();
+    }
+    x.rs();
+  }
+\end{verbatim}
+% 
+you don't need the branching either, because all the columns are
+visited always in the same order, i.e. the sequence of operations that
+are seen by the cache system are
+%
+\begin{itemize}
+  \compactlist 
+\item \verb+x.fun(rnd)+
+\item \verb+x.sum_square_all()+ with \verb+x+ masked to column 1 
+\item \verb+x.sum_square_all()+ with \verb+x+ masked to column 2
+\item \verb+x.sum_square_all()+ with \verb+x+ masked to column 3 
+\item \verb+x.sum_square_all()+ with \verb+x+ masked to column 4 
+\item \verb+x.sum_square_all()+ with \verb+x+ masked to column 5
+\end{itemize}
+%
+so that, the code above, with only one branch will work OK. 
+
+%<*>---<*>---<*>---<*>---<*>---<*>---<*>---<*>---<*>---<*>---<*> 
+\SSSection{Debugging tools} 
+
+If you receive segmentation violation errors and you suspect that it
+is due to the caching system, then you can enable a self check by
+issuing the \verb+ctx.check_labels()+ instruction. In this way, a
+check string identifying the operations is generated and stored in the
+cache. Then, each time the cache is reused, the string stored in the
+cache is checked against the label for the operation to be performed,
+and if differences are found, the system stops execution. Currently
+the string stores only the type of operation and the pointers to the
+matrices involved, not the masks (this will be done in a future). So
+that an error as discussed in~\S\ref{sec:branchv} will not be
+detected. 
+
+Activating this feature is very expensive, so that it is only expected
+to be used in the debugging process. Production code should not have
+this feature enabled. 
+
+The feature can be selectively activated in some parts of the code and
+deactivated in others. To deactivate the check use
+\verb+ctx.check_labels(0)+.
+
+%<*>---<*>---<*>---<*>---<*>---<*>---<*>---<*>---<*>---<*>---<*> 
+\SSSection{Multithreading, reentrancy} 
+
+If caching is not enabled, FastMat2 is thread safe. If caching is
+enabled, then it is thread safe in the following sense, a ctx must be
+created for each thread, and the matrices used in each thread must be
+associated with the context of that thread.
+
+If creating the cache structures each time is too bad for efficiency,
+then the context and the matrices may be used in a parallel region,
+stored in variables, and reused in a subsequent parallel region.
+
+%<*>---<*>---<*>---<*>---<*>---<*>---<*>---<*>---<*>---<*>---<*> 
+\SSSection{Debugging FastMat2 code} 
+
+The following tips can help in debugging FastMat2 code. 
+
+\begin{itemize}
+  \compactlist 
+\item As with the debugging of any other code, it is better to first
+  switch to the \emph{simplest situation} and debug, then restore each
+  feature at a time. For this, deactivate caching
+  (\verb+ctx.use_cache=0+ ), run in single-thread mode, and go to
+  debug mode code (\verb|BOPT=g_c++|) and debug the code.  This is the
+  simplest situation, you should debug here until you reach a working
+  code that gives the results you expect.\\
+  % 
+  (Note: currently PETSc-FEM does not use multi-threading so that we
+  refer here to deactivating multithreading for other code that may be
+  using FastMat2, as for instance the \verb+trcprtf+ code for particle
+  tracking.)
+\item Enable caching and activate \verb+check_labels()+. Debug until
+  no errors are found, and check that the results are the same as with
+  the non-cached code. (re-checking)
+\item Go to optimized mode and re-check. 
+\item Go to multithread mode and re-check. 
+\end{itemize}
+ 
+%<*>---<*>---<*>---<*>---<*>---<*>---<*>---<*>---<*>---<*>---<*> 
+\SSSection{FastMat2 tips} 
+
+\begin{itemize}
+\compactlist 
+\item Do not leave caching activated in the whole code. After the loops
+  that are most time consuming set \verb+ctx.use_cache=0+. 
+\item Some initialization code or other isolated operations are better
+  to be left uncached.
+\item You can access the raw storage (an array of doubles) inside the
+  matrix with \verb+double *aptr = a.storage_begin()+. This can be
+  used for complex operations that are not easy to code with the
+  FastMat2 methods. 
+\end{itemize}
 
 %% FIXME:= Write on
-%% . branch vectors
-%% . reentrancy
-%% . debugging tools
-%% . tracing tools
-%% . debugging process (deact optimiz, deact multithr, 
+%% . OK branch vectors
+%% . OK debugging tools
+%% . OK reentrancy
+%% . OK- tracing tools (not implemented yet)
+%% . OK debugging process (deact optimiz, deact multithr, 
 %%                      deact cache... activ cache...)
-%% . isolated FastMat2 ops can be left uncached...
-%% . deactivate cache after loops. 
+%% . OK isolated FastMat2 ops can be left uncached...
+%% . OK deactivate cache after loops. 
 %% . branch array vs. continued loop
 
-\SSSection{An older version of cache structure} 
+\SSection{An older version of cache structure}
 
 \textbf{NOTE: This version of cache structure (called
   {\tt CacheCtx1} will be probably declared obsolete in a future. We

@@ -445,7 +445,7 @@ public:
     // Prints a brief summary of the CacheCtx structure 
     void print();
     // Activate debugging through checking labels
-    void check_labels();
+    void check_labels(int do_check=1);
     // Constructs the ctx
     CacheCtx2();
     // Dtor. for the ctx

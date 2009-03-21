@@ -100,7 +100,9 @@ void FastMat2::CacheCtx2::print() {
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>
 void FastMat2::CacheCtx2
-::check_labels() { do_check_labels = 1; }
+::check_labels(int do_check) {
+  do_check_labels = do_check; 
+}
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>
 void FastMat2::CacheCtx2
