@@ -1,6 +1,7 @@
 %__INSERT_LICENSE__
 \Section{The FastMat2 matrix class}
 
+%<*>---<*>---<*>---<*>---<*>---<*>---<*>---<*>---<*>---<*>---<*> 
 \SSection{Introduction} 
 
 Finite element codes usually have two levels of programming.
@@ -39,8 +40,9 @@ loop the address of the elements used in the operation are cached in
 an internal object, so that in the second ans subsequent executions of
 the loop the addresses are retrieved from the cache. 
 
+%<*>---<*>---<*>---<*>---<*>---<*>---<*>---<*>---<*>---<*>---<*> 
 \SSection{Example}\label{sec:fastmat2_example}  
-
+%
 Consider the following simple example. We are given a 2D finite
 element composed of triangles, i.e. an array \verb+xnod+ of
 $2\times\Nnod$ doubles with the node coordinates and an array
@@ -55,9 +57,287 @@ elements $!a=!x_2-!x_1$ and $!b=!x_3-!x_1$. The area of the element
 is, then, the determinant of the $2\times 2$ matrix \lfrc{$!J$} formed by
 putting \lfrc{$!a$} and \lfrc{$!b$} as rows.
 
-The FastMat2 code for the computations is like this
+The FastMat2 code for the computations goes like this,
+
+%%   // define and load xnod, icone...
+%%   double 
+%%     total_area = 0.0,
+%%     minarea = NAN,
+%%     maxarea = NAN;
 
 %\listinginput{1}{fm2ex.cpp}
+\begin{verbatim}
+  FastMat2::CacheCtx2 ctx;
+  FastMat2::CacheCtx2::Branch b1;
+  FastMat2 x(&ctx,2,3,2),a(&ctx,1,2),b(&ctx,1,2),J(&ctx,2,2,2);
+  chrono.start();
+  for (int ie=0; ie<nelem; ie++) {
+    ctx.jump(b1);
+    for (int k=1; k<=3; k++) {
+      int node = icone.e(ie,k-1);
+      x.ir(1,k).set(&xnod.e(node-1,0)).rs();
+    }
+    x.rs();
+    a.set(x.ir(1,2));
+    a.rest(x.ir(1,1));
+
+    b.set(x.ir(1,3));
+    b.rest(x.ir(1,1));
+
+    J.ir(1,1).set(a);
+    J.ir(1,2).set(b);
+    
+    double area = J.rs().det()/2.;
+    total_area += area;
+    if (ie==0) {
+      minarea = area;
+      maxarea = area;
+    }
+
+    if (area>maxarea) maxarea=area;
+    if (area<minarea) minarea=area;
+  }
+  printf("total_area %g, min area %g,max area %g, ratio: %g\n",
+	 total_area,minarea,maxarea,maxarea/minarea);
+  printf("Total area OK? : %s\n",
+	 (fabs(total_area-1)<1e-8 ? "YES" : "NOT"));
+  double cpu = chrono.elapsed();
+\end{verbatim}
+
+Calls to the \verb+FastMat2::CacheCtx2 ctx+ object are related
+with the caching manipulation and will be discussed later. Matrix are
+dimensioned in line 3, the first argument is the number of dimensions,
+and then follow the dimensions, for instance \verb+FastMat2 x(2,3,2)+
+defines a matrix which 2 indices ranging from 1 to 3, and 1 to 2
+respectively. The rows of this matrix will store the coordinates of
+the local nodes to the element. FastMat2 matrices may have any number
+of indices. Actually the library is compiled for a maximum number of
+indices (10 by default. This limit may be modified by redefining
+variable {\tt\$max\_arg} in script \verb+readlist.eperl+ and
+recompile.) Also they can have zero dimensions, which stands for
+scalars.
+
+%<*>---<*>---<*>---<*>---<*>---<*>---<*>---<*>---<*>---<*>---<*> 
+\SSSection{Current matrix views (a.k.a. masks)} \label{sec:fm2-masks}  
+%
+In lines 10 to 13 the coordinates of the nodes are loaded in matrix
+\verb+x+. The underlying philosophy in FastMat2 is that you can set
+\emph{``views''} (a.k.a. \emph{``masks''}) of the matrix without
+actually made any copies of the underlying values. For instance the
+operation \verb+x.ir(1,k)+ (for \emph{``index restriction''}) sets a
+view of \verb+x+ so that index 1 is restricted to take the value $k$
+reducing in one the number of dimensions of the matrix. As \verb+x+
+has two indices, the operation \verb+x.ir(1,k)+ gives a matrix of
+dimension one consisting in the $k$-th row of $x$. A call without
+arguments like in \verb+x.ir()+ cancels the restriction. Also, the
+function \verb+rs()+ (for \emph{``reset''}) cancels the actual view.
+
+%<*>---<*>---<*>---<*>---<*>---<*>---<*>---<*>---<*>---<*>---<*> 
+\SSSection{Set operations} 
+The operation \verb+a.set(x.ir(1,2))+ copies the contents of the
+argument \verb+x.ir(1,2)+ in \verb+a+. Also we can use \verb+x.set(y)+
+with \verb+y+ a Newmat matrix (\verb+Matrix y+) or an array of doubles
+(\verb+double *y+). 
+
+%<*>---<*>---<*>---<*>---<*>---<*>---<*>---<*>---<*>---<*>---<*> 
+\SSSection{Dimension matching} The \verb+x.set(y)+ operation requires
+that \verb+x+ and \verb+y+ have the same ``viewed'' dimensions.  As the
+\verb+.ir(1,2)+ operation restricts index to the value of 2,
+\verb+x.ir(1,2)+ is seen as a row vector of size 2 and then can be
+copied to $a$. If the ``viewed'' dimensions don't fit then an error is
+issued.
+
+%<*>---<*>---<*>---<*>---<*>---<*>---<*>---<*>---<*>---<*>---<*> 
+\SSSection{Automatic dimensioning} 
+In the example, \verb+a+ has been dimensioned at line
+3, but most operations perform the dimensioning if the matrix has not
+been already dimensioned. For instance, if at line 3 we would declared
+\verb+FastMat2 a+ only, without specifying dimensions, then at line
+12, the matrix is created and dimensioned taking the dimensions from
+the argument. The same applies to \verb+set(Matrix &)+ but not to
+\verb+set(double *)+ since in this last case the argument
+(\verb+double *+) don't posses information about his dimensions. Other
+operations that define dimensions are products and contraction
+operations. 
+
+%<*>---<*>---<*>---<*>---<*>---<*>---<*>---<*>---<*>---<*>---<*> 
+\SSSection{Concatenation of operations} Many operations return a
+reference to the matrix (return value \verb+FastMat2 &+) so that
+operations may be concatenated as in \verb+A.ir(1,k).ir(2,j)+.
+
+%<*>---<*>---<*>---<*>---<*>---<*>---<*>---<*>---<*>---<*>---<*> 
+\SSection{Caching the adresses used in the operations} 
+
+If \emph{caching} is not used the performance of the library is
+poor, typically one to two orders of magnitude slower than the cached
+version, and the cached version is very fast, in the sense that almost
+all the CPU time us spent in performing multiplications and additions,
+and negligible CPU time is spent in auxiliary operations.
+
+%<*>---<*>---<*>---<*>---<*>---<*>---<*>---<*>---<*>---<*>---<*>
+\SSSection{The FastMat2 operation cache concept} 
+
+The idea with caches is that they are objects
+(\verb+class FastMatCache+) that store the adresses needed for the
+current operation. In the first pass through the body of the loop a
+cache object is created for each of the operations, and stored in a
+list. This list is basically an STL list of cache objects. When the
+body of the loop is executed the second time and the following, the
+adresses of the matrix elements are not needed to be recomputed but
+they are read from the cache instead. The use of the cache is rather
+automatic and requires some intervention by the user but in some
+cases the position in the cache-list can get out of sync with respect
+to the execution of the operations and severe errors may occur.
+
+The basic use of caching is to create the cache structure
+\verb+FastMat2::CacheCtx2 ctx+ and keep the position in the cache
+structure \emph{synchronized} with the position of the code. The
+process is very simple, when the code consists in a linear sequence of
+FastMat2 operations that are executed always in the same order. In
+this case the \verb+CacheCtx2+ object stores a list of the cache
+objects (one for each FastMat2 operation). As the operations are
+executed the internal FastMat2 code is incharge of advancing the cache
+position in the cache list automatically. A linear sequence of cache
+operations that are executed \emph{always} in the same order is called
+a \emph{branch}. 
+
+Looking at the previous code, we have one branch starting at the
+\verb+x.ir(1,k).set(...)+ line, through the \verb+J.rs().det()+
+line. This sequence is repeated many times (one for each element) so
+that it is interesting to \emph{reuse the cache list}. For this, we
+create a \emph{branch} object \verb+b1+ (class
+\verb+FastMat2::CacheCtx2::Branch+) object and \emph{jump} to this
+branch each time we enter the loop. The first time we enter the loop
+the cache list is created and stored in the first position of the
+cache structure. In the next and subsequent executions of the loop,
+the cache is resued avoiding recomputation of many administrative work
+related with the matrices. 
+
+The problem is when the sequence of operations is not always the
+same. In that case we must issue several \verb+jump()+ commands, each
+one to the start of a sequence of FastMat2 operations. Consider for
+instance the following code,
+
+\begin{verbatim}
+  FastMat2::CacheCtx2 ctx;
+  FastMat2::CacheCtx2::Branch b1, b2;
+  FastMat2 x(&ctx,1,3);
+  ctx.use_cache = 1;
+  int N = 10000, in=0, out=0;
+  
+  for (int j=0; j<N; j++) {
+    ctx.jump(b1);
+    x.fun(rnd);
+    double len = x.norm_p_all();
+    if (len<1.0) {
+      in++;
+      ctx.jump(b2);
+      x.scale(1.0/len);
+    }
+  }
+  printf("total %d, in %d (%f%%)\n",
+         N,in,double(in)/N);
+\end{verbatim}
+
+A vector \verb+x+ of size 3 is randomly generated in a loop (the line
+\verb+x.fun(rnd);+). Then its length is computed, and if is shorter
+than 1.0 it is scaled by \verb+1.0/len+, so that its final length is
+one. In this case we have to branches, 
+%
+\begin{itemize}
+\compactlist 
+\item[] branch \verb+b1+: operations \verb+x.fun()+  and
+  \verb+x.norm_p_all()+,
+\item[] branch \verb+b2+: operation \verb+x.scale()+. 
+\end{itemize}
+%
+so that we define two branch objects \verb+b1,b2+ and do the
+corresponding jumps. 
+
+%<*>---<*>---<*>---<*>---<*>---<*>---<*>---<*>---<*>---<*>---<*> 
+\SSSection{Cache mismatch} 
+
+The cache process may fail if a \emph{cache mismatch} is produced. For
+instance, consider the following variation of the previous code
+%
+\begin{verbatim}
+  FastMat2::CacheCtx2 ctx;
+  FastMat2::CacheCtx2::Branch b1, b2, b3;
+  //...
+  for (int j=0; j<N; j++) {
+    ctx.jump(b1);
+    x.fun(rnd);
+    double len = x.norm_p_all();
+    if (len<1.0) {
+      in++;
+      ctx.jump(b2);
+      x.scale(1.0/len);
+    } else if (len>1.1) {
+      ctx.jump(b3);
+      x.set(0.0);
+    }
+  }
+\end{verbatim}
+%
+There is an additional block in the conditional, if the length of the
+vector is greater than 1.1, then the vector is set to the null
+vector. 
+
+We have now three branches. The code shown works OK, but if, let's
+say, we forgot to add a third branch, and replace the
+\verb+ctx.jump(b3)+ for a \verb+ctx.jump(b2)+, then when reaching the
+\verb+x.set(0.0);+ operation the corresponding cache would be the
+cache corresponding to the \verb+x.scale()+ operation, and most
+probably and error or incorrect computation will occur. Every time
+that the retrieved cache doesn't exist or doesn't match with the
+operation that will be computed we say that there is a \emph{cache
+  mismatch}. 
+
+%<*>---<*>---<*>---<*>---<*>---<*>---<*>---<*>---<*>---<*>---<*> 
+\SSSection{When a cache mismatch is produced} 
+
+Basically, the information stored in the cache (and then, retrieved
+from the objects that were passed in the moment of creating the cache)
+must be the same needed for performing the current FastMat2 operation,
+that is
+%
+\begin{itemize}
+\compactlist 
+\item The FastMat2 matrices involved must be the same, 
+  (i.e. their pointers to the matrices must be the same). 
+\item The indices passed in the operation (for instance for the
+  \verb+prod()+, \verb+ctr+, \verb+sum()+ operations). 
+\item The masks (see~\S\ref{sec:fm2-masks}) applied to each of the
+  matrix arguments. 
+\end{itemize}
+ 
+%<*>---<*>---<*>---<*>---<*>---<*>---<*>---<*>---<*>---<*>---<*> 
+\SSSection{Branch arrays} 
+
+If some branching is performed, then you should need a branch object
+for each branch. 
+
+%% FIXME:= Write on
+%% . branch vectors
+%% . reentrancy
+%% . debugging tools
+%% . tracing tools
+%% . debugging process (deact optimiz, deact multithr, 
+%%                      deact cache... activ cache...)
+%% . isolated FastMat2 ops can be left uncached...
+%% . deactivate cache after loops. 
+%% . branch array vs. continued loop
+
+\SSSection{An older version of cache structure} 
+
+\textbf{NOTE: This version of cache structure (called
+  {\tt CacheCtx1} will be probably declared obsolete in a future. We
+  encourage users to use the new {\tt CacheCtx2} version).}
+
+The functions for manipulating the cache structure are different for
+\verb+FastMat2::CacheCtx1+ than for \verb+FastMat2::CacheCtx2+. The
+example above is rewritten as follows, 
+
 \begin{verbatim}
   Chrono chrono;
   FastMat2 x(2,3,2),a(1,2),b(1,2),J(2,2,2);
@@ -103,84 +383,7 @@ The FastMat2 code for the computations is like this
 	 nelem*FastMat2::operation_count()/cpu/1e6);
   FastMat2::void_cache();
   FastMat2::deactivate_cache();
-
 \end{verbatim}
-
-Calls to the static members (those starting with \verb+FastMat2::+)
-are related with the caching manipulation and will be discussed
-later. Matrix are dimensioned in line 2, the first argument is the
-number of dimensions, and then follow the dimensions, for instance
-\verb+FastMat2 x(2,3,2)+ defines a matrix which 2 indices ranging from
-1 to 3, and 1 to 2 respectively. The rows of this matrix will store
-the coordinates of the local nodes to the element. FastMat2 matrices
-may have any number of indices. Actually the library is compiled for a
-maximum number of indices (10 by default. This limit may be modified
-by redefining variable {\tt\$max\_arg} in script \verb+readlist.eperl+
-and recompile.) Also they can have zero dimensions, which stands for
-scalars. 
-
-\SSSection{Current Matrix view} 
-In lines 9 to 12 the coordinates of the nodes are
-loaded in matrix \verb+x+. The underlying philosophy in FastMat2 is
-that you can set \emph{``views''} of the matrix without actually made
-any copies of the underlying values. For instance the operation
-\verb+x.ir(1,k)+ (for \emph{``index restriction''}) sets a view of
-\verb+x+ so that index 1 is restricted to take the value $k$ reducing
-in one the number of dimensions of the matrix. As \verb+x+ has two
-indices, the operation \verb+x.ir(1,k)+ gives a matrix of dimension
-one consisting in the $k$-th row of $x$. A call without arguments like
-in \verb+x.ir()+ cancels the restriction. Also, the function \verb+rs()+
-(for \emph{``reset''}) cancels the actual view. 
-
-\SSSection{Set operations} 
-The operation \verb+a.set(x.ir(1,2))+ copies the contents of the
-argument \verb+x.ir(1,2)+ in \verb+a+. Also we can use \verb+x.set(y)+
-with \verb+y+ a Newmat matrix (\verb+Matrix y+) or an array of doubles
-(\verb+double *y+). 
-
-\SSSection{Dimension matching} The \verb+x.set(y)+ operation requires
-that \verb+x+ and \verb+y+ have the same ``viewed'' dimensions.  As the
-\verb+.ir(1,2)+ operation restricts index to the value of 2,
-\verb+x.ir(1,2)+ is seen as a row vector of size 2 and then can be
-copied to $a$. If the ``viewed'' dimensions don't fit then an error is
-issued.
-
-\SSSection{Automatic dimensioning} 
-In the example, \verb+a+ has been dimensioned at line
-2, but most operations perform the dimensioning if the matrix has not
-been already dimensioned. For instance, if at line 2 we would declared
-\verb+FastMat2 a+ only, without specifying dimensions, then at line
-14, the matrix is created and dimensioned taking the dimensions from
-the argument. The same applies to \verb+set(Matrix &)+ but not to
-\verb+set(double *)+ since in this last case the argument
-(\verb+double *+) don't posses information about his dimensions. Other
-operations that define dimensions are products and contraction
-operations. 
-
-\SSSection{Concatenation of operations} Many operations return a
-reference to the matrix (return value \verb+FastMat2 &+) so that
-operations may be concatenated as in \verb+A.ir(1,k).ir(2,j)+.
-
-\SSection{Caching the adresses used in the operations} 
-
-If caching is not used the performance of the library is poor,
-typically one to two orders of magnitude slower than the cached
-version, and the cached version is very fast, in the sense that almost
-all the CPU time us spent in performing multiplications and additions,
-and negligible CPU time is spent in auxiliary operations. 
-
-The idea with caches is that they are objects
-(\verb+class FastMatCache+) that store the adresses needed for the
-current operation. In the first pass through the body of the loop a
-cache object is created for each of the operations, and stored in a
-list of class \verb+FastMatCacheList+. This list is basically an STL
-vector of pointers to cache objects. When the body of the loop is
-executed the second time and the following, the adresses are not
-needed to be recomputed but they are read from the cache instead. The
-use of the cache is rather automatic and requires little intervention
-by the user but in some cases the position in the cache-list can get
-out of sync with respect to the execution of the operations and severe
-errors may occur.
 
 The typical use can be seen in the example shown in section
 \S\ref{sec:fastmat2_example}. First we have to create a
@@ -234,7 +437,7 @@ FastMat2::deactivate_cache();         // deactivates cache
 \label{fg:cache}
 \end{figure*}
  
-\SSSection{Branching} 
+\SSSSection{Branching} 
 
 Caching \{ is straightforward if the sequence of operations are executed
 linearly, with the same local variables, without branching or looping.
@@ -349,7 +552,7 @@ turbulence model A'' and branch '0' to model B, then the same branch
 is executed for all the elements and there is no need to call the
 static functions.
 
-\SSSection{Loops executed a non constant number of times}\label{sec:loop}  
+\SSSSection{Loops executed a non constant number of times}\label{sec:loop}  
 
 Another special case is when there are loops inside the body of the
 outer loop.  Note that no special branching is needed in general if
@@ -449,7 +652,7 @@ large, and the most time consuming part is the execution of this loop,
 then it may be convenient to choose this loop as the ``outer'' one. 
 
 %<*>---<*>---<*>---<*>---<*>---<*>---<*>---<*>---<*>---<*>---<*>
-\SSSection{Masks can't traverse branches} 
+\SSSSection{Masks can't traverse branches} 
 
 Another restriction is that if branching is used, the mask that is
 active at a certain \verb+FastMat2+ cached operation must be the same
@@ -496,7 +699,7 @@ for (int j=0; j<N; j++) {
 \end{verbatim}
 
 %<*>---<*>---<*>---<*>---<*>---<*>---<*>---<*>---<*>---<*>---<*>
-\SSSection{Efficiency} 
+\SSSSection{Efficiency} 
 
 %Efficiency, memory required by the caches...
 %Amortization time
@@ -727,5 +930,6 @@ These routines control the use of the cache list.
 
 % Local Variables: *
 % mode: latex *
+% latex-occur-section-regexp: "^\\\\S*ection" *
 % tex-main-file: "petscfem.tex" *
 % End: *
