@@ -13267,7 +13267,7 @@ FastMat2::CacheCtx2
     . verificar eficiencia OK
     . migrar trcprtf a CacheCtx2 OK
     . verificar reentrancia OK
-    . agregar tool para debugging
+    . agregar tool para debugging OK
 %
 %-- 10:35:13 -- mstorti-v24-start-23-g7e668d7 -----
 EFICIENCIA:
@@ -13444,3 +13444,10 @@ O sea que la ineficiencia vino con el agregado del
 check_label(). Pruebo a eliminar la parte del check_label() en step()
 y vuelvo a eficiencias buenas, asi que se ve que antes habia hecho una
 experiencia erronea. 
+
+%=== Sat Mar 21 00:19:45 2009 mstorti@galileo
+%
+%-- 00:19:45 -- mstorti-v24-end-4-gfe83257 -----
+PLAN DE TRABAJO CacheCtx2:
+. agregar tests (copiar los usados con CacheCtx1)
+. agregar doc

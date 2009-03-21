@@ -276,6 +276,7 @@ public:
   // that is the traditional one and CacheCtx2 with a simpler
   // way to implement branching. 
   class CacheCtx {
+    friend class FastMat2;
   public:
     CacheCtx();
     virtual FastMatCache *step()=0;
@@ -293,9 +294,15 @@ public:
   };
   // This is the original CacheCtx class, each
   // branch is a vector of caches and at each
-  // branch points there is a vector of new branches. 
+  // branch points there is a vector of new branches.
+  // Probably this Ctx will be obsolete in a future,
+  // and only CacheCtx2 will be used. 
   class CacheCtx1 : public CacheCtx {
-  public:
+  private:
+    friend class FastMat2;
+    // Step through the cache line, i.e. advance
+    // by one cache. 
+    FastMatCache *step();
     /// Root of cache lists
     FastMatCacheList *cache_list_root;
     /// Root list of caches for this ctx
@@ -316,88 +323,144 @@ public:
     string last_trace;
     /// Flag is traceing is on
     int do_trace;
+  public:
+    // Get the current position inf the cache struture. 
+    // Later, the user can jump to this position. 
     void get_cache_position(FastMatCachePosition & pos);
+    // check whether the current cache is ok
     int check_cache_position(FastMatCachePosition & pos);
+    // deactivate caching
     void deactivate_cache();
+    // open a branch, so that after this, user
+    // can call choose(j) to follow a specific branch
     void branch();
+    // follow a specific branch
     void choose(const int j);
+    // Leave a branching region, i.e. all branchs are joined into
+    // the main trunk again
     void leave(void);
+    // Recomputes the was_cached variable
     void resync_was_cached();
+    // Jumps to a given position in the cache-list.
     void jump_to(FastMatCachePosition &pos);
+    // Computes the total number of operations in the cache
+    // list. Currently all operations counts as one. In the
+    // future we will give weights to each type of operation. 
     double operation_count(void);
+    // Resets the cache. To be used after each iteration loop.
     void reset_cache(void);
+    // Print statistics about the number of operations of
+    // each type in the current cache list.
     void print_count_statistics();
+    // Activates use of the cache
     void activate_cache(FastMatCacheList *cache_list_);
+    // Activates the cache
     void init();
+    // Voids the cache. Frees the memory used by the cahe
+    // list after processing.
     void void_cache(void);
+    // Sets an internal variable, so that next
+    // caches include this label. 
     void set_trace(string label);
+    // Idem for a plain C string
     void set_trace(const char *label);
+    // Activate tracing
     void trace(int state=1);
-    FastMatCache *step();
-    friend class FastMat2;
+    // Ctor.
     CacheCtx1();
   };
   // This is the new CacheCtx class. Branching is simpler.
   // Each branch is a list<cache> and all branches are
   // stored in a vector<list<cache>>. 
   class CacheCtx2 : public CacheCtx {
+    friend class FastMat2;
   private:
+    // Each branch is a list<> of FastMatCache's
     typedef std::list<FastMatCache> clist_t;
+    // Each branch is stored (as a ptr) in vectors.
+    // We store the branches as ptr's since otherwise ,
+    // when the vector is resized, caches could be
+    // destroyed and recreated. 
     typedef std::vector<clist_t *> branchv_t;
+    // This is the actual vector storing the caches. 
     branchv_t branchv;
+    // This is the indx of the actual branch
     int branch_indx;
+    // This is the ptr to the actual branch
     clist_t *branch_p;
+    // This is the position in the list for the current cache
     clist_t::iterator q;
+    // This flags whether we perform a check on the labels. 
     int do_check_labels;
+    // This is an auxiliary string buffer to construct
+    // the string id for the cache when debugging is on. 
     AutoString as;
-  public:
-    class Branch {
-    private:
-      friend class CacheCtx2;
-      // Data for scalar pos
-      int indx;
-    public:
-      Branch();
-      // Data for array dim pos
-#if 0
-    private:
-      int rank;
-      vector<int> shape;
-      vector<int> branchs;
-    public:
-      Branch(int j=-1,int k=-1,int l=-1);
-#endif
-    };
-    class Branchv {
-    private:
-      vector<Branch> bv;
-      vector<int> shape;
-      int rank;
-    public:
-      void init(int d1=-1,int d2=-1,int d3=-1,int d4=-1);
-      Branchv(int d1=-1,int d2=-1,int d3=-1,int d4=-1);
-      Branchv(const vector<int> &shape_a);
-      Branch& operator()(int j1=-1,int j2=-1,int j3=-1,int j4=-1);
-      // Branch operator()(const vector<int> &indxs);
-    };
-    void clear();
-    void jump(Branch &b);
+    // Steps through the current branch, i.e.
+    // advances one cache. Step functions are usually called
+    // by the cached operations
     FastMatCache *step();
+    // 
     FastMatCache *step(const char *label, 
                        const FastMat2 *p1=NULL,
                        const FastMat2 *p2=NULL, 
                        const FastMat2 *p3=NULL);
+  public:
+    // Branchs are currently an integer that means the position
+    // of the list in the vector. 
+    class Branch {
+    private:
+      friend class CacheCtx2;
+      // Position in vector branchv
+      int indx;
+    public:
+      Branch();
+    };
+    // Arrays and matrices of branches are
+    // stored in this class. 
+    class Branchv {
+    private:
+      // The branchs are stored in a plain vector of branches
+      vector<Branch> bv;
+      // This is the shape of the array
+      vector<int> shape;
+      // This is the rank (length of the shape vector)
+      int rank;
+    public:
+      // This does the jobe of actually computing the
+      // shape and dimensioning the array 
+      void init(int d1=-1,int d2=-1,int d3=-1,int d4=-1);
+      // User can declare the branch array and later do a init(),
+      // or either use this contructorx
+      Branchv(int d1=-1,int d2=-1,int d3=-1,int d4=-1);
+      // This constructor takes straightforwardly a
+      // shape vector. 
+      Branchv(const vector<int> &shape_a);
+      // Given a set of indices returns the corresponding branch
+      Branch& operator()(int j1=-1,int j2=-1,int j3=-1,int j4=-1);
+    };
+    // Clears all the lists and resets the vector to nulle length
+    void clear();
+    // Jumps to a specific branch
+    void jump(Branch &b);
+    // Prints a brief summary of the CacheCtx structure 
     void print();
+    // Activate debugging through checking labels
     void check_labels();
+    // Constructs the ctx
     CacheCtx2();
+    // Dtor. for the ctx
     ~CacheCtx2();
   };
 private:
+  // Each matrix contains a ptr to his ctx
   CacheCtx *ctx;
+  // There are two global ctx, one of each
+  // type (CacheCtx1 and CacheCtx2)
   static CacheCtx1 global_cache_ctx1;
   static CacheCtx2 global_cache_ctx2;
   /// Controls debugging
   static int cache_dbg, use_cachectx2_as_default;
+  // Sets which type of ctx is used as default. 
   void set_default_ctx();
 
 public:

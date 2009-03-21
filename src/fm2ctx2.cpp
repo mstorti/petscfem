@@ -66,7 +66,7 @@ FastMatCache* FastMat2::CacheCtx2
   FastMatCache *cache=NULL;
   if (use_cache) {
     if (do_check_labels) {
-      as.sprintf("%s %p %p %p",label,p1,p2,p3);
+      as.clear().sprintf("%s %p %p %p",label,p1,p2,p3);
     }
     if (was_cached) {
       cache = &*q++;
