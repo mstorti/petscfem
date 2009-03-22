@@ -88,9 +88,8 @@ FastMatCache* FastMat2::CacheCtx2
     if (was_cached) {
       cache = &*q++;
       if (do_check_labels) {
-#if 1
-        printf("cached %s\n"
-               "wanted %s\n",
+#if 0
+        printf("cached %s\n" "wanted %s\n",
                cache->check_label.c_str(),as.str());
 #endif
         PETSCFEM_ASSERT(as.str()==cache->check_label,
