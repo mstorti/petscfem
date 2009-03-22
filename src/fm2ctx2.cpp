@@ -41,13 +41,13 @@ void FastMat2::CacheCtx2
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>
 void FastMat2::CacheCtx2
 ::check(const char *label) { 
-  as.sprintf("%s ",label);
+  as.cat_sprintf("%s ",label);
 }
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>
 void FastMat2::CacheCtx2
 ::check(const FastMat2 *Ap) { 
-  as.sprintf("%p ",Ap);
+  as.cat_sprintf("%p ",Ap);
 }
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>
@@ -87,11 +87,17 @@ FastMatCache* FastMat2::CacheCtx2
   if (use_cache) {
     if (was_cached) {
       cache = &*q++;
-      if (do_check_labels)
+      if (do_check_labels) {
+#if 1
+        printf("cached %s\n"
+               "wanted %s\n",
+               cache->check_label.c_str(),as.str());
+#endif
         PETSCFEM_ASSERT(as.str()==cache->check_label,
                         "Failed FastMat2 cache check, "
                         "cached: \"%s\", wanted: \"%s\"",
                         cache->check_label.c_str(),as.str()); 
+      }
     } else {
       branch_p->push_back(FastMatCache());
       cache = &branch_p->back();
