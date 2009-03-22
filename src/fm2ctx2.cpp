@@ -96,6 +96,8 @@ void FastMat2::CacheCtx2
   branchv.clear(); 
 }
 
+int FastMat2_CacheCtx2_print_labels=0;
+
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>
 FastMatCache* FastMat2::CacheCtx2
 ::step() {
@@ -104,10 +106,9 @@ FastMatCache* FastMat2::CacheCtx2
     if (was_cached) {
       cache = &*q++;
       if (do_check_labels) {
-#if 1
-        printf("cached %s\n" "wanted %s\n",
-               cache->check_label.c_str(),as.str());
-#endif
+        if (FastMat2_CacheCtx2_print_labels) 
+          printf("cached %s\n" "wanted %s\n",
+                 cache->check_label.c_str(),as.str());
         PETSCFEM_ASSERT(as.str()==cache->check_label,
                         "Failed FastMat2 cache check, "
                         "cached: \"%s\", wanted: \"%s\"",
