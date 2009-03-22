@@ -82,7 +82,6 @@ _//>
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 FastMat2 & FastMat2::__NAME__(const double val, INT_VAR_ARGS_ND) {
 
-  // CTX2_CHECK("__NAME__",this);
   if (ctx->do_check_labels) {
     ctx->check_clear();
     ctx->check("__NAME__",this);
@@ -304,7 +303,16 @@ public:
 FastMat2 & FastMat2::__NAME__(const FastMat2 & A, __OTHER_ARGS__ __C__ 
 			      const int m,INT_VAR_ARGS_ND) {
 
-  CTX2_CHECK("__NAME__",this,&A);
+  //CTX2_CHECK("__NAME__",this,&A);
+  if (ctx->do_check_labels) {
+    ctx->check_clear();
+    ctx->check("__NAME__",this,&A);
+    ctx->check(m);
+    Indx indx;
+    READ_ARG_LIST(arg,indx,INT_ARG_LIST_DEFAULT_VAL,EXIT2)
+    ctx->check(indx);
+  }
+  FastMatCache *cache = ctx->step();
 
   if (!ctx->was_cached  ) {
     Indx sindx,fdims,Afdims;
@@ -500,7 +508,16 @@ _//>
 FastMat2 & FastMat2::prod(const FastMat2 & A,const FastMat2 & B,
                           const int m,INT_VAR_ARGS_ND) {
 
-  CTX2_CHECK("prod",this,&A,&B);
+  if (ctx->do_check_labels) {
+    ctx->check_clear();
+    ctx->check("__NAME__",this,&A,&B);
+    ctx->check(m);
+    Indx indx;
+    READ_ARG_LIST(arg,indx,INT_ARG_LIST_DEFAULT_VAL,EXIT2)
+    ctx->check(indx);
+  }
+  FastMatCache *cache = ctx->step();
+  // CTX2_CHECK("prod",this,&A,&B);
 
   if (!ctx->was_cached  ) {
     Indx ia,ib,ii;
@@ -802,7 +819,16 @@ _//>
 FastMat2 & FastMat2::ctr(const FastMat2 & A,
                          const int m,INT_VAR_ARGS_ND) {
 
-  CTX2_CHECK("ctr",this,&A);
+  if (ctx->do_check_labels) {
+    ctx->check_clear();
+    ctx->check("__NAME__",this,&A);
+    ctx->check(m);
+    Indx indx;
+    READ_ARG_LIST(arg,indx,INT_ARG_LIST_DEFAULT_VAL,EXIT2)
+    ctx->check(indx);
+  }
+  FastMatCache *cache = ctx->step();
+  // CTX2_CHECK("ctr",this,&A);
 
   if (!ctx->was_cached  ) {
     Indx ia,ii;
@@ -945,7 +971,16 @@ _//>
 FastMat2 & FastMat2::diag(FastMat2 & A,const int m,
                           INT_VAR_ARGS_ND) {
 
-  CTX2_CHECK("diag",this,&A);
+  if (ctx->do_check_labels) {
+    ctx->check_clear();
+    ctx->check("__NAME__",this,&A);
+    ctx->check(m);
+    Indx indx;
+    READ_ARG_LIST(arg,indx,INT_ARG_LIST_DEFAULT_VAL,EXIT2)
+    ctx->check(indx);
+  }
+  FastMatCache *cache = ctx->step();
+  // CTX2_CHECK("diag",this,&A);
 
   if (!ctx->was_cached) {
     Indx ia,ii;
@@ -1045,7 +1080,15 @@ _//>
 //<$get=<<'//EOF';
 double FastMat2::get(INT_VAR_ARGS_ND) const {
 
-  CTX2_CHECK("get",this);
+  if (ctx->do_check_labels) {
+    ctx->check_clear();
+    ctx->check("__NAME__",this);
+    Indx indx;
+    READ_ARG_LIST(arg,indx,INT_ARG_LIST_DEFAULT_VAL,EXIT2)
+    ctx->check(indx);
+  }
+  FastMatCache *cache = ctx->step();
+  // CTX2_CHECK("get",this);
 
   if (!ctx->was_cached) {
     Indx indx,fdims;
