@@ -290,7 +290,7 @@ structure
 %
 \begin{verbatim}
   // ctx is some global variable
-  if (method!=last_used_method) ctx.clear();
+  if (method!!=last_used_method) ctx.clear();
   ctx.use_cache=1;
   for (int j=0; j<N; j++) {
      //...

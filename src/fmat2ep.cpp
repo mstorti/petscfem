@@ -19,19 +19,11 @@ int mem_size(const Indx & indx) {
   return size;
 }
 
-//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
-
-//<$cache_op=<<'//EOF';
-FastMatCache *cache = ctx->step();
-//EOF
-_//>
-//<$CACHE_OPERATIONS = $cache_op;//>
-
 //<$genone=<<'//EOF';
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 FastMat2 & FastMat2::__NAME__(const FastMat2 & A __OTHER_ARGS__) {
 
-  FastMatCache *cache = ctx->step("__NAME__",this,&A);
+  CTX2_CHECK("__NAME__",this,&A);
 
   if (!ctx->was_cached  ) {
     assert(A.defined);
@@ -90,7 +82,7 @@ _//>
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 FastMat2 & FastMat2::__NAME__(const double val, INT_VAR_ARGS_ND) {
 
-  FastMatCache *cache = ctx->step("__NAME__",this);
+  CTX2_CHECK("__NAME__",this);
 
   if (!ctx->was_cached  ) {
     Indx indx,fdims;
@@ -137,7 +129,7 @@ _//>
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 FastMat2 & FastMat2::set(const double *a) {
 
-  FastMatCache *cache = ctx->step("set",this);
+  CTX2_CHECK("set",this);
 
   if (!ctx->was_cached  ) {
     if (!defined) {
@@ -178,8 +170,8 @@ FastMat2 & FastMat2::set(const Matrix & A) {
   // This should require that the arguments
   // should be generic ptrs. since A is a Newmat Matrix, not a
   // FastMat2. 
-  // FastMatCache *cache = ctx->step("__NAME__",this,&A);
-  FastMatCache *cache = ctx->step("set",this);
+  // CTX2_CHECK("__NAME__",this,&A);
+  CTX2_CHECK("set",this);
 
   if (!ctx->was_cached  ) {
     int m = A.Nrows();
@@ -304,7 +296,7 @@ public:
 FastMat2 & FastMat2::__NAME__(const FastMat2 & A, __OTHER_ARGS__ __C__ 
 			      const int m,INT_VAR_ARGS_ND) {
 
-  FastMatCache *cache = ctx->step("__NAME__",this,&A);
+  CTX2_CHECK("__NAME__",this,&A);
 
   if (!ctx->was_cached  ) {
     Indx sindx,fdims,Afdims;
@@ -432,7 +424,7 @@ FastMat2 & FastMat2::__NAME__(const FastMat2 & A, __OTHER_ARGS__ __C__
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 double FastMat2::__NAME___all(__OTHER_ARGS__) const {
 
-  FastMatCache *cache = ctx->step("__NAME___all",this);
+  CTX2_CHECK("__NAME___all",this);
 
   gensum_all_cache *gsac=NULL;
   if (!ctx->was_cached) {
@@ -461,7 +453,7 @@ _//>
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 FastMat2 & FastMat2::__NAME__(__FUN_ARGS__) {
 
-  FastMatCache *cache = ctx->step("__NAME__",this);
+  CTX2_CHECK("__NAME__",this);
 
   if (!ctx->was_cached  ) {
     assert(defined);
@@ -500,7 +492,7 @@ _//>
 FastMat2 & FastMat2::prod(const FastMat2 & A,const FastMat2 & B,
                           const int m,INT_VAR_ARGS_ND) {
 
-  FastMatCache *cache = ctx->step("prod",this,&A,&B);
+  CTX2_CHECK("prod",this,&A,&B);
 
   if (!ctx->was_cached  ) {
     Indx ia,ib,ii;
@@ -757,7 +749,7 @@ _//>
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 __CONST__ FastMat2 & FastMat2::export_vals(__ARG__) __CONST__ {
 
-  FastMatCache *cache = ctx->step("export_vals",this);
+  CTX2_CHECK("export_vals",this);
 
   if (!ctx->was_cached  ) {
     if (!defined) {
@@ -802,7 +794,7 @@ _//>
 FastMat2 & FastMat2::ctr(const FastMat2 & A,
                          const int m,INT_VAR_ARGS_ND) {
 
-  FastMatCache *cache = ctx->step("ctr",this,&A);
+  CTX2_CHECK("ctr",this,&A);
 
   if (!ctx->was_cached  ) {
     Indx ia,ii;
@@ -945,7 +937,7 @@ _//>
 FastMat2 & FastMat2::diag(FastMat2 & A,const int m,
                           INT_VAR_ARGS_ND) {
 
-  FastMatCache *cache = ctx->step("diag",this,&A);
+  CTX2_CHECK("diag",this,&A);
 
   if (!ctx->was_cached) {
     Indx ia,ii;
@@ -1045,7 +1037,7 @@ _//>
 //<$get=<<'//EOF';
 double FastMat2::get(INT_VAR_ARGS_ND) const {
 
-  FastMatCache *cache = ctx->step("get",this);
+  CTX2_CHECK("get",this);
 
   if (!ctx->was_cached) {
     Indx indx,fdims;
@@ -1081,7 +1073,7 @@ _//>
 // This is somewhat redundant because you can use A.get()
 FastMat2::operator double() const { 
   
-  FastMatCache *cache = ctx->step("double",this);
+  CTX2_CHECK("double",this);
 
   if (!ctx->was_cached) {
     Indx fdims;
@@ -1103,7 +1095,7 @@ _//>
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 double FastMat2::det(void) const {
 
-  FastMatCache *cache = ctx->step("det",this);
+  CTX2_CHECK("det",this);
 
   if (!ctx->was_cached) {
     Indx dims_;
@@ -1164,7 +1156,7 @@ _//>
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 FastMat2 & FastMat2::kron(const FastMat2 & A,
                           const FastMat2 & B) {
-  FastMatCache *cache = ctx->step("det",this,&A,&B);
+  CTX2_CHECK("det",this,&A,&B);
 
   if (!ctx->was_cached) {
     Indx Adims,Bdims,dims_;
@@ -1244,7 +1236,7 @@ _//>
 FastMat2 & FastMat2::eye(const double a) {
   set(0.);
 
-  FastMatCache *cache = ctx->step("eye",this);
+  CTX2_CHECK("eye",this);
 
   if (!ctx->was_cached  ) {
 
@@ -1301,7 +1293,7 @@ public:
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 double FastMat2::detsur(FastMat2 *nor) {
 
-  FastMatCache *cache = ctx->step("detsur",this,nor);
+  CTX2_CHECK("detsur",this,nor);
 
   detsur_cache * dsc;
   if (!ctx->was_cached) {
@@ -1399,7 +1391,7 @@ public:
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 FastMat2 & FastMat2::cross(const FastMat2 & a,const FastMat2 & b) {
 
-  FastMatCache *cache = ctx->step("cross",this,&a,&b);
+  CTX2_CHECK("cross",this,&a,&b);
 
   // Cross product of vectors
   cross_cache *ccache;

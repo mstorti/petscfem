@@ -13,10 +13,27 @@ FastMat2::CacheCtx2 FastMat2::global_cache_ctx2;
 int FastMat2::cache_dbg=0;
 int FastMat2::use_cachectx2_as_default=0;
 
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>
 FastMat2::CacheCtx::~CacheCtx() { }
 
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>
 FastMat2::CacheCtx::CacheCtx() 
-  : use_cache(0), was_cached(0) { }
+  : use_cache(0), was_cached(0),
+  do_check_labels(0) { }
+
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>
+void FastMat2::CacheCtx::check_clear() { }
+
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>
+void FastMat2::CacheCtx::check(const char *) { }
+
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>
+void FastMat2::CacheCtx::check(const FastMat2 *) { }
+
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>
+void FastMat2::CacheCtx
+::check(const char *,const FastMat2 *,
+        const FastMat2 *,const FastMat2 *) {}
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>
 FastMatCachePosition::FastMatCachePosition() {

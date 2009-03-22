@@ -280,15 +280,20 @@ public:
   public:
     CacheCtx();
     virtual FastMatCache *step()=0;
-    virtual FastMatCache *step(const char *label,
-                               const FastMat2 *p1=NULL,
-                               const FastMat2 *p2=NULL,
-                               const FastMat2 *p3=NULL);
+    virtual void check_clear();
+    virtual void check(const char *);
+    virtual void check(const FastMat2 *);
+    virtual void check(const char *string,
+                       const FastMat2 *A,
+                       const FastMat2 *B=NULL,
+                       const FastMat2 *C=NULL);
     /// Use cache?
     int use_cache;
     /// Was computed this cache list
     int was_cached;
     /// Operation count
+    // This flags whether we perform a check on the labels. 
+    int do_check_labels;
     OperationCount op_count;
     virtual ~CacheCtx()=0;
   };
@@ -390,8 +395,6 @@ public:
     clist_t *branch_p;
     // This is the position in the list for the current cache
     clist_t::iterator q;
-    // This flags whether we perform a check on the labels. 
-    int do_check_labels;
     // This is an auxiliary string buffer to construct
     // the string id for the cache when debugging is on. 
     AutoString as;
@@ -400,10 +403,28 @@ public:
     // by the cached operations
     FastMatCache *step();
     // 
+#if 0
     FastMatCache *step(const char *label, 
                        const FastMat2 *p1=NULL,
                        const FastMat2 *p2=NULL, 
                        const FastMat2 *p3=NULL);
+#endif
+    // The following functions are for the check_label()
+    // feature, and are called by each of the FastMat2
+    // operations (e.g. prod etc...), with various arguments
+    // so as to construct some string or hash identifying
+    // the operatios.
+    // This clears the stored state and must be called before
+    // all the other functions. 
+    void check_clear();
+    // This normally for the name of the function 
+    void check(const char *);
+    // This is for a FastMat2 argument
+    void check(const FastMat2 *);
+    // This is a useful combo. Normally one checks for the
+    // name of the operation and then for the FastMat2 arguments. 
+    void check(const char *op_name, const FastMat2 *A,
+               const FastMat2 *B=NULL, const FastMat2 *C=NULL);
   public:
     // Branchs are currently an integer that means the position
     // of the list in the vector. 
@@ -1454,7 +1475,7 @@ private:
   double *location_abs(const Indx & indx) const;
   /// returns address of filtered position indx[0],indx[1],...
   double *location(const Indx & indx) const;
-  // gets value at absolute position indx 
+  // sets value at absolute position indx 
   void set_abs(const int i, const int j,const double val);
   /// used in constructors
   void create_from_indx(const Indx & dims_);
@@ -1463,6 +1484,14 @@ private:
   /// auxiliary.  prints matrices with 1 indices.
   void print1(const Indx & indxp,const Indx & fdims) const;
 };
+
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>
+#define CTX2_CHECK(...)                         \
+  if (ctx->do_check_labels) {                   \
+    ctx->check_clear();                         \
+    ctx->check(__VA_ARGS__);                    \
+  }                                             \
+  FastMatCache *cache = ctx->step();
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 /// For 2 indices matrices

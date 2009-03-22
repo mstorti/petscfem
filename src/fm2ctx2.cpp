@@ -10,6 +10,7 @@ using namespace std;
 #include <src/autostr.h>
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>
+#if 0
 FastMatCache *
 FastMat2::CacheCtx::step(const char *label,
                          const FastMat2 *p1,
@@ -17,13 +18,13 @@ FastMat2::CacheCtx::step(const char *label,
                          const FastMat2 *p3) { 
   return step(); 
 }
+#endif
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>
 FastMat2
 ::CacheCtx2::CacheCtx2() :
   branch_indx(-1), 
-  branch_p(NULL),
-  do_check_labels(0) { }
+  branch_p(NULL) { }
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>
 FastMat2::CacheCtx2
@@ -32,6 +33,32 @@ FastMat2::CacheCtx2
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>
 FastMat2::CacheCtx2
 ::Branch::Branch() : indx(-1) { }
+
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>
+void FastMat2::CacheCtx2
+::check_clear() { as.clear(); }
+
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>
+void FastMat2::CacheCtx2
+::check(const char *label) { 
+  as.sprintf("%s ",label);
+}
+
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>
+void FastMat2::CacheCtx2
+::check(const FastMat2 *Ap) { 
+  as.sprintf("%p ",Ap);
+}
+
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>
+void FastMat2::CacheCtx2
+::check(const char *label,const FastMat2 *Ap,
+        const FastMat2 *Bp,const FastMat2 *Cp) {
+  check(label);
+  if (Ap) check(Ap);
+  if (Bp) check(Bp);
+  if (Cp) check(Cp);
+}
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>
 void FastMat2::CacheCtx2::jump(Branch &b) {
@@ -54,20 +81,10 @@ void FastMat2::CacheCtx2
 }
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>
-FastMatCache * 
-FastMat2::CacheCtx2::step() {
-  return step(NULL);
-}
-
-//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>
 FastMatCache* FastMat2::CacheCtx2
-::step(const char *label, const FastMat2 *p1,
-       const FastMat2 *p2, const FastMat2 *p3) {
+::step() {
   FastMatCache *cache=NULL;
   if (use_cache) {
-    if (do_check_labels) {
-      as.clear().sprintf("%s %p %p %p",label,p1,p2,p3);
-    }
     if (was_cached) {
       cache = &*q++;
       if (do_check_labels)
@@ -81,6 +98,7 @@ FastMatCache* FastMat2::CacheCtx2
       if (do_check_labels)
         cache->check_label = as.str();
     }
+    as.clear();
   } else {
     cache = new FastMatCache;
   }
