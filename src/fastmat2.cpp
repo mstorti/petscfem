@@ -663,9 +663,21 @@ FastMat2 & FastMat2::is(const int index,const int start,const int finish,
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 FastMat2 & FastMat2::ir(const int indx,const int j) {
-  if (ctx->was_cached) return *this;
-  assert(defined);
-  set_indx[indx-1] = j;
+
+  if (ctx->do_check_labels) {
+    ctx->check_clear();
+    ctx->check("ir",this);
+    ctx->check(indx);
+    ctx->check(j);
+  }
+  FastMatCache *cache = ctx->step();
+
+  if (!ctx->was_cached) {
+    assert(defined);
+    set_indx[indx-1] = j;
+  }
+
+  if (!ctx->use_cache) delete cache;
   return *this;
 }
 
