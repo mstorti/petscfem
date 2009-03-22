@@ -61,6 +61,22 @@ void FastMat2::CacheCtx2
 }
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>
+void FastMat2::CacheCtx2
+::check(int x) { 
+  as.cat_sprintf("%d ",x);
+}
+
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>
+void FastMat2::CacheCtx2
+::check(const Indx &indx) { 
+  check("args(");
+  int sz = indx.size();
+  for (int j=0; j<sz; j++) 
+    check(indx[j]);
+  check(")");
+}
+
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>
 void FastMat2::CacheCtx2::jump(Branch &b) {
   if (b.indx==-1) {
     branchv.push_back(new clist_t());
@@ -88,7 +104,7 @@ FastMatCache* FastMat2::CacheCtx2
     if (was_cached) {
       cache = &*q++;
       if (do_check_labels) {
-#if 0
+#if 1
         printf("cached %s\n" "wanted %s\n",
                cache->check_label.c_str(),as.str());
 #endif

@@ -31,6 +31,12 @@ void FastMat2::CacheCtx::check(const char *) { }
 void FastMat2::CacheCtx::check(const FastMat2 *) { }
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>
+void FastMat2::CacheCtx::check(int x) { }
+
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>
+void FastMat2::CacheCtx::check(const Indx &) { }
+
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>
 void FastMat2::CacheCtx
 ::check(const char *,const FastMat2 *,
         const FastMat2 *,const FastMat2 *) {}

@@ -283,6 +283,8 @@ public:
     virtual void check_clear();
     virtual void check(const char *);
     virtual void check(const FastMat2 *);
+    virtual void check(int );
+    virtual void check(const Indx &);
     virtual void check(const char *string,
                        const FastMat2 *A,
                        const FastMat2 *B=NULL,
@@ -421,6 +423,10 @@ public:
     void check(const char *);
     // This is for a FastMat2 argument
     void check(const FastMat2 *);
+    // This is for integer arguments
+    void check(int );
+    // This is for variadic integer arguments
+    void check(const Indx &);
     // This is a useful combo. Normally one checks for the
     // name of the operation and then for the FastMat2 arguments. 
     void check(const char *op_name, const FastMat2 *A,

@@ -82,7 +82,15 @@ _//>
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 FastMat2 & FastMat2::__NAME__(const double val, INT_VAR_ARGS_ND) {
 
-  CTX2_CHECK("__NAME__",this);
+  // CTX2_CHECK("__NAME__",this);
+  if (ctx->do_check_labels) {
+    ctx->check_clear();
+    ctx->check("__NAME__",this);
+    Indx indx;
+    READ_ARG_LIST(arg,indx,INT_ARG_LIST_DEFAULT_VAL,EXIT2)
+    ctx->check(indx);
+  }
+  FastMatCache *cache = ctx->step();
 
   if (!ctx->was_cached  ) {
     Indx indx,fdims;

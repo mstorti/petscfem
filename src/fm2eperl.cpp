@@ -377,7 +377,15 @@ ctx->op_count.sum += cache->nelems;
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 FastMat2 & FastMat2::setel(const double val, INT_VAR_ARGS_ND) {
 
-  CTX2_CHECK("setel",this);
+  // CTX2_CHECK("setel",this);
+  if (ctx->do_check_labels) {
+    ctx->check_clear();
+    ctx->check("setel",this);
+    Indx indx;
+    READ_ARG_LIST(arg,indx,INT_ARG_LIST_DEFAULT_VAL,EXIT2)
+    ctx->check(indx);
+  }
+  FastMatCache *cache = ctx->step();
 
   if (!ctx->was_cached  ) {
     Indx indx,fdims;
@@ -406,7 +414,15 @@ FastMat2 & FastMat2::setel(const double val, INT_VAR_ARGS_ND) {
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 FastMat2 & FastMat2::addel(const double val, INT_VAR_ARGS_ND) {
 
-  CTX2_CHECK("addel",this);
+  // CTX2_CHECK("addel",this);
+  if (ctx->do_check_labels) {
+    ctx->check_clear();
+    ctx->check("addel",this);
+    Indx indx;
+    READ_ARG_LIST(arg,indx,INT_ARG_LIST_DEFAULT_VAL,EXIT2)
+    ctx->check(indx);
+  }
+  FastMatCache *cache = ctx->step();
 
   if (!ctx->was_cached  ) {
     Indx indx,fdims;
@@ -436,7 +452,15 @@ FastMat2 & FastMat2::addel(const double val, INT_VAR_ARGS_ND) {
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 FastMat2 & FastMat2::multel(const double val, INT_VAR_ARGS_ND) {
 
-  CTX2_CHECK("multel",this);
+  // CTX2_CHECK("multel",this);
+  if (ctx->do_check_labels) {
+    ctx->check_clear();
+    ctx->check("multel",this);
+    Indx indx;
+    READ_ARG_LIST(arg,indx,INT_ARG_LIST_DEFAULT_VAL,EXIT2)
+    ctx->check(indx);
+  }
+  FastMatCache *cache = ctx->step();
 
   if (!ctx->was_cached  ) {
     Indx indx,fdims;
