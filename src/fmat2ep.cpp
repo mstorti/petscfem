@@ -307,8 +307,8 @@ FastMat2 & FastMat2::__NAME__(const FastMat2 & A, __OTHER_ARGS__ __C__
   if (ctx->do_check_labels) {
     ctx->check_clear();
     ctx->check("__NAME__",this,&A);
-    ctx->check(m);
     Indx indx;
+    indx.push_back(m);
     READ_ARG_LIST(arg,indx,INT_ARG_LIST_DEFAULT_VAL,EXIT2)
     ctx->check(indx);
   }

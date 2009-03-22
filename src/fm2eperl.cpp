@@ -629,8 +629,8 @@ FastMat2 & FastMat2::sum(const FastMat2 & A,
   if (ctx->do_check_labels) {
     ctx->check_clear();
     ctx->check("sum",this,&A);
-    ctx->check(m);
     Indx indx;
+    indx.push_back(m);
     READ_ARG_LIST(arg,indx,INT_ARG_LIST_DEFAULT_VAL,EXIT2)
     ctx->check(indx);
   }
@@ -804,8 +804,8 @@ FastMat2 & FastMat2::sum_square(const FastMat2 & A,
   if (ctx->do_check_labels) {
     ctx->check_clear();
     ctx->check("sum_square",this,&A);
-    ctx->check(m);
     Indx indx;
+    indx.push_back(m);
     READ_ARG_LIST(arg,indx,INT_ARG_LIST_DEFAULT_VAL,EXIT2)
     ctx->check(indx);
   }
@@ -980,8 +980,8 @@ FastMat2 & FastMat2::sum_abs(const FastMat2 & A,
   if (ctx->do_check_labels) {
     ctx->check_clear();
     ctx->check("sum_abs",this,&A);
-    ctx->check(m);
     Indx indx;
+    indx.push_back(m);
     READ_ARG_LIST(arg,indx,INT_ARG_LIST_DEFAULT_VAL,EXIT2)
     ctx->check(indx);
   }
@@ -1156,8 +1156,8 @@ FastMat2 & FastMat2::norm_p(const FastMat2 & A, const double p ,
   if (ctx->do_check_labels) {
     ctx->check_clear();
     ctx->check("norm_p",this,&A);
-    ctx->check(m);
     Indx indx;
+    indx.push_back(m);
     READ_ARG_LIST(arg,indx,INT_ARG_LIST_DEFAULT_VAL,EXIT2)
     ctx->check(indx);
   }
@@ -1332,8 +1332,8 @@ FastMat2 & FastMat2::norm_p(const FastMat2 & A, const int p ,
   if (ctx->do_check_labels) {
     ctx->check_clear();
     ctx->check("norm_p",this,&A);
-    ctx->check(m);
     Indx indx;
+    indx.push_back(m);
     READ_ARG_LIST(arg,indx,INT_ARG_LIST_DEFAULT_VAL,EXIT2)
     ctx->check(indx);
   }
@@ -1507,8 +1507,8 @@ FastMat2 & FastMat2::assoc(const FastMat2 & A, Fun2 &f ,
   if (ctx->do_check_labels) {
     ctx->check_clear();
     ctx->check("assoc",this,&A);
-    ctx->check(m);
     Indx indx;
+    indx.push_back(m);
     READ_ARG_LIST(arg,indx,INT_ARG_LIST_DEFAULT_VAL,EXIT2)
     ctx->check(indx);
   }
@@ -1682,8 +1682,8 @@ FastMat2 & FastMat2::max(const FastMat2 & A,
   if (ctx->do_check_labels) {
     ctx->check_clear();
     ctx->check("max",this,&A);
-    ctx->check(m);
     Indx indx;
+    indx.push_back(m);
     READ_ARG_LIST(arg,indx,INT_ARG_LIST_DEFAULT_VAL,EXIT2)
     ctx->check(indx);
   }
@@ -1858,8 +1858,8 @@ FastMat2 & FastMat2::min(const FastMat2 & A,
   if (ctx->do_check_labels) {
     ctx->check_clear();
     ctx->check("min",this,&A);
-    ctx->check(m);
     Indx indx;
+    indx.push_back(m);
     READ_ARG_LIST(arg,indx,INT_ARG_LIST_DEFAULT_VAL,EXIT2)
     ctx->check(indx);
   }
@@ -2035,8 +2035,8 @@ FastMat2 & FastMat2::max_abs(const FastMat2 & A,
   if (ctx->do_check_labels) {
     ctx->check_clear();
     ctx->check("max_abs",this,&A);
-    ctx->check(m);
     Indx indx;
+    indx.push_back(m);
     READ_ARG_LIST(arg,indx,INT_ARG_LIST_DEFAULT_VAL,EXIT2)
     ctx->check(indx);
   }
@@ -2213,8 +2213,8 @@ FastMat2 & FastMat2::min_abs(const FastMat2 & A,
   if (ctx->do_check_labels) {
     ctx->check_clear();
     ctx->check("min_abs",this,&A);
-    ctx->check(m);
     Indx indx;
+    indx.push_back(m);
     READ_ARG_LIST(arg,indx,INT_ARG_LIST_DEFAULT_VAL,EXIT2)
     ctx->check(indx);
   }
