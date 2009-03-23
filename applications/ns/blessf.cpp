@@ -81,6 +81,7 @@ void bless_elemset_ns(char *type,Elemset *& elemset) {
     SET_ELEMSET_TYPE(nsi_tet_les_fm2)
     SET_ELEMSET_TYPE(nsi_tet_les_ls)
     SET_ELEMSET_TYPE(nsi_tet_les_full)
+    SET_ELEMSET_TYPE(nsi_tet_les_full_ctx2)
     SET_ELEMSET_TYPE(nsi_tet_les_full_darcy)
     SET_ELEMSET_TYPE(nsi_tet_les_full_bf)
     SET_ELEMSET_TYPE(nsi_tet_les_comp)

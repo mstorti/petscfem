@@ -24,7 +24,7 @@ LIBOBJS = ns.o mmvmain.o mmv2main.o nsstruct.o ns_fsi.o compdate.o      \
 	errestim.o mmoveopt3.o bubblyqint.o nsitetlesf.o nsitetlesfbf.o \
 	poiboltz.o mmoveopt2.o truss.o nsitetlesfd.o nodeload.o         \
 	nsitetlesls.o electrophoresis.o  electrophoresisM.o flowrev.o   \
-	renorm.o
+	renorm.o nsitlfctx2.o
 
 MYOBJS =
 
