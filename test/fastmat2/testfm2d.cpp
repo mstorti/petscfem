@@ -174,6 +174,6 @@ int main (int argc, char **argv) {
       printf("warning: deviation from linear exceeds tol., dev= %f\n",dev);
   }
   double ops = (double) (2.0*nloop*N*n*n*n);
-  printf("elapsed: %f [sec], ops: %f [flop], rate: %f [Mflops]\n",cpu,ops,ops/cpu/1e6);
+  printf("elapsed: %f [sec], ops: %f [flop], rate: %.3f [Gflops]\n",cpu,ops,ops/cpu/1e9);
   
 }
