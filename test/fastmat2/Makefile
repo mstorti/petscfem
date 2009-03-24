@@ -4,6 +4,7 @@
 SRCS = SRCS = $(wildcard *.cpp)
 
 PETSCFEM_DIR = ../..
+BOPT = O_c++
 include $(PETSCFEM_DIR)/Makefile.base
 include $(PETSCFEM_DIR)/test/Makefile.base.test
 
@@ -21,6 +22,12 @@ testfm2a.bin: testfm2a.o $(LIBPETSCFEM)(fastmat2.o 		\
 
 testfm2d.bin: testfm2d.o
 	g++ $(PROF_FLAGS) -o testfm2d.bin testfm2d.o $(LDFLAGS_NO_PROG_LIB)
+
+effi:
+	$(MAKE) testfm2d.bin
+	for j in $(seq 1 10) ; \
+	do ( ./testfm2d.bin -n 30 -N 5000 -M 1 -t 1 | grep rate ) ; \
+	done
 
 #----<*>----------<*>----------<*>----------<*>----------<*>----------<*>--
 #w FastMat2 test b but with CacheCtx2

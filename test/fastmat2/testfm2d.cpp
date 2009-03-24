@@ -116,6 +116,9 @@ int main (int argc, char **argv) {
   double opstyp=double(t)*1e8;
   // double opstyp=30.*30.*30.*100.*100.;
   int nloop = int(opstyp/(n*n*n*N));
+  // Check nloop is positive
+  nloop += !nloop;
+  assert(nloop>0);
   printf("n: %d, N: %d, M: %d, loop: %d\n",n,N,M,nloop);
   
   double *a=new double[NN];
@@ -170,7 +173,7 @@ int main (int argc, char **argv) {
     if (dev>0.1) 
       printf("warning: deviation from linear exceeds tol., dev= %f\n",dev);
   }
-  double ops = (double) (2.*nloop*N*n*n*n);
+  double ops = (double) (2.0*nloop*N*n*n*n);
   printf("elapsed: %f [sec], ops: %f [flop], rate: %f [Mflops]\n",cpu,ops,ops/cpu/1e6);
   
 }
