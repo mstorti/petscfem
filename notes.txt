@@ -13448,6 +13448,17 @@ experiencia erronea.
 %=== Sat Mar 21 00:19:45 2009 mstorti@galileo
 %
 %-- 00:19:45 -- mstorti-v24-end-4-gfe83257 -----
-PLAN DE TRABAJO CacheCtx2:
-. agregar tests (copiar los usados con CacheCtx1)
-. agregar doc
+PLAN DE TRABAJO 1 CacheCtx2:
+. OK agregar tests (copiar los usados con CacheCtx1)
+. OK agregar doc
+DONE!!
+
+%=== Wed Mar 25 08:55:23 2009 mstorti@galileo
+%
+%-- 08:55:23 -- mstorti-v24-end-19-g9036a02 -----
+PLAN DE TRABAJO 2 CacheCtx2:
+. OK chequear que `trcprtf' de exactamente lo mismo con Ctx1 y 2
+  probado y da exactmante lo mismo!!
+. que todo el tema check_labels() ni se compile con NDEBUG
+. agregar branching relativo
+. agregar OpenMP a FastMat2??

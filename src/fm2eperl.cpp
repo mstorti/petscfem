@@ -377,6 +377,7 @@ ctx->op_count.sum += cache->nelems;
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 FastMat2 & FastMat2::setel(const double val, INT_VAR_ARGS_ND) {
 
+#ifndef NDEBUG
   if (ctx->do_check_labels) {
     ctx->check_clear();
     ctx->check("setel",this);
@@ -384,6 +385,7 @@ FastMat2 & FastMat2::setel(const double val, INT_VAR_ARGS_ND) {
     READ_ARG_LIST(arg,indx,INT_ARG_LIST_DEFAULT_VAL,EXIT2)
     ctx->check(indx);
   }
+#endif
   FastMatCache *cache = ctx->step();
 
   if (!ctx->was_cached  ) {
@@ -413,6 +415,7 @@ FastMat2 & FastMat2::setel(const double val, INT_VAR_ARGS_ND) {
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 FastMat2 & FastMat2::addel(const double val, INT_VAR_ARGS_ND) {
 
+#ifndef NDEBUG
   if (ctx->do_check_labels) {
     ctx->check_clear();
     ctx->check("addel",this);
@@ -420,6 +423,7 @@ FastMat2 & FastMat2::addel(const double val, INT_VAR_ARGS_ND) {
     READ_ARG_LIST(arg,indx,INT_ARG_LIST_DEFAULT_VAL,EXIT2)
     ctx->check(indx);
   }
+#endif
   FastMatCache *cache = ctx->step();
 
   if (!ctx->was_cached  ) {
@@ -450,6 +454,7 @@ FastMat2 & FastMat2::addel(const double val, INT_VAR_ARGS_ND) {
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 FastMat2 & FastMat2::multel(const double val, INT_VAR_ARGS_ND) {
 
+#ifndef NDEBUG
   if (ctx->do_check_labels) {
     ctx->check_clear();
     ctx->check("multel",this);
@@ -457,6 +462,7 @@ FastMat2 & FastMat2::multel(const double val, INT_VAR_ARGS_ND) {
     READ_ARG_LIST(arg,indx,INT_ARG_LIST_DEFAULT_VAL,EXIT2)
     ctx->check(indx);
   }
+#endif
   FastMatCache *cache = ctx->step();
 
   if (!ctx->was_cached  ) {
@@ -625,7 +631,7 @@ public:
 FastMat2 & FastMat2::sum(const FastMat2 & A,   
 			      const int m,INT_VAR_ARGS_ND) {
 
-  //CTX2_CHECK("sum",this,&A);
+#ifndef NDEBUG
   if (ctx->do_check_labels) {
     ctx->check_clear();
     ctx->check("sum",this,&A);
@@ -634,6 +640,7 @@ FastMat2 & FastMat2::sum(const FastMat2 & A,
     READ_ARG_LIST(arg,indx,INT_ARG_LIST_DEFAULT_VAL,EXIT2)
     ctx->check(indx);
   }
+#endif
   FastMatCache *cache = ctx->step();
 
   if (!ctx->was_cached  ) {
@@ -800,7 +807,7 @@ ctx->op_count.mult += ntot;
 FastMat2 & FastMat2::sum_square(const FastMat2 & A,   
 			      const int m,INT_VAR_ARGS_ND) {
 
-  //CTX2_CHECK("sum_square",this,&A);
+#ifndef NDEBUG
   if (ctx->do_check_labels) {
     ctx->check_clear();
     ctx->check("sum_square",this,&A);
@@ -809,6 +816,7 @@ FastMat2 & FastMat2::sum_square(const FastMat2 & A,
     READ_ARG_LIST(arg,indx,INT_ARG_LIST_DEFAULT_VAL,EXIT2)
     ctx->check(indx);
   }
+#endif
   FastMatCache *cache = ctx->step();
 
   if (!ctx->was_cached  ) {
@@ -976,7 +984,7 @@ ctx->op_count.abs += ntot;
 FastMat2 & FastMat2::sum_abs(const FastMat2 & A,   
 			      const int m,INT_VAR_ARGS_ND) {
 
-  //CTX2_CHECK("sum_abs",this,&A);
+#ifndef NDEBUG
   if (ctx->do_check_labels) {
     ctx->check_clear();
     ctx->check("sum_abs",this,&A);
@@ -985,6 +993,7 @@ FastMat2 & FastMat2::sum_abs(const FastMat2 & A,
     READ_ARG_LIST(arg,indx,INT_ARG_LIST_DEFAULT_VAL,EXIT2)
     ctx->check(indx);
   }
+#endif
   FastMatCache *cache = ctx->step();
 
   if (!ctx->was_cached  ) {
@@ -1152,7 +1161,7 @@ ctx->op_count.abs += ntot;
 FastMat2 & FastMat2::norm_p(const FastMat2 & A, const double p , 
 			      const int m,INT_VAR_ARGS_ND) {
 
-  //CTX2_CHECK("norm_p",this,&A);
+#ifndef NDEBUG
   if (ctx->do_check_labels) {
     ctx->check_clear();
     ctx->check("norm_p",this,&A);
@@ -1161,6 +1170,7 @@ FastMat2 & FastMat2::norm_p(const FastMat2 & A, const double p ,
     READ_ARG_LIST(arg,indx,INT_ARG_LIST_DEFAULT_VAL,EXIT2)
     ctx->check(indx);
   }
+#endif
   FastMatCache *cache = ctx->step();
 
   if (!ctx->was_cached  ) {
@@ -1328,7 +1338,7 @@ ctx->op_count.abs += ntot;
 FastMat2 & FastMat2::norm_p(const FastMat2 & A, const int p , 
 			      const int m,INT_VAR_ARGS_ND) {
 
-  //CTX2_CHECK("norm_p",this,&A);
+#ifndef NDEBUG
   if (ctx->do_check_labels) {
     ctx->check_clear();
     ctx->check("norm_p",this,&A);
@@ -1337,6 +1347,7 @@ FastMat2 & FastMat2::norm_p(const FastMat2 & A, const int p ,
     READ_ARG_LIST(arg,indx,INT_ARG_LIST_DEFAULT_VAL,EXIT2)
     ctx->check(indx);
   }
+#endif
   FastMatCache *cache = ctx->step();
 
   if (!ctx->was_cached  ) {
@@ -1503,7 +1514,7 @@ double FastMat2::norm_p_all(const int p) const {
 FastMat2 & FastMat2::assoc(const FastMat2 & A, Fun2 &f , 
 			      const int m,INT_VAR_ARGS_ND) {
 
-  //CTX2_CHECK("assoc",this,&A);
+#ifndef NDEBUG
   if (ctx->do_check_labels) {
     ctx->check_clear();
     ctx->check("assoc",this,&A);
@@ -1512,6 +1523,7 @@ FastMat2 & FastMat2::assoc(const FastMat2 & A, Fun2 &f ,
     READ_ARG_LIST(arg,indx,INT_ARG_LIST_DEFAULT_VAL,EXIT2)
     ctx->check(indx);
   }
+#endif
   FastMatCache *cache = ctx->step();
 
   if (!ctx->was_cached  ) {
@@ -1678,7 +1690,7 @@ ctx->op_count.fun += ntot;
 FastMat2 & FastMat2::max(const FastMat2 & A,   
 			      const int m,INT_VAR_ARGS_ND) {
 
-  //CTX2_CHECK("max",this,&A);
+#ifndef NDEBUG
   if (ctx->do_check_labels) {
     ctx->check_clear();
     ctx->check("max",this,&A);
@@ -1687,6 +1699,7 @@ FastMat2 & FastMat2::max(const FastMat2 & A,
     READ_ARG_LIST(arg,indx,INT_ARG_LIST_DEFAULT_VAL,EXIT2)
     ctx->check(indx);
   }
+#endif
   FastMatCache *cache = ctx->step();
 
   if (!ctx->was_cached  ) {
@@ -1854,7 +1867,7 @@ ctx->op_count.fun += ntot;
 FastMat2 & FastMat2::min(const FastMat2 & A,   
 			      const int m,INT_VAR_ARGS_ND) {
 
-  //CTX2_CHECK("min",this,&A);
+#ifndef NDEBUG
   if (ctx->do_check_labels) {
     ctx->check_clear();
     ctx->check("min",this,&A);
@@ -1863,6 +1876,7 @@ FastMat2 & FastMat2::min(const FastMat2 & A,
     READ_ARG_LIST(arg,indx,INT_ARG_LIST_DEFAULT_VAL,EXIT2)
     ctx->check(indx);
   }
+#endif
   FastMatCache *cache = ctx->step();
 
   if (!ctx->was_cached  ) {
@@ -2031,7 +2045,7 @@ ctx->op_count.abs += ntot;
 FastMat2 & FastMat2::max_abs(const FastMat2 & A,   
 			      const int m,INT_VAR_ARGS_ND) {
 
-  //CTX2_CHECK("max_abs",this,&A);
+#ifndef NDEBUG
   if (ctx->do_check_labels) {
     ctx->check_clear();
     ctx->check("max_abs",this,&A);
@@ -2040,6 +2054,7 @@ FastMat2 & FastMat2::max_abs(const FastMat2 & A,
     READ_ARG_LIST(arg,indx,INT_ARG_LIST_DEFAULT_VAL,EXIT2)
     ctx->check(indx);
   }
+#endif
   FastMatCache *cache = ctx->step();
 
   if (!ctx->was_cached  ) {
@@ -2209,7 +2224,7 @@ ctx->op_count.abs += ntot;
 FastMat2 & FastMat2::min_abs(const FastMat2 & A,   
 			      const int m,INT_VAR_ARGS_ND) {
 
-  //CTX2_CHECK("min_abs",this,&A);
+#ifndef NDEBUG
   if (ctx->do_check_labels) {
     ctx->check_clear();
     ctx->check("min_abs",this,&A);
@@ -2218,6 +2233,7 @@ FastMat2 & FastMat2::min_abs(const FastMat2 & A,
     READ_ARG_LIST(arg,indx,INT_ARG_LIST_DEFAULT_VAL,EXIT2)
     ctx->check(indx);
   }
+#endif
   FastMatCache *cache = ctx->step();
 
   if (!ctx->was_cached  ) {
@@ -2579,6 +2595,7 @@ FastMat2 & FastMat2::fun(scalar_fun_with_args_t *fun_,void *user_args) {
 FastMat2 & FastMat2::prod(const FastMat2 & A,const FastMat2 & B,
                           const int m,INT_VAR_ARGS_ND) {
 
+#ifndef NDEBUG
   if (ctx->do_check_labels) {
     ctx->check_clear();
     ctx->check("",this,&A,&B);
@@ -2587,8 +2604,8 @@ FastMat2 & FastMat2::prod(const FastMat2 & A,const FastMat2 & B,
     READ_ARG_LIST(arg,indx,INT_ARG_LIST_DEFAULT_VAL,EXIT2)
     ctx->check(indx);
   }
+#endif
   FastMatCache *cache = ctx->step();
-  // CTX2_CHECK("prod",this,&A,&B);
 
   if (!ctx->was_cached  ) {
     Indx ia,ib,ii;
@@ -3006,6 +3023,7 @@ const FastMat2 & FastMat2::export_vals(double *a) const {
 FastMat2 & FastMat2::ctr(const FastMat2 & A,
                          const int m,INT_VAR_ARGS_ND) {
 
+#ifndef NDEBUG
   if (ctx->do_check_labels) {
     ctx->check_clear();
     ctx->check("",this,&A);
@@ -3014,8 +3032,8 @@ FastMat2 & FastMat2::ctr(const FastMat2 & A,
     READ_ARG_LIST(arg,indx,INT_ARG_LIST_DEFAULT_VAL,EXIT2)
     ctx->check(indx);
   }
+#endif
   FastMatCache *cache = ctx->step();
-  // CTX2_CHECK("ctr",this,&A);
 
   if (!ctx->was_cached  ) {
     Indx ia,ii;
@@ -3155,6 +3173,7 @@ FastMat2 & FastMat2::ctr(const FastMat2 & A,
 FastMat2 & FastMat2::diag(FastMat2 & A,const int m,
                           INT_VAR_ARGS_ND) {
 
+#ifndef NDEBUG
   if (ctx->do_check_labels) {
     ctx->check_clear();
     ctx->check("",this,&A);
@@ -3163,8 +3182,8 @@ FastMat2 & FastMat2::diag(FastMat2 & A,const int m,
     READ_ARG_LIST(arg,indx,INT_ARG_LIST_DEFAULT_VAL,EXIT2)
     ctx->check(indx);
   }
+#endif
   FastMatCache *cache = ctx->step();
-  // CTX2_CHECK("diag",this,&A);
 
   if (!ctx->was_cached) {
     Indx ia,ii;
@@ -3261,6 +3280,7 @@ FastMat2 & FastMat2::diag(FastMat2 & A,const int m,
 
 double FastMat2::get(INT_VAR_ARGS_ND) const {
 
+#ifndef NDEBUG
   if (ctx->do_check_labels) {
     ctx->check_clear();
     ctx->check("",this);
@@ -3268,8 +3288,8 @@ double FastMat2::get(INT_VAR_ARGS_ND) const {
     READ_ARG_LIST(arg,indx,INT_ARG_LIST_DEFAULT_VAL,EXIT2)
     ctx->check(indx);
   }
+#endif
   FastMatCache *cache = ctx->step();
-  // CTX2_CHECK("get",this);
 
   if (!ctx->was_cached) {
     Indx indx,fdims;

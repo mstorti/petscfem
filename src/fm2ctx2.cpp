@@ -10,17 +10,6 @@ using namespace std;
 #include <src/autostr.h>
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>
-#if 0
-FastMatCache *
-FastMat2::CacheCtx::step(const char *label,
-                         const FastMat2 *p1,
-                         const FastMat2 *p2,
-                         const FastMat2 *p3) { 
-  return step(); 
-}
-#endif
-
-//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>
 FastMat2
 ::CacheCtx2::CacheCtx2() :
   branch_indx(-1), 
@@ -105,6 +94,7 @@ FastMatCache* FastMat2::CacheCtx2
   if (use_cache) {
     if (was_cached) {
       cache = &*q++;
+#ifndef NDEBUG
       if (do_check_labels) {
         if (FastMat2_CacheCtx2_print_labels) 
           printf("cached %s\n" "wanted %s\n",
@@ -114,11 +104,14 @@ FastMatCache* FastMat2::CacheCtx2
                         "cached: \"%s\", wanted: \"%s\"",
                         cache->check_label.c_str(),as.str()); 
       }
+#endif
     } else {
       branch_p->push_back(FastMatCache());
       cache = &branch_p->back();
+#ifndef NDEBUG
       if (do_check_labels)
         cache->check_label = as.str();
+#endif
     }
     as.clear();
   } else {
@@ -142,6 +135,14 @@ void FastMat2::CacheCtx2::print() {
 void FastMat2::CacheCtx2
 ::check_labels(int do_check) {
   do_check_labels = do_check; 
+#ifdef NDEBUG
+  static int flag=0;
+  if (!flag) {
+    printf("WARNING: check_labels() was called, but FastMat2 "
+           "was compiled with NDEBUG!!\n");
+    flag=1;
+  }
+#endif  
 }
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>

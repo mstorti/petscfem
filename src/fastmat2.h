@@ -1492,11 +1492,16 @@ private:
 };
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>
-#define CTX2_CHECK(...)                         \
+#ifndef NDEBUG
+#define CTX2_CHECKLAB(...)                      \
   if (ctx->do_check_labels) {                   \
     ctx->check_clear();                         \
     ctx->check(__VA_ARGS__);                    \
-  }                                             \
+  }
+#endif
+
+#define CTX2_CHECK(...)                         \
+  CTX2_CHECKLAB(__VA_ARGS__)                    \
   FastMatCache *cache = ctx->step();
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
