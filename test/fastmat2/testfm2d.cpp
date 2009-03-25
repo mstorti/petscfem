@@ -5,6 +5,7 @@
 #include <unistd.h>
 #include <time.h>
 #include <sys/time.h>
+#include <omp.h>
 
 #include <petscksp.h>
 
@@ -39,7 +40,15 @@ inline double * location(double *a, int i, int j, int m) {
 }
 
 void myprod(double *c, double *a, double *b,int m, int p, int n) {
+  //#pragma omp parallel for schedule(dynamic)
   for (int i=0; i<m; i++) {
+#if 0
+    static int flag=0;
+    if (!flag && omp_get_thread_num()==0) {
+      printf("num threads %d\n",omp_get_num_threads());
+      flag = 1;
+    }
+#endif
     for (int j=0; j<n; j++) {
       double *pc = location(c,i,j,n);
       double *pa = location(a,i,0,p);
@@ -82,7 +91,7 @@ int main (int argc, char **argv) {
   Chrono chrono;
   FastMatCacheList cache_list;
   
-  int n=30,N=100,M,c,Mset=0,fm2=1,t=5;
+  int n=30,N=100,M,c,Mset=0,fm2=0,t=5;
   M=N;
   while ((c = getopt (argc, argv, "n:N:M:Ft:")) != -1) {
     switch (c) {
@@ -153,7 +162,7 @@ int main (int argc, char **argv) {
 	  // AA.set(a);
 	  A.set(&a[n*n*(j % M)]);
 	}
-	myprodt(CC.store,AA.store,AA.store,n,n,n);
+	myprod(CC.store,AA.store,AA.store,n,n,n);
       }
     }
 
@@ -163,7 +172,7 @@ int main (int argc, char **argv) {
     cpu_v[cpy_it-1] = cpu;
     if (fabs(delta-cpu)/cpu>.1) 
       printf("warning: elapsed and cpu differ too much!!\n"
-	     "elapsed: %f, cpu: %f [Mflops]\n",delta,cpu);
+	     "elapsed: %f, cpu: %f [secs]\n",delta,cpu);
   }
 
   double cpu = 2*cpu_v[0]-cpu_v[1];

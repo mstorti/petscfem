@@ -20,14 +20,21 @@ testfm2a.bin: testfm2a.o $(LIBPETSCFEM)(fastmat2.o 		\
 					fm2eperl.o util2.o) 
 	g++ $(PROF_FLAGS) -o testfm2a.bin testfm2a.o $(LDFLAGS_NO_PROG_LIB)
 
-testfm2d.bin: testfm2d.o
+#----<*>----------<*>----------<*>----------<*>----------<*>----------<*>------
+lib2:
+	$(MAKE) -C $(PETSCFEM_DIR)/src compile
+
+testfm2d.bin: testfm2d.o testfm2d.cpp $(PETSCFEM_DIR)/src/libpetscfem$(osfx).a
+	$(MAKE) -C $(PETSCFEM_DIR)/src compile
 	g++ $(PROF_FLAGS) -o testfm2d.bin testfm2d.o $(LDFLAGS_NO_PROG_LIB)
 
 effi:
 	$(MAKE) testfm2d.bin
-	for j in $(seq 1 10) ; \
-	do ( ./testfm2d.bin -n 30 -N 5000 -M 1 -t 1 | grep rate ) ; \
+	for j in $$(seq 1 10) ; \
+	do ( OMP_NUM_THREADS=2  ./testfm2d.bin -n 30 -N 5000 \
+		-M 1 -t 10 ) ; \
 	done
+#		-M 1 -t 10 | grep rate ) ;
 
 #----<*>----------<*>----------<*>----------<*>----------<*>----------<*>--
 #w FastMat2 test b but with CacheCtx2

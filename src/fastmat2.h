@@ -1498,6 +1498,8 @@ private:
     ctx->check_clear();                         \
     ctx->check(__VA_ARGS__);                    \
   }
+#else
+#define CTX2_CHECKLAB(...)
 #endif
 
 #define CTX2_CHECK(...)                         \

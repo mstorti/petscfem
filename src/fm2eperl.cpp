@@ -2778,8 +2778,9 @@ FastMat2 & FastMat2::prod(const FastMat2 & A,const FastMat2 & B,
   int 
     nlines = cache->nlines,
     mm=cache->line_size;
-  double **pa,**pb,**pa_end,sum,*paa,*pbb,*paa_end;
+  //#pragma omp parallel for schedule(dynamic,5)
   for (int j=0; j<nlines; j++) {
+    double **pa,**pb,**pa_end,sum,*paa,*pbb,*paa_end;
     LineCache *lc = cache->line_cache_start+j;
     pa = lc->starta;
     pb = lc->startb;

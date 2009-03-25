@@ -185,6 +185,11 @@ CPPFLAGS := \
 	$(SSL_CPPFLAGS)		\
 	$(SUPERLU_CPPFLAGS)	\
 
+
+ifeq ($(USE_OPENMP),yes) 
+CPPFLAGS += -fopenmp
+endif
+
 ifeq ($(USE_DYNAMICALLY_LOADED_EXTENDED_FUNCTIONS),yes) 
 CPPFLAGS += -DUSE_DLEF
 endif
@@ -319,23 +324,28 @@ distclean:
 ## PETSc Libraries used by most PETSc-FEM applications
 #PETSCFEM_PETSC_LIBS := ${PETSC_KSP_LIB}
 
+ifeq ($(USE_OPENMP),yes) 
+OMP_LDFLAGS := -fopenmp
+endif
+
 LDFLAGS = -Wl,-E,-rpath,$(LD_LIBRARY_PATH)	\
           $(PROG_LIB)				\
 	  $(PTHREADS_LIB)			\
 	  -L$(PETSCFEM_DIR)/src			\
-	  -lpetscfem$(osfx)   			\
+	  -lpetscfem$(osfx)			\
           $(PROG_LIB)				\
           -lpetscfem$(osfx) -lc			\
-          $(ANN_LDFLAGS) 			\
+          $(ANN_LDFLAGS)			\
           $(GLIB_LDFLAGS)			\
-	  $(LIBRETTO_LDFLAGS)  			\
+	  $(LIBRETTO_LDFLAGS)			\
           $(MESCHACH_LDFLAGS)			\
-          $(METIS_LDFLAGS) 			\
+          $(METIS_LDFLAGS)			\
           $(NEWMAT_LDFLAGS)			\
-          $(SSL_LDFLAGS) 			\
-          $(SUPERLU_LDFLAGS) 			\
+          $(SSL_LDFLAGS)			\
+          $(SUPERLU_LDFLAGS)			\
 	  $(SSL_LDFLAGS)			\
-	  $(PETSC_LDFLAGS) 
+	  $(PETSC_LDFLAGS)			\
+	  $(OMP_LDFLAGS)
 
 LDFLAGS_NO_PROG_LIB =					\
 	  $(PTHREADS_LIB)				\
@@ -348,7 +358,8 @@ LDFLAGS_NO_PROG_LIB =					\
 	  $(NEWMAT_LDFLAGS)				\
 	  $(SSL_LDFLAGS)				\
           $(SUPERLU_LDFLAGS)				\
-	  $(PETSC_LDFLAGS)
+	  $(PETSC_LDFLAGS)				\
+	  $(OMP_LDFLAGS)
 
 EFN_LDFLAGS =	
 

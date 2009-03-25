@@ -13459,6 +13459,6 @@ DONE!!
 PLAN DE TRABAJO 2 CacheCtx2:
 . OK chequear que `trcprtf' de exactamente lo mismo con Ctx1 y 2
   probado y da exactmante lo mismo!!
-. que todo el tema check_labels() ni se compile con NDEBUG
+. OK que todo el tema check_labels() ni se compile con NDEBUG
 . agregar branching relativo
 . agregar OpenMP a FastMat2??
