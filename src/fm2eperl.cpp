@@ -7,6 +7,7 @@
 //$Id merge-with-petsc-233-50-g0ace95e Fri Oct 19 17:49:52 2007 -0300$
 #include <math.h>
 #include <stdio.h>
+#include <omp.h>
 
 #include <src/fem.h>
 #include <src/fastmat2.h>
@@ -2589,6 +2590,8 @@ FastMat2 & FastMat2::fun(scalar_fun_with_args_t *fun_,void *user_args) {
 }  
 
 
+extern vector<int> fastmat2_pocessed_rows;
+
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 
 
@@ -2778,8 +2781,10 @@ FastMat2 & FastMat2::prod(const FastMat2 & A,const FastMat2 & B,
   int 
     nlines = cache->nlines,
     mm=cache->line_size;
-  //#pragma omp parallel for schedule(dynamic,5)
+#pragma omp parallel for schedule(dynamic,5)
   for (int j=0; j<nlines; j++) {
+    int tid = omp_get_thread_num();
+    fastmat2_pocessed_rows[tid]++;
     double **pa,**pb,**pa_end,sum,*paa,*pbb,*paa_end;
     LineCache *lc = cache->line_cache_start+j;
     pa = lc->starta;

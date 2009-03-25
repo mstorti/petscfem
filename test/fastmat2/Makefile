@@ -4,7 +4,7 @@
 SRCS = SRCS = $(wildcard *.cpp)
 
 PETSCFEM_DIR = ../..
-BOPT = O_c++
+BOPT = g_c++
 include $(PETSCFEM_DIR)/Makefile.base
 include $(PETSCFEM_DIR)/test/Makefile.base.test
 
