@@ -31,10 +31,9 @@ testfm2d.bin: testfm2d.o testfm2d.cpp $(PETSCFEM_DIR)/src/libpetscfem$(osfx).a
 effi:
 	$(MAKE) testfm2d.bin
 	for j in $$(seq 1 10) ; \
-	do ( OMP_NUM_THREADS=2  ./testfm2d.bin -n 30 -N 5000 \
+	do ( ./testfm2d.bin -n 30 -N 5000 \
 		-M 1 -t 10 ) ; \
 	done
-#		-M 1 -t 10 | grep rate ) ;
 
 #----<*>----------<*>----------<*>----------<*>----------<*>----------<*>--
 #w FastMat2 test b but with CacheCtx2

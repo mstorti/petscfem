@@ -40,7 +40,7 @@ inline double * location(double *a, int i, int j, int m) {
 }
 
 void myprod(double *c, double *a, double *b,int m, int p, int n) {
-  //#pragma omp parallel for schedule(dynamic)
+#pragma omp parallel for schedule(dynamic,10)
   for (int i=0; i<m; i++) {
 #if 0
     static int flag=0;
