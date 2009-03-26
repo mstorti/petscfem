@@ -118,8 +118,8 @@ int flux_fun_euler_FM(FLUX_FUN_ARGS_FM) {
     kdir=0;
     kdir(jdim)= 1;
     AJAC(jdim) = (Z | kdir.t() | Z) &
-      (-uk*u + 0.5*g1*u2*kdir | u*kdir.t()+uk*I-g1*kdir*u.t() | g1*kdir) &
-      (ZZ | (p/rho+energy)*kdir.t()-g1*uk*u.t() | ZZZ);
+      ((-uk*u + 0.5*g1*u2*kdir) | (u*kdir.t()+uk*I-g1*kdir*u.t()) | g1*kdir) &
+      (ZZ | ((p/rho+energy)*kdir.t()-g1*uk*u.t()) | ZZZ);
     flux.Column(jdim) = AJAC(jdim) * U.t();
 #else
     double uk = u.get(jdim,1);
@@ -259,7 +259,7 @@ int flux_fun_euler_FM(FLUX_FUN_ARGS_FM) {
       ZZZ = (k1+1)*V(ndof);
       Z = V(ndof)*V(ndof);
       A01 = (ZZ | k1*v.t() | ZZZ ) &
-	(k1*v | v*v.t()-V(ndof)*I | V(ndof)*v ) &
+	(k1*v | (v*v.t()-V(ndof)*I) | V(ndof)*v ) &
 	(ZZZ | V(ndof)*v.t() | Z );
 
       A01 = -A01/(rho*i*V(ndof));
@@ -374,8 +374,8 @@ int flux_fun_euler_FM(FLUX_FUN_ARGS_FM) {
 #ifndef USE_FASTMAT
     Z = z;
     VV3d = (kdir3d.t() | Z | Z) &
-      (u3d*kdir3d.t()+rho*Omega | z*(u3d+cc*kdir3d) | z*(u3d-cc*kdir3d) ) &
-      ( 0.5*u2*kdir3d.t()-rho*(Omega*u3d).t() | 
+      ((u3d*kdir3d.t()+rho*Omega) | z*(u3d+cc*kdir3d) | z*(u3d-cc*kdir3d) ) &
+      ( (0.5*u2*kdir3d.t()-rho*(Omega*u3d).t()) | 
 	Z*(0.5*u2+cc*cc/g1+cc*uk) | Z*(0.5*u2+cc*cc/g1-cc*uk) );
 #else
     tmp2.reshape(3,1);
@@ -399,8 +399,8 @@ int flux_fun_euler_FM(FLUX_FUN_ARGS_FM) {
     z = 0.5*sqrt(2.0)/rho/cc;
 #ifndef USE_FASTMAT
     Z = z;
-    VV3di = ( (1-0.5*g1*u2/cc/cc)*kdir3d+(1./rho)*(Omega*u3d) | 
-	      g1/cc/cc*kdir3d*u3d.t()-(1./rho)*Omega | -g1/cc/cc*kdir3d ) &
+    VV3di = ( ((1-0.5*g1*u2/cc/cc)*kdir3d+(1./rho)*(Omega*u3d)) | 
+	      (g1/cc/cc*kdir3d*u3d.t()-(1./rho)*Omega) | -g1/cc/cc*kdir3d ) &
       (Z*(-cc*uk+0.5*g1*u2) | z*( cc*kdir3d.t()-g1*u3d.t()) | Z*g1 ) &
       (Z*( cc*uk+0.5*g1*u2) | z*(-cc*kdir3d.t()-g1*u3d.t()) | Z*g1 );
 #else
