@@ -13462,3 +13462,27 @@ PLAN DE TRABAJO 2 CacheCtx2:
 . OK que todo el tema check_labels() ni se compile con NDEBUG
 . agregar branching relativo
 . agregar OpenMP a FastMat2??
+
+%=== Thu Mar 26 13:36:52 2009 mstorti@galileo
+%
+%-- 13:36:52 -- mstorti-v24-end-23-g018cfb9 -----
+Hago el merge con Rodrigo (mstorti-v24-end-6-g3e3726a). 
+Agrega las cosas del estratificado y tests. 
+Corro los tests y me da lo siguiente:
+% -- Con g_c++: 9 NOT-OK
+> Square cavity with fract. step, Re1000, N=20
+> Idmap class
+> NEW Read_vector function.
+> newff/test case adv_temp_cp
+> newff/test case full_full_jacs_cp
+> newff/test case full_full_jacs_adv_cp
+> newff/test case adv_temp_cp_iisd
+> NEW Distributed graph 2proc.
+> NEW Distributed graph 3proc.
+%
+%-- 14:11:39 -- mstorti-v24-end-23-g018cfb9 -----
+NEW Read_vector function: era porque no se creaba el weights.dat, no
+se porque antes no dio ese error. 
+%
+Los "NEW Distributed graph xxxproc"  es por el lio en la
+sincronizacion al escribir. 
