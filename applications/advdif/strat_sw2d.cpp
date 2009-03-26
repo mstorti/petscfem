@@ -41,6 +41,10 @@ void stratsw2d_ff::start_chunk(int &options) {
   EGETOPTDEF_ND(elemset,double,tau_fac,1.);
   //o Add shock-capturing term.
   EGETOPTDEF_ND(elemset,int,shock_capturing,0);
+  //o Add shock-capturing beta exponent.
+  EGETOPTDEF_ND(elemset,int,shocap_beta,1);
+  //o Add shock-capturing factor
+  EGETOPTDEF_ND(elemset,double,shocap_fac,1.);
   // o Add shock-capturing term if relative variation of variables
   // inside the element exceeds this.
   // _T: double[ndim]/double[ndim*ndof]/double[ndim*ndof*ndof] 
@@ -81,7 +85,6 @@ void stratsw2d_ff::start_chunk(int &options) {
   Uintri.resize(1,ndim);
   Uintri1.resize(1,ndim);
   Uintri2.resize(1,ndim);
-  A01.resize(2,ndof,ndof);
   bottom_slope.resize(1,ndim);
   grad_U_psi.resize(2,ndim,ndof);
   tmp33.resize(2,ndof,ndim);
@@ -152,8 +155,14 @@ void stratsw2d_ff::comp_P_Cp(FastMat2 &P_Cp,const FastMat2 &P_supg) {
 void stratsw2d_ff::set_Ufluid(FastMat2 &Uref, FastMat2 &Ufluid) { 
   Ufluid.is(1,1,ndim).set(Uref.rs().is(1,1,ndim));
   Uref.rs();Ufluid.rs();
-  Ufluid.is(1,ndim+2,ndim+3).set(Uref.rs().is(1,ndim+2,ndim+3));
-  Uref.rs();Ufluid.rs();
+  //  Ufluid.is(1,ndim+2,ndim+3).set(Uref.rs().is(1,ndim+2,ndim+3));
+  //  Uref.rs();Ufluid.rs();
+  
+  /*
+    
+    
+    
+   */
 }
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 void stratsw2d_ff::compute_flux(const FastMat2 &U,
@@ -196,12 +205,12 @@ void stratsw2d_ff::compute_flux(const FastMat2 &U,
   }
 
   set_state(U);
-  flux_mass1.set(UU.is(1,1,ndim));
+  u1m.set(UU.is(1,1,ndim));
   UU.rs();
-  u1m.set(flux_mass1).scale(1./h1);
-  flux_mass2.set(UU.is(1,ndim+2,ndim+3));
+  flux_mass1.set(u1m).scale(h1);
+  u2m.set(UU.is(1,ndim+2,ndim+3));
   UU.rs();
-  u2m.set(flux_mass2).scale(1./h2);
+  flux_mass2.set(u2m).scale(h2);
 
   double uc1 = u1m.sum_square_all();
   double uc2 = u2m.sum_square_all();
@@ -214,37 +223,41 @@ void stratsw2d_ff::compute_flux(const FastMat2 &U,
   u2=u2m.get(1);
   v2=u2m.get(2);
 
-  AJACX(1,1)=2*u1;
-  AJACX(1,3)=-1.*SQ(u1)+g*h1;
+  AJACX(1,1)=2*u1*h1;
+  AJACX(1,3)=u1*u1+g*h1;
   AJACX(1,6)=g*h1*rho2/rho1;
-  AJACX(2,1)=v1;
-  AJACX(2,2)=u1;
-  AJACX(2,3)=-1.*u1*v1;
-  AJACX(3,1)=1.;
+  AJACX(2,1)=h1*v1;
+  AJACX(2,2)=h1*u1;
+  AJACX(2,3)=u1*v1;
+  AJACX(3,1)=h1;
+  AJACX(3,3)=u1;
   AJACX(4,3)=g*h2;
-  AJACX(4,4)=2.*u2;
-  AJACX(4,6)=-1.*SQ(u2)+g*h2;
-  AJACX(5,4)=v2;
-  AJACX(5,5)=u2;
-  AJACX(5,6)=-1.*u2*v2;
-  AJACX(6,4)=1.;
+  AJACX(4,4)=2.*u2*h2;
+  AJACX(4,6)=u2*u2+g*h2;
+  AJACX(5,4)=h2*v2;
+  AJACX(5,5)=h2*u2;
+  AJACX(5,6)=u2*v2;
+  AJACX(6,4)=h2;
+  AJACX(6,6)=u2;
 
   A_jac.ir(1,1).set(ajacx);
 
-  AJACY(1,1)=v1;
-  AJACY(1,2)=u1;
-  AJACY(1,3)=-1.*u1*v1;
-  AJACY(2,2)=2.*v1;
-  AJACY(2,3)=-1.*SQ(v1)+g*h1;
+  AJACY(1,1)=h1*v1;
+  AJACY(1,2)=h1*u1;
+  AJACY(1,3)=u1*v1;
+  AJACY(2,2)=2.*v1*h1;
+  AJACY(2,3)=v1*v1+g*h1;
   AJACY(2,6)=g*h1*rho2/rho1;
-  AJACY(3,2)=1.;
-  AJACY(4,4)=v2;
-  AJACY(4,5)=u2;
-  AJACY(4,6)=-1.*u2*v2;
+  AJACY(3,2)=h1;
+  AJACY(3,3)=v1;
+  AJACY(4,4)=h2*v2;
+  AJACY(4,5)=h2*u2;
+  AJACY(4,6)=u2*v2;
   AJACY(5,3)=g*h2;
-  AJACY(5,5)=2*v2;
-  AJACY(5,6)=-1.*SQ(v2)+g*h2;
-  AJACY(6,5)=1.;
+  AJACY(5,5)=2*h2*v2;
+  AJACY(5,6)=v2*v2+g*h2;
+  AJACY(6,5)=h2;
+  AJACY(6,6)=v2;
 
   A_jac.ir(1,2).set(ajacy).rs();
 
@@ -265,6 +278,13 @@ void stratsw2d_ff::compute_flux(const FastMat2 &U,
   Cp.setel(1.,6,6);
   Cp.rs();
 
+  grad_U.ir(2,3);
+  grad_h1.set(grad_U);
+  grad_U.rs();
+  grad_U.ir(2,ndof);
+  grad_h2.set(grad_U);
+  grad_U.rs();
+
   if (options & COMP_UPWIND) {
 
     D_jac.set(0.);
@@ -282,7 +302,7 @@ void stratsw2d_ff::compute_flux(const FastMat2 &U,
 
     double vel,h;
     FastMat2::branch();
-    if (vel1>=vel2){
+    if (vel1<vel2){
       FastMat2::choose(0);
       vel=vel2;
       h=h2;
@@ -312,78 +332,20 @@ void stratsw2d_ff::compute_flux(const FastMat2 &U,
     tau_a = SQ(2.*lam_max/h_supg);
     tau_a = tau_fac/sqrt(tau_a);
 
-    double vmax = -1;
-
-    vref.is(1,1,ndim).set(vel*h).rs();
-    vref.setel(h,ndim+1).rs();
-    vref.is(1,ndim+2,ndim+3).set(vel*h).rs();
-    vref.setel(h,ndof).rs();
-
-    for (int jdof=1; jdof<=ndof; jdof++) {
-      double vaux = vref.get(jdof);
-      vaux = vaux*vaux;
-      gU = grad_U.rs().ir(2,jdof).sum_square_all();
-      vaux = gU/vaux;
-      vmax = (vmax > vaux ? vmax : vaux);
-    }
-    grad_U.rs();
-    vmax = sqrt(vmax);
-
     // Shock Capturing term. If not used return tau_supg as usual and
     // delta_sc=0.
     tau_delta = 0; delta_sc=0.;
 
     FastMat2::branch();
-    if (shock_capturing && (vmax > shock_capturing_threshold/h_supg) ) {
-      FastMat2::choose(0);
-      // calculo del tensor metrico de Riemann (A0) para transformar variables 
-
-      A01v[0]= 1.;
-      A01v[1]= 0. ;
-      A01v[2]= -u1;
-
-      A01v[3]= 0.;
-      A01v[4]= 1.;
-      A01v[5]= -v1;
-
-      A01v[6]= -u1;
-      A01v[7]= -v1;
-      A01v[8]= g*h1+u1*u1+v1*v1;
-
-      // A01.ir(1,1).set(A01v).scale(1./(g*h1)).rs();
-
-      A01v[9]= 1.;
-      A01v[10]= 0. ;
-      A01v[11]= -u2;
-
-      A01v[12]= 0.;
-      A01v[13]= 1.;
-      A01v[14]= -v2;
-
-      A01v[15]= -u2;
-      A01v[16]= -v2;
-      A01v[17]= g*h2+u2*u2+v2*v2;
-
-      // A01.ir(1,2).set(A01v).scale(1./(g*h2)).rs();
-      A01.set(A01v).scale(1./(g*(h1+h2))).rs();
-      // calculo del delta shock capturing delta_sc
-      double vaux_num,vaux_den;
-      tmp1.prod(A01,A_grad_U,1,-1,-1);
-      tmp22.prod(A_grad_U,tmp1,-1,-1);
-      vaux_num = double(tmp22);
-
-      grad_U_psi.prod(iJaco,grad_U,1,-1,-1,2);
-      tmp33.prod(A01,grad_U_psi,1,-1,2,-1);
-      tmp4.prod(grad_U_psi,tmp33,-1,-2,-2,-1);
-      vaux_den = double(tmp4);
-
-      delta_sc = sqrt(vaux_num/vaux_den);
-      tau_delta = delta_sc/(lam_max*lam_max);
-      
-    } // if (shock_capturing ...
-
+    if (shock_capturing) {
+      double Peclet = vel*h_supg/(2.*nu);
+      double fz2 = (Peclet < 3. ? Peclet/3. : 1.);
+      fz2 = pow(fz2,shocap_beta);
+      delta_sc = 0.5*h_supg*lam_max*fz2*shocap_fac;
+    }
     FastMat2::leave();
 
+    tau_delta = delta_sc/(lam_max*lam_max);
     double tau_supg_d = ((tau_a-tau_delta)>0 ? (tau_a-tau_delta) : 0);
     options |= SCALAR_TAU;
     tau_supg.setel(tau_supg_d,1,1);

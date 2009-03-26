@@ -58,27 +58,27 @@ table physical_data
 friction_law "Chezy"
 Ch 110.
 
-#shape "rectangular"
-#width 1.
+shape "rectangular"
+width 1.
 
-shape "triangular"
-wall_angle <:=$wall_angle*3.14/180:>
+##shape "triangular"
+##wall_angle <:=$wall_angle*3.14/180:>
 
-## shape "circular"
-## radius 10
+#shape "circular"
+#radius 10
 
-## shape "trapezoidal"
-## wall_angle <:=$wall_angle*3.14/180:>
-## width_bottom 1.0
+##shape "trapezoidal"
+##wall_angle <:=$wall_angle*3.14/180:>
+##width_bottom 1.0
 
-## shape "circular2"
-## diameter 2
-## angle_ap <:=$angle_ap*3.14/180:>
+##shape "circular2"
+##diameter 2
+##angle_ap <:=$angle_ap*3.14/180:>
 
-#shape "doble_rect"
-#<:pr('B1'):>
-#<:pr('B2'):>
-#<:pr('Z1'):>
+##shape "doble_rect"
+##<:pr('B1'):>
+##<:pr('B2'):>
+##<:pr('Z1'):>
 
 cfric 0.
 <:pr('ndim'):>
@@ -96,11 +96,11 @@ __END_ELEMSET__
 <:if ($ulsar == 1) {_:>//
 elemset streamsw1d_abso2 <:=$nodele:>
 use_old_state_as_ref 1
-switch_to_ref_on_incoming 1
-Uref <:=$u_out:> <:=$h_out:>
+#switch_to_ref_on_incoming 1
+#Uref <:=$u_out:> <:=$h_out:>
 geometry cartesian1d
-lagrange_diagonal_factor 1.e-3
-lagrange_residual_factor 1.e-3
+lagrange_diagonal_factor 1.e-5
+lagrange_residual_factor 1.e-5
 props normal[1]
 _table_include physical_data
 __END_HASH__

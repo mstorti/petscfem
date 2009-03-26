@@ -3,11 +3,11 @@
 require "$ENV{'PETSCFEM_DIR'}/test/eperlini.pl";       # Initializes ePerl 
 $case_name = $ENV{'case_name'};                   # case name
 print "# case_name $case_name\n";
-$case_name = 'canal1d' unless $case_name;
+$case_name = 'canal1driem' unless $case_name;
 
 $nx=400;
 $Nx=$nx+1;
-$L=2;
+$L=20;
 $u0=0.5;
 $h0=1.;
 $alpha = 1.0;
@@ -16,16 +16,16 @@ $h = $L/$Nx;
 $gravity = 1.;
 $urms=sqrt($gravity*$h0);
 #$Dt = $Courant*$h/$urms;
-$Tend = 5;
-$Dt=0.05;
+$Tend = 50;
+$Dt=0.5;
 #$nstep = ceil($Tend/$Dt);
-$nstep = 500;
+$nstep = 1000;
 #$wall_angle = 20;
 #$pi = 3.14159;
 #__END_TRANSCRIPT__
 @vars = qw(nx Nx L u0 h0 nstep case_name Courant alpha Tend Dt gravity);
 transcript("", @vars);	# print variables on output and transcript this block
-octave_export_vars(">canal1d.data.m.tmp",@vars);
+octave_export_vars(">canal1driem.data.m.tmp",@vars);
 #system "octave -qH canal1d.m";
 :>//                            # ends ePerl block
 
@@ -34,7 +34,7 @@ ndim 2
 use_log_vars 0
 
 # SUPG conf
-weak_form 1
+weak_form 0
 
 # time stepping
 nnwt 2
@@ -42,15 +42,17 @@ nnwt 2
 alpha 1
 steady 0
 
-initial_state "canal1d.ini.tmp"
+initial_state "canal1driem.ini.tmp"
 
 # "rotary saving" 
 nsaverot 1
-nfile 1
-nrec 10000
+nfile 100000
+nrec 1
+nsave 1
 #save_file_pattern "canal1d%d.out005s3.tmp"
-save_file_pattern "canal1d.rslt.tmp"
-save_file "save.state.tmp"
+#save_file_pattern "canal1d.rslt.tmp"
+save_file_pattern "./STEPS/canal1driem.%d.tmp"
+save_file "canal1driem.state.tmp"
 
 tol_newton 0
 solver "petsc"
@@ -73,7 +75,7 @@ __END_HASH__
 
 # ndim nu ndof
 nodes   2  3  2
-__INCLUDE__ canal1d.nod.tmp
+__INCLUDE__ canal1driem.nod.tmp
 
 __END_NODES__
 
@@ -96,7 +98,7 @@ geometry cartesian1d
 npg 2
 _table_include physical_data
 __END_HASH__
-__INCLUDE__ canal1d.con.tmp
+__INCLUDE__ canal1driem.con.tmp
 __END_ELEMSET__
 
 elemset streamsw1d_abso 6
@@ -107,14 +109,16 @@ lagrange_diagonal_factor 1.e-5
 props normal[1]
 _table_include physical_data
 __END_HASH__
-__INCLUDE__ canal1d.rest.tmp
+__INCLUDE__ canal1driem.rest.tmp
 __END_ELEMSET__
 
 end_elemsets
 
+#if 0
 fixa
-__INCLUDE__ canal1d.fixa.tmp
+__INCLUDE__ canal1driem.fixa.tmp
 __END_FIXA__
+#endif
 
 #if 0
 constraint

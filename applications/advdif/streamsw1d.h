@@ -203,5 +203,9 @@ public:
     :  AdvectiveAbso(new streamsw1d_ff(this)) { }
 };
 
+class streamsw1d_bcconv : public NewBcconv {
+public:
+  streamsw1d_bcconv() : NewBcconv(new streamsw1d_ff(this)) {};
+};
 
 #endif

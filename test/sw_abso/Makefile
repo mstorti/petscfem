@@ -12,7 +12,7 @@ CASE=canal1d
 PETSCFEM_DIR := ../..
 
 NP := $(shell procsel -n $(PETSCFEM_PROCTABLE))
-NP := 3
+NP := 1
 
 include $(PETSCFEM_DIR)/Makefile.base
 include $(PETSCFEM_DIR)/test/Makefile.base.test
@@ -27,11 +27,17 @@ DEPEND_DIRS = $(CLEAN_DIRS)
 #----<*>----------<*>----------<*>----------<*>----------<*>----------<*>-----
 # Test for abso shallow water 1d
 
+data:
+	make-depl $(CASE).epl $(CASE).depl 
+
+mesh: data
+	$(OCTAVE) $(CASE).m
+
 test_abso:
 	$(MAKE) $(CASE).depl
 	$(OCTAVE) $(CASE).m
-	-$(MPIEXEC) -n $(NP)  -machinefile ./machi.dat $(ADVDIF) -case $(CASE).depl
-	$(OCTAVE)  check_test_abso.m
+	-$(MPIEXEC) -n $(NP)  $(ADVDIF) -case $(CASE).depl
+#	$(OCTAVE)  check_test_abso.m
 
 chiquito:
 	$(MAKE) chiquito.depl

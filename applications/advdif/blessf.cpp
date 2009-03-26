@@ -68,10 +68,12 @@ void bless_elemset_advdif(char *type,Elemset *& elemset) {
     SET_ELEMSET_TYPE(streamsw2d)
     SET_ELEMSET_TYPE(streamsw2d_abso2)
     SET_ELEMSET_TYPE(streamsw1d)
+    SET_ELEMSET_TYPE(streamsw1d_bcconv)
     SET_ELEMSET_TYPE(streamsw1d_abso)
     SET_ELEMSET_TYPE(streamsw1d_abso2)
     
     SET_ELEMSET_TYPE(stratsw2d)
+    SET_ELEMSET_TYPE(streamsw2d_bcconv)
     SET_ELEMSET_TYPE(stratsw2d_abso2)
     
     SET_ELEMSET_TYPE(wall_swfm2t)

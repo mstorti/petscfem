@@ -59,6 +59,8 @@ void streamsw2d_ff::start_chunk(int &options) {
   EGETOPTDEF_ND(elemset,double,Chezy,110);
   //o Threshold value for $h$ while computing turbulence model.
   EGETOPTDEF_ND(elemset,double,h_min,1e-6);
+
+  EGETOPTDEF_ND(elemset,double,shock_capturing_threshold,1.e-5);
   
   //o Dimension of the problem. 
   EGETOPTDEF_ND(elemset,int,ndim,0);
@@ -73,13 +75,15 @@ void streamsw2d_ff::start_chunk(int &options) {
   tmp2.resize(2,nel,nel);
   tmp3.resize(2,ndof,ndof);
   vref.resize(1,ndof);
+  froude.resize(1,ndim);
+  grad_froude.resize(1,ndim);
   u.resize(1,ndim);
   flux_mass.resize(1,ndim);
   Uintri.resize(1,ndim);
   dev_tens.resize(2,2,2);
   tmp5.resize(2,2,2);
   bottom_slope.resize(1,ndim);
-  grad_U_psi.resize(2,ndim,ndof);
+  grad_U_psi.resize(2,ndim,ndim);
   tmp33.resize(2,ndof,ndim);
   tmp11.resize(4,nel,ndim,ndof,ndof);
   r_dir.resize(1,ndim);
@@ -184,12 +188,13 @@ void streamsw2d_ff::compute_flux(const FastMat2 &U,
   }
 
   set_state(U);
-  flux_mass.set(UU.is(1,1,ndim));
+  UU.is(1,1,ndim);
+  u.set(UU);
+  flux_mass.set(u).scale(h);
   UU.rs();
-  u.set(flux_mass).scale(1./h);
 
   double u2 = u.sum_square_all();
-  double q = sqrt(u2);
+  double vel = sqrt(u2);
 
   double ux,uy;
   ux=u.get(1);
@@ -209,30 +214,33 @@ void streamsw2d_ff::compute_flux(const FastMat2 &U,
   Cp.rs();
 
 
-  AJACX(1,1) = 2*ux;
+  AJACX(1,1) = 2*ux*h;
   AJACX(1,2) = 0.;
-  AJACX(1,3) = -ux*ux+g*h;
-  AJACX(2,1) = uy;
-  AJACX(2,2) = ux;
-  AJACX(2,3) = -ux*uy;
-  AJACX(3,1) = 1.;
+  AJACX(1,3) = ux*ux+g*h;
+  AJACX(2,1) = uy*h;
+  AJACX(2,2) = ux*h;
+  AJACX(2,3) = ux*uy;
+  AJACX(3,1) = h;
   AJACX(3,2) = 0.;
-  AJACX(3,3) = 0.;
+  AJACX(3,3) = ux;
 
   A_jac.ir(1,1).set(ajacx);
 
-  AJACY(1,1) = uy;
-  AJACY(1,2) = ux;
-  AJACY(1,3) = -ux*uy;
+  AJACY(1,1) = uy*h;
+  AJACY(1,2) = ux*h;
+  AJACY(1,3) = ux*uy;
   AJACY(2,1) = 0.;
-  AJACY(2,2) = 2*uy;
-  AJACY(2,3) = -uy*uy + g*h;
+  AJACY(2,2) = 2*uy*h;
+  AJACY(2,3) = uy*uy + g*h;
   AJACY(3,1) = 0.;
-  AJACY(3,2) = 1.;
-  AJACY(3,3) = 0.;
+  AJACY(3,2) = h;
+  AJACY(3,3) = uy;
 
   grad_U.ir(2,ndof);
-  grad_h.set(grad_U);
+  grad_h.set(grad_U);//.scale(-1./(h*h));
+  grad_U.rs();
+
+  grad_U_psi.set(grad_U.is(2,1,2));
   grad_U.rs();
 
   A_jac.ir(1,2).set(ajacy).rs();
@@ -253,23 +261,23 @@ void streamsw2d_ff::compute_flux(const FastMat2 &U,
 
     D_jac.set(0.);
     double nu_h= nu_m/h;
-    D_jac.setel( 2.*nu_h   ,1,1,1,1);
-    D_jac.setel(-2.*ux*nu_h,1,1,1,3);
+    D_jac.setel(2*nu_m*h  ,1,1,1,1);
+    D_jac.setel(2*ux*nu_m ,1,1,1,3);
     
-    D_jac.setel(-uy*nu_h   ,1,1,2,3);
-    D_jac.setel( nu_h      ,1,1,2,2);
+    D_jac.setel(uy*nu_m   ,1,1,2,3);
+    D_jac.setel(nu_m*h    ,1,1,2,2);
     
-    D_jac.setel( nu_h      ,2,2,1,1);
-    D_jac.setel(-ux*nu_h   ,2,2,1,3);
+    D_jac.setel(nu_m*h    ,2,2,1,1);
+    D_jac.setel(ux*nu_m   ,2,2,1,3);
     
-    D_jac.setel(-2.*uy*nu_h,2,2,2,3);
-    D_jac.setel( 2.*nu_h   ,2,2,2,2);
+    D_jac.setel(2*uy*nu_m ,2,2,2,3);
+    D_jac.setel(2*nu_m*h  ,2,2,2,2);
     
-    D_jac.setel( nu_h      ,1,2,2,1);
-    D_jac.setel(-ux*nu_h   ,1,2,2,3);
+    D_jac.setel(nu_m*h    ,1,2,2,1);
+    D_jac.setel(ux*nu_m   ,1,2,2,3);
     
-    D_jac.setel(-uy*nu_h   ,2,1,1,3);
-    D_jac.setel( nu_h      ,2,1,1,2);
+    D_jac.setel(uy*nu_m   ,2,1,1,3);
+    D_jac.setel(nu_m*h    ,2,1,1,2);
     
     D_jac.scale(diff_factor);
 
@@ -283,20 +291,20 @@ void streamsw2d_ff::compute_flux(const FastMat2 &U,
     fluxd.set(0.).is(1,1,2).add(dev_tens).rs();
     fluxd.scale(diff_factor);
 
-    double vel = sqrt(u2);
 
     // Code C_jac here...
 
-    double tmp61=SQ(Chezy)*(h<h_min ? h_min : h)*(vel<vel_min ? vel_min : vel);
+    // double tmp61=SQ(Chezy)*(h<h_min ? h_min : h)*(vel<vel_min ? vel_min : vel);
+    double tmp61=SQ(Chezy)*(vel<vel_min ? vel_min : vel);
     C_jac.set(0.);
 
     C_jac.setel(-g*(SQ(ux)+u2)/tmp61,1,1);
     C_jac.setel(-g*ux*uy/tmp61,1,2);
-    C_jac.setel(-g*grad_H.get(1,1)+2*g*u2*ux/tmp61,1,3);
+    C_jac.setel(g*grad_H.get(1,1),1,3);
 
     C_jac.setel(-g*(SQ(uy)+u2)/tmp61,2,2);
     C_jac.setel(-g*ux*uy/tmp61,2,1);
-    C_jac.setel(-g*grad_H.get(2,1)+2*g*u2*uy/tmp61,2,3);
+    C_jac.setel(g*grad_H.get(2,1),2,3);
 
     C_jac.scale(-1.0);
 
@@ -323,32 +331,17 @@ void streamsw2d_ff::compute_flux(const FastMat2 &U,
     tau_a = SQ(2.*lam_max/h_supg);
     tau_a = tau_fac/sqrt(tau_a);
 
-    double vmax = -1;
-
-    vref.is(1,1,ndim).set(vel*h).rs();
-    double pp = UU.get(ndof);
-    vref.setel(pp,ndof);
-
-    for (int jdof=1; jdof<=ndof; jdof++) {
-      double vaux = vref.get(jdof);
-      vaux = vaux*vaux;
-      gU = grad_U.rs().ir(2,jdof).sum_square_all();
-      vaux = gU/vaux;
-      vmax = (vmax > vaux ? vmax : vaux);
-    }
-    grad_U.rs();
-    vmax = sqrt(vmax);
-
     // Shock Capturing term. If not used return tau_supg as usual and
     // delta_sc=0.
     tau_delta = 0; delta_sc=0.;
-
     if (shock_capturing) compute_shocap(delta_sc);
 
     tau_delta = delta_sc/(lam_max*lam_max);
     double tau_supg_d = ((tau_a-tau_delta)>0 ? (tau_a-tau_delta) : 0);
     options |= SCALAR_TAU;
     tau_supg.setel(tau_supg_d,1,1);
+    //tau_supg.eye(tau_supg_d);
+
   } 
 
   if (options & COMP_SOURCE) {
@@ -357,9 +350,8 @@ void streamsw2d_ff::compute_flux(const FastMat2 &U,
       .set(0.)
       .is(1,1,ndim)
       .add(grad_H)
-      // .add(bottom_slope)  ??????????
       .scale(-g*h)
-      .axpy(u,-g/SQ(Chezy)*q)
+       .axpy(u,-g/SQ(Chezy)*vel)
       .rs();
     grad_H.rs();
   }
@@ -434,17 +426,28 @@ void streamsw2d_ff::get_Ajac(FastMat2 &Ajac_a) {
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:
 void streamsw2d_ff::compute_shocap(double &delta_sc) {
   const FastMat2 &grad_N = *advdf_e->grad_N();
-  double tol=1.0e-16;
-  
-  r_dir.set(u);
-  r_dir_mod = sqrt(r_dir.sum_square_all());
+  double tol=1.0e-15;
   
   double vel = sqrt(u.sum_square_all());
   double sonic_speed = sqrt(gravity*h);
   double velmax = vel+sonic_speed;
-  
+//   double uu=fabs(u.get(1));
+//   froude.setel(uu,1).scale(sonic_speed);
+//   uu=fabs(u.get(2));
+//   froude.setel(uu,2).scale(sonic_speed);
+//   double froude_mod= sqrt(froude.sum_square_all());
+//   grad_U_psi.ir(1,1);
+//   tmp6.prod(u,grad_U_psi,-1,-1).scale(vel);
+//   grad_U_psi.rs().ir(1,2);
+//   tmp7.prod(u,grad_U_psi,-1,-1).scale(vel);
+//   grad_U_psi.rs();
+//   double absf = fabs(double(tmp6));
+//   grad_froude.setel(absf,1);
+//   absf = fabs(double(tmp7));
+//   grad_froude.setel(absf,2);
+//   double grad_froude_mod = sqrt(grad_froude.sum_square_all());
   double tol_shoc = 1e-10;
-  // compute j direction , along density gradient
+  // compute j direction , along h gradient
   double h_shoc, grad_h_mod = sqrt(grad_h.sum_square_all());
   FastMat2::branch();
   if(grad_h_mod>tol_shoc) {
@@ -460,10 +463,35 @@ void streamsw2d_ff::compute_shocap(double &delta_sc) {
     h_shoc = h_supg;
   }
   FastMat2::leave();
-  //  double fz = grad_h_mod*h_shoc/((h<h_min ? h_min : h));
-  double fz = grad_h_mod*h_shoc/rho;
+  //  double fz = grad_froude_mod*h_shoc/froude_mod;
+  double fz = grad_h_mod*h_shoc/((h<h_min ? h_min : h));
+  //double fz = grad_h_mod*h_shoc/((h<h_min ? 1./h_min : 1./h));
   fz = pow(fz,shocap_beta);
-  delta_sc_aniso = 0.5*h_shoc*velmax*fz;
+  //delta_sc = 0.5*h_shoc*velmax*fz*shocap_fac;
 
-  delta_sc = 0.5*h_supg*velmax*fz*shocap_fac;
+  double Peclet = vel*h_supg/(2.*nu_m);
+  double fz2 = (Peclet < 3. ? Peclet/3. : 1.);
+  fz2 = pow(fz2,shocap_beta);
+  delta_sc = 0.5*h_supg*velmax*fz2*shocap_fac;
+
+  delta_sc_aniso = 0.5*h_shoc*velmax*fz;
+  // delta_sc = shocap_fac*velmax*h_shoc/2.0;
+}
+
+void streamsw2d_ff::get_C(FastMat2 &C) {
+  C.set(0.);
+}
+
+void streamsw2d_ff::compute_shock_cap_aniso(double &delta_aniso,
+			FastMat2 &jvec_a) {
+  delta_aniso = delta_sc_aniso;
+  double vj = double(tmp_vj.prod(jvec,u,-1,-1));
+  jvec_a.set(jvec);
+  double vel = sqrt(u.sum_square_all());
+  FastMat2::branch();
+  if (vel>1e-10) {
+    FastMat2::choose(0);
+    jvec_a.axpy(u,-vj/sqrt(vel));
+  }
+  FastMat2::leave();
 }

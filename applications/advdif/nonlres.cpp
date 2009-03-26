@@ -256,7 +256,7 @@ void AdvDiff_Abs_Nl_Res::
 element_hook(ElementIterator &element){
   element_m = element;
   int pp=adv_diff_ff->dim();
-  assert(normal_prop.length == pp);
+  PETSCFEM_ASSERT0(normal_prop.length == pp,"normal and flux function must have same dimensions");
   normal.set(prop_array(element_m,normal_prop));
 }
 

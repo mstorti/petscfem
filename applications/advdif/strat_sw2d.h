@@ -43,6 +43,10 @@ class stratsw2d_ff : public AdvDifFFWEnth {
   double vel_min;
   // Shockcapturing operator switch
   int shock_capturing;
+  // shock capturing beta exponent
+  int shocap_beta;
+  // shock capturing factor
+  double shocap_fac;
   // Threshold for shockcapturing
   double shock_capturing_threshold;
   // doubles for turbulent and frivtion models
@@ -69,7 +73,7 @@ class stratsw2d_ff : public AdvDifFFWEnth {
   // Temp matrix for flux functions
   FastMat2 tmp1,tmp11,tmp2,tmp22,tmp3,tmp33,tmp4,
     vref,u1m,u2m,
-    A01,bottom_slope,grad_U_psi;
+    grad_h1,grad_h2,grad_h,bottom_slope,grad_U_psi;
   // Element iterator for hook
   ElementIterator elem_it;
 

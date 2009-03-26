@@ -69,7 +69,7 @@ class streamsw2d_ff : public AdvDifFFWEnth {
   FastMat2 W_N;
   // Temp matrix for flux functions
   FastMat2 tmp1,tmp11,tmp2,tmp22,tmp3,tmp33,tmp4,dev_tens,vref,u,
-    bottom_slope,tmp5,grad_U_psi;
+    bottom_slope,tmp5,grad_U_psi,froude,grad_froude,tmp6,tmp7,tmp_vj;
   // Element iterator for hook
   ElementIterator elem_it;
   // shock capt operator stuff
@@ -188,6 +188,11 @@ public:
 
   void compute_shocap(double &delta_sc);
 
+  void get_C(FastMat2 &C);
+
+  void compute_shock_cap_aniso(double &delta_aniso,
+			       FastMat2 &jvec_a);
+
 #ifdef USE_COMP_P_SUPG
   void comp_P_supg(FastMat2 &P_supg, FastMat2 &grad_N, FastMat2 &tau_supg) {
     P_supg.prod(A_jac,grad_N,-1,2,-1,1)
@@ -219,4 +224,8 @@ public:
     :  AdvectiveAbso(new streamsw2d_ff(this)) { }
 };
 
+class streamsw2d_bcconv : public NewBcconv {
+public:
+  streamsw2d_bcconv() : NewBcconv(new streamsw2d_ff(this)) {};
+};
 #endif
