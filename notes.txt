@@ -1,3 +1,4 @@
+-*- mode: text; mode: my-notes  -*-
 OK. This is mostly in spanish...  Sorry :-)
 ================================================================
 
@@ -13172,8 +13173,246 @@ NOT OK TESTS:
 --------------------------------------------------
 Summary: "All tests" -- OK: 168.  Not OK: 5. Couldn't open: 0. Total: 173
 
+%=== Fri Dec 12 13:30:03 2008 mstorti@coyote.ceride.gov.ar
+%
+%-- 13:30:03 -- mstorti-v22-end-18-g92435ee -----
+Corre casi todos los test:
+----- g_c++/O_c++
+> Start section: "All tests"
+> Summary: "All tests" -- OK: 167.  Not OK: 6. Couldn't open: 0. Total: 173
+> -------------------------
+> COULDN'T OPEN: 
+> -------------------------
+> NOT OK TESTS: 
+> --------
+"Square cavity with fract. step, Re1000, N=20" - "sqcav/check.fs.verif.tmp"
+"Idmap class" - "idmap/tidmap.sal"
+"newff/test case adv_temp_cp" - "newff/adv_temp_cp.vrf.tmp"
+"newff/test case full_full_jacs_cp" - "newff/full_full_jacs_cp.vrf.tmp"
+"newff/test case full_full_jacs_adv_cp" - "newff/full_full_jacs_adv_cp.vrf.tmp"
+"newff/test case adv_temp_cp_iisd" - "newff/adv_temp_cp_iisd.vrf.tmp"...not OK.
+%-------
+O sea que se agrego el primero "sqcav/check.fs.verif.tmp"
 
-# Current line ===========  %
-# Local Variables: $
-# eval: (my-notes-mode) $
-# End: $
+%=== Tue Dec 23 08:14:02 2008 mstorti@galileo
+%
+%-- 08:14:02 -- mstorti-v23-end-12-g11d133c -----
+Corro los tests, fallan 6 tanto en g_c++ como en O_c++. 
+%
+> "Idmap class" on file "idmap/tidmap.sal"
+> "Read_vector function." on file "sqcav/verif.read_ini.tmp"
+> "newff/test case adv_temp_cp" on file "newff/adv_temp_cp.vrf.tmp"
+> "newff/test case full_full_jacs_cp" on file "newff/full_full_jacs_cp.vrf.tmp"
+> "newff/test case full_full_jacs_adv_cp" on file "newff/full_full_jacs_adv_cp.vrf.tmp"
+> "newff/test case adv_temp_cp_iisd" on file
+> "newff/adv_temp_cp_iisd.vrf.tmp"
+%
+Con respecto a la ultima corrida se agrego "Read_vector function." on file "sqcav/verif.read_ini.tmp"
+
+%=== Sun Feb 22 23:54:58 2009 mstorti@galileo
+%
+%-- 23:54:58 -- mstorti-v24-start-18-g92bdb53 -----
+Starts running tests.... Last important modification was the change in
+the cache for the _all() functions in FastMat2. 
+
+%=== Mon Feb 23 15:37:21 2009 mstorti@galileo
+%
+%-- 15:37:21 -- mstorti-v24-start-18-g92bdb53 -----
+Gives the following:
+Summary: "All tests" -- OK: 160.  Not OK: 9. Couldn't open: 5. Total: 174
+--- CANT OPEN ---
+FIXED can't open lupart/check_part.verif.tmp
+FIXED can't open lupart/check_direct_petsc.verif.tmp
+FIXED can't open lupart/check_iisd.verif.tmp
+FIXED can't open lupart/check_peri.verif.tmp
+FIXED can't open lupart/check_subpart.verif.tmp
+--- NOT OK ---
+"Square cavity with fract. step, Re1000, N=20" on file "sqcav/check.fs.verif.tmp"...not OK.
+ONLY-NOTOK-IN-64BIT "Sqcav 0weight processor" on file "sqcav/check.zwproc.tmp"...not OK.
+ONLY-NOTOK-IN-64BIT  "Sqcav 0weight processor (iisd_subpart=2)" on file "sqcav/check.zwproc2.tmp"...not OK.
+"Idmap class" on file "idmap/tidmap.sal"...not OK.
+"newff/test case adv_temp_cp" on file "newff/adv_temp_cp.vrf.tmp"...not OK.
+"newff/test case full_full_jacs_cp" on file "newff/full_full_jacs_cp.vrf.tmp"...not OK.
+"newff/test case full_full_jacs_adv_cp" on file "newff/full_full_jacs_adv_cp.vrf.tmp"...not OK.
+"newff/test case adv_temp_cp_iisd" on file "newff/adv_temp_cp_iisd.vrf.tmp"...not OK.
+FIXED "Distributed graph 3proc." on file "distmap/dist_graph.np3.out.tmp"...not OK.
+%
+%-- 15:47:28 -- mstorti-v24-start-18-g92bdb53 -----
+Todos los que aparecieron en lupart/ es que habia un problema con el
+mkmesh en ese DIR. Tenia una linea que aparentemente no se usaba y que
+probablemente antes andaba, pero ahora no, por algun cambio en
+octave. 
+%
+"Distributed graph 3proc": al correrlo de nuevo en galileo no hubo
+problema. Creo que se debe a que eran esos tests en que el output
+puede salir `garbled' porque es en paralelo y entonces puede dar
+diferente al correrlo una vez.
+%
+Los que dicen ONLY-NOTOK-IN-64BIT al probarlos en aquiles podria se
+que se deba a que, segun recuerdo habia una diferencia entre 32 y 64
+bit. El error de toda forma es bajo, pero lo repito en aquiles y da
+igual, es decir CON error. O sea que este parece que se agrego. 
+%
+%-- 21:46:22 -- mstorti-v24-start-20-g1cf5a46 -----
+Con respecto a los marcados con ONLY-NOTOK-IN-64BIT:
+En la version `mstorti-v24-start-2-g69f94ea' 
+(commit 69f94ea22e88ec20cb767e5bb138ab866d78c426)
+aparentemente NO daba el error (corrido en aquiles). 
+
+%=== Thu Mar 19 09:51:23 2009 mstorti@galileo
+%
+%-- 09:51:23 -- mstorti-v24-start-23-g7e668d7 -----
+FastMat2::CacheCtx2 
+    . verificar q no hay memory leak OK
+    . verificar eficiencia OK
+    . migrar trcprtf a CacheCtx2 OK
+    . verificar reentrancia OK
+    . agregar tool para debugging
+%
+%-- 10:35:13 -- mstorti-v24-start-23-g7e668d7 -----
+EFICIENCIA:
+%
+Escribo un test que hace un producto de matrices de nxn, o sea n^3 ops
+y despues un sum_square_all() (n^2 ops). Lo corro con Ctx1 y Ctx2 y
+con cache activado y desactivado:
+%
+Ctx2, 
+cache desactivado: rate 0.007277[Gops/sec]
+cache activado:    rate 0.180785[Gops/sec]
+%
+Ctx1, cache desactivado:
+cache desactivado:   rate 0.007306[Gops/sec]
+cache activado:      rate 0.253570[Gops/sec]
+%
+O sea que hay una diferencia importante con el cache activado. 
+OJO que con Ctx2 hay un jump adicional, porque se hace un flip, en los
+multiplos de 7 se hace a = b*c y en los otros a =c*b. Voy a probar a
+ver si eso tiene un impacto en la eficiencia. En este momento estoy
+con matrices relativamente grandes asi que no deberia tener un impacto
+muy importante. 
+%
+%-- 10:42:43 -- mstorti-v24-start-23-g7e668d7 -----
+SIII!! Con Ctx2 y sin flip da rate 0.254588[Gops/sec], o sea igual al
+otro. O sea que el flip o cambiar de branch tiene un costo
+importante. 
+%
+%-- 10:46:19 -- mstorti-v24-start-23-g7e668d7 -----
+Es bastante curioso. Si hago flip=1 (O sea siempre va por uno de los
+branch) entonces hace 0.25Gops. Si hago el j%13 entonces hace
+0.18. Pero obviamente no puede ser que sea el calculo del modulo (%)
+porque estamos hablando de productos de matrices de 10x10, o sea del
+orden de 2000 operaciones. Debe ser el cambio de branch, pero tampoco
+me parece que justifique semejante ineficiencia. 
+%
+flip=1:         0.25Gops
+flip=!flip:     0.176Gops
+flip=j%13:      0.19Gops
+flip=!(j%13):   0.18Gops
+flip=j%2:       0.19Gops
+%
+%-- 10:55:00 -- mstorti-v24-start-23-g7e668d7 -----
+Me parece que ya se que es. O sea estaba corriendo con n=10, N=100,
+entonces para N=100 el lazo no llegaba a entrar en regimen, y entonces
+si usaba mas de un branch bajaba la performance porque bajaba todavia
+mas la longitud de cada branch. Paso a un lazo de N=1000 y entonces
+aumenta la eficiencia. 
+%
+Ctx2: 0.315827[Gops/sec]
+Ctx1: 0.372179[Gops/sec]
+%
+De todas formas subsiste una diferencia pero estoy convencido que no
+es por el branching. 
+%
+%-- 11:01:42 -- mstorti-v24-start-23-g7e668d7 -----
+Cambio a n=5, N=10000
+%
+Ctx2, 2 branches:        rate 0.212200[Gops/sec]
+Ctx2, 1 branch, 2 jumps: rate 0.216363[Gops/sec]
+Ctx1, 1 branch, 1 jump:  rate 0.212872[Gops/sec]
+%
+Asi que parece estar bien. Voy a revisar un poco mas la influencia de
+la longitud del lazo, a ver si con el nuevo Ctx2 el costo es mayor. 
+%
+%-- 11:22:49 -- mstorti-v24-start-23-g7e668d7 -----
+Bueno, OJO: podria ser que en este caso que hay muy pocas operaciones
+el costo del branching etc... sea comparativamente mayor que en un
+caso real. 
+%
+%-- 11:23:41 -- mstorti-v24-start-23-g7e668d7 -----
+con FASTMAT::CACHECTX2
+N=10000, n=5 inv-rate=4.61[secs/Gops]
+N=1000,  n=5 inv-rate=4.83[secs/Gops]
+N=100,   n=5 inv-rate=6.86[secs/Gops]
+N=50,    n=5 inv-rate=9.05[secs/Gops]
+%
+O sea que el n1/2 anda por 50. Es decir para N=50 el costo de startup
+es igual al calculo real, o sea que la eficiencia baja al 50%. 
+%
+%-- 11:30:30 -- mstorti-v24-start-23-g7e668d7 -----
+con FASTMAT::CACHECTX1
+N=10000, inv-rate=4.64[secs/Gops]
+N=1000,  inv-rate=5.30[secs/Gops]
+N=100,   inv-rate=6.87[secs/Gops]
+N=50,    inv-rate=9.10[secs/Gops]
+%
+%-- 11:32:56 -- mstorti-v24-start-23-g7e668d7 -----
+O sea que el costo fijo es practicamente el mismo. Seguramente lo que
+pasa es que el costo mayor esta en el armado del cache, no en los
+jumps ni en el armado de los branch. 
+%
+%-- 14:20:25 -- mstorti-v24-start-25-g63b456f -----
+Implemento `trcprtf' con CacheCtx2 y en forma relativamente facil
+empieza a andar. Anda a un rate de:
+%
+CacheCtx2 (g_c++): 8.16[sec/Mprtcls]
+          (O_c++): rate 4.49[sec/Mprtcls]
+CacheCtx1 (g_c++): 8.25[sec/Mprtcls]
+          (O_c++): rate 4.75[sec/Mprtcls]
+%
+O sea que la performance con los dos Ctx es muy similar. 
+
+%=== Thu Mar 19 20:07:31 2009 mstorti@galileo
+%
+%-- 20:07:31 -- mstorti-v24-start-27-ge5d6b10 -----
+Estoy corriendo los tests, la ultima vez tenia esto
+[ Mon Feb 23 15:37:21 2009 mstorti-v24-start-18-g92bdb53]
+%
+> "Square cavity with fract. step, Re1000, N=20"
+> "Idmap class" on file "idmap/tidmap.sal"
+> "newff/test case adv_temp_cp"
+> "newff/test case full_full_jacs_cp"
+> "newff/test case full_full_jacs_adv_cp" 
+> "newff/test case adv_temp_cp_iisd"
+%
+AHORA CON G_C++:
+> "Square cavity with fract. step, Re1000, N=20"
+> NEW "Sqcav 0weight processor"
+> NEW "Sqcav 0weight processor (iisd_subpart=2)" 
+> "Idmap class"
+> "newff/test case adv_temp_cp"
+> "newff/test case full_full_jacs_cp"
+> "newff/test case full_full_jacs_adv_cp"
+> "newff/test case adv_temp_cp_iisd"
+%
+O sea que se agrega 
+> "Sqcav 0weight processor"
+> "Sqcav 0weight processor (iisd_subpart=2)" 
+%
+%-- 21:40:13 -- mstorti-v24-start-27-ge5d6b10 -----
+AHORA CON O_C++:
+> "Square cavity with fract. step, Re1000, N=20"
+> NEW "Sqcav 0weight processor"
+> NEW "Sqcav 0weight processor (iisd_subpart=2)"
+> "Idmap class"
+> "newff/test case adv_temp_cp"
+> "newff/test case full_full_jacs_cp"
+> "newff/test case full_full_jacs_adv_cp"
+> "newff/test case adv_temp_cp_iisd"
+> NEW "Distributed graph 2proc."
+%
+%-- 06:49:48 -- mstorti-v24-start-28-g370d6d4 -----
+NEW "Sqcav 0weight processor": era porque estaba comentada la linea de
+      proc_weights. 
+NEW "Sqcav 0weight processor (iisd_subpart=2)": IDEM
+NEW "Distributed graph 2proc.": es por la inconsistencia en escribir
+      las lineas

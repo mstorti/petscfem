@@ -494,7 +494,7 @@ void gasflow_preco_ff::compute_flux(const FastMat2 &U,
       he = (he < tol ? tol : he);
       he = 2./he;
     } else {
-      if (ndim==2 | (ndim==3 && advdf_e->axi>0)) {
+      if (ndim==2 || (ndim==3 && advdf_e->axi>0)) {
         he = sqrt(4.*advdf_e->volume()/3.14159265358979);
       } else if (ndim==3) {
         he = cbrt(6.*advdf_e->volume()/3.14159265358979);
@@ -614,7 +614,7 @@ void gasflow_preco_ff::compute_flux(const FastMat2 &U,
       int axi = advdf_e->axi;
       double h_grid=0.;
 
-      if (ndim==2 | (ndim==3 && axi>0)) {
+      if (ndim==2 || (ndim==3 && axi>0)) {
 	h_grid = sqrt(4.*Volume/pi);
       } else if (ndim==3) {
 	h_grid = cbrt(6.*Volume/pi);
@@ -823,7 +823,7 @@ void gasflow_preco_ff::compute_flux(const FastMat2 &U,
     double Volume = advdf_e->volume();
     int axi = advdf_e->axi;
 
-    if (ndim==2 | (ndim==3 && axi>0)) {
+    if (ndim==2 || (ndim==3 && axi>0)) {
       h_pspg = sqrt(4.*Volume/pi);
     } else if (ndim==3) {
       h_pspg = cbrt(6*Volume/pi);

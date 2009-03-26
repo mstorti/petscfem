@@ -38,7 +38,7 @@ include $(PETSCFEM_DIR)/test/Makefile.base.test
 NP = 1
 
 PROG := $(ADVDIF)
-MCH = -machinefile ./machi.dat
+# MCH = -machinefile ./machi.dat
 
 NP := $(shell procsel $(PETSCFEM_PROCTABLE))
 ifeq ($(np),)

@@ -50,9 +50,10 @@ $(NAME).depl: force
 
 NPP := $(shell procsel $(PETSCFEM_PROCTABLE))
 NP := 1 
+# MCH := -machinefile machi.dat 
 test_case: test_case_data
 	if [ ! "$(OCT_SCRIPT)" = "" ] ; then $(OCTAVE) $(OCT_SCRIPT) ; fi
-	-$(MPIEXEC) -machinefile machi.dat -n $(NP) $(PROG) \
+	-$(MPIEXEC) $(MCH) -n $(NP) $(PROG) \
 			-case $(NAME).depl $(call in_backg,$@)
 
 local_clean::

@@ -704,6 +704,11 @@ expect("nsgenload/output.fstack_nodes2.tmp",
 Couldn.t open file.*dummy_archive
 EOT
 
+#------/*/------/*/------/*/------/*/------/*/------/*/------/*/ 
+expect("alebcconv/verif-alebcconv.tmp",
+       "Check bcconv element with ALE",
+       "error < tol OK. 1");
+
 end_section();
 
 #------/*/------/*/------/*/------/*/------/*/------/*/------/*/ 

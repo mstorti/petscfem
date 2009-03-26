@@ -11,6 +11,9 @@
 #include <cassert>
 #include <cstdarg>
 
+#include <list>
+#include <vector>
+
 using namespace std;
 
 #include <newmatio.h>
@@ -234,6 +237,8 @@ public:
   vector<FastMatCacheList *> branch;
   Matrix *A,*B;
   FastMatSubCache *sc;
+  string trace_label;
+  string check_label;
 };
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
@@ -263,7 +268,32 @@ typedef double scalar_fun_t(double);
 /// Fast matrices. 
 class FastMat2 {
 public:
+  // This is the CacheCtx base class.
+  // Before migrating to a better CacheCtx class
+  // I separated the generic part in a base class and
+  // there will be at least 2 implementations: CacheCtx1
+  // that is the traditional one and CacheCtx2 with a simpler
+  // way to implement branching. 
   class CacheCtx {
+  public:
+    CacheCtx();
+    virtual FastMatCache *step()=0;
+    virtual FastMatCache *step(const char *label,
+                               const FastMat2 *p1=NULL,
+                               const FastMat2 *p2=NULL,
+                               const FastMat2 *p3=NULL);
+    /// Use cache?
+    int use_cache;
+    /// Was computed this cache list
+    int was_cached;
+    /// Operation count
+    OperationCount op_count;
+    virtual ~CacheCtx()=0;
+  };
+  // This is the original CacheCtx class, each
+  // branch is a vector of caches and at each
+  // branch points there is a vector of new branches. 
+  class CacheCtx1 : public CacheCtx {
   public:
     /// Root of cache lists
     FastMatCacheList *cache_list_root;
@@ -279,14 +309,12 @@ public:
     FastMatCache **cache_list_begin;
     /// size of cache list
     int cache_list_size;
-    /// Use cache?
-    int use_cache;
-    /// Was computed this cache list
-    int was_cached;
     /// save was\_cached if use deactivate\_cache()
     int was_cached_save;
-    /// Operation count
-    OperationCount op_count;
+    /// Last trace string seen
+    string last_trace;
+    /// Flag is traceing is on
+    int do_trace;
     void get_cache_position(FastMatCachePosition & pos);
     int check_cache_position(FastMatCachePosition & pos);
     void deactivate_cache();
@@ -301,15 +329,64 @@ public:
     void activate_cache(FastMatCacheList *cache_list_);
     void init();
     void void_cache(void);
+    void set_trace(string label);
+    void set_trace(const char *label);
+    void trace(int state=1);
     FastMatCache *step();
     friend class FastMat2;
-    CacheCtx();
+    CacheCtx1();
   };
+  // This is the new CacheCtx class. Branching is simpler.
+  // Each branch is a list<cache> and all branches are
+  // stored in a vector<list<cache>>. 
+  class CacheCtx2 : public CacheCtx {
+  private:
+    typedef std::list<FastMatCache> clist_t;
+    typedef std::vector<clist_t *> branchv_t;
+    branchv_t branchv;
+    int branch_indx;
+    clist_t *branch_p;
+    clist_t::iterator q;
+    int do_check_labels;
+  public:
+    class Branch {
+    private:
+      friend class CacheCtx2;
+      // Data for scalar pos
+      int indx;
+    public:
+      Branch();
+      // Data for array dim pos
+#if 0
+    private:
+      int rank;
+      vector<int> shape;
+      vector<int> branchs;
+    public:
+      Branch(int j=-1,int k=-1,int l=-1);
+#endif
+    };
+    void clear();
+    void jump(Branch &b);
+    FastMatCache *step();
+    FastMatCache *step(const char *label, 
+                       const FastMat2 *p1=NULL,
+                       const FastMat2 *p2=NULL, 
+                       const FastMat2 *p3=NULL);
+    void print();
+    void check_labels();
+    CacheCtx2();
+    ~CacheCtx2();
+  };
+private:
   CacheCtx *ctx;
-  static CacheCtx global_cache_ctx;
+  static CacheCtx1 global_cache_ctx1;
+  static CacheCtx2 global_cache_ctx2;
   /// Controls debugging
-  static int cache_dbg;
+  static int cache_dbg, use_cachectx2_as_default;
+  void set_default_ctx();
 
+public:
   //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
   /** Default constructor
       @author M. Storti
@@ -420,7 +497,14 @@ public:
       @param s (input) An optional string to print.
       @return a reference to the matrix.
   */ 
-  void printd(char *s=NULL) ;
+  void printd(char *s=NULL);
+
+  //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+  /** Check if any of the elements in the matrix are NAN. 
+      @author M. Storti
+      @return 1 if any element is NAN, 0 otherwise. 
+  */ 
+  int is_nan();
 
   //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
   /** Add a range to the specified index filter. 

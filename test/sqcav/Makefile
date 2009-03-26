@@ -76,9 +76,9 @@ PROG := $(NS)
 ###--------<*>--------<*>--------<*>--------<*>--------<*>--------<*>--------<*> 
 NP = 1
 
-MCH = -machinefile ./machi.dat
+# MCH = -machinefile ./machi.dat
 
-NP := $(shell procsel $(PETSCFEM_PROCTABLE))
+# NP := $(shell procsel $(PETSCFEM_PROCTABLE))
 ifeq ($(np),)
 np := 1
 endif
@@ -150,7 +150,7 @@ test_zero_w_proc:
 	$(MAKE) case=zwproc_ref np=1 data
 	echo $(HOSTNAME) > machi.dat
 	echo 1. > weights.dat
-	-${MPIEXEC} -machinefile ./machi.dat -n 1  $(PROG) -case $(CASE).depl \
+	-${MPIEXEC} $(MCH) -n 1  $(PROG) -case $(CASE).depl \
 	$(REDIR) output.zwproc_ref.out.tmp
 #	Two process:
 	$(MAKE) case=zwproc np=2 data
@@ -158,7 +158,7 @@ test_zero_w_proc:
 	echo $(HOSTNAME) >> machi.dat
 	echo 0. > weights.dat
 	echo 1. >> weights.dat
-	-${MPIEXEC} -machinefile ./machi.dat -n 2  $(PROG) -case $(CASE).depl \
+	-${MPIEXEC} $(MCH)  -n 2  $(PROG) -case $(CASE).depl \
 	$(REDIR) output.zwproc.out.tmp
 #
 	$(OCTAVE) check_zwproc.m > check.zwproc.tmp
@@ -173,7 +173,7 @@ test_zero_w_proc2:
 	$(MAKE) case=zwproc2_ref np=1 data
 	echo $(HOSTNAME) > machi.dat
 	echo 1. >> weights.dat
-	-${MPIEXEC} -machinefile ./machi.dat -n 1  $(PROG) -case $(CASE).depl \
+	-${MPIEXEC} $(MCH)  -n 1  $(PROG) -case $(CASE).depl \
 	$(REDIR) output.zwproc2_ref.out.tmp
 #
 #	Two process:
@@ -182,7 +182,7 @@ test_zero_w_proc2:
 	echo $(HOSTNAME) >> machi.dat
 	echo 0. > weights.dat
 	echo 1. >> weights.dat
-	-${MPIEXEC} -machinefile ./machi.dat -n 2  $(PROG) -case $(CASE).depl \
+	-${MPIEXEC} $(MCH)  -n 2  $(PROG) -case $(CASE).depl \
 	$(REDIR) output.zwproc2.out.tmp
 #
 	$(OCTAVE) check_zwproc2.m > check.zwproc2.tmp

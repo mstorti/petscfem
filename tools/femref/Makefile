@@ -72,10 +72,10 @@ getsurf.bin: getsurf.o $(CPP_FILES:=.o)
 	${CXX_CLINKER} -o $@ $^  $(LDFLAGS_NO_PROG_LIB)
 
 hasher.o: hasher.cpp
-	g++ $(OPT) -c -o $@ $<
+	g++ -fPIC $(OPT) -c -o $@ $<
 
 myhash.o: myhash.cpp	
-	g++ $(OPT) -c -o $@ $<
+	g++ -fPIC $(OPT) -c -o $@ $<
 
 myhash.bin: myhash.o hasher.o
 	g++ -o $@ $^
@@ -84,22 +84,22 @@ myhash2.bin: myhash2.o hasher.o
 	g++ -o $@ $^
 
 md5r.o: md5r.c
-	gcc $(OPT) -c -o $@ $<
+	gcc -fPIC $(OPT) -c -o $@ $<
 
 bjhash.o: bjhash.c
-	gcc -c -o $@ $<
+	gcc -fPIC -c -o $@ $<
 
 myhash$(N).bin: myhash$(N).o hasher.o md5r.o bjhash.o
-	g++ $(OPT) -o $@ $^
+	g++ -fPIC $(OPT) -o $@ $^
 
 md5.bin:
-	gcc -o md5 md5.c md5r.c
+	gcc -fPIC -o md5 md5.c md5r.c
 
 trymd5.bin: trymd5.c md5r.c
 	gcc $(OPT) -o $@ $^
 
 hashedann.bin: hashedann.o hasher.o md5r.o bjhash.o
-	g++ $(OPT) -o $@ $^ $(LDFLAGS_NO_PROG_LIB)
+	g++ -fPIC $(OPT) -o $@ $^ $(LDFLAGS_NO_PROG_LIB)
 
 cdepend:
 	gcc -MM *.c > makefilec.d

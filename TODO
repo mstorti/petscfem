@@ -2,6 +2,17 @@
 TODO: [Mainly fixes go here...]
 =====
 
+* Tests sqcav/check.zwproc.tmp and sqcav/check.zwproc2.tmp give now a
+   little error. See comments in notes.txt
+   Mon Feb 23 15:37:21 2009 mstorti@galileo
+   21:46:22 -- mstorti-v24-start-20-g1cf5a46
+* In `trcprtf.cpp' check if jacobian of element is null. Perhaps in
+   the first time step? 
+* ADVDIF is not completely invariant under Galilean transformations, 
+  even with the addition of BCCONV+ALE. See test/alebecconv test. 
+  2008-12-24 14:07:52
+* With `print_vector_rota': if nfile is not set, then it does not save
+  correctly. 
 * Should print `nodedata' hash table in `readmesh' after reading. 
 * Initialize members to NULL and void values in Gpdata::Gpdata()
 * In FastMat2, static declarations should be removed, otherwise it is
@@ -153,6 +164,14 @@ TODO: [Mainly fixes go here...]
 DONE:
 =====
 
+* In FastMat2: check that FastMat's created in sucaches be linked to 
+  current CacheContext. See commit b3f9a09f2e11b454 for how it was
+  done for the `norm_p_all' and similar functions. 
+  Only cache affected seems to be `detsur_cache'
+  2009-02-20 12:38:44: DONE
+* 2009-02-19 08:31:19 ELIMINATE use of static FastMat2 members in
+  _all operations like norm_p_all()!!
+  2009-02-20 12:26:20 DONE 
 * In `ns.cpp' some warnings about uninitialized variables remain (see
 notes.txt) FIXED 2007-05-05 11:43:19
 * in advdif: setting ndim=3 but using 2d elements gives a FastMat2

@@ -5,7 +5,7 @@
 #define PETSCFEM_FEMREF_H
 
 #include <list>
-#include <multimap.h>
+#include <map>
 #include <deque>
 #define Mesh __Mesh__
 #include <src/dvector.h>

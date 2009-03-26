@@ -16,7 +16,7 @@ spdirect spsolve state sttfilter tempfun tempfun2 texthash texthf		\
 timestat util2 util3 utils gatherer hook dlhook dxhook dxelmst autostr		\
 cloud cloud2 surf2vol pfobject fm2temp shllhook dvector interpola elmsupl	\
 dofmap3 iisdmat2 generror syncbuff srfgath blessf spetscmat elmsupl2 lagmul	\
-penalize dvecpar rhhook
+penalize dvecpar rhhook matchg fm2ctx2
 
 # C files
 CLIBOBJS_ =  getarrgr.tab
@@ -35,7 +35,8 @@ spline.o: spline.f
 seval.o: seval.f
 dgefa.o: dgefa.f
 
-LIBOBJS := $(LIBOBJS_:=$(osfx).o) $(FLIBOBJS_:=$(osfx).o) $(CLIBOBJS_:=$(osfx).o) 
+LIBOBJS := $(LIBOBJS_:=$(osfx).o) $(FLIBOBJS_:=$(osfx).o) \
+	$(CLIBOBJS_:=$(osfx).o) 
 
 .INTERMEDIATE: $(LIBOBJS) 
 

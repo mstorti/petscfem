@@ -6,25 +6,27 @@
 #w all tests
 tests: distcont distmap distmat dist_graph tests_sb
 
+# MCH := -machinefile machi.dat
+
 #w Tests the distributed container class
 distcont: distcont.bin
-	$(MPIEXEC) -machinefile machi.dat -n 2 distcont.bin \
-		10 100 1e-12   $(call redir,distcont.sal.tmp)
+	$(MPIEXEC) $(MCH) -n 2 distcont.bin \
+		10 100 1e-12  $(call redir,distcont.sal.tmp)
 
 dm2: distmat.bin
-	$(MPIEXEC) -machinefile machi.dat -n 2 distmat.bin \
+	$(MPIEXEC) $(MCH) -n 2 distmat.bin \
 		4 4 1e-12 0 $(call redir,$@)
 
 #w check basic template (map<int,double>)
 distmap: distmap.bin
-	$(MPIEXEC) -machinefile machi.dat -n 3 distmap.bin \
+	$(MPIEXEC) $(MCH) -n 3 distmap.bin \
 		100 10000 1e-12 g $(call redir,distmapg.sal.tmp)
-	$(MPIEXEC) -machinefile machi.dat -n 3 distmap.bin \
+	$(MPIEXEC) $(MCH) -n 3 distmap.bin \
 		100 10000 1e-12 s $(call redir,distmaps.sal.tmp)
 
 #w check DistMatrix class
 distmat: distmat.bin
-	$(MPIEXEC) -machinefile machi.dat -n 3  distmat.bin \
+	$(MPIEXEC) $(MCH) -n 3  distmat.bin \
 		100 10000 1e-12 0 $(call redir,distmat.sal.tmp)
 
 SRCS = $(wildcard *.cpp)
@@ -35,8 +37,6 @@ include $(PETSCFEM_DIR)/test/Makefile.base.test
 
 CLEAN_DIRS = 
 DEPEND_DIRS = $(CLEAN_DIRS)
-
-NPP := $(shell procsel $(PETSCFEM_PROCTABLE))
 
 #LDFLAGS := -L/usr/local/lib -lc ${PETSCFEM_PETSC_LIBS}
 
@@ -93,9 +93,9 @@ tryme7.bin: tryme7.o $(LIB_OBJS_LIB)
 #w Checks distributed graph class 'StoreGraph'
 dist_graph: tryme7.bin
 	tryme7.bin 20 > dist_graph.np1.out.tmp
-	$(MPIEXEC) -machinefile machi.dat -n 2 tryme7.bin 20 \
+	$(MPIEXEC) $(MCH) -n 2 tryme7.bin 20 \
 		$(call redir,dist_graph.np2.out.tmp)
-	$(MPIEXEC) -machinefile machi.dat -n 3 tryme7.bin 20 \
+	$(MPIEXEC) $(MCH) -n 3 tryme7.bin 20 \
 		$(call redir,dist_graph.np3.out.tmp)
 
 #w

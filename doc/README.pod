@@ -325,7 +325,7 @@ C<.bin>).
 
 =over
 
-=item Mario A. Storti* C<< <mstorti@intec.unl.edu.ar> >>
+=item Mario A. Storti* C<< <mario.storti@gmail.com> >>
 
 PETSc-FEM kernel, NS and AdvDif modules.
 
@@ -346,6 +346,14 @@ preconditioners, multigrid.
 =item Ezequiel Lopez* C<< <ezequiellopez@hotmail.com> >>
 
 Mesh relocation algorithms. 
+
+=item Laura Battaglia* C<< <lbattaglia@santafe-conicet.gov.ar> >>
+
+Free surface algorithms. 
+
+=item Gustavo Rios Rodriguez * C<< <gusadrr@yahoo.com.ar> >>
+
+Adaptive refinement. 
 
 =back 
 

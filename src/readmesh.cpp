@@ -41,6 +41,7 @@ extern "C" {
 #include <src/getprop.h>
 #include <src/pfobject.h>
 #include <src/dvecpar.h>
+#include <src/mshpart.h>
 
 //#define TRACE_READMESH
 #ifdef TRACE_READMESH
@@ -55,15 +56,6 @@ extern "C" {
 using namespace std;
 Mesh *GLOBAL_MESH;
 #define IDENT(j,k) VEC2(ident,j,k,ndof)
-
-void metis_part(int nelemfat,Mesh *mesh,
-		const int nelemsets,int *vpart,
-		int *nelemsetptr,int *n2eptr,
-		int *node2elem,int size,const int myrank,
-		const int partflag,float *tpwgts,
-		int max_partgraph_vertices,
-		int iisd_subpart,
-		int print_partitioning_statistics);
 
 //-------<*>-------<*>-------<*>-------<*>-------<*>------- 
 #undef ICONE
@@ -1140,7 +1132,7 @@ if (!(bool_cond)) { PetscPrintf(PETSCFEM_COMM_WORLD, 				\
     // random partitioning 
     if (myrank==0) {
       for (int j=0; j < nelemfat; j++) {
-	vpart[j] = int(drand()*double(size));
+	vpart[j] = rand() % size;
 	if (partflag==4)
 	  vpart[j] = int(double(j)/double(nelemfat)*double(size));
 	// Just in case random functions are too close to the limits
@@ -1155,19 +1147,6 @@ if (!(bool_cond)) { PetscPrintf(PETSCFEM_COMM_WORLD, 				\
 
   TRACE(-4.1);
   PetscPrintf(PETSCFEM_COMM_WORLD,"Ends partitioning.\n");
-
-  // nelem_part:= nelem_part[proc] is the number of elements in
-  // processor proc. 
-  int *nelem_part = new int[size];
-  for (int proc=0; proc<size; proc++) nelem_part[proc]=0;
-  for (int jj=0; jj<nelemfat; jj++) {
-    nelem_part[vpart[jj]]++;
-    // printf("elem %d in proc %d\n",jj+1,vpart[jj]);
-  }
-  if (size>1 && myrank==0) {
-    for (int proc=0; proc<size; proc++) 
-      printf("%d elements in processor %d\n",nelem_part[proc],proc);
-  }
 
   // Partition nodes. Assign to each node the partition of the first
   // element in tne node2elem list. If there is no element, then
@@ -1187,41 +1166,176 @@ if (!(bool_cond)) { PetscPrintf(PETSCFEM_COMM_WORLD, 				\
 		 "print_nodal_partitioning",
 		 &print_nodal_partitioning,1); CHKERRQ(ierr);
   int counter=0;
-#define II_STAT(j,k) VEC2(ii_stat,j,k,size)
-#define II_STAT2(j,k) VEC2(ii_stat2,j,k,size)
+
   dvector<double> ii_stat, ii_stat2;
   ii_stat.a_resize(2,size,size);
   ii_stat2.a_resize(1,size);
   if (print_nodal_partitioning)
-    PetscPrintf(PETSCFEM_COMM_WORLD,"\nNodal partitioning (node/processor): \n");
+    PetscPrintf(PETSCFEM_COMM_WORLD,
+                "\nNodal partitioning (node/processor): \n");
 
   TRACE(-3.1);
   // Node interface between processor statistics
-  int c1,c2,P1,P2;
+  int c1,c2,D1,D2,P1,P2;
   ii_stat.set(0.0);
   for (node=0; node<nnod; node++) {
     ii_stat2.set(0.0);
     for (c1 = n2eptr[node]; c1 < n2eptr[node+1]; c1++) {
-      P1 = vpart[node2elem[c1]];
-      ii_stat2.e(P1) += 1.0;
+      D1 = vpart[node2elem[c1]];
+      ii_stat2.e(D1) += 1.0;
     }
     double mass = n2eptr[node+1]-n2eptr[node];
     if (mass!=0.0) 
       for (int p=0; p<size; p++) ii_stat2.e(p) /= mass;
-    for (P1=0; P1<size; P1++)
-      for (P2=0; P2<size; P2++) 
-	ii_stat.e(P1,P2) += ii_stat2.e(P1)*ii_stat2.e(P2);
+    for (D1=0; D1<size; D1++)
+      for (D2=0; D2<size; D2++) 
+	ii_stat.e(D1,D2) += ii_stat2.e(D1)*ii_stat2.e(D2);
   }
+
+  //o For multi-core architectures this represent the number
+  //  of cores per node. 
+  GETOPTDEF(int,ncore,0);
+  PETSCFEM_ASSERT(ncore>=0,"ncore must be non-negative, given %d",
+                  ncore);
+
+  GETOPTDEF(int,multicore_rand_part,0);
+
+  dvector<int> procmap;
+  procmap.mono(size).reshape(1,size);
+  for (int j=0; j<size; j++) procmap.e(j) = j;
+
+  if (size>1 && ncore>0) {
+    PETSCFEM_ASSERT0(size%ncore==0,
+                     "if ncore is given, numer of "
+                     "processor `size' must be a multiple of ncore");
+
+    if (!myrank) {
+
+      // Using graph-matching algorithm
+      dvector<double> bw;
+      // Bandwidths for connection inside and outside the nodes
+      double bw1 = 100.0, bw2 = 1.0;
+      bw.mono(size*size).reshape(2,size,size).set(0.0);
+      for (int j=0; j<size; j++) {
+        int nodej = j/ncore;
+        for (int k=0; k<size; k++) {
+        int nodek = k/ncore;
+        if (j == k) continue;
+        bw.e(j,k) = (nodej==nodek? bw1 : bw2);
+        }
+      }
+
+      // Compute statistics without matching algorithm
+      double pmax=NAN, psum=NAN;
+      perfo(bw,ii_stat,procmap,pmax,psum);
+      printf("natural partition: max %g, sum %g\n",
+             pmax,psum);
+
+#if 1
+      // Apply matching graph algorithm
+      match_graph(bw,ii_stat,procmap);
+      perfo(bw,ii_stat,procmap,pmax,psum);
+      printf("match graph algorithm: max %g, sum %g\n",
+             pmax,psum);
+#endif
+
+#if 1
+      // Random, just to verify
+      dvector<int> procmap_rand;
+      procmap_rand.clone(procmap);
+      procmap_rand.defrag();
+      int *proc_p = procmap_rand.buff();
+      random_shuffle(proc_p,proc_p+size);
+      perfo(bw,ii_stat,procmap_rand,pmax,psum);
+      printf("random permut: max %g, sum %g\n",pmax,psum);
+#endif
+
+#if 1
+      // Apply partitioning specific for tree like graph
+      repart(ii_stat,procmap,ncore);
+      perfo(bw,ii_stat,procmap,pmax,psum);
+      printf("tree partitioning: max %g, sum %g\n",
+             pmax,psum);
+#endif
+
+      if (multicore_rand_part) {
+        printf("Using random allocation for multicore partitioning...\n");
+        procmap.clone(procmap_rand);
+      }
+
+#if 0
+      for (int j=0; j<size; j++)
+        printf("domain %d, sent to processor %d\n",
+               j,procmap.e(j));
+#endif
+
+#if 0
+      printf("Bandwidth load performance [w/o algorithm, with, "
+             "improvement ratio]\n");
+      printf("  bw ratio MAX: [%g, %g, %g]\n",
+             pmax_mg0,pmax_mg1,pmax_mg1/pmax_mg0);
+      printf("  bw ratio SUM: [%g, %g, %g]\n",
+             psum_mg0,psum_mg1,psum_mg1/psum_mg0);
+#endif
+      for (int j=0; j<nelemfat; j++) {
+        assert(vpart[j]>=0 && vpart[j]<size);
+        vpart[j] = procmap.e(vpart[j]);
+      }
+    }
+ 
+    ierr = MPI_Bcast(vpart,nelemfat,MPI_INT,0,PETSCFEM_COMM_WORLD);
+    if (!myrank) {
+      dvector<double> ii_stat_cpy;
+      ii_stat_cpy.clone(ii_stat);
+      for (int dj=0; dj<size; dj++) {
+        int pj = procmap.e(dj);
+        for (int dk=0; dk<size; dk++) {
+          int pk = procmap.e(dk);
+          ii_stat_cpy.e(pj,pk) = ii_stat.e(dj,dk);
+        }
+      }
+      ii_stat.clone(ii_stat_cpy);
+    }
+    ierr = MPI_Bcast (ii_stat.buff(),size*size,
+                      MPI_INT,0,PETSCFEM_COMM_WORLD);
+  } 
+
+  // nelem_part:= nelem_part[proc] is the number of elements in
+  // processor proc. 
+  int *nelem_part = new int[size];
+  for (int proc=0; proc<size; proc++) nelem_part[proc]=0;
+  for (int jj=0; jj<nelemfat; jj++) {
+    nelem_part[vpart[jj]]++;
+    // printf("elem %d in proc %d\n",jj+1,vpart[jj]);
+  }
+  if (size>1 && myrank==0) {
+    for (int proc=0; proc<size; proc++) 
+      printf("%d elements in processor %d\n",nelem_part[proc],proc);
+  }
+
   TRACE(-3.2);
   if (myrank == 0 && size > 1) {
-    PetscPrintf(PETSCFEM_COMM_WORLD,"---\nInter-processor node connections\n");
-    for (P1=0; P1<size; P1++) 
-      for (P2=0; P2<size; P2++) 
-	printf("[%d]-[%d] %.2f\n",P1,P2,ii_stat.e(P1,P2));
+    PetscPrintf(PETSCFEM_COMM_WORLD,
+                "---\nInter-processor node connections\n");
+    // compute inverse map
+    dvector<int> dommap;
+    dommap.clone(procmap);
+    for (int dj=0; dj<size; dj++) {
+      int pj = procmap.e(dj);
+      dommap.e(pj) = dj;
+    }
+    for (P1=0; P1<size; P1++) {
+      D1 = dommap.e(P1);
+      for (P2=0; P2<size; P2++) {
+        D2 = dommap.e(P2);
+	printf("[%d]-[%d] %.2f\n",D1,D2,ii_stat.e(D1,D2));
+      }
+    }
     PetscPrintf(PETSCFEM_COMM_WORLD,"\n");
   }
   ii_stat.clear();
   ii_stat2.clear();
+
   TRACE(-3.3);
   for (node=0; node<nnod; node++) {
     if (n2eptr[node]==n2eptr[node+1]) {

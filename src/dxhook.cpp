@@ -324,8 +324,8 @@ int dx_hook::build_state_from_file(double *state_p) {
       if (dx_read_state_from_file==1) {
 	printf("dx_hook: Reading from formatted file.\n");
 	// Formatted read
-	int flag=0;
-	for (int j=0; j<(recl+1)*nnod*ndof; j++) {
+	int flag=0, read_ok=0, wanted = (recl+1)*nnod*ndof;
+	for (int j=0; j<wanted; j++) {
 	  double val=0.;
 	  int nread;
 	  nread = fscanf(fid,"%lf",&val);
@@ -336,12 +336,13 @@ int dx_hook::build_state_from_file(double *state_p) {
 	    } else {
 	      val = 0; flag=1;
 	    }
-	  }
+	  } else read_ok++;
 	  if (j>=base) state_p[j-base] = val;
 	}
 	if (flag) 
 	  printf("dx_hook: Cant't read enough values "
-		 "from file %s. Padding with 0\n",state_file.c_str());
+		 "from file %s. Padding with 0. Wanted %d, read OK %d\n",
+                 state_file.c_str(),wanted,read_ok);
       } else if (dx_read_state_from_file==2) {
 	printf("dx_hook: Reading from binary file.\n");
 	int count = fread (state_p,sizeof(double),nnod*ndof,fid);
@@ -411,16 +412,20 @@ void dx_hook::send_state(int step,build_state_fun_t build_state_fun) try {
 
     // Parse DX options
     unsigned int j=0;
+    int ans;
     while (1) {
       if (j>=tokens.size()) break;
       if (tokens[j]=="steps") {
-	assert(!string2int(tokens[++j],stepso));
+        ans = string2int(tokens[++j],stepso);
+	assert(!ans);
       } else if (tokens[j]=="step") {
-	assert(!string2int(tokens[++j],dx_step));
+        ans = string2int(tokens[++j],dx_step);
+	assert(!ans);
       } else if (tokens[j]=="state_file") {
 	state_file = tokens[++j];
       } else if (tokens[j]=="record") {
-	assert(!string2int(tokens[++j],record));
+        ans = string2int(tokens[++j],record);
+	assert(!ans);
       } else {
 	printf("Unknown option \"%s\"\n",tokens[j].c_str());
       }

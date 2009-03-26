@@ -63,12 +63,13 @@ ifeq ($(NP),)
 NP := 1
 endif
 
+# MCH := -machinefile machi.dat
 run: 
 	make-depl data.m.epl data.m.tmp -d CASE=$(CASE) ;		\
 	$(OCTAVE) newff.m ;						\
 	make-depl newff.epl newff.$(CASE).depl -d $(CASE)=1 ;		\
 	if [ -f save.state.tmp ] ; then rm -f save.state.tmp ; fi ;	\
-	$(MPIEXEC) -machinefile machi.dat -n $(NP) $(ADVDIF)		\
+	$(MPIEXEC) $(MCH) -n $(NP) $(ADVDIF)		\
 		-case newff.$(CASE).depl				\
 		</dev/null > newff.$(CASE).out ;			\
 	if [ -e save.state.tmp ] ; then					\

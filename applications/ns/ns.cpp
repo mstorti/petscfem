@@ -735,7 +735,8 @@ int ns_main(int argc,char **args) {
 	ierr  = VecNorm(res,NORM_2,&normres); CHKERRA(ierr);
 	if (inwt==0) normres_external = normres;
 	PetscPrintf(PETSCFEM_COMM_WORLD,
-		    "Newton subiter %d, norm_res  = %10.3e, update Jac. %d\n",
+		    "Newton subiter %d, norm_res  = %10.3e, "
+                    "update Jac. %d\n",
 		    inwt,normres,update_jacobian_this_iter);
 
 	// update del subpaso
@@ -760,11 +761,11 @@ int ns_main(int argc,char **args) {
 #endif
 
 	// fixme:= SHOULD WE CHECK HERE FOR NEWTON CONVERGENCE?
-	if (normres_external < tol_newton) {
+	if (normres < tol_newton) {
 	  PetscPrintf(PETSCFEM_COMM_WORLD,
 		      "Tolerance on newton loop reached:  "
 		      "|| R ||_0,  norm_res =%g < tol = %g\n",
-		      normres_external,tol_newton);
+		      normres,tol_newton);
 	  break;
 	}
 

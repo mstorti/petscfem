@@ -1,0 +1,6 @@
+STEPS*
+nohup*.log
+outvector*.out
+advdif
+gfabso.some-rslt.tmp.*
+*.png

@@ -2,6 +2,7 @@
 
 .PHONY: force all run tests data
 
+tests: run
 all: run
 
 PETSCFEM_DIR = ../..
@@ -10,11 +11,10 @@ include ../Makefile.base.test
 SRCS = 
 
 #s Test/Advdif tests
-
-NP := $(shell procsel $(PETSCFEM_PROCTABLE))
+# MCH := -machinefile machi.dat 
 newff.depl: force
 run: newff.depl
-	-$(MPIEXEC) -machinefile machi.dat -n 2 $(ADVDIF) \
+	-$(MPIEXEC) $(MCH) -n 2 $(ADVDIF) \
 			-case newff.depl </dev/null > output.tmp
 
 local_clean::

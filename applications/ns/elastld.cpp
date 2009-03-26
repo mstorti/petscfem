@@ -114,10 +114,8 @@ void ld_elasticity::element_connector(const FastMat2 &xloc,
     
     double detJaco = Jaco.det();
     if (detJaco <= 0.) {
-      printf("Jacobian of element %d is negative or null\n"
-	     " Jacobian: %f\n",elem,detJaco);
-      PetscFinalize();
-      exit(0);
+      detj_error(detJaco,elem);
+      set_error(1);
     }
     double wpgdet = detJaco*wpg.get(ipg+1);
     iJaco.inv(Jaco);

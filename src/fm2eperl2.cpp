@@ -50,8 +50,7 @@ FastMat2 &
 FastMat2::eig(const FastMat2 & A, 
 	      FastMat2 *VR, FastMat2 *VL) { 
 
-  FastMatCache *cache = ctx->step();
-;
+  FastMatCache *cache = ctx->step("eig",this,&A,VR);
 
   ns_eig_cache *sc;
   int symmetric = 0;
@@ -193,10 +192,10 @@ extern "C" void dsyev_(const char*jobz,const char *uplo,int *n,double *a,int *ld
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 FastMat2 &
-FastMat2::seig(const FastMat2 & A, FastMat2 &V,int compute_eigen_vectors) { 
+FastMat2::seig(const FastMat2 & A, FastMat2 &V,
+               int compute_eigen_vectors) { 
 
-  FastMatCache *cache = ctx->step();
-;
+  FastMatCache *cache = ctx->step("seig",this,&A,&V);
 
   eig_cache *ecache;
   int &cev = compute_eigen_vectors;
@@ -289,8 +288,7 @@ extern "C" void dgesl_(double *a,int *lda,int *n,int *ipvt,double *b,int *job);
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 FastMat2 & FastMat2::inv(const FastMat2 & A) {
 
-  FastMatCache *cache = ctx->step();
-;
+  FastMatCache *cache = ctx->step("inv",this,&A);
 
   if (!ctx->was_cached) {
     Indx Adims;
@@ -417,8 +415,9 @@ FastMat2 & FastMat2::inv(const FastMat2 & A) {
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 double FastMat2::trace() {
-  FastMatCache *cache = ctx->step();
-;
+
+  FastMatCache *cache = ctx->step("trace",this);
+
   if (!ctx->was_cached) {
     assert(defined);
     Indx Adims;

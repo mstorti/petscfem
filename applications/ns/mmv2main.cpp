@@ -686,7 +686,7 @@ int mmove2_main() {
 	if (mmv_delta_increment > (1.-delta_fraction)*mmv_delta) 
 	  mmv_delta_increment = (1.-delta_fraction)*mmv_delta;
 	mmv_delta += -1.*mmv_delta_increment;
-	if (min_volume_g <= 0. & mmv_delta < 1e-12)
+	if (min_volume_g <= 0. && mmv_delta < 1e-12)
 	  mmv_delta = 1e-12;
       }
       if (counter > 10) mmv_delta *= 1.2;
