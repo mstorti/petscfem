@@ -13486,3 +13486,11 @@ se porque antes no dio ese error.
 %
 Los "NEW Distributed graph xxxproc"  es por el lio en la
 sincronizacion al escribir. 
+
+%=== Fri Mar 27 10:23:55 2009 mstorti@galileo
+%
+%-- 10:26:21 -- fastmat2-omp-start -----
+Empiezo a ver el tema de FastMat2 + OpenMP. Empiezo una branch
+nueva, ya que tengo miedo introducir modificaciones no deseadas al
+código de FastMat2. 
+

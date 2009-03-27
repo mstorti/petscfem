@@ -7,6 +7,7 @@
 //$Id merge-with-petsc-233-50-g0ace95e Fri Oct 19 17:49:52 2007 -0300$
 #include <math.h>
 #include <stdio.h>
+#include <omp.h>
 
 #include <src/fem.h>
 #include <src/fastmat2.h>
@@ -2589,6 +2590,8 @@ FastMat2 & FastMat2::fun(scalar_fun_with_args_t *fun_,void *user_args) {
 }  
 
 
+extern vector<int> fastmat2_pocessed_rows;
+
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 
 
@@ -2779,7 +2782,19 @@ FastMat2 & FastMat2::prod(const FastMat2 & A,const FastMat2 & B,
     nlines = cache->nlines,
     mm=cache->line_size;
   double **pa,**pb,**pa_end,sum,*paa,*pbb,*paa_end;
+  // printf("nlines %d\n",nlines);
+  //#define DBG
+#ifdef DBG
+  int nthreads = omp_get_max_threads(), tid;
+  vector<int> cntr(nthreads);
+#endif
+  //#pragma omp parallel for schedule(guided,5)
+  //#pragma omp parallel for
   for (int j=0; j<nlines; j++) {
+#ifdef DBG
+    tid = omp_get_thread_num();
+    cntr[tid]++;
+#endif
     LineCache *lc = cache->line_cache_start+j;
     pa = lc->starta;
     pb = lc->startb;
@@ -2836,6 +2851,14 @@ FastMat2 & FastMat2::prod(const FastMat2 & A,const FastMat2 & B,
     }
     *(lc->target) = sum;
   }
+  
+#if 0 && defined(DBG)
+  for (int tid=0; tid<nthreads; tid++)
+    printf("tid %d cntr %d\n",tid,cntr[tid]);
+  exit(0);
+#endif
+#undef DBG
+
 
   if (!ctx->use_cache) delete cache;
   return *this;
