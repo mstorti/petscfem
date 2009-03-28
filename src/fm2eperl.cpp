@@ -2782,36 +2782,44 @@ FastMat2 & FastMat2::prod(const FastMat2 & A,const FastMat2 & B,
     nlines = cache->nlines,
     mm=cache->line_size;
   double **pa,**pb,**pa_end,sum,*paa,*pbb,*paa_end;
-  // printf("nlines %d\n",nlines);
-  //#define DBG
-#ifdef DBG
+  //#define DBGFM2OMP
+#ifdef DBGFM2OMP
   int nthreads = omp_get_max_threads(), tid;
-  vector<int> cntr(nthreads);
+  vector<int> cntr(nthreads,0);
 #endif
-  //#pragma omp parallel for schedule(guided,5)
-  //#pragma omp parallel for
-  for (int j=0; j<nlines; j++) {
-#ifdef DBG
-    tid = omp_get_thread_num();
-    cntr[tid]++;
+  int n1 = sqrt(nlines), n2;
+  n1 += !n1;
+  n2 = nlines/n1;
+#ifdef DBGFM2OMP
+  printf("n1 %d, n2 %d\n",n1,n2);
 #endif
-    LineCache *lc = cache->line_cache_start+j;
-    pa = lc->starta;
-    pb = lc->startb;
-    int
-      &inca = lc->inca,
-      &incb = lc->incb;
-    if (lc->linear) {
+
+  // #pragma omp parallel for schedule(guided,1)
+  for (int k=0; k<n2; k++) {
+    int j1=k*n1, j2=j1+n1;
+    if (j2>nlines) j2 = nlines;
+    for (int j=j1; j<j2; j++) {
+#ifdef DBGFM2OMP
+      tid = omp_get_thread_num();
+      cntr[tid]++;
+#endif
+      LineCache *lc = cache->line_cache_start+j;
+      pa = lc->starta;
+      pb = lc->startb;
+      int
+        &inca = lc->inca,
+        &incb = lc->incb;
+      if (lc->linear) {
 #if 1
         sum=0.;
         paa = *pa;
         pbb = *pb;
-//         if (inca==1 && incb==1) {
-//           for (int k=0; k<mm; k++) {
-//             sum += (*paa)*(*pbb);
-//             paa++; pbb++;
-//           }
-//         } else 
+        //         if (inca==1 && incb==1) {
+        //           for (int k=0; k<mm; k++) {
+        //             sum += (*paa)*(*pbb);
+        //             paa++; pbb++;
+        //           }
+        //         } else 
         if (inca==1) {
           for (int k=0; k<mm; k++) {
             sum += (*paa)*(*pbb);
@@ -2842,23 +2850,22 @@ FastMat2 & FastMat2::prod(const FastMat2 & A,const FastMat2 & B,
           pbb += lc->incb;
         }
 #endif
-    } else {
-      pa_end = pa + cache->line_size;
-      sum=0.;
-      while (pa<pa_end) {
-	sum += (**pa++)*(**pb++);
+      } else {
+        pa_end = pa + cache->line_size;
+        sum=0.;
+        while (pa<pa_end) {
+          sum += (**pa++)*(**pb++);
+        }
       }
+      *(lc->target) = sum;
     }
-    *(lc->target) = sum;
   }
-  
-#if 0 && defined(DBG)
+#if 1 && defined(DBGFM2OMP)
   for (int tid=0; tid<nthreads; tid++)
     printf("tid %d cntr %d\n",tid,cntr[tid]);
   exit(0);
 #endif
-#undef DBG
-
+#undef DBGFM2OMP
 
   if (!ctx->use_cache) delete cache;
   return *this;

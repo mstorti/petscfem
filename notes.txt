@@ -13493,4 +13493,110 @@ sincronizacion al escribir.
 Empiezo a ver el tema de FastMat2 + OpenMP. Empiezo una branch
 nueva, ya que tengo miedo introducir modificaciones no deseadas al
 código de FastMat2. 
-
+%
+Como referencia, corriendo en galileo, el pico de eficiencia se
+obtiene para matrices de 30x30, con N=1000. 
+%
+n: 30, N: 1000, M: 1000, loop: 185, fm2: 1
+elapsed: 10.078 [sec], ops: 9.990 [Gflop], rate: 0.991 [Gflops]
+%
+Antes en un momento dado he visto eficiencias que pasaban un poco de
+esto (digamos 1.030 Gflop/s), pero no lo puedo reproducir ahora.
+%
+%-- 10:28:51 -- fastmat2-omp-start-1-g4296408 -----
+Si lo corro con OMP en el lazo sobre las lineas de prod() (en
+fmat2ep.cpp), entonces la eficiencia baja, incluso con nthreads=1.
+[Por ahora no puedo correr con OMP y cache en el programa test ya que
+habria que hacer la historia de crear el ctx y las matrices privadas
+en cada thread.] Pero con un solo thread tenemos por ejemplo:
+%
+n: 30, N: 1000, M: 1000, loop: 185, fm2: 1
+elapsed: 25.625 [sec], ops: 9.990 [Gflop], rate: 0.390 [Gflops]
+%
+Esto es con (guided,5)
+%
+> #pragma omp parallel for schedule(guided,5)
+>   for (int j=0; j<nlines; j++) {
+%
+O sea que al agregarle el OMP, y con 1 solo thread la eficiencia baja
+un factor 2.5!!
+%
+%-- 14:30:28 -- fastmat2-omp-start-1-g4296408 -----
+Eso es medio raro porque para esos parámetros la cantidad de tarea que
+se está haciendo no es despreciable. Para cada línea se están haciendo
+unas 30 operaciones. Hmmm será eso, tal vez convendría probar con
+mayor granularidad. 
+%
+%-- 18:53:14 -- fastmat2-omp-start-1-g4296408 -----
+Pruebo a dividir el numero de operaciones en cosas mas gruesas. Es
+decir para productos de matrices de 30x30 tengo nlines=900 (lineas de
+cache), entonces lo dividio en n1*n2, y hago n2 lazos externos y en
+cada uno n1 operaciones de lineas de cache, cada lazo es independiente
+del otro. Bueno para matrices de 50x50 no se gana nada y sigue
+haciendo el mismo efecto que antes. 
+%
+%-- 19:01:19 -- fastmat2-omp-start-1-g4296408 -----
+Vuelvo a probar con myprod() en `testfm2d'. Por ejemplo si corro con
+%
+[mstorti@galileo tests]$ OMP_NUM_THREADS=1  ./testfm2d.bin -F 0 -n 50 -N 1000 -t 0.1
+n: 50, N: 1000, M: 1000, loop: 4, fm2: 0
+elapsed: 0.843 [sec], ops: 1.000 [Gflop], rate: 1.186 [Gflops]
+[mstorti@galileo tests]$ OMP_NUM_THREADS=2  ./testfm2d.bin -F 0 -n 50 -N 1000 -t 0.1
+n: 50, N: 1000, M: 1000, loop: 4, fm2: 0
+elapsed: 0.424 [sec], ops: 1.000 [Gflop], rate: 2.358 [Gflops]
+%
+O sea logro una eficiencia cercana al 100%
+(/ 2.358 1.186 2.0) => 0.994
+%
+si paralelizo el lazo más externo sobre los productos. 
+%
+Si paralelizo el lazo externo en myprod(), o sea el lazo sobre las
+filas de la matriz destino. 
+[mstorti@galileo tests]$ OMP_NUM_THREADS=2  ./testfm2d.bin -F 0 -n 50 -N 1000 -t 0.1
+n: 50, N: 1000, M: 1000, loop: 4, fm2: 0
+elapsed: 0.494 [sec], ops: 1.000 [Gflop], rate: 2.025 [Gflops]
+[mstorti@galileo tests]$ OMP_NUM_THREADS=1  ./testfm2d.bin -F 0 -n 50 -N 1000 -t 0.1
+n: 50, N: 1000, M: 1000, loop: 4, fm2: 0
+elapsed: 0.851 [sec], ops: 1.000 [Gflop], rate: 1.175 [Gflops]
+%
+(/ 2.025 1.175 2.0) => 0.862
+%
+La eficiencia ya baja un poco. 
+%
+%
+%-- 22:07:21 -- fastmat2-omp-start-1-g4296408 -----
+Con n=30 da lo siguiente
+%
+[mstorti@galileo tests]$ OMP_NUM_THREADS=1  ./testfm2d.bin -F 0 -n 30 -N 1000 -t 0.5
+n: 30, N: 1000, M: 1000, loop: 92, fm2: 0
+elapsed: 4.322 [sec], ops: 4.968 [Gflop], rate: 1.149 [Gflops]
+[mstorti@galileo tests]$ OMP_NUM_THREADS=2  ./testfm2d.bin -F 0 -n 30 -N 1000 -t 0.5
+n: 30, N: 1000, M: 1000, loop: 92, fm2: 0
+elapsed: 2.485 [sec], ops: 4.968 [Gflop], rate: 1.999 [Gflops]
+O sea que la eficiencia es
+%
+(/ 1.999 1.149 2.0) => 0.870 
+% 
+No se deteriora mucho. 
+%
+%-- 22:08:48 -- fastmat2-omp-start-1-g4296408 -----
+Con n=10, baja mucho:
+[mstorti@galileo tests]$ OMP_NUM_THREADS=2  ./testfm2d.bin -F 0 -n 10 -N 1000 -t 0.5
+n: 10, N: 1000, M: 1000, loop: 2500, fm2: 0
+elapsed: 6.319 [sec], ops: 5.000 [Gflop], rate: 0.791 [Gflops]
+[mstorti@galileo tests]$ OMP_NUM_THREADS=1  ./testfm2d.bin -F 0 -n 10 -N 1000 -t 0.5
+n: 10, N: 1000, M: 1000, loop: 2500, fm2: 0
+elapsed: 6.513 [sec], ops: 5.000 [Gflop], rate: 0.768 [Gflops]
+%
+O sea que no se gana nada (/ 0.791 0.76 2.0) => 0.520. 
+%
+%-- 22:11:26 -- fastmat2-omp-start-1-g4296408 -----
+CON n=20
+[mstorti@galileo tests]$ OMP_NUM_THREADS=1  ./testfm2d.bin -F 0 -n 20 -N 1000 -t 0.5
+n: 20, N: 1000, M: 1000, loop: 312, fm2: 0
+elapsed: 4.617 [sec], ops: 4.992 [Gflop], rate: 1.081 [Gflops]
+[mstorti@galileo tests]$ OMP_NUM_THREADS=2  ./testfm2d.bin -F 0 -n 20 -N 1000 -t 0.5
+n: 20, N: 1000, M: 1000, loop: 312, fm2: 0
+elapsed: 3.010 [sec], ops: 4.992 [Gflop], rate: 1.658 [Gflops]
+%
+Eficiencia (/ 1.658 1.081 2.0) => 0.769
