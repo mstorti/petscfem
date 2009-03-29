@@ -13677,3 +13677,93 @@ myprod2 short*short:
 elapsed: 43.542 [sec], ops: 50.000 [Gflop], rate: 1.148 [Gflops]
 myprod2 long*long:
 elapsed: 60.965 [sec], ops: 50.000 [Gflop], rate: 0.820 [Gflops]
+%
+%-- 22:11:14 -- fastmat2-omp-start-4-g8edb29e -----
+COMPARACION CON FASTMAT2:
+Si hago producto A*B con matrices diferentes random, me da 
+elapsed: 15.954 [sec], ops: 10.000 [Gflop], rate: 0.627 [Gflops]
+--
+Si no hago los dos set() entonces apenas se incrementa un poco el
+rendimiento.
+elapsed: 15.601 [sec], ops: 10.000 [Gflop], rate: 0.641 [Gflops]
+--
+Si hago el producto A*B' (mas cache friendly) la eficiencia aumenta un
+poco. 
+elapsed: 15.357 [sec], ops: 10.000 [Gflop], rate: 0.651 [Gflops]
+--
+Si hago el producto A*A, (tambien podria ser mas cache friendly)
+elapsed: 15.657 [sec], ops: 10.000 [Gflop], rate: 0.639 [Gflops]
+--
+Cambio que haga el check con un while en FM2 y no pasa nada
+elapsed: 15.677 [sec], ops: 10.000 [Gflop], rate: 0.638 [Gflops]
+%
+%-- 10:20:17 -- fastmat2-omp-start-4-g8edb29e -----
+Verifico que el problema no es el overhead de las FastMat2, tampoco
+parece tener mucha influencia el tamaño de las matrices. 
+%
+> [mstorti@galileo tests]$ ./testfm2d.bin -F 1 -n 100 -N 1000 -t 1 -T 1
+> nthreads 1
+> n: 100, N: 1000, M: 1000, loop: 5, fm2: 1, nthreads 1
+> elapsed: 16.086 [sec], ops: 10.000 [Gflop], rate: 0.622 [Gflops]
+> [mstorti@galileo tests]$ ./testfm2d.bin -F 1 -n 150 -N 1000 -t 1 -T 1
+> nthreads 1
+> n: 150, N: 1000, M: 1000, loop: 1, fm2: 1, nthreads 1
+> elapsed: 9.528 [sec], ops: 6.750 [Gflop], rate: 0.708 [Gflops]
+> [mstorti@galileo tests]$ ./testfm2d.bin -F 1 -n 100 -N 500 -t 1 -T 1
+> nthreads 1
+> n: 100, N: 500, M: 500, loop: 10, fm2: 1, nthreads 1
+> elapsed: 16.379 [sec], ops: 10.000 [Gflop], rate: 0.611 [Gflops]
+> [mstorti@galileo tests]$ 
+%
+%
+%-- 10:36:50 -- fastmat2-omp-start-4-g8edb29e -----
+% INFLUENCIA DEL TAMAÑO DE LA MATRIZ
+%
+Aparentemente podría ser que para matrices muy grandes el problema
+esté limitado por el tamaño del cache. Pruebo con n=50 y 30 y
+efectivamente en 50 hay un máximo, parece.
+%
+> [mstorti@galileo tests]$ ./testfm2d.bin -F 1 -n 100 -N 500 -t 1 -T 1
+> nthreads 1
+> n: 100, N: 500, M: 500, loop: 10, fm2: 1, nthreads 1
+> elapsed: 16.379 [sec], ops: 10.000 [Gflop], rate: 0.611 [Gflops]
+> [mstorti@galileo tests]$ ./testfm2d.bin -F 1 -n 50 -N 1000 -t 1 -T 1
+> nthreads 1
+> n: 50, N: 1000, M: 1000, loop: 40, fm2: 1, nthreads 1
+> elapsed: 10.630 [sec], ops: 10.000 [Gflop], rate: 0.941 [Gflops]
+> [mstorti@galileo tests]$ ./testfm2d.bin -F 1 -n 30 -N 1000 -t 1 -T 1
+> nthreads 1
+> n: 30, N: 1000, M: 1000, loop: 185, fm2: 1, nthreads 1
+> elapsed: 10.990 [sec], ops: 9.990 [Gflop], rate: 0.909 [Gflops]
+%
+%-- 10:50:05 -- fastmat2-omp-start-4-g8edb29e -----
+Hago un barrido en n, con Fastmat2
+     n     Gflops
+    10     0.63700
+    11     0.60400
+    13     0.60000
+    15     0.64400
+    17     0.72600
+    19     0.75100
+    21     0.77600
+    24     0.81700
+    27     0.90200
+    30     0.90700
+    33     0.95700
+    37     0.94300
+    41     0.95400
+    46     0.94800
+    51     0.94500
+    57     0.82000
+    63     0.56400
+    70     0.65300
+    77     0.70600
+    85     0.61700
+    94     0.63800
+   104     0.62300
+   115     0.66100
+   127     0.68100
+   140     0.69400
+   154     0.70300
+   170     0.73300
+   188     0.74700

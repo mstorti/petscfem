@@ -2821,7 +2821,8 @@ FastMat2 & FastMat2::prod(const FastMat2 & A,const FastMat2 & B,
         //           }
         //         } else 
         if (inca==1) {
-          for (int k=0; k<mm; k++) {
+          double *paa_end = paa + mm;
+          while (paa<paa_end) {
             sum += (*paa)*(*pbb);
             paa++;
             pbb += incb;
