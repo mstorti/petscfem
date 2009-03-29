@@ -13639,3 +13639,41 @@ O sea que si hay una diferencia es mínima.
         pb += n;
       }
 elapsed: 8.903 [sec], ops: 10.000 [Gflop], rate: 1.123 [Gflops]
+O sea que se gana un poco, pero mínimo. 
+%
+%-- 21:29:50 -- fastmat2-omp-start-3-g6b915aa -----
+Influencia del __restrict__
+Con __restrict__:
+elapsed: 8.903 [sec], ops: 10.000 [Gflop], rate: 1.123 [Gflops]
+Sin __restrict__:
+elapsed: 8.932 [sec], ops: 10.000 [Gflop], rate: 1.120 [Gflops]
+%
+%-- 21:52:17 -- fastmat2-omp-start-3-g6b915aa -----
+INFLUENCIA DEL STRIDE ---
+Si uno hace el producto A*B entonces al recorrer A por filas eso es
+cache friendly, pero al recorrer B por columnas no. Si se hace A*B'
+entonces eso es cache friendly en las dos direcciones. Sin embargo
+para matrices de 100x100 no parece tener influencia. 
+%
+Haciendo A*B'
+elapsed: 43.321 [sec], ops: 50.000 [Gflop], rate: 1.154 [Gflops]
+Haciendo A*B
+elapsed: 44.560 [sec], ops: 50.000 [Gflop], rate: 1.122 [Gflops]
+%
+%-- 21:59:13 -- fastmat2-omp-start-3-g6b915aa -----
+INFLUENCIA DEL STRIDE 2 ----
+Para realzar el efecto hago el producto A'*B que seria el peor caso
+(aunque ahi invirtiendo el orden de los lazos estaría bien). La
+eficiencia baja bastante. Pero ojo que hice un cambio ya que ahora
+hago el producto de dos matrices diferentes con lo cual el tema del
+cache puede ser mas importante. Es decir antes hacia el producto de A(i)
+con A(i), ahora hago el de A(i) con el de A(j) con i,j random. 
+% 
+elapsed: 60.899 [sec], ops: 50.000 [Gflop], rate: 0.821 [Gflops]
+%
+myprod strides: short*long:
+elapsed: 44.590 [sec], ops: 50.000 [Gflop], rate: 1.121 [Gflops]
+myprod2 short*short:
+elapsed: 43.542 [sec], ops: 50.000 [Gflop], rate: 1.148 [Gflops]
+myprod2 long*long:
+elapsed: 60.965 [sec], ops: 50.000 [Gflop], rate: 0.820 [Gflops]
