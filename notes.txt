@@ -13600,3 +13600,42 @@ n: 20, N: 1000, M: 1000, loop: 312, fm2: 0
 elapsed: 3.010 [sec], ops: 4.992 [Gflop], rate: 1.658 [Gflops]
 %
 Eficiencia (/ 1.658 1.081 2.0) => 0.769
+
+%=== Sat Mar 28 21:14:07 2009 mstorti@galileo
+%
+%-- 21:14:07 -- fastmat2-omp-start-2-g4578ee3 -----
+Hago un barrido paralelizando
+*1 El lazo externo sobre los productos
+*2 El lazo medio, es decir el lazo mas externo dentro de myprod()
+*3 El lazo mas interno, es decir el lazo mas interno dentro de myprod()
+%
+Como es de esperar, la eficiencia decrece con esto. Y de hecho hago
+una grafico de eficiencia en funcion de la granularidad de las tareas,
+es decir la granularidad es
+%
+*1 gran = n^3
+*2 gran = n^2
+*3 gran = n
+%
+Graficando la eficiencia en función de la granularidad, se ve que
+efectivamente están completamente correlacionados. 
+%
+%-- 21:22:25 -- fastmat2-omp-start-2-g4578ee3 -----
+Ahora veo si se puede ganar algo usando vectores, es decir
+------- Usando punteros:
+	sum += *pa * *pb;
+	pa++;
+	pb += n;
+elapsed: 9.049 [sec], ops: 10.000 [Gflop], rate: 1.105 [Gflops]
+------- Usando vectores:
+	sum += pa[k] * pb[k*n];
+elapsed: 8.978 [sec], ops: 10.000 [Gflop], rate: 1.114 [Gflops]
+%
+O sea que si hay una diferencia es mínima. 
+------- Usando lazo while en vez de for
+      while (pa<paend) {
+        sum += *pa * *pb;
+        pa++;
+        pb += n;
+      }
+elapsed: 8.903 [sec], ops: 10.000 [Gflop], rate: 1.123 [Gflops]
