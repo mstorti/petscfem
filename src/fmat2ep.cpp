@@ -696,86 +696,103 @@ FastMat2 & FastMat2::prod(const FastMat2 & A,const FastMat2 & B,
   // Perform computations using cached addresses
   int 
     nlines = cache->nlines,
-    mm=cache->line_size;
+    mm=cache->line_size, inca, incb;
   double **pa,**pb,**pa_end,sum,*paa,*pbb,*paa_end;
-  //#define DBGFM2OMP
-#ifdef DBGFM2OMP
-  int nthreads = omp_get_max_threads(), tid;
-  vector<int> cntr(nthreads,0);
-#endif
-  int n1 = sqrt(nlines), n2;
-  n1 += !n1;
-  n2 = nlines/n1;
-#ifdef DBGFM2OMP
-  printf("n1 %d, n2 %d\n",n1,n2);
+  LineCache *lc=NULL;
+
+#if 0
+  // Detect if operation is superlinear
+  int superlinear = 0, dpaa=-1, dpbb=-1, inca=-1, incb=-1;
+  double *paa0=NULL, *pbb0=NULL;
+  if (nlines>=2) {
+    printf("nlines %d\n",nlines);
+    LineCache *lc0 = cache->line_cache_start;
+    LineCache *lc1 = cache->line_cache_start+1;
+    paa0 = *lc0->starta;
+    pbb0 = *lc0->startb;
+    dpaa = *lc1->starta - *lc0->starta;
+    dpbb = *lc1->startb - *lc0->startb;
+    inca = lc0->inca;
+    incb = lc0->incb;
+    if (lc1->inca != inca) goto NOT_SL;
+    printf("TRACE 0\n");
+    if (lc1->incb != incb) goto NOT_SL;
+    printf("TRACE 1\n");
+    for (int j=2; j<nlines; j++) {
+      lc0 = cache->line_cache_start+j-1;
+      lc1 = cache->line_cache_start+j;
+      if ((*lc1->starta - *lc0->starta)!=dpaa) goto NOT_SL;
+      printf("TRACE 2, j %d\n",j);
+      if ((*lc1->startb - *lc0->startb)!=dpbb) goto NOT_SL;
+      printf("TRACE 3, j %d\n",j);
+    }
+    superlinear=1;
+    printf("setting superlinear %d\n",superlinear);
+  NOT_SL:
+    printf("superlinear %d, paa0 %p, pbb0 %p, dpaa %d, dpbb %d\n",
+           superlinear,paa0,pbb0,dpaa,dpbb);
+    exit(0);
+  }
 #endif
 
-  // #pragma omp parallel for schedule(guided,1)
-  for (int k=0; k<n2; k++) {
-    int j1=k*n1, j2=j1+n1;
-    if (j2>nlines) j2 = nlines;
-    for (int j=j1; j<j2; j++) {
-#ifdef DBGFM2OMP
-      tid = omp_get_thread_num();
-      cntr[tid]++;
-#endif
-      LineCache *lc = cache->line_cache_start+j;
-      pa = lc->starta;
-      pb = lc->startb;
-      int
-        &inca = lc->inca,
-        &incb = lc->incb;
-      if (lc->linear) {
+  for (int j=0; j<nlines; j++) {
+    lc = cache->line_cache_start+j;
+    pa = lc->starta;
+    pb = lc->startb;
+    inca = lc->inca;
+    incb = lc->incb;
+    if (lc->linear) {
 #if 1
-        sum=0.;
-        paa = *pa;
-        pbb = *pb;
-        //         if (inca==1 && incb==1) {
-        //           for (int k=0; k<mm; k++) {
-        //             sum += (*paa)*(*pbb);
-        //             paa++; pbb++;
-        //           }
-        //         } else 
-        if (inca==1) {
-          double *paa_end = paa + mm;
-          while (paa<paa_end) {
-            sum += (*paa)*(*pbb);
-            paa++;
-            pbb += incb;
-          }
-        } else if (incb==1) {
-          for (int k=0; k<mm; k++) {
-            sum += (*paa)*(*pbb);
-            paa += inca;
-            pbb++;
-          }
-        } else {
-          for (int k=0; k<mm; k++) {
-            sum += (*paa)*(*pbb);
-            paa += inca;
-            pbb += incb;
-          }
-        }
-#else
-        paa = *pa;
-        pbb = *pb;
-        paa_end = paa + lc->inca * cache->line_size;
-        sum=0.;
+      sum=0.;
+      paa = *pa;
+      pbb = *pb;
+      //         if (inca==1 && incb==1) {
+      //           for (int k=0; k<mm; k++) {
+      //             sum += (*paa)*(*pbb);
+      //             paa++; pbb++;
+      //           }
+      //         } else 
+      if (inca==1) {
+        paa_end = paa + mm;
         while (paa<paa_end) {
           sum += (*paa)*(*pbb);
-          paa += lc->inca;
-          pbb += lc->incb;
+          paa++;
+          pbb += incb;
         }
-#endif
+      } else if (incb==1) {
+        paa_end = paa + inca*mm;
+        while (paa<paa_end) {
+          sum += (*paa)*(*pbb);
+          paa += inca;
+          pbb++;
+        }
       } else {
-        pa_end = pa + cache->line_size;
-        sum=0.;
-        while (pa<pa_end) {
-          sum += (**pa++)*(**pb++);
+        paa_end = paa + inca*mm;
+        while (paa<paa_end) {
+          sum += (*paa)*(*pbb);
+          paa += inca;
+          pbb += incb;
         }
       }
-      *(lc->target) = sum;
+#else
+      paa = *pa;
+      pbb = *pb;
+      paa_end = paa + lc->inca * cache->line_size;
+      sum=0.;
+      while (paa<paa_end) {
+        sum += (*paa)*(*pbb);
+        paa += lc->inca;
+        pbb += lc->incb;
+      }
+#endif
+    } else {
+      pa_end = pa + cache->line_size;
+      sum=0.;
+      while (pa<pa_end) {
+        sum += (**pa++)*(**pb++);
+      }
     }
+    *(lc->target) = sum;
   }
 #if 1 && defined(DBGFM2OMP)
   for (int tid=0; tid<nthreads; tid++)
