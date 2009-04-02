@@ -700,37 +700,50 @@ FastMat2 & FastMat2::prod(const FastMat2 & A,const FastMat2 & B,
   double **pa,**pb,**pa_end,sum,*paa,*pbb,*paa_end;
   LineCache *lc=NULL;
 
-#if 0
-  // Detect if operation is superlinear
-  int superlinear = 0, dpaa=-1, dpbb=-1, inca=-1, incb=-1;
-  double *paa0=NULL, *pbb0=NULL;
-  if (nlines>=2) {
-    printf("nlines %d\n",nlines);
-    LineCache *lc0 = cache->line_cache_start;
-    LineCache *lc1 = cache->line_cache_start+1;
-    paa0 = *lc0->starta;
-    pbb0 = *lc0->startb;
-    dpaa = *lc1->starta - *lc0->starta;
-    dpbb = *lc1->startb - *lc0->startb;
-    inca = lc0->inca;
-    incb = lc0->incb;
-    if (lc1->inca != inca) goto NOT_SL;
-    printf("TRACE 0\n");
-    if (lc1->incb != incb) goto NOT_SL;
-    printf("TRACE 1\n");
-    for (int j=2; j<nlines; j++) {
-      lc0 = cache->line_cache_start+j-1;
-      lc1 = cache->line_cache_start+j;
-      if ((*lc1->starta - *lc0->starta)!=dpaa) goto NOT_SL;
-      printf("TRACE 2, j %d\n",j);
-      if ((*lc1->startb - *lc0->startb)!=dpbb) goto NOT_SL;
-      printf("TRACE 3, j %d\n",j);
+#if 1
+  {
+    // Detect if operation is superlinear
+    int superlinear = 0, lda=-1, ldb=-1, na=-1, nb=-1, inca, incb;
+    double *paa0=NULL, *pbb0=NULL;
+    LineCache *lc0, *lc1, *lc;
+    if (nlines>1) {
+      lc0 = cache->line_cache_start;
+      paa0 = *lc0->starta;
+      pbb0 = *lc0->startb;
+      inca = lc0->inca;
+      ldb = lc0->incb;
+      // Try to determine leading size of matrices A and B
+      for (int j=0; j<nlines; j++) {
+        lc = cache->line_cache_start+j;
+        if (*lc->starta != paa0) {
+          lda = *lc->starta-paa0;
+          na = j;
+          break;
+        }
+      }
+      if (lda<=0) goto NOT_SL;
+      lc1 = cache->line_cache_start+1;
+      incb = *lc1->startb - pbb0;
+      if (nlines % na != 0) goto NOT_SL;
+      nb = nlines/na;
+      // Check that is truly superlinear
+      int l=0;
+      for (int j=0; j<na; j++) {
+        for (int k=0; k<nb; k++) {
+          lc = cache->line_cache_start+l;
+          if (lc->inca != inca) goto NOT_SL;
+          if (lc->incb != ldb) goto NOT_SL;
+          if (*lc->starta != paa0 + j*lda) goto NOT_SL;
+          if (*lc->startb != pbb0 + k*incb) goto NOT_SL;
+          l++;
+        }
+      }
     }
     superlinear=1;
-    printf("setting superlinear %d\n",superlinear);
-  NOT_SL:
-    printf("superlinear %d, paa0 %p, pbb0 %p, dpaa %d, dpbb %d\n",
-           superlinear,paa0,pbb0,dpaa,dpbb);
+  NOT_SL: 
+    printf("superlinear with na %d, inca %d, lda %d, "
+           "nb %d, incb %d, ldb %d\n",
+           na,inca,lda,nb,incb,ldb);
     exit(0);
   }
 #endif
