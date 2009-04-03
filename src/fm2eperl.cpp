@@ -7,6 +7,7 @@
 //$Id merge-with-petsc-233-50-g0ace95e Fri Oct 19 17:49:52 2007 -0300$
 #include <math.h>
 #include <stdio.h>
+//#include <cblas.h>
 #include <omp.h>
 
 #include <src/fem.h>
@@ -2590,7 +2591,12 @@ FastMat2 & FastMat2::fun(scalar_fun_with_args_t *fun_,void *user_args) {
 }  
 
 
-extern vector<int> fastmat2_pocessed_rows;
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>
+class prod_subcache : public FastMatSubCache {
+public:
+  int superlinear, lda, ldb, ldc, na, nb;
+  double *paa0, *pbb0, *pcc0;
+};
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 
@@ -2610,6 +2616,7 @@ FastMat2 & FastMat2::prod(const FastMat2 & A,const FastMat2 & B,
 #endif
   FastMatCache *cache = ctx->step();
 
+  prod_subcache *psc=NULL;
   if (!ctx->was_cached  ) {
     Indx ia,ib,ii;
 
@@ -2775,128 +2782,157 @@ FastMat2 & FastMat2::prod(const FastMat2 & A,const FastMat2 & B,
     ctx->op_count.sum += ntot;
     ctx->op_count.mult += ntot;
 
-  }
-
-  // Perform computations using cached addresses
-  int 
-    nlines = cache->nlines,
-    mm=cache->line_size, inca, incb;
-  double **pa,**pb,**pa_end,sum,*paa,*pbb,*paa_end;
-  LineCache *lc=NULL;
-
+    int superlinear = 0, lda=-1, ldb=-1, ldc, na=-1, nb=-1;
+    double *paa0=NULL, *pbb0=NULL, *pcc0=NULL;
 #if 1
-  {
-    // Detect if operation is superlinear
-    int superlinear = 0, lda=-1, ldb=-1, na=-1, nb=-1, inca, incb;
-    double *paa0=NULL, *pbb0=NULL;
-    LineCache *lc0, *lc1, *lc;
-    if (nlines>1) {
-      lc0 = cache->line_cache_start;
-      paa0 = *lc0->starta;
-      pbb0 = *lc0->startb;
-      inca = lc0->inca;
-      ldb = lc0->incb;
-      // Try to determine leading size of matrices A and B
-      for (int j=0; j<nlines; j++) {
-        lc = cache->line_cache_start+j;
-        if (*lc->starta != paa0) {
-          lda = *lc->starta-paa0;
-          na = j;
-          break;
+    {
+      // Detect if operation is superlinear
+      LineCache *lc0, *lc1, *lc;
+      int inca, incb, incc;
+      int &nlines = cache->nlines;
+      if (nlines>1) {
+        lc0 = cache->line_cache_start;
+        paa0 = *lc0->starta;
+        pbb0 = *lc0->startb;
+        pcc0 = lc0->target;
+        inca = lc0->inca;
+        ldb = lc0->incb;
+        // Try to determine leading size of matrices A and B
+        for (int j=0; j<nlines; j++) {
+          lc = cache->line_cache_start+j;
+          if (*lc->starta != paa0) {
+            lda = *lc->starta-paa0;
+            ldc = lc->target - pcc0;
+            na = j;
+            break;
+          }
         }
+        if (lda<=0) goto NOT_SL;
+        lc1 = cache->line_cache_start+1;
+        incb = *lc1->startb - pbb0;
+        incc = lc1->target - lc0->target;
+        if (incc != 1) goto NOT_SL;
+        
+        if (nlines % na != 0) goto NOT_SL;
+        nb = nlines/na;
+        // Check that is truly superlinear
+        int l=0;
+        for (int j=0; j<na; j++) {
+          for (int k=0; k<nb; k++) {
+            lc = cache->line_cache_start+l;
+            if (lc->inca != inca) goto NOT_SL;
+            if (lc->incb != ldb) goto NOT_SL;
+            if (*lc->starta != paa0 + j*lda) goto NOT_SL;
+            if (*lc->startb != pbb0 + k*incb) goto NOT_SL;
+            if (lc->target != pcc0 + j*ldc + k*incc) goto NOT_SL;
+            l++;
+          }
+        }
+        // Apparently `dgemm' only works with contiguous matrices
+        if (inca!=1 || incb!=1) goto NOT_SL;
       }
-      if (lda<=0) goto NOT_SL;
-      lc1 = cache->line_cache_start+1;
-      incb = *lc1->startb - pbb0;
-      if (nlines % na != 0) goto NOT_SL;
-      nb = nlines/na;
-      // Check that is truly superlinear
-      int l=0;
-      for (int j=0; j<na; j++) {
-        for (int k=0; k<nb; k++) {
-          lc = cache->line_cache_start+l;
-          if (lc->inca != inca) goto NOT_SL;
-          if (lc->incb != ldb) goto NOT_SL;
-          if (*lc->starta != paa0 + j*lda) goto NOT_SL;
-          if (*lc->startb != pbb0 + k*incb) goto NOT_SL;
-          l++;
-        }
+      superlinear=1;
+    NOT_SL: 
+      printf("superlinear with na %d, lda %d, nb %d, ldb %d, ldc %d\n",
+             na,lda,nb,ldb,ldc);
+    
+      psc = new prod_subcache;
+      assert(psc);
+      assert(!cache->sc);
+      cache->sc = psc;
+      psc->superlinear = superlinear;
+      if (superlinear) {
+        psc->na = na;
+        psc->lda = lda;
+        psc->nb = nb;
+        psc->ldb = ldb;
+        psc->ldc = ldc;
+        psc->paa0 = paa0;
+        psc->pbb0 = pbb0;
+        psc->pcc0 = pcc0;
       }
     }
-    superlinear=1;
-  NOT_SL: 
-    printf("superlinear with na %d, inca %d, lda %d, "
-           "nb %d, incb %d, ldb %d\n",
-           na,inca,lda,nb,incb,ldb);
+#endif
+  }
+
+  psc = dynamic_cast<prod_subcache *> (cache->sc);
+  assert(psc);
+
+  if (psc->superlinear) {
+    int p = cache->line_size;
     exit(0);
-  }
-#endif
+//     cblas_dgemm(CblasRowMajor,CblasNoTrans,CblasNoTrans,
+//                 psc->na,psc->nb,p,1.0,
+//                 psc->paa0,psc->lda,psc->pbb0,n,0.0,
+//                 c,n);
+  } else {
+    // Perform computations using cached addresses
+    int 
+      nlines = cache->nlines,
+      mm=cache->line_size, inca, incb;
+    double **pa,**pb,**pa_end,sum,*paa,*pbb,*paa_end;
+    LineCache *lc=NULL;
 
-  for (int j=0; j<nlines; j++) {
-    lc = cache->line_cache_start+j;
-    pa = lc->starta;
-    pb = lc->startb;
-    inca = lc->inca;
-    incb = lc->incb;
-    if (lc->linear) {
+    for (int j=0; j<nlines; j++) {
+      lc = cache->line_cache_start+j;
+      pa = lc->starta;
+      pb = lc->startb;
+      inca = lc->inca;
+      incb = lc->incb;
+      if (lc->linear) {
 #if 1
-      sum=0.;
-      paa = *pa;
-      pbb = *pb;
-      //         if (inca==1 && incb==1) {
-      //           for (int k=0; k<mm; k++) {
-      //             sum += (*paa)*(*pbb);
-      //             paa++; pbb++;
-      //           }
-      //         } else 
-      if (inca==1) {
-        paa_end = paa + mm;
-        while (paa<paa_end) {
-          sum += (*paa)*(*pbb);
-          paa++;
-          pbb += incb;
+        sum=0.;
+        paa = *pa;
+        pbb = *pb;
+        //         if (inca==1 && incb==1) {
+        //           for (int k=0; k<mm; k++) {
+        //             sum += (*paa)*(*pbb);
+        //             paa++; pbb++;
+        //           }
+        //         } else 
+        if (inca==1) {
+          paa_end = paa + mm;
+          while (paa<paa_end) {
+            sum += (*paa)*(*pbb);
+            paa++;
+            pbb += incb;
+          }
+        } else if (incb==1) {
+          paa_end = paa + inca*mm;
+          while (paa<paa_end) {
+            sum += (*paa)*(*pbb);
+            paa += inca;
+            pbb++;
+          }
+        } else {
+          paa_end = paa + inca*mm;
+          while (paa<paa_end) {
+            sum += (*paa)*(*pbb);
+            paa += inca;
+            pbb += incb;
+          }
         }
-      } else if (incb==1) {
-        paa_end = paa + inca*mm;
-        while (paa<paa_end) {
-          sum += (*paa)*(*pbb);
-          paa += inca;
-          pbb++;
-        }
-      } else {
-        paa_end = paa + inca*mm;
-        while (paa<paa_end) {
-          sum += (*paa)*(*pbb);
-          paa += inca;
-          pbb += incb;
-        }
-      }
 #else
-      paa = *pa;
-      pbb = *pb;
-      paa_end = paa + lc->inca * cache->line_size;
-      sum=0.;
-      while (paa<paa_end) {
-        sum += (*paa)*(*pbb);
-        paa += lc->inca;
-        pbb += lc->incb;
-      }
+        paa = *pa;
+        pbb = *pb;
+        paa_end = paa + lc->inca * cache->line_size;
+        sum=0.;
+        while (paa<paa_end) {
+          sum += (*paa)*(*pbb);
+          paa += lc->inca;
+          pbb += lc->incb;
+        }
 #endif
-    } else {
-      pa_end = pa + cache->line_size;
-      sum=0.;
-      while (pa<pa_end) {
-        sum += (**pa++)*(**pb++);
+      } else {
+        pa_end = pa + cache->line_size;
+        sum=0.;
+        while (pa<pa_end) {
+          sum += (**pa++)*(**pb++);
+        }
       }
+      *(lc->target) = sum;
     }
-    *(lc->target) = sum;
   }
-#if 1 && defined(DBGFM2OMP)
-  for (int tid=0; tid<nthreads; tid++)
-    printf("tid %d cntr %d\n",tid,cntr[tid]);
-  exit(0);
-#endif
-#undef DBGFM2OMP
 
   if (!ctx->use_cache) delete cache;
   return *this;
