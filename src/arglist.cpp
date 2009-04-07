@@ -23,6 +23,7 @@ arg_data::arg_data(void) : time_data(NULL) {
   sstate=NULL;
   vector_assoc=NULL;
   profile=NULL;
+  was_set=0;
 }
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
