@@ -7,8 +7,7 @@
 //$Id merge-with-petsc-233-50-g0ace95e Fri Oct 19 17:49:52 2007 -0300$
 #include <math.h>
 #include <stdio.h>
-//#include <cblas.h>
-#include <omp.h>
+#include <mkl_cblas.h>
 
 #include <src/fem.h>
 #include <src/fastmat2.h>
@@ -2784,7 +2783,7 @@ FastMat2 & FastMat2::prod(const FastMat2 & A,const FastMat2 & B,
 
     int superlinear = 0, lda=-1, ldb=-1, ldc, na=-1, nb=-1;
     double *paa0=NULL, *pbb0=NULL, *pcc0=NULL;
-#if 1
+#if 0
     {
       // Detect if operation is superlinear
       LineCache *lc0, *lc1, *lc;
@@ -2860,11 +2859,10 @@ FastMat2 & FastMat2::prod(const FastMat2 & A,const FastMat2 & B,
 
   if (psc->superlinear) {
     int p = cache->line_size;
-    exit(0);
-//     cblas_dgemm(CblasRowMajor,CblasNoTrans,CblasNoTrans,
-//                 psc->na,psc->nb,p,1.0,
-//                 psc->paa0,psc->lda,psc->pbb0,n,0.0,
-//                 c,n);
+    cblas_dgemm(CblasRowMajor,CblasNoTrans,CblasNoTrans,
+                psc->na,psc->nb,p,1.0,
+                psc->paa0,psc->lda,psc->pbb0,psc->ldb,0.0,
+                psc->pcc0,psc->ldc);
   } else {
     // Perform computations using cached addresses
     int 

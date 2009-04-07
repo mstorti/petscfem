@@ -361,6 +361,12 @@ LDFLAGS_NO_PROG_LIB =					\
 	  $(PETSC_LDFLAGS)				\
 	  $(OMP_LDFLAGS)
 
+ifneq ($(MKLPATH),)
+CPPFLAGS += -I$(MKLPATH)/include -DUSE_MKL_FIX
+LDFLAGS += -lmkl_gf_lp64 -lmkl_gnu_thread -lmkl_core -lpetscfem$(osfx)
+#	-lpthread -lgfortran ./mkl_gf.o
+endif
+
 EFN_LDFLAGS =	
 
 PROG_LIB = lib$(PROG)$(osfx).a
