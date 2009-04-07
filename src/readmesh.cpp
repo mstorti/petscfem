@@ -1888,8 +1888,8 @@ if (!(bool_cond)) { PetscPrintf(PETSCFEM_COMM_WORLD, 				\
 
 #if 0
   // para debuggear
-  ierr = VecScatterBegin(x,xseq,INSERT_VALUES,SCATTER_FORWARD,scatter); CHKERRQ(ierr); 
-  ierr = VecScatterEnd(x,xseq,INSERT_VALUES,SCATTER_FORWARD,scatter); CHKERRQ(ierr); 
+  ierr = VecScatterBegin(scatter,x,xseq,INSERT_VALUES,SCATTER_FORWARD); CHKERRQ(ierr); 
+  ierr = VecScatterEnd(scatter,x,xseq,INSERT_VALUES,SCATTER_FORWARD); CHKERRQ(ierr); 
   PetscPrintf(PETSCFEM_COMM_WORLD,"Despues del scatter\n");
 
 

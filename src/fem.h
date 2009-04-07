@@ -11,6 +11,13 @@ using namespace std;
 #include <petscksp.h>
 #include <stdlib.h>
 
+#if !defined(PETSC_VERSION_)
+#define PETSC_VERSION_(MAJOR,MINOR,SUBMINOR) \
+  ((PETSC_VERSION_MAJOR == (MAJOR)) &&       \
+   (PETSC_VERSION_MINOR == (MINOR)) &&       \
+   (PETSC_VERSION_SUBMINOR == (SUBMINOR)) && \
+   (PETSC_VERSION_RELEASE  == 1))
+#endif
 
 extern MPI_Comm PETSCFEM_COMM_WORLD;
 extern int MY_RANK,SIZE;
@@ -562,20 +569,14 @@ void detj_error(double &detJaco,int elem);
 #define CHKERRA CHKERRQ
 
 
-#if (PETSC_VERSION_MAJOR    == 2 && \
-     PETSC_VERSION_MINOR    == 3 && \
-     PETSC_VERSION_SUBMINOR == 2 && \
-     PETSC_VERSION_RELEASE  == 1)
+#if PETSC_VERSION_(2,3,2)
 #define VecScatterBegin(ctx,x,y,im,sm) \
         VecScatterBegin((x),(y),(im),(sm),(ctx))
 #define VecScatterEnd(ctx,x,y,im,sm) \
         VecScatterEnd((x),(y),(im),(sm),(ctx))
 #endif
 
-#if (PETSC_VERSION_MAJOR    == 2 && \
-     PETSC_VERSION_MINOR    == 3 && \
-     PETSC_VERSION_SUBMINOR == 2 && \
-     PETSC_VERSION_RELEASE  == 1)
+#if PETSC_VERSION_(2,3,2)
 #define KSPMonitorSet KSPSetMonitor
 #define KSPMonitorCancel KSPClearMonitor
 #define KSPMonitorDefault  KSPDefaultMonitor
@@ -584,15 +585,7 @@ void detj_error(double &detJaco,int elem);
 #define KSPMonitorLG KSPLGMonitor
 #endif
 
-#if (PETSC_VERSION_MAJOR    == 2 && \
-     PETSC_VERSION_MINOR    == 3 && \
-     PETSC_VERSION_SUBMINOR == 2 && \
-     PETSC_VERSION_RELEASE  == 1)   \
-                ||                  \
-    (PETSC_VERSION_MAJOR    == 2 && \
-     PETSC_VERSION_MINOR    == 3 && \
-     PETSC_VERSION_SUBMINOR == 3 && \
-     PETSC_VERSION_RELEASE  == 1)
+#if PETSC_VERSION_(2,3,3) || PETSC_VERSION_(2,3,2)
 #define MatSetOption(mat,opt,flg) MatSetOption( (mat), (assert(flg),(opt)) )
 #endif
 

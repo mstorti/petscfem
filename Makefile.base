@@ -77,9 +77,6 @@ ifeq ($(GNUCXX),)
 GNUCXX = g++
 endif
 
-CFLAGS	         =
-FFLAGS	         = 
-
 BISON = bison -d
 
 ifeq ($(TAGINCL),)
@@ -100,7 +97,8 @@ endif
 ifeq ($(PETSC_ARCH),)
 PETSC_ARCH=linux-gnu-$(BOPT)
 endif
-ifneq ($(PETSC_DEV),)
+
+ifeq (${PETSC_DIR}/conf/base,$(wildcard ${PETSC_DIR}/conf/base)) 
 include ${PETSC_DIR}/conf/base
 else
 include ${PETSC_DIR}/bmake/common/base
@@ -260,12 +258,12 @@ endif
 #w Create preprocessed files
 %.cppi: %.cpp force
 	if [ -e $@ ] ; then chmod +w $@ ; fi
-	g++ -E $(CFLAGS) $(CPPFLAGS) $< > $@ ; chmod u-w $@
+	g++ -E ${CFLAGS} $(CPPFLAGS) $< > $@ ; chmod u-w $@
 
 #w Create preprocessed files
 %.hi: %.h force
 	if [ -e $@ ] ; then chmod +w $@ ; fi
-	g++ -E $(CFLAGS) $(CPPFLAGS) $< > $@ ; chmod u-w $@
+	g++ -E ${CFLAGS} $(CPPFLAGS) $< > $@ ; chmod u-w $@
 
 #w Extension functions
 %.efn: %.o
@@ -277,7 +275,7 @@ endif
 
 # Create preprocessed files
 print_cppflags_for_emacs_macro_expansion: 
-	@echo $(CFLAGS) $(CPPFLAGS)
+	@echo ${CFLAGS} $(CPPFLAGS)
 
 # general elements to be removed in all cases.
 general_clean: 
