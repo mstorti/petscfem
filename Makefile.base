@@ -362,7 +362,7 @@ LDFLAGS_NO_PROG_LIB =					\
 	  $(OMP_LDFLAGS)
 
 ifneq ($(MKLPATH),)
-CPPFLAGS += -I$(MKLPATH)/include -DUSE_MKL_FIX
+CPPFLAGS += -I$(MKL_INCLUDE) -DUSE_MKL_FIX
 LDFLAGS += -lmkl_gf_lp64 -lmkl_gnu_thread -lmkl_core -lpetscfem$(osfx)
 #	-lpthread -lgfortran ./mkl_gf.o
 endif
