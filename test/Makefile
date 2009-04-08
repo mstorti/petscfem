@@ -119,9 +119,10 @@ runtests: compile sector oscplate fastmat2 plano idmap constraint_bug 	 \
 	advec nsgenload cubcav project embgath alebcconv
 
 rp: runtests_p
-runtests_p: newff burgers bug100 genload 	 \
+runtests_p: plano idmap constraint_bug 	 \
+	fstack advdif texthash log_vars newff burgers bug100 genload 	 \
 	lupart distmap sparse graph sqcav pfmat aquifer nutatcyl mmove 	 \
-	advec nsgenload cubcav project embgath
+	advec nsgenload cubcav project embgath alebcconv
 
 #s Specific tests
 #----<*>----------<*>----------<*>----------<*>----------<*>----------<*>-----

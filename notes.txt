@@ -13982,3 +13982,37 @@ elapsed: 1.974 [sec], ops: 4.000 [Gflop], rate: 2.026 [Gflops]
 %
 Esto estaría de acuerdo con las performances obtenidas con las Atlas,
 descriptos en la tabla anterior. 
+
+%=== Wed Apr  8 06:24:21 2009 mstorti@galileo
+%
+%-- 06:24:21 -- fastmat2-omp-start-10-gb736ac9 -----
+Corro los tests con la version MKL
+-- CON G-C++
+CAN'T OPEN:
+genload/save.case_genl1d.tmp
+genload/save.case_genl1dh.tmp
+NOT-OK
+sqcav/check.fs.verif.tmp
+idmap/tidmap.sal
+newff/adv_temp_cp.vrf.tmp
+newff/full_full_jacs_cp.vrf.tmp
+newff/full_full_jacs_adv_cp.vrf.tmp
+newff/adv_temp_cp_iisd.vrf.tmp
+distmap/dist_graph.np2.out.tmp
+distmap/dist_graph.np3.out.tmp
+-- CON O-C++
+CAN'T OPEN:
+genload/save.case_genl1d.tmp
+genload/save.case_genl1dh.tmp
+NOT-OK
+sqcav/check.fs.verif.tmp
+idmap/tidmap.sal
+newff/adv_temp_cp.vrf.tmp
+newff/full_full_jacs_cp.vrf.tmps
+newff/full_full_jacs_adv_cp.vrf.tmp
+newff/adv_temp_cp_iisd.vrf.tmp
+distmap/dist_graph.np3.out.tmp
+-----
+O sea que son los mismos. Los de DIST-GRAPH sabemos que es porque no
+escriben bien. O sea quedan los 6 de siempre y los nuevos de genload. 
+

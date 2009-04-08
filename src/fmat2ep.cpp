@@ -699,8 +699,8 @@ FastMat2 & FastMat2::prod(const FastMat2 & A,const FastMat2 & B,
 
     int superlinear = 0, lda=-1, ldb=-1, ldc, na=-1, nb=-1;
     double *paa0=NULL, *pbb0=NULL, *pcc0=NULL;
-#if 0
     {
+#if 0
       // Detect if operation is superlinear
       LineCache *lc0, *lc1, *lc;
       int inca, incb, incc;
@@ -750,6 +750,7 @@ FastMat2 & FastMat2::prod(const FastMat2 & A,const FastMat2 & B,
     NOT_SL: 
       printf("superlinear with na %d, lda %d, nb %d, ldb %d, ldc %d\n",
              na,lda,nb,ldb,ldc);
+#endif
     
       psc = new prod_subcache;
       assert(psc);
@@ -767,7 +768,6 @@ FastMat2 & FastMat2::prod(const FastMat2 & A,const FastMat2 & B,
         psc->pcc0 = pcc0;
       }
     }
-#endif
   }
 
   psc = dynamic_cast<prod_subcache *> (cache->sc);
