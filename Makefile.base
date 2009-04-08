@@ -363,8 +363,10 @@ LDFLAGS_NO_PROG_LIB =					\
 
 ifneq ($(MKLPATH),)
 CPPFLAGS += -I$(MKL_INCLUDE) -DUSE_MKL_FIX
-LDFLAGS += -lmkl_gf_lp64 -lmkl_gnu_thread -lmkl_core -lpetscfem$(osfx)
+MKL_LDFLAGS := -lmkl_gf_lp64 -lmkl_gnu_thread -lmkl_core -lpetscfem$(osfx)
 #	-lpthread -lgfortran ./mkl_gf.o
+LDFLAGS += $(MKL_LDFLAGS)
+LDFLAGS_NO_PROG_LIB += $(MKL_LDFLAGS)
 endif
 
 EFN_LDFLAGS =	
