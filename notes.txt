@@ -14016,3 +14016,46 @@ distmap/dist_graph.np3.out.tmp
 O sea que son los mismos. Los de DIST-GRAPH sabemos que es porque no
 escriben bien. O sea quedan los 6 de siempre y los nuevos de genload. 
 
+%=== Wed Apr  8 20:21:48 2009 mstorti@galileo
+%
+%-- 20:21:48 -- fastmat2-omp-start-14-g9fce5ee -----
+Tratando de ver el tema de la `sueprlinealidad', o sea en general un
+producto de matrices seria
+%
+for (int j=0; j<m; j++) {
+    for (int k=0; k<n; k++) {
+        sum = 0.0;
+        for (int l=0; l<p; l++) 
+            sum += a(j,l)*b(l,k);
+        c(j,k) = sum;
+    }
+}
+
+Eso quiere decir que en cada lazo interno visitamos strides
+a(j,.) y b(.,l) y seteamos en los valores c(j,k). Los strides tienen
+que ser de espaciamiento constante entre si. Ademas las posiciones de
+las matrices visitadas son
+
+c(j,k)
+stride que empieza en a(j,0)
+stride que empieza en b(0,k)
+
+O sea que para ver que es superlineal. 
+* Todos los strides tienen que ser lineales
+  llamamos `incrowa' al stride de a e `inccolb' al stride de b
+
+* los target c(j,k) deben ser matriciales
+  &c(j,k) = &c(0,0) + incrowc * j + inccolc * k
+
+* los comienzos de stride de a deben ser matriciales
+  &a(j,0) = &a(0,0) + j*incrowa
+
+* los comienzos de stride de b deben ser matriciales
+
+Que sean matriciales quiere decir que deben ser de la forma
+
+target(j,k) = 
+
+* para los strides de a debe ser cierto uno de los dos siguientes
+
+**  
