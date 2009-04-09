@@ -65,7 +65,7 @@ int superl_helper_t
   if (j<N) {
     if (N%n!=0) return 0;
     m = N/n;
-    incrow = dp - n*inccol;
+    incrow = dp;
     int l = 0;
     for (int j=0; j<m; j++) {
       for (int k=0; k<n; k++) {
@@ -267,9 +267,19 @@ FastMat2 & FastMat2::prod(const FastMat2 & A,const FastMat2 & B,
     {
       superl_helper_t obj(cache->line_cache_start);
       int sl,m,n,incc,incr;
-      sl=obj.has_rmo(cache->nlines,superl_helper_t::c,
+      sl = obj.has_rmo(cache->nlines,superl_helper_t::c,
                   m,n,incc,incr);
-      printf("sl %d, m %d, n %d, incc %d, incr %d\n",
+      printf("check C: sl %d, m %d, n %d, incc %d, incr %d\n",
+             sl,m,n,incc,incr);
+
+      sl=obj.has_rmo(cache->nlines,superl_helper_t::a,
+                  m,n,incc,incr);
+      printf("check A: sl %d, m %d, n %d, incc %d, incr %d\n",
+             sl,m,n,incc,incr);
+
+      sl=obj.has_rmo(cache->nlines,superl_helper_t::b,
+                  m,n,incc,incr);
+      printf("check B: sl %d, m %d, n %d, incc %d, incr %d\n",
              sl,m,n,incc,incr);
       exit(0);
 #if 0
