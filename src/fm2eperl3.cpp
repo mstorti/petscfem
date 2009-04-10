@@ -300,10 +300,10 @@ FastMat2 & FastMat2::prod(const FastMat2 & A,const FastMat2 & B,
       // Check whether A is transpose or not
       if (inca==1 && incc==0) {
         transa = CblasNoTrans;
-        lda = incr; nra = nr; nca = nc;
-      } else if (incr==0 && incc==1) {
+        lda = incr; nra = nr; nca = cache->line_size;
+      } else if (incc==0 && incr==1) {
         transa = CblasTrans;
-        lda = inca; nra = nc; nca = nr;
+        lda = inca; nca = cache->line_size; nra = nr;
       } else goto NOT_SL;
 
       // Check addresses in B are RMO
@@ -311,14 +311,14 @@ FastMat2 & FastMat2::prod(const FastMat2 & A,const FastMat2 & B,
                   nr,nc,incr,incc);
       if (!sl) goto NOT_SL;
       // Check whether B is transpose or not
-      if (incb==1 && incc==0) {
+      if (incb==1 && incr==0) {
         transb = CblasTrans;
-        ldb = incr;
-        nrb = nc; ncb = nr;
+        ldb = incc;
+        ncb = nc; nrb = cache->line_size;
       } else if (incr==0 && incc==1) {
-        transa = CblasNoTrans;
+        transb = CblasNoTrans;
         ldb = incb;
-        nrb = nr; ncb = nc;
+        nrb = cache->line_size; ncb = nc;
       } else goto NOT_SL;
 
       // Verify matrix dimensions are OK
