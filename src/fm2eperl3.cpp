@@ -16,7 +16,8 @@
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>
 class prod_subcache : public FastMatSubCache {
 public:
-  int superlinear, lda, ldb, ldc, na, nb;
+  int superlinear, lda, ldb, ldc, nra, nca, ncb;
+  CBLAS_TRANSPOSE transa, transb;
   double *paa0, *pbb0, *pcc0;
 };
 
@@ -265,26 +266,87 @@ FastMat2 & FastMat2::prod(const FastMat2 & A,const FastMat2 & B,
     ctx->op_count.sum += ntot;
     ctx->op_count.mult += ntot;
 
-    int superlinear = 0, lda=-1, ldb=-1, ldc, na=-1, nb=-1;
+    int superlinear = 0, lda=-1, ldb=-1, ldc, 
+      nra=-1, nca=-1, nrb=-1;
     double *paa0=NULL, *pbb0=NULL, *pcc0=NULL;
     {
       superl_helper_t obj(cache->line_cache_start);
-      int sl,m,n,incc,incr;
+      int sl,nr,nc,nra,nca,nrb,ncb,nrc,ncc,incc,incr,
+        inca,incb;
+      CBLAS_TRANSPOSE transa, transb;
+      LineCache *lc, *lc0 = cache->line_cache_start;
+      if (cache->nlines<2) goto NOT_SL;
+
+      inca = lc0->inca;
+      incb = lc0->incb;
+      // Check all increments are equal
+      for (int j=1; j<cache->nlines; j++) {
+        lc = cache->line_cache_start+j;
+        if (lc->inca != inca) goto NOT_SL;
+        if (lc->incb != incb) goto NOT_SL;
+      }
+
+      // Check addresses in target (matrix result C) are RMO
       sl = obj.has_rmo(cache->nlines,superl_helper_t::c,
-                  m,n,incc,incr);
-      printf("check C: sl %d, m %d, n %d, incc %d, incr %d\n",
-             sl,m,n,incc,incr);
+                  nrc,ncc,incc,incr);
+      // rows in C must be contiguous
+      if (!sl || incr!=1) goto NOT_SL;
 
-      sl=obj.has_rmo(cache->nlines,superl_helper_t::a,
-                  m,n,incc,incr);
-      printf("check A: sl %d, m %d, n %d, incc %d, incr %d\n",
-             sl,m,n,incc,incr);
+      // Check addresses in A are RMO
+      sl = obj.has_rmo(cache->nlines,superl_helper_t::a,
+                  nr,nc,incc,incr);
+      if (!sl) goto NOT_SL;
+      // Check whether A is transpose or not
+      if (inca==1 && incc==0) {
+        transa = CblasNoTrans;
+        lda = incr; nra = nr; nca = nc;
+      } else if (incr==0 && incc==1) {
+        transa = CblasTrans;
+        lda = inca; nra = nc; nca = nr;
+      } else goto NOT_SL;
 
-      sl=obj.has_rmo(cache->nlines,superl_helper_t::b,
-                  m,n,incc,incr);
-      printf("check B: sl %d, m %d, n %d, incc %d, incr %d\n",
-             sl,m,n,incc,incr);
+      // Check addresses in B are RMO
+      sl = obj.has_rmo(cache->nlines,superl_helper_t::b,
+                  nr,nc,incc,incr);
+      if (!sl) goto NOT_SL;
+      // Check whether B is transpose or not
+      if (incb==1 && incc==0) {
+        transb = CblasTrans;
+        ldb = incr;
+        nrb = nc; ncb = nr;
+      } else if (incr==0 && incc==1) {
+        transa = CblasNoTrans;
+        ldb = incb;
+        nrb = nr; ncb = nc;
+      } else goto NOT_SL;
+
+      // Verify matrix dimensions are OK
+      assert(nca==nrb);
+      assert(nra==nrc);
+      assert(ncb==ncc);
+
+      printf("check B: sl %d, nr %d, nc %d, incc %d, incr %d\n",
+             sl,nr,nc,incc,incr);
+
+      printf("check C: sl %d, nr %d, nc %d, incc %d, incr %d\n",
+             sl,nr,nc,incc,incr);
+
+      printf("check A: sl %d, nr %d, nc %d, incc %d, incr %d\n",
+             sl,nr,nc,incc,incr);
+
+      superlinear=1;
+#define SHTRANS(trans) (trans==CblasTrans? 1 : 0)
+      printf("superlinear with:\n"
+             "A: transp %d, nr %d, nc %d, ld %d\n"
+             "B: transp %d, nr %d, nc %d, ld %d\n"
+             "C: ld %d\n",
+             SHTRANS(transa),nra,nca,lda,
+             SHTRANS(transb),nrb,ncb,ldb,
+             ldc);
+    NOT_SL: 
+
       exit(0);
+
 #if 0
       // Detect if operation is superlinear
       LineCache *lc0, *lc1, *lc;
@@ -343,9 +405,10 @@ FastMat2 & FastMat2::prod(const FastMat2 & A,const FastMat2 & B,
       cache->sc = psc;
       psc->superlinear = superlinear;
       if (superlinear) {
-        psc->na = na;
+        psc->nra = nra;
+        psc->nca = nca;
         psc->lda = lda;
-        psc->nb = nb;
+        psc->ncb = ncb;
         psc->ldb = ldb;
         psc->ldc = ldc;
         psc->paa0 = paa0;
@@ -360,8 +423,8 @@ FastMat2 & FastMat2::prod(const FastMat2 & A,const FastMat2 & B,
 
   if (psc->superlinear) {
     int p = cache->line_size;
-    cblas_dgemm(CblasRowMajor,CblasNoTrans,CblasNoTrans,
-                psc->na,psc->nb,p,1.0,
+    cblas_dgemm(CblasRowMajor,psc->transa,psc->transb,
+                psc->nra,psc->ncb,psc->nca,1.0,
                 psc->paa0,psc->lda,psc->pbb0,psc->ldb,0.0,
                 psc->pcc0,psc->ldc);
   } else {
