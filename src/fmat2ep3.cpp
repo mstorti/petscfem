@@ -38,7 +38,7 @@ public:
       return line_cache_start[j].target;
     else assert(0);
   }
-  int has_rmo(int N,mode_t mode,int &m,int &n, 
+  int has_rmo(int N,mode_t mode,int &nrow,int &ncol, 
               int &inccol, int &incrow);
 };
 
@@ -50,7 +50,7 @@ public:
 //   &aa(k,l) = &aa(0,0) + inccol*k + rowcol*l
 int superl_helper_t
 ::has_rmo(int N,mode_t mode,int &m,int &n, 
-          int &inccol, int &incrow) {
+          int &incrow, int &inccol) {
   m=1; n=2; inccol=1; incrow=1;
   if (N<2) return 1;
 
@@ -285,13 +285,14 @@ FastMat2 & FastMat2::prod(const FastMat2 & A,const FastMat2 & B,
 
       // Check addresses in target (matrix result C) are RMO
       sl = obj.has_rmo(cache->nlines,superl_helper_t::c,
-                  nrc,ncc,incc,incr);
+                  nrc,ncc,incr,incc);
       // rows in C must be contiguous
-      if (!sl || incr!=1) goto NOT_SL;
+      if (!sl || incc!=1) goto NOT_SL;
+      ldc = incr;
 
       // Check addresses in A are RMO
       sl = obj.has_rmo(cache->nlines,superl_helper_t::a,
-                  nr,nc,incc,incr);
+                  nr,nc,incr,incc);
       if (!sl) goto NOT_SL;
       // Check whether A is transpose or not
       if (inca==1 && incc==0) {
@@ -304,7 +305,7 @@ FastMat2 & FastMat2::prod(const FastMat2 & A,const FastMat2 & B,
 
       // Check addresses in B are RMO
       sl = obj.has_rmo(cache->nlines,superl_helper_t::b,
-                  nr,nc,incc,incr);
+                  nr,nc,incr,incc);
       if (!sl) goto NOT_SL;
       // Check whether B is transpose or not
       if (incb==1 && incc==0) {
