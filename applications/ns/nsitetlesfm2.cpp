@@ -621,7 +621,7 @@ assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
 
 	// Galerkin - momentum
 	// resmom tiene que tener nel*ndim
-	dresmom.t().prod(dmatu,SHAPE,1,2).rs();
+	dresmom.prod(SHAPE,dmatu,1,2).rs();
 	resmom.axpy(dresmom,-wpgdet * rho);
 
 	if (weak_form) {

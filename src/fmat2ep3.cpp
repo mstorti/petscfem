@@ -37,6 +37,7 @@ public:
     else if (mode==c) 
       return line_cache_start[j].target;
     else assert(0);
+    return NULL;
   }
   int has_rmo(int N,mode_t mode,int &nrow,int &ncol, 
               int &inccol, int &incrow);
@@ -51,13 +52,12 @@ public:
 int superl_helper_t
 ::has_rmo(int N,mode_t mode,int &m,int &n, 
           int &incrow, int &inccol) {
-  m=1; n=2; inccol=1; incrow=1;
-  if (N<2) return 1;
+  m=1; n=2; inccol=1; incrow=0;
+  if (N<2) return 0;
 
   double *aa00 = address(0,mode);
   inccol = address(1,mode) - aa00; 
   int dp, j;
-  m=1; incrow = N;
   for (j=2; j<N; j++) {
     dp = address(j,mode) - aa00;
     if (dp != j*inccol) break;
@@ -272,7 +272,7 @@ FastMat2 & FastMat2::prod(const FastMat2 & A,const FastMat2 & B,
         inca,incb;
       CBLAS_TRANSPOSE transa, transb;
       LineCache *lc, *lc0 = cache->line_cache_start;
-      if (cache->nlines<2) goto NOT_SL;
+      if (cache->nlines<2) goto NOT_SL_OK;
 
       inca = lc0->inca;
       incb = lc0->incb;
@@ -283,16 +283,16 @@ FastMat2 & FastMat2::prod(const FastMat2 & A,const FastMat2 & B,
         if (lc->incb != incb) goto NOT_SL;
       }
 
-      // Check addresses in target (matrix result C) are RMO
-      sl = obj.has_rmo(cache->nlines,superl_helper_t::c,
-                  nrc,ncc,incr,incc);
-      // rows in C must be contiguous
-      if (!sl || incc!=1) goto NOT_SL;
-      ldc = incr;
-
       // Check addresses in A are RMO
       sl = obj.has_rmo(cache->nlines,superl_helper_t::a,
                   nr,nc,incr,incc);
+      // if (sl && (nr==1 || nc==1)) goto NOT_SL_OK;
+      // For A prefer to use column type
+      if (nr==1) {
+        nr=nc; nca=1; 
+        incr = incc; incc=0;
+      }
+
       if (!sl) goto NOT_SL;
       // Check whether A is transpose or not
       if (inca==1 && incc==0) {
@@ -305,7 +305,8 @@ FastMat2 & FastMat2::prod(const FastMat2 & A,const FastMat2 & B,
 
       // Check addresses in B are RMO
       sl = obj.has_rmo(cache->nlines,superl_helper_t::b,
-                  nr,nc,incr,incc);
+                       nr,nc,incr,incc);
+      // if (sl && (nr==1 || nc==1)) goto NOT_SL_OK;
       if (!sl) goto NOT_SL;
       // Check whether B is transpose or not
       if (incb==1 && incr==0) {
@@ -317,6 +318,14 @@ FastMat2 & FastMat2::prod(const FastMat2 & A,const FastMat2 & B,
         ldb = incb;
         nrb = cache->line_size; ncb = nc;
       } else goto NOT_SL;
+
+      // Check addresses in target (matrix result C) are RMO
+      sl = obj.has_rmo(cache->nlines,superl_helper_t::c,
+                  nrc,ncc,incr,incc);
+      // if (sl && (nrc==1 || ncc==1)) goto NOT_SL_OK;
+      // rows in C must be contiguous
+      if (!sl || incc!=1) goto NOT_SL;
+      ldc = incr;
 
       // Verify matrix dimensions are OK
       assert(nca==nrb);
@@ -342,9 +351,10 @@ FastMat2 & FastMat2::prod(const FastMat2 & A,const FastMat2 & B,
              SHTRANS(transb),nrb,ncb,ldb,
              ldc);
     NOT_SL: 
+      if (!superlinear) assert(0);
 
-      exit(0);
-
+    NOT_SL_OK: 
+      superlinear = 0;
 #if 0
       // Detect if operation is superlinear
       LineCache *lc0, *lc1, *lc;
@@ -393,8 +403,8 @@ FastMat2 & FastMat2::prod(const FastMat2 & A,const FastMat2 & B,
       }
       superlinear=1;
     NOT_SL: 
-//       printf("superlinear with na %d, lda %d, nb %d, ldb %d, ldc %d\n",
-//              na,lda,nb,ldb,ldc);
+      printf("superlinear with na %d, lda %d, nb %d, ldb %d, ldc %d\n",
+             na,lda,nb,ldb,ldc);
 #endif
     
       psc = new prod_subcache;
