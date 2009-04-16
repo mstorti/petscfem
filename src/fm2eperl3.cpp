@@ -134,7 +134,8 @@ int superl_helper_t
   if (N<2) return 0;
 
   double *aa00 = address(0,mode);
-  inc1 = address(1,mode) - aa00; 
+  inc1 = 1;
+  if (N>1) inc1 = address(1,mode) - aa00; 
   inccol = (mode==a? cache->line_cache_start->inca :
             mode==b? cache->line_cache_start->incb : -1);
   assert(inccol!=-1);
@@ -148,25 +149,18 @@ int superl_helper_t
   }
 
   size2=j;
-  if (j<N) {
-    if (N%size2 != 0) return 0;
-    size1 = N/size2;
-    inc2 = dp;
-    int l = 0;
-    for (int j=0; j<size1; j++) {
-      for (int k=0; k<size2; k++) {
-        dp = address(l,mode) - aa00; 
-        if (dp != inc2*j + inc1*k)
-          return 0;
-        l++;
-      }
+  if (N%size2 != 0) return 0;
+  size1 = N/size2;
+  inc2 = dp;
+  if (size1==1) inc2 = !dp;
+  int l = 0;
+  for (int j=0; j<size1; j++) {
+    for (int k=0; k<size2; k++) {
+      dp = address(l,mode) - aa00; 
+      if (dp != inc2*j + inc1*k)
+        return 0;
+      l++;
     }
-  }
-  // This is a vector
-  if (inc1==0 && inc2==0) {
-    printf("vector of size %d\n",
-           cache->line_size);
-    return 0;
   }
   
   // It is a matrix
@@ -176,11 +170,11 @@ int superl_helper_t
   if (inc1==0) {
     trvmode = MODE_SHORT;
     incrow = inc2;
-    nrow = size2;
+    nrow = size1;
   } else {
     trvmode = MODE_LONG;
     incrow = inc1;
-    nrow = size1;
+    nrow = size2;
   }
 
   printf("nrow %d, ncol %d, incrow %d, inccol %d, trvmode %s, "
