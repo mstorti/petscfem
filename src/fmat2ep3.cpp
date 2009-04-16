@@ -4,6 +4,7 @@
 //__INSERT_LICENSE__
 //$Id merge-with-petsc-233-50-g0ace95e Fri Oct 19 17:49:52 2007 -0300$
 #include <math.h>
+#include <algorithm>
 #include <stdio.h>
 #include <mkl_cblas.h>
 
@@ -43,15 +44,12 @@ public:
   }
   int has_rmo(int N,mode_t mode,int stride,
               int &nrow,int &ncol,int &inccol, int &incrow);
-#define ST_BY_ROWS 0
-#define ST_BY_COLS 1
-
 #define MODE_SHORT 0
 #define MODE_LONG 1
   int has_rmo2(mode_t mode,
                int &nrow,int &ncol,
                int &incrow, int &inccol,
-               int &stride_type, int &trvmode);
+               int &byrows, int &trvmode);
 };
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>
@@ -124,12 +122,11 @@ int superl_helper_t
 int superl_helper_t
 ::has_rmo2(mode_t mode,int &nrow,int &ncol,
            int &incrow, int &inccol,
-           int &stride_type, int &trvmode) {
+           int &byrows, int &trvmode) {
 
   int inc1=0, inc2=0, size1, size2;
   LineCache *line_cache_start=NULL;
   int N = cache->nlines;
-  if (N<2) return 0;
 
   double *aa00 = address(0,mode);
   inc1 = 1;
@@ -164,7 +161,7 @@ int superl_helper_t
   // It is a matrix
   assert(inc1==0 || inc2==0);
   
-  stride_type = ST_BY_ROWS;
+  byrows = 1;
   if (inc1==0) {
     trvmode = MODE_SHORT;
     incrow = inc2;
@@ -175,10 +172,19 @@ int superl_helper_t
     nrow = size2;
   }
 
+  if (inccol!=1) {
+    if (incrow!=1) return 0;
+    else {
+      // swap rows with cols
+      swap(inccol,incrow);
+      swap(ncol,nrow);
+      byrows = !byrows;
+    }
+  }
+  
   printf("nrow %d, ncol %d, incrow %d, inccol %d, trvmode %s, "
-         "stride_type %s\n",nrow,ncol,incrow,inccol,
-         (trvmode==MODE_SHORT? "short" : "long"),
-         (stride_type==ST_BY_ROWS? "by-rows" : "by-cols"));
+         "byrows %d\n",nrow,ncol,incrow,inccol,
+         (trvmode==MODE_SHORT? "short" : "long"),byrows);
   
   return 1;
 }
@@ -370,13 +376,42 @@ FastMat2 & FastMat2::prod(const FastMat2 & A,const FastMat2 & B,
       nra=-1, nca=-1, nrb=-1;
     double *paa0=NULL, *pbb0=NULL, *pcc0=NULL;
     {
-      int sl, nrow,ncol, incrow, inccol, stride_type, trvmode;
+      int sl, 
+        nrowa,ncola,incrowa,inccola,byrowsa,trvmodea,
+        nrowb,ncolb,incrowb,inccolb,byrowsb,trvmodeb;
+      int nrowopa,ncolopa,nrowopb,ncolopb,transa,transb;
+        
       superl_helper_t obj(cache);
 
       sl = obj.has_rmo2(superl_helper_t::a,
-                        nrow,ncol,incrow,inccol,stride_type,trvmode);
+                        nrowa,ncola,incrowa,inccola,byrowsa,trvmodea);
+      if (!sl) goto NOT_SL;
       sl = obj.has_rmo2(superl_helper_t::b,
-                        nrow,ncol,incrow,inccol,stride_type,trvmode);
+                        nrowb,ncolb,incrowb,inccolb,byrowsb,trvmodeb);
+      if (!sl) goto NOT_SL;
+      
+      // opa: refers to op(A) in BLAS documentation
+      nrowopa=nrowa; ncolopa=ncola;
+      nrowopb=nrowb; ncolopb=ncolb;
+      transa=0; transb=0;
+      
+      if (!byrowsa) {
+        swap(nrowopa,ncolopa);
+        transa=1;
+      }
+      if (byrowsb) {
+        swap(nrowopb,ncolopb);
+        transb=1;
+      }
+      assert(ncolopa==nrowopb);
+      printf("args to dgemm:\n");
+      printf("   A: %d x %d, lda %d, trans %d\n",
+             nrowopa,ncolopa,incrowa,transa);
+      printf("   B: %d x %d, lda %d, trans %d\n",
+             nrowopb,ncolopb,incrowb,transb);
+
+    NOT_SL: 
+      superlinear = 0;
 
 #if 0
       superl_helper_t obj(cache);
