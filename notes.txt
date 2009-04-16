@@ -14058,4 +14058,65 @@ target(j,k) =
 
 * para los strides de a debe ser cierto uno de los dos siguientes
 
-**  
+... [parece que no termine con la idea!!]
+
+%=== Tue Apr 14 19:22:14 2009 mstorti@galileo
+%
+%-- 19:22:14 -- fastmat2-omp-start-20-gaffd1d3 -----
+A ver otro enfoque:
+%
+Para cada una de A y B tenemos lo siguiente:
+
+* Una serie de posiciones &a(j,k) = a(0,0)+incrow*j+inccol*k
+  j in [0,nrows), k in [0,ncols). 
+
+* O sea que las posiciones quedan definidas por
+  (nrows,ncols,incrow,inccol). 
+
+* Si uno de ellos nrows o ncols es 1 el `inc' correspondiente es
+  irrelevante. En ese caso ponemos el inc a 1. 
+
+* Se puede permutar el indice de filas y columnas, por ejemplo
+  (n1,n2,inc1,inc2) == (n2,n1,inc2,inc1)
+  Para usar dgemm hay que hacer que inccol sea 1, o sea que 
+  habria que permutar de forma que inccol sea el minimo y verificar
+  que sea 1. 
+
+* Modo de recorrido:
+  Los strides son recorridos en orden 
+  %
+  a(0,.) x ncolsb veces,
+  a(1,.) x ncolsb veces,
+  ...
+  a(nrowsa-1,.) x ncolsb veces,
+  %
+  Si A participa de un producto B*A, entonces las columnas se acceden
+  de la siguiente forma
+  %
+  (a(.,0), a(.,1),...,   a(.,ncolsa-1)) x nrowsb veces
+  % 
+  Si A participa de A'*B entonces el recorrido es
+  a(.,0) x ncolsb veces
+  a(.,1) x ncolsb veces
+  ...
+  %
+  Mientras que si participa de B*A' entonces es
+  (a(0,.), a(1,.),...,   a(ncolsa-1,.)) x nrowsb veces
+  
+* La info seria entonces
+  (nrows,ncols,incrow,inccol,stride_type,mode)
+
+  stride_type: by_rows, by_cols (cada stride es una fila o una columna)
+             
+  mode: short (recorre los strides en forma creciente)
+        long  (recorre los strides en forma escalonada)
+        Normalmente el mode es long para A y short para B
+
+* Cuando hacemos A*B tenemos
+  A = (nrowsa,ncolsb,lda,1,by_rows,long)
+  B = (nrowsb,ncolsb,ldb,1,by_cols,short)
+  
+* Cuando hacemos A'*B
+  A = (nrowsa,ncolsb,lda,1,by_cols,long)
+  B = (nrowsb,ncolsb,ldb,1,by_cols,short)
+  

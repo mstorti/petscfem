@@ -27,10 +27,12 @@ public:
 // `is_superl()' below. 
 class superl_helper_t {
 public:
-  enum  mode_t { a,b,c };
+  enum  mode_t { a,b,c,none };
+  FastMatCache *cache;
   LineCache *line_cache_start;
-  superl_helper_t(LineCache *line_cache_start_a)
-    : line_cache_start(line_cache_start_a) { }
+  superl_helper_t(FastMatCache *cache_a)
+    : cache(cache_a), 
+      line_cache_start(cache->line_cache_start) { }
   double *address(int j, mode_t mode) {
     if (mode==a) 
       return *line_cache_start[j].starta;
@@ -41,8 +43,17 @@ public:
     else assert(0);
     return NULL;
   }
-  int has_rmo(int N,mode_t mode,int &nrow,int &ncol, 
-              int &inccol, int &incrow);
+  int has_rmo(int N,mode_t mode,int stride,
+              int &nrow,int &ncol,int &inccol, int &incrow);
+#define ST_BY_ROWS 0
+#define ST_BY_COLS 1
+
+#define MODE_SHORT 0
+#define MODE_LONG 1
+  int has_rmo2(mode_t mode,
+               int &nrow,int &ncol,
+               int &incrow, int &inccol,
+               int &stride_type, int &trvmode);
 };
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>
@@ -52,8 +63,11 @@ public:
 //
 //   &aa(k,l) = &aa(0,0) + inccol*k + rowcol*l
 int superl_helper_t
-::has_rmo(int N,mode_t mode,int &m,int &n, 
-          int &incrow, int &inccol) {
+::has_rmo(int N,mode_t mode,int stride, 
+          int &m,int &n,int &incrow, int &inccol) {
+
+#if 0
+  LineCache *line_cache_start;
   m=1; n=2; inccol=1; incrow=0;
   if (N<2) return 0;
 
@@ -79,6 +93,99 @@ int superl_helper_t
       }
     }
   }
+  // This is a vector
+  if (incrow==0 && inccol==0) {
+    printf("vector of size %d, stride %d\n",
+           cache->line_size,stride);
+  } else {
+    int nrow,ncol,s1,s2;
+    ncol = cache->line_size;
+    assert(incrow==0 != inccol==0);
+    if (incrow>0) {
+      nrow = nr;
+      s1 = incrow;
+      s2 = stride;
+    } else {
+      nrow = nc;
+      s1 = 
+    }
+    printf("matrix of size %d x %d, strides %d,%d\n",
+           cache->line_size,stride);
+  }
+#endif
+  assert(0);
+  return 1;
+}
+
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>
+// Determines whether a given set of addresses &a(j), with j
+// in[0,N) are in RMO (Rectangular Matrix Order). i.e. there
+// exists m,n such that if j = k*n+l and
+//
+//   &aa(k,l) = &aa(0,0) + inccol*k + rowcol*l
+int superl_helper_t
+::has_rmo2(mode_t mode,int &nrow,int &ncol,
+           int &incrow, int &inccol,
+           int &stride_type, int &trvmode) {
+
+  int inc1=0, inc2=0, size1, size2;
+  LineCache *line_cache_start=NULL;
+  int N = cache->nlines;
+  if (N<2) return 0;
+
+  double *aa00 = address(0,mode);
+  inc1 = address(1,mode) - aa00; 
+  inccol = (mode==a? cache->line_cache_start->inca :
+            mode==b? cache->line_cache_start->incb : -1);
+  assert(inccol!=-1);
+
+  ncol = cache->line_size;
+
+  int dp, j;
+  for (j=2; j<N; j++) {
+    dp = address(j,mode) - aa00;
+    if (dp != j*inc1) break;
+  }
+
+  size2=j;
+  if (j<N) {
+    if (N%size2 != 0) return 0;
+    size1 = N/size2;
+    inc2 = dp;
+    int l = 0;
+    for (int j=0; j<size1; j++) {
+      for (int k=0; k<size2; k++) {
+        dp = address(l,mode) - aa00; 
+        if (dp != inc2*j + inc1*k)
+          return 0;
+        l++;
+      }
+    }
+  }
+  // This is a vector
+  if (inc1==0 && inc2==0) {
+    printf("vector of size %d\n",
+           cache->line_size);
+    return 0;
+  }
+  
+  // It is a matrix
+  assert(inc1==0 || inc2==0);
+  
+  stride_type = ST_BY_ROWS;
+  if (inc1==0) {
+    trvmode = MODE_SHORT;
+    incrow = inc2;
+    nrow = size2;
+  } else {
+    trvmode = MODE_LONG;
+    incrow = inc1;
+    nrow = size1;
+  }
+
+  printf("ncol %d, nrow %d, inccol %d, incow %d, trvmode %s, "
+         "stride_type %s\n",ncols);
+  
   return 1;
 }
 
@@ -270,7 +377,14 @@ FastMat2 & FastMat2::prod(const FastMat2 & A,const FastMat2 & B,
       nra=-1, nca=-1, nrb=-1;
     double *paa0=NULL, *pbb0=NULL, *pcc0=NULL;
     {
-      superl_helper_t obj(cache->line_cache_start);
+      int nrow,ncol, incrow, inccol, stride_type, trvmode;
+      sl = obj.has_rmo2(superl_helper_t::a,
+                        nrow,ncol,incrow,inccol,stride_type,trvmode);
+      sl = obj.has_rmo2(superl_helper_t::b,
+                        nrow,ncol,incrow,inccol,stride_type,trvmode);
+
+#if 0
+      superl_helper_t obj(cache);
       int sl,nr,nc,nra,nca,nrb,ncb,nrc,ncc,incc,incr,
         inca,incb;
       CBLAS_TRANSPOSE transa, transb;
@@ -288,11 +402,25 @@ FastMat2 & FastMat2::prod(const FastMat2 & A,const FastMat2 & B,
 
       // Check addresses in A are RMO
       sl = obj.has_rmo(cache->nlines,superl_helper_t::a,
-                  nr,nc,incr,incc);
+                       inca,nr,nc,incr,incc);
+      printf("A: nr %d, nc %d, incr %d, incc %d, inc-stride %d, nlines %d\n",
+             nr,nc,incr,incc,inca,cache->line_size);
+
+      sl = obj.has_rmo(cache->nlines,superl_helper_t::b,
+                       incb,nr,nc,incr,incc);
+      printf("B: nr %d, nc %d, incr %d, incc %d, inc-stride %d, nlines %d\n",
+             nr,nc,incr,incc,incb,cache->line_size);
+
+      sl = obj.has_rmo(cache->nlines,superl_helper_t::c,
+                       0,nr,nc,incr,incc);
+      printf("C: nr %d, nc %d, incr %d, incc %d, nlines %d\n",
+             nr,nc,incr,incc,cache->line_size);
+      exit(0);
+
       // if (sl && (nr==1 || nc==1)) goto NOT_SL_OK;
       // For A prefer to use column type
       if (nr==1) {
-        nr=nc; nca=1; 
+        nr=nc; nc=1; 
         incr = incc; incc=0;
       }
 
@@ -358,6 +486,8 @@ FastMat2 & FastMat2::prod(const FastMat2 & A,const FastMat2 & B,
 
     NOT_SL_OK: 
       superlinear = 0;
+#endif
+
 #if 0
       // Detect if operation is superlinear
       LineCache *lc0, *lc1, *lc;
