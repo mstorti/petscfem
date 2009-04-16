@@ -376,7 +376,9 @@ FastMat2 & FastMat2::prod(const FastMat2 & A,const FastMat2 & B,
       nra=-1, nca=-1, nrb=-1;
     double *paa0=NULL, *pbb0=NULL, *pcc0=NULL;
     {
-      int nrow,ncol, incrow, inccol, stride_type, trvmode;
+      int sl, nrow,ncol, incrow, inccol, stride_type, trvmode;
+      superl_helper_t obj(cache);
+
       sl = obj.has_rmo2(superl_helper_t::a,
                         nrow,ncol,incrow,inccol,stride_type,trvmode);
       sl = obj.has_rmo2(superl_helper_t::b,
@@ -545,6 +547,7 @@ FastMat2 & FastMat2::prod(const FastMat2 & A,const FastMat2 & B,
       cache->sc = psc;
       psc->superlinear = superlinear;
       if (superlinear) {
+#if 0
         psc->nra = nra;
         psc->nca = nca;
         psc->lda = lda;
@@ -554,6 +557,7 @@ FastMat2 & FastMat2::prod(const FastMat2 & A,const FastMat2 & B,
         psc->paa0 = paa0;
         psc->pbb0 = pbb0;
         psc->pcc0 = pcc0;
+#endif
       }
     }
   }
