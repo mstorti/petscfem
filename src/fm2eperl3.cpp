@@ -601,6 +601,7 @@ FastMat2 & FastMat2::prod(const FastMat2 & A,const FastMat2 & B,
                 psc->nra,psc->ncb,psc->nca,1.0,
                 psc->paa0,psc->lda,psc->pbb0,psc->ldb,0.0,
                 psc->pcc0,psc->ldc);
+    *psc->pcc0 = 23.0;
   } else {
     // Perform computations using cached addresses
     int 
