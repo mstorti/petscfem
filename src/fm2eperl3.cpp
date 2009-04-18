@@ -15,6 +15,7 @@
 #include <src/fastlib2.h>
 
 int FASTMAT2_USE_DGEMM=1;
+int FASTMAT2_USE_DGEMM_VRBS=0;
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>
 class prod_subcache : public FastMatSubCache {
@@ -158,11 +159,13 @@ int superl_helper_t
       byrows = !byrows;
     }
   }
-  
+
+#if 0  
   printf("nrow %d, ncol %d, incrow %d, inccol %d, trvmode %s, "
          "byrows %d\n",nrow,ncol,incrow,inccol,
          (trvmode==MODE_SHORT? "short" : "long"),byrows);
-  
+#endif
+
   return 1;
 }
 
@@ -385,12 +388,13 @@ FastMat2 & FastMat2::prod(const FastMat2 & A,const FastMat2 & B,
         transb=1;
       }
       assert(ncolopa==nrowopb);
+#if 0
       printf("args to dgemm:\n");
       printf("   A: %d x %d, lda %d, trans %d\n",
              nrowopa,ncolopa,incrowa,transa);
       printf("   B: %d x %d, lda %d, trans %d\n",
              nrowopb,ncolopb,incrowb,transb);
-
+#endif
       sl = obj.has_rmo(nrowc,ncolc,incrowc,inccolc);
       // If C is traversed by columns then we should transpose all the
       // product: C' = B'*A', e.g. transpose A, B and exchange
@@ -411,171 +415,16 @@ FastMat2 & FastMat2::prod(const FastMat2 & A,const FastMat2 & B,
       pcc0 = lc0->target;
 
     NOT_SL: ;
-
-#if 0
-      superl_helper_t obj(cache);
-      int sl,nr,nc,nra,nca,nrb,ncb,nrc,ncc,incc,incr,
-        inca,incb;
-      CBLAS_TRANSPOSE transa, transb;
-      LineCache *lc, *lc0 = cache->line_cache_start;
-      if (cache->nlines<2) goto NOT_SL_OK;
-
-      inca = lc0->inca;
-      incb = lc0->incb;
-      // Check all increments are equal
-      for (int j=1; j<cache->nlines; j++) {
-        lc = cache->line_cache_start+j;
-        if (lc->inca != inca) goto NOT_SL;
-        if (lc->incb != incb) goto NOT_SL;
-      }
-
-      // Check addresses in A are RMO
-      sl = obj.has_rmo(cache->nlines,superl_helper_t::a,
-                       inca,nr,nc,incr,incc);
-      printf("A: nr %d, nc %d, incr %d, incc %d, inc-stride %d, nlines %d\n",
-             nr,nc,incr,incc,inca,cache->line_size);
-
-      sl = obj.has_rmo(cache->nlines,superl_helper_t::b,
-                       incb,nr,nc,incr,incc);
-      printf("B: nr %d, nc %d, incr %d, incc %d, inc-stride %d, nlines %d\n",
-             nr,nc,incr,incc,incb,cache->line_size);
-
-      sl = obj.has_rmo(cache->nlines,superl_helper_t::c,
-                       0,nr,nc,incr,incc);
-      printf("C: nr %d, nc %d, incr %d, incc %d, nlines %d\n",
-             nr,nc,incr,incc,cache->line_size);
-      exit(0);
-
-      // if (sl && (nr==1 || nc==1)) goto NOT_SL_OK;
-      // For A prefer to use column type
-      if (nr==1) {
-        nr=nc; nc=1; 
-        incr = incc; incc=0;
-      }
-
-      if (!sl) goto NOT_SL;
-      // Check whether A is transpose or not
-      if (inca==1 && incc==0) {
-        transa = CblasNoTrans;
-        lda = incr; nra = nr; nca = cache->line_size;
-      } else if (incc==0 && incr==1) {
-        transa = CblasTrans;
-        lda = inca; nca = cache->line_size; nra = nr;
-      } else goto NOT_SL;
-
-      // Check addresses in B are RMO
-      sl = obj.has_rmo(cache->nlines,superl_helper_t::b,
-                       nr,nc,incr,incc);
-      // if (sl && (nr==1 || nc==1)) goto NOT_SL_OK;
-      if (!sl) goto NOT_SL;
-      // Check whether B is transpose or not
-      if (incb==1 && incr==0) {
-        transb = CblasTrans;
-        ldb = incc;
-        ncb = nc; nrb = cache->line_size;
-      } else if (incr==0 && incc==1) {
-        transb = CblasNoTrans;
-        ldb = incb;
-        nrb = cache->line_size; ncb = nc;
-      } else goto NOT_SL;
-
-      // Check addresses in target (matrix result C) are RMO
-      sl = obj.has_rmo(cache->nlines,superl_helper_t::c,
-                  nrc,ncc,incr,incc);
-      // if (sl && (nrc==1 || ncc==1)) goto NOT_SL_OK;
-      // rows in C must be contiguous
-      if (!sl || incc!=1) goto NOT_SL;
-      ldc = incr;
-
-      // Verify matrix dimensions are OK
-      assert(nca==nrb);
-      assert(nra==nrc);
-      assert(ncb==ncc);
-
-      printf("check B: sl %d, nr %d, nc %d, incc %d, incr %d\n",
-             sl,nr,nc,incc,incr);
-
-      printf("check C: sl %d, nr %d, nc %d, incc %d, incr %d\n",
-             sl,nr,nc,incc,incr);
-
-      printf("check A: sl %d, nr %d, nc %d, incc %d, incr %d\n",
-             sl,nr,nc,incc,incr);
-
-      superlinear=1;
-#define SHTRANS(trans) (trans==CblasTrans? 1 : 0)
-      printf("superlinear with:\n"
-             "A: transp %d, nr %d, nc %d, ld %d\n"
-             "B: transp %d, nr %d, nc %d, ld %d\n"
-             "C: ld %d\n",
-             SHTRANS(transa),nra,nca,lda,
-             SHTRANS(transb),nrb,ncb,ldb,
-             ldc);
-    NOT_SL: 
-      if (!superlinear) assert(0);
-
-    NOT_SL_OK: 
-      superlinear = 0;
-#endif
-
-#if 0
-      // Detect if operation is superlinear
-      LineCache *lc0, *lc1, *lc;
-      int inca, incb, incc;
-      int &nlines = cache->nlines;
-      if (nlines>1) {
-        lc0 = cache->line_cache_start;
-        paa0 = *lc0->starta;
-        pbb0 = *lc0->startb;
-        pcc0 = lc0->target;
-        inca = lc0->inca;
-        ldb = lc0->incb;
-        // Try to determine leading size of matrices A and B
-        for (int j=0; j<nlines; j++) {
-          lc = cache->line_cache_start+j;
-          if (*lc->starta != paa0) {
-            lda = *lc->starta-paa0;
-            ldc = lc->target - pcc0;
-            na = j;
-            break;
-          }
-        }
-        if (lda<=0) goto NOT_SL;
-        lc1 = cache->line_cache_start+1;
-        incb = *lc1->startb - pbb0;
-        incc = lc1->target - lc0->target;
-        if (incc != 1) goto NOT_SL;
-        
-        if (nlines % na != 0) goto NOT_SL;
-        nb = nlines/na;
-        // Check that is truly superlinear
-        int l=0;
-        for (int j=0; j<na; j++) {
-          for (int k=0; k<nb; k++) {
-            lc = cache->line_cache_start+l;
-            if (lc->inca != inca) goto NOT_SL;
-            if (lc->incb != ldb) goto NOT_SL;
-            if (*lc->starta != paa0 + j*lda) goto NOT_SL;
-            if (*lc->startb != pbb0 + k*incb) goto NOT_SL;
-            if (lc->target != pcc0 + j*ldc + k*incc) goto NOT_SL;
-            l++;
-          }
-        }
-        // Apparently `dgemm' only works with contiguous matrices
-        if (inca!=1 || incb!=1) goto NOT_SL;
-      }
-      superlinear=1;
-    NOT_SL: 
-      printf("superlinear with na %d, lda %d, nb %d, ldb %d, ldc %d\n",
-             na,lda,nb,ldb,ldc);
-#endif
     
+      if (FASTMAT2_USE_DGEMM && FASTMAT2_USE_DGEMM_VRBS) 
+        printf("use dgemm (superlinear) %d\n",superlinear);
+
       psc = new prod_subcache;
       assert(psc);
       assert(!cache->sc);
       cache->sc = psc;
       psc->superlinear = superlinear;
       if (superlinear) {
-#if 1
         psc->nra = nrowopa;
         psc->nca = ncolopa;
         psc->lda = incrowa;
@@ -587,7 +436,6 @@ FastMat2 & FastMat2::prod(const FastMat2 & A,const FastMat2 & B,
         psc->pcc0 = pcc0;
         psc->transa = (transa? CblasTrans : CblasNoTrans);
         psc->transb = (transb? CblasTrans : CblasNoTrans);
-#endif
       }
     }
   }
@@ -601,7 +449,6 @@ FastMat2 & FastMat2::prod(const FastMat2 & A,const FastMat2 & B,
                 psc->nra,psc->ncb,psc->nca,1.0,
                 psc->paa0,psc->lda,psc->pbb0,psc->ldb,0.0,
                 psc->pcc0,psc->ldc);
-    *psc->pcc0 = 23.0;
   } else {
     // Perform computations using cached addresses
     int 
