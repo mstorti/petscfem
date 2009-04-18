@@ -14,6 +14,8 @@
 #include <src/fastmat2.h>
 #include <src/fastlib2.h>
 
+int FASTMAT2_USE_DGEMM=1;
+
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>
 class prod_subcache : public FastMatSubCache {
 public:
@@ -44,8 +46,7 @@ public:
     else assert(0);
     return NULL;
   }
-  int has_rmo(int N,mode_t mode,int stride,
-              int &nrow,int &ncol,int &inccol, int &incrow);
+  int has_rmo(int &m,int &n,int &incrow, int &inccol);
 #define MODE_SHORT 0
 #define MODE_LONG 1
   int has_rmo2(mode_t mode,
@@ -55,63 +56,37 @@ public:
 };
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>
-// Determines whether a given set of addresses &a(j), with j
-// in[0,N) are in RMO (Rectangular Matrix Order). i.e. there
-// exists m,n such that if j = k*n+l and
-//
-//   &aa(k,l) = &aa(0,0) + inccol*k + rowcol*l
 int superl_helper_t
-::has_rmo(int N,mode_t mode,int stride, 
-          int &m,int &n,int &incrow, int &inccol) {
+::has_rmo(int &m,int &n,int &incrow, int &inccol) {
 
-#if 0
-  LineCache *line_cache_start;
-  m=1; n=2; inccol=1; incrow=0;
-  if (N<2) return 0;
-
+  LineCache *line_cache_start=NULL;
+  int N = cache->nlines;
+  if (N<1) return 0;
+  
+  mode_t mode=c;
   double *aa00 = address(0,mode);
-  inccol = address(1,mode) - aa00; 
+  inccol = 1;
+  if (N>1) inccol = address(1,mode) - aa00; 
   int dp, j;
   for (j=2; j<N; j++) {
     dp = address(j,mode) - aa00;
     if (dp != j*inccol) break;
   }
   n=j;
-  if (j<N) {
-    if (N%n!=0) return 0;
-    m = N/n;
-    incrow = dp;
-    int l = 0;
-    for (int j=0; j<m; j++) {
-      for (int k=0; k<n; k++) {
-        dp = address(l,mode) - aa00; 
-        if (dp != incrow*j + inccol*k)
-          return 0;
-        l++;
-      }
+
+  m = N/n;
+  incrow = dp;
+  if (m==1) incrow = !dp;
+  int l = 0;
+  for (int j=0; j<m; j++) {
+    for (int k=0; k<n; k++) {
+      dp = address(l,mode) - aa00; 
+      if (dp != incrow*j + inccol*k)
+        return 0;
+      l++;
     }
   }
-  // This is a vector
-  if (incrow==0 && inccol==0) {
-    printf("vector of size %d, stride %d\n",
-           cache->line_size,stride);
-  } else {
-    int nrow,ncol,s1,s2;
-    ncol = cache->line_size;
-    assert(incrow==0 != inccol==0);
-    if (incrow>0) {
-      nrow = nr;
-      s1 = incrow;
-      s2 = stride;
-    } else {
-      nrow = nc;
-      s1 = 
-    }
-    printf("matrix of size %d x %d, strides %d,%d\n",
-           cache->line_size,stride);
-  }
-#endif
-  assert(0);
+
   return 1;
 }
 
@@ -381,8 +356,11 @@ FastMat2 & FastMat2::prod(const FastMat2 & A,const FastMat2 & B,
     {
       int sl, 
         nrowa,ncola,incrowa,inccola,byrowsa,trvmodea,
-        nrowb,ncolb,incrowb,inccolb,byrowsb,trvmodeb;
+        nrowb,ncolb,incrowb,inccolb,byrowsb,trvmodeb,
+        nrowc,ncolc,incrowc,inccolc,byrowsc,trvmodec;
       int nrowopa,ncolopa,nrowopb,ncolopb,transa,transb;
+      LineCache *lc0 = cache->line_cache_start;
+      double *paa0,*pbb0,*pcc0;
         
       superl_helper_t obj(cache);
 
@@ -413,8 +391,26 @@ FastMat2 & FastMat2::prod(const FastMat2 & A,const FastMat2 & B,
       printf("   B: %d x %d, lda %d, trans %d\n",
              nrowopb,ncolopb,incrowb,transb);
 
-    NOT_SL: 
-      superlinear = 0;
+      sl = obj.has_rmo(nrowc,ncolc,incrowc,inccolc);
+      // If C is traversed by columns then we should transpose all the
+      // product: C' = B'*A', e.g. transpose A, B and exchange
+      if (!sl) goto NOT_SL;
+      assert(nrowc*ncolc==nrowopa*ncolopb);
+      if (nrowc!=nrowopa && nrowc==1) {
+        nrowc=nrowopa;
+        ncolc=ncolopb;
+        incrowc=inccolc*ncolc;
+      }
+      if (ncolc==1) inccolc=1;
+
+      superlinear = FASTMAT2_USE_DGEMM;
+
+      lc0 = cache->line_cache_start;
+      paa0 = *lc0->starta;
+      pbb0 = *lc0->startb;
+      pcc0 = lc0->target;
+
+    NOT_SL: ;
 
 #if 0
       superl_helper_t obj(cache);
@@ -579,16 +575,18 @@ FastMat2 & FastMat2::prod(const FastMat2 & A,const FastMat2 & B,
       cache->sc = psc;
       psc->superlinear = superlinear;
       if (superlinear) {
-#if 0
-        psc->nra = nra;
-        psc->nca = nca;
-        psc->lda = lda;
-        psc->ncb = ncb;
-        psc->ldb = ldb;
-        psc->ldc = ldc;
+#if 1
+        psc->nra = nrowopa;
+        psc->nca = ncolopa;
+        psc->lda = incrowa;
+        psc->ncb = ncolopb;
+        psc->ldb = incrowb;
+        psc->ldc = incrowc;
         psc->paa0 = paa0;
         psc->pbb0 = pbb0;
         psc->pcc0 = pcc0;
+        psc->transa = (transa? CblasTrans : CblasNoTrans);
+        psc->transb = (transb? CblasTrans : CblasNoTrans);
 #endif
       }
     }
