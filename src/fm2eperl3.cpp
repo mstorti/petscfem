@@ -15,7 +15,7 @@
 #include <src/fastlib2.h>
 
 int FASTMAT2_USE_DGEMM=1;
-int FASTMAT2_USE_DGEMM_VRBS=0;
+int FASTMAT2_PROD_WAS_SUPERLINEAR=0;
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>
 class prod_subcache : public FastMatSubCache {
@@ -77,7 +77,7 @@ int superl_helper_t
 
   m = N/n;
   incrow = dp;
-  if (m==1) incrow = !dp;
+  if (m==1) incrow = dp+1;
   int l = 0;
   for (int j=0; j<m; j++) {
     for (int k=0; k<n; k++) {
@@ -407,6 +407,7 @@ FastMat2 & FastMat2::prod(const FastMat2 & A,const FastMat2 & B,
       }
       if (ncolc==1) inccolc=1;
 
+      FASTMAT2_PROD_WAS_SUPERLINEAR=1;
       superlinear = FASTMAT2_USE_DGEMM;
 
       lc0 = cache->line_cache_start;
@@ -416,9 +417,6 @@ FastMat2 & FastMat2::prod(const FastMat2 & A,const FastMat2 & B,
 
     NOT_SL: ;
     
-      if (FASTMAT2_USE_DGEMM && FASTMAT2_USE_DGEMM_VRBS) 
-        printf("use dgemm (superlinear) %d\n",superlinear);
-
       psc = new prod_subcache;
       assert(psc);
       assert(!cache->sc);
