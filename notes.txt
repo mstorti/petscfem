@@ -14120,3 +14120,145 @@ Para cada una de A y B tenemos lo siguiente:
   A = (nrowsa,ncolsb,lda,1,by_cols,long)
   B = (nrowsb,ncolsb,ldb,1,by_cols,short)
   
+%=== Sat Apr 25 21:20:22 2009 mstorti@galileo
+%
+%-- 21:20:22 -- fastmat2-omp-start-28-gd9d7fd1 -----
+EFICIENCIA EN COYOTE
+%
+Al instalar nuevas maquinas Xeon Quad-Core para que ande el
+`lm_sensors' hay que usar un nuevo kernel. Pero surge la duda de que
+no este bien la eficiencia por lo reportado en `notes-info.txt':
+%
+Este es el mail que le habia mandado a Ale Dabin
+> El día 1 de diciembre de 2008 7:12, Mario Storti
+> <mario.storti@gmail.com> escribió:
+>> Ale, ahi probe todos los kernels.  Lo que hay que mirar es la columna
+>> que dice `Total' que es el tiempo por iteracion en segundos.  Parece
+>> que las noticias no son buenas, es decir el unico que funciona es el
+>> 2.6.24. La version -opt no hace demasiado. Mario
+>>
+>> 2.6.24:     avrg: 19.054 2.257 2.992 12.665 3.480 0.989 Total: 41.437 OK
+>> 2.6.24-opt  avrg: 19.137 2.265 2.975 12.696 3.485 0.979 Total: 41.538 OK
+>> 2.6.25:     avrg: 27.527 2.770 6.453 15.536 6.919 1.223 Total: 60.428 NOT-OK
+>> 2.6.25-opt: avrg: 31.023 2.777 7.104 15.780 8.058 1.234 Total: 65.976 NOT-OK
+>> 2.6.26:     avrg: 27.394 2.700 6.352 15.266 7.256 1.188 Total: 60.155 NOT-OK
+>> 2.6.26-opt: avrg: 34.845 2.877 7.352 16.420 8.376 1.274 Total: 71.144 NOT-OK
+>> 2.6.27.4:   avrg: 31.405 2.769 7.058 15.803 8.096 1.248 Total: 66.379 NOT-OK
+>> 2.6.27.4-v2:avrg: 31.282 2.729 6.963 15.812 8.046 1.242 Total: 66.073 NOT-OK
+%
+Veo que los logs quearon en coyote asi que voy a tratar de volver a
+correrlo. 
+
+%=== Sun May  3 09:38:01 2009 mstorti@galileo
+%
+%-- 09:38:01 -- fastmat2-omp-start-28-gd9d7fd1 -----
+%
+Retomo, pero resulta que en `coyote' no lo puedo correr, me da un
+error de FPE (Floating Point Exception). 
+> METIS partition - partflag = 0
+>      edgecut 2765
+> Ends partitioning.
+> natural partition: max 5.85354, sum 150.008
+> match graph algorithm: max 5.85354, sum 150.008
+> random permut: max 5.85354, sum 150.008
+> [0]PETSC ERROR: ------------------------------------------------------------------\
+> ------
+> [0]PETSC ERROR: Caught signal number 8 FPE: Floating Point Exception,probably divi\
+> de by zero
+> [0]PETSC ERROR: Try option -start_in_debugger or -on_error_attach_debugger
+%
+Es algun lio con el particionamiento modificado para procesamienro
+mutlicore (MPI+OpenMP). Hay que desactivar la linea 
+%
+> ncore 8
+> multicore_rand_part 1
+%
+%-- 10:21:27 -- fastmat2-omp-start-28-gd9d7fd1 -----
+El commit en petscfem-cases donde estaba haciendo los tests en coyote
+es `cases-1.0.40-76-g332dc2b'. Recordemos que para N=80 los tiempos
+eran (aprox.)
+%
+>> 2.6.24:     avrg: 19.054 2.257 2.992 12.665 3.480 0.989 Total: 41.437 OK
+>> 2.6.25:     avrg: 27.527 2.770 6.453 15.536 6.919 1.223 Total: 60.428 NOT-OK
+%
+OJO que en el medio puede haber estado el cambio con el uso de las
+MKL, pero en principio esto afectaria solo a las etapas de
+resolucion. 
+%
+%-- 10:34:59 -- fastmat2-omp-start-28-gd9d7fd1 -----
+Volviendo a correr en node2, me da lo mismo que antes:
+(log: nohup-N80-node2-NP8-2.6.24.log)
+avrg: 18.846 2.248 2.922 12.290 3.491 1.423 Total: 41.221
+%
+En node6, con el nuevo kernel (nohup-N80-node6-NP8-2.6.29.1.log)
+avrg: 15.081 2.291 2.308 11.851 2.747 1.045 Total: 35.323
+%
+%-- 12:13:09 -- fastmat2-omp-start-28-gd9d7fd1 -----
+Enviado a dabin y jdelia:
+> 
+> Gente, ahí hice la prueba en node6@coyote con el nuevo kernel
+> (2.6.29.1). Hago un recuerdo de como es la historia
+> 
+> * En un cierto momento habiamos notado que los kernels >=2.6.25 tenian
+>   una perdida de eficiencia importante con respecto al 2.6.24. Por eso
+>   en coyote hicimos un downgrade a 2.6.24. 
+> 
+> * Ahora bien al instalar los nuevos nodos (Xeon Quadcore E5420)
+>   resulta que el lm_sensors no andaba (por el proc o por la mother, no
+>   se). Entonces era necesario usar un kernel mas nuevo. Ale instalo
+>   entonces el 2.6.29.1, pero solo esta en los nodos nuevos.
+> 
+> * Corri el test de PETSc-FEM con la cavidad cubica (80x80x80) 
+>   en los 8 cores. 
+> 
+> * En el nodo2 da 41 secs lo cual coincide con lo
+>   quedaba antes. 
+> 
+> * En el node6 da 35 secs lo cual me parece que esta OK si tenemos en
+>   cuenta que la velocidad del procesador se incremeento de 2GHz a
+>   2.5GHz.
+> 
+> Podriamos probar a poner el 2.6.29.1 en todos los nodos a ver si da
+> los 41 secs en los nodos de 2GHz. 
+> 
+> Mario
+
+%=== Tue May  5 16:26:49 2009 mstorti@galileo
+%
+%-- 16:26:49 -- fastmat2-omp-start-28-gd9d7fd1 -----
+Instalacion en aquiles64: Anda todo bien, pero resulta que cuando
+quiero correr los tests se empieza a cortar en ciertos puntos. Al
+lanzar alguna de las corridas se planata porque el mpd no la puede
+lanzar. Esto cuando el lanzo el 'run tests' salta en `oscplate' en
+alguna de las corridas, pero en cual de ellas es un poco aleatorio. Yo
+creo que es un problema del mpd. 
+
+%=== Wed May  6 06:47:30 2009 mstorti@galileo
+%
+%-- 06:47:30 -- fastmat2-omp-start-28-gd9d7fd1 -----
+El error que tira es el siguiente:
+%
+mpiexec_aquiles (mpiexec 392): no msg recvd from \
+mpd when expecting ack of request
+%
+%
+%-- 07:04:24 -- fastmat2-omp-start-28-gd9d7fd1 -----
+Aparentemente el timeout del tiempo se puede cambiar con 
+la variable MPIEXEC_RECV_TIMEOUT o el arg. '-recvtimeout'. 
+%
+%-- 08:51:36 -- fastmat2-omp-start-28-gd9d7fd1 -----
+Aparentemente el error se debe a que al correr los tests hay algunos
+que corren muy rapido y como que el mpd no llega a responder. Por
+ejemplo probe a tomar uno de los oscplate y hacerlo dentro de un lazo
+(10 o 100 veces) y si le pongo 300 pasos al NS entonces no hay
+problema ya que aparentemente tarda un cierto tiempo en ejecutar cada
+uno de los casos. En cambio si le pongo 3 pasos solamente entonces lo
+hace bien. De repente le hice un cambio y a partir de ahi anda
+bien. Por ejemplo se puede deber a que le agregue un `date' en el lazo
+y eso ya hace que tarde un cierto tiempo en ejecutar el siguiente
+comando `mpiexec'. 
+%
+%-- 11:35:10 -- fastmat2-omp-start-28-gd9d7fd1 -----
+Lanzo los tests con el mpd ring en todos los nodos y falla por el
+error de siempre. Creo que se confirma lo de que se debe a que los
+jobs se lanzan muy rapido. 
