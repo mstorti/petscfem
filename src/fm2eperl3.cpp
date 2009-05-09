@@ -54,6 +54,7 @@ public:
                int &nrow,int &ncol,
                int &incrow, int &inccol,
                int &byrows, int &trvmode);
+  int has_rmo3(int &nrow,int &ncol);
 };
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>
@@ -93,7 +94,7 @@ int superl_helper_t
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>
 // Determines whether a given set of addresses &a(j), with j
-// in[0,N) are in RMO (Rectangular Matrix Order). i.e. there
+// in [0,N) are in RMO (Rectangular Matrix Order). i.e. there
 // exists m,n such that if j = k*n+l and
 //
 //   &aa(k,l) = &aa(0,0) + inccol*k + rowcol*l
@@ -103,7 +104,6 @@ int superl_helper_t
            int &byrows, int &trvmode) {
 
   int inc1=0, inc2=0, size1, size2;
-  LineCache *line_cache_start=NULL;
   int N = cache->nlines;
 
   double *aa00 = address(0,mode);
@@ -126,6 +126,7 @@ int superl_helper_t
   size1 = N/size2;
   inc2 = dp;
   if (size1==1) inc2 = !dp;
+  // if (size1==1 && inc1==0) inc2 = size2*;
   int l = 0;
   for (int j=0; j<size1; j++) {
     for (int k=0; k<size2; k++) {
@@ -165,6 +166,57 @@ int superl_helper_t
          "byrows %d\n",nrow,ncol,incrow,inccol,
          (trvmode==MODE_SHORT? "short" : "long"),byrows);
 #endif
+
+  return 1;
+}
+
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>
+int superl_helper_t
+::has_rmo3(int &nrow,int &ncol) {
+
+  int inc1=0, inc2=0, size1, size2;
+  int N = cache->nlines;
+
+  if (N<=2) return 0;
+  double *aa00 = address(0,superl_helper_t::a);
+  double *bb00 = address(0,superl_helper_t::b);
+  double *cc00 = address(0,superl_helper_t::c);
+  
+  int inc1a = address(1,superl_helper_t::a) - aa00; 
+  int inc1b = address(1,superl_helper_t::b) - bb00; 
+  int inc1c = address(1,superl_helper_t::c) - cc00; 
+
+  int j, inc2a, inc2b, inc2c;
+  int nrowopa = -1, ncolopb;
+  for (j=1; j<N; j++) 
+    if (address(j,superl_helper_t::a) - aa00) break;
+  ncolopb=j;
+  if (N % ncolopb != 0) return 0;
+  nrowopa = N/ncolopb;
+
+  LineCache *lc0 = cache->line_cache_start;
+  int 
+    inca = lc0->inca,
+    lda = address(ncolopb,superl_helper_t::a) - aa00,
+    incb = address(1,superl_helper_t::b) - bb00,
+    ldb = lc0->incb,
+    incc = address(1,superl_helper_t::c) - cc00,
+    ldc = address(ncolopb,superl_helper_t::c) - cc00;
+  int dp, l=0;
+  for (j=0; j<nrowopa; j++) {
+    for (int k=0; k<ncolopb; k++) {
+      dp = address(l,superl_helper_t::a) - aa00; 
+      if (dp != lda*k) return 0;
+
+      dp = address(l,superl_helper_t::b) - bb00; 
+      if (dp != incb*j) return 0;
+
+      dp = address(l,superl_helper_t::c) - cc00; 
+      if (dp != incc*j + ldc*k) return 0;
+
+      l++;
+    }
+  }
 
   return 1;
 }
@@ -356,6 +408,8 @@ FastMat2 & FastMat2::prod(const FastMat2 & A,const FastMat2 & B,
     int superlinear = 0, lda=-1, ldb=-1, ldc, 
       nra=-1, nca=-1, nrb=-1;
     double *paa0=NULL, *pbb0=NULL, *pcc0=NULL;
+#if 0
+    //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>
     {
       int sl, 
         nrowa,ncola,incrowa,inccola,byrowsa,trvmodea,
@@ -435,6 +489,44 @@ FastMat2 & FastMat2::prod(const FastMat2 & A,const FastMat2 & B,
         psc->transa = (transa? CblasTrans : CblasNoTrans);
         psc->transb = (transb? CblasTrans : CblasNoTrans);
       }
+    }
+#else
+    //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>
+    // NEW VERSION
+    {
+      int sl, nrowopa,ncolopa,nrowopb,ncolopb,transa,transb;
+      ncolopa = cache->line_size;
+      ncolopb = ncolopa;
+      superl_helper_t obj(cache);
+    
+      sl = obj.has_rmo3(nrowopa,ncolopb);
+      printf("sl %d\n",sl);
+      exit(0);
+      if (!sl) goto NOT_SL;
+
+    NOT_SL: ;
+    
+      psc = new prod_subcache;
+      assert(psc);
+      assert(!cache->sc);
+      cache->sc = psc;
+      psc->superlinear = superlinear;
+      if (superlinear) {
+#if 0
+        psc->nra = nrowopa;
+        psc->nca = ncolopa;
+        psc->lda = incrowa;
+        psc->ncb = ncolopb;
+        psc->ldb = incrowb;
+        psc->ldc = incrowc;
+        psc->paa0 = paa0;
+        psc->pbb0 = pbb0;
+        psc->pcc0 = pcc0;
+        psc->transa = (transa? CblasTrans : CblasNoTrans);
+        psc->transb = (transb? CblasTrans : CblasNoTrans);
+#endif
+      }
+#endif
     }
   }
 

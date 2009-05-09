@@ -10,7 +10,7 @@ PETSCFEM_DIR = ..
 # Add new files here
 LIBOBJS_ = \
 amplidl arglist debug distmat dofmap dofmap2 elemlist elemset			\
-fastmat fastmat2 fem fm2eperl fm2eperl2 fm2eperl3 fstack getarray getprop 	\
+fastmat fastmat2 fastmat2b fem fm2eperl fm2eperl2 fstack getarray getprop 	\
 gpdata graph graphdv idmap iisdcr iisdgraph iisdmat linkgraph mainutl		\
 measperf metisprt petscmat pfmat propef randomg readmesh secant sparse		\
 spdirect spsolve state sttfilter tempfun tempfun2 texthash texthf		\

@@ -14262,3 +14262,8 @@ comando `mpiexec'.
 Lanzo los tests con el mpd ring en todos los nodos y falla por el
 error de siempre. Creo que se confirma lo de que se debe a que los
 jobs se lanzan muy rapido. 
+
+%=== Thu May  7 08:11:25 2009 mstorti@galileo
+%
+%-- 08:11:25 -- fastmat2-omp-start-29-g8336e08 -----
+Vuelvo al tema de usar dgemm/MKL para los productos de matrices. 
