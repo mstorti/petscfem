@@ -168,17 +168,22 @@ int superl_helper_t
 int superl_helper_t
 ::has_rmo3(int &nrow,int &ncol) {
 
-  int inc1=0, inc2=0, size1, size2;
-  int N = cache->nlines;
+  int 
+    inc1=0, inc2=0, size1, size2, 
+    ncolopa = cache->line_size,
+    nrowopb = ncolopa,
+    N = cache->nlines;
 
   if (N<=2) return 0;
-  double *aa00 = address(0,superl_helper_t::a);
-  double *bb00 = address(0,superl_helper_t::b);
-  double *cc00 = address(0,superl_helper_t::c);
+  double 
+    *aa00 = address(0,superl_helper_t::a),
+    *bb00 = address(0,superl_helper_t::b),
+    *cc00 = address(0,superl_helper_t::c);
   
-  int inc1a = address(1,superl_helper_t::a) - aa00; 
-  int inc1b = address(1,superl_helper_t::b) - bb00; 
-  int inc1c = address(1,superl_helper_t::c) - cc00; 
+  int 
+    inc1a = address(1,superl_helper_t::a) - aa00,
+    inc1b = address(1,superl_helper_t::b) - bb00,
+    inc1c = address(1,superl_helper_t::c) - cc00; 
 
   int j, inc2a, inc2b, inc2c;
   int nrowopa = -1, ncolopb;
@@ -189,24 +194,33 @@ int superl_helper_t
   nrowopa = N/ncolopb;
 
   LineCache *lc0 = cache->line_cache_start;
-  int 
+  int lda,ldc, 
     inca = lc0->inca,
-    lda = address(ncolopb,superl_helper_t::a) - aa00,
     incb = address(1,superl_helper_t::b) - bb00,
     ldb = lc0->incb,
-    incc = address(1,superl_helper_t::c) - cc00,
+    incc = address(1,superl_helper_t::c) - cc00;
+  if (nrowopa>1) {
+    lda = address(ncolopb,superl_helper_t::a) - aa00,
     ldc = address(ncolopb,superl_helper_t::c) - cc00;
+  } else {
+    lda = inca*ncolopa;
+    ldc = incc*ncolopb;
+  }
+
   int dp, l=0;
   for (j=0; j<nrowopa; j++) {
     for (int k=0; k<ncolopb; k++) {
+      if (cache->line_cache_start[l].inca != inca) return 0;
+      if (cache->line_cache_start[l].incb != ldb) return 0;
+
       dp = address(l,superl_helper_t::a) - aa00; 
-      if (dp != lda*k) return 0;
+      if (dp != lda*j) return 0;
 
       dp = address(l,superl_helper_t::b) - bb00; 
-      if (dp != incb*j) return 0;
+      if (dp != incb*k) return 0;
 
       dp = address(l,superl_helper_t::c) - cc00; 
-      if (dp != incc*j + ldc*k) return 0;
+      if (dp != incc*k + ldc*j) return 0;
 
       l++;
     }
