@@ -180,15 +180,10 @@ int superl_helper_t
     *bb00 = address(0,superl_helper_t::b),
     *cc00 = address(0,superl_helper_t::c);
   
-  int 
-    inc1a = address(1,superl_helper_t::a) - aa00,
-    inc1b = address(1,superl_helper_t::b) - bb00,
-    inc1c = address(1,superl_helper_t::c) - cc00; 
-
-  int j, inc2a, inc2b, inc2c;
-  int nrowopa = -1, ncolopb;
+  int j;
+  int nrowopa = -1, ncolopb, transa=0, transb=0;
   for (j=1; j<N; j++) 
-    if (address(j,superl_helper_t::a) - aa00) break;
+    if ((address(j,superl_helper_t::a) - aa00)!=0) break;
   ncolopb=j;
   if (N % ncolopb != 0) return 0;
   nrowopa = N/ncolopb;
@@ -203,15 +198,15 @@ int superl_helper_t
     lda = address(ncolopb,superl_helper_t::a) - aa00,
     ldc = address(ncolopb,superl_helper_t::c) - cc00;
   } else {
-    lda = inca*ncolopa;
-    ldc = incc*ncolopb;
+    lda = 1;
+    ldc = 1;
   }
 
   int dp, l=0;
   for (j=0; j<nrowopa; j++) {
     for (int k=0; k<ncolopb; k++) {
-      if (cache->line_cache_start[l].inca != inca) return 0;
-      if (cache->line_cache_start[l].incb != ldb) return 0;
+      if (lc0[l].inca != inca) return 0;
+      if (lc0[l].incb != ldb) return 0;
 
       dp = address(l,superl_helper_t::a) - aa00; 
       if (dp != lda*j) return 0;
@@ -225,6 +220,25 @@ int superl_helper_t
       l++;
     }
   }
+
+  if (incc!=1) return 0;
+
+  if (inca!=1) {
+    if (lda==1) {
+      swap(lda,inca);
+      transa=1;
+    } else return 0;
+  }
+
+  if (incb!=1) {
+    if (ldb==1) {
+      swap(ldb,incb);
+      transb = 1;
+    } else return 0;
+  }
+  printf("dgemm args: transa %d, transb %d, nrowopa %d, ncolopa %d, \n"
+         "ncolopb %d, lda %d, ldb %d, ldc %d\n",
+         transa, transb, nrowopa, ncolopa, ncolopb, lda, ldb, ldc);
 
   return 1;
 }
@@ -507,7 +521,7 @@ FastMat2 & FastMat2::prod(const FastMat2 & A,const FastMat2 & B,
     
       sl = obj.has_rmo3(nrowopa,ncolopb);
       printf("sl %d\n",sl);
-      exit(0);
+      sl = 0;
       if (!sl) goto NOT_SL;
 
     NOT_SL: ;
