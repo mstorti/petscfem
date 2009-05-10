@@ -19,9 +19,11 @@ class FastMat2Stats {
   void report() {
     int total = 
       was_not_sl_count + was_sl_count;
-    printf("FM2STATS: sl %d, not sl %d, total %d\n",
-           was_sl_count,was_not_sl_count,total);
+    double ratio = 100.0*double(was_sl_count)/total;
+    printf("FM2STATS: sl %d(%.3f%%), not sl %d, total %d\n",
+           was_sl_count,ratio,was_not_sl_count,total);
   }
+  ~FastMat2Stats() { report(); }
 };
 
 extern FastMat2Stats glob_fm2stats;

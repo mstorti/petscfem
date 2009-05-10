@@ -34,133 +34,13 @@ public:
     else assert(0);
     return NULL;
   }
-  int has_rmo(int &m,int &n,int &incrow, int &inccol);
-#define MODE_SHORT 0
-#define MODE_LONG 1
-  int has_rmo2(mode_t mode,
-               int &nrow,int &ncol,
-               int &incrow, int &inccol,
-               int &byrows, int &trvmode);
-  void has_rmo3();
+  void ident();
   void dgemm();
   void print();
 };
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>
-int prod_subcache_t
-::has_rmo(int &m,int &n,int &incrow, int &inccol) {
-
-  LineCache *line_cache_start=NULL;
-  int N = cache->nlines;
-  if (N<1) return 0;
-  
-  mode_t mode=c;
-  double *aa00 = address(0,mode);
-  inccol = 1;
-  if (N>1) inccol = address(1,mode) - aa00; 
-  int dp=-1, j;
-  for (j=2; j<N; j++) {
-    dp = address(j,mode) - aa00;
-    if (dp != j*inccol) break;
-  }
-  n=j;
-
-  m = N/n;
-  incrow = dp;
-  if (m==1) incrow = dp+1;
-  int l = 0;
-  for (int j=0; j<m; j++) {
-    for (int k=0; k<n; k++) {
-      dp = address(l,mode) - aa00; 
-      if (dp != incrow*j + inccol*k)
-        return 0;
-      l++;
-    }
-  }
-
-  return 1;
-}
-
-//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>
-// Determines whether a given set of addresses &a(j), with j
-// in [0,N) are in RMO (Rectangular Matrix Order). i.e. there
-// exists m,n such that if j = k*n+l and
-//
-//   &aa(k,l) = &aa(0,0) + inccol*k + rowcol*l
-int prod_subcache_t
-::has_rmo2(mode_t mode,int &nrow,int &ncol,
-           int &incrow, int &inccol,
-           int &byrows, int &trvmode) {
-
-  int inc1=0, inc2=0, size1, size2;
-  int N = cache->nlines;
-
-  double *aa00 = address(0,mode);
-  inc1 = 1;
-  if (N>1) inc1 = address(1,mode) - aa00; 
-  inccol = (mode==a? cache->line_cache_start->inca :
-            mode==b? cache->line_cache_start->incb : -1);
-  assert(inccol!=-1);
-
-  ncol = cache->line_size;
-
-  int dp=-1, j;
-  for (j=2; j<N; j++) {
-    dp = address(j,mode) - aa00;
-    if (dp != j*inc1) break;
-  }
-
-  size2=j;
-  if (N%size2 != 0) return 0;
-  size1 = N/size2;
-  inc2 = dp;
-  if (size1==1) inc2 = !dp;
-  // if (size1==1 && inc1==0) inc2 = size2*;
-  int l = 0;
-  for (int j=0; j<size1; j++) {
-    for (int k=0; k<size2; k++) {
-      dp = address(l,mode) - aa00; 
-      if (dp != inc2*j + inc1*k)
-        return 0;
-      l++;
-    }
-  }
-  
-  // It is a matrix
-  assert(inc1==0 || inc2==0);
-  
-  byrows = 1;
-  if (inc1==0) {
-    trvmode = MODE_SHORT;
-    incrow = inc2;
-    nrow = size1;
-  } else {
-    trvmode = MODE_LONG;
-    incrow = inc1;
-    nrow = size2;
-  }
-
-  if (inccol!=1) {
-    if (incrow!=1) return 0;
-    else {
-      // swap rows with cols
-      swap(inccol,incrow);
-      swap(ncol,nrow);
-      byrows = !byrows;
-    }
-  }
-
-#if 0  
-  printf("nrow %d, ncol %d, incrow %d, inccol %d, trvmode %s, "
-         "byrows %d\n",nrow,ncol,incrow,inccol,
-         (trvmode==MODE_SHORT? "short" : "long"),byrows);
-#endif
-
-  return 1;
-}
-
-//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>
-void prod_subcache_t::has_rmo3() {
+void prod_subcache_t::ident() {
 
   superlinear = 0;
   int N = cache->nlines;
@@ -173,6 +53,7 @@ void prod_subcache_t::has_rmo3() {
   
   nra = -1;
   nca = cache->line_size;
+  if (nca==1) return;
   int j,taflag=0,tbflag=0;
 
   for (j=1; j<N; j++) 
@@ -249,7 +130,6 @@ void prod_subcache_t::has_rmo3() {
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>
 void prod_subcache_t::print() {
-  
   printf("dgemm args: sl %d,transa %d,transb %d,nra %d,nca %d,"
          "ncb %d,lda %d,ldb %d,ldc %d\n",
          superlinear,transa==CblasTrans,transb==CblasTrans,
@@ -261,6 +141,9 @@ void prod_subcache_t::dgemm() {
   cblas_dgemm(CblasRowMajor,transa,transb,
               nra,ncb,nca,1.0,paa0,lda,pbb0,ldb,0.0,
               pcc0,ldc);
+  assert(lda>=nca);
+  assert(ldb>=ncb);
+  assert(ldc>=ncb);
 }
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>
@@ -445,111 +328,20 @@ FastMat2 & FastMat2::prod(const FastMat2 & A,const FastMat2 & B,
     ctx->op_count.sum += ntot;
     ctx->op_count.mult += ntot;
 
-    int superlinear = 0, lda=-1, ldb=-1, ldc, 
-      nra=-1, nca=-1, nrb=-1;
-    double *paa0=NULL, *pbb0=NULL, *pcc0=NULL;
-#if 0
-    //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>
-    {
-      // WARNING: I THINK THIS IS NO MORE WORKING
-      int sl, 
-        nrowa,ncola,incrowa,inccola,byrowsa,trvmodea,
-        nrowb,ncolb,incrowb,inccolb,byrowsb,trvmodeb,
-        nrowc,ncolc,incrowc,inccolc,byrowsc,trvmodec;
-      int nrowopa,ncolopa,nrowopb,ncolopb,transa,transb;
-      LineCache *lc0 = cache->line_cache_start;
-      double *paa0,*pbb0,*pcc0;
-        
-      prod_subcache_t obj(cache);
-
-      sl = obj.has_rmo2(prod_subcache_t::a,
-                        nrowa,ncola,incrowa,inccola,byrowsa,trvmodea);
-      if (!sl) goto NOT_SL;
-      sl = obj.has_rmo2(prod_subcache_t::b,
-                        nrowb,ncolb,incrowb,inccolb,byrowsb,trvmodeb);
-      if (!sl) goto NOT_SL;
-      
-      // opa: refers to op(A) in BLAS documentation
-      nrowopa=nrowa; ncolopa=ncola;
-      nrowopb=nrowb; ncolopb=ncolb;
-      transa=0; transb=0;
-      
-      if (!byrowsa) {
-        swap(nrowopa,ncolopa);
-        transa=1;
-      }
-      if (byrowsb) {
-        swap(nrowopb,ncolopb);
-        transb=1;
-      }
-      assert(ncolopa==nrowopb);
-#if 0
-      printf("args to dgemm:\n");
-      printf("   A: %d x %d, lda %d, trans %d\n",
-             nrowopa,ncolopa,incrowa,transa);
-      printf("   B: %d x %d, lda %d, trans %d\n",
-             nrowopb,ncolopb,incrowb,transb);
-#endif
-      sl = obj.has_rmo(nrowc,ncolc,incrowc,inccolc);
-      // If C is traversed by columns then we should transpose all the
-      // product: C' = B'*A', e.g. transpose A, B and exchange
-      if (!sl) goto NOT_SL;
-      assert(nrowc*ncolc==nrowopa*ncolopb);
-      if (nrowc!=nrowopa && nrowc==1) {
-        nrowc=nrowopa;
-        ncolc=ncolopb;
-        incrowc=inccolc*ncolc;
-      }
-      if (ncolc==1) inccolc=1;
-
-      superlinear = glob_fm2stats.use_dgemm;
-
-      lc0 = cache->line_cache_start;
-      paa0 = *lc0->starta;
-      pbb0 = *lc0->startb;
-      pcc0 = lc0->target;
-
-    NOT_SL: ;
+    psc = new prod_subcache_t(cache);
+    assert(psc);
+    assert(!cache->sc);
+    cache->sc = psc;
+    psc->ident();
+    // psc->print();
     
-      psc = new prod_subcache_t;
-      assert(psc);
-      assert(!cache->sc);
-      cache->sc = psc;
-      psc->superlinear = superlinear;
-      if (superlinear) {
-        psc->nra = nrowopa;
-        psc->nca = ncolopa;
-        psc->lda = incrowa;
-        psc->ncb = ncolopb;
-        psc->ldb = incrowb;
-        psc->ldc = incrowc;
-        psc->paa0 = paa0;
-        psc->pbb0 = pbb0;
-        psc->pcc0 = pcc0;
-        psc->transa = (transa? CblasTrans : CblasNoTrans);
-        psc->transb = (transb? CblasTrans : CblasNoTrans);
-      }
+    glob_fm2stats.was_sl_count += psc->superlinear;
+    glob_fm2stats.was_not_sl_count += !psc->superlinear;
+    
+    if (psc->superlinear) {
+      glob_fm2stats.was_sl= 1;
+      psc->superlinear = glob_fm2stats.use_dgemm;
     }
-#else
-    //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>
-    // NEW VERSION
-    {
-      psc = new prod_subcache_t(cache);
-      assert(psc);
-      assert(!cache->sc);
-      cache->sc = psc;
-      psc->has_rmo3();
-      psc->print();
-
-      glob_fm2stats.was_sl_count += psc->superlinear;
-      glob_fm2stats.was_not_sl_count += !psc->superlinear;
-
-      if (psc->superlinear) {
-        glob_fm2stats.was_sl= 1;
-        psc->superlinear = glob_fm2stats.use_dgemm;
-      }
-    }
-#endif
   }
 
   psc = dynamic_cast<prod_subcache_t *> (cache->sc);
