@@ -14267,3 +14267,10 @@ jobs se lanzan muy rapido.
 %
 %-- 08:11:25 -- fastmat2-omp-start-29-g8336e08 -----
 Vuelvo al tema de usar dgemm/MKL para los productos de matrices. 
+
+%=== Sun May 10 20:25:45 2009 mstorti@galileo
+%
+%-- 20:25:45 -- fastmat2-omp-start-39-g9748679 -----
+Corro todos los tests. Me da lo siguiente:
+%
+

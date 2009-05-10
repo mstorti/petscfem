@@ -4,6 +4,8 @@
 #ifndef PETSCFEM_FM2STATS_H
 #define PETSCFEM_FM2STATS_H
 
+#include <cstdio>
+
 class FastMat2Stats {
  public:
   int 
@@ -16,13 +18,7 @@ class FastMat2Stats {
     was_sl(0),
     was_sl_count(0),
     was_not_sl_count(0) {}
-  void report() {
-    int total = 
-      was_not_sl_count + was_sl_count;
-    double ratio = 100.0*double(was_sl_count)/total;
-    printf("FM2STATS: sl %d(%.3f%%), not sl %d, total %d\n",
-           was_sl_count,ratio,was_not_sl_count,total);
-  }
+  void report();
   ~FastMat2Stats() { report(); }
 };
 

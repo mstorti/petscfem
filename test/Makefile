@@ -119,7 +119,8 @@ runtests: compile sector oscplate fastmat2 plano idmap constraint_bug 	 \
 	advec nsgenload cubcav project embgath alebcconv
 
 rp: runtests_p
-runtests_p:  alebcconv
+runtests_p:  graph sqcav pfmat aquifer nutatcyl mmove 	 \
+	advec nsgenload cubcav project embgath alebcconv
 
 #s Specific tests
 #----<*>----------<*>----------<*>----------<*>----------<*>----------<*>-----
@@ -282,5 +283,14 @@ embgath:
 # Invariance of ALE with bcconv (ALE corrected version)
 alebcconv:
 	$(MAKE) -C alebcconv tests
+
+abridged:
+	cat /dev/null > abridged.tmp
+	echo "NOT OK-------" >> abridged.tmp
+	./runtests.pl -n | grep "^Testing" | perl -pe 's/^.*on file "(.*)".*$$/$$1/'  >> abridged.tmp
+	echo "CAN'T OPEN-------" >> abridged.tmp
+	./runtests.pl -o | grep "^can't open" | perl -pe "s/^can't open //" >> abridged.tmp
+	cat abridged.tmp
+
 
 #s

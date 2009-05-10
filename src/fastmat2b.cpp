@@ -3,6 +3,7 @@
 #include <algorithm>
 #include <stdio.h>
 #include <mkl_cblas.h>
+#include <unistd.h>
 
 #include <src/fem.h>
 #include <src/fastmat2.h>
@@ -117,6 +118,9 @@ void prod_subcache_t::ident() {
       tbflag = 1;
     } else return;
   }
+
+  if (lda>=nca || ldb>=ncb || ldc>=ncb) return;
+
   transa = (taflag? CblasTrans : CblasNoTrans);
   transb = (tbflag? CblasTrans : CblasNoTrans);
 
@@ -141,9 +145,6 @@ void prod_subcache_t::dgemm() {
   cblas_dgemm(CblasRowMajor,transa,transb,
               nra,ncb,nca,1.0,paa0,lda,pbb0,ldb,0.0,
               pcc0,ldc);
-  assert(lda>=nca);
-  assert(ldb>=ncb);
-  assert(ldc>=ncb);
 }
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>
@@ -419,4 +420,19 @@ FastMat2 & FastMat2::prod(const FastMat2 & A,const FastMat2 & B,
 
   if (!ctx->use_cache) delete cache;
   return *this;
+}
+
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>
+void FastMat2Stats::report() {
+  int total = 
+    was_not_sl_count + was_sl_count;
+  double ratio = 100.0*double(was_sl_count)/total;
+//   printf("FM2STATS: sl %d(%.3f%%), not sl %d, total %d\n",
+//          was_sl_count,ratio,was_not_sl_count,total);
+  FILE *fid = fopen("/tmp/fm2stats.log","a");
+  char *cwd = getcwd(NULL,0);
+  fprintf(fid,"FM2STATS: sl %d(%.3f%%), not sl %d, total %d, cwd %s\n",
+          was_sl_count,ratio,was_not_sl_count,total,cwd); 
+  free(cwd);
+  fclose(fid);
 }
