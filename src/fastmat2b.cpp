@@ -43,6 +43,7 @@ public:
                int &byrows, int &trvmode);
   void has_rmo3();
   void dgemm();
+  void print();
 };
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>
@@ -162,9 +163,7 @@ int prod_subcache_t
 void prod_subcache_t::has_rmo3() {
 
   superlinear = 0;
-  int 
-    inc1=0, inc2=0, size1, size2, 
-    N = cache->nlines;
+  int N = cache->nlines;
 
   if (N<=2) return;
   double 
@@ -172,29 +171,27 @@ void prod_subcache_t::has_rmo3() {
     *bb00 = address(0,prod_subcache_t::b),
     *cc00 = address(0,prod_subcache_t::c);
   
-  int j;
   nra = -1;
-  int taflag,tbflag;
-  taflag = 0;
-  tbflag = 0;
   nca = cache->line_size;
+  int j,taflag=0,tbflag=0;
 
   for (j=1; j<N; j++) 
     if ((address(j,prod_subcache_t::a) - aa00)!=0) break;
-  ncb=j;
+  ncb = j;
   if (N % ncb != 0) return;
   nra = N/ncb;
 
   LineCache *lc0 = cache->line_cache_start;
   int incb,incc,inca = lc0->inca;
   ldb = lc0->incb;
+  incc = address(1,prod_subcache_t::c) - cc00;
 
   if (nra>1) {
     lda = address(ncb,prod_subcache_t::a) - aa00,
     ldc = address(ncb,prod_subcache_t::c) - cc00;
   } else {
-    lda = 1;
-    ldc = 1;
+    lda = (inca!=1? 1 : nca);
+    ldc = (incc!=1? 1 : ncb);
   }
 
   if (ncb>1) {
@@ -239,9 +236,6 @@ void prod_subcache_t::has_rmo3() {
       tbflag = 1;
     } else return;
   }
-  printf("dgemm args: taflag %d, tbflag %d, nra %d, nca %d, \n"
-         "ncb %d, lda %d, ldb %d, ldc %d\n",
-         taflag, tbflag, nra, nca, ncb, lda, ldb, ldc);
   transa = (taflag? CblasTrans : CblasNoTrans);
   transb = (tbflag? CblasTrans : CblasNoTrans);
 
@@ -251,6 +245,15 @@ void prod_subcache_t::has_rmo3() {
 
   superlinear = 1;
   return;
+}
+
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>
+void prod_subcache_t::print() {
+  
+  printf("dgemm args: sl %d,transa %d,transb %d,nra %d,nca %d,"
+         "ncb %d,lda %d,ldb %d,ldc %d\n",
+         superlinear,transa==CblasTrans,transb==CblasTrans,
+         nra,nca,ncb,lda,ldb,ldc);
 }
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>
@@ -537,6 +540,7 @@ FastMat2 & FastMat2::prod(const FastMat2 & A,const FastMat2 & B,
       assert(!cache->sc);
       cache->sc = psc;
       psc->has_rmo3();
+      psc->print();
 
       if (psc->superlinear) {
         FASTMAT2_PROD_WAS_SUPERLINEAR=1;
