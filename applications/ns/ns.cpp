@@ -13,6 +13,8 @@
 #include <src/hook.h>
 #include <src/iisdmatstat.h>
 
+#include <src/fm2stats.h>
+
 // For level set mass control
 double total_mass;
 
@@ -1072,6 +1074,9 @@ int ns_main(int argc,char **args) {
 #ifdef DEBUG_MALLOC_USE
   fclose(malloc_log);
 #endif
+
+  printf
+
   PetscFinalize();
   exit(0);
 }

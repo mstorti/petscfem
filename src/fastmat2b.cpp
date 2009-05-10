@@ -6,10 +6,10 @@
 
 #include <src/fem.h>
 #include <src/fastmat2.h>
+#include <src/fm2stats.h>
 #include <src/fastlib2.h>
 
-int FASTMAT2_USE_DGEMM=1;
-int FASTMAT2_PROD_WAS_SUPERLINEAR=0;
+FastMat2Stats glob_fm2stats;
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>
 class prod_subcache_t : public FastMatSubCache {
@@ -58,7 +58,7 @@ int prod_subcache_t
   double *aa00 = address(0,mode);
   inccol = 1;
   if (N>1) inccol = address(1,mode) - aa00; 
-  int dp, j;
+  int dp=-1, j;
   for (j=2; j<N; j++) {
     dp = address(j,mode) - aa00;
     if (dp != j*inccol) break;
@@ -104,7 +104,7 @@ int prod_subcache_t
 
   ncol = cache->line_size;
 
-  int dp, j;
+  int dp=-1, j;
   for (j=2; j<N; j++) {
     dp = address(j,mode) - aa00;
     if (dp != j*inc1) break;
@@ -502,8 +502,7 @@ FastMat2 & FastMat2::prod(const FastMat2 & A,const FastMat2 & B,
       }
       if (ncolc==1) inccolc=1;
 
-      FASTMAT2_PROD_WAS_SUPERLINEAR=1;
-      superlinear = FASTMAT2_USE_DGEMM;
+      superlinear = glob_fm2stats.use_dgemm;
 
       lc0 = cache->line_cache_start;
       paa0 = *lc0->starta;
@@ -542,9 +541,12 @@ FastMat2 & FastMat2::prod(const FastMat2 & A,const FastMat2 & B,
       psc->has_rmo3();
       psc->print();
 
+      glob_fm2stats.was_sl_count += psc->superlinear;
+      glob_fm2stats.was_not_sl_count += !psc->superlinear;
+
       if (psc->superlinear) {
-        FASTMAT2_PROD_WAS_SUPERLINEAR=1;
-        psc->superlinear = FASTMAT2_USE_DGEMM;
+        glob_fm2stats.was_sl= 1;
+        psc->superlinear = glob_fm2stats.use_dgemm;
       }
     }
 #endif
