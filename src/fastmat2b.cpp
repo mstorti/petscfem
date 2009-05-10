@@ -12,24 +12,17 @@ int FASTMAT2_USE_DGEMM=1;
 int FASTMAT2_PROD_WAS_SUPERLINEAR=0;
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>
-class prod_subcache : public FastMatSubCache {
+class prod_subcache_t : public FastMatSubCache {
 public:
   int superlinear, lda, ldb, ldc, nra, nca, ncb;
   CBLAS_TRANSPOSE transa, transb;
   double *paa0, *pbb0, *pcc0;
-};
-
-//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>
-// Helper class, masks the relation betewen index
-// and start of `LineCache' or `target' for the function
-// `is_superl()' below. 
-class superl_helper_t {
-public:
   enum  mode_t { a,b,c,none };
   FastMatCache *cache;
   LineCache *line_cache_start;
-  superl_helper_t(FastMatCache *cache_a)
-    : cache(cache_a), 
+  prod_subcache_t(FastMatCache *cache_a)
+    : superlinear(0),
+      cache(cache_a), 
       line_cache_start(cache->line_cache_start) { }
   double *address(int j, mode_t mode) {
     if (mode==a) 
@@ -48,11 +41,12 @@ public:
                int &nrow,int &ncol,
                int &incrow, int &inccol,
                int &byrows, int &trvmode);
-  int has_rmo3(int &nrow,int &ncol);
+  int has_rmo3();
+  void dgemm();
 };
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>
-int superl_helper_t
+int prod_subcache_t
 ::has_rmo(int &m,int &n,int &incrow, int &inccol) {
 
   LineCache *line_cache_start=NULL;
@@ -92,7 +86,7 @@ int superl_helper_t
 // exists m,n such that if j = k*n+l and
 //
 //   &aa(k,l) = &aa(0,0) + inccol*k + rowcol*l
-int superl_helper_t
+int prod_subcache_t
 ::has_rmo2(mode_t mode,int &nrow,int &ncol,
            int &incrow, int &inccol,
            int &byrows, int &trvmode) {
@@ -165,9 +159,10 @@ int superl_helper_t
 }
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>
-int superl_helper_t
-::has_rmo3(int &nrow,int &ncol) {
+int prod_subcache_t
+::has_rmo3() {
 
+  superlinear = 0;
   int 
     inc1=0, inc2=0, size1, size2, 
     ncolopa = cache->line_size,
@@ -176,14 +171,14 @@ int superl_helper_t
 
   if (N<=2) return 0;
   double 
-    *aa00 = address(0,superl_helper_t::a),
-    *bb00 = address(0,superl_helper_t::b),
-    *cc00 = address(0,superl_helper_t::c);
+    *aa00 = address(0,prod_subcache_t::a),
+    *bb00 = address(0,prod_subcache_t::b),
+    *cc00 = address(0,prod_subcache_t::c);
   
   int j;
   int nrowopa = -1, ncolopb, transa=0, transb=0;
   for (j=1; j<N; j++) 
-    if ((address(j,superl_helper_t::a) - aa00)!=0) break;
+    if ((address(j,prod_subcache_t::a) - aa00)!=0) break;
   ncolopb=j;
   if (N % ncolopb != 0) return 0;
   nrowopa = N/ncolopb;
@@ -194,16 +189,16 @@ int superl_helper_t
     ldb = lc0->incb;
 
   if (nrowopa>1) {
-    lda = address(ncolopb,superl_helper_t::a) - aa00,
-    ldc = address(ncolopb,superl_helper_t::c) - cc00;
+    lda = address(ncolopb,prod_subcache_t::a) - aa00,
+    ldc = address(ncolopb,prod_subcache_t::c) - cc00;
   } else {
     lda = 1;
     ldc = 1;
   }
 
   if (ncolopb>1) {
-    incb = address(1,superl_helper_t::b) - bb00,
-    incc = address(1,superl_helper_t::c) - cc00;
+    incb = address(1,prod_subcache_t::b) - bb00,
+    incc = address(1,prod_subcache_t::c) - cc00;
   } else {
     incb = 1;
     incc = 1;
@@ -215,13 +210,13 @@ int superl_helper_t
       if (lc0[l].inca != inca) return 0;
       if (lc0[l].incb != ldb) return 0;
 
-      dp = address(l,superl_helper_t::a) - aa00; 
+      dp = address(l,prod_subcache_t::a) - aa00; 
       if (dp != lda*j) return 0;
 
-      dp = address(l,superl_helper_t::b) - bb00; 
+      dp = address(l,prod_subcache_t::b) - bb00; 
       if (dp != incb*k) return 0;
 
-      dp = address(l,superl_helper_t::c) - cc00; 
+      dp = address(l,prod_subcache_t::c) - cc00; 
       if (dp != incc*k + ldc*j) return 0;
 
       l++;
@@ -246,8 +241,11 @@ int superl_helper_t
   printf("dgemm args: transa %d, transb %d, nrowopa %d, ncolopa %d, \n"
          "ncolopb %d, lda %d, ldb %d, ldc %d\n",
          transa, transb, nrowopa, ncolopa, ncolopb, lda, ldb, ldc);
-
   return 1;
+}
+
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>
+void prod_subcache_t::dgemm() {
 }
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>
@@ -266,7 +264,7 @@ FastMat2 & FastMat2::prod(const FastMat2 & A,const FastMat2 & B,
 #endif
   FastMatCache *cache = ctx->step();
 
-  prod_subcache *psc=NULL;
+  prod_subcache_t *psc=NULL;
   if (!ctx->was_cached  ) {
     Indx ia,ib,ii;
 
@@ -438,6 +436,7 @@ FastMat2 & FastMat2::prod(const FastMat2 & A,const FastMat2 & B,
 #if 0
     //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>
     {
+      // WARNING: I THINK THIS IS NO MORE WORKING
       int sl, 
         nrowa,ncola,incrowa,inccola,byrowsa,trvmodea,
         nrowb,ncolb,incrowb,inccolb,byrowsb,trvmodeb,
@@ -446,12 +445,12 @@ FastMat2 & FastMat2::prod(const FastMat2 & A,const FastMat2 & B,
       LineCache *lc0 = cache->line_cache_start;
       double *paa0,*pbb0,*pcc0;
         
-      superl_helper_t obj(cache);
+      prod_subcache_t obj(cache);
 
-      sl = obj.has_rmo2(superl_helper_t::a,
+      sl = obj.has_rmo2(prod_subcache_t::a,
                         nrowa,ncola,incrowa,inccola,byrowsa,trvmodea);
       if (!sl) goto NOT_SL;
-      sl = obj.has_rmo2(superl_helper_t::b,
+      sl = obj.has_rmo2(prod_subcache_t::b,
                         nrowb,ncolb,incrowb,inccolb,byrowsb,trvmodeb);
       if (!sl) goto NOT_SL;
       
@@ -498,7 +497,7 @@ FastMat2 & FastMat2::prod(const FastMat2 & A,const FastMat2 & B,
 
     NOT_SL: ;
     
-      psc = new prod_subcache;
+      psc = new prod_subcache_t;
       assert(psc);
       assert(!cache->sc);
       cache->sc = psc;
@@ -521,52 +520,26 @@ FastMat2 & FastMat2::prod(const FastMat2 & A,const FastMat2 & B,
     //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>
     // NEW VERSION
     {
-      int sl, nrowopa,ncolopa,nrowopb,ncolopb,transa,transb;
-      ncolopa = cache->line_size;
-      ncolopb = ncolopa;
-      superl_helper_t obj(cache);
-    
-      sl = obj.has_rmo3(nrowopa,ncolopb);
-      printf("sl %d\n",sl);
-      sl = 0;
-      if (!sl) goto NOT_SL;
-
-    NOT_SL: ;
-    
-      psc = new prod_subcache;
+      psc = new prod_subcache_t(cache);
       assert(psc);
       assert(!cache->sc);
       cache->sc = psc;
-      psc->superlinear = superlinear;
-      if (superlinear) {
-#if 0
-        psc->nra = nrowopa;
-        psc->nca = ncolopa;
-        psc->lda = incrowa;
-        psc->ncb = ncolopb;
-        psc->ldb = incrowb;
-        psc->ldc = incrowc;
-        psc->paa0 = paa0;
-        psc->pbb0 = pbb0;
-        psc->pcc0 = pcc0;
-        psc->transa = (transa? CblasTrans : CblasNoTrans);
-        psc->transb = (transb? CblasTrans : CblasNoTrans);
-#endif
+      psc->has_rmo3();
+
+      if (psc->superlinear) {
+        FASTMAT2_PROD_WAS_SUPERLINEAR=1;
+        psc->superlinear = FASTMAT2_USE_DGEMM;
       }
-#endif
+      psc->superlinear = 0; // FIXME:= just for debug
     }
+#endif
   }
 
-  psc = dynamic_cast<prod_subcache *> (cache->sc);
+  psc = dynamic_cast<prod_subcache_t *> (cache->sc);
   assert(psc);
 
-  if (psc->superlinear) {
-    int p = cache->line_size;
-    cblas_dgemm(CblasRowMajor,psc->transa,psc->transb,
-                psc->nra,psc->ncb,psc->nca,1.0,
-                psc->paa0,psc->lda,psc->pbb0,psc->ldb,0.0,
-                psc->pcc0,psc->ldc);
-  } else {
+  if (psc->superlinear) psc->dgemm();
+  else {
     // Perform computations using cached addresses
     int 
       nlines = cache->nlines,
