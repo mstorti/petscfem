@@ -189,17 +189,24 @@ int superl_helper_t
   nrowopa = N/ncolopb;
 
   LineCache *lc0 = cache->line_cache_start;
-  int lda,ldc, 
+  int lda,ldc,incb,incc, 
     inca = lc0->inca,
-    incb = address(1,superl_helper_t::b) - bb00,
-    ldb = lc0->incb,
-    incc = address(1,superl_helper_t::c) - cc00;
+    ldb = lc0->incb;
+
   if (nrowopa>1) {
     lda = address(ncolopb,superl_helper_t::a) - aa00,
     ldc = address(ncolopb,superl_helper_t::c) - cc00;
   } else {
     lda = 1;
     ldc = 1;
+  }
+
+  if (ncolopb>1) {
+    incb = address(1,superl_helper_t::b) - bb00,
+    incc = address(1,superl_helper_t::c) - cc00;
+  } else {
+    incb = 1;
+    incc = 1;
   }
 
   int dp, l=0;
