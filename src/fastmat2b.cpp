@@ -17,7 +17,8 @@ FastMat2Stats glob_fm2stats;
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>
 class prod_subcache_t : public FastMatSubCache {
 public:
-  int superlinear, lda, ldb, ldc, nra, nca, ncb;
+  int superlinear, lda, ldb, ldc, nra, nca, ncb,
+    not_superlinear_ok_flag;
   CBLAS_TRANSPOSE transa, transb;
   double *paa0, *pbb0, *pcc0;
   enum  mode_t { a,b,c,none };
@@ -40,16 +41,18 @@ public:
   void ident();
   void dgemm();
   void print();
+  void ok() { not_superlinear_ok_flag=1; }
   int not_superlinear_ok();
 };
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>
 void prod_subcache_t::ident() {
 
+  not_superlinear_ok_flag=0;
   superlinear = 0;
   int N = cache->nlines;
 
-  if (N<=2) return;
+  if (N<=2) { ok(); return; }
   double 
     *aa00 = address(0,prod_subcache_t::a),
     *bb00 = address(0,prod_subcache_t::b),
@@ -57,7 +60,7 @@ void prod_subcache_t::ident() {
   
   nra = -1;
   nca = cache->line_size;
-  if (nca==1) return;
+  if (nca==1) { ok(); return; }
   int j,taflag=0,tbflag=0;
 
   for (j=1; j<N; j++) 
@@ -122,7 +125,7 @@ void prod_subcache_t::ident() {
     } else return;
   }
 
-  if (lda>nca || ldb>ncb || ldc>ncb) return;
+  if (lda<nca || ldb<ncb || ldc<ncb) return;
 
   transa = (taflag? CblasTrans : CblasNoTrans);
   transb = (tbflag? CblasTrans : CblasNoTrans);
@@ -137,7 +140,8 @@ void prod_subcache_t::ident() {
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>
 int prod_subcache_t::not_superlinear_ok() {
-  return nra==1 || nca==1 || ncb==1;
+  return superlinear || not_superlinear_ok_flag || 
+    nra==1 || nca==1 || ncb==1;
 }
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>
