@@ -1,9 +1,11 @@
 //__INSERT_LICENSE__
-#include <math.h>
-#include <algorithm>
-#include <stdio.h>
-#include <mkl_cblas.h>
+#include <cmath>
+#include <ctime>
+#include <cstdio>
 #include <unistd.h>
+
+#include <algorithm>
+#include <mkl_cblas.h>
 
 #include <src/fem.h>
 #include <src/fastmat2.h>
@@ -38,6 +40,7 @@ public:
   void ident();
   void dgemm();
   void print();
+  int not_superlinear_ok();
 };
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>
@@ -119,7 +122,7 @@ void prod_subcache_t::ident() {
     } else return;
   }
 
-  if (lda>=nca || ldb>=ncb || ldc>=ncb) return;
+  if (lda>nca || ldb>ncb || ldc>ncb) return;
 
   transa = (taflag? CblasTrans : CblasNoTrans);
   transb = (tbflag? CblasTrans : CblasNoTrans);
@@ -130,6 +133,11 @@ void prod_subcache_t::ident() {
 
   superlinear = 1;
   return;
+}
+
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>
+int prod_subcache_t::not_superlinear_ok() {
+  return nra==1 || nca==1 || ncb==1;
 }
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>
@@ -334,6 +342,9 @@ FastMat2 & FastMat2::prod(const FastMat2 & A,const FastMat2 & B,
     assert(!cache->sc);
     cache->sc = psc;
     psc->ident();
+    if (!psc->not_superlinear_ok()) {
+      printf("NOT SL!!\n");
+    }
     // psc->print();
     
     glob_fm2stats.was_sl_count += psc->superlinear;
@@ -431,8 +442,15 @@ void FastMat2Stats::report() {
 //          was_sl_count,ratio,was_not_sl_count,total);
   FILE *fid = fopen("/tmp/fm2stats.log","a");
   char *cwd = getcwd(NULL,0);
-  fprintf(fid,"FM2STATS: sl %d(%.3f%%), not sl %d, total %d, cwd %s\n",
-          was_sl_count,ratio,was_not_sl_count,total,cwd); 
+  time_t tt = time(NULL);
+  // char *t = asctime(localtime(&tt));
+#define MXTM 1000
+  char t[MXTM];
+  strftime(t,MXTM,"%a, %d %b %Y %H:%M:%S %z",
+           localtime(&tt));
+  fprintf(fid,"FM2STATS: [%s] sl %d(%.3f%%), not sl %d, "
+          "total %d, cwd %s\n",
+          t,was_sl_count,ratio,was_not_sl_count,total,cwd); 
   free(cwd);
   fclose(fid);
 }
