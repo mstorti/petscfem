@@ -69,6 +69,9 @@ torture_1:
 	-./runtests.pl -n | tee -a make-tests-$(BOPT).log
 #
 	tar czvf ../make-tests-$(BOPT).tar.gz -C .. test
+	echo "-------------------------\nABRIDGED: " \
+		| tee -a  make-tests-$(BOPT).log
+	$(MAKE) abridged | tee -a make-tests-$(BOPT).log
 
 #w report:
 report:
@@ -284,13 +287,15 @@ embgath:
 alebcconv:
 	$(MAKE) -C alebcconv tests
 
+# makes an abridged acount of the tests
 abridged:
-	cat /dev/null > abridged.tmp
-	echo "NOT OK-------" >> abridged.tmp
-	./runtests.pl -n | grep "^Testing" | perl -pe 's/^.*on file "(.*)".*$$/$$1/'  >> abridged.tmp
-	echo "CAN'T OPEN-------" >> abridged.tmp
-	./runtests.pl -o | grep "^can't open" | perl -pe "s/^can't open //" >> abridged.tmp
-	cat abridged.tmp
+	@ ( echo "NOT OK-------" ;				\
+	./runtests.pl -n | grep "^Testing" |			\
+		perl -pe 's/^.*on file "(.*)".*$$/$$1/' ;	\
+	echo "CAN'T OPEN-------" ;				\
+	./runtests.pl -o | grep "^can't open" |			\
+		perl -pe "s/^can't open //" ; )			\
+		| tee abridged.tmp
 
 
 #s

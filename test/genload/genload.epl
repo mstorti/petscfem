@@ -106,6 +106,7 @@ hfilm_source -3. -1.
 #endif
 __END_HASH__
 #if $case ne '2b'
+# <:=$case:>
 35 36 37 38
 #else
 35 36

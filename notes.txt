@@ -14273,4 +14273,67 @@ Vuelvo al tema de usar dgemm/MKL para los productos de matrices.
 %-- 20:25:45 -- fastmat2-omp-start-39-g9748679 -----
 Corro todos los tests. Me da lo siguiente:
 %
+NOT OK-------
+sqcav/check.fs.verif.tmp
+idmap/tidmap.sal
+newff/adv_temp_cp.vrf.tmp
+newff/full_full_jacs_cp.vrf.tmp
+newff/full_full_jacs_adv_cp.vrf.tmp
+newff/adv_temp_cp_iisd.vrf.tmp
+distmap/dist_graph.np3.out.tmp
+CAN'T OPEN-------
+genload/save.case_genl1d.tmp
+genload/save.case_genl1dh.tmp
+%
+O sea que estamos igual que la ultima vez que corri los tests. 
+[Wed-Apr-8.06:24:21.fastmat2-omp-start-10-gb736ac9] 
+%
+%--[2009-05-10.22:56:00.fastmat2-omp-start-40-ge64df79]-----
+Verifico exportando varias versiones anteriores (g018cfb9, g11d133c,
+g92435ee) que supuestamente no tenian errores "can't open" en
+test/genload pero todos tienen el error asi que por ese lado no puedo
+buscar. Tal vez una forma seria chequear en alguna corrida de los
+tests que haya salvado, por ejemplo:
+%
+CD0339-2008-SEP-09.prandtl-tempo.txt.gz:-r--r--r-- 1 mstorti root 61149546 Sep  7 22:31 make-tests-g_c++.tar.gz
 
+%=== Mon May 11 08:24:58 2009 mstorti@galileo
+%
+%--[2009-05-11.08:24:58.fastmat2-omp-start-40-ge64df79]-----
+Runs all tests like before, i.e.
+NOT OK-------
+sqcav/check.fs.verif.tmp
+idmap/tidmap.sal
+newff/adv_temp_cp.vrf.tmp
+newff/full_full_jacs_cp.vrf.tmp
+newff/full_full_jacs_adv_cp.vrf.tmp
+newff/adv_temp_cp_iisd.vrf.tmp
+distmap/dist_graph.np3.out.tmp
+CAN'T OPEN-------
+%
+%--[2009-05-11.09:08:26.fastmat2-omp-start-40-ge64df79]-----
+En `genload' cambie que use el CacheCtx2 y entonces facilmente logro
+que ande todo bien. No se muy bien porque dejo de andar con el
+CacheCtx1. 
+%
+%--[2009-05-11.09:15:48.fastmat2-omp-start-40-ge64df79]-----
+Corro los tests, los archivos quedan en un backup:
+%
+  /home/scratch/mstorti/TO-BACKUP/DATA-CD/runtests-2009-05-11:
+  total used in directory 88M available 68176124
+  -rw-r--r-- 1 mstorti users 559K May 11 09:14 make-tests-O_c++.log
+  -rw-r--r-- 1 mstorti users  16M May 11 09:14 make-tests-O_c++.tar.gz
+  -rw-r--r-- 1 mstorti users 559K May 11 08:57 make-tests-g_c++.log
+  -rw-r--r-- 1 mstorti users  71M May 11 08:57 make-tests-g_c++.tar.gz
+%
+El conteo de tests es como antes (tanto en g_c++, como en O_c++):
+%
+NOT OK-------> 7
+sqcav/check.fs.verif.tmp
+idmap/tidmap.sal
+newff/adv_temp_cp.vrf.tmp
+newff/full_full_jacs_cp.vrf.tmp
+newff/full_full_jacs_adv_cp.vrf.tmp
+newff/adv_temp_cp_iisd.vrf.tmp
+distmap/dist_graph.np3.out.tmp
+CAN'T OPEN-------> 0
