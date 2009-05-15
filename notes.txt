@@ -14342,3 +14342,8 @@ CAN'T OPEN-------> 0
 Corro los tests, todo OK, solo se agrega a los  de arriba el 
 distmap/dist_graph.np2.out.tmp pero debe ser por la misma razon que el
 otro en distmap. 
+
+%=== Fri May 15 09:57:47 2009 mstorti@galileo
+%
+%--[2009-05-15.13:02:37.mstorti-v25-merge-fastmat2-omp]-----
+Merged from branch `fastmat2-omp'
