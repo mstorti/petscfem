@@ -23,5 +23,6 @@ class FastMat2Stats {
 };
 
 extern FastMat2Stats glob_fm2stats;
+extern int FASTMAT2_USE_DGEMM;
 
 #endif

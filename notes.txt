@@ -14337,3 +14337,8 @@ newff/full_full_jacs_adv_cp.vrf.tmp
 newff/adv_temp_cp_iisd.vrf.tmp
 distmap/dist_graph.np3.out.tmp
 CAN'T OPEN-------> 0
+%
+%--[2009-05-11.20:04:03.fastmat2-omp-start-43-gb4d25d9]-----
+Corro los tests, todo OK, solo se agrega a los  de arriba el 
+distmap/dist_graph.np2.out.tmp pero debe ser por la misma razon que el
+otro en distmap. 

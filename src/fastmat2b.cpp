@@ -13,6 +13,7 @@
 #include <src/fastlib2.h>
 
 FastMat2Stats glob_fm2stats;
+int FASTMAT2_USE_DGEMM=0;
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>
 class prod_subcache_t : public FastMatSubCache {
@@ -346,17 +347,19 @@ FastMat2 & FastMat2::prod(const FastMat2 & A,const FastMat2 & B,
     assert(!cache->sc);
     cache->sc = psc;
     psc->ident();
-    if (!psc->not_superlinear_ok()) {
-      printf("NOT SL!!\n");
-    }
-    // psc->print();
-    
-    glob_fm2stats.was_sl_count += psc->superlinear;
-    glob_fm2stats.was_not_sl_count += !psc->superlinear;
-    
-    if (psc->superlinear) {
-      glob_fm2stats.was_sl= 1;
-      psc->superlinear = glob_fm2stats.use_dgemm;
+    if (FASTMAT2_USE_DGEMM) {
+      if (!psc->not_superlinear_ok()) {
+        printf("NOT SL!!\n");
+      }
+      // psc->print();
+      
+      glob_fm2stats.was_sl_count += psc->superlinear;
+      glob_fm2stats.was_not_sl_count += !psc->superlinear;
+      
+      if (psc->superlinear) {
+        glob_fm2stats.was_sl= 1;
+        psc->superlinear = glob_fm2stats.use_dgemm;
+      }
     }
   }
 
