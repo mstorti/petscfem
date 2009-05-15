@@ -43,21 +43,6 @@ int GenLoad::ask(const char *jobinfo,int &skip_elemset) {
    return 0;
 }
 
-#if 0
-//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
-#undef __FUNC__
-#define __FUNC__ "double detsur(FastMat2 &Jaco, FastMat2 &S)"
-double detsur(FastMat2 &Jaco, FastMat2 &S) {
-  int n=Jaco.dim(2);
-  int m=Jaco.dim(1);
-  if (m==0) return 1.;
-  static FastMat2 g;
-  if (!g.is_defined()) g.resize(2,m,m);
-  g.prod(Jaco,Jaco,1,-1,2,-1);
-  return sqrt(g.det());
-}
-#endif
-
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 HFilmFun::HFilmFun(GenLoad *e) 
   : elemset(e), 
@@ -108,18 +93,19 @@ void GenLoad::new_assemble(arg_data_list &arg_data_v,const Nodedata *nodedata,
 
   // allocate local vecs
   int kdof, kloc, node, jdim, ipg;
-  FastMat2 veccontr(2,nel,ndof),xloc(2,nel,ndim),
-    un(2,nel,ndof),uo(2,nel,ndof),ustar(2,nel,ndof),vecc2,
-    h_in,h_out;
-  FMatrix Hloc(nel,nH);
+  FastMat2::CacheCtx2 ctx;
+  FastMat2::CacheCtx2::Branch b;
+  FastMat2 veccontr(&ctx,2,nel,ndof),xloc(&ctx,2,nel,ndim),
+    un(&ctx,2,nel,ndof),uo(&ctx,2,nel,ndof),ustar(&ctx,2,nel,ndof),
+    vecc2(&ctx),h_in(&ctx),h_out(&ctx),Hloc(&ctx,2,nel,nH);
 
   nen = nel*ndof;
-  FastMat2 matloc(4,nel,ndof,nel,ndof),matlocf(4,nel,ndof,nel,ndof),
-    S(1,ndim),flux(1,ndof),load(1,ndof),jac_in,jac_out,Jaco,
-    tmp1,tmp2,tmp3,tmp4;
+  FastMat2 matloc(&ctx,4,nel,ndof,nel,ndof),matlocf(&ctx,4,nel,ndof,nel,ndof),
+    S(&ctx,1,ndim),flux(&ctx,1,ndof),load(&ctx,1,ndof),jac_in(&ctx),
+    jac_out(&ctx),Jaco(&ctx),tmp1(&ctx),tmp2(&ctx),tmp3(&ctx),tmp4(&ctx);
 
   double detJ;
-  FastMat2 u_in,u_out,U_in,U_out;
+  FastMat2 u_in(&ctx),u_out(&ctx),U_in(&ctx),U_out(&ctx);
 
   int jdtmin;
   GlobParam *glob_param=NULL;
@@ -181,12 +167,10 @@ void GenLoad::new_assemble(arg_data_list &arg_data_v,const Nodedata *nodedata,
 #define SHAPE    (*gp_data.FM2_shape[ipg])
 #define WPG      (gp_data.wpg[ipg])
 
-  FastMatCacheList cache_list;
-  FastMat2::activate_cache(&cache_list);
   for (ElementIterator element = elemlist.begin(); 
        element!=elemlist.end(); element++) {
 
-    FastMat2::reset_cache();
+    ctx.jump(b);
 
     // Load local node coordinates in local vector
     element.node_data(nodedata,xloc.storage_begin(),
@@ -277,8 +261,6 @@ void GenLoad::new_assemble(arg_data_list &arg_data_v,const Nodedata *nodedata,
     if (comp_mat_each_time_step_g) 
       matloc.export_vals(element.ret_mat_values(*Ajac));
   }
-  FastMat2::void_cache();
-  FastMat2::deactivate_cache();
 }
 
 #undef SHAPE    

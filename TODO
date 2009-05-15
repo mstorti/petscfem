@@ -2,6 +2,7 @@
 TODO: [Mainly fixes go here...]
 =====
 
+* gives FPE w. ncore=8, see notes.txt:09:38:01 -- fastmat2-omp-start-28-gd9d7fd1
 * Tests sqcav/check.zwproc.tmp and sqcav/check.zwproc2.tmp give now a
    little error. See comments in notes.txt
    Mon Feb 23 15:37:21 2009 mstorti@galileo

@@ -10,20 +10,10 @@ using namespace std;
 #include <src/autostr.h>
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>
-FastMatCache *
-FastMat2::CacheCtx::step(const char *label,
-                         const FastMat2 *p1,
-                         const FastMat2 *p2,
-                         const FastMat2 *p3) { 
-  return step(); 
-}
-
-//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>
 FastMat2
 ::CacheCtx2::CacheCtx2() :
   branch_indx(-1), 
-  branch_p(NULL),
-  do_check_labels(0) { }
+  branch_p(NULL) { }
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>
 FastMat2::CacheCtx2
@@ -32,6 +22,48 @@ FastMat2::CacheCtx2
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>
 FastMat2::CacheCtx2
 ::Branch::Branch() : indx(-1) { }
+
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>
+void FastMat2::CacheCtx2
+::check_clear() { as.clear(); }
+
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>
+void FastMat2::CacheCtx2
+::check(const char *label) { 
+  as.cat_sprintf("%s ",label);
+}
+
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>
+void FastMat2::CacheCtx2
+::check(const FastMat2 *Ap) { 
+  as.cat_sprintf("%p ",Ap);
+}
+
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>
+void FastMat2::CacheCtx2
+::check(const char *label,const FastMat2 *Ap,
+        const FastMat2 *Bp,const FastMat2 *Cp) {
+  check(label);
+  if (Ap) check(Ap);
+  if (Bp) check(Bp);
+  if (Cp) check(Cp);
+}
+
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>
+void FastMat2::CacheCtx2
+::check(int x) { 
+  as.cat_sprintf("%d ",x);
+}
+
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>
+void FastMat2::CacheCtx2
+::check(const Indx &indx) { 
+  check("args(");
+  int sz = indx.size();
+  for (int j=0; j<sz; j++) 
+    check(indx[j]);
+  check(")");
+}
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>
 void FastMat2::CacheCtx2::jump(Branch &b) {
@@ -53,36 +85,35 @@ void FastMat2::CacheCtx2
   branchv.clear(); 
 }
 
-//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>
-FastMatCache * 
-FastMat2::CacheCtx2::step() {
-  return step(NULL);
-}
+int FastMat2_CacheCtx2_print_labels=0;
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>
 FastMatCache* FastMat2::CacheCtx2
-::step(const char *label, const FastMat2 *p1,
-       const FastMat2 *p2, const FastMat2 *p3) {
+::step() {
   FastMatCache *cache=NULL;
   if (use_cache) {
-    AutoString as;
-    if (do_check_labels) {
-      as.sprintf("%s %p %p %p",label,p1,p2,p3);
-      // printf("check_label: %s\n",as.str());
-    }
-    
     if (was_cached) {
       cache = &*q++;
-      if (do_check_labels)
+#ifndef NDEBUG
+      if (do_check_labels) {
+        if (FastMat2_CacheCtx2_print_labels) 
+          printf("cached %s\n" "wanted %s\n",
+                 cache->check_label.c_str(),as.str());
         PETSCFEM_ASSERT(as.str()==cache->check_label,
                         "Failed FastMat2 cache check, "
                         "cached: \"%s\", wanted: \"%s\"",
                         cache->check_label.c_str(),as.str()); 
+      }
+#endif
     } else {
       branch_p->push_back(FastMatCache());
       cache = &branch_p->back();
-      cache->check_label = as.str();
+#ifndef NDEBUG
+      if (do_check_labels)
+        cache->check_label = as.str();
+#endif
     }
+    as.clear();
   } else {
     cache = new FastMatCache;
   }
@@ -102,4 +133,57 @@ void FastMat2::CacheCtx2::print() {
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>
 void FastMat2::CacheCtx2
-::check_labels() { do_check_labels = 1; }
+::check_labels(int do_check) {
+  do_check_labels = do_check; 
+#ifdef NDEBUG
+  static int flag=0;
+  if (!flag) {
+    printf("WARNING: check_labels() was called, but FastMat2 "
+           "was compiled with NDEBUG!!\n");
+    flag=1;
+  }
+#endif  
+}
+
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>
+void FastMat2::CacheCtx2
+::Branchv::init(int d0,int d1,int d2,int d3) {
+  PETSCFEM_ASSERT0(shape.size()==0,"cant't resize a branch vector");  
+  PETSCFEM_ASSERT0(rank==0,"cant't resize a branch vector");  
+  if (d0>0) shape.push_back(d0);
+  if (d1>0) shape.push_back(d1);
+  if (d2>0) shape.push_back(d2);
+  if (d3>0) shape.push_back(d3);
+  rank = shape.size();
+  unsigned int sz = 1;
+  for (int j=0; j<rank; j++) sz *= shape[j];
+
+  PETSCFEM_ASSERT0(sz>0,"total number of branchs in "
+                   "branch vector must be positive");  
+  
+  bv.resize(sz);
+}
+
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>
+FastMat2::CacheCtx2
+::Branchv::Branchv(int d0,int d1,int d2,int d3) 
+  : rank(0) { if (d0>=0) init(d0,d1,d2,d3); }
+
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>
+FastMat2::CacheCtx2
+::Branchv::Branchv(const vector<int> &shape_a) {
+  shape = shape_a;
+  rank = bv.size();
+}
+
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>
+FastMat2::CacheCtx2::Branch &
+FastMat2::CacheCtx2::Branchv
+::operator()(int j0,int j1,int j2,int j3 ) {
+  int indx=j0;
+  if (j1>=0) indx = indx*shape[1]+j1;
+  if (j2>=0) indx = indx*shape[2]+j2;
+  if (j3>=0) indx = indx*shape[3]+j3;
+  PETSCFEM_ASSERT0(indx>=0,"indx");
+  return bv[indx];
+}

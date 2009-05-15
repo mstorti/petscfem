@@ -44,6 +44,11 @@ expect("fastmat2/fastmat2a.out.tmp","FastMat2 library",
         read_file("fastmat2/fastmat2a.ans.txt"));
 
 #------/*/------/*/------/*/------/*/------/*/------/*/------/*/ 
+expect("fastmat2/fastmat2ctx2.out.tmp",
+       "FastMat2 library with caches",
+       read_file("fastmat2/fastmat2.ans.txt"));
+
+#------/*/------/*/------/*/------/*/------/*/------/*/------/*/ 
 expect("fastmat2/fastmat2.out.tmp","FastMat2 library with caches",
                          read_file("fastmat2/fastmat2.ans.txt"));
 

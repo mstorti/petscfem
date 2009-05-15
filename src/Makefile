@@ -8,18 +8,19 @@ default: compile
 PETSCFEM_DIR = ..
 
 # Add new files here
-LIBOBJS_ = amplidl arglist debug distmat dofmap dofmap2 elemlist elemset	\
-fastmat fastmat2 fem fm2eperl fm2eperl2 fstack getarray getprop gpdata		\
-graph graphdv idmap iisdcr iisdgraph iisdmat linkgraph mainutl			\
+LIBOBJS_ = \
+amplidl arglist debug distmat dofmap dofmap2 elemlist elemset			\
+fastmat fastmat2 fastmat2b fem fm2eperl fm2eperl2 fstack getarray getprop 	\
+gpdata graph graphdv idmap iisdcr iisdgraph iisdmat linkgraph mainutl		\
 measperf metisprt petscmat pfmat propef randomg readmesh secant sparse		\
 spdirect spsolve state sttfilter tempfun tempfun2 texthash texthf		\
 timestat util2 util3 utils gatherer hook dlhook dxhook dxelmst autostr		\
 cloud cloud2 surf2vol pfobject fm2temp shllhook dvector interpola elmsupl	\
 dofmap3 iisdmat2 generror syncbuff srfgath blessf spetscmat elmsupl2 lagmul	\
-penalize dvecpar rhhook matchg fm2ctx2
+penalize dvecpar rhhook matchg fm2ctx2 
 
 # C files
-CLIBOBJS_ =  getarrgr.tab
+CLIBOBJS_ =  getarrgr.tab mkl_gf
 
 # Fortran files
 FLIBOBJS_ =  spline seval dgefa
@@ -68,6 +69,11 @@ fm2eperl.cpp: fmat2ep.cpp prep.pl
 
 fm2eperl2$(osfx).o: fm2eperl2.cpp
 fm2eperl2.cpp: fmat2ep2.cpp prep.pl fmat2.pl
+	if [ -e $@ ] ; then chmod +w $@ ; rm $@ ; fi
+	$(EPERL) -B '//<' -E '//>' $< > $@ ; chmod -w $@
+
+fem2eperl3$(osfx).o: fm2eperl3.cpp
+fm2eperl3.cpp: fmat2ep3.cpp prep.pl fmat2.pl
 	if [ -e $@ ] ; then chmod +w $@ ; rm $@ ; fi
 	$(EPERL) -B '//<' -E '//>' $< > $@ ; chmod -w $@
 

@@ -13267,7 +13267,7 @@ FastMat2::CacheCtx2
     . verificar eficiencia OK
     . migrar trcprtf a CacheCtx2 OK
     . verificar reentrancia OK
-    . agregar tool para debugging
+    . agregar tool para debugging OK
 %
 %-- 10:35:13 -- mstorti-v24-start-23-g7e668d7 -----
 EFICIENCIA:
@@ -13416,3 +13416,929 @@ NEW "Sqcav 0weight processor": era porque estaba comentada la linea de
 NEW "Sqcav 0weight processor (iisd_subpart=2)": IDEM
 NEW "Distributed graph 2proc.": es por la inconsistencia en escribir
       las lineas
+
+%=== Fri Mar 20 16:06:00 2009 mstorti@galileo
+%
+%-- 16:06:00 -- mstorti-v24-end-2-g3db44ea -----
+Volviendo a correr con las particulas resulta que la performance baja
+a cerca de 50secs/Mprtcls. Desactivando el check_label() baja a
+16secs/Mprtcls. Pero de todas formas esta como un factor 3-4 por
+encima del que tenia. Corro con la version CTX1 y efectivamente para
+este caso anda en 4.5secs/Mprtcls. 
+%
+%-- 17:38:07 -- mstorti-v24-end-2-g3db44ea -----
+Recupero el estado que tenía cuando hice esas pruebas. Directamente
+exporto una nueva versión en un directorio petscfem-cpy:
+petscfem:    version 63b456 de 2009-03-19 14:17
+trcprtf.cpp: versión 031eec de 2009-03-19 14:44
+%
+%-- 17:41:11 -- mstorti-v24-end-2-g3db44ea -----
+Si efectivamente con esa combinación recupero la tasa de
+4.5~secs/Mprtcls.
+%
+Del mas nuevo al mas viejo
+commit f46ce0500f5d7ec2219ea8d3a1d62dbf4dbd74ba  NOT-OK
+commit 63b456f165bdf6d20997a8e329ffcf1bc07b7632  OK
+%
+O sea que la ineficiencia vino con el agregado del
+check_label(). Pruebo a eliminar la parte del check_label() en step()
+y vuelvo a eficiencias buenas, asi que se ve que antes habia hecho una
+experiencia erronea. 
+
+%=== Sat Mar 21 00:19:45 2009 mstorti@galileo
+%
+%-- 00:19:45 -- mstorti-v24-end-4-gfe83257 -----
+PLAN DE TRABAJO 1 CacheCtx2:
+. OK agregar tests (copiar los usados con CacheCtx1)
+. OK agregar doc
+DONE!!
+
+%=== Wed Mar 25 08:55:23 2009 mstorti@galileo
+%
+%-- 08:55:23 -- mstorti-v24-end-19-g9036a02 -----
+PLAN DE TRABAJO 2 CacheCtx2:
+. OK chequear que `trcprtf' de exactamente lo mismo con Ctx1 y 2
+  probado y da exactmante lo mismo!!
+. OK que todo el tema check_labels() ni se compile con NDEBUG
+. agregar branching relativo
+. agregar OpenMP a FastMat2??
+
+%=== Thu Mar 26 13:36:52 2009 mstorti@galileo
+%
+%-- 13:36:52 -- mstorti-v24-end-23-g018cfb9 -----
+Hago el merge con Rodrigo (mstorti-v24-end-6-g3e3726a). 
+Agrega las cosas del estratificado y tests. 
+Corro los tests y me da lo siguiente:
+% -- Con g_c++: 9 NOT-OK
+> Square cavity with fract. step, Re1000, N=20
+> Idmap class
+> NEW Read_vector function.
+> newff/test case adv_temp_cp
+> newff/test case full_full_jacs_cp
+> newff/test case full_full_jacs_adv_cp
+> newff/test case adv_temp_cp_iisd
+> NEW Distributed graph 2proc.
+> NEW Distributed graph 3proc.
+%
+%-- 14:11:39 -- mstorti-v24-end-23-g018cfb9 -----
+NEW Read_vector function: era porque no se creaba el weights.dat, no
+se porque antes no dio ese error. 
+%
+Los "NEW Distributed graph xxxproc"  es por el lio en la
+sincronizacion al escribir. 
+
+%=== Fri Mar 27 10:23:55 2009 mstorti@galileo
+%
+%-- 10:26:21 -- fastmat2-omp-start -----
+Empiezo a ver el tema de FastMat2 + OpenMP. Empiezo una branch
+nueva, ya que tengo miedo introducir modificaciones no deseadas al
+código de FastMat2. 
+%
+Como referencia, corriendo en galileo, el pico de eficiencia se
+obtiene para matrices de 30x30, con N=1000. 
+%
+n: 30, N: 1000, M: 1000, loop: 185, fm2: 1
+elapsed: 10.078 [sec], ops: 9.990 [Gflop], rate: 0.991 [Gflops]
+%
+Antes en un momento dado he visto eficiencias que pasaban un poco de
+esto (digamos 1.030 Gflop/s), pero no lo puedo reproducir ahora.
+%
+%-- 10:28:51 -- fastmat2-omp-start-1-g4296408 -----
+Si lo corro con OMP en el lazo sobre las lineas de prod() (en
+fmat2ep.cpp), entonces la eficiencia baja, incluso con nthreads=1.
+[Por ahora no puedo correr con OMP y cache en el programa test ya que
+habria que hacer la historia de crear el ctx y las matrices privadas
+en cada thread.] Pero con un solo thread tenemos por ejemplo:
+%
+n: 30, N: 1000, M: 1000, loop: 185, fm2: 1
+elapsed: 25.625 [sec], ops: 9.990 [Gflop], rate: 0.390 [Gflops]
+%
+Esto es con (guided,5)
+%
+> #pragma omp parallel for schedule(guided,5)
+>   for (int j=0; j<nlines; j++) {
+%
+O sea que al agregarle el OMP, y con 1 solo thread la eficiencia baja
+un factor 2.5!!
+%
+%-- 14:30:28 -- fastmat2-omp-start-1-g4296408 -----
+Eso es medio raro porque para esos parámetros la cantidad de tarea que
+se está haciendo no es despreciable. Para cada línea se están haciendo
+unas 30 operaciones. Hmmm será eso, tal vez convendría probar con
+mayor granularidad. 
+%
+%-- 18:53:14 -- fastmat2-omp-start-1-g4296408 -----
+Pruebo a dividir el numero de operaciones en cosas mas gruesas. Es
+decir para productos de matrices de 30x30 tengo nlines=900 (lineas de
+cache), entonces lo dividio en n1*n2, y hago n2 lazos externos y en
+cada uno n1 operaciones de lineas de cache, cada lazo es independiente
+del otro. Bueno para matrices de 50x50 no se gana nada y sigue
+haciendo el mismo efecto que antes. 
+%
+%-- 19:01:19 -- fastmat2-omp-start-1-g4296408 -----
+Vuelvo a probar con myprod() en `testfm2d'. Por ejemplo si corro con
+%
+[mstorti@galileo tests]$ OMP_NUM_THREADS=1  ./testfm2d.bin -F 0 -n 50 -N 1000 -t 0.1
+n: 50, N: 1000, M: 1000, loop: 4, fm2: 0
+elapsed: 0.843 [sec], ops: 1.000 [Gflop], rate: 1.186 [Gflops]
+[mstorti@galileo tests]$ OMP_NUM_THREADS=2  ./testfm2d.bin -F 0 -n 50 -N 1000 -t 0.1
+n: 50, N: 1000, M: 1000, loop: 4, fm2: 0
+elapsed: 0.424 [sec], ops: 1.000 [Gflop], rate: 2.358 [Gflops]
+%
+O sea logro una eficiencia cercana al 100%
+(/ 2.358 1.186 2.0) => 0.994
+%
+si paralelizo el lazo más externo sobre los productos. 
+%
+Si paralelizo el lazo externo en myprod(), o sea el lazo sobre las
+filas de la matriz destino. 
+[mstorti@galileo tests]$ OMP_NUM_THREADS=2  ./testfm2d.bin -F 0 -n 50 -N 1000 -t 0.1
+n: 50, N: 1000, M: 1000, loop: 4, fm2: 0
+elapsed: 0.494 [sec], ops: 1.000 [Gflop], rate: 2.025 [Gflops]
+[mstorti@galileo tests]$ OMP_NUM_THREADS=1  ./testfm2d.bin -F 0 -n 50 -N 1000 -t 0.1
+n: 50, N: 1000, M: 1000, loop: 4, fm2: 0
+elapsed: 0.851 [sec], ops: 1.000 [Gflop], rate: 1.175 [Gflops]
+%
+(/ 2.025 1.175 2.0) => 0.862
+%
+La eficiencia ya baja un poco. 
+%
+%
+%-- 22:07:21 -- fastmat2-omp-start-1-g4296408 -----
+Con n=30 da lo siguiente
+%
+[mstorti@galileo tests]$ OMP_NUM_THREADS=1  ./testfm2d.bin -F 0 -n 30 -N 1000 -t 0.5
+n: 30, N: 1000, M: 1000, loop: 92, fm2: 0
+elapsed: 4.322 [sec], ops: 4.968 [Gflop], rate: 1.149 [Gflops]
+[mstorti@galileo tests]$ OMP_NUM_THREADS=2  ./testfm2d.bin -F 0 -n 30 -N 1000 -t 0.5
+n: 30, N: 1000, M: 1000, loop: 92, fm2: 0
+elapsed: 2.485 [sec], ops: 4.968 [Gflop], rate: 1.999 [Gflops]
+O sea que la eficiencia es
+%
+(/ 1.999 1.149 2.0) => 0.870 
+% 
+No se deteriora mucho. 
+%
+%-- 22:08:48 -- fastmat2-omp-start-1-g4296408 -----
+Con n=10, baja mucho:
+[mstorti@galileo tests]$ OMP_NUM_THREADS=2  ./testfm2d.bin -F 0 -n 10 -N 1000 -t 0.5
+n: 10, N: 1000, M: 1000, loop: 2500, fm2: 0
+elapsed: 6.319 [sec], ops: 5.000 [Gflop], rate: 0.791 [Gflops]
+[mstorti@galileo tests]$ OMP_NUM_THREADS=1  ./testfm2d.bin -F 0 -n 10 -N 1000 -t 0.5
+n: 10, N: 1000, M: 1000, loop: 2500, fm2: 0
+elapsed: 6.513 [sec], ops: 5.000 [Gflop], rate: 0.768 [Gflops]
+%
+O sea que no se gana nada (/ 0.791 0.76 2.0) => 0.520. 
+%
+%-- 22:11:26 -- fastmat2-omp-start-1-g4296408 -----
+CON n=20
+[mstorti@galileo tests]$ OMP_NUM_THREADS=1  ./testfm2d.bin -F 0 -n 20 -N 1000 -t 0.5
+n: 20, N: 1000, M: 1000, loop: 312, fm2: 0
+elapsed: 4.617 [sec], ops: 4.992 [Gflop], rate: 1.081 [Gflops]
+[mstorti@galileo tests]$ OMP_NUM_THREADS=2  ./testfm2d.bin -F 0 -n 20 -N 1000 -t 0.5
+n: 20, N: 1000, M: 1000, loop: 312, fm2: 0
+elapsed: 3.010 [sec], ops: 4.992 [Gflop], rate: 1.658 [Gflops]
+%
+Eficiencia (/ 1.658 1.081 2.0) => 0.769
+
+%=== Sat Mar 28 21:14:07 2009 mstorti@galileo
+%
+%-- 21:14:07 -- fastmat2-omp-start-2-g4578ee3 -----
+Hago un barrido paralelizando
+*1 El lazo externo sobre los productos
+*2 El lazo medio, es decir el lazo mas externo dentro de myprod()
+*3 El lazo mas interno, es decir el lazo mas interno dentro de myprod()
+%
+Como es de esperar, la eficiencia decrece con esto. Y de hecho hago
+una grafico de eficiencia en funcion de la granularidad de las tareas,
+es decir la granularidad es
+%
+*1 gran = n^3
+*2 gran = n^2
+*3 gran = n
+%
+Graficando la eficiencia en función de la granularidad, se ve que
+efectivamente están completamente correlacionados. 
+%
+%-- 21:22:25 -- fastmat2-omp-start-2-g4578ee3 -----
+Ahora veo si se puede ganar algo usando vectores, es decir
+------- Usando punteros:
+	sum += *pa * *pb;
+	pa++;
+	pb += n;
+elapsed: 9.049 [sec], ops: 10.000 [Gflop], rate: 1.105 [Gflops]
+------- Usando vectores:
+	sum += pa[k] * pb[k*n];
+elapsed: 8.978 [sec], ops: 10.000 [Gflop], rate: 1.114 [Gflops]
+%
+O sea que si hay una diferencia es mínima. 
+------- Usando lazo while en vez de for
+      while (pa<paend) {
+        sum += *pa * *pb;
+        pa++;
+        pb += n;
+      }
+elapsed: 8.903 [sec], ops: 10.000 [Gflop], rate: 1.123 [Gflops]
+O sea que se gana un poco, pero mínimo. 
+%
+%-- 21:29:50 -- fastmat2-omp-start-3-g6b915aa -----
+Influencia del __restrict__
+Con __restrict__:
+elapsed: 8.903 [sec], ops: 10.000 [Gflop], rate: 1.123 [Gflops]
+Sin __restrict__:
+elapsed: 8.932 [sec], ops: 10.000 [Gflop], rate: 1.120 [Gflops]
+%
+%-- 21:52:17 -- fastmat2-omp-start-3-g6b915aa -----
+INFLUENCIA DEL STRIDE ---
+Si uno hace el producto A*B entonces al recorrer A por filas eso es
+cache friendly, pero al recorrer B por columnas no. Si se hace A*B'
+entonces eso es cache friendly en las dos direcciones. Sin embargo
+para matrices de 100x100 no parece tener influencia. 
+%
+Haciendo A*B'
+elapsed: 43.321 [sec], ops: 50.000 [Gflop], rate: 1.154 [Gflops]
+Haciendo A*B
+elapsed: 44.560 [sec], ops: 50.000 [Gflop], rate: 1.122 [Gflops]
+%
+%-- 21:59:13 -- fastmat2-omp-start-3-g6b915aa -----
+INFLUENCIA DEL STRIDE 2 ----
+Para realzar el efecto hago el producto A'*B que seria el peor caso
+(aunque ahi invirtiendo el orden de los lazos estaría bien). La
+eficiencia baja bastante. Pero ojo que hice un cambio ya que ahora
+hago el producto de dos matrices diferentes con lo cual el tema del
+cache puede ser mas importante. Es decir antes hacia el producto de A(i)
+con A(i), ahora hago el de A(i) con el de A(j) con i,j random. 
+% 
+elapsed: 60.899 [sec], ops: 50.000 [Gflop], rate: 0.821 [Gflops]
+%
+myprod strides: short*long:
+elapsed: 44.590 [sec], ops: 50.000 [Gflop], rate: 1.121 [Gflops]
+myprod2 short*short:
+elapsed: 43.542 [sec], ops: 50.000 [Gflop], rate: 1.148 [Gflops]
+myprod2 long*long:
+elapsed: 60.965 [sec], ops: 50.000 [Gflop], rate: 0.820 [Gflops]
+%
+%-- 22:11:14 -- fastmat2-omp-start-4-g8edb29e -----
+COMPARACION CON FASTMAT2:
+Si hago producto A*B con matrices diferentes random, me da 
+elapsed: 15.954 [sec], ops: 10.000 [Gflop], rate: 0.627 [Gflops]
+--
+Si no hago los dos set() entonces apenas se incrementa un poco el
+rendimiento.
+elapsed: 15.601 [sec], ops: 10.000 [Gflop], rate: 0.641 [Gflops]
+--
+Si hago el producto A*B' (mas cache friendly) la eficiencia aumenta un
+poco. 
+elapsed: 15.357 [sec], ops: 10.000 [Gflop], rate: 0.651 [Gflops]
+--
+Si hago el producto A*A, (tambien podria ser mas cache friendly)
+elapsed: 15.657 [sec], ops: 10.000 [Gflop], rate: 0.639 [Gflops]
+--
+Cambio que haga el check con un while en FM2 y no pasa nada
+elapsed: 15.677 [sec], ops: 10.000 [Gflop], rate: 0.638 [Gflops]
+%
+%-- 10:20:17 -- fastmat2-omp-start-4-g8edb29e -----
+Verifico que el problema no es el overhead de las FastMat2, tampoco
+parece tener mucha influencia el tamaño de las matrices. 
+%
+> [mstorti@galileo tests]$ ./testfm2d.bin -F 1 -n 100 -N 1000 -t 1 -T 1
+> nthreads 1
+> n: 100, N: 1000, M: 1000, loop: 5, fm2: 1, nthreads 1
+> elapsed: 16.086 [sec], ops: 10.000 [Gflop], rate: 0.622 [Gflops]
+> [mstorti@galileo tests]$ ./testfm2d.bin -F 1 -n 150 -N 1000 -t 1 -T 1
+> nthreads 1
+> n: 150, N: 1000, M: 1000, loop: 1, fm2: 1, nthreads 1
+> elapsed: 9.528 [sec], ops: 6.750 [Gflop], rate: 0.708 [Gflops]
+> [mstorti@galileo tests]$ ./testfm2d.bin -F 1 -n 100 -N 500 -t 1 -T 1
+> nthreads 1
+> n: 100, N: 500, M: 500, loop: 10, fm2: 1, nthreads 1
+> elapsed: 16.379 [sec], ops: 10.000 [Gflop], rate: 0.611 [Gflops]
+> [mstorti@galileo tests]$ 
+%
+%
+%-- 10:36:50 -- fastmat2-omp-start-4-g8edb29e -----
+% INFLUENCIA DEL TAMAÑO DE LA MATRIZ
+%
+Aparentemente podría ser que para matrices muy grandes el problema
+esté limitado por el tamaño del cache. Pruebo con n=50 y 30 y
+efectivamente en 50 hay un máximo, parece.
+%
+> [mstorti@galileo tests]$ ./testfm2d.bin -F 1 -n 100 -N 500 -t 1 -T 1
+> nthreads 1
+> n: 100, N: 500, M: 500, loop: 10, fm2: 1, nthreads 1
+> elapsed: 16.379 [sec], ops: 10.000 [Gflop], rate: 0.611 [Gflops]
+> [mstorti@galileo tests]$ ./testfm2d.bin -F 1 -n 50 -N 1000 -t 1 -T 1
+> nthreads 1
+> n: 50, N: 1000, M: 1000, loop: 40, fm2: 1, nthreads 1
+> elapsed: 10.630 [sec], ops: 10.000 [Gflop], rate: 0.941 [Gflops]
+> [mstorti@galileo tests]$ ./testfm2d.bin -F 1 -n 30 -N 1000 -t 1 -T 1
+> nthreads 1
+> n: 30, N: 1000, M: 1000, loop: 185, fm2: 1, nthreads 1
+> elapsed: 10.990 [sec], ops: 9.990 [Gflop], rate: 0.909 [Gflops]
+%
+%-- 10:50:05 -- fastmat2-omp-start-4-g8edb29e -----
+Hago un barrido en n, con Fastmat2
+--
+      Gflops(galileo) Gflops(coyote) 
+   n  FM2=1 FM2=0        FM2=1  FM2=0
+  10  0.637 0.633        0.781  0.805
+  11  0.604 0.680        0.779  0.820
+  13  0.600 0.671        0.777  0.857
+  15  0.644 0.656        0.829  0.811
+  17  0.726 0.712        0.990  0.931
+  19  0.751 0.632        0.996  0.837
+  21  0.776 0.612        0.997  0.793
+  24  0.817 0.766        1.025  0.884
+  27  0.902 0.744        1.137  0.817
+  30  0.907 0.635        1.127  0.754
+  33  0.957 0.667        1.199  0.948
+  37  0.943 0.661        1.186  0.834
+  41  0.954 0.714        1.193  0.859
+  46  0.948 0.802        1.167  0.981
+  51  0.945 0.757        1.170  0.887
+  57  0.820 0.737        1.167  0.884
+  63  0.564 0.780        0.839  0.941
+  70  0.653 0.766        1.160  0.920
+  77  0.706 0.746        1.161  0.891
+  85  0.617 0.758        1.149  0.898
+  94  0.638 0.787        0.703  0.958
+ 104  0.623 0.803        0.972  0.981
+ 115  0.661 0.789        0.931  0.946
+ 127  0.681 0.795        0.644  0.954
+ 140  0.694 0.841        0.751  1.019
+ 154  0.703 0.829        0.772  1.008
+ 170  0.733 0.843        0.812  1.018
+ 188  0.747 0.870        0.828  1.050
+%
+%
+%-- 12:17:19 -- fastmat2-omp-start-6-g94100f9 -----
+Se observa que,
+* FastMat2 es mas eficiente para matrices pequeñas
+  (n<60-100). Teniendo una meseta en el rando 30-60 o 30-100. Depués
+  la eficiencia baja, más o menos un factor 2. 
+  Esto se puede deber a la demanda de más memoria, es decir a que
+  FastMat2 hace mayor uso de cache. 
+* El comportamiento en coyote y en galileo es similar, siendo coyote
+  más rápido por un 30-50%. 
+* Pruebo a no actualizar el indice del cache es decir
+    if (j==0) lc = cache->line_cache_start+j; //DBG!!
+    // lc = cache->line_cache_start+j;
+  El if(j==0) hace que solo se traiga la info del cache una sola vez,
+  pero ojo que tambien quiere decir que se trae solo una vez las
+  direcciones. La cosa es que la velocidad sube a 1.044 [Gflops]. 
+%
+%-- 18:50:49 -- fastmat2-omp-start-6-g94100f9 -----
+Ahora que pienso, con FastMat2 estoy copiando A y B, desde la memoria
+a las matrices FastMat2 locales A y B. Esto puede ser que sea lo que
+no le guste para matrices grandes. Asi que voy a probar a rehacer los
+tests sin setear ni A ni B, o seteando una sola, a ver si tiene
+influencia. 
+%
+%
+      Gflops(galileo) con FM2
+   n  set A,B   set none  set A,B(2) set A
+  10  0.637     0.741     0.623      0.676
+  11  0.604     0.751     0.619      0.687
+  13  0.600     0.698     0.641      0.666
+  15  0.644     0.719     0.669      0.694
+  17  0.726     0.867     0.795      0.822
+  19  0.751     0.862     0.799      0.814
+  21  0.776     0.848     0.806      0.825
+  24  0.817     0.881     0.836      0.854
+  27  0.902     0.958     0.907      0.935
+  30  0.907     0.957     0.915      0.936
+  33  0.957     1.028     0.968      0.998
+  37  0.943     1.003     0.957      0.983
+  41  0.954     1.009     0.972      0.994
+  46  0.948     0.978     0.938      0.962
+  51  0.945     0.992     0.932      0.969
+  57  0.820     0.813     0.871      0.929
+  63  0.564     0.578     0.557      0.576
+  70  0.653     0.876     0.782      0.892
+  77  0.706     0.617     0.763      0.715
+  85  0.617     0.629     0.619      0.623
+  94  0.638     0.637     0.631      0.636
+ 104  0.623     0.622     0.611      0.618
+ 115  0.661     0.673     0.662      0.677
+ 127  0.681     0.699     0.684      0.691
+ 140  0.694     0.708     0.691      0.702
+ 154  0.703     0.730     0.717      0.722
+ 170  0.733     0.745     0.735      0.738
+ 188  0.747     0.756     0.748      0.751
+
+%=== Tue Mar 31 19:48:19 2009 mstorti@galileo
+%
+%-- 19:48:19 -- fastmat2-omp-start-6-g94100f9 -----
+Hago un test en galileo con g++ y intel-c++, con OpenMP y nthreads 1 y
+2. 
+%
+%  <gccvsicc.svg>
+%
+--
+g++1: g++ -O3 -funroll-loops con nthreads=1
+g++2: g++ -O3 -funroll-loops con nthreads=2
+icc1: icc -O3 -funroll-loops con nthreads=1
+icc2: icc -O3 -funroll-loops con nthreads=2
+icc3: icc + mkl(dgemm), nthread=1
+icc4: icc + mkl(dgemm), nthread=2
+dot1: icc + mkl(dddot) = myprodmkl2, nthread=1
+dot2: icc + mkl(dddot) = myprodmkl2, nthread=2
+atl1: g++ + Atlas (installed by default) nthread=1
+atl2: g++ + Atlas (installed by default) nthread=2
+atl3: g++ + Atlas (installed and configured) nthread=1
+atl4: g++ + Atlas (installed and configured) nthread=2
+atl6: g++ + Atlas (installed and configured, shared, better clock) nthread=2
+atl7: g++ + Atlas (but pointing with LD_LIBRARY_PATH, 
+                    so that we are sure that uses the correct libraries)
+--
+  n  g++1    g++2   icc1   icc2   icc3   icc4  dot1   dot2  atl1   atl2   atl3   atl4  atl6
+ 10  1.103   1.825  0.802  1.489  0.873  1.369 0.348  0.644 0.943  1.504  0.851  1.140 1.510
+ 11  1.081   1.851  0.810  1.547  0.988  1.531 0.364  0.696 1.013  1.612  0.900  1.226 1.590
+ 12  1.078   1.903  0.855  1.624  1.780  2.554 0.397  0.734 1.077  1.797  0.907  1.562 1.879
+ 13  1.086   1.958  0.900  1.692  1.263  1.880 0.417  0.792 1.138  1.885  0.949  1.543 1.865
+ 14  1.074   1.960  0.867  1.694  1.393  2.204 0.443  0.854 1.174  1.913  0.971  1.489 1.920
+ 15  1.018   1.848  0.833  1.588  1.437  2.263 0.461  0.776 1.172  1.773  1.002  1.551 1.900
+ 16  1.055   2.007  0.810  1.634  2.419  3.716 0.485  0.805 1.193  1.769  1.029  1.620 2.027
+ 17  1.171   1.857  0.879  1.738  1.650  2.746 0.506  0.852 1.180  1.577  1.030  1.466 2.052
+ 18  1.162   1.889  0.854  1.699  1.770  2.648 0.539  0.962 1.277  1.975  1.046  1.483 2.272
+ 19  1.080   1.751  0.885  1.769  1.758  2.450 0.539  0.934 1.257  2.035  1.068  1.838 2.255
+ 20  1.130   1.778  0.909  1.845  2.783  4.327 0.565  1.020 1.253  2.062  1.084  1.477 2.283
+ 21  1.095   1.593  0.928  1.842  1.956  2.738 0.580  1.112 1.269  2.081  1.098  1.304 2.318
+ 23  1.111   1.798  0.969  1.911  2.051  3.396 0.605  1.182 1.249  2.207  1.114  1.562 2.341
+ 25  1.232   2.273  0.982  1.922  2.314  3.835 0.636  1.240 1.333  2.458  1.577  2.713 2.487
+ 27  1.188   2.030  0.963  1.893  2.360  4.031 0.663  1.290 1.304  2.389  1.502  2.486 2.494
+ 29  1.147   2.054  0.960  1.875  2.509  4.262 0.692  1.357 1.332  2.176  1.462  2.503 2.463
+ 31  1.140   1.798  0.971  1.909  2.496  4.301 0.715  1.399 1.306  2.337  1.422  2.440 2.455
+ 33  1.180   2.011  0.978  1.972  2.688  4.609 0.734  1.466 1.341  2.447  1.408  2.421 2.554
+ 35  1.192   2.102  1.004  2.006  2.705  4.925 0.769  1.464 1.341  2.414  1.390  2.450 2.558
+ 37  1.176   2.066  1.006  2.001  2.876  5.274 0.787  1.566 1.374  2.443  1.520  2.721 2.579
+ 39  1.151   1.751  1.008  1.990  2.879  5.310 0.807  1.596 1.352  2.660  1.488  2.586 2.659
+ 41  1.180   2.258  0.941  1.928  3.062  5.764 0.829  1.618 1.354  2.668  1.463  2.664 2.649
+ 44  1.202   2.373  1.033  2.028  4.045  7.613 0.873  1.717 1.397  2.626  1.993  3.416 2.704
+ 47  1.131   2.218  0.999  2.010  3.183  6.067 0.858  1.714 1.391  2.586  1.902  3.114 2.723
+ 50  1.168   2.287  1.022  2.029  3.447  6.618 0.907  1.818 1.406  2.776  2.290  3.514 2.749
+ 53  1.152   2.237  1.023  2.048  3.480  6.657 0.912  1.823 1.396  2.715  2.191  3.978 2.668
+ 56  1.141   1.951  1.042  2.088  4.130  8.234 0.950  1.889 2.660  5.289  4.594  8.006 5.042
+ 59  1.140   2.172  0.994  1.989  3.602  6.393 0.935  1.884 2.224  4.699  3.759  5.773 4.622
+ 62  1.155   2.199  1.017  2.018  3.807  7.317 0.972  1.885 2.459  4.868  4.067  5.801 4.863
+ 66  1.153   1.977  0.917  1.795  3.894  7.443 0.972  1.881 2.411  4.765  3.841  5.819 4.691
+ 70  1.119   2.132  0.924  1.830  4.019  7.750 0.982  1.918 2.365  4.703  3.991  5.378 4.718
+ 74  1.122   1.998  0.927  1.812  4.060  7.819 0.975  1.927 2.325  4.640  3.755  5.024 4.598
+ 78  1.110   2.078  0.938  1.836  4.185  8.065 0.988  1.958 2.272  4.477  3.522  5.426 4.401
+ 82  1.130   2.198  0.937  1.825  4.240  7.868 1.001  2.009 2.208  4.397  3.713  6.141 4.221
+ 87  1.081   2.167  0.919  1.818  4.218  8.275 0.970  1.949 2.157  4.034  2.817  4.805 3.769
+ 92  1.119   2.225  0.957  1.864  5.055  9.853 1.031  2.008 2.127  3.793  3.626  6.986 3.327
+ 97  1.104   2.139  0.923  1.805  4.439  8.692 1.010  1.979 2.032  4.057  2.782  5.287 3.781
+102  1.101   2.162  0.955  1.863  4.557  8.945 1.059  2.024 1.980  3.948  3.117  5.485 3.154
+108  1.110   2.184  0.973  1.901  5.238 10.083 1.076  1.809 1.959  2.893  3.266  5.156 2.640
+114  1.110   2.181  0.965  1.904  4.684  8.671 1.085  2.115 2.674  4.532  4.953  8.568 5.006
+120  1.011   2.005  0.927  1.794  5.375 10.362 1.066  1.974 2.709  4.112  4.878  8.556 4.664
+126  1.098   2.192  0.973  1.882  4.849  9.519 1.118  1.872 2.707  4.017  4.839  8.625 5.164
+133  1.081   2.145  0.953  1.866  4.883  9.587 1.088  1.866 2.551  4.255  3.705  5.779 4.831
+140  1.100   2.190  0.992  1.963  5.495 10.683 1.127  1.940 2.563  3.895  4.573  8.290 4.185
+147  1.092   2.161  0.967  1.896  4.930  9.644 1.093  2.067 2.483  3.893  3.366  6.375 3.958
+155  1.093   2.139  0.968  1.905  5.030  9.120 1.119  2.108 2.432  3.816  3.309  6.083 3.622
+163  1.094   2.155  0.974  1.931  5.063  9.758 1.107  2.102 2.358  3.921  3.252  6.131 4.095
+172  1.099   2.163  1.004  1.983  5.662 10.817 1.132  1.970 2.786  5.254  5.258  9.623 5.315
+181  1.087   2.154  0.978  1.946  5.232 10.201 1.150  2.179 2.743  5.301  4.450  8.206 5.294
+191  1.085   2.132  0.986  1.959  5.198 10.097 1.142  2.121 2.706  5.182  4.021  7.651 5.094
+%
+% ------------------------------------------%
+icc3: icc + mkl(dgemm), nthread=1
+atl1: g++ + Atlas (installed by default) nthread=1
+atl3: g++ + Atlas (installed and configured, tunned) nthread=1
+atl7: g++ + Atlas (same as ATL2 but but pointing with LD_LIBRARY_PATH, 
+            so that we are sure that uses the correct libraries)
+IMTML1: Intel Fortran with Matmul
+GFATL1: Gfortran with external blas library (ATLAS) 
+<see higheff.svg>
+% ------------------------------------------%
+     ICC3  ATL1   ATL3   ATL7   IMTML1  GFATL1   GMKL
+ 10  0.873 0.943  0.851  0.826  1.231   0.770   0.904
+ 11  0.988 1.013  0.900  0.879  1.138   0.827   1.048
+ 12  1.780 1.077  0.907  0.905  1.744   0.809   1.914
+ 13  1.263 1.138  0.949  0.940  1.462   0.870   1.304
+ 14  1.393 1.174  0.971  0.943  1.583   0.869   1.404
+ 15  1.437 1.172  1.002  0.987  1.400   0.881   1.479
+ 16  2.419 1.193  1.029  1.006  2.110   0.892   2.494
+ 17  1.650 1.180  1.030  1.026  1.658   1.002   1.642
+ 18  1.770 1.277  1.046  1.032  1.946   0.993   1.781
+ 19  1.758 1.257  1.068  1.049  1.587   0.998   1.786
+ 20  2.783 1.253  1.084  1.075  2.337   0.979   2.781
+ 21  1.956 1.269  1.098  1.076  1.933   1.012   2.006
+ 23  2.051 1.249  1.114  1.087  1.822   1.020   2.012
+ 25  2.314 1.333  1.577  1.589  2.040   1.059   2.300
+ 27  2.360 1.304  1.502  1.491  2.002   1.085   2.387
+ 29  2.509 1.332  1.462  1.453  2.140   1.056   2.570
+ 31  2.496 1.306  1.422  1.415  2.071   1.414   2.570
+ 33  2.688 1.341  1.408  1.400  2.280   1.402   2.682
+ 35  2.705 1.341  1.390  1.378  2.206   1.381   2.684
+ 37  2.876 1.374  1.520  1.500  2.305   1.515   2.874
+ 39  2.879 1.352  1.488  1.473  2.204   1.412   2.902
+ 41  3.062 1.354  1.463  1.452  2.381   1.468   3.058
+ 44  4.045 1.397  1.993  1.976  2.914   1.903   4.052
+ 47  3.183 1.391  1.902  1.900  2.337   1.850   3.160
+ 50  3.447 1.406  2.290  2.254  2.841   2.186   3.451
+ 53  3.480 1.396  2.191  2.161  2.493   2.142   3.495
+ 56  4.130 2.660  4.594  4.519  2.995   4.226   4.391
+ 59  3.602 2.224  3.759  3.735  2.455   3.679   3.605
+ 62  3.807 2.459  4.067  4.026  2.923   3.993   3.773
+ 66  3.894 2.411  3.841  3.884  2.931   3.734   3.860
+ 70  4.019 2.365  3.991  3.963  2.881   3.891   3.954
+ 74  4.060 2.325  3.755  3.667  2.947   3.610   4.084
+ 78  4.185 2.272  3.522  3.488  2.944   3.429   4.134
+ 82  4.240 2.208  3.713  3.655  3.035   3.582   4.180
+ 87  4.218 2.157  2.817  2.793  2.545   2.781   4.070
+ 92  5.055 2.127  3.626  3.616  3.186   3.521   5.085
+ 97  4.439 2.032  2.782  2.780  2.681   2.762   4.469
+102  4.557 1.980  3.117  3.098  3.083   3.091   4.599
+108  5.238 1.959  3.266  3.249  3.222   3.200   5.244
+114  4.684 2.674  4.953  4.939  3.137   4.779   4.655
+120  5.375 2.709  4.878  4.827  3.252   4.662   5.383
+126  4.849 2.707  4.839  4.775  3.191   4.759   4.842
+133  4.883 2.551  3.705  3.659  2.732   3.672   4.873
+140  5.495 2.563  4.573  4.516  3.290   4.476   5.454
+147  4.930 2.483  3.366  3.331  2.706   3.327   4.920
+155  5.030 2.432  3.309  3.260  2.700   3.120   4.829
+163  5.063 2.358  3.252  3.233  2.716   3.193   4.964
+172  5.662 2.786  5.258  5.167  3.329   5.104   5.556
+181  5.232 2.743  4.450  4.443  2.783   4.253   5.174
+191  5.198 2.706  4.021  4.068  2.720   3.913   5.103
+
+%=== Mon Apr  6 17:24:15 2009 mstorti@galileo
+%
+%-- 17:24:15 -- fastmat2-omp-start-9-g229072e -----
+Pruebo a hacer un programa `testdm2di' que hace el producto de las
+matrices usando las blas (cblas_dgemm()).  Entonces usando las Atlas
+que vienen por default da 2.02Gflops para n=100, mientras que con las
+tuneadas da 3.19Gflops. 
+%
+[mstorti@galileo tests]$ ./testfm2di.bin -F 1 -n 100 -N 1000 -t 0.5 -T 1
+n: 100, N: 1000, M: 1000, loop: 2, fm2: 1, nthreads 1
+elapsed: 1.253 [sec], ops: 4.000 [Gflop], rate: 3.192 [Gflops]
+[mstorti@galileo tests]$ ./testfm2di.bin -F 1 -n 100 -N 1000 -t 0.5 -T 1
+n: 100, N: 1000, M: 1000, loop: 2, fm2: 1, nthreads 1
+elapsed: 1.974 [sec], ops: 4.000 [Gflop], rate: 2.026 [Gflops]
+%
+Esto estaría de acuerdo con las performances obtenidas con las Atlas,
+descriptos en la tabla anterior. 
+
+%=== Wed Apr  8 06:24:21 2009 mstorti@galileo
+%
+%-- 06:24:21 -- fastmat2-omp-start-10-gb736ac9 -----
+Corro los tests con la version MKL
+-- CON G-C++
+CAN'T OPEN:
+genload/save.case_genl1d.tmp
+genload/save.case_genl1dh.tmp
+NOT-OK
+sqcav/check.fs.verif.tmp
+idmap/tidmap.sal
+newff/adv_temp_cp.vrf.tmp
+newff/full_full_jacs_cp.vrf.tmp
+newff/full_full_jacs_adv_cp.vrf.tmp
+newff/adv_temp_cp_iisd.vrf.tmp
+distmap/dist_graph.np2.out.tmp
+distmap/dist_graph.np3.out.tmp
+-- CON O-C++
+CAN'T OPEN:
+genload/save.case_genl1d.tmp
+genload/save.case_genl1dh.tmp
+NOT-OK
+sqcav/check.fs.verif.tmp
+idmap/tidmap.sal
+newff/adv_temp_cp.vrf.tmp
+newff/full_full_jacs_cp.vrf.tmps
+newff/full_full_jacs_adv_cp.vrf.tmp
+newff/adv_temp_cp_iisd.vrf.tmp
+distmap/dist_graph.np3.out.tmp
+-----
+O sea que son los mismos. Los de DIST-GRAPH sabemos que es porque no
+escriben bien. O sea quedan los 6 de siempre y los nuevos de genload. 
+
+%=== Wed Apr  8 20:21:48 2009 mstorti@galileo
+%
+%-- 20:21:48 -- fastmat2-omp-start-14-g9fce5ee -----
+Tratando de ver el tema de la `sueprlinealidad', o sea en general un
+producto de matrices seria
+%
+for (int j=0; j<m; j++) {
+    for (int k=0; k<n; k++) {
+        sum = 0.0;
+        for (int l=0; l<p; l++) 
+            sum += a(j,l)*b(l,k);
+        c(j,k) = sum;
+    }
+}
+
+Eso quiere decir que en cada lazo interno visitamos strides
+a(j,.) y b(.,l) y seteamos en los valores c(j,k). Los strides tienen
+que ser de espaciamiento constante entre si. Ademas las posiciones de
+las matrices visitadas son
+
+c(j,k)
+stride que empieza en a(j,0)
+stride que empieza en b(0,k)
+
+O sea que para ver que es superlineal. 
+* Todos los strides tienen que ser lineales
+  llamamos `incrowa' al stride de a e `inccolb' al stride de b
+
+* los target c(j,k) deben ser matriciales
+  &c(j,k) = &c(0,0) + incrowc * j + inccolc * k
+
+* los comienzos de stride de a deben ser matriciales
+  &a(j,0) = &a(0,0) + j*incrowa
+
+* los comienzos de stride de b deben ser matriciales
+
+Que sean matriciales quiere decir que deben ser de la forma
+
+target(j,k) = 
+
+* para los strides de a debe ser cierto uno de los dos siguientes
+
+... [parece que no termine con la idea!!]
+
+%=== Tue Apr 14 19:22:14 2009 mstorti@galileo
+%
+%-- 19:22:14 -- fastmat2-omp-start-20-gaffd1d3 -----
+A ver otro enfoque:
+%
+Para cada una de A y B tenemos lo siguiente:
+
+* Una serie de posiciones &a(j,k) = a(0,0)+incrow*j+inccol*k
+  j in [0,nrows), k in [0,ncols). 
+
+* O sea que las posiciones quedan definidas por
+  (nrows,ncols,incrow,inccol). 
+
+* Si uno de ellos nrows o ncols es 1 el `inc' correspondiente es
+  irrelevante. En ese caso ponemos el inc a 1. 
+
+* Se puede permutar el indice de filas y columnas, por ejemplo
+  (n1,n2,inc1,inc2) == (n2,n1,inc2,inc1)
+  Para usar dgemm hay que hacer que inccol sea 1, o sea que 
+  habria que permutar de forma que inccol sea el minimo y verificar
+  que sea 1. 
+
+* Modo de recorrido:
+  Los strides son recorridos en orden 
+  %
+  a(0,.) x ncolsb veces,
+  a(1,.) x ncolsb veces,
+  ...
+  a(nrowsa-1,.) x ncolsb veces,
+  %
+  Si A participa de un producto B*A, entonces las columnas se acceden
+  de la siguiente forma
+  %
+  (a(.,0), a(.,1),...,   a(.,ncolsa-1)) x nrowsb veces
+  % 
+  Si A participa de A'*B entonces el recorrido es
+  a(.,0) x ncolsb veces
+  a(.,1) x ncolsb veces
+  ...
+  %
+  Mientras que si participa de B*A' entonces es
+  (a(0,.), a(1,.),...,   a(ncolsa-1,.)) x nrowsb veces
+  
+* La info seria entonces
+  (nrows,ncols,incrow,inccol,stride_type,mode)
+
+  stride_type: by_rows, by_cols (cada stride es una fila o una columna)
+             
+  mode: short (recorre los strides en forma creciente)
+        long  (recorre los strides en forma escalonada)
+        Normalmente el mode es long para A y short para B
+
+* Cuando hacemos A*B tenemos
+  A = (nrowsa,ncolsb,lda,1,by_rows,long)
+  B = (nrowsb,ncolsb,ldb,1,by_cols,short)
+  
+* Cuando hacemos A'*B
+  A = (nrowsa,ncolsb,lda,1,by_cols,long)
+  B = (nrowsb,ncolsb,ldb,1,by_cols,short)
+  
+%=== Sat Apr 25 21:20:22 2009 mstorti@galileo
+%
+%-- 21:20:22 -- fastmat2-omp-start-28-gd9d7fd1 -----
+EFICIENCIA EN COYOTE
+%
+Al instalar nuevas maquinas Xeon Quad-Core para que ande el
+`lm_sensors' hay que usar un nuevo kernel. Pero surge la duda de que
+no este bien la eficiencia por lo reportado en `notes-info.txt':
+%
+Este es el mail que le habia mandado a Ale Dabin
+> El día 1 de diciembre de 2008 7:12, Mario Storti
+> <mario.storti@gmail.com> escribió:
+>> Ale, ahi probe todos los kernels.  Lo que hay que mirar es la columna
+>> que dice `Total' que es el tiempo por iteracion en segundos.  Parece
+>> que las noticias no son buenas, es decir el unico que funciona es el
+>> 2.6.24. La version -opt no hace demasiado. Mario
+>>
+>> 2.6.24:     avrg: 19.054 2.257 2.992 12.665 3.480 0.989 Total: 41.437 OK
+>> 2.6.24-opt  avrg: 19.137 2.265 2.975 12.696 3.485 0.979 Total: 41.538 OK
+>> 2.6.25:     avrg: 27.527 2.770 6.453 15.536 6.919 1.223 Total: 60.428 NOT-OK
+>> 2.6.25-opt: avrg: 31.023 2.777 7.104 15.780 8.058 1.234 Total: 65.976 NOT-OK
+>> 2.6.26:     avrg: 27.394 2.700 6.352 15.266 7.256 1.188 Total: 60.155 NOT-OK
+>> 2.6.26-opt: avrg: 34.845 2.877 7.352 16.420 8.376 1.274 Total: 71.144 NOT-OK
+>> 2.6.27.4:   avrg: 31.405 2.769 7.058 15.803 8.096 1.248 Total: 66.379 NOT-OK
+>> 2.6.27.4-v2:avrg: 31.282 2.729 6.963 15.812 8.046 1.242 Total: 66.073 NOT-OK
+%
+Veo que los logs quearon en coyote asi que voy a tratar de volver a
+correrlo. 
+
+%=== Sun May  3 09:38:01 2009 mstorti@galileo
+%
+%-- 09:38:01 -- fastmat2-omp-start-28-gd9d7fd1 -----
+%
+Retomo, pero resulta que en `coyote' no lo puedo correr, me da un
+error de FPE (Floating Point Exception). 
+> METIS partition - partflag = 0
+>      edgecut 2765
+> Ends partitioning.
+> natural partition: max 5.85354, sum 150.008
+> match graph algorithm: max 5.85354, sum 150.008
+> random permut: max 5.85354, sum 150.008
+> [0]PETSC ERROR: ------------------------------------------------------------------\
+> ------
+> [0]PETSC ERROR: Caught signal number 8 FPE: Floating Point Exception,probably divi\
+> de by zero
+> [0]PETSC ERROR: Try option -start_in_debugger or -on_error_attach_debugger
+%
+Es algun lio con el particionamiento modificado para procesamienro
+mutlicore (MPI+OpenMP). Hay que desactivar la linea 
+%
+> ncore 8
+> multicore_rand_part 1
+%
+%-- 10:21:27 -- fastmat2-omp-start-28-gd9d7fd1 -----
+El commit en petscfem-cases donde estaba haciendo los tests en coyote
+es `cases-1.0.40-76-g332dc2b'. Recordemos que para N=80 los tiempos
+eran (aprox.)
+%
+>> 2.6.24:     avrg: 19.054 2.257 2.992 12.665 3.480 0.989 Total: 41.437 OK
+>> 2.6.25:     avrg: 27.527 2.770 6.453 15.536 6.919 1.223 Total: 60.428 NOT-OK
+%
+OJO que en el medio puede haber estado el cambio con el uso de las
+MKL, pero en principio esto afectaria solo a las etapas de
+resolucion. 
+%
+%-- 10:34:59 -- fastmat2-omp-start-28-gd9d7fd1 -----
+Volviendo a correr en node2, me da lo mismo que antes:
+(log: nohup-N80-node2-NP8-2.6.24.log)
+avrg: 18.846 2.248 2.922 12.290 3.491 1.423 Total: 41.221
+%
+En node6, con el nuevo kernel (nohup-N80-node6-NP8-2.6.29.1.log)
+avrg: 15.081 2.291 2.308 11.851 2.747 1.045 Total: 35.323
+%
+%-- 12:13:09 -- fastmat2-omp-start-28-gd9d7fd1 -----
+Enviado a dabin y jdelia:
+> 
+> Gente, ahí hice la prueba en node6@coyote con el nuevo kernel
+> (2.6.29.1). Hago un recuerdo de como es la historia
+> 
+> * En un cierto momento habiamos notado que los kernels >=2.6.25 tenian
+>   una perdida de eficiencia importante con respecto al 2.6.24. Por eso
+>   en coyote hicimos un downgrade a 2.6.24. 
+> 
+> * Ahora bien al instalar los nuevos nodos (Xeon Quadcore E5420)
+>   resulta que el lm_sensors no andaba (por el proc o por la mother, no
+>   se). Entonces era necesario usar un kernel mas nuevo. Ale instalo
+>   entonces el 2.6.29.1, pero solo esta en los nodos nuevos.
+> 
+> * Corri el test de PETSc-FEM con la cavidad cubica (80x80x80) 
+>   en los 8 cores. 
+> 
+> * En el nodo2 da 41 secs lo cual coincide con lo
+>   quedaba antes. 
+> 
+> * En el node6 da 35 secs lo cual me parece que esta OK si tenemos en
+>   cuenta que la velocidad del procesador se incremeento de 2GHz a
+>   2.5GHz.
+> 
+> Podriamos probar a poner el 2.6.29.1 en todos los nodos a ver si da
+> los 41 secs en los nodos de 2GHz. 
+> 
+> Mario
+
+%=== Tue May  5 16:26:49 2009 mstorti@galileo
+%
+%-- 16:26:49 -- fastmat2-omp-start-28-gd9d7fd1 -----
+Instalacion en aquiles64: Anda todo bien, pero resulta que cuando
+quiero correr los tests se empieza a cortar en ciertos puntos. Al
+lanzar alguna de las corridas se planata porque el mpd no la puede
+lanzar. Esto cuando el lanzo el 'run tests' salta en `oscplate' en
+alguna de las corridas, pero en cual de ellas es un poco aleatorio. Yo
+creo que es un problema del mpd. 
+
+%=== Wed May  6 06:47:30 2009 mstorti@galileo
+%
+%-- 06:47:30 -- fastmat2-omp-start-28-gd9d7fd1 -----
+El error que tira es el siguiente:
+%
+mpiexec_aquiles (mpiexec 392): no msg recvd from \
+mpd when expecting ack of request
+%
+%
+%-- 07:04:24 -- fastmat2-omp-start-28-gd9d7fd1 -----
+Aparentemente el timeout del tiempo se puede cambiar con 
+la variable MPIEXEC_RECV_TIMEOUT o el arg. '-recvtimeout'. 
+%
+%-- 08:51:36 -- fastmat2-omp-start-28-gd9d7fd1 -----
+Aparentemente el error se debe a que al correr los tests hay algunos
+que corren muy rapido y como que el mpd no llega a responder. Por
+ejemplo probe a tomar uno de los oscplate y hacerlo dentro de un lazo
+(10 o 100 veces) y si le pongo 300 pasos al NS entonces no hay
+problema ya que aparentemente tarda un cierto tiempo en ejecutar cada
+uno de los casos. En cambio si le pongo 3 pasos solamente entonces lo
+hace bien. De repente le hice un cambio y a partir de ahi anda
+bien. Por ejemplo se puede deber a que le agregue un `date' en el lazo
+y eso ya hace que tarde un cierto tiempo en ejecutar el siguiente
+comando `mpiexec'. 
+%
+%-- 11:35:10 -- fastmat2-omp-start-28-gd9d7fd1 -----
+Lanzo los tests con el mpd ring en todos los nodos y falla por el
+error de siempre. Creo que se confirma lo de que se debe a que los
+jobs se lanzan muy rapido. 
+
+%=== Thu May  7 08:11:25 2009 mstorti@galileo
+%
+%-- 08:11:25 -- fastmat2-omp-start-29-g8336e08 -----
+Vuelvo al tema de usar dgemm/MKL para los productos de matrices. 
+
+%=== Sun May 10 20:25:45 2009 mstorti@galileo
+%
+%-- 20:25:45 -- fastmat2-omp-start-39-g9748679 -----
+Corro todos los tests. Me da lo siguiente:
+%
+NOT OK-------
+sqcav/check.fs.verif.tmp
+idmap/tidmap.sal
+newff/adv_temp_cp.vrf.tmp
+newff/full_full_jacs_cp.vrf.tmp
+newff/full_full_jacs_adv_cp.vrf.tmp
+newff/adv_temp_cp_iisd.vrf.tmp
+distmap/dist_graph.np3.out.tmp
+CAN'T OPEN-------
+genload/save.case_genl1d.tmp
+genload/save.case_genl1dh.tmp
+%
+O sea que estamos igual que la ultima vez que corri los tests. 
+[Wed-Apr-8.06:24:21.fastmat2-omp-start-10-gb736ac9] 
+%
+%--[2009-05-10.22:56:00.fastmat2-omp-start-40-ge64df79]-----
+Verifico exportando varias versiones anteriores (g018cfb9, g11d133c,
+g92435ee) que supuestamente no tenian errores "can't open" en
+test/genload pero todos tienen el error asi que por ese lado no puedo
+buscar. Tal vez una forma seria chequear en alguna corrida de los
+tests que haya salvado, por ejemplo:
+%
+CD0339-2008-SEP-09.prandtl-tempo.txt.gz:-r--r--r-- 1 mstorti root 61149546 Sep  7 22:31 make-tests-g_c++.tar.gz
+
+%=== Mon May 11 08:24:58 2009 mstorti@galileo
+%
+%--[2009-05-11.08:24:58.fastmat2-omp-start-40-ge64df79]-----
+Runs all tests like before, i.e.
+NOT OK-------
+sqcav/check.fs.verif.tmp
+idmap/tidmap.sal
+newff/adv_temp_cp.vrf.tmp
+newff/full_full_jacs_cp.vrf.tmp
+newff/full_full_jacs_adv_cp.vrf.tmp
+newff/adv_temp_cp_iisd.vrf.tmp
+distmap/dist_graph.np3.out.tmp
+CAN'T OPEN-------
+%
+%--[2009-05-11.09:08:26.fastmat2-omp-start-40-ge64df79]-----
+En `genload' cambie que use el CacheCtx2 y entonces facilmente logro
+que ande todo bien. No se muy bien porque dejo de andar con el
+CacheCtx1. 
+%
+%--[2009-05-11.09:15:48.fastmat2-omp-start-40-ge64df79]-----
+Corro los tests, los archivos quedan en un backup:
+%
+  /home/scratch/mstorti/TO-BACKUP/DATA-CD/runtests-2009-05-11:
+  total used in directory 88M available 68176124
+  -rw-r--r-- 1 mstorti users 559K May 11 09:14 make-tests-O_c++.log
+  -rw-r--r-- 1 mstorti users  16M May 11 09:14 make-tests-O_c++.tar.gz
+  -rw-r--r-- 1 mstorti users 559K May 11 08:57 make-tests-g_c++.log
+  -rw-r--r-- 1 mstorti users  71M May 11 08:57 make-tests-g_c++.tar.gz
+%
+El conteo de tests es como antes (tanto en g_c++, como en O_c++):
+%
+NOT OK-------> 7
+sqcav/check.fs.verif.tmp
+idmap/tidmap.sal
+newff/adv_temp_cp.vrf.tmp
+newff/full_full_jacs_cp.vrf.tmp
+newff/full_full_jacs_adv_cp.vrf.tmp
+newff/adv_temp_cp_iisd.vrf.tmp
+distmap/dist_graph.np3.out.tmp
+CAN'T OPEN-------> 0
+%
+%--[2009-05-11.20:04:03.fastmat2-omp-start-43-gb4d25d9]-----
+Corro los tests, todo OK, solo se agrega a los  de arriba el 
+distmap/dist_graph.np2.out.tmp pero debe ser por la misma razon que el
+otro en distmap. 

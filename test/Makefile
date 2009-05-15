@@ -69,6 +69,9 @@ torture_1:
 	-./runtests.pl -n | tee -a make-tests-$(BOPT).log
 #
 	tar czvf ../make-tests-$(BOPT).tar.gz -C .. test
+	echo "-------------------------\nABRIDGED: " \
+		| tee -a  make-tests-$(BOPT).log
+	$(MAKE) abridged | tee -a make-tests-$(BOPT).log
 
 #w report:
 report:
@@ -119,9 +122,8 @@ runtests: compile sector oscplate fastmat2 plano idmap constraint_bug 	 \
 	advec nsgenload cubcav project embgath alebcconv
 
 rp: runtests_p
-runtests_p: newff burgers bug100 genload 	 \
-	lupart distmap sparse graph sqcav pfmat aquifer nutatcyl mmove 	 \
-	advec nsgenload cubcav project embgath
+runtests_p:  graph sqcav pfmat aquifer nutatcyl mmove 	 \
+	advec nsgenload cubcav project embgath alebcconv
 
 #s Specific tests
 #----<*>----------<*>----------<*>----------<*>----------<*>----------<*>-----
@@ -284,5 +286,16 @@ embgath:
 # Invariance of ALE with bcconv (ALE corrected version)
 alebcconv:
 	$(MAKE) -C alebcconv tests
+
+# makes an abridged acount of the tests
+abridged:
+	@ ( echo "NOT OK-------" ;				\
+	./runtests.pl -n | grep "^Testing" |			\
+		perl -pe 's/^.*on file "(.*)".*$$/$$1/' ;	\
+	echo "CAN'T OPEN-------" ;				\
+	./runtests.pl -o | grep "^can't open" |			\
+		perl -pe "s/^can't open //" ; )			\
+		| tee abridged.tmp
+
 
 #s

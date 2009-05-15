@@ -409,28 +409,30 @@ assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
       PETSCFEM_ERROR0("Not compiled with ANN library!!\n");
 #endif
     }
-#define DSHAPEXI (*gp_data.FM2_dshapexi[ipg])
-#define SHAPE    (*gp_data.FM2_shape[ipg])
-#define WPG      (gp_data.wpg[ipg])
-#define WPG_SUM  (gp_data.wpg_sum)
-
     // loop over Gauss points
     for (ipg=0; ipg<npg; ipg++) {
 
-      Jaco.prod(DSHAPEXI,xloc,1,-1,-1,2);
+      FastMat2 
+        &dshapexi = (*gp_data.FM2_dshapexi[ipg]),
+        &shape = (*gp_data.FM2_shape[ipg]);
+      double 
+        wpg = (gp_data.wpg[ipg]),
+        wpg_sum = (gp_data.wpg_sum);
+
+      Jaco.prod(dshapexi,xloc,1,-1,-1,2);
 
       detJaco = Jaco.det();
       if (detJaco<=0.) {
 	detj_error(detJaco,elem);
 	set_error(1);
       }
-      wpgdet = detJaco*WPG;
+      wpgdet = detJaco*wpg;
       iJaco.inv(Jaco);
-      dshapex.prod(iJaco,DSHAPEXI,1,-1,-1,2);
+      dshapex.prod(iJaco,dshapexi,1,-1,-1,2);
 
       // Modificado x Beto
       // double Area   = npg*wpgdet;
-      double Area = detJaco*WPG_SUM;
+      double Area = detJaco*wpg_sum;
       // fin modificado x Beto
 
       double h_pspg,Delta;
@@ -457,9 +459,9 @@ assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
 
         detJaco_axi = Jaco_axi.det();
 	// Modificado x Beto July 9 2003
-	//        double wpgdet_axi = detJaco_axi*WPG;
+	//        double wpgdet_axi = detJaco_axi*wpg;
 	//        double Area_axi = 0.5*npg*fabs(wpgdet_axi);
-        double Area_axi = 0.5*detJaco_axi*WPG_SUM;
+        double Area_axi = 0.5*detJaco_axi*wpg_sum;
 	h_pspg = sqrt(4.*Area_axi/pi);
 	Delta = sqrt(Area_axi);
 	// fin modificado x Beto
@@ -475,10 +477,10 @@ assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
 	}
 
 	// state variables and gradient
-	u.prod(SHAPE,ucols,-1,-1,1);
+	u.prod(shape,ucols,-1,-1,1);
 
-	p_star = double(tmp8.prod(SHAPE,pcol_star,-1,-1));
-	u_star.prod(SHAPE,ucols_star,-1,-1,1);
+	p_star = double(tmp8.prod(shape,pcol_star,-1,-1));
+	u_star.prod(shape,ucols_star,-1,-1,1);
 
 	grad_u.prod(dshapex,ucols,1,-1,-1,2);
 	grad_u_star.prod(dshapex,ucols_star,1,-1,-1,2);
@@ -491,7 +493,7 @@ assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
 
 	v_mesh.set(0.0);
 	if (ALE_flag) {
-	  v_mesh.prod(SHAPE,vloc_mesh,-1,-1,1);
+	  v_mesh.prod(shape,vloc_mesh,-1,-1,1);
 	}
 
 	// Smagorinsky turbulence model
@@ -500,13 +502,13 @@ assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
 	  double tr = (double) tmp15.prod(strain_rate,strain_rate,-1,-2,-1,-2);
 	  //	  double van_D;
 	  if (A_van_Driest>0.) {
-	    //	    dist_to_wall.prod(SHAPE,xloc,-1,-1,1).rest(wall_coords);
+	    //	    dist_to_wall.prod(shape,xloc,-1,-1,1).rest(wall_coords);
 	    ywall = sqrt(dist_to_wall.sum_square_all());
 	    double y_plus = ywall*shear_vel/VISC;
 	    van_D = 1.-exp(-y_plus/A_van_Driest);
 	  } else van_D = 1.;
 	  
-	  double nu_t = SQ(C_smag*Delta*van_D)*sqrt(2*tr);
+	  double nu_t = square(C_smag*Delta*van_D)*sqrt(2*tr);
 	  nu_eff = VISC + nu_t;
 	} else {
 	  nu_eff = VISC;
@@ -553,12 +555,12 @@ assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
 
 	Peclet = velmod * h_supg / (2. * nu_eff);
 
-        tau_supg = tsf*SQ(2.*rec_Dt)+SQ(2.*velmod/h_supg)
-	  +9.*SQ(4.*nu_eff/SQ(h_supg));
+        tau_supg = tsf*square(2.*rec_Dt)+square(2.*velmod/h_supg)
+	  +9.*square(4.*nu_eff/square(h_supg));
         tau_supg = 1./sqrt(tau_supg);
 
-        tau_pspg = tsf*SQ(2.*rec_Dt)+SQ(2.*velmod/h_pspg)
-	  +9.*SQ(4.*nu_eff/SQ(h_pspg));
+        tau_pspg = tsf*square(2.*rec_Dt)+square(2.*velmod/h_pspg)
+	  +9.*square(4.*nu_eff/square(h_pspg));
 
         tau_pspg = 1./sqrt(tau_pspg);
 
@@ -598,7 +600,7 @@ assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
 	P_supg.prod(vel_supg,dshapex,-1,-1,1).scale(tau_supg);
 
 	// Weight function 
-	W_supg.set(P_supg).add(SHAPE);
+	W_supg.set(P_supg).add(shape);
 
 	// Pressure stabilizing term
 	P_pspg.set(dshapex).scale(tau_pspg/rho);  //debug:=
@@ -621,7 +623,7 @@ assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
 
 	// Galerkin - momentum
 	// resmom tiene que tener nel*ndim
-	dresmom.t().prod(dmatu,SHAPE,1,2).rs();
+	dresmom.prod(shape,dmatu,1,2).rs();
 	resmom.axpy(dresmom,-wpgdet * rho);
 
 	if (weak_form) {
@@ -630,7 +632,7 @@ assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
 	  resmom.axpy(tmp2,-wpgdet);
 	} else {
 	  tmp6.prod(dshapex,strain_rate,-1,1,-1,2).scale(2*nu_eff);
-	  tmp11.prod(SHAPE,grad_p_star,1,2).add(tmp6);
+	  tmp11.prod(shape,grad_p_star,1,2).add(tmp6);
 	  resmom.axpy(tmp11,-wpgdet);
 	}
 
@@ -644,7 +646,7 @@ assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
 	dshapex.rs();
 
 	// Galerkin - continuity
-	rescont.axpy(SHAPE,wpgdet*div_u_star);
+	rescont.axpy(shape,wpgdet*div_u_star);
 
 	// PSPG perturbation - continuity
 	tmp5.prod(P_pspg,tmp3,-1,1,-1);
@@ -652,8 +654,8 @@ assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
 	
 	// Penalization term?
 	if (pressure_control_coef) {
-	  double p_star = tmp21.prod(SHAPE,pcol_star,-1,-1).get();
-	  rescont.axpy(SHAPE,pressure_control_coef*p_star*wpgdet);
+	  double p_star = tmp21.prod(shape,pcol_star,-1,-1).get();
+	  rescont.axpy(shape,pressure_control_coef*p_star*wpgdet);
 	}
 
 	// temporal part + convective (Galerkin)
@@ -664,7 +666,7 @@ assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
 	//        massm.prod(u,dshapex,-1,-1,1);
         massm.prod(vrel,dshapex,-1,-1,1);
 #endif
-	massm.axpy(SHAPE,rec_Dt/alpha);
+	massm.axpy(shape,rec_Dt/alpha);
 	matlocmom.prod(W_supg,massm,1,2).scale(rho);
 
 	//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
@@ -675,12 +677,12 @@ assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
 	tmp7.prod(dshapex,dshapex,-1,1,-1,2);
 	matlocmom.axpy(tmp7,nu_eff);
 
-	// dmatw =  rho * ((1/Dt)*SHAPE + u * dshapex);
+	// dmatw =  rho * ((1/Dt)*shape + u * dshapex);
 	dmatw.set(massm).scale(rho);
 
 	tmp13.prod(P_pspg,dshapex,-1,1,-1,2);
 	if (pressure_control_coef) {
-	  tmp20.prod(SHAPE,SHAPE,1,2);
+	  tmp20.prod(shape,shape,1,2);
 	  tmp13.axpy(tmp20,pressure_control_coef);
 	}
 
@@ -697,7 +699,7 @@ assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
 
 	  if (weak_form) {
 	    tmp16.prod(P_supg,dshapex,1,2,3).scale(wpgdet);
-	    tmp162.prod(dshapex,SHAPE,2,1,3).scale(-wpgdet);
+	    tmp162.prod(dshapex,shape,2,1,3).scale(-wpgdet);
 	    matlocf.is(2,1,ndim).ir(4,ndof).add(tmp16)
 	      .add(tmp162).rs();
 	  } else {
@@ -707,7 +709,7 @@ assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
 	  matlocf.ir(2,ndof).is(4,1,ndim);
 	  tmp17.prod(P_pspg,dmatw,3,1,2).scale(wpgdet);
 	  matlocf.rest(tmp17);
-	  tmp17.prod(dshapex,SHAPE,3,2,1).scale(wpgdet);
+	  tmp17.prod(dshapex,shape,3,2,1).scale(wpgdet);
 	  matlocf.rest(tmp17).rs();
 
 	  matlocf.ir(2,ndof).ir(4,ndof).axpy(tmp13,-wpgdet).rs();
@@ -789,8 +791,3 @@ assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
 
   return 0;
 }
-
-#undef SHAPE    
-#undef DSHAPEXI 
-#undef WPG      
-#undef SQ

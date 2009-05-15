@@ -31,8 +31,7 @@ sub genone {
     my %args = ('NAME' => shift(), 
 		'OTHER_ARGS' => shift(), 
 		'ELEM_OPERATIONS' => shift(),
-		'COUNT_OPER' => copg(@_),
-		'CACHE_OPERATIONS' => $cache_op);
+		'COUNT_OPER' => copg(@_));
     print template_subst($genone,\%args);
 }
 
@@ -52,8 +51,7 @@ sub genone_all {
 sub gen_setel {
     print template_subst($gensetel,{'NAME' => shift(), 
 			    'OTHER_ARGS' => shift(), 
-			    'ELEM_OPERATIONS' => shift(),
-			    'CACHE_OPERATIONS' => $cache_op});
+			    'ELEM_OPERATIONS' => shift()});
 }
 
 sub copg {
@@ -76,7 +74,6 @@ sub gen_setel_all {
 sub in_place {
     my %args = ('NAME' => shift(), 
 		'ELEM_OPERATIONS' => shift(),
-		'CACHE_OPERATIONS' => $cache_op,
 		'FUN_ARGS' => 'const double val');
     my $other_args = shift();
     for my $oopt (keys %$other_args) { $args{$oopt} = $other_args->{$oopt}; }
@@ -100,7 +97,6 @@ sub gen_sum {
 	NAME => shift(), 
 	ELEM_OPERATIONS => shift(),
 	COUNT_OPER => shift(),
-	CACHE_OPERATIONS => $cache_op,
 	OTHER_ARGS => '',
 	OTHER_ARGS_P => '',
 	POST_LOOP_OPS => '',
@@ -124,7 +120,6 @@ sub gen_max {
 	'INI_LOOP' => shift(), 
 	'ELEM_OPERATIONS' => shift(),
 	'COUNT_OPER' => shift(),
-	'CACHE_OPERATIONS' => $cache_op,
 	'PRE_LOOP_OPS'=>'double aux'
 	};
     my $new_args = shift();

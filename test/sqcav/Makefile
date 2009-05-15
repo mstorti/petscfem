@@ -303,6 +303,10 @@ shell_hook_%:
 
 ###--------<*>--------<*>--------<*>--------<*>--------<*>--------<*>--------<*> 
 test_read_ini:
+	echo 0. > weights.dat
+	echo 1. >> weights.dat
+	echo 1. >> weights.dat
+	echo 1. >> weights.dat
 	$(MAKE) case=read_ini np=4 runs
 	octave -qH check.read_ini.m > verif.read_ini.tmp
 

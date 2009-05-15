@@ -1076,6 +1076,7 @@ int ns_main(int argc,char **args) {
 #ifdef DEBUG_MALLOC_USE
   fclose(malloc_log);
 #endif
+
   PetscFinalize();
   exit(0);
 }

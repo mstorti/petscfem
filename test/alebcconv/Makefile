@@ -13,15 +13,12 @@ PETSCFEM_DIR := ../..
 include $(PETSCFEM_DIR)/Makefile.base
 include $(PETSCFEM_DIR)/test/Makefile.base.test
 
-
 CASE_NAME := gfabso
 LOC_PROG := advdif
 PROG := $(ADVDIF)
 
-ifeq ($(HOSTNAME),galileo)
 NP := 1
 MCH := 
-endif
 
 SAVE := 0
 run: mvbody.efn	
