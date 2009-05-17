@@ -200,8 +200,9 @@ int IISDMat::create_a() {
 
   // First, decide which dof's are marked as `interface' and which as `local'. 
 
-  // A dof in processor `k' is marked as interface if it is connected
-  // (has a non zero matrix value) with a dof in a processor with a lower index "k'<k"
+  // A dof in processor `k' is marked as interface if it is
+  // connected (has a non zero matrix value) with a dof in a
+  // processor with a lower index "k'<k"
   for (k=0; k < neqp; k++) {
     // keq:= number of dof
     keq = dofs_proc_v[k];
@@ -667,7 +668,7 @@ int IISDMat::create_a() {
   // Now we have to construct the `d_nnz' and `o_nnz' vectors
   // od:= may be `D' (0) or `I' (1). Diagonal or off-diagonal (in the
   // PETSc sense)
-  // row_t:= col_type:= may be local (`L=0') or `interface ('I=1') 
+  // row_type:= col_type:= may be local (`L=0') or `interface ('I=1') 
   // is a a block index, when decomposing the dof's
   // at each processor as `local' and `interface'. 
   for (od = 0; od < 2; od++) {

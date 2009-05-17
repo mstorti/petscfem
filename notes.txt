@@ -14342,3 +14342,35 @@ CAN'T OPEN-------> 0
 Corro los tests, todo OK, solo se agrega a los  de arriba el 
 distmap/dist_graph.np2.out.tmp pero debe ser por la misma razon que el
 otro en distmap. 
+
+%=== Sun May 17 00:00:10 2009 mstorti@galileo
+%
+%--[2009-05-17.03:00:10.mstorti-v25-end]-----
+Experimentos con 500x500 quads laplace. 
+----- Con PARDISO
+trypardiso-n500-ncore1-coyote.log:      Time total  : 2.703296 s total - sum: 0.197551 s
+trypardiso-n500-ncore1-coyote.log:      Time total  : 2.313906 s total - sum: 0.000007 s
+trypardiso-n500-ncore1-coyote.log:      Time total  : 0.476160 s total - sum: 0.327088 s
+trypardiso-n500-ncore2-coyote.log:      Time total  : 2.796126 s total - sum: 0.205373 s
+trypardiso-n500-ncore2-coyote.log:      Time total  : 1.614801 s total - sum: 0.000008 s
+trypardiso-n500-ncore2-coyote.log:      Time total  : 0.467442 s total - sum: 0.318201 s
+trypardiso-n500-ncore4-coyote.log:      Time total  : 2.819466 s total - sum: 0.203294 s
+trypardiso-n500-ncore4-coyote.log:      Time total  : 0.988856 s total - sum: 0.000008 s
+trypardiso-n500-ncore4-coyote.log:      Time total  : 0.468687 s total - sum: 0.319455 s
+trypardiso-n500-ncore8-coyote.log:      Time total  : 2.895969 s total - sum: 0.198070 s
+trypardiso-n500-ncore8-coyote.log:      Time total  : 0.802533 s total - sum: 0.000008 s
+trypardiso-n500-ncore8-coyote.log:      Time total  : 0.473465 s total - sum: 0.321174 s
+-----
+Resumen: 
+NP reorder   factor    solver
+1  2.70330   2.31391   0.47616
+2  2.79613   1.61480   0.46744
+4  2.81947   0.98886   0.46869
+8  2.89597   0.80253   0.47347
+%
+%--[2009-05-17.03:12:30.mstorti-v25-end]-----
+CON PETSC, rtol 1e-4
+NP 1  -> 11.9 secs  (  1 iters) (directo)
+NP 2  -> 13.77 secs ( 90 iters)
+NP 4  -> 13.01 secs (136 iters)
+NP 8  -> 11.13 secs (174 iters)
