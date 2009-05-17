@@ -14362,11 +14362,19 @@ trypardiso-n500-ncore8-coyote.log:      Time total  : 0.802533 s total - sum: 0.
 trypardiso-n500-ncore8-coyote.log:      Time total  : 0.473465 s total - sum: 0.321174 s
 -----
 Resumen: 
-NP reorder   factor    solver
-1  2.70330   2.31391   0.47616
-2  2.79613   1.61480   0.46744
-4  2.81947   0.98886   0.46869
-8  2.89597   0.80253   0.47347
+NP: numero de procesadores
+reorder: tiempo para el reorder [secs] (reportado por PARDISO)
+factor: tiempo de factorizacion [secs] (reportado por PARDISO)
+solver: tiempo de resolucion [secs] (reportado por PARDISO)
+Su: speedup, SOLO para factor factor(1)/factor(n)
+eff: efficiencia, SOLO para factor factor(1)/factor(n)/n
+%
+%
+NP reorder factor solver Su   eff
+1  2.70   2.31   0.47   1.00  1.00
+2  2.79   1.61   0.46   1.43  0.71
+4  2.81   0.98   0.46   2.34  0.58
+8  2.89   0.80   0.47   2.88  0.36
 %
 %--[2009-05-17.03:12:30.mstorti-v25-end]-----
 CON PETSC, rtol 1e-4
@@ -14374,3 +14382,25 @@ NP 1  -> 11.9 secs  (  1 iters) (directo)
 NP 2  -> 13.77 secs ( 90 iters)
 NP 4  -> 13.01 secs (136 iters)
 NP 8  -> 11.13 secs (174 iters)
+
+%=== Sun May 17 13:31:15 2009 mstorti@coyote
+%
+%--[2009-05-17.16:31:15.mstorti-v25-end-1-g4db8046]-----
+La conclusion seria: 
+* Con PARDISO solo parece ganarse algo en la parte de factorizacion.  
+  En ese caso se logra un tiempo de 0.8secs para NP=8 contra 2.31 para
+  NP=1. (OJO SOLO para factorizacion). 
+
+* CON PETSC+IISD los tiempos son mayores. En secuencial pasamos de 
+  (+ 2.70   2.31   0.47) => 5.48 para PARDISO a 11.9 para PETSC. 
+  NO escalea nada, los tiempos crecen bastante. La mayor parte del
+  tiempo corresponde a la resolucion, pero OJO que esto puede cambiar
+  en 3D ya que comparativamente en 3D los metodos directos llevan mas
+  tiempo porque el ancho de banda es mayor (para un numero fijo de
+  DOF's) y los iterativos mejor porque baja el número de condición. 
+
+* Ahora voy a probar: 
+  1) Que pasa en 3D. (La respuesta deberia ser que PETSc
+  comparativamente mejora). 
+  2) Que pasa con PARDISO al resolver varios RHS a la vez. A ver si
+  escalea. (La respuesta deberia ser SI). 
