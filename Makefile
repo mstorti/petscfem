@@ -48,6 +48,15 @@ local_sw::
 	$(MAKE) sync_version
 	cd tools; ln -sf hexenco.pl ident2iso ; ln -sf hexenco.pl iso2ident
 	$(MAKE) -C src getarrgr.tab.c getarrgr.tab.h
+	$(MAKE) exclude
+
+# link the git controlled file toos/git-exclude to the
+# internal file in .git/info/exclude
+exclude:
+	if [ -f .git/info/exclude ] ; then 			\
+		rm .git/info/exclude ;				\
+		ln -sf tools/git-exclude .git/info/exclude ;	\
+	fi
 
 local_clean::
 	cd tools ; rm -f ident2iso ; rm -f iso2ident
