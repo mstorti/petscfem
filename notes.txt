@@ -14483,7 +14483,33 @@ NP reorder factor  solver Total   Su    eff
 4  15.30   231.67  19.20  266.18  3.01  0.75
 8  15.75   267.02  24.79  307.58  2.61  0.32
 %
+Guarda que puede ser que haya trabajado SWAPEANDO!! 
 %--[2009-05-18.01:17:00.mstorti-v25-end-2-g354734b]-----
 O sea que para estas dimensiones SI conviene el metodo
 iterativo. Habria que ver entonces el tema de si se puede usar IISD
 con pardiso. 
+%
+%--[2009-05-18.01:52:39.mstorti-v25-end-3-g8637cfd]-----
+CON PARDISO, N=59 (approx 200Kdofs) y nrhs=20. 
+OJO Su y eff calculados solo con la factorizacion. 
+NP reorder factor  solver Total  Su    eff
+1    5.43  116.59  2.99  125.02  1.00  1.00
+2    5.38   64.21  2.98   72.58  1.81  0.90
+4    5.40   37.08  2.98   45.47  3.14  0.78
+8    5.43   40.48  2.96   48.88  2.87  0.35
+%
+O sea que a pesar de aumentar el nro de rhs (nrhs) la retrosustitucion
+NO escalea, mejor dicho el tiempo no cambia nada con los procs. La
+factorizacion se comporta mas o menos igual. 
+%
+%--[2009-05-18.02:01:58.mstorti-v25-end-3-g8637cfd]-----
+Con PETSC iisd_subpart_auto=1000, N=59
+%
+NP  T      Su    eff 
+1  14.77  1.00  1.00
+2   8.82  1.67  0.83
+4   7.02  2.10  0.52
+8   6.86  2.15  0.26
+%
+%
+O sea que PETSc es bastante mas eficiente. 
