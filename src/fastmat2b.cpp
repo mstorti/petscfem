@@ -155,9 +155,13 @@ void prod_subcache_t::print() {
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>
 void prod_subcache_t::dgemm() {
+#ifdef USE_MKL
   cblas_dgemm(CblasRowMajor,transa,transb,
               nra,ncb,nca,1.0,paa0,lda,pbb0,ldb,0.0,
               pcc0,ldc);
+#else
+  abort();
+#endif
 }
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>
