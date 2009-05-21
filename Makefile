@@ -275,12 +275,6 @@ clean_g:
 clean_O:
 	-${RM} `find . -name '*_O.a'` `find . -name '*_O.bin'` 
 
-gpush:
-	git push origin mstorti-v6-branch
-
-gpull:
-	git pull origin mstorti-v6-branch
-
 #w Updates working directory
 sync:
 	cvs up .

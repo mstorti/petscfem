@@ -5,7 +5,9 @@
 #include <unistd.h>
 
 #include <algorithm>
+#ifdef USE_MKL
 #include <mkl_cblas.h>
+#endif
 
 #include <src/fem.h>
 #include <src/fastmat2.h>
@@ -20,7 +22,9 @@ class prod_subcache_t : public FastMatSubCache {
 public:
   int superlinear, lda, ldb, ldc, nra, nca, ncb,
     not_superlinear_ok_flag;
+#ifdef USE_MKL
   CBLAS_TRANSPOSE transa, transb;
+#endif
   double *paa0, *pbb0, *pcc0;
   enum  mode_t { a,b,c,none };
   FastMatCache *cache;
@@ -51,6 +55,7 @@ void prod_subcache_t::ident() {
 
   not_superlinear_ok_flag=0;
   superlinear = 0;
+#ifdef USE_MKL
   int N = cache->nlines;
 
   if (N<=2) { ok(); return; }
@@ -136,6 +141,8 @@ void prod_subcache_t::ident() {
   pcc0 = lc0->target;
 
   superlinear = 1;
+#endif
+
   return;
 }
 
@@ -147,10 +154,14 @@ int prod_subcache_t::not_superlinear_ok() {
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>
 void prod_subcache_t::print() {
+#ifdef USE_MKL
   printf("dgemm args: sl %d,transa %d,transb %d,nra %d,nca %d,"
          "ncb %d,lda %d,ldb %d,ldc %d\n",
          superlinear,transa==CblasTrans,transb==CblasTrans,
          nra,nca,ncb,lda,ldb,ldc);
+#else
+  abort();
+#endif
 }
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>
