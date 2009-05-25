@@ -139,7 +139,8 @@ void smoke_ff::compute_flux(COMPUTE_FLUX_ARGS) {
   delta_sc = 0.;
   // maximum eigenvlue = absolute value of velocity
   lam_max = vel;
-  if (options & COMP_UPWIND) {
+  // if (options & COMP_UPWIND) {
+  if (new_adv_dif_elemset) {
     // Intrinsic velocity
     Uintri.prod(iJaco,u,1,-1,-1);
     // This has scale of U/h, i.e. 1/T

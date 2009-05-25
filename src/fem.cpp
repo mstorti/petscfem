@@ -123,8 +123,8 @@ int compute_prof(Darray *da,Dofmap *dofmap,int myrank,
 #define __FUNC__ "void petscfem_printf(const char *,va_list )"
 void petscfem_printf(const char *templ,va_list list) {
   int myrank;
-//    va_list list;
-//    va_start(list,templ);
+  // va_list list;
+  // va_start(list,templ);
   MPI_Comm_rank(PETSCFEM_COMM_WORLD,&myrank);
   if (myrank==0) vprintf(templ,list);
 }

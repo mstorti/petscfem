@@ -1205,10 +1205,10 @@ if (!(bool_cond)) { PetscPrintf(PETSCFEM_COMM_WORLD, 				\
   for (int j=0; j<size; j++) procmap.e(j) = j;
 
   if (size>1 && ncore>0) {
-    PETSCFEM_ASSERT0(size%ncore==0,
+    int rest=size%ncore;
+    PETSCFEM_ASSERT0(rest==0,
                      "if ncore is given, numer of "
                      "processor `size' must be a multiple of ncore");
-
     if (!myrank) {
 
       // Using graph-matching algorithm
