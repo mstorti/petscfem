@@ -316,17 +316,19 @@ int PetscFemInitialize(int *argc,char ***args,const char file[],const char help[
 
 #ifdef USE_VARARG_MACROS
 #define PETSCFEM_ERROR(templ,...)				\
-  petscfem_error("%s\n---------------\n"			\
+  petscfem_error(templ "\n---------------\n"			\
 	      "PETSC-FEM error at file \"%s\", line %d\n",	\
-		 templ,__VA_ARGS__,__FILE__,__LINE__)
+		 __VA_ARGS__,__FILE__,__LINE__)
 #define PETSCFEM_ERROR0(templ)					\
-  petscfem_error("%s\n---------------\n"			\
+  petscfem_error(templ "\n---------------\n"			\
 	      "PETSC-FEM error at file \"%s\", line %d\n",	\
-		 templ,__FILE__,__LINE__)
+		 __FILE__,__LINE__)
 #else
 #define PETSCFEM_ERROR petscfem_error
 #define PETSCFEM_ERROR0 petscfem_error
 #endif
+
+void petscfem_printf(const char *templ,va_list list);
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 /** If #bool_cond# evaluates to false issues 
@@ -335,11 +337,17 @@ int PetscFemInitialize(int *argc,char ***args,const char file[],const char help[
 */ 
 #ifdef USE_VARARG_MACROS
 #define PETSCFEM_ASSERT(bool_cond,templ,...)				\
-if (!(bool_cond)) {PETSCFEM_ERROR("Assertion failed: \"" #bool_cond	\
-       "\"\n" templ,__VA_ARGS__);}
-#define PETSCFEM_ASSERT0(bool_cond,templ)				\
-if (!(bool_cond)) {PETSCFEM_ERROR0("Assertion failed: \"" #bool_cond	\
-       "\"\n" templ);}
+if (!(bool_cond)) {                             \
+  PetscSynchronizedPrintf(PETSCFEM_COMM_WORLD,  \
+                  "Assertion failed: \""        \
+                  #bool_cond "\"%s\n","");      \
+  PETSCFEM_ERROR(templ,__VA_ARGS__);}
+#define PETSCFEM_ASSERT0(bool_cond,templ)       \
+if (!(bool_cond)) {                             \
+  PetscSynchronizedPrintf(PETSCFEM_COMM_WORLD,  \
+                  "Assertion failed: \""        \
+                  #bool_cond "\"%s\n","");      \
+  PETSCFEM_ERROR0(templ);}
 #else
 #define PETSCFEM_ASSERT petscfem_assert
 #define PETSCFEM_ASSERT0 petscfem_assert
