@@ -106,6 +106,7 @@ void bless_elemset_advdif(char *type,Elemset *& elemset) {
     SET_ELEMSET_TYPE(id)
     
     SET_ELEMSET_TYPE(smoke)
+    SET_ELEMSET_TYPE(smoke_bcconv)
     SET_ELEMSET_TYPE(gaschem)
     SET_ELEMSET_TYPE(gaschem_bcconv)
 

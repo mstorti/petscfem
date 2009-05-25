@@ -28,7 +28,7 @@ private:
   ElementIterator element_m;
   FastMat2Tmp tmp;
 public:
-  smoke_ff(const NewAdvDif *e) : AdvDifFFWEnth(e) {}
+  smoke_ff(const NewElemset *e) : AdvDifFFWEnth(e) {}
   ~smoke_ff();
   
   void start_chunk(int &ret_options);
@@ -63,6 +63,13 @@ public:
 class smoke : public NewAdvDif {
 public:
   smoke() :  NewAdvDif(new smoke_ff(this)) {};
+};
+
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+class smoke_bcconv : public NewBcconv {
+public:
+  smoke_bcconv() : NewBcconv(new smoke_ff(this)) {};
+  // smoke_bcconv() : NewBcconv(NULL) {};
 };
 
 #endif

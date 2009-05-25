@@ -410,6 +410,7 @@ int IISDMat::local_solve(Vec x_loc,Vec y_loc,int trans,double c) {
   ierr = VecRestoreArray(y_loc,&a); CHKERRQ(ierr); 
   ierr = VecRestoreArray(y_loc_seq,&aa); CHKERRQ(ierr); 
 
+  double start = MPI_Wtime();
   // Solve local system: x_loc_seq <- XL
   if (trans) {
     ierr = KSPSolveTranspose(ksp_ll,y_loc_seq,x_loc_seq); CHKERRQ(ierr); 
@@ -418,6 +419,8 @@ int IISDMat::local_solve(Vec x_loc,Vec y_loc,int trans,double c) {
     ierr = KSPSolve(ksp_ll,y_loc_seq,x_loc_seq); CHKERRQ(ierr); 
     ierr = KSPGetIterationNumber(ksp_ll,&its_); CHKERRQ(ierr); 
   }
+  double elaps = MPI_Wtime() - start;
+  // printf("local-solve-elapsed %f\n",elaps);
   
   // Pass to global vector: x_loc <- XL
   ierr = VecGetArray(x_loc_seq,&aa); CHKERRQ(ierr); 

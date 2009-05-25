@@ -14512,4 +14512,17 @@ NP  T      Su    eff
 8   6.86  2.15  0.26
 %
 %
-O sea que PETSc es bastante mas eficiente. 
+O sea que PETSc+IISD es bastante mas eficiente. 
+
+%=== Mon May 18 11:11:51 2009 mstorti@coyote
+%
+%--[2009-05-18.14:11:51.mstorti-v25-end-5-gbd88284]-----
+Empiezo a ver si valdria la pena usar el PARDISO para resolver el
+problema local con IISD. Corro el problema de N=59 con
+iisd_subpart_auto=2000 y lo corro con PETSc y tomo tiempos de la
+retrosustitucion en el problema lineal y me da (en un solo core) unos
+0.13425secs.
+%
+%--[2009-05-18.14:19:59.mstorti-v25-end-5-gbd88284]-----
+Corriendo con PARDISO me dice que el tiempo de resolucion es
+0.344secs, o sea que es mas!! 
