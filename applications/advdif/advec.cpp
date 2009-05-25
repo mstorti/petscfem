@@ -42,13 +42,14 @@ void advec_ff::start_chunk(int &options) {
   identity_ef.init(ndof,ndim,nel);
 }
 
-void advec_ff::compute_flux(const FastMat2 &U,
-			    const FastMat2 &iJaco, FastMat2 &H,
-			    FastMat2 &grad_H, FastMat2 &flux, FastMat2 &fluxd,
-			    FastMat2 &A_grad_U,FastMat2 &grad_U, FastMat2 &G_source,
-			    FastMat2 &tau_supg, double &delta_sc,
-			    double &lam_max,FastMat2 &nor, FastMat2 &lambda,
-			    FastMat2 &Vr, FastMat2 &Vr_inv,int options) {
+void advec_ff::
+compute_flux(const FastMat2 &U,
+             const FastMat2 &iJaco, FastMat2 &H,
+             FastMat2 &grad_H, FastMat2 &flux, FastMat2 &fluxd,
+             FastMat2 &A_grad_U,FastMat2 &grad_U, FastMat2 &G_source,
+             FastMat2 &tau_supg, double &delta_sc,
+             double &lam_max,FastMat2 &nor, FastMat2 &lambda,
+             FastMat2 &Vr, FastMat2 &Vr_inv,int options) {
   // Set velocity vector
   u.set(new_adv_dif_elemset->prop_array(element_m,u_prop));
   // Convective flux
