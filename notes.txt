@@ -14526,3 +14526,11 @@ retrosustitucion en el problema lineal y me da (en un solo core) unos
 %--[2009-05-18.14:19:59.mstorti-v25-end-5-gbd88284]-----
 Corriendo con PARDISO me dice que el tiempo de resolucion es
 0.344secs, o sea que es mas!! 
+
+%=== Mon May 25 17:21:49 2009 mstorti@galileo
+%
+%--[2009-05-25.20:21:49.mstorti-v25-end-10-g8b7bce3]-----
+FIXED a BUG: in fem.h in the definition of macros PETSCFEM_ERROR and
+PETSCFEM_ERROR0, `templ' should go as an additional arg, and NOT 
+concatenated to the template, because in that case `%' characters
+are interpreted as a replacement pattern for `printf()'.   

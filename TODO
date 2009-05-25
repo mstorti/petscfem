@@ -166,6 +166,11 @@ TODO: [Mainly fixes go here...]
 DONE:
 =====
 
+* 2009-05-25 17:23:59
+  FIXED a BUG: in fem.h in the definition of macros PETSCFEM_ERROR and
+  PETSCFEM_ERROR0, `templ' should go as an additional arg, and NOT 
+  concatenated to the template, because in that case `%' characters
+  are interpreted as a replacement pattern for `printf()'.   
 * In FastMat2: check that FastMat's created in sucaches be linked to 
   current CacheContext. See commit b3f9a09f2e11b454 for how it was
   done for the `norm_p_all' and similar functions. 

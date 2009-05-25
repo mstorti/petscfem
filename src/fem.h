@@ -316,13 +316,13 @@ int PetscFemInitialize(int *argc,char ***args,const char file[],const char help[
 
 #ifdef USE_VARARG_MACROS
 #define PETSCFEM_ERROR(templ,...)				\
-  petscfem_error(templ "\n---------------\n"			\
+  petscfem_error("%s\n---------------\n"			\
 	      "PETSC-FEM error at file \"%s\", line %d\n",	\
-		 __VA_ARGS__,__FILE__,__LINE__)
+		 templ,__VA_ARGS__,__FILE__,__LINE__)
 #define PETSCFEM_ERROR0(templ)					\
-  petscfem_error(templ "\n---------------\n"			\
+  petscfem_error("%s\n---------------\n"			\
 	      "PETSC-FEM error at file \"%s\", line %d\n",	\
-		 __FILE__,__LINE__)
+		 templ,__FILE__,__LINE__)
 #else
 #define PETSCFEM_ERROR petscfem_error
 #define PETSCFEM_ERROR0 petscfem_error
