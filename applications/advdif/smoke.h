@@ -23,7 +23,7 @@ private:
   Property u_prop, G_prop;
   double phi, omega, drdphi, Cr, phieq, diff_max, diff, 
     tau_fac, diffusivity0;
-  FastMat2 u, U, Cp, W_N, A, Uintri, tmp2, tmp0;
+  FastMat2 u, U, Cp, W_N, A, Uintri, tmp2, tmp0, tmp3;
   int nel,ndof,nelprops;
   ElementIterator element_m;
   FastMat2Tmp tmp;

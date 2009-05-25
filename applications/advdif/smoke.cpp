@@ -5,6 +5,7 @@
 
 smoke_ff::~smoke_ff() { tmp.clear(); }
 
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>
 void smoke_ff::start_chunk(int &ret_options) {
   int ierr;
   new_adv_dif_elemset = dynamic_cast<const NewAdvDif *>(elemset);
@@ -62,7 +63,9 @@ void smoke_ff::start_chunk(int &ret_options) {
   A.resize(3,ndim,ndof,ndof);
 }
 
-void smoke_ff::element_hook(ElementIterator &element) {
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>
+void smoke_ff
+::element_hook(ElementIterator &element) {
 #if 0
   element_m = element;
   if (!use_nodal_vel)  
@@ -70,34 +73,30 @@ void smoke_ff::element_hook(ElementIterator &element) {
 #endif
 }
 
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>
 void smoke_ff::set_state(const FastMat2 &UU) { 
   U.set(UU);
   phi = U.get(1); 
   diff = diff_max*mind(2,fabs(phi)/phieq,1.0) + diffusivity0;
 }
 
-void smoke_ff::comp_A_jac_n(FastMat2 &A_jac_n, FastMat2 &normal) {
-  assert(0);			// fixme:= Not implemented yet, used for
-				// absorbing boundary conditions
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>
+void smoke_ff
+::comp_A_jac_n(FastMat2 &A_jac_n, 
+               FastMat2 &normal) {
+  tmp3.prod(u,normal,-1,-1);
+  double un = double(tmp3);
+  A_jac_n.eye(un);
 }
 
-void smoke_ff::comp_A_grad_N(FastMat2 & A_grad_N,FastMat2 & grad_N) {
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>
+void smoke_ff
+::comp_A_grad_N(FastMat2 & A_grad_N,
+                FastMat2 & grad_N) {
   A_grad_N.prod(A,grad_N,-1,2,3,-1,1);
 }
 
-#if 0
-inline double modulo(double k, double n, int *div=NULL) {
-  double m = fmod(k,n);
-  int d = int((k-m)/n);
-  if (m < 0.) {
-    m += n;
-    d -= 1;
-  }
-  if (div) *div = d;
-  return m;
-}
-#endif
-
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>
 void smoke_ff::compute_flux(COMPUTE_FLUX_ARGS) {
   if (use_nodal_vel) {
     int n1 = nodal_vel_indx;
@@ -166,33 +165,46 @@ void smoke_ff::compute_flux(COMPUTE_FLUX_ARGS) {
   }
 }
 
-void smoke_ff::comp_grad_N_D_grad_N(FastMat2 &grad_N_D_grad_N,
-				    FastMat2 & dshapex,double w) {
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>
+void smoke_ff
+::comp_grad_N_D_grad_N(FastMat2 &grad_N_D_grad_N,
+                       FastMat2 & dshapex,double w) {
   grad_N_D_grad_N.ir(2,1).ir(4,1)
     .prod(dshapex,dshapex,-1,1,-1,2).scale(w*diff).rs();
 }
 
-void smoke_ff::comp_N_N_C(FastMat2 &N_N_C,FastMat2 &N,double w) {
-  N_N_C.ir(2,1).ir(4,1).prod(N,N,1,2).scale(-w*drdphi).rs();
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>
+void smoke_ff
+::comp_N_N_C(FastMat2 &N_N_C,
+             FastMat2 &N,double w) {
+  N_N_C.ir(2,1).ir(4,1).prod(N,N,1,2)
+    .scale(-w*drdphi).rs();
 }
 
-void smoke_ff::comp_N_P_C(FastMat2 &N_P_C, FastMat2 &P_supg,
-			  FastMat2 &N,double w) {
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>
+void smoke_ff
+::comp_N_P_C(FastMat2 &N_P_C, FastMat2 &P_supg,
+             FastMat2 &N,double w) {
   N_P_C.prod(P_supg,N,1,3,2).scale(-w*drdphi);
 #if 0
   N_P_C.ir(3,1).ir(4,1).prod(N,P_supg,1,2).scale(-w*drdphi).rs();
 #endif
 }
 
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>
 void smoke_ff::enthalpy(FastMat2 &H) {  H.set(U); }
 
-void smoke_ff::comp_W_Cp_N(FastMat2 &W_Cp_N,const FastMat2 &W,const FastMat2 &N,
-		 double w) {
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>
+void smoke_ff
+::comp_W_Cp_N(FastMat2 &W_Cp_N,const FastMat2 &W,
+              const FastMat2 &N, double w) {
   W_N.prod(W,N,1,2).scale(w);
   W_Cp_N.prod(W_N,Cp,1,3,2,4);
 }
 
-void smoke_ff::comp_P_Cp(FastMat2 &P_Cp,const FastMat2 &P_supg) {
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>
+void smoke_ff
+::comp_P_Cp(FastMat2 &P_Cp,const FastMat2 &P_supg) {
   P_Cp.prod(P_supg,Cp,1,-1,-1,2);
 }
 
