@@ -462,7 +462,7 @@ void FastMat2Stats::report() {
   double ratio = 100.0*double(was_sl_count)/total;
 //   printf("FM2STATS: sl %d(%.3f%%), not sl %d, total %d\n",
 //          was_sl_count,ratio,was_not_sl_count,total);
-  FILE *fid = fopen("/tmp/fm2stats.log","a");
+  FILE *fid = fopen("./fm2stats.log","a");
   char *cwd = getcwd(NULL,0);
   time_t tt = time(NULL);
   // char *t = asctime(localtime(&tt));
