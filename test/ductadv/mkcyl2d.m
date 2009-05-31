@@ -56,4 +56,4 @@ if conserv_test
 endif
 
 ux = (1-(xnod(:,2)/radius).^2)*Vmax;
-asave("ductadv.nod-vel.tmp",[xnod,0*ux,ux]);
+asave("ductadv.nod-vel.tmp",[xnod,ux,0*ux]);

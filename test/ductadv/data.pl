@@ -28,7 +28,7 @@ $dpdz *= 3.0/8.0 if $ndim==2;
 $h = $Lz/$nz;
 $Dt = $Co*$h/$Vmax;
 
-$T = 20*$Lz/$Vmean;
+$T = 10*$Lz/$Vmean;
 $nstep = $T/$Dt;
 $f0 = 0;
 $f1 = $Lz;

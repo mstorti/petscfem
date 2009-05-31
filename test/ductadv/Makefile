@@ -3,15 +3,18 @@
 .PHONY: all run  compile lclean laplace adv nso laplace_tests force \
         ctest gprof srfgath
 
-default: runadv
+default: tests
 
-BOPT := O_c++
+tests: checktmean
+
+# BOPT := O_c++
+PETSCFEM_DIR := ../../
 include $(PETSCFEM_DIR)/Makefile.base
 include $(PETSCFEM_DIR)/test/Makefile.base.test
 
-LOC_PROG := ns
+LOC_PROG := advdif
 CASE := ductadv
-PROG := $(NS)
+PROG := $(ADVDIF)
 
 CASE := $(CASE)
 
@@ -21,22 +24,17 @@ NP := 1
 NL := 
 MCH := 
 
-run: 
+checktmean: 
 	mkstepsdir.pl
 	make-depl $(CASE).epl $(CASE).depl -d mkmesh=1
 	cp -f *.pl *.depl *.epl STEPS
-ifeq (1,1)
 	${MPI_HOME}/bin/mpiexec -a $(CASE) \
-		$(MCH) -np $(NP) $(ADVDIF) -case $(CASE).depl
+		$(MCH) -np $(NP) $(ADVDIF) \
+		-case $(CASE).depl $(call redir,$@.output.tmp)
 	$(MAKE) zip
-endif
-
-cylinder.nod-vel.tmp: cylinder.state.tmp
-
-cpydata:
+	$(OCTAVE) checktmean.m > verif.tmp
 
 prog:
-#	$(MAKE) -C $(PETSCFEM_DIR) ns
 	$(MAKE) -C $(PETSCFEM_DIR) advdif
 
 local_clean::
@@ -57,8 +55,8 @@ shell_close:
 
 zip:
 	shopt -s nullglob ;				\
-	find STEPS* -name 'cylinder*.state*.tmp' |	\
-		xargs gzip -f 
+	find STEPS* -name '$(CASE).state*.tmp' |	\
+		xargs -r gzip -f 
 
 #w Make link for debugging
 link:
@@ -67,8 +65,3 @@ link:
 
 kill:
 	mpdkilljob -a $(CASE)
-
-DIRE := /u/mstorti/PETSC/petscfem-cases/animation/particle-hips/cylinder-rtd
-stcpy:
-	scp coyotep:$(DIRE)/STEPS/cylinder-adv.state-200.tmp.gz cylinder-adv.state.tmp.gz 
-	gunzip -f cylinder-adv.state.tmp.gz 

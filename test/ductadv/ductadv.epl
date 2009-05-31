@@ -7,8 +7,8 @@ ndim <:=$ndim:>
 report_consumed_time
 nsave 1
 
-# save_file_pattern "./STEPS/ductadv.state-%d.tmp"
-nsaverot 0
+save_file_pattern "./STEPS/ductadv.state-%d.tmp"
+nsaverot 1
 
 <:pr('nstep'):>
 nrec 1
@@ -95,13 +95,8 @@ name flow_integrator
 geometry cartesian<:=$ndim:>d
 npg <:=$nel:>
 surf_fun_type "plane"
-#if $ndim==3
-normal 0. 0. 1.
-x0 0. 0. 0.
-#else
 normal 1. 0.
 x0 0. 0.
-#endif
 gather_pos 0
 f_vals <:=$vals:>
 data ./ductadv.con.tmp

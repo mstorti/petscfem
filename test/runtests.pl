@@ -714,6 +714,11 @@ expect("alebcconv/verif-alebcconv.tmp",
        "Check bcconv element with ALE",
        "error < tol OK. 1");
 
+#------/*/------/*/------/*/------/*/------/*/------/*/------/*/ 
+expect("ductadv/verif.tmp",
+       "Check strong temporal conservation with advdif",
+       "^OK . 1");
+
 end_section();
 
 #------/*/------/*/------/*/------/*/------/*/------/*/------/*/ 

@@ -6,7 +6,7 @@
 	constraint_bug fstack sector triangle advdif texthash log_vars	     \
 	newff burgers bug100 nonlr genload lupart distmap sparse graph sqcav \
 	pfmat  aquifer nutatcyl mmove advec nsgenload plate gasflow oscplate \
-	idmap sw_abso cubcav condwall project embgath alebcconv
+	idmap sw_abso cubcav condwall project embgath alebcconv ductadv
 
 SRCS = $(wildcard *.cpp)
 
@@ -16,7 +16,7 @@ DIRS = circ fstack sector les turbchan turbchanw advdif texthash	\
 		pfmat cubcav aquifer bubbly nutatcyl aquifer fastmat2	\
 		nsgenload plate gasflow idmap mmove advec plano		\
 		oscplate spillway sw_abso gfplate condwall project 	\
-		embgath flow-reversal alebcconv
+		embgath flow-reversal alebcconv ductadv
 
 CLEAN_DIRS = $(DIRS)
 DEPEND_DIRS = texthash distmap sparse aquifer plate fstack idmap
@@ -119,11 +119,10 @@ tests: runtests
 runtests: compile sector oscplate fastmat2 plano idmap constraint_bug 	 \
 	fstack advdif texthash log_vars newff burgers bug100 genload 	 \
 	lupart distmap sparse graph sqcav pfmat aquifer nutatcyl mmove 	 \
-	advec nsgenload cubcav project embgath alebcconv
+	advec nsgenload cubcav project embgath alebcconv ductadv
 
 rp: runtests_p
-runtests_p:  graph sqcav pfmat aquifer nutatcyl mmove 	 \
-	advec nsgenload cubcav project embgath alebcconv
+runtests_p:   ductadv
 
 #s Specific tests
 #----<*>----------<*>----------<*>----------<*>----------<*>----------<*>-----
@@ -286,6 +285,11 @@ embgath:
 # Invariance of ALE with bcconv (ALE corrected version)
 alebcconv:
 	$(MAKE) -C alebcconv tests
+
+#----<*>----------<*>----------<*>----------<*>----------<*>----------<*>--
+# Check strong temporal conservation with advdif
+ductadv:
+	$(MAKE) -C ductadv tests
 
 # makes an abridged acount of the tests
 abridged:
