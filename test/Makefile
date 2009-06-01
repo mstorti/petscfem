@@ -69,8 +69,8 @@ torture_1:
 	-./runtests.pl -n | tee -a make-tests-$(BOPT).log
 #
 	tar czvf ../make-tests-$(BOPT).tar.gz -C .. test
-	echo "-------------------------\nABRIDGED: " \
-		| tee -a  make-tests-$(BOPT).log
+	echo "-------------------------" | tee -a make-tests-$(BOPT).log
+	echo "ABRIDGED: " | tee -a  make-tests-$(BOPT).log
 	$(MAKE) abridged | tee -a make-tests-$(BOPT).log
 
 #w report:
