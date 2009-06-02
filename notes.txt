@@ -14534,3 +14534,36 @@ FIXED a BUG: in fem.h in the definition of macros PETSCFEM_ERROR and
 PETSCFEM_ERROR0, `templ' should go as an additional arg, and NOT 
 concatenated to the template, because in that case `%' characters
 are interpreted as a replacement pattern for `printf()'.   
+
+%=== Mon Jun  1 23:17:55 2009 mstorti@galileo
+%
+%--[2009-06-02.02:17:55.mstorti-v25-end-16-g912d37d]-----
+Estoy viendo el tema de la convergencia cuadrática con advdif en
+petscfe-cases/gasflow/gfnwttest. Con shocap=0.2 y tau_fac=1 no da
+cuadrático, pero converge bastante bien. Sin shocap da casi igual, y
+sin shocap y tau_fac=0 también. 
+%
+octave> h = readconv("norm_res","nohup.log");
+octave> h
+h =
+   shocpap=0.2    shocpap=0.0     shcp=0 tau_fac=0
+   6.9520e-03     7.0250e-03      6.9420e-03
+   8.0720e-05     8.3120e-05      8.2420e-05
+   7.8220e-07     8.2330e-07      8.1140e-07
+   6.9120e-09     7.3200e-09      7.0840e-09
+   6.9650e-03     7.0510e-03      7.0050e-03
+   8.2140e-05     8.4690e-05      8.4060e-05
+   7.7170e-07     8.1490e-07      8.0370e-07
+   6.3340e-09     6.7490e-09      6.5090e-09
+   7.0040e-03     7.0980e-03      7.0620e-03
+   8.3450e-05     8.6160e-05      8.5580e-05
+   7.5940e-07     8.0460e-07      7.9420e-07
+   5.7200e-09     6.1340e-09      5.8900e-09
+   7.0430e-03     7.1440e-03      7.1120e-03
+   8.4630e-05     8.7490e-05      8.6970e-05
+   7.4580e-07     7.9280e-07      7.8330e-07
+   5.0810e-09     5.4830e-09      5.2390e-09
+   7.0760e-03     7.1840e-03      7.1560e-03
+   8.5670e-05     8.8700e-05      8.8230e-05
+   7.3130e-07     7.8010e-07      7.7170e-07
+   4.4380e-09     4.8150e-09      4.5710e-09
