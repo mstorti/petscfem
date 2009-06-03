@@ -14567,3 +14567,20 @@ h =
    8.5670e-05     8.8700e-05      8.8230e-05
    7.3130e-07     7.8010e-07      7.7170e-07
    4.4380e-09     4.8150e-09      4.5710e-09
+
+%=== Wed Jun  3 18:15:08 2009 mstorti@galileo
+%
+%--[2009-06-03.21:15:08.mstorti-v25-end-17-g7e2a319]-----
+Con USE_OLD_STATE_FOR_P_SUPG
+Newton subiter 0, norm_res  =  2.287e-03
+Newton subiter 1, norm_res  =  4.886e-06
+Newton subiter 2, norm_res  =  1.205e-08
+Newton subiter 3, norm_res  =  1.205e-08
+...
+Sin USE_OLD_STATE_FOR_P_SUPG
+Newton subiter 0, norm_res  =  2.287e-03
+Newton subiter 1, norm_res  =  4.897e-06
+Newton subiter 2, norm_res  =  1.232e-08
+Newton subiter 3, norm_res  =  1.232e-08
+----
+O sea que no hay diferencia. 

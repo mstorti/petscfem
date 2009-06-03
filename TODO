@@ -2,6 +2,8 @@
 TODO: [Mainly fixes go here...]
 =====
 
+* See commit f3a697c9499c0d084e55e91d14b59dbf4b840396 fastmat2b
+  do not open log. 
 * Gives PETSc error when run with ncore=8 and np=2
   I THINK both these and below are the same and due to the 
   probelm reported

@@ -2,7 +2,7 @@
 /*__INSERT_LICENSE__*/
 //$Id merge-with-petsc-233-55-g52bd457 Fri Oct 26 13:57:07 2007 -0300$
  
-//#define CHECK_JAC // Computes also the FD Jacobian for debugging
+#define CHECK_JAC // Computes also the FD Jacobian for debugging
  
 #ifndef PETSCFEM_ADVECTIVE_H
 #define PETSCFEM_ADVECTIVE_H

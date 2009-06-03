@@ -248,7 +248,7 @@ void NewAdvDif::new_assemble(arg_data_list &arg_data_v,const Nodedata *nodedata,
 #define ALPHA (glob_param->alpha)
 #define DT (glob_param->Dt)
   arg_data *staten=NULL,*stateo=NULL,*retval=NULL,
-    *jac_prof=NULL,*Ajac=NULL;
+    *jac_prof=NULL,*Ajac=NULL, *fdj_jac=NULL;
   if (comp_res) {
     int j=-1;
     stateo = &arg_data_v[++j]; //[0]
@@ -305,6 +305,11 @@ void NewAdvDif::new_assemble(arg_data_list &arg_data_v,const Nodedata *nodedata,
   //  correspoding to nonlinearities in the
   //  diffusive Jacobian.
   NSGETOPTDEF(int,compute_dDdU_term,1);
+  //o If activated, the stability term is computed
+  //  in the previous time step. The advantage is that
+  //  you have true Newton convergence (quadratic), but
+  //  the parameters are not updated while the field is moving. 
+  NSGETOPTDEF(int,use_old_state_for_p_supg,1);
 
   //o Use 1 Gauss point for some matrix terms.
   // In this application for diffusive terms grad_N_D_grad_N
@@ -850,17 +855,14 @@ void NewAdvDif::new_assemble(arg_data_list &arg_data_v,const Nodedata *nodedata,
 	if (shocap>0. || shocap_aniso>0.)
 	  adv_diff_ff->get_Cp(Cp_bis_old);
 	if (use_Ajac_old) adv_diff_ff->get_Ajac(Ao);
-	  adv_diff_ff
-	    ->compute_shock_cap_aniso(delta_aniso_old,jvec_old);
+        adv_diff_ff
+          ->compute_shock_cap_aniso(delta_aniso_old,jvec_old);
 
-
-#define USE_OLD_STATE_FOR_P_SUPG
-#ifdef USE_OLD_STATE_FOR_P_SUPG
 	// This computes either the standard `P_supg' perturbation
 	// function or other written by the user in the
 	// flux-function.
-	adv_diff_ff->comp_P_supg(P_supg);
-#endif
+        if (use_old_state_for_p_supg)
+          adv_diff_ff->comp_P_supg(P_supg);
 
 	// Set the state of the fluid so that it can be used to
 	// compute matrix products
@@ -1170,12 +1172,11 @@ void NewAdvDif::new_assemble(arg_data_list &arg_data_v,const Nodedata *nodedata,
 #endif
 	}
 
-#ifndef USE_OLD_STATE_FOR_P_SUPG
 	// This computes either the standard `P_supg' perturbation
 	// function or other written by the user in the
 	// flux-function.
-	adv_diff_ff->comp_P_supg(P_supg);
-#endif
+        if (!use_old_state_for_p_supg)
+          adv_diff_ff->comp_P_supg(P_supg);
 	  
 	  
 	for (int jel=1; jel<=nel; jel++) {

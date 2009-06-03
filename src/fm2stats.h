@@ -19,7 +19,9 @@ class FastMat2Stats {
     was_sl_count(0),
     was_not_sl_count(0) {}
   void report();
-  ~FastMat2Stats() { report(); }
+  ~FastMat2Stats() { 
+    // report(); 
+  }
 };
 
 extern FastMat2Stats glob_fm2stats;
