@@ -2,11 +2,9 @@
 TODO: [Mainly fixes go here...]
 =====
 
-* See commit f3a697c9499c0d084e55e91d14b59dbf4b840396 fastmat2b
-  do not open log. 
 * Gives PETSc error when run with ncore=8 and np=2
   I THINK both these and below are the same and due to the 
-  probelm reported
+  problem reported
   notes.txt/2009-05-25.20:21:49.mstorti-v25-end-10-g8b7bce3.
   CHECK!!!  
 * gives FPE w. ncore=8, see notes.txt:09:38:01 --
@@ -174,6 +172,10 @@ TODO: [Mainly fixes go here...]
 DONE:
 =====
 
+* 2009-06-03 19:13:33
+  FIXED: now report() is not called by default in the destructor. 
+  See commit f3a697c9499c0d084e55e91d14b59dbf4b840396 fastmat2b
+  do not open log. 
 * 2009-05-25 17:23:59
   FIXED a BUG: in fem.h in the definition of macros PETSCFEM_ERROR and
   PETSCFEM_ERROR0, `templ' should go as an additional arg, and NOT 

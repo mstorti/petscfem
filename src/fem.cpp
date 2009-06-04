@@ -137,7 +137,7 @@ void petscfem_error(const char *templ,...) {
   va_start(list,templ);
   petscfem_printf(templ,list);
   PetscFinalize();
-  abort();
+  // abort();
 }
 
 void petscfem_assert(int cond, const char *templ,...) {
