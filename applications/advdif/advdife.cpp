@@ -248,7 +248,7 @@ void NewAdvDif::new_assemble(arg_data_list &arg_data_v,const Nodedata *nodedata,
 #define ALPHA (glob_param->alpha)
 #define DT (glob_param->Dt)
   arg_data *staten=NULL,*stateo=NULL,*retval=NULL,
-    *jac_prof=NULL,*Ajac=NULL;
+    *jac_prof=NULL,*Ajac=NULL,*fdj_jac=NULL;
   if (comp_res) {
     int j=-1;
     stateo = &arg_data_v[++j]; //[0]
@@ -1176,7 +1176,7 @@ void NewAdvDif::new_assemble(arg_data_list &arg_data_v,const Nodedata *nodedata,
 	// flux-function.
 	adv_diff_ff->comp_P_supg(P_supg);
 #endif
-	  
+	if (ipg==0) P_supg.print(4);
 	  
 	for (int jel=1; jel<=nel; jel++) {
 	  P_supg.ir(1,jel);
@@ -1373,6 +1373,7 @@ void NewAdvDifFF::comp_P_supg(FastMat2 &P_supg) {
   const NewAdvDif *e = new_adv_dif_elemset;
   if (e->ff_options & SCALAR_TAU) {
     double tau_supg_d = e->tau_supg.get(1,1);
+    printf("tau_supg_d= %.20f\n",tau_supg_d);
     P_supg.set(e->Ao_grad_N).scale(tau_supg_d);
   } else {
     P_supg.prod(e->Ao_grad_N,e->tau_supg,1,2,-1,-1,3);
