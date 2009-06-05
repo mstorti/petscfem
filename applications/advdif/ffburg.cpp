@@ -127,7 +127,7 @@ void burgers_ff::start_chunk(int &ret_options) {
   Uintri.resize(1,ndim);
   tmp0.resize(1,ndim);
 
-  assert(ndof==1); // Only 1D Burgers considered
+  assert(ndof==1); // Only Burgers with one field is considered
 
   //o Diffusivity (viscosity)
   EGETOPTDEF_ND(elemset,double,diffusivity,0.);
@@ -209,3 +209,10 @@ void burgers_ff::compute_flux(COMPUTE_FLUX_ARGS) {
 				// right now!!
   }
 }
+
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>
+void burgers_ff::get_Ajac(FastMat2 &Ajac) {
+  FastMat2 &u = u_a_jac.u;
+  Ajac.ir(2,1).ir(3,1).set(u).rs();
+}
+

@@ -1205,48 +1205,12 @@ if (!(bool_cond)) { PetscPrintf(PETSCFEM_COMM_WORLD, 				\
   for (int j=0; j<size; j++) procmap.e(j) = j;
 
   if (size>1 && ncore>0) {
-#undef PETSCFEM_ERROR0
-#define PETSCFEM_ERROR0(templ)                                  \
-  petscfem_error(templ "\n---------------\n"                    \
-                 "PETSC-FEM error at file \"%s\", line %d\n",	\
-		 __FILE__,__LINE__)
-
-#undef PETSCFEM_ASSERT0
-#define PETSCFEM_ASSERT0(bool_cond,templ)       \
-if (!(bool_cond)) {                             \
-  PetscSynchronizedPrintf(PETSCFEM_COMM_WORLD,  \
-                  "Assertion failed: \"%s\"\n", \
-                   #bool_cond);                 \
-  PETSCFEM_ERROR0(templ);}
- 
-#undef PETSCFEM_ERROR
-#define PETSCFEM_ERROR(templ,...)				\
-  petscfem_error(templ "\n---------------\n"			\
-	      "PETSC-FEM error at file \"%s\", line %d\n",	\
-		 __VA_ARGS__,__FILE__,__LINE__)
-
-#undef PETSCFEM_ASSERT
-#define PETSCFEM_ASSERT(bool_cond,templ,...)    \
-if (!(bool_cond)) {                             \
-  PetscSynchronizedPrintf(PETSCFEM_COMM_WORLD,  \
-                  "Assertion failed: \"%s\"\n", \
-                  #bool_cond);                  \
-  PETSCFEM_ERROR(templ,__VA_ARGS__);}
-
-//     PETSCFEM_ASSERT0(size%ncore==0,
-//                     "if ncore is given, numer of "
-//                     "processor `size' must be a multiple of ncore.");
 
     PETSCFEM_ASSERT(size%ncore==0,
                     "if ncore is given, numer of "
                     "processor `size' must be a multiple of ncore.\n"
                     "size %d, ncore %d",size,ncore);
 
-//     PETSCFEM_ERROR( "if ncore is given, numer of "
-//                     "processor `size' must be a multiple of ncore.\n"
-//                     "size %d, ncore %d",size,ncore);
-    PetscFinalize();
-    exit(0);
     if (!myrank) {
 
       // Using graph-matching algorithm

@@ -305,11 +305,14 @@ void NewAdvDif::new_assemble(arg_data_list &arg_data_v,const Nodedata *nodedata,
   //  correspoding to nonlinearities in the
   //  diffusive Jacobian.
   NSGETOPTDEF(int,compute_dDdU_term,1);
+#if 0
+  // NO: THIS IS ALREADY IN use_Ajac_old
   //o If activated, the stability term is computed
   //  in the previous time step. The advantage is that
   //  you have true Newton convergence (quadratic), but
   //  the parameters are not updated while the field is moving. 
   NSGETOPTDEF(int,use_old_state_for_p_supg,1);
+#endif
 
   //o Use 1 Gauss point for some matrix terms.
   // In this application for diffusive terms grad_N_D_grad_N
@@ -861,7 +864,7 @@ void NewAdvDif::new_assemble(arg_data_list &arg_data_v,const Nodedata *nodedata,
 	// This computes either the standard `P_supg' perturbation
 	// function or other written by the user in the
 	// flux-function.
-        if (use_old_state_for_p_supg)
+        if (use_Ajac_old)
           adv_diff_ff->comp_P_supg(P_supg);
 
 	// Set the state of the fluid so that it can be used to
@@ -1175,7 +1178,7 @@ void NewAdvDif::new_assemble(arg_data_list &arg_data_v,const Nodedata *nodedata,
 	// This computes either the standard `P_supg' perturbation
 	// function or other written by the user in the
 	// flux-function.
-        if (!use_old_state_for_p_supg)
+        if (!use_Ajac_old)
           adv_diff_ff->comp_P_supg(P_supg);
 	  
 	  
