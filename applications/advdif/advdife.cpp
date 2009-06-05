@@ -854,13 +854,14 @@ void NewAdvDif::new_assemble(arg_data_list &arg_data_v,const Nodedata *nodedata,
 	    ->compute_shock_cap_aniso(delta_aniso_old,jvec_old);
 
 
-#define USE_OLD_STATE_FOR_P_SUPG
-#ifdef USE_OLD_STATE_FOR_P_SUPG
+// #define USE_OLD_STATE_FOR_P_SUPG
+// #ifdef USE_OLD_STATE_FOR_P_SUPG
 	// This computes either the standard `P_supg' perturbation
 	// function or other written by the user in the
 	// flux-function.
-	adv_diff_ff->comp_P_supg(P_supg);
-#endif
+	  if (use_Ajac_old)
+	    adv_diff_ff->comp_P_supg(P_supg);
+	//#endif
 
 	// Set the state of the fluid so that it can be used to
 	// compute matrix products
@@ -1170,12 +1171,13 @@ void NewAdvDif::new_assemble(arg_data_list &arg_data_v,const Nodedata *nodedata,
 #endif
 	}
 
-#ifndef USE_OLD_STATE_FOR_P_SUPG
+	//#ifndef USE_OLD_STATE_FOR_P_SUPG
 	// This computes either the standard `P_supg' perturbation
 	// function or other written by the user in the
 	// flux-function.
-	adv_diff_ff->comp_P_supg(P_supg);
-#endif
+        if (!use_Ajac_old)
+	  adv_diff_ff->comp_P_supg(P_supg);
+	//#endif
 	for (int jel=1; jel<=nel; jel++) {
 	  P_supg.ir(1,jel);
 	  
