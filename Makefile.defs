@@ -7,9 +7,9 @@
 ## PETSc
 ## -----
 ifeq ($(PETSC_DIR),)
-PETSC_DIR = /home/rodrigop/PETSC/petsc-3.0.0
+PETSC_DIR = /usr/local/petsc/3.0.0
 endif
-PETSC_ARCH_G = linux-gnu-O
+PETSC_ARCH_G = linux-gnu
 PETSC_ARCH_O = linux-gnu-O
 
 
@@ -96,5 +96,5 @@ SMC =
 # generate the doc.
 LATEX2HTML = /usr/local/latex2html/latex2html
 
-DEVELOPER_MODE := yes
-#DEVELOPER_MODE := no
+#DEVELOPER_MODE := yes
+DEVELOPER_MODE := no
