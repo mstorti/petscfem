@@ -1,7 +1,7 @@
 
 .PHONY: force all run tests default strip gasflow nozzle  vtubei
 
-default: oscplate
+default: oscplate2
 
 #----<*>----------<*>----------<*>----------<*>----------<*>----------<*>-----
 #w All oscillating plate tests (why not oscplate2b?)

@@ -122,8 +122,8 @@ expect("oscplate/oscplate1.verif.tmp",
 #------/*/------/*/------/*/------/*/------/*/------/*/------/*/ 
 # Same as before, but here the movemente of the plate is of
 # saw-teeth wave-form. ($u=\pm constant$). 
-expect("oscplate/oscplate2o.sal","Time dependent boundary conditions (2)",
-             read_file("oscplate/oscplate2o.ans"));
+expect("oscplate/oscplate2.verif.tmp",
+       "Time dependent boundary conditions (2)","Test OK 1");
 
 #------/*/------/*/------/*/------/*/------/*/------/*/------/*/ 
 # Oscillating plate with sinusoidal oscillation
