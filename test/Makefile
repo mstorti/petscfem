@@ -297,7 +297,7 @@ ductadv:
 	$(MAKE) -C ductadv tests
 
 # makes an abridged acount of the tests
-abridged:
+abridged2:
 	@ ( echo "NOT OK-------" ;				\
 	./runtests.pl -n | grep "^Testing" |			\
 		perl -pe 's/^.*on file "(.*)".*$$/$$1/' ;	\
@@ -306,7 +306,7 @@ abridged:
 		perl -pe "s/^can't open //" ; )			\
 		| tee abridged.tmp
 
-abridged2:
+abridged:
 	cat /dev/null > abridged.tmp
 	./runtests.pl -n | grep "^Testing" |			\
 		perl -pe 's/^.*on file "(.*)".*$$/$$1/' > tempo.txt
