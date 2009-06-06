@@ -1,6 +1,8 @@
 
 .PHONY: force all run tests default strip gasflow nozzle  vtubei
 
+default: oscplate
+
 #----<*>----------<*>----------<*>----------<*>----------<*>----------<*>-----
 #w All oscillating plate tests (why not oscplate2b?)
 tests: oscplate3 oscplate2 oscplate2b oscplate4 \
@@ -17,10 +19,11 @@ oscplate2: ns
 #----<*>----------<*>----------<*>----------<*>----------<*>----------<*>-----
 #w Oscillating plate with sinusoidal oscillation
 oscplate: ns
-	-rm -f tmp_file*.tmp oscplate1.sal
+	-rm -f tmp_file*.tmp oscplate1.state.tmp
 	make-depl oscplate.epl oscplate.depl -d Nperiods=20 
 	-$(MPIEXEC) -n 1 $(NS) -case oscplate.depl $(call in_backg,$@)
-	mv oscplate.sal oscplate1.sal
+	mv -f oscplate.state.tmp oscplate1.state.tmp
+	$(OCTAVE) verif1.m > oscplate1.verif.tmp
 
 SRCS = 
 PETSCFEM_DIR = ../..

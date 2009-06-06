@@ -14630,3 +14630,46 @@ NO, verificado que el `newff/adv_temp_cp_iisd.vrf.tmp' tambien daba
 mal. 
 %
 O sea que ahora estaria dando todo bien. 
+%
+%--[2009-06-06.17:03:39.mstorti-v26-end-0-g0f87f7a]-----
+Corro los tests 
+-| ---- g_c++
+-| NOT OK-------
+-| oscplate/oscplate1.sal
+-| sqcav/check.fs.verif.tmp
+-| sqcav/check.iisd.verif.np1.tmp
+-| sqcav/check.iisd.verif.np2.tmp
+-| idmap/tidmap.sal
+-| newff/adv_temp_cp.vrf.tmp
+-| newff/full_full_jacs_cp.vrf.tmp
+-| newff/full_full_jacs_adv_cp.vrf.tmp
+-| newff/adv_temp_cp_iisd.vrf.tmp
+-| distmap/dist_graph.np3.out.tmp
+-| CAN'T OPEN-------
+-| ---- O_c++
+-| NOT OK-------
+-| oscplate/oscplate1.sal
+-| sqcav/check.fs.verif.tmp
+-| sqcav/check.iisd.verif.np1.tmp
+-| sqcav/check.iisd.verif.np2.tmp
+-| idmap/tidmap.sal
+-| newff/adv_temp_cp.vrf.tmp
+-| newff/full_full_jacs_cp.vrf.tmp
+-| newff/full_full_jacs_adv_cp.vrf.tmp
+-| newff/adv_temp_cp_iisd.vrf.tmp
+-| distmap/dist_graph.np2.out.tmp
+-| distmap/dist_graph.np3.out.tmp
+-| CAN'T OPEN-------
+-| --------------
+Aparentemente se agrego oscplate
+
+oscplate/oscplate1.sal
+sqcav/check.fs.verif.tmp
+sqcav/check.iisd.verif.np1.tmp
+sqcav/check.iisd.verif.np2.tmp
+idmap/tidmap.sal
+newff/adv_temp_cp.vrf.tmp
+newff/full_full_jacs_cp.vrf.tmp
+newff/full_full_jacs_adv_cp.vrf.tmp
+newff/adv_temp_cp_iisd.vrf.tmp
+distmap/dist_graph.np3.out.tmp

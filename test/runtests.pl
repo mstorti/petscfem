@@ -116,8 +116,8 @@ begin_section('Oscplate tests. Time dep. b.c.s and N.S.');
 #------/*/------/*/------/*/------/*/------/*/------/*/------/*/ 
 # Here we check only the $y$ components of velocity, since the others are
 # rather spurious. 
-expect("oscplate/oscplate1.sal","Time dependent boundary conditions",
-             read_file("oscplate/oscplate1.ans"));
+expect("oscplate/oscplate1.verif.tmp",
+       "Time dependent boundary conditions","^OK 1");
 
 #------/*/------/*/------/*/------/*/------/*/------/*/------/*/ 
 # Same as before, but here the movemente of the plate is of

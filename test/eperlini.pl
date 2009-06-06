@@ -127,16 +127,6 @@ sub doc_vals {
     print "#","-" x 20,"\n";
 }
 
-sub heredoc {
-    my $txt = shift();
-    my $name = shift();
-    $name = "tmp_file_$$.tmp" unless $name;
-    open TMP,">$name";
-    print TMP $txt;
-    close TMP;
-    print $name;
-}
-
 # usage: makeini(\@STATE,$nnod,$filename,$noise);
 sub makeini {
     @U = @{shift()};
