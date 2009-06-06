@@ -11,10 +11,10 @@ tests: oscplate3 oscplate2 oscplate2b oscplate4 \
 #----<*>----------<*>----------<*>----------<*>----------<*>----------<*>-----
 #w Oscillating plate with piecewise constant function
 oscplate2: ns
-	-rm -f tmp_file*.tmp oscsome2.sal
+	-rm -f tmp_file*.tmp
 	make-depl oscplate.epl oscplate2.depl -d piecewise_fun=1
 	-$(MPIEXEC) -n 1 $(NS) -case oscplate2.depl $(call in_backg,$@)
-	$(OCTAVE) oscplate2.m &> oscplate2o.sal
+	$(OCTAVE) oscplate2.m &> oscplate2.verif.tmp
 
 #----<*>----------<*>----------<*>----------<*>----------<*>----------<*>-----
 #w Oscillating plate with sinusoidal oscillation
