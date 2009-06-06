@@ -151,9 +151,7 @@ expect("oscplate/oscplate4co.sal",
 # Oscillating plate with sinusoidal oscillation
 # periodic function interpolated with splines - "sin shift 30 dg" case
 expect("oscplate/oscplate4_30dego.sal",
-"Time dep. b.c., spline_periodic function/sin shift",<<'EOT');
-error = .*,  < .* OK \? 1
-EOT
+       "Time dep. b.c., spline_periodic function/sin shift","^OK 1");
 
 end_section();
 
