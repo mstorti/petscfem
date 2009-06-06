@@ -14661,15 +14661,13 @@ Corro los tests
 -| distmap/dist_graph.np3.out.tmp
 -| CAN'T OPEN-------
 -| --------------
-Aparentemente se agrego oscplate
-
+Aparentemente se agregaron estos:
+%
 oscplate/oscplate1.sal
-sqcav/check.fs.verif.tmp
 sqcav/check.iisd.verif.np1.tmp
 sqcav/check.iisd.verif.np2.tmp
-idmap/tidmap.sal
-newff/adv_temp_cp.vrf.tmp
-newff/full_full_jacs_cp.vrf.tmp
-newff/full_full_jacs_adv_cp.vrf.tmp
-newff/adv_temp_cp_iisd.vrf.tmp
-distmap/dist_graph.np3.out.tmp
+%
+%--[2009-06-06.18:14:35.mstorti-v26-end-8-g2aa9da5]-----
+`oscplate/oscplate1.sal' se debia a un pequeño cambio en la solucion,
+no se porque, pero es pequeño. Ademas aproveche y actualice todos los
+tests en oscplate a hacer checks corriendo Octave. 
