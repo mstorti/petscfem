@@ -2,18 +2,6 @@
 TODO: [Mainly fixes go here...]
 =====
 
-* Gives PETSc error when run with ncore=8 and np=2
-  I THINK both these and below are the same and due to the 
-  problem reported
-  notes.txt/2009-05-25.20:21:49.mstorti-v25-end-10-g8b7bce3.
-  CHECK!!!  
-* gives FPE w. ncore=8, see notes.txt:09:38:01 --
-  fastmat2-omp-start-28-gd9d7fd1
-  see above. CHECK!!!  
-* Tests sqcav/check.zwproc.tmp and sqcav/check.zwproc2.tmp give now a
-   little error. See comments in notes.txt
-   Mon Feb 23 15:37:21 2009 mstorti@galileo
-   21:46:22 -- mstorti-v24-start-20-g1cf5a46
 * In `trcprtf.cpp' check if jacobian of element is null. Perhaps in
    the first time step? 
 * ADVDIF is not completely invariant under Galilean transformations, 
@@ -172,6 +160,19 @@ TODO: [Mainly fixes go here...]
 DONE:
 =====
 
+* Tests sqcav/check.zwproc.tmp and sqcav/check.zwproc2.tmp give now a
+   little error. See comments in notes.txt
+   Mon Feb 23 15:37:21 2009 mstorti@galileo
+   21:46:22 -- mstorti-v24-start-20-g1cf5a46
+   2009-06-05 19:53:19: Seems that now it works OK
+* Gives PETSc error when run with ncore=8 and np=2
+  I THINK both these and below are the same and due to the 
+  problem reported
+  notes.txt/2009-05-25.20:21:49.mstorti-v25-end-10-g8b7bce3.
+  FIXED!! there was a bug in PETSCFEM_ERROR and _ASSERT macros. 
+* gives FPE w. ncore=8, see notes.txt:09:38:01 --
+  fastmat2-omp-start-28-gd9d7fd1 see above. 
+  FIXED!! there was a bug in PETSCFEM_ERROR and _ASSERT macros. 
 * 2009-06-03 19:13:33
   FIXED: now report() is not called by default in the destructor. 
   See commit f3a697c9499c0d084e55e91d14b59dbf4b840396 fastmat2b
