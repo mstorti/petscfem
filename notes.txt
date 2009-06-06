@@ -14671,3 +14671,38 @@ sqcav/check.iisd.verif.np2.tmp
 `oscplate/oscplate1.sal' se debia a un pequeño cambio en la solucion,
 no se porque, pero es pequeño. Ademas aproveche y actualice todos los
 tests en oscplate a hacer checks corriendo Octave. 
+%
+%--[2009-06-06.18:27:33.mstorti-v26-end-9-ge4a140e]-----
+Con los de sqcav es bastante raro, efectivamente parece que la
+solucion steady que se obtiene esta mal, es decir pareceria que el
+lazo lineal converge bien, pero despues de dos iters la solucion no
+esta bien. Ademas como que el residuo en el segundo paso de tiempo
+arranca de O(1) en vez de O(1e-2) como es en corridas
+anteriores. Podria ser como que no esta tomando steady. 
+%
+Aparentemente con el commit `mstorti-v25-end-12-g30dcbd3' andaba
+bien. 
+%
+%--[2009-06-06.18:47:33.mstorti-v26-end-9-ge4a140e]-----
+Efectivamente con `mstorti-v25-end-12-g30dcbd3' anda bien. 
+Las unicas diferencias que veo son con el tema de `iisd' hechas por
+Rodrigo  (commit mstorti-v24-end-10-g7c54b83) y las de FastMat2. Lo
+mas probable es lo de IISD. O sea habria que probar con 
+. 6cc7fd2 antes del cambio     OK
+. 7c54b83 despues del cambio   NOT OK
+% ----------------
+CON petscfem-g6cc7fd2: (preco_side = right)
+[mstorti@galileo sqcav]$ cat check.iisd.verif.np1.tmp
+IISD iisd_subpart=1. error < tol OK ? 1 (error = 9.99999e-13, tol = 1e-10)
+IISD iisd_subpart=2. error < tol OK ? 1 (error = 8.10512e-07, tol = 1e-05)
+IISD iisd_subpart=4. error < tol OK ? 1 (error = 3.00918e-06, tol = 1e-05)
+IISD iisd_subpart=8. error < tol OK ? 1 (error = 5.43994e-06, tol = 1e-05)
+IISD iisd_subpart=16. error < tol OK ? 1 (error = 2.96466e-06, tol = 1e-05)
+% ----------------
+CON petscfem-g7c54b83: (preco_side = left)
+[mstorti@galileo sqcav]$ cat check.iisd.verif.np1.tmp
+IISD iisd_subpart=1. error < tol OK ? 1 (error = 1e-12, tol = 1e-10)
+IISD iisd_subpart=2. error < tol OK ? 0 (error = 6.90646e-05, tol = 1e-05)
+IISD iisd_subpart=4. error < tol OK ? 0 (error = 9.23848e-05, tol = 1e-05)
+IISD iisd_subpart=8. error < tol OK ? 0 (error = 0.000202448, tol = 1e-05)
+IISD iisd_subpart=16. error < tol OK ? 0 (error = 0.000419121, tol = 1e-05)
