@@ -14748,3 +14748,16 @@ CAN'T OPEN-------
 O sea que se agrego oscplate/oscplate2, pero debe ser algun problema
 originado por el cambio reciente en oscplate2.  Tests guardados en
 petscfem-runtests-2009-06-06b
+%
+%--[2009-06-06.22:25:34.mstorti-v26-end-13-g1b235ff]-----
+Efectivamente era un pequeño problema, así que los tests serían
+NOT OK------- -> 8
+sqcav/check.fs.verif.tmp
+idmap/tidmap.sal
+newff/adv_temp_cp.vrf.tmp
+newff/full_full_jacs_cp.vrf.tmp
+newff/full_full_jacs_adv_cp.vrf.tmp
+newff/adv_temp_cp_iisd.vrf.tmp
+distmap/dist_graph.np2.out.tmp
+distmap/dist_graph.np3.out.tmp
+CAN'T OPEN------- -> 0

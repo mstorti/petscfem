@@ -306,5 +306,20 @@ abridged:
 		perl -pe "s/^can't open //" ; )			\
 		| tee abridged.tmp
 
+abridged2:
+	cat /dev/null > abridged.tmp
+	./runtests.pl -n | grep "^Testing" |			\
+		perl -pe 's/^.*on file "(.*)".*$$/$$1/' > tempo.txt
+	echo -n "NOT OK------- -> " >> abridged.tmp
+	wc -l tempo.txt | cut -f 1 -d ' '>> abridged.tmp
+	cat tempo.txt >> abridged.tmp
+#
+	./runtests.pl -o | grep "^can't open" |			\
+		perl -pe "s/^can't open //" > tempo.txt
+	echo -n "CAN'T OPEN------- -> " >> abridged.tmp
+	wc -l tempo.txt | cut -f 1 -d ' '>> abridged.tmp
+	cat tempo.txt >> abridged.tmp
+#
+	rm -f tempo.txt
 
 #s
