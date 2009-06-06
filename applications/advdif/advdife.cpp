@@ -248,7 +248,7 @@ void NewAdvDif::new_assemble(arg_data_list &arg_data_v,const Nodedata *nodedata,
 #define ALPHA (glob_param->alpha)
 #define DT (glob_param->Dt)
   arg_data *staten=NULL,*stateo=NULL,*retval=NULL,
-    *jac_prof=NULL,*Ajac=NULL, *fdj_jac=NULL;
+    *jac_prof=NULL, *Ajac=NULL, *fdj_jac=NULL;
   if (comp_res) {
     int j=-1;
     stateo = &arg_data_v[++j]; //[0]
@@ -1180,7 +1180,6 @@ void NewAdvDif::new_assemble(arg_data_list &arg_data_v,const Nodedata *nodedata,
 	// flux-function.
         if (!use_Ajac_old)
           adv_diff_ff->comp_P_supg(P_supg);
-	  
 	  
 	for (int jel=1; jel<=nel; jel++) {
 	  P_supg.ir(1,jel);

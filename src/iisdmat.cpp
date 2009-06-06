@@ -154,13 +154,19 @@ int PFPETScMat::build_ksp() {
   // GMRES. 
   TGETOPTDEF_S_PF(thash,string,preco_side,<ksp-dependent>);
   if (preco_side=="<ksp-dependent>") {
-    if (KSP_method == "cg" || KSP_method == "richardson") preco_side = "left";
+    if (KSP_method == "cg" || KSP_method == "richardson" || KSP_method == "gmres") preco_side = "left";
     else preco_side = "right";
   }
 
   if (KSP_method == "cg" && preco_side == "right") {
     PetscPrintf(PETSCFEM_COMM_WORLD,__FUNC__ 
-		": can't choose \"right\" preconditioning with KSP CG\n");
+		": can't choose \"right\" preconditioning with KSP CG (using \"left\")\n");
+    preco_side = "left";
+  }
+
+  if (KSP_method == "gmres" && preco_side == "right") {
+    PetscPrintf(PETSCFEM_COMM_WORLD,__FUNC__ 
+		": can't choose \"right\" preconditioning with KSP GMRES (using \"left\")\n");
     preco_side = "left";
   }
 

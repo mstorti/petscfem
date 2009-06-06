@@ -25,12 +25,12 @@ CLIBOBJS_ =  getarrgr.tab mkl_gf
 # Fortran files
 FLIBOBJS_ =  spline seval dgefa
 
-#spline.o: spline.f
-#	gfortran -c spline.f
-#seval.o: seval.f
-#	gfortran -c seval.f
-#dgefa.o: dgefa.f
-#	gfortran -c dgefa.f
+# spline.o: spline.f
+# 	gfortran -c spline.f
+# seval.o: seval.f
+# 	gfortran -c seval.f
+# dgefa.o: dgefa.f
+# 	gfortran -c dgefa.f
 
 spline.o: spline.f
 seval.o: seval.f
