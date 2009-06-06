@@ -14725,4 +14725,26 @@ Instalo PETSc 3.0.0-p5 y efectivamente cuando queres usar
 preco_side=right con GMRES te dice que uses FGMRES. Lo pongo y
 entonces no hay problema y recupero la convergencia, entonces lo que
 voy a hacer es poner por defecto FGMRES y preco_side=right. 
-
+%
+%--[2009-06-06.21:53:56.mstorti-v26-end-12-g3caf47e]-----
+Corro todos los tests (torture) de nuevo, para ver el efecto de haber
+cambiado a FGMRES con preco_side=right, y me da
+%
+----- runteses: 2009-06-06 19:11:35, 
+      mstorti-v26-end-12-g3caf47e,g_c++ = 0 O_c++
+NOT OK-------
+oscplate/oscplate2.verif.tmp
+sqcav/check.fs.verif.tmp
+idmap/tidmap.sal
+newff/adv_temp_cp.vrf.tmp
+newff/full_full_jacs_cp.vrf.tmp
+newff/full_full_jacs_adv_cp.vrf.tmp
+newff/adv_temp_cp_iisd.vrf.tmp
+distmap/dist_graph.np2.out.tmp
+distmap/dist_graph.np3.out.tmp
+CAN'T OPEN-------
+%
+%--[2009-06-06.22:12:22.mstorti-v26-end-12-g3caf47e]-----
+O sea que se agrego oscplate/oscplate2, pero debe ser algun problema
+originado por el cambio reciente en oscplate2.  Tests guardados en
+petscfem-runtests-2009-06-06b

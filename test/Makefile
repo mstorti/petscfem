@@ -104,6 +104,11 @@ torture:
 	$(MAKE) BOPT=O_c++ torture_1
 	$(MAKE) lclean
 
+mkruntestsdir:
+	mkstepsdir.pl -p RUNTESTS
+	mv -f make-tests* RUNTESTS
+	mv -f ../make-tests-*.tar.gz RUNTESTS
+
 #----<*>----------<*>----------<*>----------<*>----------<*>----------<*>-----
 # All tests
 
