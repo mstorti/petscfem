@@ -164,11 +164,13 @@ int PFPETScMat::build_ksp() {
     preco_side = "left";
   }
 
+#if 0
   if (KSP_method == "gmres" && preco_side == "right") {
     PetscPrintf(PETSCFEM_COMM_WORLD,__FUNC__ 
 		": can't choose \"right\" preconditioning with KSP GMRES (using \"left\")\n");
     preco_side = "left";
   }
+#endif
 
   ierr = KSPDestroy_maybe(ksp); CHKERRQ(ierr);
   ierr = KSPCreate(comm,&ksp); CHKERRQ(ierr);

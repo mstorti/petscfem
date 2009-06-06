@@ -330,3 +330,6 @@ link:
 #w Debugging target
 dbg:
 	$(MAKE) case=fractional_step_re400 runs2
+
+prog:
+	$(MAKE) -C $(PETSCFEM_DIR) $(LOC_PROG)

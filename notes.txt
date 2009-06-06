@@ -14706,3 +14706,8 @@ IISD iisd_subpart=2. error < tol OK ? 0 (error = 6.90646e-05, tol = 1e-05)
 IISD iisd_subpart=4. error < tol OK ? 0 (error = 9.23848e-05, tol = 1e-05)
 IISD iisd_subpart=8. error < tol OK ? 0 (error = 0.000202448, tol = 1e-05)
 IISD iisd_subpart=16. error < tol OK ? 0 (error = 0.000419121, tol = 1e-05)
+%
+%--[2009-06-06.19:19:13.mstorti-v26-end-10-gf9146f5]-----
+Pruebo a tomar la version actual `mstorti-v26-end-10-gf9146f5' y
+forzando a que tome preco_side=right, recupero la convergencia
+apropiada. 
