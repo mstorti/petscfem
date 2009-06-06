@@ -138,9 +138,7 @@ expect("oscplate/oscplate3o.sal","Time dep. b.c./Crank-Nicholson ","OK 1");
 #------/*/------/*/------/*/------/*/------/*/------/*/------/*/ 
 # Oscillating plate with sinusoidal oscillation
 # periodic function interpolated with splines - "sin" case
-expect("oscplate/oscplate4o.sal","Time dep. b.c., spline_periodic function/sin",<<'EOT');
-error = .*,  < .* OK \? 1
-EOT
+expect("oscplate/oscplate4o.sal","Time dep. b.c., spline_periodic function/sin","OK 1");
 
 #------/*/------/*/------/*/------/*/------/*/------/*/------/*/ 
 # Oscillating plate with sinusoidal oscillation
