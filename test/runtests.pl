@@ -133,9 +133,7 @@ expect("oscplate/oscplate2.verif.tmp",
 # considered the exact, and it is checked in Octave that
 # norm(u32-u128)/norm(u16-u128) < 0.30 (it should be <0.25). 
 #
-expect("oscplate/oscplate3o.sal","Time dep. b.c./Crank-Nicholson ",<<'EOT');
-norm\(u32-u128\)/norm\(u16-u128\) < 0.26 OK \? > 1 
-EOT
+expect("oscplate/oscplate3o.sal","Time dep. b.c./Crank-Nicholson ","OK 1");
 
 #------/*/------/*/------/*/------/*/------/*/------/*/------/*/ 
 # Oscillating plate with sinusoidal oscillation
