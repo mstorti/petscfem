@@ -6,6 +6,10 @@ extern int comp_mat_each_time_step_g,
 
 #include <vector>
 #include <string>
+#include <typeinfo>
+#ifdef __GNUC__
+#include <cxxabi.h>
+#endif
 
 #include <src/fem.h>
 #include <src/utils.h>
@@ -160,25 +164,50 @@ before_assemble(arg_data_list &arg_datav,Nodedata *nodedata,
 
 }
 
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>
+// This function prints the name of the
+// underlying flux function class. I read somewhere
+// that GCC uses the C++ ABI interface for RTTI, and then
+// I protect this with the __GNUC__ macro. 
+static void print_flux_fun_name(NewAdvDifFF *fun) {
+#ifdef __GNUC__
+  size_t len;
+  int s;
+  char* p=abi::__cxa_demangle(typeid(*fun).name(), 
+                              0, &len, &s);
+  PetscPrintf(PETSCFEM_COMM_WORLD,
+              "Flux function class \"%s\"\n",p);
+  free(p);
+#else
+  PetscPrintf(PETSCFEM_COMM_WORLD,
+              "Can not determine flux function class.\n");
+#endif
+}
+
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>
 void NewAdvDifFF::get_C(FastMat2 &C) {
   PetscPrintf(PETSCFEM_COMM_WORLD,
 	      "Not defined get_C() virtual function\n"
 	      "in the flux function object.\n");
+  print_flux_fun_name(this);
   assert(0);
 }
 
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>
 void NewAdvDifFF::get_Cp(FastMat2 &Cp) {
   PetscPrintf(PETSCFEM_COMM_WORLD,
 	      "Not defined get_Cp() virtual function\n"
 	      "in the flux function object.\n");
+  print_flux_fun_name(this);
   assert(0);
 }
 
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>
 void NewAdvDifFF::get_Ajac(FastMat2 &Ajac) {
   PetscPrintf(PETSCFEM_COMM_WORLD,
 	      "Not defined get_Ajac() virtual function\n"
 	      "in the flux function object.\n");
-  assert(0);
+  print_flux_fun_name(this);
 }
 
 void NewAdvDifFF::compute_delta_sc_v(FastMat2 &delta_sc_v) { }
