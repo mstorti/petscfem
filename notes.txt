@@ -14584,3 +14584,49 @@ Newton subiter 2, norm_res  =  1.232e-08
 Newton subiter 3, norm_res  =  1.232e-08
 ----
 O sea que no hay diferencia. 
+
+%=== Sat Jun  6 10:19:22 2009 mstorti@galileo
+%
+%--[2009-06-06.13:19:22.mstorti-v25-end-21-gea2405b]-----
+Despues de haber tocado un poco el tema del use_Ajac_old pruebo a
+correr los tests. Efectivamente no dan algunos relacionados con
+`advdif':
+%
+-| NOT OK-------
+-| sqcav/check.fs.verif.tmp
+-| idmap/tidmap.sal
+-| newff/adv_temp_cp.vrf.tmp
+-| newff/full_full_jacs_cp.vrf.tmp
+-| newff/full_full_jacs_adv_cp.vrf.tmp
+-| burgers/burgers.fd_jac_1.out.tmp
+-| burgers/burgers.fd_jac_2.out.tmp
+-| burgers/burgers.fd_jac_3.out.tmp
+-| newff/adv_temp_cp_iisd.vrf.tmp
+-| distmap/dist_graph.np2.out.tmp
+-| distmap/dist_graph.np3.out.tmp
+-| CAN'T OPEN-------
+%
+Es decir que se agregaron 
+%
+-| burgers/burgers.fd_jac_1.out.tmp
+-| burgers/burgers.fd_jac_2.out.tmp
+-| burgers/burgers.fd_jac_3.out.tmp
+%
+%--[2009-06-06.13:27:47.mstorti-v25-end-21-gea2405b]-----
+Los de burgers era porque estaba activado el CHECK_JAC entonces la
+salida era diferente. Faltaria ver el de newff. 
+%
+%--[2009-06-06.13:32:34.mstorti-v25-end-21-gea2405b]-----
+Parece que el problema es que probablemente que ambos test
+%
+-| newff/adv_temp_cp.vrf.tmp
+-| newff/adv_temp_cp_iisd.vrf.tmp
+%
+tampoco daban antes pero hay un problema con los archivos y no lo
+detecta al 2do.
+%
+%--[2009-06-06.13:41:51.mstorti-v25-end-21-gea2405b]-----
+NO, verificado que el `newff/adv_temp_cp_iisd.vrf.tmp' tambien daba
+mal. 
+%
+O sea que ahora estaria dando todo bien. 
