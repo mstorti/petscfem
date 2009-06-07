@@ -807,6 +807,10 @@ expect("burgers/jacotest/test_jaco_1elem.verif.tmp",
        "Global Jacobian for the residual with advdif",
        "^test OK 1");
 
+expect("burgers/jacotest/test_jaco_conv_verif.tmp",
+       "Check quadratic convergence in burgers",
+       "^test OK 1");
+
 end_section();
 
 #------/*/------/*/------/*/------/*/------/*/------/*/------/*/ 

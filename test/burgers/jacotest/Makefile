@@ -5,7 +5,7 @@
 # default: tests
 default: test_jaco_conv
 
-tests: test_jaco_1elem
+tests: test_jaco_1elem test_jaco_conv
 
 PETSCFEM_DIR := ../../..
 include $(PETSCFEM_DIR)/Makefile.base
