@@ -299,7 +299,7 @@ local_dist_clean::
 
 #w cleans directory
 lclean: 
-	$(MAKE) clean local_clean &> /dev/null
+	@$(MAKE) clean local_clean &> /dev/null
 	@shopt -s nullglob ; for dir in $(CLEAN_DIRS) ; \
 		do echo "making clean in $$dir" ; $(MAKE) -C $$dir lclean  ; done
 

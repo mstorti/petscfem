@@ -54,6 +54,7 @@ $(CASE_NAME).depl: force
 
 local_clean::
 	-rm -rf mat.output visc2inv inv2visc
+CLEAN_DIRS := convergence
 
 #w generate DX files
 dx:
