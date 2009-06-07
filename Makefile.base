@@ -300,10 +300,8 @@ local_dist_clean::
 #w cleans directory
 lclean: 
 	$(MAKE) clean local_clean &> /dev/null
-	echo CLEAN_DIRS $(CLEAN_DIRS)
-ifneq ($(CLEAN_DIRS),)
-	for dir in $(CLEAN_DIRS) ; do echo "making clean in $$dir" ; $(MAKE) -C $$dir lclean  ; done
-endif
+	@shopt -s nullglob ; for dir in $(CLEAN_DIRS) ; \
+		do echo "making clean in $$dir" ; $(MAKE) -C $$dir lclean  ; done
 
 #w Builds all necessary things after checking out a version
 #w from the CVS repository
