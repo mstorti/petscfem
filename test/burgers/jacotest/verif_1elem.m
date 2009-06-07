@@ -28,10 +28,15 @@ Afdj = condense(full(Mat_2));
 
 DA = Aana-Afdj;
 
-DA
-printf("merr(DA) %f\n",merr(DA));
+printf("merr(DA) %g\n",merr(DA));
 tol = 1e-7;
 printf("test OK %d\n",merr(DA)<tol);
 
+printf("Analytic Jacobian Aana:\n");
 Aana
+
+printf("FD Jacobian Afdj:\n");
 Afdj
+
+printf("Jacobian difference DA=Aana-Afdj:\n");
+DA

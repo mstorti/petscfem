@@ -126,7 +126,7 @@ runtests: compile sector oscplate fastmat2 plano idmap constraint_bug 	 \
 	advec nsgenload cubcav project embgath alebcconv ductadv
 
 rp: runtests_p
-runtests_p:   ductadv
+runtests_p: burgers
 
 #s Specific tests
 #----<*>----------<*>----------<*>----------<*>----------<*>----------<*>-----

@@ -77,7 +77,7 @@ run:
 	fi
 
 jaco_tests: 
-	$(MAKE) -c jacotest tests
+	$(MAKE) -C jacotest tests
 
 CLEAN_DIRS := jacotest
 
