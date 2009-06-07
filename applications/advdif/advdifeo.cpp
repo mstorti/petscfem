@@ -175,9 +175,8 @@ void AdvDif::new_assemble(arg_data_list &arg_data_v,const Nodedata *nodedata,
 #define WAS_SET arg_data_v[jdtmin].was_set
     Ajac = &arg_data_v[++j];
     glob_param = (GlobParam *)arg_data_v[++j].user_data;;
-#ifdef CHECK_JAC
-    fdj_jac = &arg_data_v[++j];
-#endif
+    if (ADVDIF_CHECK_JAC)
+      fdj_jac = &arg_data_v[++j];
   }
 
   FastMat2 matlocf(4,nel,ndof,nel,ndof),matlocf_mass(4,nel,ndof,nel,ndof);
@@ -566,9 +565,8 @@ void AdvDif::new_assemble(arg_data_list &arg_data_v,const Nodedata *nodedata,
       }
 
       veccontr.export_vals(element.ret_vector_values(*retval));
-#ifdef CHECK_JAC
-      veccontr.export_vals(element.ret_fdj_values(*fdj_jac));
-#endif
+      if (ADVDIF_CHECK_JAC)
+        veccontr.export_vals(element.ret_fdj_values(*fdj_jac));
       if (comp_mat_each_time_step_g) 
 	matlocf.export_vals(element.ret_mat_values(*Ajac));
     } else if (comp_prof) {

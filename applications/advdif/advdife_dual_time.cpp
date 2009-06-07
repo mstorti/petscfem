@@ -113,9 +113,8 @@ void NewAdvDif
     rec_Dpt = 1./DPT;
     if (glob_param->psteady) rec_Dpt = 0.;
 
-#ifdef CHECK_JAC
-    fdj_jac = &arg_data_v[++j];
-#endif
+    if (ADVDIF_CHECK_JAC)
+      fdj_jac = &arg_data_v[++j];
   }
 
   FastMat2 matlocf(4,nel,ndof,nel,ndof),
@@ -1069,9 +1068,8 @@ void NewAdvDif
       }
 
       veccontr.export_vals(element.ret_vector_values(*retval));
-#ifdef CHECK_JAC
-      veccontr.export_vals(element.ret_fdj_values(*fdj_jac));
-#endif
+      if (ADVDIF_CHECK_JAC)
+        veccontr.export_vals(element.ret_fdj_values(*fdj_jac));
       if (BOOL_COMP_JAC){
 	if (comp_mat_each_time_step_g) {
 	  matlocf.add(matlocf_fix);

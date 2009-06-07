@@ -4,6 +4,8 @@ extern int comp_mat_each_time_step_g,
   consistent_supg_matrix_g,
   local_time_step_g;
 
+int ADVDIF_CHECK_JAC=0;
+
 #include <vector>
 #include <string>
 #include <typeinfo>
@@ -295,9 +297,8 @@ void NewAdvDif::new_assemble(arg_data_list &arg_data_v,const Nodedata *nodedata,
     // into account higher order temporal integration
     rec_Dt_m = rec_Dt_m/ALPHA;
 
-#ifdef CHECK_JAC
-    fdj_jac = &arg_data_v[++j];
-#endif
+    if (ADVDIF_CHECK_JAC)
+      fdj_jac = &arg_data_v[++j];
   }
 
   FastMat2 matlocf(4,nel,ndof,nel,ndof),
@@ -1343,9 +1344,8 @@ void NewAdvDif::new_assemble(arg_data_list &arg_data_v,const Nodedata *nodedata,
         }
 
         veccontr.export_vals(element.ret_vector_values(*retval));
-#ifdef CHECK_JAC
-        veccontr.export_vals(element.ret_fdj_values(*fdj_jac));
-#endif
+        if (ADVDIF_CHECK_JAC)
+          veccontr.export_vals(element.ret_fdj_values(*fdj_jac));
         if (comp_mat_each_time_step_g) {
           matlocf.add(matlocf_fix);
           matlocf.export_vals(element.ret_mat_values(*Ajac));

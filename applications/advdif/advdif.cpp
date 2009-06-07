@@ -264,6 +264,7 @@ int advdif_main(int argc,char **args) {
   //o Computes jacobian of residuals and prints to a file.
   //  May serve to debug computation of the analytic jacobians. 
   GETOPTDEF(int,verify_jacobian_with_numerical_one,0);
+  ADVDIF_CHECK_JAC = verify_jacobian_with_numerical_one;
 
 #define INF INT_MAX
   //o Update jacobian each $n$-th time step. 
@@ -347,11 +348,11 @@ int advdif_main(int argc,char **args) {
   ierr = assemble(mesh,argl,dofmap,"comp_prof",&time); CHKERRA(ierr);
   debug.trace("After computing profile.");
 
-#ifdef CHECK_JAC
-  VOID_IT(argl);
-  argl.arg_add(AA,PROFILE|PFMAT);
-  ierr = assemble(mesh,argl,dofmap,"comp_prof",&time); CHKERRA(ierr);
-#endif
+  if (ADVDIF_CHECK_JAC) {
+    VOID_IT(argl);
+    argl.arg_add(AA,PROFILE|PFMAT);
+    ierr = assemble(mesh,argl,dofmap,"comp_prof",&time); CHKERRA(ierr);
+  }
 
   //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
   ierr = opt_read_vector(mesh,x,dofmap,MY_RANK); CHKERRA(ierr);
@@ -400,23 +401,21 @@ int advdif_main(int argc,char **args) {
 	// ierr = A->build_ksp(GLOBAL_OPTIONS); CHKERRA(ierr); 
 
 	ierr = A->clean_mat(); CHKERRA(ierr); 
-#ifdef CHECK_JAC
-	ierr = AA->clean_mat(); CHKERRA(ierr);
-#endif
+        if (ADVDIF_CHECK_JAC) {
+          ierr = AA->clean_mat(); CHKERRA(ierr);
+        }
 	VOID_IT(argl);
 	argl.arg_add(&xold,IN_VECTOR);
-#ifndef CHECK_JAC
-	argl.arg_add(&x,IN_VECTOR);
-#else
-	argl.arg_add(&x,PERT_VECTOR);
-#endif
+
+        if (!ADVDIF_CHECK_JAC) argl.arg_add(&x,IN_VECTOR);
+        else argl.arg_add(&x,PERT_VECTOR);
+
 	argl.arg_add(&res,OUT_VECTOR);
 	argl.arg_add(&dtmin,VECTOR_MIN);
 	argl.arg_add(A,OUT_MATRIX|PFMAT);
 	argl.arg_add(&glob_param,USER_DATA);
-#ifdef CHECK_JAC
-	argl.arg_add(AA,OUT_MATRIX_FDJ|PFMAT);
-#endif
+        if (ADVDIF_CHECK_JAC)
+          argl.arg_add(AA,OUT_MATRIX_FDJ|PFMAT);
 
 	if (measure_performance) {
 	  ierr = measure_performance_fun(mesh,argl,dofmap,"comp_res",
@@ -511,11 +510,11 @@ int advdif_main(int argc,char **args) {
 			       PETSC_VIEWER_ASCII_MATLAB,"A");
 	ierr = A->view(matlab);
 	print_vector(save_file_res.c_str(),res,dofmap,&time); // debug:=
-#ifdef CHECK_JAC
-	ierr = PetscViewerSetFormat_WRAPPER(matlab, 
-			       PETSC_VIEWER_ASCII_MATLAB,"AA");
-	ierr = AA->view(matlab);
-#endif
+        if (ADVDIF_CHECK_JAC) {
+          ierr = PetscViewerSetFormat_WRAPPER(matlab, 
+                                              PETSC_VIEWER_ASCII_MATLAB,"AA");
+          ierr = AA->view(matlab);
+        }
 	PetscFinalize();
 	exit(0);
       }
