@@ -123,7 +123,7 @@ tests: runtests
 runtests: compile sector oscplate fastmat2 plano idmap constraint_bug 	 \
 	fstack advdif texthash log_vars newff burgers bug100 genload 	 \
 	lupart distmap sparse graph sqcav pfmat aquifer nutatcyl mmove 	 \
-	advec nsgenload cubcav project embgath alebcconv ductadv
+	advec nsgenload cubcav project embgath alebcconv ductadv gasflow
 
 rp: runtests_p
 runtests_p: burgers
@@ -294,6 +294,11 @@ alebcconv:
 # Check strong temporal conservation with advdif
 ductadv:
 	$(MAKE) -C ductadv tests
+
+#----<*>----------<*>----------<*>----------<*>----------<*>----------<*>--
+# Gasflow tests
+gasflow:
+	$(MAKE) -C $@ tests
 
 # makes an abridged acount of the tests
 abridged2:

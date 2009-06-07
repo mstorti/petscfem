@@ -4,7 +4,7 @@
 
 default: cutoff
 
-tests: 
+tests: test_convergence
 
 #w Gas flow example (basic)
 gasflow:
@@ -29,6 +29,10 @@ vtubei:
 #w Strip example
 strip:
 	$(MAKE) CASE_NAME=$@ run
+
+#w Convergence test on element jacobian
+test_convergence:
+	$(MAKE) -C convergence tests
 
 SRCS = 
 PETSCFEM_DIR = ../..

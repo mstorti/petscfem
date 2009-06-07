@@ -714,6 +714,11 @@ expect("ductadv/verif.tmp",
        "Check strong temporal conservation with advdif",
        "^OK . 1");
 
+#------/*/------/*/------/*/------/*/------/*/------/*/------/*/ 
+expect("gasflow/convergence/test_gasflow_1elem_jaco_verif.tmp",
+       "Check gasflow element analytic Jacobian",
+       "^test OK 1");
+
 end_section();
 
 #------/*/------/*/------/*/------/*/------/*/------/*/------/*/ 

@@ -65,7 +65,16 @@ indx = vec(reshape(1:16,4,4)');
 DA = Aana-Afdj;
 DA = DA(indx,indx);
 
-DA
-printf("merr(DA) %g\n",merr(DA));
+erro = merr(DA);
+printf("merr(DA) %g\n",erro);
+tol = 1e-6;
+printf("test OK %d, (erro %g, tol %g)\n",erro<tol,erro,tol);
+
+printf("Analytic Jacobian Aana:\n");
 Aana
+
+printf("FD Jacobian Afdj:\n");
 Afdj
+
+printf("Jacobian difference DA=Aana-Afdj:\n");
+DA
