@@ -803,6 +803,10 @@ expect("burgers/burgers.fd_jac_3.out.tmp",
        "compute_fd_adv_jacobian random elements",
        read_file("burgers/burgers.fd_jac_3.ans"));
 
+expect("burgers/jacotest/test_jaco_1elem.verif.tmp",
+       "Global Jacobian for the residual with advdif",
+       "^test OK 1");
+
 end_section();
 
 #------/*/------/*/------/*/------/*/------/*/------/*/------/*/ 

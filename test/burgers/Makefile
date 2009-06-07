@@ -10,7 +10,7 @@ test_%:
 	$(MAKE) CASE=$* run
 
 #w tests: test__d05 test__d01 test__d001
-tests: test__d01 test__d001 fd_jac
+tests: test__d01 test__d001 fd_jac jaco_tests
 
 #w Burger test with viscosity 0.1
 test__d01: test__d01_wf test__d01_nwf 
@@ -76,7 +76,10 @@ run:
 		then mv -f save.state.tmp save.state.$(CASE).tmp ;	\
 	fi
 
-local_clean::
+jaco_tests: 
+	$(MAKE) -c jacotest tests
+
+CLEAN_DIRS := jacotest
 
 PROG := $(ADVDIF)
 LOC_PROG := advdif

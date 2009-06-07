@@ -19,7 +19,7 @@ test_jaco_1elem:
 	make-depl burgers.epl burgers.depl -d check_jac=1
 	-$(MPIEXEC) -n 1 $(ADVDIF) -case burgers.depl \
 		</dev/null &> advdif.log
-	$(OCTAVE) proc.m
+	$(OCTAVE) verif_1elem.m > test_jaco_1elem.verif.tmp
 
 local_clean::
 	rm -f mat.output STEPS*

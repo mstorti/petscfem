@@ -1,4 +1,4 @@
-# -*- mode: makefile -*-
+# -*- mode: makefile-gmake -*-
 #__INSERT_LICENSE__
 #$Id merge-with-petsc-233-54-g351bf64 Fri Oct 26 13:00:35 2007 -0300$
 

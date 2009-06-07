@@ -1,4 +1,4 @@
-# mode: -*- makefile -*-
+# mode: -*- makefile-gmake -*-
 #__INSERT_LICENSE__
 #$id$
 
@@ -300,8 +300,9 @@ local_dist_clean::
 #w cleans directory
 lclean: 
 	$(MAKE) clean local_clean &> /dev/null
+	echo CLEAN_DIRS $(CLEAN_DIRS)
 ifneq ($(CLEAN_DIRS),)
-	for dir in $(CLEAN_DIRS) ; do $(MAKE) -C $$dir lclean  ; done
+	for dir in $(CLEAN_DIRS) ; do echo "making clean in $$dir" ; $(MAKE) -C $$dir lclean  ; done
 endif
 
 #w Builds all necessary things after checking out a version

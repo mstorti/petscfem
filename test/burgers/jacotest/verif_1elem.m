@@ -30,5 +30,8 @@ DA = Aana-Afdj;
 
 DA
 printf("merr(DA) %f\n",merr(DA));
+tol = 1e-7;
+printf("test OK %d\n",merr(DA)<tol);
+
 Aana
 Afdj
