@@ -4,8 +4,6 @@ extern int comp_mat_each_time_step_g,
   consistent_supg_matrix_g,
   local_time_step_g;
 
-int ADVDIF_CHECK_JAC=0;
-
 #include <vector>
 #include <string>
 #include <typeinfo>

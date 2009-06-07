@@ -260,6 +260,7 @@ int fsi_main() {
   GETOPTDEF(double,omega_newton,1.);
   //
   GETOPTDEF(int,verify_jacobian_with_numerical_one,0);
+  ADVDIF_CHECK_JAC = verify_jacobian_with_numerical_one;
   //
 #define INF INT_MAX
   //o Update jacobian each $n$-th time step. 

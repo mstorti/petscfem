@@ -28,3 +28,5 @@ const char * jobinfo_fields = 0;
 
 // Low-Mach stratgy
 double local_dt_min;
+
+int ADVDIF_CHECK_JAC = 0;
