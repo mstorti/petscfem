@@ -113,6 +113,9 @@ void burgers_ff::start_chunk(int &ret_options) {
   //  not to include the upwind term. 
   EGETOPTDEF_ND(elemset,double,tau_fac,1.);
 
+  //o Add a shock capturing term 
+  EGETOPTDEF_ND(elemset,double,shocap,0.0);
+
   elemset->elem_params(nel,ndof,nelprops);
 
   enthalpy_fun = &identity_ef;
@@ -201,7 +204,10 @@ void burgers_ff::compute_flux(COMPUTE_FLUX_ARGS) {
     }
     FastMat2::leave();
     tau_supg.setel(tau,1,1);
-    delta_sc = 0.;
+    if (shocap>0.0) {
+      double h = 2.0*vel/Uh;
+      delta_sc = shocap*0.5*h*vel;
+    }
   }
   
   if (options & COMP_SOURCE) {
@@ -216,3 +222,7 @@ void burgers_ff::get_Ajac(FastMat2 &Ajac) {
   Ajac.ir(2,1).ir(3,1).set(u).rs();
 }
 
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>
+void burgers_ff::get_Cp(FastMat2 &Cp) {
+  Cp.eye(1.0);
+}

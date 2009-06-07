@@ -342,7 +342,7 @@ void NewBcconv::new_assemble(arg_data_list &arg_data_v,const Nodedata *nodedata,
     if (comp_res) {
       veccontr.export_vals(element.ret_vector_values(*retval));
 #ifdef CHECK_JAC
-      veccontr.export_vals(element.ret_fdj_values(*retval));
+      veccontr.export_vals(element.ret_fdj_values(*fdj_jac));
 #endif
       if (comp_mat_each_time_step_g) {
 	matlocf.add(matlocf_fix);

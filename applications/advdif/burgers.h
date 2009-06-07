@@ -7,7 +7,8 @@
 #include "nwadvdifj.h"
 
 class burgers_ff : public advdif_wjac_ff {
-  double diffusivity, tau_fac, flux_law_coefficient;
+  double diffusivity, tau_fac, flux_law_coefficient,
+    shocap;
   FastMat2 u0,Uintri,tmp0,Ucpy,iJaco_cpy;
   int ndim,ndof,nel,nelprops;
   UGlobalAJac u_a_jac;
@@ -23,6 +24,7 @@ class burgers_ff : public advdif_wjac_ff {
   void element_hook(ElementIterator &element) {};
   void compute_flux(COMPUTE_FLUX_ARGS);
   void get_Ajac(FastMat2 &Ajac);
+  void get_Cp(FastMat2 &Cp);
 };
 
 class newadvdif_burgers : public NewAdvDif {
