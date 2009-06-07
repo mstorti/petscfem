@@ -4,6 +4,7 @@
         ctest gprof srfgath
 
 default: run
+tests: test_gasflow_1elem_jaco
 
 # BOPT := O_c++
 PETSCFEM_DIR := ../../..
@@ -20,29 +21,15 @@ NP := 1
 NL := 
 MCH := 
 
-ifeq ($(HOSTNAME),aquiles)
-NP := $(shell procsel -n ./proctable)
-NL := -1
-MCH := -machinefile ./machi.dat
-NP := 2
-endif
-
-ifeq ($(HOSTNAME),coyote)
-NP := $(shell procsel -n ./proctable.coyote)
-NL := -1
-MCH := -machinefile ./machi.dat
-endif
-
 mesh:
 	make-depl $(CASE).epl $(CASE).depl -d mkmesh=1
 
 #w Runs program, use `mkmesh=0' or 1 to control mesh creation
-run: 
-	mkstepsdir.pl
-	make-depl $(CASE).epl $(CASE).depl -d mkmesh=0
+test_gasflow_1elem_jaco: 
+	make-depl $(CASE).epl $(CASE).depl -d mkmesh=1
 	$(MPI_HOME)/bin/mpiexec -a $(CASE) $(NL) $(MCH) \
-		-np $(NP) $(PROG) -case $(CASE).depl </dev/null 
-	$(OCTAVE) proc.m
+		-np $(NP) $(PROG) -case $(CASE).depl </dev/null > $@_output.tmp
+	$(OCTAVE) $@_verif.m &> $@_verif.tmp
 
 prog:
 	$(MAKE) -C $(PETSCFEM_DIR) advdif
@@ -52,21 +39,7 @@ local_sw::
 
 local_clean::
 	-rm -rf STEPS* 
-	-rm -f *.depl *.sal tmp_file*.tmp # &> /dev/null
-
-shell_init:
-
-shell_pre:
-
-shell_post: 
-	$(MAKE) zip
-
-shell_close:
-
-zip:
-	shopt -s nullglob ;				\
-	find STEPS* -name 'gfnwttest*.state*.tmp' |	\
-		xargs -r gzip -f 
+	-rm -f *.depl *.sal tmp_file*.tmp mat.output &> /dev/null
 
 #w Make link for debugging
 link:

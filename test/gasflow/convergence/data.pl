@@ -2,12 +2,13 @@
 require "$ENV{'PETSCFEM_DIR'}/test/eperlini.pl";# Initializes ePerl 
 require "math.pl";
 
+$check_conv = 1 unless defined $check_conv;
+
 $n = 1;
 $L = 1;
 $weak_form = 1;
 $Machin = 2;
 $Co = 1;
-$check_conv = 1;
 $peri_x = 1;
 
 $nu = 1e-10;

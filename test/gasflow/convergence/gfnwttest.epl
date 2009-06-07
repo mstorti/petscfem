@@ -79,7 +79,7 @@ activate_debug_print
 activate_debug_memory_usage
 
 report_consumed_time
-hook_list shell_hook shell 
+# hook_list shell_hook shell 
 
 visco <:=$nu:>
 cond  <:=$nu:>
