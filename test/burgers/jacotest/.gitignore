@@ -1,0 +1,4 @@
+*.out
+save.state.
+save.state.tmp.res
+burgers.state.tmp.res

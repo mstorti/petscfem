@@ -1,0 +1,84 @@
+# -*- mode: shell-script -*-
+#
+<:require './data.pl'; :>//
+
+#===========================================================
+global_options
+ndim 2
+
+chunk_size 10
+save_file ./burgers.state.tmp
+nsave 1
+
+rtol 1e-2
+maxits 100
+
+#save_file_pattern ./STEPS/burgers.state-%d.tmp
+nsaverot 0
+nrec  1
+nfile -1
+use_Ajac_old 1
+
+nstep 100
+nnwt 1
+#if $check_jac
+verify_jacobian_with_numerical_one 1
+solve_system 0
+print_linear_system_and_stop
+#endif
+
+tol_newton 0
+preco_type "lu"
+
+Dt 0.05
+alpha 1.0
+steady 0
+
+diffusivity 0.01
+
+flux_law_coefficient 1.
+u0   1. 0.
+weak_form 1
+shocap 0.5
+
+initial_state ./burgers.ini.tmp
+hook_list shell_hook shell 
+__END_HASH__
+
+#===========================================================
+# ndim nu ndof
+nodes   2  2  1
+__INCLUDE__ burgers.nod.tmp
+__END_NODES__
+
+#===========================================================
+elemset newadvdif_burgers 4
+#Datos del elemento
+geometry cartesian2d
+npg 4
+__END_HASH__
+__INCLUDE__ burgers.con.tmp
+__END_ELEMSET__
+
+#if 0
+#===========================================================
+elemset newbcconv_burgers 2
+npg 2
+geometry cartesian1d
+__END_HASH__
+2 1 
+<:=2*$N+1:> <:=2*$N+2:>
+__END_ELEMSET__
+#endif
+
+end_elemsets
+
+#if !$check_jac
+#===========================================================
+fixa
+1 1 1.
+2 1 1.
+<:=2*$N+1:> 1 -1.
+<:=2*$N+2:> 1 -1.
+__END_FIXA__
+#endif
