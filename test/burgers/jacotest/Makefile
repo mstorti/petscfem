@@ -2,7 +2,8 @@
 
 .PHONY: force all run tests data
 
-default: tests
+# default: tests
+default: test_jaco_conv
 
 tests: test_jaco_1elem
 
@@ -18,11 +19,18 @@ test_jaco_1elem:
 	rm -f mat.output *.res
 	make-depl burgers.epl burgers.depl -d check_jac=1
 	-$(MPIEXEC) -n 1 $(ADVDIF) -case burgers.depl \
-		</dev/null &> advdif.log
+		</dev/null &> advdif-log.tmp
 	$(OCTAVE) verif_1elem.m > test_jaco_1elem.verif.tmp
 
+test_jaco_conv: 
+	rm -f advdif-output *.res
+	make-depl burgers.epl burgers.depl -d check_jac=0
+	-$(MPIEXEC) -n 1 $(ADVDIF) -case burgers.depl \
+		</dev/null &> $@_output.tmp
+	$(OCTAVE) verif_$@.m > $@_verif.tmp
+
 local_clean::
-	rm -f mat.output STEPS*
+	rm -f mat.output STEPS* *.log
 
 #w Makes local link for running with debugger
 link:

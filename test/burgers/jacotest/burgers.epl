@@ -19,12 +19,14 @@ nrec  1
 nfile -1
 use_Ajac_old 1
 
-nstep 100
-nnwt 1
+nstep 1
 #if $check_jac
+nnwt 1
 verify_jacobian_with_numerical_one 1
 solve_system 0
 print_linear_system_and_stop
+#else
+nnwt 20
 #endif
 
 tol_newton 0
@@ -32,9 +34,8 @@ preco_type "lu"
 
 Dt 0.05
 alpha 1.0
-steady 0
-
-diffusivity 0.01
+<:pr('steady'):>
+<:pr('diffusivity'):>
 
 flux_law_coefficient 1.
 u0   1. 0.
@@ -42,7 +43,7 @@ weak_form 1
 shocap 0.5
 
 initial_state ./burgers.ini.tmp
-hook_list shell_hook shell 
+# hook_list shell_hook shell 
 __END_HASH__
 
 #===========================================================
