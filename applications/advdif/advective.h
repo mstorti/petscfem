@@ -3,7 +3,8 @@
  
 // CHECK_JAC is promoted to a global option
 //#define CHECK_JAC // Computes also the FD Jacobian for debugging
-extern int ADVDIF_CHECK_JAC;
+#define ADVDIF_CHECK_JAC verify_jacobian_with_numerical_one
+extern int  verify_jacobian_with_numerical_one;
  
 #ifndef PETSCFEM_ADVECTIVE_H
 #define PETSCFEM_ADVECTIVE_H

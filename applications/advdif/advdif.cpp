@@ -23,7 +23,6 @@ extern int print_internal_loop_conv_g;
 extern int consistent_supg_matrix_g;
 extern int  local_time_step_g;
 extern int  comp_mat_each_time_step_g;
-extern int  verify_jacobian_with_numerical_one;
 
 #define VECVIEW(name,label) \
 ierr = PetscViewerSetFormat(matlab, \
@@ -263,8 +262,7 @@ int advdif_main(int argc,char **args) {
   GETOPTDEF(double,omega_newton,1.);
   //o Computes jacobian of residuals and prints to a file.
   //  May serve to debug computation of the analytic jacobians. 
-  GETOPTDEF(int,verify_jacobian_with_numerical_one,0);
-  ADVDIF_CHECK_JAC = verify_jacobian_with_numerical_one;
+  TGETOPTDEF_ND(mesh->global_options,int,verify_jacobian_with_numerical_one,0);
 
 #define INF INT_MAX
   //o Update jacobian each $n$-th time step. 
