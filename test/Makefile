@@ -71,7 +71,8 @@ torture_1:
 	tar czvf ../make-tests-$(BOPT).tar.gz -C .. test
 	echo "-------------------------" | tee -a make-tests-$(BOPT).log
 	echo "ABRIDGED: " | tee -a  make-tests-$(BOPT).log
-	$(MAKE) abridged | tee -a make-tests-$(BOPT).log
+	$(MAKE) abridged &> /dev/null
+	cat abridged.tmp >> make-tests-$(BOPT).log
 
 #w report:
 report:
@@ -103,11 +104,9 @@ torture:
 	$(MAKE) lclean
 	$(MAKE) BOPT=O_c++ torture_1
 	$(MAKE) lclean
-
-mkruntestsdir:
-	mkstepsdir.pl -p RUNTESTS
-	mv -f make-tests* RUNTESTS
-	mv -f ../make-tests-*.tar.gz RUNTESTS
+	mkstepsdir.pl -p petscfem-runtests
+	mv -f make-tests* petscfem-runtests
+	mv -f ../make-tests-*.tar.gz petscfem-runtests
 
 #----<*>----------<*>----------<*>----------<*>----------<*>----------<*>-----
 # All tests

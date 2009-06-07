@@ -14761,3 +14761,22 @@ newff/adv_temp_cp_iisd.vrf.tmp
 distmap/dist_graph.np2.out.tmp
 distmap/dist_graph.np3.out.tmp
 CAN'T OPEN------- -> 0
+
+%=== Sun Jun  7 13:50:58 2009 mstorti@galileo
+%
+%--[2009-06-07.16:50:58.mstorti-v26-end-20-g5404d74]-----
+Hago el cambio de CHECK_JAC a ADVDIF_CHECK_JAC que en realidad es un
+macro a verify_jacobian_with_numerical_one que es una variable
+global y parece andar todo bien. Los tests estan en 
+petscfem-runtests-2009-06-07
+% -------- CON G_C++ y O_C++ ----------
+NOT OK------- -> 7
+sqcav/check.fs.verif.tmp
+idmap/tidmap.sal
+newff/adv_temp_cp.vrf.tmp
+newff/full_full_jacs_cp.vrf.tmp
+newff/full_full_jacs_adv_cp.vrf.tmp
+newff/adv_temp_cp_iisd.vrf.tmp
+distmap/dist_graph.np3.out.tmp
+CAN'T OPEN------- -> 0
+%--------------------------------------
