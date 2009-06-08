@@ -14791,3 +14791,20 @@ cuando eran funcionales.
 %--[2009-06-08.00:48:45.mstorti-v26-end-30-g1403255]-----
 NO, aparentemente nunca estuvieron en la bateria de tests. Por ahora
 los voy a mover a petscfem-cases y voy a dejar el convergence alli. 
+
+%=== Sun Jun  7 23:44:59 2009 mstorti@galileo
+%
+%--[2009-06-08.02:44:59.mstorti-v26-end-32-g91efec3]-----
+Estoy empezando a ver lo del nsstruct, es decir con dos o más estados
+anteriores. Aparentemente todo el trabajo se dio mas o menos en esta fecha
+%
+commit 91d7cdbc27a30beef99b3cf9e84df76fa41405de
+Author: mstorti <mstorti>
+Date:   Mon Mar 20 02:02:53 2006 +0000
+%
+Hay que hacer el "git log" de elastld.cpp. Ahora habria que ver cuales
+son los casos en petscfem-cases que estaba corriendo en esa epoca. 
+%
+%--[2009-06-08.03:05:30.mstorti-v26-end-32-g91efec3]-----
+Aparentemente los casos se corrieron en petscfem-cases/elastld y cerca
+de 2006-03-12. 
