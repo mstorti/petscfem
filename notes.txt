@@ -14780,3 +14780,14 @@ newff/adv_temp_cp_iisd.vrf.tmp
 distmap/dist_graph.np3.out.tmp
 CAN'T OPEN------- -> 0
 %--------------------------------------
+
+%=== Sun Jun  7 21:42:36 2009 mstorti@galileo
+%
+%--[2009-06-08.00:42:36.mstorti-v26-end-30-g1403255]-----
+Estoy viendo is agregar los tests que estan en `test/gasflow'. Resulta
+que actualmente no se estan corriendo. Estoy viendo por biseccion
+cuando eran funcionales. 
+%
+%--[2009-06-08.00:48:45.mstorti-v26-end-30-g1403255]-----
+NO, aparentemente nunca estuvieron en la bateria de tests. Por ahora
+los voy a mover a petscfem-cases y voy a dejar el convergence alli. 
