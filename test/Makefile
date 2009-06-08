@@ -1,12 +1,13 @@
 #__INSERT_LICENSE__
 
-.PHONY: all run  compile lclean ns laplace adv nso laplace_tests force	     \
-        ctest runtests clean fastmat2_obj plano idmap			     \
-	chunk_size_process fastmat2 fastmat2a fastmat2b fastmat2c sqcav5     \
-	constraint_bug fstack sector triangle advdif texthash log_vars	     \
-	newff burgers bug100 nonlr genload lupart distmap sparse graph sqcav \
-	pfmat  aquifer nutatcyl mmove advec nsgenload plate gasflow oscplate \
-	idmap sw_abso cubcav condwall project embgath alebcconv ductadv
+.PHONY: all run  compile lclean ns laplace adv nso laplace_tests force		\
+        ctest runtests clean fastmat2_obj plano idmap				\
+	chunk_size_process fastmat2 fastmat2a fastmat2b fastmat2c sqcav5	\
+	constraint_bug fstack sector triangle advdif texthash log_vars		\
+	newff burgers bug100 nonlr genload lupart distmap sparse graph sqcav	\
+	pfmat  aquifer nutatcyl mmove advec nsgenload plate gasflow-conv 	\
+	oscplate idmap sw_abso cubcav condwall project embgath alebcconv 	\
+	ductadv
 
 SRCS = $(wildcard *.cpp)
 
@@ -14,8 +15,8 @@ DIRS = circ fstack sector les turbchan turbchanw advdif texthash	\
 		newff burgers les/stabi genload bug100 nonlr wallke	\
 		wkepipe wallkechan lupart distmap sparse graph sqcav	\
 		pfmat cubcav aquifer bubbly nutatcyl aquifer fastmat2	\
-		nsgenload plate gasflow idmap mmove advec plano		\
-		oscplate spillway sw_abso gfplate condwall project 	\
+		nsgenload plate gasflow-conv idmap mmove advec plano	\
+		oscplate spillway sw_abso gfplate condwall project	\
 		embgath flow-reversal alebcconv ductadv
 
 CLEAN_DIRS = $(DIRS)
@@ -120,10 +121,11 @@ tests: runtests
 
 #----<*>----------<*>----------<*>----------<*>----------<*>----------<*>-----
 #w Runs the tests
-runtests: compile sector oscplate fastmat2 plano idmap constraint_bug 	 \
-	fstack advdif texthash log_vars newff burgers bug100 genload 	 \
-	lupart distmap sparse graph sqcav pfmat aquifer nutatcyl mmove 	 \
-	advec nsgenload cubcav project embgath alebcconv ductadv gasflow
+runtests: compile sector oscplate fastmat2 plano idmap constraint_bug	\
+	fstack advdif texthash log_vars newff burgers bug100 genload	\
+	lupart distmap sparse graph sqcav pfmat aquifer nutatcyl mmove	\
+	advec nsgenload cubcav project embgath alebcconv ductadv 	\
+	gasflow-conv
 
 rp: runtests_p
 runtests_p: burgers
@@ -297,7 +299,7 @@ ductadv:
 
 #----<*>----------<*>----------<*>----------<*>----------<*>----------<*>--
 # Gasflow tests
-gasflow:
+gasflow-conv:
 	$(MAKE) -C $@ tests
 
 # makes an abridged acount of the tests

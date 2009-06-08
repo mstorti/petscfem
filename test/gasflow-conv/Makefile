@@ -7,7 +7,7 @@ default: run
 tests: test_gasflow_1elem_jaco
 
 # BOPT := O_c++
-PETSCFEM_DIR := ../../..
+PETSCFEM_DIR := ../..
 include $(PETSCFEM_DIR)/Makefile.base
 include $(PETSCFEM_DIR)/test/Makefile.base.test
 

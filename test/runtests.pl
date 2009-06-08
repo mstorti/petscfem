@@ -715,7 +715,7 @@ expect("ductadv/verif.tmp",
        "^OK . 1");
 
 #------/*/------/*/------/*/------/*/------/*/------/*/------/*/ 
-expect("gasflow/convergence/test_gasflow_1elem_jaco_verif.tmp",
+expect("gasflow-conv/test_gasflow_1elem_jaco_verif.tmp",
        "Check gasflow element analytic Jacobian",
        "^test OK 1");
 
