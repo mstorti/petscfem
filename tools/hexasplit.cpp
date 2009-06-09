@@ -36,6 +36,7 @@ int DEFAULT_SPLIT = 1;
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 int main (int argc, char **argv) {
+  MPI_Init(&argc,&argv);
   char c;
   string icone_file = "icone";
   string icone_tetra = "icone_tetra";
@@ -252,4 +253,5 @@ int main (int argc, char **argv) {
     }
   }
   fclose(fid);
+  MPI_Finalize();
 }
