@@ -84,10 +84,11 @@ void ld_elasticity::init() {
 }
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>
-void ld_elasticity::element_connector(const FastMat2 &xloc,
-				   const FastMat2 &state_old,
-				   const FastMat2 &state_new,
-				   FastMat2 &res,FastMat2 &mat){
+void ld_elasticity
+::element_connector(const FastMat2 &xloc,
+                    const FastMat2 &state_old,
+                    const FastMat2 &state_new,
+                    FastMat2 &res,FastMat2 &mat) {
   res.set(0.);
   mat.set(0.);
 
