@@ -229,7 +229,11 @@ int adaptor::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
   TGETOPTDEF(thash,int,use_jacobian_fdj,0);
   //o Uses second order formular for the evaluation
   // of numerical Jacobians (bur requires twice the number of
-  // evaluations of residuals).
+  // evaluations of residuals). In the low order version the
+  // Jacobian is approximated by #J_k = (R(x+eps*e_k)-R(x))/eps#,
+  // whereas the higher order version is
+  // #J_k = (R(x+eps*e_k)-R(x-eps*e_k))/(2*eps)#. #ek# is
+  // the unit vector along the #k# axis. 
   TGETOPTDEF(thash,int,use_high_prec,0);
   //o Compute variables #H#
   TGETOPTDEF(thash,int,compute_H_fields,0);
