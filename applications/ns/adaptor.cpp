@@ -88,7 +88,9 @@ adaptor::get_arg_handle(const string &key,
 adaptor::adaptor() : elem_init_flag(0), 
                      use_fastmat2_cache(1),
                      arg_data_vp(NULL),
-                     jpert(-1), elem(-1)
+                     jpert(-1), 
+                     use_high_prec(0),
+                     elem(-1)
                      { }
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
@@ -205,6 +207,7 @@ int adaptor::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
     veccontr(2,nel,ndof),
     veccontra(2,nel,ndof),
     veccontrp(2,nel,ndof),
+    veccontrm(2,nel,ndof),
     xloc(2,nel,ndim),
     locstate(2,nel,ndof), locstatep(2,nel,ndof), 
     locstate2(2,nel,ndof), 
@@ -225,6 +228,8 @@ int adaptor::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
   TGETOPTDEF(thash,int,jacobian_fdj_print,0);
   //o Use FDJ for computations. 
   TGETOPTDEF(thash,int,use_jacobian_fdj,0);
+  //o Use FDJ for computations. 
+  TGETOPTDEF(thash,int,use_high_prec,0);
   //o Compute variables #H#
   TGETOPTDEF(thash,int,compute_H_fields,0);
 
@@ -343,10 +348,23 @@ int adaptor::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
 	  locstatep.reshape(1,nen).set(locstate)
 	    .addel(epsil,jpert).reshape(2,nel,ndof);
 	  veccontrp.reshape(2,nel,ndof).set(0.0);
-	  element_connector(xloc,locstate2,locstatep,veccontrp,matlocfp);
+	  element_connector(xloc,locstate2,locstatep,
+                            veccontrp,matlocfp);
 	  veccontrp.reshape(1,nen);
-	  matlocf_fdj.ir(2,jpert).set(veccontrp)
-	    .rest(veccontr).scale(afact).rs();
+          if (!use_high_prec) {
+            matlocf_fdj.ir(2,jpert).set(veccontrp)
+              .rest(veccontr).scale(afact).rs();
+          } else {
+            locstatep.reshape(1,nen).set(locstate)
+              .addel(-epsil,jpert).reshape(2,nel,ndof);
+            veccontrm.reshape(2,nel,ndof).set(0.0);
+            element_connector(xloc,locstate2,locstatep,
+                              veccontrm,matlocfp);
+            veccontrm.reshape(1,nen);
+            double af = -1.0/(2.0*alpha*epsil);
+            matlocf_fdj.ir(2,jpert).set(veccontrp)
+              .rest(veccontrm).scale(af).rs();
+          }
 	}
         jpert=-1;
 	matlocf_fdj.reshape(4,nel,ndof,nel,ndof);
