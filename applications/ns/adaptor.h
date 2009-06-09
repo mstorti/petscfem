@@ -18,7 +18,7 @@ private:
   int ielh;
   /// Perturbed index, if=-1: not in FDJ loop,
   /// if 0: reference state, if >0 
-  int jpert, use_high_prec;
+  int jpert;
 public: 
   adaptor();
   /// This should not be defined by the user...

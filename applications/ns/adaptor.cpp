@@ -89,7 +89,6 @@ adaptor::adaptor() : elem_init_flag(0),
                      use_fastmat2_cache(1),
                      arg_data_vp(NULL),
                      jpert(-1), 
-                     use_high_prec(0),
                      elem(-1)
                      { }
 
@@ -228,7 +227,9 @@ int adaptor::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
   TGETOPTDEF(thash,int,jacobian_fdj_print,0);
   //o Use FDJ for computations. 
   TGETOPTDEF(thash,int,use_jacobian_fdj,0);
-  //o Use FDJ for computations. 
+  //o Uses second order formular for the evaluation
+  // of numerical Jacobians (bur requires twice the number of
+  // evaluations of residuals).
   TGETOPTDEF(thash,int,use_high_prec,0);
   //o Compute variables #H#
   TGETOPTDEF(thash,int,compute_H_fields,0);
