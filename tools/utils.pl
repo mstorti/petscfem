@@ -1,5 +1,5 @@
 # -*- perl -*-
-#$Id: utils.pl,v 1.2 2004/08/23 02:25:50 mstorti Exp $
+#$Id$
 
 # From the Perl FAQ 4
 # usage: $num = getnum(
@@ -163,6 +163,22 @@ sub transformer {
     }
     push @newtext,$text;
     return join("",@newtext);
+}
+
+## usage: $string = randstr($n);
+## generates a random string of lenght `$n' composed
+## of characters [0-9,a-z,A-Z]
+sub randstr {
+    my ($n) = @_;
+    my $s = "";
+    for (my $j=0; $j<$n; $j++) {
+        my $k = int(rand(62));
+        my $c = ($k<10 ? chr(ord('0')+$k)
+                 : $k<36 ? chr(ord('a')+$k-10)
+                 : chr(ord('A')+$k-36));
+        $s .= $c;
+    }
+    return $s;
 }
 
 1;
