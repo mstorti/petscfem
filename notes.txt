@@ -14808,3 +14808,32 @@ son los casos en petscfem-cases que estaba corriendo en esa epoca.
 %--[2009-06-08.03:05:30.mstorti-v26-end-32-g91efec3]-----
 Aparentemente los casos se corrieron en petscfem-cases/elastld y cerca
 de 2006-03-12. 
+
+%=== Tue Jun  9 14:54:53 2009 mstorti@galileo
+%
+%--[2009-06-09.17:54:53.cases-1.0.45-57-g884643e]-----
+Implemento una version de los Jacobianos para adaptor de alto orden. 
+Con la version estandar se obtiene:
+Newton subiter 0, norm_res  =  1.885e+01, update Jac. 1
+Newton subiter 1, norm_res  =  5.590e+00, update Jac. 1
+Newton subiter 2, norm_res  =  3.445e-01, update Jac. 1
+Newton subiter 3, norm_res  =  1.640e-02, update Jac. 1
+Newton subiter 4, norm_res  =  3.210e-04, update Jac. 1
+Newton subiter 5, norm_res  =  8.100e-06, update Jac. 1
+Newton subiter 6, norm_res  =  5.897e-07, update Jac. 1
+Newton subiter 7, norm_res  =  4.142e-08, update Jac. 1
+Newton subiter 8, norm_res  =  1.634e-09, update Jac. 1
+Newton subiter 9, norm_res  =  4.652e-11, update Jac. 1
+Newton subiter 10, norm_res  =  2.835e-12, update Jac. 1
+Newton subiter 11, norm_res  =  3.072e-13, update Jac. 1
+%---------------
+Con la version use_high_prec
+Newton subiter 0, norm_res  =  1.885e+01, update Jac. 1
+Newton subiter 1, norm_res  =  5.581e+00, update Jac. 1
+Newton subiter 2, norm_res  =  2.790e-01, update Jac. 1
+Newton subiter 3, norm_res  =  9.984e-04, update Jac. 1
+Newton subiter 4, norm_res  =  1.299e-08, update Jac. 1
+Newton subiter 5, norm_res  =  3.195e-13, update Jac. 1
+%--------
+O sea mucho mejor!! La verdad que no pensaba que podia estar jodiendo
+eso. 

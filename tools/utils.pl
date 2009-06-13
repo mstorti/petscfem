@@ -4,6 +4,9 @@
 # From the Perl FAQ 4
 # usage: $num = getnum(
 sub getnum {
+#     use POSIX qw(strtod setlocale  LC_ALL LC_CTYPE);
+#     setlocale(LC_ALL,"C");
+    # setlocale(LC_ALL,"es_EC.utf8");
     use POSIX qw(strtod);
     my $str = shift();
     return unless defined $str;

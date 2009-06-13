@@ -1,6 +1,10 @@
 #__INSERT_LICENSE__
 
 use English;
+use POSIX qw(setlocale LC_ALL LC_CTYPE);
+setlocale(LC_ALL,"C");
+# setlocale(LC_ALL,"es_EC.utf8"); ## just to try
+
 require "$ENV{'PETSCFEM_DIR'}/tools/math.pl";
 require "$ENV{'PETSCFEM_DIR'}/tools/utils.pl";
 $NP = $ENV{'NP'};
