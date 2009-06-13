@@ -14837,3 +14837,19 @@ Newton subiter 5, norm_res  =  3.195e-13, update Jac. 1
 %--------
 O sea mucho mejor!! La verdad que no pensaba que podia estar jodiendo
 eso. 
+
+%=== Sat Jun 13 09:08:32 2009 mstorti@galileo
+%
+%--[2009-06-13.12:08:32.mstorti-v26-end-43-gaaf78c0]-----
+Problemas con LOCALE. Las rutinas de Perl accesorias al `eperl' usan
+para exportar las variables a octave (la funcion `octave_export_vars')
+una funcion getnum() (que esta en utils.pl) y esta a su vez usa la
+`strtod' de POSIX. Ahora bien, resulta que al usarla hace 
+-| use POSIX qw(strtod);
+eso tiene el efecto indeseado de importar el modulo POSIX en todo el
+eperl que esta corriendo y entonces cuando hace printf resulta que si
+tenes LANG=es_ES.UTF-8 entonces te pone el punto decimal como coma en
+los flotantes. Lo que hago es entonces al comienzo del eperlini poner 
+-| use POSIX qw(setlocale LC_ALL LC_CTYPE);
+-| setlocale(LC_ALL,"C");
+Aparentemente de esa forma se arregla. 
