@@ -53,9 +53,11 @@ local_sw::
 # link the git controlled file toos/git-exclude to the
 # internal file in .git/info/exclude
 exclude:
-	if [ -f .git/info/exclude ] ; then 			\
-		rm .git/info/exclude ;				\
-		ln -sf tools/git-exclude .git/info/exclude ;	\
+	if [ -f .git/info/exclude ] ; then				\
+		rm .git/info/exclude ;					\
+	fi ;								\
+	if [ -d .git ] ; then						\
+		ln -sf ../../tools/git-exclude .git/info/exclude ;	\
 	fi
 
 local_clean::
