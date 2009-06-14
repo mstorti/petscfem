@@ -14853,3 +14853,12 @@ los flotantes. Lo que hago es entonces al comienzo del eperlini poner
 -| use POSIX qw(setlocale LC_ALL LC_CTYPE);
 -| setlocale(LC_ALL,"C");
 Aparentemente de esa forma se arregla. 
+
+%=== Sat Jun 13 19:17:11 2009 mstorti@galileo
+%
+%--[2009-06-13.22:17:11.mstorti-v26-end-44-g641ec1b]-----
+Ahora estoy mirando que en el CUBE-CHANNEL no arranca el calculo de
+las tensiones. Da un error de Newmat. Si lo corro con un solo proc
+tambien. Le saco el elemset de nsitetlesfm2 y le dejo solo el ns_id y
+tambien. Finalmente pruebo a correr un caso muy chico (el cubo de
+Stokes) y ahi no da error. 

@@ -278,7 +278,7 @@ sub transcript {
 # ===========================
 #
 EOM
-/`/;
+
     open SCRIPT,$eperlfile;
     my $tr=0;
     while (<SCRIPT>) {
@@ -293,12 +293,11 @@ EOM
     if ($octtmpfile) {
 	die "couldn't open $octtmpfile" unless open OCT,">$octtmpfile";
     }
-    /`/; print <<EOM;
+    print <<EOM;
 #
 # [Eperlini library. "transcript" function.] Computed values:
 # ===========================================================
 EOM
-/`/;
     foreach $v (@_) {
 #	print "# \$$v: ${$v}\n";
 	printf("# %10s: %s\n","\$$v",${$v});
