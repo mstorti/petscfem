@@ -16,7 +16,7 @@ Krylov_dim 10
 weak_form 0
 LES 0
 save_file strip.state.tmp
-G_body 1 0 0 
+G_body <:=$gbody:> 0 0 
 
 alpha 1.
 atol 0
@@ -37,7 +37,9 @@ nsaverot 0
 # save_file_some "strip.some_rslt.tmp"
 # nsome 1
 
-viscosity 1.0
+viscosity <:=$visco:>
+<:pr('rho'):>
+
 ngather 6
 gather_file strip3d.force.tmp
 __END_HASH__
@@ -58,18 +60,19 @@ __END_HASH__
 
 #===========================================================
 #if 1
-elemset visc_force_integrator 6
+elemset visc_force_integrator 12
 geometry quad2hexa
 npg 4
 moment_center 0. 0.5 0.
 volume_elemset viscous_fluid_elemset
 identify_volume_elements 1
 use_exterior_normal 0
+layers 2
 
 gather_length 6
 gather_pos 0
 
-data ./strip2d.visc-force-con.tmp
+data ./strip3d.surf-con.tmp
 __END_HASH__
 #endif
 

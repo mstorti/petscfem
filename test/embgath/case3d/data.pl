@@ -5,7 +5,12 @@ require "$ENV{'PETSCFEM_DIR'}/test/eperlini.pl";
 $N = 20;
 $L = 1;
 $hratio = 5;
-@vars = qw(L hratio N);
+
+$visco = 1.0;
+$rho = 1.0;
+$gbody = 1.0;
+
+@vars = qw(L hratio N visco rho gbody);
 
 # print variables on output and transcript this block
 

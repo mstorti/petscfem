@@ -3,10 +3,3 @@
 
 source("data.m.tmp");
 
-fricref = aload("friction.step-1.ref");
-fric = aload("friction.step-1.tmp");
-
-tol = 1e-10;
-erro = merr(fricref-fric);
-printf("Test OK ? %d (error %g, tol %g)\n",
-       erro<tol,erro,tol);
