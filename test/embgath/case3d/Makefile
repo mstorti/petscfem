@@ -4,29 +4,28 @@
 
 default: run
 
-tests: test_strip_perelem
+tests: test_strip3d
 
-CASE_NAME := strip2d
+CASE := strip3d
 NP := 2
 MACHI = -machinefile machi.dat
 
 LOC_PROG = ns
 PROG = $(NS)
 
-PETSCFEM_DIR := ../..
+PETSCFEM_DIR := ../../..
 
-# BOPT := g_c++
 include $(PETSCFEM_DIR)/Makefile.base
 include $(PETSCFEM_DIR)/test/Makefile.base.test
 SRCS = 
 
 mesh:
-	make-depl strip2d.epl strip2d.depl -d mkmesh=1
+	make-depl strip3d.epl strip3d.depl -d mkmesh=1
 
-test_strip_perelem: 
-	make-depl strip2d.epl strip2d.depl -d mkmesh=1
-	-$(MPIEXEC) $(NL) -np $(NP) $(PROG) -case $(CASE_NAME).depl \
-		$(call redir,strip2d.output.tmp)
+test_strip3d: 
+	make-depl strip3d.epl strip3d.depl -d mkmesh=1
+	-$(MPIEXEC) $(NL) -np $(NP) $(PROG) -case $(CASE).depl \
+		$(call redir,$(CASE).output.tmp)
 	$(OCTAVE) verif.m > embgath-verif.tmp
 
 local_clean::
