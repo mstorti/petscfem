@@ -26,3 +26,8 @@ i4 = i3+(N+1);
 pfperi("strip3d.peri.tmp",i2,i1,(1:4));
 pfperi("strip3d.peri.tmp",i3,i1,(1:4),"a");
 pfperi("strip3d.peri.tmp",i4,i1,(1:4),"a");
+
+## Connectivity
+icosurf = [([1,2,4,3]-1)*(N+1)+1;
+           [1,3,4,2]*(N+1)+1];
+asave("strip3d.surf-con.tmp",[icosurf,ones(2,8)]);

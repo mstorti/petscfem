@@ -30,13 +30,14 @@ rtol 0
 print_internal_loop_conv 1
 
 nsave 1
+
 save_file_pattern "state%d.all.tmp"
-nsaverot 5
+nsaverot 0
 # print_some_file "strip.some.tmp"
 # save_file_some "strip.some_rslt.tmp"
 # nsome 1
 
-viscosity 1.
+viscosity 1.0
 ngather 6
 gather_file strip3d.force.tmp
 __END_HASH__
@@ -56,7 +57,7 @@ data ./strip3d.con.tmp
 __END_HASH__
 
 #===========================================================
-#if 0
+#if 1
 elemset visc_force_integrator 6
 geometry quad2hexa
 npg 4
