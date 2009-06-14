@@ -18,6 +18,18 @@
 extern Mesh *GLOBAL_MESH;
 extern int TSTEP;
 
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>
+static void shvfun(int flag,FastMat2 &a,const char *name) {
+  if (flag) {
+    char line[100];
+    sprintf(line,"%s: ",name);
+    a.print(line);
+  }
+}
+
+#undef SHV
+#define SHV(pp) shvfun(flag,pp,#pp)
+
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 int embedded_gatherer::ask(const char *jobinfo,int &skip_elemset) {
   // Only accepts the `gather' jobinfo. 
@@ -294,14 +306,18 @@ int embedded_gatherer::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
     for (int ipg=0; ipg<npg; ipg++) {
       FastMat2 &shape = SHAPE;
       FastMat2 &dshapexi = DSHAPEXI;
+      // int flag = (rand()%1000==0);
+      int flag = 0;
       // Gauss point coordinates in several layers (layers+1 x npg x ndim)
       xpgl.prod(shape,xloc,-1,1,-1,2);
+      SHV(xloc);
 
       // Jacobian master coordinates -> real coordinates (on surface)
       Jaco.is(1,1,ndimel);
       xloc.ir(1,1);
       Jaco.prod(dshapexi,xloc,1,-1,-1,2);
       xloc.rs();
+      SHV(Jaco);
 
       // In surface jacobian
       double detJaco;
@@ -314,21 +330,24 @@ int embedded_gatherer::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
       }
       double wpgdet = detJaco*WPG;
 
-      // `w' is the coefficients to compute the derivative of 
+      // `w' are the coefficients to compute the derivative of 
       //  a function with coordinates `xn' 
       xn.prod(n,xpgl,-1,1,-1);
       xn.add(-xn.get(1));
       cloud.coef(xn,w);
+      SHV(w);
       
       // 3D Jacobian
       Jaco.ir(1,ndim).prod(xpgl,w,-1,1,-1).rs();
       iJaco.inv(Jaco);
+      SHV(Jaco);
       
       // Values and Gradients of variables at Gauss point
       // new state (t^n+1)
       staten.ir(1,1);
       u.prod(shape,staten,-1,-1,1);
       grad_u_xi.is(1,1,ndimel).prod(dshapexi,staten,1,-1,-1,2).rs();
+      SHV(grad_u_xi);
       staten.rs();
       // old state (t^n)
       stateo.ir(1,1);
@@ -501,20 +520,24 @@ void visc_force_integrator
 		FastMat2 &uold,FastMat2 &grad_u, FastMat2 &grad_uold, 
 		FastMat2 &xpg,FastMat2 &n,
 		double wpgdet,double time) {
-  //#define SHV(pp) pp.print(#pp ": ")
 
-#undef SHV
-#define SHV(pp) {}
+  // int flag = (rand()%1000==0);
+  int flag = 0;
+
   grad_uold.is(2,1,ndim_m).rest(rigid_grad_u);
   strain_rate.set(grad_uold);
   grad_uold.t();
   strain_rate.add(grad_uold).scale(0.5);
   grad_uold.rs();
+  SHV(u);
+  SHV(uold);
+  SHV(grad_u);
+  SHV(grad_uold);
+  SHV(u);
   SHV(strain_rate);
   sigma_old.set(strain_rate).scale(2.*viscosity*dev_comp_mask);
   sigma_old.d(1,2).add(-uold.get(ndim_m+1)*pressure_comp_mask).rs();
 
-  SHV(grad_u);
   grad_u.is(2,1,ndim_m).rest(rigid_grad_u);
   strain_rate.set(grad_u);
   grad_u.t();
