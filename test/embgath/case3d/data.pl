@@ -8,7 +8,6 @@ $hratio = 5;
 @vars = qw(L hratio N);
 
 # print variables on output and transcript this block
-transcript("data.", @vars);	
 
 octave_export_vars(">data.m.tmp",@vars);
 

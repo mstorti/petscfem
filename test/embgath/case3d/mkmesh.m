@@ -11,8 +11,8 @@ i2 = i2(:,[1,4,3,2]);
 
 [x3d,ico3d] = extrude(x2,i2,1,h);
 
-asave("strip2d.nod.tmp",x3d);
-asave("strip2d.con.tmp",ico3d);
+asave("strip3d.nod.tmp",x3d);
+asave("strip3d.con.tmp",ico3d);
 
 tol=1e-5;
 bot = (N+1)*(0:3)'+1;

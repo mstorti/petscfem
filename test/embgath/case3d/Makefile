@@ -2,12 +2,12 @@
 
 .PHONY: force all run $(tests) 
 
-default: run
+default: tests
 
 tests: test_strip3d
 
 CASE := strip3d
-NP := 2
+NP := 1
 MACHI = -machinefile machi.dat
 
 LOC_PROG = ns
@@ -16,6 +16,7 @@ PROG = $(NS)
 PETSCFEM_DIR := ../../..
 
 include $(PETSCFEM_DIR)/Makefile.base
+MPI_HOME := /usr
 include $(PETSCFEM_DIR)/test/Makefile.base.test
 SRCS = 
 
@@ -24,9 +25,9 @@ mesh:
 
 test_strip3d: 
 	make-depl strip3d.epl strip3d.depl -d mkmesh=1
-	-$(MPIEXEC) $(NL) -np $(NP) $(PROG) -case $(CASE).depl \
-		$(call redir,$(CASE).output.tmp)
-	$(OCTAVE) verif.m > embgath-verif.tmp
+	$(MPIEXEC) $(NL) -np $(NP) $(PROG) -case $(CASE).depl 
+# $(call redir,$(CASE).output.tmp)
+#	$(OCTAVE) verif.m > embgath-verif.tmp
 
 local_clean::
 	-putex
