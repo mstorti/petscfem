@@ -20,9 +20,11 @@ extern int TSTEP;
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>
 static void shvfun(int flag,FastMat2 &a,const char *name) {
-  char line[100];
-  sprintf(line,"%s: ",name);
-  a.print(line);
+  if (flag) {
+    char line[100];
+    sprintf(line,"%s: ",name);
+    a.print(line);
+  }
 }
 
 #undef SHV
