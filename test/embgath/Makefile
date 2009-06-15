@@ -19,6 +19,7 @@ PETSCFEM_DIR := ../..
 include $(PETSCFEM_DIR)/Makefile.base
 include $(PETSCFEM_DIR)/test/Makefile.base.test
 SRCS = 
+CLEAN_DIRS := case3d
 
 mesh:
 	make-depl strip2d.epl strip2d.depl -d mkmesh=1

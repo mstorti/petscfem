@@ -38,7 +38,7 @@ test_strip3d1:
 
 local_clean::
 	-putex
-	-rm -rf mat.output system.dat save.state data.m \"\"
+	-rm *.tmp -rf mat.output system.dat save.state data.m \"\"
 
 link:
 	ln -sf $(PROG) $(LOC_PROG)
