@@ -12,6 +12,7 @@ $gbody = 1.0;
 
 if ($subcase eq 'ref') {}
 elsif ($subcase eq 'visco10') { $visco *= 10.0; }
+elsif ($subcase eq 'rho10') { $rho *= 10.0; }
 else { die "unknown case $case"; }
 
 @vars = qw(L hratio N visco rho gbody subcase);

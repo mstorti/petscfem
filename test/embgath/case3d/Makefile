@@ -28,6 +28,7 @@ SUBCASE := ref
 test_strip3d:
 	$(MAKE) SUBCASE=ref test_strip3d1
 	$(MAKE) SUBCASE=visco10 test_strip3d1
+	$(MAKE) SUBCASE=rho10 test_strip3d1
 
 test_strip3d1: 
 	make-depl strip3d.epl strip3d.depl -d mkmesh=1 -d subcase=$(SUBCASE)
