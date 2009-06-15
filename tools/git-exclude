@@ -14,3 +14,4 @@ machi.dat
 makefile.d
 *.tmp
 TAGS
+octave-core
