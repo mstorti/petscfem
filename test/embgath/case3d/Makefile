@@ -23,13 +23,11 @@ SRCS =
 mesh:
 	make-depl strip3d.epl strip3d.depl -d mkmesh=1
 
-SUBCASE := 1
+SUBCASE := ref
 
 test_strip3d:
-	$(MAKE) SUBCASE=1 test_strip3d1
-	$(MAKE) SUBCASE=2 test_strip3d1
-	$(MAKE) SUBCASE=3 test_strip3d1
-	$(MAKE) SUBCASE=4 test_strip3d1
+	$(MAKE) SUBCASE=ref test_strip3d1
+	$(MAKE) SUBCASE=visco10 test_strip3d1
 
 test_strip3d1: 
 	make-depl strip3d.epl strip3d.depl -d mkmesh=1 -d subcase=$(SUBCASE)

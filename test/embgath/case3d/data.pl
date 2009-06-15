@@ -10,9 +10,14 @@ $visco = 1.0;
 $rho = 1.0;
 $gbody = 1.0;
 
-@vars = qw(L hratio N visco rho gbody);
+if ($subcase eq 'ref') {}
+elsif ($subcase eq 'visco10') { $visco *= 10.0; }
+else { die "unknown case $case"; }
+
+@vars = qw(L hratio N visco rho gbody subcase);
 
 # print variables on output and transcript this block
+transcript("", @vars);
 
 octave_export_vars(">data.m.tmp",@vars);
 
