@@ -30,5 +30,7 @@ pfperi("strip3d.peri.tmp",i4,i1,(1:4),"a");
 ## Connectivity
 icosurf = [([1,2,4,3]-1)*(N+1)+1;
            [1,3,4,2]*(N+1)];
-icosurf = icosurf(:,[1,4,3,2]);
+if !use_exterior_normal;
+  icosurf = icosurf(:,[1,4,3,2]);
+endif
 asave("strip3d.surf-con.tmp",[icosurf,ones(2,8)]);

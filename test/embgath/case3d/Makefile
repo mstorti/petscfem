@@ -4,7 +4,8 @@
 
 default: tests
 
-tests: test_strip3d
+tests: test_strip3d_ref test_strip3d_visco10 test_strip3d_rho10  \
+	test_strip3d_g10 test_strip3d_l10 test_strip3d_all10
 
 CASE := strip3d
 NP := 1
@@ -16,7 +17,7 @@ PROG = $(NS)
 PETSCFEM_DIR := ../../..
 
 include $(PETSCFEM_DIR)/Makefile.base
-MPI_HOME := /usr
+# MPI_HOME := /usr
 include $(PETSCFEM_DIR)/test/Makefile.base.test
 SRCS = 
 
@@ -25,12 +26,8 @@ mesh:
 
 SUBCASE := ref
 
-test_strip3d:
-	$(MAKE) SUBCASE=ref test_strip3d1
-	$(MAKE) SUBCASE=visco10 test_strip3d1
-	$(MAKE) SUBCASE=rho10 test_strip3d1
-	$(MAKE) SUBCASE=g10 test_strip3d1
-	$(MAKE) SUBCASE=all10 test_strip3d1
+test_strip3d_%:
+	$(MAKE) SUBCASE=$* test_strip3d1
 
 test_strip3d1: 
 	make-depl strip3d.epl strip3d.depl -d mkmesh=1 -d subcase=$(SUBCASE)

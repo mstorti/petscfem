@@ -9,6 +9,7 @@ $hratio = 5;
 $visco = 1.0;
 $rho = 1.0;
 $gbody = 1.0;
+$use_exterior_normal = 0;
 
 if ($subcase eq 'ref') {}
 elsif ($subcase eq 'visco10') { $visco *= 10.0; }
@@ -24,7 +25,8 @@ elsif ($subcase eq 'all10') {
 else { die "unknown case $case"; }
 
 $h = $L/$N;
-@vars = qw(L h hratio N visco rho gbody subcase);
+@vars = qw(L h hratio N visco rho gbody subcase
+           use_exterior_normal);
 
 # print variables on output and transcript this block
 transcript("", @vars);

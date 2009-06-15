@@ -66,7 +66,7 @@ npg 4
 moment_center <:=$h/2.0:> 0.0 <:=$h/2.0:>
 volume_elemset viscous_fluid_elemset
 identify_volume_elements 1
-use_exterior_normal 0
+<:pr('use_exterior_normal'):>
 layers 2
 
 gather_length 6
