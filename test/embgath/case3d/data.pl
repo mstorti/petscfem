@@ -9,7 +9,12 @@ $hratio = 5;
 $visco = 1.0;
 $rho = 1.0;
 $gbody = 1.0;
-$use_exterior_normal = 0;
+$use_exterior_normal = 1;
+
+if ($subcase =~ /_uex(\d)/) {
+    $use_exterior_normal = $1;
+    $subcase=$PREMATCH;
+}
 
 if ($subcase eq 'ref') {}
 elsif ($subcase eq 'visco10') { $visco *= 10.0; }

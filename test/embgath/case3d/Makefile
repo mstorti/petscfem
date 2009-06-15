@@ -31,10 +31,12 @@ test_strip3d_%:
 
 test_strip3d1: 
 	make-depl strip3d.epl strip3d.depl -d mkmesh=1 -d subcase=$(SUBCASE)
+ifeq (1,1)
 	-rm -f strip.state.tmp strip3d.force.tmp
 	$(MPIEXEC) $(NL) -np $(NP) $(PROG) -case $(CASE).depl \
 		 $(call redir,$(CASE)-$(SUBCASE).output.tmp)
 	$(OCTAVE) strip3d_verif.m > embgath-verif-$(SUBCASE).tmp
+endif
 
 local_clean::
 	-putex

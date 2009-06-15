@@ -63,8 +63,10 @@ double xipgf(int ipg,int npg1d) {
   }
 }
 
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>
 void cart_prod(int npg,int nel,int nel_lay,
-	       int ndim,RowVector *shape,Matrix *dshapexi,Matrix *dshapex,double *wpg,
+	       int ndim,RowVector *shape,Matrix *dshapexi,
+               Matrix *dshapex,double *wpg,
 	       GPdata &base_gp) {
   for (int ipg=0; ipg<npg; ipg++) {
     shape[ipg] = RowVector(nel);
@@ -73,7 +75,8 @@ void cart_prod(int npg,int nel,int nel_lay,
     dshapexi[ipg]= Matrix(ndim,nel);
     dshapexi[ipg]= 0.;
     dshapexi[ipg].SubMatrix(1,ndim-1,1,nel_lay) = base_gp.dshapexi[ipg];
-    assert(nel % nel_lay ==0);
+    PETSCFEM_ASSERT0(nel % nel_lay ==0,
+                     "nel must be a multiple of nel_lay");  
     int nlay = nel/nel_lay;
     double coef2[] = {-0.5, 0.5};
     double coef3[] = {-1.5,2.0,-0.5};
@@ -82,7 +85,9 @@ void cart_prod(int npg,int nel,int nel_lay,
     if (nlay == 2) coef = coef2;
     else if (nlay==3) coef = coef3;
     else if (nlay==4) coef = coef4;
-    else assert(0);
+    else {
+      PETSCFEM_ERROR("Not implemented this value of nlay: %d",nlay);  
+    }
 #define NEWMAT_DIMS(m) printf(#m ": dims -> %d x %d\n", \
 			      (m).Nrows(),(m).Ncols())
     for (int lay=0; lay<nlay; lay++)
@@ -176,14 +181,16 @@ void GPdata::init(const char *geom,int ndimel,
   dshapex = new Matrix[npg];
 
   if ( !(strcmp(geom,"prismatic")) ) {
-    assert(nel==6);
+    PETSCFEM_ASSERT(nel==6,"Not valid prismatic geom. and nel!=6. "
+                    "Entered nel %d",nel);  
 
     // A prisma with triangular base, useful when extruding
     // triangular meshes
     master_volume = 1;		// that is 0.5(tri)*2(1d-segment)
-    assert(ndimel==3);
-    assert(nel==6);
-    assert(npg==1 || npg==6 || npg==8); // other cases may be considered
+    PETSCFEM_ASSERT0(ndimel==3,"geom prismatic must have ndimel=3");  
+    PETSCFEM_ASSERT(npg==1 || npg==6 || npg==8,
+                    "prismatic geo only allows npg=1,6, or 8. "
+                    "Entered %d",npg);  
     int npg_seg=0, npg_tri=0;
     if (npg==1) { npg_seg=1; npg_tri=1; }
     else if (npg==6) { npg_seg=2; npg_tri=3; }
@@ -228,7 +235,8 @@ void GPdata::init(const char *geom,int ndimel,
     edges.insert(edges.end(),edges_v,edges_v+2*nedges_m);
 
   } else if ( !(strcmp(geom,"triangle")) ) {
-    assert(nel==3);
+    PETSCFEM_ASSERT(nel==3,"triangle geo must have nel==3, "
+                    "entered nel %d",nel);  
     master_volume = 0.5;
 
     double xipg,etapg;
@@ -323,7 +331,9 @@ void GPdata::init(const char *geom,int ndimel,
     edges.insert(edges.end(),edges_v,edges_v+2*nedges_m);
 
   } else if ( !(strcmp(geom,"tetra")) ) {
-    assert(nel==4);
+
+    PETSCFEM_ASSERT(nel==3,"tetra geo must have nel==4, "
+                    "entered nel %d",nel);  
     master_volume = 1./6.;
     double xipg,etapg,zetapg;
     for (ipg=0; ipg<npg; ipg++) {
@@ -437,7 +447,9 @@ void GPdata::init(const char *geom,int ndimel,
     // npg:= npg1d^ndimel total number of Gauss points
     int ndimel;
     sscanf(geom,"cartesian%dd",&ndimel);
-    assert(nel==int_pow(2,ndimel));
+    PETSCFEM_ASSERT(nel==int_pow(2,ndimel),
+                    "cartesian*d must have 2^ndimel nodes. "
+                    "Entered nel %d, ndimel %d",nel,ndimel);  
     master_volume = pow(2.0,ndimel);
     int npg1d=int(pow(double(npg),1./double(ndimel)));
     // AGREGAR lin1d y brick integrations!!
@@ -584,28 +596,46 @@ void GPdata::init(const char *geom,int ndimel,
       
   } else if (!strcmp(geom,"line2quad")) {
     
-    assert(ndimel==2);
-    assert(nel % 2==0);
+    PETSCFEM_ASSERT(ndimel==2,
+                    "line2quad geo must have ndimel==2, "
+                    "entered ndimel %d",ndimel);  
+    PETSCFEM_ASSERT(nel % 2==0,
+                    "line2quad geo must have nel multiple of 2, "
+                    "entered nel %d",nel);  
     int nlay = nel/2;
-    assert(nlay>=2);
-    assert(nlay<=4);
-    assert(npg==2); // other cases may be considered
+    PETSCFEM_ASSERT(nlay>=2 && nlay<=4,
+                    "line2quad: incorrect nbr of layers"
+                    "nlay %d",nlay);  
+    PETSCFEM_ASSERT(npg==2,"Not implemented yet. Entered npg %d",
+                    npg);  
     GPdata line("cartesian1d",1,2,npg,GP_NEWMAT);
     cart_prod(npg,nel,2,ndimel,shape,dshapexi,dshapex,wpg,line);
 
   } else if (!strcmp(geom,"quad2hexa")) {
     
-    assert(ndimel==3);
-    assert(nel % 4 == 0 && 2<=(nel/4) && (nel/4)<=4 );
-    assert(npg==4); // other cases may be considered
+    PETSCFEM_ASSERT(ndimel==3,"quad2hexa geo must have ndimel==3, "
+                    "entered ndimel %d",ndimel);  
+    PETSCFEM_ASSERT(nel % 4 == 0,"quad2hexa geo must have nodes "
+                    "in layers of 4, entered nel %d",nel);  
+    int nlay = nel/4;
+    PETSCFEM_ASSERT(nlay>=2 && nlay<=4,
+                     "Invalid number of layers, nlay %d",nlay);  
+    PETSCFEM_ASSERT(npg==4,"Not implemented yet. Entered npg %d",
+                    npg);  
     GPdata quad("cartesian2d",ndimel-1,4,npg,GP_NEWMAT);
     cart_prod(npg,nel,4,ndimel,shape,dshapexi,dshapex,wpg,quad);
 
   } else if (!strcmp(geom,"tri2prism")) {
     
-    assert(ndimel==3);
-    assert(nel % 3 == 0 && 2<=(nel/3) && (nel/3)<=4 );
-    assert(npg==3); // other cases may be considered
+    PETSCFEM_ASSERT(ndimel==3,"tri2prism geo must have ndimel==3, "
+                    "entered ndimel %d",ndimel);  
+    PETSCFEM_ASSERT(nel % 3 == 0,"quad2hexa geo must have nodes "
+                    "in layers of 3, entered nel %d",nel); 
+    int nlay = nel/3;
+    PETSCFEM_ASSERT(nlay>=2 && nlay<=4,
+                     "Invalid number of layers, nlay %d",nlay);  
+    PETSCFEM_ASSERT(npg==3,"Not implemented yet. Entered npg %d",
+                    npg);  
     GPdata tri("triangle",ndimel-1,3,npg,GP_NEWMAT);
     cart_prod(npg,nel,3,ndimel,shape,dshapexi,dshapex,wpg,tri);
 
