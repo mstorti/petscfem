@@ -63,7 +63,7 @@ __END_HASH__
 elemset visc_force_integrator 12
 geometry quad2hexa
 npg 4
-moment_center 0. 0.5 0.
+moment_center <:=$h/2.0:> 0.0 <:=$h/2.0:>
 volume_elemset viscous_fluid_elemset
 identify_volume_elements 1
 use_exterior_normal 0

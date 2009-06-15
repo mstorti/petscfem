@@ -497,10 +497,10 @@ void visc_force_integrator::init() {
   //o alpha for time rule integration
   TGETOPTDEF_ND(thash,double,alpha,1.0);
 
+  //o _T: double[ndim] _N: moment_center _D: null vector 
+  // _DOC: Center of moments. _END
+  get_double(thash,"moment_center",x_center.storage_begin(),1,ndim);  
   if (0) {
-    //o _T: double[ndim] _N: moment_center _D: null vector 
-    // _DOC: Center of moments. _END
-    get_double(thash,"moment_center",x_center.storage_begin(),1,ndim);  
     // Rotation angular velocity 
     Omega.resize(1,ndim).set(0.);
     ierr = get_double(thash,"Omega",Omega.storage_begin(),1,ndim);
