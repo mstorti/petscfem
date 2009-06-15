@@ -14862,3 +14862,31 @@ las tensiones. Da un error de Newmat. Si lo corro con un solo proc
 tambien. Le saco el elemset de nsitetlesfm2 y le dejo solo el ns_id y
 tambien. Finalmente pruebo a correr un caso muy chico (el cubo de
 Stokes) y ahi no da error. 
+
+%=== Mon Jun 15 01:07:10 2009 mstorti@galileo
+%
+%--[2009-06-15.04:07:10.mstorti-v26-end-61-g072f47c]-----
+Agregué varios teste por el tema del `visc_force_integrator' y corro
+los tests:
+%
+---------- G_C++ = O_C++ ------
+NOT OK------- -> 11
+sqcav/check.fs.verif.tmp
+nutatcyl/strip.verif.tmp
+nutatcyl/stripp.verif.tmp
+nutatcyl/strippi.verif.tmp
+idmap/tidmap.sal
+newff/adv_temp_cp.vrf.tmp
+newff/full_full_jacs_cp.vrf.tmp
+newff/full_full_jacs_adv_cp.vrf.tmp
+newff/adv_temp_cp_iisd.vrf.tmp
+distmap/dist_graph.np2.out.tmp
+distmap/dist_graph.np3.out.tmp
+CAN'T OPEN------- -> 2
+project/verif.tmp
+project/verif3d.tmp
+%
+%--[2009-06-15.04:08:43.mstorti-v26-end-61-g072f47c]-----
+Los de project/ se deben a que falta llamar a MPI_Init y
+MPI_Finalize() en el prog. Los de nutatcyl se deben probablemente al
+cambio en el calculo de los momentos. 
