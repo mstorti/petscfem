@@ -562,6 +562,30 @@ expect("embgath/embgath-verif.tmp",
        "Embedded gatherer, dump values per element on file",
        "Test OK . 1");
 
+# embgath-verif-all10.tmp
+# embgath-verif-g10.tmp
+# embgath-verif-l10.tmp
+# embgath-verif-ref.tmp
+# embgath-verif-rho10.tmp
+# embgath-verif-visco10.tmp
+
+#------/*/------/*/------/*/------/*/------/*/------/*/------/*/ 
+sub emb_verif {
+    my ($key,$descrip) = @_;
+    expect("embgath/case3d/embgath-verif-$key.tmp",
+           "Embedded gatherer, values case $descrip",
+           "Test OK 1");
+}
+
+emb_verif("ref","no value scaled");
+emb_verif("rho10","rho scaled *10.0");
+emb_verif("visco10","viscosity scaled *10.0");
+emb_verif("l10","length scaled *10.0");
+emb_verif("g10","gravity scaled *10.0");
+emb_verif("all10","all params scaled *10.0");
+
+#------/*/------/*/------/*/------/*/------/*/------/*/------/*/ 
+
 end_section();
 
 #------/*/------/*/------/*/------/*/------/*/------/*/------/*/ 

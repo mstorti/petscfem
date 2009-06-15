@@ -4,7 +4,7 @@
 
 default: run
 
-tests: test_strip_perelem
+tests: test_strip_perelem test_strip3d
 
 CASE_NAME := strip2d
 NP := 2
@@ -28,6 +28,9 @@ test_strip_perelem:
 	-$(MPIEXEC) $(NL) -np $(NP) $(PROG) -case $(CASE_NAME).depl \
 		$(call redir,strip2d.output.tmp)
 	$(OCTAVE) verif.m > embgath-verif.tmp
+
+test_strip3d:
+	$(MAKE) -C case3d tests
 
 local_clean::
 	-putex
