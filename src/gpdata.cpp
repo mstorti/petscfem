@@ -332,7 +332,7 @@ void GPdata::init(const char *geom,int ndimel,
 
   } else if ( !(strcmp(geom,"tetra")) ) {
 
-    PETSCFEM_ASSERT(nel==3,"tetra geo must have nel==4, "
+    PETSCFEM_ASSERT(nel==4,"tetra geo must have nel==4, "
                     "entered nel %d",nel);  
     master_volume = 1./6.;
     double xipg,etapg,zetapg;
