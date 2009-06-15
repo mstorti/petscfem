@@ -8,6 +8,7 @@
 #include <typeinfo>
 #include "libretto.h"
 #include <petscmat.h>
+#include <petscversion.h>
 
 #include <src/fem.h>
 #include <src/utils.h>
@@ -154,19 +155,38 @@ int PFPETScMat::build_ksp() {
   // GMRES. 
   TGETOPTDEF_S_PF(thash,string,preco_side,<ksp-dependent>);
   if (preco_side=="<ksp-dependent>") {
-    if (KSP_method == "cg" || KSP_method == "richardson" || KSP_method == "gmres") preco_side = "left";
+    if (KSP_method == "cg" || KSP_method == "richardson") preco_side = "left";
     else preco_side = "right";
+  }
+
+  static int warning_given=0;
+  // FIXME:= Remove this warning when PETSC versions will evolve
+  if (!warning_given 
+      && KSP_method == "gmres" && preco_side == "right" 
+      && PETSC_VERSION_MAJOR==3 
+      && PETSC_VERSION_MINOR ==0
+      && PETSC_VERSION_SUBMINOR==0
+      && PETSC_VERSION_PATCH<=5
+      ) {
+
+    warning_given = 1;
+    PetscPrintf(PETSCFEM_COMM_WORLD,
+                "==================================================\n"
+                "================ PETSCFEM WARNING ================\n"
+                "==================================================\n"
+                "Using GMRES with preco_side=right is not supported\n"
+                "in PETSc versions 3.0.0-px with 0<=x<=5 \n"
+                "PETSc version: %d.%d.%d-p%d\n"
+                "==================================================\n"
+                "==================================================\n"
+                "==================================================\n",
+                PETSC_VERSION_MAJOR,PETSC_VERSION_MINOR,
+                PETSC_VERSION_SUBMINOR,PETSC_VERSION_PATCH);
   }
 
   if (KSP_method == "cg" && preco_side == "right") {
     PetscPrintf(PETSCFEM_COMM_WORLD,__FUNC__ 
 		": can't choose \"right\" preconditioning with KSP CG (using \"left\")\n");
-    preco_side = "left";
-  }
-
-  if (KSP_method == "gmres" && preco_side == "right") {
-    PetscPrintf(PETSCFEM_COMM_WORLD,__FUNC__ 
-		": can't choose \"right\" preconditioning with KSP GMRES (using \"left\")\n");
     preco_side = "left";
   }
 
