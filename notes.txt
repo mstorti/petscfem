@@ -14890,3 +14890,9 @@ project/verif3d.tmp
 Los de project/ se deben a que falta llamar a MPI_Init y
 MPI_Finalize() en el prog. Los de nutatcyl se deben probablemente al
 cambio en el calculo de los momentos. 
+
+%=== Mon Jun 15 16:03:35 2009 mstorti@galileo
+%
+%--[2009-06-15.19:03:35.mstorti-v26-end-65-g0f6ae7e]-----
+Los de nutatcyl era porque al corregir el calculo del momento
+volvieron a andar bien. El cambio en embgath.cpp fue en 2003-01-10. 
