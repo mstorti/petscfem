@@ -13,9 +13,9 @@ private:
   int ntens,nen;
 
   FastMat2 strain, stress, Jaco, iJaco, grad_u, F, 
-    tmp, tmp1, tmp2, tmp3, tmp4, tmp5, tmp6,
-    xnew, vnew, xold, vold, G_body, 
-    Id, mass_pg, ustar, vstar, a, res_pg, dv;
+    tmp, tmp1, tmp2, tmp3, tmp4, tmp5, tmp6, 
+    tmp7, tmp8, xnew, vnew, vnew1, xold, vold, G_body, 
+    Id, ustar, vstar, a, res_pg, dv, dxdt;
 
   dvector<int> elprpsindx; 
   int nprops;

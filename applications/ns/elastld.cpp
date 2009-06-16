@@ -71,7 +71,6 @@ void ld_elasticity::init() {
   
   Jaco.resize(2,ndim,ndim);
   dshapex.resize(2,ndim,nel);  
-  mass_pg.resize(2,nel,nel);
   grad_u.resize(2,ndim,ndim);
   F.resize(2,ndim,ndim);
   ustar.resize(2,nel,ndim);
@@ -147,9 +146,27 @@ void ld_elasticity
     tmp4.set(Id).scale(trE*lambda).axpy(strain,2*mu);
     stress.prod(F,tmp4,1,-1,-1,2);
 
+    // Velocity from states dxdt = (xnew-xold)/dt
+    dxdt.set(xnew).rest(xold).scale(rec_Dt);
+
     // Inertia term
+    //#define USE_NEW_FORM
+#ifdef USE_NEW_FORM
+    // In this form the residual is [Rmom; Rvel] and
+    // acceleration is computed from displacements.  It is
+    // better conditioned (I guess), the resulting Jacobian
+    // is [I/Dt^2+K,0; -I/Dt,I]
+    vnew1.set(dxdt).axpy(vold,-(1.0-alpha)).scale(1.0/alpha);
+    a.set(vnew1).rest(vold).scale(rec_Dt)
+      .axpy(vstar,cdamp);
+#else
+    // In this form the residual is [Rvel; Rmom]
+    // and acceleration is computed from velocities
+    // only.  It is bad conditioned, the resulting Jacobian
+    // is [I/Dt,-I; I/Dt, K]
     a.set(vnew).rest(vold).scale(rec_Dt)
       .axpy(vstar,cdamp);
+#endif
     tmp.prod(shape,a,-1,-1,1).rest(G_body);
     tmp2.prod(shape,tmp,1,2);
     res.is(2,ndim+1,2*ndim).axpy(tmp2,-wpgdet*rho);
@@ -164,21 +181,26 @@ void ld_elasticity
     res.axpy(res_pg,1.0).rs();
 #endif
     
-    mass_pg.prod(shape,shape,1,2).scale(wpgdet*rec_Dt*rho/alpha);
-
     // Eqs. for displacements: (xnew-xold)/dt - vstar = 0
-    dv.set(xnew).rest(xold).scale(rec_Dt).rest(vstar);
+    dv.set(dxdt).rest(vstar);
     tmp.prod(shape,dv,-1,-1,1);
     tmp2.prod(shape,tmp,1,2);
-    res.is(2,1,ndim).axpy(tmp2,-wpgdet);
-
-    mass_pg.prod(shape,shape,1,2).scale(wpgdet);
+    res.is(2,1,ndim).axpy(tmp2,-wpgdet).rs();
 
   }
   shape.rs();
   res.rs();
-  // tmp4.ctr(mat,2,1,4,3);
-  // tmp4.print(nel*ndof);
+
+#if 1 || defined(USE_NEW_FORM)
+    // Swap residual components
+    // [Rvel; Rmom] -> [Rmom; Rvel]
+    res.is(2,1,ndim);
+    tmp7.set(res);
+    res.rs().is(2,ndim+1,2*ndim);
+    tmp8.set(res);
+    res.set(tmp7).scale(-1.0);
+    res.rs().is(2,1,ndim).set(tmp8).rs();
+#endif
     
 }
 
