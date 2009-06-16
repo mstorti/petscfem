@@ -150,7 +150,7 @@ void ld_elasticity
     dxdt.set(xnew).rest(xold).scale(rec_Dt);
 
     // Inertia term
-    //#define USE_NEW_FORM
+#define USE_NEW_FORM
 #ifdef USE_NEW_FORM
     // In this form the residual is [Rmom; Rvel] and
     // acceleration is computed from displacements.  It is
@@ -191,7 +191,7 @@ void ld_elasticity
   shape.rs();
   res.rs();
 
-#if 1 || defined(USE_NEW_FORM)
+#if defined(USE_NEW_FORM)
     // Swap residual components
     // [Rvel; Rmom] -> [Rmom; Rvel]
     res.is(2,1,ndim);
