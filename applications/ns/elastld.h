@@ -10,7 +10,7 @@
 class  ld_elasticity : public adaptor { 
 private:
   double rho,E,nu,lambda,mu,cdamp;
-  int ntens,nen;
+  int ntens,nen, use_new_form;
 
   FastMat2 strain, stress, Jaco, iJaco, grad_u, F, 
     tmp, tmp1, tmp2, tmp3, tmp4, tmp5, tmp6, 

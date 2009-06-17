@@ -50,6 +50,9 @@ void ld_elasticity::init() {
   //o Damping coefficient
   TGETOPTDEF_ND(thash,double,cdamp,0.);
 
+  //o Use new formulation (swap eqs, and rewrite acceleration)
+  TGETOPTDEF_ND(thash,int,use_new_form,1);
+
   G_body.resize(1,ndim).set(0.);
   const char *line;
   vector<double> G_body_v;
@@ -150,23 +153,22 @@ void ld_elasticity
     dxdt.set(xnew).rest(xold).scale(rec_Dt);
 
     // Inertia term
-#define USE_NEW_FORM
-#ifdef USE_NEW_FORM
-    // In this form the residual is [Rmom; Rvel] and
-    // acceleration is computed from displacements.  It is
-    // better conditioned (I guess), the resulting Jacobian
-    // is [I/Dt^2+K,0; -I/Dt,I]
-    vnew1.set(dxdt).axpy(vold,-(1.0-alpha)).scale(1.0/alpha);
-    a.set(vnew1).rest(vold).scale(rec_Dt)
-      .axpy(vstar,cdamp);
-#else
-    // In this form the residual is [Rvel; Rmom]
-    // and acceleration is computed from velocities
-    // only.  It is bad conditioned, the resulting Jacobian
-    // is [I/Dt,-I; I/Dt, K]
-    a.set(vnew).rest(vold).scale(rec_Dt)
-      .axpy(vstar,cdamp);
-#endif
+    if (use_new_form) {
+      // In this form the residual is [Rmom; Rvel] and
+      // acceleration is computed from displacements.  It is
+      // better conditioned (I guess), the resulting Jacobian
+      // is [I/Dt^2+K,0; -I/Dt,I]
+      vnew1.set(dxdt).axpy(vold,-(1.0-alpha)).scale(1.0/alpha);
+      a.set(vnew1).rest(vold).scale(rec_Dt)
+        .axpy(vstar,cdamp);
+    } else {
+      // In this form the residual is [Rvel; Rmom]
+      // and acceleration is computed from velocities
+      // only.  It is bad conditioned, the resulting Jacobian
+      // is [I/Dt,-I; I/Dt, K]
+      a.set(vnew).rest(vold).scale(rec_Dt)
+        .axpy(vstar,cdamp);
+    }
     tmp.prod(shape,a,-1,-1,1).rest(G_body);
     tmp2.prod(shape,tmp,1,2);
     res.is(2,ndim+1,2*ndim).axpy(tmp2,-wpgdet*rho);
@@ -191,7 +193,7 @@ void ld_elasticity
   shape.rs();
   res.rs();
 
-#if defined(USE_NEW_FORM)
+  if (use_new_form) {
     // Swap residual components
     // [Rvel; Rmom] -> [Rmom; Rvel]
     res.is(2,1,ndim);
@@ -200,7 +202,7 @@ void ld_elasticity
     tmp8.set(res);
     res.set(tmp7).scale(-1.0);
     res.rs().is(2,1,ndim).set(tmp8).rs();
-#endif
+  }
     
 }
 
