@@ -14896,3 +14896,20 @@ cambio en el calculo de los momentos.
 %--[2009-06-15.19:03:35.mstorti-v26-end-65-g0f6ae7e]-----
 Los de nutatcyl era porque al corregir el calculo del momento
 volvieron a andar bien. El cambio en embgath.cpp fue en 2003-01-10. 
+
+%=== Wed Jun 17 08:56:23 2009 mstorti@galileo
+%
+%--[2009-06-17.11:56:23.mstorti-v26-end-69-g93cf3e8]-----
+Viendo el tema de la convergencia con elastld.
+Plan de trabajo:
+. Ver si converge mejor la nueva formulacion con respecto a la vieja. 
+  SI, converge mucho mejor!! 2009-06-17 14:13:10
+. Ver si es el swap o la diferencia en el calculo de la aceleracion o
+   los dos
+  2009-06-17 14:20:32
+  Con SWAP, pero sin RWACC (rewrite de la acceleration)
+  da casi igual que la nueva (es decir muy bien).
+  2009-06-17 14:24:18
+  Si hacemos RWACC, entonces hay que hacer si o si SWAP, ya que si no
+  te da un pivote nulo. 
+. Ver como es para tiempos pequeños
