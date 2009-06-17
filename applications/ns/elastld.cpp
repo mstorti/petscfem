@@ -193,7 +193,7 @@ void ld_elasticity
   shape.rs();
   res.rs();
 
-  if (use_new_form) {
+  if (0 && use_new_form) {
     // Swap residual components
     // [Rvel; Rmom] -> [Rmom; Rvel]
     res.is(2,1,ndim);
