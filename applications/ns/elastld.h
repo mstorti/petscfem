@@ -21,6 +21,7 @@ private:
   int nprops;
   dvector<double> propel;
   int Young_modulus_indx;
+  double Young_modulus_fac;
 
 public: 
   void init();

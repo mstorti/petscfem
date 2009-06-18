@@ -15,7 +15,7 @@
 #define ELEMPROPS(j,k) VEC2(elemprops,j,k,nelprops)
 #define MAXPROPS 100
 
-//#define USE_YOUNG_PER_ELEM
+#define USE_YOUNG_PER_ELEM
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>
 void ld_elasticity::init() {
@@ -32,6 +32,12 @@ void ld_elasticity::init() {
 		  thash,elprpsindx.buff(),propel.buff(), 
 		  "Young_modulus",1);
   nprops = iprop;
+
+  //o If Young modulus is entered by element, then this 
+  //  factor affects the spatial dependence entered in the 
+  //  per-element table. 
+  TGETOPTDEF_ND(thash,double,Young_modulus_fac,1.0);
+  assert(Young_modulus_fac>0.);
 #else
   TGETOPTDEF(thash,double,Young_modulus,0.);
   E=Young_modulus;
@@ -97,7 +103,14 @@ void ld_elasticity
 #ifdef USE_YOUNG_PER_ELEM
   load_props(propel.buff(),elprpsindx.buff(),nprops,
 	     &(ELEMPROPS(elem,0)));
-  E = *(propel.buff()+Young_modulus_indx);
+  double Ex = *(propel.buff()+Young_modulus_indx);
+  E = Ex*Young_modulus_fac;
+#if 0
+  if (rand()%1000==0) {
+    xloc.print("xloc:");
+    printf("Ex %f, Young_modulus_fac %f\n",Ex,Young_modulus_fac);
+  }
+#endif
 #endif
 
   // printf("element %d, Young %f\n",elem,E);
@@ -193,7 +206,7 @@ void ld_elasticity
   shape.rs();
   res.rs();
 
-  if (0 && use_new_form) {
+  if (use_new_form) {
     // Swap residual components
     // [Rvel; Rmom] -> [Rmom; Rvel]
     res.is(2,1,ndim);
