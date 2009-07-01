@@ -1,5 +1,5 @@
 
-PETSCFEM_DIR = /u/rodrigop/PETSC/petscfem
+PETSCFEM_DIR = ../..
 
 PFEM_UP_DIR = ..
 
@@ -47,7 +47,7 @@ dxo:
 dx_case := comp_corner_supersonic_dx
 dx:
 	$(EPERL) -P -d dx=1 $(dx_case).epl > $(dx_case).depl
-	$(MPIRUN) -np 1 $(HOME)/PETSC/petscfem.mario/applications/advdif/advdif_O.bin \
+	$(MPIRUN) -np 1 $(PETSCFEM_DIR)/applications/advdif/advdif_O.bin \
 		 -case $(dx_case).depl
 
 dx_make_command:

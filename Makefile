@@ -242,7 +242,7 @@ save:
 	fi ;									\
 	if [ -e $(TARFILE).tara.old ] ; then rm $(TARFILE).tara.old ; fi
 
-#w Count lines in `.cpp' and `.h' files
+#w Count lines in `.cpp', '.f' and `.h' files
 line_count:
 	@echo -n 'Lines in source files: ' ;	\
 	cat					\

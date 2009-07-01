@@ -112,6 +112,12 @@ void burgers_ff::start_chunk(int &ret_options) {
   //o Scale the SUPG upwind term. Set to 0 in order to
   //  not to include the upwind term. 
   EGETOPTDEF_ND(elemset,double,tau_fac,1.);
+  //o Add shock-capturing term.
+  EGETOPTDEF_ND(elemset,int,shock_capturing,0);
+  //o Add shock-capturing factor term.
+  EGETOPTDEF_ND(elemset,double,shocap_fac,1);
+  //o Add shock-capturing exponent.
+  EGETOPTDEF_ND(elemset,double,shocap_beta,1);
 
   elemset->elem_params(nel,ndof,nelprops);
 
@@ -126,7 +132,8 @@ void burgers_ff::start_chunk(int &ret_options) {
   u.resize(1,ndim);
   Uintri.resize(1,ndim);
   tmp0.resize(1,ndim);
-
+  Cp.resize(2,ndof,ndof);
+  grad_phi.resize(1,ndof);
   assert(ndof==1); // Only Burgers with one field is considered
 
   //o Diffusivity (viscosity)
@@ -186,22 +193,32 @@ void burgers_ff::compute_flux(COMPUTE_FLUX_ARGS) {
 
     double &alpha = diffusivity;
     double tau;
-
+    double Pe  = vel*vel/(Uh*alpha),
+      h = 2./sqrt(tmp0.sum_square(iJaco,1,-1).max_all()); // h and Peclet number
     FastMat2::branch();
     if (vel*vel > 1e-5*Uh*alpha) { // remove singularity when v=0
       FastMat2::choose(0);
-      double Pe  = vel*vel/(Uh*alpha);	// Peclet number
       // magic function
       double magic = (fabs(Pe)>1.e-4 ? 1./tanh(Pe)-1./Pe : Pe/3.); 
       tau = tau_fac/Uh*magic; // intrinsic time
     } else {
       FastMat2::choose(1);
-      double h = 2./sqrt(tmp0.sum_square(iJaco,1,-1).max_all());
       tau = tau_fac*h*h/(12.*alpha);
     }
     FastMat2::leave();
     tau_supg.setel(tau,1,1);
-    delta_sc = 0.;
+    if (shock_capturing) {
+      double grad_phi_mod = sqrt(grad_phi.sum_square_all());
+      double fz = grad_phi_mod*h;
+      fz = pow(fz,shocap_beta);
+      
+      double fz2 = (Pe < 3. ? Pe/3. : 1.);
+      fz2 = pow(fz2,shocap_beta);
+      delta_sc = 0.5*h*vel*fz2*shocap_fac;
+      delta_sc_aniso = 0.5*h*vel*fz;
+    } else {
+      delta_sc = 0.;
+    }
   }
   
   if (options & COMP_SOURCE) {
@@ -216,3 +233,7 @@ void burgers_ff::get_Ajac(FastMat2 &Ajac) {
   Ajac.ir(2,1).ir(3,1).set(u).rs();
 }
 
+void burgers_ff::get_Cp(FastMat2 &Cp_a) {
+  identity_ef.get_Cp(Cp_a);
+  Cp.set(Cp_a).rs();
+}
