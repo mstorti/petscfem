@@ -37,6 +37,8 @@ void mesh_move_opt2::init() {
   QQ.resize(2,ndim,ndim);
   D.resize(1,ndim);
   VV.resize(2,ndim,ndim);
+  iTalpha.resize(2,ndim,ndim).eye();
+  T1.resize(2,ndim,ndim);
   iVV.resize(2,ndim,ndim);
   tmp5.resize(2,ndim,ndim);
   tmp6.resize(2,ndim,ndim);
@@ -169,7 +171,10 @@ element_connector(const FastMat2 &xloc,
       // iTalpha = inv(T(alpha))
       iTalpha.inv(tmp6);
       
-    } else iTalpha.inv(T1);
+    } else {
+      iTalpha.inv(T1);
+      // iTalpha.eye();
+    }
 
     y.set(xloc).add(state_new);
     y0.set(xloc).add(state_old);
@@ -193,7 +198,7 @@ element_connector(const FastMat2 &xloc,
     }
   }
     
-  if (ndim == 2){
+  if (ndim == 2) {
     C = 4.*sqrt(3.);
 
     V = w.det();
@@ -266,24 +271,67 @@ element_connector(const FastMat2 &xloc,
 
     dVdW.set(0.);
     d2VdW2.set(0.);
-    for (int p=1;p<=ndim;p++) {
-      for (int q=1;q<=ndim;q++) {
-	for (int r=1;r<=ndim;r++) {
-	  dVdW
-            .ir(1,1).ir(2,p)
-            .set(dVdW.get(1,p)+epsilon_LC.get(p,q,r)*w.get(2,q)*w.get(3,r)).rs();
-	  dVdW.ir(1,2).ir(2,q).set(dVdW.get(2,q)+epsilon_LC.get(p,q,r)*w.get(1,p)*w.get(3,r)).rs();
-	  dVdW.ir(1,3).ir(2,r).set(dVdW.get(3,r)+epsilon_LC.get(p,q,r)*w.get(1,p)*w.get(2,q)).rs();
 
-	  d2VdW2.ir(1,2).ir(2,q).ir(3,1).ir(4,p).set(d2VdW2.get(2,q,1,p)+epsilon_LC.get(p,q,r)*w.get(3,r)).rs();
-	  d2VdW2.ir(1,3).ir(2,r).ir(3,1).ir(4,p).set(d2VdW2.get(3,r,1,p)+epsilon_LC.get(p,q,r)*w.get(2,q)).rs();
-	  d2VdW2.ir(1,1).ir(2,p).ir(3,2).ir(4,q).set(d2VdW2.get(1,p,2,q)+epsilon_LC.get(p,q,r)*w.get(3,r)).rs();
-	  d2VdW2.ir(1,3).ir(2,r).ir(3,2).ir(4,q).set(d2VdW2.get(3,r,2,q)+epsilon_LC.get(p,q,r)*w.get(1,p)).rs();
-	  d2VdW2.ir(1,1).ir(2,p).ir(3,3).ir(4,r).set(d2VdW2.get(1,p,3,r)+epsilon_LC.get(p,q,r)*w.get(2,q)).rs();
-	  d2VdW2.ir(1,2).ir(2,q).ir(3,3).ir(4,r).set(d2VdW2.get(2,q,3,r)+epsilon_LC.get(p,q,r)*w.get(1,p)).rs();
+#if 1
+    double *wp = w.storage_begin();
+    double *dVdWp = dVdW.storage_begin();
+    double *d2VdW2p = d2VdW2.storage_begin();
+    double *epslcp = epsilon_LC.storage_begin();
+
+#define W(j,k) VEC2(wp,j,k,ndim)
+#define DVDW(j,k) VEC2(dVdWp,j,k,ndim)
+#define D2VDW2(j,k,l,m) VEC4(d2VdW2p,j,k,ndim,l,ndim,m,ndim)
+#define EPSLC(j,k,l) VEC3(epslcp,j,k,ndim,l,ndim)
+
+    double val;
+    for (int p=0;p<ndim;p++) {
+      for (int q=0;q<ndim;q++) {
+	for (int r=0;r<ndim;r++) {
+          DVDW(0,p) += EPSLC(p,q,r)*W(1,q)*W(2,r);
+          DVDW(1,q) += EPSLC(p,q,r)*W(0,p)*W(2,r);
+          DVDW(2,r) += EPSLC(p,q,r)*W(0,p)*W(1,q);
+	  
+          D2VDW2(1,q,0,p) += EPSLC(p,q,r)*W(2,r);
+          D2VDW2(2,r,0,p) += EPSLC(p,q,r)*W(1,q);
+          D2VDW2(0,p,1,q) += EPSLC(p,q,r)*W(2,r);
+          D2VDW2(2,r,1,q) += EPSLC(p,q,r)*W(0,p);
+          D2VDW2(0,p,2,r) += EPSLC(p,q,r)*W(1,q);
+          D2VDW2(1,q,2,r) += EPSLC(p,q,r)*W(0,p);
 	}
       }
     }
+#else
+    for (int p=1;p<=ndim;p++) {
+      for (int q=1;q<=ndim;q++) {
+	for (int r=1;r<=ndim;r++) {
+	  dVdW.ir(1,1).ir(2,p).set(dVdW.get(1,p)
+                                   +epsilon_LC.get(p,q,r)*w.get(2,q)*w.get(3,r)).rs();
+	  dVdW.ir(1,2).ir(2,q).set(dVdW.get(2,q)
+                                   +epsilon_LC.get(p,q,r)*w.get(1,p)*w.get(3,r)).rs();
+	  dVdW.ir(1,3).ir(2,r).set(dVdW.get(3,r)
+                                   +epsilon_LC.get(p,q,r)*w.get(1,p)*w.get(2,q)).rs();
+
+	  d2VdW2.ir(1,2).ir(2,q).ir(3,1).ir(4,p)
+            .set(d2VdW2.get(2,q,1,p)+epsilon_LC.get(p,q,r)*w.get(3,r)).rs();
+	  d2VdW2.ir(1,3).ir(2,r).ir(3,1).ir(4,p)
+            .set(d2VdW2.get(3,r,1,p)+epsilon_LC.get(p,q,r)*w.get(2,q)).rs();
+	  d2VdW2.ir(1,1).ir(2,p).ir(3,2).ir(4,q)
+            .set(d2VdW2.get(1,p,2,q)+epsilon_LC.get(p,q,r)*w.get(3,r)).rs();
+	  d2VdW2.ir(1,3).ir(2,r).ir(3,2).ir(4,q)
+            .set(d2VdW2.get(3,r,2,q)+epsilon_LC.get(p,q,r)*w.get(1,p)).rs();
+	  d2VdW2.ir(1,1).ir(2,p).ir(3,3).ir(4,r)
+            .set(d2VdW2.get(1,p,3,r)+epsilon_LC.get(p,q,r)*w.get(2,q)).rs();
+	  d2VdW2.ir(1,2).ir(2,q).ir(3,3).ir(4,r)
+            .set(d2VdW2.get(2,q,3,r)+epsilon_LC.get(p,q,r)*w.get(1,p)).rs();
+	}
+      }
+    }
+#endif
+    dVdW.print();
+    d2VdW2.print(9);
+    PetscFinalize();
+    exit(0);
+ 
     dVdW.scale(1./6.);
     d2VdW2.scale(1./6.);
 
@@ -300,26 +348,40 @@ element_connector(const FastMat2 &xloc,
       }
       w.rs();
       vaux2.rs();
+      double val;
       for (int j=1;j<=ndim;j++) {
-	dSldW.setel(vaux1.get(1)*w.get(i,j)-vaux1.get(2)*vaux2.get(j,2)+vaux1.get(3)*vaux2.get(j,3),i,j);
+        val = vaux1.get(1)*w.get(i,j)-vaux1.get(2)*vaux2.get(j,2)
+          +vaux1.get(3)*vaux2.get(j,3);
+	dSldW.setel(val,i,j);
 
 	for (int k=1;k<=ndim;k++) {
-	  d2SldW2.setel(d2SldW2.get(i,j,i,k)+w.get(i,k)*w.get(i,j)/vaux1.get(1),i,j,i,k);
-	  d2SldW2.setel(d2SldW2.get(i,j,i,k)+vaux2.get(k,2)*vaux2.get(j,2)/vaux1.get(2),i,j,i,k);
-	  d2SldW2.setel(d2SldW2.get(i,j,i,k)+vaux2.get(k,3)*vaux2.get(j,3)/vaux1.get(3),i,j,i,k);
-	  d2SldW2.setel(d2SldW2.get(i,j,ind[i+1],k)-vaux2.get(k,2)*vaux2.get(j,2)/vaux1.get(2),i,j,ind[i+1],k);
-	  d2SldW2.setel(d2SldW2.get(i,j,ind[i-1],k)-vaux2.get(k,3)*vaux2.get(j,3)/vaux1.get(3),i,j,ind[i-1],k);
+          val = d2SldW2.get(i,j,i,k)+w.get(i,k)*w.get(i,j)/vaux1.get(1);
+	  d2SldW2.setel(val,i,j,i,k);
+          val = d2SldW2.get(i,j,i,k)
+            +vaux2.get(k,2)*vaux2.get(j,2)/vaux1.get(2);
+	  d2SldW2.setel(val,i,j,i,k);
+          val = d2SldW2.get(i,j,i,k)
+            +vaux2.get(k,3)*vaux2.get(j,3)/vaux1.get(3);
+	  d2SldW2.setel(val,i,j,i,k);
+          val = d2SldW2.get(i,j,ind[i+1],k)
+            -vaux2.get(k,2)*vaux2.get(j,2)/vaux1.get(2);
+	  d2SldW2.setel(val,i,j,ind[i+1],k);
+          val = d2SldW2.get(i,j,ind[i-1],k)
+            -vaux2.get(k,3)*vaux2.get(j,3)/vaux1.get(3);
+	  d2SldW2.setel(val,i,j,ind[i-1],k);
 	  if (k==j) {
-	    d2SldW2.setel(d2SldW2.get(i,j,i,k)+vaux1.get(1)+vaux1.get(2)+vaux1.get(3),i,j,i,k);
-	    d2SldW2.setel(d2SldW2.get(i,j,ind[i+1],k)-vaux1.get(2),i,j,ind[i+1],k);
-	    d2SldW2.setel(d2SldW2.get(i,j,ind[i-1],k)-vaux1.get(3),i,j,ind[i-1],k);
+            val = d2SldW2.get(i,j,i,k)+vaux1.get(1)+vaux1.get(2)+vaux1.get(3);
+	    d2SldW2.setel(val,i,j,i,k);
+            val = d2SldW2.get(i,j,ind[i+1],k)-vaux1.get(2);
+	    d2SldW2.setel(val,i,j,ind[i+1],k);
+            val = d2SldW2.get(i,j,ind[i-1],k)-vaux1.get(3);
+	    d2SldW2.setel(val,i,j,ind[i-1],k);
 	  }
 	}
       }
     }
     dSldW.scale(3.);
     d2SldW2.scale(3.);
-
   }
   if (V<=0.0) {
     printf("[%d] elem %d, vol %g\n",MY_RANK,elem,V);
@@ -357,8 +419,12 @@ element_connector(const FastMat2 &xloc,
   mat.axpy(d2Q,1.).scale(distor_exp*c_distor*pow(Q,distor_exp-1.));
 
   mat1.prod(dVdu,dVdu,1,2,3,4);
-  mat.axpy(mat1,volume_exp*c_volume/pow(Vref,volume_exp)*(volume_exp-1.)*pow(V-Vref,volume_exp-2.));
-  mat.axpy(d2Vdu2,volume_exp*c_volume/pow(Vref,volume_exp)*pow(V-Vref,volume_exp-1.)).scale(-1.);
+  double coef = volume_exp*c_volume/pow(Vref,volume_exp)
+    *(volume_exp-1.)*pow(V-Vref,volume_exp-2.);
+  mat.axpy(mat1,coef);
+  coef = volume_exp*c_volume/pow(Vref,volume_exp)
+    *pow(V-Vref,volume_exp-1.);
+  mat.axpy(d2Vdu2,coef).scale(-1.);
 
   if (use_ref_mesh > 0.0) {
     res2.prod(res,iTalpha,1,-1,-1,2);
