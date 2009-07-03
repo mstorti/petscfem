@@ -14912,4 +14912,16 @@ Plan de trabajo:
   2009-06-17 14:24:18
   Si hacemos RWACC, entonces hay que hacer si o si SWAP, ya que si no
   te da un pivote nulo. 
+  2009-06-17 14:29:18
+  Con un paso de tiempo bajo (Dt=0.001) la nueva form converge muy
+  bien. 
 . Ver como es para tiempos pequeños
+  2009-06-17 14:33:53
+  Uso Dt=0.001
+  Tanto con la nueva como con la vieja formulacion converge muy bien. 
+  Con la nueva converge incluso bastante mejor. 
+  2009-06-17 14:36:51
+  Con SWAP pero sin RWACC tambien da bien, casi igual que con RWACC. 
+  O sea el RWACC parece no hacer mucho, pero hay que ver que si
+  queremos eliminar la 2da ecuacion entonce si o si hay que hacer el
+  RWACC. 
