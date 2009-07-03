@@ -269,7 +269,7 @@ element_connector(const FastMat2 &xloc,
     dVdW.set(0.);
     d2VdW2.set(0.);
 
-    //#define USE_VECMACROS
+#define USE_VECMACROS
 #ifdef USE_VECMACROS
     double *wp = w.storage_begin();
     double *dVdWp = dVdW.storage_begin();
