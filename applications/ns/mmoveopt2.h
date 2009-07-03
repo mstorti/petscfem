@@ -28,7 +28,7 @@ private:
     d2Sldu2,x,w,dVdu,dSldu,dQ,d2Q,tmp,mat1,
     vaux,vaux1,vaux2,w0,x0,epsilon_LC,dx;
   FastMat2 y,y0,xref,tmp2,xreg,tmp3,tmp4,T1,iTalpha,
-    mat2,res2,QQ,D,VV,iVV,tmp5,tmp6,tmp7;
+    mat2,res2,QQ,D,VV,iVV,tmp5,tmp6;
   /// Parameters
   double distor_exp,c_distor,c_volume,c_relax,
     volume_exp,relax_factor, use_ref_mesh;

@@ -293,8 +293,6 @@ public:
   ~gensum_all_cache() {};
 };
 
-extern double adaptor_element_stats_value;
-
 //<$gen_sum=<<'//EOF';
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 /* Obtained from pattern $gen_sum with args;
@@ -428,7 +426,6 @@ FastMat2 & FastMat2::__NAME__(const FastMat2 & A, __OTHER_ARGS__ __C__
   LineCache *lc;
   double **pa,**pe,val;
   __PRE_LOOP_OPS__;
-  double start = MPI_Wtime();
   for (int j=0; j<cache->nlines; j++) {
     lc = cache->line_cache_start+j;
     pa = lc->starta;
@@ -442,7 +439,6 @@ FastMat2 & FastMat2::__NAME__(const FastMat2 & A, __OTHER_ARGS__ __C__
     *lc->target = val;
   }
   __AFTER_ALL_STRIDES__;
-  adaptor_element_stats_value += MPI_Wtime()-start;
   if (!ctx->use_cache) delete cache;
   return *this;
 }  

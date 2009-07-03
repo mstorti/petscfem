@@ -16,7 +16,6 @@
 #include "mmoveopt2.h"
 
 extern int MY_RANK, SIZE;
-extern double adaptor_element_stats_value;
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 void mesh_move_opt2::init() {
@@ -117,11 +116,8 @@ element_connector(const FastMat2 &xloc,
 		  const FastMat2 &state_new,
 		  FastMat2 &res,FastMat2 &mat) {
 
-  assert(isnan(adaptor_element_stats_value));
-  adaptor_element_stats_value = 0.0;
   double C=NAN,V=NAN,Sl=NAN,Q=NAN,Vref=NAN;
   double relax_factor_now = relax_factor;
-  double start, total=0.0;
   if (glob_param->inwt>0) 
     relax_factor_now = 1.0;
 
@@ -175,10 +171,7 @@ element_connector(const FastMat2 &xloc,
       // iTalpha = inv(T(alpha))
       iTalpha.inv(tmp6);
       
-    } else {
-      iTalpha.inv(T1);
-      // iTalpha.eye();
-    }
+    } else iTalpha.inv(T1);
 
     y.set(xloc).add(state_new);
     y0.set(xloc).add(state_old);
@@ -276,7 +269,7 @@ element_connector(const FastMat2 &xloc,
     dVdW.set(0.);
     d2VdW2.set(0.);
 
-#define USE_VECMACROS
+    //#define USE_VECMACROS
 #ifdef USE_VECMACROS
     double *wp = w.storage_begin();
     double *dVdWp = dVdW.storage_begin();
@@ -317,12 +310,15 @@ element_connector(const FastMat2 &xloc,
     for (int p=1;p<=ndim;p++) {
       for (int q=1;q<=ndim;q++) {
 	for (int r=1;r<=ndim;r++) {
-	  dVdW.ir(1,1).ir(2,p).set(dVdW.get(1,p)
-                                   +epsilon_LC.get(p,q,r)*w.get(2,q)*w.get(3,r)).rs();
-	  dVdW.ir(1,2).ir(2,q).set(dVdW.get(2,q)
-                                   +epsilon_LC.get(p,q,r)*w.get(1,p)*w.get(3,r)).rs();
-	  dVdW.ir(1,3).ir(2,r).set(dVdW.get(3,r)
-                                   +epsilon_LC.get(p,q,r)*w.get(1,p)*w.get(2,q)).rs();
+	  dVdW.ir(1,1).ir(2,p)
+            .set(dVdW.get(1,p)+epsilon_LC.get(p,q,r)
+                 *w.get(2,q)*w.get(3,r)).rs();
+	  dVdW.ir(1,2).ir(2,q)
+            .set(dVdW.get(2,q)+epsilon_LC.get(p,q,r)
+                 *w.get(1,p)*w.get(3,r)).rs();
+	  dVdW.ir(1,3).ir(2,r)
+            .set(dVdW.get(3,r)+epsilon_LC.get(p,q,r)
+                 *w.get(1,p)*w.get(2,q)).rs();
 
 	  d2VdW2.ir(1,2).ir(2,q).ir(3,1).ir(4,p)
             .set(d2VdW2.get(2,q,1,p)+epsilon_LC.get(p,q,r)*w.get(3,r)).rs();
@@ -358,19 +354,9 @@ element_connector(const FastMat2 &xloc,
       for (int l=1;l<=ndim;l++) {
         ll = l-1;
         vaux2.ir(2,l);
-#if 0
-        tmp7.norm_2(vaux2);
-        VAUX1(ll) = double(tmp7);
-#elif 1
         VAUX1(ll) = vaux2.norm_2_all();
-#else
-        VAUX1(ll) = sqrt(square(VAUX2(0,ll))
-                         +square(VAUX2(1,ll))
-                         +square(VAUX2(2,ll)));
-#endif
       }
       vaux2.rs();
-#if 0
       w.rs();
       vaux2.rs();
       double val;
@@ -395,7 +381,6 @@ element_connector(const FastMat2 &xloc,
 	  }
 	}
       }
-#endif
     }
 #else
     for (int i=1;i<=ndim;i++) {
@@ -417,13 +402,17 @@ element_connector(const FastMat2 &xloc,
 	  d2SldW2.setel(d2SldW2.get(i,j,i,k)
                         +w.get(i,k)*w.get(i,j)/vaux1.get(1),i,j,i,k);
 	  d2SldW2.setel(d2SldW2.get(i,j,i,k)
-                        +vaux2.get(k,2)*vaux2.get(j,2)/vaux1.get(2),i,j,i,k);
+                        +vaux2.get(k,2)*vaux2.get(j,2)
+                        /vaux1.get(2),i,j,i,k);
 	  d2SldW2.setel(d2SldW2.get(i,j,i,k)
-                        +vaux2.get(k,3)*vaux2.get(j,3)/vaux1.get(3),i,j,i,k);
+                        +vaux2.get(k,3)*vaux2.get(j,3)
+                        /vaux1.get(3),i,j,i,k);
 	  d2SldW2.setel(d2SldW2.get(i,j,ind[i+1],k)
-                        -vaux2.get(k,2)*vaux2.get(j,2)/vaux1.get(2),i,j,ind[i+1],k);
+                        -vaux2.get(k,2)*vaux2.get(j,2)
+                        /vaux1.get(2),i,j,ind[i+1],k);
 	  d2SldW2.setel(d2SldW2.get(i,j,ind[i-1],k)
-                        -vaux2.get(k,3)*vaux2.get(j,3)/vaux1.get(3),i,j,ind[i-1],k);
+                        -vaux2.get(k,3)*vaux2.get(j,3)
+                        /vaux1.get(3),i,j,ind[i-1],k);
 	  if (k==j) {
 	    d2SldW2.setel(d2SldW2.get(i,j,i,k)+vaux1.get(1)
                           +vaux1.get(2)+vaux1.get(3),i,j,i,k);
@@ -488,5 +477,4 @@ element_connector(const FastMat2 &xloc,
     mat2.prod(mat,iTalpha,1,-1,3,4,-1,2);
     mat.prod(mat2,iTalpha,1,2,3,-1,-1,4);
   }
-  // adaptor_element_stats_value = total;
 }

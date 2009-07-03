@@ -14,8 +14,6 @@ extern TextHashTable *GLOBAL_OPTIONS;
    
 #define MAXPROP 100
 
-double adaptor_element_stats_value=NAN;
-
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>
 void adaptor::export_vals(adaptor::ArgHandle h,
                           double *vals,int s) {
@@ -300,9 +298,6 @@ int adaptor::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
 
 
   ielh=-1;
-  int do_stats = 1;
-  double start=NAN, start1 = MPI_Wtime();
-  vector<double> stats;
   for (int k=el_start; k<=el_last; k++) {
     if (!compute_this_elem(k,this,myrank,iter_mode)) continue;
     FastMat2::reset_cache();
@@ -337,14 +332,7 @@ int adaptor::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
       // Users have to implement this function 
       // with the physics of the problem.
       jpert=0;
-      // start = MPI_Wtime();
       element_connector(xloc,locstate2,locstate,veccontr,matlocf);
-      // adaptor_element_stats_value = MPI_Wtime()-start;
-      if (do_stats) {
-        assert(!isnan(adaptor_element_stats_value));
-        stats.push_back(adaptor_element_stats_value);
-        adaptor_element_stats_value = NAN;
-      }
       veccontra.set(0.0);
       matlocfa.set(0.0);
       jpert=-1;
@@ -404,25 +392,6 @@ int adaptor::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
     }
   }
 
-  if (do_stats && !strcmp(jobinfo,"comp_mat_res")) {
-    double total1 = MPI_Wtime()-start1;
-    double total = 0.0;
-    int nn = int(stats.size());
-    FILE *fid = fopen("stats.tmp","w");
-    for (int j=0; j<nn; j++) {
-      fprintf(fid,"%g\n",stats[j]);
-      total += stats[j];
-    }
-    fclose(fid);
-    double erro = fabs(total1-total);
-    printf("total %g, total1 %g, error %g (%g)\n",
-           total,total1,erro,100.0*erro/total1);
-    total /= nn;
-    printf("averg: %g[secs/Kelem]\n",total*1000.0);
-    PetscFinalize();
-    exit(0);
-  }
-  
   ielh = elem = -1;
   after_chunk(jobinfo);
   FastMat2::void_cache();
