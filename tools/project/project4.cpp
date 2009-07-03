@@ -46,6 +46,7 @@ void read_mesh(dvector<double> &xnod1,const char *XNOD1,
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 int main(int argc,char **argv) {
 
+  MPI_Init(&argc,&argv);
   int ndim = 2;
   int ndimel = 2;
   int nel = ndim+1; // Only for simplices right now
@@ -149,4 +150,6 @@ int main(int argc,char **argv) {
       u2.e(j,k) *= area2.e(j);
   u2.print("u2n.dat");
 #endif
+  MPI_Finalize();
+  return 0;
 }

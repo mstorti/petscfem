@@ -115,9 +115,8 @@ void wall_swfm2t::new_assemble(arg_data_list &arg_data_v,const Nodedata *nodedat
     Ajac = &arg_data_v[++j];
     ++j; // this is dtmin, we don't use this here
     glob_param = (GlobParam *) arg_data_v[++j].user_data;;
-#ifdef CHECK_JAC
-    fdj_jac = &arg_data_v[++j];
-#endif
+    if (ADVDIF_CHECK_JAC)
+      fdj_jac = &arg_data_v[++j];
   }
 
   FastMat2 matlocf(4,nel,ndof,nel,ndof);
@@ -244,9 +243,8 @@ void wall_swfm2t::new_assemble(arg_data_list &arg_data_v,const Nodedata *nodedat
       matloc.rs().add(tmp5);
 
       veccontr.export_vals(element.ret_vector_values(*retval));
-#ifdef CHECK_JAC
-      veccontr.export_vals(element.ret_fdj_values(*fdj_jac));
-#endif
+      if (ADVDIF_CHECK_JAC)
+        veccontr.export_vals(element.ret_fdj_values(*fdj_jac));
       matlocf.export_vals(element.ret_mat_values(*Ajac));
     } else if (comp_prof) {
       matlocf.export_vals(element.ret_mat_values(*jac_prof));

@@ -12,7 +12,7 @@ states. The mechanism basically saves the state vector each
 contructed from a pattern set by the user via the
 \verb+save_file_pattern+ entry, by replacing \verb+%d+ 
 by \verb+0+ ``\`a la'' \verb+printf()+. For instance, if
-\verb+save_file_pattern+ i set to \verb+file%d.out+ 
+\verb+save_file_pattern+ is set to \verb+file%d.out+ 
 then the state vectors are appended to \verb+file0.out+.  When the
 number of written states reach the \verb+nrec+ count, the file is
 reset to 0, and the saving continues from the start of the

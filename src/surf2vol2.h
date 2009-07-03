@@ -28,7 +28,9 @@ public:
 	    int use_exterior_normal_m=0) 
     : Surf2Vol(geom,ndim,nel,npg,mat_version,
 	       use_exterior_normal_m) { 
-    assert(!use_exterior_normal_m);
+    PETSCFEM_ASSERT0(!use_exterior_normal_m,
+                     "Not implemented use_exterior_normal==1 "
+                     "for quad2hexa geometry");  
   }
   /** @name Callback routines for the quad/hexa combination. */
   //@{

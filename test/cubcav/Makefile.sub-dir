@@ -1,4 +1,4 @@
-# -*- mode: Makefile -*-
+# -*- mode: makefile-gmake -*-
 # $Id: Makefile.sub-dir,v 1.1 2003/10/24 22:51:19 mstorti Exp $ 
 
 .PHONY: all run  compile lclean laplace adv nso laplace_tests force \

@@ -323,41 +323,41 @@ int bubbly_main() {
 
   for (int kstage=0; kstage<nstage; kstage++) {
 
-      if (nstage==1) {
-		  jobinfo_fields = "gasliq";
-		  nnwt_in = nnwt_liq;
-		  omega_newton_in = omega_newton_liq;
-	  }
+    if (nstage==1) {
+      jobinfo_fields = "gasliq";
+      nnwt_in = nnwt_liq;
+      omega_newton_in = omega_newton_liq;
+    }
 
-	  else if (kstage==0) {
-		  jobinfo_fields = "liq";
-		  nnwt_in = nnwt_liq;
-		  omega_newton_in = omega_newton_liq;
-	  }
-	  else if (kstage==1) {
-		  jobinfo_fields = "gas";
-		  nnwt_in = nnwt_gas;
-		  omega_newton_in = omega_newton_gas;
-	  }
-	  else if (kstage==2) {
-		  jobinfo_fields = "kep";
-		  nnwt_in = nnwt_liq;
-		  omega_newton_in = omega_newton_liq;
-	  }
+    else if (kstage==0) {
+      jobinfo_fields = "liq";
+      nnwt_in = nnwt_liq;
+      omega_newton_in = omega_newton_liq;
+    }
+    else if (kstage==1) {
+      jobinfo_fields = "gas";
+      nnwt_in = nnwt_gas;
+      omega_newton_in = omega_newton_gas;
+    }
+    else if (kstage==2) {
+      jobinfo_fields = "kep";
+      nnwt_in = nnwt_liq;
+      omega_newton_in = omega_newton_liq;
+    }
 
-  VOID_IT(argl);
-//  argl.arg_add(A_liq,PROFILE|PFMAT);
-//  jobinfo_fields = "liq";
-  argl.arg_add(A_stage[kstage],PROFILE|PFMAT);
-  ierr = assemble(mesh,argl,dofmap,"comp_prof",&time); CHKERRA(ierr);
+    VOID_IT(argl);
+    //  argl.arg_add(A_liq,PROFILE|PFMAT);
+    //  jobinfo_fields = "liq";
+    argl.arg_add(A_stage[kstage],PROFILE|PFMAT);
+    ierr = assemble(mesh,argl,dofmap,"comp_prof",&time); CHKERRA(ierr);
 
-#ifdef CHECK_JAC
-  VOID_IT(argl);
-//  jobinfo_fields = "liq";
-//  argl.arg_add(AA_liq,PROFILE|PFMAT);
-  argl.arg_add(AA_stage[kstage],PROFILE|PFMAT);
-  ierr = assemble(mesh,argl,dofmap,"comp_prof",&time); CHKERRA(ierr);
-#endif
+    if (ADVDIF_CHECK_JAC) {
+      VOID_IT(argl);
+      //  jobinfo_fields = "liq";
+      //  argl.arg_add(AA_liq,PROFILE|PFMAT);
+      argl.arg_add(AA_stage[kstage],PROFILE|PFMAT);
+      ierr = assemble(mesh,argl,dofmap,"comp_prof",&time); CHKERRA(ierr);
+    }
   }
 
   //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:
@@ -444,23 +444,19 @@ int bubbly_main() {
 	  if (comp_mat_each_time_step_g) {
 	    
 	    ierr = A_stage[kstage]->clean_mat(); CHKERRA(ierr);
-#ifdef CHECK_JAC
-	    ierr = AA_stage[kstage]->clean_mat(); CHKERRA(ierr);
-#endif
+            if (ADVDIF_CHECK_JAC) {
+              ierr = AA_stage[kstage]->clean_mat(); CHKERRA(ierr);
+            }
 	    VOID_IT(argl);
 	    argl.arg_add(&xold,IN_VECTOR);
-#ifndef CHECK_JAC
-	    argl.arg_add(&x,IN_VECTOR);
-#else
-	    argl.arg_add(&x,PERT_VECTOR);
-#endif
+            if (!ADVDIF_CHECK_JAC) argl.arg_add(&x,IN_VECTOR);
+	    else argl.arg_add(&x,PERT_VECTOR);
 	    argl.arg_add(&res,OUT_VECTOR);
 	    argl.arg_add(&dtmin,VECTOR_MIN);
 	    argl.arg_add(A_stage[kstage],OUT_MATRIX|PFMAT);
 	    argl.arg_add(&glob_param,USER_DATA);
-#ifdef CHECK_JAC
-	    argl.arg_add(AA_stage[kstage],OUT_MATRIX_FDJ|PFMAT);
-#endif
+            if (ADVDIF_CHECK_JAC)
+              argl.arg_add(AA_stage[kstage],OUT_MATRIX_FDJ|PFMAT);
 	    
 	    if (measure_performance) {
 	      ierr = measure_performance_fun(mesh,argl,dofmap,"comp_res",
@@ -520,11 +516,11 @@ int bubbly_main() {
 					      PETSC_VIEWER_ASCII_MATLAB,"A");
 	  ierr = A_stage[kstage]->view(matlab);
 	  print_vector(save_file_res.c_str(),res,dofmap,&time); // debug:=
-#ifdef CHECK_JAC
-	  ierr = PetscViewerSetFormat_WRAPPER(matlab, 
-				 PETSC_VIEWER_ASCII_MATLAB,"AA");
-	  ierr = AA_stage[kstage]->view(matlab);
-#endif
+          if (ADVDIF_CHECK_JAC) {
+            ierr = PetscViewerSetFormat_WRAPPER(matlab, 
+                                                PETSC_VIEWER_ASCII_MATLAB,"AA");
+            ierr = AA_stage[kstage]->view(matlab);
+          }
 	  PetscFinalize();
 	  exit(0);
 	}

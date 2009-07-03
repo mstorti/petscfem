@@ -82,9 +82,8 @@ new_assemble(arg_data_list &arg_data_v,
     ++ja; // Not used. Should be used for computation of automatic Dt
     Ajac = &arg_data_v[++ja];
     glob_param = (GlobParam *)(arg_data_v[++ja].user_data);
-#ifdef CHECK_JAC
-    fdj_jac = &arg_data_v[++ja];
-#endif
+    if (ADVDIF_CHECK_JAC)
+      fdj_jac = &arg_data_v[++ja];
     rec_Dt = 1./glob_param->Dt;
     if (glob_param->steady) rec_Dt=0.0;
   } else if (comp_prof) {
@@ -208,9 +207,8 @@ new_assemble(arg_data_list &arg_data_v,
       jac.rs();
       R.export_vals(element.ret_vector_values(*retval));
       matloc.export_vals(element.ret_mat_values(*Ajac));
-#ifdef CHECK_JAC
-      R.export_vals(element.ret_fdj_values(*fdj_jac));
-#endif
+      if (ADVDIF_CHECK_JAC)
+        R.export_vals(element.ret_fdj_values(*fdj_jac));
     }
 
 #ifdef COMPUTE_FD_RES_JACOBIAN

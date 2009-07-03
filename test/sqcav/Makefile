@@ -4,6 +4,7 @@
 	dx_hook_test_post_run_file_record test_read_ini 		\
 	test_disconnected_graph
 
+
 default: test_fs
 #	$(MAKE) case=iisd_sbp1 np=2 runs
 
@@ -329,3 +330,6 @@ link:
 #w Debugging target
 dbg:
 	$(MAKE) case=fractional_step_re400 runs2
+
+prog:
+	$(MAKE) -C $(PETSCFEM_DIR) $(LOC_PROG)

@@ -116,14 +116,15 @@ begin_section('Oscplate tests. Time dep. b.c.s and N.S.');
 #------/*/------/*/------/*/------/*/------/*/------/*/------/*/ 
 # Here we check only the $y$ components of velocity, since the others are
 # rather spurious. 
-expect("oscplate/oscplate1.sal","Time dependent boundary conditions",
-             read_file("oscplate/oscplate1.ans"));
+expect("oscplate/oscplate1.verif.tmp",
+       "Time dependent boundary conditions","^OK 1");
 
 #------/*/------/*/------/*/------/*/------/*/------/*/------/*/ 
 # Same as before, but here the movemente of the plate is of
 # saw-teeth wave-form. ($u=\pm constant$). 
-expect("oscplate/oscplate2o.sal","Time dependent boundary conditions (2)",
-             read_file("oscplate/oscplate2o.ans"));
+expect("oscplate/oscplate2.verif.tmp",
+       "Time dependent boundary conditions (2)",
+       "^test OK 1");
 
 #------/*/------/*/------/*/------/*/------/*/------/*/------/*/ 
 # Oscillating plate with sinusoidal oscillation
@@ -133,31 +134,25 @@ expect("oscplate/oscplate2o.sal","Time dependent boundary conditions (2)",
 # considered the exact, and it is checked in Octave that
 # norm(u32-u128)/norm(u16-u128) < 0.30 (it should be <0.25). 
 #
-expect("oscplate/oscplate3o.sal","Time dep. b.c./Crank-Nicholson ",<<'EOT');
-norm\(u32-u128\)/norm\(u16-u128\) < 0.26 OK \? > 1 
-EOT
+expect("oscplate/oscplate3o.sal","Time dep. b.c./Crank-Nicholson ","OK 1");
 
 #------/*/------/*/------/*/------/*/------/*/------/*/------/*/ 
 # Oscillating plate with sinusoidal oscillation
 # periodic function interpolated with splines - "sin" case
-expect("oscplate/oscplate4o.sal","Time dep. b.c., spline_periodic function/sin",<<'EOT');
-error = .*,  < .* OK \? 1
-EOT
+expect("oscplate/oscplate4o.sal",
+       "Time dep. b.c., spline_periodic function/sin","^OK 1");
 
 #------/*/------/*/------/*/------/*/------/*/------/*/------/*/ 
 # Oscillating plate with sinusoidal oscillation
 # periodic function interpolated with splines - "cos" case
-expect("oscplate/oscplate4co.sal","Time dep. b.c., spline_periodic function/cos",<<'EOT');
-error = .*,  < .* OK \? 1
-EOT
+expect("oscplate/oscplate4co.sal",
+       "Time dep. b.c., spline_periodic function/cos","^OK 1");
 
 #------/*/------/*/------/*/------/*/------/*/------/*/------/*/ 
 # Oscillating plate with sinusoidal oscillation
 # periodic function interpolated with splines - "sin shift 30 dg" case
 expect("oscplate/oscplate4_30dego.sal",
-"Time dep. b.c., spline_periodic function/sin shift",<<'EOT');
-error = .*,  < .* OK \? 1
-EOT
+       "Time dep. b.c., spline_periodic function/sin shift","^OK 1");
 
 end_section();
 
@@ -567,6 +562,30 @@ expect("embgath/embgath-verif.tmp",
        "Embedded gatherer, dump values per element on file",
        "Test OK . 1");
 
+# embgath-verif-all10.tmp
+# embgath-verif-g10.tmp
+# embgath-verif-l10.tmp
+# embgath-verif-ref.tmp
+# embgath-verif-rho10.tmp
+# embgath-verif-visco10.tmp
+
+#------/*/------/*/------/*/------/*/------/*/------/*/------/*/ 
+sub emb_verif {
+    my ($key,$descrip) = @_;
+    expect("embgath/case3d/embgath-verif-$key.tmp",
+           "Embedded gatherer, values case $descrip",
+           "Test OK 1");
+}
+
+emb_verif("ref","no value scaled");
+emb_verif("rho10","rho scaled *10.0");
+emb_verif("visco10","viscosity scaled *10.0");
+emb_verif("l10","length scaled *10.0");
+emb_verif("g10","gravity scaled *10.0");
+emb_verif("all10","all params scaled *10.0");
+
+#------/*/------/*/------/*/------/*/------/*/------/*/------/*/ 
+
 end_section();
 
 #------/*/------/*/------/*/------/*/------/*/------/*/------/*/ 
@@ -719,6 +738,11 @@ expect("ductadv/verif.tmp",
        "Check strong temporal conservation with advdif",
        "^OK . 1");
 
+#------/*/------/*/------/*/------/*/------/*/------/*/------/*/ 
+expect("gasflow-conv/test_gasflow_1elem_jaco_verif.tmp",
+       "Check gasflow element analytic Jacobian",
+       "^test OK 1");
+
 end_section();
 
 #------/*/------/*/------/*/------/*/------/*/------/*/------/*/ 
@@ -807,6 +831,14 @@ expect("burgers/burgers.fd_jac_2.out.tmp",
 expect("burgers/burgers.fd_jac_3.out.tmp",
        "compute_fd_adv_jacobian random elements",
        read_file("burgers/burgers.fd_jac_3.ans"));
+
+expect("burgers/jacotest/test_jaco_1elem.verif.tmp",
+       "Global Jacobian for the residual with advdif",
+       "^test OK 1");
+
+expect("burgers/jacotest/test_jaco_conv_verif.tmp",
+       "Check quadratic convergence in burgers",
+       "^test OK 1");
 
 end_section();
 

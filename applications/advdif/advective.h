@@ -1,8 +1,10 @@
 // -*- mode: c++ -*-
 /*__INSERT_LICENSE__*/
-//$Id merge-with-petsc-233-55-g52bd457 Fri Oct 26 13:57:07 2007 -0300$
  
+// CHECK_JAC is promoted to a global option
 //#define CHECK_JAC // Computes also the FD Jacobian for debugging
+#define ADVDIF_CHECK_JAC verify_jacobian_with_numerical_one
+extern int  verify_jacobian_with_numerical_one;
  
 #ifndef PETSCFEM_ADVECTIVE_H
 #define PETSCFEM_ADVECTIVE_H

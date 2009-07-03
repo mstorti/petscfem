@@ -138,7 +138,7 @@ int PFPETScMat::build_ksp() {
   //o Prints convergence in the solution of the GMRES iteration. 
   TGETOPTDEF_ND_PF(thash,int,print_internal_loop_conv,0);
   //o Defines the KSP method
-  TGETOPTDEF_S_ND_PF(thash,string,KSP_method,gmres);
+  TGETOPTDEF_S_ND_PF(thash,string,KSP_method,fgmres);
   //o Chooses the preconditioning operator. 
   TGETOPTDEF_S_PF(thash,string,preco_type,jacobi);
   //o Chooses the preconditioning for block problems in ASM method.
@@ -186,7 +186,8 @@ int PFPETScMat::build_ksp() {
 
   if (KSP_method == "cg" && preco_side == "right") {
     PetscPrintf(PETSCFEM_COMM_WORLD,__FUNC__ 
-		": can't choose \"right\" preconditioning with KSP CG (using \"left\")\n");
+		": can't choose \"right\" preconditioning "
+                "with KSP CG (using \"left\")\n");
     preco_side = "left";
   }
 

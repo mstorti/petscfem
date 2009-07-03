@@ -1,0 +1,105 @@
+#  -*- mode: shell-script -*-
+## <:require "./data.pl";:>//
+global_options
+
+ndim 2
+
+report_consumed_time
+nsave 1
+
+save_file_pattern "./STEPS/gfnwttest.state-%d.tmp"
+nsaverot 1
+
+#if $check_conv
+nstep 1
+nnwt 1
+tau_fac 0.0
+verify_jacobian_with_numerical_one
+#else
+nstep 100
+nnwt 1
+shocap 0.2
+#endif
+
+use_Ajac_old
+nrec 1
+nfile 100000
+# epsilon_fdj 1e-8
+
+# estado inicial
+save_file gfnwttest-adv.state.tmp
+initial_state ./gfnwttest.ini.tmp
+
+use_compact_profile 2
+# entre 100,000 y 1,000,000
+compact_profile_graph_chunk_size 100000
+temporal_stability_factor 0.
+
+tol_newton 1.0e-15
+
+#SOLVERS:
+#if 0
+solver  iisd
+preco_type jacobi
+#else
+solver  petsc
+preco_type lu
+print_linear_system_and_stop 1
+solve_system 1
+#endif
+
+steady 0
+<:pr('Dt'):>
+alpha 1.0
+
+# Iterative parameters
+#
+# maxits 200
+# Krylov_dim 350 300 
+Krylov_dim 300
+maxits 30
+atol 0
+#rtol 1e-5
+rtol 1e-4
+dtol 1e3
+
+print_internal_loop_conv 1
+# print_linear_system_and_stop
+
+chunk_size 2000
+iisd_subpart_auto 2000
+iisdmat_print_statistics
+print_partitioning_statistics
+
+partitioning_method "metis"
+max_partgraph_vertices 20000
+max_partgraph_vertices_proc 5000
+
+activate_debug_print
+activate_debug_memory_usage
+
+report_consumed_time
+# hook_list shell_hook shell 
+
+visco <:=$nu:>
+cond  <:=$nu:>
+
+<:pr('weak_form'):>
+
+__END_HASH__
+
+##--------+--------+--------+--------+--------+--------+--------+
+# ndim nu ndof
+nodedata  2 2 4
+data ./gfnwttest.nod.tmp
+__END_HASH__
+
+##--------+--------+--------+--------+--------+--------+--------+
+elemset gasflow 4
+geometry cartesian2d
+npg 4
+data ./gfnwttest.con.tmp
+__END_HASH__
+
+
+end_elemsets

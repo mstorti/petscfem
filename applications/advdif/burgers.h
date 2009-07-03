@@ -24,7 +24,7 @@ class burgers_ff : public advdif_wjac_ff {
   void element_hook(ElementIterator &element) {};
   void compute_flux(COMPUTE_FLUX_ARGS);
   void get_Ajac(FastMat2 &Ajac);
-  void get_Cp(FastMat2 &Cp_a);
+  void get_Cp(FastMat2 &Cp);
 };
 
 class newadvdif_burgers : public NewAdvDif {

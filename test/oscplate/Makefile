@@ -1,6 +1,8 @@
 
 .PHONY: force all run tests default strip gasflow nozzle  vtubei
 
+default: oscplate4_30deg
+
 #----<*>----------<*>----------<*>----------<*>----------<*>----------<*>-----
 #w All oscillating plate tests (why not oscplate2b?)
 tests: oscplate3 oscplate2 oscplate2b oscplate4 \
@@ -12,15 +14,16 @@ oscplate2: ns
 	-rm -f tmp_file*.tmp oscsome2.sal
 	make-depl oscplate.epl oscplate2.depl -d piecewise_fun=1
 	-$(MPIEXEC) -n 1 $(NS) -case oscplate2.depl $(call in_backg,$@)
-	$(OCTAVE) oscplate2.m &> oscplate2o.sal
+	$(OCTAVE) oscplate2.m &> oscplate2.verif.tmp
 
 #----<*>----------<*>----------<*>----------<*>----------<*>----------<*>-----
 #w Oscillating plate with sinusoidal oscillation
 oscplate: ns
-	-rm -f tmp_file*.tmp oscplate1.sal
+	-rm -f tmp_file*.tmp oscplate1.state.tmp
 	make-depl oscplate.epl oscplate.depl -d Nperiods=20 
 	-$(MPIEXEC) -n 1 $(NS) -case oscplate.depl $(call in_backg,$@)
-	mv oscplate.sal oscplate1.sal
+	mv -f oscplate.state.tmp oscplate1.state.tmp
+	$(OCTAVE) verif1.m > oscplate1.verif.tmp
 
 SRCS = 
 PETSCFEM_DIR = ../..
@@ -31,6 +34,7 @@ LOC_PROG := ns
 CASE_NAME := oscplate3
 PROG := $(NS_G)
 
+STATE := oscplate.state.tmp
 #----<*>----------<*>----------<*>----------<*>----------<*>----------<*>-----
 #w Oscillating plate with sinusoidal oscillation
 #w Verifies quadratic convergence of the
@@ -41,17 +45,18 @@ PROG := $(NS_G)
 oscplate3: ns
 	-rm -f tmp_file*.tmp oscsome3.sal oscsome.sal
 #
+	rm -f 
 	make-depl oscplate.epl oscplate3.depl -d alpha=0.5 -d N=16 
 	-$(MPIEXEC) -n 1 $(NS) -case oscplate3.depl $(call in_backg,$@-1)
-	mv oscplate.sal oscplate_16.sal
+	mv oscplate.state.tmp oscplate_16.sal
 #
 	make-depl oscplate.epl oscplate3.depl -d alpha=0.5 -d N=32 
 	-$(MPIEXEC) -n 1 $(NS) -case oscplate3.depl  $(call in_backg,$@-2)
-	mv oscplate.sal oscplate_32.sal
+	mv oscplate.state.tmp oscplate_32.sal
 #
 	make-depl oscplate.epl oscplate3.depl -d alpha=0.5 -d N=128 
 	-$(MPIEXEC) -n 1 $(NS) -case oscplate3.depl  $(call in_backg,$@-3)
-	mv oscplate.sal oscplate_128.sal
+	mv oscplate.state.tmp oscplate_128.sal
 #
 	$(OCTAVE) oscplate3.m &> oscplate3o.sal
 

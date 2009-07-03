@@ -158,7 +158,7 @@ assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
     read_double_array(v,line);
     assert(v.size()==(unsigned int)ndim);
     darcy_vers.set(&v[0]);
-    double a = darcy_vers.norm_p_all();
+    double a = darcy_vers.norm_2_all();
     darcy_vers.scale(1.0/a);
     // This is to flag that Darcy term is in effect
     // however it is set to a dummy dimension (ndim+1)

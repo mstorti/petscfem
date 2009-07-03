@@ -1027,6 +1027,18 @@ public:
    */ 
   FastMat2 & norm_p(const FastMat2 & A,int p,const int m=0,INT_VAR_ARGS);
 
+
+  //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+  /** Norm #2# of matrix (per column) (more efficient
+      than the version for #p# generic)
+      $sqrt(\sum_j |a_j|^2)$
+      @author M. Storti
+      @param A (input) matrix to contract
+      @param i,j,k,l... (input) indices that define indices to be contracted
+      @return a reference to the matrix.
+   */ 
+  FastMat2 & norm_2(const FastMat2 & A,const int m=0,INT_VAR_ARGS);
+
   //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
   /** Minimum over all selected indices.
       @author M. Storti
@@ -1136,6 +1148,13 @@ public:
       @return the result of the operation
   */ 
   double norm_p_all(const double p) const;
+
+  //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+  /** Norm 2 over all indices.
+      @author M. Storti
+      @return the result of the operation
+  */ 
+  double norm_2_all() const;
 
   //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
   /** Norm p over all indices for integer p.

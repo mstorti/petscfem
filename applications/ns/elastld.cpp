@@ -15,7 +15,7 @@
 #define ELEMPROPS(j,k) VEC2(elemprops,j,k,nelprops)
 #define MAXPROPS 100
 
-//#define USE_YOUNG_PER_ELEM
+#define USE_YOUNG_PER_ELEM
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>
 void ld_elasticity::init() {
@@ -32,6 +32,12 @@ void ld_elasticity::init() {
 		  thash,elprpsindx.buff(),propel.buff(), 
 		  "Young_modulus",1);
   nprops = iprop;
+
+  //o If Young modulus is entered by element, then this 
+  //  factor affects the spatial dependence entered in the 
+  //  per-element table. 
+  TGETOPTDEF_ND(thash,double,Young_modulus_fac,1.0);
+  assert(Young_modulus_fac>0.);
 #else
   TGETOPTDEF(thash,double,Young_modulus,0.);
   E=Young_modulus;
@@ -49,6 +55,9 @@ void ld_elasticity::init() {
 
   //o Damping coefficient
   TGETOPTDEF_ND(thash,double,cdamp,0.);
+
+  //o Use new formulation (swap eqs, and rewrite acceleration)
+  TGETOPTDEF_ND(thash,int,use_new_form,1);
 
   G_body.resize(1,ndim).set(0.);
   const char *line;
@@ -71,7 +80,6 @@ void ld_elasticity::init() {
   
   Jaco.resize(2,ndim,ndim);
   dshapex.resize(2,ndim,nel);  
-  mass_pg.resize(2,nel,nel);
   grad_u.resize(2,ndim,ndim);
   F.resize(2,ndim,ndim);
   ustar.resize(2,nel,ndim);
@@ -84,17 +92,25 @@ void ld_elasticity::init() {
 }
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>
-void ld_elasticity::element_connector(const FastMat2 &xloc,
-				   const FastMat2 &state_old,
-				   const FastMat2 &state_new,
-				   FastMat2 &res,FastMat2 &mat){
+void ld_elasticity
+::element_connector(const FastMat2 &xloc,
+                    const FastMat2 &state_old,
+                    const FastMat2 &state_new,
+                    FastMat2 &res,FastMat2 &mat) {
   res.set(0.);
   mat.set(0.);
 
 #ifdef USE_YOUNG_PER_ELEM
   load_props(propel.buff(),elprpsindx.buff(),nprops,
 	     &(ELEMPROPS(elem,0)));
-  E = *(propel.buff()+Young_modulus_indx);
+  double Ex = *(propel.buff()+Young_modulus_indx);
+  E = Ex*Young_modulus_fac;
+#if 0
+  if (rand()%1000==0) {
+    xloc.print("xloc:");
+    printf("Ex %f, Young_modulus_fac %f\n",Ex,Young_modulus_fac);
+  }
+#endif
 #endif
 
   // printf("element %d, Young %f\n",elem,E);
@@ -146,9 +162,26 @@ void ld_elasticity::element_connector(const FastMat2 &xloc,
     tmp4.set(Id).scale(trE*lambda).axpy(strain,2*mu);
     stress.prod(F,tmp4,1,-1,-1,2);
 
+    // Velocity from states dxdt = (xnew-xold)/dt
+    dxdt.set(xnew).rest(xold).scale(rec_Dt);
+
     // Inertia term
-    a.set(vnew).rest(vold).scale(rec_Dt)
-      .axpy(vstar,cdamp);
+    if (use_new_form) {
+      // In this form the residual is [Rmom; Rvel] and
+      // acceleration is computed from displacements.  It is
+      // better conditioned (I guess), the resulting Jacobian
+      // is [I/Dt^2+K,0; -I/Dt,I]
+      vnew1.set(dxdt).axpy(vold,-(1.0-alpha)).scale(1.0/alpha);
+      a.set(vnew1).rest(vold).scale(rec_Dt)
+        .axpy(vstar,cdamp);
+    } else {
+      // In this form the residual is [Rvel; Rmom]
+      // and acceleration is computed from velocities
+      // only.  It is bad conditioned, the resulting Jacobian
+      // is [I/Dt,-I; I/Dt, K]
+      a.set(vnew).rest(vold).scale(rec_Dt)
+        .axpy(vstar,cdamp);
+    }
     tmp.prod(shape,a,-1,-1,1).rest(G_body);
     tmp2.prod(shape,tmp,1,2);
     res.is(2,ndim+1,2*ndim).axpy(tmp2,-wpgdet*rho);
@@ -163,21 +196,26 @@ void ld_elasticity::element_connector(const FastMat2 &xloc,
     res.axpy(res_pg,1.0).rs();
 #endif
     
-    mass_pg.prod(shape,shape,1,2).scale(wpgdet*rec_Dt*rho/alpha);
-
     // Eqs. for displacements: (xnew-xold)/dt - vstar = 0
-    dv.set(xnew).rest(xold).scale(rec_Dt).rest(vstar);
+    dv.set(dxdt).rest(vstar);
     tmp.prod(shape,dv,-1,-1,1);
     tmp2.prod(shape,tmp,1,2);
-    res.is(2,1,ndim).axpy(tmp2,-wpgdet);
-
-    mass_pg.prod(shape,shape,1,2).scale(wpgdet);
+    res.is(2,1,ndim).axpy(tmp2,-wpgdet).rs();
 
   }
   shape.rs();
   res.rs();
-  // tmp4.ctr(mat,2,1,4,3);
-  // tmp4.print(nel*ndof);
+
+  if (use_new_form) {
+    // Swap residual components
+    // [Rvel; Rmom] -> [Rmom; Rvel]
+    res.is(2,1,ndim);
+    tmp7.set(res);
+    res.rs().is(2,ndim+1,2*ndim);
+    tmp8.set(res);
+    res.set(tmp7).scale(-1.0);
+    res.rs().is(2,1,ndim).set(tmp8).rs();
+  }
     
 }
 

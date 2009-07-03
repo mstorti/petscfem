@@ -119,6 +119,9 @@ void burgers_ff::start_chunk(int &ret_options) {
   //o Add shock-capturing exponent.
   EGETOPTDEF_ND(elemset,double,shocap_beta,1);
 
+  //o Add a shock capturing term 
+  EGETOPTDEF_ND(elemset,double,shocap,0.0);
+
   elemset->elem_params(nel,ndof,nelprops);
 
   enthalpy_fun = &identity_ef;
@@ -233,6 +236,7 @@ void burgers_ff::get_Ajac(FastMat2 &Ajac) {
   Ajac.ir(2,1).ir(3,1).set(u).rs();
 }
 
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>
 void burgers_ff::get_Cp(FastMat2 &Cp_a) {
   identity_ef.get_Cp(Cp_a);
   Cp.set(Cp_a).rs();
