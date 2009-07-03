@@ -618,8 +618,6 @@ public:
   ~gensum_all_cache() {};
 };
 
-extern double adaptor_element_stats_value;
-
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 /* Obtained from pattern $gen_sum with args;
@@ -755,7 +753,6 @@ FastMat2 & FastMat2::sum(const FastMat2 & A,
   LineCache *lc;
   double **pa,**pe,val;
   ;
-  double start = MPI_Wtime();
   for (int j=0; j<cache->nlines; j++) {
     lc = cache->line_cache_start+j;
     pa = lc->starta;
@@ -769,7 +766,6 @@ FastMat2 & FastMat2::sum(const FastMat2 & A,
     *lc->target = val;
   }
   ;
-  adaptor_element_stats_value += MPI_Wtime()-start;
   if (!ctx->use_cache) delete cache;
   return *this;
 }  
@@ -934,7 +930,6 @@ ctx->op_count.mult += ntot;
   LineCache *lc;
   double **pa,**pe,val;
   double aux;
-  double start = MPI_Wtime();
   for (int j=0; j<cache->nlines; j++) {
     lc = cache->line_cache_start+j;
     pa = lc->starta;
@@ -948,7 +943,6 @@ ctx->op_count.mult += ntot;
     *lc->target = val;
   }
   ;
-  adaptor_element_stats_value += MPI_Wtime()-start;
   if (!ctx->use_cache) delete cache;
   return *this;
 }  
@@ -1113,7 +1107,6 @@ ctx->op_count.abs += ntot;
   LineCache *lc;
   double **pa,**pe,val;
   ;
-  double start = MPI_Wtime();
   for (int j=0; j<cache->nlines; j++) {
     lc = cache->line_cache_start+j;
     pa = lc->starta;
@@ -1127,7 +1120,6 @@ ctx->op_count.abs += ntot;
     *lc->target = val;
   }
   ;
-  adaptor_element_stats_value += MPI_Wtime()-start;
   if (!ctx->use_cache) delete cache;
   return *this;
 }  
@@ -1292,7 +1284,6 @@ ctx->op_count.abs += ntot;
   LineCache *lc;
   double **pa,**pe,val;
   ;
-  double start = MPI_Wtime();
   for (int j=0; j<cache->nlines; j++) {
     lc = cache->line_cache_start+j;
     pa = lc->starta;
@@ -1306,7 +1297,6 @@ ctx->op_count.abs += ntot;
     *lc->target = val;
   }
   ;
-  adaptor_element_stats_value += MPI_Wtime()-start;
   if (!ctx->use_cache) delete cache;
   return *this;
 }  
@@ -1471,7 +1461,6 @@ ctx->op_count.abs += ntot;
   LineCache *lc;
   double **pa,**pe,val;
   ;
-  double start = MPI_Wtime();
   for (int j=0; j<cache->nlines; j++) {
     lc = cache->line_cache_start+j;
     pa = lc->starta;
@@ -1485,7 +1474,6 @@ ctx->op_count.abs += ntot;
     *lc->target = val;
   }
   ;
-  adaptor_element_stats_value += MPI_Wtime()-start;
   if (!ctx->use_cache) delete cache;
   return *this;
 }  
@@ -1650,7 +1638,6 @@ ctx->op_count.abs += ntot;
   LineCache *lc;
   double **pa,**pe,val;
   ;
-  double start = MPI_Wtime();
   for (int j=0; j<cache->nlines; j++) {
     lc = cache->line_cache_start+j;
     pa = lc->starta;
@@ -1664,7 +1651,6 @@ ctx->op_count.abs += ntot;
     *lc->target = val;
   }
   ;
-  adaptor_element_stats_value += MPI_Wtime()-start;
   if (!ctx->use_cache) delete cache;
   return *this;
 }  
@@ -1827,7 +1813,6 @@ FastMat2 & FastMat2::assoc(const FastMat2 & A, Fun2 &f ,
   LineCache *lc;
   double **pa,**pe,val;
   f.pre_all();
-  double start = MPI_Wtime();
   for (int j=0; j<cache->nlines; j++) {
     lc = cache->line_cache_start+j;
     pa = lc->starta;
@@ -1841,7 +1826,6 @@ FastMat2 & FastMat2::assoc(const FastMat2 & A, Fun2 &f ,
     *lc->target = val;
   }
   f.post_all();
-  adaptor_element_stats_value += MPI_Wtime()-start;
   if (!ctx->use_cache) delete cache;
   return *this;
 }  
@@ -2006,7 +1990,6 @@ ctx->op_count.fun += ntot;
   LineCache *lc;
   double **pa,**pe,val;
   double aux;
-  double start = MPI_Wtime();
   for (int j=0; j<cache->nlines; j++) {
     lc = cache->line_cache_start+j;
     pa = lc->starta;
@@ -2020,7 +2003,6 @@ ctx->op_count.fun += ntot;
     *lc->target = val;
   }
   ;
-  adaptor_element_stats_value += MPI_Wtime()-start;
   if (!ctx->use_cache) delete cache;
   return *this;
 }  
@@ -2185,7 +2167,6 @@ ctx->op_count.fun += ntot;
   LineCache *lc;
   double **pa,**pe,val;
   double aux;
-  double start = MPI_Wtime();
   for (int j=0; j<cache->nlines; j++) {
     lc = cache->line_cache_start+j;
     pa = lc->starta;
@@ -2199,7 +2180,6 @@ ctx->op_count.fun += ntot;
     *lc->target = val;
   }
   ;
-  adaptor_element_stats_value += MPI_Wtime()-start;
   if (!ctx->use_cache) delete cache;
   return *this;
 }  
@@ -2366,7 +2346,6 @@ ctx->op_count.abs += ntot;
   LineCache *lc;
   double **pa,**pe,val;
   double aux;
-  double start = MPI_Wtime();
   for (int j=0; j<cache->nlines; j++) {
     lc = cache->line_cache_start+j;
     pa = lc->starta;
@@ -2380,7 +2359,6 @@ ctx->op_count.abs += ntot;
     *lc->target = val;
   }
   ;
-  adaptor_element_stats_value += MPI_Wtime()-start;
   if (!ctx->use_cache) delete cache;
   return *this;
 }  
@@ -2547,7 +2525,6 @@ ctx->op_count.abs += ntot;
   LineCache *lc;
   double **pa,**pe,val;
   double aux;
-  double start = MPI_Wtime();
   for (int j=0; j<cache->nlines; j++) {
     lc = cache->line_cache_start+j;
     pa = lc->starta;
@@ -2561,7 +2538,6 @@ ctx->op_count.abs += ntot;
     *lc->target = val;
   }
   ;
-  adaptor_element_stats_value += MPI_Wtime()-start;
   if (!ctx->use_cache) delete cache;
   return *this;
 }  
