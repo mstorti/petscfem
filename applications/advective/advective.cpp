@@ -98,14 +98,14 @@ int Advective::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
     exit(1);
   }
 
-  double *locst,*retval,*retvalt;
+  double *locst=NULL,*retval=NULL,*retvalt=NULL;
   if (comp_mat_mass || comp_diag_mat_mass) {
     retval = arg_data_v[0].retval;
   }
   // lambda_max:= the maximum eigenvalue of the jacobians.
   // used to compute the critical time step. 
   vector<double> *dtmin;
-  double lambda_max;
+  double lambda_max=NAN;
   if (comp_res) {
     locst = arg_data_v[0].locst;
     retval = arg_data_v[1].retval;
@@ -331,7 +331,7 @@ int Advective::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
       // the corresponding h.) The maximum eigenvalue is estimated
       // as the max over all the jacobian matrices of the norm1 od
       // the matrix. 
-      double hhh,hloc,dtloc;
+      double hhh,hloc,dtloc=NAN;
       for (int jd=1; jd<=ndim; jd++) {
 	hhh = 2.*sqrt(Jaco.Column(jd).SumSquare());
 	if (jd==1 || hhh<hloc) hloc=hhh;
