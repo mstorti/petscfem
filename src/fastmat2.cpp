@@ -1079,9 +1079,11 @@ FastMatCache *FastMat2::CacheCtx1::step() {
     printf(" cache_list %p, cache %p, position_in_cache %d\n",
            cache_list,cache,position_in_cache-1);
 #endif
-  string &s = cache->trace_label;
-  if (do_trace && s != "") 
-    printf("passing through trace %s\n",s.c_str());
+  if (do_trace) {
+    string &s = cache->trace_label;
+    if (s != "") 
+      printf("passing through trace %s\n",s.c_str());
+  }
   return cache;
 }
 

@@ -16,6 +16,7 @@
 #include "mmoveopt2.h"
 
 extern int MY_RANK, SIZE;
+extern double adaptor_element_stats_value;
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 void mesh_move_opt2::init() {
@@ -116,8 +117,11 @@ element_connector(const FastMat2 &xloc,
 		  const FastMat2 &state_new,
 		  FastMat2 &res,FastMat2 &mat) {
 
+  assert(isnan(adaptor_element_stats_value));
+  adaptor_element_stats_value = 0.0;
   double C=NAN,V=NAN,Sl=NAN,Q=NAN,Vref=NAN;
   double relax_factor_now = relax_factor;
+  double start, total=0.0;
   if (glob_param->inwt>0) 
     relax_factor_now = 1.0;
 
@@ -207,15 +211,15 @@ element_connector(const FastMat2 &xloc,
     Vref = w0.det();
     Vref = 0.5*abs(Vref);
 
-    vaux.norm_p(w.ir(1,1),2);
+    vaux.norm_2(w.ir(1,1));
     Sl  = pow(double(vaux),ndim);
-    vaux.norm_p(w.ir(1,2),2);
+    vaux.norm_2(w.ir(1,2));
     Sl += pow(double(vaux),ndim);
     w.rs();
     for (int j=1;j<=ndim;j++){
       vaux1.setel(w.get(2,j)-w.get(1,j),j);
     }
-    vaux.norm_p(vaux1,2);
+    vaux.norm_2(vaux1);
     Sl += pow(double(vaux),ndim);
 
     dVdW.setel(w.get(2,2),1,1);
@@ -259,31 +263,40 @@ element_connector(const FastMat2 &xloc,
 
     Sl = 0.;
     for (int i=1;i<=ndim;i++) {
-      vaux.norm_p(w.ir(1,i),2);
+      vaux.norm_2(w.ir(1,i));
       Sl += pow(double(vaux),ndim);
       w.rs();
       for (int j=1;j<=ndim;j++){
 	vaux1.setel(w.get(ind[i+1],j)-w.get(ind[i],j),j);
       }
-      vaux.norm_p(vaux1,2);
+      vaux.norm_2(vaux1);
       Sl += pow(double(vaux),ndim);
     }
 
     dVdW.set(0.);
     d2VdW2.set(0.);
 
-#if 1
+#define USE_VECMACROS
+#ifdef USE_VECMACROS
     double *wp = w.storage_begin();
     double *dVdWp = dVdW.storage_begin();
     double *d2VdW2p = d2VdW2.storage_begin();
+    double *dSldWp = dSldW.storage_begin();
+    double *d2SldW2p = d2SldW2.storage_begin();
     double *epslcp = epsilon_LC.storage_begin();
+    double *vaux1p = vaux1.storage_begin();
+    double *vaux2p = vaux2.storage_begin();
 
 #define W(j,k) VEC2(wp,j,k,ndim)
 #define DVDW(j,k) VEC2(dVdWp,j,k,ndim)
 #define D2VDW2(j,k,l,m) VEC4(d2VdW2p,j,k,ndim,l,ndim,m,ndim)
+#define DSLDW(j,k) VEC2(dSldWp,j,k,ndim)
+#define D2SLDW2(j,k,l,m) VEC4(d2SldW2p,j,k,ndim,l,ndim,m,ndim)
 #define EPSLC(j,k,l) VEC3(epslcp,j,k,ndim,l,ndim)
 
-    double val;
+#define VAUX1(j) (vaux1p[j])
+#define VAUX2(j,k) VEC2(vaux2p,j,k,3)
+
     for (int p=0;p<ndim;p++) {
       for (int q=0;q<ndim;q++) {
 	for (int r=0;r<ndim;r++) {
@@ -327,16 +340,64 @@ element_connector(const FastMat2 &xloc,
       }
     }
 #endif
-    dVdW.print();
-    d2VdW2.print(9);
-    PetscFinalize();
-    exit(0);
  
     dVdW.scale(1./6.);
     d2VdW2.scale(1./6.);
 
     dSldW.set(0.);
     d2SldW2.set(0.);
+#ifdef USE_VECMACROS
+    int ii,jj,kk,ll;
+    for (int i=1;i<=ndim;i++) {
+      ii = i-1;
+      vaux2.ir(2,1).set(w.ir(1,i)).rs();
+      vaux1.set(w.ir(1,ind[i+1]));
+      vaux2.ir(2,2).set(vaux1.rest(w.ir(1,ind[i]))).rs();
+      vaux1.set(w.ir(1,ind[i]));
+      vaux2.ir(2,3).set(vaux1.rest(w.ir(1,ind[i-1]))).rs();
+      for (int l=1;l<=ndim;l++) {
+        ll = l-1;
+        vaux2.ir(2,l);
+#if 0
+        tmp7.norm_2(vaux2);
+        VAUX1(ll) = double(tmp7);
+#elif 1
+        VAUX1(ll) = vaux2.norm_2_all();
+#else
+        VAUX1(ll) = sqrt(square(VAUX2(0,ll))
+                         +square(VAUX2(1,ll))
+                         +square(VAUX2(2,ll)));
+#endif
+      }
+      vaux2.rs();
+#if 0
+      w.rs();
+      vaux2.rs();
+      double val;
+      for (int j=1;j<=ndim;j++) {
+        jj = j-1;
+        val = vaux1.get(1)*w.get(i,j)-vaux1.get(2)*vaux2.get(j,2)
+          +vaux1.get(3)*vaux2.get(j,3);
+	dSldW.setel(val,i,j);
+
+	for (int k=1;k<=ndim;k++) {
+          kk = k-1;
+	  D2SLDW2(ii,jj,ii,kk) += W(ii,kk)*W(ii,jj)/VAUX1(0);
+	  D2SLDW2(ii,jj,ii,kk) += VAUX2(kk,1)*VAUX2(jj,1)/VAUX1(1);
+	  D2SLDW2(ii,jj,ii,kk) += VAUX2(kk,2)*VAUX2(jj,2)/VAUX1(2);
+	  D2SLDW2(ii,jj,ind[i+1]-1,kk) -= VAUX2(kk,1)*VAUX2(jj,1)/VAUX1(1);
+	  D2SLDW2(ii,jj,ind[i-1]-1,kk) -= VAUX2(kk,2)*VAUX2(jj,2)/VAUX1(2);
+
+	  if (k==j) {
+	    D2SLDW2(ii,jj,ii,kk) += VAUX1(0)+VAUX1(1)+VAUX1(2);
+	    D2SLDW2(ii,jj,ind[i+1]-1,kk) -= VAUX1(1);
+	    D2SLDW2(ii,jj,ind[i-1]-1,kk) -= VAUX1(2);
+	  }
+	}
+      }
+#endif
+    }
+#else
     for (int i=1;i<=ndim;i++) {
       vaux2.ir(2,1).set(w.ir(1,i)).rs();
       vaux1.set(w.ir(1,ind[i+1]));
@@ -344,42 +405,37 @@ element_connector(const FastMat2 &xloc,
       vaux1.set(w.ir(1,ind[i]));
       vaux2.ir(2,3).set(vaux1.rest(w.ir(1,ind[i-1]))).rs();
       for (int l=1;l<=ndim;l++) {
-	vaux1.ir(1,l).norm_p(vaux2.ir(2,l),2).rs();
+	vaux1.ir(1,l).norm_2(vaux2.ir(2,l)).rs();
       }
       w.rs();
       vaux2.rs();
-      double val;
       for (int j=1;j<=ndim;j++) {
-        val = vaux1.get(1)*w.get(i,j)-vaux1.get(2)*vaux2.get(j,2)
-          +vaux1.get(3)*vaux2.get(j,3);
-	dSldW.setel(val,i,j);
+	dSldW.setel(vaux1.get(1)*w.get(i,j)-vaux1.get(2)
+                    *vaux2.get(j,2)+vaux1.get(3)*vaux2.get(j,3),i,j);
 
 	for (int k=1;k<=ndim;k++) {
-          val = d2SldW2.get(i,j,i,k)+w.get(i,k)*w.get(i,j)/vaux1.get(1);
-	  d2SldW2.setel(val,i,j,i,k);
-          val = d2SldW2.get(i,j,i,k)
-            +vaux2.get(k,2)*vaux2.get(j,2)/vaux1.get(2);
-	  d2SldW2.setel(val,i,j,i,k);
-          val = d2SldW2.get(i,j,i,k)
-            +vaux2.get(k,3)*vaux2.get(j,3)/vaux1.get(3);
-	  d2SldW2.setel(val,i,j,i,k);
-          val = d2SldW2.get(i,j,ind[i+1],k)
-            -vaux2.get(k,2)*vaux2.get(j,2)/vaux1.get(2);
-	  d2SldW2.setel(val,i,j,ind[i+1],k);
-          val = d2SldW2.get(i,j,ind[i-1],k)
-            -vaux2.get(k,3)*vaux2.get(j,3)/vaux1.get(3);
-	  d2SldW2.setel(val,i,j,ind[i-1],k);
+	  d2SldW2.setel(d2SldW2.get(i,j,i,k)
+                        +w.get(i,k)*w.get(i,j)/vaux1.get(1),i,j,i,k);
+	  d2SldW2.setel(d2SldW2.get(i,j,i,k)
+                        +vaux2.get(k,2)*vaux2.get(j,2)/vaux1.get(2),i,j,i,k);
+	  d2SldW2.setel(d2SldW2.get(i,j,i,k)
+                        +vaux2.get(k,3)*vaux2.get(j,3)/vaux1.get(3),i,j,i,k);
+	  d2SldW2.setel(d2SldW2.get(i,j,ind[i+1],k)
+                        -vaux2.get(k,2)*vaux2.get(j,2)/vaux1.get(2),i,j,ind[i+1],k);
+	  d2SldW2.setel(d2SldW2.get(i,j,ind[i-1],k)
+                        -vaux2.get(k,3)*vaux2.get(j,3)/vaux1.get(3),i,j,ind[i-1],k);
 	  if (k==j) {
-            val = d2SldW2.get(i,j,i,k)+vaux1.get(1)+vaux1.get(2)+vaux1.get(3);
-	    d2SldW2.setel(val,i,j,i,k);
-            val = d2SldW2.get(i,j,ind[i+1],k)-vaux1.get(2);
-	    d2SldW2.setel(val,i,j,ind[i+1],k);
-            val = d2SldW2.get(i,j,ind[i-1],k)-vaux1.get(3);
-	    d2SldW2.setel(val,i,j,ind[i-1],k);
+	    d2SldW2.setel(d2SldW2.get(i,j,i,k)+vaux1.get(1)
+                          +vaux1.get(2)+vaux1.get(3),i,j,i,k);
+	    d2SldW2.setel(d2SldW2.get(i,j,ind[i+1],k)
+                          -vaux1.get(2),i,j,ind[i+1],k);
+	    d2SldW2.setel(d2SldW2.get(i,j,ind[i-1],k)
+                          -vaux1.get(3),i,j,ind[i-1],k);
 	  }
 	}
       }
     }
+#endif
     dSldW.scale(3.);
     d2SldW2.scale(3.);
   }
@@ -432,4 +488,5 @@ element_connector(const FastMat2 &xloc,
     mat2.prod(mat,iTalpha,1,-1,3,4,-1,2);
     mat.prod(mat2,iTalpha,1,2,3,-1,-1,4);
   }
+  // adaptor_element_stats_value = total;
 }
