@@ -134,7 +134,11 @@ version.o: CPPFLAGS += -DPETSC_BOPT_FLAG="\"$(BOPT)\""
 #tryme.o: tryme.cpp
 #	g++ -c $<
 
-ifeq ($(DEVELOPER_MODE),yes)
+## `getarrgr.y' is rarely modified, it's pretty frozen.
+## In case it is modified we have to uncomment the 
+## following line. 
+## ifeq ($(DEVELOPER_MODE),yes)
+ifeq (1,0)
 local_clean::
 	-rm -rf tryme *.tab.*
 

@@ -17,6 +17,15 @@
 
 extern int MY_RANK, SIZE;
 
+#if 0
+#undef NDEBUG
+static double mypow(double x,double y) {
+  assert(x>0.0);
+  return exp(y*log(x));
+}
+#define pow mypow
+#endif
+
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 void mesh_move_opt2::init() {
 
