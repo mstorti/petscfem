@@ -321,7 +321,7 @@ int ns_main(int argc,char **args) {
   GETOPTDEF(int,A_van_Driest,0);
 
   if(A_van_Driest>0) { 
-    PetscPrintf(PETSCFEM_COMM_WORLD,"--- Don forget to refresh Wall_Data -- \n");
+    PetscPrintf(PETSCFEM_COMM_WORLD,"--- Don't forget to refresh Wall_Data -- \n");
     PetscPrintf(PETSCFEM_COMM_WORLD,"--- using update_wall_data global option -- \n");
   }
 
