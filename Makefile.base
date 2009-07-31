@@ -367,7 +367,7 @@ LDFLAGS += $(MKL_LDFLAGS)
 LDFLAGS_NO_PROG_LIB += $(MKL_LDFLAGS)
 endif
 
-EFN_LDFLAGS =	
+EFN_LDFLAGS = -ldl
 
 PROG_LIB = lib$(PROG)$(osfx).a
 

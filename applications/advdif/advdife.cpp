@@ -668,7 +668,7 @@ void NewAdvDif::new_assemble(arg_data_list &arg_data_v,const Nodedata *nodedata,
 	matlocf.add(grad_N_D_grad_N);
 	
 	dUdt.set(Hn).rest(Ho).scale(rec_Dt_m);
-	
+
 	tmp10.set(G_source);	// tmp10 = G - dUdt
 	if (!lumped_mass) tmp10.rest(dUdt);
 	
@@ -973,9 +973,14 @@ void NewAdvDif::new_assemble(arg_data_list &arg_data_v,const Nodedata *nodedata,
 
 	// MODIF BETO 8/6
 	if (!lumped_mass) {
+	  /*
+	    adv_diff_ff->enthalpy_fun
+	    ->comp_W_Cp_N(N_Cp_N,SHAPE,SHAPE,
+	    wpgdet*rec_Dt_m);
+	  */
 	  adv_diff_ff->enthalpy_fun
 	    ->comp_W_Cp_N(N_Cp_N,SHAPE,SHAPE,
-			  wpgdet*rec_Dt_m);
+			  wpgdet*rec_Dt_m*ALPHA);
 	  matlocf.add(N_Cp_N);
 	}
 

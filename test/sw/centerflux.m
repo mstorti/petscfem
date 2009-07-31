@@ -29,6 +29,7 @@ u_inir=5.*u0*ones(nnodes-(nnodes/2),1);
 h_ini=[h_inil;h_inir];
 u_ini=[u_inil;u_inir];
 fid=fopen("centerflux.ini.tmp","w");
+keyboard
 for i=1:nnodes
 fprintf(fid,"%f %f\n",u_ini(i),h_ini(i));
 endfor
