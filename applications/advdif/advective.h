@@ -465,7 +465,7 @@ protected:
     A_jac_norm_min, A_jac_err_norm_max, A_jac_err_norm_min,
     A_rel_err_min, A_rel_err_max;
   FastMat2 dshapex_low;
-  int use_GCL_compliant, ALE_flag, precoflag;
+  int use_GCL_compliant, ALE_flag, precoflag, use_ALE_form;
 
 public:
   FastMat2 dshapex,Uo,Ao_grad_N,tau_supg,
@@ -473,7 +473,7 @@ public:
   friend class NewAdvDifFF;
   /// Contructor from the pointer to the fux function
   NewAdvDif(NewAdvDifFF *adv_diff_ff_=NULL) :
-    adv_diff_ff(adv_diff_ff_), volume_flag(0), ALE_flag(0) {};
+    adv_diff_ff(adv_diff_ff_), volume_flag(0), ALE_flag(0), use_ALE_form(0) {};
   /** Destructor. Destroys the flux function object. fixme:= Warning: this is
       not good!! We cannot destroy the flux function object here if it
       is built in the derived class, because it may happen, for
@@ -494,6 +494,8 @@ public:
 
   /// The assemble function for the elemset. 
   NewAssembleFunction new_assemble;
+  /// The assemble function for the elemset (version with ALE+GCL formulation)
+  NewAssembleFunction new_assemble_ALE_formulation;
   /// The assemble function for the elemset (version with GCL)
   NewAssembleFunction new_assemble_GCL_compliant;
   /// The assemble function for the elemset (version with PRECO)

@@ -837,12 +837,17 @@ new_assemble_GCL_compliant(arg_data_list &arg_data_v,const Nodedata *nodedata,
 
 	// MODIF BETO 8/6
 	if (!lumped_mass) {
+	  /*
+	    adv_diff_ff->enthalpy_fun
+	    ->comp_W_Cp_N(N_Cp_N,SHAPE,SHAPE,
+	    detJaco_new*WPG*rec_Dt_m);
+	  */
+	  
 	  adv_diff_ff->enthalpy_fun
 	    ->comp_W_Cp_N(N_Cp_N,SHAPE,SHAPE,
-			  detJaco_new*WPG*rec_Dt_m);
+			  detJaco_new*WPG*rec_Dt_m*ALPHA);
 	  matlocf.add(N_Cp_N);
 	}
-
 	// A_grad_N.prod(dshapex,A_jac,-1,1,-1,2,3);
 	adv_diff_ff->comp_A_grad_N(A_grad_N,dshapex);
 
