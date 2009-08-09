@@ -123,10 +123,16 @@ new_assemble_ALE_formulation(arg_data_list &arg_data_v,const Nodedata *nodedata,
   //  NSGET OPTDEF(double,beta_supg,1.);
   //o Use lumped mass (used mainly to avoid oscillations for small time steps).
   NSGETOPTDEF(int,lumped_mass,0);
-  //o Add a shock capturing term
+  //o Add a shock capturing term (delta_sc = shocap * delta_sc_ff + shocap_const)
   NSGETOPTDEF(double,shocap,0.0);
-  //o Add an anisotropic shock capturing term
-  NSGETOPTDEF(double,shocap_aniso,0.0);
+  //o Add a constant shock capturing term
+  NSGETOPTDEF(double,shocap_const,0.0);
+  //o Add an anisotropic shock capturing term 
+  //o (delta_sc = shocap * delta_sc_ff + shocap_const)
+  NSGETOPTDEF(double,shocap_aniso,0.0); 
+  //o Add a constant anisotropic shock capturing term
+  //o (delta_sc_aniso = shocap_aniso * delta_sc_aniso_ff + shocap_aniso_const)
+  NSGETOPTDEF(double,shocap_aniso_const,0.0);
   //o Use the advective Jacobian in the previous time step
   //  for the SUPG stabilization term. This accelerates
   //  convergence of the Newton iteration.
@@ -469,13 +475,26 @@ new_assemble_ALE_formulation(arg_data_list &arg_data_v,const Nodedata *nodedata,
 				    COMP_SOURCE | COMP_UPWIND);
 	  adv_diff_ff->comp_A_grad_N(Ao_grad_N,dshapex);
 	  Ao_grad_U.set(A_grad_U);
-	  if (shocap>0. || shocap_aniso>0.)
+	  
+	  if (shocap>0. || shocap_aniso>0. || shocap_const>0. || shocap_aniso_const>0.)
 	    adv_diff_ff->get_Cp(Cp_old);
+	  
 	  if (use_Ajac_old) adv_diff_ff->get_Ajac(Ao);
-	  adv_diff_ff
-	    ->compute_shock_cap_aniso(delta_aniso_old,jvec_old);
-	
-	
+	  jvec_old.set(0.);
+	  if (shocap_aniso>0. || shocap_aniso_const>0.){
+	    jvec_old.set(NAN);
+	    adv_diff_ff->compute_shock_cap_aniso(delta_aniso_old,jvec_old);
+	    if (isnan(jvec_old.get(1))) {
+	      if (shocap_aniso_const>0.0) {
+		jvec_old.set(0.0);
+	      } else {
+		printf("Anisotropic Shock-capturing term NOT implemented for"
+		       " this flux function\n");
+		throw GenericError("not implemented shocap_aniso error");
+	      }
+	      
+	    }
+	  }
 	  // Set the state of the fluid so that it can be used to
 	  // compute matrix products
 	  adv_diff_ff->set_state(U,grad_U); // U at t_{n+alpha}
@@ -563,8 +582,6 @@ new_assemble_ALE_formulation(arg_data_list &arg_data_v,const Nodedata *nodedata,
 
 	  if (lambda_max_pg>lambda_max) lambda_max=lambda_max_pg;
 
-	  //adv_diff_ff->set_state(U,grad_U);//mio
-	
 	  tmp10.set(G_source);	// tmp10 = G - dHdt
 	  if (!lumped_mass) tmp10.rest(dHdt);
 	  tmp10j.set(G_source);	// tmp10 = G - dHdt
@@ -572,7 +589,7 @@ new_assemble_ALE_formulation(arg_data_list &arg_data_v,const Nodedata *nodedata,
 	
 	  // For the stabilization term use dHdt2
 	  // (i.e. not including dJ/dt term)
-	  // tmp1= G - dHdt - A_grad_U
+	  // tmp1= G - dHdt2 - A_grad_U
 	  tmp1.rs().set(tmp10j).rest(A_grad_U); 
 	
 	  if (use_Ajac_old) {
@@ -580,8 +597,6 @@ new_assemble_ALE_formulation(arg_data_list &arg_data_v,const Nodedata *nodedata,
 	    //tmp1= G - dHdt - A_grad_U
 	    tmp1_old.rs().set(tmp10).rest(Ao_grad_U);
 	  }
-
-	  ////// POR ACA VAMOS CON MARIO
 
 	  adv_diff_ff->set_state(Un);//para obtener el Cp^{n+1}
 	  adv_diff_ff->get_Cp(Cp);//para obtener el Cp^{n+1}
@@ -635,7 +650,7 @@ new_assemble_ALE_formulation(arg_data_list &arg_data_v,const Nodedata *nodedata,
 	    matlocf.add(tmp14);
 	  }	  
 	  // tmp8= DSHAPEX * (w*flux_c - flux_d - v_mesh*H)
-	  //	      w = weak_form
+	  // w = weak_form
 	  tmp8.prod(dshapex,tmp11,-1,1,2,-1);
 	  tmp9.prod(SHAPE,tmp10,1,2); // tmp9 = SHAPE' * (G - dHdt)
 #if 0
@@ -657,6 +672,10 @@ new_assemble_ALE_formulation(arg_data_list &arg_data_v,const Nodedata *nodedata,
 	  tmp18.prod(D_grad_N,dshapex,-1,2,4,1,-1,3);
 #endif
 	
+	  adv_diff_ff->comp_grad_N_D_grad_N(grad_N_D_grad_N,
+					    dshapex,wpgdet);
+	  matlocf.add(grad_N_D_grad_N);
+
 	  // add non linear contributions of
 	  // diffusive matrix, Djac(U) ==> d Djac /dU
 	  if (compute_dDdU_term) {
@@ -673,7 +692,6 @@ new_assemble_ALE_formulation(arg_data_list &arg_data_v,const Nodedata *nodedata,
 	  tmp25.prod(tmp24,C_jac,1,3,2,4); // tmp25 = SHAPE' * SHAPE * C_jac
 #endif
 
-	  // MODIF BETO 8/6
 	  if(compute_reactive_terms){
 	    if (!lumped_mass) {
 	      adv_diff_ff->comp_N_N_C(N_N_C,SHAPE,wpgdet);
@@ -683,28 +701,39 @@ new_assemble_ALE_formulation(arg_data_list &arg_data_v,const Nodedata *nodedata,
 
 	  // adding shock-capturing term
 	  delta_sc_v.set(0.0);
-	  if (shocap>0. ) {
+	  if (shocap>0. || shocap_const>0.) {
+	    delta_sc_v.set(NAN);
 	    adv_diff_ff->compute_delta_sc_v(delta_sc_v);
-
+	    if (isnan(delta_sc_v.get(1))) {
+	      if (shocap_const>0.0) {
+		delta_sc_v.set(0.0);
+	      } else {
+		printf("Shock-capturing term NOT implemented for"
+		       " this flux function\n");
+		throw GenericError("not implemented shocap error");
+	      }
+	    }
 	    tmp_shc_grad_U.prod(Cp_old,grad_U,2,-1,1,-1);
 	    for (int jdf=1; jdf<=ndof; jdf++) {
 	      //	    delta_sc_v.addel(delta_sc,jdf);
 	      delta_sc_v.addel(delta_sc_old,jdf);
 	    }
 
-	    tmp_sc.prod(dshapex,dshapex,-1,1,-1,2).scale(shocap*wpgdet);
+	    //	    tmp_sc.prod(dshapex,dshapex,-1,1,-1,2).scale(shocap*wpgdet);
+	    tmp_sc.prod(dshapex,dshapex,-1,1,-1,2).scale(wpgdet);
 	    //	  tmp_sc_v.prod(dshapex,grad_U,-1,1,-1,2);
 	    tmp_sc_v.prod(dshapex,tmp_shc_grad_U,-1,1,-1,2);
 	    for (int jdf=1; jdf<=ndof; jdf++) {
 	      double delta = (double)delta_sc_v.get(jdf);
+	      double delta_sc_eff = shocap * delta + shocap_const;
 	      for (int kdf=1; kdf<=ndof; kdf++) {
 		//	      double tmp_shc_1=Cp.get(jdf,kdf);
 		double tmp_shc_1=Cp_old.get(jdf,kdf);
-		matlocf.ir(2,jdf).ir(4,kdf).axpy(tmp_sc,delta*tmp_shc_1).rs();
+		matlocf.ir(2,jdf).ir(4,kdf).axpy(tmp_sc,delta_sc_eff*tmp_shc_1).rs();
 		//       matlocf.ir(2,jdf).ir(4,jdf).axpy(tmp_sc,delta).rs();
 	      }
 	      tmp_sc_v.ir(2,jdf)
-		.scale(-shocap*delta*wpgdet).rs();
+		.scale(-delta_sc_eff*wpgdet).rs();
 	      delta_sc_v.rs();
 	    }
 
@@ -713,67 +742,59 @@ new_assemble_ALE_formulation(arg_data_list &arg_data_v,const Nodedata *nodedata,
 
 	  // adding ANISOTROPIC shock-capturing term
 	  // Falta usar el Cp_old aca tambien
-	  if (shocap_aniso>0.) {
+	  jvec.set(0.);
+	  if (shocap_aniso>0. || shocap_aniso_const>0.) {
 	    //	  double delta_aniso = 0.0;
 	    delta_aniso = 0.0;
-	    adv_diff_ff
-	      ->compute_shock_cap_aniso(delta_aniso,jvec);
-#if 0
-	    double jvec_norm = sqrt(jvec.sum_square_all());
-	    assert(jvec_norm>0.);// fixme:= lanzar execpcion
-	    jvec.scale(1./jvec_norm);
-#endif
-
-#if 0
-	    adv_diff_ff->get_Cp(Cp); //Cp esta en t^{n+alpha}
-	    tmp_shc_grad_U.prod(Cp,grad_U,2,-1,1,-1);
-	    tmp_j_grad_U.prod(jvec,tmp_shc_grad_U,-1,-1,1);
-	    tmp_j_gradN.prod(jvec,dshapex,-1,-1,1);
-
-	    tmp_sc_aniso.prod(tmp_j_gradN,tmp_j_gradN,1,2)
-	      .scale(shocap_aniso*wpgdet);
-
-	    tmp_sc_v_aniso.prod(tmp_j_gradN,tmp_j_grad_U,1,2);
-#else
+	    jvec.set(NAN);
+	    adv_diff_ff->compute_shock_cap_aniso(delta_aniso,jvec);
+	    if (isnan(jvec.get(1))) {
+	      if (shocap_aniso_const>0.0) {
+		jvec.set(0.0);
+	      } else {
+		printf("Anisotropic Shock-capturing term NOT implemented for"
+		       " this flux function\n");
+		throw GenericError("not implemented shocap_aniso error");
+	      }
+	    }
+	    
 	    tmp_shc_grad_U.prod(Cp_old,grad_U,2,-1,1,-1);
 	    tmp_j_grad_U.prod(jvec_old,tmp_shc_grad_U,-1,-1,1);
 	    tmp_j_gradN.prod(jvec_old,dshapex,-1,-1,1);
-
-	    tmp_sc_aniso.prod(tmp_j_gradN,tmp_j_gradN,1,2)
-	      .scale(shocap_aniso*wpgdet);
-
-	    tmp_sc_v_aniso.prod(tmp_j_gradN,tmp_j_grad_U,1,2);
-
-#endif
-
-#if 0
+	    
 	    for (int jdf=1; jdf<=ndof; jdf++) {
-	      double delta = (double)delta_sc_v.get(jdf);
-	      for (int kdf=1; kdf<=ndof; kdf++) {
-		double tmp_shc_1=Cp.get(jdf,kdf);
-		matlocf.ir(2,jdf).ir(4,kdf).axpy(tmp_sc,delta*tmp_shc_1).rs();
-		//       matlocf.ir(2,jdf).ir(4,jdf).axpy(tmp_sc,delta).rs();
-	      }
-	      tmp_sc_v.ir(2,jdf).scale(-shocap*delta*wpgdet).rs();
-	      delta_sc_v.rs();
+	      jvec.addel(delta_aniso_old,jdf);
 	    }
-
-	    veccontr.add(tmp_sc_v);
-#else
-#if 0
-	    tmp_matloc_aniso.prod(tmp_sc_aniso,Cp,1,3,2,4);
-	    matlocf.axpy(tmp_matloc_aniso,delta_aniso);
-	    veccontr.axpy(tmp_sc_v_aniso,
-			  -shocap_aniso*delta_aniso*wpgdet);
-#else
-	    tmp_matloc_aniso.prod(tmp_sc_aniso,Cp_old,1,3,2,4);
-	    matlocf.axpy(tmp_matloc_aniso,delta_aniso_old);
-	    veccontr.axpy(tmp_sc_v_aniso,
-			  -shocap_aniso*delta_aniso_old*wpgdet);
-#endif
-#endif
+	    
+	    tmp_sc_aniso.prod(tmp_j_gradN,tmp_j_gradN,1,2)
+	      .scale(wpgdet);
+	    //	      .scale(shocap_aniso*wpgdet);
+	    
+	    tmp_sc_v_aniso.prod(tmp_j_gradN,tmp_j_grad_U,1,2);
+	    
+	    for (int jdf=1; jdf<=ndof; jdf++) {
+	      double delta_sc_aniso = (double)jvec.get(jdf);
+	      double delta_sc_aniso_eff = shocap_aniso * delta_sc_aniso + 
+		shocap_aniso_const;
+	      for (int kdf=1; kdf<=ndof; kdf++) {
+		double tmp_shc_aniso_1=Cp_old.get(jdf,kdf);
+		matlocf.ir(2,jdf).ir(4,kdf)
+		  .axpy(tmp_sc_aniso,delta_sc_aniso_eff*tmp_shc_aniso_1).rs();
+	      }
+	      tmp_sc_v_aniso.ir(2,jdf)
+		.scale(-delta_sc_aniso_eff*wpgdet).rs();
+	      jvec.rs();
+	    }
+	    veccontr.add(tmp_sc_v_aniso);
 	  }
-
+	  /* asi estaba antes
+	     tmp_matloc_aniso.prod(tmp_sc_aniso,Cp_old,1,3,2,4);
+	     matlocf.axpy(tmp_matloc_aniso,delta_aniso_old);
+	     veccontr.axpy(tmp_sc_v_aniso,
+	     -shocap_aniso*delta_aniso_old*wpgdet);
+	     }
+	  */
+	  
 #ifndef USE_OLD_STATE_FOR_P_SUPG
 	  // This computes either the standard `P_supg' perturbation
 	  // function or other written by the user in the
@@ -781,10 +802,9 @@ new_assemble_ALE_formulation(arg_data_list &arg_data_v,const Nodedata *nodedata,
 	  adv_diff_ff->comp_P_supg(P_supg);
 #endif
 	  
-	  
 	  for (int jel=1; jel<=nel; jel++) {
 	    P_supg.ir(1,jel);
-	  
+	    
 	    veccontr.ir(1,jel);
 	    matlocf.ir(1,jel);
 	  
