@@ -516,7 +516,8 @@ public:
       @return actual time
   */ 
   double time() const { return time_m; };
-  int use_ALE() const { return ALE_flag; }
+  int use_ALE() const { return ALE_flag; } //esto se deberia sacar de todas las FF y poner esto
+  int ALE_form() const { return use_ALE_form; }
 
 };
 
