@@ -128,6 +128,19 @@ streamsw2dt_ff::~streamsw2dt_ff() {
 void streamsw2dt_ff::set_state(const FastMat2 &U) {
   UU.rs().set(U);
   h=UU.get(ndim+1);
+  
+  //Enthalpy jacobian
+  Cp.set(0.);
+  Cp.setel(h,1,1);
+  Cp.setel(UU.get(1),1,3);
+  Cp.setel(h,2,2);
+  Cp.setel(UU.get(2),2,3);
+  Cp.setel(1.,3,3);
+  Cp.setel(UU.get(ndim+2),4,3);
+  Cp.setel(h,4,4);
+  Cp.setel(UU.get(ndim+3),5,3);
+  Cp.setel(h,5,5);
+  Cp.rs();
 }
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
@@ -259,18 +272,6 @@ void streamsw2dt_ff::compute_flux(const FastMat2 &U,
   flux.rs().ir(1,5).set(flux_mass).scale(eps);
   flux.rs();
 
-    //Enthalpy jacobian
-  Cp.set(0.);
-  Cp.setel(h,1,1);
-  Cp.setel(ux,1,3);
-  Cp.setel(h,2,2);
-  Cp.setel(uy,2,3);
-  Cp.setel(1.,3,3);
-  Cp.setel(ket,4,3);
-  Cp.setel(h,4,4);
-  Cp.setel(eps,5,3);
-  Cp.setel(h,5,5);
-  Cp.rs();
   
   if (options & COMP_UPWIND) {
     advdf_e = dynamic_cast<const NewAdvDif *>(elemset);

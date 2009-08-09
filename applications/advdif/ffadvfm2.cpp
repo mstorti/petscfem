@@ -1052,7 +1052,7 @@ void newadvecfm2_ff_t::compute_flux(COMPUTE_FLUX_ARGS) {
     a_jac->comp_vel_per_field(vel_per_field);
     if (new_adv_dif_elemset) {
       const NewAdvDif *e = new_adv_dif_elemset;
-      if (e->use_ALE()) {
+      if (e->ALE_form()) {
         a_jac->comp_vel_vec_per_field(vel_vec_per_field);
         for (int k=1; k<=ndof; k++) {
           vel_vec_per_field.ir(1,k);

@@ -87,6 +87,14 @@ void streamsw1d_ff::set_state(const FastMat2 &U) {
   UU.rs().set(U);
   double h =UU.get(ndof);
   channel->geometry(h,area,wl_width,perimeter);
+  //Enthalpy jacobian
+  Cp.set(0.);
+  Cp.setel(area,1,1);
+  Cp.setel(UU.get(1)*wl_width,1,2);
+  Cp.setel(0.,2,1);
+  Cp.setel(wl_width,2,2);
+  Cp.rs();
+  Cp.scale(tmp_mask);
 }
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
@@ -176,15 +184,6 @@ void streamsw1d_ff::compute_flux(const FastMat2 &U,
   
   A_jac.ir(1,1).set(ajac).rs();
   A_jac.scale(adv_mask);
-
-    //Enthalpy jacobian
-  Cp.set(0.);
-  Cp.setel(area,1,1);
-  Cp.setel(ux*wl_width,1,2);
-  Cp.setel(0.,2,1);
-  Cp.setel(wl_width,2,2);
-  Cp.rs();
-  Cp.scale(tmp_mask);
 
   flux_mom.setel(area*ux*ux,1,1);
   // le agrego el termino con h
