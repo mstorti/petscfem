@@ -28,7 +28,7 @@ checktmean:
 	mkstepsdir.pl
 	make-depl $(CASE).epl $(CASE).depl -d mkmesh=1
 	cp -f *.pl *.depl *.epl STEPS
-	${MPI_HOME}/bin/mpiexec -a $(CASE) \
+	$(MPIEXEC) -a $(CASE) \
 		$(MCH) -np $(NP) $(ADVDIF) \
 		-case $(CASE).depl $(call redir,$@.output.tmp)
 	$(MAKE) zip

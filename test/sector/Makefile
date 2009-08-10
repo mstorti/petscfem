@@ -14,7 +14,7 @@ tests: sector chunk_size_process triangle lap_per
 #----<*>----------<*>----------<*>----------<*>----------<*>----------<*>-----
 #w Test on an angular sector, uses constraints. 
 sector: sector.depl $(LAPLACE)
-	-$(MPI_HOME)/bin/mpiexec -n 1 $(LAPLACE) \
+	-$(MPIEXEC) -n 1 $(LAPLACE) \
 		-case sector.depl $(call in_backg,sector)
 	-mv sector.sal sector0.sal
 
@@ -30,7 +30,7 @@ chunk_size_process: $(LAPLACE)
 #
 	-chmod +w sector.depl 
 	$(EPERL) -P -d chunk_size=1 sector.epl >sector.depl
-	-$(MPI_HOME)/bin/mpiexec $(MCH) -n $(NP) $(LAPLACE) -case sector.depl \
+	-$(MPIEXEC) $(MCH) -n $(NP) $(LAPLACE) -case sector.depl \
 		$(call in_backg,$@-1)
 	mv sector.sal sector_chunk1.sal
 #

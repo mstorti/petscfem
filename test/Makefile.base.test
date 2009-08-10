@@ -67,4 +67,5 @@ in_backg = </dev/null >$(1).out.tmp
 
 redir = </dev/null >$(1)
 
-MPIEXEC := $(MPI_HOME)/bin/mpiexec
+MPIEXEC := /usr/bin/mpiexec
+MPIRUN  := /usr/bin/mpirun

@@ -47,7 +47,7 @@ riemann:
 	mkstepsdir.pl
 	make-depl canal1driem.epl canal1driem.depl 
 	$(OCTAVE) canal1driem.m
-	$(MPI_HOME)/bin/mpiexec  -n 1 $(PROG) -case canal1driem.depl
+	$(MPIEXEC)  -n 1 $(PROG) -case canal1driem.depl
 #	time $(MPI_HOME)/bin/mpirun -1 -machinefile ./machi.dat -n $(NP) $(PROG) -case $(CASE).depl
 #	$(OCTAVE)  check_test_abso.m
 
