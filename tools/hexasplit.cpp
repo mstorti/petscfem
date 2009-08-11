@@ -102,7 +102,7 @@ int main (int argc, char **argv) {
   // that the node is not split yet. 
   vector<int> split(nnod,0);
   // for (int j=0; j<nele; j++) split[j]=0;
-
+  MPI_Init(&argc,&argv);
   printf("Starts building incompatibility graph...\n");
   double start = MPI_Wtime();
   // Build the graph of incompatibilities. Two nodes are connected
