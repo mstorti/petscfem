@@ -62,7 +62,7 @@ int lapla::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,Dofmap *dofmap,
   int comp_res  = !strcmp(jobinfo,"comp_res");
   int comp_prof  = !strcmp(jobinfo,"comp_prof");
   int set_to_pi  = !strcmp(jobinfo,"set_to_pi");
-  double *locst,*retval,*retvalmat;
+  double *locst=NULL,*retval=NULL,*retvalmat=NULL;
 
   if(set_to_pi) {
     locst=arg_data_v[0].locst;

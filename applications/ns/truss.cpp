@@ -102,14 +102,14 @@ void truss::element_connector(const FastMat2 &xloc,
   xlocc.ir(1,2);
   len.rest(xlocc);
   xlocc.rs();
-  double len0 = len.norm_p_all();
+  double len0 = len.norm_2_all();
 
   dx.ir(1,1);
   len.add(dx);
   dx.ir(1,2);
   len.rest(dx);
   dx.rs();
-  double len1 = len.norm_p_all();
+  double len1 = len.norm_2_all();
   
   double f = krig*(len0-len1)/(len1*len0);
   double mass = rhol*len0/2;

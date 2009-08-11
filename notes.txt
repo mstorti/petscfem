@@ -14630,3 +14630,298 @@ NO, verificado que el `newff/adv_temp_cp_iisd.vrf.tmp' tambien daba
 mal. 
 %
 O sea que ahora estaria dando todo bien. 
+%
+%--[2009-06-06.17:03:39.mstorti-v26-end-0-g0f87f7a]-----
+Corro los tests 
+-| ---- g_c++
+-| NOT OK-------
+-| oscplate/oscplate1.sal
+-| sqcav/check.fs.verif.tmp
+-| sqcav/check.iisd.verif.np1.tmp
+-| sqcav/check.iisd.verif.np2.tmp
+-| idmap/tidmap.sal
+-| newff/adv_temp_cp.vrf.tmp
+-| newff/full_full_jacs_cp.vrf.tmp
+-| newff/full_full_jacs_adv_cp.vrf.tmp
+-| newff/adv_temp_cp_iisd.vrf.tmp
+-| distmap/dist_graph.np3.out.tmp
+-| CAN'T OPEN-------
+-| ---- O_c++
+-| NOT OK-------
+-| oscplate/oscplate1.sal
+-| sqcav/check.fs.verif.tmp
+-| sqcav/check.iisd.verif.np1.tmp
+-| sqcav/check.iisd.verif.np2.tmp
+-| idmap/tidmap.sal
+-| newff/adv_temp_cp.vrf.tmp
+-| newff/full_full_jacs_cp.vrf.tmp
+-| newff/full_full_jacs_adv_cp.vrf.tmp
+-| newff/adv_temp_cp_iisd.vrf.tmp
+-| distmap/dist_graph.np2.out.tmp
+-| distmap/dist_graph.np3.out.tmp
+-| CAN'T OPEN-------
+-| --------------
+Aparentemente se agregaron estos:
+%
+oscplate/oscplate1.sal
+sqcav/check.iisd.verif.np1.tmp
+sqcav/check.iisd.verif.np2.tmp
+%
+%--[2009-06-06.18:14:35.mstorti-v26-end-8-g2aa9da5]-----
+`oscplate/oscplate1.sal' se debia a un pequeño cambio en la solucion,
+no se porque, pero es pequeño. Ademas aproveche y actualice todos los
+tests en oscplate a hacer checks corriendo Octave. 
+%
+%--[2009-06-06.18:27:33.mstorti-v26-end-9-ge4a140e]-----
+Con los de sqcav es bastante raro, efectivamente parece que la
+solucion steady que se obtiene esta mal, es decir pareceria que el
+lazo lineal converge bien, pero despues de dos iters la solucion no
+esta bien. Ademas como que el residuo en el segundo paso de tiempo
+arranca de O(1) en vez de O(1e-2) como es en corridas
+anteriores. Podria ser como que no esta tomando steady. 
+%
+Aparentemente con el commit `mstorti-v25-end-12-g30dcbd3' andaba
+bien. 
+%
+%--[2009-06-06.18:47:33.mstorti-v26-end-9-ge4a140e]-----
+Efectivamente con `mstorti-v25-end-12-g30dcbd3' anda bien. 
+Las unicas diferencias que veo son con el tema de `iisd' hechas por
+Rodrigo  (commit mstorti-v24-end-10-g7c54b83) y las de FastMat2. Lo
+mas probable es lo de IISD. O sea habria que probar con 
+. 6cc7fd2 antes del cambio     OK
+. 7c54b83 despues del cambio   NOT OK
+% ----------------
+CON petscfem-g6cc7fd2: (preco_side = right)
+[mstorti@galileo sqcav]$ cat check.iisd.verif.np1.tmp
+IISD iisd_subpart=1. error < tol OK ? 1 (error = 9.99999e-13, tol = 1e-10)
+IISD iisd_subpart=2. error < tol OK ? 1 (error = 8.10512e-07, tol = 1e-05)
+IISD iisd_subpart=4. error < tol OK ? 1 (error = 3.00918e-06, tol = 1e-05)
+IISD iisd_subpart=8. error < tol OK ? 1 (error = 5.43994e-06, tol = 1e-05)
+IISD iisd_subpart=16. error < tol OK ? 1 (error = 2.96466e-06, tol = 1e-05)
+% ----------------
+CON petscfem-g7c54b83: (preco_side = left)
+[mstorti@galileo sqcav]$ cat check.iisd.verif.np1.tmp
+IISD iisd_subpart=1. error < tol OK ? 1 (error = 1e-12, tol = 1e-10)
+IISD iisd_subpart=2. error < tol OK ? 0 (error = 6.90646e-05, tol = 1e-05)
+IISD iisd_subpart=4. error < tol OK ? 0 (error = 9.23848e-05, tol = 1e-05)
+IISD iisd_subpart=8. error < tol OK ? 0 (error = 0.000202448, tol = 1e-05)
+IISD iisd_subpart=16. error < tol OK ? 0 (error = 0.000419121, tol = 1e-05)
+%
+%--[2009-06-06.19:19:13.mstorti-v26-end-10-gf9146f5]-----
+Pruebo a tomar la version actual `mstorti-v26-end-10-gf9146f5' y
+forzando a que tome preco_side=right, recupero la convergencia
+apropiada. 
+%
+%--[2009-06-06.19:22:52.mstorti-v26-end-11-g26459e6]-----
+O sea que ahora verifico que los unicos tests que se agregaron son los
+sqcav:
+-| sqcav/check.iisd.verif.np1.tmp
+-| sqcav/check.iisd.verif.np2.tmp
+%
+debidos al problema con el preco_side. 
+%
+%--[2009-06-06.20:01:42.mstorti-v26-end-11-g26459e6]-----
+Instalo PETSc 3.0.0-p5 y efectivamente cuando queres usar
+preco_side=right con GMRES te dice que uses FGMRES. Lo pongo y
+entonces no hay problema y recupero la convergencia, entonces lo que
+voy a hacer es poner por defecto FGMRES y preco_side=right. 
+%
+%--[2009-06-06.21:53:56.mstorti-v26-end-12-g3caf47e]-----
+Corro todos los tests (torture) de nuevo, para ver el efecto de haber
+cambiado a FGMRES con preco_side=right, y me da
+%
+----- runteses: 2009-06-06 19:11:35, 
+      mstorti-v26-end-12-g3caf47e,g_c++ = 0 O_c++
+NOT OK-------
+oscplate/oscplate2.verif.tmp
+sqcav/check.fs.verif.tmp
+idmap/tidmap.sal
+newff/adv_temp_cp.vrf.tmp
+newff/full_full_jacs_cp.vrf.tmp
+newff/full_full_jacs_adv_cp.vrf.tmp
+newff/adv_temp_cp_iisd.vrf.tmp
+distmap/dist_graph.np2.out.tmp
+distmap/dist_graph.np3.out.tmp
+CAN'T OPEN-------
+%
+%--[2009-06-06.22:12:22.mstorti-v26-end-12-g3caf47e]-----
+O sea que se agrego oscplate/oscplate2, pero debe ser algun problema
+originado por el cambio reciente en oscplate2.  Tests guardados en
+petscfem-runtests-2009-06-06b
+%
+%--[2009-06-06.22:25:34.mstorti-v26-end-13-g1b235ff]-----
+Efectivamente era un pequeño problema, así que los tests serían
+NOT OK------- -> 8
+sqcav/check.fs.verif.tmp
+idmap/tidmap.sal
+newff/adv_temp_cp.vrf.tmp
+newff/full_full_jacs_cp.vrf.tmp
+newff/full_full_jacs_adv_cp.vrf.tmp
+newff/adv_temp_cp_iisd.vrf.tmp
+distmap/dist_graph.np2.out.tmp
+distmap/dist_graph.np3.out.tmp
+CAN'T OPEN------- -> 0
+
+%=== Sun Jun  7 13:50:58 2009 mstorti@galileo
+%
+%--[2009-06-07.16:50:58.mstorti-v26-end-20-g5404d74]-----
+Hago el cambio de CHECK_JAC a ADVDIF_CHECK_JAC que en realidad es un
+macro a verify_jacobian_with_numerical_one que es una variable
+global y parece andar todo bien. Los tests estan en 
+petscfem-runtests-2009-06-07
+% -------- CON G_C++ y O_C++ ----------
+NOT OK------- -> 7
+sqcav/check.fs.verif.tmp
+idmap/tidmap.sal
+newff/adv_temp_cp.vrf.tmp
+newff/full_full_jacs_cp.vrf.tmp
+newff/full_full_jacs_adv_cp.vrf.tmp
+newff/adv_temp_cp_iisd.vrf.tmp
+distmap/dist_graph.np3.out.tmp
+CAN'T OPEN------- -> 0
+%--------------------------------------
+
+%=== Sun Jun  7 21:42:36 2009 mstorti@galileo
+%
+%--[2009-06-08.00:42:36.mstorti-v26-end-30-g1403255]-----
+Estoy viendo is agregar los tests que estan en `test/gasflow'. Resulta
+que actualmente no se estan corriendo. Estoy viendo por biseccion
+cuando eran funcionales. 
+%
+%--[2009-06-08.00:48:45.mstorti-v26-end-30-g1403255]-----
+NO, aparentemente nunca estuvieron en la bateria de tests. Por ahora
+los voy a mover a petscfem-cases y voy a dejar el convergence alli. 
+
+%=== Sun Jun  7 23:44:59 2009 mstorti@galileo
+%
+%--[2009-06-08.02:44:59.mstorti-v26-end-32-g91efec3]-----
+Estoy empezando a ver lo del nsstruct, es decir con dos o más estados
+anteriores. Aparentemente todo el trabajo se dio mas o menos en esta fecha
+%
+commit 91d7cdbc27a30beef99b3cf9e84df76fa41405de
+Author: mstorti <mstorti>
+Date:   Mon Mar 20 02:02:53 2006 +0000
+%
+Hay que hacer el "git log" de elastld.cpp. Ahora habria que ver cuales
+son los casos en petscfem-cases que estaba corriendo en esa epoca. 
+%
+%--[2009-06-08.03:05:30.mstorti-v26-end-32-g91efec3]-----
+Aparentemente los casos se corrieron en petscfem-cases/elastld y cerca
+de 2006-03-12. 
+
+%=== Tue Jun  9 14:54:53 2009 mstorti@galileo
+%
+%--[2009-06-09.17:54:53.cases-1.0.45-57-g884643e]-----
+Implemento una version de los Jacobianos para adaptor de alto orden. 
+Con la version estandar se obtiene:
+Newton subiter 0, norm_res  =  1.885e+01, update Jac. 1
+Newton subiter 1, norm_res  =  5.590e+00, update Jac. 1
+Newton subiter 2, norm_res  =  3.445e-01, update Jac. 1
+Newton subiter 3, norm_res  =  1.640e-02, update Jac. 1
+Newton subiter 4, norm_res  =  3.210e-04, update Jac. 1
+Newton subiter 5, norm_res  =  8.100e-06, update Jac. 1
+Newton subiter 6, norm_res  =  5.897e-07, update Jac. 1
+Newton subiter 7, norm_res  =  4.142e-08, update Jac. 1
+Newton subiter 8, norm_res  =  1.634e-09, update Jac. 1
+Newton subiter 9, norm_res  =  4.652e-11, update Jac. 1
+Newton subiter 10, norm_res  =  2.835e-12, update Jac. 1
+Newton subiter 11, norm_res  =  3.072e-13, update Jac. 1
+%---------------
+Con la version use_high_prec
+Newton subiter 0, norm_res  =  1.885e+01, update Jac. 1
+Newton subiter 1, norm_res  =  5.581e+00, update Jac. 1
+Newton subiter 2, norm_res  =  2.790e-01, update Jac. 1
+Newton subiter 3, norm_res  =  9.984e-04, update Jac. 1
+Newton subiter 4, norm_res  =  1.299e-08, update Jac. 1
+Newton subiter 5, norm_res  =  3.195e-13, update Jac. 1
+%--------
+O sea mucho mejor!! La verdad que no pensaba que podia estar jodiendo
+eso. 
+
+%=== Sat Jun 13 09:08:32 2009 mstorti@galileo
+%
+%--[2009-06-13.12:08:32.mstorti-v26-end-43-gaaf78c0]-----
+Problemas con LOCALE. Las rutinas de Perl accesorias al `eperl' usan
+para exportar las variables a octave (la funcion `octave_export_vars')
+una funcion getnum() (que esta en utils.pl) y esta a su vez usa la
+`strtod' de POSIX. Ahora bien, resulta que al usarla hace 
+-| use POSIX qw(strtod);
+eso tiene el efecto indeseado de importar el modulo POSIX en todo el
+eperl que esta corriendo y entonces cuando hace printf resulta que si
+tenes LANG=es_ES.UTF-8 entonces te pone el punto decimal como coma en
+los flotantes. Lo que hago es entonces al comienzo del eperlini poner 
+-| use POSIX qw(setlocale LC_ALL LC_CTYPE);
+-| setlocale(LC_ALL,"C");
+Aparentemente de esa forma se arregla. 
+
+%=== Sat Jun 13 19:17:11 2009 mstorti@galileo
+%
+%--[2009-06-13.22:17:11.mstorti-v26-end-44-g641ec1b]-----
+Ahora estoy mirando que en el CUBE-CHANNEL no arranca el calculo de
+las tensiones. Da un error de Newmat. Si lo corro con un solo proc
+tambien. Le saco el elemset de nsitetlesfm2 y le dejo solo el ns_id y
+tambien. Finalmente pruebo a correr un caso muy chico (el cubo de
+Stokes) y ahi no da error. 
+
+%=== Mon Jun 15 01:07:10 2009 mstorti@galileo
+%
+%--[2009-06-15.04:07:10.mstorti-v26-end-61-g072f47c]-----
+Agregué varios teste por el tema del `visc_force_integrator' y corro
+los tests:
+%
+---------- G_C++ = O_C++ ------
+NOT OK------- -> 11
+sqcav/check.fs.verif.tmp
+nutatcyl/strip.verif.tmp
+nutatcyl/stripp.verif.tmp
+nutatcyl/strippi.verif.tmp
+idmap/tidmap.sal
+newff/adv_temp_cp.vrf.tmp
+newff/full_full_jacs_cp.vrf.tmp
+newff/full_full_jacs_adv_cp.vrf.tmp
+newff/adv_temp_cp_iisd.vrf.tmp
+distmap/dist_graph.np2.out.tmp
+distmap/dist_graph.np3.out.tmp
+CAN'T OPEN------- -> 2
+project/verif.tmp
+project/verif3d.tmp
+%
+%--[2009-06-15.04:08:43.mstorti-v26-end-61-g072f47c]-----
+Los de project/ se deben a que falta llamar a MPI_Init y
+MPI_Finalize() en el prog. Los de nutatcyl se deben probablemente al
+cambio en el calculo de los momentos. 
+
+%=== Mon Jun 15 16:03:35 2009 mstorti@galileo
+%
+%--[2009-06-15.19:03:35.mstorti-v26-end-65-g0f6ae7e]-----
+Los de nutatcyl era porque al corregir el calculo del momento
+volvieron a andar bien. El cambio en embgath.cpp fue en 2003-01-10. 
+
+%=== Wed Jun 17 08:56:23 2009 mstorti@galileo
+%
+%--[2009-06-17.11:56:23.mstorti-v26-end-69-g93cf3e8]-----
+Viendo el tema de la convergencia con elastld.
+Plan de trabajo:
+. Ver si converge mejor la nueva formulacion con respecto a la vieja. 
+  SI, converge mucho mejor!! 2009-06-17 14:13:10
+. Ver si es el swap o la diferencia en el calculo de la aceleracion o
+   los dos
+  2009-06-17 14:20:32
+  Con SWAP, pero sin RWACC (rewrite de la acceleration)
+  da casi igual que la nueva (es decir muy bien).
+  2009-06-17 14:24:18
+  Si hacemos RWACC, entonces hay que hacer si o si SWAP, ya que si no
+  te da un pivote nulo. 
+  2009-06-17 14:29:18
+  Con un paso de tiempo bajo (Dt=0.001) la nueva form converge muy
+  bien. 
+. Ver como es para tiempos pequeños
+  2009-06-17 14:33:53
+  Uso Dt=0.001
+  Tanto con la nueva como con la vieja formulacion converge muy bien. 
+  Con la nueva converge incluso bastante mejor. 
+  2009-06-17 14:36:51
+  Con SWAP pero sin RWACC tambien da bien, casi igual que con RWACC. 
+  O sea el RWACC parece no hacer mucho, pero hay que ver que si
+  queremos eliminar la 2da ecuacion entonce si o si hay que hacer el
+  RWACC. 

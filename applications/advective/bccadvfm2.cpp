@@ -76,7 +76,7 @@ int BcconvAdvFM2::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
     exit(1);
   }
 
-  double *locst,*retval,*retvalt;
+  double *locst=NULL,*retval=NULL,*retvalt=NULL;
   //  if (comp_mat_mass || comp_diag_mat_mass) {
   //	printf("BC_CONV is not designed for matrices assembly \n");
   //	exit(1);

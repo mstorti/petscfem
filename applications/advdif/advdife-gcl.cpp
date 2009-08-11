@@ -106,9 +106,8 @@ new_assemble_GCL_compliant(arg_data_list &arg_data_v,const Nodedata *nodedata,
 // apply ALPHA to time step in order to take into account higher order temporal integration
     rec_Dt_m = rec_Dt_m/ALPHA;
 
-#ifdef CHECK_JAC
-    fdj_jac = &arg_data_v[++j];
-#endif
+    if (ADVDIF_CHECK_JAC)
+      fdj_jac = &arg_data_v[++j];
   }
 
   FastMat2 matlocf(4,nel,ndof,nel,ndof),
@@ -1186,9 +1185,8 @@ new_assemble_GCL_compliant(arg_data_list &arg_data_v,const Nodedata *nodedata,
 
       veccontr.export_vals(element.ret_vector_values(*retval));
       // veccontr.print(nel,"veccontr:");
-#ifdef CHECK_JAC
-      veccontr.export_vals(element.ret_fdj_values(*fdj_jac));
-#endif
+      if (ADVDIF_CHECK_JAC)
+        veccontr.export_vals(element.ret_fdj_values(*fdj_jac));
       if (comp_mat_each_time_step_g) {
 	matlocf.add(matlocf_fix);
 	matlocf.export_vals(element.ret_mat_values(*Ajac));

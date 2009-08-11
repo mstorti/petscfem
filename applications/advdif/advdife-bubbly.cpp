@@ -194,9 +194,8 @@ extern const char * jobinfo_fields;
     glob_param = (GlobParam *)arg_data_v[++j].user_data;;
     rec_Dt_m = 1./DT;
     if (glob_param->steady) rec_Dt_m = 0.;
-#ifdef CHECK_JAC
-    fdj_jac = &arg_data_v[++j];
-#endif
+    if (ADVDIF_CHECK_JAC)
+      fdj_jac = &arg_data_v[++j];
   }
 
   FastMat2 matlocf(4,nel,ndof,nel,ndof),matlocf_mass(4,nel,ndof,nel,ndof);
@@ -983,9 +982,8 @@ extern const char * jobinfo_fields;
 #endif
 
       veccontr.export_vals(element.ret_vector_values(*retval));
-#ifdef CHECK_JAC
-      veccontr.export_vals(element.ret_fdj_values(*fdj_jac));
-#endif
+      if (ADVDIF_CHECK_JAC)
+        veccontr.export_vals(element.ret_fdj_values(*fdj_jac));
       if (comp_mat_each_time_step_g) {
         matlocf.add(matlocf_fix);
 	matlocf.export_vals(element.ret_mat_values(*Ajac));

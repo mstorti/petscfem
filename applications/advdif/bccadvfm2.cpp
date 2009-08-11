@@ -121,9 +121,8 @@ void NewBcconv::new_assemble(arg_data_list &arg_data_v,const Nodedata *nodedata,
     glob_param = (GlobParam *)arg_data_v[++j].user_data;;
     rec_Dt = 1./DT;
     if (glob_param->steady) rec_Dt = 0.;
-#ifdef CHECK_JAC
-    fdj_jac = &arg_data_v[++j];
-#endif
+    if (ADVDIF_CHECK_JAC)
+      fdj_jac = &arg_data_v[++j];
   }
 
   FastMat2 prof_nodes(2,nel,nel),prof_fields(2,ndof,ndof),matlocf_fix(4,nel,ndof,nel,ndof);
@@ -341,9 +340,8 @@ void NewBcconv::new_assemble(arg_data_list &arg_data_v,const Nodedata *nodedata,
 
     if (comp_res) {
       veccontr.export_vals(element.ret_vector_values(*retval));
-#ifdef CHECK_JAC
-      veccontr.export_vals(element.ret_fdj_values(*retval));
-#endif
+      if (ADVDIF_CHECK_JAC)
+        veccontr.export_vals(element.ret_fdj_values(*fdj_jac));
       if (comp_mat_each_time_step_g) {
 	matlocf.add(matlocf_fix);
 	matlocf.export_vals(element.ret_mat_values(*Ajac));

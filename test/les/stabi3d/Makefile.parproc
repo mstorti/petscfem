@@ -1,4 +1,4 @@
-# -*- mode: makefile -*-
+# -*- mode: makefile-gmake -*-
 run_mode := mono
 proctable := $(PETSCFEM_PROCTABLE)
 host:=$(HOSTNAME)

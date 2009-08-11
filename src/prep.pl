@@ -1,6 +1,8 @@
 #!/usr/bin/perl
 #__INSERT_LICENSE__
 
+use English;
+
 sub template_subst {
     my $text = shift();
     my %arg_list = %{shift()};
@@ -11,8 +13,8 @@ sub template_subst {
 	if (! $subst) {
 	    $subst = $ {$ident};
 	}
-	push @new, $`,$subst;
-	$text = $';
+	push @new, $PREMATCH,$subst;
+	$text = $POSTMATCH;
     }
     $text= join("",@new,$text);
     return $text;
@@ -141,6 +143,8 @@ sub gen_sum_all {
 	    {'OTHER_ARGS'=>'const int p',
 	     'OTHER_ARGS_P'=>'p',
 	     'POST_LOOP_OPS'=>'val = pow(val,1./double(p))'});
+    gen_sum('norm_2','val += square(fabs(**pa++))',copg(qw(sum abs)),
+            {'POST_LOOP_OPS'=>'val = sqrt(val)'});
     gen_sum('assoc','f.set(f.fun2(**pa++,f.v()))','',
 	    {PRE_LOOP_OPS=>'f.pre_all()',
              INI_LOOP => 'f.pre()', 

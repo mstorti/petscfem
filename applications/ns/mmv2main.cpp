@@ -250,10 +250,10 @@ int mmove2_main() {
   GETOPTDEF(int,nsaverot,100);
   //o Sets the number of states saved in a given file
   // in the ``rotary save'' mechanism (see \ref{sec:rotary_save}
-  GETOPTDEF(int,nrec,1000000);
+  GETOPTDEF(int,nrec,1);
   //o Sets the number of files in the ``rotary save'' mechanism. 
   // (see \ref{sec:rotary_save})
-  GETOPTDEF(int,nfile,1);
+  GETOPTDEF(int,nfile,-1);
 
   //o Sets the save frequency in iterations for the ``print some''
   // mechanism. 

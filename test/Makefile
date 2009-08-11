@@ -1,12 +1,13 @@
 #__INSERT_LICENSE__
 
-.PHONY: all run  compile lclean ns laplace adv nso laplace_tests force	     \
-        ctest runtests clean fastmat2_obj plano idmap			     \
-	chunk_size_process fastmat2 fastmat2a fastmat2b fastmat2c sqcav5     \
-	constraint_bug fstack sector triangle advdif texthash log_vars	     \
-	newff burgers bug100 nonlr genload lupart distmap sparse graph sqcav \
-	pfmat  aquifer nutatcyl mmove advec nsgenload plate gasflow oscplate \
-	idmap sw_abso cubcav condwall project embgath alebcconv ductadv
+.PHONY: all run  compile lclean ns laplace adv nso laplace_tests force		\
+        ctest runtests clean fastmat2_obj plano idmap				\
+	chunk_size_process fastmat2 fastmat2a fastmat2b fastmat2c sqcav5	\
+	constraint_bug fstack sector triangle advdif texthash log_vars		\
+	newff burgers bug100 nonlr genload lupart distmap sparse graph sqcav	\
+	pfmat  aquifer nutatcyl mmove advec nsgenload plate gasflow-conv 	\
+	oscplate idmap sw_abso cubcav condwall project embgath alebcconv 	\
+	ductadv
 
 SRCS = $(wildcard *.cpp)
 
@@ -14,8 +15,8 @@ DIRS = circ fstack sector les turbchan turbchanw advdif texthash	\
 		newff burgers les/stabi genload bug100 nonlr wallke	\
 		wkepipe wallkechan lupart distmap sparse graph sqcav	\
 		pfmat cubcav aquifer bubbly nutatcyl aquifer fastmat2	\
-		nsgenload plate gasflow idmap mmove advec plano		\
-		oscplate spillway sw_abso gfplate condwall project 	\
+		nsgenload plate gasflow-conv idmap mmove advec plano	\
+		oscplate spillway sw_abso gfplate condwall project	\
 		embgath flow-reversal alebcconv ductadv
 
 CLEAN_DIRS = $(DIRS)
@@ -71,7 +72,8 @@ torture_1:
 	tar czvf ../make-tests-$(BOPT).tar.gz -C .. test
 	echo "-------------------------" | tee -a make-tests-$(BOPT).log
 	echo "ABRIDGED: " | tee -a  make-tests-$(BOPT).log
-	$(MAKE) abridged | tee -a make-tests-$(BOPT).log
+	$(MAKE) abridged &> /dev/null
+	cat abridged.tmp >> make-tests-$(BOPT).log
 
 #w report:
 report:
@@ -103,6 +105,9 @@ torture:
 	$(MAKE) lclean
 	$(MAKE) BOPT=O_c++ torture_1
 	$(MAKE) lclean
+	mkstepsdir.pl -p petscfem-runtests
+	mv -f make-tests* petscfem-runtests
+	mv -f ../make-tests-*.tar.gz petscfem-runtests
 
 #----<*>----------<*>----------<*>----------<*>----------<*>----------<*>-----
 # All tests
@@ -116,13 +121,14 @@ tests: runtests
 
 #----<*>----------<*>----------<*>----------<*>----------<*>----------<*>-----
 #w Runs the tests
-runtests: compile sector oscplate fastmat2 plano idmap constraint_bug 	 \
-	fstack advdif texthash log_vars newff burgers bug100 genload 	 \
-	lupart distmap sparse graph sqcav pfmat aquifer nutatcyl mmove 	 \
-	advec nsgenload cubcav project embgath alebcconv ductadv
+runtests: compile sector oscplate fastmat2 plano idmap constraint_bug	\
+	fstack advdif texthash log_vars newff burgers bug100 genload	\
+	lupart distmap sparse graph sqcav pfmat aquifer nutatcyl mmove	\
+	advec nsgenload cubcav project embgath alebcconv ductadv 	\
+	gasflow-conv
 
 rp: runtests_p
-runtests_p:   ductadv
+runtests_p: burgers
 
 #s Specific tests
 #----<*>----------<*>----------<*>----------<*>----------<*>----------<*>-----
@@ -291,8 +297,13 @@ alebcconv:
 ductadv:
 	$(MAKE) -C ductadv tests
 
+#----<*>----------<*>----------<*>----------<*>----------<*>----------<*>--
+# Gasflow tests
+gasflow-conv:
+	$(MAKE) -C $@ tests
+
 # makes an abridged acount of the tests
-abridged:
+abridged2:
 	@ ( echo "NOT OK-------" ;				\
 	./runtests.pl -n | grep "^Testing" |			\
 		perl -pe 's/^.*on file "(.*)".*$$/$$1/' ;	\
@@ -301,5 +312,20 @@ abridged:
 		perl -pe "s/^can't open //" ; )			\
 		| tee abridged.tmp
 
+abridged:
+	cat /dev/null > abridged.tmp
+	./runtests.pl -n | grep "^Testing" |			\
+		perl -pe 's/^.*on file "(.*)".*$$/$$1/' > tempo.txt
+	echo -n "NOT OK------- -> " >> abridged.tmp
+	wc -l tempo.txt | cut -f 1 -d ' '>> abridged.tmp
+	cat tempo.txt >> abridged.tmp
+#
+	./runtests.pl -o | grep "^can't open" |			\
+		perl -pe "s/^can't open //" > tempo.txt
+	echo -n "CAN'T OPEN------- -> " >> abridged.tmp
+	wc -l tempo.txt | cut -f 1 -d ' '>> abridged.tmp
+	cat tempo.txt >> abridged.tmp
+#
+	rm -f tempo.txt
 
 #s
