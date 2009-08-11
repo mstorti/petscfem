@@ -27,7 +27,7 @@ mesh:
 #w Runs program, use `mkmesh=0' or 1 to control mesh creation
 test_gasflow_1elem_jaco: 
 	make-depl $(CASE).epl $(CASE).depl -d mkmesh=1
-	$(MPI_HOME)/bin/mpiexec -a $(CASE) $(NL) $(MCH) \
+	$(MPIEXEC) -a $(CASE) $(NL) $(MCH) \
 		-np $(NP) $(PROG) -case $(CASE).depl </dev/null > $@_output.tmp
 	$(OCTAVE) $@_verif.m &> $@_verif.tmp
 
