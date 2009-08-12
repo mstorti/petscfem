@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-// $Id: absolay.cpp,v 1.2.20.1 2007/02/23 19:18:07 dalcinl Exp $
+// $Id: absolay.cpp,v 1.2.20.1 2007/02/23 19:18:07 rodrigop Exp $
 #include "./absolay.h"
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:

@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: advdif.cpp,v 1.71.10.2 2007/02/23 19:18:07 dalcinl Exp $
+//$Id: advdif.cpp,v 1.71.10.2 2007/02/23 19:18:07 rodrigop Exp $
 
 #include <src/debug.h>
 #include <set>

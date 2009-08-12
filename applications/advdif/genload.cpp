@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: genload.cpp,v 1.20.10.2 2007/02/23 19:18:07 dalcinl Exp $
+//$Id: genload.cpp,v 1.20.10.2 2007/02/23 19:18:07 rodrigop Exp $
 extern int comp_mat_each_time_step_g,
   consistent_supg_matrix_g,
   local_time_step_g;

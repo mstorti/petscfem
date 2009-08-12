@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: gaschem.cpp,v 1.17.84.2 2007/02/23 19:18:07 dalcinl Exp $
+//$Id: gaschem.cpp,v 1.17.84.2 2007/02/23 19:18:07 rodrigop Exp $
 
 #include <src/fem.h>
 #include <src/texthash.h>
