@@ -75,7 +75,7 @@ int main(int argc,char **argv) {
       printf(" usage: $ project4.bin -d <NDIM>\n"
 	     SEP "-l <NDIMEL> -e <NEL> -f <NDOF>\n"
 	     SEP "-x <XNOD1> -i <ICONE1> -s <STATE1>\n"
-	     SEP "-y <XNOD2> -s <STATE2>\n"
+	     SEP "-y <XNOD2> -o <STATE2>\n"
              );
       exit(0);
       GETOPT_GET('d',"%d",ndim);

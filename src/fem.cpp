@@ -140,6 +140,14 @@ void petscfem_error(const char *templ,...) {
   abort();
 }
 
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>
+void petscfem_warn(const char *templ,...) {
+  va_list list;
+  va_start(list,templ);
+  petscfem_printf(templ,list);
+}
+
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>
 void petscfem_assert(int cond, const char *templ,...) {
   if (!cond) {
     va_list list;
