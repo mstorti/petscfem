@@ -14,8 +14,8 @@ xnod=[xnod;xnod(1,:);xnod(nnod,:)];
 icone1=[1:nnod-1]';
 icone2=[2:nnod]';
 icone=[icone1 icone2];
-asave("canal1d.nod.tmp",xnod);
-asave("canal1d.con.tmp",icone);
+asave2("canal1d.nod.tmp",xnod);
+asave2("canal1d.con.tmp",icone);
 ##parabolic bump paper mario for initial state
 xc=xnod(round(Nx/2),1);
 for i=1:nnod,
@@ -26,16 +26,16 @@ h_iniv=h_iniv';
 u0v=u_ini*ones(nnod,1);
 u0v(nnod+1)=0.;u0v(nnod+2)=0.;
 
-asave("canal1d.ini.tmp",[u0v h_iniv]);
+asave2("canal1d.ini.tmp",[u0v h_iniv]);
 ##pffixa("canal1d.in-fixa.tmp",[1],[1 2],[u_in,h_in]);
 ##pffixa("canal1d.out-fixa.tmp",[nnod],[1 2],[u_out,h_out]);
 pffixa("canal1d.in-fixa.tmp",[1],[1],[u_in]);
 pffixa("canal1d.out-fixa.tmp",[nnod],[2],[h_out]);
 
 if (uref==0)
-  asave("canal1d.abso-out.tmp",[1 nnod+1 -1.0; \
+  asave2("canal1d.abso-out.tmp",[1 nnod+1 -1.0; \
 				nnod nnod+2 1.0]);
 else
-  asave("canal1d.abso-out.tmp",[1 nnod+1 nnod+1 -1.0;\
+  asave2("canal1d.abso-out.tmp",[1 nnod+1 nnod+1 -1.0;\
 				nnod nnod+2 nnod+2  1.0]);
 endif

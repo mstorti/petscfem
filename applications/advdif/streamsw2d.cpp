@@ -112,6 +112,18 @@ streamsw2d_ff::~streamsw2d_ff() {
 void streamsw2d_ff::set_state(const FastMat2 &U) {
   UU.rs().set(U);
   h=UU.get(ndim+1);
+  //Enthalpy jacobian
+  Cp.set(0.);
+  Cp.setel(h,1,1);
+  Cp.setel(0.,1,2);
+  Cp.setel(UU.get(1),1,3);
+  Cp.setel(0.,2,1);
+  Cp.setel(h,2,2);
+  Cp.setel(UU.get(2),2,3);
+  Cp.setel(0.,3,1);
+  Cp.setel(0.,3,2);
+  Cp.setel(1.,3,3);
+  Cp.rs();
 }
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
@@ -199,20 +211,6 @@ void streamsw2d_ff::compute_flux(const FastMat2 &U,
   double ux,uy;
   ux=u.get(1);
   uy=u.get(2);
-
-  //Enthalpy jacobian
-  Cp.set(0.);
-  Cp.setel(h,1,1);
-  Cp.setel(0.,1,2);
-  Cp.setel(ux,1,3);
-  Cp.setel(0.,2,1);
-  Cp.setel(h,2,2);
-  Cp.setel(uy,2,3);
-  Cp.setel(0.,3,1);
-  Cp.setel(0.,3,2);
-  Cp.setel(1.,3,3);
-  Cp.rs();
-
 
   AJACX(1,1) = 2*ux*h;
   AJACX(1,2) = 0.;

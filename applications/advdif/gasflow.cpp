@@ -268,6 +268,15 @@ void gasflow_ff::set_state(const FastMat2 &UU) {
   entalpy=rho_ene+p;
   Cv=Rgas/g1;
   int_ene=p/g1/rho;
+
+  //Enthalpy Jacobian
+  Cp.set(0.);
+  Cp.setel(1.0,1,1);
+  Cp.is(1,vl_indx,vl_indxe).ir(2,1).set(vel).rs();
+  Cp.is(1,vl_indx,vl_indxe).is(2,vl_indx,vl_indxe).eye(rho).rs();
+  Cp.ir(1,ndof).is(2,vl_indx,vl_indxe).set(vel).scale(rho).rs();
+  Cp.setel(1.0/g1,ndof,ndof);
+  Cp.setel(0.5*square(velmod),ndof,1);
 }
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:
@@ -435,14 +444,7 @@ void gasflow_ff::compute_flux(const FastMat2 &U,
 
   // double velmod = sqrt(vel.sum_square_all());
   // double entalpy=rho_ene+p;
-
-  Cp.set(0.);
-  Cp.setel(1.0,1,1);
-  Cp.is(1,vl_indx,vl_indxe).ir(2,1).set(vel).rs();
-  Cp.is(1,vl_indx,vl_indxe).is(2,vl_indx,vl_indxe).eye(rho).rs();
-  Cp.ir(1,ndof).is(2,vl_indx,vl_indxe).set(vel).scale(rho).rs();
-  Cp.setel(1.0/g1,ndof,ndof);
-  Cp.setel(0.5*square(velmod),ndof,1);
+  set_state(U);
 
   //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:
   // Advective fluxes

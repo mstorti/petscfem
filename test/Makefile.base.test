@@ -67,4 +67,10 @@ in_backg = </dev/null >$(1).out.tmp
 
 redir = </dev/null >$(1)
 
+## for mpich2 installed from rpm's uncomment the following lines
+#MPIEXEC := /usr/bin/mpiexec
+#MPIRUN  := /usr/bin/mpirun
+
 MPIEXEC := $(MPI_HOME)/bin/mpiexec
+MPIRUN  := $(MPI_HOME)/bin/mpirun
+

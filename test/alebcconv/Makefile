@@ -29,7 +29,7 @@ ifeq ($(SAVE),1)
 	mkstepsdir.pl
 	cp $(CASE_NAME).depl $(CASE_NAME).epl ./STEPS
 endif
-	$(MPI_HOME)/bin/mpiexec $(MCH) -a $(CASE_NAME)		\
+	$(MPIEXEC) $(MCH) -a $(CASE_NAME)		\
 		-np $(NP) $(PROG) -case $(CASE_NAME).depl	\
 		$(call redir,output.ALE$(ALE).tmp)
 

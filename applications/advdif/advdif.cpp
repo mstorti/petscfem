@@ -385,7 +385,8 @@ int advdif_main(int argc,char **args) {
     }
     chrono.start();
     ierr = VecCopy(x,xold);
-    hook_list.time_step_pre(time_star.time(),tstep);
+    //    hook_list.time_step_pre(time_star.time(),tstep);
+    hook_list.time_step_pre(time.time()+Dt,tstep); //hook needs t_{n+1}
 
     for (int inwt=0; inwt<nnwt; inwt++) {
 
@@ -578,7 +579,8 @@ int advdif_main(int argc,char **args) {
       CHKERRA(ierr);
     }
 
-    hook_list.time_step_post(time_star.time(),tstep,gather_values);
+    //    hook_list.time_step_post(time_star.time(),tstep,gather_values);
+    hook_list.time_step_post(time.time()+Dt,tstep,gather_values);
 
     if (ngather>0) {
       // Print gathered values

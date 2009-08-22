@@ -142,6 +142,8 @@ before_assemble(arg_data_list &arg_datav,Nodedata *nodedata,
   NSGETOPTDEF_ND(double,compute_fd_adv_jacobian_rel_err_threshold,0.);
   //o Use the GCL compliant versin of the algorithm 
   NSGETOPTDEF_ND(int,use_GCL_compliant,0);
+  //o Use the ALE+GCL formulation versin of the algorithm 
+  NSGETOPTDEF_ND(int,use_ALE_form,0);
 
 #if 0
   //o Flags whether we are solving a precondioned
@@ -220,6 +222,11 @@ void NewAdvDif::new_assemble(arg_data_list &arg_data_v,const Nodedata *nodedata,
 			     const ElementList &elemlist,
 			     const TimeData *time_data) try {
 
+  if (use_ALE_form) {
+    new_assemble_ALE_formulation(arg_data_v,nodedata,
+				 dofmap,jobinfo,elemlist,time_data);
+    return;
+  }
   if (use_GCL_compliant) {
     new_assemble_GCL_compliant(arg_data_v,nodedata,
                                dofmap,jobinfo,elemlist,time_data);
@@ -695,13 +702,13 @@ void NewAdvDif::new_assemble(arg_data_list &arg_data_v,const Nodedata *nodedata,
                                             dshapex,wpgdet_low);
           matlocf.add(grad_N_D_grad_N);
 	
-          dUdt.set(Hn).rest(Ho).scale(rec_Dt_m);
-	
-          tmp10.set(G_source);	// tmp10 = G - dUdt
-          if (!lumped_mass) tmp10.rest(dUdt);
-	
+	  dUdt.set(Hn).rest(Ho).scale(rec_Dt_m);
+	  
+	  tmp10.set(G_source);	// tmp10 = G - dUdt
+	  if (!lumped_mass) tmp10.rest(dUdt);
+	  
           tmp1.rs().set(tmp10).rest(A_grad_U); //tmp1= G - dUdt - A_grad_U
-	
+	  
           if (use_Ajac_old) {
             Ao_grad_U.prod(Ao,grad_U,-1,1,-2,-1,-2);
             tmp1_old.rs().set(tmp10).rest(Ao_grad_U); //tmp1= G - dUdt - A_grad_U
@@ -999,44 +1006,44 @@ void NewAdvDif::new_assemble(arg_data_list &arg_data_v,const Nodedata *nodedata,
             tmp1_old.rs().set(tmp10).rest(Ao_grad_U); //tmp1= G - dUdt - A_grad_U
           }
 
-          // MODIF BETO 8/6
-          if (!lumped_mass) {
-            adv_diff_ff->enthalpy_fun
-              ->comp_W_Cp_N(N_Cp_N,SHAPE,SHAPE,
-                            wpgdet*rec_Dt_m);
-            matlocf.add(N_Cp_N);
-          }
+	// MODIF BETO 8/6
+	if (!lumped_mass) {
+	  adv_diff_ff->enthalpy_fun
+	    ->comp_W_Cp_N(N_Cp_N,SHAPE,SHAPE,
+			  wpgdet*rec_Dt_m);
+	  matlocf.add(N_Cp_N);
+	}
+	
+	// A_grad_N.prod(dshapex,A_jac,-1,1,-1,2,3);
+	adv_diff_ff->comp_A_grad_N(A_grad_N,dshapex);
 
-          // A_grad_N.prod(dshapex,A_jac,-1,1,-1,2,3);
-          adv_diff_ff->comp_A_grad_N(A_grad_N,dshapex);
+	// add ALE Galerkin terms
+	if (ALE_flag) {
+	  // v_mesh.prod(SHAPE,vloc_mesh,-1,-1,1);
+	  adv_diff_ff->get_Cp(Cp_bis);
+	  tmp_ALE_01.prod(v_mesh,dshapex,-1,-1,1);
+	  tmp_ALE_02.prod(v_mesh,grad_U,-1,-1,1);
+	  tmp_ALE_03.prod(SHAPE,Cp_bis,1,2,3);
 
-          // add ALE Galerkin terms
-          if (ALE_flag) {
-            // v_mesh.prod(SHAPE,vloc_mesh,-1,-1,1);
-            adv_diff_ff->get_Cp(Cp_bis);
-            tmp_ALE_01.prod(v_mesh,dshapex,-1,-1,1);
-            tmp_ALE_02.prod(v_mesh,grad_U,-1,-1,1);
-            tmp_ALE_03.prod(SHAPE,Cp_bis,1,2,3);
+	  tmp_ALE_04.prod(tmp_ALE_03,tmp_ALE_02,1,2,-1,-1);
+	  veccontr.axpy(tmp_ALE_04,wpgdet);
 
-            tmp_ALE_04.prod(tmp_ALE_03,tmp_ALE_02,1,2,-1,-1);
-            veccontr.axpy(tmp_ALE_04,wpgdet);
+	  tmp_ALE_05.prod(tmp_ALE_03,tmp_ALE_01,1,2,4,3);
+	  matlocf.axpy(tmp_ALE_05,-wpgdet);
+	}
 
-            tmp_ALE_05.prod(tmp_ALE_03,tmp_ALE_01,1,2,4,3);
-            matlocf.axpy(tmp_ALE_05,-wpgdet);
-          }
+	// Termino Galerkin
+	if (weak_form) {
+	  // assert(!lumped_mass && beta_supg==1.); 
+	  // Not implemented yet!!
+	  // weak version
 
-          // Termino Galerkin
-          if (weak_form) {
-            // assert(!lumped_mass && beta_supg==1.); 
-            // Not implemented yet!!
-            // weak version
-
-            //	  tmp11.set(flux).rest(fluxd); // tmp11 = flux_c - flux_d
-            if (use_low_gpdata){
-              tmp11.set(flux); // tmp11 = flux_c (viscous part is integrated in 1 PG)
-            } else {
-              tmp11.set(flux).rest(fluxd); // tmp11 = flux_c - flux_d
-            }
+	  //	  tmp11.set(flux).rest(fluxd); // tmp11 = flux_c - flux_d
+	  if (use_low_gpdata){
+	  tmp11.set(flux); // tmp11 = flux_c (viscous part is integrated in 1 PG)
+	  } else {
+	  tmp11.set(flux).rest(fluxd); // tmp11 = flux_c - flux_d
+	  }
 
             tmp23.set(SHAPE).scale(-wpgdet);
             tmp14.prod(A_grad_N,tmp23,1,2,4,3);
