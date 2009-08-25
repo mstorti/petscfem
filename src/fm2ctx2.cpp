@@ -103,17 +103,19 @@ FastMatCache* FastMat2::CacheCtx2
                         "Failed FastMat2 cache check, "
                         "cached: \"%s\", wanted: \"%s\"",
                         cache->check_label.c_str(),as.str()); 
+        as.clear();
       }
 #endif
     } else {
       branch_p->push_back(FastMatCache());
       cache = &branch_p->back();
 #ifndef NDEBUG
-      if (do_check_labels)
+      if (do_check_labels) {
         cache->check_label = as.str();
+        as.clear();
+      }
 #endif
     }
-    as.clear();
   } else {
     cache = new FastMatCache;
   }

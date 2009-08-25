@@ -14925,3 +14925,212 @@ Plan de trabajo:
   O sea el RWACC parece no hacer mucho, pero hay que ver que si
   queremos eliminar la 2da ecuacion entonce si o si hay que hacer el
   RWACC. 
+
+%=== Sat Aug 22 00:54:36 2009 mstorti@galileo
+%
+%--[2009-08-22.03:54:36.mstorti-v28-end-0-gfe455b6]-----
+Corro todos los tests:
+make-tests-g_c++.log ---------------------
+NOT OK------- -> 6
+sqcav/check.fs.verif.tmp
+idmap/tidmap.sal
+newff/adv_temp_cp.vrf.tmp
+newff/full_full_jacs_cp.vrf.tmp
+newff/full_full_jacs_adv_cp.vrf.tmp
+newff/adv_temp_cp_iisd.vrf.tmp
+CAN'T OPEN------- -> 0
+make-tests-O_c++.log: ----------------
+NOT OK------- -> 7
+sqcav/check.fs.verif.tmp
+idmap/tidmap.sal
+newff/adv_temp_cp.vrf.tmp
+newff/full_full_jacs_cp.vrf.tmp
+newff/full_full_jacs_adv_cp.vrf.tmp
+newff/adv_temp_cp_iisd.vrf.tmp
+distmap/dist_graph.np3.out.tmp
+CAN'T OPEN------- -> 0
+---------------------------------
+O sea que corre bien todos los tests. 
+
+%=== Mon Aug 24 14:33:32 2009 mstorti@galileo
+%
+%--[2009-08-24.17:33:32.mstorti-v28-end-0-gfe455b6]-----
+EFICIENCIA DE CACHECTX2
+-----
+A partir del programa de Guillermo Castro que trata de implementar
+OMP+MPI detectamos que la eficiencia con CacheCtx2 es bastante menor
+que con Ctx1. En realidad yo habia verificado [14:20:25 --
+mstorti-v24-start-25-g63b456f] con trcprtf que la eficiencia era
+similar. Asi que voy a ver un poco de nuevo. Ademas en el caso del
+programa de Guillermo, la estructura del cache es practicamente lineal
+asi que lo que tiene que hacer el cache es muy simple, es decir
+avanzar simplemente de una celda de la lista a la siguiente, cuyo
+costo no deberia ser tan alto. 
+%
+%--[2009-08-24.17:52:19.mstorti-v28-end-0-gfe455b6]-----
+Rebobino y creo un ejemplo 
+petscfem-cases/garage/cachectx2/test-effic/testfm2omp.cpp
+que trata de ver que pasa con los CTX 1 y 2 y con OMP. Hace un
+producto simple de matrices C=A*B, y se pueden activar los dos CTX. 
+%
+Tenemos
+%
+-| [mstorti@galileo test-effic]$ OMP_NUM_THREADS=2 \
+-|                   ./testfm2omp.bin -n 10 -N 1000 -t 0.2
+-|  n: 10, : 1000, M: 1000, loop: 1000, nthreads 2
+-|  using CacheCtx1
+-|  sum 672.126140
+-|  elapsed: 2.497 [sec], ops: 2.000 [Gflop], rate: 0.801 [Gflops]
+-|  [mstorti@galileo test-effic]$ OMP_NUM_THREADS=1 \
+-|                   ./testfm2omp.bin -n 10 -N 1000 -t 0.2
+-|  n: 10, : 1000, M: 1000, loop: 1000, nthreads 1
+-|  using CacheCtx1
+-|  sum 672.126140
+-|  elapsed: 3.225 [sec], ops: 2.000 [Gflop], rate: 0.620 [Gflops]
+%
+-|  [mstorti@galileo test-effic]$ OMP_NUM_THREADS=1 ./testfm2omp.bin \
+-|                   -n 10 -N 1000 -t 0.2
+-|  n: 10, : 1000, M: 1000, loop: 1000, nthreads 1
+-|  using CacheCtx2
+-|  sum 672.126140
+-|  elapsed: 3.891 [sec], ops: 2.000 [Gflop], rate: 0.514 [Gflops]
+-|  [mstorti@galileo test-effic]$ OMP_NUM_THREADS=2 ./testfm2omp.bin \
+-|                   -n 10 -N 1000 -t 0.2
+-|  n: 10, : 1000, M: 1000, loop: 1000, nthreads 2
+-|  using CacheCtx2
+-|  sum 672.126140
+-|  elapsed: 2.723 [sec], ops: 2.000 [Gflop], rate: 0.735 [Gflops]
+%
+O sea que tenemos 
+%
+         NP=1       NP=2
+CTX1     0.62       0.80
+CTX2     0.514      0.735
+%
+Con lo cual se ve que hay una degradacion. Tal ves esto se haga cada
+vez peor a medida que hay matrices mas pequeñas. 
+%
+%--[2009-08-24.18:21:40.mstorti-v28-end-0-gfe455b6]-----
+-|  [mstorti@galileo test-effic]$ OMP_NUM_THREADS=1 ./testfm2omp.bin \
+-|                   -n 3 -N 1000 -t 0.1
+-|  n: 3, : 1000, M: 1000, loop: 18518, nthreads 1
+-|  using CacheCtx2
+-|  sum 6.189100
+-|  elapsed: 28.860 [sec], ops: 1.000 [Gflop], rate: 0.035 [Gflops]
+-------------
+-|  [mstorti@galileo test-effic]$ OMP_NUM_THREADS=1 ./testfm2omp.bin \
+-|                   -n 3 -N 1000 -t 0.1
+-|  n: 3, : 1000, M: 1000, loop: 18518, nthreads 1
+-|  using CacheCtx1
+-|  sum 6.189100
+-|  elapsed: 19.624 [sec], ops: 1.000 [Gflop], rate: 0.051 [Gflops]
+%
+O sea que tenemos con CTX1:0.051 Gflops, CTX2:0.035 Gflops. Un
+deterioro de casi el 50%. 
+%
+%--[2009-08-24.19:34:53.mstorti-v28-end-0-gfe455b6]-----
+Ahora pruebo lo siguiente, en la funcion next() de `CacheCtx2' se hace
+un q++. Lo que voy a hacer es agregarle un "q--; q++" para tener una
+idea del costo incremental que representa esto. 
+%
+CON Q--Q++
+CTX1: 0.052 Gflops (no cambia, solo para verificar)
+CTX2: 0.034 Gflops (tampoco cambia!!)
+%
+La version con CTX1 no cambia lo cual es previsible, pero en el caso
+del CTX2 se ve que tampoco cambia, asi que se ve que el incremento de
+posicion en las listas del CTX2 no es demasiado perjudicial. 
+%
+%--[2009-08-24.19:58:55.mstorti-v28-end-0-gfe455b6]-----
+Voy a probar a medir con relojes el costo del `jumpto'. 
+%
+%--[2009-08-24.22:50:08.mstorti-v28-end-0-gfe455b6]-----
+Con los omp_get_wtime() me da un rate de 0.011Gflops lo cual quiere
+decir que es demasiado intrusivo. Entonces voy a probar a sacar los
+tiempos por diferencia, es decir por ejemplo agregando un jump
+adicional. 
+%
+%--[2009-08-25.11:17:36.mstorti-v28-end-0-gfe455b6]-----
+Pruebo a agregar artificialmente un `jump()' pero lo que veo es que
+los tiempos no cambian demasiado. 
+%
+CTX2, SIN jump(b2): 0.020 Gflops
+CTX2, CON jump(b2): 0.020 Gflops
+%
+%--[2009-08-25.11:26:18.mstorti-v28-end-0-gfe455b6]-----
+Pruebo a agregarle un ir().rs(). Cuando estan cacheados estos dos lo
+unico que hacen practicamente es el step() de manera que es una forma
+de agregar dos step() adicionales. El impacto es minimo. 
+%
+CTX2, CON ir().rs(): 0.020 Gflops
+%
+%--[2009-08-25.12:16:01.mstorti-v28-end-0-gfe455b6]-----
+Si vamos a matrices un poco mas chicas, entonces la ventaja para CTX1
+es todavia un poco mayor
+%
+$ OMP_NUM_THREADS=1 ./testfm2omp.bin -n 2 -N 1000 -t 0.01
+n: 2, : 1000, M: 1000, loop: 6250, nthreads 1
+using CacheCtx2
+sum 1.392359
+CTX2: elapsed: 13.014 [sec], ops: 0.100 [Gflop], rate: 0.008 [Gflops]
+CTX1: elapsed: 17.508 [sec], ops: 0.100 [Gflop], rate: 0.006 [Gflops]
+%
+%--[2009-08-25.12:21:16.mstorti-v28-end-0-gfe455b6]-----
+Volviendo al programa de Guillermo tengo
+%
+[mstorti@galileo run-mpi-omp]$ OMP_NUM_THREADS=1 mixed_petsc04.bin
+Nodes MPI: 1 
+Read 10201 nodes.
+Read 560000 elements.
+Read 202 fixations.
+proc: 0, from 0 to 9999, total 9999
+fixed: from 9999 to 10201, total 202
+id_indx[1] = 9999
+ndof_here[0] = 9999
+Element assembly & Loop over chunks
+CTX2: Elapsed time (matrix residual eval): 3.790769 sec.
+[mstorti@galileo run-mpi-omp]$ 
+CTX1: Elapsed time (matrix residual eval): 1.372572 sec.
+%
+O sea que es casi un factor 3 de diferencia. 
+%
+%--[2009-08-25.12:23:57.mstorti-v28-end-0-gfe455b6]-----
+Con un jump adicional tarda 
+CTX2: Elapsed time (matrix residual eval): 3.728009 sec.
+%
+O sea que tarda un poco menos, es decir que no parece que el jump()
+tenga un efecto importante. 
+%
+%--[2009-08-25.12:28:43.mstorti-v28-end-0-gfe455b6]-----
+Si me quedo con la parte del calculo del elemento, solo hasta antes de
+calcular el J, (despues de la linea x13.rs(); xx.rs();), entonces la
+diferencia se hace mayor:
+%
+CTX1: Elapsed time (matrix residual eval): 0.386462 sec.
+CTX2: Elapsed time (matrix residual eval): 1.607572 sec.
+%
+%--[2009-08-25.12:31:50.mstorti-v28-end-0-gfe455b6]-----
+Comentando las lineas de los set() de x12 y x13 el costo cambia asi
+%
+CTX1: Elapsed time (matrix residual eval): 0.235178 sec.
+CTX2: Elapsed time (matrix residual eval): 0.971872 sec.
+%
+%--[2009-08-25.12:42:35.mstorti-v28-end-0-gfe455b6]-----
+Quedando solo los set(0.0)
+CTX1: Elapsed time (matrix residual eval): 0.141958 sec.
+CTX2: Elapsed time (matrix residual eval): 0.520154 sec.
+%
+%--[2009-08-25.12:47:03.mstorti-v28-end-0-gfe455b6]-----
+Con solo 3 de los .set() tenemos
+CTX1: Elapsed time (matrix residual eval): 0.047745 sec.
+CTX2: Elapsed time (matrix residual eval): 0.164689 sec.
+%
+%--[2009-08-25.12:50:48.mstorti-v28-end-0-gfe455b6]-----
+Incluso si dejo solo el jump() entonces baja un poco para CTX2. 
+CTX1: Elapsed time (matrix residual eval): 0.010163 sec.
+CTX2: Elapsed time (matrix residual eval): 0.008700 sec.
+%
+%--[2009-08-25.13:08:24.mstorti-v28-end-0-gfe455b6]-----
+Con un solo set:
+CTX1: Elapsed time (matrix residual eval): 0.023412 sec.
+CTX2: Elapsed time (matrix residual eval): 0.065351 sec.
