@@ -779,10 +779,8 @@ assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
 	matlocf.print("matlocf:");
       }
 #endif
-      // Fixme : later para debugear por que se va a la mierda
       //	printf("element %d, residuo : ",k);
       //	veccontr.print("veccontr:");
-	// fin Fixme
 
     }
   }

@@ -64,7 +64,7 @@ int flux_fun_advec(FLUX_FUN_ARGS) {
 
   if ( options & COMP_UPWIND ) {
     Matrix Uintri = iJaco * uu;
-    double h_supg = 2.*vel/sqrt(Uintri.SumSquare());
+    double h_supg = 2.*vel/sqrt(Uintri.SumAbsoluteValue());
     
     tau_supg = tau_fac * h_supg/(2.* vel);
     lam_max = vel;

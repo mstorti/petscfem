@@ -268,7 +268,7 @@ int swfm2t_ff_t::operator()(ADVDIFFF_ARGS) {
     FastMat2::branch();
     if (vel>1e-10) {
       FastMat2::choose(0);
-      h_supg = 2.*vel/sqrt(Uintri.sum_square_all());
+      h_supg = 2.*vel/sqrt(Uintri.sum_abs_all());
     } else {
       // fixme:= This is for quads and hexas only?
       FastMat2::choose(1);
