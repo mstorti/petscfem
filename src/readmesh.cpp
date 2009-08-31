@@ -803,11 +803,11 @@ int read_mesh(Mesh *& mesh,char *fcase,Dofmap *& dofmap,
 	double coef;
 	int node,field;
 	rflag=0;
-
-#define PETSCFEM_WARNING(bool_cond,templ,...)					\
-if (!(bool_cond)) { PetscPrintf(PETSCFEM_COMM_WORLD, 				\
-				"PETSc-FEM warning: " templ,__VA_ARGS__);}
-
+	
+	/*#define PETSCFEM_WARNING(bool_cond,templ,...)			\
+	  if (!(bool_cond)) { PetscPrintf(PETSCFEM_COMM_WORLD,		\
+	  "PETSc-FEM warning: " templ,__VA_ARGS__);}
+	*/
 	while (1) { 
 	  ierr = readval(rflag,line,coef); ERRLINE;
 	  if (!ierr) break;

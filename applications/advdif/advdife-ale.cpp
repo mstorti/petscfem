@@ -26,7 +26,6 @@ new_assemble_ALE_formulation(arg_data_list &arg_data_v,const Nodedata *nodedata,
 			     const Dofmap *dofmap,const char *jobinfo,
 			     const ElementList &elemlist,
 			     const TimeData *time_data) try {
-  
   static int use_ALE_formulation_reported = 0;
   if (!use_ALE_formulation_reported) {
     if (!MY_RANK) 
@@ -41,7 +40,6 @@ new_assemble_ALE_formulation(arg_data_list &arg_data_v,const Nodedata *nodedata,
   GET_JOBINFO_FLAG(comp_prof);
 
   int ierr = 0;
-
   int locdof, kldof, lldof;
 
   NSGETOPTDEF(int,npg,0); //nd
@@ -67,7 +65,7 @@ new_assemble_ALE_formulation(arg_data_list &arg_data_v,const Nodedata *nodedata,
   // source term in the momentum eqs.
   int nH = nu-ndim;
   //  FMatrix  Hloc(nel,nH),H(nH),vloc_mesh(nel,ndim),v_mesh(ndim);
-  FMatrix  Hloc(nel,nH),H(nH),vloc_mesh(nel,ndim);
+  FMatrix Hloc(nel,nH),H(nH),vloc_mesh(nel,ndim);
   //  FastMat2 v_mesh;
 
   if(nnod != nodedata->nnod) {
@@ -81,7 +79,7 @@ new_assemble_ALE_formulation(arg_data_list &arg_data_v,const Nodedata *nodedata,
   // lambda_max:= the maximum eigenvalue of the jacobians.
   // used to compute the critical time step.
   vector<double> *dtmin;
-  double         lambda_max = NAN;
+  double         lambda_max  = NAN;
   int            jdtmin;
   GlobParam      *glob_param = NULL;
 
@@ -90,7 +88,7 @@ new_assemble_ALE_formulation(arg_data_list &arg_data_v,const Nodedata *nodedata,
 #define DT (glob_param->Dt)
 
   arg_data *staten = NULL, *stateo = NULL, *retval = NULL,
-    *fdj_jac = NULL, *jac_prof = NULL,*Ajac = NULL;
+    *fdj_jac = NULL, *jac_prof = NULL, *Ajac = NULL;
 
   if (comp_res) {
     int j  = -1;
@@ -165,7 +163,6 @@ new_assemble_ALE_formulation(arg_data_list &arg_data_v,const Nodedata *nodedata,
            "=============================================\n");
     ale_with_no_weak_form_warning_given = 1;
   }
-
   assert(compute_fd_adv_jacobian_random>0.
 	 && compute_fd_adv_jacobian_random <=1.);
 
@@ -309,7 +306,7 @@ new_assemble_ALE_formulation(arg_data_list &arg_data_v,const Nodedata *nodedata,
 
   // printf("[%d] %s start: %d last: %d\n",MY_RANK,jobinfo,el_start,el_last);
   for (ElementIterator element = elemlist.begin();
-       element!=elemlist.end(); element++) try {
+       element != elemlist.end(); element++) try {
 
       element.position(k_elem,k_chunk);
       FastMat2::reset_cache();
@@ -327,7 +324,7 @@ new_assemble_ALE_formulation(arg_data_list &arg_data_v,const Nodedata *nodedata,
       }
 
       if (comp_res) {
-	lambda_max=0;
+	lambda_max = 0;
 	lstateo.set(element.vector_values(*stateo));
 	lstaten.set(element.vector_values(*staten));
       }
@@ -371,7 +368,7 @@ new_assemble_ALE_formulation(arg_data_list &arg_data_v,const Nodedata *nodedata,
       Hloc.is(2, indx_ALE_xold, indx_ALE_xold+ndim-1);
       xloc_old.set(Hloc);
       Hloc.rs();
-      xloc.scale(ALPHA).axpy(xloc_old, 1-ALPHA);
+      xloc.scale(ALPHA).axpy(xloc_old,1-ALPHA);
       vloc_mesh.set(xloc_new).rest(xloc_old).scale(rec_Dt_m).rs();
       if (0){
 	int kk,ielhh;
@@ -456,8 +453,7 @@ new_assemble_ALE_formulation(arg_data_list &arg_data_v,const Nodedata *nodedata,
 
 	  // Compute A_grad_U in the `old' state
 	  adv_diff_ff->set_state(Uo,grad_Uo); // fixme:= ojo que le pasamos
-	  // grad_U (y no grad_Uold) ya que
-	  // no nos interesa la parte difusiva
+	  // grad_U (y no grad_Uold) ya que no nos interesa la parte difusiva
 
 	  v_mesh.prod(SHAPE,vloc_mesh,-1,-1,1);
 	
@@ -708,13 +704,11 @@ new_assemble_ALE_formulation(arg_data_list &arg_data_v,const Nodedata *nodedata,
 	    }
 	    tmp_shc_grad_U.prod(Cp_old,grad_U,2,-1,1,-1);
 	    for (int jdf = 1; jdf <= ndof; jdf++) {
-	      //	    delta_sc_v.addel(delta_sc,jdf);
 	      delta_sc_v.addel(delta_sc_old,jdf);
 	    }
-
-	    //	    tmp_sc.prod(dshapex,dshapex,-1,1,-1,2).scale(shocap*wpgdet);
+	    // tmp_sc.prod(dshapex,dshapex,-1,1,-1,2).scale(shocap*wpgdet);
 	    tmp_sc.prod(dshapex,dshapex,-1,1,-1,2).scale(wpgdet);
-	    //	  tmp_sc_v.prod(dshapex,grad_U,-1,1,-1,2);
+	    // tmp_sc_v.prod(dshapex,grad_U,-1,1,-1,2);
 	    tmp_sc_v.prod(dshapex,tmp_shc_grad_U,-1,1,-1,2);
 	    for (int jdf = 1; jdf <= ndof; jdf++) {
 	      double delta        = (double)delta_sc_v.get(jdf);
@@ -729,7 +723,6 @@ new_assemble_ALE_formulation(arg_data_list &arg_data_v,const Nodedata *nodedata,
 		.scale(-delta_sc_eff*wpgdet).rs();
 	      delta_sc_v.rs();
 	    }
-
 	    veccontr.add(tmp_sc_v);
 	  }
 
@@ -759,7 +752,6 @@ new_assemble_ALE_formulation(arg_data_list &arg_data_v,const Nodedata *nodedata,
 	    
 	    tmp_sc_aniso.prod(tmp_j_gradN,tmp_j_gradN,1,2)
 	      .scale(wpgdet);
-	    //	      .scale(shocap_aniso*wpgdet);
 	    
 	    tmp_sc_v_aniso.prod(tmp_j_gradN,tmp_j_grad_U,1,2);
 	    
@@ -829,7 +821,7 @@ new_assemble_ALE_formulation(arg_data_list &arg_data_v,const Nodedata *nodedata,
 	}
 	lmass.axpy(SHAPE,wpgdet);
       
-      }  // ipg loop
+      }// ipg loop
       
       volume_flag=0;
       if (comp_res) {
