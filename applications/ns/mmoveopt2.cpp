@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id merge-with-petsc-233-50-g0ace95e Fri Oct 19 17:49:52 2007 -0300$
+//$Id$
 
 #include <src/fem.h>
 #include <src/utils.h>
@@ -16,6 +16,15 @@
 #include "mmoveopt2.h"
 
 extern int MY_RANK, SIZE;
+
+#if 0
+#undef NDEBUG
+static double mypow(double x,double y) {
+  assert(x>0.0);
+  return exp(y*log(x));
+}
+#define pow mypow
+#endif
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 void mesh_move_opt2::init() {

@@ -323,6 +323,15 @@ int PetscFemInitialize(int *argc,char ***args,const char file[],const char help[
   petscfem_error(templ "\n---------------\n"			\
 	      "PETSC-FEM error at file \"%s\", line %d\n",	\
 		 __VA_ARGS__,__FILE__,__LINE__)
+
+#define PETSCFEM_WARN0(templ)                                  \
+  petscfem_warn(templ "\n---------------\n"                    \
+                 "PETSC-FEM warning at file \"%s\", line %d\n",	\
+		 __FILE__,__LINE__)
+#define PETSCFEM_WARN(templ,...)				\
+  petscfem_warn(templ "\n---------------\n"			\
+	      "PETSC-FEM warning at file \"%s\", line %d\n",	\
+		 __VA_ARGS__,__FILE__,__LINE__)
 #else
 #define PETSCFEM_ERROR petscfem_error
 #define PETSCFEM_ERROR0 petscfem_error
@@ -336,6 +345,7 @@ void petscfem_printf(const char *templ,va_list list);
     usage: #PETSCFEM_ASSERT(bool_cond,printf_args)#;
 */ 
 #ifdef USE_VARARG_MACROS
+// Bool condition and message
 #define PETSCFEM_ASSERT0(bool_cond,templ)       \
 if (!(bool_cond)) {                             \
   PetscSynchronizedPrintf(PETSCFEM_COMM_WORLD,  \
@@ -343,17 +353,47 @@ if (!(bool_cond)) {                             \
                    #bool_cond);                 \
   PETSCFEM_ERROR0(templ);}
 
+// Only bool condition
+#define PETSCFEM_ASSERTB(bool_cond) \
+  PETSCFEM_ASSERT0(bool_cond,"")
+
+// Bool condition and message with args 
 #define PETSCFEM_ASSERT(bool_cond,templ,...)    \
 if (!(bool_cond)) {                             \
   PetscSynchronizedPrintf(PETSCFEM_COMM_WORLD,  \
                   "Assertion failed: \"%s\"\n", \
                   #bool_cond);                  \
   PETSCFEM_ERROR(templ,__VA_ARGS__);}
+
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>
+// WARNING MACROS
+// Only bool condition
+#define PETSCFEM_WARNINGB(bool_cond)            \
+if (!(bool_cond)) {                             \
+  printf("Warning (failed assertion)");         \
+  PETSCFEM_WARN0(#bool_cond);}
+
+// Bool condition and message
+#define PETSCFEM_WARNING0(bool_cond,templ)      \
+if (!(bool_cond)) {                             \
+  PetscSynchronizedPrintf(PETSCFEM_COMM_WORLD,  \
+    "Warning (failed assertion): \"%s\"\n",     \
+    #bool_cond);                                \
+  PETSCFEM_WARN0(templ);}
+
+// Bool condition and message with args 
+#define PETSCFEM_WARNING(bool_cond,templ,...)   \
+if (!(bool_cond)) {                             \
+  PetscSynchronizedPrintf(PETSCFEM_COMM_WORLD,  \
+       "Warning (failed assertion): \"%s\"\n",  \
+       #bool_cond);                             \
+  PETSCFEM_WARN(templ,__VA_ARGS__);}
 #else
 #define PETSCFEM_ASSERT petscfem_assert
 #define PETSCFEM_ASSERT0 petscfem_assert
 #endif
 
+void petscfem_warn(const char *templ,...);
 void petscfem_error(const char *templ,...);
 void petscfem_assert(int bool_cond,const char *templ,...);
 
