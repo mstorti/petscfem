@@ -113,7 +113,9 @@ FastMatCache* FastMat2::CacheCtx2
         cache->check_label = as.str();
 #endif
     }
+#ifndef NDEBUG
     as.clear();
+#endif
   } else {
     cache = new FastMatCache;
   }
