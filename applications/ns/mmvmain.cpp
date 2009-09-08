@@ -353,7 +353,7 @@ int mmove_main() {
     update_jacobian_this_iter, tstep_start=1;
   for (int tstep=tstep_start; tstep<=nstep; tstep++) {
 
-    hook_list.time_step_pre(time.time(),tstep);
+    hook_list.time_step_pre(time.time()+Dt,tstep);
     
     //#define MMV_DBG
 #ifdef MMV_DBG
@@ -587,7 +587,7 @@ int mmove_main() {
       CHKERRA(ierr);
     }
 
-    hook_list.time_step_post(time.time(),tstep,gather_values);
+    hook_list.time_step_post(time.time()+Dt,tstep,gather_values);
 
     if (ngather>0) {
       // Print gathered values
