@@ -45,7 +45,7 @@ run:
 	-rrm -f pool.state_*.tmp
 	make-depl $(CASE).epl $(CASE).depl
 	octave -qH mkmesh.m
-	-${MPIEXEC} $(NOLOCAL) -n $(NP) $(MCH) $(PROG) -case $(CASE).depl
+	-${MPIEXEC} $(NOLOCAL) $(MCH) -n $(NP) $(PROG) -case $(CASE).depl
 
 #w Makes local link for running with debugger
 link:
