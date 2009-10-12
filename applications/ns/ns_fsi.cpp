@@ -242,7 +242,7 @@ int fsi_main() {
   GETOPTDEF(int,nsome,10000);
 
   //o The number of time steps. 
-  GETOPTDEF(int,nstep,10000);
+  GETOPTDEF(int,nstep,-1);
   //o The time step.
   GETOPTDEF(double,Dt,0.);
   //o Flag if steady solution or not (uses Dt=inf). If  #steady# 
@@ -461,7 +461,8 @@ int fsi_main() {
   // jacobian should be updated or not 
   int update_jacobian_this_step,
     update_jacobian_this_iter, tstep_start=1;
-  for (int tstep=tstep_start; tstep<=nstep; tstep++) {
+  // if nstep<0 then iterates indefinitely
+  for (int tstep=tstep_start; nstep<0 || tstep<=nstep; tstep++) {
     TSTEP=tstep; //debug:=
     time_old.set(time.time());
     time_star.set(time.time()+alpha*Dt);

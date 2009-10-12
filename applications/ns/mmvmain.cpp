@@ -234,7 +234,7 @@ int mmove_main() {
   //i_tex ../../doc/nsdoc.tex print_some
   GETOPTDEF(int,nsome,10000);
   //o The number of time steps. 
-  GETOPTDEF(int,nstep,10000);
+  GETOPTDEF(int,nstep,-1);
   //o The time step.
   GETOPTDEF(double,Dt,0.);
   //o Flag if steady solution or not (uses Dt=inf). If  #steady# 
@@ -351,7 +351,8 @@ int mmove_main() {
   // jacobian should be updated or not 
   int update_jacobian_this_step,
     update_jacobian_this_iter, tstep_start=1;
-  for (int tstep=tstep_start; tstep<=nstep; tstep++) {
+  // if nstep<0 then iterates indefinitely
+  for (int tstep=tstep_start; nstep<0 || tstep<=nstep; tstep++) {
 
     hook_list.time_step_pre(time.time()+Dt,tstep);
     
