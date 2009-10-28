@@ -5,13 +5,7 @@
 #include <src/graph.h>
 #include <vector>
 extern "C" {
-#define __log2 ___log2
-#define drand48 __drand48
-#define srand48 __srand48
 #include <metis.h>
-#undef __log2
-#undef __drand48
-#undef __srand48
 }
 
 extern int SIZE, MY_RANK;

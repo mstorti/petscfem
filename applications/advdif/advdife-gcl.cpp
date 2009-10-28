@@ -106,9 +106,8 @@ new_assemble_GCL_compliant(arg_data_list &arg_data_v,const Nodedata *nodedata,
 // apply ALPHA to time step in order to take into account higher order temporal integration
     rec_Dt_m = rec_Dt_m/ALPHA;
 
-#ifdef CHECK_JAC
-    fdj_jac = &arg_data_v[++j];
-#endif
+    if (ADVDIF_CHECK_JAC)
+      fdj_jac = &arg_data_v[++j];
   }
 
   FastMat2 matlocf(4,nel,ndof,nel,ndof),
@@ -842,7 +841,6 @@ new_assemble_GCL_compliant(arg_data_list &arg_data_v,const Nodedata *nodedata,
 			  detJaco_new*WPG*rec_Dt_m);
 	  matlocf.add(N_Cp_N);
 	}
-
 	// A_grad_N.prod(dshapex,A_jac,-1,1,-1,2,3);
 	adv_diff_ff->comp_A_grad_N(A_grad_N,dshapex);
 
@@ -1082,13 +1080,13 @@ new_assemble_GCL_compliant(arg_data_list &arg_data_v,const Nodedata *nodedata,
           matlocf.add(tmp20);
 	    
           if(!lumped_mass) {
-	      
+	    
             if(compute_reactive_terms){
               // Reactive term in matrix (SUPG term)
               adv_diff_ff->comp_N_P_C(N_P_C,P_supg,SHAPE,wpgdet);
               matlocf.add(N_P_C);
             }
-	      
+	    
             tmp21.set(SHAPE).scale(wpgdet*rec_Dt_m);
             adv_diff_ff->enthalpy_fun->comp_P_Cp(P_Cp,P_supg);
             tmp22.prod(P_Cp,tmp21,1,3,2);
@@ -1187,9 +1185,8 @@ new_assemble_GCL_compliant(arg_data_list &arg_data_v,const Nodedata *nodedata,
 
       veccontr.export_vals(element.ret_vector_values(*retval));
       // veccontr.print(nel,"veccontr:");
-#ifdef CHECK_JAC
-      veccontr.export_vals(element.ret_fdj_values(*fdj_jac));
-#endif
+      if (ADVDIF_CHECK_JAC)
+        veccontr.export_vals(element.ret_fdj_values(*fdj_jac));
       if (comp_mat_each_time_step_g) {
 	matlocf.add(matlocf_fix);
 	matlocf.export_vals(element.ret_mat_values(*Ajac));

@@ -118,6 +118,20 @@ void stratsw2d_ff::set_state(const FastMat2 &U) {
   UU.rs().set(U);
   h1=UU.get(ndim+1);
   h2=UU.get(2*(ndim+1));
+  //Enthalpy jacobian
+  Cp.set(0.);
+  Cp.setel(h1,1,1);
+  Cp.setel(UU.get(1),1,3);
+  Cp.setel(h1,2,2);
+  Cp.setel(UU.get(2),2,3);
+  Cp.setel(1.,3,3);
+  Cp.setel(h2,4,4);
+  Cp.setel(UU.get(4),4,6);
+  Cp.setel(h2,5,5);
+  Cp.setel(UU.get(5),5,6);
+  Cp.setel(1.,6,6);
+  Cp.rs();
+
 }
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
@@ -264,20 +278,6 @@ void stratsw2d_ff::compute_flux(const FastMat2 &U,
   flux.set(NAN);
   fluxd.set(0.);
   
-  //Enthalpy jacobian
-  Cp.set(0.);
-  Cp.setel(h1,1,1);
-  Cp.setel(u1,1,3);
-  Cp.setel(h1,2,2);
-  Cp.setel(v1,2,3);
-  Cp.setel(1.,3,3);
-  Cp.setel(h2,4,4);
-  Cp.setel(u2,4,6);
-  Cp.setel(h2,5,5);
-  Cp.setel(v2,5,6);
-  Cp.setel(1.,6,6);
-  Cp.rs();
-
   grad_U.ir(2,3);
   grad_h1.set(grad_U);
   grad_U.rs();
@@ -318,7 +318,7 @@ void stratsw2d_ff::compute_flux(const FastMat2 &U,
     FastMat2::branch();
     if (vel>1e-10) {
       FastMat2::choose(0);
-      h_supg = 2.*vel/sqrt(Uintri.sum_square_all());
+      h_supg = 2.*vel/sqrt(Uintri.sum_abs_all());
     } else {
       // fixme:= This is for quads and hexas only?
       FastMat2::choose(1);

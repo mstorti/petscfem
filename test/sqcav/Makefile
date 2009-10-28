@@ -4,6 +4,7 @@
 	dx_hook_test_post_run_file_record test_read_ini 		\
 	test_disconnected_graph
 
+
 default: test_fs
 #	$(MAKE) case=iisd_sbp1 np=2 runs
 
@@ -303,6 +304,10 @@ shell_hook_%:
 
 ###--------<*>--------<*>--------<*>--------<*>--------<*>--------<*>--------<*> 
 test_read_ini:
+	echo 0. > weights.dat
+	echo 1. >> weights.dat
+	echo 1. >> weights.dat
+	echo 1. >> weights.dat
 	$(MAKE) case=read_ini np=4 runs
 	octave -qH check.read_ini.m > verif.read_ini.tmp
 
@@ -325,3 +330,6 @@ link:
 #w Debugging target
 dbg:
 	$(MAKE) case=fractional_step_re400 runs2
+
+prog:
+	$(MAKE) -C $(PETSCFEM_DIR) $(LOC_PROG)

@@ -84,14 +84,14 @@ int AdvectiveFM2::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
     exit(1);
   }
 
-  double *locst,*retval,*retvalt;
+  double *locst=NULL,*retval=NULL,*retvalt=NULL;
   if (comp_mat_mass || comp_diag_mat_mass) {
     retval = arg_data_v[0].retval;
   }
   // lambda_max:= the maximum eigenvalue of the jacobians.
   // used to compute the critical time step. 
   vector<double> *dtmin;
-  double lambda_max;
+  double lambda_max=NAN;
   if (comp_res) {
     locst = arg_data_v[0].locst;
     retval = arg_data_v[1].retval;

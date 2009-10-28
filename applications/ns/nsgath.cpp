@@ -105,7 +105,7 @@ void force_integrator::set_pg_values(vector<double> &pg_values,FastMat2 &u,
     // FIXME:= we should check here that the wall law
     // used here is the same used in the wall-law element!!
     u.is(1,1,ndim);
-    double uu = u.norm_p_all();
+    double uu = u.norm_2_all();
     // Now we have to invert the relation Re_wall = y+ f(y+)
     // for y+, where f() is the universal law of the wall
     wall_law_solver.Re_wall = uu*y_wall/nu;

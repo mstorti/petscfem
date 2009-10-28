@@ -4,9 +4,6 @@
 
 SHELL = /bin/bash
 
-qqq:
-	echo hihihhi
-
 .PHONY: all run lclean save libpetscfem ns adv laplace doc newdepend tags	\
 		sw startwork fm2new sync_version applications apps 		\
 		ns_O ns_g
@@ -51,6 +48,17 @@ local_sw::
 	$(MAKE) sync_version
 	cd tools; ln -sf hexenco.pl ident2iso ; ln -sf hexenco.pl iso2ident
 	$(MAKE) -C src getarrgr.tab.c getarrgr.tab.h
+	$(MAKE) exclude
+
+# link the git controlled file toos/git-exclude to the
+# internal file in .git/info/exclude
+exclude:
+	if [ -f .git/info/exclude ] ; then				\
+		rm .git/info/exclude ;					\
+	fi ;								\
+	if [ -d .git ] ; then						\
+		ln -sf ../../tools/git-exclude .git/info/exclude ;	\
+	fi
 
 local_clean::
 	cd tools ; rm -f ident2iso ; rm -f iso2ident
@@ -236,7 +244,7 @@ save:
 	fi ;									\
 	if [ -e $(TARFILE).tara.old ] ; then rm $(TARFILE).tara.old ; fi
 
-#w Count lines in `.cpp' and `.h' files
+#w Count lines in `.cpp', '.f' and `.h' files
 line_count:
 	@echo -n 'Lines in source files: ' ;	\
 	cat					\
@@ -277,12 +285,6 @@ clean_g:
 
 clean_O:
 	-${RM} `find . -name '*_O.a'` `find . -name '*_O.bin'` 
-
-gpush:
-	git push origin mstorti-v6-branch
-
-gpull:
-	git pull origin mstorti-v6-branch
 
 #w Updates working directory
 sync:

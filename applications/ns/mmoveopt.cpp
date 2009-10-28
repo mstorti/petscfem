@@ -98,15 +98,15 @@ element_connector(const FastMat2 &xloc,
     Vref = w0.det();
     Vref = 0.5*abs(Vref);
 
-    vaux.norm_p(w.ir(1,1),2);
+    vaux.norm_2(w.ir(1,1));
     Sl  = pow(double(vaux),ndim);
-    vaux.norm_p(w.ir(1,2),2);
+    vaux.norm_2(w.ir(1,2));
     Sl += pow(double(vaux),ndim);
     w.rs();
     for (int j=1;j<=ndim;j++){
       vaux1.setel(w.get(2,j)-w.get(1,j),j);
     }
-    vaux.norm_p(vaux1,2);
+    vaux.norm_2(vaux1);
     Sl += pow(double(vaux),ndim);
 
     dVdW.setel(w.get(2,2),1,1);
@@ -138,13 +138,13 @@ element_connector(const FastMat2 &xloc,
 
     Sl = 0.;
     for (int i=1;i<=ndim;i++) {
-      vaux.norm_p(w.ir(1,i),2);
+      vaux.norm_2(w.ir(1,i));
       Sl += pow(double(vaux),ndim);
       w.rs();
       for (int j=1;j<=ndim;j++){
 	vaux1.setel(w.get(ind[i+1],j)-w.get(ind[i],j),j);
       }
-      vaux.norm_p(vaux1,2);
+      vaux.norm_2(vaux1);
       Sl += pow(double(vaux),ndim);
     }
 
@@ -178,7 +178,7 @@ element_connector(const FastMat2 &xloc,
       vaux1.set(w.ir(1,ind[i]));
       vaux2.ir(2,3).set(vaux1.rest(w.ir(1,ind[i-1]))).rs();
       for (int l=1;l<=ndim;l++) {
-	vaux1.ir(1,l).norm_p(vaux2.ir(2,l),2).rs();
+	vaux1.ir(1,l).norm_2(vaux2.ir(2,l)).rs();
       }
       w.rs();
       vaux2.rs();

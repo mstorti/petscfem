@@ -67,7 +67,7 @@ int Absorb::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
   for (int jd=1; jd<=ndim; jd++) 
     A_jac.push_back(new Matrix(ndof,ndof));
 
-  double *locst, *locstold;
+  double *locst=NULL, *locstold=NULL;
   if (absorb_bc_proj) {
     locst = arg_data_v[0].locst;
     locstold = arg_data_v[1].locst;

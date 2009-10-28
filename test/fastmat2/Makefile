@@ -4,11 +4,12 @@
 SRCS = SRCS = $(wildcard *.cpp)
 
 PETSCFEM_DIR = ../..
+BOPT = g_c++
 include $(PETSCFEM_DIR)/Makefile.base
 include $(PETSCFEM_DIR)/test/Makefile.base.test
 
 #w All tests
-tests:  fastmat2a fastmat2b fastmat2c fastvec
+tests:  fastmat2a fastmat2b fastmat2bctx2 fastmat2c fastvec
 
 #----<*>----------<*>----------<*>----------<*>----------<*>----------<*>------
 #w FastMat2 test a 
@@ -19,11 +20,8 @@ testfm2a.bin: testfm2a.o $(LIBPETSCFEM)(fastmat2.o 		\
 					fm2eperl.o util2.o) 
 	g++ $(PROF_FLAGS) -o testfm2a.bin testfm2a.o $(LDFLAGS_NO_PROG_LIB)
 
-testfm2d.bin: testfm2d.o
-	g++ $(PROF_FLAGS) -o testfm2d.bin testfm2d.o $(LDFLAGS_NO_PROG_LIB)
-
 #----<*>----------<*>----------<*>----------<*>----------<*>----------<*>--
-#w FastMat2 test b
+#w FastMat2 test b but with CacheCtx2
 fastmat2b: testfm2.bin
 	testfm2.bin > fastmat2.out.tmp
 
@@ -31,6 +29,16 @@ testfm2.bin: testfm2.o $(LIBPETSCFEM)(fastmat2.o fm2eperl.o \
 		fm2eperl2.o util2.o dgefa.o) 
 	${CXX_CLINKER} $(PROF_FLAGS) -o testfm2.bin \
 		testfm2.o $(LDFLAGS_NO_PROG_LIB)
+
+#----<*>----------<*>----------<*>----------<*>----------<*>----------<*>--
+#w FastMat2 test b
+fastmat2bctx2: testfm2ctx2.bin
+	testfm2ctx2.bin > fastmat2ctx2.out.tmp
+
+testfm2ctx2.bin: testfm2ctx2.o $(LIBPETSCFEM)(fastmat2.o fm2eperl.o \
+		fm2eperl2.o util2.o dgefa.o) 
+	${CXX_CLINKER} $(PROF_FLAGS) -o testfm2ctx2.bin \
+		testfm2ctx2.o $(LDFLAGS_NO_PROG_LIB)
 
 #----<*>----------<*>----------<*>----------<*>----------<*>----------<*>--
 #w FastMat2 test c 

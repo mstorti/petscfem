@@ -6,13 +6,7 @@
 #include <src/dvector2.h>
 
 extern "C" {
-#define __log2 ___log2
-#define drand48 __drand48
-#define srand48 __srand48
 #include <metis.h>
-#undef __log2
-#undef __drand48
-#undef __srand48
 }
 
 using namespace std;
@@ -178,9 +172,9 @@ void repart(const dvector<double> &bflux,
   int ndom = proc.size();
   dvector<int> xadj,adjncy,adjwgt, dpart;
   int edgew_scale = 100000;
-  assert(bflux.rank()==2);
-  assert(bflux.size(0)==ndom);
-  assert(bflux.size(1)==ndom);
+  PETSCFEM_ASSERT_GE0(bflux.rank()==2,"Internal error\n");
+  PETSCFEM_ASSERT_GE0(bflux.size(0)==ndom,"Internal error\n");
+  PETSCFEM_ASSERT_GE0(bflux.size(1)==ndom,"Internal error\n");
 
   double bflux_max = NAN;
   for (int j=0; j<ndom; j++) {
@@ -210,7 +204,6 @@ void repart(const dvector<double> &bflux,
   }
 
   int wgtflag=1, numflag=0;
-  assert(ndom%ncore==0);
   int nparts = ndom/ncore, options=0, edgecut;
   
   METIS_PartGraphKway(&ndom,xadj.buff(),adjncy.buff(),NULL, 

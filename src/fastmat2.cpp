@@ -13,10 +13,33 @@ FastMat2::CacheCtx2 FastMat2::global_cache_ctx2;
 int FastMat2::cache_dbg=0;
 int FastMat2::use_cachectx2_as_default=0;
 
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>
 FastMat2::CacheCtx::~CacheCtx() { }
 
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>
 FastMat2::CacheCtx::CacheCtx() 
-  : use_cache(0), was_cached(0) { }
+  : use_cache(0), was_cached(0),
+  do_check_labels(0) { }
+
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>
+void FastMat2::CacheCtx::check_clear() { }
+
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>
+void FastMat2::CacheCtx::check(const char *) { }
+
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>
+void FastMat2::CacheCtx::check(const FastMat2 *) { }
+
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>
+void FastMat2::CacheCtx::check(int x) { }
+
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>
+void FastMat2::CacheCtx::check(const Indx &) { }
+
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>
+void FastMat2::CacheCtx
+::check(const char *,const FastMat2 *,
+        const FastMat2 *,const FastMat2 *) {}
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>
 FastMatCachePosition::FastMatCachePosition() {
@@ -621,41 +644,79 @@ FastMat2::FastMat2(CacheCtx *ctx_a,const int m,INT_VAR_ARGS_ND)
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 FastMat2 & FastMat2::is(const int index,const int start,const int finish,
 	       const int step) {
-  if (ctx->was_cached) return *this;
-  assert(defined);
-  if (start==0) {
-    // If start ==0 resets the filter
-    dims[index-1].reset();
-    return *this;
+
+  if (ctx->do_check_labels) {
+    ctx->check_clear();
+    ctx->check("is",this);
+    ctx->check(index);
+    ctx->check(start);
+    ctx->check(finish);
+    ctx->check(step);
   }
-  int dim_= dims[index-1].dim;
-  int f_ = (finish>0? finish : finish<0 ? dim_ : start);
-  for (int jj=start; (step>0 ? jj<=f_ : jj>=f_) ; jj+=step) {
-    // Store 0 based indices 
-    assert(jj>=1 && jj<=dim_);
-    dims[index-1].push_back(jj-1);
+  FastMatCache *cache = ctx->step();
+
+  if (!ctx->was_cached) {
+    assert(defined);
+    if (start==0) {
+      // If start ==0 resets the filter
+      dims[index-1].reset();
+      return *this;
+    }
+    int dim_= dims[index-1].dim;
+    int f_ = (finish>0? finish : finish<0 ? dim_ : start);
+    for (int jj=start; (step>0 ? jj<=f_ : jj>=f_) ; jj+=step) {
+      // Store 0 based indices 
+      assert(jj>=1 && jj<=dim_);
+      dims[index-1].push_back(jj-1);
+    }
   }
+
+  if (!ctx->use_cache) delete cache;
   return *this;
 }
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 FastMat2 & FastMat2::ir(const int indx,const int j) {
-  if (ctx->was_cached) return *this;
-  assert(defined);
-  set_indx[indx-1] = j;
+
+  if (ctx->do_check_labels) {
+    ctx->check_clear();
+    ctx->check("ir",this);
+    ctx->check(indx);
+    ctx->check(j);
+  }
+  FastMatCache *cache = ctx->step();
+
+  if (!ctx->was_cached) {
+    assert(defined);
+    set_indx[indx-1] = j;
+  }
+
+  if (!ctx->use_cache) delete cache;
   return *this;
 }
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 FastMat2 & FastMat2::d(const int j1,const int j2) {
-  if (ctx->was_cached) return *this;
-  assert(defined);
-  assert(1<=j1 && j1<=n_dims);
-  assert(1<=j2 && j2<=n_dims);
-  assert(j1!=j2);
-  assert (dims[j1-1].dim == dims[j2-1].dim);
-  assert(set_indx[j1-1]==0);
-  set_indx[j2-1]=-j1;
+
+  if (ctx->do_check_labels) {
+    ctx->check_clear();
+    ctx->check("d",this);
+    ctx->check(j1);
+    ctx->check(j2);
+  }
+  FastMatCache *cache = ctx->step();
+
+  if (!ctx->was_cached) {
+    assert(defined);
+    assert(1<=j1 && j1<=n_dims);
+    assert(1<=j2 && j2<=n_dims);
+    assert(j1!=j2);
+    assert (dims[j1-1].dim == dims[j2-1].dim);
+    assert(set_indx[j1-1]==0);
+    set_indx[j2-1]=-j1;
+  }
+
+  if (!ctx->use_cache) delete cache;
   return *this;
 }
 
@@ -802,13 +863,23 @@ void FastMat2::print1(const Indx & indxp,const Indx & fdims) const {
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 FastMat2 & FastMat2::rs() {
-  if (ctx->was_cached) return *this;
-  int ndims = dims.size();
-  for (int jd=0; jd<ndims; jd++) {
-    dims[jd].reset();
+
+  if (ctx->do_check_labels) {
+    ctx->check_clear();
+    ctx->check("rs",this);
   }
-  set_indx = Indx(ndims,0);
-  perm = Perm(ndims);
+  FastMatCache *cache = ctx->step();
+
+  if (!ctx->was_cached) {
+    int ndims = dims.size();
+    for (int jd=0; jd<ndims; jd++) {
+      dims[jd].reset();
+    }
+    set_indx = Indx(ndims,0);
+    perm = Perm(ndims);
+  }
+
+  if (!ctx->use_cache) delete cache;
   return *this;
 }
 
@@ -854,10 +925,21 @@ int IndexFilter::abs_indx(const int j) const {
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 FastMat2 & FastMat2::exc(const int i1,const int i2) {
-  if (ctx->was_cached) return *this;
-  int x = perm[i1-1];
-  perm[i1-1] = perm[i2-1];
-  perm[i2-1] = x;
+  if (ctx->do_check_labels) {
+    ctx->check_clear();
+    ctx->check("exc",this);
+    ctx->check(i1);
+    ctx->check(i2);
+  }
+  FastMatCache *cache = ctx->step();
+
+  if (!ctx->was_cached) {
+    int x = perm[i1-1];
+    perm[i1-1] = perm[i2-1];
+    perm[i2-1] = x;
+  }
+
+  if (!ctx->use_cache) delete cache;
   return *this;
 }
 
@@ -909,6 +991,13 @@ double * FastMat2::storage_begin() {
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 FastMat2 & FastMat2::eps_LC() {
   // Levi-Civita density tensor
+
+  if (ctx->do_check_labels) {
+    ctx->check_clear();
+    ctx->check("eps_LC",this);
+  }
+  FastMatCache *cache = ctx->step();
+
   if (!ctx->was_cached) resize(3,3,3,3);
 
   set(0.);
@@ -919,6 +1008,8 @@ FastMat2 & FastMat2::eps_LC() {
   setel(-1.,2,1,3);
   setel(-1.,3,2,1);
   setel(-1.,1,3,2);
+ 
+  if (!ctx->use_cache) delete cache;
   return *this;
 }
 
@@ -988,9 +1079,11 @@ FastMatCache *FastMat2::CacheCtx1::step() {
     printf(" cache_list %p, cache %p, position_in_cache %d\n",
            cache_list,cache,position_in_cache-1);
 #endif
-  string &s = cache->trace_label;
-  if (do_trace && s != "") 
-    printf("passing through trace %s\n",s.c_str());
+  if (do_trace) {
+    string &s = cache->trace_label;
+    if (s != "") 
+      printf("passing through trace %s\n",s.c_str());
+  }
   return cache;
 }
 

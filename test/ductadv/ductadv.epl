@@ -1,0 +1,109 @@
+#  -*- mode: shell-script -*-
+## <:require "./data.pl";:>//
+global_options
+
+ndim <:=$ndim:>
+
+report_consumed_time
+nsave 1
+
+save_file_pattern "./STEPS/ductadv.state-%d.tmp"
+nsaverot 1
+
+<:pr('nstep'):>
+nrec 1
+nfile 100000
+
+# estado inicial
+save_file ductadv.state.tmp
+
+use_compact_profile 2
+# entre 100,000 y 1,000,000
+compact_profile_graph_chunk_size 100000
+temporal_stability_factor 0.
+nnwt 1
+
+#tol_newton 1.0e-10
+tol_newton 1.0e-8
+
+#SOLVERS:
+solver  iisd
+preco_type jacobi
+
+steady 0
+<:pr('Dt'):>
+alpha 1.0
+
+# Iterative parameters
+#
+# maxits 200
+# Krylov_dim 350 300 
+Krylov_dim 300
+maxits 30
+atol 0
+#rtol 1e-5
+rtol 1e-4
+dtol 1e3
+
+print_internal_loop_conv 1
+# print_linear_system_and_stop
+
+chunk_size 2000
+iisd_subpart_auto 2000
+iisdmat_print_statistics
+print_partitioning_statistics
+
+partitioning_method "metis"
+max_partgraph_vertices 20000
+max_partgraph_vertices_proc 5000
+
+activate_debug_print
+activate_debug_memory_usage
+
+report_consumed_time
+hook_list shell_hook shell 
+
+ngather <:=2*($nints+1):>
+<:pr('weak_form'):>
+
+# tau_fac 0.0
+__END_HASH__
+
+##--------+--------+--------+--------+--------+--------+--------+
+# ndim nu ndof
+nodedata  <:=$ndim:>  <:=2*$ndim:>  1
+data ./ductadv.nod-vel.tmp
+__END_HASH__
+
+##--------+--------+--------+--------+--------+--------+--------+
+elemset smoke <:=$nel:>
+dx 1
+name smoke
+geometry cartesian<:=$ndim:>d
+npg <:=$nel:>
+use_nodal_vel 1
+Cr  0
+phieq  1
+diffusivity 0.0
+diffusivity0 0.0
+data ./ductadv.con.tmp
+__END_HASH__
+
+##--------+--------+--------+--------+--------+--------+--------+
+elemset field_surf_integrator <:=$nel:>
+name flow_integrator
+geometry cartesian<:=$ndim:>d
+npg <:=$nel:>
+surf_fun_type "plane"
+normal 1. 0.
+x0 0. 0.
+gather_pos 0
+f_vals <:=$vals:>
+data ./ductadv.con.tmp
+__END_HASH__
+
+end_elemsets
+
+fixa
+__INCLUDE__ ./ductadv.fixa-inlet.tmp
+__END_FIXA__

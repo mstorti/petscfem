@@ -66,8 +66,6 @@ int genload::assemble(double *retval,Nodedata *nodedata,double *locst,
   //o Type of element geometry to define Gauss Point data
   TGETOPTDEF_S(thash,string,geometry,cartesian2d);
 
-  GPdata gp_data(geometry.c_str(),ndimel,nel2,npg);
-  
   RowVector flux(ndof),load(ndof);
   DiagonalMatrix hfilm(ndof);
   double detJ;
@@ -93,6 +91,7 @@ int genload::assemble(double *retval,Nodedata *nodedata,double *locst,
     ierr = get_double(thash,"load",load.Store(),0,ndof); CHKERRA(ierr);
     nel2=nel;
   }
+  GPdata gp_data(geometry.c_str(),ndimel,nel2,npg);
   
   int ielh=-1;
   for (int k=el_start; k<=el_last; k++) {

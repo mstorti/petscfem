@@ -22,7 +22,7 @@ Vol = L*h^2;
 Fx_anal = Vol * rho * a;
 
 f_anal = -(2*use_exterior_normal-1)*\
-    [-Fx_anal, 0, 0, 0, -Fx_anal*h/2, Fx_anal*L/2];
+    [-Fx_anal, 0, 0, 0, -Fx_anal*h/2, -Fx_anal*L/2];
 
 tol = 1e-8;			# This case is solved exactly
 erro = merr(f-f_anal);

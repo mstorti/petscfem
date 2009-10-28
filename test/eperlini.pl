@@ -1,6 +1,10 @@
 #__INSERT_LICENSE__
 
 use English;
+use POSIX qw(setlocale LC_ALL LC_CTYPE);
+setlocale(LC_ALL,"C");
+# setlocale(LC_ALL,"es_EC.utf8"); ## just to try
+
 require "$ENV{'PETSCFEM_DIR'}/tools/math.pl";
 require "$ENV{'PETSCFEM_DIR'}/tools/utils.pl";
 $NP = $ENV{'NP'};
@@ -125,16 +129,6 @@ sub doc_vals {
 	print "# \$$var = ${$var}\n" unless !defined($ {$var});
     }
     print "#","-" x 20,"\n";
-}
-
-sub heredoc {
-    my $txt = shift();
-    my $name = shift();
-    $name = "tmp_file_$$.tmp" unless $name;
-    open TMP,">$name";
-    print TMP $txt;
-    close TMP;
-    print $name;
 }
 
 # usage: makeini(\@STATE,$nnod,$filename,$noise);
@@ -284,7 +278,7 @@ sub transcript {
 # ===========================
 #
 EOM
-/`/;
+
     open SCRIPT,$eperlfile;
     my $tr=0;
     while (<SCRIPT>) {
@@ -299,12 +293,11 @@ EOM
     if ($octtmpfile) {
 	die "couldn't open $octtmpfile" unless open OCT,">$octtmpfile";
     }
-    /`/; print <<EOM;
+    print <<EOM;
 #
 # [Eperlini library. "transcript" function.] Computed values:
 # ===========================================================
 EOM
-/`/;
     foreach $v (@_) {
 #	print "# \$$v: ${$v}\n";
 	printf("# %10s: %s\n","\$$v",${$v});

@@ -1,0 +1,88 @@
+<: require './data.pl'; :>//
+
+#default definitions
+#===========================================================
+global_options
+
+ndim 3
+
+steady 1
+nstep 1
+nnwt 1
+tol_newton 1e-10
+Dt 1
+steady 1
+Krylov_dim 10
+weak_form 0
+LES 0
+save_file strip.state.tmp
+G_body <:=$gbody:> 0 0 
+
+alpha 1.
+atol 0
+dtol 1e+3
+
+# Direct solver from PETSc
+solver "petsc"
+preco_type "lu"
+
+rtol 0
+print_internal_loop_conv 1
+
+nsave 1
+
+save_file_pattern "state%d.all.tmp"
+nsaverot 0
+# print_some_file "strip.some.tmp"
+# save_file_some "strip.some_rslt.tmp"
+# nsome 1
+
+viscosity <:=$visco:>
+<:pr('rho'):>
+
+ngather 6
+gather_file strip3d.force.tmp
+__END_HASH__
+
+#===========================================================
+# ndim nu ndof
+nodedata  3 3 4
+data ./strip3d.nod.tmp
+__END_HASH__
+
+#===========================================================
+elemset nsi_tet_les_fm2 8
+name viscous_fluid_elemset
+geometry cartesian3d
+npg 8
+data ./strip3d.con.tmp
+__END_HASH__
+
+#===========================================================
+#if 1
+elemset visc_force_integrator 12
+geometry quad2hexa
+npg 4
+moment_center <:=$h/2.0:> 0.0 <:=$h/2.0:>
+volume_elemset viscous_fluid_elemset
+identify_volume_elements 1
+<:pr('use_exterior_normal'):>
+layers 2
+
+gather_length 6
+gather_pos 0
+
+data ./strip3d.surf-con.tmp
+__END_HASH__
+#endif
+
+end_elemsets
+
+fixa
+1 4 0.0
+__INCLUDE__ ./strip3d.fixa-wall.tmp
+__END_FIXA__
+
+constraint
+__INCLUDE__ ./strip3d.peri.tmp
+__END_CONSTRAINT__

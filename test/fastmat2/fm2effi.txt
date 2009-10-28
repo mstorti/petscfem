@@ -1,3 +1,5 @@
+-*- mode: text; mode: my-notes  -*-
+
 VERSION LINEAL
 ================================================================
 n: 20, N: 1000, M: 1, loop: 37
@@ -57,3 +59,17 @@ elapsed: 5.530000 [sec], ops: 594000000.000000 [flop], rate: 107.414105 [Mflops]
 elapsed: 5.840000 [sec], ops: 594000000.000000 [flop], rate: 101.712329 [Mflops]
 elapsed: 7.060000 [sec], ops: 594000000.000000 [flop], rate: 84.135977 [Mflops]
 
+%=== Tue Mar 24 20:02:44 2009 mstorti@galileo
+%
+%-- 20:02:44 -- mstorti-v24-end-19-g9036a02 -----
+CORRO EN GALILEO: 
+model name	: Intel(R) Core(TM)2 Duo CPU     T5450  @ 1.66GHz
+elapsed: 1.740000 [sec], ops: 1890000000.000000 [flop], rate: 1.086 [Gflops]
+----
+CORRO EN COYOTE EN UN CORE: 
+model name      : Intel(R) Xeon(R) CPU           E5335  @ 2.00GHz
+elapsed: 1.450000 [sec], ops: 1890000000.000000 [flop], rate: 1.303 [Gflops]
+----
+CORRO EN NODO AQUILES: 
+model name      : Intel(R) Pentium(R) 4 CPU 3.00GHz
+elapsed: 2.460000 [sec], ops: 1890000000.000000 [flop], rate: 0.768 [Gflops]

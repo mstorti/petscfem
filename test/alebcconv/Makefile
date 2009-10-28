@@ -13,15 +13,12 @@ PETSCFEM_DIR := ../..
 include $(PETSCFEM_DIR)/Makefile.base
 include $(PETSCFEM_DIR)/test/Makefile.base.test
 
-
 CASE_NAME := gfabso
 LOC_PROG := advdif
 PROG := $(ADVDIF)
 
-ifeq ($(HOSTNAME),galileo)
 NP := 1
 MCH := 
-endif
 
 SAVE := 0
 run: mvbody.efn	
@@ -32,7 +29,7 @@ ifeq ($(SAVE),1)
 	mkstepsdir.pl
 	cp $(CASE_NAME).depl $(CASE_NAME).epl ./STEPS
 endif
-	$(MPI_HOME)/bin/mpiexec $(MCH) -a $(CASE_NAME)		\
+	$(MPIEXEC) $(MCH) -a $(CASE_NAME)		\
 		-np $(NP) $(PROG) -case $(CASE_NAME).depl	\
 		$(call redir,output.ALE$(ALE).tmp)
 

@@ -22,7 +22,7 @@
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 void streamsw1d_ff::start_chunk(int &options) {
   options |= SCALAR_TAU;	// tell the advective element routine
-  new_adv_dif_elemset = dynamic_cast<const NewAdvDif *>(elemset);
+  new_adv_dif_elemset   = dynamic_cast<const NewAdvDif *>(elemset);
   if (!channel) channel = ChannelShape::factory(elemset);
   channel->init();
   
@@ -32,7 +32,7 @@ void streamsw1d_ff::start_chunk(int &options) {
   
   int ierr;
   int nel,nelprops;
-  ndimel=1;
+  ndimel = 1;
   elemset->elem_params(nel,ndof,nelprops);
   //o Acceleration of gravity.
   EGETOPTDEF_ND(elemset,double,gravity,1.);
@@ -44,11 +44,11 @@ void streamsw1d_ff::start_chunk(int &options) {
   EGETOPTDEF_ND(elemset,double,vel_min,1e-6);
   //o Scales friction term.
   EGETOPTDEF_ND(elemset,double,cfric,1.);
-  assert(ierr==0);
+  assert(ierr == 0);
   EGETOPTDEF_ND(elemset,double,width,1.);
   //o Dimension of the problem. 
   EGETOPTDEF_ND(elemset,int,ndim,0);
-  assert(ndim==2);
+  assert(ndim == 2);
 
   A_jac.resize(3,ndimel,ndof,ndof);
   //  flux_mass.resize(2,ndimel,ndimel);
@@ -85,8 +85,16 @@ streamsw1d_ff::~streamsw1d_ff() { delete friction_law; }
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 void streamsw1d_ff::set_state(const FastMat2 &U) {
   UU.rs().set(U);
-  double h =UU.get(ndof);
+  double h = UU.get(ndof);
   channel->geometry(h,area,wl_width,perimeter);
+  //Enthalpy jacobian
+  Cp.set(0.);
+  Cp.setel(area,1,1);
+  Cp.setel(UU.get(1)*wl_width,1,2);
+  Cp.setel(0.,2,1);
+  Cp.setel(wl_width,2,2);
+  Cp.rs();
+  Cp.scale(tmp_mask);
 }
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
@@ -139,56 +147,47 @@ void streamsw1d_ff::compute_flux(const FastMat2 &U,
   // We use primitive variables in present context: [u h]
   //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:
   static double ajac[NDOF*NDOF];
-  if ((ndim!=2) || (dim()!=1) || (ndof!=2)) {
+  if ((ndim != 2) || (dim() != 1) || (ndof != 2)) {
     PetscPrintf(PETSCFEM_COMM_WORLD,"Stop shallow_water 1D over 2D domain Only...\n");
     PetscFinalize();
     exit(0);
   }
-  double tau_a, tau_delta, gU, g=gravity;
+  double tau_a, tau_delta, gU, g = gravity;
   double Sf;//c_Sf_jac_1,c_Sf_jac_2;
   // Load properties only once.
   set_state(U,grad_U);
-  for (int jj=0; jj<ndof*ndof; jj++) {
-    ajac[jj]=0.;
+  for (int jj = 0; jj < ndof*ndof; jj++) {
+    ajac[jj] = 0.;
   }
 
-  double h=UU.get(ndof);//es la comp 2 de U
-  double u=UU.get(1);//
+  double h = UU.get(ndof);//es la comp 2 de U
+  double u = UU.get(1);//
 
   channel->geometry(h,area,wl_width,perimeter);
   friction_law->flow_Sf(area,perimeter,u,Sf,Sf_jac);
 
-  double h_tmp=(h<h_min ? h_min : h);//para terminos de friccion y gravedad
+  double h_tmp = (h < h_min ? h_min : h);//para terminos de friccion y gravedad
 
   flux_mass.set(UU.is(1,1,1).scale(area));
   UU.rs();
   
-  double u2=u*u;
-  double q=sqrt(u2);
+  double u2 = u*u;
+  double q  = sqrt(u2);
   
   double ux;
-  ux=u;
+  ux = u;
   
-  AJAC(1,1)=2*ux*area;
-  AJAC(1,2)=(ux*ux+0.5*g*h)*wl_width+0.5*g*area; 
-  AJAC(2,1)=area;
-  AJAC(2,2)=ux*wl_width;
+  AJAC(1,1) = 2*ux*area;
+  AJAC(1,2) = (ux*ux+0.5*g*h)*wl_width+0.5*g*area; 
+  AJAC(2,1) = area;
+  AJAC(2,2) = ux*wl_width;
   
   A_jac.ir(1,1).set(ajac).rs();
   A_jac.scale(adv_mask);
 
-    //Enthalpy jacobian
-  Cp.set(0.);
-  Cp.setel(area,1,1);
-  Cp.setel(ux*wl_width,1,2);
-  Cp.setel(0.,2,1);
-  Cp.setel(wl_width,2,2);
-  Cp.rs();
-  Cp.scale(tmp_mask);
-
   flux_mom.setel(area*ux*ux,1,1);
   // le agrego el termino con h
-  double h_term=0.5*g*area*h;
+  double h_term = 0.5*g*area*h;
   flux_mom.addel(h_term,1,1);
   
   flux.rs().is(1,1,1).set(flux_mom);
@@ -205,15 +204,15 @@ void streamsw1d_ff::compute_flux(const FastMat2 &U,
 
   if (options & COMP_UPWIND) {
     
-    double vel=sqrt(u2);
+    double vel = sqrt(u2);
     
     // Code C_jac here... that's for Newton loop of the right hand side of s-w
     C_jac.set(0.);
     C_jac.setel(cfric*(-g*(Sf_jac.ir(1,1).get(1))),1,1);
     //    Sf_jac.rs();
-    double gUtmp1=-0.5*g*grad_U.ir(1,1).get(2); grad_U.rs();
-    double gUtmp2=cfric*(g*Sf_jac.get(ndof));
-    double gUtmp3=g*grad_H.get(1,1);
+    double gUtmp1 = -0.5*g*grad_U.ir(1,1).get(2); grad_U.rs();
+    double gUtmp2 = cfric*(g*Sf_jac.get(ndof));
+    double gUtmp3 = g*grad_H.get(1,1);
     C_jac.setel(wl_width*(gUtmp1+gUtmp2+gUtmp3),1,2);
     C_jac.scale(-1.0);
 
@@ -225,12 +224,12 @@ void streamsw1d_ff::compute_flux(const FastMat2 &U,
     double h_supg;
     
     FastMat2::branch();
-    if (vel>1e-10) {
+    if (vel > 1e-10) {
       FastMat2::choose(0);
-      h_supg = 2.*vel/sqrt(Uintri.sum_square_all());
+      h_supg = 2.*vel/sqrt(Uintri.sum_abs_all());
     } else {
       FastMat2::choose(1);
-      h_supg = 2./sqrt(iJaco.sum_square_all());
+      h_supg = 2./sqrt(iJaco.sum_abs_all());
     }
     FastMat2::leave();
     
@@ -245,8 +244,8 @@ void streamsw1d_ff::compute_flux(const FastMat2 &U,
   } 
 
   if (options & COMP_SOURCE) {
-    double pq=grad_U.ir(1,1).get(2); grad_U.rs(); 
-    double ppq=grad_H.get(1,1); grad_H.rs();
+    double pq  = grad_U.ir(1,1).get(2); grad_U.rs(); 
+    double ppq = grad_H.get(1,1); grad_H.rs();
     G_source
       .set(0.)
       .is(1,1,ndimel)
@@ -308,18 +307,19 @@ void streamsw1d_ff::Riemann_Inv(const FastMat2 &U, const FastMat2 &normal,
   //o Gravity of the problem.
   //  EGETOPTDEF_ND(elemset,double,gravity,1.);
   double tmpd,tmpd1,tmpd2,tmpd3,tt,tt2,pp,
-    ppg1,ppg,h_eps=1.e-10,signudn=0.0,u_eps=1.e-10;
+    ppg1, ppg, h_eps = 1.e-10,signudn = 0.0, u_eps = 1.e-10;
   // riemann invariants, jacobians and characteristics for sw1d
-  tmpd1=U.get(1); tmpd3=normal.get(1); tmpd2=U.get(ndof);
-  pp=tmpd1*tmpd3;
-  signudn=(tmpd3>0.0 ? 1.0 : -1.0);
-  //  if (fabs(pp)<u_eps) signudn=0.0;
-  tt=2.*sqrt(gravity*tmpd2);
+  tmpd1   = U.get(1);
+  tmpd3   = normal.get(1);
+  tmpd2   = U.get(ndof);
+  pp      = tmpd1*tmpd3;
+  signudn = (tmpd3>0.0 ? 1.0 : -1.0);
+  tt      = 2.*sqrt(gravity*tmpd2);
   Rie.setel(pp+tt,1).setel(pp-tt,ndof);
-  tt=sqrt(gravity*tmpd2);
+  tt      = sqrt(gravity*tmpd2);
   C_U.setel(pp+tt,1).setel(pp-tt,ndof);
-  ppg1=(tmpd2>h_eps ? sqrt(gravity/tmpd2) : 0.);//fix me with area and wl_width
-  ppg=0.;
+  ppg1    = (tmpd2 > h_eps ? sqrt(gravity/tmpd2) : 0.);//fix me with area and wl_width
+  ppg     = 0.;
   drdU.setel(signudn,1,1).setel(signudn,2,1)
     .setel(ppg+ppg1,1,2).setel(ppg-ppg1,2,2);
 }

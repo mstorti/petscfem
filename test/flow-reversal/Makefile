@@ -42,7 +42,7 @@ run:
 
 local_clean::
 	-putex
-	-rm -rf mat.output system.dat save.state data.m \"\"
+	-rm -rf STEPS* mat.output system.dat save.state data.m \"\"
 
 link:
 	ln -sf $(PROG) $(LOC_PROG)

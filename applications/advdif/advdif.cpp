@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: advdif.cpp,v 1.71.10.2 2007/02/23 19:18:07 dalcinl Exp $
+//$Id: advdif.cpp,v 1.71.10.2 2007/02/23 19:18:07 rodrigop Exp $
 
 #include <src/debug.h>
 #include <set>
@@ -23,7 +23,6 @@ extern int print_internal_loop_conv_g;
 extern int consistent_supg_matrix_g;
 extern int  local_time_step_g;
 extern int  comp_mat_each_time_step_g;
-extern int  verify_jacobian_with_numerical_one;
 
 #define VECVIEW(name,label) \
 ierr = PetscViewerSetFormat(matlab, \
@@ -263,7 +262,7 @@ int advdif_main(int argc,char **args) {
   GETOPTDEF(double,omega_newton,1.);
   //o Computes jacobian of residuals and prints to a file.
   //  May serve to debug computation of the analytic jacobians. 
-  GETOPTDEF(int,verify_jacobian_with_numerical_one,0);
+  TGETOPTDEF_ND(mesh->global_options,int,verify_jacobian_with_numerical_one,0);
 
 #define INF INT_MAX
   //o Update jacobian each $n$-th time step. 
@@ -347,11 +346,11 @@ int advdif_main(int argc,char **args) {
   ierr = assemble(mesh,argl,dofmap,"comp_prof",&time); CHKERRA(ierr);
   debug.trace("After computing profile.");
 
-#ifdef CHECK_JAC
-  VOID_IT(argl);
-  argl.arg_add(AA,PROFILE|PFMAT);
-  ierr = assemble(mesh,argl,dofmap,"comp_prof",&time); CHKERRA(ierr);
-#endif
+  if (ADVDIF_CHECK_JAC) {
+    VOID_IT(argl);
+    argl.arg_add(AA,PROFILE|PFMAT);
+    ierr = assemble(mesh,argl,dofmap,"comp_prof",&time); CHKERRA(ierr);
+  }
 
   //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
   ierr = opt_read_vector(mesh,x,dofmap,MY_RANK); CHKERRA(ierr);
@@ -386,7 +385,8 @@ int advdif_main(int argc,char **args) {
     }
     chrono.start();
     ierr = VecCopy(x,xold);
-    hook_list.time_step_pre(time_star.time(),tstep);
+    //    hook_list.time_step_pre(time_star.time(),tstep);
+    hook_list.time_step_pre(time.time()+Dt,tstep); //hook needs t_{n+1}
 
     for (int inwt=0; inwt<nnwt; inwt++) {
 
@@ -400,23 +400,21 @@ int advdif_main(int argc,char **args) {
 	// ierr = A->build_ksp(GLOBAL_OPTIONS); CHKERRA(ierr); 
 
 	ierr = A->clean_mat(); CHKERRA(ierr); 
-#ifdef CHECK_JAC
-	ierr = AA->clean_mat(); CHKERRA(ierr);
-#endif
+        if (ADVDIF_CHECK_JAC) {
+          ierr = AA->clean_mat(); CHKERRA(ierr);
+        }
 	VOID_IT(argl);
 	argl.arg_add(&xold,IN_VECTOR);
-#ifndef CHECK_JAC
-	argl.arg_add(&x,IN_VECTOR);
-#else
-	argl.arg_add(&x,PERT_VECTOR);
-#endif
+
+        if (!ADVDIF_CHECK_JAC) argl.arg_add(&x,IN_VECTOR);
+        else argl.arg_add(&x,PERT_VECTOR);
+
 	argl.arg_add(&res,OUT_VECTOR);
 	argl.arg_add(&dtmin,VECTOR_MIN);
 	argl.arg_add(A,OUT_MATRIX|PFMAT);
 	argl.arg_add(&glob_param,USER_DATA);
-#ifdef CHECK_JAC
-	argl.arg_add(AA,OUT_MATRIX_FDJ|PFMAT);
-#endif
+        if (ADVDIF_CHECK_JAC)
+          argl.arg_add(AA,OUT_MATRIX_FDJ|PFMAT);
 
 	if (measure_performance) {
 	  ierr = measure_performance_fun(mesh,argl,dofmap,"comp_res",
@@ -511,11 +509,11 @@ int advdif_main(int argc,char **args) {
 			       PETSC_VIEWER_ASCII_MATLAB,"A");
 	ierr = A->view(matlab);
 	print_vector(save_file_res.c_str(),res,dofmap,&time); // debug:=
-#ifdef CHECK_JAC
-	ierr = PetscViewerSetFormat_WRAPPER(matlab, 
-			       PETSC_VIEWER_ASCII_MATLAB,"AA");
-	ierr = AA->view(matlab);
-#endif
+        if (ADVDIF_CHECK_JAC) {
+          ierr = PetscViewerSetFormat_WRAPPER(matlab, 
+                                              PETSC_VIEWER_ASCII_MATLAB,"AA");
+          ierr = AA->view(matlab);
+        }
 	PetscFinalize();
 	exit(0);
       }
@@ -581,7 +579,8 @@ int advdif_main(int argc,char **args) {
       CHKERRA(ierr);
     }
 
-    hook_list.time_step_post(time_star.time(),tstep,gather_values);
+    //    hook_list.time_step_post(time_star.time(),tstep,gather_values);
+    hook_list.time_step_post(time.time()+Dt,tstep,gather_values);
 
     if (ngather>0) {
       // Print gathered values

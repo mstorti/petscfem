@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-// $Id: absolay.cpp,v 1.2.20.1 2007/02/23 19:18:07 dalcinl Exp $
+// $Id: absolay.cpp,v 1.2.20.1 2007/02/23 19:18:07 rodrigop Exp $
 #include "./absolay.h"
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:
@@ -68,9 +68,8 @@ new_assemble(arg_data_list &arg_data_v,const Nodedata *nodedata,
     Ajac = &arg_data_v[++j];//[4]
     glob_param = (GlobParam *)arg_data_v[++j].user_data;;
 
-#ifdef CHECK_JAC
-    fdj_jac = &arg_data_v[++j];
-#endif
+    if (ADVDIF_CHECK_JAC)
+      fdj_jac = &arg_data_v[++j];
   }
 
   FastMat2 matlocf(4,nel,ndof,nel,ndof),
@@ -185,9 +184,8 @@ new_assemble(arg_data_list &arg_data_v,const Nodedata *nodedata,
     veccontr.set(0.);
     
     veccontr.export_vals(element.ret_vector_values(*retval));
-#ifdef CHECK_JAC
-    veccontr.export_vals(element.ret_fdj_values(*fdj_jac));
-#endif
+    if (ADVDIF_CHECK_JAC)
+      veccontr.export_vals(element.ret_fdj_values(*fdj_jac));
     
   } catch (GenericError e) {
     set_error(1);

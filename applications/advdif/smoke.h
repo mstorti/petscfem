@@ -23,12 +23,12 @@ private:
   Property u_prop, G_prop;
   double phi, omega, drdphi, Cr, phieq, diff_max, diff, 
     tau_fac, diffusivity0;
-  FastMat2 u, U, Cp, W_N, A, Uintri, tmp2, tmp0;
+  FastMat2 u, U, Cp, W_N, A, Uintri, tmp2, tmp0, tmp3;
   int nel,ndof,nelprops;
   ElementIterator element_m;
   FastMat2Tmp tmp;
 public:
-  smoke_ff(const NewAdvDif *e) : AdvDifFFWEnth(e) {}
+  smoke_ff(const NewElemset *e) : AdvDifFFWEnth(e) {}
   ~smoke_ff();
   
   void start_chunk(int &ret_options);
@@ -63,6 +63,13 @@ public:
 class smoke : public NewAdvDif {
 public:
   smoke() :  NewAdvDif(new smoke_ff(this)) {};
+};
+
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+class smoke_bcconv : public NewBcconv {
+public:
+  smoke_bcconv() : NewBcconv(new smoke_ff(this)) {};
+  // smoke_bcconv() : NewBcconv(NULL) {};
 };
 
 #endif

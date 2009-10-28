@@ -39,7 +39,7 @@ run: test_abso
 test_abso:
 	mkstepsdir.pl
 	make-depl $(CASE).epl $(CASE).depl 
-	$(MPI_HOME)/bin/mpiexec  -n 1 $(PROG) -case $(CASE).depl
+	mpiexec  -n 1 $(PROG) -case $(CASE).depl
 #	time $(MPI_HOME)/bin/mpirun -1 -machinefile ./machi.dat -n $(NP) $(PROG) -case $(CASE).depl
 #	$(OCTAVE)  check_test_abso.m
 
@@ -47,14 +47,14 @@ riemann:
 	mkstepsdir.pl
 	make-depl canal1driem.epl canal1driem.depl 
 	$(OCTAVE) canal1driem.m
-	$(MPI_HOME)/bin/mpiexec  -n 1 $(PROG) -case canal1driem.depl
+	$(MPIEXEC)  -n 1 $(PROG) -case canal1driem.depl
 #	time $(MPI_HOME)/bin/mpirun -1 -machinefile ./machi.dat -n $(NP) $(PROG) -case $(CASE).depl
 #	$(OCTAVE)  check_test_abso.m
 
 
 chiquito:
 	$(MAKE) chiquito.depl
-	-$(MPIRUN) -np $(NP)  $(ADVDIF) -case chiquito.depl
+	mpiexec -np $(NP)  $(ADVDIF) -case chiquito.depl
 
 spiral:
 	$(MAKE) spiral.depl

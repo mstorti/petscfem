@@ -13,16 +13,8 @@
 #include <src/syncbuff.h>
 #include <src/debug.h>
 
-// Apparently __log2 from Metis collides with some name in the GNU package.
-// This is a workaround. 
 extern "C" {
-#define __log2 ___log2
-#define drand48 __drand48
-#define srand48 __srand48
 #include <metis.h>
-#undef __log2
-#undef __drand48
-#undef __srand48
 }
 
 #include "elemset.h"
@@ -811,11 +803,11 @@ int read_mesh(Mesh *& mesh,char *fcase,Dofmap *& dofmap,
 	double coef;
 	int node,field;
 	rflag=0;
-
-#define PETSCFEM_WARNING(bool_cond,templ,...)					\
-if (!(bool_cond)) { PetscPrintf(PETSCFEM_COMM_WORLD, 				\
-				"PETSc-FEM warning: " templ,__VA_ARGS__);}
-
+	
+	/*#define PETSCFEM_WARNING(bool_cond,templ,...)			\
+	  if (!(bool_cond)) { PetscPrintf(PETSCFEM_COMM_WORLD,		\
+	  "PETSc-FEM warning: " templ,__VA_ARGS__);}
+	*/
 	while (1) { 
 	  ierr = readval(rflag,line,coef); ERRLINE;
 	  if (!ierr) break;
@@ -1205,9 +1197,11 @@ if (!(bool_cond)) { PetscPrintf(PETSCFEM_COMM_WORLD, 				\
   for (int j=0; j<size; j++) procmap.e(j) = j;
 
   if (size>1 && ncore>0) {
-    PETSCFEM_ASSERT0(size%ncore==0,
-                     "if ncore is given, numer of "
-                     "processor `size' must be a multiple of ncore");
+
+    PETSCFEM_ASSERT(size%ncore==0,
+                    "if ncore is given, numer of "
+                    "processor `size' must be a multiple of ncore.\n"
+                    "size %d, ncore %d",size,ncore);
 
     if (!myrank) {
 

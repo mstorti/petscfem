@@ -55,6 +55,7 @@ local_time_step 0
 consistent_supg_matrix 1
 auto_time_step 0
 
+use_Ajac_old
 Dt 0.5
 alpha 1.0
 diffusivity <:=$diff:>

@@ -8,6 +8,7 @@
 #include <typeinfo>
 #include "libretto.h"
 #include <petscmat.h>
+#include <petscversion.h>
 
 #include <src/fem.h>
 #include <src/utils.h>
@@ -137,7 +138,7 @@ int PFPETScMat::build_ksp() {
   //o Prints convergence in the solution of the GMRES iteration. 
   TGETOPTDEF_ND_PF(thash,int,print_internal_loop_conv,0);
   //o Defines the KSP method
-  TGETOPTDEF_S_ND_PF(thash,string,KSP_method,gmres);
+  TGETOPTDEF_S_ND_PF(thash,string,KSP_method,fgmres);
   //o Chooses the preconditioning operator. 
   TGETOPTDEF_S_PF(thash,string,preco_type,jacobi);
   //o Chooses the preconditioning for block problems in ASM method.
@@ -158,9 +159,35 @@ int PFPETScMat::build_ksp() {
     else preco_side = "right";
   }
 
+  static int warning_given=0;
+  // FIXME:= Remove this warning when PETSC versions will evolve
+  if (!warning_given 
+      && KSP_method == "gmres" && preco_side == "right" 
+      && PETSC_VERSION_MAJOR==3 
+      && PETSC_VERSION_MINOR ==0
+      && PETSC_VERSION_SUBMINOR==0
+      && PETSC_VERSION_PATCH<=5
+      ) {
+
+    warning_given = 1;
+    PetscPrintf(PETSCFEM_COMM_WORLD,
+                "==================================================\n"
+                "================ PETSCFEM WARNING ================\n"
+                "==================================================\n"
+                "Using GMRES with preco_side=right is not supported\n"
+                "in PETSc versions 3.0.0-px with 0<=x<=5 \n"
+                "PETSc version: %d.%d.%d-p%d\n"
+                "==================================================\n"
+                "==================================================\n"
+                "==================================================\n",
+                PETSC_VERSION_MAJOR,PETSC_VERSION_MINOR,
+                PETSC_VERSION_SUBMINOR,PETSC_VERSION_PATCH);
+  }
+
   if (KSP_method == "cg" && preco_side == "right") {
     PetscPrintf(PETSCFEM_COMM_WORLD,__FUNC__ 
-		": can't choose \"right\" preconditioning with KSP CG\n");
+		": can't choose \"right\" preconditioning "
+                "with KSP CG (using \"left\")\n");
     preco_side = "left";
   }
 
@@ -410,6 +437,7 @@ int IISDMat::local_solve(Vec x_loc,Vec y_loc,int trans,double c) {
   ierr = VecRestoreArray(y_loc,&a); CHKERRQ(ierr); 
   ierr = VecRestoreArray(y_loc_seq,&aa); CHKERRQ(ierr); 
 
+  double start = MPI_Wtime();
   // Solve local system: x_loc_seq <- XL
   if (trans) {
     ierr = KSPSolveTranspose(ksp_ll,y_loc_seq,x_loc_seq); CHKERRQ(ierr); 
@@ -418,6 +446,8 @@ int IISDMat::local_solve(Vec x_loc,Vec y_loc,int trans,double c) {
     ierr = KSPSolve(ksp_ll,y_loc_seq,x_loc_seq); CHKERRQ(ierr); 
     ierr = KSPGetIterationNumber(ksp_ll,&its_); CHKERRQ(ierr); 
   }
+  double elaps = MPI_Wtime() - start;
+  // printf("local-solve-elapsed %f\n",elaps);
   
   // Pass to global vector: x_loc <- XL
   ierr = VecGetArray(x_loc_seq,&aa); CHKERRQ(ierr); 

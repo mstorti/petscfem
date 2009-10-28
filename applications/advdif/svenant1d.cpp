@@ -71,6 +71,7 @@ void svenant1d_ff::set_state(const FastMat2 &UU) {
   h = A/w;
   F = w*h*h/2;
   wl = w;
+  Cp.eye();
 }
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:
@@ -133,7 +134,8 @@ void svenant1d_ff::compute_flux(const FastMat2 &U,
 	       double &lam_max,FastMat2 &nor, FastMat2 &lambda,
 	       FastMat2 &Vr, FastMat2 &Vr_inv,int options) {
 
-  Cp.eye();
+  //Cp.eye();
+  set_state(U);
   flux.setel(Q,1);
   flux.setel(Q*Q/A+gravity*F,2);
 

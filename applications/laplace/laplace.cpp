@@ -48,7 +48,7 @@ int laplace_main(int argc,char **args) {
   PC      pc;           /* preconditioner context */
   KSP     ksp;        /* Krylov subspace method context */
   double  norm, *sol, scal; /* norm of solution error */
-  int     ierr,  size,  ndim, nel, nen, neq, myrank, its;
+  int     ierr,  size,  ndim, nel, nen, neq, myrank=-1, its;
   PetscTruth flg;
   double tol=2e-6;
   char fcase[FLEN+1];

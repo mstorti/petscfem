@@ -1,5 +1,5 @@
 
-PETSCFEM_DIR = /u/rodrigop/PETSC/petscfem
+PETSCFEM_DIR = ../..
 
 PFEM_UP_DIR = ..
 
@@ -34,7 +34,7 @@ run:
 	mkstepsdir.pl
 	make-depl $(CASE).epl $(CASE).depl 
 #	$(MPI_HOME)/bin/mpiexec  -n 1 $(PROG) -case $(CASE).depl
-	time $(MPI_HOME)/bin/mpirun -1 -machinefile ./machi.dat -n $(NP) $(PROG) -case $(CASE).depl
+	time $(MPIRUN) -1 -machinefile ./machi.dat -n $(NP) $(PROG) -case $(CASE).depl
 
 mpdstart:
 	let NP1=$(NP)+1 ; \
@@ -47,7 +47,7 @@ dxo:
 dx_case := comp_corner_supersonic_dx
 dx:
 	$(EPERL) -P -d dx=1 $(dx_case).epl > $(dx_case).depl
-	$(MPIRUN) -np 1 $(HOME)/PETSC/petscfem.mario/applications/advdif/advdif_O.bin \
+	$(MPIRUN) -np 1 $(PETSCFEM_DIR)/applications/advdif/advdif_O.bin \
 		 -case $(dx_case).depl
 
 dx_make_command:
