@@ -167,27 +167,19 @@ void electrophoresis_mov::pg_connector(const FastMat2 &xpg,
     aux_supgc1.norm_p(c_supg.ir(2,ii),  2); c_supg.rs();
     aux_supgk1.norm_p(k_supg.ir(2,ii),  2); k_supg.rs();
 
-#if 0    
-    double vel_mod = aux_supg2a.ir(1,ii).sum_square_all(); aux_supg2a.rs();
-    double aux_supgc1 = c_supg.ir(2,ii).sum_square_all(); c_supg.rs();
-    double aux_supgk1 = k_supg.ir(2,ii).sum_square_all(); k_supg.rs();
-    vel_mod = sqrt(vel_mod);
-    aux_supgc1 = sqrt(aux_supgc1);
-    aux_supgk1 = sqrt(aux_supgk1);
-#endif
-
     double tau = 0.0;
-    //    FastMat2::branch();
-    //    if(vel_mod>tol) {
-      //     if(1) {
-    //      FastMat2::choose(0);
+    double vel_mod_a = vel_mod;
+    FastMat2::branch();
+    if(vel_mod_a>tol) {
+      FastMat2::choose(0);
       double tau1 = 1./SQ((aux_supgc1+tol*tol)/(aux_supgk1+tol));
       double tau2 = 1./SQ(0.5/(rec_Dt));
       double tau3 = 1./SQ((1./tau1)*SQ(vel_mod)/diff.get(ii,ii));
       tau = 1./sqrt(tau1+tau2+tau3);
-      //}
+    }
+    FastMat2::leave();
+
     tau_supg.setel(tau,ii,ii);
-    //FastMat2::leave();
     
   };
   tau_supg.scale(supg_fact);
