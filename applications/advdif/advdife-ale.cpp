@@ -478,9 +478,12 @@ new_assemble_ALE_formulation(arg_data_list &arg_data_v,const Nodedata *nodedata,
 	      if (shocap_aniso_const > 0.0) {
 		jvec_old.set(0.0);
 	      } else {
+		jvec_old.set(0.0);
+#if 0
 		printf("Anisotropic Shock-capturing term NOT implemented for"
 		       " this flux function\n");
 		throw GenericError("not implemented shocap_aniso error");
+#endif
 	      }
 	      
 	    }
@@ -697,9 +700,12 @@ new_assemble_ALE_formulation(arg_data_list &arg_data_v,const Nodedata *nodedata,
 	      if (shocap_const > 0.0) {
 		delta_sc_v.set(0.0);
 	      } else {
+		delta_sc_v.set(0.0);
+#if 0
 		printf("Shock-capturing term NOT implemented for"
 		       " this flux function\n");
 		throw GenericError("not implemented shocap error");
+#endif
 	      }
 	    }
 	    tmp_shc_grad_U.prod(Cp_old,grad_U,2,-1,1,-1);
@@ -736,9 +742,12 @@ new_assemble_ALE_formulation(arg_data_list &arg_data_v,const Nodedata *nodedata,
 	      if (shocap_aniso_const > 0.0) {
 		jvec.set(0.0);
 	      } else {
+		jvec.set(0.0);
+#if 0
 		printf("Anisotropic Shock-capturing term NOT implemented for"
 		       " this flux function\n");
 		throw GenericError("not implemented shocap_aniso error");
+#endif
 	      }
 	    }
 	    
