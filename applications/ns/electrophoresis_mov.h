@@ -1,13 +1,13 @@
 // -*- mode: C++ -*- 
 /*__INSERT_LICENSE__*/
 // $Id: qharm.h,v 1.2 2002/12/16 04:11:35 mstorti Exp $
-#ifndef electrophoresisM_H
-#define electrophoresisM_H
+#ifndef electrophoresis_mov_H
+#define electrophoresis_mov_H
 
 #include <src/fm2temp.h>
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
-class electrophoresisM : public adaptor_pg {
+class electrophoresis_mov : public adaptor_pg {
 private:
   FastMat2 diff;
   FastMat2 adveff;
@@ -21,8 +21,8 @@ private:
   FastMat2 B_supg;
   FastMat2 C_supg;
   FastMat2 D_supg;
-  
-  double r_fact;
+ 
+  double m_fact;
   double mu;
   double supg_fact;
   FastMat2 tau_supg;

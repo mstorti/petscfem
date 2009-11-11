@@ -51,10 +51,13 @@
 #include "./truss.h"
 #include "./nodeload.h"
 #include "./poiboltz.h"
-#include "./electrophoresis.h"
-#include "./electrophoresisM.h"
+#include "./electrophoresisM2.h"
 #include "./renorm.h"
-
+#include "./poisson.h"
+#include "./charge_cons.h"
+#include "./pot_grad.h"
+#include "./electrophoresisM.h"
+#include "./electrophoresis_mov.h"
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:
 #undef __FUNC__
 #define __FUNC__ "bless_elemset_ns"
@@ -140,9 +143,17 @@ void bless_elemset_ns(char *type,Elemset *& elemset) {
 
     SET_ELEMSET_TYPE(poisson_boltzmann)
 
-    SET_ELEMSET_TYPE(electrophoresis)
+    SET_ELEMSET_TYPE(poisson)
     
+    SET_ELEMSET_TYPE(electrophoresisM2)
+
     SET_ELEMSET_TYPE(electrophoresisM)
+
+    SET_ELEMSET_TYPE(electrophoresis_mov)
+
+    SET_ELEMSET_TYPE(charge_cons)
+
+    SET_ELEMSET_TYPE(pot_grad)
 
     {
       elemset=NULL;
