@@ -14,7 +14,7 @@
 #include <src/iisdmatstat.h>
 
 // For level set mass control
-double total_mass;
+double total_liquid_volume, total_liquid_volume_g, liquid_volume_ini=NAN;
 
 // PETSc now doesn't have the string argument that represents the variable name
 // so that I will use this wrapper until I find how to set names in Ascii matlab viewers.
@@ -300,6 +300,15 @@ int ns_main(int argc,char **args) {
   GETOPTDEF(double,alpha,1.); 
   glob_param.alpha=alpha;
 
+  //o Flag for launching RENORM process
+  GETOPTDEF(int,RENORM_flag,0);
+
+  //o Flag for VOLUME CONTROL in level set
+  GETOPTDEF(int,volume_control_flag,0);
+
+  //o Coefficient for volume control
+  GETOPTDEF(double,C_volume,0);
+
   vector<double> gather_values;
   //o Number of ``gathered'' quantities.
   GETOPTDEF(int,ngather,0);
@@ -356,8 +365,11 @@ int ns_main(int argc,char **args) {
   // was accessed. Useful for detecting if an option was used or not.
   GETOPTDEF(int,report_option_access,1);
 
-  //o Print total mass (for Level Set Method)
-  GETOPTDEF(int,report_total_mass,0);
+  //o Print total liquid volume (for Level Set Method)
+  GETOPTDEF(int,report_total_liquid_volume,0);
+
+  //o Time step for volume control
+  GETOPTDEF(double,delta_time,0);
 
   if (print_some_file=="<none>")
     print_some_file = "";
@@ -560,8 +572,19 @@ int ns_main(int argc,char **args) {
     // Jacobian update logic
     update_jacobian_this_step = (tstep < update_jacobian_start_steps) 
       || ((tstep-update_jacobian_start_steps) % update_jacobian_steps == 0);
-    
-    // Inicializacion del paso
+
+    if (RENORM_flag){
+      ierr = read_vector("state-adv.tmp",x,dofmap,MY_RANK); CHKERRA(ierr);
+      // Volume control
+      if (volume_control_flag && !isnan(liquid_volume_ini)){
+	double Dphi = -C_volume*delta_time*(total_liquid_volume_g-liquid_volume_ini);
+	ierr = VecShift(x,Dphi); CHKERRA(ierr);
+	//	printf("Dt %.10f \n",delta_time);
+	printf("Dphi %.10f \n",Dphi);
+      }
+    }
+
+    // Step Inicialization    
     ierr = VecCopy(x,dx_step);
     ierr = VecCopy(x,xold);
     
@@ -635,11 +658,14 @@ int ns_main(int argc,char **args) {
 	}
 
 	debug.trace("Before residual computation...");
-	total_mass = 0.0;
+	total_liquid_volume = 0.0;
 	ierr = assemble(mesh,argl,dofmap,jobinfo,&time_star);
 	CHKERRA(ierr);
 	debug.trace("After residual computation.");
 
+	// Total liquid volume
+	ierr = MPI_Allreduce(&total_liquid_volume,&total_liquid_volume_g,1,MPI_DOUBLE,MPI_SUM,MPI_COMM_WORLD); 
+	CHKERRA(ierr);
 #if 0
 	ierr = PetscViewerASCIIOpen(PETSCFEM_COMM_WORLD,
 			       "system.dat",&matlab); CHKERRA(ierr);
@@ -771,9 +797,10 @@ int ns_main(int argc,char **args) {
 
       } // end of loop over Newton subiteration (inwt)
 
-      if (!MY_RANK && report_total_mass) { 
-        // prints total mass for level set control
-	printf("Total mass %f\n",total_mass);
+      if (!MY_RANK && report_total_liquid_volume) { 
+        // prints total liquid volume for level set control
+	printf("Total liquid volume %.10f\n",total_liquid_volume_g);
+	if (isnan(liquid_volume_ini)) liquid_volume_ini = total_liquid_volume_g;
       }
 
     } else {

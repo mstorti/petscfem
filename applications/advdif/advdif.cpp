@@ -236,6 +236,9 @@ int advdif_main(int argc,char **args) {
   GETOPTDEF(int,nnwt,3);
   if (ALPHA==0.) nnwt=1;
 
+  //o Flag for launching RENORM process
+  GETOPTDEF(int,RENORM_flag,0);
+
   comp_mat_each_time_step_g = 
     consistent_supg_matrix || local_time_step;
 
@@ -384,6 +387,10 @@ int advdif_main(int argc,char **args) {
       }
     }
     chrono.start();
+
+    if (RENORM_flag)
+      ierr = read_vector("state-ren.tmp",x,dofmap,MY_RANK); CHKERRA(ierr);
+
     ierr = VecCopy(x,xold);
     //    hook_list.time_step_pre(time_star.time(),tstep);
     hook_list.time_step_pre(time.time()+Dt,tstep); //hook needs t_{n+1}

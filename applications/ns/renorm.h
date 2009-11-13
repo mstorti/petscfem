@@ -9,11 +9,11 @@
 /// 
 class  renorm : public adaptor { 
 private:
-  double creac, kond, mpenal;
-  FastMat2 phi, phiold, tmp, tmp2, grad_phi, 
-    phipgm, Jaco,iJaco, resh, C,
-    phirot, xrot, xlocc;
-  int flag;
+  double creac, kond, mpenal, total_vol, t_area, vel;
+  FastMat2 phi, phiold, tmp, tmp2, tmp3, tmp4, grad_phi, 
+    phipgm, phipgmold, Jaco,iJaco, resh, C,
+    phirot, xrot, xlocc, Jaco_h,xarea;
+  int flag,inv;
   void compute_H_term(FastMat2 &phi);
 public: 
   void init();
