@@ -233,8 +233,6 @@ new_assemble_ALE_formulation(arg_data_list &arg_data_v,const Nodedata *nodedata,
     lstateo(nel,ndof), lstaten(nel,ndof), dUloc_c(nel,ndof),
     dUloc(nel,ndof), matloc;
 
-  FastMat2 true_lstate_abs(2,nel,ndof), true_lstate(2,nel,ndof);
-
   nen = nel*ndof;
 
   //o Type of element geometry to define Gauss Point data
@@ -276,7 +274,6 @@ new_assemble_ALE_formulation(arg_data_list &arg_data_v,const Nodedata *nodedata,
   Ao_grad_N.resize(3,nel,ndof,ndof);
   tau_supg.resize(2,ndof,ndof);
   P_supg.resize(3,nel,ndof,ndof);
-  grad_U_norm.resize(2,ndimel,ndof);
   Cp.resize(2,ndof,ndof);
   Cp_old.resize(2,ndof,ndof);
   Uo.resize(1,ndof);
@@ -447,9 +444,6 @@ new_assemble_ALE_formulation(arg_data_list &arg_data_v,const Nodedata *nodedata,
 
 	  delta_sc     = 0;
 	  delta_sc_old = 0;
-	  true_lstate.set(lstate);
-	  true_lstate_abs.set(true_lstate.fun(abs));
-	  grad_U_norm.prod(dshapex,true_lstate_abs,1,-1,-1,2);
 
 	  // Compute A_grad_U in the `old' state
 	  adv_diff_ff->set_state(Uo,grad_Uo); // fixme:= ojo que le pasamos
