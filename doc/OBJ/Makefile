@@ -30,11 +30,15 @@ $(EPS_F): %.eps : %.fig
 	epstopdf $< -o $@
 
 %.pdf : %.svg
+ifeq (1,0)
 	let pid=$$$$ ;				\
 	inkscape --print="> tmp-$$pid.ps" $< ;	\
 	ps2eps -f tmp-$$pid.ps ;		\
 	epstopdf tmp-$$pid.eps -o=$@ ;		\
 	rm -f tmp-$$pid.ps tmp-$$pid.eps
+else
+	svg2pdf $<
+endif
 
 local_dist_clean::
 #	fixobj -c

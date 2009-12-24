@@ -115,7 +115,7 @@ means: take $w=0.5$ for the first 3 steps, and then use $w=1$.
  (found in file: \verb+ns.cpp+)
 %----<>----<>----<>----<>----<>----<>----<>----<>----<>----<>
 \index{nfile@\verb+nfile+}
-\item\verb+int nfile+ {\rm(default=\verb|1|)}:
+\item\verb+int nfile+ {\rm(default=\verb|-1|)}:
 
 Sets the number of files in the ``rotary save'' mechanism. 
 (see \ref{sec:rotary_save})
@@ -135,7 +135,7 @@ Newton  problem.
  (found in file: \verb+ns.cpp+)
 %----<>----<>----<>----<>----<>----<>----<>----<>----<>----<>
 \index{nrec@\verb+nrec+}
-\item\verb+int nrec+ {\rm(default=\verb|1000000|)}:
+\item\verb+int nrec+ {\rm(default=\verb|1|)}:
 
 Sets the number of states saved in a given file
 in the ``rotary save'' mechanism (see \ref{sec:rotary_save}
@@ -162,7 +162,7 @@ states. The mechanism basically saves the state vector each
 contructed from a pattern set by the user via the
 \verb+save_file_pattern+ entry, by replacing \verb+%d+ 
 by \verb+0+ ``\`a la'' \verb+printf()+. For instance, if
-\verb+save_file_pattern+ i set to \verb+file%d.out+ 
+\verb+save_file_pattern+ is set to \verb+file%d.out+ 
 then the state vectors are appended to \verb+file0.out+.  When the
 number of written states reach the \verb+nrec+ count, the file is
 reset to 0, and the saving continues from the start of the

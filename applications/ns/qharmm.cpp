@@ -17,7 +17,7 @@ void read_cond_matrix(TextHashTable *thash, const char *s,
   vector<double> v;
   const char *line;
   thash->get_entry(s,line);  
-  assert(line);
+  PETSCFEM_ASSERT(line,"option %s is required",s);  
   read_double_array(v,line);
   if (v.size()==1) {
     cond.eye(v[0]);
@@ -44,19 +44,22 @@ void qharmm::elemset_init() {
   //o Reaction jacobian matrix
   read_cond_matrix(thash,"Cp",ndof,Cp);
 
-  //o Time step
-  TGETOPTDEF_ND(thash,double,Dt,0.);
-  assert(Dt>0.);
-
   //o Steady flag
   TGETOPTDEF(thash,int,steady,0);
+
+  //o Time step
+  TGETOPTDEF_ND(thash,double,Dt,NAN);
+  PETSCFEM_ASSERT0(steady || !isnan(Dt),"Dt is required if not steady");  
+  if (steady && isnan(Dt)) Dt=1.0;
+  PETSCFEM_ASSERT0(Dt>=0.0,"Dt is required must be non-negative");  
+
   rec_Dt = (steady? 0.0 : 1.0/Dt);
 
   //o _T: double[ndof] _N: state_ref _D: null vector 
   // _DOC: Reference state value. _END
   x_ref.resize(1,ndof).set(0.);
   ierr = get_double(thash,"state_ref",x_ref.storage_begin(),1,ndof);
-  assert(!ierr);
+  PETSCFEM_ASSERT0(!ierr,"Erro retriveing option state_ref");  
 
   const char *line;
   thash->get_entry("source",line);  
