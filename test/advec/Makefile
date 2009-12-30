@@ -82,4 +82,8 @@ viewero.dx: viewer.dx
 
 local_clean::
 
+prog:
+	$(MAKE) -C $(PETSCFEM_DIR) advdif
+
 #s
+

@@ -112,7 +112,8 @@ void smoke_ff::compute_flux(COMPUTE_FLUX_ARGS) {
   double vel = sqrt(u.sum_square_all());
   double G = 0.0;
   if (G_prop.length!=0) {
-    assert(new_adv_dif_elemset);
+    PETSCFEM_ASSERT0(new_adv_dif_elemset,
+                     "Not NewAdvDifElemset available"); 
     double t = new_adv_dif_elemset->time();
     const double *GG 
       = elemset->prop_array(element_m,G_prop);
