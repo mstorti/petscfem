@@ -244,9 +244,11 @@ new_assemble_ALE_formulation(arg_data_list &arg_data_v,const Nodedata *nodedata,
   int elem, ipg,node, jdim, kloc, lloc, ldof;
 
   dshapex.resize(2,ndimel,nel);
+  dshapex_gcl.resize(2,ndimel,nel);
   FMatrix Jaco(ndimel,ndim), Jaco_av(ndimel,ndim),
     Jaco_new(ndimel,ndim), Jaco_old(ndimel,ndim),
-    iJaco(ndimel,ndimel), iJaco_old(ndimel,ndimel), 
+    iJaco(ndimel,ndimel), iJaco_old(ndimel,ndimel),
+    Q(ndimel,ndimel),
     iJaco_new(ndimel,ndimel), flux(ndof,ndimel),
     fluxd(ndof,ndimel), mass(nel,nel),
     grad_U(ndimel,ndof), A_grad_U(ndof),
@@ -394,6 +396,15 @@ new_assemble_ALE_formulation(arg_data_list &arg_data_v,const Nodedata *nodedata,
 	  detJaco_old = Jaco_old.det();
 	  //         printf("detjaco (start,new,old): %g %g %g\n",detJaco, 
 	  //                detJaco_new, detJaco_old);
+
+	  if (ndim==2){
+	    iJaco_new.inv(Jaco_new);
+	    Q.set(0.0).axpy(iJaco_new,detJaco_new*0.5);
+	    iJaco_old.inv(Jaco_old);
+	    Q.axpy(iJaco_old,detJaco_old*0.5);
+	    Q.scale(1.0/detJaco);
+	    dshapex_gcl.prod(Q,DSHAPEXI,1,-1,-1,2);
+	  }
 	} else if (ndimel == 1) {
 	  // This allows to solve problems on streams like rivers or
 	  // ducts or advective problems on plane surfaces (not
@@ -637,7 +648,8 @@ new_assemble_ALE_formulation(arg_data_list &arg_data_v,const Nodedata *nodedata,
 	  }	  
 	  // tmp8= DSHAPEX * (w*flux_c - flux_d - v_mesh*H)
 	  // w = weak_form
-	  tmp8.prod(dshapex,tmp11,-1,1,2,-1);
+	  // tmp8.prod(dshapex,tmp11,-1,1,2,-1); // non-averaged shape function gradients
+	  tmp8.prod(dshapex_gcl,tmp11,-1,1,2,-1);
 	  tmp9.prod(SHAPE,tmp10,1,2); // tmp9 = SHAPE' * (G - dHdt)
 #if 0
 	  FMSHV(tmp8);
