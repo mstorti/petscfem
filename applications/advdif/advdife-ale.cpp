@@ -231,7 +231,7 @@ new_assemble_ALE_formulation(arg_data_list &arg_data_v,const Nodedata *nodedata,
   FMatrix veccontr(nel,ndof), veccontr_mass(nel,ndof),
     xloc(nel,ndim), xloc_old(nel,ndim), xloc_new(nel,ndim), lstate(nel,ndof),
     lstateo(nel,ndof), lstaten(nel,ndof), dUloc_c(nel,ndof),
-    dUloc(nel,ndof), matloc;
+    dUloc(nel,ndof), matloc, xloc_mid(nel,ndim);
 
   nen = nel*ndof;
 
@@ -239,7 +239,7 @@ new_assemble_ALE_formulation(arg_data_list &arg_data_v,const Nodedata *nodedata,
   NGETOPTDEF_S(string,geometry,cartesian2d);
   GPdata gp_data(geometry.c_str(),ndimel,nel,npg,GP_FASTMAT2);
 
-  double detJaco, detJaco_new = NAN, detJaco_old = NAN,
+  double detJaco, detJaco_new = NAN, detJaco_old = NAN, detJaco_mid = NAN,
     wpgdet, delta_sc, delta_sc_old, lambda_max_pg;
   int elem, ipg,node, jdim, kloc, lloc, ldof;
 
@@ -248,7 +248,7 @@ new_assemble_ALE_formulation(arg_data_list &arg_data_v,const Nodedata *nodedata,
   FMatrix Jaco(ndimel,ndim), Jaco_av(ndimel,ndim),
     Jaco_new(ndimel,ndim), Jaco_old(ndimel,ndim),
     iJaco(ndimel,ndimel), iJaco_old(ndimel,ndimel),
-    Q(ndimel,ndimel),
+    Q(ndimel,ndimel), Jaco_mid(ndimel,ndim),iJaco_mid(ndimel,ndim),
     iJaco_new(ndimel,ndimel), flux(ndof,ndimel),
     fluxd(ndof,ndimel), mass(nel,nel),
     grad_U(ndimel,ndof), A_grad_U(ndof),
@@ -396,13 +396,29 @@ new_assemble_ALE_formulation(arg_data_list &arg_data_v,const Nodedata *nodedata,
 	  detJaco_old = Jaco_old.det();
 	  //         printf("detjaco (start,new,old): %g %g %g\n",detJaco, 
 	  //                detJaco_new, detJaco_old);
-
-	  if (ndim==2){
+	  
+	  if (ndim == 2){ // we need only two points in 2D to integ temporal average
 	    iJaco_new.inv(Jaco_new);
 	    Q.set(0.0).axpy(iJaco_new,detJaco_new*0.5);
 	    iJaco_old.inv(Jaco_old);
 	    Q.axpy(iJaco_old,detJaco_old*0.5);
 	    Q.scale(1.0/detJaco);
+	    dshapex_gcl.prod(Q,DSHAPEXI,1,-1,-1,2);
+	  } else if (ndim == 3) { // we need 3 points in 3D to integ
+				  // temporal average with
+				  // Gauss-Lobatto
+	    iJaco_new.inv(Jaco_new);
+	    Q.set(0.0).axpy(iJaco_new,detJaco_new);
+	    iJaco_old.inv(Jaco_old);
+	    Q.axpy(iJaco_old,detJaco_old);
+	    
+	    // for 3D holy grial GCL mid point integ
+	    xloc_mid.set(xloc_new).rest(xloc_old).scale(0.5).rs(); 
+	    Jaco_mid.prod(DSHAPEXI,xloc_mid,1,-1,-1,2);
+	    detJaco_mid = Jaco_mid.det();
+	    iJaco_mid.inv(Jaco_mid);
+	    Q.axpy(iJaco_mid,detJaco_mid*4);
+	    Q.scale(1.0/(3.0*detJaco));
 	    dshapex_gcl.prod(Q,DSHAPEXI,1,-1,-1,2);
 	  }
 	} else if (ndimel == 1) {
