@@ -408,17 +408,17 @@ new_assemble_ALE_formulation(arg_data_list &arg_data_v,const Nodedata *nodedata,
 				  // temporal average with
 				  // Gauss-Lobatto
 	    iJaco_new.inv(Jaco_new);
-	    Q.set(0.0).axpy(iJaco_new,detJaco_new);
+	    Q.set(0.0).axpy(iJaco_new,detJaco_new/6.0);
 	    iJaco_old.inv(Jaco_old);
-	    Q.axpy(iJaco_old,detJaco_old);
+	    Q.axpy(iJaco_old,detJaco_old/6.0);
 	    
 	    // for 3D holy grial GCL mid point integ
-	    xloc_mid.set(xloc_new).rest(xloc_old).scale(0.5).rs(); 
+	    xloc_mid.set(xloc_new).scale(0.5).axpy(xloc_old,0.5).rs(); 
 	    Jaco_mid.prod(DSHAPEXI,xloc_mid,1,-1,-1,2);
 	    detJaco_mid = Jaco_mid.det();
 	    iJaco_mid.inv(Jaco_mid);
-	    Q.axpy(iJaco_mid,detJaco_mid*4);
-	    Q.scale(1.0/(3.0*detJaco));
+	    Q.axpy(iJaco_mid,detJaco_mid*2.0/3.0);
+	    Q.scale(1.0/detJaco);
 	    dshapex_gcl.prod(Q,DSHAPEXI,1,-1,-1,2);
 	  }
 	} else if (ndimel == 1) {
