@@ -113,6 +113,12 @@ Use the advective Jacobian in the previous time step
  convergence of the Newton iteration.
  (found in file: \verb+advdife.cpp+)
 %----<>----<>----<>----<>----<>----<>----<>----<>----<>----<>
+\index{use\_ALE\_form@\verb+use_ALE_form+}
+\item\verb+int use_ALE_form+ {\rm(default=\verb|0|)}:
+
+Use the ALE+GCL formulation versin of the algorithm 
+ (found in file: \verb+advdife.cpp+)
+%----<>----<>----<>----<>----<>----<>----<>----<>----<>----<>
 \index{use\_fastmat2\_cache@\verb+use_fastmat2_cache+}
 \item\verb+int use_fastmat2_cache+ {\rm(default=\verb|1|)}:
 
@@ -139,6 +145,15 @@ Use log-vars for $k$ and $\epsilon$
 Use 1 Gauss point for some matrix terms.
 In this application for diffusive terms grad_N_D_grad_N
 and for stabilized advection terms P_supg_A_grad_N.
+ (found in file: \verb+advdife.cpp+)
+%----<>----<>----<>----<>----<>----<>----<>----<>----<>----<>
+\index{use\_old\_state\_for\_p\_supg@\verb+use_old_state_for_p_supg+}
+\item\verb+int use_old_state_for_p_supg+ {\rm(default=\verb|1|)}:
+
+If activated, the stability term is computed
+ in the previous time step. The advantage is that
+ you have true Newton convergence (quadratic), but
+ the parameters are not updated while the field is moving. 
  (found in file: \verb+advdife.cpp+)
 %----<>----<>----<>----<>----<>----<>----<>----<>----<>----<>
 \index{weak\_form@\verb+weak_form+}

@@ -126,8 +126,8 @@ test_g_body:
 #w IISD for square cavity test in 20x20 mesh on one processor
 test_re1000:
 	$(MAKE) case=weak_form_0 runs
-	$(MAKE) case=weak_form_1 runs
-	$(OCTAVE) < check_re1000.m > check.re1000.verif.tmp
+#	$(MAKE) case=weak_form_1 runs
+#	$(OCTAVE) < check_re1000.m > check.re1000.verif.tmp
 
 ###--------<*>--------<*>--------<*>--------<*>--------<*>--------<*>--------<*> 
 #w IISD for square cavity test in 20x20 mesh on two processors

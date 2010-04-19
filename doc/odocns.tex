@@ -36,6 +36,18 @@ Backward Euler.  \verb+alpha=0+ : Forward Euler.
  \verb+alpha=0.5+ : Crank-Nicholson. 
  (found in file: \verb+ns.cpp+)
 %----<>----<>----<>----<>----<>----<>----<>----<>----<>----<>
+\index{C\_volume@\verb+C_volume+}
+\item\verb+double C_volume+ {\rm(default=\verb|0|)}:
+
+Coefficient for volume control
+ (found in file: \verb+ns.cpp+)
+%----<>----<>----<>----<>----<>----<>----<>----<>----<>----<>
+\index{delta\_time@\verb+delta_time+}
+\item\verb+double delta_time+ {\rm(default=\verb|0|)}:
+
+Time step for volume control
+ (found in file: \verb+ns.cpp+)
+%----<>----<>----<>----<>----<>----<>----<>----<>----<>----<>
 \index{displ\_factor@\verb+displ_factor+}
 \item\verb+double displ_factor+ {\rm(default=\verb|0.1|)}:
 
@@ -115,7 +127,7 @@ means: take $w=0.5$ for the first 3 steps, and then use $w=1$.
  (found in file: \verb+ns.cpp+)
 %----<>----<>----<>----<>----<>----<>----<>----<>----<>----<>
 \index{nfile@\verb+nfile+}
-\item\verb+int nfile+ {\rm(default=\verb|1|)}:
+\item\verb+int nfile+ {\rm(default=\verb|-1|)}:
 
 Sets the number of files in the ``rotary save'' mechanism. 
 (see \ref{sec:rotary_save})
@@ -135,7 +147,7 @@ Newton  problem.
  (found in file: \verb+ns.cpp+)
 %----<>----<>----<>----<>----<>----<>----<>----<>----<>----<>
 \index{nrec@\verb+nrec+}
-\item\verb+int nrec+ {\rm(default=\verb|1000000|)}:
+\item\verb+int nrec+ {\rm(default=\verb|1|)}:
 
 Sets the number of states saved in a given file
 in the ``rotary save'' mechanism (see \ref{sec:rotary_save}
@@ -162,7 +174,7 @@ states. The mechanism basically saves the state vector each
 contructed from a pattern set by the user via the
 \verb+save_file_pattern+ entry, by replacing \verb+%d+ 
 by \verb+0+ ``\`a la'' \verb+printf()+. For instance, if
-\verb+save_file_pattern+ i set to \verb+file%d.out+ 
+\verb+save_file_pattern+ is set to \verb+file%d.out+ 
 then the state vectors are appended to \verb+file0.out+.  When the
 number of written states reach the \verb+nrec+ count, the file is
 reset to 0, and the saving continues from the start of the
@@ -249,6 +261,12 @@ Name of file where to read the nodes for the ``print some''
 feature. 
  (found in file: \verb+ns.cpp+)
 %----<>----<>----<>----<>----<>----<>----<>----<>----<>----<>
+\index{RENORM\_flag@\verb+RENORM_flag+}
+\item\verb+int RENORM_flag+ {\rm(default=\verb|0|)}:
+
+Flag for launching RENORM process
+ (found in file: \verb+ns.cpp+)
+%----<>----<>----<>----<>----<>----<>----<>----<>----<>----<>
 \index{report\_option\_access@\verb+report_option_access+}
 \item\verb+int report_option_access+ {\rm(default=\verb|1|)}:
 
@@ -256,10 +274,10 @@ Print, after execution, a report of the times a given option
 was accessed. Useful for detecting if an option was used or not.
  (found in file: \verb+ns.cpp+)
 %----<>----<>----<>----<>----<>----<>----<>----<>----<>----<>
-\index{report\_total\_mass@\verb+report_total_mass+}
-\item\verb+int report_total_mass+ {\rm(default=\verb|0|)}:
+\index{report\_total\_liquid\_volume@\verb+report_total_liquid_volume+}
+\item\verb+int report_total_liquid_volume+ {\rm(default=\verb|0|)}:
 
-Print total mass (for Level Set Method)
+Print total liquid volume (for Level Set Method)
  (found in file: \verb+ns.cpp+)
 %----<>----<>----<>----<>----<>----<>----<>----<>----<>----<>
 \index{reuse\_mat@\verb+reuse_mat+}
@@ -414,6 +432,12 @@ Use IISD (Interface Iterative Subdomain Direct) or not.
 
 Computes jacobian of residuals and prints to a file.
  May serve to debug computation of the analytic jacobians. 
+ (found in file: \verb+ns.cpp+)
+%----<>----<>----<>----<>----<>----<>----<>----<>----<>----<>
+\index{volume\_control\_flag@\verb+volume_control_flag+}
+\item\verb+int volume_control_flag+ {\rm(default=\verb|0|)}:
+
+Flag for VOLUME CONTROL in level set
  (found in file: \verb+ns.cpp+)
 %----<>----<>----<>----<>----<>----<>----<>----<>----<>----<>
 %-----<>-----<>-----<>-----<>-----<>-----<>-----<>-----<>-----<>-----<>
