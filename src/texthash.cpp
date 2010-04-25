@@ -384,10 +384,27 @@ static int remove_hash_entry(void *p, void *q, void *u) {
   return 1;
 }
 
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>
 #undef __FUNC__
 #define __FUNC__ "TextHashTable::del_entries()"
 void TextHashTable::del_entries() {
   g_hash_table_foreach_remove (hash, &remove_hash_entry, NULL);
   included_tables.resize(0);
   included_tables_names.resize(0);
+}
+
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>
+static void export1(void *p, void *q, void *ptr) {
+  char *pp; 
+  TextHashTableVal *qq;
+  map<string,string> *table_p = (map<string,string> *)ptr;
+  pp= (char *)p;
+  qq= (TextHashTableVal *)q;
+  (*table_p)[pp] = qq->s;
+}
+
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>
+void TextHashTable
+::export_entries(map<string,string> &table) {
+  g_hash_table_foreach(hash,&export1,&table);
 }
