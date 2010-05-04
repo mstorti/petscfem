@@ -43,6 +43,11 @@ FastMat2::prod(const FastMat2 & A,
   return *this;
 }
 
+struct mat_info {
+  const FastMat2 *mat;
+  vector<int> contract;
+};
+
 // General case
 FastMat2 & 
 FastMat2::prod(vector<const FastMat2 *> &mat_list,
@@ -96,13 +101,16 @@ FastMat2::prod(vector<const FastMat2 *> &mat_list,
   }
   if (erro) PETSCFEM_ERROR0("detected errors, aborting\n");  
 
-  vector<vector<int> > mat_indx(nmat);
+  vector<FastMat2 *> tmp_matrices;
+  list<mat_info> mat_info_list(nmat);
+  list<mat_info>::iterator r = mat_info_list.begin();
   int j=0;
   for (int k=0; k<nmat; k++) {
     int rank = mat_list[k]->n();
-    vector<int> &v = mat_indx[k];
+    mat_info &m = *r++;
     for (int l=0; l<rank; l++) 
-      v.push_back(indx[j++]);
+      m.contract.push_back(indx[j++]);
+    m.mat = mat_list[k];
   }
   exit(0);
   return *this;
