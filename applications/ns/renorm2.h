@@ -11,6 +11,7 @@ class  renorm2 : public adaptor {
 private:
   FastMat2 phi, grad_phi, tmp, phipgm, tmp2, Jaco,iJaco;
   double c_reac, c_grad_phi, kond;
+  int use_lumped;
 public: 
   void init();
   void element_connector(const FastMat2 &xloc,
