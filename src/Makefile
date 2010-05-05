@@ -99,6 +99,15 @@ pfmatFSM.cpp  pfmatFSM.h: pfmat.sm
 	if [ ! -f $*FSM.cpp ] ; then cp -f $*FSM.cc $*FSM.cpp ; fi
 	-rm -f $*FSM.cc
 	chmod -w $*FSM.cpp $*FSM.h
+
+readlist.h: readlist.eperl
+	if [ -e readlist.h ] ; then chmod +w readlist.h ; fi
+	$(EPERL) readlist.eperl > readlist.h
+	chmod -w readlist.h
+
+mprod.h mproddef.h: mprod.pl mprod1.h
+	./mprod.pl
+
 endif
 
 # This doesn't compile with -O2
@@ -108,10 +117,6 @@ endif
 
 local_clean:: local_dist_clean
 	-rm -f version.cpp $(LIBPETSCFEM) # &> /dev/null
-readlist.h: readlist.eperl
-	if [ -e readlist.h ] ; then chmod +w readlist.h ; fi
-	$(EPERL) readlist.eperl > readlist.h
-	chmod -w readlist.h
 pfmat.o dofmap2.o: CCPPFLAGS += -O0
 
 version.cpp: version.cppin ../VERSION

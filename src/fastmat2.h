@@ -957,28 +957,7 @@ public:
   FastMat2 & prod(const FastMat2 & A,const FastMat2 & B,const int
 		  m,INT_VAR_ARGS);
 
-  //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
-  /** Multi product operation. {\tt (*this) = A * B * C . and so on...} 
-      (generalized by index contraction)
-      @author M. Storti
-      @param A (input) first natrix
-      @param B (input) second natrix
-      @param C (input) second natrix
-      @param i,j,k,l... (input) indices to contract and remap.
-      @return a reference to the matrix.
-  */ 
-  FastMat2 & prod(const FastMat2 & A,
-                  const FastMat2 & B,
-                  const FastMat2 & C,
-                  const int
-		  m,INT_VAR_ARGS);
-  
-  // Four matrices involved... The doc should refer to 3 matrices
-  FastMat2 & prod(const FastMat2 & A,
-                  const FastMat2 & B,
-                  const FastMat2 & C,
-                  const FastMat2 & D,
-                  const int m,INT_VAR_ARGS);
+#include "./mprod.h"
 
   // Four matrices involved... The doc should refer to 3 matrices
   FastMat2 & prod(vector<const FastMat2 *> &mat_list,Indx &indx);

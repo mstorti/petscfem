@@ -14,35 +14,19 @@
 #include <src/fm2stats.h>
 #include <src/fastlib2.h>
 
-//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>
-FastMat2 & FastMat2::prod(const FastMat2 & A,
-                          const FastMat2 & B,
-                          const FastMat2 & C,
-                          const int m,INT_VAR_ARGS_ND) {
+// //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>
+// // Four matrices involved... The doc should refer to 3 matrices
+// FastMat2 & 
+// FastMat2::prod(const FastMat2 & A,
+//                const FastMat2 & B,
+//                const FastMat2 & C,
+//                const FastMat2 & D,
+//                const int m,INT_VAR_ARGS_ND) {
+//   assert(0);
+//   return *this;
+// }
 
-  vector<const FastMat2 *> mat_list;
-  mat_list.push_back(&A);
-  mat_list.push_back(&B);
-  mat_list.push_back(&C);
-  
-  Indx indx;
-  indx.push_back(m);
-  READ_INT_ARG_LIST(indx);
-  prod(mat_list,indx);
-  return *this;
-}
-
-//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>
-// Four matrices involved... The doc should refer to 3 matrices
-FastMat2 & 
-FastMat2::prod(const FastMat2 & A,
-               const FastMat2 & B,
-               const FastMat2 & C,
-               const FastMat2 & D,
-               const int m,INT_VAR_ARGS_ND) {
-  assert(0);
-  return *this;
-}
+#include "./mproddef.h"
 
 #define OLD 0
 #define NEW 1
