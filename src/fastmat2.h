@@ -957,6 +957,9 @@ public:
   FastMat2 & prod(const FastMat2 & A,const FastMat2 & B,const int
 		  m,INT_VAR_ARGS);
 
+  // The file "mprod.h" is generated automatically by
+  // `mprod.pl' and generates programatically
+  // declarations for prod() with 3 to 10 matrices. 
 #include "./mprod.h"
 
   // Four matrices involved... The doc should refer to 3 matrices
