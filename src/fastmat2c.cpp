@@ -164,7 +164,7 @@ FastMat2::prod(vector<const FastMat2 *> &mat_list,
   mat_info_cont_t::iterator q,r,qmin,rmin;
   int qfree,rfree,qr1,qr2,nopsmin,nops,
     qrank,rrank,k,dim,qkey,rkey;
-  while (mat_info_cont.size()>2) {
+  while (1) {
 #if 1
     for (int j=0; j<new_mat_indx; j++) {
       if (mat_info_cont.find(j)!=mat_info_cont.end()) {
@@ -172,13 +172,15 @@ FastMat2::prod(vector<const FastMat2 *> &mat_list,
         mat_info &qmi = mat_info_cont.find(j)->second;
         vector<int> &qc = qmi.contract;
         int n=qc.size();
-        for (unsigned int l=0; l<n-1; l++) printf("%d,",qc[l]);
+        for (int l=0; l<n-1; l++) printf("%d,",qc[l]);
         if (n>0) printf("%d",qc[n-1]);
         printf("]");
       }
     }
     printf("\n");
 #endif
+    if (mat_info_cont.size()<=2) break;
+
     printf("nbr of matrices %zu\n",mat_info_cont.size());
     // search for the product with lowest number
     // of operations
@@ -245,10 +247,13 @@ FastMat2::prod(vector<const FastMat2 *> &mat_list,
       &sc = smi.contract,
       &sd = smi.dims;
 
+    qkey = qmin->first;
     mat_info &qmi = qmin->second;
     vector<int> 
       &qc = qmi.contract,
       &qd = qmi.dims;
+
+    rkey = rmin->first;
     mat_info &rmi = rmin->second;
     vector<int> 
       &rc = rmi.contract,
@@ -259,7 +264,7 @@ FastMat2::prod(vector<const FastMat2 *> &mat_list,
     for (int j=0; j<qrank; j++) {
       k = qc[j];
       dim = qd[j];
-      if (k>0 || !vfind(qc,k)) {
+      if (k>0 || !vfind(rc,k)) {
         sc.push_back(k);
         sd.push_back(dim);
       }
@@ -267,7 +272,7 @@ FastMat2::prod(vector<const FastMat2 *> &mat_list,
     for (int j=0; j<rrank; j++) {
       k = rc[j];
       dim = rd[j];
-      if (k>0 || !vfind(rc,k)) {
+      if (k>0 || !vfind(qc,k)) {
         sc.push_back(k);
         sd.push_back(dim);
       }
@@ -275,7 +280,7 @@ FastMat2::prod(vector<const FastMat2 *> &mat_list,
 
     mat_info_cont_t::iterator 
       s = mat_info_cont.find(skey);
-    // print_mat_info(s,"s: ");
+    print_mat_info(s,"s: ");
 
     mat_info_cont.erase(qkey);
     mat_info_cont.erase(rkey);
