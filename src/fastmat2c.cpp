@@ -53,6 +53,7 @@ static int vfind(vector<int> &v,int x) {
 
 typedef map<int,mat_info> mat_info_cont_t;
 
+#if 0
 static void 
 print_mat_info(mat_info_cont_t::iterator q,
                const char *s=NULL) {
@@ -69,6 +70,7 @@ print_mat_info(mat_info_cont_t::iterator q,
   for (int j=0; j<rank; j++) printf("%d ",qc[j]);
   printf("\n");
 }
+#endif
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>
 // General case
@@ -152,7 +154,7 @@ FastMat2::prod(vector<const FastMat2 *> &mat_list,
 #if 1
     for (int j=0; j<new_mat_indx; j++) {
       if (mat_info_cont.find(j)!=mat_info_cont.end()) {
-        printf("[");
+        printf("[a%d:",j);
         mat_info &qmi = mat_info_cont.find(j)->second;
         vector<int> &qc = qmi.contract;
         int n=qc.size();
@@ -262,10 +264,13 @@ FastMat2::prod(vector<const FastMat2 *> &mat_list,
       }
     }
 
+#if 0
     mat_info_cont_t::iterator 
       s = mat_info_cont.find(skey);
     print_mat_info(s,"s: ");
+#endif
 
+    printf("contracts a%d,a%d\n",qkey,rkey);
     mat_info_cont.erase(qkey);
     mat_info_cont.erase(rkey);
   }
