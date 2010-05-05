@@ -4,6 +4,8 @@
 #include <cstdio>
 #include <unistd.h>
 
+#include <set>
+
 #include <algorithm>
 #ifdef USE_MKL
 #include <mkl_cblas.h>
@@ -32,6 +34,7 @@ FastMat2 & FastMat2::prod(const FastMat2 & A,
   return *this;
 }
 
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>
 // Four matrices involved... The doc should refer to 3 matrices
 FastMat2 & 
 FastMat2::prod(const FastMat2 & A,
@@ -43,11 +46,21 @@ FastMat2::prod(const FastMat2 & A,
   return *this;
 }
 
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>
 struct mat_info {
   const FastMat2 *mat;
   vector<int> contract;
 };
 
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>
+static int vfind(vector<int> &v,int x) {
+  int n=v.size();
+  for (int j=0; j<n; j++)
+    if (v[j]==x) return 1;
+  return 0;
+}
+
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>
 // General case
 FastMat2 & 
 FastMat2::prod(vector<const FastMat2 *> &mat_list,
@@ -70,10 +83,10 @@ FastMat2::prod(vector<const FastMat2 *> &mat_list,
     indices[indx[j]]++;
   }
 
-  map<int,int>::iterator q = indices.begin();
+  map<int,int>::iterator s = indices.begin();
   int erro=0, outrank=-1;
-  while (q!=indices.end()) {
-    int k=q->first, n=q->second;
+  while (s!=indices.end()) {
+    int k=s->first, n=s->second;
     if (k<0 && n!=2) {
       erro=1;
       printf("contracted index %d repeated %d times (should be 2)\n",k,n);
@@ -84,7 +97,7 @@ FastMat2::prod(vector<const FastMat2 *> &mat_list,
         erro = 1;
     }
     if (k==0) printf("index null is invalid %d\n",k);
-    q++;
+    s++;
   }
   
   // Check all free indices are in range [1,rank]
@@ -101,16 +114,74 @@ FastMat2::prod(vector<const FastMat2 *> &mat_list,
   }
   if (erro) PETSCFEM_ERROR0("detected errors, aborting\n");  
 
+  // Stores the info of matrices (contracted indices and
+  // pointer to matrices) in a list of structures mat_info
   vector<FastMat2 *> tmp_matrices;
   list<mat_info> mat_info_list(nmat);
-  list<mat_info>::iterator r = mat_info_list.begin();
+  list<mat_info>::iterator p = mat_info_list.begin();
   int j=0;
   for (int k=0; k<nmat; k++) {
     int rank = mat_list[k]->n();
-    mat_info &m = *r++;
+    mat_info &m = *p++;
     for (int l=0; l<rank; l++) 
       m.contract.push_back(indx[j++]);
     m.mat = mat_list[k];
+  }
+
+  list<mat_info>::iterator q,r,q1,r1;
+  std::set<int> qset,rset;
+  int qfree,rfree,qr1,qr2;
+  while (mat_info_list.size()>2) {
+    // search for the product with lowest number
+    // of operations
+    q=mat_info_list.begin();
+    while (q!=mat_info_list.end()) {
+      r = q; r++;
+      qset.clear();
+      while (r!=mat_info_list.end()) {
+        rfree=1;
+        qfree=1;
+        qr1=1;
+        qr2=1;
+        int 
+          qrank=q->contract.size(),
+          rrank=r->contract.size();
+        for (int j=0; j<qrank; j++) {
+          int 
+            k=q->contract[j],
+            dim = q->mat->dim(j);
+          if (k>0 || vfind(r->contract,k))
+            qfree *= dim;
+          else qr1 *= dim;
+        }
+        for (int j=0; j<rrank; j++) {
+          int 
+            k=r->contract[j],
+            dim = r->mat->dim(j);
+          if (k>0 || q->contract.find(k)!=q->contract.end())
+            rfree *= dim;
+          else qr2 *= dim;
+        }
+#if 1
+        printf("q dims: ");
+        for (int j=0; j<rrank; j++) printf("%d ",q->mat->dim(j));
+        printf("pos: ");
+        for (int j=0; j<rrank; j++) printf("%d ",q->contract[j]);
+        printf("\n");
+
+        printf("r dims: ");
+        for (int j=0; j<qrank; j++) printf("%d ",r->mat->dim(j));
+        printf("pos: ");
+        for (int j=0; j<qrank; j++) printf("%d ",r->contract[j]);
+        printf("\n");
+        
+        printf("qfree %d, rfree %d, qr1 %d, qr2 %d \n",
+               qfree,rfree,qr1,qr2);
+#endif        
+        r++;
+      }
+      q++;
+    }
   }
   exit(0);
   return *this;
