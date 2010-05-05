@@ -48,6 +48,7 @@ FastMat2::prod(const FastMat2 & A,
 struct mat_info {
   const FastMat2 *mat;
   vector<int> contract;
+  vector<int> dims;
 };
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>
@@ -121,17 +122,24 @@ FastMat2::prod(vector<const FastMat2 *> &mat_list,
   for (int k=0; k<nmat; k++) {
     int rank = mat_list[k]->n();
     mat_info &m = *p++;
-    for (int l=0; l<rank; l++) 
-      m.contract.push_back(indx[j++]);
+    m.contract.resize(rank);
+    m.dims.resize(rank);
+    for (int l=0; l<rank; l++) {
+      m.contract[l] = indx[j++];
+      m.dims[l] = mat_list[k]->dim(l+1);
+    }
     m.mat = mat_list[k];
   }
 
-  list<mat_info>::iterator q,r,q1,r1;
-  int qfree,rfree,qr1,qr2;
+  list<mat_info>::iterator q,r,qmin,rmin;
+  int qfree,rfree,qr1,qr2,nopsmin,nops;
   while (mat_info_list.size()>2) {
     // search for the product with lowest number
     // of operations
     q=mat_info_list.begin();
+    nopsmin=-1;
+    qmin=mat_info_list.end();
+    rmin=mat_info_list.end();
     while (q!=mat_info_list.end()) {
       r = q; r++;
       while (r!=mat_info_list.end()) {
@@ -145,28 +153,29 @@ FastMat2::prod(vector<const FastMat2 *> &mat_list,
         for (int j=0; j<qrank; j++) {
           int 
             k=q->contract[j],
-            dim = q->mat->dim(j+1);
-          if (k>0 || vfind(r->contract,k))
+            dim = q->dims[j];
+          if (k>0 || !vfind(r->contract,k))
             qfree *= dim;
           else qr1 *= dim;
         }
         for (int j=0; j<rrank; j++) {
           int 
             k=r->contract[j],
-            dim = r->mat->dim(j+1);
-          if (k>0 || vfind(q->contract,k))
+            dim = r->dims[j];
+          if (k>0 || !vfind(q->contract,k))
             rfree *= dim;
           else qr2 *= dim;
         }
+        assert(qr1==qr2);
 #if 1
         printf("q dims: ");
-        for (int j=0; j<rrank; j++) printf("%d ",q->mat->dim(j+1));
+        for (int j=0; j<rrank; j++) printf("%d ",q->dims[j+1]);
         printf("pos: ");
         for (int j=0; j<rrank; j++) printf("%d ",q->contract[j]);
         printf("\n");
 
         printf("r dims: ");
-        for (int j=0; j<qrank; j++) printf("%d ",r->mat->dim(j+1));
+        for (int j=0; j<qrank; j++) printf("%d ",r->dims[j]);
         printf("pos: ");
         for (int j=0; j<qrank; j++) printf("%d ",r->contract[j]);
         printf("\n");
@@ -174,10 +183,23 @@ FastMat2::prod(vector<const FastMat2 *> &mat_list,
         printf("qfree %d, rfree %d, qr1 %d, qr2 %d \n",
                qfree,rfree,qr1,qr2);
 #endif        
+        nops = qfree*rfree*qr1;
+        if (nopsmin<0 || nops<nopsmin) {
+          nops=nopsmin;
+          qmin = q;
+          rmin = r;
+        }
         r++;
       }
       q++;
     }
+    assert(nopsmin>0);
+    
+    mat_info_list.push_back(mat_info());
+    mat_info &s = mat_info_list.back();
+    s->mat = NULL;
+          
+
     exit(0);
   }
   return *this;
