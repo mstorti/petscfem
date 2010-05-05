@@ -4,8 +4,6 @@
 #include <cstdio>
 #include <unistd.h>
 
-#include <set>
-
 #include <algorithm>
 #ifdef USE_MKL
 #include <mkl_cblas.h>
@@ -129,7 +127,6 @@ FastMat2::prod(vector<const FastMat2 *> &mat_list,
   }
 
   list<mat_info>::iterator q,r,q1,r1;
-  std::set<int> qset,rset;
   int qfree,rfree,qr1,qr2;
   while (mat_info_list.size()>2) {
     // search for the product with lowest number
@@ -137,7 +134,6 @@ FastMat2::prod(vector<const FastMat2 *> &mat_list,
     q=mat_info_list.begin();
     while (q!=mat_info_list.end()) {
       r = q; r++;
-      qset.clear();
       while (r!=mat_info_list.end()) {
         rfree=1;
         qfree=1;
@@ -149,7 +145,7 @@ FastMat2::prod(vector<const FastMat2 *> &mat_list,
         for (int j=0; j<qrank; j++) {
           int 
             k=q->contract[j],
-            dim = q->mat->dim(j);
+            dim = q->mat->dim(j+1);
           if (k>0 || vfind(r->contract,k))
             qfree *= dim;
           else qr1 *= dim;
@@ -157,20 +153,20 @@ FastMat2::prod(vector<const FastMat2 *> &mat_list,
         for (int j=0; j<rrank; j++) {
           int 
             k=r->contract[j],
-            dim = r->mat->dim(j);
-          if (k>0 || q->contract.find(k)!=q->contract.end())
+            dim = r->mat->dim(j+1);
+          if (k>0 || vfind(q->contract,k))
             rfree *= dim;
           else qr2 *= dim;
         }
 #if 1
         printf("q dims: ");
-        for (int j=0; j<rrank; j++) printf("%d ",q->mat->dim(j));
+        for (int j=0; j<rrank; j++) printf("%d ",q->mat->dim(j+1));
         printf("pos: ");
         for (int j=0; j<rrank; j++) printf("%d ",q->contract[j]);
         printf("\n");
 
         printf("r dims: ");
-        for (int j=0; j<qrank; j++) printf("%d ",r->mat->dim(j));
+        for (int j=0; j<qrank; j++) printf("%d ",r->mat->dim(j+1));
         printf("pos: ");
         for (int j=0; j<qrank; j++) printf("%d ",r->contract[j]);
         printf("\n");
@@ -182,7 +178,7 @@ FastMat2::prod(vector<const FastMat2 *> &mat_list,
       }
       q++;
     }
+    exit(0);
   }
-  exit(0);
   return *this;
 }
