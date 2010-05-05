@@ -44,11 +44,19 @@ FastMat2::prod(const FastMat2 & A,
   return *this;
 }
 
+#define OLD 0
+#define NEW 1
+#define UNKNOWN 2
+
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>
 struct mat_info {
-  const FastMat2 *mat;
+  // Pointers to old matrices should be `const'
+  FastMat2 *Ap;
   vector<int> contract;
   vector<int> dims;
+  int type;
+  mat_info() : Ap(NULL), type(UNKNOWN) {}
+  
 };
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>
@@ -57,6 +65,25 @@ static int vfind(vector<int> &v,int x) {
   for (int j=0; j<n; j++)
     if (v[j]==x) return 1;
   return 0;
+}
+
+typedef map<int,mat_info> mat_info_cont_t;
+
+static void 
+print_mat_info(mat_info_cont_t::iterator q,
+               const char *s=NULL) {
+  if (s) printf("%s: ",s);
+  mat_info &mi = q->second;
+  vector<int> 
+    &qc = mi.contract,
+    &qd = mi.dims;
+  printf("key: %d, ptr %p, type %d, dims: ",
+         q->first,mi.Ap,mi.type);
+  int rank = qd.size();
+  for (int j=0; j<rank; j++) printf("%d ",qd[j]);
+  printf("ctr-pos: ");
+  for (int j=0; j<rank; j++) printf("%d ",qc[j]);
+  printf("\n");
 }
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>
@@ -115,77 +142,92 @@ FastMat2::prod(vector<const FastMat2 *> &mat_list,
 
   // Stores the info of matrices (contracted indices and
   // pointer to matrices) in a list of structures mat_info
-  vector<FastMat2 *> tmp_matrices;
-  list<mat_info> mat_info_list(nmat);
-  list<mat_info>::iterator p = mat_info_list.begin();
+  mat_info_cont_t mat_info_cont;
   int j=0;
   for (int k=0; k<nmat; k++) {
-    int rank = mat_list[k]->n();
-    mat_info &m = *p++;
+    FastMat2 &A = *(FastMat2 *)mat_list[k];
+    mat_info_cont[k] = mat_info();
+    mat_info &m = mat_info_cont[k];
+    m.Ap = &A;
+    m.type = OLD;
+    int rank = A.n();
     m.contract.resize(rank);
     m.dims.resize(rank);
     for (int l=0; l<rank; l++) {
       m.contract[l] = indx[j++];
-      m.dims[l] = mat_list[k]->dim(l+1);
+      m.dims[l] = A.dim(l+1);
     }
-    m.mat = mat_list[k];
   }
 
-  list<mat_info>::iterator q,r,qmin,rmin;
-  int qfree,rfree,qr1,qr2,nopsmin,nops;
-  while (mat_info_list.size()>2) {
+  vector<FastMat2 *> new_matrices;
+  int new_mat_indx = nmat;
+  mat_info_cont_t::iterator q,r,qmin,rmin;
+  int qfree,rfree,qr1,qr2,nopsmin,nops,
+    qrank,rrank,k,dim,qkey,rkey;
+  while (mat_info_cont.size()>2) {
+#if 1
+    for (int j=0; j<new_mat_indx; j++) {
+      if (mat_info_cont.find(j)!=mat_info_cont.end()) {
+        printf("[");
+        mat_info &qmi = mat_info_cont.find(j)->second;
+        vector<int> &qc = qmi.contract;
+        int n=qc.size();
+        for (unsigned int l=0; l<n-1; l++) printf("%d,",qc[l]);
+        if (n>0) printf("%d",qc[n-1]);
+        printf("]");
+      }
+    }
+    printf("\n");
+#endif
+    printf("nbr of matrices %zu\n",mat_info_cont.size());
     // search for the product with lowest number
     // of operations
-    q=mat_info_list.begin();
+    q = mat_info_cont.begin();
     nopsmin=-1;
-    qmin=mat_info_list.end();
-    rmin=mat_info_list.end();
-    while (q!=mat_info_list.end()) {
+    qmin = mat_info_cont.end();
+    rmin = mat_info_cont.end();
+    while (q != mat_info_cont.end()) {
+      qkey = q->first;
+      mat_info &qmi = q->second;
+      vector<int> 
+        &qc = qmi.contract,
+        &qd = qmi.dims;
       r = q; r++;
-      while (r!=mat_info_list.end()) {
+      while (r != mat_info_cont.end()) {
+        rkey = q->first;
+        mat_info &rmi = r->second;
+        vector<int> 
+          &rc = rmi.contract,
+          &rd = rmi.dims;
         rfree=1;
         qfree=1;
         qr1=1;
         qr2=1;
-        int 
-          qrank=q->contract.size(),
-          rrank=r->contract.size();
+        qrank = qd.size();
+        rrank = rd.size();
         for (int j=0; j<qrank; j++) {
-          int 
-            k=q->contract[j],
-            dim = q->dims[j];
-          if (k>0 || !vfind(r->contract,k))
-            qfree *= dim;
+          k = qc[j];
+          dim = qd[j];
+          if (k>0 || !vfind(rc,k)) qfree *= dim;
           else qr1 *= dim;
         }
         for (int j=0; j<rrank; j++) {
-          int 
-            k=r->contract[j],
-            dim = r->dims[j];
-          if (k>0 || !vfind(q->contract,k))
-            rfree *= dim;
+          k = rc[j];
+          dim = rd[j];
+          if (k>0 || !vfind(qc,k)) rfree *= dim;
           else qr2 *= dim;
         }
         assert(qr1==qr2);
-#if 1
-        printf("q dims: ");
-        for (int j=0; j<rrank; j++) printf("%d ",q->dims[j+1]);
-        printf("pos: ");
-        for (int j=0; j<rrank; j++) printf("%d ",q->contract[j]);
-        printf("\n");
-
-        printf("r dims: ");
-        for (int j=0; j<qrank; j++) printf("%d ",r->dims[j]);
-        printf("pos: ");
-        for (int j=0; j<qrank; j++) printf("%d ",r->contract[j]);
-        printf("\n");
+#if 0
+        print_mat_info(q,"q: ");
+        print_mat_info(r,"r: ");
         
         printf("qfree %d, rfree %d, qr1 %d, qr2 %d \n",
                qfree,rfree,qr1,qr2);
 #endif        
         nops = qfree*rfree*qr1;
         if (nopsmin<0 || nops<nopsmin) {
-          nops=nopsmin;
+          nopsmin = nops;
           qmin = q;
           rmin = r;
         }
@@ -194,13 +236,51 @@ FastMat2::prod(vector<const FastMat2 *> &mat_list,
       q++;
     }
     assert(nopsmin>0);
-    
-    mat_info_list.push_back(mat_info());
-    mat_info &s = mat_info_list.back();
-    s->mat = NULL;
-          
 
-    exit(0);
+    // Insert new entry in 
+    int skey = new_mat_indx++;
+    mat_info &smi = mat_info_cont[skey];
+    smi.type = NEW;
+    vector<int> 
+      &sc = smi.contract,
+      &sd = smi.dims;
+
+    mat_info &qmi = qmin->second;
+    vector<int> 
+      &qc = qmi.contract,
+      &qd = qmi.dims;
+    mat_info &rmi = rmin->second;
+    vector<int> 
+      &rc = rmi.contract,
+      &rd = rmi.dims;
+
+    qrank = qd.size();
+    rrank = rd.size();
+    for (int j=0; j<qrank; j++) {
+      k = qc[j];
+      dim = qd[j];
+      if (k>0 || !vfind(qc,k)) {
+        sc.push_back(k);
+        sd.push_back(dim);
+      }
+    }
+    for (int j=0; j<rrank; j++) {
+      k = rc[j];
+      dim = rd[j];
+      if (k>0 || !vfind(rc,k)) {
+        sc.push_back(k);
+        sd.push_back(dim);
+      }
+    }
+
+    mat_info_cont_t::iterator 
+      s = mat_info_cont.find(skey);
+    // print_mat_info(s,"s: ");
+
+    mat_info_cont.erase(qkey);
+    mat_info_cont.erase(rkey);
   }
+
+  exit(0);
   return *this;
 }
