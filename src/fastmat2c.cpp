@@ -72,6 +72,36 @@ print_mat_info(mat_info_cont_t::iterator q,
 }
 #endif
 
+static int compute_opcount(mat_info &qmi,mat_info &rmi) {
+  vector<int> 
+    &qc = qmi.contract,
+    &qd = qmi.dims,
+    &rc = rmi.contract,
+    &rd = rmi.dims;
+  int 
+    rfree=1,
+    qfree=1,
+    qr1=1,
+    qr2=1,
+    qrank = qd.size(),
+    rrank = rd.size(),
+    k,dim;
+  for (int j=0; j<qrank; j++) {
+    k = qc[j];
+    dim = qd[j];
+    if (k>0 || !vfind(rc,k)) qfree *= dim;
+    else qr1 *= dim;
+  }
+  for (int j=0; j<rrank; j++) {
+    k = rc[j];
+    dim = rd[j];
+    if (k>0 || !vfind(qc,k)) rfree *= dim;
+    else qr2 *= dim;
+  }
+  assert(qr1==qr2);
+  return qfree*rfree*qr1;
+}
+
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>
 // General case
 FastMat2 & 
@@ -177,13 +207,11 @@ FastMat2::prod(vector<const FastMat2 *> &mat_list,
     while (q != mat_info_cont.end()) {
       qkey = q->first;
       mat_info &qmi = q->second;
-      vector<int> 
-        &qc = qmi.contract,
-        &qd = qmi.dims;
       r = q; r++;
       while (r != mat_info_cont.end()) {
         rkey = q->first;
         mat_info &rmi = r->second;
+#if 0
         vector<int> 
           &rc = rmi.contract,
           &rd = rmi.dims;
@@ -206,6 +234,7 @@ FastMat2::prod(vector<const FastMat2 *> &mat_list,
           else qr2 *= dim;
         }
         assert(qr1==qr2);
+#endif
 #if 0
         print_mat_info(q,"q: ");
         print_mat_info(r,"r: ");
@@ -213,7 +242,7 @@ FastMat2::prod(vector<const FastMat2 *> &mat_list,
         printf("qfree %d, rfree %d, qr1 %d, qr2 %d \n",
                qfree,rfree,qr1,qr2);
 #endif        
-        nops = qfree*rfree*qr1;
+        nops = compute_opcount(qmi,rmi);
         if (nopsmin<0 || nops<nopsmin) {
           nopsmin = nops;
           qmin = q;
