@@ -73,6 +73,7 @@ print_mat_info(mat_info_cont_t::iterator q,
 }
 #endif
 
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>
 static int compute_opcount(mat_info &qmi,mat_info &rmi,
                            int &qfree,int &rfree,int &qr1) {
   vector<int> 
@@ -571,3 +572,22 @@ FastMat2::prod(const FastMat2 &A,const FastMat2 &B,
   if (!ctx->use_cache) delete cache;
   return *this;
 }
+
+#ifdef USE_MPROD_FOR_2MATS
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>
+FastMat2 & 
+FastMat2::prod(const FastMat2 & A0,
+               const FastMat2 & A1,
+               const int m,INT_VAR_ARGS_ND) {
+
+  vector<const FastMat2 *> mat_list;
+  mat_list.push_back(&A0);
+  mat_list.push_back(&A1);
+  
+  Indx indx;
+  indx.push_back(m);
+  READ_INT_ARG_LIST(indx);
+  prod(mat_list,indx);
+  return *this;
+}
+#endif

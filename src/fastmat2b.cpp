@@ -143,6 +143,7 @@ void prod_subcache_t::dgemm() {
 #endif
 }
 
+#ifndef USE_MPROD_FOR_2MATS
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>
 FastMat2 & FastMat2::prod(const FastMat2 & A,const FastMat2 & B,
                           const int m,INT_VAR_ARGS_ND) {
@@ -422,6 +423,7 @@ FastMat2 & FastMat2::prod(const FastMat2 & A,const FastMat2 & B,
   if (!ctx->use_cache) delete cache;
   return *this;
 }
+#endif
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>
 void FastMat2Stats::report() {
