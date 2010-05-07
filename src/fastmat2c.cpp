@@ -286,15 +286,13 @@ FastMat2::prod(vector<const FastMat2 *> &mat_list,
         &sc = smi.contract,
         &sd = smi.dims;
 
-      qkey = qmin;
-      mat_info &qmi = mat_info_cont[qkey];
+      mat_info &qmi = mat_info_cont[qmin];
       qmi.is_active = INACTIVE;
       vector<int> 
         &qc = qmi.contract,
         &qd = qmi.dims;
 
-      rkey = rmin;
-      mat_info &rmi = mat_info_cont[rkey];
+      mat_info &rmi = mat_info_cont[rmin];
       rmi.is_active = INACTIVE;
       vector<int> 
         &rc = rmi.contract,
@@ -318,6 +316,9 @@ FastMat2::prod(vector<const FastMat2 *> &mat_list,
           sd.push_back(dim);
         }
       }
+      active_mat_indices.erase(qmin);
+      active_mat_indices.erase(rmin);
+      active_mat_indices.insert(skey);
 
 #if 0
       mat_info_cont_t::iterator 
@@ -325,7 +326,7 @@ FastMat2::prod(vector<const FastMat2 *> &mat_list,
       print_mat_info(s,"s: ");
 #endif
 
-      printf("contracts a%d,a%d\n",qkey,rkey);
+      printf("contracts a%d,a%d\n",qmin,rmin);
     }
     printf("total ops count %d\n",nopscount);
   }
