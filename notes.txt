@@ -15134,3 +15134,47 @@ CTX2: Elapsed time (matrix residual eval): 0.008700 sec.
 Con un solo set:
 CTX1: Elapsed time (matrix residual eval): 0.023412 sec.
 CTX2: Elapsed time (matrix residual eval): 0.065351 sec.
+
+%=== Fri May  7 10:32:11 2010 mstorti@galileo
+%
+%--[2010-05-07.13:32:11.mstorti-v28-end-22-gf66deca]-----
+Implementando multiprod
+------------
+fastmat_multiprod_use_first 0
+[a0:-2,-5][a1:-1,-5][a2:-1][a3:-2,-3,-4][a4:-3,-6][a5:-6,-4]
+nbr of matrices 6
+contracts a1,a2
+[a0:-2,-5][a3:-2,-3,-4][a4:-3,-6][a5:-6,-4][a6:-5]
+nbr of matrices 5
+contracts a0,a6
+[a3:-2,-3,-4][a4:-3,-6][a5:-6,-4][a7:-2]
+nbr of matrices 4
+contracts a4,a5
+[a3:-2,-3,-4][a7:-2][a8:-3,-4]
+nbr of matrices 3
+contracts a3,a7
+[a8:-3,-4][a9:-3,-4]
+nbr of matrices 2
+contracts a8,a9
+[a10:]
+total ops count 96
+---------------------------------
+fastmat_multiprod_use_first 1
+[a0:-2,-5][a1:-1,-5][a2:-1][a3:-2,-3,-4][a4:-3,-6][a5:-6,-4]
+nbr of matrices 6
+contracts a4,a5
+[a0:-2,-5][a1:-1,-5][a2:-1][a3:-2,-3,-4][a6:-3,-4]
+nbr of matrices 5
+contracts a3,a6
+[a0:-2,-5][a1:-1,-5][a2:-1][a7:-2]
+nbr of matrices 4
+contracts a1,a2
+[a0:-2,-5][a7:-2][a8:-5]
+nbr of matrices 3
+contracts a0,a8
+[a7:-2][a9:-2]
+nbr of matrices 2
+contracts a7,a9
+[a10:]
+total ops count 93
+----------------------

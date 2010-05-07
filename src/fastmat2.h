@@ -962,8 +962,12 @@ public:
   // declarations for prod() with 3 to 10 matrices. 
 #include "./mprod.h"
 
-  // Four matrices involved... The doc should refer to 3 matrices
+  // Version with 2 matrices and vectors of indices
   FastMat2 & prod(vector<const FastMat2 *> &mat_list,Indx &indx);
+
+  // Generic version for a pair with vectorized indices
+  FastMat2 & prod(const FastMat2 &A,const FastMat2 &B,
+                  Indx &ixa,Indx &ixb);
 
   //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
   /** Kronecker product (also called Schur product)
