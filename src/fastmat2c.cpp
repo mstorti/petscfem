@@ -33,15 +33,20 @@
 #define NEW 1
 #define UNKNOWN 2
 
+#define INACTIVE 0
+#define ACTIVE 1
+#define UNDEF -1
+
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>
 struct mat_info {
   // Pointers to old matrices should be `const'
   FastMat2 *Ap;
   vector<int> contract;
   vector<int> dims;
-  int type;
-  mat_info() : Ap(NULL), type(UNKNOWN) {}
-  
+  int type, is_active;
+  mat_info() : Ap(NULL), 
+               type(UNKNOWN),
+               is_active(UNDEF) {}
 };
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>
@@ -52,7 +57,8 @@ static int vfind(vector<int> &v,int x) {
   return 0;
 }
 
-typedef map<int,mat_info> mat_info_cont_t;
+// typedef map<int,mat_info> mat_info_cont_t;
+typedef vector<mat_info> mat_info_cont_t;
 
 #if 0
 static void 
@@ -110,192 +116,225 @@ static int compute_opcount(mat_info &qmi,mat_info &rmi,
 int fastmat_multiprod_use_first=0;
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>
+class multiprod_subcache_t : public FastMatSubCache {
+private:
+  vector<FastMat2 *> tmp_matrices;
+public:
+  multiprod_subcache_t(FastMatCache *cache_a) { }
+};
+
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>
 // General case
 FastMat2 & 
 FastMat2::prod(vector<const FastMat2 *> &mat_list,
                Indx &indx) {
-  
-  // Check sum of ranks of matrices equals
-  // size of index vector passed
-  int nmat = mat_list.size(), nindx = 0;
-  for (int j=0; j<nmat; j++)
-    nindx += mat_list[j]->n();
-  PETSCFEM_ASSERT(nindx==indx.size(),"Not correct nbr of indices. "
-                  "Sum of ranks %d. nbr of indices %d",nindx,indx.size());  
-  // For contracted indices (negeative) count how many times
-  // they appear (should be 2).
-  // For the free indices they should appear once and
-  // in the range [1,rank] where rank is the
-  // rank of the output matrix.
-  map<int,int> indices; 
-  for (int j=0; j<nindx; j++) {
-    indices[indx[j]]++;
-  }
 
-  map<int,int>::iterator s = indices.begin();
-  int erro=0, outrank=-1;
-  while (s!=indices.end()) {
-    int k=s->first, n=s->second;
-    if (k<0 && n!=2) {
-      erro=1;
-      printf("contracted index %d repeated %d times (should be 2)\n",k,n);
-    } 
-    if (k>0 && k > outrank) outrank = k;
-    if (k>0 && n!=1) {
+#ifndef NDEBUG
+  if (ctx->do_check_labels) {
+    ctx->check_clear();
+    ctx->check("prod_mat_indx",this);
+    int nmat = mat_list.size();
+    for (int j=0; j<nmat; j++)
+      ctx->check(mat_list[j]);
+    ctx->check(indx);
+  }
+#endif
+  FastMatCache *cache = ctx->step();
+
+  multiprod_subcache_t *mpsc=NULL;
+  if (!ctx->was_cached  ) {
+    mpsc = new multiprod_subcache_t(cache);
+    
+    // Check sum of ranks of matrices equals
+    // size of index vector passed
+    int nmat = mat_list.size(), nindx = 0;
+    for (int j=0; j<nmat; j++)
+      nindx += mat_list[j]->n();
+    PETSCFEM_ASSERT(nindx==indx.size(),"Not correct nbr of indices. "
+                    "Sum of ranks %d. nbr of indices %d",nindx,indx.size());  
+    // For contracted indices (negeative) count how many times
+    // they appear (should be 2).
+    // For the free indices they should appear once and
+    // in the range [1,rank] where rank is the
+    // rank of the output matrix.
+    map<int,int> indices; 
+    for (int j=0; j<nindx; j++) {
+      indices[indx[j]]++;
+    }
+
+    map<int,int>::iterator s = indices.begin();
+    int erro=0, outrank=-1;
+    while (s!=indices.end()) {
+      int k=s->first, n=s->second;
+      if (k<0 && n!=2) {
+        erro=1;
+        printf("contracted index %d repeated %d times (should be 2)\n",k,n);
+      } 
+      if (k>0 && k > outrank) outrank = k;
+      if (k>0 && n!=1) {
         printf("free index %d repeated %d times (should be 1)\n",k,n);
         erro = 1;
+      }
+      if (k==0) printf("index null is invalid %d\n",k);
+      s++;
     }
-    if (k==0) printf("index null is invalid %d\n",k);
-    s++;
-  }
   
-  // Check all free indices are in range [1,rank]
-  int erro1=0;
-  for (int j=1; j<=outrank; j++) {
-    if (indices.find(j)==indices.end()) erro1=1;
-  }
-  if (erro1) {
-    erro = 1;
-    printf("outrank %d and following indices are missing: ",outrank);
-    for (int j=1; j<=outrank; j++) 
-      if (indices.find(j)==indices.end()) printf("%d ",j);
-    printf("\n");
-  }
-  if (erro) PETSCFEM_ERROR0("detected errors, aborting\n");  
-
-  // Stores the info of matrices (contracted indices and
-  // pointer to matrices) in a list of structures mat_info
-  mat_info_cont_t mat_info_cont;
-  int j=0;
-  for (int k=0; k<nmat; k++) {
-    FastMat2 &A = *(FastMat2 *)mat_list[k];
-    mat_info_cont[k] = mat_info();
-    mat_info &m = mat_info_cont[k];
-    m.Ap = &A;
-    m.type = OLD;
-    int rank = A.n();
-    m.contract.resize(rank);
-    m.dims.resize(rank);
-    for (int l=0; l<rank; l++) {
-      m.contract[l] = indx[j++];
-      m.dims[l] = A.dim(l+1);
+    // Check all free indices are in range [1,rank]
+    int erro1=0;
+    for (int j=1; j<=outrank; j++) {
+      if (indices.find(j)==indices.end()) erro1=1;
     }
-  }
+    if (erro1) {
+      erro = 1;
+      printf("outrank %d and following indices are missing: ",outrank);
+      for (int j=1; j<=outrank; j++) 
+        if (indices.find(j)==indices.end()) printf("%d ",j);
+      printf("\n");
+    }
+    if (erro) PETSCFEM_ERROR0("detected errors, aborting\n");  
 
-  vector<FastMat2 *> new_matrices;
-  int new_mat_indx = nmat;
-  mat_info_cont_t::iterator q,r,qmin,rmin;
-  int qfree,rfree,qr1,qr2,nopsmin,nops,
-    qrank,rrank,k,dim,qkey,rkey,nopscount=0;
-  printf("fastmat_multiprod_use_first %d\n",
-         fastmat_multiprod_use_first);
-  while (1) {
+    // Stores the info of matrices (contracted indices and
+    // pointer to matrices) in a list of structures mat_info
+    mat_info_cont_t mat_info_cont(nmat);
+    std::set<int> active_mat_indices;
+    int j=0;
+    for (int k=0; k<nmat; k++) {
+      FastMat2 &A = *(FastMat2 *)mat_list[k];
+      mat_info &m = mat_info_cont[k];
+      active_mat_indices.insert(k);
+      m.Ap = &A;
+      m.type = OLD;
+      int rank = A.n();
+      m.contract.resize(rank);
+      m.dims.resize(rank);
+      for (int l=0; l<rank; l++) {
+        m.contract[l] = indx[j++];
+        m.dims[l] = A.dim(l+1);
+      }
+    }
+
+    int new_mat_indx = nmat;
+    std::set<int>::iterator q,r;
+    int qmin=-1,rmin=-1;
+    int qfree,rfree,qr1,qr2,nopsmin,nops,
+      qrank,rrank,k,dim,qkey,rkey,nopscount=0;
+    printf("fastmat_multiprod_use_first %d\n",
+           fastmat_multiprod_use_first);
+    while (1) {
 #if 1
-    for (int j=0; j<new_mat_indx; j++) {
-      if (mat_info_cont.find(j)!=mat_info_cont.end()) {
+      // Print current matrices 
+      q = active_mat_indices.begin();
+      while (q!=active_mat_indices.end()) {
+        int j = *q++;
         printf("[a%d:",j);
-        mat_info &qmi = mat_info_cont.find(j)->second;
+        mat_info &qmi = mat_info_cont[j];
+        qmi.is_active = ACTIVE;
         vector<int> &qc = qmi.contract;
         int n=qc.size();
         for (int l=0; l<n-1; l++) printf("%d,",qc[l]);
         if (n>0) printf("%d",qc[n-1]);
         printf("]");
       }
-    }
-    printf("\n");
+      printf("\n");
 #endif
-    if (mat_info_cont.size()<2) break;
+      if (active_mat_indices.size()<2) break;
 
-    printf("nbr of matrices %zu\n",mat_info_cont.size());
-    // search for the product with lowest number
-    // of operations
-    q = mat_info_cont.begin();
-    nopsmin=-1;
-    qmin = mat_info_cont.end();
-    rmin = mat_info_cont.end();
-    while (q != mat_info_cont.end()) {
-      qkey = q->first;
-      mat_info &qmi = q->second;
-      r = q; r++;
-      while (r != mat_info_cont.end()) {
-        rkey = q->first;
-        mat_info &rmi = r->second;
+      printf("nbr of matrices %zu\n",active_mat_indices.size());
+
+      // search for the product with lowest number
+      // of operations
+      q = active_mat_indices.begin();
+      nopsmin=-1;
+      while (q != active_mat_indices.end()) {
+        qkey = *q;
+        mat_info &qmi = mat_info_cont[qkey];
+        r = q; r++;
+        while (r != active_mat_indices.end()) {
+          rkey = *r;
+          mat_info &rmi = mat_info_cont[rkey];
 #if 0
-        print_mat_info(q,"q: ");
-        print_mat_info(r,"r: ");
+          print_mat_info(q,"q: ");
+          print_mat_info(r,"r: ");
         
-        printf("qfree %d, rfree %d, qr1 %d, qr2 %d \n",
-               qfree,rfree,qr1,qr2);
+          printf("qfree %d, rfree %d, qr1 %d, qr2 %d \n",
+                 qfree,rfree,qr1,qr2);
 #endif        
-        nops = compute_opcount(qmi,rmi,qfree,rfree,qr1);
-        if (fastmat_multiprod_use_first?
-            qr1>1 
-            : (nopsmin<0 || nops<nopsmin)) {
-          nopsmin = nops;
-          qmin = q;
-          rmin = r;
-          if (fastmat_multiprod_use_first) break;
+          nops = compute_opcount(qmi,rmi,qfree,rfree,qr1);
+          if (fastmat_multiprod_use_first?
+              qr1>1 
+              : (nopsmin<0 || nops<nopsmin)) {
+            nopsmin = nops;
+            qmin = *q;
+            rmin = *r;
+            if (fastmat_multiprod_use_first) break;
+          }
+          r++;
         }
-        r++;
+        q++;
+        if (fastmat_multiprod_use_first && nopsmin>0) break;
       }
-      q++;
-      if (fastmat_multiprod_use_first && nopsmin>0) break;
-    }
-    assert(nopsmin>0);
-    nopscount += nopsmin;
+      assert(nopsmin>0);
+      nopscount += nopsmin;
 
-    // Insert new entry in 
-    int skey = new_mat_indx++;
-    mat_info &smi = mat_info_cont[skey];
-    smi.type = NEW;
-    vector<int> 
-      &sc = smi.contract,
-      &sd = smi.dims;
+      mat_info_cont.push_back(mat_info());
+      // Insert new entry in 
+      int skey = new_mat_indx++;
+      mat_info &smi = mat_info_cont[skey];
+      smi.type = NEW;
+      smi.is_active = ACTIVE;
+      vector<int> 
+        &sc = smi.contract,
+        &sd = smi.dims;
 
-    qkey = qmin->first;
-    mat_info &qmi = qmin->second;
-    vector<int> 
-      &qc = qmi.contract,
-      &qd = qmi.dims;
+      qkey = qmin;
+      mat_info &qmi = mat_info_cont[qkey];
+      qmi.is_active = INACTIVE;
+      vector<int> 
+        &qc = qmi.contract,
+        &qd = qmi.dims;
 
-    rkey = rmin->first;
-    mat_info &rmi = rmin->second;
-    vector<int> 
-      &rc = rmi.contract,
-      &rd = rmi.dims;
+      rkey = rmin;
+      mat_info &rmi = mat_info_cont[rkey];
+      rmi.is_active = INACTIVE;
+      vector<int> 
+        &rc = rmi.contract,
+        &rd = rmi.dims;
 
-    qrank = qd.size();
-    rrank = rd.size();
-    for (int j=0; j<qrank; j++) {
-      k = qc[j];
-      dim = qd[j];
-      if (k>0 || !vfind(rc,k)) {
-        sc.push_back(k);
-        sd.push_back(dim);
+      qrank = qd.size();
+      rrank = rd.size();
+      for (int j=0; j<qrank; j++) {
+        k = qc[j];
+        dim = qd[j];
+        if (k>0 || !vfind(rc,k)) {
+          sc.push_back(k);
+          sd.push_back(dim);
+        }
       }
-    }
-    for (int j=0; j<rrank; j++) {
-      k = rc[j];
-      dim = rd[j];
-      if (k>0 || !vfind(qc,k)) {
-        sc.push_back(k);
-        sd.push_back(dim);
+      for (int j=0; j<rrank; j++) {
+        k = rc[j];
+        dim = rd[j];
+        if (k>0 || !vfind(qc,k)) {
+          sc.push_back(k);
+          sd.push_back(dim);
+        }
       }
-    }
 
 #if 0
-    mat_info_cont_t::iterator 
-      s = mat_info_cont.find(skey);
-    print_mat_info(s,"s: ");
+      mat_info_cont_t::iterator 
+        s = mat_info_cont.find(skey);
+      print_mat_info(s,"s: ");
 #endif
 
-    printf("contracts a%d,a%d\n",qkey,rkey);
-    mat_info_cont.erase(qkey);
-    mat_info_cont.erase(rkey);
+      printf("contracts a%d,a%d\n",qkey,rkey);
+    }
+    printf("total ops count %d\n",nopscount);
   }
-  printf("total ops count %d\n",nopscount);
-
   exit(0);
+
+  mpsc = dynamic_cast<multiprod_subcache_t *> (cache->sc);
+  assert(mpsc);
+
+  if (!ctx->use_cache) delete cache;
   return *this;
 }
 
