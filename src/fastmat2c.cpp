@@ -72,20 +72,21 @@ print_mat_info(mat_info_cont_t::iterator q,
 }
 #endif
 
-static int compute_opcount(mat_info &qmi,mat_info &rmi) {
+static int compute_opcount(mat_info &qmi,mat_info &rmi,
+                           int &qfree,int &rfree,int &qr1) {
   vector<int> 
     &qc = qmi.contract,
     &qd = qmi.dims,
     &rc = rmi.contract,
     &rd = rmi.dims;
   int 
-    rfree=1,
-    qfree=1,
-    qr1=1,
     qr2=1,
     qrank = qd.size(),
     rrank = rd.size(),
     k,dim;
+  rfree=1;
+  qfree=1;
+  qr1=1;
   for (int j=0; j<qrank; j++) {
     k = qc[j];
     dim = qd[j];
@@ -101,6 +102,10 @@ static int compute_opcount(mat_info &qmi,mat_info &rmi) {
   assert(qr1==qr2);
   return qfree*rfree*qr1;
 }
+
+// Just for debugging makes the first
+// contraction that does a nontrivial work
+int fastmat_multiprod_use_first=0;
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>
 // General case
@@ -179,7 +184,7 @@ FastMat2::prod(vector<const FastMat2 *> &mat_list,
   int new_mat_indx = nmat;
   mat_info_cont_t::iterator q,r,qmin,rmin;
   int qfree,rfree,qr1,qr2,nopsmin,nops,
-    qrank,rrank,k,dim,qkey,rkey;
+    qrank,rrank,k,dim,qkey,rkey,nopscount=0;
   while (1) {
 #if 1
     for (int j=0; j<new_mat_indx; j++) {
@@ -195,7 +200,7 @@ FastMat2::prod(vector<const FastMat2 *> &mat_list,
     }
     printf("\n");
 #endif
-    if (mat_info_cont.size()<=2) break;
+    if (mat_info_cont.size()<2) break;
 
     printf("nbr of matrices %zu\n",mat_info_cont.size());
     // search for the product with lowest number
@@ -212,38 +217,15 @@ FastMat2::prod(vector<const FastMat2 *> &mat_list,
         rkey = q->first;
         mat_info &rmi = r->second;
 #if 0
-        vector<int> 
-          &rc = rmi.contract,
-          &rd = rmi.dims;
-        rfree=1;
-        qfree=1;
-        qr1=1;
-        qr2=1;
-        qrank = qd.size();
-        rrank = rd.size();
-        for (int j=0; j<qrank; j++) {
-          k = qc[j];
-          dim = qd[j];
-          if (k>0 || !vfind(rc,k)) qfree *= dim;
-          else qr1 *= dim;
-        }
-        for (int j=0; j<rrank; j++) {
-          k = rc[j];
-          dim = rd[j];
-          if (k>0 || !vfind(qc,k)) rfree *= dim;
-          else qr2 *= dim;
-        }
-        assert(qr1==qr2);
-#endif
-#if 0
         print_mat_info(q,"q: ");
         print_mat_info(r,"r: ");
         
         printf("qfree %d, rfree %d, qr1 %d, qr2 %d \n",
                qfree,rfree,qr1,qr2);
 #endif        
-        nops = compute_opcount(qmi,rmi);
-        if (nopsmin<0 || nops<nopsmin) {
+        nops = compute_opcount(qmi,rmi,qfree,rfree,qr1);
+        if ((fastmat_multiprod_use_first && qr1>1) ||
+            nopsmin<0 || nops<nopsmin) {
           nopsmin = nops;
           qmin = q;
           rmin = r;
@@ -253,6 +235,7 @@ FastMat2::prod(vector<const FastMat2 *> &mat_list,
       q++;
     }
     assert(nopsmin>0);
+    nopscount += nopsmin;
 
     // Insert new entry in 
     int skey = new_mat_indx++;
@@ -303,6 +286,7 @@ FastMat2::prod(vector<const FastMat2 *> &mat_list,
     mat_info_cont.erase(qkey);
     mat_info_cont.erase(rkey);
   }
+  printf("total ops count %d\n",nopscount);
 
   exit(0);
   return *this;
