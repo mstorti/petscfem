@@ -967,7 +967,7 @@ public:
 
   // Generic version for a pair with vectorized indices
   FastMat2 & prod(const FastMat2 &A,const FastMat2 &B,
-                  Indx &ixa,Indx &ixb);
+                  vector<int> &ixa,vector<int> &ixb);
 
   //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
   /** Kronecker product (also called Schur product)

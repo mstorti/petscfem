@@ -166,6 +166,8 @@ FastMat2::prod(vector<const FastMat2 *> &mat_list,
   multiprod_subcache_t *mpsc=NULL;
   if (!ctx->was_cached  ) {
     mpsc = new multiprod_subcache_t(cache);
+    assert(!cache->sc);
+    cache->sc = mpsc;
     
     // Check sum of ranks of matrices equals
     // size of index vector passed
@@ -335,10 +337,12 @@ FastMat2::prod(vector<const FastMat2 *> &mat_list,
 
        qrank = qd.size();
        rrank = rd.size();
+       int sindx = 1;
        for (int j=0; j<qrank; j++) {
          k = qc[j];
          dim = qd[j];
          if (k>0 || !vfind(rc,k)) {
+           qc[j] = sindx++;
            sc.push_back(k);
            sd.push_back(dim);
          }
@@ -347,6 +351,7 @@ FastMat2::prod(vector<const FastMat2 *> &mat_list,
          k = rc[j];
          dim = rd[j];
          if (k>0 || !vfind(qc,k)) {
+           rc[j] = sindx++;
            sc.push_back(k);
            sd.push_back(dim);
          }
@@ -377,14 +382,20 @@ FastMat2::prod(vector<const FastMat2 *> &mat_list,
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>
 FastMat2 & 
 FastMat2::prod(const FastMat2 &A,const FastMat2 &B,
-               Indx &ixa,Indx &ixb) {
+               vector<int> &ixa, 
+               vector<int> &ixb) {
 
 #ifndef NDEBUG
   if (ctx->do_check_labels) {
     ctx->check_clear();
     ctx->check("prod2",this,&A,&B);
-    ctx->check(ixa);
-    ctx->check(ixb);
+    Indx Ixa,Ixb;
+    for (unsigned int j=0; j<ixa.size(); j++)
+      Ixa.push_back(ixa[j]);
+    for (unsigned int j=0; j<ixb.size(); j++)
+      Ixb.push_back(ixb[j]);
+    ctx->check(Ixa);
+    ctx->check(Ixb);
   }
 #endif
   FastMatCache *cache = ctx->step();
@@ -397,14 +408,13 @@ FastMat2::prod(const FastMat2 &A,const FastMat2 &B,
     A.get_dims(Afdims);
     B.get_dims(Bfdims);
 
-    // maxc:= maximum contracted index
     int niA = Afdims.size();
     int niB = Bfdims.size();
     int ndims = niA+niB;
     
-    for (int j=0; j<ixa.size(); j++) 
+    for (unsigned int j=0; j<ixa.size(); j++) 
       ii.push_back(ixa[j]);
-    for (int j=0; j<ixb.size(); j++) 
+    for (unsigned int j=0; j<ixb.size(); j++) 
       ii.push_back(ixb[j]);
 
     int nfree=0,nc=0;
