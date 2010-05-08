@@ -136,12 +136,22 @@ multiprod_subcache_t::~multiprod_subcache_t() {
 void multiprod_subcache_t::make_prod() {
   int nprod = nmat-1,
     qkey, rkey, skey;
+  char line[100];
   for (int j=0; j<nprod; j++) {
     mat_info 
       &smi = mat_info_cont[order[3*j]],
       &qmi = mat_info_cont[order[3*j+1]],
       &rmi = mat_info_cont[order[3*j+2]];
     smi.Ap->prod(*qmi.Ap,*rmi.Ap,qmi.contract,rmi.contract);
+
+    sprintf(line,"q[%d]: ",order[3*j+1]);
+    qmi.Ap->print(line);
+
+    sprintf(line,"r[%d]: ",order[3*j+2]);
+    rmi.Ap->print(line);
+
+    sprintf(line,"s[%d]: ",order[3*j]);
+    smi.Ap->print(line);
   }
 }
 
@@ -400,7 +410,6 @@ FastMat2::prod(vector<const FastMat2 *> &mat_list,
   assert(mpsc);
   mpsc->make_prod();
 
-  exit(0);
   if (!ctx->use_cache) delete cache;
   return *this;
 }
