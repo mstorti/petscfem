@@ -155,6 +155,7 @@ void multiprod_subcache_t::make_prod() {
   }
 }
 
+#if 0
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>
 struct compare_position_t : 
   public binary_function<double, double, bool> {
@@ -166,6 +167,21 @@ struct compare_position_t :
 };
 
 vector<mat_info> *compare_position_t::mat_info_cont_p = NULL;
+#endif
+
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>
+class active_mat_info_t {
+public:
+  int key,position;
+  bool operator<(const active_mat_info_t y) const {
+    if (position != y.position) 
+      return position < y.position;
+    else 
+      return key < y.key;
+  }
+  active_mat_info_t(int k,int p) 
+  : key(k), position(p) { }
+};
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>
 // General case
@@ -246,164 +262,205 @@ FastMat2::prod(vector<const FastMat2 *> &mat_list,
     // pointer to matrices) in a list of structures mat_info
     vector<mat_info> &mat_info_cont = mpsc->mat_info_cont;
     mat_info_cont.resize(nmat);
-     vector<int> &order = mpsc->order;
+    vector<int> &order = mpsc->order;
      
-     compare_position_t::mat_info_cont_p = &mpsc->mat_info_cont;
-     std::set<int,compare_position_t> active_mat_indices;
-     int j=0;
-     for (int k=0; k<nmat; k++) {
-       FastMat2 &A = *(FastMat2 *)mat_list[k];
-       mat_info &m = mat_info_cont[k];
-       active_mat_indices.insert(k);
-       m.Ap = &A;
-       m.type = OLD;
-       m.position = k;
-       int rank = A.n();
-       m.contract.resize(rank);
-       m.dims.resize(rank);
-       for (int l=0; l<rank; l++) {
-         m.contract[l] = indx[j++];
-         m.dims[l] = A.dim(l+1);
-       }
-     }
+    typedef std::set<active_mat_info_t> active_mat_info_cont_t;
+    active_mat_info_cont_t active_mat_info_cont;
+    int j=0;
+    for (int k=0; k<nmat; k++) {
+      FastMat2 &A = *(FastMat2 *)mat_list[k];
+      mat_info &m = mat_info_cont[k];
+      active_mat_info_cont
+        .insert(active_mat_info_t(k,k));
+      m.Ap = &A;
+      m.type = OLD;
+      m.position = k;
+      int rank = A.n();
+      m.contract.resize(rank);
+      m.dims.resize(rank);
+      for (int l=0; l<rank; l++) {
+        m.contract[l] = indx[j++];
+        m.dims[l] = A.dim(l+1);
+      }
+    }
 
-     int new_mat_indx = nmat;
-     std::set<int>::iterator q,r;
-     int qmin=-1,rmin=-1,nact;
-     int qfree,rfree,qr1,qr2,nopsmin,nops,
-       qrank,rrank,k,dim,qkey,rkey,nopscount=0;
-     printf("fastmat_multiprod_use_first %d\n",
-            fastmat_multiprod_use_first);
-     while (1) {
-       nact = active_mat_indices.size();
- #if 1
-       // Print current matrices 
-       q = active_mat_indices.begin();
-       while (q!=active_mat_indices.end()) {
-         int j = *q++;
-         printf("[a%d:",j);
-         mat_info &qmi = mat_info_cont[j];
-         qmi.is_active = ACTIVE;
-         vector<int> &qc = qmi.contract;
-         int n=qc.size();
-         for (int l=0; l<n-1; l++) printf("%d,",qc[l]);
-         if (n>0) printf("%d",qc[n-1]);
-         printf("]");
-       }
-       printf("\n");
- #endif
-       if (active_mat_indices.size()<2) break;
+    int new_mat_indx = nmat;
+    active_mat_info_cont_t
+      ::iterator q,r,qmin,rmin;
+    int nact;
+    int qfree,rfree,qr1,qr2,nopsmin,nops,
+      qrank,rrank,k,dim,qkey,rkey,nopscount=0;
+    printf("fastmat_multiprod_use_first %d\n",
+           fastmat_multiprod_use_first);
+    while (1) {
+      nact = active_mat_info_cont.size();
+#if 1
+      // Print current matrices 
+      q = active_mat_info_cont.begin();
+      while (q!=active_mat_info_cont.end()) {
+        int j = q->key;
+        printf("[a%d:",j);
+        mat_info &qmi = mat_info_cont[j];
+        qmi.is_active = ACTIVE;
+        vector<int> &qc = qmi.contract;
+        int n=qc.size();
+        for (int l=0; l<n-1; l++) printf("%d,",qc[l]);
+        if (n>0) printf("%d",qc[n-1]);
+        printf("]");
+        q++;
+      }
+      printf("\n");
+#endif
+      if (active_mat_info_cont.size()<2) break;
 
-       printf("nbr of matrices %zu\n",active_mat_indices.size());
+      printf("nbr of matrices %zu\n",active_mat_info_cont.size());
 
-       // search for the product with lowest number
-       // of operations
-       q = active_mat_indices.begin();
-       nopsmin=-1;
-       while (q != active_mat_indices.end()) {
-         qkey = *q;
-         mat_info &qmi = mat_info_cont[qkey];
-         r = q; r++;
-         while (r != active_mat_indices.end()) {
-           rkey = *r;
-           mat_info &rmi = mat_info_cont[rkey];
- #if 0
-           print_mat_info(q,"q: ");
-           print_mat_info(r,"r: ");
+      // search for the product with lowest number
+      // of operations
+      q = active_mat_info_cont.begin();
+      nopsmin=-1;
+      while (q != active_mat_info_cont.end()) {
+        qkey = q->key;
+        mat_info &qmi = mat_info_cont[qkey];
+        r = q; r++;
+        while (r != active_mat_info_cont.end()) {
+          rkey = r->key;
+          mat_info &rmi = mat_info_cont[rkey];
+#if 0
+          print_mat_info(q,"q: ");
+          print_mat_info(r,"r: ");
 
-           printf("qfree %d, rfree %d, qr1 %d, qr2 %d \n",
-                  qfree,rfree,qr1,qr2);
- #endif        
-           nops = compute_opcount(qmi,rmi,qfree,rfree,qr1);
-           if (fastmat_multiprod_use_first?
-               qr1>1 
-               : (nopsmin<0 || nops<nopsmin)) {
-             nopsmin = nops;
-             qmin = *q;
-             rmin = *r;
-             if (fastmat_multiprod_use_first) break;
-           }
-           r++;
-         }
-         q++;
-         if (fastmat_multiprod_use_first && nopsmin>0) break;
-       }
-       assert(nopsmin>0);
-       nopscount += nopsmin;
+          printf("qfree %d, rfree %d, qr1 %d, qr2 %d \n",
+                 qfree,rfree,qr1,qr2);
+#endif        
+          nops = compute_opcount(qmi,rmi,qfree,rfree,qr1);
+          if (fastmat_multiprod_use_first?
+              qr1>1 
+              : (nopsmin<0 || nops<nopsmin)) {
+            nopsmin = nops;
+            qmin = q;
+            rmin = r;
+            if (fastmat_multiprod_use_first) break;
+          }
+          r++;
+        }
+        q++;
+        if (fastmat_multiprod_use_first && nopsmin>0) break;
+      }
+      assert(nopsmin>0);
+      nopscount += nopsmin;
 
-       mat_info_cont.push_back(mat_info());
-       // Insert new entry in 
-       int skey = new_mat_indx++;
-       mat_info &smi = mat_info_cont[skey];
-       int reo=1;
-       if (nact>2) {
-         smi.Ap = new FastMat2;
-         smi.type = NEW;
-       } else {
-         smi.Ap = this;
-         smi.type = OLD;
-         reo = 0;
-       }
-       smi.is_active = ACTIVE;
-       vector<int> 
-         &sc = smi.contract,
-         &sd = smi.dims;
+      mat_info_cont.push_back(mat_info());
+      // Insert new entry in 
+      int skey = new_mat_indx++;
+      mat_info &smi = mat_info_cont[skey];
+      int reo=1;
+      if (nact>2) {
+        smi.Ap = new FastMat2;
+        smi.type = NEW;
+      } else {
+        smi.Ap = this;
+        smi.type = OLD;
+        reo = 0;
+      }
+      smi.is_active = ACTIVE;
+      vector<int> 
+        &sc = smi.contract,
+        &sd = smi.dims;
 
-       // swap qmin with rmin according to position
-       if (mat_info_cont[qmin].position>
-           mat_info_cont[rmin].position) {
-         int tmp = qmin;
-         qmin = rmin;
-         rmin = tmp;
-       }
+      assert(qmin->position<=rmin->position);
 
-       mat_info &qmi = mat_info_cont[qmin];
-       qmi.is_active = INACTIVE;
-       vector<int> 
-         &qc = qmi.contract,
-         &qd = qmi.dims;
+      mat_info &qmi = mat_info_cont[qmin->key];
+      qmi.is_active = INACTIVE;
+      vector<int> 
+        &qc = qmi.contract,
+        &qd = qmi.dims;
 
-       mat_info &rmi = mat_info_cont[rmin];
-       rmi.is_active = INACTIVE;
-       vector<int> 
-         &rc = rmi.contract,
-         &rd = rmi.dims;
+      mat_info &rmi = mat_info_cont[rmin->key];
+      rmi.is_active = INACTIVE;
+      vector<int> 
+        &rc = rmi.contract,
+        &rd = rmi.dims;
 
-       qrank = qd.size();
-       rrank = rd.size();
-       int sindx = 1;
-       for (int j=0; j<qrank; j++) {
-         k = qc[j];
-         dim = qd[j];
-         if (k>0 || !vfind(rc,k)) {
-           if (reo) qc[j] = sindx++;
-           sc.push_back(k);
-           sd.push_back(dim);
-         }
-       }
-       for (int j=0; j<rrank; j++) {
-         k = rc[j];
-         dim = rd[j];
-         if (k>0 || !vfind(qc,k)) {
-           if (reo) rc[j] = sindx++;
-           sc.push_back(k);
-           sd.push_back(dim);
-         }
-       }
-       order.push_back(skey);
-       smi.position = qmi.position;
-       order.push_back(qmin);
-       order.push_back(rmin);
+      qrank = qd.size();
+      rrank = rd.size();
+      int sindx = 1;
+      for (int j=0; j<qrank; j++) {
+        k = qc[j];
+        dim = qd[j];
+        if (k>0 || !vfind(rc,k)) {
+          if (reo) qc[j] = sindx++;
+          sc.push_back(k);
+          sd.push_back(dim);
+        }
+      }
+      for (int j=0; j<rrank; j++) {
+        k = rc[j];
+        dim = rd[j];
+        if (k>0 || !vfind(qc,k)) {
+          if (reo) rc[j] = sindx++;
+          sc.push_back(k);
+          sd.push_back(dim);
+        }
+      }
+      order.push_back(skey);
+      smi.position = qmi.position;
+      order.push_back(qmin->key);
+      order.push_back(rmin->key);
 
-       active_mat_indices.erase(qmin);
-       active_mat_indices.erase(rmin);
-       active_mat_indices.insert(skey);
+      active_mat_info_cont.erase(qmin);
+      active_mat_info_cont.erase(rmin);
+      active_mat_info_cont
+        .insert(active_mat_info_t(skey,smi.position));
 
-       int n=order.size();
-       printf("contracts a%d,a%d\n",qmin,rmin);
-     }
-     printf("total ops count %d\n",nopscount);
-     assert(order.size() == (unsigned int)(3*(nmat-1)));
+      int n=order.size();
+      printf("contracts a%d,a%d\n",qmin->key,rmin->key);
+    }
+    printf("total ops count %d\n",nopscount);
+    assert(order.size() == (unsigned int)(3*(nmat-1)));
+
+    // Now for each product to be done checks that
+    // all negative indices are `packed', i.e.
+    // in range [1,n] with all indices used.
+    for (int j=0; j<nmat-1; j++) {
+      mat_info 
+        &qmi = mat_info_cont[order[3*j+1]],
+        &rmi = mat_info_cont[order[3*j+2]];
+      vector<int> 
+        &qc = qmi.contract,
+        &rc = rmi.contract;
+
+      map<int,int> new_neg;
+      int new_neg_free=-1;
+      int k,
+        qrank = qc.size(),
+        rrank = rc.size();
+      for (int l=0; l<qrank; l++) {
+        k = qc[l];
+        if (k<0) {
+          if (new_neg.find(k)==new_neg.end()) 
+            new_neg[k] = new_neg_free--;
+          qc[l] = new_neg[k];
+        }
+      }
+      for (int l=0; l<rrank; l++) {
+        k = rc[l];
+        if (k<0) {
+          if (new_neg.find(k)==new_neg.end()) 
+            new_neg[k] = new_neg_free--;
+          rc[l] = new_neg[k];
+        }
+      }
+#if 1
+      printf("prod #%d [qc:",j);
+      for (int l=0; l<qrank; l++) 
+        printf("%d,",qc[l]);
+      printf("][rc:");
+      for (int l=0; l<rrank; l++) 
+        printf("%d,",rc[l]);
+      printf("]\n");
+#endif
+    }
   }
 
   mpsc = dynamic_cast<multiprod_subcache_t *> (cache->sc);
