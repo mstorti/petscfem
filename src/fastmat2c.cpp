@@ -43,7 +43,7 @@ struct mat_info {
   FastMat2 *Ap;
   vector<int> contract;
   vector<int> dims;
-  int type, is_active;
+  int type, is_active, position;
   mat_info() : Ap(NULL), 
                type(UNKNOWN),
                is_active(UNDEF) {}
@@ -146,6 +146,18 @@ void multiprod_subcache_t::make_prod() {
 }
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>
+struct compare_position_t : 
+  public binary_function<double, double, bool> {
+  static vector<mat_info> *mat_info_cont_p;
+  bool operator()(double j, double k) { 
+    return (*mat_info_cont_p)[j].position 
+      < (*mat_info_cont_p)[k].position;
+  }
+};
+
+vector<mat_info> *compare_position_t::mat_info_cont_p = NULL;
+
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>
 // General case
 FastMat2 & 
 FastMat2::prod(vector<const FastMat2 *> &mat_list,
@@ -225,8 +237,9 @@ FastMat2::prod(vector<const FastMat2 *> &mat_list,
     vector<mat_info> &mat_info_cont = mpsc->mat_info_cont;
     mat_info_cont.resize(nmat);
      vector<int> &order = mpsc->order;
-
-     std::set<int> active_mat_indices;
+     
+     compare_position_t::mat_info_cont_p = &mpsc->mat_info_cont;
+     std::set<int,compare_position_t> active_mat_indices;
      int j=0;
      for (int k=0; k<nmat; k++) {
        FastMat2 &A = *(FastMat2 *)mat_list[k];
@@ -234,6 +247,7 @@ FastMat2::prod(vector<const FastMat2 *> &mat_list,
        active_mat_indices.insert(k);
        m.Ap = &A;
        m.type = OLD;
+       m.position = k;
        int rank = A.n();
        m.contract.resize(rank);
        m.dims.resize(rank);
@@ -311,17 +325,27 @@ FastMat2::prod(vector<const FastMat2 *> &mat_list,
        // Insert new entry in 
        int skey = new_mat_indx++;
        mat_info &smi = mat_info_cont[skey];
+       int reo=1;
        if (nact>2) {
          smi.Ap = new FastMat2;
          smi.type = NEW;
        } else {
          smi.Ap = this;
          smi.type = OLD;
+         reo = 0;
        }
        smi.is_active = ACTIVE;
        vector<int> 
          &sc = smi.contract,
          &sd = smi.dims;
+
+       // swap qmin with rmin according to position
+       if (mat_info_cont[qmin].position>
+           mat_info_cont[rmin].position) {
+         int tmp = qmin;
+         qmin = rmin;
+         rmin = tmp;
+       }
 
        mat_info &qmi = mat_info_cont[qmin];
        qmi.is_active = INACTIVE;
@@ -342,7 +366,7 @@ FastMat2::prod(vector<const FastMat2 *> &mat_list,
          k = qc[j];
          dim = qd[j];
          if (k>0 || !vfind(rc,k)) {
-           qc[j] = sindx++;
+           if (reo) qc[j] = sindx++;
            sc.push_back(k);
            sd.push_back(dim);
          }
@@ -351,12 +375,13 @@ FastMat2::prod(vector<const FastMat2 *> &mat_list,
          k = rc[j];
          dim = rd[j];
          if (k>0 || !vfind(qc,k)) {
-           rc[j] = sindx++;
+           if (reo) rc[j] = sindx++;
            sc.push_back(k);
            sd.push_back(dim);
          }
        }
        order.push_back(skey);
+       smi.position = qmi.position;
        order.push_back(qmin);
        order.push_back(rmin);
 
@@ -364,6 +389,7 @@ FastMat2::prod(vector<const FastMat2 *> &mat_list,
        active_mat_indices.erase(rmin);
        active_mat_indices.insert(skey);
 
+       int n=order.size();
        printf("contracts a%d,a%d\n",qmin,rmin);
      }
      printf("total ops count %d\n",nopscount);
