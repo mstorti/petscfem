@@ -15178,3 +15178,20 @@ contracts a7,a9
 [a10:]
 total ops count 93
 ----------------------
+
+%=== Sat May  8 23:29:57 2010 mstorti@galileo
+%
+%--[2010-05-09.02:29:57.mstorti-v28-end-33-g5ec50e6]-----
+Bueno, ya esta implementado. Ahora falta ver:
+%
+* Que no haya perdida de memoria cacheado y no cacheado
+* Que ande el check-labels
+* Eficiencia
+%
+%--[2010-05-09.03:25:05.mstorti-v28-end-33-g5ec50e6]-----
+Lo corro sin cached, y anda bien, no produce perdida de memoria,
+parece. 
+%
+%--[2010-05-09.03:36:25.mstorti-v28-end-33-g5ec50e6]-----
+Lo corro con cached, anda bien pero no acelera demasiado. Anda en
+2.5Mflops para multiplicacion de 2 matrices. 
