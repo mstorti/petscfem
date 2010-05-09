@@ -598,6 +598,8 @@ FastMat2::prod(vector<const FastMat2 *> &mat_list,
 }
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>
+// This is the function that makes the product of two matrices.
+// The others for 3,4,etc... are wrappers to this one. 
 FastMat2 & 
 FastMat2::prod(const FastMat2 &A,const FastMat2 &B,
                vector<int> &ixa, 
@@ -622,6 +624,7 @@ FastMat2::prod(const FastMat2 &A,const FastMat2 &B,
   if (!ctx->was_cached  ) {
     Indx ia,ib,ii;
 
+    // get the free indices of A and B
     Indx Afdims,Bfdims,fdims;
     A.get_dims(Afdims);
     B.get_dims(Bfdims);
@@ -630,11 +633,16 @@ FastMat2::prod(const FastMat2 &A,const FastMat2 &B,
     int niB = Bfdims.size();
     int ndims = niA+niB;
     
+    // This implementation is based on an older one
+    // that used the vector of indices for contraction.
+    // Then we simply put the `ixa' and `ixb' indices in `ii'
+    // and continue. 
     for (unsigned int j=0; j<ixa.size(); j++) 
       ii.push_back(ixa[j]);
     for (unsigned int j=0; j<ixb.size(); j++) 
       ii.push_back(ixb[j]);
 
+    // Count how many free and contracted indices are
     int nfree=0,nc=0;
     for (int j=0; j<ii.size(); j++) {
       int k = ii[j];
@@ -642,6 +650,7 @@ FastMat2::prod(const FastMat2 &A,const FastMat2 &B,
       if (k<0 && -k>nc) nc = -k;
     }
 
+    // Get the free and contracted indices
     Indx ifree(nfree,0),icontr(2*nc,0);
     for (int j=0; j<ii.size(); j++) {
       int k = ii[j];
@@ -658,7 +667,9 @@ FastMat2::prod(const FastMat2 &A,const FastMat2 &B,
     }
     // ifree.print("ifree: ");
     // icontr.print("icontr: ");
-  
+    
+    // ndimsf:= dimensions of the free indices
+    // ndimsc:= dimensions of the contracted indices
     Indx ndimsf(nfree,0),ndimsc(nc,0);
     for (int j=0; j<nfree; j++) {
       int k = ifree[j];
@@ -671,23 +682,27 @@ FastMat2::prod(const FastMat2 &A,const FastMat2 &B,
 
     // ndimsf.print("dimensions of the free part: ");
 
-  // Dimension C if necessary
+    // Dimension C if necessary
     if (!defined) create_from_indx(ndimsf);
+    // If the resulting matrix is 2-size then do nothing
     if (comp_storage_size(ndimsf)==0) {
       cache->nelems=0;
       return *this;
     }
 
+    // Get free dims of output matrix
     get_dims(fdims);
     if (ndimsf != fdims) {
       Afdims.print("A free dims: ");
       Bfdims.print("B free dims: ");
       ndimsf.print("Combined free dims: ");
       fdims.print("Free dims on result matrix: ");
-      printf("Combined free dims doesn't match free"
+      PETSCFEM_ERROR0("Combined free dims doesn't match free"
 	     " dims of  result.\n");
-      abort();
     }
+
+    // Check that the paired contracted indices are
+    // equal.
     for (int j=0; j<nc; j++) {
       int k1 = icontr[2*j];
       int k2 = icontr[2*j+1];
@@ -711,10 +726,10 @@ FastMat2::prod(const FastMat2 &A,const FastMat2 &B,
     Indx findx(nfree,1),cindx(nc,1),tot_indx(ndims,0),
       aindx(niA,0),bindx(niB,0);
 
-  // Loading addresses in cache
-  // For each element in the distination target, we store the complete
-  // list of addresses of the lines of elements that contribute to
-  // it. 
+    // Loading addresses in cache. For each element in the
+    // distination target, we store the complete list of
+    // addresses of the lines of elements that contribute to
+    // it.
     cache->nlines = mem_size(ndimsf);
     cache->prod_cache.resize(cache->nlines);
     cache->line_cache_start = &*cache->prod_cache.begin();
