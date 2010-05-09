@@ -454,7 +454,7 @@ FastMat2::prod(vector<const FastMat2 *> &mat_list,
       int reo=1;
       if (nact>2) {
         // This is for all the products except the last one
-        smi.Ap = new FastMat2;
+        smi.Ap = new FastMat2(this->ctx);
         smi.type = TMP;
       } else {
         // In this case the output matrix is *this
