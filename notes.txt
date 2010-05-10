@@ -15195,3 +15195,31 @@ parece.
 %--[2010-05-09.03:36:25.mstorti-v28-end-33-g5ec50e6]-----
 Lo corro con cached, anda bien pero no acelera demasiado. Anda en
 2.5Mflops para multiplicacion de 2 matrices. 
+
+%=== Sun May  9 23:24:39 2010 mstorti@galileo
+%
+%--[2010-05-10.02:24:39.mstorti-v28-end-35-g260f9ad]-----
+Cacheado llega a 1.32 Gflops optimizado. Habria que ver si esta usando
+MKL o no. Si no esta usando MKL estaria bien. Si no estaria medio
+mal, de acuerdo con las curvas que tenemos en el paper de fastmat2. 
+Una cosa que me llama la atencion es que el n1/2 da muy alto, como de
+15000!! Eso querria decir que el overhead de la primera evaluacion es
+equivalente a 15000 productos, me parece demasiado. 
+%
+%--[2010-05-10.02:37:27.mstorti-v28-end-35-g260f9ad]-----
+Sin cachear la velocidad baja a 0.017 Gflops o sea menos de 100 veces
+menos. O sea que el n1/2 deberia andar en 100, no en 15000.
+%
+N 20, elapsed 0.019513, times 100, flops 0.163992 Gflops
+N 20, elapsed 0.058132, times 1000, flops 0.550472 Gflops
+N 20, elapsed 0.281565, times 10000, flops 1.1365 Gflops
+N 20, elapsed 2.441092, times 100000, flops 1.31089 Gflops
+%
+%--[2010-05-10.21:03:54.mstorti-v28-end-35-g260f9ad]-----
+No se porque los tiempos fluctuan mucho, asi que lo que hago es
+correrlo muchas (n) veces y de alli tomar el que corresponde a las
+primeros n/4 veces. (Como tomar el primer quartil). Entonces los
+resutlados dan muy consistentes y me dan para n=20: 
+n_{1/2}=89, rate 1.42157 Gflops. 
+%
+Una cosa que no cierra bien es si lo esta haciendo con DGEMM o no. 
