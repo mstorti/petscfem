@@ -1414,7 +1414,7 @@ void NewAdvDifFF::comp_P_supg(FastMat2 &P_supg) {
   } else {
     P_supg.prod(e->Ao_grad_N,e->tau_supg,1,2,-1,-1,3);
   }
-  if (e->use_ALE()) {
+  if (e->use_ALE() || e->ALE_form()) {
     // FMSHV(e->v_mesh);
     tmp_P_supg_ALE_1.prod(*(e->grad_N()),e->v_mesh,-1,1,-1);
     tmp_P_supg_ALE_2.prod(e->Cp,tmp_P_supg_ALE_1,2,3,1);

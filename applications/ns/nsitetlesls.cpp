@@ -610,7 +610,7 @@ assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
 	  if ( rho>rho_l ) rho = rho_l;
 	  if ( rho<rho_g ) rho = rho_g;
 	  // mass calculation
-	  total_mass += rho*wpgdet;
+	  //	  total_mass += rho*wpgdet;
 	  if (0) {//(fabs(rho-1.0)>1e-8) { // debugger
 	    //	  if (fabs(rho)<1e-3) { // debugger
 	    printf("density %f \n",rho);
@@ -649,8 +649,8 @@ assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
 	// variable kinematic viscosity
 	if (LEVEL_SET_flag){
 	  mu_eff = double(v02.prod(SHAPE,v01,-1,-1));
-	  if ( mu_eff>nu_M ) mu_eff = nu_M;
-	  if ( mu_eff<nu_m ) mu_eff = nu_m;
+	  if ( mu_eff>nu_M ) mu_eff = nu_M/rho_l; // partial fix
+	  if ( mu_eff<nu_m ) mu_eff = nu_m/rho_g; // partial fix
 // 	  if (rand()%1000==0) // debugger
 // 	    printf("elem %d, viscosity %g\n",elem,nu_eff);
 	}

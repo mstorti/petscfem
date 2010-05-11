@@ -116,6 +116,9 @@ FastMatCache* FastMat2::CacheCtx2
       }
 #endif
     }
+#ifndef NDEBUG
+    as.clear();
+#endif
   } else {
     cache = new FastMatCache;
   }

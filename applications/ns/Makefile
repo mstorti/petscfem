@@ -9,22 +9,24 @@ PETSCFEM_MODULE = Navier-Stokes
 
 PROGOBJ = main.o
 
-LIBOBJS = ns.o mmvmain.o mmv2main.o nsstruct.o ns_fsi.o compdate.o      \
+LIBOBJS = ns.o mmvmain.o mmv2main.o nsstruct.o ns_fsi.o compdate.o	\
 	nsglb.o nsitetlesfm2.o bccnsfm2.o wall.o nsvol.o walldata.o	\
 	nsilesther.o bccnstherfm2.o nsikeps.o nsikepsrot.o		\
 	wallke.o nonlr.o lagmul.o nssup.o nssupg.o nssupr.o nsid.o	\
 	nsres.o adaptor.o elast.o adappg.o qharm.o qharmm.o		\
-	nsirot.o blessf.o fracstep.o fstepfm2.o embgath.o 		\
+	nsirot.o blessf.o fracstep.o fstepfm2.o embgath.o		\
 	mmove.o fm2funm.o genload.o nsgath.o nshookf.o invcoupl.o	\
 	nullvort.o nsilesasm_2.o bccnsasmfm2.o bccfstep.o nslagmul.o	\
 	condwall.o condwallpen.o nspenal.o nsroblgml.o fstepfm2cw.o	\
 	nsitetlesc.o condwall-new.o mmove2.o nsitetasm.o		\
 	bccnsitetasm.o nsitetasm_avgvol.o ns_gasflow.o bccns_gasflow.o	\
-	mmoveopt.o elast2.o  bccnsitetasm_avgvol.o elastld.o   		\
-	errestim.o mmoveopt3.o bubblyqint.o nsitetlesf.o nsitetlesfbf.o \
-	poiboltz.o mmoveopt2.o truss.o nsitetlesfd.o nodeload.o         \
-	nsitetlesls.o electrophoresis.o  electrophoresisM.o flowrev.o   \
-	renorm.o renorm2.o nsitlfctx2.o
+	mmoveopt.o elast2.o  bccnsitetasm_avgvol.o elastld.o		\
+	errestim.o mmoveopt3.o bubblyqint.o nsitetlesf.o nsitetlesfbf.o	\
+	poiboltz.o mmoveopt2.o truss.o nsitetlesfd.o nodeload.o		\
+	nsitetlesls.o electrophoresis.o  electrophoresisM.o flowrev.o	\
+	renorm.o renorm2.o nsitlfctx2.o					\
+	electrophoresisM2.o electrophoresisM.o electrophoresis_mov.o	\
+        poisson.o charge_cons.o pot_grad.o 
 
 MYOBJS =
 

@@ -470,7 +470,7 @@ protected:
   int use_GCL_compliant, ALE_flag, precoflag, use_ALE_form;
 
 public:
-  FastMat2 dshapex,Uo,Ao_grad_N,tau_supg,
+  FastMat2 dshapex,Uo,Ao_grad_N,tau_supg, dshapex_gcl,
     P_supg,grad_Uo, grad_U_norm,v_mesh, Cp, Cp_old;
   friend class NewAdvDifFF;
   /// Contructor from the pointer to the fux function

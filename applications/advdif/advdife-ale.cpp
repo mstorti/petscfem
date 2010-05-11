@@ -26,7 +26,6 @@ new_assemble_ALE_formulation(arg_data_list &arg_data_v,const Nodedata *nodedata,
 			     const Dofmap *dofmap,const char *jobinfo,
 			     const ElementList &elemlist,
 			     const TimeData *time_data) try {
-  
   static int use_ALE_formulation_reported = 0;
   if (!use_ALE_formulation_reported) {
     if (!MY_RANK) 
@@ -41,7 +40,6 @@ new_assemble_ALE_formulation(arg_data_list &arg_data_v,const Nodedata *nodedata,
   GET_JOBINFO_FLAG(comp_prof);
 
   int ierr = 0;
-
   int locdof, kldof, lldof;
 
   NSGETOPTDEF(int,npg,0); //nd
@@ -67,7 +65,7 @@ new_assemble_ALE_formulation(arg_data_list &arg_data_v,const Nodedata *nodedata,
   // source term in the momentum eqs.
   int nH = nu-ndim;
   //  FMatrix  Hloc(nel,nH),H(nH),vloc_mesh(nel,ndim),v_mesh(ndim);
-  FMatrix  Hloc(nel,nH),H(nH),vloc_mesh(nel,ndim);
+  FMatrix Hloc(nel,nH),H(nH),vloc_mesh(nel,ndim);
   //  FastMat2 v_mesh;
 
   if(nnod != nodedata->nnod) {
@@ -81,7 +79,7 @@ new_assemble_ALE_formulation(arg_data_list &arg_data_v,const Nodedata *nodedata,
   // lambda_max:= the maximum eigenvalue of the jacobians.
   // used to compute the critical time step.
   vector<double> *dtmin;
-  double         lambda_max = NAN;
+  double         lambda_max  = NAN;
   int            jdtmin;
   GlobParam      *glob_param = NULL;
 
@@ -90,7 +88,7 @@ new_assemble_ALE_formulation(arg_data_list &arg_data_v,const Nodedata *nodedata,
 #define DT (glob_param->Dt)
 
   arg_data *staten = NULL, *stateo = NULL, *retval = NULL,
-    *fdj_jac = NULL, *jac_prof = NULL,*Ajac = NULL;
+    *fdj_jac = NULL, *jac_prof = NULL, *Ajac = NULL;
 
   if (comp_res) {
     int j  = -1;
@@ -165,7 +163,6 @@ new_assemble_ALE_formulation(arg_data_list &arg_data_v,const Nodedata *nodedata,
            "=============================================\n");
     ale_with_no_weak_form_warning_given = 1;
   }
-
   assert(compute_fd_adv_jacobian_random>0.
 	 && compute_fd_adv_jacobian_random <=1.);
 
@@ -234,9 +231,7 @@ new_assemble_ALE_formulation(arg_data_list &arg_data_v,const Nodedata *nodedata,
   FMatrix veccontr(nel,ndof), veccontr_mass(nel,ndof),
     xloc(nel,ndim), xloc_old(nel,ndim), xloc_new(nel,ndim), lstate(nel,ndof),
     lstateo(nel,ndof), lstaten(nel,ndof), dUloc_c(nel,ndof),
-    dUloc(nel,ndof), matloc;
-
-  FastMat2 lstate_abs(2,nel,ndof);
+    dUloc(nel,ndof), matloc, xloc_mid(nel,ndim);
 
   nen = nel*ndof;
 
@@ -244,14 +239,16 @@ new_assemble_ALE_formulation(arg_data_list &arg_data_v,const Nodedata *nodedata,
   NGETOPTDEF_S(string,geometry,cartesian2d);
   GPdata gp_data(geometry.c_str(),ndimel,nel,npg,GP_FASTMAT2);
 
-  double detJaco, detJaco_new = NAN, detJaco_old = NAN,
+  double detJaco, detJaco_new = NAN, detJaco_old = NAN, detJaco_mid = NAN,
     wpgdet, delta_sc, delta_sc_old, lambda_max_pg;
   int elem, ipg,node, jdim, kloc, lloc, ldof;
 
   dshapex.resize(2,ndimel,nel);
+  dshapex_gcl.resize(2,ndimel,nel);
   FMatrix Jaco(ndimel,ndim), Jaco_av(ndimel,ndim),
     Jaco_new(ndimel,ndim), Jaco_old(ndimel,ndim),
-    iJaco(ndimel,ndimel), iJaco_old(ndimel,ndimel), 
+    iJaco(ndimel,ndimel), iJaco_old(ndimel,ndimel),
+    Q(ndimel,ndimel), Jaco_mid(ndimel,ndim),iJaco_mid(ndimel,ndim),
     iJaco_new(ndimel,ndimel), flux(ndof,ndimel),
     fluxd(ndof,ndimel), mass(nel,nel),
     grad_U(ndimel,ndof), A_grad_U(ndof),
@@ -279,7 +276,6 @@ new_assemble_ALE_formulation(arg_data_list &arg_data_v,const Nodedata *nodedata,
   Ao_grad_N.resize(3,nel,ndof,ndof);
   tau_supg.resize(2,ndof,ndof);
   P_supg.resize(3,nel,ndof,ndof);
-  grad_U_norm.resize(2,ndimel,ndof);
   Cp.resize(2,ndof,ndof);
   Cp_old.resize(2,ndof,ndof);
   Uo.resize(1,ndof);
@@ -309,7 +305,7 @@ new_assemble_ALE_formulation(arg_data_list &arg_data_v,const Nodedata *nodedata,
 
   // printf("[%d] %s start: %d last: %d\n",MY_RANK,jobinfo,el_start,el_last);
   for (ElementIterator element = elemlist.begin();
-       element!=elemlist.end(); element++) try {
+       element != elemlist.end(); element++) try {
 
       element.position(k_elem,k_chunk);
       FastMat2::reset_cache();
@@ -327,7 +323,7 @@ new_assemble_ALE_formulation(arg_data_list &arg_data_v,const Nodedata *nodedata,
       }
 
       if (comp_res) {
-	lambda_max=0;
+	lambda_max = 0;
 	lstateo.set(element.vector_values(*stateo));
 	lstaten.set(element.vector_values(*staten));
       }
@@ -371,7 +367,7 @@ new_assemble_ALE_formulation(arg_data_list &arg_data_v,const Nodedata *nodedata,
       Hloc.is(2, indx_ALE_xold, indx_ALE_xold+ndim-1);
       xloc_old.set(Hloc);
       Hloc.rs();
-      xloc.scale(ALPHA).axpy(xloc_old, 1-ALPHA);
+      xloc.scale(ALPHA).axpy(xloc_old,1-ALPHA);
       vloc_mesh.set(xloc_new).rest(xloc_old).scale(rec_Dt_m).rs();
       if (0){
 	int kk,ielhh;
@@ -400,6 +396,31 @@ new_assemble_ALE_formulation(arg_data_list &arg_data_v,const Nodedata *nodedata,
 	  detJaco_old = Jaco_old.det();
 	  //         printf("detjaco (start,new,old): %g %g %g\n",detJaco, 
 	  //                detJaco_new, detJaco_old);
+	  
+	  if (ndim == 2){ // we need only two points in 2D to integ temporal average
+	    iJaco_new.inv(Jaco_new);
+	    Q.set(0.0).axpy(iJaco_new,detJaco_new*0.5);
+	    iJaco_old.inv(Jaco_old);
+	    Q.axpy(iJaco_old,detJaco_old*0.5);
+	    Q.scale(1.0/detJaco);
+	    dshapex_gcl.prod(Q,DSHAPEXI,1,-1,-1,2);
+	  } else if (ndim == 3) { // we need 3 points in 3D to integ
+				  // temporal average with
+				  // Gauss-Lobatto
+	    iJaco_new.inv(Jaco_new);
+	    Q.set(0.0).axpy(iJaco_new,detJaco_new/6.0);
+	    iJaco_old.inv(Jaco_old);
+	    Q.axpy(iJaco_old,detJaco_old/6.0);
+	    
+	    // for 3D holy grial GCL mid point integ
+	    xloc_mid.set(xloc_new).scale(0.5).axpy(xloc_old,0.5).rs(); 
+	    Jaco_mid.prod(DSHAPEXI,xloc_mid,1,-1,-1,2);
+	    detJaco_mid = Jaco_mid.det();
+	    iJaco_mid.inv(Jaco_mid);
+	    Q.axpy(iJaco_mid,detJaco_mid*2.0/3.0);
+	    Q.scale(1.0/detJaco);
+	    dshapex_gcl.prod(Q,DSHAPEXI,1,-1,-1,2);
+	  }
 	} else if (ndimel == 1) {
 	  // This allows to solve problems on streams like rivers or
 	  // ducts or advective problems on plane surfaces (not
@@ -451,13 +472,9 @@ new_assemble_ALE_formulation(arg_data_list &arg_data_v,const Nodedata *nodedata,
 	  delta_sc     = 0;
 	  delta_sc_old = 0;
 
-	  lstate_abs.set(lstate.fun(abs));
-	  grad_U_norm.prod(dshapex,lstate_abs,1,-1,-1,2);
-
 	  // Compute A_grad_U in the `old' state
 	  adv_diff_ff->set_state(Uo,grad_Uo); // fixme:= ojo que le pasamos
-	  // grad_U (y no grad_Uold) ya que
-	  // no nos interesa la parte difusiva
+	  // grad_U (y no grad_Uold) ya que no nos interesa la parte difusiva
 
 	  v_mesh.prod(SHAPE,vloc_mesh,-1,-1,1);
 	
@@ -482,9 +499,12 @@ new_assemble_ALE_formulation(arg_data_list &arg_data_v,const Nodedata *nodedata,
 	      if (shocap_aniso_const > 0.0) {
 		jvec_old.set(0.0);
 	      } else {
+		jvec_old.set(0.0);
+#if 0
 		printf("Anisotropic Shock-capturing term NOT implemented for"
 		       " this flux function\n");
 		throw GenericError("not implemented shocap_aniso error");
+#endif
 	      }
 	      
 	    }
@@ -644,7 +664,8 @@ new_assemble_ALE_formulation(arg_data_list &arg_data_v,const Nodedata *nodedata,
 	  }	  
 	  // tmp8= DSHAPEX * (w*flux_c - flux_d - v_mesh*H)
 	  // w = weak_form
-	  tmp8.prod(dshapex,tmp11,-1,1,2,-1);
+	  // tmp8.prod(dshapex,tmp11,-1,1,2,-1); // non-averaged shape function gradients
+	  tmp8.prod(dshapex_gcl,tmp11,-1,1,2,-1);
 	  tmp9.prod(SHAPE,tmp10,1,2); // tmp9 = SHAPE' * (G - dHdt)
 #if 0
 	  FMSHV(tmp8);
@@ -701,20 +722,21 @@ new_assemble_ALE_formulation(arg_data_list &arg_data_v,const Nodedata *nodedata,
 	      if (shocap_const > 0.0) {
 		delta_sc_v.set(0.0);
 	      } else {
+		delta_sc_v.set(0.0);
+#if 0
 		printf("Shock-capturing term NOT implemented for"
 		       " this flux function\n");
 		throw GenericError("not implemented shocap error");
+#endif
 	      }
 	    }
 	    tmp_shc_grad_U.prod(Cp_old,grad_U,2,-1,1,-1);
 	    for (int jdf = 1; jdf <= ndof; jdf++) {
-	      //	    delta_sc_v.addel(delta_sc,jdf);
 	      delta_sc_v.addel(delta_sc_old,jdf);
 	    }
-
-	    //	    tmp_sc.prod(dshapex,dshapex,-1,1,-1,2).scale(shocap*wpgdet);
+	    // tmp_sc.prod(dshapex,dshapex,-1,1,-1,2).scale(shocap*wpgdet);
 	    tmp_sc.prod(dshapex,dshapex,-1,1,-1,2).scale(wpgdet);
-	    //	  tmp_sc_v.prod(dshapex,grad_U,-1,1,-1,2);
+	    // tmp_sc_v.prod(dshapex,grad_U,-1,1,-1,2);
 	    tmp_sc_v.prod(dshapex,tmp_shc_grad_U,-1,1,-1,2);
 	    for (int jdf = 1; jdf <= ndof; jdf++) {
 	      double delta        = (double)delta_sc_v.get(jdf);
@@ -729,7 +751,6 @@ new_assemble_ALE_formulation(arg_data_list &arg_data_v,const Nodedata *nodedata,
 		.scale(-delta_sc_eff*wpgdet).rs();
 	      delta_sc_v.rs();
 	    }
-
 	    veccontr.add(tmp_sc_v);
 	  }
 
@@ -743,9 +764,12 @@ new_assemble_ALE_formulation(arg_data_list &arg_data_v,const Nodedata *nodedata,
 	      if (shocap_aniso_const > 0.0) {
 		jvec.set(0.0);
 	      } else {
+		jvec.set(0.0);
+#if 0
 		printf("Anisotropic Shock-capturing term NOT implemented for"
 		       " this flux function\n");
 		throw GenericError("not implemented shocap_aniso error");
+#endif
 	      }
 	    }
 	    
@@ -759,7 +783,6 @@ new_assemble_ALE_formulation(arg_data_list &arg_data_v,const Nodedata *nodedata,
 	    
 	    tmp_sc_aniso.prod(tmp_j_gradN,tmp_j_gradN,1,2)
 	      .scale(wpgdet);
-	    //	      .scale(shocap_aniso*wpgdet);
 	    
 	    tmp_sc_v_aniso.prod(tmp_j_gradN,tmp_j_grad_U,1,2);
 	    
@@ -829,7 +852,7 @@ new_assemble_ALE_formulation(arg_data_list &arg_data_v,const Nodedata *nodedata,
 	}
 	lmass.axpy(SHAPE,wpgdet);
       
-      }  // ipg loop
+      }// ipg loop
       
       volume_flag=0;
       if (comp_res) {

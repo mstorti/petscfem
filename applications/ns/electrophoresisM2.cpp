@@ -9,10 +9,11 @@
 
 #include "nsi_tet.h"
 #include "adaptor.h"
-#include "electrophoresisM.h"
+#include "electrophoresisM2.h"
 ////////---------------------------------------------------------
-
-void read_cond_tensor3(TextHashTable *thash, const char *s,
+//////este elemento no permite movilidad distribuida, 
+//////          eso lo hace electroforesisM2
+void read_cond_tensor4(TextHashTable *thash, const char *s,
 		      int ndof,FastMat2 &cond) {
   vector<double> v;
   const char *line;
@@ -33,17 +34,19 @@ void read_cond_tensor3(TextHashTable *thash, const char *s,
 
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
-void electrophoresisM::elemset_init() {
+void electrophoresisM2::elemset_init() {
   //assert(ndof==1);
   int ierr;
   
   TGETOPTDEF_ND(thash,double,supg_fact,1.0);
   TGETOPTDEF_ND(thash,double,r_fact,1.0);
-
+  TGETOPTDEF_ND(thash,double,m_fact,1.0);
  
   diff.resize(2,ndof,ndof);
   read_cond_matrix(thash,"diffusivity",ndof,diff);
   
+  zeff.resize(2,ndof,ndof);
+  read_cond_matrix(thash,"mobility",ndof,zeff);
  
   adveff.resize(2,ndof,ndof);
   read_cond_matrix(thash,"adv_factor",ndof,adveff);
@@ -53,21 +56,19 @@ void electrophoresisM::elemset_init() {
   read_cond_matrix(thash,"reactions_coef",ndof,K);
   
   K1.resize(3,ndof,ndof,ndof);
-  read_cond_tensor3(thash,"inter_reactions_coef",ndof,K1);
+  read_cond_tensor4(thash,"inter_reactions_coef",ndof,K1);
   
   Dm.resize(4,nel,ndof,nel,ndof);
   Cm.resize(4,nel,ndof,nel,ndof);
   Hm.resize(2,ndof,ndof);
   tau_supg.resize(2,ndof,ndof);
   int ndim = nodedata->ndim;
-  zeff.resize(2,ndof,ndof);
-  zeff.set(0.0);
 
   ndof_aux.resize(1,ndof);
 
   TGETOPTDEF_S_ND(thash,string,velname,velocity);
   TGETOPTDEF_S_ND(thash,string,potname,potential);
-  TGETOPTDEF_S_ND(thash,string,movname,mobility);
+
   bool found; int ncols;
 
   found = nodedata->get_field(velname,&ncols,&velptr);
@@ -79,13 +80,10 @@ void electrophoresisM::elemset_init() {
   found = nodedata->get_field(potname,&ncols,&potptr);
   assert(found); assert(ncols==1);
   potcol.resize(1,nel);
-
-  found = nodedata->get_field(movname,&ncols,&movptr);
-  assert(found); assert(ncols==1);
-  movcol.resize(2,nel,ndof);
+  
 }
 
-void electrophoresisM::elem_init() 
+void electrophoresisM2::elem_init() 
 {
   int ndim = nodedata->ndim;
   int kel = this->elem;
@@ -96,11 +94,9 @@ void electrophoresisM::elem_init()
     
     double* v = &velptr[n*ndim];
     double* p = &potptr[n*1];
-    double* m = &movptr[n*ndof];
-
+    
     velcol.ir(1,i+1).set(v).rs();
     potcol.ir(1,i+1).set(p).rs();
-    movcol.ir(1,i+1).set(m).rs();
   }
   
   
@@ -108,7 +104,7 @@ void electrophoresisM::elem_init()
 
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
-void electrophoresisM::pg_connector(const FastMat2 &xpg,
+void electrophoresisM2::pg_connector(const FastMat2 &xpg,
 				   const FastMat2 &state_old_pg,
 				   const FastMat2 &grad_state_old_pg,
 				   const FastMat2 &state_new_pg,
@@ -123,14 +119,9 @@ void electrophoresisM::pg_connector(const FastMat2 &xpg,
   double rec_Dt = glob_param->steady ? 0 : (1./Dt);
  
   
-  
+
   vel.prod(shape(),velcol,-1,-1,1);
-  zeff_d.prod(shape(),movcol,-1,-1,1);
- 
-  for (int ii=1; ii<=ndof; ii++) {
-    zeff.setel(zeff_d.get(ii),ii,ii);};
-  //  zeff.print();
-  //  zeff.eye();
+
   celec.prod(dshapex(),potcol,1,-1,-1);
 
  
@@ -156,6 +147,7 @@ void electrophoresisM::pg_connector(const FastMat2 &xpg,
   FastMat2& aux_supg4  = FM2TMP;
   FastMat2& aux_supg5  = FM2TMP;
   FastMat2& aux_supg6  = FM2TMP;
+  FastMat2& zeff_d     = FM2TMP;
   FastMat2& tmp9       = FM2TMP;
   FastMat2& c_supg     = FM2TMP;
   FastMat2& k_supg     = FM2TMP;
@@ -167,7 +159,7 @@ void electrophoresisM::pg_connector(const FastMat2 &xpg,
 
   Hm.eye();
   ndof_aux.set(1.0);
-
+  zeff_d.prod(zeff,ndof_aux,1,-1,-1);
   adveff_d.prod(adveff,ndof_aux,1,-1,-1);
   aux_supg1a.prod(zeff_d,celec,1,2).scale(-1.0);
   aux_supg1.prod(zeff,celec,1,3,2).scale(-1.0);
@@ -372,10 +364,14 @@ if (EVAL_MAT) {
     ;
     
 }
-
+  /* res & mat scaling */
+  if (m_fact != 1.0) {
+    if (EVAL_RES) res_pg.scale(m_fact);
+    if (EVAL_MAT) mat_pg.scale(m_fact);
+  }
 }
 
-int electrophoresisM::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
+int electrophoresisM2::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
 			      Dofmap *dofmap,const char *jobinfo,int myrank,
 			      int el_start,int el_last,int iter_mode,
 			      const TimeData *time_) 

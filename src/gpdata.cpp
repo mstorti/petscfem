@@ -242,7 +242,7 @@ void GPdata::init(const char *geom,int ndimel,
     double xipg,etapg;
     for (ipg=0; ipg<npg; ipg++) {
       if (npg==7) {
-	// Three points in the edge centers
+	// seven points scheme in xpg_ coord
 #define A1 (0.0597158717)
 #define B1 (0.4701420641)
 #define A2 (0.7974269853)
@@ -266,7 +266,7 @@ void GPdata::init(const char *geom,int ndimel,
 	wpg[ipg] = wpg_[ipg];
 
       } else if (npg==4) {
-	// Three points in the edge centers
+	// Four points in xpg_ coord
 	double wpg_[4]={-27./96.,25./96.,25./96.,25./96.};
 	double xpg_[4][2]={
 	  {1./3., 1./3.},

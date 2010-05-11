@@ -9,37 +9,22 @@
 
 #include "nsi_tet.h"
 #include "adaptor.h"
-#include "electrophoresisM.h"
+#include "electrophoresis_mov.h"
 ////////---------------------------------------------------------
-
-void read_cond_tensor3(TextHashTable *thash, const char *s,
-		      int ndof,FastMat2 &cond) {
-  vector<double> v;
-  const char *line;
-  thash->get_entry(s,line);  
-  assert(line);
-  read_double_array(v,line);
-  if (v.size()==1) {
-    cond.eye(v[0]);
-  } else if (v.size()==(unsigned int)ndof) {
-    cond.set(0.).d(2,1).set(&*v.begin()).rs();
-  } else if (v.size()==(unsigned int)(ndof*ndof*ndof)) {
-    cond.set(&*v.begin());
-  } else PETSCFEM_ERROR("Number of elements in conductivity line inappropriate\n"
-			"entered %d values\n", v.size());  
-}
+//este elemento permite movilidades distribuidas, sin reaccion
+/////////////////////////7
 
 
 
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
-void electrophoresisM::elemset_init() {
+void electrophoresis_mov::elemset_init() {
   //assert(ndof==1);
   int ierr;
   
   TGETOPTDEF_ND(thash,double,supg_fact,1.0);
-  TGETOPTDEF_ND(thash,double,r_fact,1.0);
-
+  TGETOPTDEF_ND(thash,double,m_fact,1.0);
+  
  
   diff.resize(2,ndof,ndof);
   read_cond_matrix(thash,"diffusivity",ndof,diff);
@@ -48,13 +33,7 @@ void electrophoresisM::elemset_init() {
   adveff.resize(2,ndof,ndof);
   read_cond_matrix(thash,"adv_factor",ndof,adveff);
 
-
-  K.resize(2,ndof,ndof);
-  read_cond_matrix(thash,"reactions_coef",ndof,K);
-  
-  K1.resize(3,ndof,ndof,ndof);
-  read_cond_tensor3(thash,"inter_reactions_coef",ndof,K1);
-  
+ 
   Dm.resize(4,nel,ndof,nel,ndof);
   Cm.resize(4,nel,ndof,nel,ndof);
   Hm.resize(2,ndof,ndof);
@@ -81,11 +60,11 @@ void electrophoresisM::elemset_init() {
   potcol.resize(1,nel);
 
   found = nodedata->get_field(movname,&ncols,&movptr);
-  assert(found); assert(ncols==1);
+  assert(found); assert(ncols==ndof);
   movcol.resize(2,nel,ndof);
 }
 
-void electrophoresisM::elem_init() 
+void electrophoresis_mov::elem_init() 
 {
   int ndim = nodedata->ndim;
   int kel = this->elem;
@@ -108,7 +87,7 @@ void electrophoresisM::elem_init()
 
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
-void electrophoresisM::pg_connector(const FastMat2 &xpg,
+void electrophoresis_mov::pg_connector(const FastMat2 &xpg,
 				   const FastMat2 &state_old_pg,
 				   const FastMat2 &grad_state_old_pg,
 				   const FastMat2 &state_new_pg,
@@ -152,16 +131,13 @@ void electrophoresisM::pg_connector(const FastMat2 &xpg,
   FastMat2& aux_supg2  = FM2TMP;
   FastMat2& aux_supg1a = FM2TMP;
   FastMat2& aux_supg2a = FM2TMP;
-  FastMat2& aux_supg3  = FM2TMP;
   FastMat2& aux_supg4  = FM2TMP;
   FastMat2& aux_supg5  = FM2TMP;
   FastMat2& aux_supg6  = FM2TMP;
   FastMat2& tmp9       = FM2TMP;
   FastMat2& c_supg     = FM2TMP;
   FastMat2& k_supg     = FM2TMP;
-  FastMat2& aux_supgc  = FM2TMP;
   FastMat2& aux_supgc1 = FM2TMP;
-  FastMat2& aux_supgk  = FM2TMP;
   FastMat2& aux_supgk1 = FM2TMP;
   FastMat2& adveff_d   = FM2TMP;
 
@@ -184,30 +160,29 @@ void electrophoresisM::pg_connector(const FastMat2 &xpg,
   aux_supg5.prod(aux_supg2,dshapex(),1,-1,3,-1,2);//ndof,nel,ndof
   aux_supg6.prod(aux_supg2,grad_u_star,1,-1,-2,-1,-2);//ndof
   k_supg.prod(aux_supg5,aux_supg6,-1,1,2,-1);//nel,ndof
- 
 
   for (int ii=1; ii<=ndof; ii++) {
-     aux_supg3.set(aux_supg2a.ir(1,ii));
-     aux_supgc.set(c_supg.ir(2,ii));
-     aux_supgk.set(k_supg.ir(2,ii));
-     aux_supg2a.rs();
-     c_supg.rs();   
-     k_supg.rs();
-     vel_mod.norm_p(aux_supg3,2);
-     aux_supgc1.norm_p(aux_supgc,2);
-     aux_supgk1.norm_p(aux_supgk,2);
-     if(vel_mod>tol) {
 
-       double tau1 = 1./SQ((aux_supgc1+tol*tol)/(aux_supgk1+tol));
-       double tau2 = 1./SQ(0.5/(rec_Dt+r_fact*abs(K.get(ii,ii))));
-       double tau3 = 1./SQ((1./tau1)*SQ(vel_mod)/diff.get(ii,ii));
+    vel_mod.norm_p(aux_supg2a.ir(1,ii), 2); aux_supg2a.rs();
+    aux_supgc1.norm_p(c_supg.ir(2,ii),  2); c_supg.rs();
+    aux_supgk1.norm_p(k_supg.ir(2,ii),  2); k_supg.rs();
 
-       tau_supg.setel(1./sqrt(tau1+tau2+tau3),ii,ii);
+    double tau = 0.0;
+    double vel_mod_a = vel_mod;
+    FastMat2::branch();
+    if(vel_mod_a>tol) {
+      FastMat2::choose(0);
+      double tau1 = 1./SQ((aux_supgc1+tol*tol)/(aux_supgk1+tol));
+      double tau2 = 1./SQ(0.5/(rec_Dt));
+      double tau3 = 1./SQ((1./tau1)*SQ(vel_mod)/diff.get(ii,ii));
+      tau = 1./sqrt(tau1+tau2+tau3);
+    }
+    FastMat2::leave();
 
-  }else{
-    tau_supg.setel(0.,ii,ii);}
-};
- tau_supg.scale(supg_fact);
+    tau_supg.setel(tau,ii,ii);
+    
+  };
+  tau_supg.scale(supg_fact);
 
 
   //////////////////////
@@ -237,21 +212,9 @@ void electrophoresisM::pg_connector(const FastMat2 &xpg,
   FastMat2& tmplu = FM2TMP;
   tmplu.prod(diff,grad_u_star,-1,2,1,-1);
   
-   // single reactive term
-
-  FastMat2& Ru = FM2TMP;
-  FastMat2& tmpru = FM2TMP;
-  tmpru.prod(u_star,K,-1,1,-1);
 
   // conjugate reactive term
   
-  FastMat2& Ruc = FM2TMP;
-  FastMat2& tmpruc = FM2TMP;
-  FastMat2& tmpruc1 = FM2TMP;
-  tmpruc.prod(u_star,u_star,1,2);
-  tmpruc1.prod(K1,tmpruc,1,-1,-2,-1,-2);
-  tmpruc1.add(du)
-         .add(tmpru);
 
   //supg_term
    FastMat2& E_supg = FM2TMP;
@@ -260,9 +223,9 @@ void electrophoresisM::pg_connector(const FastMat2 &xpg,
    FastMat2& H_supg = FM2TMP;
 
    A_supg.prod(aux_supg2,dshapex(),1,-1,3,-1,2);//ndof,nel,ndof
-   B_supg.prod(K1,u_star,1,2,-1,-1);//ndof,ndof
-   H_supg.set(K);
-   C_supg.prod(H_supg,shape(),1,3,2);//ndof,nel,ndof
+   // B_supg.prod(K1,u_star,1,2,-1,-1);//ndof,ndof
+   //H_supg.set(K);
+   //C_supg.prod(H_supg,shape(),1,3,2);//ndof,nel,ndof
    D_supg.set(A_supg);//.rest(C_supg);//ndof,nel,ndof CAMBIAR
 
    F_supg.prod(aux_supg2,grad_u_star,1,-1,-2,-1,-2)//ndof
@@ -273,8 +236,8 @@ void electrophoresisM::pg_connector(const FastMat2 &xpg,
    
 
   //res
- 
-  Ruc.prod(shape(),tmpruc1,1,2);
+   FastMat2& Ruc = FM2TMP;
+  Ruc.prod(shape(),du,1,2);
 
   tmplu.add(tmpMu1)
         .add(tmpCu1);
@@ -331,17 +294,17 @@ if (EVAL_MAT) {
 
   // single reactive term
 
-  FastMat2& Rucj = FM2TMP;
-  FastMat2& tmpruj = FM2TMP;
-  tmpruj.prod(shape(),K,2,1,3);
-  Rucj.prod(shape(),tmpruj,1,2,3,4);
+  //  FastMat2& Rucj = FM2TMP;
+  //  FastMat2& tmpruj = FM2TMP;
+  //  tmpruj.prod(shape(),K,2,1,3);
+  //  Rucj.prod(shape(),tmpruj,1,2,3,4);
 
  // conjugate reactive term
  
-  FastMat2& Rmcj = FM2TMP;
-  FastMat2& tmp1rmcj = FM2TMP;
-  tmp1rmcj.set(B_supg).scale(2.0*alpha/rec_Dt);
-  Rmcj.prod(Dm1j,tmp1rmcj,1,3,2,4);
+ // FastMat2& Rmcj = FM2TMP;
+ // FastMat2& tmp1rmcj = FM2TMP;
+ // tmp1rmcj.set(B_supg).scale(2.0*alpha/rec_Dt);
+ // Rmcj.prod(Dm1j,tmp1rmcj,1,3,2,4);
 
 
  //  //  supg term
@@ -364,18 +327,26 @@ if (EVAL_MAT) {
   mat_pg
     .add(Dm)
     .add(Cm)
-    .add(Rucj)
+    // .add(Rucj)
     .add(Luj)
     .add(Muj)
-    .add(Rmcj)
+    //  .add(Rmcj)
     .add(F_supg)
     ;
     
 }
+  /* res & mat scaling */
+  if (m_fact != 1.0) {
+    if (EVAL_RES) res_pg.scale(m_fact);
+    if (EVAL_MAT) mat_pg.scale(m_fact);
+  }
+  
+
+
 
 }
 
-int electrophoresisM::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
+int electrophoresis_mov::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
 			      Dofmap *dofmap,const char *jobinfo,int myrank,
 			      int el_start,int el_last,int iter_mode,
 			      const TimeData *time_) 

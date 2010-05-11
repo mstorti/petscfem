@@ -237,6 +237,11 @@ class gasflow_bcconv : public NewBcconv {
 public:
   gasflow_bcconv() : NewBcconv(new gasflow_ff(this)) {};
 };
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:
+class gasflow_bcconv_ale : public NewBcconv {
+public:
+  gasflow_bcconv_ale() : NewBcconv(new gasflow_ff(this)) {};
+};
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:
 class gasflow_abso : public AdvDiff_Abs_Nl_Res {

@@ -64,7 +64,7 @@ void streamsw2d_ff::start_chunk(int &options) {
   
   //o Dimension of the problem. 
   EGETOPTDEF_ND(elemset,int,ndim,0);
-  PETSCFEM_ASSERT0(ndim==2,"Only Shallow Water 2D eqs.");
+  PETSCFEM_ASSERT0(ndim == 2,"Only Shallow Water 2D eqs.");
   A_jac.resize(3,ndim,ndof,ndof);
   D_jac.resize(4,ndim,ndim,ndof,ndof);
   flux_mom.resize(2,ndim,ndim);
@@ -134,7 +134,7 @@ void streamsw2d_ff::set_state(const FastMat2 &U,const FastMat2 &grad_U) {
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 void streamsw2d_ff::enthalpy(FastMat2 &H) {
   H.set(0.);
-  double h_tmp=UU.get(3);
+  double h_tmp = UU.get(3);
   H.setel(UU.get(1)*h_tmp,1);
   H.setel(UU.get(2)*h_tmp,2);
   H.setel(h_tmp,3);
@@ -172,14 +172,14 @@ void streamsw2d_ff::compute_flux(const FastMat2 &U,
   int ierr;
   
   ndof = U.dim(1);
-  if ((ndim!=2) || (ndof!=3)) {
+  if ((ndim != 2) || (ndof != 3)) {
     PetscPrintf(PETSC_COMM_WORLD,"Stop shallow_water 2D over 2D domain Only...\n");
     PetscFinalize();
     exit(0);
   }
 
-  static int flag=0;
-  static double g=gravity;
+  static int flag = 0;
+  static double g = gravity;
 
   double tau_a, tau_delta, gU;
   static vector<double> bottom_slope_v;
@@ -188,15 +188,15 @@ void streamsw2d_ff::compute_flux(const FastMat2 &U,
   VOID_IT(bottom_slope_v);
   elemset->get_entry("bottom_slope",bs); 
   bottom_slope.set(0.);
-  if (bs!=NULL) {
+  if (bs != NULL) {
     read_double_array(bottom_slope_v,bs);
-    assert(bottom_slope_v.size()==(unsigned int)ndim);
+    assert(bottom_slope_v.size() == (unsigned int)ndim);
     bottom_slope.set(&*bottom_slope_v.begin());
   }
     
-  for (int jj=0; jj<NDOF*NDOF; jj++) {
-    ajacx[jj]=0.;
-    ajacy[jj]=0.;
+  for (int jj = 0; jj < NDOF*NDOF; jj++) {
+    ajacx[jj] = 0.;
+    ajacy[jj] = 0.;
   }
 
   set_state(U);
@@ -205,7 +205,7 @@ void streamsw2d_ff::compute_flux(const FastMat2 &U,
   flux_mass.set(u).scale(h);
   UU.rs();
 
-  double u2 = u.sum_square_all();
+  double u2  = u.sum_square_all();
   double vel = sqrt(u2);
 
   double ux,uy;
@@ -246,7 +246,7 @@ void streamsw2d_ff::compute_flux(const FastMat2 &U,
   flux_mom.prod(u,u,1,2).scale(h);
 
   double h_term = 0.5*g*h*h;
-  for (int jdim=1; jdim<=ndim; jdim++) {
+  for (int jdim = 1; jdim <= ndim; jdim++) {
     flux_mom.addel(h_term,jdim,jdim);
   }
   flux.rs().is(1,1,ndim).set(flux_mom);
@@ -258,7 +258,7 @@ void streamsw2d_ff::compute_flux(const FastMat2 &U,
     PETSCFEM_ASSERT0(advdf_e,"No advdif elemset defined in streamsw2d");
 
     D_jac.set(0.);
-    double nu_h= nu_m/h;
+    double nu_h = nu_m/h;
     D_jac.setel(2*nu_m*h  ,1,1,1,1);
     D_jac.setel(2*ux*nu_m ,1,1,1,3);
     
@@ -292,8 +292,7 @@ void streamsw2d_ff::compute_flux(const FastMat2 &U,
 
     // Code C_jac here...
 
-    // double tmp61=SQ(Chezy)*(h<h_min ? h_min : h)*(vel<vel_min ? vel_min : vel);
-    double tmp61=SQ(Chezy)*(vel<vel_min ? vel_min : vel);
+    double tmp61 = SQ(Chezy)*(vel < vel_min ? vel_min : vel);
     C_jac.set(0.);
 
     C_jac.setel(-g*(SQ(ux)+u2)/tmp61,1,1);
@@ -306,20 +305,20 @@ void streamsw2d_ff::compute_flux(const FastMat2 &U,
 
     C_jac.scale(-1.0);
 
-    // A_grad_U es ndof x 1
+    // A_grad_U is ndof x 1
     A_grad_U.rs().prod(A_jac.rs(),grad_U,-1,1,-2,-1,-2);
 
     Uintri.prod(iJaco,u,1,-1,-1);
 
     FastMat2::branch();
-    if (vel>1e-10) {
+    if (vel > 1e-10) {
       FastMat2::choose(0);
       h_supg = 2.*vel/sqrt(Uintri.sum_abs_all());
     } else {
       // fixme:= This is for quads and hexas only?
       FastMat2::choose(1);
       double vol = 0.125/iJaco.det();
-      h_supg = pow(vol,1./ndim);
+      h_supg     = pow(vol,1./ndim);
     }
     FastMat2::leave();
 
@@ -331,15 +330,13 @@ void streamsw2d_ff::compute_flux(const FastMat2 &U,
 
     // Shock Capturing term. If not used return tau_supg as usual and
     // delta_sc=0.
-    tau_delta = 0; delta_sc=0.;
+    tau_delta = 0; delta_sc = 0.;
     if (shock_capturing) compute_shocap(delta_sc);
 
     tau_delta = delta_sc/(lam_max*lam_max);
     double tau_supg_d = ((tau_a-tau_delta)>0 ? (tau_a-tau_delta) : 0);
     options |= SCALAR_TAU;
     tau_supg.setel(tau_supg_d,1,1);
-    //tau_supg.eye(tau_supg_d);
-
   } 
 
   if (options & COMP_SOURCE) {
@@ -384,26 +381,27 @@ void streamsw2d_ff::Riemann_Inv(const FastMat2 &U, const FastMat2 &normal,
 				FastMat2 &Rie, FastMat2 &drdU,
 				FastMat2 &C_U){
 #if 0  
-//   int ierr;
-//   // FIxME:= gravity: Why this is here again? It is
-//   // already above...
-//   //o Gravity of the problem.
-//   EGETOPTDEF_ND(elemset,double,gravity,1.);
-//   double tmpd,tmpd1,tmpd2,tmpd3,tt,tt2,pp,
-//     ppg1,ppg,h_eps=1.e-10,signudn=0.0,u_eps=1.e-10;
-//   // riemann invariants, jacobians and characteristics for sw2d
-//   tmpd1=U.get(1); tmpd3=normal.get(1); tmpd2=U.get(ndof);
-//   pp=tmpd1*tmpd3;
-//   signudn=(tmpd3>0.0 ? 1.0 : -1.0);
-//   //  if (fabs(pp)<u_eps) signudn=0.0;
-//   tt=2.*sqrt(gravity*tmpd2);
-//   Rie.setel(pp+tt,1).setel(pp-tt,ndof);
-//   tt=sqrt(gravity*tmpd2);
-//   C_U.setel(pp+tt,1).setel(pp-tt,ndof);
-//   ppg1=(tmpd2>h_eps ? sqrt(gravity/tmpd2) : 0.);//fix me with area and wl_width
-//   ppg=0.;
-//   drdU.setel(signudn,1,1).setel(signudn,2,1)
-//     .setel(ppg+ppg1,1,2).setel(ppg-ppg1,2,2);
+  int ierr;
+  // FIxME:= gravity: Why this is here again? It is
+  // already above...
+  //o Gravity of the problem.
+  EGETOPTDEF_ND(elemset,double,gravity,1.);
+  double tmpd,tmpd1,tmpd2,tmpd3,tt,tt2,pp,
+    ppg1, ppg, h_eps = 1.e-10, signudn = 0.0, u_eps = 1.e-10;
+  // riemann invariants, jacobians and characteristics for sw2d
+  tmpd1   = U.get(1); 
+  tmpd3   = normal.get(1);
+  tmpd2   = U.get(ndof);
+  pp      = tmpd1*tmpd3;
+  signudn = (tmpd3 > 0.0 ? 1.0 : -1.0);
+  tt      = 2.*sqrt(gravity*tmpd2);
+  Rie.setel(pp+tt,1).setel(pp-tt,ndof);
+  tt      = sqrt(gravity*tmpd2);
+  C_U.setel(pp+tt,1).setel(pp-tt,ndof);
+  ppg1    = (tmpd2>h_eps ? sqrt(gravity/tmpd2) : 0.);//fix me with area and wl_width
+  ppg     = 0.;
+  drdU.setel(signudn,1,1).setel(signudn,2,1)
+    .setel(ppg+ppg1,1,2).setel(ppg-ppg1,2,2);
 #endif
 }
 
@@ -426,34 +424,19 @@ void streamsw2d_ff::compute_shocap(double &delta_sc) {
   const FastMat2 &grad_N = *advdf_e->grad_N();
   double tol=1.0e-15;
   
-  double vel = sqrt(u.sum_square_all());
+  double vel         = sqrt(u.sum_square_all());
   double sonic_speed = sqrt(gravity*h);
-  double velmax = vel+sonic_speed;
-//   double uu=fabs(u.get(1));
-//   froude.setel(uu,1).scale(sonic_speed);
-//   uu=fabs(u.get(2));
-//   froude.setel(uu,2).scale(sonic_speed);
-//   double froude_mod= sqrt(froude.sum_square_all());
-//   grad_U_psi.ir(1,1);
-//   tmp6.prod(u,grad_U_psi,-1,-1).scale(vel);
-//   grad_U_psi.rs().ir(1,2);
-//   tmp7.prod(u,grad_U_psi,-1,-1).scale(vel);
-//   grad_U_psi.rs();
-//   double absf = fabs(double(tmp6));
-//   grad_froude.setel(absf,1);
-//   absf = fabs(double(tmp7));
-//   grad_froude.setel(absf,2);
-//   double grad_froude_mod = sqrt(grad_froude.sum_square_all());
-  double tol_shoc = 1e-10;
+  double velmax      = vel+sonic_speed;
+  double tol_shoc    = 1e-10;
   // compute j direction , along h gradient
   double h_shoc, grad_h_mod = sqrt(grad_h.sum_square_all());
   FastMat2::branch();
-  if(grad_h_mod>tol_shoc) {
+  if(grad_h_mod > tol_shoc) {
     FastMat2::choose(0);
     jvec.set(grad_h).scale(1.0/grad_h_mod);
-    h_rgn = double(tmp9.prod(grad_N,jvec,-1,1,-1).sum_abs_all());
-    h_rgn = h_rgn/2.0;
-    h_rgn = (h_rgn < tol ? tol : h_rgn);
+    h_rgn  = double(tmp9.prod(grad_N,jvec,-1,1,-1).sum_abs_all());
+    h_rgn  = h_rgn/2.0;
+    h_rgn  = (h_rgn < tol ? tol : h_rgn);
     h_shoc = 1.0/h_rgn;
   } else {
     FastMat2::choose(1);
@@ -467,11 +450,10 @@ void streamsw2d_ff::compute_shocap(double &delta_sc) {
   fz = pow(fz,shocap_beta);
   //delta_sc = 0.5*h_shoc*velmax*fz*shocap_fac;
 
-  double Peclet = vel*h_supg/(2.*nu_m);
-  double fz2 = (Peclet < 3. ? Peclet/3. : 1.);
-  fz2 = pow(fz2,shocap_beta);
-  delta_sc = 0.5*h_supg*velmax*fz2*shocap_fac;
-
+  double Peclet  = vel*h_supg/(2.*nu_m);
+  double fz2     = (Peclet < 3. ? Peclet/3. : 1.);
+  fz2            = pow(fz2,shocap_beta);
+  delta_sc       = 0.5*h_supg*velmax*fz2*shocap_fac;
   delta_sc_aniso = 0.5*h_shoc*velmax*fz;
   // delta_sc = shocap_fac*velmax*h_shoc/2.0;
 }
@@ -483,11 +465,11 @@ void streamsw2d_ff::get_C(FastMat2 &C) {
 void streamsw2d_ff::compute_shock_cap_aniso(double &delta_aniso,
 			FastMat2 &jvec_a) {
   delta_aniso = delta_sc_aniso;
-  double vj = double(tmp_vj.prod(jvec,u,-1,-1));
+  double vj   = double(tmp_vj.prod(jvec,u,-1,-1));
   jvec_a.set(jvec);
-  double vel = sqrt(u.sum_square_all());
+  double vel  = sqrt(u.sum_square_all());
   FastMat2::branch();
-  if (vel>1e-10) {
+  if (vel > 1e-10) {
     FastMat2::choose(0);
     jvec_a.axpy(u,-vj/sqrt(vel));
   }
