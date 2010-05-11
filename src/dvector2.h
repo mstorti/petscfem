@@ -289,7 +289,7 @@ dvector<T>& dvector<T>::read(const char *name) {
 template<class T>
 dvector<T>& dvector<T>::readb(const char *name) {
   PETSCFEM_ASSERT0(nchunks==1,
-                  "dvector<>::bread() should be applied only "
+                  "dvector<>::readb() should be applied only "
                   "with monolithic vectors");  
   FILE *fid = fopen(name,"r");
   if (!fid) {
@@ -300,6 +300,26 @@ dvector<T>& dvector<T>::readb(const char *name) {
   fclose(fid);
   PETSCFEM_ASSERT(nread==size(),"Read %d elems, size of dvector %d",
                   nread,size());  
+  return *this;
+}
+
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>
+template<class T>
+dvector<T>& dvector<T>::writeb(const char *name) {
+  PETSCFEM_ASSERT0(nchunks==1,
+                  "dvector<>::writeb() should be applied only "
+                  "with monolithic vectors");  
+  FILE *fid = fopen(name,"w");
+  if (!fid) {
+    printf("dvector<T>::writeb(): can't open file \"%s\"\n",name);
+    abort();
+  }
+  int nbyte = sizeof(T)*size();
+  int nwritten = fwrite(buff(),sizeof(T),size(),fid);
+  PETSCFEM_ASSERT(nwritten==size(),
+                  "Written %d elems, and should be %d",
+                  nwritten,nbyte);  
+  fclose(fid);
   return *this;
 }
 

@@ -196,12 +196,14 @@ public:
       @param u (not used) as required by Glib
   */ 
   friend void print_hash_entry(void *p, void *q, void *u);
-
+  
   /** Returns a pointer to the table given his name. 
       @param name (input) the name of the table
       @return  a pointer to the table, #NULL# if it wasn't found. 
-   */ 
+  */ 
   static const TextHashTable *find(const string &name);
+  
+  void export_entries(map<string,string> &table);
 
 private:
   /// The underlying Glib hash. 
