@@ -15223,3 +15223,57 @@ resutlados dan muy consistentes y me dan para n=20:
 n_{1/2}=89, rate 1.42157 Gflops. 
 %
 Una cosa que no cierra bien es si lo esta haciendo con DGEMM o no. 
+%
+%--[2010-05-12.14:49:49.mstorti-v28-end-36-gc5a7b5a]-----
+
+Corro en aquiles en node19. Es un script de octave `proc2.m' que
+va barriendo N. Para cada N corre el problema con dos o 3 matrices en el
+cual va barriendo según ntimes para después fitear una curva y sacar
+un n1/2 y el rate en Gflops. A su vez pada cada (N,ntimes) hace el
+producto muchas veces y de esas saca la n1/4. 
+%
+%--[2010-05-12.15:01:37.mstorti-v28-end-36-gc5a7b5a]-----
+     N   amortized rate[Gflops]
+    10   1.54
+    20   3.44
+    30   4.15
+    40   4.56
+    50   4.53
+    60   4.82
+    70   4.78
+    80   4.96
+    90   4.97
+   100   5.07
+   110   5.06
+   120   4.99
+   130   5.19
+%
+Estos rendimientos son similares a los que se obtenian con la version
+plain de Fastmat2::prod() (esta compilado con MKL y corre en node19 o
+sea es un "Intel(R) Pentium(R) 4 CPU 3.00GHz". O sea que esta bien. 
+%
+Aparentemente al correr con NMAT=3 la performance se deteriora
+bastante porque ahora el tenes 5 matrices en vez de 3 o sea que es un
+66% mas de memoria para entrar en el cache o sea que antes se nota la
+crisis del cache. 
+%
+%--[2010-05-12.15:44:40.mstorti-v28-end-36-gc5a7b5a]-----
+Chequeo si anda con check_labels(), efectiamente si anda. Por lo menos
+corre sin problema y ademas lo corri con O_c++ y te tira un warning ya
+que en ese caso no tiene sentido usarlo. 
+%
+%--[2010-05-12.16:00:05.mstorti-v28-end-36-gc5a7b5a]-----
+Para NMAT=3 (o sea dos productos de matrices) 
+%
+N 10, n_{1/2}=58, rate 0.7683 Gflops
+N 20, n_{1/2}=70, rate 1.20762 Gflops
+N 30, n_{1/2}=74, rate 1.36766 Gflops
+N 40, n_{1/2}=78, rate 1.50457 Gflops
+N 50, n_{1/2}=80, rate 1.57761 Gflops
+N 60, n_{1/2}=65, rate 1.28972 Gflops
+N 70, n_{1/2}=57, rate 1.14417 Gflops
+N 80, n_{1/2}=52, rate 1.05332 Gflops
+N 90, n_{1/2}=53, rate 1.0942 Gflops
+N 100, n_{1/2}=55, rate 1.13191 Gflops
+N 110, n_{1/2}=56, rate 1.17114 Gflops
+N 120, n_{1/2}=58, rate 1.20911 Gflops
