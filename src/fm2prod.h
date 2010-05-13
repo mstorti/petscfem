@@ -51,11 +51,7 @@ struct fastmat_stats_t {
     tcall=0.0;
     tcall_not_cached=0.0;
   }
-  void print() {
-    printf("ncall %d, not cached %d, total time %g secs, "
-           "not cached %g secs\n",
-           ncall,ncall_not_cached,tcall,tcall_not_cached);
-  }
+  void print();
   fastmat_stats_t() { reset(); }
 };
 

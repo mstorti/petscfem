@@ -38,8 +38,6 @@
 #define ACTIVE 1
 #define UNDEF -1
 
-fastmat_stats_t fastmat_stats;
-
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>
 // We store a vector of these structures in the cache, and
 // then `make_prod()' has the stored the order
@@ -605,6 +603,8 @@ FastMat2::prod(vector<const FastMat2 *> &mat_list,
   return *this;
 }
 
+fastmat_stats_t fastmat_stats;
+
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>
 // This is the function that makes the product of two matrices.
 // The others for 3,4,etc... are wrappers to this one. 
@@ -922,3 +922,15 @@ FastMat2::prod(const FastMat2 & A0,
   return *this;
 }
 #endif
+
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>
+void fastmat_stats_t::print() {
+  int ncall_cached = ncall - ncall_not_cached;
+  double tcall_cached = tcall - tcall_not_cached;
+  printf("total calls %d (%g secs, %g rate secs/call)\n"
+         "not cached %d, (%g secs, %g rate secs/call)\n"
+         "cached %d, (%g secs, %g rate secs/call)\n",
+         ncall,tcall,tcall/ncall,
+         ncall_not_cached,tcall_not_cached,tcall_not_cached/ncall_not_cached,
+         ncall,tcall_cached,tcall_cached/ncall);
+}
