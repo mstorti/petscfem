@@ -41,4 +41,24 @@ public:
   int not_superlinear_ok();
 };
 
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>
+struct fastmat_stats_t {
+  int ncall, ncall_not_cached;
+  double tcall, tcall_not_cached;
+  void reset() {
+    ncall=0;
+    ncall_not_cached=0;
+    tcall=0.0;
+    tcall_not_cached=0.0;
+  }
+  void print() {
+    printf("ncall %d, not cached %d, total time %g secs, "
+           "not cached %g secs\n",
+           ncall,ncall_not_cached,tcall,tcall_not_cached);
+  }
+  fastmat_stats_t() { reset(); }
+};
+
+extern fastmat_stats_t fastmat_stats;
+
 #endif

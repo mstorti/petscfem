@@ -552,10 +552,6 @@ FastMat2 & FastMat2::resize(const int ndims, INT_VAR_ARGS_ND) {
     exit(0);
   }
 
-  if (defined) {
-    delete[] store;
-    defined=0;
-  }
   Indx dims_;
   // assert(ndims>0);
 #ifdef USE_VAR_ARGS  
@@ -567,7 +563,26 @@ FastMat2 & FastMat2::resize(const int ndims, INT_VAR_ARGS_ND) {
   assert(dims_.size()==ndims);
 #endif
 
-  create_from_indx(dims_);
+  resize(dims_);
+  return *this;
+}
+
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+FastMat2 & FastMat2::resize(const Indx &indx) {
+
+  // This can't be cached
+  if (ctx->was_cached) {
+    printf("fastmat2: can't call resize() while in cached mode\n");
+    abort();
+    exit(0);
+  }
+
+  if (defined) {
+    delete[] store;
+    defined=0;
+  }
+
+  create_from_indx(indx);
   return *this;
 }
 

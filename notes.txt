@@ -15277,3 +15277,43 @@ N 90, n_{1/2}=53, rate 1.0942 Gflops
 N 100, n_{1/2}=55, rate 1.13191 Gflops
 N 110, n_{1/2}=56, rate 1.17114 Gflops
 N 120, n_{1/2}=58, rate 1.20911 Gflops
+%
+%--[2010-05-12.16:12:37.mstorti-v28-end-37-gfe081c5]-----
+Verifico que el producto de 2 matrices actual de igual que el
+anterior. 
+%% Actual (o sea con multiprod)
+N 20, elapsed 0.002255, times 10, nstat 364, flops 0.141894 Gflops
+N 20, elapsed 0.002316, times 13, nstat 399, flops 0.17962 Gflops
+N 20, elapsed 0.002379, times 16, nstat 413, flops 0.215222 Gflops
+N 20, elapsed 0.002470, times 20, nstat 394, flops 0.259133 Gflops
+N 20, elapsed 0.002603, times 26, nstat 378, flops 0.319625 Gflops
+N 20, elapsed 0.002755, times 33, nstat 353, flops 0.383313 Gflops
+N 20, elapsed 0.002956, times 42, nstat 329, flops 0.454682 Gflops
+N 20, elapsed 0.003223, times 54, nstat 306, flops 0.536156 Gflops
+N 20, elapsed 0.003582, times 70, nstat 272, flops 0.625349 Gflops
+N 20, elapsed 0.004046, times 91, nstat 243, flops 0.71973 Gflops
+N 20, elapsed 0.004648, times 118, nstat 209, flops 0.812356 Gflops
+N 20, elapsed 0.005421, times 153, nstat 182, flops 0.903167 Gflops
+N 20, elapsed 0.006433, times 198, nstat 151, flops 0.98492 Gflops
+N 20, elapsed 0.007849, times 257, nstat 125, flops 1.04778 Gflops
+N 20, elapsed 0.009468, times 334, nstat 102, flops 1.12885 Gflops
+N 20, elapsed 0.011658, times 434, nstat 85, flops 1.19129 Gflops
+%% SIN multiprod (viejo) --------------
+N 20, elapsed 0.002245, times 10, nstat 425, flops 0.142542 Gflops
+N 20, elapsed 0.002314, times 13, nstat 420, flops 0.179768 Gflops
+N 20, elapsed 0.002376, times 16, nstat 415, flops 0.215481 Gflops
+N 20, elapsed 0.002466, times 20, nstat 392, flops 0.259533 Gflops
+N 20, elapsed 0.002602, times 26, nstat 378, flops 0.319742 Gflops
+N 20, elapsed 0.002762, times 33, nstat 351, flops 0.382354 Gflops
+N 20, elapsed 0.002961, times 42, nstat 333, flops 0.453913 Gflops
+N 20, elapsed 0.003254, times 54, nstat 297, flops 0.531049 Gflops
+N 20, elapsed 0.003583, times 70, nstat 274, flops 0.625182 Gflops
+N 20, elapsed 0.004054, times 91, nstat 239, flops 0.718291 Gflops
+N 20, elapsed 0.004655, times 118, nstat 212, flops 0.811149 Gflops
+N 20, elapsed 0.005440, times 153, nstat 180, flops 0.900001 Gflops
+N 20, elapsed 0.006444, times 198, nstat 153, flops 0.983244 Gflops
+N 20, elapsed 0.007790, times 257, nstat 124, flops 1.05573 Gflops
+N 20, elapsed 0.009494, times 334, nstat 104, flops 1.12578 Gflops
+N 20, elapsed 0.011719, times 434, nstat 85, flops 1.18509 Gflops
+%-----------
+O sea que dan muy parecidos. 

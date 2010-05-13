@@ -2,6 +2,7 @@
 #include <cmath>
 #include <ctime>
 #include <cstdio>
+#include <stdint.h>
 #include <unistd.h>
 
 #include <algorithm>
@@ -36,6 +37,8 @@
 #define INACTIVE 0
 #define ACTIVE 1
 #define UNDEF -1
+
+fastmat_stats_t fastmat_stats;
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>
 // We store a vector of these structures in the cache, and
@@ -231,6 +234,8 @@ public:
   : key(k), position(p) { }
 };
 
+intmax_t fastmat_nopscount;
+
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>
 // General case. Receives a list of pointers to matrices
 // and a vector of indices. The instances for 2,3,4,... matrices
@@ -417,12 +422,14 @@ FastMat2::prod(vector<const FastMat2 *> &mat_list,
           // Computes the number of operations
           nops = compute_opcount(qmi,rmi,qfree,rfree,qr1);
           // `fastmat_multiprod_use_first' is just for debugging.
-          // If activated it correspond to do the first product
-          // that does a contraction.
+          // If activated it corresponds to do the first product
+          // that does a contraction. For instance in a series
+          // of products of 2-rank matrices a=b*c*d*e*...
+          // it corresponds to do a=(((b*c)*d)*e)*...
           // Beware it may fail. in case there is no contraction!!
-          // FOr instance a.prod(b,c,1,2);
+          // For instance a.prod(b,c,1,2);
           if (fastmat_multiprod_use_first?
-              qr1>1 
+              (nops>0 || qr1>1)
               : (nopsmin<0 || nops<nopsmin)) {
             nopsmin = nops;
             qmin = q;
@@ -534,6 +541,7 @@ FastMat2::prod(vector<const FastMat2 *> &mat_list,
 #ifdef VERBOSE
     printf("total ops count %d\n",nopscount);
 #endif
+    fastmat_nopscount = nopscount;
     assert(order.size() == (unsigned int)(3*(nmat-1)));
 
     // Now for each product to be done checks that
@@ -604,6 +612,8 @@ FastMat2 &
 FastMat2::prod(const FastMat2 &A,const FastMat2 &B,
                vector<int> &ixa, 
                vector<int> &ixb) {
+  double start=MPI_Wtime();
+  fastmat_stats.ncall++;
 
 #ifndef NDEBUG
   if (ctx->do_check_labels) {
@@ -622,6 +632,7 @@ FastMat2::prod(const FastMat2 &A,const FastMat2 &B,
 
   prod_subcache_t *psc=NULL;
   if (!ctx->was_cached  ) {
+    fastmat_stats.ncall_not_cached++;
     Indx ia,ib,ii;
 
     // get the free indices of A and B
@@ -813,6 +824,7 @@ FastMat2::prod(const FastMat2 &A,const FastMat2 &B,
       }
     }
   }
+  fastmat_stats.tcall_not_cached += MPI_Wtime()-start;
 
   psc = dynamic_cast<prod_subcache_t *> (cache->sc);
   assert(psc);
@@ -888,6 +900,7 @@ FastMat2::prod(const FastMat2 &A,const FastMat2 &B,
   }
 
   if (!ctx->use_cache) delete cache;
+  fastmat_stats.tcall += MPI_Wtime()-start;
   return *this;
 }
 

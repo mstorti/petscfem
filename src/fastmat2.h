@@ -1224,6 +1224,15 @@ public:
   FastMat2 & resize(const int m,INT_VAR_ARGS);
 
   //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+  /** Resizes the matrix (destroying the information).
+      New and old dimensions might not be the same. 
+      @author M. Storti
+      @param indx (input) the shape of the matrix
+      @return a reference to the matrix.
+   */ 
+  FastMat2 & resize(const Indx &indx);
+
+  //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
   /** Resizes to one dimension ans zero elements.
    */ 
   FastMat2 & clear();
