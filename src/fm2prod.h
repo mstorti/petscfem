@@ -43,6 +43,7 @@ public:
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>
 struct fastmat_stats_t {
+  int print_prod_order;
   int ncall, ncall_not_cached;
   double tcall, tcall_not_cached;
   double tpart;
@@ -54,7 +55,7 @@ struct fastmat_stats_t {
     tpart=0.0;
   }
   void print();
-  fastmat_stats_t() { reset(); }
+  fastmat_stats_t() : print_prod_order(0) { reset(); }
 };
 
 extern fastmat_stats_t fastmat_stats;

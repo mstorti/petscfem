@@ -523,6 +523,11 @@ FastMat2::prod(vector<const FastMat2 *> &mat_list,
       order.push_back(qmin->key);
       order.push_back(rmin->key);
       
+      if (fastmat_stats.print_prod_order) 
+        printf("will do a%d = a%d*a%d\n",
+               smi.position,
+               qmi.position,rmi.position);
+
       // Mark the Q and R matrices as inactive,
       // and the result S as active
       active_mat_info_cont.erase(qmin);
