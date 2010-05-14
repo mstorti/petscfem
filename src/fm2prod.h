@@ -45,11 +45,13 @@ public:
 struct fastmat_stats_t {
   int ncall, ncall_not_cached;
   double tcall, tcall_not_cached;
+  double tpart;
   void reset() {
     ncall=0;
     ncall_not_cached=0;
     tcall=0.0;
     tcall_not_cached=0.0;
+    tpart=0.0;
   }
   void print();
   fastmat_stats_t() { reset(); }

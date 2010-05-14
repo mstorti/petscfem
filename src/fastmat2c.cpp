@@ -747,6 +747,7 @@ FastMat2::prod(const FastMat2 &A,const FastMat2 &B,
     cache->line_size = mem_size(ndimsc);
     int line_size = cache->line_size;
 
+    // T 2%
     int jlc=0,inca=1,incb=1;
     LineCache *lc;
     while (1) {
@@ -797,6 +798,9 @@ FastMat2::prod(const FastMat2 &A,const FastMat2 &B,
 
       if (!inc(findx,ndimsf)) break;
     }
+    // T 97%
+    fastmat_stats.tpart += MPI_Wtime()-start;
+
     // Hay que contar mejor cuantos elementos hay que traer
     // ctx->op_count.get += cache->nlines*cache->line_size;
     int ntot = cache->nlines*cache->line_size;
@@ -926,11 +930,18 @@ FastMat2::prod(const FastMat2 & A0,
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>
 void fastmat_stats_t::print() {
   int ncall_cached = ncall - ncall_not_cached;
-  double tcall_cached = tcall - tcall_not_cached;
+  double 
+    tcall_cached = tcall - tcall_not_cached,
+    nhalf = (tcall_not_cached*ncall_cached)/
+    (tcall_cached*ncall_not_cached);
   printf("total calls %d (%g secs, %g rate secs/call)\n"
          "not cached %d, (%g secs, %g rate secs/call)\n"
-         "cached %d, (%g secs, %g rate secs/call)\n",
+         "tpart %g (%.2g%%)\n"
+         "cached %d, (%g secs, %g rate secs/call)\n"
+         "nhalf %f\n",
          ncall,tcall,tcall/ncall,
          ncall_not_cached,tcall_not_cached,tcall_not_cached/ncall_not_cached,
-         ncall,tcall_cached,tcall_cached/ncall);
+         tpart,tpart/tcall_not_cached*100.0,
+         ncall,tcall_cached,tcall_cached/ncall,
+         nhalf);
 }
