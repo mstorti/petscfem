@@ -15317,3 +15317,13 @@ N 20, elapsed 0.009494, times 334, nstat 104, flops 1.12578 Gflops
 N 20, elapsed 0.011719, times 434, nstat 85, flops 1.18509 Gflops
 %-----------
 O sea que dan muy parecidos. 
+
+%=== Fri May 14 12:51:46 2010 mstorti@galileo
+%
+%--[2010-05-14.15:51:46.mstorti-v28-end-41-gb910390]-----
+Conteo de operaciones para producto 
+
+will do a2 = a2*a3
+will do a1 = a1*a2
+will do a0 = a0*a1
+ndim 2, nel 3, ndof 1, nopscount raw 12, opt 9, gain 33.33%
