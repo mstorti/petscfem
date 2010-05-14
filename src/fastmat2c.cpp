@@ -210,29 +210,9 @@ void multiprod_subcache_t::make_prod() {
   }
 }
 
-//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>
-// We keep a set of this pairs for the active matrices.
-// Each pair contains the key (an index in `mat_info_cont'
-// and the position in the active matrix set).
-// This last one should be irrelevant and is kept only
-// in order to make the computation more readable.
-// Also could have an impact in performance because
-// the product may be done with `dgemm' or not. 
-class active_mat_info_t {
-public:
-  int key,position;
-  // Comparison function
-  bool operator<(const active_mat_info_t y) const {
-    if (position != y.position) 
-      return position < y.position;
-    else 
-      return key < y.key;
-  }
-  active_mat_info_t(int k,int p) 
-  : key(k), position(p) { }
-};
 
 intmax_t fastmat_nopscount;
+
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>
 // General case. Receives a list of pointers to matrices
@@ -322,7 +302,6 @@ FastMat2::prod(vector<const FastMat2 *> &mat_list,
     assert(order.empty());
      
     // This stores the information for the active matrices
-    typedef std::set<active_mat_info_t> active_mat_info_cont_t;
     active_mat_info_cont_t active_mat_info_cont;
 
     // Load the input matrices in the container
@@ -348,6 +327,7 @@ FastMat2::prod(vector<const FastMat2 *> &mat_list,
         m.dims[l] = A.dim(l+1);
       }
     }
+    compute_optimal_order();
 
     // The created temporaries are assigned
     // this key (position in `mat_info_cont')

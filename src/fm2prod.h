@@ -60,4 +60,28 @@ struct fastmat_stats_t {
 
 extern fastmat_stats_t fastmat_stats;
 
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>
+// We keep a set of this pairs for the active matrices.
+// Each pair contains the key (an index in `mat_info_cont'
+// and the position in the active matrix set).
+// This last one should be irrelevant and is kept only
+// in order to make the computation more readable.
+// Also could have an impact in performance because
+// the product may be done with `dgemm' or not. 
+class active_mat_info_t {
+public:
+  int key,position;
+  // Comparison function
+  bool operator<(const active_mat_info_t y) const {
+    if (position != y.position) 
+      return position < y.position;
+    else 
+      return key < y.key;
+  }
+  active_mat_info_t(int k,int p) 
+  : key(k), position(p) { }
+};
+
+typedef std::set<active_mat_info_t> active_mat_info_cont_t;
+
 #endif
