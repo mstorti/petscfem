@@ -30,48 +30,6 @@
 
 #include "./mproddef.h"
 
-#define OLD 0
-#define TMP 1
-#define UNKNOWN 2
-
-#define INACTIVE 0
-#define ACTIVE 1
-#define UNDEF -1
-
-//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>
-// We store a vector of these structures in the cache, and
-// then `make_prod()' has the stored the order
-// in which the products must be done, and which matrices
-// are involved.
-// The `mat_info's are stored for both the
-// original matrices, and the temporaries that
-// are created. So if we have `n' matrices we make
-// `n-1' products, and we need a mat_info for the result
-// so we have `2*n-1' mat_infos. 
-// From the `n-1' results, the first `n-2' are temporaries,
-// and the last one goes to the final output result. 
-struct mat_info {
-  // Pointers to old matrices should be `const'
-  FastMat2 *Ap;
-  // The vector that indicates the contractions
-  // to be performed (the args to the low-level
-  // prod())
-  vector<int> contract;
-  // The dims of the involved matrices
-  vector<int> dims;
-  // type: may be OLD, TMP or UNKNOWN
-  // is_active: when we make a product the two involved
-  //            matrices are marked as INACTIVE and the new
-  //            inserted to ACTIVE
-  // position: stores the position in the matrix list.
-  //           We try to preserve the position so that
-  //           the process is more clear. 
-  int type, is_active, position;
-  mat_info() : Ap(NULL), 
-               type(UNKNOWN),
-               is_active(UNDEF) {}
-};
-
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>
 // Searches for `x' in vector `v'
 static int vfind(vector<int> &v,int x) {
@@ -107,13 +65,16 @@ print_mat_info(mat_info_cont_t::iterator q,
 // possible product. Also returns the product of the free
 // indices in q and r, and of the contracted indices.
 // (BTW the opcount is qfree*rfree*
-static int compute_opcount(mat_info &qmi,mat_info &rmi,
-                           int &qfree,int &rfree,int &qctr) {
+int compute_opcount(mat_info &qmi,mat_info &rmi,
+                    mat_info &smi,
+                    int &qfree,int &rfree,int &qctr) {
   vector<int> 
     &qc = qmi.contract,
     &qd = qmi.dims,
     &rc = rmi.contract,
-    &rd = rmi.dims;
+    &rd = rmi.dims,
+    &sc = smi.contract,
+    &sd = smi.dims;
   int 
     rctr=1,
     qrank = qd.size(),
@@ -130,14 +91,21 @@ static int compute_opcount(mat_info &qmi,mat_info &rmi,
     // not in the other matrix. There may be negative
     // indices because they are contracted in other
     // product.
-    if (k>0 || !vfind(rc,k)) qfree *= dim;
-    else qctr *= dim;
+    if (k>0 || !vfind(rc,k)) { 
+      qfree *= dim;
+      sc.push_back(k);
+      sd.push_back(dim);
+    } else qctr *= dim;
   }
   for (int j=0; j<rrank; j++) {
     k = rc[j];
     dim = rd[j];
     // Same as before
-    if (k>0 || !vfind(qc,k)) rfree *= dim;
+    if (k>0 || !vfind(qc,k)) {
+      rfree *= dim;
+      sc.push_back(k);
+      sd.push_back(dim);
+    }
     else rctr *= dim;
   }
   assert(qctr==rctr);
@@ -157,7 +125,7 @@ public:
   int nmat;
   // A vector of structures containing information
   // for each involved matrix (including temporaries)
-  vector<mat_info> mat_info_cont;
+  mat_info_cont_t mat_info_cont;
   // A table that stores in which orders must peformed
   // the products
   vector<int> order;
@@ -327,8 +295,18 @@ FastMat2::prod(vector<const FastMat2 *> &mat_list,
         m.dims[l] = A.dim(l+1);
       }
     }
-    compute_optimal_order();
 
+    if (0) {
+      mat_info_cont_t 
+        mat_info_cont_cpy = mat_info_cont;
+      vector<int> opt_order;
+      intmax_t nopso = compute_optimal_order(mat_info_cont_cpy,opt_order);
+      assert(int(opt_order.size())==2*(nmat-1));
+      for (int j=0; j<nmat-1; j++) 
+        printf("j %d, q %d, r %d\n",j,opt_order[2*j],opt_order[2*j]+1);
+      printf("nops %jd\n",nopso);
+    }
+    
     // The created temporaries are assigned
     // this key (position in `mat_info_cont')
     int new_mat_indx = nmat;
@@ -347,7 +325,7 @@ FastMat2::prod(vector<const FastMat2 *> &mat_list,
 #endif
     while (1) {
       // For each execution of this loop we
-      // look for the lowest opcount. The the
+      // look for the lowest opcount. Then the
       // two corresponding matrices become inactive
       // and the new temporary is created. 
 
@@ -398,7 +376,8 @@ FastMat2::prod(vector<const FastMat2 *> &mat_list,
                  qfree,rfree,qr1,qr2);
 #endif        
           // Computes the number of operations
-          nops = compute_opcount(qmi,rmi,qfree,rfree,qr1);
+          mat_info s;
+          nops = compute_opcount(qmi,rmi,s,qfree,rfree,qr1);
           // `fastmat_multiprod_use_first' is just for debugging.
           // If activated it corresponds to do the first product
           // that does a contraction. For instance in a series
@@ -515,14 +494,17 @@ FastMat2::prod(vector<const FastMat2 *> &mat_list,
       active_mat_info_cont
         .insert(active_mat_info_t(skey,smi.position));
 
-#ifdef VERBOSE
+#if 1
+      //#ifdef VERBOSE
       int n=order.size();
       printf("contracts a%d,a%d\n",qmin->key,rmin->key);
 #endif
     }
 
-#ifdef VERBOSE
-    printf("total ops count %d\n",nopscount);
+#if 1
+    // #ifdef VERBOSE
+    printf("heuristic total ops count %d\n",nopscount);
+    exit(0);
 #endif
     fastmat_nopscount = nopscount;
     assert(order.size() == (unsigned int)(3*(nmat-1)));
