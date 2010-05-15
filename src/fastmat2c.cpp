@@ -32,7 +32,7 @@
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>
 // Searches for `x' in vector `v'
-static int vfind(vector<int> &v,int x) {
+static int vfind(const vector<int> &v,int x) {
   int n=v.size();
   for (int j=0; j<n; j++)
     if (v[j]==x) return 1;
@@ -65,14 +65,16 @@ print_mat_info(mat_info_cont_t::iterator q,
 // possible product. Also returns the product of the free
 // indices in q and r, and of the contracted indices.
 // (BTW the opcount is qfree*rfree*
-int compute_opcount(mat_info &qmi,mat_info &rmi,
+int compute_opcount(const mat_info &qmi,
+                    const mat_info &rmi,
                     mat_info &smi,
                     int &qfree,int &rfree,int &qctr) {
-  vector<int> 
+  const vector<int> 
     &qc = qmi.contract,
     &qd = qmi.dims,
     &rc = rmi.contract,
-    &rd = rmi.dims,
+    &rd = rmi.dims;
+  vector<int> 
     &sc = smi.contract,
     &sd = smi.dims;
   int 
@@ -178,9 +180,7 @@ void multiprod_subcache_t::make_prod() {
   }
 }
 
-
 intmax_t fastmat_nopscount;
-
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>
 // General case. Receives a list of pointers to matrices
@@ -296,7 +296,7 @@ FastMat2::prod(vector<const FastMat2 *> &mat_list,
       }
     }
 
-    if (0) {
+    if (fastmat_stats.use_optimal_order) {
       mat_info_cont_t 
         mat_info_cont_cpy = mat_info_cont;
       vector<int> opt_order;
@@ -304,7 +304,9 @@ FastMat2::prod(vector<const FastMat2 *> &mat_list,
       assert(int(opt_order.size())==2*(nmat-1));
       for (int j=0; j<nmat-1; j++) 
         printf("j %d, q %d, r %d\n",j,opt_order[2*j],opt_order[2*j]+1);
-      printf("nops %jd\n",nopso);
+      fastmat_nopscount = nopso;
+      exit(0);
+      return *this;
     }
     
     // The created temporaries are assigned
@@ -494,19 +496,17 @@ FastMat2::prod(vector<const FastMat2 *> &mat_list,
       active_mat_info_cont
         .insert(active_mat_info_t(skey,smi.position));
 
-#if 1
+#if 0
       //#ifdef VERBOSE
       int n=order.size();
       printf("contracts a%d,a%d\n",qmin->key,rmin->key);
 #endif
     }
 
-#if 1
     // #ifdef VERBOSE
-    printf("heuristic total ops count %d\n",nopscount);
-    exit(0);
-#endif
     fastmat_nopscount = nopscount;
+    return *this;
+
     assert(order.size() == (unsigned int)(3*(nmat-1)));
 
     // Now for each product to be done checks that
