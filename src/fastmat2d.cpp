@@ -26,9 +26,9 @@ intmax_t compute_optimal_order(const mat_info_cont_t &mat_info_cont,
   intmax_t nopsmin = -1;
   
 
-  for (int q=0; q<nmat; q++) {
+  for (int q=0; q<nmat-1; q++) {
     const mat_info &qmi = mat_info_cont[q];
-    for (int r=q+1; q<nmat; q++) {
+    for (int r=q+1; r<nmat; r++) {
       const mat_info &rmi = mat_info_cont[r];
       // Computes the number of operations
       mat_info smi;
@@ -36,9 +36,8 @@ intmax_t compute_optimal_order(const mat_info_cont_t &mat_info_cont,
       vector<int> order1;
       if (nmat>2) {
         mat_info_cont_t mat_info_cont_cpy = mat_info_cont;
+        mat_info_cont_cpy[q] = smi;
         mat_info_cont_cpy.erase(mat_info_cont_cpy.begin()+r);
-        mat_info_cont_cpy.erase(mat_info_cont_cpy.begin()+q);
-        mat_info_cont_cpy.push_back(smi);
         nops += compute_optimal_order(mat_info_cont_cpy,order1);
       }
       if (nopsmin<0 || nops<nopsmin) {
@@ -52,9 +51,20 @@ intmax_t compute_optimal_order(const mat_info_cont_t &mat_info_cont,
   order.clear();
   order.push_back(qmin);
   order.push_back(rmin);
+
   int n = ordermin.size();
+  assert(n==2*(nmat-2));
+  for (int j=0; j<n; j++) {
+    int oj = ordermin[j];
+    assert(oj>=0 && oj<nmat-1);
+    order.push_back(oj);
+  }
+
+  //#define VERBOSE
+#ifdef VERBOSE
   printf("---------------\n");
   printf("nmat %d, nops %jd\n",nmat,nopsmin);
+  printf("qmin %d, rmin %d\n",qmin,rmin);
   for (int j=0; j<nmat; j++) {
     const mat_info &mi = mat_info_cont[j];
     printf("a%d: (ctr ",j);
@@ -67,7 +77,10 @@ intmax_t compute_optimal_order(const mat_info_cont_t &mat_info_cont,
     printf(")\n");
   }
 
-  for (int j=0; j<n; j++) 
-    order.push_back(ordermin[j]);
+  assert(int(order.size())==2*(nmat-1));
+  for (int j=0; j<nmat-1; j++) 
+    printf("prod %d a%d*a%d\n",j,order[2*j],order[2*j+1]);
+#endif
+
   return nopsmin;
 }
