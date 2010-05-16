@@ -15340,3 +15340,800 @@ will do a2 = a2*a3
 will do a0 = a0*a2
      seria (gN*A)*(tau*C):
 ndim 2, nel 3, ndof 10, nopscount raw 6600, opt 4600, gain 43.48%
+
+%=== Sat May 15 18:51:17 2010 mstorti@galileo
+%
+%--[2010-05-15.21:51:17.mstorti-v28-end-47-gdf352a6]-----
+Implemento el de busqueda exhaustiva tambien. Hago un ejemplo de tipo
+%
+      gN(ndim,nel)*A(ndim,ndof,ndof)*tau(ndof,ndof)*invC(ndof,ndof)
+%
+%
+Y lo corro para muchos valores comunes de ndim,nel,ndof
+%
+. ndim=1,2,3
+. nel=ndim+1 (simplices) y nel=2^ndim (cartesian)
+. ndof=1 (scalar), ndim+2 (compressible flow), (compressible flow + species)
+%
+ndim 1, nel 2, ndof 1
+will do a0 = a0*a1
+will do a0 = a0*a2
+will do a0 = a0*a3
+RAW ORDER: nopscount 6
+will do a1 = a1*a2
+will do a1 = a1*a3
+will do a0 = a0*a1
+HEURISTIC ORDER: nopscount 4, gain 33.33%
+prod j 0, do a1*a2
+prod j 1, do a1*a2
+prod j 2, do a0*a1
+OPTIMAL ORDER: nopscount 4, gain 33.33%
+----------------------
+ndim 1, nel 2, ndof 5
+will do a0 = a0*a1
+will do a0 = a0*a2
+will do a0 = a0*a3
+RAW ORDER: nopscount 550
+will do a0 = a0*a1
+will do a2 = a2*a3
+will do a0 = a0*a2
+HEURISTIC ORDER: nopscount 425, gain 22.73%
+prod j 0, do a1*a2
+prod j 1, do a1*a2
+prod j 2, do a0*a1
+OPTIMAL ORDER: nopscount 300, gain 45.45%
+----------------------
+ndim 1, nel 2, ndof 10
+will do a0 = a0*a1
+will do a0 = a0*a2
+will do a0 = a0*a3
+RAW ORDER: nopscount 4200
+will do a0 = a0*a1
+will do a2 = a2*a3
+will do a0 = a0*a2
+HEURISTIC ORDER: nopscount 3200, gain 23.81%
+prod j 0, do a1*a2
+prod j 1, do a1*a2
+prod j 2, do a0*a1
+OPTIMAL ORDER: nopscount 2200, gain 47.62%
+----------------------
+ndim 2, nel 3, ndof 1
+will do a0 = a0*a1
+will do a0 = a0*a2
+will do a0 = a0*a3
+RAW ORDER: nopscount 12
+will do a2 = a2*a3
+will do a1 = a1*a2
+will do a0 = a0*a1
+HEURISTIC ORDER: nopscount 9, gain 25.00%
+prod j 0, do a2*a3
+prod j 1, do a1*a2
+prod j 2, do a0*a1
+OPTIMAL ORDER: nopscount 9, gain 25.00%
+----------------------
+ndim 2, nel 3, ndof 5
+will do a0 = a0*a1
+will do a0 = a0*a2
+will do a0 = a0*a3
+RAW ORDER: nopscount 900
+will do a2 = a2*a3
+will do a0 = a0*a1
+will do a0 = a0*a2
+HEURISTIC ORDER: nopscount 650, gain 27.78%
+prod j 0, do a2*a3
+prod j 1, do a1*a2
+prod j 2, do a0*a1
+OPTIMAL ORDER: nopscount 525, gain 41.67%
+----------------------
+ndim 2, nel 3, ndof 10
+will do a0 = a0*a1
+will do a0 = a0*a2
+will do a0 = a0*a3
+RAW ORDER: nopscount 6600
+will do a0 = a0*a1
+will do a2 = a2*a3
+will do a0 = a0*a2
+HEURISTIC ORDER: nopscount 4600, gain 30.30%
+prod j 0, do a2*a3
+prod j 1, do a1*a2
+prod j 2, do a0*a1
+OPTIMAL ORDER: nopscount 3600, gain 45.45%
+----------------------
+ndim 2, nel 4, ndof 1
+will do a0 = a0*a1
+will do a0 = a0*a2
+will do a0 = a0*a3
+RAW ORDER: nopscount 16
+will do a2 = a2*a3
+will do a1 = a1*a2
+will do a0 = a0*a1
+HEURISTIC ORDER: nopscount 11, gain 31.25%
+prod j 0, do a2*a3
+prod j 1, do a1*a2
+prod j 2, do a0*a1
+OPTIMAL ORDER: nopscount 11, gain 31.25%
+----------------------
+ndim 2, nel 4, ndof 5
+will do a0 = a0*a1
+will do a0 = a0*a2
+will do a0 = a0*a3
+RAW ORDER: nopscount 1200
+will do a2 = a2*a3
+will do a0 = a0*a1
+will do a0 = a0*a2
+HEURISTIC ORDER: nopscount 825, gain 31.25%
+prod j 0, do a2*a3
+prod j 1, do a1*a2
+prod j 2, do a0*a1
+OPTIMAL ORDER: nopscount 575, gain 52.08%
+----------------------
+ndim 2, nel 4, ndof 10
+will do a0 = a0*a1
+will do a0 = a0*a2
+will do a0 = a0*a3
+RAW ORDER: nopscount 8800
+will do a0 = a0*a1
+will do a2 = a2*a3
+will do a0 = a0*a2
+HEURISTIC ORDER: nopscount 5800, gain 34.09%
+prod j 0, do a2*a3
+prod j 1, do a1*a2
+prod j 2, do a0*a1
+OPTIMAL ORDER: nopscount 3800, gain 56.82%
+----------------------
+ndim 3, nel 4, ndof 1
+will do a0 = a0*a1
+will do a0 = a0*a2
+will do a0 = a0*a3
+RAW ORDER: nopscount 20
+will do a2 = a2*a3
+will do a1 = a1*a2
+will do a0 = a0*a1
+HEURISTIC ORDER: nopscount 16, gain 20.00%
+prod j 0, do a2*a3
+prod j 1, do a1*a2
+prod j 2, do a0*a1
+OPTIMAL ORDER: nopscount 16, gain 20.00%
+----------------------
+ndim 3, nel 4, ndof 5
+will do a0 = a0*a1
+will do a0 = a0*a2
+will do a0 = a0*a3
+RAW ORDER: nopscount 1300
+will do a2 = a2*a3
+will do a0 = a0*a1
+will do a0 = a0*a2
+HEURISTIC ORDER: nopscount 925, gain 28.85%
+prod j 0, do a2*a3
+prod j 1, do a1*a2
+prod j 2, do a0*a1
+OPTIMAL ORDER: nopscount 800, gain 38.46%
+----------------------
+ndim 3, nel 4, ndof 10
+will do a0 = a0*a1
+will do a0 = a0*a2
+will do a0 = a0*a3
+RAW ORDER: nopscount 9200
+will do a2 = a2*a3
+will do a0 = a0*a1
+will do a0 = a0*a2
+HEURISTIC ORDER: nopscount 6200, gain 32.61%
+prod j 0, do a2*a3
+prod j 1, do a1*a2
+prod j 2, do a0*a1
+OPTIMAL ORDER: nopscount 5200, gain 43.48%
+----------------------
+ndim 3, nel 8, ndof 1
+will do a0 = a0*a1
+will do a0 = a0*a2
+will do a0 = a0*a3
+RAW ORDER: nopscount 40
+will do a2 = a2*a3
+will do a1 = a1*a2
+will do a0 = a0*a1
+HEURISTIC ORDER: nopscount 28, gain 30.00%
+prod j 0, do a2*a3
+prod j 1, do a1*a2
+prod j 2, do a0*a1
+OPTIMAL ORDER: nopscount 28, gain 30.00%
+----------------------
+ndim 3, nel 8, ndof 5
+will do a0 = a0*a1
+will do a0 = a0*a2
+will do a0 = a0*a3
+RAW ORDER: nopscount 2600
+will do a2 = a2*a3
+will do a1 = a1*a2
+will do a0 = a0*a1
+HEURISTIC ORDER: nopscount 1100, gain 57.69%
+prod j 0, do a2*a3
+prod j 1, do a1*a2
+prod j 2, do a0*a1
+OPTIMAL ORDER: nopscount 1100, gain 57.69%
+----------------------
+ndim 3, nel 8, ndof 10
+will do a0 = a0*a1
+will do a0 = a0*a2
+will do a0 = a0*a3
+RAW ORDER: nopscount 18400
+will do a2 = a2*a3
+will do a0 = a0*a1
+will do a0 = a0*a2
+HEURISTIC ORDER: nopscount 11400, gain 38.04%
+prod j 0, do a2*a3
+prod j 1, do a1*a2
+prod j 2, do a0*a1
+OPTIMAL ORDER: nopscount 6400, gain 65.22%
+----------------------
+
+%
+%--[2010-05-15.22:11:17.mstorti-v28-end-47-gdf352a6]-----
+El mismo ejemplo pero ahora multiplicando por el Residuo de las
+ecuaciones con lo cual da el termino de estabilizacion o sea
+%
+  res.prod(gN,A,tau,invC,R,-1,1,-1,2,-2,-2,-3,-3,-4,-4)
+%
+Termina con una matriz de nelxndof. El conteo es asi:
+%
+ndim 1, nel 2, ndof 1
+will do a0 = a0*a1
+will do a0 = a0*a2
+will do a0 = a0*a3
+will do a0 = a0*a4
+RAW ORDER: nopscount 8
+will do a1 = a1*a2
+will do a1 = a1*a3
+will do a1 = a1*a4
+will do a0 = a0*a1
+HEURISTIC ORDER: nopscount 5, gain 37.50%
+prod j 0, do a1*a2
+prod j 1, do a1*a2
+prod j 2, do a1*a2
+prod j 3, do a0*a1
+OPTIMAL ORDER: nopscount 5, gain 37.50%
+----------------------
+ndim 1, nel 2, ndof 5
+will do a0 = a0*a1
+will do a0 = a0*a2
+will do a0 = a0*a3
+will do a0 = a0*a4
+RAW ORDER: nopscount 600
+will do a0 = a0*a4
+will do a0 = a0*a3
+will do a0 = a0*a2
+will do a0 = a0*a1
+HEURISTIC ORDER: nopscount 160, gain 73.33%
+prod j 0, do a3*a4
+prod j 1, do a2*a3
+prod j 2, do a1*a2
+prod j 3, do a0*a1
+OPTIMAL ORDER: nopscount 85, gain 85.83%
+----------------------
+ndim 1, nel 2, ndof 10
+will do a0 = a0*a1
+will do a0 = a0*a2
+will do a0 = a0*a3
+will do a0 = a0*a4
+RAW ORDER: nopscount 4400
+will do a0 = a0*a4
+will do a0 = a0*a3
+will do a0 = a0*a2
+will do a0 = a0*a1
+HEURISTIC ORDER: nopscount 620, gain 85.91%
+prod j 0, do a3*a4
+prod j 1, do a2*a3
+prod j 2, do a1*a2
+prod j 3, do a0*a1
+OPTIMAL ORDER: nopscount 320, gain 92.73%
+----------------------
+ndim 2, nel 3, ndof 1
+will do a0 = a0*a1
+will do a0 = a0*a2
+will do a0 = a0*a3
+will do a0 = a0*a4
+RAW ORDER: nopscount 15
+will do a2 = a2*a3
+will do a2 = a2*a4
+will do a1 = a1*a2
+will do a0 = a0*a1
+HEURISTIC ORDER: nopscount 10, gain 33.33%
+prod j 0, do a2*a3
+prod j 1, do a2*a3
+prod j 2, do a1*a2
+prod j 3, do a0*a1
+OPTIMAL ORDER: nopscount 10, gain 33.33%
+----------------------
+ndim 2, nel 3, ndof 5
+will do a0 = a0*a1
+will do a0 = a0*a2
+will do a0 = a0*a3
+will do a0 = a0*a4
+RAW ORDER: nopscount 975
+will do a3 = a3*a4
+will do a2 = a2*a3
+will do a0 = a0*a2
+will do a0 = a0*a1
+HEURISTIC ORDER: nopscount 230, gain 76.41%
+prod j 0, do a3*a4
+prod j 1, do a2*a3
+prod j 2, do a1*a2
+prod j 3, do a0*a1
+OPTIMAL ORDER: nopscount 130, gain 86.67%
+----------------------
+ndim 2, nel 3, ndof 10
+will do a0 = a0*a1
+will do a0 = a0*a2
+will do a0 = a0*a3
+will do a0 = a0*a4
+RAW ORDER: nopscount 6900
+will do a0 = a0*a4
+will do a0 = a0*a3
+will do a0 = a0*a2
+will do a0 = a0*a1
+HEURISTIC ORDER: nopscount 1860, gain 73.04%
+prod j 0, do a3*a4
+prod j 1, do a2*a3
+prod j 2, do a1*a2
+prod j 3, do a0*a1
+OPTIMAL ORDER: nopscount 460, gain 93.33%
+----------------------
+ndim 2, nel 4, ndof 1
+will do a0 = a0*a1
+will do a0 = a0*a2
+will do a0 = a0*a3
+will do a0 = a0*a4
+RAW ORDER: nopscount 20
+will do a2 = a2*a3
+will do a2 = a2*a4
+will do a1 = a1*a2
+will do a0 = a0*a1
+HEURISTIC ORDER: nopscount 12, gain 40.00%
+prod j 0, do a2*a3
+prod j 1, do a2*a3
+prod j 2, do a1*a2
+prod j 3, do a0*a1
+OPTIMAL ORDER: nopscount 12, gain 40.00%
+----------------------
+ndim 2, nel 4, ndof 5
+will do a0 = a0*a1
+will do a0 = a0*a2
+will do a0 = a0*a3
+will do a0 = a0*a4
+RAW ORDER: nopscount 1300
+will do a3 = a3*a4
+will do a2 = a2*a3
+will do a0 = a0*a2
+will do a0 = a0*a1
+HEURISTIC ORDER: nopscount 290, gain 77.69%
+prod j 0, do a3*a4
+prod j 1, do a2*a3
+prod j 2, do a1*a2
+prod j 3, do a0*a1
+OPTIMAL ORDER: nopscount 140, gain 89.23%
+----------------------
+ndim 2, nel 4, ndof 10
+will do a0 = a0*a1
+will do a0 = a0*a2
+will do a0 = a0*a3
+will do a0 = a0*a4
+RAW ORDER: nopscount 9200
+will do a0 = a0*a4
+will do a0 = a0*a3
+will do a0 = a0*a2
+will do a0 = a0*a1
+HEURISTIC ORDER: nopscount 2480, gain 73.04%
+prod j 0, do a3*a4
+prod j 1, do a2*a3
+prod j 2, do a1*a2
+prod j 3, do a0*a1
+OPTIMAL ORDER: nopscount 480, gain 94.78%
+----------------------
+ndim 3, nel 4, ndof 1
+will do a0 = a0*a1
+will do a0 = a0*a2
+will do a0 = a0*a3
+will do a0 = a0*a4
+RAW ORDER: nopscount 24
+will do a2 = a2*a3
+will do a2 = a2*a4
+will do a1 = a1*a2
+will do a0 = a0*a1
+HEURISTIC ORDER: nopscount 17, gain 29.17%
+prod j 0, do a2*a3
+prod j 1, do a2*a3
+prod j 2, do a1*a2
+prod j 3, do a0*a1
+OPTIMAL ORDER: nopscount 17, gain 29.17%
+----------------------
+ndim 3, nel 4, ndof 5
+will do a0 = a0*a1
+will do a0 = a0*a2
+will do a0 = a0*a3
+will do a0 = a0*a4
+RAW ORDER: nopscount 1400
+will do a3 = a3*a4
+will do a2 = a2*a3
+will do a0 = a0*a2
+will do a0 = a0*a1
+HEURISTIC ORDER: nopscount 410, gain 70.71%
+prod j 0, do a3*a4
+prod j 1, do a2*a3
+prod j 2, do a1*a2
+prod j 3, do a0*a1
+OPTIMAL ORDER: nopscount 185, gain 86.79%
+----------------------
+ndim 3, nel 4, ndof 10
+will do a0 = a0*a1
+will do a0 = a0*a2
+will do a0 = a0*a3
+will do a0 = a0*a4
+RAW ORDER: nopscount 9600
+will do a3 = a3*a4
+will do a2 = a2*a3
+will do a0 = a0*a2
+will do a0 = a0*a1
+HEURISTIC ORDER: nopscount 1520, gain 84.17%
+prod j 0, do a3*a4
+prod j 1, do a2*a3
+prod j 2, do a1*a2
+prod j 3, do a0*a1
+OPTIMAL ORDER: nopscount 620, gain 93.54%
+----------------------
+ndim 3, nel 8, ndof 1
+will do a0 = a0*a1
+will do a0 = a0*a2
+will do a0 = a0*a3
+will do a0 = a0*a4
+RAW ORDER: nopscount 48
+will do a2 = a2*a3
+will do a2 = a2*a4
+will do a1 = a1*a2
+will do a0 = a0*a1
+HEURISTIC ORDER: nopscount 29, gain 39.58%
+prod j 0, do a2*a3
+prod j 1, do a2*a3
+prod j 2, do a1*a2
+prod j 3, do a0*a1
+OPTIMAL ORDER: nopscount 29, gain 39.58%
+----------------------
+ndim 3, nel 8, ndof 5
+will do a0 = a0*a1
+will do a0 = a0*a2
+will do a0 = a0*a3
+will do a0 = a0*a4
+RAW ORDER: nopscount 2800
+will do a3 = a3*a4
+will do a2 = a2*a3
+will do a1 = a1*a2
+will do a0 = a0*a1
+HEURISTIC ORDER: nopscount 245, gain 91.25%
+prod j 0, do a3*a4
+prod j 1, do a2*a3
+prod j 2, do a1*a2
+prod j 3, do a0*a1
+OPTIMAL ORDER: nopscount 245, gain 91.25%
+----------------------
+ndim 3, nel 8, ndof 10
+will do a0 = a0*a1
+will do a0 = a0*a2
+will do a0 = a0*a3
+will do a0 = a0*a4
+RAW ORDER: nopscount 19200
+will do a3 = a3*a4
+will do a2 = a2*a3
+will do a0 = a0*a2
+will do a0 = a0*a1
+HEURISTIC ORDER: nopscount 2840, gain 85.21%
+prod j 0, do a3*a4
+prod j 1, do a2*a3
+prod j 2, do a1*a2
+prod j 3, do a0*a1
+OPTIMAL ORDER: nopscount 740, gain 96.15%
+----------------------
+%
+%--[2010-05-15.22:15:25.mstorti-v28-end-47-gdf352a6]-----
+Si hago el calculo del jacobiano 
+%
+  res.prod(gN,A,tau,invC,JR,-1,1,-1,2,-2,-2,-3,-3,-4,-4,3,4)
+%
+donde JR(ndof,nel,ndof) seria basicamente A(ndim,ndof,ndof)*gN(ndim,nel)
+%
+ndim 1, nel 2, ndof 1
+will do a0 = a0*a1
+will do a0 = a0*a2
+will do a0 = a0*a3
+will do a0 = a0*a4
+RAW ORDER: nopscount 10
+will do a1 = a1*a2
+will do a1 = a1*a3
+will do a0 = a0*a1
+will do a0 = a0*a4
+HEURISTIC ORDER: nopscount 8, gain 20.00%
+prod j 0, do a1*a2
+prod j 1, do a1*a2
+prod j 2, do a0*a1
+prod j 3, do a0*a1
+OPTIMAL ORDER: nopscount 8, gain 20.00%
+----------------------
+ndim 1, nel 2, ndof 5
+will do a0 = a0*a1
+will do a0 = a0*a2
+will do a0 = a0*a3
+will do a0 = a0*a4
+RAW ORDER: nopscount 1050
+will do a0 = a0*a1
+will do a2 = a2*a3
+will do a0 = a0*a2
+will do a0 = a0*a4
+HEURISTIC ORDER: nopscount 925, gain 11.90%
+prod j 0, do a1*a2
+prod j 1, do a1*a2
+prod j 2, do a1*a2
+prod j 3, do a0*a1
+OPTIMAL ORDER: nopscount 600, gain 42.86%
+----------------------
+ndim 1, nel 2, ndof 10
+will do a0 = a0*a1
+will do a0 = a0*a2
+will do a0 = a0*a3
+will do a0 = a0*a4
+RAW ORDER: nopscount 8200
+will do a0 = a0*a1
+will do a2 = a2*a3
+will do a0 = a0*a2
+will do a0 = a0*a4
+HEURISTIC ORDER: nopscount 7200, gain 12.20%
+prod j 0, do a1*a2
+prod j 1, do a1*a2
+prod j 2, do a1*a2
+prod j 3, do a0*a1
+OPTIMAL ORDER: nopscount 4400, gain 46.34%
+----------------------
+ndim 2, nel 3, ndof 1
+will do a0 = a0*a1
+will do a0 = a0*a2
+will do a0 = a0*a3
+will do a0 = a0*a4
+RAW ORDER: nopscount 21
+will do a2 = a2*a3
+will do a1 = a1*a2
+will do a0 = a0*a1
+will do a0 = a0*a4
+HEURISTIC ORDER: nopscount 18, gain 14.29%
+prod j 0, do a2*a3
+prod j 1, do a1*a2
+prod j 2, do a0*a1
+prod j 3, do a0*a1
+OPTIMAL ORDER: nopscount 18, gain 14.29%
+----------------------
+ndim 2, nel 3, ndof 5
+will do a0 = a0*a1
+will do a0 = a0*a2
+will do a0 = a0*a3
+will do a0 = a0*a4
+RAW ORDER: nopscount 2025
+will do a2 = a2*a3
+will do a0 = a0*a1
+will do a0 = a0*a2
+will do a0 = a0*a4
+HEURISTIC ORDER: nopscount 1775, gain 12.35%
+prod j 0, do a2*a3
+prod j 1, do a1*a2
+prod j 2, do a1*a2
+prod j 3, do a0*a1
+OPTIMAL ORDER: nopscount 1575, gain 22.22%
+----------------------
+ndim 2, nel 3, ndof 10
+will do a0 = a0*a1
+will do a0 = a0*a2
+will do a0 = a0*a3
+will do a0 = a0*a4
+RAW ORDER: nopscount 15600
+will do a0 = a0*a1
+will do a2 = a2*a3
+will do a0 = a0*a2
+will do a0 = a0*a4
+HEURISTIC ORDER: nopscount 13600, gain 12.82%
+prod j 0, do a2*a3
+prod j 1, do a1*a2
+prod j 2, do a1*a2
+prod j 3, do a0*a1
+OPTIMAL ORDER: nopscount 10800, gain 30.77%
+----------------------
+ndim 2, nel 4, ndof 1
+will do a0 = a0*a1
+will do a0 = a0*a2
+will do a0 = a0*a3
+will do a0 = a0*a4
+RAW ORDER: nopscount 32
+will do a2 = a2*a3
+will do a1 = a1*a2
+will do a0 = a0*a1
+will do a0 = a0*a4
+HEURISTIC ORDER: nopscount 27, gain 15.62%
+prod j 0, do a2*a3
+prod j 1, do a1*a2
+prod j 2, do a0*a1
+prod j 3, do a0*a1
+OPTIMAL ORDER: nopscount 27, gain 15.62%
+----------------------
+ndim 2, nel 4, ndof 5
+will do a0 = a0*a1
+will do a0 = a0*a2
+will do a0 = a0*a3
+will do a0 = a0*a4
+RAW ORDER: nopscount 3200
+will do a2 = a2*a3
+will do a0 = a0*a1
+will do a0 = a0*a2
+will do a0 = a0*a4
+HEURISTIC ORDER: nopscount 2825, gain 11.72%
+prod j 0, do a2*a3
+prod j 1, do a1*a2
+prod j 2, do a1*a2
+prod j 3, do a0*a1
+OPTIMAL ORDER: nopscount 2175, gain 32.03%
+----------------------
+ndim 2, nel 4, ndof 10
+will do a0 = a0*a1
+will do a0 = a0*a2
+will do a0 = a0*a3
+will do a0 = a0*a4
+RAW ORDER: nopscount 24800
+will do a0 = a0*a1
+will do a2 = a2*a3
+will do a0 = a0*a2
+will do a0 = a0*a4
+HEURISTIC ORDER: nopscount 21800, gain 12.10%
+prod j 0, do a2*a3
+prod j 1, do a1*a2
+prod j 2, do a1*a2
+prod j 3, do a0*a1
+OPTIMAL ORDER: nopscount 14200, gain 42.74%
+----------------------
+ndim 3, nel 4, ndof 1
+will do a0 = a0*a1
+will do a0 = a0*a2
+will do a0 = a0*a3
+will do a0 = a0*a4
+RAW ORDER: nopscount 36
+will do a2 = a2*a3
+will do a1 = a1*a2
+will do a0 = a0*a1
+will do a0 = a0*a4
+HEURISTIC ORDER: nopscount 32, gain 11.11%
+prod j 0, do a2*a3
+prod j 1, do a1*a2
+prod j 2, do a0*a1
+prod j 3, do a0*a1
+OPTIMAL ORDER: nopscount 32, gain 11.11%
+----------------------
+ndim 3, nel 4, ndof 5
+will do a0 = a0*a1
+will do a0 = a0*a2
+will do a0 = a0*a3
+will do a0 = a0*a4
+RAW ORDER: nopscount 3300
+will do a2 = a2*a3
+will do a0 = a0*a1
+will do a0 = a0*a2
+will do a0 = a0*a4
+HEURISTIC ORDER: nopscount 2925, gain 11.36%
+prod j 0, do a2*a3
+prod j 1, do a1*a2
+prod j 2, do a0*a1
+prod j 3, do a0*a1
+OPTIMAL ORDER: nopscount 2800, gain 15.15%
+----------------------
+ndim 3, nel 4, ndof 10
+will do a0 = a0*a1
+will do a0 = a0*a2
+will do a0 = a0*a3
+will do a0 = a0*a4
+RAW ORDER: nopscount 25200
+will do a2 = a2*a3
+will do a0 = a0*a1
+will do a0 = a0*a2
+will do a0 = a0*a4
+HEURISTIC ORDER: nopscount 22200, gain 11.90%
+prod j 0, do a2*a3
+prod j 1, do a1*a2
+prod j 2, do a1*a2
+prod j 3, do a0*a1
+OPTIMAL ORDER: nopscount 20800, gain 17.46%
+----------------------
+ndim 3, nel 8, ndof 1
+will do a0 = a0*a1
+will do a0 = a0*a2
+will do a0 = a0*a3
+will do a0 = a0*a4
+RAW ORDER: nopscount 104
+will do a2 = a2*a3
+will do a1 = a1*a2
+will do a0 = a0*a1
+will do a0 = a0*a4
+HEURISTIC ORDER: nopscount 92, gain 11.54%
+prod j 0, do a2*a3
+prod j 1, do a1*a2
+prod j 2, do a0*a1
+prod j 3, do a0*a1
+OPTIMAL ORDER: nopscount 92, gain 11.54%
+----------------------
+ndim 3, nel 8, ndof 5
+will do a0 = a0*a1
+will do a0 = a0*a2
+will do a0 = a0*a3
+will do a0 = a0*a4
+RAW ORDER: nopscount 10600
+will do a2 = a2*a3
+will do a1 = a1*a2
+will do a0 = a0*a1
+will do a0 = a0*a4
+HEURISTIC ORDER: nopscount 9100, gain 14.15%
+prod j 0, do a2*a3
+prod j 1, do a1*a2
+prod j 2, do a1*a2
+prod j 3, do a0*a1
+OPTIMAL ORDER: nopscount 8300, gain 21.70%
+----------------------
+ndim 3, nel 8, ndof 10
+will do a0 = a0*a1
+will do a0 = a0*a2
+will do a0 = a0*a3
+will do a0 = a0*a4
+RAW ORDER: nopscount 82400
+will do a2 = a2*a3
+will do a0 = a0*a1
+will do a0 = a0*a2
+will do a0 = a0*a4
+HEURISTIC ORDER: nopscount 75400, gain 8.50%
+prod j 0, do a2*a3
+prod j 1, do a1*a2
+prod j 2, do a1*a2
+prod j 3, do a0*a1
+OPTIMAL ORDER: nopscount 47200, gain 42.72%
+----------------------
+%
+%--[2010-05-16.13:46:51.mstorti-v28-end-47-gdf352a6]-----
+Con 
+  res.prod(gN,A,tau,invC,R, -1,1,-1,2,-2,-2,-3,-3,-4,-4)
+% 
+da estas ganancias
+%
+OPTIMAL ORDER: nopscount 5, gain 37.50%
+OPTIMAL ORDER: nopscount 85, gain 85.83%
+OPTIMAL ORDER: nopscount 320, gain 92.73%
+OPTIMAL ORDER: nopscount 10, gain 33.33%
+OPTIMAL ORDER: nopscount 130, gain 86.67%
+OPTIMAL ORDER: nopscount 460, gain 93.33%
+OPTIMAL ORDER: nopscount 12, gain 40.00%
+OPTIMAL ORDER: nopscount 140, gain 89.23%
+OPTIMAL ORDER: nopscount 480, gain 94.78%
+OPTIMAL ORDER: nopscount 17, gain 29.17%
+OPTIMAL ORDER: nopscount 185, gain 86.79%
+OPTIMAL ORDER: nopscount 620, gain 93.54%
+OPTIMAL ORDER: nopscount 29, gain 39.58%
+OPTIMAL ORDER: nopscount 245, gain 91.25%
+OPTIMAL ORDER: nopscount 740, gain 96.15%
+%
+mientras que con
+%
+  res.prod(gN,A,tau,JR,-1,1,-1,2,-2,-2,-3,-3,3,4)
+%
+da
+%
+OPTIMAL ORDER: nopscount 7, gain 12.50%
+OPTIMAL ORDER: nopscount 475, gain 40.62%
+OPTIMAL ORDER: nopscount 3400, gain 45.16%
+OPTIMAL ORDER: nopscount 17, gain 5.56%
+OPTIMAL ORDER: nopscount 1450, gain 12.12%
+OPTIMAL ORDER: nopscount 9800, gain 22.22%
+OPTIMAL ORDER: nopscount 26, gain 7.14%
+OPTIMAL ORDER: nopscount 2050, gain 24.07%
+OPTIMAL ORDER: nopscount 13200, gain 36.54%
+OPTIMAL ORDER: nopscount 31, gain 3.12%
+OPTIMAL ORDER: nopscount 2675, gain 4.46%
+OPTIMAL ORDER: nopscount 19800, gain 6.60%
+OPTIMAL ORDER: nopscount 91, gain 5.21%
+OPTIMAL ORDER: nopscount 8175, gain 14.84%
+OPTIMAL ORDER: nopscount 46200, gain 37.90%

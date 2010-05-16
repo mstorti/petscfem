@@ -299,13 +299,35 @@ FastMat2::prod(vector<const FastMat2 *> &mat_list,
     if (fastmat_stats.use_optimal_order) {
       mat_info_cont_t 
         mat_info_cont_cpy = mat_info_cont;
+      vector<string> labels(nmat);
+      if (fastmat_stats.labels) {
+        for (int j=0; j<nmat; j++) {
+          assert(fastmat_stats.labels[j]);
+          labels[j] = fastmat_stats.labels[j];
+        }
+        fastmat_stats.nmat = nmat;
+        assert(!fastmat_stats.labels[nmat]);
+      }
       vector<int> opt_order;
-      intmax_t nopso = compute_optimal_order(mat_info_cont_cpy,opt_order);
+      intmax_t nopso 
+        = compute_optimal_order(mat_info_cont_cpy,opt_order);
       assert(int(opt_order.size())==2*(nmat-1));
+
+      for (int j=0; j<nmat-1; j++) {
+        char label[1000];
+        int q=opt_order[2*j], r=opt_order[2*j+1];
+        sprintf(label,"(%s*%s)",labels[q].c_str(),labels[r].c_str());
+        labels[q] = label;
+        labels.erase(labels.begin()+r);
+      }
+      printf("OPTIMAL product order: %s\n",labels[0].c_str());
+      
+#if 0
       for (int j=0; j<nmat-1; j++) 
-        printf("j %d, q %d, r %d\n",j,opt_order[2*j],opt_order[2*j]+1);
+        printf("prod j %d, do a%d*a%d\n",j,opt_order[2*j],opt_order[2*j]+1);
+#endif
+
       fastmat_nopscount = nopso;
-      exit(0);
       return *this;
     }
     
@@ -483,11 +505,13 @@ FastMat2::prod(vector<const FastMat2 *> &mat_list,
       smi.position = qmi.position;
       order.push_back(qmin->key);
       order.push_back(rmin->key);
-      
+
+#if 0      
       if (fastmat_stats.print_prod_order) 
         printf("will do a%d = a%d*a%d\n",
                smi.position,
                qmi.position,rmi.position);
+#endif
 
       // Mark the Q and R matrices as inactive,
       // and the result S as active
@@ -502,6 +526,27 @@ FastMat2::prod(vector<const FastMat2 *> &mat_list,
       printf("contracts a%d,a%d\n",qmin->key,rmin->key);
 #endif
     }
+
+#if 1
+    if (!fastmat_multiprod_use_first 
+        &&fastmat_stats.labels 
+        &&fastmat_stats.print_prod_order) {
+      int sindx = nmat;
+      vector<string> labels(nmat);
+      for (int j=0; j<nmat; j++) {
+        assert(fastmat_stats.labels[j]);
+        labels[j] = fastmat_stats.labels[j];
+      }
+      for (int j=0; j<nmat-1; j++) {
+        char label[1000];
+        int q=order[3*j+1], r=order[3*j+2];
+        sprintf(label,"(%s*%s)",labels[q].c_str(),labels[r].c_str());
+        labels.push_back(label);
+      }
+      assert(int(labels.size())==2*nmat-1);
+      printf("HEURISTIC product order: %s\n",labels[2*nmat-2].c_str());
+    }
+#endif
 
     // #ifdef VERBOSE
     fastmat_nopscount = nopscount;

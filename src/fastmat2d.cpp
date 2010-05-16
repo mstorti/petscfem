@@ -17,14 +17,15 @@
 #include <src/fm2prod.h>
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>
-intmax_t compute_optimal_order(const mat_info_cont_t &mat_info_cont,
-                               vector<int> &order) {
+intmax_t 
+compute_optimal_order(const mat_info_cont_t &mat_info_cont,
+                      vector<int> &order) {
+  
 
   int qmin,rmin,qfree,rfree,qr1;
   vector<int> ordermin;
   int nmat = mat_info_cont.size();
   intmax_t nopsmin = -1;
-  
 
   for (int q=0; q<nmat-1; q++) {
     const mat_info &qmi = mat_info_cont[q];
@@ -64,7 +65,6 @@ intmax_t compute_optimal_order(const mat_info_cont_t &mat_info_cont,
 #ifdef VERBOSE
   printf("---------------\n");
   printf("nmat %d, nops %jd\n",nmat,nopsmin);
-  printf("qmin %d, rmin %d\n",qmin,rmin);
   for (int j=0; j<nmat; j++) {
     const mat_info &mi = mat_info_cont[j];
     printf("a%d: (ctr ",j);
@@ -78,8 +78,10 @@ intmax_t compute_optimal_order(const mat_info_cont_t &mat_info_cont,
   }
 
   assert(int(order.size())==2*(nmat-1));
+#if 0
   for (int j=0; j<nmat-1; j++) 
     printf("prod %d a%d*a%d\n",j,order[2*j],order[2*j+1]);
+#endif
 #endif
 
   return nopsmin;

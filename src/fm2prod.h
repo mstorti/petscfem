@@ -92,6 +92,8 @@ struct fastmat_stats_t {
   int ncall, ncall_not_cached;
   double tcall, tcall_not_cached;
   double tpart;
+  const char **labels;
+  int nmat;
   void reset() {
     ncall=0;
     ncall_not_cached=0;
@@ -101,7 +103,11 @@ struct fastmat_stats_t {
     use_optimal_order=0;
   }
   void print();
-  fastmat_stats_t() : print_prod_order(0) { reset(); }
+  fastmat_stats_t() 
+  : print_prod_order(0), 
+    labels(NULL),
+    nmat(-1)
+  { reset(); }
 };
 
 extern fastmat_stats_t fastmat_stats;
