@@ -61,6 +61,13 @@ print_mat_info(mat_info_cont_t::iterator q,
 #endif
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>
+static string print_label(label) {
+  int n= label.size();
+  assert(n>=2);
+  return label.substr(1,n-2);
+}
+
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>
 // Computes and returns the operation count for a
 // possible product. Also returns the product of the free
 // indices in q and r, and of the contracted indices.
@@ -320,7 +327,7 @@ FastMat2::prod(vector<const FastMat2 *> &mat_list,
         labels[q] = label;
         labels.erase(labels.begin()+r);
       }
-      printf("OPTIMAL product order: %s\n",labels[0].c_str());
+      printf("OPTIMAL product order: %s\n",print_label(labels[0].c_str()));
       
 #if 0
       for (int j=0; j<nmat-1; j++) 
@@ -544,7 +551,8 @@ FastMat2::prod(vector<const FastMat2 *> &mat_list,
         labels.push_back(label);
       }
       assert(int(labels.size())==2*nmat-1);
-      printf("HEURISTIC product order: %s\n",labels[2*nmat-2].c_str());
+      printf("HEURISTIC product order: %s\n",
+             print_label(labels[2*nmat-2].c_str()));
     }
 #endif
 
