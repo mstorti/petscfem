@@ -2,7 +2,6 @@
 #include <cmath>
 #include <ctime>
 #include <cstdio>
-#include <stdint.h>
 #include <unistd.h>
 
 #include <algorithm>
@@ -61,7 +60,7 @@ print_mat_info(mat_info_cont_t::iterator q,
 #endif
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>
-static string print_label(label) {
+static string print_label(const string &label) {
   int n= label.size();
   assert(n>=2);
   return label.substr(1,n-2);
@@ -121,10 +120,6 @@ int compute_opcount(const mat_info &qmi,
   return qfree*rfree*qctr;
 }
 
-// Just for debugging makes the first
-// contraction that does a nontrivial work
-int fastmat_multiprod_use_first=0;
-
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>
 // This is the cache for the product operation
 class multiprod_subcache_t : public FastMatSubCache {
@@ -161,7 +156,10 @@ void multiprod_subcache_t::make_prod() {
   // input matrix
   int nprod = nmat-1,
     qkey, rkey, skey;
+    //#define VERBOSE
+#ifdef VERBOSE
   char line[100];
+#endif
   for (int j=0; j<nprod; j++) {
     mat_info 
       // Destination matrices
@@ -173,7 +171,6 @@ void multiprod_subcache_t::make_prod() {
     // Makes the product, calling prod(a,b,indxa,indxb)
     smi.Ap->prod(*qmi.Ap,*rmi.Ap,qmi.contract,rmi.contract);
 
-    //#define VERBOSE
 #ifdef VERBOSE
     sprintf(line,"q[%d]: ",order[3*j+1]);
     qmi.Ap->print(line);
@@ -186,8 +183,6 @@ void multiprod_subcache_t::make_prod() {
 #endif
   }
 }
-
-intmax_t fastmat_nopscount;
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>
 // General case. Receives a list of pointers to matrices
@@ -303,135 +298,72 @@ FastMat2::prod(vector<const FastMat2 *> &mat_list,
       }
     }
 
-    if (fastmat_stats.use_optimal_order) {
-      mat_info_cont_t 
-        mat_info_cont_cpy = mat_info_cont;
-      vector<string> labels(nmat);
-      if (fastmat_stats.labels) {
-        for (int j=0; j<nmat; j++) {
-          assert(fastmat_stats.labels[j]);
-          labels[j] = fastmat_stats.labels[j];
-        }
-        fastmat_stats.nmat = nmat;
-        assert(!fastmat_stats.labels[nmat]);
+    // In `mat_info_cont_plain' the mat_infos are stored
+    // in compact form, i.e. when matrix in positions `q'
+    // and `r' are contracted `q' is replaced with the product
+    // and `r' is removed
+    mat_info_cont_t 
+      mat_info_cont_plain = mat_info_cont;
+    vector<string> labels(nmat);
+    if (fastmat_stats.labels) {
+      for (int j=0; j<nmat; j++) {
+        assert(fastmat_stats.labels[j]);
+        labels[j] = fastmat_stats.labels[j];
       }
-      vector<int> opt_order;
-      intmax_t nopso 
-        = compute_optimal_order(mat_info_cont_cpy,opt_order);
-      assert(int(opt_order.size())==2*(nmat-1));
+      fastmat_stats.nmat = nmat;
+      assert(!fastmat_stats.labels[nmat]);
+    }
+    vector<int> opt_order;
+    intmax_t nopso;
+    if (ctx->mprod_order==FastMat2::CacheCtx::optimal
+        || (ctx->mprod_order==FastMat2::CacheCtx::mixed 
+            && nmat <= ctx->optimal_mprod_order_max)) {
+      nopso = compute_optimal_order(mat_info_cont_plain,opt_order);
+    } else if (ctx->mprod_order==FastMat2::CacheCtx::heuristic
+               || (ctx->mprod_order==FastMat2::CacheCtx::mixed 
+                   && nmat > ctx->optimal_mprod_order_max)) {
+      nopso = compute_heuristic_order(mat_info_cont_plain,opt_order);
+    } else if (ctx->mprod_order==FastMat2::CacheCtx::natural) {
+      nopso = compute_natural_order(mat_info_cont_plain,opt_order);
+    } else {
+      PETSCFEM_ERROR("unknown mprod_order %d",ctx->mprod_order);  
+    }
+    assert(int(opt_order.size())==2*(nmat-1));
+    ctx->mprod_nopscount = nopso;
 
-      for (int j=0; j<nmat-1; j++) {
-        char label[1000];
-        int q=opt_order[2*j], r=opt_order[2*j+1];
-        sprintf(label,"(%s*%s)",labels[q].c_str(),labels[r].c_str());
-        labels[q] = label;
-        labels.erase(labels.begin()+r);
-      }
-      printf("OPTIMAL product order: %s\n",print_label(labels[0].c_str()));
-      
 #if 0
-      for (int j=0; j<nmat-1; j++) 
-        printf("prod j %d, do a%d*a%d\n",j,opt_order[2*j],opt_order[2*j]+1);
+    for (int j=0; j<nmat-1; j++) {
+      char label[1000];
+      int q=opt_order[2*j], r=opt_order[2*j+1];
+      sprintf(label,"(%s*%s)",labels[q].c_str(),labels[r].c_str());
+      labels[q] = label;
+      labels.erase(labels.begin()+r);
+    }
+    printf("OPTIMAL product order: %s\n",print_label(labels[0].c_str()));
 #endif
 
-      fastmat_nopscount = nopso;
-      return *this;
+#if 0
+    for (int j=0; j<nmat-1; j++) {
+      printf("prod %d: a%d = a%d * a%d\n",
+             j,opt_order[2*j],opt_order[2*j],opt_order[2*j+1]);
     }
-    
+    exit(0);
+#endif
+
     // The created temporaries are assigned
     // this key (position in `mat_info_cont')
     int new_mat_indx = nmat;
-    // Each time we run over all pairs of active matrices
-    // and find which one has the lower op. count.
-    // q,r, iterate and qmin,rmin store the lowest combination
-    active_mat_info_cont_t
-      ::iterator q,r,qmin,rmin;
-    // nbr of active matrices
-    int nact;
-    int qfree,rfree,qr1,qr2,nopsmin,nops,
-      qrank,rrank,k,dim,qkey,rkey,nopscount=0;
-#ifdef VERBOSE
-    printf("fastmat_multiprod_use_first %d\n",
-           fastmat_multiprod_use_first);
-#endif
-    while (1) {
-      // For each execution of this loop we
-      // look for the lowest opcount. Then the
-      // two corresponding matrices become inactive
-      // and the new temporary is created. 
+    // These are the keys stored in the compact version
+    vector<int> keys(nmat);
+    for (int j=0; j<nmat; j++) keys[j] = j;
 
-      // Nbr of current active matrices
-      nact = active_mat_info_cont.size();
-
-#ifdef VERBOSE
-      // Print current matrices 
-      q = active_mat_info_cont.begin();
-      while (q!=active_mat_info_cont.end()) {
-        int j = q->key;
-        printf("[a%d:",j);
-        mat_info &qmi = mat_info_cont[j];
-        qmi.is_active = ACTIVE;
-        vector<int> &qc = qmi.contract;
-        int n=qc.size();
-        for (int l=0; l<n-1; l++) printf("%d,",qc[l]);
-        if (n>0) printf("%d",qc[n-1]);
-        printf("]");
-        q++;
-      }
-      printf("\n");
-#endif
-      if (active_mat_info_cont.size()<2) break;
-
-      // printf("nbr of matrices %zu\n",active_mat_info_cont.size());
-
-      // search for the product with lowest number
-      // of operations
-      // q,r, iterate, qmin,rmin keep the lowest combination
-      q = active_mat_info_cont.begin();
-      nopsmin=-1;
-      while (q != active_mat_info_cont.end()) {
-        // we identify the matrix by his position
-        // in `mat_info_cont' (the `key')
-        qkey = q->key;
-        mat_info &qmi = mat_info_cont[qkey];
-        r = q; r++;
-        while (r != active_mat_info_cont.end()) {
-          // Same for `r'
-          rkey = r->key;
-          mat_info &rmi = mat_info_cont[rkey];
-#ifdef VERBOSE 
-          print_mat_info(q,"q: ");
-          print_mat_info(r,"r: ");
-
-          printf("qfree %d, rfree %d, qr1 %d, qr2 %d \n",
-                 qfree,rfree,qr1,qr2);
-#endif        
-          // Computes the number of operations
-          mat_info s;
-          nops = compute_opcount(qmi,rmi,s,qfree,rfree,qr1);
-          // `fastmat_multiprod_use_first' is just for debugging.
-          // If activated it corresponds to do the first product
-          // that does a contraction. For instance in a series
-          // of products of 2-rank matrices a=b*c*d*e*...
-          // it corresponds to do a=(((b*c)*d)*e)*...
-          // Beware it may fail. in case there is no contraction!!
-          // For instance a.prod(b,c,1,2);
-          if (fastmat_multiprod_use_first?
-              (nops>0 || qr1>1)
-              : (nopsmin<0 || nops<nopsmin)) {
-            nopsmin = nops;
-            qmin = q;
-            rmin = r;
-            if (fastmat_multiprod_use_first) break;
-          }
-          r++;
-        }
-        q++;
-        if (fastmat_multiprod_use_first && nopsmin>0) break;
-      }
-      assert(nopsmin>0);
-      // Keeps the total number of operations performed
-      nopscount += nopsmin;
+    active_mat_info_cont_t::iterator q,r;
+    int qrank, rrank, k, dim;
+    // Start simulating the products and storing
+    // the info in `order'
+    for (int j=0; j<nmat-1; j++) {
+      int nact = active_mat_info_cont.size();
+      assert(nact==nmat-j);
 
       // Insert a new `mat_info' corresponding to
       // the temporary to be created
@@ -467,18 +399,18 @@ FastMat2::prod(vector<const FastMat2 *> &mat_list,
 
       // Check that the active matrices are ordered FIRST
       // by position 
-      assert(qmin->position<=rmin->position);
+      assert(q->position<=r->position);
 
       // Product to be done is S = Q * R
       // get info for Q matrix
-      mat_info &qmi = mat_info_cont[qmin->key];
+      mat_info &qmi = mat_info_cont[q->key];
       qmi.is_active = INACTIVE;
       vector<int> 
         &qc = qmi.contract,
         &qd = qmi.dims;
 
       // get info for R matrix
-      mat_info &rmi = mat_info_cont[rmin->key];
+      mat_info &rmi = mat_info_cont[r->key];
       rmi.is_active = INACTIVE;
       vector<int> 
         &rc = rmi.contract,
@@ -510,8 +442,8 @@ FastMat2::prod(vector<const FastMat2 *> &mat_list,
       // Insert the `keys' for this product in `order'
       order.push_back(skey);
       smi.position = qmi.position;
-      order.push_back(qmin->key);
-      order.push_back(rmin->key);
+      order.push_back(q->key);
+      order.push_back(r->key);
 
 #if 0      
       if (fastmat_stats.print_prod_order) 
@@ -522,21 +454,20 @@ FastMat2::prod(vector<const FastMat2 *> &mat_list,
 
       // Mark the Q and R matrices as inactive,
       // and the result S as active
-      active_mat_info_cont.erase(qmin);
-      active_mat_info_cont.erase(rmin);
+      active_mat_info_cont.erase(q);
+      active_mat_info_cont.erase(r);
       active_mat_info_cont
         .insert(active_mat_info_t(skey,smi.position));
 
 #if 0
       //#ifdef VERBOSE
       int n=order.size();
-      printf("contracts a%d,a%d\n",qmin->key,rmin->key);
+      printf("contracts a%d,a%d\n",q->key,r->key);
 #endif
     }
 
 #if 1
-    if (!fastmat_multiprod_use_first 
-        &&fastmat_stats.labels 
+    if (fastmat_stats.labels 
         &&fastmat_stats.print_prod_order) {
       int sindx = nmat;
       vector<string> labels(nmat);
@@ -552,13 +483,9 @@ FastMat2::prod(vector<const FastMat2 *> &mat_list,
       }
       assert(int(labels.size())==2*nmat-1);
       printf("HEURISTIC product order: %s\n",
-             print_label(labels[2*nmat-2].c_str()));
+             print_label(labels[2*nmat-2]).c_str());
     }
 #endif
-
-    // #ifdef VERBOSE
-    fastmat_nopscount = nopscount;
-    return *this;
 
     assert(order.size() == (unsigned int)(3*(nmat-1)));
 
@@ -964,4 +891,20 @@ void fastmat_stats_t::print() {
          tpart,tpart/tcall_not_cached*100.0,
          ncall,tcall_cached,tcall_cached/ncall,
          nhalf);
+}
+
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>
+intmax_t 
+compute_heuristic_order(const mat_info_cont_t &mat_info_cont,
+                        vector<int> &order) { 
+  PETSCFEM_ERROR0("nod implemented yet");  
+  return -1;
+}
+
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>
+intmax_t 
+compute_natural_order(const mat_info_cont_t &mat_info_cont,
+                        vector<int> &order) { 
+  PETSCFEM_ERROR0("nod implemented yet");  
+  return -1;
 }

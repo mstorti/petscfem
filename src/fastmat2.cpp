@@ -19,7 +19,8 @@ FastMat2::CacheCtx::~CacheCtx() { }
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>
 FastMat2::CacheCtx::CacheCtx() 
   : use_cache(0), was_cached(0),
-  do_check_labels(0) { }
+    do_check_labels(0), mprod_order(mixed), 
+    optimal_mprod_order_max(6) { }
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>
 void FastMat2::CacheCtx::check_clear() { }

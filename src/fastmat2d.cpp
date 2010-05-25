@@ -2,7 +2,6 @@
 #include <cmath>
 #include <ctime>
 #include <cstdio>
-#include <stdint.h>
 #include <unistd.h>
 
 #include <algorithm>

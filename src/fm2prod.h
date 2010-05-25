@@ -88,7 +88,6 @@ typedef vector<mat_info> mat_info_cont_t;
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>
 struct fastmat_stats_t {
   int print_prod_order;
-  int use_optimal_order;
   int ncall, ncall_not_cached;
   double tcall, tcall_not_cached;
   double tpart;
@@ -100,7 +99,6 @@ struct fastmat_stats_t {
     tcall=0.0;
     tcall_not_cached=0.0;
     tpart=0.0;
-    use_optimal_order=0;
   }
   void print();
   fastmat_stats_t() 
@@ -148,6 +146,14 @@ intmax_t
 compute_optimal_order(const mat_info_cont_t &mat_info_cont,
                       vector<int> &order);
 
-extern intmax_t fastmat_nopscount;
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>
+intmax_t 
+compute_heuristic_order(const mat_info_cont_t &mat_info_cont,
+                        vector<int> &order);
+
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>
+intmax_t 
+compute_natural_order(const mat_info_cont_t &mat_info_cont,
+                      vector<int> &order);
 
 #endif

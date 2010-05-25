@@ -10,6 +10,7 @@
 //#include <deque>
 #include <cassert>
 #include <cstdarg>
+#include <stdint.h>
 
 #include <list>
 #include <vector>
@@ -297,6 +298,10 @@ public:
     /// Operation count
     // This flags whether we perform a check on the labels. 
     int do_check_labels;
+    /// Type of algorithm to make the multiproducts
+    enum mprod_order_t {natural, heuristic, optimal, mixed} mprod_order; 
+    int optimal_mprod_order_max;
+    intmax_t mprod_nopscount;
     OperationCount op_count;
     virtual ~CacheCtx()=0;
   };
