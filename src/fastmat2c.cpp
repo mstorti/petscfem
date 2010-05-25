@@ -271,15 +271,9 @@ FastMat2::prod(vector<const FastMat2 *> &mat_list,
     vector<int> &order = mpsc->order;
     assert(order.empty());
      
-    // This stores the information for the active matrices
-    active_mat_info_cont_t active_mat_info_cont;
-
     // Load the input matrices in the container
     int j=0;
     for (int k=0; k<nmat; k++) {
-      // Insert in the active list
-      active_mat_info_cont
-        .insert(active_mat_info_t(k,k));
 
       // Pointer to the matrix
       FastMat2 &A = *(FastMat2 *)mat_list[k];
@@ -357,13 +351,11 @@ FastMat2::prod(vector<const FastMat2 *> &mat_list,
     vector<int> keys(nmat);
     for (int j=0; j<nmat; j++) keys[j] = j;
 
-    active_mat_info_cont_t::iterator q,r;
-    int qrank, rrank, k, dim;
+    int q,r,qkey,rkey,qrank, rrank, k, dim;
     // Start simulating the products and storing
     // the info in `order'
     for (int j=0; j<nmat-1; j++) {
-      int nact = active_mat_info_cont.size();
-      assert(nact==nmat-j);
+      int nact = nmat-j;
 
       // Insert a new `mat_info' corresponding to
       // the temporary to be created
@@ -397,20 +389,22 @@ FastMat2::prod(vector<const FastMat2 *> &mat_list,
         &sc = smi.contract,
         &sd = smi.dims;
 
-      // Check that the active matrices are ordered FIRST
-      // by position 
-      assert(q->position<=r->position);
+      q = opt_order[2*j];
+      r = opt_order[2*j+1];
+      assert(q<r);
+      qkey = keys[q];
+      rkey = keys[r];
 
       // Product to be done is S = Q * R
       // get info for Q matrix
-      mat_info &qmi = mat_info_cont[q->key];
+      mat_info &qmi = mat_info_cont[qkey];
       qmi.is_active = INACTIVE;
       vector<int> 
         &qc = qmi.contract,
         &qd = qmi.dims;
 
       // get info for R matrix
-      mat_info &rmi = mat_info_cont[r->key];
+      mat_info &rmi = mat_info_cont[rkey];
       rmi.is_active = INACTIVE;
       vector<int> 
         &rc = rmi.contract,
@@ -442,28 +436,11 @@ FastMat2::prod(vector<const FastMat2 *> &mat_list,
       // Insert the `keys' for this product in `order'
       order.push_back(skey);
       smi.position = qmi.position;
-      order.push_back(q->key);
-      order.push_back(r->key);
-
-#if 0      
-      if (fastmat_stats.print_prod_order) 
-        printf("will do a%d = a%d*a%d\n",
-               smi.position,
-               qmi.position,rmi.position);
-#endif
-
-      // Mark the Q and R matrices as inactive,
-      // and the result S as active
-      active_mat_info_cont.erase(q);
-      active_mat_info_cont.erase(r);
-      active_mat_info_cont
-        .insert(active_mat_info_t(skey,smi.position));
-
-#if 0
-      //#ifdef VERBOSE
-      int n=order.size();
-      printf("contracts a%d,a%d\n",q->key,r->key);
-#endif
+      order.push_back(qkey);
+      order.push_back(rkey);
+      // Update `keys' vector
+      keys[q] = skey;
+      keys.erase(keys.begin()+r);
     }
 
 #if 1

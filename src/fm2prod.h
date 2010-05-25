@@ -110,6 +110,7 @@ struct fastmat_stats_t {
 
 extern fastmat_stats_t fastmat_stats;
 
+#if 0
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>
 // We keep a set of this pairs for the active matrices.
 // Each pair contains the key (an index in `mat_info_cont'
@@ -134,6 +135,7 @@ public:
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>
 typedef std::set<active_mat_info_t> active_mat_info_cont_t;
+#endif
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>
 int compute_opcount(const mat_info &qmi,
