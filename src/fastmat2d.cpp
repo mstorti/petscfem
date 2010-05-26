@@ -89,8 +89,40 @@ compute_optimal_order(const mat_info_cont_t &mat_info_cont,
 intmax_t 
 compute_heuristic_order(const mat_info_cont_t &mat_info_cont,
                         vector<int> &order) { 
-  PETSCFEM_ERROR0("nod implemented yet");  
-  return -1;
+
+  int nmat = mat_info_cont.size();
+  intmax_t nopscount=0;
+  mat_info_cont_t 
+    mat_info_cont_cpy = mat_info_cont;
+  assert(order.empty());
+  int qfree,rfree,qr1;
+  mat_info smimin;
+  for (int j=0; j<nmat-1; j++) {
+    int q, r;
+    int nmat1=mat_info_cont_cpy.size();
+    assert(nmat1==nmat-j);
+    int nopsmin=-1;
+    for (int jq=0; jq<nmat1-1; jq++) {
+      for (int jr=jq+1; jr<nmat1; jr++) {
+        mat_info smi;
+        const mat_info &qmi = mat_info_cont_cpy[q];
+        const mat_info &rmi = mat_info_cont_cpy[r];
+        int nops = compute_opcount(qmi,rmi,smi,qfree,rfree,qr1);;
+        if (nopsmin<0 || nops<nopsmin) {
+          nopsmin=nops;
+          q = jq;
+          r = jr;
+          smimin = smi;
+        }
+      }
+    }
+    mat_info_cont_cpy[q] = smimin;
+    mat_info_cont_cpy.erase(mat_info_cont_cpy.begin()+r);
+    order.push_back(q);
+    order.push_back(r);
+  }
+  assert(int(order.size())==2*(nmat-1));
+  return nopscount;
 }
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>
@@ -103,9 +135,16 @@ compute_natural_order(const mat_info_cont_t &mat_info_cont,
   mat_info_cont_t 
     mat_info_cont_cpy = mat_info_cont;
   assert(order.empty());
-  int qfree,rfree,qr1;
+  int qfree,rfree,qr1,q,r;
   for (int j=0; j<nmat-1; j++) {
-    int q=0, r=1;
+#if 0
+    // Take the first two
+    q=0; r=1;
+#else
+    // Take the last two 
+    r=nmat-j-1;
+    q=r-1; 
+#endif
     const mat_info &qmi = mat_info_cont_cpy[q];
     const mat_info &rmi = mat_info_cont_cpy[r];
     mat_info smi;
