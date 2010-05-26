@@ -869,19 +869,3 @@ void fastmat_stats_t::print() {
          ncall,tcall_cached,tcall_cached/ncall,
          nhalf);
 }
-
-//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>
-intmax_t 
-compute_heuristic_order(const mat_info_cont_t &mat_info_cont,
-                        vector<int> &order) { 
-  PETSCFEM_ERROR0("nod implemented yet");  
-  return -1;
-}
-
-//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>
-intmax_t 
-compute_natural_order(const mat_info_cont_t &mat_info_cont,
-                        vector<int> &order) { 
-  PETSCFEM_ERROR0("nod implemented yet");  
-  return -1;
-}

@@ -19,7 +19,6 @@
 intmax_t 
 compute_optimal_order(const mat_info_cont_t &mat_info_cont,
                       vector<int> &order) {
-  
 
   int qmin,rmin,qfree,rfree,qr1;
   vector<int> ordermin;
@@ -84,4 +83,39 @@ compute_optimal_order(const mat_info_cont_t &mat_info_cont,
 #endif
 
   return nopsmin;
+}
+
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>
+intmax_t 
+compute_heuristic_order(const mat_info_cont_t &mat_info_cont,
+                        vector<int> &order) { 
+  PETSCFEM_ERROR0("nod implemented yet");  
+  return -1;
+}
+
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>
+intmax_t 
+compute_natural_order(const mat_info_cont_t &mat_info_cont,
+                        vector<int> &order) { 
+
+  int nmat = mat_info_cont.size();
+  intmax_t nopscount=0;
+  mat_info_cont_t 
+    mat_info_cont_cpy = mat_info_cont;
+  assert(order.empty());
+  int qfree,rfree,qr1;
+  for (int j=0; j<nmat-1; j++) {
+    int q=0, r=1;
+    const mat_info &qmi = mat_info_cont_cpy[q];
+    const mat_info &rmi = mat_info_cont_cpy[r];
+    mat_info smi;
+    nopscount += compute_opcount(qmi,rmi,smi,qfree,rfree,qr1);
+    mat_info_cont_cpy[q] = smi;
+    mat_info_cont_cpy.erase(mat_info_cont_cpy.begin()+r);
+    order.push_back(q);
+    order.push_back(r);
+  }
+  assert(int(order.size())==2*(nmat-1));
+
+  return nopscount;
 }
