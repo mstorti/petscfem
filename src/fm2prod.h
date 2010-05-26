@@ -156,6 +156,6 @@ compute_heuristic_order(const mat_info_cont_t &mat_info_cont,
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>
 intmax_t 
 compute_natural_order(const mat_info_cont_t &mat_info_cont,
-                      vector<int> &order);
+                      vector<int> &order,int reverse=0);
 
 #endif

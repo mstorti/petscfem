@@ -317,8 +317,11 @@ FastMat2::prod(vector<const FastMat2 *> &mat_list,
                || (ctx->mprod_order==FastMat2::CacheCtx::mixed 
                    && nmat > ctx->optimal_mprod_order_max)) {
       nopso = compute_heuristic_order(mat_info_cont_plain,opt_order);
-    } else if (ctx->mprod_order==FastMat2::CacheCtx::natural) {
-      nopso = compute_natural_order(mat_info_cont_plain,opt_order);
+    } else if (ctx->mprod_order==FastMat2::CacheCtx::natural 
+               || ctx->mprod_order==FastMat2::CacheCtx::reverse) {
+      int reverse = ctx->mprod_order==FastMat2::CacheCtx::reverse;
+      nopso = compute_natural_order(mat_info_cont_plain,
+                                    opt_order,reverse);
     } else {
       PETSCFEM_ERROR("unknown mprod_order %d",ctx->mprod_order);  
     }
