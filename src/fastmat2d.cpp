@@ -91,12 +91,12 @@ compute_heuristic_order(const mat_info_cont_t &mat_info_cont,
                         vector<int> &order) { 
 
   int nmat = mat_info_cont.size();
-  intmax_t nopscount=0;
   mat_info_cont_t 
     mat_info_cont_cpy = mat_info_cont;
   assert(order.empty());
   int qfree,rfree,qr1;
   mat_info smimin;
+  intmax_t nopscount=0;
   for (int j=0; j<nmat-1; j++) {
     int q, r;
     int nmat1=mat_info_cont_cpy.size();
@@ -105,17 +105,18 @@ compute_heuristic_order(const mat_info_cont_t &mat_info_cont,
     for (int jq=0; jq<nmat1-1; jq++) {
       for (int jr=jq+1; jr<nmat1; jr++) {
         mat_info smi;
-        const mat_info &qmi = mat_info_cont_cpy[q];
-        const mat_info &rmi = mat_info_cont_cpy[r];
+        const mat_info &qmi = mat_info_cont_cpy[jq];
+        const mat_info &rmi = mat_info_cont_cpy[jr];
         int nops = compute_opcount(qmi,rmi,smi,qfree,rfree,qr1);;
         if (nopsmin<0 || nops<nopsmin) {
-          nopsmin=nops;
+          nopsmin = nops;
           q = jq;
           r = jr;
           smimin = smi;
         }
       }
     }
+    nopscount += nopsmin;
     mat_info_cont_cpy[q] = smimin;
     mat_info_cont_cpy.erase(mat_info_cont_cpy.begin()+r);
     order.push_back(q);
@@ -137,7 +138,7 @@ compute_natural_order(const mat_info_cont_t &mat_info_cont,
   assert(order.empty());
   int qfree,rfree,qr1,q,r;
   for (int j=0; j<nmat-1; j++) {
-#if 0
+#if 1
     // Take the first two
     q=0; r=1;
 #else

@@ -459,7 +459,7 @@ FastMat2::prod(vector<const FastMat2 *> &mat_list,
         labels.push_back(label);
       }
       assert(int(labels.size())==2*nmat-1);
-      printf("HEURISTIC product order: %s\n",
+      printf("product order: %s\n",
              print_label(labels[2*nmat-2]).c_str());
     }
 #endif
