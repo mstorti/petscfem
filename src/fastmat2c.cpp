@@ -308,7 +308,7 @@ FastMat2::prod(vector<const FastMat2 *> &mat_list,
       assert(!fastmat_stats.labels[nmat]);
     }
     vector<int> opt_order;
-    intmax_t nopso;
+    intmax_t nopso=-1;
     if (ctx->mprod_order==FastMat2::CacheCtx::optimal
         || (ctx->mprod_order==FastMat2::CacheCtx::mixed 
             && nmat <= ctx->optimal_mprod_order_max)) {
