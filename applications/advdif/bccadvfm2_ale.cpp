@@ -196,15 +196,15 @@ void NewBcconv::new_assemble(arg_data_list &arg_data_v,const Nodedata *nodedata,
   GPdata gp_data(geometry.c_str(),ndimelf,nel,npg,GP_FASTMAT2);
 
   // Definiciones para descargar el lazo interno
-  double detJaco, delta_sc;
+  double detJaco, detJaco_new, detJaco_old, detJaco_mid, delta_sc;
 
   int elem, ipg,node, jdim, kloc,lloc,ldof;
 
-  FastMat2 Jaco(2,ndimelf,ndim),flux(2,ndof,ndimel),
-    fluxd(2,ndof,ndimel),grad_U(2,ndim,ndof),
-    A_grad_U(1,ndof),G_source(1,ndof),tau_supg(2,ndof,ndof),    
-    fluxn(1,ndof),iJaco,normal(1,ndim),nor,lambda,Vr,Vr_inv,U(1,ndof),
-    Halpha(1,ndof),ALE_flux(2,ndof,ndim);
+  FastMat2 Jaco(2,ndimelf,ndim),flux(2,ndof,ndimel),Jaco_new(2,ndimelf,ndim),
+    fluxd(2,ndof,ndimel),grad_U(2,ndim,ndof),Jaco_old(2,ndimelf,ndim),
+    A_grad_U(1,ndof),G_source(1,ndof),tau_supg(2,ndof,ndof),Jaco_mid(2,ndimelf,ndim),    
+    fluxn(1,ndof),iJaco,normal(1,ndim),nor,lambda,Vr,Vr_inv,U(1,ndof),normal_mid(1,ndim),
+    Halpha(1,ndof),ALE_flux(2,ndof,ndim),normal_new(1,ndim),normal_old(1,ndim);
 
   FastMat2 A_jac(3,ndim,ndof,ndof),D_jac(4,ndim,ndof,ndof),
     A_jac_n(2,ndof,ndof),C_jac(2,ndof,ndof);
@@ -261,13 +261,28 @@ void NewBcconv::new_assemble(arg_data_list &arg_data_v,const Nodedata *nodedata,
 #define WPG      (gp_data.wpg[ipg])
 
     // loop over Gauss points
-
     for (ipg=0; ipg<npg; ipg++) {
 
       if (ndimelf>0) {
-	Jaco.prod(DSHAPEXI,xloc,1,-1,-1,2);
+	Jaco.prod(DSHAPEXI,xloc,1,-1,-1,2);  // xloc is at t_{n+alpha}
+	Jaco_new.prod(DSHAPEXI,xloc_new,1,-1,-1,2);
+	Jaco_old.prod(DSHAPEXI,xloc_old,1,-1,-1,2);
+
 	// normal:= normal vector times the surface of the element
-	detJaco = Jaco.detsur(&normal);
+	if (ndim == 2){ // we need only two points in 2D to integ temporal average
+	  detJaco_new = Jaco_new.detsur(&normal_new);
+	  detJaco_old = Jaco_old.detsur(&normal_old);
+	  normal.set(normal_new).add(normal_old).scale(0.5);
+	} else if (ndim == 3) { // we need 3 points in 3D to integ
+	  // temporal average with
+	  // Gauss-Lobatto
+	  detJaco_new = Jaco_new.detsur(&normal_new);
+	  detJaco_old = Jaco_old.detsur(&normal_old);
+	  Jaco_mid.set(Jaco_new).add(Jaco_old).scale(0.5);
+	  detJaco_mid = Jaco_mid.detsur(&normal_mid);
+	  normal.set(0.).axpy(normal_new,1./6.).axpy(normal_old,1./6.)
+	    .axpy(normal_mid,4./6.);
+	}
 	normal.scale(-1.); // fixme:= This is to compensate a bug in mydetsur
 	if (detJaco<=0.) {
 	  detj_error(detJaco,k);
