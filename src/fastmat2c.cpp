@@ -309,6 +309,7 @@ FastMat2::prod(vector<const FastMat2 *> &mat_list,
     }
     vector<int> opt_order;
     intmax_t nopso=-1;
+    // double start=MPI_Wtime();
     if (ctx->mprod_order==FastMat2::CacheCtx::optimal
         || (ctx->mprod_order==FastMat2::CacheCtx::mixed 
             && nmat <= ctx->optimal_mprod_order_max)) {
@@ -325,6 +326,7 @@ FastMat2::prod(vector<const FastMat2 *> &mat_list,
     } else {
       PETSCFEM_ERROR("unknown mprod_order %d",ctx->mprod_order);  
     }
+    // printf("nmat %d, elapsed %g secs\n",nmat,MPI_Wtime()-start);
     assert(int(opt_order.size())==2*(nmat-1));
     ctx->mprod_nopscount = nopso;
 

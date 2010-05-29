@@ -16490,3 +16490,73 @@ seria
   3 8 5   9600  ((gN*(A*tau))*JR)   8975 6.51  (gN*((A*tau)*JR))   8175 14.84 
   3 8 10   74400  (((gN*A)*tau)*JR)   74400 0.00  (gN*((A*tau)*JR))   46200 37.90 
 ------------------
+
+%=== Sat May 29 12:17:11 2010 mstorti@galileo
+%
+%--[2010-05-29.15:17:11.mstorti-v28-end-56-ga225e38]-----
+Estoy viendo el tema de la eficiencia para dejar el multiprod
+andando. Me bajo una version anterior (la mstorti-v28-end-4-g0b4d6d3)
+y pruebo con esa con el programa
+`cases/garage/multiprod/testmprod3.cpp' y me da lo siguiente 
+%
+    N  ntimes     ROLD     RNEW
+   50    1000     3.12     2.55
+   60    1000     3.84     3.65
+   72    1000     3.98     3.90
+   86    1000     3.62     3.65
+  103    1000     3.79     3.60
+  124     786     4.09     3.91
+  149     453     3.21     3.13
+  179     261     2.54     2.46
+  215     150     1.80     1.80
+%
+N= tamaño de la matriz
+ntimes= nro de veces que se ejecuta el producto
+ROLD= rate con la version vieja mstorti-v28-end-4-g0b4d6d3
+RNEW = rate con la version actual mstorti-v28-end-56-ga225e38). 
+%
+O sea que dan practicamente lo mismo. 
+%
+%--[2010-05-29.19:53:11.mstorti-v28-end-56-ga225e38]-----
+Ahora corro un producto de Nmat matrices con orden mprod_order=natural
+y con el optimo
+OPTIMAL
+Nmat 2, nopscount 64296, ntimes 100, elapsed 0.014421 secs, rate 0.445850 Gflops
+Nmat 3, nopscount 30856, ntimes 100, elapsed 0.001925 secs, rate 1.602916 Gflops
+Nmat 4, nopscount 36056, ntimes 100, elapsed 0.004227 secs, rate 0.853008 Gflops
+Nmat 5, nopscount 22812, ntimes 100, elapsed 0.005202 secs, rate 0.438519 Gflops
+Nmat 6, nopscount 148760, ntimes 100, elapsed 0.027609 secs, rate 0.538812 Gflops
+Nmat 7, nopscount 559240, ntimes 100, elapsed 0.047519 secs, rate 1.176877 Gflops
+Nmat 8, nopscount 514576, ntimes 100, elapsed 0.053156 secs, rate 0.968051 Gflops
+Nmat 9, nopscount 308568, ntimes 100, elapsed 0.014766 secs, rate 2.089723 Gflops
+Nmat 10, nopscount 141264, ntimes 100, elapsed 0.021187 secs, rate 0.666746 Gflops
+Nmat 11, nopscount 470052, ntimes 100, elapsed 0.009800 secs, rate 4.796470 Gflops
+Nmat 12, nopscount 825750, ntimes 100, elapsed 0.020489 secs, rate 4.030216 Gflops
+Nmat 13, nopscount 2002650, ntimes 100, elapsed 0.095516 secs, rate 2.096665 Gflops
+Nmat 14, nopscount 309120, ntimes 100, elapsed 0.033307 secs, rate 0.928091 Gflops
+Nmat 15, nopscount 521732, ntimes 100, elapsed 0.033736 secs, rate 1.546515 Gflops
+Nmat 16, nopscount 169860, ntimes 100, elapsed 0.013925 secs, rate 1.219814 Gflops
+Nmat 17, nopscount 508530, ntimes 100, elapsed 0.079113 secs, rate 0.642789 Gflops
+Nmat 18, nopscount 167712, ntimes 100, elapsed 0.015279 secs, rate 1.097660 Gflops
+Nmat 19, nopscount 87184, ntimes 100, elapsed 0.021383 secs, rate 0.407725 Gflops
+Nmat 20, nopscount 84930, ntimes 100, elapsed 0.021969 secs, rate 0.386589 Gflops
+NATURAL
+Nmat 2, nopscount 64296, ntimes 100, elapsed 0.019047 secs, rate 0.337565 Gflops
+Nmat 3, nopscount 30856, ntimes 100, elapsed 0.004626 secs, rate 0.667007 Gflops
+Nmat 4, nopscount 36056, ntimes 100, elapsed 0.004843 secs, rate 0.744498 Gflops
+Nmat 5, nopscount 22812, ntimes 100, elapsed 0.004676 secs, rate 0.487842 Gflops
+Nmat 6, nopscount 148760, ntimes 100, elapsed 0.016124 secs, rate 0.922599 Gflops
+Nmat 7, nopscount 559240, ntimes 100, elapsed 0.052398 secs, rate 1.067293 Gflops
+Nmat 8, nopscount 514576, ntimes 100, elapsed 0.050580 secs, rate 1.017350 Gflops
+Nmat 9, nopscount 308568, ntimes 100, elapsed 0.035247 secs, rate 0.875443 Gflops
+Nmat 10, nopscount 141264, ntimes 100, elapsed 0.018959 secs, rate 0.745101 Gflops
+Nmat 11, nopscount 470052, ntimes 100, elapsed 0.056507 secs, rate 0.831849 Gflops
+Nmat 12, nopscount 825750, ntimes 100, elapsed 0.079965 secs, rate 1.032641 Gflops
+Nmat 13, nopscount 2002650, ntimes 100, elapsed 0.185103 secs, rate 1.081912 Gflops
+Nmat 14, nopscount 309120, ntimes 100, elapsed 0.037835 secs, rate 0.817019 Gflops
+Nmat 15, nopscount 521732, ntimes 100, elapsed 0.062856 secs, rate 0.830044 Gflops
+Nmat 16, nopscount 169860, ntimes 100, elapsed 0.025922 secs, rate 0.655272 Gflops
+Nmat 17, nopscount 508530, ntimes 100, elapsed 0.054149 secs, rate 0.939132 Gflops
+Nmat 18, nopscount 167712, ntimes 100, elapsed 0.025990 secs, rate 0.645294 Gflops
+Nmat 19, nopscount 87184, ntimes 100, elapsed 0.017965 secs, rate 0.485304 Gflops
+Nmat 20, nopscount 84930, ntimes 100, elapsed 0.019145 secs, rate 0.443614 Gflops
