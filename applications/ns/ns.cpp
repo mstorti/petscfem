@@ -945,7 +945,7 @@ int ns_main(int argc,char **args) {
       ierr = VecCopy(x,xp);
       scal=0;
       ierr = VecSet(res,scal); CHKERRA(ierr);
-      if (!reuse_mat || tstep==1) {
+      if (reuse_mat && tstep==1) {
 	argl.clear();
 	statep.set_time(time);	// fixme:= what time?
 	argl.arg_add(A_prj,OUT_MATRIX|PFMAT);

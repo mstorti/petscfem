@@ -303,6 +303,11 @@ expect("sqcav/check.fs.verif.tmp",
        read_file("sqcav/check.fs.ans"));
 
 #------/*/------/*/------/*/------/*/------/*/------/*/------/*/ 
+expect("sqcav/check.fs-reuse1.verif.tmp",
+       "Square cavity with fract. step, Re1000, N=20. Reuse mat 1",
+       "Square cavity at Re=1000. Error . tol OK . 1");
+
+#------/*/------/*/------/*/------/*/------/*/------/*/------/*/ 
 expect("sqcav/check.zwproc.tmp",
        "Sqcav 0weight processor",<<'EOT');
 Sq. Cavity with 0weight proc. error < tol OK \? 1

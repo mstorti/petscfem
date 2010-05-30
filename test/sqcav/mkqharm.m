@@ -24,9 +24,9 @@ asave("qharm.con.tmp",icone);
 tol=1e-5;
 wall=find(abs(y)<tol)';
 nwall=length(wall);
-b=create_set([find(abs(x)<tol);
-              find(abs(x-1)<tol);
-              find(abs(y)<tol)]);
+b = unique([find(abs(x)<tol);
+            find(abs(x-1)<tol);
+            find(abs(y)<tol)]);
 b=complement(wall,b);
 nb=length(b);
 
