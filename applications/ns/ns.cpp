@@ -916,6 +916,10 @@ int ns_main(int argc,char **args) {
 
       if (do_stop && stop_poi) {
 	ierr = PetscViewerASCIIOpen(PETSCFEM_COMM_WORLD,
+			       "system.dat",&matlab); CHKERRA(ierr);
+	ierr = PetscViewerSetFormat(matlab,
+			       PETSC_VIEWER_ASCII_MATLAB); CHKERRA(ierr);
+	ierr = PetscViewerASCIIOpen(PETSCFEM_COMM_WORLD,
 				    "system.dat",&matlab); CHKERRA(ierr);
 	ierr = PetscViewerSetFormat_WRAPPER(matlab,
 					    PETSC_VIEWER_ASCII_MATLAB,"apoi"); 

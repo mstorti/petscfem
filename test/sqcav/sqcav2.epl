@@ -9,6 +9,7 @@ fractional_step 1
 fractional_step_use_petsc_symm 1
 gamma_pressure 0.9
 dt_art_fac 0.
+reuse_mat 1
 
 nsome 20
 print_some_file "sqcav.some-nodes.tmp"
