@@ -16560,3 +16560,51 @@ Nmat 17, nopscount 508530, ntimes 100, elapsed 0.054149 secs, rate 0.939132 Gflo
 Nmat 18, nopscount 167712, ntimes 100, elapsed 0.025990 secs, rate 0.645294 Gflops
 Nmat 19, nopscount 87184, ntimes 100, elapsed 0.017965 secs, rate 0.485304 Gflops
 Nmat 20, nopscount 84930, ntimes 100, elapsed 0.019145 secs, rate 0.443614 Gflops
+%
+%--[2010-05-30.00:12:51.mstorti-v28-end-57-ga4a21d1]-----
+Corro los tests, en g_c++ me da
+NOT OK------- -> 8
+sqcav/check.re1000.verif.tmp
+sqcav/check.fs.verif.tmp
+cubcav/cubcav.plain-bupl.verif.tmp
+idmap/tidmap.sal
+newff/adv_temp_cp.vrf.tmp
+newff/full_full_jacs_cp.vrf.tmp
+newff/full_full_jacs_adv_cp.vrf.tmp
+newff/adv_temp_cp_iisd.vrf.tmp
+CAN'T OPEN------- -> 0
+%
+Voy a correr el torture. 
+
+%=== Sun May 30 08:40:24 2010 mstorti@galileo
+%
+%--[2010-05-30.11:40:24.mstorti-v28-end-57-ga4a21d1]-----
+Resultados de correr los tests
+>>>>>>>>>>----------O_c++-----------
+NOT OK------- -> 8
+sqcav/check.re1000.verif.tmp
+sqcav/check.fs.verif.tmp
+cubcav/cubcav.plain-bupl.verif.tmp
+idmap/tidmap.sal
+newff/adv_temp_cp.vrf.tmp
+newff/full_full_jacs_cp.vrf.tmp
+newff/full_full_jacs_adv_cp.vrf.tmp
+newff/adv_temp_cp_iisd.vrf.tmp
+CAN'T OPEN------- -> 0
+>>>>>>>>>>----------g_c++-----------
+NOT OK------- -> 8
+sqcav/check.re1000.verif.tmp
+sqcav/check.fs.verif.tmp
+cubcav/cubcav.plain-bupl.verif.tmp
+idmap/tidmap.sal
+newff/adv_temp_cp.vrf.tmp
+newff/full_full_jacs_cp.vrf.tmp
+newff/full_full_jacs_adv_cp.vrf.tmp
+newff/adv_temp_cp_iisd.vrf.tmp
+CAN'T OPEN------- -> 0
+%
+%--[2010-05-30.11:46:31.mstorti-v28-end-57-ga4a21d1]-----
+Me llama la atencion porque no andan los de FS. Aparentemente 
+no anda desde hace rato. Para que ande hay que irse hasta 
+mstorti-v21-end-18-g97e8d77 (Sun Sep 7 22:01:50 2008 -0300). 
+O sea 1 año y medio. 

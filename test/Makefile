@@ -128,7 +128,9 @@ runtests: compile sector oscplate fastmat2 plano idmap constraint_bug	\
 	gasflow-conv
 
 rp: runtests_p
-runtests_p: burgers
+runtests_p: pfmat aquifer nutatcyl mmove	\
+	advec nsgenload cubcav project embgath alebcconv ductadv 	\
+	gasflow-conv
 
 #s Specific tests
 #----<*>----------<*>----------<*>----------<*>----------<*>----------<*>-----
