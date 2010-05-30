@@ -10,6 +10,7 @@ ny=N/2*(N+1)+(1:N+1)';
 u=u(ny,:);
 erro = merr(u-uref);
 tol=1e-10;
+## plot([uref(:,1),u(:,1)],yh);
 
 printf(["Square cavity at Re=1000. " \
 	"Error < tol OK ? %d (error = %g, tol = %g)\n"], \
