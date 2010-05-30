@@ -10,6 +10,7 @@
 //#include <deque>
 #include <cassert>
 #include <cstdarg>
+#include <stdint.h>
 
 #include <list>
 #include <vector>
@@ -297,6 +298,11 @@ public:
     /// Operation count
     // This flags whether we perform a check on the labels. 
     int do_check_labels;
+    /// Type of algorithm to make the multiproducts
+    enum mprod_order_t {natural, reverse, heuristic, 
+                        optimal, mixed} mprod_order; 
+    int optimal_mprod_order_max;
+    intmax_t mprod_nopscount;
     OperationCount op_count;
     virtual ~CacheCtx()=0;
   };
@@ -957,6 +963,18 @@ public:
   FastMat2 & prod(const FastMat2 & A,const FastMat2 & B,const int
 		  m,INT_VAR_ARGS);
 
+  // The file "mprod.h" is generated automatically by
+  // `mprod.pl' and generates programatically
+  // declarations for prod() with 3 to 10 matrices. 
+#include "./mprod.h"
+
+  // Version with 2 matrices and vectors of indices
+  FastMat2 & prod(vector<const FastMat2 *> &mat_list,Indx &indx);
+
+  // Generic version for a pair with vectorized indices
+  FastMat2 & prod(const FastMat2 &A,const FastMat2 &B,
+                  vector<int> &ixa,vector<int> &ixb);
+
   //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
   /** Kronecker product (also called Schur product)
       @doc If A is n x m and B is p x q, then kron returns a matrix
@@ -1210,6 +1228,15 @@ public:
       @return a reference to the matrix.
    */ 
   FastMat2 & resize(const int m,INT_VAR_ARGS);
+
+  //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+  /** Resizes the matrix (destroying the information).
+      New and old dimensions might not be the same. 
+      @author M. Storti
+      @param indx (input) the shape of the matrix
+      @return a reference to the matrix.
+   */ 
+  FastMat2 & resize(const Indx &indx);
 
   //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
   /** Resizes to one dimension ans zero elements.

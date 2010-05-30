@@ -9,15 +9,16 @@ PETSCFEM_DIR = ..
 
 # Add new files here
 LIBOBJS_ = \
-amplidl arglist debug distmat dofmap dofmap2 elemlist elemset			\
-fastmat fastmat2 fastmat2b fem fm2eperl fm2eperl2 fstack getarray getprop 	\
-gpdata graph graphdv idmap iisdcr iisdgraph iisdmat linkgraph mainutl		\
-measperf metisprt petscmat pfmat propef randomg readmesh secant sparse		\
-spdirect spsolve state sttfilter tempfun tempfun2 texthash texthf		\
-timestat util2 util3 utils gatherer hook dlhook dxhook dxelmst autostr		\
-cloud cloud2 surf2vol pfobject fm2temp shllhook dvector interpola elmsupl	\
-dofmap3 iisdmat2 generror syncbuff srfgath blessf spetscmat elmsupl2 lagmul	\
-penalize dvecpar rhhook matchg fm2ctx2 
+amplidl arglist autostr blessf cloud cloud2 debug distmat dlhook	\
+dofmap dofmap2 dofmap3 dvecpar dvector dxelmst dxhook elemlist		\
+elemset elmsupl elmsupl2 fastmat fastmat2 fastmat2b fastmat2c		\
+fastmat2d fem fm2ctx2 fm2eperl fm2eperl2 fm2temp fstack gatherer	\
+generror getarray getprop gpdata graph graphdv hook idmap iisdcr	\
+iisdgraph iisdmat iisdmat2 interpola lagmul linkgraph mainutl		\
+matchg measperf metisprt penalize petscmat pfmat pfobject propef	\
+randomg readmesh rhhook secant shllhook sparse spdirect spetscmat	\
+spsolve srfgath state sttfilter surf2vol syncbuff tempfun		\
+tempfun2 texthash texthf timestat util2 util3 utils
 
 # C files
 CLIBOBJS_ =  getarrgr.tab mkl_gf
@@ -100,6 +101,15 @@ pfmatFSM.cpp  pfmatFSM.h: pfmat.sm
 	if [ ! -f $*FSM.cpp ] ; then cp -f $*FSM.cc $*FSM.cpp ; fi
 	-rm -f $*FSM.cc
 	chmod -w $*FSM.cpp $*FSM.h
+
+readlist.h: readlist.eperl
+	if [ -e readlist.h ] ; then chmod +w readlist.h ; fi
+	$(EPERL) readlist.eperl > readlist.h
+	chmod -w readlist.h
+
+mprod.h mproddef.h: mprod.pl mprod1.h
+	./mprod.pl
+
 endif
 
 # This doesn't compile with -O2
@@ -109,10 +119,6 @@ endif
 
 local_clean:: local_dist_clean
 	-rm -f version.cpp $(LIBPETSCFEM) # &> /dev/null
-readlist.h: readlist.eperl
-	if [ -e readlist.h ] ; then chmod +w readlist.h ; fi
-	$(EPERL) readlist.eperl > readlist.h
-	chmod -w readlist.h
 pfmat.o dofmap2.o: CCPPFLAGS += -O0
 
 version.cpp: version.cppin ../VERSION

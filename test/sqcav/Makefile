@@ -5,7 +5,10 @@
 	test_disconnected_graph
 
 
-default: test_fs
+REDIR := >
+# REDIR := | tee
+
+default: test_fs_reuse1
 #	$(MAKE) case=iisd_sbp1 np=2 runs
 
 isp_test:
@@ -16,7 +19,7 @@ isp_test:
 tests: test_re1000 test_iisd test_iisd2 test_meas_perf		\
 	test_g_body test_zero_w_proc test_zero_w_proc2		\
 	test_triangle test_qharm_3d test_shell_hook	\
-	test_read_ini test_disconnected_graph test_fs
+	test_read_ini test_disconnected_graph test_fs test_fs_reuse1
 
 test_shell_hook: test_shell_hook1 test_shell_hook2
 
@@ -88,7 +91,7 @@ output_file := output.CASE_$(CASE).np_$(np).case_$(case)$(meas_perf).out.tmp
 #w Runs program
 run:  data
 	-${MPIEXEC} $(MCH) -n $(np) $(PROG) -case $(CASE).depl \
-	 	      	   $(call redir,$(output_file))
+	 	      	   $(REDIR) $(output_file)
 
 export CASE
 runs: CASE := sqcav
@@ -137,9 +140,6 @@ test_iisd2:
 	$(MAKE) case=iisd_sbp4 np=2 runs
 	$(MAKE) case=iisd_sbp16 np=2 runs
 	$(OCTAVE) < check_iisd2.m > check.iisd.verif.np2.tmp
-
-REDIR := >
-# REDIR := | tee
 
 ###--------<*>--------<*>--------<*>--------<*>--------<*>--------<*>--------<*> 
 #w Tests processors with zero eqs./elements (zero weight)
@@ -203,10 +203,16 @@ test_iisd:
 	$(OCTAVE) < check_iisd.m > check.iisd.verif.np1.tmp
 
 ###--------<*>--------<*>--------<*>--------<*>--------<*>--------<*>--------<*>
-#w Tests square cavity at Re=400 with fractional step solver. 
+#w Tests square cavity at Re=1000 with fractional step solver. 
 test_fs:
 	$(MAKE) case=fractional_step_re1000 runs2
-	$(OCTAVE) < check_fs.m > check.fs.verif.tmp
+	$(OCTAVE) check_fs.m > check.fs.verif.tmp
+
+###--------<*>--------<*>--------<*>--------<*>--------<*>--------<*>--------<*>
+#w Tests square cavity at Re=1000 with fractional step solver (reuse_mat=0)
+test_fs_reuse1:
+	$(MAKE) case=fractional_step_re1000_reuse1 runs2
+	$(OCTAVE) check_fs.m > check.fs-reuse1.verif.tmp
 
 ###--------<*>--------<*>--------<*>--------<*>--------<*>--------<*>--------<*>
 #w Tests triangles
@@ -324,7 +330,7 @@ test_disconnected_graph:
 #w Makes local link for running with debugger
 link:
 	$(MAKE) -C $(PETSCFEM_DIR) $(LOC_PROG)
-	ln -f $(PROG) $(LOC_PROG)
+	ln -sf $(PROG) $(LOC_PROG)
 
 ###--------<*>--------<*>--------<*>--------<*>--------<*>--------<*>
 #w Debugging target

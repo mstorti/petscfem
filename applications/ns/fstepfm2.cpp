@@ -408,7 +408,7 @@ int fracstep::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
   } else assert(0);
 
   FastMat2 seed;
-  if (comp_res_mom || comp_mat_prj) {
+  if (comp_res_mom || comp_mat_prj || (comp_res_prj && !reuse_mat)) {
     seed.resize(2,ndof,ndof).set(0.)
       .is(1,1,ndim).is(2,1,ndim).eye().rs();
   } else if (comp_mat_poi) {
@@ -875,9 +875,13 @@ int fracstep::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
     } else if (comp_mat_prj) {
       matloc.prod(matlocmom,seed,1,3,2,4).add(mom_mat_fix);
       matloc.export_vals(&(RETVALMAT_PRJ(ielh)));
-    } else if (comp_res_prj || (comp_res_prj && !reuse_mat)) {
+    } else if (comp_res_prj) {
       veccontr.is(2,1,ndim).set(resmom);
       veccontr.rs().export_vals(&(RETVAL(ielh)));
+      if (comp_res_prj && !reuse_mat) {
+        matloc.prod(matlocmom,seed,1,3,2,4).add(mom_mat_fix);
+        matloc.export_vals(&(RETVALMAT_PRJ(ielh)));
+      }
     } else assert(0);
   }
   FastMat2::void_cache();

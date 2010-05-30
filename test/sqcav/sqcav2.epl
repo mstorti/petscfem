@@ -1,7 +1,7 @@
 # -*- mode: shell-script -*-
 #$Id: sqcav2.epl,v 1.10 2004/11/11 21:52:26 mstorti Exp $
 # case: <:=$ENV{'case'}:>
-#<: require './sqcav.pl'; :>
+#<: require './sqcav2.pl'; :>
 global_options
 
 #if $fractional_step
@@ -9,6 +9,7 @@ fractional_step 1
 fractional_step_use_petsc_symm 1
 gamma_pressure 0.9
 dt_art_fac 0.
+reuse_mat <:=$reuse:>
 
 nsome 20
 print_some_file "sqcav.some-nodes.tmp"
