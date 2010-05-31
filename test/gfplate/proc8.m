@@ -10,7 +10,7 @@ if 1
 endif
 u = u0;
 
-nodes_some = create_set(u(:,1))';
+nodes_some = unique(u(:,1))';
 nsome = length(nodes_some);
 all(nodes_some==u(1:nsome,1)) || error("malformed `some' file");
 u(:,1) = [];

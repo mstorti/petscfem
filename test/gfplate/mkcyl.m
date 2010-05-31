@@ -98,5 +98,5 @@ real_nodes = complement(rs_nodes,real_nodes)';
 ## uini(real_nodes,2) + uini(real_nodes,2) + 0.05;
 asave("cylabso.ini.tmp",uini);
 
-some = create_set([1:Nphi+1,1:nline:nnod,nline-1+(1:nline:nnod)])';
+some = unique([1:Nphi+1,1:nline:nnod,nline-1+(1:nline:nnod)])';
 asave("cylabso.some-nodes.tmp",some);

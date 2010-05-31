@@ -140,7 +140,7 @@ fclose(fidbcc);
 
 ## Impose slip condition on lateral wall
 fid = fopen("cylinder.no_slip.tmp","w");
-all_no_slip = create_set([wall;
+all_no_slip = unique([wall;
 			  bottom;
 			  top]);
 for k=1:length(all_no_slip)
