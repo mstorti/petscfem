@@ -267,22 +267,25 @@ void NewBcconv::new_assemble(arg_data_list &arg_data_v,const Nodedata *nodedata,
 	Jaco.prod(DSHAPEXI,xloc,1,-1,-1,2);  // xloc is at t_{n+alpha}
 	Jaco_new.prod(DSHAPEXI,xloc_new,1,-1,-1,2);
 	Jaco_old.prod(DSHAPEXI,xloc_old,1,-1,-1,2);
+	detJaco = Jaco.detsur(&normal);
 
-	// normal:= normal vector times the surface of the element
-	if (ndim == 2){ // we need only two points in 2D to integ temporal average
-	  detJaco_new = Jaco_new.detsur(&normal_new);
-	  detJaco_old = Jaco_old.detsur(&normal_old);
-	  normal.set(normal_new).add(normal_old).scale(0.5);
-	} else if (ndim == 3) { // we need 3 points in 3D to integ
-	  // temporal average with
-	  // Gauss-Lobatto
-	  detJaco_new = Jaco_new.detsur(&normal_new);
-	  detJaco_old = Jaco_old.detsur(&normal_old);
-	  Jaco_mid.set(Jaco_new).add(Jaco_old).scale(0.5);
-	  detJaco_mid = Jaco_mid.detsur(&normal_mid);
-	  normal.set(0.).axpy(normal_new,1./6.).axpy(normal_old,1./6.)
-	    .axpy(normal_mid,4./6.);
-	}
+        if (use_ALE_form) {
+          // normal:= normal vector times the surface of the element
+          if (ndim == 2){ // we need only two points in 2D to integ temporal average
+            detJaco_new = Jaco_new.detsur(&normal_new);
+            detJaco_old = Jaco_old.detsur(&normal_old);
+            normal.set(normal_new).add(normal_old).scale(0.5);
+          } else if (ndim == 3) { // we need 3 points in 3D to integ
+            // temporal average with
+            // Gauss-Lobatto
+            detJaco_new = Jaco_new.detsur(&normal_new);
+            detJaco_old = Jaco_old.detsur(&normal_old);
+            Jaco_mid.set(Jaco_new).add(Jaco_old).scale(0.5);
+            detJaco_mid = Jaco_mid.detsur(&normal_mid);
+            normal.set(0.).axpy(normal_new,1./6.).axpy(normal_old,1./6.)
+              .axpy(normal_mid,4./6.);
+          }
+        }
 	normal.scale(-1.); // fixme:= This is to compensate a bug in mydetsur
 	if (detJaco<=0.) {
 	  detj_error(detJaco,k);

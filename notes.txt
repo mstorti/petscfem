@@ -16681,3 +16681,23 @@ alebcconv/verif-alebcconv.tmp
 %
 El `alebcconv/verif-alebcconv.tmp' usa el `advdif-gcl'. Usando el
 `advdif-ale' funciona bien. 
+%
+%--[2010-05-31.21:25:46.multiprod-end-28-g4cd0641]-----
+Logro volver a la cuenta de 8+2
+%
+NOT OK------- -> 8
+sqcav/check.re1000.verif.tmp
+cubcav/cubcav.plain-bupl.verif.tmp
+idmap/tidmap.sal
+newff/adv_temp_cp.vrf.tmp
+newff/full_full_jacs_cp.vrf.tmp
+newff/full_full_jacs_adv_cp.vrf.tmp
+newff/adv_temp_cp_iisd.vrf.tmp
+distmap/dist_graph.np2.out.tmp
+CAN'T OPEN------- -> 2
+mmove/step3d.verif.tmp
+newff/adv_dif_stdy_bcconv.vrf.tmp
+%
+%
+%--[2010-05-31.22:53:52.multiprod-end-28-g4cd0641]-----
+`mmove/step3d.verif.tmp' era por el cambio create_set -> unique. 
