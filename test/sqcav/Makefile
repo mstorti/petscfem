@@ -120,7 +120,7 @@ test_big:
 
 test_g_body:
 	$(MAKE) case=g_body runs
-	$(OCTAVE) < check.g_body.m > check.g_body.verif.tmp
+	$(OCTAVE) check.g_body.m > check.g_body.verif.tmp
 
 ###--------<*>--------<*>--------<*>--------<*>--------<*>--------<*>--------<*> 
 # tests the square cavity in a 20x20 mesh at Re=1000
@@ -129,8 +129,8 @@ test_g_body:
 #w IISD for square cavity test in 20x20 mesh on one processor
 test_re1000:
 	$(MAKE) case=weak_form_0 runs
-#	$(MAKE) case=weak_form_1 runs
-#	$(OCTAVE) < check_re1000.m > check.re1000.verif.tmp
+	$(MAKE) case=weak_form_1 runs
+	$(OCTAVE) check_re1000.m > check.re1000.verif.tmp
 
 ###--------<*>--------<*>--------<*>--------<*>--------<*>--------<*>--------<*> 
 #w IISD for square cavity test in 20x20 mesh on two processors
@@ -139,7 +139,7 @@ test_iisd2:
 	$(MAKE) case=iisd_sbp1 np=2 runs
 	$(MAKE) case=iisd_sbp4 np=2 runs
 	$(MAKE) case=iisd_sbp16 np=2 runs
-	$(OCTAVE) < check_iisd2.m > check.iisd.verif.np2.tmp
+	$(OCTAVE) check_iisd2.m > check.iisd.verif.np2.tmp
 
 ###--------<*>--------<*>--------<*>--------<*>--------<*>--------<*>--------<*> 
 #w Tests processors with zero eqs./elements (zero weight)
@@ -200,7 +200,7 @@ test_iisd:
 	$(MAKE) case=iisd_sbp4 runs
 	$(MAKE) case=iisd_sbp8 runs
 	$(MAKE) case=iisd_sbp16 runs
-	$(OCTAVE) < check_iisd.m > check.iisd.verif.np1.tmp
+	$(OCTAVE) check_iisd.m > check.iisd.verif.np1.tmp
 
 ###--------<*>--------<*>--------<*>--------<*>--------<*>--------<*>--------<*>
 #w Tests square cavity at Re=1000 with fractional step solver. 

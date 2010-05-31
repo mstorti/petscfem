@@ -1111,7 +1111,7 @@ void newadvecfm2_ff_t::compute_flux(COMPUTE_FLUX_ARGS) {
       double vel= vel_per_field.get(k);
 
       // double h_supg = 2.*vel/sqrt(Uintri.sum_square_all());
-      double Uh = sqrt(Uintri.sum_abs_all()); // this is
+      double Uh = sqrt(Uintri.sum_square_all()); // this is
 				// approx. 2*U/h
 #ifdef USE_SHOCAP
       vel1 = vel;

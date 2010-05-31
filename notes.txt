@@ -16582,14 +16582,14 @@ Voy a correr el torture.
 Resultados de correr los tests
 >>>>>>>>>>----------O_c++-----------
 NOT OK------- -> 8
-sqcav/check.re1000.verif.tmp
-sqcav/check.fs.verif.tmp
 cubcav/cubcav.plain-bupl.verif.tmp
 idmap/tidmap.sal
 newff/adv_temp_cp.vrf.tmp
-newff/full_full_jacs_cp.vrf.tmp
-newff/full_full_jacs_adv_cp.vrf.tmp
 newff/adv_temp_cp_iisd.vrf.tmp
+newff/full_full_jacs_adv_cp.vrf.tmp
+newff/full_full_jacs_cp.vrf.tmp
+sqcav/check.fs.verif.tmp
+sqcav/check.re1000.verif.tmp
 CAN'T OPEN------- -> 0
 >>>>>>>>>>----------g_c++-----------
 NOT OK------- -> 8
@@ -16608,3 +16608,76 @@ Me llama la atencion porque no andan los de FS. Aparentemente
 no anda desde hace rato. Para que ande hay que irse hasta 
 mstorti-v21-end-18-g97e8d77 (Sun Sep 7 22:01:50 2008 -0300). 
 O sea 1 año y medio. 
+%
+%--[2010-05-31.00:12:21.multiprod-end-27-g9b5dcbe]-----
+Hago merge con el master y corro los tests. Me da lo siguiente
+%
+>  NOT OK------- -> 29
+>  OK cubcav/cubcav.plain-bupl.verif.tmp
+>  OK idmap/tidmap.sal
+>  advdif/sine_fine_mesh.out
+>  turbchan/turbchan.ver.tmp
+>  newff/adv_dif_temp.vrf.tmp
+>  newff/adv_temp_cp.vrf.tmp
+>  OK newff/full_full_jacs.vrf.tmp
+>  OK newff/full_full_jacs_cp.vrf.tmp
+>  OK newff/full_full_jacs_adv_cp.vrf.tmp
+>  newff/full_full_jacs_t.vrf.tmp
+>  newff/full_full_jacs_tr.vrf.tmp
+>  newff/full_full_jacs_wf.vrf.tmp
+>  newff/full_jacs.vrf.tmp
+>  newff/reac_adv_dif_temp_y.vrf.tmp
+>  newff/std_ard_x_y.vrf.tmp
+>  advec/parallel_cone.verif.tmp
+>  advec/skew_cone.verif.tmp
+>  advec/rotating_cone.verif.tmp
+>  advec/parallel_cone_noise.verif.tmp
+>  advec/skew_cone_noise.verif.tmp
+>  advec/rotating_cone_noise.verif.tmp
+>  OK newff/adv_dif_temp_iisd.vrf.tmp
+>  newff/adv_temp_cp_iisd.vrf.tmp
+>  newff/full_full_jacs_iisd.vrf.tmp
+>  newff/full_jacs_iisd.vrf.tmp
+>  newff/reac_adv_dif_temp_y_iisd.vrf.tmp
+>  newff/std_ard_x_y_iisd.vrf.tmp
+>  distmap/dist_graph.np2.out.tmp
+>  distmap/dist_graph.np3.out.tmp
+>  CAN'T OPEN------- -> 3
+>  OK sqcav/check.re1000.verif.tmp
+>  alebcconv/verif-alebcconv.tmp
+>  newff/adv_dif_stdy_bcconv.vrf.tmp
+%
+O sea que se agregan unos cuantos de advdif. Me imagino que puede ser
+por los cambios que se hicieron al advdif. 
+
+%=== Mon May 31 13:05:18 2010 mstorti@galileo
+%
+%--[2010-05-31.16:05:18.multiprod-end-27-g9b5dcbe]-----
+
+Muchos de los de advdif se arreglan porque resulta que en varias
+funciones de flujo se reemplazo por ejemplo
+-      h_supg = 2.*vel/sqrt(Uintri.sum_square_all());
++      h_supg = 2.*vel/sqrt(Uintri.sum_abs_all());
+%
+lo cual esta mal porque se estaria cambiando la norma L2 por L1 pero
+en ese caso habria que sacar la sqrt(). Arreglando eso llego a lo
+siguiente. 
+%
+NOT OK------- -> 10
+cubcav/cubcav.plain-bupl.verif.tmp
+idmap/tidmap.sal
+turbchan/turbchan.ver.tmp
+newff/adv_dif_stdy_bcconv.vrf.tmp
+newff/adv_temp_cp.vrf.tmp
+newff/full_full_jacs_cp.vrf.tmp
+newff/full_full_jacs_adv_cp.vrf.tmp
+newff/adv_temp_cp_iisd.vrf.tmp
+distmap/dist_graph.np2.out.tmp
+distmap/dist_graph.np3.out.tmp
+CAN'T OPEN------- -> 3
+sqcav/check.re1000.verif.tmp
+advdif/sine_crank_nic.out
+alebcconv/verif-alebcconv.tmp
+%
+El `alebcconv/verif-alebcconv.tmp' usa el `advdif-gcl'. Usando el
+`advdif-ale' funciona bien. 

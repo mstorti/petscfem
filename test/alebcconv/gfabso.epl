@@ -62,7 +62,8 @@ partitioning_method natural
 #endif
 
 ALE_flag 1
-use_GCL_compliant
+# use_GCL_compliant
+use_ALE_form
 
 hook_list dl_generic_hook mvbodyh
 

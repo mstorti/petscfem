@@ -4,7 +4,11 @@ u0 = aload("cubcav.state.plain_bupl0.tmp");
 u1 = aload("cubcav.state.plain_bupl1.tmp");
 u2 = aload("cubcav.state.plain_bupl2.tmp");
 
-file = sprintf("cubcav-%s.ans",getenv("ARCHI"));
+archi = getenv("ARCHI");
+if strcmp(archi,"");
+  archi = "x86_64";
+endif
+file = sprintf("cubcav-%s.ans",archi);
 uref = aload(file);
 indx = uref(:,1);
 uref = uref(:,2:5);

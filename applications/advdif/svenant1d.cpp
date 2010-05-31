@@ -120,6 +120,8 @@ compute_tau(int ijob,double &delta_sc) {
   const FastMat2 &grad_N = *advdf_e->grad_N();
   double tol=1.0e-16;
   velmod = Q/A;
+  // FIXME:= seems that dimensions are wrong here!!
+  // should be: h_supg = 1.0/grad_N.sum_abs_all(); !!!!
   h_supg = grad_N.sum_abs_all();
   delta_sc = 0.5*h_supg*velmod;
 }

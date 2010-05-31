@@ -138,7 +138,7 @@ int advecfm2_ff_t::operator()(ADVDIFFF_ARGS) {
 	
       A_jac_l.rs();
 
-      h_supg = 2.*vel/sqrt(Uintri.sum_abs_all());
+      h_supg = 2.*vel/sqrt(Uintri.sum_square_all());
 #endif
 
     } else if (na==ndim*ndof*ndof) {
@@ -189,7 +189,7 @@ int advecfm2_ff_t::operator()(ADVDIFFF_ARGS) {
       double vel = sqrt(u.sum_square_all());
       u.rs();
       // double h_supg = 2.*vel/sqrt(Uintri.sum_square_all());
-      double Uh = sqrt(Uintri.sum_abs_all()); // this is
+      double Uh = sqrt(Uintri.sum_square_all()); // this is
 				// approx. 2*U/h
       double tau;
       FastMat2::branch();
