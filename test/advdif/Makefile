@@ -148,9 +148,9 @@ run: data
 
 # Tests to be done:
 # * Convergence to analityc solution
-# * Quadratic vonvergence of CN
+# * Quadratic convergence of CN
 # * Invariance with respect of number of processors. 
-# * Invariane with respect of weak_form
+# * Invariance with respect of weak_form
 
 # tests: testanal
 

@@ -88,4 +88,11 @@ LOC_PROG = advdif
 PROG = $(ADVDIF)
 CASE_NAME = newff
 
+link:
+	ln -sf $(ADVDIF) .
+
+prog:
+	$(MAKE) -C $(PETSCFEM_DIR) $(LOC_PROG)
+
+
 #s

@@ -128,7 +128,9 @@ runtests: compile sector oscplate fastmat2 plano idmap constraint_bug	\
 	gasflow-conv
 
 rp: runtests_p
-runtests_p: burgers
+runtests_p: pfmat aquifer nutatcyl mmove	\
+	advec nsgenload cubcav project embgath alebcconv ductadv 	\
+	gasflow-conv
 
 #s Specific tests
 #----<*>----------<*>----------<*>----------<*>----------<*>----------<*>-----
@@ -318,13 +320,13 @@ abridged:
 		perl -pe 's/^.*on file "(.*)".*$$/$$1/' > tempo.txt
 	echo -n "NOT OK------- -> " >> abridged.tmp
 	wc -l tempo.txt | cut -f 1 -d ' '>> abridged.tmp
-	cat tempo.txt >> abridged.tmp
+	cat tempo.txt | sort >> abridged.tmp
 #
 	./runtests.pl -o | grep "^can't open" |			\
 		perl -pe "s/^can't open //" > tempo.txt
 	echo -n "CAN'T OPEN------- -> " >> abridged.tmp
 	wc -l tempo.txt | cut -f 1 -d ' '>> abridged.tmp
-	cat tempo.txt >> abridged.tmp
+	cat tempo.txt | sort >> abridged.tmp
 #
 	rm -f tempo.txt
 

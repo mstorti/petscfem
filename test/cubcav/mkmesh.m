@@ -65,7 +65,7 @@ fclose(fid);
 
 if strcmp(case_in,"srfgath")
   fid = fopen("cubcav.fixa-srfgath.tmp","w");
-  for j=create_set([top' wall']);
+  for j=unique([top' wall']);
     fprintf(fid,"%d 1 %.20f\n%d 2 %.20f\n%d 3 %.20f\n%d 4 %.20f\n",
 	    j,x3(j,1),j,x3(j,2),j,x3(j,3),j,x3(j,1));
   endfor

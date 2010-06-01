@@ -15134,3 +15134,1635 @@ CTX2: Elapsed time (matrix residual eval): 0.008700 sec.
 Con un solo set:
 CTX1: Elapsed time (matrix residual eval): 0.023412 sec.
 CTX2: Elapsed time (matrix residual eval): 0.065351 sec.
+
+%=== Fri May  7 10:32:11 2010 mstorti@galileo
+%
+%--[2010-05-07.13:32:11.mstorti-v28-end-22-gf66deca]-----
+Implementando multiprod
+------------
+fastmat_multiprod_use_first 0
+[a0:-2,-5][a1:-1,-5][a2:-1][a3:-2,-3,-4][a4:-3,-6][a5:-6,-4]
+nbr of matrices 6
+contracts a1,a2
+[a0:-2,-5][a3:-2,-3,-4][a4:-3,-6][a5:-6,-4][a6:-5]
+nbr of matrices 5
+contracts a0,a6
+[a3:-2,-3,-4][a4:-3,-6][a5:-6,-4][a7:-2]
+nbr of matrices 4
+contracts a4,a5
+[a3:-2,-3,-4][a7:-2][a8:-3,-4]
+nbr of matrices 3
+contracts a3,a7
+[a8:-3,-4][a9:-3,-4]
+nbr of matrices 2
+contracts a8,a9
+[a10:]
+total ops count 96
+---------------------------------
+fastmat_multiprod_use_first 1
+[a0:-2,-5][a1:-1,-5][a2:-1][a3:-2,-3,-4][a4:-3,-6][a5:-6,-4]
+nbr of matrices 6
+contracts a4,a5
+[a0:-2,-5][a1:-1,-5][a2:-1][a3:-2,-3,-4][a6:-3,-4]
+nbr of matrices 5
+contracts a3,a6
+[a0:-2,-5][a1:-1,-5][a2:-1][a7:-2]
+nbr of matrices 4
+contracts a1,a2
+[a0:-2,-5][a7:-2][a8:-5]
+nbr of matrices 3
+contracts a0,a8
+[a7:-2][a9:-2]
+nbr of matrices 2
+contracts a7,a9
+[a10:]
+total ops count 93
+----------------------
+
+%=== Sat May  8 23:29:57 2010 mstorti@galileo
+%
+%--[2010-05-09.02:29:57.mstorti-v28-end-33-g5ec50e6]-----
+Bueno, ya esta implementado. Ahora falta ver:
+%
+* Que no haya perdida de memoria cacheado y no cacheado
+* Que ande el check-labels
+* Eficiencia
+%
+%--[2010-05-09.03:25:05.mstorti-v28-end-33-g5ec50e6]-----
+Lo corro sin cached, y anda bien, no produce perdida de memoria,
+parece. 
+%
+%--[2010-05-09.03:36:25.mstorti-v28-end-33-g5ec50e6]-----
+Lo corro con cached, anda bien pero no acelera demasiado. Anda en
+2.5Mflops para multiplicacion de 2 matrices. 
+
+%=== Sun May  9 23:24:39 2010 mstorti@galileo
+%
+%--[2010-05-10.02:24:39.mstorti-v28-end-35-g260f9ad]-----
+Cacheado llega a 1.32 Gflops optimizado. Habria que ver si esta usando
+MKL o no. Si no esta usando MKL estaria bien. Si no estaria medio
+mal, de acuerdo con las curvas que tenemos en el paper de fastmat2. 
+Una cosa que me llama la atencion es que el n1/2 da muy alto, como de
+15000!! Eso querria decir que el overhead de la primera evaluacion es
+equivalente a 15000 productos, me parece demasiado. 
+%
+%--[2010-05-10.02:37:27.mstorti-v28-end-35-g260f9ad]-----
+Sin cachear la velocidad baja a 0.017 Gflops o sea menos de 100 veces
+menos. O sea que el n1/2 deberia andar en 100, no en 15000.
+%
+N 20, elapsed 0.019513, times 100, flops 0.163992 Gflops
+N 20, elapsed 0.058132, times 1000, flops 0.550472 Gflops
+N 20, elapsed 0.281565, times 10000, flops 1.1365 Gflops
+N 20, elapsed 2.441092, times 100000, flops 1.31089 Gflops
+%
+%--[2010-05-10.21:03:54.mstorti-v28-end-35-g260f9ad]-----
+No se porque los tiempos fluctuan mucho, asi que lo que hago es
+correrlo muchas (n) veces y de alli tomar el que corresponde a las
+primeros n/4 veces. (Como tomar el primer quartil). Entonces los
+resutlados dan muy consistentes y me dan para n=20: 
+n_{1/2}=89, rate 1.42157 Gflops. 
+%
+Una cosa que no cierra bien es si lo esta haciendo con DGEMM o no. 
+%
+%--[2010-05-12.14:49:49.mstorti-v28-end-36-gc5a7b5a]-----
+
+Corro en aquiles en node19. Es un script de octave `proc2.m' que
+va barriendo N. Para cada N corre el problema con dos o 3 matrices en el
+cual va barriendo según ntimes para después fitear una curva y sacar
+un n1/2 y el rate en Gflops. A su vez pada cada (N,ntimes) hace el
+producto muchas veces y de esas saca la n1/4. 
+%
+%--[2010-05-12.15:01:37.mstorti-v28-end-36-gc5a7b5a]-----
+     N   amortized rate[Gflops]
+    10   1.54
+    20   3.44
+    30   4.15
+    40   4.56
+    50   4.53
+    60   4.82
+    70   4.78
+    80   4.96
+    90   4.97
+   100   5.07
+   110   5.06
+   120   4.99
+   130   5.19
+%
+Estos rendimientos son similares a los que se obtenian con la version
+plain de Fastmat2::prod() (esta compilado con MKL y corre en node19 o
+sea es un "Intel(R) Pentium(R) 4 CPU 3.00GHz". O sea que esta bien. 
+%
+Aparentemente al correr con NMAT=3 la performance se deteriora
+bastante porque ahora el tenes 5 matrices en vez de 3 o sea que es un
+66% mas de memoria para entrar en el cache o sea que antes se nota la
+crisis del cache. 
+%
+%--[2010-05-12.15:44:40.mstorti-v28-end-36-gc5a7b5a]-----
+Chequeo si anda con check_labels(), efectiamente si anda. Por lo menos
+corre sin problema y ademas lo corri con O_c++ y te tira un warning ya
+que en ese caso no tiene sentido usarlo. 
+%
+%--[2010-05-12.16:00:05.mstorti-v28-end-36-gc5a7b5a]-----
+Para NMAT=3 (o sea dos productos de matrices) 
+%
+N 10, n_{1/2}=58, rate 0.7683 Gflops
+N 20, n_{1/2}=70, rate 1.20762 Gflops
+N 30, n_{1/2}=74, rate 1.36766 Gflops
+N 40, n_{1/2}=78, rate 1.50457 Gflops
+N 50, n_{1/2}=80, rate 1.57761 Gflops
+N 60, n_{1/2}=65, rate 1.28972 Gflops
+N 70, n_{1/2}=57, rate 1.14417 Gflops
+N 80, n_{1/2}=52, rate 1.05332 Gflops
+N 90, n_{1/2}=53, rate 1.0942 Gflops
+N 100, n_{1/2}=55, rate 1.13191 Gflops
+N 110, n_{1/2}=56, rate 1.17114 Gflops
+N 120, n_{1/2}=58, rate 1.20911 Gflops
+%
+%--[2010-05-12.16:12:37.mstorti-v28-end-37-gfe081c5]-----
+Verifico que el producto de 2 matrices actual de igual que el
+anterior. 
+%% Actual (o sea con multiprod)
+N 20, elapsed 0.002255, times 10, nstat 364, flops 0.141894 Gflops
+N 20, elapsed 0.002316, times 13, nstat 399, flops 0.17962 Gflops
+N 20, elapsed 0.002379, times 16, nstat 413, flops 0.215222 Gflops
+N 20, elapsed 0.002470, times 20, nstat 394, flops 0.259133 Gflops
+N 20, elapsed 0.002603, times 26, nstat 378, flops 0.319625 Gflops
+N 20, elapsed 0.002755, times 33, nstat 353, flops 0.383313 Gflops
+N 20, elapsed 0.002956, times 42, nstat 329, flops 0.454682 Gflops
+N 20, elapsed 0.003223, times 54, nstat 306, flops 0.536156 Gflops
+N 20, elapsed 0.003582, times 70, nstat 272, flops 0.625349 Gflops
+N 20, elapsed 0.004046, times 91, nstat 243, flops 0.71973 Gflops
+N 20, elapsed 0.004648, times 118, nstat 209, flops 0.812356 Gflops
+N 20, elapsed 0.005421, times 153, nstat 182, flops 0.903167 Gflops
+N 20, elapsed 0.006433, times 198, nstat 151, flops 0.98492 Gflops
+N 20, elapsed 0.007849, times 257, nstat 125, flops 1.04778 Gflops
+N 20, elapsed 0.009468, times 334, nstat 102, flops 1.12885 Gflops
+N 20, elapsed 0.011658, times 434, nstat 85, flops 1.19129 Gflops
+%% SIN multiprod (viejo) --------------
+N 20, elapsed 0.002245, times 10, nstat 425, flops 0.142542 Gflops
+N 20, elapsed 0.002314, times 13, nstat 420, flops 0.179768 Gflops
+N 20, elapsed 0.002376, times 16, nstat 415, flops 0.215481 Gflops
+N 20, elapsed 0.002466, times 20, nstat 392, flops 0.259533 Gflops
+N 20, elapsed 0.002602, times 26, nstat 378, flops 0.319742 Gflops
+N 20, elapsed 0.002762, times 33, nstat 351, flops 0.382354 Gflops
+N 20, elapsed 0.002961, times 42, nstat 333, flops 0.453913 Gflops
+N 20, elapsed 0.003254, times 54, nstat 297, flops 0.531049 Gflops
+N 20, elapsed 0.003583, times 70, nstat 274, flops 0.625182 Gflops
+N 20, elapsed 0.004054, times 91, nstat 239, flops 0.718291 Gflops
+N 20, elapsed 0.004655, times 118, nstat 212, flops 0.811149 Gflops
+N 20, elapsed 0.005440, times 153, nstat 180, flops 0.900001 Gflops
+N 20, elapsed 0.006444, times 198, nstat 153, flops 0.983244 Gflops
+N 20, elapsed 0.007790, times 257, nstat 124, flops 1.05573 Gflops
+N 20, elapsed 0.009494, times 334, nstat 104, flops 1.12578 Gflops
+N 20, elapsed 0.011719, times 434, nstat 85, flops 1.18509 Gflops
+%-----------
+O sea que dan muy parecidos. 
+
+%=== Fri May 14 12:51:46 2010 mstorti@galileo
+%
+%--[2010-05-14.15:51:46.mstorti-v28-end-41-gb910390]-----
+Conteo de operaciones para producto gN*A*tau*C:
+%
+will do a2 = a2*a3, a1 = a1*a2, a0 = a0*a1
+     seria gN*(A*(tau*C)):
+ndim 2, nel 3, ndof 1, nopscount raw 12, opt 9, gain 33.33%
+%
+%--[2010-05-14.17:04:40.mstorti-v28-end-42-g6a07650]-----
+will do a2 = a2*a3
+will do a1 = a1*a2
+will do a0 = a0*a1
+     seria gN*(A*(tau*C)):
+ndim 2, nel 3, ndof 1, nopscount raw 12, opt 9, gain 33.33%
+%
+%--[2010-05-14.17:05:41.mstorti-v28-end-42-g6a07650]-----
+will do a0 = a0*a1
+will do a2 = a2*a3
+will do a0 = a0*a2
+     seria (gN*A)*(tau*C):
+ndim 2, nel 3, ndof 10, nopscount raw 6600, opt 4600, gain 43.48%
+
+%=== Sat May 15 18:51:17 2010 mstorti@galileo
+%
+%--[2010-05-15.21:51:17.mstorti-v28-end-47-gdf352a6]-----
+Implemento el de busqueda exhaustiva tambien. Hago un ejemplo de tipo
+%
+      gN(ndim,nel)*A(ndim,ndof,ndof)*tau(ndof,ndof)*invC(ndof,ndof)
+%
+%
+Y lo corro para muchos valores comunes de ndim,nel,ndof
+%
+. ndim=1,2,3
+. nel=ndim+1 (simplices) y nel=2^ndim (cartesian)
+. ndof=1 (scalar), ndim+2 (compressible flow), (compressible flow + species)
+%
+ndim 1, nel 2, ndof 1
+will do a0 = a0*a1
+will do a0 = a0*a2
+will do a0 = a0*a3
+RAW ORDER: nopscount 6
+will do a1 = a1*a2
+will do a1 = a1*a3
+will do a0 = a0*a1
+HEURISTIC ORDER: nopscount 4, gain 33.33%
+prod j 0, do a1*a2
+prod j 1, do a1*a2
+prod j 2, do a0*a1
+OPTIMAL ORDER: nopscount 4, gain 33.33%
+----------------------
+ndim 1, nel 2, ndof 5
+will do a0 = a0*a1
+will do a0 = a0*a2
+will do a0 = a0*a3
+RAW ORDER: nopscount 550
+will do a0 = a0*a1
+will do a2 = a2*a3
+will do a0 = a0*a2
+HEURISTIC ORDER: nopscount 425, gain 22.73%
+prod j 0, do a1*a2
+prod j 1, do a1*a2
+prod j 2, do a0*a1
+OPTIMAL ORDER: nopscount 300, gain 45.45%
+----------------------
+ndim 1, nel 2, ndof 10
+will do a0 = a0*a1
+will do a0 = a0*a2
+will do a0 = a0*a3
+RAW ORDER: nopscount 4200
+will do a0 = a0*a1
+will do a2 = a2*a3
+will do a0 = a0*a2
+HEURISTIC ORDER: nopscount 3200, gain 23.81%
+prod j 0, do a1*a2
+prod j 1, do a1*a2
+prod j 2, do a0*a1
+OPTIMAL ORDER: nopscount 2200, gain 47.62%
+----------------------
+ndim 2, nel 3, ndof 1
+will do a0 = a0*a1
+will do a0 = a0*a2
+will do a0 = a0*a3
+RAW ORDER: nopscount 12
+will do a2 = a2*a3
+will do a1 = a1*a2
+will do a0 = a0*a1
+HEURISTIC ORDER: nopscount 9, gain 25.00%
+prod j 0, do a2*a3
+prod j 1, do a1*a2
+prod j 2, do a0*a1
+OPTIMAL ORDER: nopscount 9, gain 25.00%
+----------------------
+ndim 2, nel 3, ndof 5
+will do a0 = a0*a1
+will do a0 = a0*a2
+will do a0 = a0*a3
+RAW ORDER: nopscount 900
+will do a2 = a2*a3
+will do a0 = a0*a1
+will do a0 = a0*a2
+HEURISTIC ORDER: nopscount 650, gain 27.78%
+prod j 0, do a2*a3
+prod j 1, do a1*a2
+prod j 2, do a0*a1
+OPTIMAL ORDER: nopscount 525, gain 41.67%
+----------------------
+ndim 2, nel 3, ndof 10
+will do a0 = a0*a1
+will do a0 = a0*a2
+will do a0 = a0*a3
+RAW ORDER: nopscount 6600
+will do a0 = a0*a1
+will do a2 = a2*a3
+will do a0 = a0*a2
+HEURISTIC ORDER: nopscount 4600, gain 30.30%
+prod j 0, do a2*a3
+prod j 1, do a1*a2
+prod j 2, do a0*a1
+OPTIMAL ORDER: nopscount 3600, gain 45.45%
+----------------------
+ndim 2, nel 4, ndof 1
+will do a0 = a0*a1
+will do a0 = a0*a2
+will do a0 = a0*a3
+RAW ORDER: nopscount 16
+will do a2 = a2*a3
+will do a1 = a1*a2
+will do a0 = a0*a1
+HEURISTIC ORDER: nopscount 11, gain 31.25%
+prod j 0, do a2*a3
+prod j 1, do a1*a2
+prod j 2, do a0*a1
+OPTIMAL ORDER: nopscount 11, gain 31.25%
+----------------------
+ndim 2, nel 4, ndof 5
+will do a0 = a0*a1
+will do a0 = a0*a2
+will do a0 = a0*a3
+RAW ORDER: nopscount 1200
+will do a2 = a2*a3
+will do a0 = a0*a1
+will do a0 = a0*a2
+HEURISTIC ORDER: nopscount 825, gain 31.25%
+prod j 0, do a2*a3
+prod j 1, do a1*a2
+prod j 2, do a0*a1
+OPTIMAL ORDER: nopscount 575, gain 52.08%
+----------------------
+ndim 2, nel 4, ndof 10
+will do a0 = a0*a1
+will do a0 = a0*a2
+will do a0 = a0*a3
+RAW ORDER: nopscount 8800
+will do a0 = a0*a1
+will do a2 = a2*a3
+will do a0 = a0*a2
+HEURISTIC ORDER: nopscount 5800, gain 34.09%
+prod j 0, do a2*a3
+prod j 1, do a1*a2
+prod j 2, do a0*a1
+OPTIMAL ORDER: nopscount 3800, gain 56.82%
+----------------------
+ndim 3, nel 4, ndof 1
+will do a0 = a0*a1
+will do a0 = a0*a2
+will do a0 = a0*a3
+RAW ORDER: nopscount 20
+will do a2 = a2*a3
+will do a1 = a1*a2
+will do a0 = a0*a1
+HEURISTIC ORDER: nopscount 16, gain 20.00%
+prod j 0, do a2*a3
+prod j 1, do a1*a2
+prod j 2, do a0*a1
+OPTIMAL ORDER: nopscount 16, gain 20.00%
+----------------------
+ndim 3, nel 4, ndof 5
+will do a0 = a0*a1
+will do a0 = a0*a2
+will do a0 = a0*a3
+RAW ORDER: nopscount 1300
+will do a2 = a2*a3
+will do a0 = a0*a1
+will do a0 = a0*a2
+HEURISTIC ORDER: nopscount 925, gain 28.85%
+prod j 0, do a2*a3
+prod j 1, do a1*a2
+prod j 2, do a0*a1
+OPTIMAL ORDER: nopscount 800, gain 38.46%
+----------------------
+ndim 3, nel 4, ndof 10
+will do a0 = a0*a1
+will do a0 = a0*a2
+will do a0 = a0*a3
+RAW ORDER: nopscount 9200
+will do a2 = a2*a3
+will do a0 = a0*a1
+will do a0 = a0*a2
+HEURISTIC ORDER: nopscount 6200, gain 32.61%
+prod j 0, do a2*a3
+prod j 1, do a1*a2
+prod j 2, do a0*a1
+OPTIMAL ORDER: nopscount 5200, gain 43.48%
+----------------------
+ndim 3, nel 8, ndof 1
+will do a0 = a0*a1
+will do a0 = a0*a2
+will do a0 = a0*a3
+RAW ORDER: nopscount 40
+will do a2 = a2*a3
+will do a1 = a1*a2
+will do a0 = a0*a1
+HEURISTIC ORDER: nopscount 28, gain 30.00%
+prod j 0, do a2*a3
+prod j 1, do a1*a2
+prod j 2, do a0*a1
+OPTIMAL ORDER: nopscount 28, gain 30.00%
+----------------------
+ndim 3, nel 8, ndof 5
+will do a0 = a0*a1
+will do a0 = a0*a2
+will do a0 = a0*a3
+RAW ORDER: nopscount 2600
+will do a2 = a2*a3
+will do a1 = a1*a2
+will do a0 = a0*a1
+HEURISTIC ORDER: nopscount 1100, gain 57.69%
+prod j 0, do a2*a3
+prod j 1, do a1*a2
+prod j 2, do a0*a1
+OPTIMAL ORDER: nopscount 1100, gain 57.69%
+----------------------
+ndim 3, nel 8, ndof 10
+will do a0 = a0*a1
+will do a0 = a0*a2
+will do a0 = a0*a3
+RAW ORDER: nopscount 18400
+will do a2 = a2*a3
+will do a0 = a0*a1
+will do a0 = a0*a2
+HEURISTIC ORDER: nopscount 11400, gain 38.04%
+prod j 0, do a2*a3
+prod j 1, do a1*a2
+prod j 2, do a0*a1
+OPTIMAL ORDER: nopscount 6400, gain 65.22%
+----------------------
+
+%
+%--[2010-05-15.22:11:17.mstorti-v28-end-47-gdf352a6]-----
+El mismo ejemplo pero ahora multiplicando por el Residuo de las
+ecuaciones con lo cual da el termino de estabilizacion o sea
+%
+  res.prod(gN,A,tau,invC,R,-1,1,-1,2,-2,-2,-3,-3,-4,-4)
+%
+Termina con una matriz de nelxndof. El conteo es asi:
+%
+ndim 1, nel 2, ndof 1
+will do a0 = a0*a1
+will do a0 = a0*a2
+will do a0 = a0*a3
+will do a0 = a0*a4
+RAW ORDER: nopscount 8
+will do a1 = a1*a2
+will do a1 = a1*a3
+will do a1 = a1*a4
+will do a0 = a0*a1
+HEURISTIC ORDER: nopscount 5, gain 37.50%
+prod j 0, do a1*a2
+prod j 1, do a1*a2
+prod j 2, do a1*a2
+prod j 3, do a0*a1
+OPTIMAL ORDER: nopscount 5, gain 37.50%
+----------------------
+ndim 1, nel 2, ndof 5
+will do a0 = a0*a1
+will do a0 = a0*a2
+will do a0 = a0*a3
+will do a0 = a0*a4
+RAW ORDER: nopscount 600
+will do a0 = a0*a4
+will do a0 = a0*a3
+will do a0 = a0*a2
+will do a0 = a0*a1
+HEURISTIC ORDER: nopscount 160, gain 73.33%
+prod j 0, do a3*a4
+prod j 1, do a2*a3
+prod j 2, do a1*a2
+prod j 3, do a0*a1
+OPTIMAL ORDER: nopscount 85, gain 85.83%
+----------------------
+ndim 1, nel 2, ndof 10
+will do a0 = a0*a1
+will do a0 = a0*a2
+will do a0 = a0*a3
+will do a0 = a0*a4
+RAW ORDER: nopscount 4400
+will do a0 = a0*a4
+will do a0 = a0*a3
+will do a0 = a0*a2
+will do a0 = a0*a1
+HEURISTIC ORDER: nopscount 620, gain 85.91%
+prod j 0, do a3*a4
+prod j 1, do a2*a3
+prod j 2, do a1*a2
+prod j 3, do a0*a1
+OPTIMAL ORDER: nopscount 320, gain 92.73%
+----------------------
+ndim 2, nel 3, ndof 1
+will do a0 = a0*a1
+will do a0 = a0*a2
+will do a0 = a0*a3
+will do a0 = a0*a4
+RAW ORDER: nopscount 15
+will do a2 = a2*a3
+will do a2 = a2*a4
+will do a1 = a1*a2
+will do a0 = a0*a1
+HEURISTIC ORDER: nopscount 10, gain 33.33%
+prod j 0, do a2*a3
+prod j 1, do a2*a3
+prod j 2, do a1*a2
+prod j 3, do a0*a1
+OPTIMAL ORDER: nopscount 10, gain 33.33%
+----------------------
+ndim 2, nel 3, ndof 5
+will do a0 = a0*a1
+will do a0 = a0*a2
+will do a0 = a0*a3
+will do a0 = a0*a4
+RAW ORDER: nopscount 975
+will do a3 = a3*a4
+will do a2 = a2*a3
+will do a0 = a0*a2
+will do a0 = a0*a1
+HEURISTIC ORDER: nopscount 230, gain 76.41%
+prod j 0, do a3*a4
+prod j 1, do a2*a3
+prod j 2, do a1*a2
+prod j 3, do a0*a1
+OPTIMAL ORDER: nopscount 130, gain 86.67%
+----------------------
+ndim 2, nel 3, ndof 10
+will do a0 = a0*a1
+will do a0 = a0*a2
+will do a0 = a0*a3
+will do a0 = a0*a4
+RAW ORDER: nopscount 6900
+will do a0 = a0*a4
+will do a0 = a0*a3
+will do a0 = a0*a2
+will do a0 = a0*a1
+HEURISTIC ORDER: nopscount 1860, gain 73.04%
+prod j 0, do a3*a4
+prod j 1, do a2*a3
+prod j 2, do a1*a2
+prod j 3, do a0*a1
+OPTIMAL ORDER: nopscount 460, gain 93.33%
+----------------------
+ndim 2, nel 4, ndof 1
+will do a0 = a0*a1
+will do a0 = a0*a2
+will do a0 = a0*a3
+will do a0 = a0*a4
+RAW ORDER: nopscount 20
+will do a2 = a2*a3
+will do a2 = a2*a4
+will do a1 = a1*a2
+will do a0 = a0*a1
+HEURISTIC ORDER: nopscount 12, gain 40.00%
+prod j 0, do a2*a3
+prod j 1, do a2*a3
+prod j 2, do a1*a2
+prod j 3, do a0*a1
+OPTIMAL ORDER: nopscount 12, gain 40.00%
+----------------------
+ndim 2, nel 4, ndof 5
+will do a0 = a0*a1
+will do a0 = a0*a2
+will do a0 = a0*a3
+will do a0 = a0*a4
+RAW ORDER: nopscount 1300
+will do a3 = a3*a4
+will do a2 = a2*a3
+will do a0 = a0*a2
+will do a0 = a0*a1
+HEURISTIC ORDER: nopscount 290, gain 77.69%
+prod j 0, do a3*a4
+prod j 1, do a2*a3
+prod j 2, do a1*a2
+prod j 3, do a0*a1
+OPTIMAL ORDER: nopscount 140, gain 89.23%
+----------------------
+ndim 2, nel 4, ndof 10
+will do a0 = a0*a1
+will do a0 = a0*a2
+will do a0 = a0*a3
+will do a0 = a0*a4
+RAW ORDER: nopscount 9200
+will do a0 = a0*a4
+will do a0 = a0*a3
+will do a0 = a0*a2
+will do a0 = a0*a1
+HEURISTIC ORDER: nopscount 2480, gain 73.04%
+prod j 0, do a3*a4
+prod j 1, do a2*a3
+prod j 2, do a1*a2
+prod j 3, do a0*a1
+OPTIMAL ORDER: nopscount 480, gain 94.78%
+----------------------
+ndim 3, nel 4, ndof 1
+will do a0 = a0*a1
+will do a0 = a0*a2
+will do a0 = a0*a3
+will do a0 = a0*a4
+RAW ORDER: nopscount 24
+will do a2 = a2*a3
+will do a2 = a2*a4
+will do a1 = a1*a2
+will do a0 = a0*a1
+HEURISTIC ORDER: nopscount 17, gain 29.17%
+prod j 0, do a2*a3
+prod j 1, do a2*a3
+prod j 2, do a1*a2
+prod j 3, do a0*a1
+OPTIMAL ORDER: nopscount 17, gain 29.17%
+----------------------
+ndim 3, nel 4, ndof 5
+will do a0 = a0*a1
+will do a0 = a0*a2
+will do a0 = a0*a3
+will do a0 = a0*a4
+RAW ORDER: nopscount 1400
+will do a3 = a3*a4
+will do a2 = a2*a3
+will do a0 = a0*a2
+will do a0 = a0*a1
+HEURISTIC ORDER: nopscount 410, gain 70.71%
+prod j 0, do a3*a4
+prod j 1, do a2*a3
+prod j 2, do a1*a2
+prod j 3, do a0*a1
+OPTIMAL ORDER: nopscount 185, gain 86.79%
+----------------------
+ndim 3, nel 4, ndof 10
+will do a0 = a0*a1
+will do a0 = a0*a2
+will do a0 = a0*a3
+will do a0 = a0*a4
+RAW ORDER: nopscount 9600
+will do a3 = a3*a4
+will do a2 = a2*a3
+will do a0 = a0*a2
+will do a0 = a0*a1
+HEURISTIC ORDER: nopscount 1520, gain 84.17%
+prod j 0, do a3*a4
+prod j 1, do a2*a3
+prod j 2, do a1*a2
+prod j 3, do a0*a1
+OPTIMAL ORDER: nopscount 620, gain 93.54%
+----------------------
+ndim 3, nel 8, ndof 1
+will do a0 = a0*a1
+will do a0 = a0*a2
+will do a0 = a0*a3
+will do a0 = a0*a4
+RAW ORDER: nopscount 48
+will do a2 = a2*a3
+will do a2 = a2*a4
+will do a1 = a1*a2
+will do a0 = a0*a1
+HEURISTIC ORDER: nopscount 29, gain 39.58%
+prod j 0, do a2*a3
+prod j 1, do a2*a3
+prod j 2, do a1*a2
+prod j 3, do a0*a1
+OPTIMAL ORDER: nopscount 29, gain 39.58%
+----------------------
+ndim 3, nel 8, ndof 5
+will do a0 = a0*a1
+will do a0 = a0*a2
+will do a0 = a0*a3
+will do a0 = a0*a4
+RAW ORDER: nopscount 2800
+will do a3 = a3*a4
+will do a2 = a2*a3
+will do a1 = a1*a2
+will do a0 = a0*a1
+HEURISTIC ORDER: nopscount 245, gain 91.25%
+prod j 0, do a3*a4
+prod j 1, do a2*a3
+prod j 2, do a1*a2
+prod j 3, do a0*a1
+OPTIMAL ORDER: nopscount 245, gain 91.25%
+----------------------
+ndim 3, nel 8, ndof 10
+will do a0 = a0*a1
+will do a0 = a0*a2
+will do a0 = a0*a3
+will do a0 = a0*a4
+RAW ORDER: nopscount 19200
+will do a3 = a3*a4
+will do a2 = a2*a3
+will do a0 = a0*a2
+will do a0 = a0*a1
+HEURISTIC ORDER: nopscount 2840, gain 85.21%
+prod j 0, do a3*a4
+prod j 1, do a2*a3
+prod j 2, do a1*a2
+prod j 3, do a0*a1
+OPTIMAL ORDER: nopscount 740, gain 96.15%
+----------------------
+%
+%--[2010-05-15.22:15:25.mstorti-v28-end-47-gdf352a6]-----
+Si hago el calculo del jacobiano 
+%
+  res.prod(gN,A,tau,invC,JR,-1,1,-1,2,-2,-2,-3,-3,-4,-4,3,4)
+%
+donde JR(ndof,nel,ndof) seria basicamente A(ndim,ndof,ndof)*gN(ndim,nel)
+%
+ndim 1, nel 2, ndof 1
+will do a0 = a0*a1
+will do a0 = a0*a2
+will do a0 = a0*a3
+will do a0 = a0*a4
+RAW ORDER: nopscount 10
+will do a1 = a1*a2
+will do a1 = a1*a3
+will do a0 = a0*a1
+will do a0 = a0*a4
+HEURISTIC ORDER: nopscount 8, gain 20.00%
+prod j 0, do a1*a2
+prod j 1, do a1*a2
+prod j 2, do a0*a1
+prod j 3, do a0*a1
+OPTIMAL ORDER: nopscount 8, gain 20.00%
+----------------------
+ndim 1, nel 2, ndof 5
+will do a0 = a0*a1
+will do a0 = a0*a2
+will do a0 = a0*a3
+will do a0 = a0*a4
+RAW ORDER: nopscount 1050
+will do a0 = a0*a1
+will do a2 = a2*a3
+will do a0 = a0*a2
+will do a0 = a0*a4
+HEURISTIC ORDER: nopscount 925, gain 11.90%
+prod j 0, do a1*a2
+prod j 1, do a1*a2
+prod j 2, do a1*a2
+prod j 3, do a0*a1
+OPTIMAL ORDER: nopscount 600, gain 42.86%
+----------------------
+ndim 1, nel 2, ndof 10
+will do a0 = a0*a1
+will do a0 = a0*a2
+will do a0 = a0*a3
+will do a0 = a0*a4
+RAW ORDER: nopscount 8200
+will do a0 = a0*a1
+will do a2 = a2*a3
+will do a0 = a0*a2
+will do a0 = a0*a4
+HEURISTIC ORDER: nopscount 7200, gain 12.20%
+prod j 0, do a1*a2
+prod j 1, do a1*a2
+prod j 2, do a1*a2
+prod j 3, do a0*a1
+OPTIMAL ORDER: nopscount 4400, gain 46.34%
+----------------------
+ndim 2, nel 3, ndof 1
+will do a0 = a0*a1
+will do a0 = a0*a2
+will do a0 = a0*a3
+will do a0 = a0*a4
+RAW ORDER: nopscount 21
+will do a2 = a2*a3
+will do a1 = a1*a2
+will do a0 = a0*a1
+will do a0 = a0*a4
+HEURISTIC ORDER: nopscount 18, gain 14.29%
+prod j 0, do a2*a3
+prod j 1, do a1*a2
+prod j 2, do a0*a1
+prod j 3, do a0*a1
+OPTIMAL ORDER: nopscount 18, gain 14.29%
+----------------------
+ndim 2, nel 3, ndof 5
+will do a0 = a0*a1
+will do a0 = a0*a2
+will do a0 = a0*a3
+will do a0 = a0*a4
+RAW ORDER: nopscount 2025
+will do a2 = a2*a3
+will do a0 = a0*a1
+will do a0 = a0*a2
+will do a0 = a0*a4
+HEURISTIC ORDER: nopscount 1775, gain 12.35%
+prod j 0, do a2*a3
+prod j 1, do a1*a2
+prod j 2, do a1*a2
+prod j 3, do a0*a1
+OPTIMAL ORDER: nopscount 1575, gain 22.22%
+----------------------
+ndim 2, nel 3, ndof 10
+will do a0 = a0*a1
+will do a0 = a0*a2
+will do a0 = a0*a3
+will do a0 = a0*a4
+RAW ORDER: nopscount 15600
+will do a0 = a0*a1
+will do a2 = a2*a3
+will do a0 = a0*a2
+will do a0 = a0*a4
+HEURISTIC ORDER: nopscount 13600, gain 12.82%
+prod j 0, do a2*a3
+prod j 1, do a1*a2
+prod j 2, do a1*a2
+prod j 3, do a0*a1
+OPTIMAL ORDER: nopscount 10800, gain 30.77%
+----------------------
+ndim 2, nel 4, ndof 1
+will do a0 = a0*a1
+will do a0 = a0*a2
+will do a0 = a0*a3
+will do a0 = a0*a4
+RAW ORDER: nopscount 32
+will do a2 = a2*a3
+will do a1 = a1*a2
+will do a0 = a0*a1
+will do a0 = a0*a4
+HEURISTIC ORDER: nopscount 27, gain 15.62%
+prod j 0, do a2*a3
+prod j 1, do a1*a2
+prod j 2, do a0*a1
+prod j 3, do a0*a1
+OPTIMAL ORDER: nopscount 27, gain 15.62%
+----------------------
+ndim 2, nel 4, ndof 5
+will do a0 = a0*a1
+will do a0 = a0*a2
+will do a0 = a0*a3
+will do a0 = a0*a4
+RAW ORDER: nopscount 3200
+will do a2 = a2*a3
+will do a0 = a0*a1
+will do a0 = a0*a2
+will do a0 = a0*a4
+HEURISTIC ORDER: nopscount 2825, gain 11.72%
+prod j 0, do a2*a3
+prod j 1, do a1*a2
+prod j 2, do a1*a2
+prod j 3, do a0*a1
+OPTIMAL ORDER: nopscount 2175, gain 32.03%
+----------------------
+ndim 2, nel 4, ndof 10
+will do a0 = a0*a1
+will do a0 = a0*a2
+will do a0 = a0*a3
+will do a0 = a0*a4
+RAW ORDER: nopscount 24800
+will do a0 = a0*a1
+will do a2 = a2*a3
+will do a0 = a0*a2
+will do a0 = a0*a4
+HEURISTIC ORDER: nopscount 21800, gain 12.10%
+prod j 0, do a2*a3
+prod j 1, do a1*a2
+prod j 2, do a1*a2
+prod j 3, do a0*a1
+OPTIMAL ORDER: nopscount 14200, gain 42.74%
+----------------------
+ndim 3, nel 4, ndof 1
+will do a0 = a0*a1
+will do a0 = a0*a2
+will do a0 = a0*a3
+will do a0 = a0*a4
+RAW ORDER: nopscount 36
+will do a2 = a2*a3
+will do a1 = a1*a2
+will do a0 = a0*a1
+will do a0 = a0*a4
+HEURISTIC ORDER: nopscount 32, gain 11.11%
+prod j 0, do a2*a3
+prod j 1, do a1*a2
+prod j 2, do a0*a1
+prod j 3, do a0*a1
+OPTIMAL ORDER: nopscount 32, gain 11.11%
+----------------------
+ndim 3, nel 4, ndof 5
+will do a0 = a0*a1
+will do a0 = a0*a2
+will do a0 = a0*a3
+will do a0 = a0*a4
+RAW ORDER: nopscount 3300
+will do a2 = a2*a3
+will do a0 = a0*a1
+will do a0 = a0*a2
+will do a0 = a0*a4
+HEURISTIC ORDER: nopscount 2925, gain 11.36%
+prod j 0, do a2*a3
+prod j 1, do a1*a2
+prod j 2, do a0*a1
+prod j 3, do a0*a1
+OPTIMAL ORDER: nopscount 2800, gain 15.15%
+----------------------
+ndim 3, nel 4, ndof 10
+will do a0 = a0*a1
+will do a0 = a0*a2
+will do a0 = a0*a3
+will do a0 = a0*a4
+RAW ORDER: nopscount 25200
+will do a2 = a2*a3
+will do a0 = a0*a1
+will do a0 = a0*a2
+will do a0 = a0*a4
+HEURISTIC ORDER: nopscount 22200, gain 11.90%
+prod j 0, do a2*a3
+prod j 1, do a1*a2
+prod j 2, do a1*a2
+prod j 3, do a0*a1
+OPTIMAL ORDER: nopscount 20800, gain 17.46%
+----------------------
+ndim 3, nel 8, ndof 1
+will do a0 = a0*a1
+will do a0 = a0*a2
+will do a0 = a0*a3
+will do a0 = a0*a4
+RAW ORDER: nopscount 104
+will do a2 = a2*a3
+will do a1 = a1*a2
+will do a0 = a0*a1
+will do a0 = a0*a4
+HEURISTIC ORDER: nopscount 92, gain 11.54%
+prod j 0, do a2*a3
+prod j 1, do a1*a2
+prod j 2, do a0*a1
+prod j 3, do a0*a1
+OPTIMAL ORDER: nopscount 92, gain 11.54%
+----------------------
+ndim 3, nel 8, ndof 5
+will do a0 = a0*a1
+will do a0 = a0*a2
+will do a0 = a0*a3
+will do a0 = a0*a4
+RAW ORDER: nopscount 10600
+will do a2 = a2*a3
+will do a1 = a1*a2
+will do a0 = a0*a1
+will do a0 = a0*a4
+HEURISTIC ORDER: nopscount 9100, gain 14.15%
+prod j 0, do a2*a3
+prod j 1, do a1*a2
+prod j 2, do a1*a2
+prod j 3, do a0*a1
+OPTIMAL ORDER: nopscount 8300, gain 21.70%
+----------------------
+ndim 3, nel 8, ndof 10
+will do a0 = a0*a1
+will do a0 = a0*a2
+will do a0 = a0*a3
+will do a0 = a0*a4
+RAW ORDER: nopscount 82400
+will do a2 = a2*a3
+will do a0 = a0*a1
+will do a0 = a0*a2
+will do a0 = a0*a4
+HEURISTIC ORDER: nopscount 75400, gain 8.50%
+prod j 0, do a2*a3
+prod j 1, do a1*a2
+prod j 2, do a1*a2
+prod j 3, do a0*a1
+OPTIMAL ORDER: nopscount 47200, gain 42.72%
+----------------------
+%
+%--[2010-05-16.13:46:51.mstorti-v28-end-47-gdf352a6]-----
+Con 
+  res.prod(gN,A,tau,invC,R, -1,1,-1,2,-2,-2,-3,-3,-4,-4)
+% 
+da estas ganancias
+%
+OPTIMAL ORDER: nopscount 5, gain 37.50%
+OPTIMAL ORDER: nopscount 85, gain 85.83%
+OPTIMAL ORDER: nopscount 320, gain 92.73%
+OPTIMAL ORDER: nopscount 10, gain 33.33%
+OPTIMAL ORDER: nopscount 130, gain 86.67%
+OPTIMAL ORDER: nopscount 460, gain 93.33%
+OPTIMAL ORDER: nopscount 12, gain 40.00%
+OPTIMAL ORDER: nopscount 140, gain 89.23%
+OPTIMAL ORDER: nopscount 480, gain 94.78%
+OPTIMAL ORDER: nopscount 17, gain 29.17%
+OPTIMAL ORDER: nopscount 185, gain 86.79%
+OPTIMAL ORDER: nopscount 620, gain 93.54%
+OPTIMAL ORDER: nopscount 29, gain 39.58%
+OPTIMAL ORDER: nopscount 245, gain 91.25%
+OPTIMAL ORDER: nopscount 740, gain 96.15%
+%
+mientras que con
+%
+  res.prod(gN,A,tau,JR,-1,1,-1,2,-2,-2,-3,-3,3,4)
+%
+da
+%
+OPTIMAL ORDER: nopscount 7, gain 12.50%
+OPTIMAL ORDER: nopscount 475, gain 40.62%
+OPTIMAL ORDER: nopscount 3400, gain 45.16%
+OPTIMAL ORDER: nopscount 17, gain 5.56%
+OPTIMAL ORDER: nopscount 1450, gain 12.12%
+OPTIMAL ORDER: nopscount 9800, gain 22.22%
+OPTIMAL ORDER: nopscount 26, gain 7.14%
+OPTIMAL ORDER: nopscount 2050, gain 24.07%
+OPTIMAL ORDER: nopscount 13200, gain 36.54%
+OPTIMAL ORDER: nopscount 31, gain 3.12%
+OPTIMAL ORDER: nopscount 2675, gain 4.46%
+OPTIMAL ORDER: nopscount 19800, gain 6.60%
+OPTIMAL ORDER: nopscount 91, gain 5.21%
+OPTIMAL ORDER: nopscount 8175, gain 14.84%
+OPTIMAL ORDER: nopscount 46200, gain 37.90%
+%
+%--[2010-05-16.16:29:48.mstorti-v28-end-48-g986f827]-----
+Para
+  res.prod(gN,A,tau,JR,-1,1,-1,2,-2,-2,-3,-3,3,4)
+%
+ndim 1, nel 2, ndof 1
+RAW ORDER: nopscount 8
+HEURISTIC product order: ((gN*(A*tau))*JR)
+HEURISTIC ORDER: nopscount 7, gain 12.50%
+OPTIMAL product order: ((gN*(A*tau))*JR)
+OPTIMAL ORDER: nopscount 7, gain 12.50%
+----------------------
+ndim 1, nel 2, ndof 5
+RAW ORDER: nopscount 800
+HEURISTIC product order: (((gN*A)*tau)*JR)
+HEURISTIC ORDER: nopscount 800, gain 0.00%
+OPTIMAL product order: (gN*((A*tau)*JR))
+OPTIMAL ORDER: nopscount 475, gain 40.62%
+----------------------
+ndim 1, nel 2, ndof 10
+RAW ORDER: nopscount 6200
+HEURISTIC product order: (((gN*A)*tau)*JR)
+HEURISTIC ORDER: nopscount 6200, gain 0.00%
+OPTIMAL product order: (gN*((A*tau)*JR))
+OPTIMAL ORDER: nopscount 3400, gain 45.16%
+----------------------
+ndim 2, nel 3, ndof 1
+RAW ORDER: nopscount 18
+HEURISTIC product order: ((gN*(A*tau))*JR)
+HEURISTIC ORDER: nopscount 17, gain 5.56%
+OPTIMAL product order: ((gN*(A*tau))*JR)
+OPTIMAL ORDER: nopscount 17, gain 5.56%
+----------------------
+ndim 2, nel 3, ndof 5
+RAW ORDER: nopscount 1650
+HEURISTIC product order: (((gN*A)*tau)*JR)
+HEURISTIC ORDER: nopscount 1650, gain 0.00%
+OPTIMAL product order: (gN*((A*tau)*JR))
+OPTIMAL ORDER: nopscount 1450, gain 12.12%
+----------------------
+ndim 2, nel 3, ndof 10
+RAW ORDER: nopscount 12600
+HEURISTIC product order: (((gN*A)*tau)*JR)
+HEURISTIC ORDER: nopscount 12600, gain 0.00%
+OPTIMAL product order: (gN*((A*tau)*JR))
+OPTIMAL ORDER: nopscount 9800, gain 22.22%
+----------------------
+ndim 2, nel 4, ndof 1
+RAW ORDER: nopscount 28
+HEURISTIC product order: ((gN*(A*tau))*JR)
+HEURISTIC ORDER: nopscount 26, gain 7.14%
+OPTIMAL product order: ((gN*(A*tau))*JR)
+OPTIMAL ORDER: nopscount 26, gain 7.14%
+----------------------
+ndim 2, nel 4, ndof 5
+RAW ORDER: nopscount 2700
+HEURISTIC product order: (((gN*A)*tau)*JR)
+HEURISTIC ORDER: nopscount 2700, gain 0.00%
+OPTIMAL product order: (gN*((A*tau)*JR))
+OPTIMAL ORDER: nopscount 2050, gain 24.07%
+----------------------
+ndim 2, nel 4, ndof 10
+RAW ORDER: nopscount 20800
+HEURISTIC product order: (((gN*A)*tau)*JR)
+HEURISTIC ORDER: nopscount 20800, gain 0.00%
+OPTIMAL product order: (gN*((A*tau)*JR))
+OPTIMAL ORDER: nopscount 13200, gain 36.54%
+----------------------
+ndim 3, nel 4, ndof 1
+RAW ORDER: nopscount 32
+HEURISTIC product order: ((gN*(A*tau))*JR)
+HEURISTIC ORDER: nopscount 31, gain 3.12%
+OPTIMAL product order: ((gN*(A*tau))*JR)
+OPTIMAL ORDER: nopscount 31, gain 3.12%
+----------------------
+ndim 3, nel 4, ndof 5
+RAW ORDER: nopscount 2800
+HEURISTIC product order: (((gN*A)*tau)*JR)
+HEURISTIC ORDER: nopscount 2800, gain 0.00%
+OPTIMAL product order: ((gN*(A*tau))*JR)
+OPTIMAL ORDER: nopscount 2675, gain 4.46%
+----------------------
+ndim 3, nel 4, ndof 10
+RAW ORDER: nopscount 21200
+HEURISTIC product order: (((gN*A)*tau)*JR)
+HEURISTIC ORDER: nopscount 21200, gain 0.00%
+OPTIMAL product order: (gN*((A*tau)*JR))
+OPTIMAL ORDER: nopscount 19800, gain 6.60%
+----------------------
+ndim 3, nel 8, ndof 1
+RAW ORDER: nopscount 96
+HEURISTIC product order: ((gN*(A*tau))*JR)
+HEURISTIC ORDER: nopscount 91, gain 5.21%
+OPTIMAL product order: ((gN*(A*tau))*JR)
+OPTIMAL ORDER: nopscount 91, gain 5.21%
+----------------------
+ndim 3, nel 8, ndof 5
+RAW ORDER: nopscount 9600
+HEURISTIC product order: ((gN*(A*tau))*JR)
+HEURISTIC ORDER: nopscount 8975, gain 6.51%
+OPTIMAL product order: (gN*((A*tau)*JR))
+OPTIMAL ORDER: nopscount 8175, gain 14.84%
+----------------------
+ndim 3, nel 8, ndof 10
+RAW ORDER: nopscount 74400
+HEURISTIC product order: (((gN*A)*tau)*JR)
+HEURISTIC ORDER: nopscount 74400, gain 0.00%
+OPTIMAL product order: (gN*((A*tau)*JR))
+OPTIMAL ORDER: nopscount 46200, gain 37.90%
+----------------------
+%
+%--[2010-05-16.16:31:20.mstorti-v28-end-48-g986f827]-----
+PARA
+  res.prod(gN,A,tau,invC,JR,-1,1,-1,2,-2,-2,-3,-3,-4,-4,3,4)
+%
+ndim 1, nel 2, ndof 1
+RAW ORDER: nopscount 10
+HEURISTIC product order: ((gN*((A*tau)*invC))*JR)
+HEURISTIC ORDER: nopscount 8, gain 20.00%
+OPTIMAL product order: ((gN*((A*tau)*invC))*JR)
+OPTIMAL ORDER: nopscount 8, gain 20.00%
+----------------------
+ndim 1, nel 2, ndof 5
+RAW ORDER: nopscount 1050
+HEURISTIC product order: (((gN*A)*(tau*invC))*JR)
+HEURISTIC ORDER: nopscount 925, gain 11.90%
+OPTIMAL product order: (gN*(((A*tau)*invC)*JR))
+OPTIMAL ORDER: nopscount 600, gain 42.86%
+----------------------
+ndim 1, nel 2, ndof 10
+RAW ORDER: nopscount 8200
+HEURISTIC product order: (((gN*A)*(tau*invC))*JR)
+HEURISTIC ORDER: nopscount 7200, gain 12.20%
+OPTIMAL product order: (gN*(((A*tau)*invC)*JR))
+OPTIMAL ORDER: nopscount 4400, gain 46.34%
+----------------------
+ndim 2, nel 3, ndof 1
+RAW ORDER: nopscount 21
+HEURISTIC product order: ((gN*(A*(tau*invC)))*JR)
+HEURISTIC ORDER: nopscount 18, gain 14.29%
+OPTIMAL product order: ((gN*(A*(tau*invC)))*JR)
+OPTIMAL ORDER: nopscount 18, gain 14.29%
+----------------------
+ndim 2, nel 3, ndof 5
+RAW ORDER: nopscount 2025
+HEURISTIC product order: (((gN*A)*(tau*invC))*JR)
+HEURISTIC ORDER: nopscount 1775, gain 12.35%
+OPTIMAL product order: (gN*((A*(tau*invC))*JR))
+OPTIMAL ORDER: nopscount 1575, gain 22.22%
+----------------------
+ndim 2, nel 3, ndof 10
+RAW ORDER: nopscount 15600
+HEURISTIC product order: (((gN*A)*(tau*invC))*JR)
+HEURISTIC ORDER: nopscount 13600, gain 12.82%
+OPTIMAL product order: (gN*((A*(tau*invC))*JR))
+OPTIMAL ORDER: nopscount 10800, gain 30.77%
+----------------------
+ndim 2, nel 4, ndof 1
+RAW ORDER: nopscount 32
+HEURISTIC product order: ((gN*(A*(tau*invC)))*JR)
+HEURISTIC ORDER: nopscount 27, gain 15.62%
+OPTIMAL product order: ((gN*(A*(tau*invC)))*JR)
+OPTIMAL ORDER: nopscount 27, gain 15.62%
+----------------------
+ndim 2, nel 4, ndof 5
+RAW ORDER: nopscount 3200
+HEURISTIC product order: (((gN*A)*(tau*invC))*JR)
+HEURISTIC ORDER: nopscount 2825, gain 11.72%
+OPTIMAL product order: (gN*((A*(tau*invC))*JR))
+OPTIMAL ORDER: nopscount 2175, gain 32.03%
+----------------------
+ndim 2, nel 4, ndof 10
+RAW ORDER: nopscount 24800
+HEURISTIC product order: (((gN*A)*(tau*invC))*JR)
+HEURISTIC ORDER: nopscount 21800, gain 12.10%
+OPTIMAL product order: (gN*((A*(tau*invC))*JR))
+OPTIMAL ORDER: nopscount 14200, gain 42.74%
+----------------------
+ndim 3, nel 4, ndof 1
+RAW ORDER: nopscount 36
+HEURISTIC product order: ((gN*(A*(tau*invC)))*JR)
+HEURISTIC ORDER: nopscount 32, gain 11.11%
+OPTIMAL product order: ((gN*(A*(tau*invC)))*JR)
+OPTIMAL ORDER: nopscount 32, gain 11.11%
+----------------------
+ndim 3, nel 4, ndof 5
+RAW ORDER: nopscount 3300
+HEURISTIC product order: (((gN*A)*(tau*invC))*JR)
+HEURISTIC ORDER: nopscount 2925, gain 11.36%
+OPTIMAL product order: ((gN*(A*(tau*invC)))*JR)
+OPTIMAL ORDER: nopscount 2800, gain 15.15%
+----------------------
+ndim 3, nel 4, ndof 10
+RAW ORDER: nopscount 25200
+HEURISTIC product order: (((gN*A)*(tau*invC))*JR)
+HEURISTIC ORDER: nopscount 22200, gain 11.90%
+OPTIMAL product order: (gN*((A*(tau*invC))*JR))
+OPTIMAL ORDER: nopscount 20800, gain 17.46%
+----------------------
+ndim 3, nel 8, ndof 1
+RAW ORDER: nopscount 104
+HEURISTIC product order: ((gN*(A*(tau*invC)))*JR)
+HEURISTIC ORDER: nopscount 92, gain 11.54%
+OPTIMAL product order: ((gN*(A*(tau*invC)))*JR)
+OPTIMAL ORDER: nopscount 92, gain 11.54%
+----------------------
+ndim 3, nel 8, ndof 5
+RAW ORDER: nopscount 10600
+HEURISTIC product order: ((gN*(A*(tau*invC)))*JR)
+HEURISTIC ORDER: nopscount 9100, gain 14.15%
+OPTIMAL product order: (gN*((A*(tau*invC))*JR))
+OPTIMAL ORDER: nopscount 8300, gain 21.70%
+----------------------
+ndim 3, nel 8, ndof 10
+RAW ORDER: nopscount 82400
+HEURISTIC product order: (((gN*A)*(tau*invC))*JR)
+HEURISTIC ORDER: nopscount 75400, gain 8.50%
+OPTIMAL product order: (gN*((A*(tau*invC))*JR))
+OPTIMAL ORDER: nopscount 47200, gain 42.72%
+----------------------
+%
+%--[2010-05-16.16:33:35.mstorti-v28-end-48-g986f827]-----
+Para res.prod(gN,A,tau,R,-1,1,-1,2,-2,-2,-3,-3)
+%
+ndim 1, nel 2, ndof 1
+RAW ORDER: nopscount 6
+HEURISTIC product order: (gN*((A*tau)*R))
+HEURISTIC ORDER: nopscount 4, gain 33.33%
+OPTIMAL product order: (gN*((A*tau)*R))
+OPTIMAL ORDER: nopscount 4, gain 33.33%
+----------------------
+ndim 1, nel 2, ndof 5
+RAW ORDER: nopscount 350
+HEURISTIC product order: (((gN*R)*tau)*A)
+HEURISTIC ORDER: nopscount 110, gain 68.57%
+OPTIMAL product order: (gN*(A*(tau*R)))
+OPTIMAL ORDER: nopscount 60, gain 82.86%
+----------------------
+ndim 1, nel 2, ndof 10
+RAW ORDER: nopscount 2400
+HEURISTIC product order: (((gN*R)*tau)*A)
+HEURISTIC ORDER: nopscount 420, gain 82.50%
+OPTIMAL product order: (gN*(A*(tau*R)))
+OPTIMAL ORDER: nopscount 220, gain 90.83%
+----------------------
+ndim 2, nel 3, ndof 1
+RAW ORDER: nopscount 12
+HEURISTIC product order: (gN*(A*(tau*R)))
+HEURISTIC ORDER: nopscount 9, gain 25.00%
+OPTIMAL product order: (gN*(A*(tau*R)))
+OPTIMAL ORDER: nopscount 9, gain 25.00%
+----------------------
+ndim 2, nel 3, ndof 5
+RAW ORDER: nopscount 600
+HEURISTIC product order: ((gN*(tau*R))*A)
+HEURISTIC ORDER: nopscount 205, gain 65.83%
+OPTIMAL product order: (gN*(A*(tau*R)))
+OPTIMAL ORDER: nopscount 105, gain 82.50%
+----------------------
+ndim 2, nel 3, ndof 10
+RAW ORDER: nopscount 3900
+HEURISTIC product order: (((gN*R)*tau)*A)
+HEURISTIC ORDER: nopscount 1260, gain 67.69%
+OPTIMAL product order: (gN*(A*(tau*R)))
+OPTIMAL ORDER: nopscount 360, gain 90.77%
+----------------------
+ndim 2, nel 4, ndof 1
+RAW ORDER: nopscount 16
+HEURISTIC product order: (gN*(A*(tau*R)))
+HEURISTIC ORDER: nopscount 11, gain 31.25%
+OPTIMAL product order: (gN*(A*(tau*R)))
+OPTIMAL ORDER: nopscount 11, gain 31.25%
+----------------------
+ndim 2, nel 4, ndof 5
+RAW ORDER: nopscount 800
+HEURISTIC product order: ((gN*(tau*R))*A)
+HEURISTIC ORDER: nopscount 265, gain 66.88%
+OPTIMAL product order: (gN*(A*(tau*R)))
+OPTIMAL ORDER: nopscount 115, gain 85.62%
+----------------------
+ndim 2, nel 4, ndof 10
+RAW ORDER: nopscount 5200
+HEURISTIC product order: (((gN*R)*tau)*A)
+HEURISTIC ORDER: nopscount 1680, gain 67.69%
+OPTIMAL product order: (gN*(A*(tau*R)))
+OPTIMAL ORDER: nopscount 380, gain 92.69%
+----------------------
+ndim 3, nel 4, ndof 1
+RAW ORDER: nopscount 20
+HEURISTIC product order: (gN*(A*(tau*R)))
+HEURISTIC ORDER: nopscount 16, gain 20.00%
+OPTIMAL product order: (gN*(A*(tau*R)))
+OPTIMAL ORDER: nopscount 16, gain 20.00%
+----------------------
+ndim 3, nel 4, ndof 5
+RAW ORDER: nopscount 900
+HEURISTIC product order: ((gN*(tau*R))*A)
+HEURISTIC ORDER: nopscount 385, gain 57.22%
+OPTIMAL product order: (gN*(A*(tau*R)))
+OPTIMAL ORDER: nopscount 160, gain 82.22%
+----------------------
+ndim 3, nel 4, ndof 10
+RAW ORDER: nopscount 5600
+HEURISTIC product order: ((gN*(tau*R))*A)
+HEURISTIC ORDER: nopscount 1420, gain 74.64%
+OPTIMAL product order: (gN*(A*(tau*R)))
+OPTIMAL ORDER: nopscount 520, gain 90.71%
+----------------------
+ndim 3, nel 8, ndof 1
+RAW ORDER: nopscount 40
+HEURISTIC product order: (gN*(A*(tau*R)))
+HEURISTIC ORDER: nopscount 28, gain 30.00%
+OPTIMAL product order: (gN*(A*(tau*R)))
+OPTIMAL ORDER: nopscount 28, gain 30.00%
+----------------------
+ndim 3, nel 8, ndof 5
+RAW ORDER: nopscount 1800
+HEURISTIC product order: (gN*(A*(tau*R)))
+HEURISTIC ORDER: nopscount 220, gain 87.78%
+OPTIMAL product order: (gN*(A*(tau*R)))
+OPTIMAL ORDER: nopscount 220, gain 87.78%
+----------------------
+ndim 3, nel 8, ndof 10
+RAW ORDER: nopscount 11200
+HEURISTIC product order: ((gN*(tau*R))*A)
+HEURISTIC ORDER: nopscount 2740, gain 75.54%
+OPTIMAL product order: (gN*(A*(tau*R)))
+OPTIMAL ORDER: nopscount 640, gain 94.29%
+----------------------
+
+%=== Sun May 16 16:58:31 2010 mstorti@galileo
+%
+%--[2010-05-16.19:58:31.mstorti-v28-end-48-g986f827]-----
+En resumen para res.prod(gN,A,tau,JR,-1,1,-1,2,-2,-2,-3,-3,3,4)
+seria
+------------------
+  ndim, nel, ndof, nops-raw, order-heur, nops-heur, gain-heur, order-opt, nops-opt, gain-opt, 
+  1 2 1   8  ((gN*(A*tau))*JR)   7 12.50  ((gN*(A*tau))*JR)   7 12.50 
+  1 2 5   800  (((gN*A)*tau)*JR)   800 0.00  (gN*((A*tau)*JR))   475 40.62 
+  1 2 10   6200  (((gN*A)*tau)*JR)   6200 0.00  (gN*((A*tau)*JR))   3400 45.16 
+  2 3 1   18  ((gN*(A*tau))*JR)   17 5.56  ((gN*(A*tau))*JR)   17 5.56 
+  2 3 5   1650  (((gN*A)*tau)*JR)   1650 0.00  (gN*((A*tau)*JR))   1450 12.12 
+  2 3 10   12600  (((gN*A)*tau)*JR)   12600 0.00  (gN*((A*tau)*JR))   9800 22.22 
+  2 4 1   28  ((gN*(A*tau))*JR)   26 7.14  ((gN*(A*tau))*JR)   26 7.14 
+  2 4 5   2700  (((gN*A)*tau)*JR)   2700 0.00  (gN*((A*tau)*JR))   2050 24.07 
+  2 4 10   20800  (((gN*A)*tau)*JR)   20800 0.00  (gN*((A*tau)*JR))   13200 36.54 
+  3 4 1   32  ((gN*(A*tau))*JR)   31 3.12  ((gN*(A*tau))*JR)   31 3.12 
+  3 4 5   2800  (((gN*A)*tau)*JR)   2800 0.00  ((gN*(A*tau))*JR)   2675 4.46 
+  3 4 10   21200  (((gN*A)*tau)*JR)   21200 0.00  (gN*((A*tau)*JR))   19800 6.60 
+  3 8 1   96  ((gN*(A*tau))*JR)   91 5.21  ((gN*(A*tau))*JR)   91 5.21 
+  3 8 5   9600  ((gN*(A*tau))*JR)   8975 6.51  (gN*((A*tau)*JR))   8175 14.84 
+  3 8 10   74400  (((gN*A)*tau)*JR)   74400 0.00  (gN*((A*tau)*JR))   46200 37.90 
+------------------
+
+%=== Sat May 29 12:17:11 2010 mstorti@galileo
+%
+%--[2010-05-29.15:17:11.mstorti-v28-end-56-ga225e38]-----
+Estoy viendo el tema de la eficiencia para dejar el multiprod
+andando. Me bajo una version anterior (la mstorti-v28-end-4-g0b4d6d3)
+y pruebo con esa con el programa
+`cases/garage/multiprod/testmprod3.cpp' y me da lo siguiente 
+%
+    N  ntimes     ROLD     RNEW
+   50    1000     3.12     2.55
+   60    1000     3.84     3.65
+   72    1000     3.98     3.90
+   86    1000     3.62     3.65
+  103    1000     3.79     3.60
+  124     786     4.09     3.91
+  149     453     3.21     3.13
+  179     261     2.54     2.46
+  215     150     1.80     1.80
+%
+N= tamaño de la matriz
+ntimes= nro de veces que se ejecuta el producto
+ROLD= rate con la version vieja mstorti-v28-end-4-g0b4d6d3
+RNEW = rate con la version actual mstorti-v28-end-56-ga225e38). 
+%
+O sea que dan practicamente lo mismo. 
+%
+%--[2010-05-29.19:53:11.mstorti-v28-end-56-ga225e38]-----
+Ahora corro un producto de Nmat matrices con orden mprod_order=natural
+y con el optimo
+OPTIMAL
+Nmat 2, nopscount 64296, ntimes 100, elapsed 0.014421 secs, rate 0.445850 Gflops
+Nmat 3, nopscount 30856, ntimes 100, elapsed 0.001925 secs, rate 1.602916 Gflops
+Nmat 4, nopscount 36056, ntimes 100, elapsed 0.004227 secs, rate 0.853008 Gflops
+Nmat 5, nopscount 22812, ntimes 100, elapsed 0.005202 secs, rate 0.438519 Gflops
+Nmat 6, nopscount 148760, ntimes 100, elapsed 0.027609 secs, rate 0.538812 Gflops
+Nmat 7, nopscount 559240, ntimes 100, elapsed 0.047519 secs, rate 1.176877 Gflops
+Nmat 8, nopscount 514576, ntimes 100, elapsed 0.053156 secs, rate 0.968051 Gflops
+Nmat 9, nopscount 308568, ntimes 100, elapsed 0.014766 secs, rate 2.089723 Gflops
+Nmat 10, nopscount 141264, ntimes 100, elapsed 0.021187 secs, rate 0.666746 Gflops
+Nmat 11, nopscount 470052, ntimes 100, elapsed 0.009800 secs, rate 4.796470 Gflops
+Nmat 12, nopscount 825750, ntimes 100, elapsed 0.020489 secs, rate 4.030216 Gflops
+Nmat 13, nopscount 2002650, ntimes 100, elapsed 0.095516 secs, rate 2.096665 Gflops
+Nmat 14, nopscount 309120, ntimes 100, elapsed 0.033307 secs, rate 0.928091 Gflops
+Nmat 15, nopscount 521732, ntimes 100, elapsed 0.033736 secs, rate 1.546515 Gflops
+Nmat 16, nopscount 169860, ntimes 100, elapsed 0.013925 secs, rate 1.219814 Gflops
+Nmat 17, nopscount 508530, ntimes 100, elapsed 0.079113 secs, rate 0.642789 Gflops
+Nmat 18, nopscount 167712, ntimes 100, elapsed 0.015279 secs, rate 1.097660 Gflops
+Nmat 19, nopscount 87184, ntimes 100, elapsed 0.021383 secs, rate 0.407725 Gflops
+Nmat 20, nopscount 84930, ntimes 100, elapsed 0.021969 secs, rate 0.386589 Gflops
+NATURAL
+Nmat 2, nopscount 64296, ntimes 100, elapsed 0.019047 secs, rate 0.337565 Gflops
+Nmat 3, nopscount 30856, ntimes 100, elapsed 0.004626 secs, rate 0.667007 Gflops
+Nmat 4, nopscount 36056, ntimes 100, elapsed 0.004843 secs, rate 0.744498 Gflops
+Nmat 5, nopscount 22812, ntimes 100, elapsed 0.004676 secs, rate 0.487842 Gflops
+Nmat 6, nopscount 148760, ntimes 100, elapsed 0.016124 secs, rate 0.922599 Gflops
+Nmat 7, nopscount 559240, ntimes 100, elapsed 0.052398 secs, rate 1.067293 Gflops
+Nmat 8, nopscount 514576, ntimes 100, elapsed 0.050580 secs, rate 1.017350 Gflops
+Nmat 9, nopscount 308568, ntimes 100, elapsed 0.035247 secs, rate 0.875443 Gflops
+Nmat 10, nopscount 141264, ntimes 100, elapsed 0.018959 secs, rate 0.745101 Gflops
+Nmat 11, nopscount 470052, ntimes 100, elapsed 0.056507 secs, rate 0.831849 Gflops
+Nmat 12, nopscount 825750, ntimes 100, elapsed 0.079965 secs, rate 1.032641 Gflops
+Nmat 13, nopscount 2002650, ntimes 100, elapsed 0.185103 secs, rate 1.081912 Gflops
+Nmat 14, nopscount 309120, ntimes 100, elapsed 0.037835 secs, rate 0.817019 Gflops
+Nmat 15, nopscount 521732, ntimes 100, elapsed 0.062856 secs, rate 0.830044 Gflops
+Nmat 16, nopscount 169860, ntimes 100, elapsed 0.025922 secs, rate 0.655272 Gflops
+Nmat 17, nopscount 508530, ntimes 100, elapsed 0.054149 secs, rate 0.939132 Gflops
+Nmat 18, nopscount 167712, ntimes 100, elapsed 0.025990 secs, rate 0.645294 Gflops
+Nmat 19, nopscount 87184, ntimes 100, elapsed 0.017965 secs, rate 0.485304 Gflops
+Nmat 20, nopscount 84930, ntimes 100, elapsed 0.019145 secs, rate 0.443614 Gflops
+%
+%--[2010-05-30.00:12:51.mstorti-v28-end-57-ga4a21d1]-----
+Corro los tests, en g_c++ me da
+NOT OK------- -> 8
+sqcav/check.re1000.verif.tmp
+sqcav/check.fs.verif.tmp
+cubcav/cubcav.plain-bupl.verif.tmp
+idmap/tidmap.sal
+newff/adv_temp_cp.vrf.tmp
+newff/full_full_jacs_cp.vrf.tmp
+newff/full_full_jacs_adv_cp.vrf.tmp
+newff/adv_temp_cp_iisd.vrf.tmp
+CAN'T OPEN------- -> 0
+%
+Voy a correr el torture. 
+
+%=== Sun May 30 08:40:24 2010 mstorti@galileo
+%
+%--[2010-05-30.11:40:24.mstorti-v28-end-57-ga4a21d1]-----
+Resultados de correr los tests
+>>>>>>>>>>----------O_c++-----------
+NOT OK------- -> 8
+cubcav/cubcav.plain-bupl.verif.tmp
+idmap/tidmap.sal
+newff/adv_temp_cp.vrf.tmp
+newff/adv_temp_cp_iisd.vrf.tmp
+newff/full_full_jacs_adv_cp.vrf.tmp
+newff/full_full_jacs_cp.vrf.tmp
+sqcav/check.fs.verif.tmp
+sqcav/check.re1000.verif.tmp
+CAN'T OPEN------- -> 0
+>>>>>>>>>>----------g_c++-----------
+NOT OK------- -> 8
+sqcav/check.re1000.verif.tmp
+sqcav/check.fs.verif.tmp
+cubcav/cubcav.plain-bupl.verif.tmp
+idmap/tidmap.sal
+newff/adv_temp_cp.vrf.tmp
+newff/full_full_jacs_cp.vrf.tmp
+newff/full_full_jacs_adv_cp.vrf.tmp
+newff/adv_temp_cp_iisd.vrf.tmp
+CAN'T OPEN------- -> 0
+%
+%--[2010-05-30.11:46:31.mstorti-v28-end-57-ga4a21d1]-----
+Me llama la atencion porque no andan los de FS. Aparentemente 
+no anda desde hace rato. Para que ande hay que irse hasta 
+mstorti-v21-end-18-g97e8d77 (Sun Sep 7 22:01:50 2008 -0300). 
+O sea 1 año y medio. 
+%
+%--[2010-05-31.00:12:21.multiprod-end-27-g9b5dcbe]-----
+Hago merge con el master y corro los tests. Me da lo siguiente
+%
+>  NOT OK------- -> 29
+>  OK cubcav/cubcav.plain-bupl.verif.tmp
+>  OK idmap/tidmap.sal
+>  advdif/sine_fine_mesh.out
+>  turbchan/turbchan.ver.tmp
+>  newff/adv_dif_temp.vrf.tmp
+>  newff/adv_temp_cp.vrf.tmp
+>  OK newff/full_full_jacs.vrf.tmp
+>  OK newff/full_full_jacs_cp.vrf.tmp
+>  OK newff/full_full_jacs_adv_cp.vrf.tmp
+>  newff/full_full_jacs_t.vrf.tmp
+>  newff/full_full_jacs_tr.vrf.tmp
+>  newff/full_full_jacs_wf.vrf.tmp
+>  newff/full_jacs.vrf.tmp
+>  newff/reac_adv_dif_temp_y.vrf.tmp
+>  newff/std_ard_x_y.vrf.tmp
+>  advec/parallel_cone.verif.tmp
+>  advec/skew_cone.verif.tmp
+>  advec/rotating_cone.verif.tmp
+>  advec/parallel_cone_noise.verif.tmp
+>  advec/skew_cone_noise.verif.tmp
+>  advec/rotating_cone_noise.verif.tmp
+>  OK newff/adv_dif_temp_iisd.vrf.tmp
+>  newff/adv_temp_cp_iisd.vrf.tmp
+>  newff/full_full_jacs_iisd.vrf.tmp
+>  newff/full_jacs_iisd.vrf.tmp
+>  newff/reac_adv_dif_temp_y_iisd.vrf.tmp
+>  newff/std_ard_x_y_iisd.vrf.tmp
+>  distmap/dist_graph.np2.out.tmp
+>  distmap/dist_graph.np3.out.tmp
+>  CAN'T OPEN------- -> 3
+>  OK sqcav/check.re1000.verif.tmp
+>  alebcconv/verif-alebcconv.tmp
+>  newff/adv_dif_stdy_bcconv.vrf.tmp
+%
+O sea que se agregan unos cuantos de advdif. Me imagino que puede ser
+por los cambios que se hicieron al advdif. 
+
+%=== Mon May 31 13:05:18 2010 mstorti@galileo
+%
+%--[2010-05-31.16:05:18.multiprod-end-27-g9b5dcbe]-----
+
+Muchos de los de advdif se arreglan porque resulta que en varias
+funciones de flujo se reemplazo por ejemplo
+-      h_supg = 2.*vel/sqrt(Uintri.sum_square_all());
++      h_supg = 2.*vel/sqrt(Uintri.sum_abs_all());
+%
+lo cual esta mal porque se estaria cambiando la norma L2 por L1 pero
+en ese caso habria que sacar la sqrt(). Arreglando eso llego a lo
+siguiente. 
+%
+NOT OK------- -> 10
+cubcav/cubcav.plain-bupl.verif.tmp
+idmap/tidmap.sal
+turbchan/turbchan.ver.tmp
+newff/adv_dif_stdy_bcconv.vrf.tmp
+newff/adv_temp_cp.vrf.tmp
+newff/full_full_jacs_cp.vrf.tmp
+newff/full_full_jacs_adv_cp.vrf.tmp
+newff/adv_temp_cp_iisd.vrf.tmp
+distmap/dist_graph.np2.out.tmp
+distmap/dist_graph.np3.out.tmp
+CAN'T OPEN------- -> 3
+sqcav/check.re1000.verif.tmp
+advdif/sine_crank_nic.out
+alebcconv/verif-alebcconv.tmp
+%
+El `alebcconv/verif-alebcconv.tmp' usa el `advdif-gcl'. Usando el
+`advdif-ale' funciona bien. 
+%
+%--[2010-05-31.21:25:46.multiprod-end-28-g4cd0641]-----
+Logro volver a la cuenta de 8+2
+%
+NOT OK------- -> 8
+sqcav/check.re1000.verif.tmp
+cubcav/cubcav.plain-bupl.verif.tmp
+idmap/tidmap.sal
+newff/adv_temp_cp.vrf.tmp
+newff/full_full_jacs_cp.vrf.tmp
+newff/full_full_jacs_adv_cp.vrf.tmp
+newff/adv_temp_cp_iisd.vrf.tmp
+distmap/dist_graph.np2.out.tmp
+CAN'T OPEN------- -> 2
+mmove/step3d.verif.tmp
+newff/adv_dif_stdy_bcconv.vrf.tmp
+%
+%
+%--[2010-05-31.22:53:52.multiprod-end-28-g4cd0641]-----
+`mmove/step3d.verif.tmp' era por el cambio create_set -> unique. 
+%
+%--[2010-06-01.00:54:15.multiprod-end-29-gd27c55d]-----
+El de `newff/adv_dif_stdy_bcconv.vrf.tmp' se debia a que 
+cuando se hizo el `bccadvfm2_ale.cpp' por lo del HG-GCL entonces
+quedo sin definir el detJaco, mejor dicho en 0, por lo que salta un
+error, si bien después el detJaco no se usa. Ahora quedan los 8
+errores que habia hace un tiempo. 
+%
+NOT OK------- -> 8
+cubcav/cubcav.plain-bupl.verif.tmp
+distmap/dist_graph.np3.out.tmp
+idmap/tidmap.sal
+newff/adv_temp_cp.vrf.tmp
+newff/adv_temp_cp_iisd.vrf.tmp
+newff/full_full_jacs_adv_cp.vrf.tmp
+newff/full_full_jacs_cp.vrf.tmp
+sqcav/check.re1000.verif.tmp
+CAN'T OPEN------- -> 0
+%
+%--[2010-06-01.02:02:29.multiprod-end-30-gc466f4f]-----
+El `sqcav/check.re1000.verif.tmp' se debia a que al cambiar el
+`TOOLS/onedstr' por `onedstr2' en `zhomo' cambio la malla y por eso la
+diferencia. 
+%
+%--[2010-06-01.02:08:13.multiprod-end-31-g9f5f1bc]-----
+Comparando con la corrida de los tests de 
+[2009-08-22.03:54:36.mstorti-v28-end-0-gfe455b6]
+%
+cubcav/cubcav.plain-bupl.verif.tmp
+distmap/dist_graph.np3.out.tmp
+%
+%--[2010-06-01.02:29:14.multiprod-end-31-g9f5f1bc]-----
+El `distmap/' es por el asunto de que la escritura es asincronica. 
+%
+%--[2010-06-01.02:49:10.multiprod-end-31-g9f5f1bc]-----
+El `cubcav/cubcav.plain-bupl.verif.tmp' se debia al mismo problema del
+zhomo/onedstr. 
+
+%=== Tue Jun  1 06:27:51 2010 mstorti@galileo
+%
+%--[2010-06-01.09:27:51.multiprod-end-32-g37c281c]-----
+Efectivamente corro todos los tests y me da
+% g_c++: 
+NOT OK------- -> 5
+distmap/dist_graph.np2.out.tmp
+idmap/tidmap.sal
+newff/adv_temp_cp.vrf.tmp
+newff/adv_temp_cp_iisd.vrf.tmp
+newff/full_full_jacs_adv_cp.vrf.tmp
+CAN'T OPEN------- -> 0
+%
+% O_c++: 
+NOT OK------- -> 6
+distmap/dist_graph.np3.out.tmp
+idmap/tidmap.sal
+newff/adv_temp_cp.vrf.tmp
+newff/adv_temp_cp_iisd.vrf.tmp
+newff/full_full_jacs_adv_cp.vrf.tmp
+newff/full_full_jacs_cp.vrf.tmp
+CAN'T OPEN------- -> 0
+%
+%--[2010-06-01.10:36:21.multiprod-end-32-g37c281c]-----
+Con respecto a los de newff parece que en la siguiente fecha:
+"Tue Sep 20 06:52:46 2005 mstorti@spider  beta-3.47.33" = bubbly13-root-95-g92a1548
+corrian bien. 

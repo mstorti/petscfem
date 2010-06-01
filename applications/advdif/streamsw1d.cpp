@@ -226,10 +226,10 @@ void streamsw1d_ff::compute_flux(const FastMat2 &U,
     FastMat2::branch();
     if (vel > 1e-10) {
       FastMat2::choose(0);
-      h_supg = 2.*vel/sqrt(Uintri.sum_abs_all());
+      h_supg = 2.*vel/sqrt(Uintri.sum_square_all());
     } else {
       FastMat2::choose(1);
-      h_supg = 2./sqrt(iJaco.sum_abs_all());
+      h_supg = 2./sqrt(iJaco.sum_square_all());
     }
     FastMat2::leave();
     

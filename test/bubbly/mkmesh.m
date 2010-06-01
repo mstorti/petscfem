@@ -17,7 +17,7 @@ y=xnod(:,2);
 
 tol=1e-5;
 lid=find(abs(y-1)<tol)';
-b=create_set([find(abs(x)<tol);
+b=unique([find(abs(x)<tol);
               find(abs(x-1)<tol);
               find(abs(y)<tol)]);
 ##b=complement(lid,b);

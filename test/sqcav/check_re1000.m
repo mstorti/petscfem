@@ -4,8 +4,9 @@ source("data.m.tmp");
 ghia;
 
 load -force sqcav.ny.tmp
-u=aload("sqcav.weak_form_0.tmp");
-uwf1=aload("sqcav.weak_form_1.tmp");
+xnod = aload("sqcav.nod.tmp");
+u = aload("sqcav.weak_form_0.tmp");
+uwf1 = aload("sqcav.weak_form_1.tmp");
 uref = aload("u_re1000.dat");
 
 tol=1e-8;
@@ -15,3 +16,8 @@ printf("Weak form 0. error < tol OK ? %d (error = %g, tol = %g)\n", \
 erro = merr(uwf1(ny,:)-uref);
 printf("Weak form 1. error < tol OK ? %d (error = %g, tol = %g)\n", \
        erro<tol,erro,tol);
+
+if 0;
+  plot([u(ny,1),uref(:,1)],xnod(ny,2),ug_1000,yg)
+  grid on;
+endif

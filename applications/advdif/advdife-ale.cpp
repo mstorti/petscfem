@@ -879,7 +879,3 @@ new_assemble_ALE_formulation(arg_data_list &arg_data_v,const Nodedata *nodedata,
  } catch (GenericError e) {
   set_error(1);
  }
-// (setq outline-regexp "^ *//##*")
-// Local Variables: *
-// outline-regexp: "//#*"
-// End: *

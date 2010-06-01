@@ -21,10 +21,10 @@ z0 = find(abs(xnod(:,3))<tol);
 z1 = find(abs(xnod(:,3)-1)<tol);
 
 fid = fopen("step3d.fixa.tmp","w");
-fixed = create_set([z0;z1;x0;x1;y0;y1]);
+fixed = unique([z0;z1;x0;x1;y0;y1]);
 
 rmin = 0.5; rmax = 0.9;
-for k=fixed
+for k=fixed';
   x = xnod(k,1);
   y = xnod(k,2);
   z = xnod(k,3);

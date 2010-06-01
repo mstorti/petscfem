@@ -318,7 +318,7 @@ void stratsw2d_ff::compute_flux(const FastMat2 &U,
     FastMat2::branch();
     if (vel>1e-10) {
       FastMat2::choose(0);
-      h_supg = 2.*vel/sqrt(Uintri.sum_abs_all());
+      h_supg = 2.*vel/sqrt(Uintri.sum_square_all());
     } else {
       // fixme:= This is for quads and hexas only?
       FastMat2::choose(1);

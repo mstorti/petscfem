@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: bccadvfm2.cpp,v 1.30.10.1 2007/02/23 19:18:07 rodrigop Exp $
+//$Id: bccadvfm2-ale.cpp,v 1.30.10.1 2007/02/23 19:18:07 rodrigop Exp $
 
 extern int comp_mat_each_time_step_g,
   consistent_supg_matrix_g,
@@ -66,8 +66,8 @@ void NewBcconv::new_assemble(arg_data_list &arg_data_v,const Nodedata *nodedata,
   //  you generated, by mistake, the wrong sense of
   //  numeration of nodes in the connectivities. 
   NSGETOPTDEF(int,reverse_normal,0);
-  //o Flag to turn on ALE (Arbitrary Lagrangian-Eulerian) computation. 
-  NSGETOPTDEF(int,ALE_flag,0);
+  //o Flag to turn on ALE (Arbitrary Lagrangian-Eulerian) formulation. 
+  NSGETOPTDEF(int,use_ALE_form,0);
   //o Pointer to old coordinates in
   //  #nodedata# array excluding the first "ndim" values
   NSGETOPTDEF(int,indx_ALE_xold,1);
@@ -174,6 +174,7 @@ void NewBcconv::new_assemble(arg_data_list &arg_data_v,const Nodedata *nodedata,
   // allocate local vecs
   int kdof;
   FMatrix veccontr(nel,ndof),xloc(nel,ndim),
+    xloc_new(nel,ndim), xloc_old(nel,ndim),
     locstate(nel,ndof),locstaten(nel,ndof),
     locstateo(nel,ndof);
 
@@ -195,15 +196,15 @@ void NewBcconv::new_assemble(arg_data_list &arg_data_v,const Nodedata *nodedata,
   GPdata gp_data(geometry.c_str(),ndimelf,nel,npg,GP_FASTMAT2);
 
   // Definiciones para descargar el lazo interno
-  double detJaco, delta_sc;
+  double detJaco, detJaco_new, detJaco_old, detJaco_mid, delta_sc;
 
   int elem, ipg,node, jdim, kloc,lloc,ldof;
 
-  FastMat2 Jaco(2,ndimelf,ndim),flux(2,ndof,ndimel),
-    fluxd(2,ndof,ndimel),grad_U(2,ndim,ndof),
-    A_grad_U(1,ndof),G_source(1,ndof),tau_supg(2,ndof,ndof),    
-    fluxn(1,ndof),iJaco,normal(1,ndim),nor,lambda,Vr,Vr_inv,U(1,ndof),
-    Halpha(1,ndof),ALE_flux(2,ndof,ndim);
+  FastMat2 Jaco(2,ndimelf,ndim),flux(2,ndof,ndimel),Jaco_new(2,ndimelf,ndim),
+    fluxd(2,ndof,ndimel),grad_U(2,ndim,ndof),Jaco_old(2,ndimelf,ndim),
+    A_grad_U(1,ndof),G_source(1,ndof),tau_supg(2,ndof,ndof),Jaco_mid(2,ndimelf,ndim),    
+    fluxn(1,ndof),iJaco,normal(1,ndim),nor,lambda,Vr,Vr_inv,U(1,ndof),normal_mid(1,ndim),
+    Halpha(1,ndof),ALE_flux(2,ndof,ndim),normal_new(1,ndim),normal_old(1,ndim);
 
   FastMat2 A_jac(3,ndim,ndof,ndof),D_jac(4,ndim,ndof,ndof),
     A_jac_n(2,ndof,ndof),C_jac(2,ndof,ndof);
@@ -225,7 +226,8 @@ void NewBcconv::new_assemble(arg_data_list &arg_data_v,const Nodedata *nodedata,
     // Load local node coordinates in local vector
     element.node_data(nodedata,xloc.storage_begin(),
 		       Hloc.storage_begin());
-    
+    xloc_new.set(xloc);
+
     if (comp_prof) {
       matlocf.export_vals(element.ret_mat_values(*jac_prof));
       continue;
@@ -241,13 +243,15 @@ void NewBcconv::new_assemble(arg_data_list &arg_data_v,const Nodedata *nodedata,
     veccontr.set(0.);
 
     // nodal computation of mesh velocity
-    if (ALE_flag) {
+    if (use_ALE_form) {
       // Compute mesh velocity (at each element node)
       assert(nH >= ndim);
       assert(indx_ALE_xold >= nH+1-ndim);
       Hloc.is(2,indx_ALE_xold,indx_ALE_xold+ndim-1);
-      vloc_mesh.set(xloc).rest(Hloc).scale(rec_Dt).rs();
+      xloc_old.set(Hloc);
       Hloc.rs();
+      xloc.scale(ALPHA).axpy(xloc_old,1-ALPHA);
+      vloc_mesh.set(xloc_new).rest(xloc_old).scale(rec_Dt).rs();
     }
 
     // DUDA: esto no se puede sacar fuera del lazo
@@ -257,13 +261,31 @@ void NewBcconv::new_assemble(arg_data_list &arg_data_v,const Nodedata *nodedata,
 #define WPG      (gp_data.wpg[ipg])
 
     // loop over Gauss points
-
     for (ipg=0; ipg<npg; ipg++) {
 
       if (ndimelf>0) {
-	Jaco.prod(DSHAPEXI,xloc,1,-1,-1,2);
-	// normal:= normal vector times the surface of the element
+	Jaco.prod(DSHAPEXI,xloc,1,-1,-1,2);  // xloc is at t_{n+alpha}
 	detJaco = Jaco.detsur(&normal);
+
+        if (use_ALE_form) {
+          Jaco_new.prod(DSHAPEXI,xloc_new,1,-1,-1,2);
+          Jaco_old.prod(DSHAPEXI,xloc_old,1,-1,-1,2);
+          // normal:= normal vector times the surface of the element
+          if (ndim == 2){ // we need only two points in 2D to integ temporal average
+            detJaco_new = Jaco_new.detsur(&normal_new);
+            detJaco_old = Jaco_old.detsur(&normal_old);
+            normal.set(normal_new).add(normal_old).scale(0.5);
+          } else if (ndim == 3) { // we need 3 points in 3D to integ
+            // temporal average with
+            // Gauss-Lobatto
+            detJaco_new = Jaco_new.detsur(&normal_new);
+            detJaco_old = Jaco_old.detsur(&normal_old);
+            Jaco_mid.set(Jaco_new).add(Jaco_old).scale(0.5);
+            detJaco_mid = Jaco_mid.detsur(&normal_mid);
+            normal.set(0.).axpy(normal_new,1./6.).axpy(normal_old,1./6.)
+              .axpy(normal_mid,4./6.);
+          }
+        }
 	normal.scale(-1.); // fixme:= This is to compensate a bug in mydetsur
 	if (detJaco<=0.) {
 	  detj_error(detJaco,k);
@@ -280,7 +302,7 @@ void NewBcconv::new_assemble(arg_data_list &arg_data_v,const Nodedata *nodedata,
       }
       
       // state variables and gradient
-      U.prod(SHAPE,locstate,-1,-1,1);
+      U.prod(SHAPE,locstate,-1,-1,1); // U^{tn+alpha}
       grad_U.set(0.);  // it is not used in this calling to flux_fun
 
       delta_sc=0;
@@ -292,7 +314,7 @@ void NewBcconv::new_assemble(arg_data_list &arg_data_v,const Nodedata *nodedata,
 				lambda_max_pg, nor,lambda,Vr,Vr_inv,
 				DEFAULT);
 
-      if (ALE_flag) {
+      if (use_ALE_form) {
         // If ALE, then the flux must be corrected
         // by the mesh convected flux:
         // F = F - v_mesh * H
@@ -315,10 +337,10 @@ void NewBcconv::new_assemble(arg_data_list &arg_data_v,const Nodedata *nodedata,
 
       adv_diff_ff->comp_A_jac_n(A_jac_n,normal);
 
-      if (ALE_flag) {
+      if (use_ALE_form) {
         // If ALE, then we must modify the flux Jacobian
         // by the ALE term 
-        adv_diff_ff->get_Cp(Cp);
+        adv_diff_ff->get_Cp(Cp);// Cp^{tn+alpha}
         tmp4.prod(v_mesh,normal,-1,-1);
         double vmeshnor = tmp4;
         A_jac_n.axpy(Cp,-vmeshnor);
