@@ -54,6 +54,7 @@
 #include "./electrophoresisM2.h"
 #include "./renorm.h"
 #include "./renorm2.h"
+#include "./renorm3.h"
 #include "./poisson.h"
 #include "./charge_cons.h"
 #include "./pot_grad.h"
@@ -131,6 +132,7 @@ void bless_elemset_ns(char *type,Elemset *& elemset) {
 
     SET_ELEMSET_TYPE(renorm)
     SET_ELEMSET_TYPE(renorm2)
+    SET_ELEMSET_TYPE(renorm3)
 
     SET_ELEMSET_TYPE(inviscid_coupling)
 

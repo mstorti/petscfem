@@ -24,7 +24,7 @@ LIBOBJS = ns.o mmvmain.o mmv2main.o nsstruct.o ns_fsi.o compdate.o	\
 	errestim.o mmoveopt3.o bubblyqint.o nsitetlesf.o nsitetlesfbf.o	\
 	poiboltz.o mmoveopt2.o truss.o nsitetlesfd.o nodeload.o		\
 	nsitetlesls.o electrophoresis.o  electrophoresisM.o flowrev.o	\
-	renorm.o renorm2.o nsitlfctx2.o					\
+	renorm.o renorm2.o renorm3.o nsitlfctx2.o					\
 	electrophoresisM2.o electrophoresisM.o electrophoresis_mov.o	\
         poisson.o charge_cons.o pot_grad.o 
 
