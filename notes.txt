@@ -16738,3 +16738,31 @@ El `distmap/' es por el asunto de que la escritura es asincronica.
 %--[2010-06-01.02:49:10.multiprod-end-31-g9f5f1bc]-----
 El `cubcav/cubcav.plain-bupl.verif.tmp' se debia al mismo problema del
 zhomo/onedstr. 
+
+%=== Tue Jun  1 06:27:51 2010 mstorti@galileo
+%
+%--[2010-06-01.09:27:51.multiprod-end-32-g37c281c]-----
+Efectivamente corro todos los tests y me da
+% g_c++: 
+NOT OK------- -> 5
+distmap/dist_graph.np2.out.tmp
+idmap/tidmap.sal
+newff/adv_temp_cp.vrf.tmp
+newff/adv_temp_cp_iisd.vrf.tmp
+newff/full_full_jacs_adv_cp.vrf.tmp
+CAN'T OPEN------- -> 0
+%
+% O_c++: 
+NOT OK------- -> 6
+distmap/dist_graph.np3.out.tmp
+idmap/tidmap.sal
+newff/adv_temp_cp.vrf.tmp
+newff/adv_temp_cp_iisd.vrf.tmp
+newff/full_full_jacs_adv_cp.vrf.tmp
+newff/full_full_jacs_cp.vrf.tmp
+CAN'T OPEN------- -> 0
+%
+%--[2010-06-01.10:36:21.multiprod-end-32-g37c281c]-----
+Con respecto a los de newff parece que en la siguiente fecha:
+"Tue Sep 20 06:52:46 2005 mstorti@spider  beta-3.47.33" = bubbly13-root-95-g92a1548
+corrian bien. 
