@@ -16701,3 +16701,21 @@ newff/adv_dif_stdy_bcconv.vrf.tmp
 %
 %--[2010-05-31.22:53:52.multiprod-end-28-g4cd0641]-----
 `mmove/step3d.verif.tmp' era por el cambio create_set -> unique. 
+%
+%--[2010-06-01.00:54:15.multiprod-end-29-gd27c55d]-----
+El de `newff/adv_dif_stdy_bcconv.vrf.tmp' se debia a que 
+cuando se hizo el `bccadvfm2_ale.cpp' por lo del HG-GCL entonces
+quedo sin definir el detJaco, mejor dicho en 0, por lo que salta un
+error, si bien después el detJaco no se usa. Ahora quedan los 8
+errores que habia hace un tiempo. 
+%
+NOT OK------- -> 8
+cubcav/cubcav.plain-bupl.verif.tmp
+distmap/dist_graph.np3.out.tmp
+idmap/tidmap.sal
+newff/adv_temp_cp.vrf.tmp
+newff/adv_temp_cp_iisd.vrf.tmp
+newff/full_full_jacs_adv_cp.vrf.tmp
+newff/full_full_jacs_cp.vrf.tmp
+sqcav/check.re1000.verif.tmp
+CAN'T OPEN------- -> 0
