@@ -16724,3 +16724,17 @@ CAN'T OPEN------- -> 0
 El `sqcav/check.re1000.verif.tmp' se debia a que al cambiar el
 `TOOLS/onedstr' por `onedstr2' en `zhomo' cambio la malla y por eso la
 diferencia. 
+%
+%--[2010-06-01.02:08:13.multiprod-end-31-g9f5f1bc]-----
+Comparando con la corrida de los tests de 
+[2009-08-22.03:54:36.mstorti-v28-end-0-gfe455b6]
+%
+cubcav/cubcav.plain-bupl.verif.tmp
+distmap/dist_graph.np3.out.tmp
+%
+%--[2010-06-01.02:29:14.multiprod-end-31-g9f5f1bc]-----
+El `distmap/' es por el asunto de que la escritura es asincronica. 
+%
+%--[2010-06-01.02:49:10.multiprod-end-31-g9f5f1bc]-----
+El `cubcav/cubcav.plain-bupl.verif.tmp' se debia al mismo problema del
+zhomo/onedstr. 

@@ -27,3 +27,6 @@ erro3 = merr(u0(indx,:)-uref);
 printf("Cubcav/error wrt.reference solution OK? > %d (error %g, tol %g)\n",
        erro3<tol1,erro3,tol1);
 
+if 0;
+  asavecon("cubcav.new.ans",indx,u0(indx,:));
+endif
