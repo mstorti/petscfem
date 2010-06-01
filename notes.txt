@@ -16719,3 +16719,8 @@ newff/full_full_jacs_adv_cp.vrf.tmp
 newff/full_full_jacs_cp.vrf.tmp
 sqcav/check.re1000.verif.tmp
 CAN'T OPEN------- -> 0
+%
+%--[2010-06-01.02:02:29.multiprod-end-30-gc466f4f]-----
+El `sqcav/check.re1000.verif.tmp' se debia a que al cambiar el
+`TOOLS/onedstr' por `onedstr2' en `zhomo' cambio la malla y por eso la
+diferencia. 
