@@ -2,6 +2,8 @@
 ## $Id: newff.m,v 1.15 2007/02/20 14:57:47 mstorti Exp $
 source("data.m.tmp");
 
+rand("seed",1234567);
+
 ## Physical parameters
 uu=[u v];
 Ax=u*eye(ndof);
@@ -99,7 +101,8 @@ elseif full_jacs==1
 elseif full_jacs==2
   fid=fopen("fulljacdef.tmp","w");
   ## We should check that R is positive definite
-  RR=R*eye(ndof)+R*Rfluc*(2*rand(size(RR))-1);
+  R = 0;
+  RR=R*eye(ndof) + R*Rfluc*(2*rand(size(RR))-1);
   fprintf(fid,"reactive_jacobians_type \"full\"\n");
   fprintf(fid,"reactive_jacobians");
   for j=1:ndof
@@ -109,10 +112,12 @@ elseif full_jacs==2
   endfor
   fprintf(fid,"\n\n");
 
+  # Cp = 1; Cpfluc=0;
   CP=log(Cp)*(eye(ndof)+log((Cp-Cpfluc)/Cp)*(2*rand(size(CP))-1));
   CP=(CP+CP')/2;
   CP=expm(CP);
   ## CP=myfunm(CP,"exp");
+  CP = 5*eye(ndof);
 	      
   fprintf(fid,"enthalpy_jacobians_type \"full\"\n");
   fprintf(fid,"enthalpy_jacobians");
@@ -127,6 +132,8 @@ elseif full_jacs==2
   fprintf(fid,"diffusive_jacobians ");
   ## We should check that D is a positive
   ## definite operator
+  Dfluc=0;
+  D = 0;
   Dxx=D*(eye(ndof)+Dfluc*(2*rand(ndof)-1));
   Dxx=(Dxx+Dxx')/2;
   Dxy=D*(          Dfluc*(2*rand(ndof)-1));
@@ -145,6 +152,7 @@ elseif full_jacs==2
   
   fprintf(fid,"advective_jacobians_type \"full\"\n");
   fprintf(fid,"advective_jacobians ");
+  ufluc = 0;
   Ax=u*(2*rand(ndof)-1);
   Ax=u*(eye(ndof)+ufluc*(Ax+Ax')/2);
   Ay=v*(2*rand(ndof)-1);
