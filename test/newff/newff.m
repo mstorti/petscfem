@@ -288,6 +288,7 @@ phase=exp(i*phase);
 if !steady
   ## uana = (beta \ (eye(ndof)-expm(-beta*nstep*Dt)))*(CP\S);
   QQ = myfunm(-beta*nstep*Dt,"exp");
+  ## QQ = expm(-beta*nstep*Dt);
   uana = (beta \ (eye(ndof)-QQ))*(CP\S);
 else
   uana = beta\(CP\S);
