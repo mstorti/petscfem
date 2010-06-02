@@ -18,9 +18,22 @@ int  N;
 extern int SIZE,MY_RANK;
 
 class MyPart : public DofPartitioner {
+public:
   //  int processor(int j) { return j >= MY_RANK*N/2 || j < (MY_RANK+1)*N/2; }
   int processor(int j) const { return j*SIZE/N; }
 } d_part;
+
+void check_fun(int &ok,int k,int e,int N,
+               set<int> &ngbrs, int rank) {
+  if (e>=0 && e<N) {
+    int erase = ngbrs.erase(e);
+    if (erase!=1) {
+      printf("[%d] key %d, elem %d, erase %d\n",
+             rank,k,e,erase);
+      ok = 0;
+    }
+  }
+}
 
 int main(int argc,char **argv) {
 
@@ -44,8 +57,8 @@ int main(int argc,char **argv) {
   debug.trace("1");
 
   for (int j=0; j<ntime; j++) {
-    if (j % 100 ==0) 
-      PetscPrintf(PETSC_COMM_WORLD,"j %d\n",j);
+    // if (j % 100 ==0) 
+    //   PetscPrintf(PETSC_COMM_WORLD,"j %d\n",j);
     LinkGraphWrapper g(0,&d_part,PETSC_COMM_WORLD);
     g.init(N);
     // StoreGraph g(N,&d_part,PETSC_COMM_WORLD);
@@ -57,10 +70,45 @@ int main(int argc,char **argv) {
     }
     debug.trace("before scatter");
     g.scatter();
-    if (j==ntime-1) g.print();
+    int ok = 1;
+    for (int k=0; k<N; k++) {
+      set<int> ngbrs;
+      g.set_ngbrs(k,ngbrs);
+      int proc = d_part.processor(k);
+      // printf("[%d] k %d, proc %d\n",MY_RANK,k,proc);
+      if (proc!=MY_RANK) {
+        if (!ngbrs.empty()) {
+          printf("[%d] key %d belongs to proc %d and non-empty\n",
+                 MY_RANK,k,proc);
+          ok=0;
+        }
+      } else {
+        check_fun(ok,k,k-1,N,ngbrs,MY_RANK);
+        check_fun(ok,k,k+1,N,ngbrs,MY_RANK);
+        ok &= ngbrs.empty();
+      }
+#if 0
+      set<int>::iterator q = ngbrs.begin();
+      while (q != ngbrs.end()) {
+        int proc = d_part.processor(*q);
+        if (proc!=MY_RANK) {
+          printf("[%d] k %d, element %d not OK, belongs to %d\n",
+                 MY_RANK,k,*q,proc);
+          ok=0;
+        }
+        q++;
+      }
+#endif
+    }
+    if (j==ntime-1) {
+      // g.print();
+      // printf("[%d] OK? %d\n",MY_RANK,ok);
+      int okglob;
+      MPI_Reduce(&ok,&okglob,1,MPI_INT,MPI_LAND,0,MPI_COMM_WORLD);
+      if (!MY_RANK) printf("ok on all procs ? %d\n",okglob);
+    }
     g.clear();
   }
   PetscFinalize();
   exit(0);
- 
 }

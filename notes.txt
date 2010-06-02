@@ -16780,3 +16780,14 @@ Creo que encontre el problema. Resulta que en el script que calcula la
 solucion analitica se usa `myfunm' para calcular la exponencial de la
 matriz y resulta que tenia un error porque no andab bien para
 complejos. 
+%
+%--[2010-06-02.21:44:43.mstorti-v30-end-3-ga3f15f9]-----
+Efectivamente arreglando eso ahora da 
+%
+---------- g_C++ y O_c++:
+%
+ABRIDGED: 
+NOT OK------- -> 2
+distmap/dist_graph.np2.out.tmp
+idmap/tidmap.sal
+CAN'T OPEN------- -> 0
