@@ -331,7 +331,7 @@ int Advective::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
       // the corresponding h.) The maximum eigenvalue is estimated
       // as the max over all the jacobian matrices of the norm1 od
       // the matrix. 
-      double hhh,hloc,dtloc=NAN;
+      double hhh,hloc=NAN,dtloc=NAN;
       for (int jd=1; jd<=ndim; jd++) {
 	hhh = 2.*sqrt(Jaco.Column(jd).SumSquare());
 	if (jd==1 || hhh<hloc) hloc=hhh;
