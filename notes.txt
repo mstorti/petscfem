@@ -16791,3 +16791,7 @@ NOT OK------- -> 2
 distmap/dist_graph.np2.out.tmp
 idmap/tidmap.sal
 CAN'T OPEN------- -> 0
+%
+%--[2010-06-02.22:20:09.mstorti-v30-end-3-ga3f15f9]-----
+Fixed `distmap/dist_graph.np2.out.tmp'. It was a problem of `scramble'
+en la salida del archivo. 

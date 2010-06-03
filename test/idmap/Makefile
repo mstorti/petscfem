@@ -5,7 +5,10 @@ tests: idmap
 #----<*>----------<*>----------<*>----------<*>----------<*>----------<*>-----
 #w Idmap class
 idmap: tidmap.bin
-	tidmap.bin >tidmap.sal
+#	tidmap.bin >tidmap.sal
+	cat /dev/null > tidmap.sal
+	./tidmap.bin    5 100 1 >> tidmap.sal
+	./tidmap.bin  100  50 0 >> tidmap.sal
 
 tidmap.bin: tidmap.o $(LIBPETSCFEM)
 	${CXX_CLINKER} -o $@ tidmap.o $(LDFLAGS_NO_PROG_LIB)
