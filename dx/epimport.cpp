@@ -553,8 +553,9 @@ extern "C" Error m_ExtProgImport(Object *in, Object *out) {
       Elemset *elemset = new Elemset(nel,nelem,dx_type,array);
       ierr = dx_objects_table.load_new(name,elemset);
       if(ierr!=OK) return ierr;
-      DXMessage("Got new \"Elemset\" name %s, ptr %p, nel %d, nelem %d",
-		name.c_str(),array,nel,nelem);
+      DXMessage("Got new \"Elemset\" name %s, ptr %p, "
+                "type %s, nel %d, nelem %d",
+		name.c_str(),array,dx_type.c_str(),nel,nelem);
       Sprintf(clnt,"elemset_OK %d\n",cookie);
       // elemset->stat();
       //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
@@ -611,6 +612,7 @@ extern "C" Error m_ExtProgImport(Object *in, Object *out) {
 		  elemset->nelem,elemset->dx_type.c_str());
 	// elemset->stat();
 	Object connections = elemset->dx_object();
+	DXMessage("connections %p",connections);
 	for (r=dx_objects_table.begin(); r!=qe; r++) {
 	  State *state = dynamic_cast<State *>(r->second);
 	  if (!state) continue;

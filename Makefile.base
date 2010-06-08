@@ -183,6 +183,8 @@ CPPFLAGS := \
 	$(SSL_CPPFLAGS)		\
 	$(SUPERLU_CPPFLAGS)	\
 
+qqq:
+	echo $(PETSC_CPPFLAGS)
 
 ifeq ($(USE_OPENMP),yes) 
 CPPFLAGS += -fopenmp
