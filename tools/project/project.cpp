@@ -140,7 +140,6 @@ void FemInterp::init(int knbr, int ndof, int ndimel,
   dvector<int> icone;
   icone.reshape(2,0,nel);
   init(knbr, ndof, ndimel,xnod,icone);
-  exit(0);
 }
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
