@@ -119,6 +119,8 @@ int main(int argc,char **argv) {
       abort ();
     }
   }
+  PETSCFEM_ASSERT0(!use_delaunay,
+                   "Not implemented Delaunay triangulation");  
 
 #if 0
   printf("print_area_coords: %s, size %d\n",
