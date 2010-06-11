@@ -25,7 +25,13 @@ void FemInterp::clear() {
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 FemInterp::FemInterp() : 
-  kdtree(NULL), pts(NULL), use_cache(1), tol(1e-6) {}
+  kdtree(NULL), pts(NULL), 
+  C(&ctx),C2(&ctx),invC(&ctx),invC2(&ctx), invCt(&ctx),
+  x2(&ctx),dx2(&ctx), x2prj(&ctx),x2prjmin(&ctx), x12(&ctx),
+  x13(&ctx),x1(&ctx), nor(&ctx),L(&ctx), b(&ctx),
+  u1_loc(&ctx), u2(&ctx), Lmin(&ctx),
+  use_cache(1), use_delaunay(0), 
+  tol(1e-6) {}
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 FemInterp::~FemInterp() { clear(); }
@@ -49,6 +55,8 @@ void FemInterp::init(int knbr_a, int ndof_a, int ndimel_a,
   ndim = xnod_a.size(1);
   nelem = icone_a.size(0);
   nel = icone_a.size(1);
+  brv1.init(nel); 
+  brv2.init(nel);
 
   xnod.clone(xnod_a);
   icone.clone(icone_a);
@@ -56,33 +64,51 @@ void FemInterp::init(int knbr_a, int ndof_a, int ndimel_a,
   // Build ANN octree
   printf("computing element centers ...\n");
   double start = MPI_Wtime();
-  FastMat2 xe(1,ndim),xn(1,ndim);
-  double inel = 1./nel;
-  pts = annAllocPts(nelem,ndim);
-  // fixme:= should `pts' be freed after??
-  // seems that no
-  FastMat2::activate_cache(&cache_list2);
-  for (int k=0; k<nelem; k++) {
-    FastMat2::reset_cache();
-    xe.set(0.);
-    for (int j=0; j<nel; j++) {
-      int node = icone.e(k,j);
-      xn.set(&xnod.e(node-1,0));
-      xe.add(xn);
+  FastMat2::CacheCtx2 ctx1;
+  ctx1.use_cache = 1;
+  FastMat2::CacheCtx2::Branch br1;
+  FastMat2 xe(&ctx1,1,ndim),xn(&ctx1,1,ndim);
+  if (!use_delaunay) {
+    double inel = 1./nel;
+    pts = annAllocPts(nelem,ndim);
+    // fixme:= should `pts' be freed after??
+    // seems that no
+    for (int k=0; k<nelem; k++) {
+      ctx1.jump(br1);
+      xe.set(0.);
+      for (int j=0; j<nel; j++) {
+        int node = icone.e(k,j);
+        xn.set(&xnod.e(node-1,0));
+        xe.add(xn);
+      }
+      xe.scale(inel);
+#if 0
+      printf("elem %d, x ",k);
+      xe.print();
+#endif
+      for (int j=0; j<ndim; j++)
+        pts[k][j] = xe.get(j+1);
     }
-    xe.scale(inel);
-    for (int j=0; j<ndim; j++)
-      pts[k][j] = xe.get(j+1);
-  }
-  FastMat2::deactivate_cache();
-  printf("end computing element centers... elapsed %f\n",
-         MPI_Wtime()-start);
+    printf("end computing element centers... elapsed %f\n",
+           MPI_Wtime()-start);
 
-  printf("loading points in ann-tree ...\n");
-  start = MPI_Wtime();
-  kdtree = new ANNkd_tree(pts,nelem,ndim);
-  printf("end loading points in ann-tree... elapsed %f\n",
-         MPI_Wtime()-start);
+    printf("loading points in ann-tree ...\n");
+    start = MPI_Wtime();
+    kdtree = new ANNkd_tree(pts,nelem,ndim);
+    printf("end loading points in ann-tree... elapsed %f\n",
+           MPI_Wtime()-start);
+  } else {
+    pts = annAllocPts(nnod,ndim);
+    for (int k=0; k<nnod; k++) {
+      for (int j=0; j<ndim; j++)
+        pts[k][j] = xnod.e(k,j);
+    }
+    printf("loading points in ann-tree ...\n");
+    start = MPI_Wtime();
+    kdtree = new ANNkd_tree(pts,nnod,ndim);
+    printf("end loading points in ann-tree... elapsed %f\n",
+           MPI_Wtime()-start);
+  }
 
   nd1 = ndim+1;
   C.resize(2,nd1,nd1);
@@ -107,10 +133,20 @@ void FemInterp::init(int knbr_a, int ndof_a, int ndimel_a,
   restricted.resize(nel,0);
 }
 
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>
+void FemInterp::init(int knbr, int ndof, int ndimel,
+		     const dvector<double> &xnod) {
+  use_delaunay = 0;
+  dvector<int> icone;
+  icone.reshape(2,0,nel);
+  init(knbr, ndof, ndimel,xnod,icone);
+}
+
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 void FemInterp::interp(const dvector<double> &xnod2,
 		       const dvector<double> &u,
 		       dvector<double> &ui) {
+
   double tryav=0.0;
   int nnod2 = xnod2.size(0);
   assert(xnod2.size(1) == ndim);
@@ -135,10 +171,9 @@ void FemInterp::interp(const dvector<double> &xnod2,
   FILE *fid=NULL;
   if (print_area_coords.size()>0) 
     fid = fopen(print_area_coords.c_str(),"w");
-  if(use_cache) FastMat2::activate_cache(&cache_list);
-  FastMat2::get_cache_position(cp3);
+  ctx.use_cache = use_cache;
   for (int n2=0; n2<nnod2; n2++) {
-    FastMat2::jump_to(cp3);
+    ctx.jump(br1);
     x2.set(&xnod2.e(n2,0));
     for (int j=0; j<ndim; j++) 
       nn[j] = xnod2.e(n2,j);
@@ -150,9 +185,9 @@ void FemInterp::interp(const dvector<double> &xnod2,
 #endif
     int q;
 
-    FastMat2::get_cache_position(cp2);
     for (q=0; q<nelem_check; q++) {
-      FastMat2::jump_to(cp2);
+      ctx.jump(br2);
+      
       int k = (q<knbr ? nn_idx[q] : q-knbr);
       C.is(1,1,ndim);
       for (int j=0; j<nel; j++) {
@@ -177,10 +212,9 @@ void FemInterp::interp(const dvector<double> &xnod2,
       invCt.ir(1,nd1).set(0.).rs();
       // invCt.print("invCt");
       int iter=0;
-      FastMat2::get_cache_position(cp);
       // FastMat2::branch();
       while(true) {
-	FastMat2::jump_to(cp);
+	ctx.jump(br3);
 	// FastMat2::choose(iter);
 	iter++;
 	invC2.inv(C2);
@@ -188,31 +222,27 @@ void FemInterp::interp(const dvector<double> &xnod2,
 	// C2.print("C2");
 	// L.print("L");
 	int neg=0;
+        double *Lp = L.storage_begin();
 	for (int j=1; j<=nel; j++) {
-	  double lj = L.get(j);
-	  FastMat2::branch();
+	  double lj = Lp[j-1];
 	  if (lj<-tol) {
-	    FastMat2::choose(0);
 	    neg=1;
 	    int &flag = restricted[j-1];
 	    flag = !flag;
-	    FastMat2::branch();
 	    if (flag) {
-	      FastMat2::choose(0);
+              ctx.jump(brv1(j-1));
 	      C2.ir(2,j);
 	      invCt.ir(2,j);
 	      C2.set(invCt).rs();
 	      invCt.rs();
 	    } else {
-	      FastMat2::choose(1);
+              ctx.jump(brv2(j-1));
 	      C2.ir(2,j);
 	      C.ir(2,j);
 	      C2.set(C).rs();
 	      C.rs();
 	    }
-	    FastMat2::leave();
 	  }
-	  FastMat2::leave();
 	}
 	if (!neg) break;
 	// assert(iter<=ndim);
@@ -222,21 +252,15 @@ void FemInterp::interp(const dvector<double> &xnod2,
 	  break;
 	}
       }
-      // FastMat2::leave();
-      FastMat2::resync_was_cached();
+      ctx.jump(br7);
 
       // Set area coordinates for restricted
       // nodes to 0. 
-      for (int j=0; j<nel; j++) {
-	FastMat2::branch();
-	if (restricted[j]) {
-	  FastMat2::choose(0);
-	  L.setel(0.,j+1);
-	}
-	FastMat2::leave();
-      }
-      for (int j=nel+1; j<=nd1; j++) 
-	L.setel(0.,j);
+      double *Lp = L.storage_begin();
+      for (int j=0; j<nel; j++) 
+	if (restricted[j]) Lp[j] = 0;
+
+      for (int j=nel; j<nd1; j++) Lp[j] = 0;
 
       // Set area coordinates for normal
       // vectors to 0.
@@ -246,18 +270,16 @@ void FemInterp::interp(const dvector<double> &xnod2,
       // Form distance vector
       dx2.set(x2).rest(x2prj);
       double d2 = dx2.norm_p_all(2.0);
-      FastMat2::branch();
       if (q==0 || d2<d2min) {
-        FastMat2::choose(0);
+        ctx.jump(br8);
 	d2min = d2;
 	k1min = k;
 	Lmin.set(L);
 	x2prjmin.set(x2prj);
       }
-      FastMat2::leave();
       if (d2min<tol) break;
     }
-    FastMat2::resync_was_cached();
+    ctx.jump(br9);
     // x2.print("x2");
     // printf("tries %d\n",q+1);
     // x2prjmin.print("x2prjmin");

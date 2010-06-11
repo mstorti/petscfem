@@ -7,6 +7,7 @@
 
 // Tests the `idmap' class
 
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>
 void scale(row_t & row, const double c) {
   row_t::iterator it;
   for (it=row.begin(); it!=row.end(); it++) {
@@ -18,6 +19,7 @@ void scale(row_t & row, const double c) {
   }
 }
 
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>
 void check (int n,idmap &id, Matrix &ID, double &maxerr) {
   maxerr=0.;
   for (int j=1; j<=n; j++) {
@@ -31,8 +33,11 @@ void check (int n,idmap &id, Matrix &ID, double &maxerr) {
   }
 }
 
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>
 void check_idmap(int n, int N, int verbose_print) {
 
+  srand(1234567);
+  //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>
   printf("testing for size of idmap n=%d, number of operations %d\n",n,N);
   double tol=1e-10;
   idmap id(n,IDENTITY_MAP);
@@ -269,6 +274,7 @@ void check_idmap(int n, int N, int verbose_print) {
   printf("After set_elem(): maximum error: %f \nOK? : %s\n",maxerr,
 	 (maxerr<tol ? "YES" : "NOT"));
   
+  //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>
   // Testing get_val()
   maxerr=0;
   for (int k=0; k<N; k++) {
@@ -283,6 +289,7 @@ void check_idmap(int n, int N, int verbose_print) {
   printf("After get_val(): maximum error: %f \nOK? : %s\n",maxerr,
 	 (maxerr<tol ? "YES" : "NOT"));
 
+  //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>
   // Tests solve()
   for (int j=1; j<=n; j++) {
     id.del_row(j);
@@ -358,9 +365,22 @@ void check_idmap(int n, int N, int verbose_print) {
 
 }
 
-int main() {
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>
+int main(int argc,char** argv) {
 
-  check_idmap(5,100,1);
-  check_idmap(100,50,0);
+  int n, N, verbose_print;
+  assert(argc==4);
+  int nread;
+  nread = sscanf(argv[1],"%d",&n);
+  assert(nread=1);
+  nread = sscanf(argv[2],"%d",&N);
+  assert(nread=1);
+  nread = sscanf(argv[3],"%d",&verbose_print);
+  assert(nread=1);
 
+  printf("n %d, N %d, verbose_print %d\n",n,N,verbose_print);
+  check_idmap(n,N,verbose_print);
+  // check_idmap(5,100,0);
+  // check_idmap(100,50,0);
+  return 0;
 }

@@ -16766,3 +16766,39 @@ CAN'T OPEN------- -> 0
 Con respecto a los de newff parece que en la siguiente fecha:
 "Tue Sep 20 06:52:46 2005 mstorti@spider  beta-3.47.33" = bubbly13-root-95-g92a1548
 corrian bien. 
+
+%=== Tue Jun  1 23:17:45 2010 mstorti@galileo
+%
+%--[2010-06-02.02:17:45.mstorti-v30-end-0-g1f72106]-----
+Con respecto al test `newff/test_full_full_jacs_cp' lo que ocurre es
+que se genera en forma aleatoria y compara con una solucion
+analitica. Es un problema de adveccion difusion general en 2D con
+coeficientes generados aleatoriamente. 
+%
+%--[2010-06-02.17:11:10.mstorti-v30-end-0-g1f72106]-----
+Creo que encontre el problema. Resulta que en el script que calcula la
+solucion analitica se usa `myfunm' para calcular la exponencial de la
+matriz y resulta que tenia un error porque no andab bien para
+complejos. 
+%
+%--[2010-06-02.21:44:43.mstorti-v30-end-3-ga3f15f9]-----
+Efectivamente arreglando eso ahora da 
+%
+---------- g_C++ y O_c++:
+%
+ABRIDGED: 
+NOT OK------- -> 2
+distmap/dist_graph.np2.out.tmp
+idmap/tidmap.sal
+CAN'T OPEN------- -> 0
+%
+%--[2010-06-02.22:20:09.mstorti-v30-end-3-ga3f15f9]-----
+Fixed `distmap/dist_graph.np2.out.tmp'. It was a problem of `scramble'
+en la salida del archivo. 
+
+%=== Thu Jun  3 18:51:17 2010 mstorti@galileo
+%
+%--[2010-06-03.21:51:17.mstorti-v30-end-5-g45c0218]-----
+Corro los tests en aquiles. Aparentemente da todo bien 
+Bueno ahora da todo OK en aquiles.
+Summary: "All tests" -- OK: 186.  Not OK: 0. Couldn't open: 0. Total: 186

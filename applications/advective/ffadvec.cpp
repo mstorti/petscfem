@@ -30,7 +30,7 @@ int flux_fun_advec(FLUX_FUN_ARGS) {
   static double vel=0, tau_fac=1.;
   static Matrix u;
   static ColumnVector uu;
-  int kmax;
+  int kmax=-1;
 
   if (flag==0) {
     uu.ReSize(ndim);

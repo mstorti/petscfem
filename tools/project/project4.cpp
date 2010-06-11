@@ -18,7 +18,8 @@ void read_mesh(dvector<double> &xnod1,const char *XNOD1,
 	       dvector<double> &u1,const char *STATE1,
 	       dvector<double> &u2,
 	       dvector<int> &ico1,const char *ICONE1,
-	       int ndim,int ndimel,int nel,int ndof) {
+	       int ndim,int ndimel,int nel,int ndof,
+               int use_delaunay) {
 
   // Reads mesh1
   xnod1.cat(XNOD1).defrag();
@@ -27,12 +28,15 @@ void read_mesh(dvector<double> &xnod1,const char *XNOD1,
   xnod1.reshape(2,nnod1,ndim);
   u1.a_resize(2,nnod1,ndof).read(STATE1);
 
-  ico1.cat(ICONE1).defrag();
-  assert(ico1.size() % nel ==0);
-  int nelem1 = ico1.size()/nel;
-  ico1.reshape(2,nelem1,nel);
-
-  printf("mesh1: %d nodes, %d elems read\n",nnod1,nelem1);
+  if (!use_delaunay) {
+    ico1.cat(ICONE1).defrag();
+    assert(ico1.size() % nel ==0);
+    int nelem1 = ico1.size()/nel;
+    ico1.reshape(2,nelem1,nel);
+    printf("mesh1: %d nodes, %d elems read\n",nnod1,nelem1);
+  } else {
+    printf("Using delaunay triangulation for interpolation\n");
+  }
 
   // Reads mesh2 nodes
   xnod2.cat(XNOD2).defrag();
@@ -51,6 +55,7 @@ int main(int argc,char **argv) {
   int ndimel = 2;
   int nel = ndim+1; // Only for simplices right now
   int ndof = 1;
+  int use_delaunay=0;
   print_area_coords = "";
 
   dvector<double> xnod1, xnod2, u1, u2,
@@ -69,13 +74,13 @@ int main(int argc,char **argv) {
       sscanf(optarg,fmt,&name);			\
       break;
 #define SEP "          "
-  while ((c = getopt(argc, argv, "hd:l:e:f:x:i:s:y:o:n:")) != -1) {
+  while ((c = getopt(argc, argv, "hd:l:e:f:x:i:s:y:o:n:a")) != -1) {
     switch (c) {
     case 'h':
       printf(" usage: $ project4.bin -d <NDIM>\n"
 	     SEP "-l <NDIMEL> -e <NEL> -f <NDOF>\n"
 	     SEP "-x <XNOD1> -i <ICONE1> -s <STATE1>\n"
-	     SEP "-y <XNOD2> -o <STATE2>\n"
+	     SEP "-y <XNOD2> -o <STATE2> -a\n"
              );
       exit(0);
       GETOPT_GET('d',"%d",ndim);
@@ -101,6 +106,9 @@ int main(int argc,char **argv) {
     case 'n':
       print_area_coords = string(optarg);
       break;
+    case 'a':
+      use_delaunay = 1;
+      break;
     default:
       if (isprint (optopt))
 	fprintf (stderr, "Unknown option `-%c'.\n", optopt);
@@ -111,6 +119,8 @@ int main(int argc,char **argv) {
       abort ();
     }
   }
+  PETSCFEM_ASSERT0(!use_delaunay,
+                   "Not implemented Delaunay triangulation");  
 
 #if 0
   printf("print_area_coords: %s, size %d\n",
@@ -119,7 +129,7 @@ int main(int argc,char **argv) {
 
   read_mesh(xnod1,xnod1f, xnod2,xnod2f,
 	    u1,state1f,u2,ico1,icone1f,
-	    ndim,ndimel,nel,ndof);
+	    ndim,ndimel,nel,ndof,use_delaunay);
 
 #if 0 // Si los datos vienen `concentrados' por nodos.
   nod_vol(xnod1,ico1,area1);
@@ -130,7 +140,13 @@ int main(int argc,char **argv) {
 #endif
 
   FemInterp fem_interp;
-  fem_interp.init(10,ndof,ndimel,xnod1,ico1);
+  if (!use_delaunay) {
+    fem_interp.init(10,ndof,ndimel,xnod1,ico1);
+  } else {
+    assert(!strcmp(icone1f,"icone1.tmp"));
+    assert(nel==ndim+1);
+    fem_interp.init(10,ndof,ndimel,xnod1);
+  }
   u2.clear();
   fem_interp.interp(xnod2,u1,u2);
   u2.print(state2f);

@@ -18,18 +18,18 @@ private:
   int knbr,ndim,nnod,ndimel,
     nel,nelem,ndof,nd1;
 
+  FastMat2::CacheCtx2 ctx;
+  FastMat2::CacheCtx2::Branchv brv1,brv2;
+  FastMat2::CacheCtx2::Branch br1,br2,br3,br4,br7,br8,br9;
   FastMat2 C,C2,
     invC,invC2, invCt,
     x2,dx2, x2prj,x2prjmin, x12,
     x13,x1, nor,L, b,u1_loc, u2,
     Lmin;
 
-  FastMatCachePosition cp,cp1,cp2,cp3;
-  FastMatCacheList cache_list, cache_list2;
-
   vector<int> restricted;
 public:
-  int use_cache;
+  int use_cache, use_delaunay;
   double tol;
 
   FemInterp();
@@ -46,9 +46,13 @@ public:
 	    const dvector<double> &xnod_a,
 	    const dvector<int> &icone_a);
 
+  void init(int knbr_a, int ndof_a, int ndimel_a,
+	    const dvector<double> &xnod_a);
+
   void interp(const dvector<double> &xnod2,
 	      const dvector<double> &u,
 	      dvector<double> &ui);
+
 };
 
 void nod_vol(const dvector<double> &xnod,

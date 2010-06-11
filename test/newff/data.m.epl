@@ -1,6 +1,6 @@
 # -*- mode: octave -*- 
 ndof=3;
-nx=32;
+nx=16;
 ny=1;
 Lx=1;
 Ly=1/16;

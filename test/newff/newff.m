@@ -2,6 +2,8 @@
 ## $Id: newff.m,v 1.15 2007/02/20 14:57:47 mstorti Exp $
 source("data.m.tmp");
 
+rand("seed",1234567);
+
 ## Physical parameters
 uu=[u v];
 Ax=u*eye(ndof);
@@ -286,6 +288,7 @@ phase=exp(i*phase);
 if !steady
   ## uana = (beta \ (eye(ndof)-expm(-beta*nstep*Dt)))*(CP\S);
   QQ = myfunm(-beta*nstep*Dt,"exp");
+  ## QQ = expm(-beta*nstep*Dt);
   uana = (beta \ (eye(ndof)-QQ))*(CP\S);
 else
   uana = beta\(CP\S);
