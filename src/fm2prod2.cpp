@@ -20,6 +20,7 @@ int FASTMAT2_USE_PROD2=0;
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>
 // This is the function that makes the product of two matrices.
 // The others for 3,4,etc... are wrappers to this one. 
+// Computes C = A*B, where C is *this
 FastMat2 & 
 FastMat2::prod2(const FastMat2 &A,const FastMat2 &B,
                 vector<int> &ixa, 
@@ -40,16 +41,25 @@ FastMat2::prod2(const FastMat2 &A,const FastMat2 &B,
 #endif
   FastMatCache *cache = ctx->step();
 
-  Indx ia,ib,ii;
-  
   // get the free indices of A and B
-  Indx Afdims,Bfdims,fdims;
+  Indx ii,Afdims,Bfdims,Cfdims;
   A.get_dims(Afdims);
   B.get_dims(Bfdims);
   
   int niA = Afdims.size();
   int niB = Bfdims.size();
   int ndims = niA+niB;
+
+  int ixas = int(ixa.size());
+  int ixbs = int(ixb.size());
+  PETSCFEM_ASSERT(ixas == niA,
+                  "Nbr of indices passed in the contraction for A"
+                  " must be equal to the actual indices of A. "
+                  "nbr of A indices %d. Passed %d",ixas,niA);  
+  PETSCFEM_ASSERT(ixbs == niB,
+                  "Nbr of indices passed in the contraction for B"
+                  " must be equal to the actual indices of B. "
+                  "nbr of B indices %d. Passed %d",ixbs,niB);  
     
   // This implementation is based on an older one
   // that used the vector of indices for contraction.
@@ -60,13 +70,26 @@ FastMat2::prod2(const FastMat2 &A,const FastMat2 &B,
   for (unsigned int j=0; j<ixb.size(); j++) 
     ii.push_back(ixb[j]);
 
-  // Count how many free and contracted indices are
+  // Get free dims of output matrix
+  get_dims(Cfdims);
+  int niC = Cfdims.size();
+
+#if 0
+  // Count how many free and contracted
+  // indices are there
   int nfree=0,nc=0;
   for (int j=0; j<ii.size(); j++) {
     int k = ii[j];
     if (k>0 && k>nfree) nfree = k;
     if (k<0 && -k>nc) nc = -k;
   }
+
+  // Nbr of free indices in A and B
+  int nfreeA=0,nfreeB=0;
+  for (int j=0; j<niA; j++) 
+    nfreeA += ii[j]>0;
+  for (int j=niA; j<niA; j++) 
+    nfreeA += ii[j]>0;
 
   // Get the free and contracted indices
   Indx ifree(nfree,0),icontr(2*nc,0);
@@ -100,7 +123,38 @@ FastMat2::prod2(const FastMat2 &A,const FastMat2 &B,
       nfB *= ndimsf[j];
     }
   }
+#endif
 
+  // nfree:= nbr of free indices
+  // nctr:= nbr of contracted indices
+  // Id we put the indices in A,B, and C
+  // we should have niA+niB+niC = 2*(nfree+nc)
+  // Compute permutation of indices
+  // indx_perm[old_pos] -> new_pos
+  // So that in the new position we have
+  int nfA=0,nfB=0,nfree=0,nc=0;
+  for (int j=0; j<niA; j++) {
+    if (ixa[j]>0) nfA++;
+    else nc++;
+  }
+  for (int j=0; j<niB; j++) {
+    if (ixb[j]>0) nfB++;
+    else nc++;
+  }
+  PETSCFEM_ASSERT(nc%2==0,
+                  "Nbr of contracted indices must be even."
+                  "nc  %d",nc);  
+
+  nc /= 2;
+  nfree = nfA+nfB;
+  PETSCFEM_ASSERT(niA+niB+niC==2*(nfree+nc),
+                  "Bad balance of indices. "
+                  "niA %d, niB %d, niC %d, nfree %d, nctr %d",
+                  niA,niB,niC,nfree,nc);  
+  //# Current line ===========       
+  exit(0);
+
+#if 0
   // ndimsf.print("dimensions of the free part: ");
 
   // Dimension C if necessary
@@ -111,13 +165,11 @@ FastMat2::prod2(const FastMat2 &A,const FastMat2 &B,
     return *this;
   }
 
-  // Get free dims of output matrix
-  get_dims(fdims);
-  if (ndimsf != fdims) {
+  if (ndimsf != Cfdims) {
     Afdims.print("A free dims: ");
     Bfdims.print("B free dims: ");
     ndimsf.print("Combined free dims: ");
-    fdims.print("Free dims on result matrix: ");
+    Cfdims.print("Free dims on result matrix: ");
     PETSCFEM_ERROR0("Combined free dims doesn't match free"
                     " dims of  result.\n");
   }
@@ -156,9 +208,13 @@ FastMat2::prod2(const FastMat2 &A,const FastMat2 &B,
     ndimsc[j]=nd1;
   }
   printf("nfA %d, ncA %d, nfB %d, ncB %d\n",nfA,ncA,nfB,ncB);
-  exit(0);
 
-#if 0
+  Indx afindx(nfA,1),acindx(ncA,1);
+  while (1) {
+    
+    if (!inc(afindx,ndimsc)) break;
+  }
+
   // ndimsc.print("dimensions of the contracted part: ");
 
   Indx findx(nfree,1),cindx(nc,1),tot_indx(ndims,0),

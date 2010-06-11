@@ -1277,7 +1277,6 @@ int IISDMat::pc_apply(Vec x,Vec w) {
       assert(mapped==n_lay1_here);
       ierr = VecRestoreArray(wb,&wbp); PF_CHKERRQ(ierr); 
       ierr = VecRestoreArray(w,&wp); PF_CHKERRQ(ierr); 
-      //# Current line ===========       
     }  
     
   } else {
