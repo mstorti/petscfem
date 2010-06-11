@@ -27,6 +27,8 @@
 //   return *this;
 // }
 
+// The definitions are generated with a perl
+// script `mprod.pl' in a header and included here. 
 #include "./mproddef.h"
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>
@@ -541,6 +543,12 @@ FastMat2 &
 FastMat2::prod(const FastMat2 &A,const FastMat2 &B,
                vector<int> &ixa, 
                vector<int> &ixb) {
+
+  if (FASTMAT2_USE_PROD2) {
+    prod2(A,B,ixa,ixb);
+    return *this;
+  }
+
   double start=MPI_Wtime();
   fastmat_stats.ncall++;
 
@@ -741,11 +749,10 @@ FastMat2::prod(const FastMat2 &A,const FastMat2 &B,
     assert(psc);
     assert(!cache->sc);
     cache->sc = psc;
-    psc->ident();
     if (FASTMAT2_USE_DGEMM) {
-      if (!psc->not_superlinear_ok()) {
-        printf("NOT SL!!\n");
-      }
+      psc->ident();
+      // if (!psc->not_superlinear_ok()) 
+      //   printf("NOT SL!!\n");
       // psc->print();
       
       glob_fm2stats.was_sl_count += psc->superlinear;

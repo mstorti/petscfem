@@ -975,6 +975,10 @@ public:
   FastMat2 & prod(const FastMat2 &A,const FastMat2 &B,
                   vector<int> &ixa,vector<int> &ixb);
 
+  // alternative version with fast creation of caches
+  FastMat2 & prod2(const FastMat2 &A,const FastMat2 &B,
+                   vector<int> &ixa,vector<int> &ixb);
+
   //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
   /** Kronecker product (also called Schur product)
       @doc If A is n x m and B is p x q, then kron returns a matrix

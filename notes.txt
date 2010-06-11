@@ -16802,3 +16802,8 @@ en la salida del archivo.
 Corro los tests en aquiles. Aparentemente da todo bien 
 Bueno ahora da todo OK en aquiles.
 Summary: "All tests" -- OK: 186.  Not OK: 0. Couldn't open: 0. Total: 186
+
+%=== Fri Jun 11 13:32:09 2010 mstorti@galileo
+%
+%--[2010-06-11.16:32:09.mstorti-v31-end-4-g6041b9a]-----
+Corro los tests de nuevo por unos cambios que hice 

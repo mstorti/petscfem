@@ -6,6 +6,7 @@
 
 extern FastMat2Stats glob_fm2stats;
 extern int FASTMAT2_USE_DGEMM;
+extern int FASTMAT2_USE_PROD2;
 #define USE_MPROD_FOR_2MATS
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>
