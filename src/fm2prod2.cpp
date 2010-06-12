@@ -147,10 +147,49 @@ FastMat2::prod2(const FastMat2 &A,const FastMat2 &B,
 
   nc /= 2;
   nfree = nfA+nfB;
-  PETSCFEM_ASSERT(niA+niB+niC==2*(nfree+nc),
+  int ntot = niA+niB+niC;
+  PETSCFEM_ASSERT(ntot==2*(nfree+nc),
                   "Bad balance of indices. "
                   "niA %d, niB %d, niC %d, nfree %d, nctr %d",
                   niA,niB,niC,nfree,nc);  
+
+  // If we concatenate the indices ix0=[indxA,indxB,indxC]
+  // we get a vector of size niA+niB+niC. We reorder this
+  // in the following way: ix1=[ixfA,ixfB,ixfC,ixcA,ixcB]
+  // We have the maps map0to1, and map1to0
+  // All of them are in 0 BASE!!
+  Indx map0to1(ntot,-1),map1to0(ntot,-1);
+  int kk=0;
+  for (int j=0; j<niA; j++) {
+    int k=ixa[j];
+    if (k>0) {
+      map1to0[kk] = j;
+      map1to0[nfree+kk] = niA+niB+k-1;
+      kk++;
+    } else map1to0[nfree+niC-1-k] = j;
+  }
+  map1to0.print("map1to0 after scan A: ");
+  for (int j=0; j<niB; j++) {
+    int k=ixb[j];
+    if (k>0) {
+      map1to0[kk] = niA+j;
+      map1to0[nfree+kk] = niA+niB+k-1;
+      kk++;
+    } else map1to0[nfree+niC+nc-1-k] = niA+j;
+  }
+  map1to0.print("map1to0 after scan B: ");
+  // for (int j=0; j<niC; j++) {
+  //   int k = Cfdims[j];
+  //   map1to0[nfree+k-1] = niA+niB+j;
+  // }
+  // map1to0.print("map1to0 after scan C: ");
+  
+  // Compute inverse map
+  for (int j=0; j<ntot; j++) 
+    map0to1[map1to0[j]] = j;
+  map1to0.print("map1to0");
+  map0to1.print("map0to1");
+
   //# Current line ===========       
   exit(0);
 
