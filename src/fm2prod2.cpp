@@ -18,6 +18,23 @@
 int FASTMAT2_USE_PROD2=0;
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>
+void FastMat2::get_addresses(Indx permA,Indx Afdims,
+                             vector<double *> &ap) const {
+  int n = permA.size();
+  Indx iA(n,1), aindx(n,1),dA(n,-1);
+  for (int j=0; j<n; j++) dA[j] = Afdims[permA[j]];
+  int j=0;
+  while (1) {
+    for (int l=0; l<n; l++) {
+      int k = permA[l];
+      aindx[k] = iA[l];
+    }
+    ap[j++] = location(aindx);
+    if (!inc(iA,dA)) break;
+  }
+}
+
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>
 // This is the function that makes the product of two matrices.
 // The others for 3,4,etc... are wrappers to this one. 
 // Computes C = A*B, where C is *this
@@ -74,57 +91,6 @@ FastMat2::prod2(const FastMat2 &A,const FastMat2 &B,
   get_dims(Cfdims);
   int niC = Cfdims.size();
 
-#if 0
-  // Count how many free and contracted
-  // indices are there
-  int nfree=0,nc=0;
-  for (int j=0; j<ii.size(); j++) {
-    int k = ii[j];
-    if (k>0 && k>nfree) nfree = k;
-    if (k<0 && -k>nc) nc = -k;
-  }
-
-  // Nbr of free indices in A and B
-  int nfreeA=0,nfreeB=0;
-  for (int j=0; j<niA; j++) 
-    nfreeA += ii[j]>0;
-  for (int j=niA; j<niA; j++) 
-    nfreeA += ii[j]>0;
-
-  // Get the free and contracted indices
-  Indx ifree(nfree,0),icontr(2*nc,0);
-  for (int j=0; j<ii.size(); j++) {
-    int k = ii[j];
-    if (k>0) {
-      ifree[k-1] = j+1;
-    } else {
-      k = -k;
-      if (icontr[2*(k-1)]==0) {
-        icontr[2*(k-1)]=j+1;
-      } else {
-        icontr[2*k-1]=j+1;
-      }
-    }
-  }
-  // ifree.print("ifree: ");
-  // icontr.print("icontr: ");
-    
-  // ndimsf:= dimensions of the free indices
-  // ndimsc:= dimensions of the contracted indices
-  Indx ndimsf(nfree,0),ndimsc(nc,0);
-  int nfA=1,ncA=1,nfB=1,ncB=1;
-  for (int j=0; j<nfree; j++) {
-    int k = ifree[j];
-    if (k<=niA) {
-      ndimsf[j] = Afdims[k-1];
-      nfA *= ndimsf[j];
-    } else {
-      ndimsf[j] = Bfdims[k-niA-1];
-      nfB *= ndimsf[j];
-    }
-  }
-#endif
-
   // nfree:= nbr of free indices
   // nctr:= nbr of contracted indices
   // Id we put the indices in A,B, and C
@@ -165,6 +131,7 @@ FastMat2::prod2(const FastMat2 &A,const FastMat2 &B,
   // C(ilm)=A(ijk)B(kjlm) 
   // So that we have the following permutations
   // mapC=[1,0,2] mapA=[2,0,1]
+  int nrowa=1,ncola=1,nrowb=1,ncolb=1;
   Indx mapA(niA,-1),mapB(niB,-1),mapC(niC,-1);
   int kf=0;
   for (int j=0; j<niA; j++) {
@@ -173,7 +140,11 @@ FastMat2::prod2(const FastMat2 &A,const FastMat2 &B,
       mapA[kf] = j;
       mapC[kf] = k-1;
       kf++;
-    } else mapA[nfA-1-k] = j;
+      nrowa *= Afdims[j];
+    } else {
+      mapA[nfA-1-k] = j;
+      ncola *= Afdims[j];
+    }
   }
   // printf("After scanning A\n");
   // mapA.print("mapA: ");
@@ -186,45 +157,36 @@ FastMat2::prod2(const FastMat2 &A,const FastMat2 &B,
       mapB[nc+kf] = j;
       mapC[nfA+kf] = k-1;
       kf++;
-    } else mapB[-1-k] = j;
+      nrowb *= Bfdims[j];
+    } else {
+      mapB[-1-k] = j;
+      ncolb *= Bfdims[j];
+    }
   }
+  assert(ncola==nrowb);
   // printf("After scanning B\n");
   mapA.print("mapA: ");
   mapB.print("mapB: ");
   mapC.print("mapC: ");
 
-#if 0
-  while(1) {
-    for (int j=0; j<nc; j++) {
-      int k1=icontr[2*j];
-      int k2=icontr[2*j+1];
-      tot_indx[k1-1] = cindx[j];
-      tot_indx[k2-1] = cindx[j];
-    }
+  int 
+    nA = A.size(),
+    nB = B.size(),
+    nC = size();
+  vector<double *> ap(nA),bp(nB),cp(nC);
+  A.get_addresses(mapA,Afdims,ap);
+  B.get_addresses(mapB,Bfdims,bp);
+  get_addresses(mapC,Cfdims,cp);
 
-    // Extract the A and B parts of the indices
-    copy(&tot_indx[0],&tot_indx[niA],&aindx[0]);
-    copy(&tot_indx[niA],&tot_indx[ndims],&bindx[0]);
-
-    lc->linea[jj] = A.location(aindx);
-    lc->lineb[jj] = B.location(bindx);
-
-    if (jj==1) {
-      inca = lc->linea[1] - lc->linea[0];
-      incb = lc->lineb[1] - lc->lineb[0];
-      lc->linear=1;
-    } else if (lc->linear && jj>1) {
-
-      if (lc->linea[jj] - lc->linea[jj-1] != inca) lc->linear=0;
-      if (lc->lineb[jj] - lc->lineb[jj-1] != incb) lc->linear=0;
-    }
-
-    jj++;
-    if (!inc(cindx,ndimsc)) break;
-  }
-#endif  
+  vector<double> a(nA),b(nB),c(nC);
   
-  //# Current line ===========       
-  exit(0);
+  for (int j=0; j<nA; j++) a[j] = *ap[j];
+  for (int j=0; j<nB; j++) b[j] = *bp[j];
+  
+  cblas_dgemm(CblasRowMajor,CblasNoTrans,CblasNoTrans,
+              nrowa,ncolb,ncola,1.0,&a[0],ncola,&b[0],ncolb,0.0,
+              &c[0],ncolb);
+  for (int j=0; j<nC; j++) *cp[j] = c[j];
+
   return *this;
 }

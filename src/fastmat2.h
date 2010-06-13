@@ -1503,6 +1503,12 @@ public:
   static void resync_was_cached(void);
   //@}
 
+  /// Initializes the matrix entries with integers
+  /// identifying positions, i.e. a 2x3 matrix would
+  /// be initialized to [11,12,13;21,22,23]. Usually
+  /// for debugging
+  void init123();
+
 private:
 
   /// Total storage. Should be the product of `dims'. 
@@ -1540,6 +1546,9 @@ private:
   void print2(const Indx & indxp,const Indx & fdims) const;
   /// auxiliary.  prints matrices with 1 indices.
   void print1(const Indx & indxp,const Indx & fdims) const;
+  /// Internally used by prod() 
+  void get_addresses(Indx perm,Indx Afdims,
+                     vector<double *> &ap) const;
 };
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>

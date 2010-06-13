@@ -17,6 +17,7 @@ class FastVector {
   ~FastVector();
   void print(const char *s=NULL) const;
   T & operator[] (const int j) {return store[j];};
+  void set(const T n);
   const T & operator[] (const int j) const {return store[j];};
   inline int operator== (const FastVector & indx) const;
   inline int operator!= (const FastVector & indx) const;
