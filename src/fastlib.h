@@ -26,6 +26,7 @@ class FastVector {
   int push_back(const T j) {resize_(size_+1); store[size_++]=j; return 0;};
   void reset() {size_=0;};
   void resize(const int new_size=0) {resize_(new_size); size_=new_size;};
+  void clear() { resize(0); }
  private:
   inline void resize_(const int n);
   T rigid_store[chunk_size];
