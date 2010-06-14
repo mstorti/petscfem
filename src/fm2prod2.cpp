@@ -21,6 +21,7 @@ int FASTMAT2_USE_PROD2=0;
 class prod2_subcache_t : public FastMatSubCache {
 public:
   vector<double *> ap,bp,cp;  
+  double *Ap,*Bp,*Cp;
   vector<double> a,b,c;
   int nA,nB,nC, 
     nrowa,ncola,
@@ -57,10 +58,9 @@ void FastMat2::get_addresses(Indx permA,Indx Afdims,
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>
 static void 
-check_superlinear(vector<double *> ap,
-                  int nrow,int ncol,
+check_superlinear(vector<double *> ap, int nrow,int ncol,
                   int &ok,int &lda,
-                  CBLAS_TRANSPOSE &trans) {
+                  CBLAS_TRANSPOSE &trans,int trans_ok) {
   int inccol = 1;
   int incrow = ncol;
   if (ncol>1) inccol = int(ap[1]-ap[0]);
@@ -83,7 +83,7 @@ check_superlinear(vector<double *> ap,
     lda = incrow;
     return;
   } 
-  if (incrow==1) {
+  if (trans_ok && incrow==1) {
     trans = CblasTrans;
     lda = inccol;
     return;
@@ -172,7 +172,7 @@ void prod2_subcache_t
     // C(ilm)=A(ijk)B(kjlm) 
     // So that we have the following permutations
     // mapC=[1,0,2] mapA=[2,0,1]
-    int nrowa=1,ncola=1,nrowb=1,ncolb=1;
+    nrowa=1; ncola=1; nrowb=1; ncolb=1;
     Indx mapA(niA,-1),mapB(niB,-1),mapC(niC,-1);
     int kf=0;
     for (int j=0; j<niA; j++) {
@@ -187,7 +187,9 @@ void prod2_subcache_t
         ncola *= Afdims[j];
       }
     }
-
+    nrowc = nrowa;
+    ncolc = ncolb;
+    
     kf=0;
     for (int j=0; j<niB; j++) {
       int k=ixb[j];
@@ -203,10 +205,9 @@ void prod2_subcache_t
     }
     assert(ncola==nrowb);
 
-    int 
-      nA = A.size(),
-      nB = B.size(),
-      nC = C.size();
+    nA = A.size();
+    nB = B.size();
+    nC = C.size();
 
     ap.resize(nA);
     bp.resize(nB);
@@ -216,9 +217,10 @@ void prod2_subcache_t
     B.get_addresses(mapB,Bfdims,bp);
     C.get_addresses(mapC,Cfdims,cp);
 
-    check_superlinear(ap,nrowa,ncola,asl_ok,lda,transa);
-    check_superlinear(bp,nrowb,ncolb,bsl_ok,ldb,transb);
-    check_superlinear(cp,nrowa,ncolb,csl_ok,ldc,transc);
+    check_superlinear(ap,nrowa,ncola,asl_ok,lda,transa,1);
+    check_superlinear(bp,nrowb,ncolb,bsl_ok,ldb,transb,1);
+    check_superlinear(cp,nrowa,ncolb,csl_ok,ldc,transc,0);
+
 #if 0
     if (asl_ok) printf("A SL OK, lda %d, transa %d\n",
                        lda,transa);
@@ -232,6 +234,9 @@ void prod2_subcache_t
     if (!bsl_ok) b.resize(nB,0.0);
     if (!csl_ok) c.resize(nC,0.0);
 
+    Ap = (asl_ok? ap[0] : &a[0]);
+    Bp = (bsl_ok? bp[0] : &b[0]);
+    Cp = (csl_ok? cp[0] : &c[0]);
 }
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>
@@ -260,14 +265,11 @@ FastMat2::prod2(const FastMat2 &A,const FastMat2 &B,
 
   prod2_subcache_t *psc = NULL;
   if (!ctx->was_cached  ) {
-
     psc = new prod2_subcache_t;
     assert(psc);
     assert(!cache->sc);
     cache->sc = psc;
-
     psc->init(A,B,*this,ixa,ixb);
-
   }
 
   psc = dynamic_cast<prod2_subcache_t *>(cache->sc);
@@ -280,10 +282,13 @@ FastMat2::prod2(const FastMat2 &A,const FastMat2 &B,
 }
 
 void prod2_subcache_t::make_prod() {
-  for (int j=0; j<nA; j++) a[j] = *ap[j];
-  for (int j=0; j<nB; j++) b[j] = *bp[j];
-  cblas_dgemm(CblasRowMajor,CblasNoTrans,CblasNoTrans,
-              nrowa,ncolb,ncola,1.0,&a[0],ncola,&b[0],ncolb,0.0,
-              &c[0],ncolb);
-  for (int j=0; j<nC; j++) *cp[j] = c[j];
+  if (!asl_ok)
+    for (int j=0; j<nA; j++) a[j] = *ap[j];
+  if (!bsl_ok)
+    for (int j=0; j<nB; j++) b[j] = *bp[j];
+  cblas_dgemm(CblasRowMajor,transa,transb,
+              nrowa,ncolb,ncola,1.0,Ap,ncola,Bp,ncolb,0.0,
+              Cp,ncolb);
+  if (!csl_ok)
+    for (int j=0; j<nC; j++) *cp[j] = c[j];
 }
