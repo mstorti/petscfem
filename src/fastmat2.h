@@ -244,6 +244,8 @@ public:
   string check_label;
 };
 
+class prod2_subcache_t;
+
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 /// This stores the counters for the various kind of operations
 struct OperationCount {
@@ -1549,6 +1551,7 @@ private:
   /// Internally used by prod() 
   void get_addresses(Indx perm,Indx Afdims,
                      vector<double *> &ap) const;
+  friend class prod2_subcache_t;
 };
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>

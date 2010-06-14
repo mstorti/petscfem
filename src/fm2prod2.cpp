@@ -22,7 +22,18 @@ class prod2_subcache_t : public FastMatSubCache {
 public:
   vector<double *> ap,bp,cp;  
   vector<double> a,b,c;
-  int nA,nB,nC, nrowa,ncola,ncolb;
+  int nA,nB,nC, 
+    nrowa,ncola,
+    nrowb,ncolb,
+    nrowc,ncolc;
+  int asl_ok,lda,
+    bsl_ok,ldb,
+    csl_ok,ldc;
+  CBLAS_TRANSPOSE transa,transb,transc;
+  void init(const FastMat2 &A,const FastMat2 &B,
+            FastMat2 &C,
+            vector<int> &ixa, 
+            vector<int> &ixb);
   void make_prod();
   prod2_subcache_t() {}
 };
@@ -48,9 +59,10 @@ void FastMat2::get_addresses(Indx permA,Indx Afdims,
 static void 
 check_superlinear(vector<double *> ap,
                   int nrow,int ncol,
-                  int &ok,int &incrow,int &inccol) {
-  inccol = 1;
-  incrow = ncol;
+                  int &ok,int &lda,
+                  CBLAS_TRANSPOSE &trans) {
+  int inccol = 1;
+  int incrow = ncol;
   if (ncol>1) inccol = int(ap[1]-ap[0]);
   if (nrow>1) incrow = int(ap[nrow]-ap[0]);
   ok=1;
@@ -63,41 +75,30 @@ check_superlinear(vector<double *> ap,
     }
   }
   printf("is superlinear ? %d\n",ok);
-  if (ok) printf("incrow %d, inccol %d\n",incrow,inccol);
+  if (!ok) return;
+  printf("incrow %d, inccol %d\n",incrow,inccol);
+
+  if (inccol==1) {
+    trans = CblasNoTrans;
+    lda = incrow;
+    return;
+  } 
+  if (incrow==1) {
+    trans = CblasTrans;
+    lda = inccol;
+    return;
+  }
+  ok = 0;
+
+  printf("is superlinear ? %d\n",ok);
+  if (ok) printf("incrow %d, inccol %d, trans %d, lda %d\n",
+                 incrow,inccol,trans,lda);
 }
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>
-// This is the function that makes the product of two matrices.
-// The others for 3,4,etc... are wrappers to this one. 
-// Computes C = A*B, where C is *this
-FastMat2 & 
-FastMat2::prod2(const FastMat2 &A,const FastMat2 &B,
-                vector<int> &ixa, 
-                vector<int> &ixb) {
-
-#ifndef NDEBUG
-  if (ctx->do_check_labels) {
-    ctx->check_clear();
-    ctx->check("prod2",this,&A,&B);
-    Indx Ixa,Ixb;
-    for (unsigned int j=0; j<ixa.size(); j++)
-      Ixa.push_back(ixa[j]);
-    for (unsigned int j=0; j<ixb.size(); j++)
-      Ixb.push_back(ixb[j]);
-    ctx->check(Ixa);
-    ctx->check(Ixb);
-  }
-#endif
-  FastMatCache *cache = ctx->step();
-
-  prod2_subcache_t *psc = NULL;
-  if (!ctx->was_cached  ) {
-
-    psc = new prod2_subcache_t;
-    assert(psc);
-    assert(!cache->sc);
-    cache->sc = psc;
-
+void prod2_subcache_t
+::init(const FastMat2 &A,const FastMat2 &B,FastMat2 &C,
+       vector<int> &ixa,vector<int> &ixb) {
     // get the free indices of A and B
     Indx ii,Afdims,Bfdims,Cfdims;
     A.get_dims(Afdims);
@@ -128,7 +129,7 @@ FastMat2::prod2(const FastMat2 &A,const FastMat2 &B,
       ii.push_back(ixb[j]);
 
     // Get free dims of output matrix
-    get_dims(Cfdims);
+    C.get_dims(Cfdims);
     int niC = Cfdims.size();
 
     // nfree:= nbr of free indices
@@ -205,17 +206,7 @@ FastMat2::prod2(const FastMat2 &A,const FastMat2 &B,
     int 
       nA = A.size(),
       nB = B.size(),
-      nC = size();
-
-    vector<double *> 
-      &ap = psc->ap,
-      &bp = psc->bp,
-      &cp = psc->cp;
-
-    vector<double> 
-      &a = psc->a,
-      &b = psc->b,
-      &c = psc->c;
+      nC = C.size();
 
     ap.resize(nA);
     bp.resize(nB);
@@ -223,29 +214,60 @@ FastMat2::prod2(const FastMat2 &A,const FastMat2 &B,
 
     A.get_addresses(mapA,Afdims,ap);
     B.get_addresses(mapB,Bfdims,bp);
-    get_addresses(mapC,Cfdims,cp);
+    C.get_addresses(mapC,Cfdims,cp);
 
-    int 
-      asl_ok,incrowa,inccola,
-      bsl_ok,incrowb,inccolb,
-      csl_ok,incrowc,inccolc;
-    check_superlinear(ap,nrowa,ncola,asl_ok,incrowa,inccola);
-    check_superlinear(bp,nrowb,ncolb,bsl_ok,incrowb,inccolb);
-    check_superlinear(cp,nrowa,ncolb,csl_ok,incrowc,inccolc);
+    check_superlinear(ap,nrowa,ncola,asl_ok,lda,transa);
+    check_superlinear(bp,nrowb,ncolb,bsl_ok,ldb,transb);
+    check_superlinear(cp,nrowa,ncolb,csl_ok,ldc,transc);
+#if 0
+    if (asl_ok) printf("A SL OK, lda %d, transa %d\n",
+                       lda,transa);
+    if (asl_ok) printf("B SL OK, ldb %d, transb %d\n",
+                       ldb,transb);
+    if (asl_ok) printf("C SL OK, ldc %d, transc %d\n",
+                       ldc,transc);
+#endif
 
-    exit(0);
+    if (!asl_ok) a.resize(nA,0.0);
+    if (!bsl_ok) b.resize(nB,0.0);
+    if (!csl_ok) c.resize(nC,0.0);
 
-    a.resize(nA,0.0);
-    b.resize(nB,0.0);
-    c.resize(nC,0.0);
+}
 
-    psc->nA = nA;
-    psc->nB = nB;
-    psc->nC = nC;
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>
+// This is the function that makes the product of two matrices.
+// The others for 3,4,etc... are wrappers to this one. 
+// Computes C = A*B, where C is *this
+FastMat2 & 
+FastMat2::prod2(const FastMat2 &A,const FastMat2 &B,
+                vector<int> &ixa, 
+                vector<int> &ixb) {
 
-    psc->nrowa = nrowa;
-    psc->ncola = ncola;
-    psc->ncolb = ncolb;
+#ifndef NDEBUG
+  if (ctx->do_check_labels) {
+    ctx->check_clear();
+    ctx->check("prod2",this,&A,&B);
+    Indx Ixa,Ixb;
+    for (unsigned int j=0; j<ixa.size(); j++)
+      Ixa.push_back(ixa[j]);
+    for (unsigned int j=0; j<ixb.size(); j++)
+      Ixb.push_back(ixb[j]);
+    ctx->check(Ixa);
+    ctx->check(Ixb);
+  }
+#endif
+  FastMatCache *cache = ctx->step();
+
+  prod2_subcache_t *psc = NULL;
+  if (!ctx->was_cached  ) {
+
+    psc = new prod2_subcache_t;
+    assert(psc);
+    assert(!cache->sc);
+    cache->sc = psc;
+
+    psc->init(A,B,*this,ixa,ixb);
+
   }
 
   psc = dynamic_cast<prod2_subcache_t *>(cache->sc);
