@@ -96,13 +96,20 @@ void prod2_subcache_t
        vector<int> &ixa,vector<int> &ixb) {
     // get the free indices of A and B
     Indx ii,Afdims,Bfdims,Cfdims;
+    // Afdims, Bfdims:= are the dimensions of the `free'
+    // indices of A,B (not free indices of the contraction,
+    // but the indices of A,B that are not restricted)
     A.get_dims(Afdims);
     B.get_dims(Bfdims);
   
+    // Nbr of indices in A and B
     int niA = Afdims.size();
     int niB = Bfdims.size();
+    // Total number of input indices
     int ndims = niA+niB;
 
+    // Check the indices that were passed for
+    // the contraction are OK in length
     int ixas = int(ixa.size());
     int ixbs = int(ixb.size());
     PETSCFEM_ASSERT(ixas == niA,
@@ -123,10 +130,14 @@ void prod2_subcache_t
     for (unsigned int j=0; j<ixb.size(); j++) 
       ii.push_back(ixb[j]);
 
+    // If `C' is not defined we have to initialize it
     if (!C.defined) {
+      // Count total number of free (not contracted) indices
       int nf=0;
       for (int j=0; j<ndims; j++) nf += ii[j]>0;
+      // Dimension index vector
       Indx ndimsf(nf,0);
+      // Get dimensions
       for (int j=0; j<ndims; j++) {
         int k = ii[j];
         if (k>0) {
@@ -144,13 +155,7 @@ void prod2_subcache_t
     C.get_dims(Cfdims);
     int niC = Cfdims.size();
 
-    // nfree:= nbr of free indices
-    // nctr:= nbr of contracted indices
-    // Id we put the indices in A,B, and C
-    // we should have niA+niB+niC = 2*(nfree+nc)
-    // Compute permutation of indices
-    // indx_perm[old_pos] -> new_pos
-    // So that in the new position we have
+    // Nbr of free and contracted indices for A and B
     int nfA=0,nfB=0,nfree=0,nc=0;
     for (int j=0; j<niA; j++) {
       if (ixa[j]>0) nfA++;
@@ -185,6 +190,14 @@ void prod2_subcache_t
     // C(ilm)=A(ijk)B(kjlm) 
     // So that we have the following permutations
     // mapC=[1,0,2] mapA=[2,0,1]
+    // At the same time we compute the
+    // row dimension of A = product of free indices,
+    // and column dimension = product of contracted indices. 
+    // This is as if we convert A in a rectangular matrix
+    // where all the free indices are colapsed in a row index
+    // and the contracted indices in a single column index.
+    // The same is done for B, but in this case they are inverted
+    // contracted -> row, free -> column. 
     nrowa=1; ncola=1; nrowb=1; ncolb=1;
     Indx mapA(niA,-1),mapB(niB,-1),mapC(niC,-1);
     int kf=0;
@@ -218,35 +231,45 @@ void prod2_subcache_t
     }
     assert(ncola==nrowb);
 
+    // Get dimensions of matrices
     nA = A.size();
     nB = B.size();
     nC = C.size();
 
+    // Resize array of pointers.
+    // ap is an array with the same size as A. 
+    // Its elements are pointers to the elements
+    // in A reordered as in the hypothetical
+    // rectangular matrix. Same for B and C
     ap.resize(nA);
     bp.resize(nB);
     cp.resize(nC);
 
+    // Get the addresses and put them in ap,bp,cp
     A.get_addresses(mapA,Afdims,ap);
     B.get_addresses(mapB,Bfdims,bp);
     C.get_addresses(mapC,Cfdims,cp);
 
+    // Check if any of them are `superlinear'. This means
+    // that elements in each row are equispaced by `inccol'
+    // and the start of rows are equispaced by `incrow'
     check_superlinear(ap,nrowa,ncola,asl_ok,lda,transa,1);
     check_superlinear(bp,nrowb,ncolb,bsl_ok,ldb,transb,1);
     check_superlinear(cp,nrowa,ncolb,csl_ok,ldc,transc,0);
 
-#if 0
-    if (asl_ok) printf("A SL OK, lda %d, transa %d\n",
-                       lda,transa);
-    if (asl_ok) printf("B SL OK, ldb %d, transb %d\n",
-                       ldb,transb);
-    if (asl_ok) printf("C SL OK, ldc %d, transc %d\n",
-                       ldc,transc);
-#endif
-
+    // If `A' is not superlinear, then
+    // its values are copied to the auxiliary matrices `a'
+    // and we call dgemm on them. Same for the others.
+    // So a,b,c must be allocated only if they are
+    // not superlinear. 
     if (!asl_ok) a.resize(nA,0.0);
     if (!bsl_ok) b.resize(nB,0.0);
     if (!csl_ok) c.resize(nC,0.0);
 
+    // We store in the cache a pointer `Ap' to either
+    // the internal buffer (in fact to the first
+    // element in the submatrix) OR to the
+    // auxiliary buffer. 
     Ap = (asl_ok? ap[0] : &a[0]);
     Bp = (bsl_ok? bp[0] : &b[0]);
     Cp = (csl_ok? cp[0] : &c[0]);
@@ -282,27 +305,33 @@ FastMat2::prod2(const FastMat2 &A,const FastMat2 &B,
     assert(psc);
     assert(!cache->sc);
     cache->sc = psc;
+    // Make the initialization of this
+    // product call
     psc->init(A,B,*this,ixa,ixb);
   }
 
   psc = dynamic_cast<prod2_subcache_t *>(cache->sc);
   assert(psc);
-
   psc->make_prod();
-  
   if (!ctx->use_cache) delete cache;
   return *this;
 }
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>
 void prod2_subcache_t::make_prod() {
-  if (!asl_ok)
-    for (int j=0; j<nA; j++) a[j] = *ap[j];
-  if (!bsl_ok)
-    for (int j=0; j<nB; j++) b[j] = *bp[j];
+  // Makes the product by calling to BLAS DGEMM
+
+  // Copy from A,B internal buffers to
+  // auxiliary buffers if needed
+  if (!asl_ok) for (int j=0; j<nA; j++) a[j] = *ap[j];
+  if (!bsl_ok) for (int j=0; j<nB; j++) b[j] = *bp[j];
+
+  // Call DGEMM
   cblas_dgemm(CblasRowMajor,transa,transb,
               nrowa,ncolb,ncola,1.0,Ap,ncola,Bp,ncolb,0.0,
               Cp,ncolb);
-  if (!csl_ok)
-    for (int j=0; j<nC; j++) *cp[j] = c[j];
+
+  // Copy from c auxiliary buffer to C
+  // internal buffer if needed
+  if (!csl_ok) for (int j=0; j<nC; j++) *cp[j] = c[j];
 }
