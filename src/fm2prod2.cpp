@@ -74,9 +74,11 @@ check_superlinear(vector<double *> &ap, int nrow,int ncol,
       }
     }
   }
-  trans = CblasNoTrans;
-  if (!ok) return;
-
+  if (!ok) {
+    lda = ncol;
+    trans = CblasNoTrans;
+    return;
+  }
   if (inccol==1) {
     trans = CblasNoTrans;
     lda = incrow;
@@ -328,8 +330,8 @@ void prod2_subcache_t::make_prod() {
 
   // Call DGEMM
   cblas_dgemm(CblasRowMajor,transa,transb,
-              nrowa,ncolb,ncola,1.0,Ap,ncola,Bp,ncolb,0.0,
-              Cp,ncolb);
+              nrowa,ncolb,ncola,1.0,Ap,lda,Bp,ldb,0.0,
+              Cp,ldc);
 
   // Copy from c auxiliary buffer to C
   // internal buffer if needed
