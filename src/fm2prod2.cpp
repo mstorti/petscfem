@@ -74,11 +74,9 @@ check_superlinear(vector<double *> &ap, int nrow,int ncol,
       }
     }
   }
-  if (!ok) {
-    lda = ncol;
-    trans = CblasNoTrans;
-    return;
-  }
+  lda = ncol;
+  trans = CblasNoTrans;
+  if (!ok) return;
   if (inccol==1) {
     trans = CblasNoTrans;
     lda = incrow;
