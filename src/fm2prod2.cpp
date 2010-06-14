@@ -74,9 +74,9 @@ check_superlinear(vector<double *> ap, int nrow,int ncol,
       }
     }
   }
-  printf("is superlinear ? %d\n",ok);
+  // printf("is superlinear ? %d\n",ok);
   if (!ok) return;
-  printf("incrow %d, inccol %d\n",incrow,inccol);
+  // printf("incrow %d, inccol %d\n",incrow,inccol);
 
   if (inccol==1) {
     trans = CblasNoTrans;
