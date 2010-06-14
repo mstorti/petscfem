@@ -32,6 +32,8 @@ LOC_PROG := advdif
 CASE_NAME := genload
 PROG := $(ADVDIF)
 
+link:
+	ln -sf $(PROG) .
 
 auxi_o:
 	if [ ! -L advdif ] ; \

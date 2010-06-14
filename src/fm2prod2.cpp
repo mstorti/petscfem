@@ -43,6 +43,7 @@ public:
 void FastMat2::get_addresses(Indx permA,Indx Afdims,
                              vector<double *> &ap) const {
   int n = permA.size();
+  if (ap.empty()) return;
   Indx iA(n,1), aindx(n,1),dA(n,-1);
   for (int j=0; j<n; j++) dA[j] = Afdims[permA[j]];
   int j=0;
@@ -63,8 +64,9 @@ check_superlinear(vector<double *> &ap, int nrow,int ncol,
                   CBLAS_TRANSPOSE &trans,int trans_ok) {
   int inccol = 1;
   int incrow = ncol;
-  if (ncol>1) inccol = int(ap[1]-ap[0]);
-  if (nrow>1) incrow = int(ap[ncol]-ap[0]);
+  int sz = nrow*ncol;
+  if (sz && ncol>1) inccol = int(ap[1]-ap[0]);
+  if (sz && nrow>1) incrow = int(ap[ncol]-ap[0]);
   ok=1;
   for (int j=0; j<nrow; j++) {
     for (int k=0; k<ncol; k++) {
@@ -270,9 +272,12 @@ void prod2_subcache_t
     // the internal buffer (in fact to the first
     // element in the submatrix) OR to the
     // auxiliary buffer. 
-    Ap = (asl_ok? ap[0] : &a[0]);
-    Bp = (bsl_ok? bp[0] : &b[0]);
-    Cp = (csl_ok? cp[0] : &c[0]);
+    Ap=NULL; Bp=NULL; Cp=NULL; 
+    if (nC>0) {
+      Ap = (asl_ok? ap[0] : &a[0]);
+      Bp = (bsl_ok? bp[0] : &b[0]);
+      Cp = (csl_ok? cp[0] : &c[0]);
+    }
 }
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>
@@ -320,6 +325,7 @@ FastMat2::prod2(const FastMat2 &A,const FastMat2 &B,
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>
 void prod2_subcache_t::make_prod() {
   // Makes the product by calling to BLAS DGEMM
+  if (nC==0) return;
 
   // Copy from A,B internal buffers to
   // auxiliary buffers if needed
