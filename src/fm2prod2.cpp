@@ -15,7 +15,7 @@
 #include <src/fastlib2.h>
 #include <src/fm2prod.h>
 
-int FASTMAT2_USE_PROD2=0;
+int FASTMAT2_USE_PROD2=1;
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>
 class prod2_subcache_t : public FastMatSubCache {
@@ -74,9 +74,8 @@ check_superlinear(vector<double *> ap, int nrow,int ncol,
       }
     }
   }
-  // printf("is superlinear ? %d\n",ok);
+  trans = CblasNoTrans;
   if (!ok) return;
-  // printf("incrow %d, inccol %d\n",incrow,inccol);
 
   if (inccol==1) {
     trans = CblasNoTrans;
@@ -89,10 +88,6 @@ check_superlinear(vector<double *> ap, int nrow,int ncol,
     return;
   }
   ok = 0;
-
-  printf("is superlinear ? %d\n",ok);
-  if (ok) printf("incrow %d, inccol %d, trans %d, lda %d\n",
-                 incrow,inccol,trans,lda);
 }
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>
@@ -128,6 +123,23 @@ void prod2_subcache_t
     for (unsigned int j=0; j<ixb.size(); j++) 
       ii.push_back(ixb[j]);
 
+    if (!C.defined) {
+      int nf=0;
+      for (int j=0; j<ndims; j++) nf += ii[j]>0;
+      Indx ndimsf(nf,0);
+      for (int j=0; j<ndims; j++) {
+        int k = ii[j];
+        if (k>0) {
+          PETSCFEM_ASSERT(k<=nf,
+                          "Index at position %d is %d, but "
+                          "nbr of positive (free) indices is smaller: %d\n",
+                          j,k,nf);  
+          ndimsf[k-1] = (j<niA? Afdims[j] : Bfdims[j-niA]);
+        }
+      }
+      C.create_from_indx(ndimsf);
+    }
+
     // Get free dims of output matrix
     C.get_dims(Cfdims);
     int niC = Cfdims.size();
@@ -160,6 +172,7 @@ void prod2_subcache_t
                     "niA %d, niB %d, niC %d, nfree %d, nctr %d",
                     niA,niB,niC,nfree,nc);  
   
+
     // We reorder the indices of A in (fA,cA), B in (cB,fB). 
     // `f' denotes free and `c' contracted.
     // Indices in fA and fB keep the order as was given.
@@ -281,6 +294,7 @@ FastMat2::prod2(const FastMat2 &A,const FastMat2 &B,
   return *this;
 }
 
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>
 void prod2_subcache_t::make_prod() {
   if (!asl_ok)
     for (int j=0; j<nA; j++) a[j] = *ap[j];
