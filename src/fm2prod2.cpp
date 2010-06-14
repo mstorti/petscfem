@@ -45,6 +45,28 @@ void FastMat2::get_addresses(Indx permA,Indx Afdims,
 }
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>
+static void 
+check_superlinear(vector<double *> ap,
+                  int nrow,int ncol,
+                  int &ok,int &incrow,int &inccol) {
+  inccol = 1;
+  incrow = ncol;
+  if (ncol>1) inccol = int(ap[1]-ap[0]);
+  if (nrow>1) incrow = int(ap[nrow]-ap[0]);
+  ok=1;
+  for (int j=0; j<nrow; j++) {
+    for (int k=0; k<ncol; k++) {
+      if (int(ap[j*nrow+k]-ap[0]) != j*incrow+k*inccol) {
+        ok=0;
+        break;
+      }
+    }
+  }
+  printf("is superlinear ? %d\n",ok);
+  if (ok) printf("incrow %d, inccol %d\n",incrow,inccol);
+}
+
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>
 // This is the function that makes the product of two matrices.
 // The others for 3,4,etc... are wrappers to this one. 
 // Computes C = A*B, where C is *this
@@ -202,6 +224,16 @@ FastMat2::prod2(const FastMat2 &A,const FastMat2 &B,
     A.get_addresses(mapA,Afdims,ap);
     B.get_addresses(mapB,Bfdims,bp);
     get_addresses(mapC,Cfdims,cp);
+
+    int 
+      asl_ok,incrowa,inccola,
+      bsl_ok,incrowb,inccolb,
+      csl_ok,incrowc,inccolc;
+    check_superlinear(ap,nrowa,ncola,asl_ok,incrowa,inccola);
+    check_superlinear(bp,nrowb,ncolb,bsl_ok,incrowb,inccolb);
+    check_superlinear(cp,nrowa,ncolb,csl_ok,incrowc,inccolc);
+
+    exit(0);
 
     a.resize(nA,0.0);
     b.resize(nB,0.0);
