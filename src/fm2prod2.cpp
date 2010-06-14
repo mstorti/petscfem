@@ -58,17 +58,17 @@ void FastMat2::get_addresses(Indx permA,Indx Afdims,
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>
 static void 
-check_superlinear(vector<double *> ap, int nrow,int ncol,
+check_superlinear(vector<double *> &ap, int nrow,int ncol,
                   int &ok,int &lda,
                   CBLAS_TRANSPOSE &trans,int trans_ok) {
   int inccol = 1;
   int incrow = ncol;
   if (ncol>1) inccol = int(ap[1]-ap[0]);
-  if (nrow>1) incrow = int(ap[nrow]-ap[0]);
+  if (nrow>1) incrow = int(ap[ncol]-ap[0]);
   ok=1;
   for (int j=0; j<nrow; j++) {
     for (int k=0; k<ncol; k++) {
-      if (int(ap[j*nrow+k]-ap[0]) != j*incrow+k*inccol) {
+      if (int(ap[j*ncol+k]-ap[0]) != j*incrow+k*inccol) {
         ok=0;
         break;
       }
