@@ -164,10 +164,7 @@ FastMat2::prod2(const FastMat2 &A,const FastMat2 &B,
         ncola *= Afdims[j];
       }
     }
-    // printf("After scanning A\n");
-    // mapA.print("mapA: ");
-    // mapB.print("mapB: ");
-    // mapC.print("mapC: ");
+
     kf=0;
     for (int j=0; j<niB; j++) {
       int k=ixb[j];
@@ -175,17 +172,13 @@ FastMat2::prod2(const FastMat2 &A,const FastMat2 &B,
         mapB[nc+kf] = j;
         mapC[nfA+kf] = k-1;
         kf++;
-        nrowb *= Bfdims[j];
+        ncolb *= Bfdims[j];
       } else {
         mapB[-1-k] = j;
-        ncolb *= Bfdims[j];
+        nrowb *= Bfdims[j];
       }
     }
     assert(ncola==nrowb);
-    // printf("After scanning B\n");
-    mapA.print("mapA: ");
-    mapB.print("mapB: ");
-    mapC.print("mapC: ");
 
     int 
       nA = A.size(),
@@ -210,9 +203,9 @@ FastMat2::prod2(const FastMat2 &A,const FastMat2 &B,
     B.get_addresses(mapB,Bfdims,bp);
     get_addresses(mapC,Cfdims,cp);
 
-    a.resize(nA);
-    b.resize(nB);
-    c.resize(nC);
+    a.resize(nA,0.0);
+    b.resize(nB,0.0);
+    c.resize(nC,0.0);
 
     psc->nA = nA;
     psc->nB = nB;
