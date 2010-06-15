@@ -363,6 +363,7 @@ if (!(bool_cond)) {                             \
   PetscSynchronizedPrintf(PETSCFEM_COMM_WORLD,  \
                   "Assertion failed: \"%s\"\n", \
                   #bool_cond);                  \
+  PetscSynchronizedFlush(PETSCFEM_COMM_WORLD);  \
   PETSCFEM_ERROR(templ,__VA_ARGS__);}
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>
