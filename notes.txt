@@ -16807,3 +16807,29 @@ Summary: "All tests" -- OK: 186.  Not OK: 0. Couldn't open: 0. Total: 186
 %
 %--[2010-06-11.16:32:09.mstorti-v31-end-4-g6041b9a]-----
 Corro los tests de nuevo por unos cambios que hice 
+
+%=== Tue Jun 15 15:06:49 2010 mstorti@galileo
+%
+%--[2010-06-15.18:06:49.mstorti-v32-start-22-ga7f9247]-----
+Corro los tests de cubcav en galileo
+%
+RUN3: HOST==galileo N=20 CONF=prod2+mkl PFVERS=mstorti-v31-end-27-g9c07d73
+  avrg: 5.210 0.077 1.159 0.090 1.488 0.115, rate 0.11secs/Ke
+%
+RUN4: HOST==galileo N=20 CONF=prod-old PFVERS=mstorti-v31-end-27-g9c07d73
+  avrg: 15.054 0.068 3.522 0.096 4.825 0.113 Total: 23.679, rate 0.36secs/Ke
+%
+RUN5: HOST==galileo N=20 CONF=prod-old PFVERS=mstorti-v31-end-4-g6041b9a
+  avrg: 15.222 0.070 3.523 0.086 4.864 0.107, rate 0.36secs/Ke
+%
+RUN5: HOST==galileo N=20 CONF=prod-old PFVERS=mstorti-v31-end-4-g6041b9a
+  avrg: 15.295 0.078 3.518 0.092 4.852 0.107 
+%
+RUN7: HOST==galileo N=20 CONF=prod2+atlas PFVERS=mstorti-v31-end-28-g5413bae
+  avrg: 4.523 0.089 0.861 0.110 1.145 0.118, rate 0.098secs/Ke
+%
+RUN8: HOST==galileo N=20 CONF=prod-old PFVERS=mstorti-v31-end-28-g5413bae
+  avrg: 15.466 0.068 3.554 0.087 4.889 0.105 Total: 24.170, rate 0.37secs/Ke
+%
+O sea que parece todo OK. La cosa cambia cuando se usa prod2, ya sea
+con ATLAS o con MKL. 
