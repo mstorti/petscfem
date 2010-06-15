@@ -360,12 +360,27 @@ LDFLAGS_NO_PROG_LIB =					\
 	  $(PETSC_LDFLAGS)				\
 	  $(OMP_LDFLAGS)
 
+CBLAS_FOUND := no
+
 ifneq ($(MKLPATH),)
 CPPFLAGS += -I$(MKL_INCLUDE) -DUSE_MKL_FIX -DUSE_MKL
 MKL_LDFLAGS := -lmkl_gf_lp64 -lmkl_gnu_thread -lmkl_core -lpetscfem$(osfx)
 #	-lpthread -lgfortran ./mkl_gf.o
 LDFLAGS += $(MKL_LDFLAGS)
 LDFLAGS_NO_PROG_LIB += $(MKL_LDFLAGS)
+CBLAS_FOUND := yes
+endif
+
+ifneq ($(ATLAS_INC_DIR),)
+CPPFLAGS += -I$(ATLAS_INC_DIR)
+MKL_LDFLAGS := -L$(ATLAS_LIB_DIR) -lcblas
+LDFLAGS += $(MKL_LDFLAGS)
+LDFLAGS_NO_PROG_LIB += $(MKL_LDFLAGS)
+CBLAS_FOUND := yes
+endif
+
+ifeq ($(CBLAS_FOUND),no)
+$(warning No CBLAS library found. Must set the MKLPATH or ATLAS_(LIB|INC)_DIR) variables)
 endif
 
 EFN_LDFLAGS = -ldl
