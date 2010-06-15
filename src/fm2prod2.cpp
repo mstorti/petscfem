@@ -257,7 +257,7 @@ void prod2_subcache_t
     // and the start of rows are equispaced by `incrow'
     check_superlinear(ap,nrowa,ncola,asl_ok,lda,transa,1);
     check_superlinear(bp,nrowb,ncolb,bsl_ok,ldb,transb,1);
-    check_superlinear(cp,nrowa,ncolb,csl_ok,ldc,transc,0);
+    check_superlinear(cp,nrowa,ncolb,csl_ok,ldc,transc,1);
 
     // If `A' is not superlinear, then
     // its values are copied to the auxiliary matrices `a'
@@ -323,6 +323,11 @@ FastMat2::prod2(const FastMat2 &A,const FastMat2 &B,
 }
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>
+static CBLAS_TRANSPOSE flip(CBLAS_TRANSPOSE flag) {
+  return (flag==CblasNoTrans? CblasTrans : CblasNoTrans);
+}
+
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>
 void prod2_subcache_t::make_prod() {
   // Makes the product by calling to BLAS DGEMM
   if (nC==0) return;
@@ -333,9 +338,12 @@ void prod2_subcache_t::make_prod() {
   if (!bsl_ok) for (int j=0; j<nB; j++) b[j] = *bp[j];
 
   // Call DGEMM
-  cblas_dgemm(CblasRowMajor,transa,transb,
-              nrowa,ncolb,ncola,1.0,Ap,lda,Bp,ldb,0.0,
-              Cp,ldc);
+  if (transc==CblasNoTrans) 
+    cblas_dgemm(CblasRowMajor,transa,transb,nrowa,ncolb,
+                ncola,1.0,Ap,lda,Bp,ldb,0.0,Cp,ldc);
+  else cblas_dgemm(CblasRowMajor,flip(transb),flip(transa),
+                   ncolb,nrowa,ncola,1.0,Bp,ldb,Ap,lda,0.0,
+                   Cp,ldc);
 
   // Copy from c auxiliary buffer to C
   // internal buffer if needed
