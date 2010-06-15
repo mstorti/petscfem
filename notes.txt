@@ -16820,3 +16820,14 @@ Corro todos los tests en aquiles, dan todos bien.
 g_c++, O_c++:
 NOT OK------- -> 0
 CAN'T OPEN------- -> 0
+
+%=== Tue Jun 15 13:56:23 2010 mstorti@aquiles
+%
+%--[2010-06-15.16:56:23.mstorti-v31-end-27-g9c07d73]-----
+Corriendo cubcav con N=80, tetras, FS en node1 de aquiles tenemos
+%
+RUN1) PROD2/DGEMM
+avrg: 16.253 0.167 3.089 0.350 4.037 0.369 
+reported: 0.1secs/Ke for predictor
+---
+RUN2) old FM2 code
