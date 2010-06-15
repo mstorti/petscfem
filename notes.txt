@@ -16806,4 +16806,17 @@ Summary: "All tests" -- OK: 186.  Not OK: 0. Couldn't open: 0. Total: 186
 %=== Fri Jun 11 13:32:09 2010 mstorti@galileo
 %
 %--[2010-06-11.16:32:09.mstorti-v31-end-4-g6041b9a]-----
-Corro los tests de nuevo por unos cambios que hice 
+Corro los tests de nuevo por unos cambios que hice %
+
+%=== Tue Jun 15 08:35:35 2010 mstorti@aquiles
+%
+%--[2010-06-15.11:35:35.mstorti-v31-end-26-ga7f9247]-----
+Implemento la versión de FastMat2::prod() basada en DGEMM. Anda todo
+bastante bien, parece ser bastante más rápida y con un n{1/2}
+menor. Corro todos los tests y parece todo OK. 
+%
+%--[2010-06-15.11:37:24.mstorti-v31-end-26-ga7f9247]-----
+Corro todos los tests en aquiles, dan todos bien. 
+g_c++, O_c++:
+NOT OK------- -> 0
+CAN'T OPEN------- -> 0
