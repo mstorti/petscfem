@@ -15,3 +15,4 @@ makefile.d
 *.tmp
 TAGS
 octave-core
+pfversion.h
