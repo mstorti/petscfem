@@ -16806,7 +16806,8 @@ Summary: "All tests" -- OK: 186.  Not OK: 0. Couldn't open: 0. Total: 186
 %=== Fri Jun 11 13:32:09 2010 mstorti@galileo
 %
 %--[2010-06-11.16:32:09.mstorti-v31-end-4-g6041b9a]-----
-Corro los tests de nuevo por unos cambios que hice %
+Corro los tests de nuevo por unos cambios que hice 
+
 
 %=== Tue Jun 15 08:35:35 2010 mstorti@aquiles
 %
@@ -16831,3 +16832,52 @@ avrg: 16.253 0.167 3.089 0.350 4.037 0.369
 reported: 0.1secs/Ke for predictor
 ---
 RUN2) old FM2 code
+
+%=== Tue Jun 15 15:06:49 2010 mstorti@galileo
+%
+%--[2010-06-15.18:06:49.mstorti-v32-start-22-ga7f9247]-----
+Corro los tests de cubcav en galileo
+%
+RUN3: HOST==galileo N=20 CONF=prod2+mkl PFVERS=mstorti-v31-end-27-g9c07d73
+  avrg: 5.210 0.077 1.159 0.090 1.488 0.115, rate 0.11secs/Ke
+%
+RUN4: HOST==galileo N=20 CONF=prod-old PFVERS=mstorti-v31-end-27-g9c07d73
+  avrg: 15.054 0.068 3.522 0.096 4.825 0.113 Total: 23.679, rate 0.36secs/Ke
+%
+RUN5: HOST==galileo N=20 CONF=prod-old PFVERS=mstorti-v31-end-4-g6041b9a
+  avrg: 15.222 0.070 3.523 0.086 4.864 0.107, rate 0.36secs/Ke
+%
+RUN5: HOST==galileo N=20 CONF=prod-old PFVERS=mstorti-v31-end-4-g6041b9a
+  avrg: 15.295 0.078 3.518 0.092 4.852 0.107 
+%
+RUN7: HOST==galileo N=20 CONF=prod2+atlas PFVERS=mstorti-v31-end-28-g5413bae
+  avrg: 4.523 0.089 0.861 0.110 1.145 0.118, rate 0.098secs/Ke
+%
+RUN8: HOST==galileo N=20 CONF=prod-old PFVERS=mstorti-v31-end-28-g5413bae
+  avrg: 15.466 0.068 3.554 0.087 4.889 0.105 Total: 24.170, rate 0.37secs/Ke
+%
+O sea que parece todo OK. La cosa cambia cuando se usa prod2, ya sea
+con ATLAS o con MKL. 
+
+%=== Tue Jun 15 19:12:48 2010 mstorti@aquiles
+%
+%--[2010-06-15.22:12:48.mstorti-v31-end-28-g84e6372]-----
+RUNNING TESTS IN AQUILES
+%
+RUN9: HOST==node1 N=20 CONF=prod2+mkl PFVERS=mstorti-v31-end-28-g84e6372
+   avrg: 5.022 0.068 1.081 0.064 1.183 0.184  Total: 7.602, rate 0.11secs/Ke
+%
+RUN10: HOST==node1 N=20 CONF=prod-old PFVERS=mstorti-v31-end-28-g84e6372
+   avrg: 4.781 0.065 0.919 0.064 1.199 0.296  Total: 7.325, rate 0.1 secs/Ke
+%
+--- O sea que aca da medio mal, el prod-old da mejor!! Me pregunto si
+se debe a que cuando corres en un nodo no usa la MKL apropiada porque
+esa esta instalada en el servidor. Voy a probar en aquiles en el
+servidor mismo. 
+%
+%--[2010-06-16.10:32:19.mstorti-v31-end-28-g84e6372]-----
+RUN11: HOST==aquiles N=20 CONF=prod2-mkl PFVERS=mstorti-v31-end-28-g84e6372
+   avrg: 4.120 0.069 0.966 0.058 1.220 0.085  Total: 6.518, rate 0.09 secs/Ke
+RUN12: HOST==aquiles N=20 CONF=prod-old PFVERS=mstorti-v31-end-28-g84e6372
+   avrg: 4.875 0.069 1.020 0.051 1.371 0.082, Total: 7.467, rate 0.11 secs/Ke
+-- O sea que hay una ganancia pero es marginal
