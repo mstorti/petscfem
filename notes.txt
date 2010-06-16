@@ -16881,3 +16881,17 @@ RUN11: HOST==aquiles N=20 CONF=prod2-mkl PFVERS=mstorti-v31-end-28-g84e6372
 RUN12: HOST==aquiles N=20 CONF=prod-old PFVERS=mstorti-v31-end-28-g84e6372
    avrg: 4.875 0.069 1.020 0.051 1.371 0.082, Total: 7.467, rate 0.11 secs/Ke
 -- O sea que hay una ganancia pero es marginal
+%
+%--[2010-06-16.11:59:41.mstorti-v32-start-30-gb5124f2]-----
+--RUN13: HOST=galileo N=20 CONF=prod2+mkl PFVERS=mstorti-v32-start-30-gb5124f2
+avrg: 5.758 0.086 1.346 0.110 1.740 0.117 total: 9.158
+nelem 40000, rates in secs/Ke: 0.144 0.002 0.034 0.003 0.043 0.003 total: 0.458
+hostname galileo, FASTMAT2_USE_PROD2 1, OMP_NUM_THREADS 2
+--RUN14: HOST=galileo N=20 CONF=prod-old PFVERS=mstorti-v32-start-30-gb5124f2
+avrg: 15.758 0.087 3.658 0.124 5.086 0.134 total: 24.846
+nelem 40000, rates in secs/Ke: 0.394 0.002 0.091 0.003 0.127 0.003 total: 1.242
+hostname galileo, FASTMAT2_USE_PROD2 0, OMP_NUM_THREADS 2
+--RUN15: HOST=galileo N=20 CONF=prod2+mkl PFVERS=mstorti-v32-start-30-gb5124f2
+avrg: 5.394 0.080 1.223 0.094 1.602 0.109 total: 8.501
+nelem 40000, rates in secs/Ke: 0.135 0.002 0.031 0.002 0.040 0.003 total: 0.425
+hostname galileo, FASTMAT2_USE_PROD2 1, OMP_NUM_THREADS 

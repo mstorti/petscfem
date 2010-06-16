@@ -307,13 +307,6 @@ FastMat2::prod2(const FastMat2 &A,const FastMat2 &B,
   }
 #endif
   FastMatCache *cache = ctx->step();
-  static int reported=0;
-  if (!reported) {
-    printf("FASTMAT2_USE_PROD2=%d\n",FASTMAT2_USE_PROD2);
-    const char *var = getenv("OMP_NUM_THREADS");
-    printf("OMP_NUM_THREADS %s\n",(var? var: "unknown"));
-    reported=1;
-  }
 
   prod2_subcache_t *psc = NULL;
   if (!ctx->was_cached  ) {
