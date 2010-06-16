@@ -25,7 +25,7 @@ void petscfem_print_link_date() {
 #endif
 	      );
   PetscPrintf(PETSCFEM_COMM_WORLD,
-              "PETSc-FEM Version %s (Git)\n Full Commit: %s\nDate: %s\n"
+              "PETSc-FEM Version %s (Git)\nFull Commit: %s\nDate: %s\n"
 	      "-----------------------------------------------------------------\n",
               DOCVERSION,DOCCOMMIT,DOCDATE);
 }
