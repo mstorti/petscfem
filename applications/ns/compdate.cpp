@@ -2,7 +2,7 @@
 //$Id: compdate.cpp,v 1.4.100.1 2007/02/19 20:23:56 mstorti Exp $
 #include <cstdio>
 #include <petsc.h>
-#include "./pfversion.h"
+#include <src/pfversion.h>
 
 extern MPI_Comm PETSCFEM_COMM_WORLD;
 
