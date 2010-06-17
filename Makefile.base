@@ -404,10 +404,10 @@ $(PROG): $(PROG_bin)
 #	perl -pe 's/__DATE__/'`date date --iso-8601=seconds`'/' \
 #		< compdate.cppin > compdate.cpp
 
-PFVH := $(PETSCFEM_DIR)/tools/
+compdate.o: CPPFLAGS += $(shell docdate.pl -l D -o pfversion.h)
 
 $(PROG_BIN): $(MYOBJS) $(PROG_LIB) $(PROGOBJ) $(LIBPETSCFEM)
-	if ! docdate.pl -l C -o pfversion.h ; then cp $(PFVH) pfversion.h ; fi
+	$(MAKE) -C $(PETSCFEM_DIR)/src pfversion.h
 	$(MAKE) -W compdate.cpp '$(PROG_LIB)(compdate.o)'
 	if [ -e $@ ] ; then rm $@ ; fi
 	$(MAKE) -C $(PETSCFEM_DIR)/src -W version.cpp version.o

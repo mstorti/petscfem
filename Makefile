@@ -47,8 +47,7 @@ local_sw::
 		./doc/manual/vrfdocpp.pl ./src/insdeb.pl ./doc/fixul.pl
 	$(MAKE) sync_version
 	cd tools; ln -sf hexenco.pl ident2iso ; ln -sf hexenco.pl iso2ident
-	$(MAKE) -C src getarrgr.tab.c getarrgr.tab.h
-	$(MAKE) exclude
+	$(MAKE) -C src getarrgr.tab.c getarrgr.tab.h pfversion.h
 
 # link the git controlled file toos/git-exclude to the
 # internal file in .git/info/exclude

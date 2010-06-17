@@ -176,3 +176,7 @@ $(DOC_DIR)/odocrmsh.tex: readmesh.cpp
 
 $(DOC_DIR)/odocdxhook.tex: dxhook.cpp
 	$(run_odoc)
+
+PFVH := $(PETSCFEM_DIR)/tools/pfversion.h.undef
+pfversion.h: force
+	if ! docdate.pl -l C -o pfversion.h ; then cp $(PFVH) pfversion.h ; fi
