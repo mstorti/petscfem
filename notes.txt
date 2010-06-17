@@ -16895,3 +16895,72 @@ hostname galileo, FASTMAT2_USE_PROD2 0, OMP_NUM_THREADS 2
 avrg: 5.394 0.080 1.223 0.094 1.602 0.109 total: 8.501
 nelem 40000, rates in secs/Ke: 0.135 0.002 0.031 0.002 0.040 0.003 total: 0.425
 hostname galileo, FASTMAT2_USE_PROD2 1, OMP_NUM_THREADS 
+
+%=== Wed Jun 16 21:50:08 2010 mstorti@aquiles
+%
+%--[2010-06-17.00:50:08.mstorti-v31-end-38-g88b6586]-----
+--RUN16: CONF=prod2+mkl 
+8 steps, avrg: 5.053 0.068 1.071 0.063 1.201 0.208 total: 7.665
+nelem 40000, rates in secs/Ke: 0.126 0.002 0.027 0.002 0.030 0.005 total: 0.383
+hostname node1, FASTMAT2_USE_PROD2 1
+OMP_NUM_THREADS , PF-VERS mstorti-v31-end-38-g88b6586 'clean
+--RUN17: CONF=prod-old
+8 steps, avrg: 4.812 0.066 0.938 0.063 1.228 0.131 total: 7.237
+nelem 40000, rates in secs/Ke: 0.120 0.002 0.023 0.002 0.031 0.003 total: 0.362
+hostname node1, FASTMAT2_USE_PROD2 0
+OMP_NUM_THREADS , PF-VERS mstorti-v31-end-38-g88b6586
+--RUN18: CONF=prod-old
+4 steps, avrg: 4.942 0.064 1.034 0.045 1.393 0.077 total: 7.554
+nelem 40000, rates in secs/Ke: 0.124 0.002 0.026 0.001 0.035 0.002 total: 0.378
+hostname aquiles, FASTMAT2_USE_PROD2 0
+OMP_NUM_THREADS , PF-VERS mstorti-v31-end-38-g88b6586
+--RUN19: CONF=prod2+mkl
+5 steps, avrg: 4.119 0.068 0.925 0.048 1.207 0.079 total: 6.446
+nelem 40000, rates in secs/Ke: 0.103 0.002 0.023 0.001 0.030 0.002 total: 0.322
+hostname aquiles, FASTMAT2_USE_PROD2 1
+OMP_NUM_THREADS , PF-VERS mstorti-v31-end-38-g88b6586
+%
+%--[2010-06-17.11:03:42.mstorti-v31-end-38-g88b6586]-----
+O sea en los nodos (Pentium) PROD2 da un 5% peor, y en el servidor
+(Xeon) da un 17% mejor. 
+%
+%--[2010-06-17.11:08:03.mstorti-v31-end-38-g88b6586]-----
+PLAN: 
+* 1. Ver que pasa en un elemento mas complejo (nsi_tet_les) o gasflow. 
+* 2. Ver que pasa para el test de multiplicacion de matrices en funcion
+  de N. 
+* 3. Ver que diferencia hay entre el PROD old (con FASTMAT2_USE_PROD2=0)
+  y una version vieja de PF. 
+* 4. Ver que pasa con Atlas. 
+%
+Vamos a empezar por 3.
+%
+%--[2010-06-17.11:21:48.mstorti-v31-end-38-g88b6586]-----
+--RUN20: CONF=prod-old PF-VERS=mstorti-v31-end-4-g6041b9a
+6 steps, avrg: 4.984 0.068 1.030 0.049 1.396 0.078 total: 7.604
+nelem 40000, rates in secs/Ke: 0.125 0.002 0.026 0.001 0.035 0.002 total: 0.380
+hostname aquiles, FASTMAT2_USE_PROD2 unknown
+OMP_NUM_THREADS unknown, PF-VERS unknown
+%
+O sea que en aquiles tenemos para el predictor
+PROD-OLD version nueva: 4.942secs
+PROD2: 4.119secs
+VERSION VIEJA: 4.984
+%
+O sea que el overhead al pasar de la version vieja a la nueva es muy
+pequeño. 
+%
+%--[2010-06-17.14:14:19.mstorti-v31-end-38-g88b6586]-----
+Corro lo mismo en node1:
+--RUN22: CONF=prod-old PF-VERS=mstorti-v31-end-4-g6041b9a
+6 steps, avrg: 4.830 0.065 0.938 0.065 1.233 0.139 total: 7.269
+nelem 40000, rates in secs/Ke: 0.121 0.002 0.023 0.002 0.031 0.003 total: 0.363
+hostname node1, FASTMAT2_USE_PROD2 unknown
+OMP_NUM_THREADS unknown, PF-VERS unknown
+%
+O sea que pasa lo mismo al usar la version OLD ya sea en una version
+vieja de PF o en la version nueva el overhead es despreciable. EL
+costo pasa de 4.830 secs en RUN22 a 4.812 en RUN17. 
+%
+%--[2010-06-17.14:19:09.mstorti-v31-end-38-g88b6586]-----
+Ahora voy a ver que pasa con la Atlas. 
