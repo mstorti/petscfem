@@ -16964,3 +16964,35 @@ costo pasa de 4.830 secs en RUN22 a 4.812 en RUN17.
 %
 %--[2010-06-17.14:19:09.mstorti-v31-end-38-g88b6586]-----
 Ahora voy a ver que pasa con la Atlas. 
+--RUN23: CONF=prod2+atlas en node1
+4 steps, avrg: 4.250 0.062 0.890 0.060 1.164 0.105 total: 6.531
+nelem 40000, rates in secs/Ke: 0.106 0.002 0.022 0.001 0.029 0.003 total: 0.327
+hostname node1, FASTMAT2_USE_PROD2 1
+OMP_NUM_THREADS , PF-VERS mstorti-v31-end-39-gccdee57 'clean
+%
+O sea que en node1 ATLAS anda mejor que MKL!
+PROD-OLD: 4.830
+MKL: 5.053 (+5%)
+ATLAS: 4.250 (-12%)
+%
+%--[2010-06-17.14:29:04.mstorti-v31-end-39-gccdee57]-----
+En aquiles tambien pasa lo mismo
+--RUN24: CONF=prod2+atlas en aquiles
+8 steps, avrg: 3.613 0.068 0.686 0.049 0.915 0.077 total: 5.408
+nelem 40000, rates in secs/Ke: 0.090 0.002 0.017 0.001 0.023 0.002 total: 0.270
+hostname aquiles, FASTMAT2_USE_PROD2 1
+OMP_NUM_THREADS , PF-VERS mstorti-v31-end-39-gccdee57 'clean
+%
+PROD-OLD: 4.942 (-16%)
+MKL: 4.119 (+ x%)
+ATLAS: 3.613 (-26%)
+%
+%--[2010-06-17.14:32:54.mstorti-v31-end-39-gccdee57]-----
+Corro con OMP_NUM_THREADS2
+--RUN25: CONF=prod2+atlas en aquiles, OMP_NUM_THREADS=2
+3 steps, avrg: 3.492 0.061 0.690 0.048 0.901 0.077 total: 5.268
+nelem 40000, rates in secs/Ke: 0.087 0.002 0.017 0.001 0.023 0.002 total: 0.263
+hostname aquiles, FASTMAT2_USE_PROD2 1
+OMP_NUM_THREADS 2, PF-VERS mstorti-v31-end-39-gccdee57 'clean
+%
+O sea que baja un poquito mas. 
