@@ -757,6 +757,7 @@ FastMat2::prod(const FastMat2 &A,const FastMat2 &B,
     assert(psc);
     assert(!cache->sc);
     cache->sc = psc;
+    psc->superlinear = 0;
     if (FASTMAT2_USE_DGEMM) {
       psc->ident();
       // if (!psc->not_superlinear_ok()) 

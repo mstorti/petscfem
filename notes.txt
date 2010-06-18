@@ -17029,3 +17029,45 @@ bastante.
    41   3.281464    3.049889    1.003696    1.744358
    57   3.739797    3.703841    0.882229    3.662999
    80   5.213190    5.117897    0.631163    3.786975
+%
+%--[2010-06-18.12:12:31.mstorti-v32-start-39-g29167e9]-----
+          EN AQUILES
+    N  P2+MKL   PROD-OLD PROD-OLD(2) PROD2+ATLAS
+    3   0.059      0.052      0.0534      0.0954
+    4   0.137      0.112      0.1109      0.2017
+    6   0.275      0.272      0.2845      0.5006
+    8   0.788      0.442      0.4567      0.7797
+   11   1.049      0.698      0.7004      1.0978
+   15   1.679      0.821      0.8056      1.3479
+   21   2.594      1.019      1.0273      1.5538
+   29   3.416      1.181      1.1820      1.6526
+   41   4.020      1.282      1.2813      1.7021
+   57   4.696      1.226      1.2446      2.7191
+   80   6.501      1.129      1.1212      2.7292
+%
+Cuando lo corro en node1 con atlas no anda porque parece que la
+libreria de atlas que se usa tenga cosas que no le gusten al
+Pentium. Cuando lo corro en debugger tira el siguiente error. 
+>  Program received signal SIGILL, Illegal instruction.
+>  0x00002b4dc104ddaf in ATL_dJIK56x56x56TN56x56x0_a1_b0 ()
+>     from /usr/lib64/atlas/libatlas.so.3                  
+%
+%--[2010-06-18.14:02:04.mstorti-v32-start-39-g29167e9]-----
+          EN AQUILES
+    N  PROD2+MKL   PROD-OLD PROD-OLD(2) PROD2+ATLAS
+    3   0.0685       0.0681     0.0376   NA
+    4   0.1550       0.1415     0.0768
+    6   0.4759       0.3259     0.2044
+    8   0.9012       0.4019     0.3185
+   11   1.6668       0.4860     0.4317
+   15   2.4862       0.6345     0.6012
+   21   3.0444       0.7421     0.7226
+   29   3.6979       0.8336     0.8346
+   41   4.1766       0.9301     0.9326
+   57   4.5490       0.7275     0.6905
+   80   4.9535       0.5981     0.5991
+%
+%--[2010-06-18.14:04:32.mstorti-v32-start-39-g29167e9]-----
+Los resultados de este test son consistentes con los de PETSs-FEM. hay
+que considerar el regimen para tamaños de matrices relativamente
+pequeños. 
