@@ -16996,3 +16996,36 @@ hostname aquiles, FASTMAT2_USE_PROD2 1
 OMP_NUM_THREADS 2, PF-VERS mstorti-v31-end-39-gccdee57 'clean
 %
 O sea que baja un poquito mas. 
+%
+%--[2010-06-17.21:52:20.mstorti-v32-start-38-gd1534c4]-----
+--RUN26: CONF=prod2+atlas en galileo
+7 steps, avrg: 4.499 0.266 0.875 0.264 1.139 0.116 total: 7.160
+nelem 40000, rates in secs/Ke: 0.112 0.007 0.022 0.007 0.028 0.003 total: 0.358
+hostname galileo, FASTMAT2_USE_PROD2 1
+OMP_NUM_THREADS , PF-VERS mstorti-v31-end-39-gccdee57 'clean
+%
+Con ATLAS todavía baja un poquito mas
+PROD-OLD: 15.758
+MKL: 5.394 (-66%)
+ATLAS: 4.499 (-72%)
+%
+%--[2010-06-17.22:10:25.mstorti-v32-start-38-gd1534c4]-----
+Empiezo a ver el tema de como se comporta el prod2() comparado con el
+viejo en funcion del tamaño. Los resultados crudos están en
+petscfem-cases/garage/multiprod/notes.txt
+%
+El rate en Gflops es bastante consistente. El n{1/2} puede fluctuar
+bastante. 
+          EN GALILEO
+    N  PROD2+MKL    PROD-OLD PROD-OLD(2) PROD2+ATLAS
+    3   0.024309    0.011226    0.011678    0.069433
+    4   0.094324    0.026129    0.028157    0.152762
+    6   0.220684    0.074378    0.086117    0.328536
+    8   0.617428    0.192199    0.176555    0.513121
+   11   0.656475    0.374505    0.362244    0.760909
+   15   1.300137    0.780230    0.537716    1.404585
+   21   1.983605    1.328101    0.782003    1.442503
+   29   2.639731    2.261665    0.963560    1.443997
+   41   3.281464    3.049889    1.003696    1.744358
+   57   3.739797    3.703841    0.882229    3.662999
+   80   5.213190    5.117897    0.631163    3.786975
