@@ -1,7 +1,8 @@
 //__INSERT_LICENSE__
-//$Id: compdate.cpp,v 1.3.100.1 2007/02/19 20:23:56 mstorti Exp $
+//$Id: compdate.cpp,v 1.4.100.1 2007/02/19 20:23:56 mstorti Exp $
 #include <cstdio>
 #include <petsc.h>
+#include <src/pfversion.h>
 
 extern MPI_Comm PETSCFEM_COMM_WORLD;
 
@@ -18,10 +19,13 @@ void petscfem_print_link_date() {
 #else
 	      "<unknown compiler>\n"
 #endif
-	      "on host: " PETSCFEM_HOSTNAME "\n"
-	      "-----------------------------------------------------------------\n",
+	      "on host: " PETSCFEM_HOSTNAME "\n",
 #ifdef __GNUC__
 	      __GNUC__,__GNUC_MINOR__,__GNUC_PATCHLEVEL__
 #endif
 	      );
+  PetscPrintf(PETSCFEM_COMM_WORLD,
+              "PETSc-FEM Version %s (Git)\nFull Commit: %s\nDate: %s\n"
+	      "-----------------------------------------------------------------\n",
+              DOCVERSION,DOCCOMMIT,DOCDATE);
 }
