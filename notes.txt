@@ -17071,3 +17071,40 @@ Pentium. Cuando lo corro en debugger tira el siguiente error.
 Los resultados de este test son consistentes con los de PETSs-FEM. hay
 que considerar el regimen para tamaños de matrices relativamente
 pequeños. 
+
+%=== Fri Jun 18 15:02:24 2010 mstorti@galileo
+%
+%--[2010-06-18.18:02:24.mstorti-v32-start-40-g0280dac]-----
+Estoy viendo el tema del monolítico. Con la version nueva (prod2+MKL)
+y 8000 hexas tarda unos 
+%
+PROD-OLD:   16.9secs (2.1) secs/Ke ). nohup-run30.log
+PROD2+MKL: 5.9 secs (0.67 secs/Ke ). 
+PROD2+ATLAS: 5.9secs (0.67 secs/Ke ). nohup-run31.log 
+%
+%--[2010-06-18.18:17:06.mstorti-v32-start-40-g0280dac]-----
+EN AQUILES
+%
+PROD-OLD:  7.86 secs (0.93 secs/Ke ). nohup-run32.log
+PROD2+MKL: 4.04 secs (0.45 secs/Ke ). nohup-run33.log 
+PROD2+ATLAS: 4.13secs (0.47 secs/Ke ). nohup-run34.log  
+%
+%--[2010-06-18.18:40:33.mstorti-v32-start-40-g0280dac]-----
+Para TETRAS en AQUILES:
+%
+PROD-OLD: 7.38 secs (0.17 secs/Ke ). nohup-run36.log  
+PROD2+MKL: 6.36 secs (0.14 secs/Ke ). nohup-run35.log  
+PROD2+ATLAS: 5.38 secs (0.12 secs/Ke ). nohup-run37.log  
+%
+%--[2010-06-18.23:49:55.mstorti-v32-start-40-g0280dac]-----
+Gasflow en un cubo de 20x20x20, con HEXAS:
+%
+PROD-OLD: 94.9 secs (12 secs/Ke ). nohup-run39.log  
+PROD2+MKL: 44.1 secs (5.3 secs/Ke ). nohup-run38.log  
+PROD2+ATLAS: 41.1 secs (4.9 secs/Ke ). nohup-run40.log  
+%--[2010-06-18.23:49:55.mstorti-v32-start-40-g0280dac]-----
+Gasflow en un cubo de 20x20x20, con TERAS:
+%
+PROD-OLD: 75.7 secs (1.8 secs/Ke ). nohup-run42.log  
+PROD2+MKL: 34.7 secs (0.81 secs/Ke ). nohup-run41.log  
+PROD2+ATLAS: 29.8 secs (0.68 secs/Ke ). nohup-run42.log  
