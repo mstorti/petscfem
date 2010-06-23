@@ -223,8 +223,12 @@ int PFPETScMat::build_ksp() {
     ierr = PCASMSetOverlap(pc,asm_overlap);CHKERRQ(ierr);
 
     PETSCFEM_ASSERT0(asm_lblocks>0,"Local blocks in ASM prec must be positive");
-    if (asm_lblocks>1) { 
+    if (asm_lblocks>1) {
+      #if PETSC_VERSION_(3,0,0)
       ierr = PCASMSetLocalSubdomains(pc,asm_lblocks,PETSC_NULL);CHKERRQ(ierr); 
+      #else
+      ierr = PCASMSetLocalSubdomains(pc,asm_lblocks,PETSC_NULL,PETSC_NULL);CHKERRQ(ierr); 
+      #endif
     }
 
     {
@@ -1155,25 +1159,24 @@ int IISDMat::warn_iisdmat=0;
 
 #undef __FUNC__
 #define __FUNC__ "iisd_pc_apply"
-int iisd_pc_view(void *ctx,PetscViewer viewer) {
+#if !PETSC_VERSION_(3,0,0)
+static int iisd_pc_apply(PC pc,Vec x ,Vec w) {
+#else
+static int iisd_pc_apply(void *ctx,Vec x ,Vec w) {
+#endif
   int ierr;
+#if !PETSC_VERSION_(3,0,0)
+  void *ctx = 0;
+  ierr = PCShellGetContext(pc,&ctx);CHKERRQ(ierr);
+#endif
   PFMat *A = (PFMat *) ctx;
-  IISDMat *AA;
-  AA = dynamic_cast<IISDMat *> (A);
+  IISDMat *AA = dynamic_cast<IISDMat *> (A);
   ierr = (AA==NULL); CHKERRQ(ierr);
-  AA->pc_view(viewer);
+  AA->pc_apply(x,w);
   return 0;
 }
+  
 
-#undef __FUNC__
-#define __FUNC__ "IISDMat::pc_view"
-int IISDMat::pc_view(PetscViewer viewer) {
-  int ierr;
-  ierr = 0;CHKERRQ(ierr);
-  return 0;
-}
-
-//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 #define DEFAULT_IISD_PC "jacobi"
 #undef __FUNC__
 #define __FUNC__ "IISDMat::set_preco"
@@ -1198,19 +1201,6 @@ int IISDMat::set_preco(const string & preco_type) {
   return 0;
 }
 
-//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
-#undef __FUNC__
-#define __FUNC__ "iisd_pc_apply"
-int iisd_pc_apply(void *ctx,Vec x ,Vec w) {
-  int ierr;
-  PFMat *A = (PFMat *) ctx;
-  IISDMat *AA;
-  AA = dynamic_cast<IISDMat *> (A);
-  ierr = (AA==NULL); CHKERRQ(ierr);
-  AA->pc_apply(x,w);
-  return 0;
-}
-  
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 #undef __FUNC__
 #define __FUNC__ "IISDMat::pc_apply"

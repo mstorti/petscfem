@@ -98,11 +98,8 @@ ifeq ($(PETSC_ARCH),)
 PETSC_ARCH=linux-gnu-$(BOPT)
 endif
 
-ifeq (${PETSC_DIR}/conf/base,$(wildcard ${PETSC_DIR}/conf/base)) 
-include ${PETSC_DIR}/conf/base
-else
-include ${PETSC_DIR}/bmake/common/base
-endif
+include ${PETSC_DIR}/conf/variables
+include ${PETSC_DIR}/conf/rules
 PACKAGES_INCLUDES = ${MPI_INCLUDE} ${X11_INCLUDE} ${BLASLAPACK_INCLUDE}
 PACKAGES_LIBS     = ${MPI_LIB} ${X11_LIB} ${BLASLAPACK_LIB}
 
@@ -182,9 +179,6 @@ CPPFLAGS := \
 	$(ANN_CPPFLAGS)		\
 	$(SSL_CPPFLAGS)		\
 	$(SUPERLU_CPPFLAGS)	\
-
-qqq:
-	echo $(PETSC_CPPFLAGS)
 
 ifeq ($(USE_OPENMP),yes) 
 CPPFLAGS += -fopenmp
