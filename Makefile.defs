@@ -7,9 +7,9 @@
 ## PETSc
 ## -----
 ifeq ($(PETSC_DIR),)
-PETSC_DIR = /usr/local/petsc/3.0.0
+PETSC_DIR = /usr/local/petsc/3.1
 endif
-PETSC_ARCH_G = linux-gnu-g
+PETSC_ARCH_G = linux-gnu
 PETSC_ARCH_O = linux-gnu-O
 
 
