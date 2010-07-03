@@ -79,8 +79,10 @@ fm2eperl3.cpp: fmat2ep3.cpp prep.pl fmat2.pl
 	if [ -e $@ ] ; then chmod +w $@ ; rm $@ ; fi
 	$(EPERL) -B '//<' -E '//>' $< > $@ ; chmod -w $@
 
+## I disable this (enable if neccessary)
 ## generation of FSM files is left to `developper' mode
-ifeq ($(DEVELOPER_MODE),yes)
+## ifeq ($(DEVELOPER_MODE),yes)
+ifeq (1,0)
 FSM := matFSM
 $(FSM).cpp $(FSM).h: sparse.sm
 	$(SMC) < $<
