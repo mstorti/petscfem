@@ -34,8 +34,13 @@ int volabso::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
 #define LOCST2(iele,j,k) VEC3(locst2,iele,j,nel,k,ndof)
 #define RETVAL(iele,j,k) VEC3(retval,iele,j,nel,k,ndof)
 #define RETVALMAT(iele,j,k,p,q) VEC5(retvalmat,iele,j,nel,k,ndof,p,nel,q,ndof)
-
   int ierr=0;
+
+  SGETOPTDEF(int,npg,0); //nd
+  PETSCFEM_ASSERT0(npg>0,"npg is required and must be positive");
+  SGETOPTDEF(int,ndim,0); //nd
+  PETSCFEM_ASSERT0(ndim>0,"ndim is required and must be positive");
+
   int nen = nel*ndof;
 
   // Get arguments from arg_list
@@ -61,11 +66,20 @@ int volabso::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
   PETSCFEM_ASSERT0(!isnan(h0),"h0 is required");  
   PETSCFEM_ASSERT0(h0>=0.0,"h0 must be nonnegative");  
 
+  //o Type of element geometry to define Gauss Point data
+  TGETOPTDEF_S(thash,string,geometry,cartesian2d);
+  int ndimel = ndim;
+  GPdata gp_data(geometry.c_str(),ndimel,nel,npg,GP_FASTMAT2);
+
+  double detJaco, wpgdet;
+  FMatrix Jaco(ndimel,ndim),Jaco_av(ndimel,ndim),
+    iJaco(ndimel,ndimel);
+  int ipg;
+
   // allocate local vecs
   FastMat2 veccontr(2,nel,ndof), locstate2(2,nel,ndof),
     locstate(2,nel,ndof),matloc_prof(nen,nen),
     matlocf(2,nen,nen);
-  double lumped_vc; // lumped mass matrix contribution
 
   if (comp_prof) {
     matloc_prof.set(1.);
@@ -84,9 +98,6 @@ int volabso::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
       locstate.set(&(LOCST(ielh,0,0)));
       locstate2.set(&(LOCST2(ielh,0,0)));
 
-      // veccontr.set(locstate2).scale(-id_cn).axpy(locstate,-id_cn1)
-      //   .add(lumped_vc).scale(id_fac).export_vals(&(RETVAL(ielh,0,0)));
-      // matlocf.export_vals(&(RETVALMAT(ielh,0,0,0,0)));
     }
   }
   FastMat2::void_cache();
