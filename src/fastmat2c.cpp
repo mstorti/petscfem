@@ -544,6 +544,7 @@ FastMat2::prod(const FastMat2 &A,const FastMat2 &B,
                vector<int> &ixa, 
                vector<int> &ixb) {
 
+#if 0
   static int reported=0;
   if (!reported) {
     printf("FASTMAT2_USE_PROD2=%d\n",FASTMAT2_USE_PROD2);
@@ -551,6 +552,7 @@ FastMat2::prod(const FastMat2 &A,const FastMat2 &B,
     printf("OMP_NUM_THREADS %s\n",(var? var: "unknown"));
     reported=1;
   }
+#endif
 
   if (FASTMAT2_USE_PROD2) {
     prod2(A,B,ixa,ixb);

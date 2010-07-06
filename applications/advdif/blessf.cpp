@@ -41,6 +41,7 @@
 #include "./svenant1d.h"
 #include "./advpenal.h"
 #include "gasflow_preco.h"
+#include "./volabso.h"
 
 #include <time.h>
 
@@ -119,6 +120,7 @@ void bless_elemset_advdif(char *type,Elemset *& elemset) {
     SET_ELEMSET_TYPE(svenant1d_abso2)
     
     SET_ELEMSET_TYPE(dl_penalize)
+    SET_ELEMSET_TYPE(volabso)
     
     {
       elemset=NULL;
