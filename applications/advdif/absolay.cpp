@@ -95,6 +95,10 @@ new_assemble(arg_data_list &arg_data_v,const Nodedata *nodedata,
   NSGETOPTDEF(double,gravity,0.0);
   //o Reference water depth
   NSGETOPTDEF(double,h0,0.0);
+  //o Scales volume damping term
+  NSGETOPTDEF(double,Kabso,1.0);
+  PETSCFEM_ASSERT0(Kabso>=0.0,
+                   "Kabso must be non-negatvive");  
 
   // Initialize flux functions
   int ff_options=0;
@@ -125,7 +129,6 @@ new_assemble(arg_data_list &arg_data_v,const Nodedata *nodedata,
   FastMat2 Habso(2,ndof,ndof),Un(1,ndof),Uo(1,ndof),Ualpha(1,ndof),
     Uref(1,ndof),Jaco(2,ndimel,ndim),iJaco(2,ndimel,ndimel),
     dU(1,ndof),dshapex(2,ndimel,nel), normal(1,ndim),tmp1,tmp2;
-  double Kabso = 0.01;
 #if 0
   static int flag=0;
   static FastMat2 Habsoc(2,ndof,ndof);
