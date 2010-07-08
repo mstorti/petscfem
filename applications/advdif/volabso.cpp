@@ -41,6 +41,11 @@ int volabso::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
   SGETOPTDEF(int,ndim,0); //nd
   PETSCFEM_ASSERT0(ndim>0,"ndim is required and must be positive");
 
+  int nelprops,nell,ndof;
+  elem_params(nell,ndof,nelprops);
+  int nu = nodedata->nu;
+  int nH = nu-ndim;
+
   int nen = nel*ndof;
 
   // Get arguments from arg_list
@@ -71,6 +76,11 @@ int volabso::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
   int ndimel = ndim;
   GPdata gp_data(geometry.c_str(),ndimel,nel,npg,GP_FASTMAT2);
 
+#define DSHAPEXI (*gp_data.FM2_dshapexi[ipg])
+#define SHAPE	 (*gp_data.FM2_shape[ipg])
+#define WPG	 (gp_data.wpg[ipg])
+
+#if 0
   double detJaco, wpgdet;
   FMatrix Jaco(ndimel,ndim),Jaco_av(ndimel,ndim),
     iJaco(ndimel,ndimel);
@@ -79,7 +89,7 @@ int volabso::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
   // allocate local vecs
   FastMat2 veccontr(2,nel,ndof), locstate2(2,nel,ndof),
     locstate(2,nel,ndof),matloc_prof(nen,nen),
-    matlocf(2,nen,nen);
+    matlocf(2,nen,nen),Hloc(nel,nH);
 
   if (comp_prof) {
     matloc_prof.set(1.);
@@ -94,6 +104,17 @@ int volabso::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
     FastMat2::reset_cache();
     ielh++;
 
+    element.node_data(nodedata,xloc.storage_begin(),
+                      Hloc.storage_begin());
+
+    if (comp_prof) {
+      matlocf.export_vals(element.ret_mat_values(*jac_prof));
+      continue;
+    }
+    
+    veccontr.set(0.);
+    matlocf.set(0.);
+
     if (comp_res) {
       locstate.set(&(LOCST(ielh,0,0)));
       locstate2.set(&(LOCST2(ielh,0,0)));
@@ -102,5 +123,6 @@ int volabso::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
   }
   FastMat2::void_cache();
   FastMat2::deactivate_cache();
+#endif
   return 0;
 }
