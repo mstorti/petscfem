@@ -862,14 +862,26 @@ FastMat2::prod(const FastMat2 & A0,
                const FastMat2 & A1,
                const int m,INT_VAR_ARGS_ND) {
 
-  vector<const FastMat2 *> mat_list;
-  mat_list.push_back(&A0);
-  mat_list.push_back(&A1);
-  
-  Indx indx;
-  indx.push_back(m);
-  READ_INT_ARG_LIST(indx);
-  prod(mat_list,indx);
+  FastMatCache *cache = ctx->step();
+  mprodwrp_subcache_t *mpwrpsc=NULL;
+  if (!ctx->was_cached) {
+    assert(!cache->sc);
+    mpwrpsc = new mprodwrp_subcache_t;
+    vector<const FastMat2 *> &mat_list = mpwrpsc->mat_list;
+    mat_list.push_back(&A0);
+    mat_list.push_back(&A1);
+    
+    Indx &indx = mpwrpsc->indx;
+    indx.push_back(m);
+    READ_INT_ARG_LIST(indx);
+  }
+
+  mpwrpsc = dynamic_cast<mprodwrp_subcache_t *> (cache->sc);
+  assert(mpwrpsc);
+
+  prod(mpwrpsc->mat_list,mpwrpsc->indx);
+  if (!ctx->use_cache) delete cache;
+
   return *this;
 }
 #endif
