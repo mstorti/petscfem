@@ -183,9 +183,6 @@ CPPFLAGS := \
 	$(SSL_CPPFLAGS)		\
 	$(SUPERLU_CPPFLAGS)	\
 
-qqq:
-	echo $(PETSC_CPPFLAGS)
-
 ifeq ($(USE_OPENMP),yes) 
 CPPFLAGS += -fopenmp
 endif
@@ -362,6 +359,11 @@ LDFLAGS_NO_PROG_LIB =					\
 
 CBLAS_FOUND := no
 
+qqq:
+	echo MKLPATH: $(MKLPATH)
+	echo ATLAS_INC_DIR: $(ATLAS_INC_DIR)
+	echo PETSC_LDFLAGS: $(PETSC_LDFLAGS)
+
 ifneq ($(MKLPATH),)
 CPPFLAGS += -I$(MKL_INCLUDE) -DUSE_MKL_FIX -DUSE_MKL
 MKL_LDFLAGS := -lmkl_gf_lp64 -lmkl_gnu_thread -lmkl_core -lpetscfem$(osfx)
@@ -369,18 +371,16 @@ MKL_LDFLAGS := -lmkl_gf_lp64 -lmkl_gnu_thread -lmkl_core -lpetscfem$(osfx)
 LDFLAGS += $(MKL_LDFLAGS)
 LDFLAGS_NO_PROG_LIB += $(MKL_LDFLAGS)
 CBLAS_FOUND := yes
-endif
-
+else
 ifneq ($(ATLAS_INC_DIR),)
 CPPFLAGS += -I$(ATLAS_INC_DIR)
 MKL_LDFLAGS := -L$(ATLAS_LIB_DIR) -lcblas
 LDFLAGS += $(MKL_LDFLAGS)
 LDFLAGS_NO_PROG_LIB += $(MKL_LDFLAGS)
 CBLAS_FOUND := yes
-endif
-
-ifeq ($(CBLAS_FOUND),no)
+else
 $(warning No CBLAS library found. Must set the MKLPATH or ATLAS_(LIB|INC)_DIR) variables)
+endif
 endif
 
 EFN_LDFLAGS = -ldl
