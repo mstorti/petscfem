@@ -142,7 +142,7 @@ new_assemble(arg_data_list &arg_data_v,const Nodedata *nodedata,
   }
   Habso.set(Habsoc);
 #else
-  Habso.eye();
+  Habso.eye(h0).setel(1.0,ndim+1,ndim+1);
 #endif
   
 #if 0
