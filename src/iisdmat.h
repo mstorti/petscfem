@@ -14,8 +14,6 @@
 #include <src/dvector.h>
 #include <src/pfgtpmacr.h>
 
-int iisd_pc_apply(void *ctx,Vec,Vec);
-
 /** Solves iteratively on the `interface' (between subdomain) nodes
     and solving by a direct method in the internal nodes.
  */

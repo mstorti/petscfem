@@ -7,8 +7,10 @@
 
 #include <vector>
 #include <string>
-#include <petscmat.h>
+
 #include <petscvec.h>
+#include <petscmat.h>
+#undef PFMAT
 
 #include "libretto.h"
 #include "pfmat.h"
