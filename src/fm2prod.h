@@ -42,6 +42,14 @@ public:
   int not_superlinear_ok();
 };
 
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>
+class mprodwrp_subcache_t : public FastMatSubCache {
+public:
+  vector<const FastMat2 *> mat_list;
+  Indx indx;
+  mprodwrp_subcache_t() { }
+};
+
 #define OLD 0
 #define TMP 1
 #define UNKNOWN 2

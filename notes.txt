@@ -17071,3 +17071,134 @@ Pentium. Cuando lo corro en debugger tira el siguiente error.
 Los resultados de este test son consistentes con los de PETSs-FEM. hay
 que considerar el regimen para tamaños de matrices relativamente
 pequeños. 
+
+%=== Fri Jun 18 15:02:24 2010 mstorti@galileo
+%
+%--[2010-06-18.18:02:24.mstorti-v32-start-40-g0280dac]-----
+Estoy viendo el tema del monolítico. Con la version nueva (prod2+MKL)
+y 8000 hexas tarda unos 
+%
+PROD-OLD:   16.9secs (2.1) secs/Ke ). nohup-run30.log
+PROD2+MKL: 5.9 secs (0.67 secs/Ke ). 
+PROD2+ATLAS: 5.9secs (0.67 secs/Ke ). nohup-run31.log 
+%
+%--[2010-06-18.18:17:06.mstorti-v32-start-40-g0280dac]-----
+EN AQUILES
+%
+PROD-OLD:  7.86 secs (0.93 secs/Ke ). nohup-run32.log
+PROD2+MKL: 4.04 secs (0.45 secs/Ke ). nohup-run33.log 
+PROD2+ATLAS: 4.13secs (0.47 secs/Ke ). nohup-run34.log  
+%
+%--[2010-06-18.18:40:33.mstorti-v32-start-40-g0280dac]-----
+Para TETRAS en AQUILES:
+%
+PROD-OLD: 7.38 secs (0.17 secs/Ke ). nohup-run36.log  
+PROD2+MKL: 6.36 secs (0.14 secs/Ke ). nohup-run35.log  
+PROD2+ATLAS: 5.38 secs (0.12 secs/Ke ). nohup-run37.log  
+%
+%--[2010-06-18.23:49:55.mstorti-v32-start-40-g0280dac]-----
+Gasflow en un cubo de 20x20x20, con HEXAS:
+%
+PROD-OLD: 94.9 secs (12 secs/Ke ). nohup-run39.log  
+PROD2+MKL: 44.1 secs (5.3 secs/Ke ). nohup-run38.log  
+PROD2+ATLAS: 41.1 secs (4.9 secs/Ke ). nohup-run40.log  
+%--[2010-06-18.23:49:55.mstorti-v32-start-40-g0280dac]-----
+Gasflow en un cubo de 20x20x20, con TERAS:
+%
+PROD-OLD: 75.7 secs (1.8 secs/Ke ). nohup-run42.log  
+PROD2+MKL: 34.7 secs (0.81 secs/Ke ). nohup-run41.log  
+PROD2+ATLAS: 29.8 secs (0.68 secs/Ke ). nohup-run42.log  
+
+%=== Fri Jun 18 21:39:35 2010 mstorti@galileo
+%
+%--[2010-06-19.00:39:35.mstorti-v32-start-42-g844fc70]-----
+Voy a ver que pasa con el ordenamiento de elementos y ecuaciones a ver
+si tiene una influencia en el tiempo de ensamblado. 
+
+%=== Sat Jun 19 09:27:25 2010 mstorti@galileo
+%
+%--[2010-06-19.12:27:25.mstorti-v32-start-42-g844fc70]-----
+Veo si se puede lograr algo mas de eficiencia reordenando los
+elementos y nodos, por ejemplo con un algoritmo tipo space-filling. 
+En todos los casos es con la version PROD2+MKL. 
+%
+CON malla de 32^3 en AQUILES
+--- WITH SPACE FILLING
+9.048 2.883 1.634 3.989 2.158 0.223
+9.077 0.163 1.631 0.371 2.091 0.216
+9.113 0.163 1.645 0.739 2.097 0.236
+9.156 0.183 1.636 0.739 2.097 0.235
+4 steps, avrg: 9.115 0.170 1.637 0.616 2.095 0.229 total: 13.863
+--- NATURAL:
+9.049 0.160 1.641 0.346 2.069 0.206
+9.071 0.160 1.641 0.684 2.093 0.223
+9.074 0.180 1.638 0.684 2.067 0.226
+--- RANDOM:
+9.409 0.185 1.713 0.471 2.150 0.247
+9.419 0.209 1.709 0.849 2.163 0.267
+9.423 0.209 1.718 0.839 2.152 0.268
+%
+%--[2010-06-19.12:53:49.mstorti-v32-start-42-g844fc70]-----
+CON malla de 64^3 en NODE1
+--- NATURAL:
+86.592 26.298 13.775 38.750 16.096 1.285
+86.858 1.248 13.769 9.295 16.111 1.638
+86.823 1.242 13.793 10.012 16.113 1.232
+86.850 1.421 13.853 10.085 16.069 1.635
+avrg: 86.84 1.30 13.805 9.797 16.097 1.5017, total: 129.35
+--- WITH SPACE FILLING
+73.424 23.472 13.228 39.909 16.870 1.545
+74.138 1.594 13.246 12.821 16.834 1.472
+73.714 1.597 13.193 13.784 16.792 1.467
+73.569 1.828 13.784 13.934 17.277 1.479
+avrg: 73.807 1.673 13.408 13.513 16.968 1.473 total: 120.841
+--- RANDOM
+91.689 29.788 15.626 126.549 18.219 4.471
+91.151 3.118 15.669 41.215 18.092 4.067
+91.226 3.104 15.632 44.392 18.117 3.855
+91.213 3.552 15.621 45.031 18.116 4.264
+avrg: 91.197 3.258 15.641 43.546 18.108 4.062 total: 175.812
+%
+%--[2010-06-19.18:04:26.mstorti-v32-start-42-g844fc70]-----
+O sea que ordenando bien se puede ganar un 25% con respecto al
+random. (Entre el random y el SF). 
+
+%=== Thu Jul 29 13:04:02 2010 mstorti@galileo
+%
+%--[2010-07-29.16:04:02.mstorti-v32-start-46-gfe722ee]-----
+Eficiencia en correr perfil-fsi de Luciano. Me traigo todo el dir y
+corro con la version `actual' (mstorti-v32-start-46-gfe722ee) y con la
+`vieja' (mstorti-v29-start-22-g869999f). Entonces me da (corrido en galileo)
+%
+actual (prod2=1): 15.5 secs nohup-current-prod2.log
+actual (prod2=0): 37 secs nohup-current-noprod2.log
+old: (con DGEMM/MKL) 12.8 secs 
+old: (no DGEMM) 15 secs
+%--[2010-07-29.17:04:12.mstorti-v32-start-46-gfe722ee]-----
+Con `actual' pero poniendo que directamente llame a la de dos matrices
+(es decir no usar toda la logica del multiprod) entonces da 13.8secs. 
+%
+%--[2010-07-29.17:21:30.mstorti-v32-start-46-gfe722ee]-----
+OJO el old en `galileo' termina usando DGEMM. 
+%
+%--[2010-07-29.17:26:32.mstorti-v32-start-46-gfe722ee]-----
+No me cierra porque a Luciano le da tan bajo on la vieja version si
+parece que no estaba usando MKL. 
+%
+%--[2010-07-29.22:32:36.mstorti-v32-start-46-gfe722ee]-----
+Tomo la version vieja (mstorti-v29-start-22-g869999f) compilada sin
+MKL y me da approx 15secs.
+%
+%--[2010-07-29.23:21:04.mstorti-v32-start-46-gfe722ee]-----
+Segun Luciano con la version `mstorti-v25-end-265-gf6d5319'
+(commit f6d53190877610f15af565a201fba3b3f79de6eb) tambien dan tiempos
+MUY elevados (32 secs). 
+%
+%--[2010-07-30.14:53:12.mstorti-v32-start-46-gfe722ee]-----
+Con esa version en galileo tarda 38.1secs. Me pregunto porque hay
+tanta diferencia entre esta version y la vieja con el prod
+viejo. Puede ser el overhead por el multiprod?? 
+%
+%--[2010-07-30.15:33:46.mstorti-v32-start-46-gfe722ee]-----
+Si efectivamente desactivo el multiprod con USE_MPROD_FOR_2MATS y baja
+a 12.6secs. 

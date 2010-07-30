@@ -544,6 +544,7 @@ FastMat2::prod(const FastMat2 &A,const FastMat2 &B,
                vector<int> &ixa, 
                vector<int> &ixb) {
 
+#if 0
   static int reported=0;
   if (!reported) {
     printf("FASTMAT2_USE_PROD2=%d\n",FASTMAT2_USE_PROD2);
@@ -551,6 +552,7 @@ FastMat2::prod(const FastMat2 &A,const FastMat2 &B,
     printf("OMP_NUM_THREADS %s\n",(var? var: "unknown"));
     reported=1;
   }
+#endif
 
   if (FASTMAT2_USE_PROD2) {
     prod2(A,B,ixa,ixb);
@@ -860,14 +862,27 @@ FastMat2::prod(const FastMat2 & A0,
                const FastMat2 & A1,
                const int m,INT_VAR_ARGS_ND) {
 
-  vector<const FastMat2 *> mat_list;
-  mat_list.push_back(&A0);
-  mat_list.push_back(&A1);
-  
-  Indx indx;
-  indx.push_back(m);
-  READ_INT_ARG_LIST(indx);
-  prod(mat_list,indx);
+  FastMatCache *cache = ctx->step();
+  mprodwrp_subcache_t *mpwrpsc=NULL;
+  if (!ctx->was_cached) {
+    mpwrpsc = new mprodwrp_subcache_t;
+    assert(!cache->sc);
+    cache->sc = mpwrpsc;
+    vector<const FastMat2 *> &mat_list = mpwrpsc->mat_list;
+    mat_list.push_back(&A0);
+    mat_list.push_back(&A1);
+    
+    Indx &indx = mpwrpsc->indx;
+    indx.push_back(m);
+    READ_INT_ARG_LIST(indx);
+  }
+
+  mpwrpsc = dynamic_cast<mprodwrp_subcache_t *> (cache->sc);
+  assert(mpwrpsc);
+
+  prod(mpwrpsc->mat_list,mpwrpsc->indx);
+  if (!ctx->use_cache) delete cache;
+
   return *this;
 }
 #endif
