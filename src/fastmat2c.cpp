@@ -865,8 +865,9 @@ FastMat2::prod(const FastMat2 & A0,
   FastMatCache *cache = ctx->step();
   mprodwrp_subcache_t *mpwrpsc=NULL;
   if (!ctx->was_cached) {
-    assert(!cache->sc);
     mpwrpsc = new mprodwrp_subcache_t;
+    assert(!cache->sc);
+    cache->sc = mpwrpsc;
     vector<const FastMat2 *> &mat_list = mpwrpsc->mat_list;
     mat_list.push_back(&A0);
     mat_list.push_back(&A1);

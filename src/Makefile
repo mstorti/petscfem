@@ -107,7 +107,7 @@ readlist.h: readlist.eperl
 	$(EPERL) readlist.eperl > readlist.h
 	chmod -w readlist.h
 
-mprod.h mproddef.h: mprod.pl mprod1.h
+mprod.h mproddef.h: mprod.pl mprod1.h mprodtmpl.h
 	./mprod.pl
 
 endif
