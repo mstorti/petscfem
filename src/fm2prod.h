@@ -43,9 +43,13 @@ public:
 };
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>
+// This class stores the information for the wrapper
+// function prod().
 class mprodwrp_subcache_t : public FastMatSubCache {
 public:
+  // The list of matrices involved
   vector<const FastMat2 *> mat_list;
+  // The vector of contraction indices passed
   Indx indx;
   mprodwrp_subcache_t() { }
 };
