@@ -9,6 +9,41 @@ extern int FASTMAT2_USE_DGEMM;
 extern int FASTMAT2_USE_PROD2;
 #define USE_MPROD_FOR_2MATS
 
+
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>
+// We store a vector of these structures in the cache, and
+// then `make_prod()' has the stored the order
+// in which the products must be done, and which matrices
+// are involved.
+// The `mat_info's are stored for both the
+// original matrices, and the temporaries that
+// are created. So if we have `n' matrices we make
+// `n-1' products, and we need a mat_info for the result
+// so we have `2*n-1' mat_infos. 
+// From the `n-1' results, the first `n-2' are temporaries,
+// and the last one goes to the final output result. 
+struct mat_info {
+  // Pointers to old matrices should be `const'
+  FastMat2 *Ap;
+  // The vector that indicates the contractions
+  // to be performed (the args to the low-level
+  // prod())
+  vector<int> contract;
+  // The dims of the involved matrices
+  vector<int> dims;
+  // type: may be OLD, TMP or UNKNOWN
+  // is_active: when we make a product the two involved
+  //            matrices are marked as INACTIVE and the new
+  //            inserted to ACTIVE
+  // position: stores the position in the matrix list.
+  //           We try to preserve the position so that
+  //           the process is more clear. 
+  int type, is_active, position;
+  mat_info();
+};
+
+typedef vector<mat_info> mat_info_cont_t;
+
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>
 class prod_subcache_t : public FastMatSubCache {
 public:
@@ -43,6 +78,27 @@ public:
 };
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>
+// This is the cache for the product operation
+class multiprod_subcache_t : public FastMatSubCache {
+public:
+  enum { OLD=0, TMP=1, UNKNOWN=2 };
+  enum { INACTIVE=0, ACTIVE=1, UNDEF=-1 };
+  // Number of matrices involved in this product.
+  // Must be >=2
+  int nmat;
+  // A vector of structures containing information
+  // for each involved matrix (including temporaries)
+  mat_info_cont_t mat_info_cont;
+  // A table that stores in which orders must peformed
+  // the products
+  vector<int> order;
+  multiprod_subcache_t(FastMatCache *cache_a) { }
+  ~multiprod_subcache_t();
+  // This makes the product when cached
+  void make_prod();
+};
+
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>
 // This class stores the information for the wrapper
 // function prod().
 class mprodwrp_subcache_t : public FastMatSubCache {
@@ -54,49 +110,13 @@ public:
   mprodwrp_subcache_t() { }
 };
 
-#define OLD 0
-#define TMP 1
-#define UNKNOWN 2
+// #define OLD 0
+// #define TMP 1
+// #define UNKNOWN 2
 
-#define INACTIVE 0
-#define ACTIVE 1
-#define UNDEF -1
-
-//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>
-// We store a vector of these structures in the cache, and
-// then `make_prod()' has the stored the order
-// in which the products must be done, and which matrices
-// are involved.
-// The `mat_info's are stored for both the
-// original matrices, and the temporaries that
-// are created. So if we have `n' matrices we make
-// `n-1' products, and we need a mat_info for the result
-// so we have `2*n-1' mat_infos. 
-// From the `n-1' results, the first `n-2' are temporaries,
-// and the last one goes to the final output result. 
-struct mat_info {
-  // Pointers to old matrices should be `const'
-  FastMat2 *Ap;
-  // The vector that indicates the contractions
-  // to be performed (the args to the low-level
-  // prod())
-  vector<int> contract;
-  // The dims of the involved matrices
-  vector<int> dims;
-  // type: may be OLD, TMP or UNKNOWN
-  // is_active: when we make a product the two involved
-  //            matrices are marked as INACTIVE and the new
-  //            inserted to ACTIVE
-  // position: stores the position in the matrix list.
-  //           We try to preserve the position so that
-  //           the process is more clear. 
-  int type, is_active, position;
-  mat_info() : Ap(NULL), 
-               type(UNKNOWN),
-               is_active(UNDEF) {}
-};
-
-typedef vector<mat_info> mat_info_cont_t;
+// #define INACTIVE 0
+// #define ACTIVE 1
+// #define UNDEF -1
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>
 struct fastmat_stats_t {
