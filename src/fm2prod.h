@@ -110,14 +110,6 @@ public:
   mprodwrp_subcache_t() { }
 };
 
-// #define OLD 0
-// #define TMP 1
-// #define UNKNOWN 2
-
-// #define INACTIVE 0
-// #define ACTIVE 1
-// #define UNDEF -1
-
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>
 struct fastmat_stats_t {
   int print_prod_order;
