@@ -150,7 +150,7 @@ void renorm::compute_H_term(FastMat2 &phi) {
       // Procedure for substracting area H(phi)=0;
       inv = 1; 
       for (int j=0; j<nel; j++) reshp[j] = 0.0;
-      double area;
+      double area=NAN;
       if (flag) {
 	inv = -1;
 	area = fabs(0.5*(xrotp[0]*xrotp[3]-xrotp[3]*xrotp[4]-xrotp[0]*xrotp[5]

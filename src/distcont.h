@@ -43,7 +43,7 @@ public:
   /** Constructor.
       @param part (input) partitioner, defines to which processor belongs each iterator
       @param comm_ (input) MPI communicator
-      @param random_iter_mode (input) tells what kind
+      @param iter_mode (input) tells what kind
       of container the class `Container' is. 
   */ 
   DistCont<Container,

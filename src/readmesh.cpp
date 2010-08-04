@@ -160,15 +160,15 @@ int read_mesh(Mesh *& mesh,char *fcase,Dofmap *& dofmap,
 	for (int kk=0; kk<nu; kk++) {
 	  token = strtok((kk==0 ? line : NULL),bsp);
 	  
-	  RM_ASSERT(token!=NULL,"Error reading coordinates\n");
+	  RM_ASSERT(token!=NULL,"Error reading coordinate[1]s\n");
 	  int nread = sscanf(token,"%lf",row+kk);
-	  RM_ASSERT(nread==1,"Error reading coordinates\n");
+	  RM_ASSERT(nread==1,"Error reading coordinates[2]\n");
 	}
 	int indx = da_append (xnod,row);
 	if (indx<0) PFEMERRQ("Insufficient memory reading nodes");
       }
       RM_ASSERT(fstack->last_error()==FileStack::read_ok,
-		"Error reading coordinates\n");
+		"Error reading coordinates[3]\n");
 
       nnod=node;
       dofmap->nnod = nnod;
@@ -225,11 +225,11 @@ int read_mesh(Mesh *& mesh,char *fcase,Dofmap *& dofmap,
 	  for (int kk=0; kk<nu; kk++) {
 	    token = strtok((kk==0 ? line : NULL),bsp);
 	    PETSCFEM_ASSERT_GE1(token!=NULL,
-			       "Error reading coordinates in line:\n\"%s\"\n"
+			       "Error reading coordinates in line[4]:\n\"%s\"\n"
 			       "Not enough values in line!!\n",astr_chars(linecopy));
 	    int nread = sscanf(token,"%lf",row+kk);
 	    PETSCFEM_ASSERT_GE1(nread == 1,
-			    "Error reading coordinates in line:\n\"%s\"",line);
+			    "Error reading coordinates in line[5]:\n\"%s\"",line);
 	  }
 	  int indx = da_append (xnod,row);
 	  PETSCFEM_ASSERT_GE0(indx>=0,"Insufficient memory reading nodes");

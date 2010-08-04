@@ -107,7 +107,8 @@ class graphdv_dis : public graphdv  {
 public:
   /// Constructor includes partitioner and communicator
   graphdv_dis(int M, const DofPartitioner *part,
-	      MPI_Comm comm,int chunk_size=CHUNK_SIZE_DEF) : graphdv(chunk_size) {
+	      MPI_Comm comm,int chunk_size=CHUNK_SIZE_DEF) 
+    : graphdv(chunk_size) {
     init(M);
   }
   /// Scatter among processors

@@ -6,6 +6,7 @@
 
 extern FastMat2Stats glob_fm2stats;
 extern int FASTMAT2_USE_DGEMM;
+extern int FASTMAT2_USE_PROD2;
 #define USE_MPROD_FOR_2MATS
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>
@@ -39,6 +40,14 @@ public:
   void print();
   void ok() { not_superlinear_ok_flag=1; }
   int not_superlinear_ok();
+};
+
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>
+class mprodwrp_subcache_t : public FastMatSubCache {
+public:
+  vector<const FastMat2 *> mat_list;
+  Indx indx;
+  mprodwrp_subcache_t() { }
 };
 
 #define OLD 0

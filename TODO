@@ -2,6 +2,9 @@
 TODO: [Mainly fixes go here...]
 =====
 
+* Add new print version feature to advdif and others. 
+* Missing some PetscSynchronizedFlush() calls in the PETSCFEM_ASSERT
+  macros in `fem.h' (see commit mstorti-v31-end-25-gb9761e4)
 * surf2vol with `quad2hexa' is buggy when `use_exterior_normal=1'
 * In `trcprtf.cpp' check if jacobian of element is null. Perhaps in
    the first time step? 

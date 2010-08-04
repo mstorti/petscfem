@@ -1127,3 +1127,18 @@ int FastMat2::is_nan() {
   return 0;
 }
 
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>
+void FastMat2::init123() {
+  Indx dims,indx;
+  get_dims(dims);
+  int ndims = dims.size();
+  indx = Indx(ndims,1);
+  while (1) {
+    double val=0.;
+    for (int jj=0; jj<ndims; jj++) 
+      val = val*10+indx[jj];
+    setel(indx,val);
+    if (!inc(indx,dims)) break;
+  }
+}
+

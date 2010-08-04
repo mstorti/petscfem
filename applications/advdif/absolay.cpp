@@ -3,6 +3,20 @@
 #include "./absolay.h"
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:
+#undef __FUNC__
+#define __FUNC__ "int advective::ask(char *,int &)"
+int AbsorbingLayer::ask(const char *jobinfo,int &skip_elemset) {
+   skip_elemset = 1;
+   DONT_SKIP_JOBINFO(comp_res);
+   DONT_SKIP_JOBINFO(comp_prof);
+   return 0;
+}
+
+double rnd(double) {
+  return 2.0*drand()-1.0;
+}
+
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:
 void AbsorbingLayer::
 new_assemble(arg_data_list &arg_data_v,const Nodedata *nodedata,
 	     const Dofmap *dofmap,const char *jobinfo,
@@ -38,8 +52,7 @@ new_assemble(arg_data_list &arg_data_v,const Nodedata *nodedata,
   // the area section of the tube. Its gradient is needed for the
   // source term in the momentum eqs.
   int nH = nu-ndim;
-  FMatrix  Hloc(nel,nH),H(nH),vloc_mesh(nel,ndim),v_mesh(ndim);
-  //  FastMat2 v_mesh;
+  FMatrix  Hloc(nel,nH),H(nH);
 
   if(nnod!=nodedata->nnod) {
     printf("nnod from dofmap and nodedata don't coincide\n");
@@ -49,7 +62,6 @@ new_assemble(arg_data_list &arg_data_v,const Nodedata *nodedata,
   // lambda_max:= the maximum eigenvalue of the jacobians.
   // used to compute the critical time step.
   vector<double> *dtmin;
-  double lambda_max;
   int jdtmin;
   GlobParam *glob_param=NULL;
   // The trapezoidal rule integration parameter
@@ -72,53 +84,39 @@ new_assemble(arg_data_list &arg_data_v,const Nodedata *nodedata,
       fdj_jac = &arg_data_v[++j];
   }
 
-  FastMat2 matlocf(4,nel,ndof,nel,ndof),
-    matlocf_mass(4,nel,ndof,nel,ndof);
-  FastMat2 prof_nodes(2,nel,nel), prof_fields(2,ndof,ndof),
-    matlocf_fix(4,nel,ndof,nel,ndof);
-  FastMat2 Id_ndf(2,ndof,ndof),Id_nel(2,nel,nel),
-    prof_fields_diag_fixed(2,ndof,ndof);
+  FastMat2 matloc(4,nel,ndof,nel,ndof);
 
   //o Uses operations caches for computations with the FastMat2
   //  library for internal computations. Note that this affects also the
   //  use of caches in routines like fluxes, etc...
   NSGETOPTDEF(int,use_fastmat2_cache,1);
 
+  //o Gravity
+  NSGETOPTDEF(double,gravity,0.0);
+  //o Reference water depth
+  NSGETOPTDEF(double,h0,0.0);
+  //o Scales volume damping term
+  NSGETOPTDEF(double,Kabso,1.0);
+  PETSCFEM_ASSERT0(Kabso>=0.0,
+                   "Kabso must be non-negatvive");  
+
   // Initialize flux functions
   int ff_options=0;
-  adv_diff_ff->start_chunk(ff_options);
-  int ndimel = adv_diff_ff->dim();
+  // adv_diff_ff->start_chunk(ff_options);
+  // int ndimel = adv_diff_ff->dim();
+  int ndimel = ndim;
   if (ndimel<0) ndimel = ndim;
-  FastMat2 grad_H(2,ndimel,nH);
 
-  adv_diff_ff->set_profile(prof_fields); // profile by equations
-  prof_nodes.set(1.);
-
-  Id_ndf.eye();
-  Id_nel.eye();
-
-  prof_fields.d(1,2);
-  prof_fields_diag_fixed.set(0.);
-  prof_fields_diag_fixed.d(1,2);
-  prof_fields_diag_fixed.set(prof_fields);
-  prof_fields.rs();
-  prof_fields_diag_fixed.rs();
-  prof_fields_diag_fixed.scale(-1.).add(Id_ndf);
-
-  matlocf_fix.prod(prof_fields_diag_fixed,Id_nel,2,4,1,3);
-  matlocf.prod(prof_fields,prof_nodes,2,4,1,3);
-
-  matlocf.add(matlocf_fix);
-  if (comp_res)
-     matlocf.export_vals(Ajac->profile);
+  // adv_diff_ff->set_profile(prof_fields); // profile by equations
+  matloc.set(1.0);
   if (comp_prof) {
     jac_prof = &arg_data_v[0];
-    matlocf.export_vals(jac_prof->profile);
+    matloc.export_vals(jac_prof->profile);
   }
 
   int nlog_vars;
   const int *log_vars;
-  adv_diff_ff->get_log_vars(nlog_vars,log_vars);
+  // adv_diff_ff->get_log_vars(nlog_vars,log_vars);
   //o Use log-vars for $k$ and $\epsilon$
   NSGETOPTDEF(int,use_log_vars,0);
   if (!use_log_vars) nlog_vars=0;
@@ -127,22 +125,45 @@ new_assemble(arg_data_list &arg_data_v,const Nodedata *nodedata,
   FMatrix veccontr(nel,ndof),veccontr_mass(nel,ndof),
     xloc(nel,ndim),lstate(nel,ndof),
     lstateo(nel,ndof),lstaten(nel,ndof),dUloc_c(nel,ndof),
-    dUloc(nel,ndof),matloc;
-  FastMat2 true_lstate(2,nel,ndof),
-    true_lstateo(2,nel,ndof),true_lstaten(2,nel,ndof);
-
-  FastMat2 true_lstate_abs(2,nel,ndof);
-
+    dUloc(nel,ndof);
+  FastMat2 Habso(2,ndof,ndof),Un(1,ndof),Uo(1,ndof),Ualpha(1,ndof),
+    Uref(1,ndof),Jaco(2,ndimel,ndim),iJaco(2,ndimel,ndimel),
+    dU(1,ndof),dshapex(2,ndimel,nel), normal(1,ndim),tmp1,tmp2;
+#if 0
+  static int flag=0;
+  static FastMat2 Habsoc(2,ndof,ndof);
+  if (!flag) {
+    flag = 1;
+    FastMat2 tmp3(2,ndof,ndof),tmp4(2,ndof,ndof);
+    tmp3.fun(rnd);
+    Habsoc.eye().axpy(tmp3,0.25);
+    tmp4.ctr(tmp3,2,1);
+    Habsoc.axpy(tmp4,0.25);
+  }
+  Habso.set(Habsoc);
+#else
+  Habso.eye(h0).setel(1.0,ndim+1,ndim+1);
+#endif
+  
+#if 0
+  Habso.print("Habso: ");
+  PetscFinalize();
+  exit(0);
+#endif
+  Uref.set(0.0).setel(h0,ndof);
+  
   nen = nel*ndof;
 
   //o Type of element geometry to define Gauss Point data
   NGETOPTDEF_S(string,geometry,cartesian2d);
   GPdata gp_data(geometry.c_str(),ndimel,nel,npg,GP_FASTMAT2);
-  GPdata gp_data_low(geometry.c_str(),ndimel,nel,1,GP_FASTMAT2);
 
-  double detJaco, wpgdet, delta_sc, delta_sc_old;
+#define DSHAPEXI (*gp_data.FM2_dshapexi[ipg])
+#define SHAPE	 (*gp_data.FM2_shape[ipg])
+#define WPG	 (gp_data.wpg[ipg])
+
+  double detJaco, wpgdet;
   int elem, ipg,node, jdim, kloc,lloc,ldof;
-  double lambda_max_pg;
 
   // Position of current element in elemset and in chunk
   int k_elem, k_chunk;
@@ -158,34 +179,57 @@ new_assemble(arg_data_list &arg_data_v,const Nodedata *nodedata,
     FastMat2::reset_cache();
 
     // Initialize element
-    adv_diff_ff->element_hook(element);
+    // adv_diff_ff->element_hook(element);
 
     // Get nodedata info (coords. etc...)
     element.node_data(nodedata,xloc.storage_begin(),
 		      Hloc.storage_begin());
 
     if (comp_prof) {
-      matlocf.export_vals(element.ret_mat_values(*jac_prof));
+      matloc.export_vals(element.ret_mat_values(*jac_prof));
       continue;
     }
 
     if (comp_res) {
-      lambda_max=0;
       lstateo.set(element.vector_values(*stateo));
       lstaten.set(element.vector_values(*staten));
     }
 
-
-
-
     // State at time t_{n+\alpha}
     lstate.set(0.).axpy(lstaten,ALPHA).axpy(lstateo,(1-ALPHA));
-
     veccontr.set(0.);
+    matloc.set(0.0);
+
+    for (ipg=0; ipg<npg; ipg++) {
+      
+      //      Matrix xpg = SHAPE * xloc;
+      Jaco.prod(DSHAPEXI,xloc,1,-1,-1,2);
+
+      PETSCFEM_ASSERT0(ndim==ndimel,"not implemented yet");
+      // iJaco.inv(Jaco);
+      detJaco = Jaco.det();
+
+      if (detJaco<=0.) {
+        int k,ielh;
+        element.position(k,ielh);
+        detj_error(detJaco,k);
+        set_error(1);
+      }
+      wpgdet = detJaco*WPG;
+      // dshapex.prod(iJaco,DSHAPEXI,1,-1,-1,2);
+
+      Un.prod(SHAPE,lstate,-1,-1,1);
+      Uo.prod(SHAPE,lstateo,-1,-1,1);
+      Ualpha.set(0.).axpy(Uo,1-ALPHA).axpy(Un,ALPHA);
+      tmp1.prod(Habso,SHAPE,SHAPE,2,4,1,3);
+      matloc.axpy(tmp1,ALPHA*Kabso*wpgdet);
+      dU.set(Ualpha).rest(Uref);
+      tmp2.prod(SHAPE,Habso,dU,1,2,-1,-1);
+      veccontr.axpy(tmp2,-Kabso*wpgdet);
+    }
     
     veccontr.export_vals(element.ret_vector_values(*retval));
-    if (ADVDIF_CHECK_JAC)
-      veccontr.export_vals(element.ret_fdj_values(*fdj_jac));
+    matloc.export_vals(element.ret_mat_values(*Ajac));
     
   } catch (GenericError e) {
     set_error(1);

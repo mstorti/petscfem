@@ -244,6 +244,8 @@ public:
   string check_label;
 };
 
+class prod2_subcache_t;
+
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 /// This stores the counters for the various kind of operations
 struct OperationCount {
@@ -975,6 +977,10 @@ public:
   FastMat2 & prod(const FastMat2 &A,const FastMat2 &B,
                   vector<int> &ixa,vector<int> &ixb);
 
+  // alternative version with fast creation of caches
+  FastMat2 & prod2(const FastMat2 &A,const FastMat2 &B,
+                   vector<int> &ixa,vector<int> &ixb);
+
   //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
   /** Kronecker product (also called Schur product)
       @doc If A is n x m and B is p x q, then kron returns a matrix
@@ -1499,6 +1505,12 @@ public:
   static void resync_was_cached(void);
   //@}
 
+  /// Initializes the matrix entries with integers
+  /// identifying positions, i.e. a 2x3 matrix would
+  /// be initialized to [11,12,13;21,22,23]. Usually
+  /// for debugging
+  void init123();
+
 private:
 
   /// Total storage. Should be the product of `dims'. 
@@ -1536,6 +1548,10 @@ private:
   void print2(const Indx & indxp,const Indx & fdims) const;
   /// auxiliary.  prints matrices with 1 indices.
   void print1(const Indx & indxp,const Indx & fdims) const;
+  /// Internally used by prod() 
+  void get_addresses(Indx perm,Indx Afdims,
+                     vector<double *> &ap) const;
+  friend class prod2_subcache_t;
 };
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>

@@ -82,6 +82,13 @@ inline FastVector <T,chunk_size>::FastVector(const int m,const T n) {
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 template <class T,int chunk_size>
+inline void FastVector <T,chunk_size>::set(const T n) {
+  int m = size();
+  for (int j=0; j<m; j++) (*this)[j] = n;
+}
+
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+template <class T,int chunk_size>
 void FastVector <T,chunk_size>::print(const char *s) const {
   if (s!=NULL) cout << s << "  ";
   int ndims = size();

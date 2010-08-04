@@ -18,7 +18,7 @@ iisdgraph iisdmat iisdmat2 interpola lagmul linkgraph mainutl		\
 matchg measperf metisprt penalize petscmat pfmat pfobject propef	\
 randomg readmesh rhhook secant shllhook sparse spdirect spetscmat	\
 spsolve srfgath state sttfilter surf2vol syncbuff tempfun		\
-tempfun2 texthash texthf timestat util2 util3 utils
+tempfun2 texthash texthf timestat util2 util3 utils fm2prod2
 
 # C files
 CLIBOBJS_ =  getarrgr.tab mkl_gf
@@ -109,7 +109,7 @@ readlist.h: readlist.eperl
 	$(EPERL) readlist.eperl > readlist.h
 	chmod -w readlist.h
 
-mprod.h mproddef.h: mprod.pl mprod1.h
+mprod.h mproddef.h: mprod.pl mprod1.h mprodtmpl.h
 	./mprod.pl
 
 endif
@@ -178,3 +178,7 @@ $(DOC_DIR)/odocrmsh.tex: readmesh.cpp
 
 $(DOC_DIR)/odocdxhook.tex: dxhook.cpp
 	$(run_odoc)
+
+PFVH := $(PETSCFEM_DIR)/tools/pfversion.h.undef
+pfversion.h: force
+	if ! docdate.pl -l C -o pfversion.h ; then cp $(PFVH) pfversion.h ; fi

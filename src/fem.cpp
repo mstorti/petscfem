@@ -4,22 +4,33 @@
 #include <time.h>
 #include <stdarg.h>
 
-#include "fem.h"
-#include "readmesh.h"
-#include "utils.h"
-#include "getprop.h"
-#include "pfmat.h"
+#include <src/fem.h>
+#include <src/readmesh.h>
+#include <src/utils.h>
+#include <src/getprop.h>
+#include <src/pfmat.h>
+#include <src/dvecpar.h>
 
 MPI_Comm PETSCFEM_COMM_WORLD=0;
 int MY_RANK=0, SIZE=1;
 
-int PetscFemInitialize(int *argc,char ***args,const char file[],const char help[])
-{
+int PetscFemInitialize(int *argc,char ***args,
+                       const char file[],const char help[]) {
   int ierr;
   ierr = PetscInitialize(argc,args,file,help);
   PETSCFEM_COMM_WORLD = PETSC_COMM_WORLD;
   ierr = MPI_Comm_size(PETSCFEM_COMM_WORLD,&SIZE);
   ierr = MPI_Comm_rank(PETSCFEM_COMM_WORLD,&MY_RANK);
+  // Just to resolve some linking problems
+  dvector<double> ppd;
+  dvector_clone_parallel(ppd);
+  dvector<int> ppi;
+  dvector_clone_parallel(ppi);
+  dvector<float> ppf;
+  dvector_clone_parallel(ppf);
+  dvector<char> ppc;
+  dvector_clone_parallel(ppc);
+
   return 0;
 }
 

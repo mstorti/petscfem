@@ -117,10 +117,12 @@ void read_int_array(vector<int> &v,const char * s);
 */ 
 double int_pow(double base,int exp);
 
-/** Cyclic `rem'. #rem(n,m)# computes the remainder of division but
-    extended cyclically to negative numbers so that For instance, for
+/** Cyclic `rem'. #crem(n,m)# computes the remainder of division 
+    of `n' by `m' but (in contrast with the C builtin % operator) 
+    is extended cyclically to negative numbers so that for instance, for
     the numbers #n# -4 to 4 we have: #rem (*,3) =
     {-1,0,-2,-1,0,1,2,0,1}# whereas #crem (*,3) = {2,0,1,2,0,1,2,0}#
+    [Note: this is duplicated with `modulo' defined in `utils.h' ]
 */
 int crem(int j, int m);
 

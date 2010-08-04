@@ -351,6 +351,7 @@ if (!(bool_cond)) {                             \
   PetscSynchronizedPrintf(PETSCFEM_COMM_WORLD,  \
                   "Assertion failed: \"%s\"\n", \
                    #bool_cond);                 \
+  PetscSynchronizedFlush(PETSCFEM_COMM_WORLD);  \
   PETSCFEM_ERROR0(templ);}
 
 // Only bool condition
@@ -363,6 +364,7 @@ if (!(bool_cond)) {                             \
   PetscSynchronizedPrintf(PETSCFEM_COMM_WORLD,  \
                   "Assertion failed: \"%s\"\n", \
                   #bool_cond);                  \
+  PetscSynchronizedFlush(PETSCFEM_COMM_WORLD);  \
   PETSCFEM_ERROR(templ,__VA_ARGS__);}
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>
@@ -379,6 +381,7 @@ if (!(bool_cond)) {                             \
   PetscSynchronizedPrintf(PETSCFEM_COMM_WORLD,  \
     "Warning (failed assertion): \"%s\"\n",     \
     #bool_cond);                                \
+  PetscSynchronizedFlush(PETSCFEM_COMM_WORLD);  \
   PETSCFEM_WARN0(templ);}
 
 // Bool condition and message with args 
@@ -387,6 +390,7 @@ if (!(bool_cond)) {                             \
   PetscSynchronizedPrintf(PETSCFEM_COMM_WORLD,  \
        "Warning (failed assertion): \"%s\"\n",  \
        #bool_cond);                             \
+  PetscSynchronizedFlush(PETSCFEM_COMM_WORLD);  \
   PETSCFEM_WARN(templ,__VA_ARGS__);}
 #else
 #define PETSCFEM_ASSERT petscfem_assert
