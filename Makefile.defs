@@ -98,3 +98,6 @@ LATEX2HTML = /usr/local/latex2html/latex2html
 
 #DEVELOPER_MODE := yes
 DEVELOPER_MODE := no
+
+ATLAS_LIB_DIR := /usr/lib64/atlas
+ATLAS_INC_DIR := /usr/include/atlas
