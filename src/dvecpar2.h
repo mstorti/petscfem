@@ -30,6 +30,7 @@ dvector_clone_parallel(dvector<T> &w,int root=0) {
   assert(!ierr);
   
   if (MY_RANK!=root) w.resize(size);
+  vector<int> shape;
   w.defrag();
   MPI_Datatype t = dvector_mpi_type<T>().type();
   if (t!=MPI_TYPE_UNDEFINED) {

@@ -550,6 +550,13 @@ dvector<T>::reshape(int rank_a,...) {
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 template<class T>
+void dvector<T>
+::get_shape(vector<int> &shape_a) const {
+  shape_a = shape;
+}
+
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+template<class T>
 void dvector<T>::recompute_shape() {
   int odim = 1;
   for (int k=1; k<rank_m; k++) odim *= shape[k];
