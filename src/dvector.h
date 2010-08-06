@@ -246,7 +246,7 @@ public:
   /** Reshapes the tensor with #rank# dimensions, and the rest of arguments
       are the size of each dimension.
       @param shape (input) an integer vector with the shape. */
-  dvector<T> & reshape(const vector<int> shape_a);
+  dvector<T> & reshape(const vector<int> &shape);
 
   /** Export the shape of the dvector to vector #shape#. 
       @param shape (output) External container where the shape is exported. */ 

@@ -523,18 +523,20 @@ dvector<T>::reshapev(int rank_a,va_list ap) {
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 template<class T>
 dvector<T> &
-dvector<T>::reshape(const vector<int> shape_a) {
+dvector<T>::reshape(const vector<int> &shape_a) {
   rank_m = shape_a.size();
-  assert(rank_m>0);
-  int new_size=1;
+  // assert(rank_m>0);
   shape = shape_a;
-  for (int j=0; j<rank_m; j++) {
-    int d = shape[j];
-    assert(j==0 || d>=0);
-    new_size *= d;
-  }
   shape_p = &*shape.begin();
-  assert(new_size<=0 || new_size==size());
+  if (rank_m>0) {
+    int new_size=1;
+    for (int j=0; j<rank_m; j++) {
+      int d = shape[j];
+      assert(j==0 || d>=0);
+      new_size *= d;
+    }
+    assert(new_size<=0 || new_size==size());
+  }
   return *this;
 }
 
