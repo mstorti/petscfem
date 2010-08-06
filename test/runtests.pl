@@ -694,6 +694,11 @@ expect("sparse/tryme8.output.tmp","Resize of non-empty dvectors.",
 expect("sqcav/verif.read_ini.tmp","Read_vector function.",
                         read_file("sqcav/verif.read_ini.ans"));
 
+
+#------/*/------/*/------/*/------/*/------/*/------/*/------/*/ 
+expect("dvector/dvectest.out","dvector_clone_parallel() function test",
+       "All tests OK. 1");
+
 end_section();
 
 begin_section('Advdif tests');
