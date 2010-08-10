@@ -10,3 +10,4 @@ undo.patch
 .#*
 make-tests-*.tar.gz
 *.patch
+src/pfversion.h
