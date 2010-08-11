@@ -3,6 +3,12 @@
 #$Id merge-with-petsc-233-54-g351bf64 Fri Oct 26 13:00:35 2007 -0300$
 
 # This is PETSc-FEM `Makefile.defs' file for host: generic
+# 
+MPICC  := mpicc -fPIC
+MPICXX := mpicxx -fPIC
+MPIF90 := mpif90 -fPIC
+MPILD  := ${MPICXX}
+MPIEXEC:= mpiexec
 
 ## PETSc
 ## -----
@@ -68,10 +74,6 @@ SUPERLU_LIBNAME = superlu
 WARN_FLAGS  = -Wall 
 WARN_FLAGS += -Wno-long-long -Wno-unused-variable
 #WARN_FLAGS += -pedantic
-
-# Which GNU compiler is being used (may be egc++ also, not tested however). 
-GNUCXX = g++
-FC := gfortran
 
 # Set to yes/no if you plan to use dynamically loaded functions
 # (extension `.efn'). If you have problems in linking them set to 'no'

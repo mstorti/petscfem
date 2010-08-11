@@ -34,11 +34,11 @@ run:
 	mkstepsdir.pl
 	make-depl $(CASE).epl $(CASE).depl 
 	$(MPIEXEC)  -n 1 $(PROG) -case $(CASE).depl
-#	time $(MPI_HOME)/bin/mpirun -1 -machinefile ./machi.dat -n $(NP) $(PROG) -case $(CASE).depl
+#	time $(MPIEXEC) -1 -machinefile ./machi.dat -n $(NP) $(PROG) -case $(CASE).depl
 
 mpdstart:
 	let NP1=$(NP)+1 ; \
-	$(MPI_HOME)/bin/mpdboot --file=./machi.dat -n $$NP1 --rsh=ssh
+	mpdboot --file=./machi.dat -n $$NP1 --rsh=ssh
 
 #w generate DX files
 dxo:

@@ -71,6 +71,6 @@ redir = </dev/null >$(1)
 #MPIEXEC := /usr/bin/mpiexec
 #MPIRUN  := /usr/bin/mpirun
 
-MPIEXEC := $(MPI_HOME)/bin/mpiexec
-MPIRUN  := $(MPI_HOME)/bin/mpirun
+MPIEXEC := mpiexec
+MPIRUN  := mpirun
 

@@ -72,12 +72,11 @@ nettest.bin: nettest.o
 
 NP = $(shell procsel -n $(PETSCFEM_PROCTABLE))
 # NP = $(shell procsel -n ./proctable)
-MPDRUN := $(MPI_DIR)/bin/mpdrun
 
 #w Runs test of bandwith between all processors
 run_nettest: nettest.bin
 #	$(MPIRUN) -np $(NP) -nolocal -machinefile ./machi.dat $<
-	$(MPI_HOME)/bin/mpiexec -1 -a nettest  \
+	$(MPIEXEC) -1 -a nettest  \
 		-machinefile machi.dat -np 58 $<
 
 #w Conversion form Abekas YUV format (used by DX) to standard  YUV

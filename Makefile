@@ -205,7 +205,7 @@ laplace: libpetscfem
 
 #----<*>----<*>----<*>----<*>----<*>----<*>----<*>----<*>---- 
 %.cppi: %.cpp
-	g++ -E $(CCPPFLAGS) $< > $@ ; chmod u-w $@
+	$(CXX) -E $(CCPPFLAGS) $< > $@ ; chmod u-w $@
 
 #w Resyncs some administrative files with the current version number.
 sync_version: 	
