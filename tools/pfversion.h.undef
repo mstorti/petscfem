@@ -1,3 +1,4 @@
 #define DOCVERSION "<unknown>"
 #define DOCDATE "<unknown>"
+#define DOCCOMMIT "<unknown>"
 #define PROCESSEDDATE "<unknown>"

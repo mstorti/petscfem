@@ -299,6 +299,13 @@ new_assemble_ALE_formulation(arg_data_list &arg_data_v,const Nodedata *nodedata,
   Id_ndim.eye();
 
   v_mesh.resize(1,ndim);
+  PETSCFEM_ASSERT(nH >= ndim,"This element requires the old mesh "
+                  "position to be passed as an H field. nH %d, ndim %d",
+                  nH,ndim);
+  PETSCFEM_ASSERT(indx_ALE_xold >= nH+1-ndim,
+                  "bad indx_ALE_xold, not remaining enough columns. "
+                  "indx_ALE_xold %d, nH %d, ndim %d",
+                  indx_ALE_xold,nH,ndim);  
 
   FastMatCacheList cache_list;
   if (use_fastmat2_cache) FastMat2::activate_cache(&cache_list);
@@ -362,8 +369,6 @@ new_assemble_ALE_formulation(arg_data_list &arg_data_v,const Nodedata *nodedata,
       }
     
       // nodal computation of mesh velocity
-      assert(nH >= ndim);
-      assert(indx_ALE_xold >= nH+1-ndim);
       Hloc.is(2, indx_ALE_xold, indx_ALE_xold+ndim-1);
       xloc_old.set(Hloc);
       Hloc.rs();

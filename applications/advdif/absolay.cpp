@@ -93,13 +93,22 @@ new_assemble(arg_data_list &arg_data_v,const Nodedata *nodedata,
 
   //o Gravity
   NSGETOPTDEF(double,gravity,0.0);
-  //o Reference water depth
-  NSGETOPTDEF(double,h0,0.0);
+
+  //o Contains the Habso matrix: Hp (ndof x ndof),
+  //  Hm (ndof x ndof),Uref (ndof)
+  NGETOPTDEF_S(string,habso_file,"<none>");
+  PETSCFEM_ASSERT0(habso_file!="<none>","habso_mat is required");  
+
   //o Scales volume damping term
   NSGETOPTDEF(double,Kabso,1.0);
   PETSCFEM_ASSERT0(Kabso>=0.0,
                    "Kabso must be non-negatvive");  
-
+  
+  dvector<double> habso_data;
+  habso_data.cat(habso_file.c_str());
+  PETSCFEM_ASSERT(habso_data.size()==2*ndof*ndof+ndof,
+                  "habso_data must be 2*ndof*ndof. ndof %d, "
+                  "habso_data size %d",ndof,habso_data.size());
   // Initialize flux functions
   int ff_options=0;
   // adv_diff_ff->start_chunk(ff_options);
@@ -129,6 +138,7 @@ new_assemble(arg_data_list &arg_data_v,const Nodedata *nodedata,
   FastMat2 Habso(2,ndof,ndof),Un(1,ndof),Uo(1,ndof),Ualpha(1,ndof),
     Uref(1,ndof),Jaco(2,ndimel,ndim),iJaco(2,ndimel,ndimel),
     dU(1,ndof),dshapex(2,ndimel,nel), normal(1,ndim),tmp1,tmp2;
+
 #if 0
   static int flag=0;
   static FastMat2 Habsoc(2,ndof,ndof);
@@ -141,16 +151,22 @@ new_assemble(arg_data_list &arg_data_v,const Nodedata *nodedata,
     Habsoc.axpy(tmp4,0.25);
   }
   Habso.set(Habsoc);
-#else
+#elif 0
   Habso.eye(h0).setel(1.0,ndim+1,ndim+1);
+#else
+  Habso.set(habso_data.buff()+ndof*ndof);
 #endif
+  Habso.print("Habso:");
+  Uref.set(habso_data.buff()+2*ndof*ndof);
+  Uref.print("Uref:");
+  PetscFinalize();
+  exit(0);
   
 #if 0
   Habso.print("Habso: ");
   PetscFinalize();
   exit(0);
 #endif
-  Uref.set(0.0).setel(h0,ndof);
   
   nen = nel*ndof;
 
