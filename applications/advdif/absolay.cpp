@@ -160,8 +160,19 @@ new_assemble(arg_data_list &arg_data_v,const Nodedata *nodedata,
     PETSCFEM_ASSERT(habso_data.size()==2*ndof*ndof+ndof,
                     "habso_data must be 2*ndof*ndof. ndof %d, "
                     "habso_data size %d",ndof,habso_data.size());
-    Habso.set(habso_data.buff()+ndof*ndof);
-    Habso.print("Habso:");
+    if (0) {
+      Habso.set(habso_data.buff());
+      Habso.print("Habso = Hp:");
+    } else if(0) {
+      Habso.set(habso_data.buff()+ndof*ndof);
+      Habso.print("Habso = Hm:");
+    } else {
+      FastMat2 Haux(2,ndof,ndof);
+      Habso.set(habso_data.buff());
+      Haux.set(habso_data.buff()+ndof*ndof);
+      Habso.add(Haux);
+      Habso.print("Habso = Hp+Hm:");
+    }
     Uref.set(habso_data.buff()+2*ndof*ndof);
     Uref.print("Uref:");
   }
