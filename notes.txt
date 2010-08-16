@@ -17202,3 +17202,22 @@ viejo. Puede ser el overhead por el multiprod??
 %--[2010-07-30.15:33:46.mstorti-v32-start-46-gfe722ee]-----
 Si efectivamente desactivo el multiprod con USE_MPROD_FOR_2MATS y baja
 a 12.6secs. 
+
+%=== Mon Aug 16 20:02:21 2010 mstorti@aquiles
+%
+%--[2010-08-16.23:02:21.mstorti-v33-start-7-gedae2aa]-----
+Empiezo a implementar el tema de la capa absorbente de alto
+orden. Primero la implemento de primer ordeny verifico que produzca
+reflexiones para incidencia no normal. Para eso le pongo a la
+izquierda una condicion de contorno tipo \propto
+sin(omega*t+ky*y). 
+%
+Una forma de verificar si hay reflexion es promediar en el tiempo la
+amplitud entonces si hay reflexion te aparece en la amplitud una
+oscilacion (porque se parece a una standing wave) mientras que si NO
+hay reflexion entonces la amplitud deberia ser constante. 
+%
+Entonces verifico que con la condicion estándar (H\propto Hplus(theta=0)) donde
+Hplus = V*(D>0)*inv(V) se obtiene una cierta reflexion, mientras que
+con H \propto Hplus(theta=thetain) no hay oscilacion. En forma
+preliminar parece estar bien pero quiero hacer un doble chequeo. 

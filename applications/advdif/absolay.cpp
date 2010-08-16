@@ -160,7 +160,7 @@ new_assemble(arg_data_list &arg_data_v,const Nodedata *nodedata,
     PETSCFEM_ASSERT(habso_data.size()==2*ndof*ndof+ndof,
                     "habso_data must be 2*ndof*ndof. ndof %d, "
                     "habso_data size %d",ndof,habso_data.size());
-    if (0) {
+    if (1) {
       Habso.set(habso_data.buff());
       Habso.print("Habso = Hp:");
     } else if(0) {
