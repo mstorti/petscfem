@@ -286,6 +286,8 @@ void ld_elasticity_load
     }
     double wpgdet = detJaco*wpg.get(ipg+1);
     tmp.prod(shape,nor,1,2);
+    // FIXME:= should be
+    // res.axpy(tmp,-pressure**wpg.get(ipg+1));
     res.axpy(tmp,-pressure);
   }
   dshapexi.rs();
