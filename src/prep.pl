@@ -87,9 +87,9 @@ sub in_place_all {
     in_place('scale','**to++ *= val');
     in_place('add','**to++ += val');
     in_place('rcp','**to = val/(**to); to++',{'FUN_ARGS' => 'const double val'});
-    in_place('fun','**to = (*fun_)(**to); **to++',
+    in_place('fun','**to = (*fun_)(**to); to++',
 	     {'FUN_ARGS' => 'scalar_fun_t *fun_'});
-    in_place('fun','**to = (*fun_)(**to,user_args); **to++',
+    in_place('fun','**to = (*fun_)(**to,user_args); to++',
   	     {'FUN_ARGS' => 'scalar_fun_with_args_t *fun_,void *user_args'});
 }
 
