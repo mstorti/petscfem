@@ -307,14 +307,21 @@ assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
   TGETOPTDEF(thash,double,epsilon,0.);
 
   // Parameters for FS absorbing layer (FSABSO)
-  //o Reference height for FS absorbing layer
-  TGETOPTDEF(thash,double,fsabso_h0,0.0);
   //o Intensity factor for FS absorbing layer
   TGETOPTDEF(thash,double,fsabso_K,0.0);
+  //o Activates or deactivates the use of FS abso layer
+  TGETOPTDEF(thash,int,use_fsabso,fsabso_K!=0.0);
+  // Parameters for FS absorbing layer (FSABSO)
+  //o Reference height for FS absorbing layer
+  TGETOPTDEF(thash,double,fsabso_h0,0.0);
+  //o Reference position of FS, for FS absorbing layer
+  TGETOPTDEF(thash,double,fsabso_zref,0.0);
   //o The mean velocity at the boundary, for the absorbing layer
   TGETOPTDEF(thash,double,fsabso_u0,0.0);
   //o The atmospheric pressure
   TGETOPTDEF(thash,double,fsabso_patm,0.0);
+  //o The direction normal to the boundary
+  TGETOPTDEF(thash,int,fsabso_normal_dir,1);
 
   double gravity = G_body.norm_2_all();
   double fsabso_c0 = sqrt(gravity*fsabso_h0);
@@ -362,9 +369,10 @@ assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
   // for nodal computation of rho and nu
   FastMat2 r01(1,nel),phisum(1,nel),phires(1,nel),phi0(1,nel),phi(1,nel);
   FastMat2 v01(1,nel), fsabso_nor(1,ndim),tmp32,tmp31;
-  // FIXME:= sets FS abso normal to x-axis
-  fsabso_nor.set(0.0).setel(1,1.0);
   
+  // FIXME:= sets FS abso normal to the boundary
+  fsabso_nor.set(0.0).setel(1.0,fsabso_normal_dir);
+
   // for calculation of mass 
  
   if (axi) assert(ndim==3);
@@ -790,7 +798,7 @@ assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
 	}
 	
         double fsabso_cont = 0.0;
-        if (fsabso_K) {
+        if (use_fsabso) {
           tmp32.prod(u_star,fsabso_nor,-1,-1);
           double du = double(tmp32) - fsabso_u0;
           tmp31.prod(xloc,SHAPE,G_body,-1,-2,-1,-2);
@@ -798,9 +806,11 @@ assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
           double deta 
             = (p_star - fsabso_patm)/(rho*gravity) 
             + (zpg - fsabso_h0);
-          double fsabso_mom = (-fsabso_c0/fsabso_h0*deta+du)*(fsabso_u0-fsabso_c0);
-          fsabso_cont = (fsabso_u0-fsabso_c0)*deta-fsabso_h0/fsabso_c0*du;
-          dmatu.axpy(fsabso_K*fsabso_mom,fsabso_nor);
+          double fsabso_mom = fsabso_K*fsabso_h0*(fsabso_u0-fsabso_c0)
+            *(deta/fsabso_h0-du/fsabso_c0);
+          fsabso_cont = fsabso_K*fsabso_c0*(fsabso_u0-fsabso_c0)
+            *(deta/fsabso_h0-du/fsabso_c0);
+          dmatu.axpy(fsabso_nor,fsabso_K*fsabso_mom);
         }
 	
 	// Galerkin - momentum

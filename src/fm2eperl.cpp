@@ -2728,7 +2728,7 @@ FastMat2 & FastMat2::fun(scalar_fun_t *fun_) {
   double **to = cache->pto;
   double **to_end = to + cache->nelems;
   while (to<to_end) {
-    **to = (*fun_)(**to); **to++;
+    **to = (*fun_)(**to); to++;
   }
 
   if (!ctx->use_cache) delete cache;
@@ -2761,7 +2761,7 @@ FastMat2 & FastMat2::fun(scalar_fun_with_args_t *fun_,void *user_args) {
   double **to = cache->pto;
   double **to_end = to + cache->nelems;
   while (to<to_end) {
-    **to = (*fun_)(**to,user_args); **to++;
+    **to = (*fun_)(**to,user_args); to++;
   }
 
   if (!ctx->use_cache) delete cache;
