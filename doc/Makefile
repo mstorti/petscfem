@@ -71,7 +71,7 @@ petscfem.pdf: latex
 
 #w copies petscfem.pdf to venus server
 cpydoc:
-	scp petscfem.pdf venus.ceride.gov.ar:public_html/petscfem
+	scp petscfem.pdf venus.santafe-conicet.gov.ar:public_html/petscfem
 
 manual.ps.gz: force
 	$(MAKE) -C manual ps
