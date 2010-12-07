@@ -498,6 +498,8 @@ public:
   NewAssembleFunction new_assemble;
   /// The assemble function for the elemset (version with ALE+GCL formulation)
   NewAssembleFunction new_assemble_ALE_formulation;
+  /// The assemble function for the elemset (version with BDF time integration)
+  NewAssembleFunction new_assemble_BDF;
   /// The assemble function for the elemset (version with GCL)
   NewAssembleFunction new_assemble_GCL_compliant;
   /// The assemble function for the elemset (version with PRECO)

@@ -20,7 +20,7 @@ LIBOBJS = advdif.o advdif_bubbly.o advdif_fsi.o compdate.o		\
 	advpenal.o absolay.o advdife-gcl.o advdife-ale.o streamsw2dt.o  \
 	streamsw2d.o strat_sw2d.o advdife_dual_time.o gasflow_preco.o	\
 	streamsw2d.o strat_sw2d.o advabsow.o advdif_dual_time.o         \
-	bccadvfm2.o bccadvfm2_old.o volabso.o
+	bccadvfm2.o bccadvfm2_old.o volabso.o advdife-bdf.o
 
 MYOBJS = 
 
