@@ -89,6 +89,9 @@ int bdf_main() {
   ierr = read_mesh(mesh,fcase,dofmap,neq,SIZE,MY_RANK); CHKERRA(ierr);
   GLOBAL_OPTIONS = mesh->global_options;
 
+  // Use BDF integration scheme
+  GETOPTDEF(int,use_BDF,0);
+
   //o Activate debugging
   GETOPTDEF(int,activate_debug,0);
   if (activate_debug) {
@@ -207,6 +210,9 @@ int bdf_main() {
   //o The parameter of the trapezoidal rule
   // for temporal integration. 
   GETOPTDEF(double,alpha,1.);
+  if (use_BDF) {
+    PETSCFEM_ASSERT0(alpha==1.0,"If use_BDF is in effect, then alpha must be 1");  
+  }
   glob_param.alpha=alpha;
 #define ALPHA (glob_param.alpha)
   if (ALPHA>0.) {
@@ -306,10 +312,12 @@ int bdf_main() {
 
   // initialize vectors
   ierr = VecDuplicate(x,&xold); CHKERRA(ierr);
-  ierr = VecDuplicate(x,&xn); CHKERRA(ierr);
-  ierr = VecDuplicate(x,&xn1); CHKERRA(ierr);
   ierr = VecDuplicate(x,&dx); CHKERRA(ierr);
   ierr = VecDuplicate(x,&res); CHKERRA(ierr);
+  if (use_BDF) {
+    ierr = VecDuplicate(x,&xn); CHKERRA(ierr);
+    ierr = VecDuplicate(x,&xn1); CHKERRA(ierr);
+  }
 
   // Set pointers in glob_param
   glob_param.x = x;
@@ -343,7 +351,9 @@ int bdf_main() {
 
   //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
   ierr = opt_read_vector(mesh,x,dofmap,MY_RANK); CHKERRA(ierr);
-  ierr = VecCopy(x,xn); CHKERRA(ierr);
+  if (use_BDF) {
+    ierr = VecCopy(x,xn); CHKERRA(ierr);
+  }
 
   //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:
   // This is for taking statistics of the
@@ -378,15 +388,18 @@ int bdf_main() {
     if (RENORM_flag)
       ierr = read_vector("state-ren.tmp",x,dofmap,MY_RANK); CHKERRA(ierr);
 
-    ierr = VecCopy(xn,xn1); CHKERRA(ierr);
-    ierr = VecCopy(x,xn); CHKERRA(ierr);
-
     // Compute xold = (4*x^{n} - x^{n-1})/3.0
-    ierr = VecCopy(xn,xold); CHKERRA(ierr);
-    double scal = 4.0/3.0;
-    ierr = VecScale(xold,scal);
-    scal = -1.0/3.0;
-    ierr = VecAXPY(xold,scal,xn1);
+    if (use_BDF) {
+      ierr = VecCopy(xn,xn1); CHKERRA(ierr);
+      ierr = VecCopy(x,xn); CHKERRA(ierr);
+      ierr = VecCopy(xn,xold); CHKERRA(ierr);
+      double scal = 4.0/3.0;
+      ierr = VecScale(xold,scal);
+      scal = -1.0/3.0;
+      ierr = VecAXPY(xold,scal,xn1);
+    } else {
+      ierr = VecCopy(x,xold); CHKERRA(ierr);
+    }
 
     //    hook_list.time_step_pre(time_star.time(),tstep);
     hook_list.time_step_pre(time.time()+Dt,tstep); //hook needs t_{n+1}
@@ -624,10 +637,12 @@ int bdf_main() {
 
   ierr = VecDestroy(x); CHKERRA(ierr); 
   ierr = VecDestroy(xold); CHKERRA(ierr); 
-  ierr = VecDestroy(xn); CHKERRA(ierr); 
-  ierr = VecDestroy(xn1); CHKERRA(ierr); 
   ierr = VecDestroy(dx); CHKERRA(ierr); 
   ierr = VecDestroy(res); CHKERRA(ierr); 
+  if (use_BDF) {
+    ierr = VecDestroy(xn); CHKERRA(ierr); 
+    ierr = VecDestroy(xn1); CHKERRA(ierr); 
+  }
 #ifdef DIAG_MAT_MATRIX
   ierr = MatDestroy(A); CHKERRA(ierr); 
 #endif
