@@ -44,6 +44,7 @@ new_assemble_BDF(arg_data_list &arg_data_v,const Nodedata *nodedata,
 
   NSGETOPTDEF(int,npg,0); //nd
   NSGETOPTDEF(int,ndim,0); //nd
+  NSGETOPTDEF(int,use_BDF,0); //nd
   assert(npg > 0);
   assert(ndim > 0);
 
@@ -86,6 +87,11 @@ new_assemble_BDF(arg_data_list &arg_data_v,const Nodedata *nodedata,
   // The trapezoidal rule integration parameter
 #define ALPHA (glob_param->alpha)
 #define DT (glob_param->Dt)
+  double dhdt_term_coef = 1.0;
+  if (use_BDF) {
+    PETSCFEM_ASSERT0(ALPHA==1.0,"If use_BDF is set, then alpha must be 1.0");  
+    dhdt_term_coef = 1.5;
+  }
 
   arg_data *staten = NULL, *stateo = NULL, *retval = NULL,
     *fdj_jac = NULL, *jac_prof = NULL, *Ajac = NULL;
@@ -471,9 +477,9 @@ new_assemble_BDF(arg_data_list &arg_data_v,const Nodedata *nodedata,
 	  // Hn represents H in time t^{n+1} so that it must be affected
 	  // by detJaco_new
 	  dHdt.set(Hn).scale(detJaco_new/detJaco).axpy(Ho,-detJaco_old/detJaco)
-	    .scale(rec_Dt_m);
+	    .scale(rec_Dt_m*dhdt_term_coef);
 	  // This is plain dH/dt
-	  dHdt2.set(Hn).rest(Ho).scale(rec_Dt_m);
+	  dHdt2.set(Hn).rest(Ho).scale(rec_Dt_m*dhdt_term_coef);
 
 	  dHdt.rs();
 
@@ -629,7 +635,7 @@ new_assemble_BDF(arg_data_list &arg_data_v,const Nodedata *nodedata,
 	  if (!lumped_mass) {
 	    adv_diff_ff->enthalpy_fun
 	      ->comp_W_Cp_N(N_Cp_N,SHAPE,SHAPE,
-			    detJaco_new*WPG*rec_Dt_m/ALPHA);
+			    detJaco_new*WPG*rec_Dt_m*dhdt_term_coef/ALPHA);
 	    matlocf.add(N_Cp_N);
 	  }
 	  adv_diff_ff->set_state(U); //vuelvo a t_{n+alpha}
@@ -844,7 +850,7 @@ new_assemble_BDF(arg_data_list &arg_data_v,const Nodedata *nodedata,
 		matlocf.add(N_P_C);
 	      }
 	      
-	      tmp21.set(SHAPE).scale(wpgdet*rec_Dt_m/ALPHA);
+	      tmp21.set(SHAPE).scale(wpgdet*rec_Dt_m*dhdt_term_coef/ALPHA);
 	      adv_diff_ff->enthalpy_fun->comp_P_Cp(P_Cp,P_supg);
 	      tmp22.prod(P_Cp,tmp21,1,3,2);
 	      matlocf.add(tmp22);

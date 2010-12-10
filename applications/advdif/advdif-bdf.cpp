@@ -16,9 +16,6 @@
 
 #include <time.h>
 
-static char help[] = "Basic finite element program.\n\n";
-
-
 extern int print_internal_loop_conv_g;
 extern int consistent_supg_matrix_g;
 extern int  local_time_step_g;
@@ -34,33 +31,18 @@ ierr = VecView(name,matlab); CHKERRA(ierr)
 #define PetscViewerSetFormat_WRAPPER(viewer,format,name) \
           PetscViewerSetFormat(viewer,format)
 
-int bubbly_main();
-int fsi_main();
-int bdf_main();
-int dual_time_main();
-
 Hook *advdif_hook_factory(const char *name);
 
 //-------<*>-------<*>-------<*>-------<*>-------<*>------- 
 #undef __FUNC__
 #define __FUNC__ "advdif_main"
-int advdif_main(int argc,char **args) {
+int bdf_main(int argc,char **args) {
 
-  PetscFemInitialize(&argc,&args,(char *)0,help);
-  
 #define CNLEN 100
   PetscTruth flg;
   char code_name[CNLEN];
-  int ierr = PetscOptionsGetString(PETSC_NULL,"-code",code_name,CNLEN,&flg);
+  int ierr;
 
-  if (flg) {
-    if (!strcmp(code_name,"fsi")) return fsi_main();
-    if (!strcmp(code_name,"bdf")) return bdf_main();
-    if (!strcmp(code_name,"bubbly")) return bubbly_main();
-    if (!strcmp(code_name,"dual_time")) return dual_time_main();
-    PETSCFEM_ERROR("Unknown -code option: \"%s\"\n",code_name);
-  }
-  
   Vec     x, dx, xold, res; /* approx solution, RHS, residual*/
   PFMat *A,*AA;			// linear system matrix 
   PFMat *A_tet, *A_tet_c;

@@ -145,7 +145,7 @@ before_assemble(arg_data_list &arg_datav,Nodedata *nodedata,
   //o Use the ALE+GCL formulation versin of the algorithm 
   NSGETOPTDEF_ND(int,use_ALE_form,0);
   //o Use the BDF time integrator
-  NSGETOPTDEF_ND(int,use_BDF,0);
+  NSGETOPTDEF_ND(int,use_BDF_advdife,0);
 
 #if 0
   //o Flags whether we are solving a precondioned
@@ -229,7 +229,7 @@ void NewAdvDif::new_assemble(arg_data_list &arg_data_v,const Nodedata *nodedata,
 				 dofmap,jobinfo,elemlist,time_data);
     return;
   }
-  if (use_BDF) {
+  if (use_BDF_advdife) {
     new_assemble_BDF(arg_data_v,nodedata,
                      dofmap,jobinfo,elemlist,time_data);
     return;
