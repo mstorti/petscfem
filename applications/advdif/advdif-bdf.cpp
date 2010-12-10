@@ -35,15 +35,15 @@ Hook *advdif_hook_factory(const char *name);
 
 //-------<*>-------<*>-------<*>-------<*>-------<*>------- 
 #undef __FUNC__
-#define __FUNC__ "advdif_main"
-int bdf_main(int argc,char **args) {
+#define __FUNC__ "bdf_main"
+int bdf_main() {
 
 #define CNLEN 100
   PetscTruth flg;
   char code_name[CNLEN];
   int ierr;
 
-  Vec     x, dx, xold, res; /* approx solution, RHS, residual*/
+  Vec     x, dx, xold, xn, xn1, res; /* approx solution, RHS, residual*/
   PFMat *A,*AA;			// linear system matrix 
   PFMat *A_tet, *A_tet_c;
   double  *sol, scal, normres, normres_ext=NAN;    /* norm of solution error */
@@ -306,6 +306,8 @@ int bdf_main(int argc,char **args) {
 
   // initialize vectors
   ierr = VecDuplicate(x,&xold); CHKERRA(ierr);
+  ierr = VecDuplicate(x,&xn); CHKERRA(ierr);
+  ierr = VecDuplicate(x,&xn1); CHKERRA(ierr);
   ierr = VecDuplicate(x,&dx); CHKERRA(ierr);
   ierr = VecDuplicate(x,&res); CHKERRA(ierr);
 
@@ -375,7 +377,16 @@ int bdf_main(int argc,char **args) {
     if (RENORM_flag)
       ierr = read_vector("state-ren.tmp",x,dofmap,MY_RANK); CHKERRA(ierr);
 
-    ierr = VecCopy(x,xold);
+    ierr = VecCopy(xn,xn1); CHKERRA(ierr);
+    ierr = VecCopy(x,xn); CHKERRA(ierr);
+
+    // Compute xold = (4*x^{n} - x^{n-1})/3.0
+    ierr = VecCopy(xn,xold); CHKERRA(ierr);
+    double scal = 4.0/3.0;
+    ierr = VecScale(xold,scal);
+    scal = -1.0/3.0;
+    ierr = VecAXPY(xold,scal,xn1);
+
     //    hook_list.time_step_pre(time_star.time(),tstep);
     hook_list.time_step_pre(time.time()+Dt,tstep); //hook needs t_{n+1}
 
@@ -612,6 +623,8 @@ int bdf_main(int argc,char **args) {
 
   ierr = VecDestroy(x); CHKERRA(ierr); 
   ierr = VecDestroy(xold); CHKERRA(ierr); 
+  ierr = VecDestroy(xn); CHKERRA(ierr); 
+  ierr = VecDestroy(xn1); CHKERRA(ierr); 
   ierr = VecDestroy(dx); CHKERRA(ierr); 
   ierr = VecDestroy(res); CHKERRA(ierr); 
 #ifdef DIAG_MAT_MATRIX

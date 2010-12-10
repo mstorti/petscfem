@@ -88,10 +88,6 @@ new_assemble_BDF(arg_data_list &arg_data_v,const Nodedata *nodedata,
 #define ALPHA (glob_param->alpha)
 #define DT (glob_param->Dt)
   double dhdt_term_coef = 1.0;
-  if (use_BDF) {
-    PETSCFEM_ASSERT0(ALPHA==1.0,"If use_BDF is set, then alpha must be 1.0");  
-    dhdt_term_coef = 1.5;
-  }
 
   arg_data *staten = NULL, *stateo = NULL, *retval = NULL,
     *fdj_jac = NULL, *jac_prof = NULL, *Ajac = NULL;
@@ -115,6 +111,11 @@ new_assemble_BDF(arg_data_list &arg_data_v,const Nodedata *nodedata,
 #ifdef CHECK_JAC
     fdj_jac = &arg_data_v[++j];
 #endif
+  }
+
+  if (use_BDF && glob_param) {
+    PETSCFEM_ASSERT0(ALPHA==1.0,"If use_BDF is set, then alpha must be 1.0");  
+    dhdt_term_coef = 1.5;
   }
 
   FastMat2 matlocf(4,nel,ndof,nel,ndof),
