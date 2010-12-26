@@ -362,7 +362,8 @@ int bdf_main() {
 #define STAT_STEPS 5
   double cpu[STAT_STEPS],cpuav;
   int update_jacobian_this_step,update_jacobian_this_iter;
-  for (int tstep=1; tstep<=nstep; tstep++) {
+  int stage = 0, tstep=0;
+  while (tstep<=nstep) {
     time_star.set(time.time()+alpha*Dt);
     // Take cputime statistics
     if (MY_RANK==0) {
@@ -543,6 +544,29 @@ int bdf_main() {
       ierr = VecAXPY(x,scal,dx);
       if (normres < tol_newton) break;
     }
+#if 0
+    // 2nd order initialization version 1
+    if (use_BDF && tstep==1) {
+      scal = 1.5;
+      ierr = VecScale(x,scal);
+      scal = -0.5;
+      ierr = VecAXPY(x,scal,xold);
+    }
+#elif 1
+    // 2nd order initialization version 2
+    if (use_BDF && stage==0 && tstep==2) {
+      scal = -0.875;
+      ierr = VecScale(x,scal); CHKERRQ(ierr);
+      scal = 2.15625;
+      ierr = VecAXPY(x,scal,xold); CHKERRQ(ierr);
+      scal = - 0.28125;
+      ierr = VecAXPY(x,scal,xn1); CHKERRQ(ierr);
+      ierr = VecCopy(xn1,xold); CHKERRA(ierr);
+      time.inc(-Dt);
+      tstep--;
+      stage = 1;
+    }
+#endif
 
     // Prints residual and mass matrix in Matlab format
     // Define time step depending on strategy. Automatic time step,
@@ -626,7 +650,7 @@ int bdf_main() {
       print_some(save_file_some.c_str(),x,dofmap,node_list,&time);
     
     if (normres_ext < tol_steady) break;
-      
+    tstep++;
   }
   hook_list.close();
 
