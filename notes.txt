@@ -17221,3 +17221,42 @@ Entonces verifico que con la condicion estándar (H\propto Hplus(theta=0)) donde
 Hplus = V*(D>0)*inv(V) se obtiene una cierta reflexion, mientras que
 con H \propto Hplus(theta=thetain) no hay oscilacion. En forma
 preliminar parece estar bien pero quiero hacer un doble chequeo. 
+
+%=== Tue Aug 17 09:10:15 2010 mstorti@aquiles
+%
+%--[2010-08-17.12:10:15.mstorti-v33-start-8-gd5f603d]-----
+Con Habso(theta=0) da un ripple de 
+havmean 0.040, ripple 0.002 (rel 5.181%)
+%
+%--[2010-08-17.12:42:48.mstorti-v33-start-8-gd5f603d]-----
+Con Habso(theta=-) no da nada de ripple!!
+%
+%--[2010-08-17.13:04:59.mstorti-v33-start-8-gd5f603d]-----
+Con Habso(theta=+) da más ripple que con theta=0, o sea que está
+bien. 
+havmean 0.040, ripple 0.003 (rel 7.149%)
+%
+%--[2010-08-17.13:15:03.mstorti-v33-start-8-gd5f603d]-----
+Efectivamente vuelvo a correr con -ky y me da 0 ripple. 
+
+%=== Thu Aug 19 10:43:17 2010 mstorti@aquiles
+%
+%--[2010-08-19.13:43:17.mstorti-v33-start-8-gd5f603d]-----
+Voy a probar a ver si poniendo alfa=0.5 se mejora la disipación, o sea
+la amplitud no disminuye tanto con x. 
+%
+%--[2010-08-19.14:00:53.mstorti-v33-start-8-gd5f603d]-----
+Efectivamente con alpha=0.5 decae bastante menos. Para cuantificar
+digamos que con alpha=0.55 decae de 0.045 a 0.037 en L=0.5 (20 %),
+mientras que con alpha=0.5 decae de 0.045 a 0.043 (5%). 
+%
+%--[2010-08-19.17:58:16.mstorti-v33-start-8-gd5f603d]-----
+Con la malla refinada la amortiguación no cambia mucho. 
+%
+%--[2010-08-19.19:54:35.mstorti-v33-start-8-gd5f603d]-----
+Noto que hay un poco de reflexión en x=Lx+Labso y como en realidad no
+estamos filtrando las LG waves, debe ser eso. Así que voy a desrefinar
+(ref=2) y aumentar el Kabso. 
+%
+%--[2010-08-19.20:32:00.mstorti-v33-start-8-gd5f603d]-----
+No hace nada. 
