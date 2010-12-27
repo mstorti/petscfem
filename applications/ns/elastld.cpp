@@ -226,7 +226,19 @@ void ld_elasticity_load
 #define MAXPROPS 100
   elprpsindx.mono(MAXPROPS);
   propel.mono(MAXPROPS);
+
+  force.resize(1,ndim).set(0.);
+  const char *line2;
+  vector<double> force_v;
+  thash->get_entry("Tractions",line2);
+  if(line2) {
+    read_double_array(force_v,line2);
+    assert(force_v.size()==(unsigned int)ndim);
+    force.set(&force_v[0]);
+    //printf("Readed Tractions Fx=%f Fy=%f Fz=%f  \n",force_v[0],force_v[1],force_v[2]);
+  }
   
+
   int ierr, iprop=0;
   pressure_indx = iprop; 
   ierr = get_prop(iprop,elem_prop_names,
@@ -236,10 +248,13 @@ void ld_elasticity_load
 
   //o Poisson ratio
   TGETOPTDEF(thash,double,defo_fac,1.);
-
+  //o Use new formulation (swap eqs, and rewrite acceleration)
+  TGETOPTDEF_ND(thash,int,use_new_form,1);
+  
   nor.resize(1,ndim);
   Jaco.resize(2,ndimel,ndim);
   tmp.resize(2,nel,ndim);
+  tmp1.resize(2,nel,ndim);
 }
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>
@@ -254,7 +269,12 @@ void ld_elasticity_load
 	     &(ELEMPROPS(elem,0)));
 
   double pressure = *(propel.buff()+pressure_indx);
-  res.is(2,ndim+1,2*ndim);
+  
+  if (use_new_form) {
+    res.is(2,1,ndim);
+  }else{
+    res.is(2,ndim+1,2*ndim);
+  }
 
   xstar.set(xloc);
 
@@ -285,8 +305,10 @@ void ld_elasticity_load
       set_error(1);
     }
     double wpgdet = detJaco*wpg.get(ipg+1);
-    tmp.prod(shape,nor,1,2);
-    res.axpy(tmp,-pressure);
+
+    tmp.prod(shape,nor,1,2).scale(-wpg.get(ipg+1)*pressure);
+    tmp1.prod(shape,force,1,2).scale(wpgdet);
+    res.add(tmp).add(tmp1);
   }
   dshapexi.rs();
   shape.rs();

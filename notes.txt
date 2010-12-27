@@ -17202,3 +17202,46 @@ viejo. Puede ser el overhead por el multiprod??
 %--[2010-07-30.15:33:46.mstorti-v32-start-46-gfe722ee]-----
 Si efectivamente desactivo el multiprod con USE_MPROD_FOR_2MATS y baja
 a 12.6secs. 
+
+%=== Mon Aug 16 20:02:21 2010 mstorti@aquiles
+%
+%--[2010-08-16.23:02:21.mstorti-v33-start-7-gedae2aa]-----
+Empiezo a implementar el tema de la capa absorbente de alto
+orden. Primero la implemento de primer ordeny verifico que produzca
+reflexiones para incidencia no normal. Para eso le pongo a la
+izquierda una condicion de contorno tipo \propto
+sin(omega*t+ky*y). 
+%
+Una forma de verificar si hay reflexion es promediar en el tiempo la
+amplitud entonces si hay reflexion te aparece en la amplitud una
+oscilacion (porque se parece a una standing wave) mientras que si NO
+hay reflexion entonces la amplitud deberia ser constante. 
+%
+Entonces verifico que con la condicion estándar (H\propto Hplus(theta=0)) donde
+Hplus = V*(D>0)*inv(V) se obtiene una cierta reflexion, mientras que
+con H \propto Hplus(theta=thetain) no hay oscilacion. En forma
+preliminar parece estar bien pero quiero hacer un doble chequeo. 
+
+%=== Fri Dec 10 07:24:10 2010 mstorti@galileo
+%
+%--[2010-12-10.10:24:10.mstorti-v33-start-18-g37d0c50]-----
+Implementando la BDF en `advdif'. Agrego un `advdif_bdf' y un
+`advdife-bdf'. Corro un test 1D de una Gaussiana siendo transportada
+con adveccion lineal y parece que anda bien. Ahora voy a cuantificar
+como es la disipacion con respecto a Crank-Nicholson. 
+%
+%--[2010-12-10.10:53:07.mstorti-v33-start-18-g37d0c50]-----
+Con BDF da muy poco disipativo pero al arrancar tiene un error
+importante debido a que la inicializacion esta mal. 
+%
+   BDF       ALPHA=0.5 ALPHA=1
+   0.98972   0.99951   0.98099
+   0.98457   0.99702   0.89929
+   0.98230   0.99448   0.83463
+   0.97931   0.99190   0.78198
+   0.97571   0.98928   0.73810
+   0.97159   0.98662   0.70087
+   0.96704   0.98393   0.66899
+   0.96373   0.98122   0.64105
+   0.96085   0.97848   0.61632
+   0.95758   0.97572   0.59423

@@ -22,19 +22,19 @@ extern int comp_mat_each_time_step_g,
 #undef __FUNC__
 #define __FUNC__ "NewAdvDif::assemble"
 void NewAdvDif::
-new_assemble_ALE_formulation(arg_data_list &arg_data_v,const Nodedata *nodedata,
-			     const Dofmap *dofmap,const char *jobinfo,
-			     const ElementList &elemlist,
-			     const TimeData *time_data) try {
-  static int use_ALE_formulation_reported = 0;
-  if (!use_ALE_formulation_reported) {
+new_assemble_BDF(arg_data_list &arg_data_v,const Nodedata *nodedata,
+                 const Dofmap *dofmap,const char *jobinfo,
+                 const ElementList &elemlist,
+                 const TimeData *time_data) try {
+  static int use_BDF_reported = 0;
+  if (!use_BDF_reported) {
     if (!MY_RANK) 
-      printf("=======================================\n"
-             "=======================================\n"
-             "====   USING ALE+GCL Formulation   ====\n"
-             "=======================================\n"
-             "=======================================\n");
-    use_ALE_formulation_reported = 1;
+      printf("==========================================\n"
+             "==========================================\n"
+             "====   USING BDF integration scheme   ====\n"
+             "==========================================\n"
+             "==========================================\n");
+    use_BDF_reported = 1;
   }
   GET_JOBINFO_FLAG(comp_res);
   GET_JOBINFO_FLAG(comp_prof);
@@ -44,6 +44,7 @@ new_assemble_ALE_formulation(arg_data_list &arg_data_v,const Nodedata *nodedata,
 
   NSGETOPTDEF(int,npg,0); //nd
   NSGETOPTDEF(int,ndim,0); //nd
+  NSGETOPTDEF(int,use_BDF,0); //nd
   assert(npg > 0);
   assert(ndim > 0);
 
@@ -86,6 +87,7 @@ new_assemble_ALE_formulation(arg_data_list &arg_data_v,const Nodedata *nodedata,
   // The trapezoidal rule integration parameter
 #define ALPHA (glob_param->alpha)
 #define DT (glob_param->Dt)
+  double dhdt_term_coef = 1.0;
 
   arg_data *staten = NULL, *stateo = NULL, *retval = NULL,
     *fdj_jac = NULL, *jac_prof = NULL, *Ajac = NULL;
@@ -109,6 +111,11 @@ new_assemble_ALE_formulation(arg_data_list &arg_data_v,const Nodedata *nodedata,
 #ifdef CHECK_JAC
     fdj_jac = &arg_data_v[++j];
 #endif
+  }
+
+  if (use_BDF && glob_param) {
+    PETSCFEM_ASSERT0(ALPHA==1.0,"If use_BDF is set, then alpha must be 1.0");  
+    dhdt_term_coef = 1.5;
   }
 
   FastMat2 matlocf(4,nel,ndof,nel,ndof),
@@ -299,13 +306,16 @@ new_assemble_ALE_formulation(arg_data_list &arg_data_v,const Nodedata *nodedata,
   Id_ndim.eye();
 
   v_mesh.resize(1,ndim);
-  PETSCFEM_ASSERT(nH >= ndim,"This element requires the old mesh "
-                  "position to be passed as an H field. nH %d, ndim %d",
-                  nH,ndim);
-  PETSCFEM_ASSERT(indx_ALE_xold >= nH+1-ndim,
-                  "bad indx_ALE_xold, not remaining enough columns. "
-                  "indx_ALE_xold %d, nH %d, ndim %d",
-                  indx_ALE_xold,nH,ndim);  
+  int use_ALE = 0;
+  if (use_ALE) {
+    PETSCFEM_ASSERT(nH >= ndim,"This element requires the old mesh "
+                    "position to be passed as an H field. nH %d, ndim %d",
+                    nH,ndim);
+    PETSCFEM_ASSERT(indx_ALE_xold >= nH+1-ndim,
+                    "bad indx_ALE_xold, not remaining enough columns. "
+                    "indx_ALE_xold %d, nH %d, ndim %d",
+                    indx_ALE_xold,nH,ndim);  
+  }
 
   FastMatCacheList cache_list;
   if (use_fastmat2_cache) FastMat2::activate_cache(&cache_list);
@@ -369,9 +379,13 @@ new_assemble_ALE_formulation(arg_data_list &arg_data_v,const Nodedata *nodedata,
       }
     
       // nodal computation of mesh velocity
-      Hloc.is(2, indx_ALE_xold, indx_ALE_xold+ndim-1);
-      xloc_old.set(Hloc);
-      Hloc.rs();
+      if (use_ALE) {
+        Hloc.is(2, indx_ALE_xold, indx_ALE_xold+ndim-1);
+        xloc_old.set(Hloc);
+        Hloc.rs();
+      } else {
+        xloc_old.set(xloc);
+      }
       xloc.scale(ALPHA).axpy(xloc_old,1-ALPHA);
       vloc_mesh.set(xloc_new).rest(xloc_old).scale(rec_Dt_m).rs();
       if (0){
@@ -464,9 +478,9 @@ new_assemble_ALE_formulation(arg_data_list &arg_data_v,const Nodedata *nodedata,
 	  // Hn represents H in time t^{n+1} so that it must be affected
 	  // by detJaco_new
 	  dHdt.set(Hn).scale(detJaco_new/detJaco).axpy(Ho,-detJaco_old/detJaco)
-	    .scale(rec_Dt_m);
+	    .scale(rec_Dt_m*dhdt_term_coef);
 	  // This is plain dH/dt
-	  dHdt2.set(Hn).rest(Ho).scale(rec_Dt_m);
+	  dHdt2.set(Hn).rest(Ho).scale(rec_Dt_m*dhdt_term_coef);
 
 	  dHdt.rs();
 
@@ -622,7 +636,7 @@ new_assemble_ALE_formulation(arg_data_list &arg_data_v,const Nodedata *nodedata,
 	  if (!lumped_mass) {
 	    adv_diff_ff->enthalpy_fun
 	      ->comp_W_Cp_N(N_Cp_N,SHAPE,SHAPE,
-			    detJaco_new*WPG*rec_Dt_m/ALPHA);
+			    detJaco_new*WPG*rec_Dt_m*dhdt_term_coef/ALPHA);
 	    matlocf.add(N_Cp_N);
 	  }
 	  adv_diff_ff->set_state(U); //vuelvo a t_{n+alpha}
@@ -837,7 +851,7 @@ new_assemble_ALE_formulation(arg_data_list &arg_data_v,const Nodedata *nodedata,
 		matlocf.add(N_P_C);
 	      }
 	      
-	      tmp21.set(SHAPE).scale(wpgdet*rec_Dt_m/ALPHA);
+	      tmp21.set(SHAPE).scale(wpgdet*rec_Dt_m*dhdt_term_coef/ALPHA);
 	      adv_diff_ff->enthalpy_fun->comp_P_Cp(P_Cp,P_supg);
 	      tmp22.prod(P_Cp,tmp21,1,3,2);
 	      matlocf.add(tmp22);

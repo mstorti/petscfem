@@ -15,17 +15,11 @@
 #include <src/fastlib2.h>
 #include <src/fm2prod.h>
 
-// //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>
-// // Four matrices involved... The doc should refer to 3 matrices
-// FastMat2 & 
-// FastMat2::prod(const FastMat2 & A,
-//                const FastMat2 & B,
-//                const FastMat2 & C,
-//                const FastMat2 & D,
-//                const int m,INT_VAR_ARGS_ND) {
-//   assert(0);
-//   return *this;
-// }
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>
+mat_info::mat_info() 
+  : Ap(NULL), 
+    type(multiprod_subcache_t::UNKNOWN),
+    is_active(multiprod_subcache_t::UNDEF) {}
 
 // The definitions are generated with a perl
 // script `mprod.pl' in a header and included here. 
@@ -121,25 +115,6 @@ int compute_opcount(const mat_info &qmi,
   assert(qctr==rctr);
   return qfree*rfree*qctr;
 }
-
-//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>
-// This is the cache for the product operation
-class multiprod_subcache_t : public FastMatSubCache {
-public:
-  // Number of matrices involved in this product.
-  // Must be >=2
-  int nmat;
-  // A vector of structures containing information
-  // for each involved matrix (including temporaries)
-  mat_info_cont_t mat_info_cont;
-  // A table that stores in which orders must peformed
-  // the products
-  vector<int> order;
-  multiprod_subcache_t(FastMatCache *cache_a) { }
-  ~multiprod_subcache_t();
-  // This makes the product when cached
-  void make_prod();
-};
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>
 multiprod_subcache_t::~multiprod_subcache_t() {
@@ -281,7 +256,7 @@ FastMat2::prod(vector<const FastMat2 *> &mat_list,
       FastMat2 &A = *(FastMat2 *)mat_list[k];
       mat_info &m = mat_info_cont[k];
       m.Ap = &A;
-      m.type = OLD;
+      m.type = multiprod_subcache_t::OLD;
       m.position = k;
       int rank = A.n();
       // This stores the indices to be contracted
@@ -381,17 +356,17 @@ FastMat2::prod(vector<const FastMat2 *> &mat_list,
       if (nact>2) {
         // This is for all the products except the last one
         smi.Ap = new FastMat2(this->ctx);
-        smi.type = TMP;
+        smi.type = multiprod_subcache_t::TMP;
       } else {
         // In this case the output matrix is *this
         smi.Ap = this;
         // It is NOT a temporary
-        smi.type = OLD;
+        smi.type = multiprod_subcache_t::OLD;
         // Do not reorder the indices
         reo = 0;
       }
       // This new matrix is active
-      smi.is_active = ACTIVE;
+      smi.is_active = multiprod_subcache_t::ACTIVE;
       vector<int> 
         &sc = smi.contract,
         &sd = smi.dims;
@@ -405,14 +380,14 @@ FastMat2::prod(vector<const FastMat2 *> &mat_list,
       // Product to be done is S = Q * R
       // get info for Q matrix
       mat_info &qmi = mat_info_cont[qkey];
-      qmi.is_active = INACTIVE;
+      qmi.is_active = multiprod_subcache_t::INACTIVE;
       vector<int> 
         &qc = qmi.contract,
         &qd = qmi.dims;
 
       // get info for R matrix
       mat_info &rmi = mat_info_cont[rkey];
-      rmi.is_active = INACTIVE;
+      rmi.is_active = multiprod_subcache_t::INACTIVE;
       vector<int> 
         &rc = rmi.contract,
         &rd = rmi.dims;
@@ -862,9 +837,25 @@ FastMat2::prod(const FastMat2 & A0,
                const FastMat2 & A1,
                const int m,INT_VAR_ARGS_ND) {
 
+#ifndef NDEBUG
+  if (ctx->do_check_labels) {
+    ctx->check_clear();
+    ctx->check("prod_mat_wrapper",this);
+    ctx->check(&A0);
+    ctx->check(&A1);
+
+    Indx indx;
+    indx.push_back(m);
+    // READ_INT_ARG_LIST(indx);
+    READ_ARG_LIST(arg,indx,INT_ARG_LIST_DEFAULT_VAL,EXIT2);
+    ctx->check(indx);
+  }
+#endif
+
   FastMatCache *cache = ctx->step();
   mprodwrp_subcache_t *mpwrpsc=NULL;
   if (!ctx->was_cached) {
+    
     mpwrpsc = new mprodwrp_subcache_t;
     assert(!cache->sc);
     cache->sc = mpwrpsc;

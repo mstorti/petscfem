@@ -200,7 +200,7 @@ assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
   int kdof;
   FastMat2 veccontr(2,nel,ndof),xloc(2,nel,ndim),locstate(2,nel,ndof), 
     locstate2(2,nel,ndof),xpg,G_body(1,ndim),F_body(1,ndim),
-    vrel(1,ndim);
+    vrel(1,ndim),zpgt;
 
   if (ndof != ndim+1) {
     PetscPrintf(PETSCFEM_COMM_WORLD,"ndof != ndim+1\n"); CHKERRA(1);
@@ -305,6 +305,27 @@ assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
   TGETOPTDEF(thash,double,nu_g,1.);
   //o Transition strip for level set
   TGETOPTDEF(thash,double,epsilon,0.);
+
+  // Parameters for FS absorbing layer (FSABSO)
+  //o Intensity factor for FS absorbing layer
+  TGETOPTDEF(thash,double,fsabso_K,0.0);
+  //o Activates or deactivates the use of FS abso layer
+  TGETOPTDEF(thash,int,use_fsabso,fsabso_K!=0.0);
+  // Parameters for FS absorbing layer (FSABSO)
+  //o Reference height for FS absorbing layer
+  TGETOPTDEF(thash,double,fsabso_h0,0.0);
+  //o Reference position of FS, for FS absorbing layer
+  TGETOPTDEF(thash,double,fsabso_zref,0.0);
+  //o The mean velocity at the boundary, for the absorbing layer
+  TGETOPTDEF(thash,double,fsabso_u0,0.0);
+  //o The atmospheric pressure
+  TGETOPTDEF(thash,double,fsabso_patm,0.0);
+  //o The direction normal to the boundary
+  TGETOPTDEF(thash,int,fsabso_normal_dir,1);
+
+  double gravity = G_body.norm_2_all();
+  double fsabso_c0 = sqrt(gravity*fsabso_h0);
+
   //o Viscosity
   DEFPROP(viscosity);
 #define VISC (*(propel+viscosity_indx))
@@ -347,7 +368,11 @@ assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
 
   // for nodal computation of rho and nu
   FastMat2 r01(1,nel),phisum(1,nel),phires(1,nel),phi0(1,nel),phi(1,nel);
-  FastMat2 v01(1,nel);
+  FastMat2 v01(1,nel), fsabso_nor(1,ndim),tmp32,tmp31;
+  
+  // FIXME:= sets FS abso normal to the boundary
+  fsabso_nor.set(0.0).setel(1.0,fsabso_normal_dir);
+
   // for calculation of mass 
  
   if (axi) assert(ndim==3);
@@ -772,6 +797,21 @@ assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
 	  dmatu.rest(F_body);
 	}
 	
+        double fsabso_cont = 0.0;
+        if (use_fsabso) {
+          tmp32.prod(u_star,fsabso_nor,-1,-1);
+          double du = double(tmp32) - fsabso_u0;
+          tmp31.prod(xloc,SHAPE,G_body,-1,-2,-1,-2);
+          double zpg = double(tmp31)/gravity;
+          double deta 
+            = (p_star - fsabso_patm)/(rho*gravity) 
+            + (zpg - fsabso_h0);
+          double fsabso_mom = fsabso_K*fsabso_h0*(fsabso_u0-fsabso_c0)
+            *(deta/fsabso_h0-du/fsabso_c0);
+          fsabso_cont = fsabso_K*fsabso_c0*(fsabso_u0-fsabso_c0)
+            *(deta/fsabso_h0-du/fsabso_c0);
+          dmatu.axpy(fsabso_nor,fsabso_K*fsabso_mom);
+        }
 	
 	// Galerkin - momentum
 	dresmom.prod(SHAPE,dmatu,1,2);
@@ -789,7 +829,7 @@ assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
 
 	// Galerkin - continuity
 	div_u_star = double(tmp10.prod(dshapex,ucols_star,-1,-2,-2,-1));
-	rescont.axpy(SHAPE,wpgdet*div_u_star);
+	rescont.axpy(SHAPE,wpgdet*(div_u_star+fsabso_K*fsabso_cont));
 
 	// SUPG/PSPG perturbation - residual
 	tmp3.set(grad_p_star).axpy(dmatu,rho);

@@ -21,10 +21,14 @@ protected:
   */
   NewAdvDifFF *adv_diff_ff;
 
+private:
+  int flag;
+  FastMat2 Habso,Uref;
+
 public:
   /// Contructor from the pointer to the fux function
   AbsorbingLayer(NewAdvDifFF *adv_diff_ff_a=NULL) :
-    adv_diff_ff(adv_diff_ff_a) {};
+    adv_diff_ff(adv_diff_ff_a), flag(0) {};
   /** Destructor. */
   ~AbsorbingLayer() {delete adv_diff_ff;}
   

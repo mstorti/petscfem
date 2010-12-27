@@ -21,7 +21,20 @@ int PetscFemInitialize(int *argc,char ***args,
   PETSCFEM_COMM_WORLD = PETSC_COMM_WORLD;
   ierr = MPI_Comm_size(PETSCFEM_COMM_WORLD,&SIZE);
   ierr = MPI_Comm_rank(PETSCFEM_COMM_WORLD,&MY_RANK);
-  // Just to resolve some linking problems
+
+  // Just to resolve some linking problems.
+  // The problem is that as the binaries are linked
+  // statically, and the function `dvector_clone_parallel()'
+  // is not called explicitly in PETSc-FEM, but it is
+  // instantiated explicitly in `dvecpar.cpp'.
+  // Then it seems that when the binary advdif_O.bin is linked
+  // the instantiation are stripped off. Then when the function
+  // is called from a dynamically linked file, it is not found
+  // in the binary. This only happens with `advdif_O', not with
+  // `ns', neither with the debugger version of `advdif'.
+  // And only happens in some systems, for instance it happens in
+  // aquiles (Fedora 9), but not in minerva (Fedora 7), neither
+  // apparently on more recent versions of Fedora. 
   dvector<double> ppd;
   dvector_clone_parallel(ppd);
   dvector<int> ppi;
