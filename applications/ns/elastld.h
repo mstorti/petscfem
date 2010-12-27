@@ -37,8 +37,8 @@ private:
   dvector<int> elprpsindx; 
   int nprops;
   dvector<double> propel;
-  int pressure_indx;
-  FastMat2 nor, Jaco, tmp, xstar, state;
+  int pressure_indx,use_new_form;
+  FastMat2 nor, Jaco, tmp, xstar, state, force, tmp1;
   double defo_fac;
 public: 
   void init();

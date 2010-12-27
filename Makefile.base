@@ -73,10 +73,6 @@ ifeq ($(USE_SEPARATE_COMPILATION),)
 osfx =
 endif
 
-ifeq ($(GNUCXX),)
-GNUCXX = g++
-endif
-
 BISON = bison -d
 
 ifeq ($(TAGINCL),)
@@ -159,7 +155,11 @@ SUPERLU_LDFLAGS  = $(SUPERLU_LIB_DIR)/lib$(SUPERLU_LIBNAME).a
 #SUPERLU_LDFLAGS  = -L$(SUPERLU_LIB_DIR) -lib$(SUPERLU_LIBNAME)
 endif
 
-
+CC          = $(MPICC)
+CXX         = $(MPICXX)
+F90         = $(MPIF90)
+LD          = $(MPILD)
+CXX_CLINKER = $(LD)
 
 # here goes -frepo if needed
 # CPPFLAGS := -frepo $(PROF_FLAGS)
@@ -259,12 +259,12 @@ endif
 #w Create preprocessed files
 %.cppi: %.cpp force
 	if [ -e $@ ] ; then chmod +w $@ ; fi
-	g++ -E ${CFLAGS} $(CPPFLAGS) $< > $@ ; chmod u-w $@
+	$(CXX) -E ${CFLAGS} $(CPPFLAGS) $< > $@ ; chmod u-w $@
 
 #w Create preprocessed files
 %.hi: %.h force
 	if [ -e $@ ] ; then chmod +w $@ ; fi
-	g++ -E ${CFLAGS} $(CPPFLAGS) $< > $@ ; chmod u-w $@
+	$(CXX) -E ${CFLAGS} $(CPPFLAGS) $< > $@ ; chmod u-w $@
 
 #w Extension functions
 %.efn: %.o
@@ -504,16 +504,11 @@ compdate.cpp:
 		$(PETSCFEM_DIR)/tools/compdate.cppin > $@
 
 
-CC  := gcc -fPIC
-CXX := g++ -fPIC
-CXX_CLINKER := ${CXX}
-
 ifeq ($(BOPT),O_c++)
 COPTFLAGS := -DNDEBUG -O3 -funroll-loops
 else
 COPTFLAGS := -g3
 endif
-
 
 %.o: %.cpp
 	$(CXX) -c ${COPTFLAGS} ${CFLAGS} ${CPPFLAGS} -o $@ $<
@@ -524,5 +519,5 @@ endif
 %.so: %.a
 	-rm -f *.o
 	ar x $<
-	g++ -shared -o $@ *.o
+	$(CXX_CLINKER) -shared -o $@ *.o
 	-rm -f *.o

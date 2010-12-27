@@ -41,11 +41,6 @@ include $(PETSCFEM_DIR)/Makefile.base
 
 # CPPFLAGS += -DROSI_COUPLING_MODULE
 
-#%.cppi: %.cpp
-#	g++ $(CPPFLAGS) -I /usr/local/mpich-1.2.0/include/ \
-#		-I/home/mstorti/PETSC/petsc-2.0.24/bmake/linux/ \
-#		-I/home/mstorti/PETSC/petsc-2.0.24/include/ -E $< > $@
-
 # documentation of options with the script `odoc.pl'
 odocns: ../../doc/odocns.tex ../../doc/odocnse.tex \
 	../../doc/odocnsb.tex  ../../doc/odocnsw.tex \

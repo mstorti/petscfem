@@ -467,7 +467,7 @@ protected:
     A_jac_norm_min, A_jac_err_norm_max, A_jac_err_norm_min,
     A_rel_err_min, A_rel_err_max;
   FastMat2 dshapex_low;
-  int use_GCL_compliant, ALE_flag, precoflag, use_ALE_form;
+  int use_GCL_compliant, ALE_flag, precoflag, use_ALE_form, use_BDF_advdife;
 
 public:
   FastMat2 dshapex,Uo,Ao_grad_N,tau_supg, dshapex_gcl,

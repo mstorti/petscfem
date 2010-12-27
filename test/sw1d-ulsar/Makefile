@@ -39,8 +39,8 @@ run: test_abso
 test_abso:
 	mkstepsdir.pl
 	make-depl $(CASE).epl $(CASE).depl 
-	mpiexec  -n 1 $(PROG) -case $(CASE).depl
-#	time $(MPI_HOME)/bin/mpirun -1 -machinefile ./machi.dat -n $(NP) $(PROG) -case $(CASE).depl
+	$(MPIEXEC)  -n 1 $(PROG) -case $(CASE).depl
+#	time $(MPIEXEC) -1 -machinefile ./machi.dat -n $(NP) $(PROG) -case $(CASE).depl
 #	$(OCTAVE)  check_test_abso.m
 
 riemann:
@@ -48,7 +48,7 @@ riemann:
 	make-depl canal1driem.epl canal1driem.depl 
 	$(OCTAVE) canal1driem.m
 	$(MPIEXEC)  -n 1 $(PROG) -case canal1driem.depl
-#	time $(MPI_HOME)/bin/mpirun -1 -machinefile ./machi.dat -n $(NP) $(PROG) -case $(CASE).depl
+#	time $(MPIEXEC) -1 -machinefile ./machi.dat -n $(NP) $(PROG) -case $(CASE).depl
 #	$(OCTAVE)  check_test_abso.m
 
 
@@ -73,7 +73,7 @@ igrec:
 
 mpdstart:
 	let NP1=$(NP)+1 ; \
-	$(MPI_HOME)/bin/mpdboot --file=./machi.dat -n $$NP1 --rsh=ssh
+	mpdboot --file=./machi.dat -n $$NP1 --rsh=ssh
 
 
 local_clean::

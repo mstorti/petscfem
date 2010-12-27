@@ -17,7 +17,6 @@ PROG = $(NS)
 PETSCFEM_DIR := ../../..
 
 include $(PETSCFEM_DIR)/Makefile.base
-# MPI_HOME := /usr
 include $(PETSCFEM_DIR)/test/Makefile.base.test
 SRCS = 
 

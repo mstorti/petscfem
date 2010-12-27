@@ -79,6 +79,6 @@ jpg:
 	done
 
 kill:
-	$(MPI_HOME)/bin/mpdkilljob -a $(CASE_NAME)
+	mpdkilljob -a $(CASE_NAME)
 
 #s

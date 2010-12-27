@@ -246,7 +246,11 @@ public:
   /** Reshapes the tensor with #rank# dimensions, and the rest of arguments
       are the size of each dimension.
       @param shape (input) an integer vector with the shape. */
-  dvector<T> & reshape(const vector<int> shape_a);
+  dvector<T> & reshape(const vector<int> &shape);
+
+  /** Export the shape of the dvector to vector #shape#. 
+      @param shape (output) External container where the shape is exported. */ 
+  void get_shape(vector<int> &shape) const;
 
   /** Same as #reshape(i,j,k,l)# but the variable argument list 
       is pased as a variadic macro. 

@@ -11,6 +11,7 @@ NAME := plano
 
 eccho:
 	echo $(NAME)
+	echo $(MPIEXEC)
 
 CASE := $(NAME)
 MKMESH := mkplano.m
@@ -30,15 +31,15 @@ mesh: data
 data: 
 	make-depl $(CASE).epl $(CASE).depl 
 
-run: 
+run: mesh
 	mkstepsdir.pl
 	make-depl $(CASE).epl $(CASE).depl 
-#	$(MPI_HOME)/bin/mpiexec  -n 1 $(PROG) -case $(CASE).depl
-	time $(MPIRUN) -1 -machinefile ./machi.dat -n $(NP) $(PROG) -case $(CASE).depl
+	$(MPIEXEC) -n 1 $(PROG) -case $(CASE).depl
+#	time $(MPIEXEC) -1 -machinefile ./machi.dat -n $(NP) $(PROG) -case $(CASE).depl
 
 mpdstart:
 	let NP1=$(NP)+1 ; \
-	$(MPI_HOME)/bin/mpdboot --file=./machi.dat -n $$NP1 --rsh=ssh
+	mpdboot --file=./machi.dat -n $$NP1 --rsh=ssh
 
 #w generate DX files
 dxo:
