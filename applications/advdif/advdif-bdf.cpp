@@ -552,14 +552,14 @@ int bdf_main() {
       scal = -0.5;
       ierr = VecAXPY(x,scal,xold);
     }
-#elif 1
+#elif 0
     // 2nd order initialization version 2
     if (use_BDF && stage==0 && tstep==2) {
       scal = -0.875;
       ierr = VecScale(x,scal); CHKERRQ(ierr);
       scal = 2.15625;
       ierr = VecAXPY(x,scal,xold); CHKERRQ(ierr);
-      scal = - 0.28125;
+      scal = -0.28125;
       ierr = VecAXPY(x,scal,xn1); CHKERRQ(ierr);
       ierr = VecCopy(xn1,xold); CHKERRA(ierr);
       time.inc(-Dt);
