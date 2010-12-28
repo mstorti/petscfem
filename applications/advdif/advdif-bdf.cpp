@@ -89,8 +89,14 @@ int bdf_main() {
   ierr = read_mesh(mesh,fcase,dofmap,neq,SIZE,MY_RANK); CHKERRA(ierr);
   GLOBAL_OPTIONS = mesh->global_options;
 
-  // Use BDF integration scheme
-  GETOPTDEF(int,use_BDF,0);
+  //o Use BDF integration scheme
+  GETOPTDEF(int,use_BDF,1);
+  //o Initialize BDF with second order scheme
+  GETOPTDEF(int,BDF_initialize,2);
+
+  GETOPTDEF(int,use_BDF_advdife,INT_MAX);
+  if (use_BDF_advdife==INT_MAX)
+    GLOBAL_OPTIONS->add_entry("use_BDF_advdife","1",0);
 
   //o Activate debugging
   GETOPTDEF(int,activate_debug,0);
@@ -544,17 +550,17 @@ int bdf_main() {
       ierr = VecAXPY(x,scal,dx);
       if (normres < tol_newton) break;
     }
-#if 0
-    // 2nd order initialization version 1
-    if (use_BDF && tstep==1) {
+
+    // first order initialization
+    if (BDF_initialize==1 && use_BDF && tstep==1) {
       scal = 1.5;
       ierr = VecScale(x,scal);
       scal = -0.5;
       ierr = VecAXPY(x,scal,xold);
     }
-#elif 0
-    // 2nd order initialization version 2
-    if (use_BDF && stage==0 && tstep==2) {
+
+    // 2nd order initialization
+    if (BDF_initialize==2 && use_BDF && stage==0 && tstep==2) {
       scal = -0.875;
       ierr = VecScale(x,scal); CHKERRQ(ierr);
       scal = 2.15625;
@@ -566,7 +572,6 @@ int bdf_main() {
       tstep--;
       stage = 1;
     }
-#endif
 
     // Prints residual and mass matrix in Matlab format
     // Define time step depending on strategy. Automatic time step,
