@@ -368,8 +368,17 @@ int bdf_main() {
 #define STAT_STEPS 5
   double cpu[STAT_STEPS],cpuav;
   int update_jacobian_this_step,update_jacobian_this_iter;
-  int stage = 0, tstep=0;
+  int stage = 0, tstep=1;
   while (tstep<=nstep) {
+    if (BDF_initialize==3 && tstep==1) {
+      TGETOPTDEF_S(GLOBAL_OPTIONS,string,BDF_state1,"<none>");
+      PETSCFEM_ASSERT0(BDF_state1!="<none>",
+                       "BDF_state1 is required if BDF_initialize==3");  
+      ierr = VecCopy(x,xn); CHKERRA(ierr);
+      ierr = read_vector(BDF_state1.c_str(),x,dofmap,MY_RANK);
+      time.inc(Dt);
+      tstep++;
+    }
     time_star.set(time.time()+alpha*Dt);
     // Take cputime statistics
     if (MY_RANK==0) {
@@ -561,13 +570,13 @@ int bdf_main() {
 
     // 2nd order initialization
     if (BDF_initialize==2 && use_BDF && stage==0 && tstep==2) {
-      scal = -0.875;
+      scal = -0.28125;
       ierr = VecScale(x,scal); CHKERRQ(ierr);
       scal = 2.15625;
-      ierr = VecAXPY(x,scal,xold); CHKERRQ(ierr);
-      scal = -0.28125;
+      ierr = VecAXPY(x,scal,xn); CHKERRQ(ierr);
+      scal = -0.875;
       ierr = VecAXPY(x,scal,xn1); CHKERRQ(ierr);
-      ierr = VecCopy(xn1,xold); CHKERRA(ierr);
+      ierr = VecCopy(xn1,xn); CHKERRA(ierr);
       time.inc(-Dt);
       tstep--;
       stage = 1;
