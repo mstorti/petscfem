@@ -66,7 +66,8 @@ new_assemble_BDF(arg_data_list &arg_data_v,const Nodedata *nodedata,
   // source term in the momentum eqs.
   int nH = nu-ndim;
   //  FMatrix  Hloc(nel,nH),H(nH),vloc_mesh(nel,ndim),v_mesh(ndim);
-  FMatrix Hloc(nel,nH),H(nH),vloc_mesh(nel,ndim);
+  FMatrix Hloc(nel,nH),H(nH),vloc_mesh(nel,ndim),
+    vloc_mesh1(nel,ndim), qv_phalf(1,ndim),qv_mhalf(1,ndim),qv(1,ndim);
   //  FastMat2 v_mesh;
 
   if(nnod != nodedata->nnod) {
@@ -236,7 +237,8 @@ new_assemble_BDF(arg_data_list &arg_data_v,const Nodedata *nodedata,
 
   // Allocate local vecs
   FMatrix veccontr(nel,ndof), veccontr_mass(nel,ndof),
-    xloc(nel,ndim), xloc_old(nel,ndim), xloc_new(nel,ndim), lstate(nel,ndof),
+    xloc(nel,ndim), xloc_old(nel,ndim), xloc_old1(nel,ndim),
+    xloc_new(nel,ndim), lstate(nel,ndof),
     lstateo(nel,ndof), lstaten(nel,ndof), dUloc_c(nel,ndof),
     dUloc(nel,ndof), matloc, xloc_mid(nel,ndim);
 
@@ -246,16 +248,18 @@ new_assemble_BDF(arg_data_list &arg_data_v,const Nodedata *nodedata,
   NGETOPTDEF_S(string,geometry,cartesian2d);
   GPdata gp_data(geometry.c_str(),ndimel,nel,npg,GP_FASTMAT2);
 
-  double detJaco, detJaco_new = NAN, detJaco_old = NAN, detJaco_mid = NAN,
+  double detJaco, detJaco_new = NAN, detJaco_old = NAN, 
+    detJaco_old1 = NAN, detJaco_mid = NAN,
     wpgdet, delta_sc, delta_sc_old, lambda_max_pg;
   int elem, ipg,node, jdim, kloc, lloc, ldof;
 
   dshapex.resize(2,ndimel,nel);
   dshapex_gcl.resize(2,ndimel,nel);
   FMatrix Jaco(ndimel,ndim), Jaco_av(ndimel,ndim),
-    Jaco_new(ndimel,ndim), Jaco_old(ndimel,ndim),
-    iJaco(ndimel,ndimel), iJaco_old(ndimel,ndimel),
-    Q(ndimel,ndimel), Jaco_mid(ndimel,ndim),iJaco_mid(ndimel,ndim),
+    Jaco_new(ndimel,ndim), Jaco_old(ndimel,ndim), Jaco_old1(ndimel,ndim),
+    iJaco(ndimel,ndimel), iJaco_old(ndimel,ndimel), iJaco_old1(ndimel,ndimel),
+    Q(ndimel,ndimel), Qn_phalf(ndimel,ndimel), Qn_mhalf(ndimel,ndimel), 
+    Jaco_mid(ndimel,ndim),iJaco_mid(ndimel,ndim),
     iJaco_new(ndimel,ndimel), flux(ndof,ndimel),
     fluxd(ndof,ndimel), mass(nel,nel),
     grad_U(ndimel,ndof), A_grad_U(ndof),
@@ -268,7 +272,7 @@ new_assemble_BDF(arg_data_list &arg_data_v,const Nodedata *nodedata,
   // These are declared but not used
   FMatrix nor, lambda, Vr, Vr_inv, U(ndof), Ualpha(ndof),
     lmass(nel), tmp1, tmp2, tmp3, tmp4, tmp5, hvec(ndimel),
-    tmp6, tmp7, tmp8,tmp9, tmp10, tmp10j, tmp11(ndof,ndimel),
+    tmp6, tmp7, tmp8, tmp8b, tmp9, tmp10, tmp10j, tmp11(ndof,ndimel),
     tmp12, tmp14, tmp14b, tmp15, tmp17, tmp19, tmp20, tmp21, 
     tmp22, tmp23, tmp1_old, tmp24,tmp_sc, tmp_sc_v,tmp_shc_grad_U,
     tmp_j_grad_U(ndof), tmp_j_gradN, tmp_sc_aniso, tmp_matloc_aniso,
@@ -291,7 +295,8 @@ new_assemble_BDF(arg_data_list &arg_data_v,const Nodedata *nodedata,
   int ind_axi_1, ind_axi_2;
   double detJaco_axi;
 
-  FastMat2 Cr(2,ndof,ndof), Ao(3,ndim,ndof,ndof), delta_sc_v(1,ndof);
+  FastMat2 Cr(2,ndof,ndof), Ao(3,ndim,ndof,ndof), delta_sc_v(1,ndof),
+    vmesh_phalf(1,ndim), vmesh_mhalf(1,ndim), rtmp;
 
   if (axi) assert(ndim == 3);
 
@@ -308,13 +313,18 @@ new_assemble_BDF(arg_data_list &arg_data_v,const Nodedata *nodedata,
   v_mesh.resize(1,ndim);
   int use_ALE = 0;
   if (use_ALE) {
-    PETSCFEM_ASSERT(nH >= ndim,"This element requires the old mesh "
+    PETSCFEM_ASSERT(nH >= 2*ndim,
+                    "This element requires two steps of the old mesh "
                     "position to be passed as an H field. nH %d, ndim %d",
                     nH,ndim);
-    PETSCFEM_ASSERT(indx_ALE_xold >= nH+1-ndim,
-                    "bad indx_ALE_xold, not remaining enough columns. "
-                    "indx_ALE_xold %d, nH %d, ndim %d",
-                    indx_ALE_xold,nH,ndim);  
+    int ncols = nH-indx_ALE_xold+1;
+    PETSCFEM_ASSERT( ncols>= 2*ndim,
+                    "This element requires two steps of the old mesh. "
+                    "Bad indx_ALE_xold, not remaining enough columns. "
+                    "Needed %d columns, required %d. "
+                    "Actual parameters indx_ALE_xold %d, nH %d, ndim %d",
+                     ncols,2*ndim,
+                     indx_ALE_xold,nH,ndim);  
   }
 
   FastMatCacheList cache_list;
@@ -382,12 +392,16 @@ new_assemble_BDF(arg_data_list &arg_data_v,const Nodedata *nodedata,
       if (use_ALE) {
         Hloc.is(2, indx_ALE_xold, indx_ALE_xold+ndim-1);
         xloc_old.set(Hloc);
+        Hloc.rs().is(2, indx_ALE_xold+ndim, indx_ALE_xold+2*ndim-1);
+        xloc_old1.set(Hloc);
         Hloc.rs();
       } else {
         xloc_old.set(xloc);
+        xloc_old1.set(xloc);
       }
       xloc.scale(ALPHA).axpy(xloc_old,1-ALPHA);
       vloc_mesh.set(xloc_new).rest(xloc_old).scale(rec_Dt_m).rs();
+      vloc_mesh1.set(xloc_old).rest(xloc_old1).scale(rec_Dt_m).rs();
       if (0){
 	int kk,ielhh;
 	element.position(kk, ielhh);
@@ -401,31 +415,49 @@ new_assemble_BDF(arg_data_list &arg_data_v,const Nodedata *nodedata,
 
       // loop over Gauss points
       Jaco_av.set(0.);
+      double rgcl;
       for (ipg = 0; ipg < npg; ipg++) {
 	//      Matrix xpg = SHAPE * xloc;
 	Jaco.prod(DSHAPEXI,xloc,1,-1,-1,2); // xloc is at t_{n+alpha}
 	Jaco_av.add(Jaco);
 	Jaco_new.prod(DSHAPEXI,xloc_new,1,-1,-1,2);
 	Jaco_old.prod(DSHAPEXI,xloc_old,1,-1,-1,2);
+	Jaco_old1.prod(DSHAPEXI,xloc_old1,1,-1,-1,2);
       
 	if (ndim == ndimel) {
 	  iJaco.inv(Jaco);
 	  detJaco     = Jaco.det();
 	  detJaco_new = Jaco_new.det();
 	  detJaco_old = Jaco_old.det();
-	  //         printf("detjaco (start,new,old): %g %g %g\n",detJaco, 
-	  //                detJaco_new, detJaco_old);
+	  detJaco_old1 = Jaco_old1.det();
 	  
 	  if (ndim == 2){ // we need only two points in 2D to integ temporal average
 	    iJaco_new.inv(Jaco_new);
-	    Q.set(0.0).axpy(iJaco_new,detJaco_new*0.5);
 	    iJaco_old.inv(Jaco_old);
-	    Q.axpy(iJaco_old,detJaco_old*0.5);
-	    Q.scale(1.0/detJaco);
+	    iJaco_old1.inv(Jaco_old1);
+
+	    Qn_phalf.set(0.0).axpy(iJaco_new,detJaco_new*0.5);
+	    Qn_phalf.axpy(iJaco_old,detJaco_old*0.5);
+
+	    Qn_mhalf.set(0.0).axpy(iJaco_old,detJaco_new*0.5);
+	    Qn_mhalf.axpy(iJaco_old,detJaco_old*0.5);
+            
+	    Q.set(0.0).axpy(Qn_phalf,1.5)
+              .axpy(Qn_mhalf,-0.5).scale(1.0/detJaco_new);
 	    dshapex_gcl.prod(Q,DSHAPEXI,1,-1,-1,2);
+
+            vmesh_phalf.prod(SHAPE,vloc_mesh,-1,-1,1);
+            vmesh_mhalf.prod(SHAPE,vloc_mesh1,-1,-1,1);
+            
+            qv_phalf.prod(Qn_phalf,vmesh_phalf,1,-1,-1);
+            qv_mhalf.prod(Qn_mhalf,vmesh_mhalf,1,-1,-1);
+            qv.set(0.0).axpy(qv_phalf,1.5).axpy(qv_mhalf,-0.5)
+              .scale(1.0/detJaco_new);
+            
 	  } else if (ndim == 3) { // we need 3 points in 3D to integ
 				  // temporal average with
 				  // Gauss-Lobatto
+            PETSCFEM_ERROR0("Not implemented yet BDF and ndimel=3"); 
 	    iJaco_new.inv(Jaco_new);
 	    Q.set(0.0).axpy(iJaco_new,detJaco_new/6.0);
 	    iJaco_old.inv(Jaco_old);
@@ -652,6 +684,7 @@ new_assemble_BDF(arg_data_list &arg_data_v,const Nodedata *nodedata,
 	  tmp_ALE_02.prod(v_mesh,grad_U,-1,-1,1);
 	
 	  if (!weak_form) {
+            PETSCFEM_ERROR0("Not implemented yet: GCL compliant && BDF");  
 	    tmp_ALE_03.prod(SHAPE,Cp,1,2,3);
 	    tmp_ALE_04.prod(tmp_ALE_03,tmp_ALE_02,1,2,-1,-1);
 	    veccontr.axpy(tmp_ALE_04,wpgdet);
@@ -671,8 +704,7 @@ new_assemble_BDF(arg_data_list &arg_data_v,const Nodedata *nodedata,
 	    tmp11.set(flux).rest(fluxd); 
 	    // Add ALE correction to flux
 	    // tmp11 = flux_c - v_mesh*H^{n+alpha} - flux_d
-	    tmp_ALE_flux.prod(Halpha,v_mesh,1,2);
-	    tmp11.rest(tmp_ALE_flux);
+	    // tmp_ALE_flux.prod(Halpha,v_mesh,1,2);
 	  
 	    tmp23.set(SHAPE).scale(-wpgdet);
 	    v_mesh_grad_N.prod(v_mesh,dshapex,-1,-1,1);
@@ -685,6 +717,8 @@ new_assemble_BDF(arg_data_list &arg_data_v,const Nodedata *nodedata,
 	  // w = weak_form
 	  // tmp8.prod(dshapex,tmp11,-1,1,2,-1); // non-averaged shape function gradients
 	  tmp8.prod(dshapex_gcl,tmp11,-1,1,2,-1);
+          tmp8b.prod(qv,Halpha,1,2);
+          tmp8.rest(tmp8b);
 	  tmp9.prod(SHAPE,tmp10,1,2); // tmp9 = SHAPE' * (G - dHdt)
 #if 0
 	  FMSHV(tmp8);

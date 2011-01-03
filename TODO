@@ -2,6 +2,8 @@
 TODO: [Mainly fixes go here...]
 =====
 
+* replace `rest()' for `substraction()' or similar in FastMat2, since
+  `rest()' is erroneously translated from spanish `resta'. 
 * Add new print version feature to advdif and others. 
 * Missing some PetscSynchronizedFlush() calls in the PETSCFEM_ASSERT
   macros in `fem.h' (see commit mstorti-v31-end-25-gb9761e4)
