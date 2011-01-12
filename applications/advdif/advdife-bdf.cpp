@@ -158,6 +158,9 @@ new_assemble_BDF(arg_data_list &arg_data_v,const Nodedata *nodedata,
   //  correspoding to nonlinearities in the
   //  diffusive Jacobian.
   NSGETOPTDEF(int,compute_dDdU_term,1);
+  //o Don't use the averaged Jacobian ALE fix for the DGCL. This is only
+  //  for debugging purposes, you should use the fix!! 
+  NSGETOPTDEF(int,dont_use_average_jaco_fix,0);
 
   //o key for computing reactive terms or not
   NSGETOPTDEF(int,compute_reactive_terms,1);
@@ -475,6 +478,13 @@ new_assemble_BDF(arg_data_list &arg_data_v,const Nodedata *nodedata,
 	    Q.scale(1.0/detJaco);
 	    dshapex_gcl.prod(Q,DSHAPEXI,1,-1,-1,2);
 	  }
+
+          if (dont_use_average_jaco_fix) {
+            dshapex_gcl.prod(iJaco_new,DSHAPEXI,1,-1,-1,2);
+            qv.prod(iJaco,vmesh_phalf,-1,1,-1);
+            rgcl.prod(qv,DSHAPEXI,-1,-1,1);
+          }
+
 	} else if (ndimel == 1) {
 	  // This allows to solve problems on streams like rivers or
 	  // ducts or advective problems on plane surfaces (not
