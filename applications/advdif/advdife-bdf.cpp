@@ -66,9 +66,9 @@ new_assemble_BDF(arg_data_list &arg_data_v,const Nodedata *nodedata,
   // source term in the momentum eqs.
   int nH = nu-ndim;
   //  FMatrix  Hloc(nel,nH),H(nH),vloc_mesh(nel,ndim),v_mesh(ndim);
-  FMatrix Hloc(nel,nH),H(nH),vloc_mesh(nel,ndim),
-    vloc_mesh1(nel,ndim), qv_phalf(1,ndim),qv_mhalf(1,ndim),qv(1,ndim);
-  //  FastMat2 v_mesh;
+  FastMat2 Hloc(2,nel,nH),H(1,nH),vloc_mesh(2,nel,ndim),
+    vloc_mesh1(2,nel,ndim), qv_phalf(1,ndim),qv_mhalf(1,ndim),qv(1,ndim),
+    rgcl(1,nel);
 
   if(nnod != nodedata->nnod) {
     printf("nnod from dofmap and nodedata don't coincide\n");
@@ -90,15 +90,16 @@ new_assemble_BDF(arg_data_list &arg_data_v,const Nodedata *nodedata,
 #define DT (glob_param->Dt)
   double dhdt_term_coef = 1.0;
 
-  arg_data *staten = NULL, *stateo = NULL, *retval = NULL,
-    *fdj_jac = NULL, *jac_prof = NULL, *Ajac = NULL;
+  arg_data *staten = NULL, *stateo = NULL, *stateo1 = NULL, 
+    *retval = NULL, *fdj_jac = NULL, *jac_prof = NULL, *Ajac = NULL;
 
   if (comp_res) {
     int j  = -1;
     stateo = &arg_data_v[++j]; //[0]
-    staten = &arg_data_v[++j]; //[1]
-    retval = &arg_data_v[++j]; //[2]
-    jdtmin = ++j;              //[3]
+    stateo1 = &arg_data_v[++j]; //[1]
+    staten = &arg_data_v[++j]; //[2]
+    retval = &arg_data_v[++j]; //[3]
+    jdtmin = ++j;              //[4]
 
 #define DTMIN ((*(arg_data_v[jdtmin].vector_assoc))[0])
 #define WAS_SET arg_data_v[jdtmin].was_set
@@ -239,7 +240,7 @@ new_assemble_BDF(arg_data_list &arg_data_v,const Nodedata *nodedata,
   FMatrix veccontr(nel,ndof), veccontr_mass(nel,ndof),
     xloc(nel,ndim), xloc_old(nel,ndim), xloc_old1(nel,ndim),
     xloc_new(nel,ndim), lstate(nel,ndof),
-    lstateo(nel,ndof), lstaten(nel,ndof), dUloc_c(nel,ndof),
+    lstateo(nel,ndof), lstaten(nel,ndof), lstateo1(nel,ndof), dUloc_c(nel,ndof),
     dUloc(nel,ndof), matloc, xloc_mid(nel,ndim);
 
   nen = nel*ndof;
@@ -265,7 +266,7 @@ new_assemble_BDF(arg_data_list &arg_data_v,const Nodedata *nodedata,
     grad_U(ndimel,ndof), A_grad_U(ndof),
     Ao_grad_U(ndof), G_source(ndof), 
     dHdt(ndof), dHdt2(ndof), Un(ndof),
-    Ho(ndof),Hn(ndof),Halpha(ndof);
+    Ho(ndof),Ho1(ndof),Hn(ndof),Halpha(ndof);
   // When ALE: dHdt is in fact d(JH)/dt, and dHdt2 is d(H)/dt
   // In the residual 
   // FMatrix grad_U_norm(ndimel,ndof);
@@ -282,7 +283,8 @@ new_assemble_BDF(arg_data_list &arg_data_v,const Nodedata *nodedata,
   FastMat2 A_grad_N(3,nel,ndof,ndof),
     grad_N_D_grad_N(4,nel,ndof,nel,ndof),N_N_C(4,nel,ndof,nel,ndof),
     N_P_C(3,ndof,nel,ndof),N_Cp_N(4,nel,ndof,nel,ndof),
-    P_Cp(2,ndof,ndof),grad_N_dDdU_N(4,nel,ndof,nel,ndof);
+    P_Cp(2,ndof,ndof),grad_N_dDdU_N(4,nel,ndof,nel,ndof),
+    Uo1(1,ndof);
 
   Ao_grad_N.resize(3,nel,ndof,ndof);
   tau_supg.resize(2,ndof,ndof);
@@ -311,7 +313,7 @@ new_assemble_BDF(arg_data_list &arg_data_v,const Nodedata *nodedata,
   Id_ndim.eye();
 
   v_mesh.resize(1,ndim);
-  int use_ALE = 0;
+  int use_ALE = 1;
   if (use_ALE) {
     PETSCFEM_ASSERT(nH >= 2*ndim,
                     "This element requires two steps of the old mesh "
@@ -353,6 +355,7 @@ new_assemble_BDF(arg_data_list &arg_data_v,const Nodedata *nodedata,
 	lambda_max = 0;
 	lstateo.set(element.vector_values(*stateo));
 	lstaten.set(element.vector_values(*staten));
+	lstateo1.set(element.vector_values(*stateo1));
       }
 
       // State at time t_{n+\alpha}
@@ -415,7 +418,6 @@ new_assemble_BDF(arg_data_list &arg_data_v,const Nodedata *nodedata,
 
       // loop over Gauss points
       Jaco_av.set(0.);
-      double rgcl;
       for (ipg = 0; ipg < npg; ipg++) {
 	//      Matrix xpg = SHAPE * xloc;
 	Jaco.prod(DSHAPEXI,xloc,1,-1,-1,2); // xloc is at t_{n+alpha}
@@ -439,8 +441,8 @@ new_assemble_BDF(arg_data_list &arg_data_v,const Nodedata *nodedata,
 	    Qn_phalf.set(0.0).axpy(iJaco_new,detJaco_new*0.5);
 	    Qn_phalf.axpy(iJaco_old,detJaco_old*0.5);
 
-	    Qn_mhalf.set(0.0).axpy(iJaco_old,detJaco_new*0.5);
-	    Qn_mhalf.axpy(iJaco_old,detJaco_old*0.5);
+	    Qn_mhalf.set(0.0).axpy(iJaco_old,detJaco_old*0.5);
+	    Qn_mhalf.axpy(iJaco_old1,detJaco_old1*0.5);
             
 	    Q.set(0.0).axpy(Qn_phalf,1.5)
               .axpy(Qn_mhalf,-0.5).scale(1.0/detJaco_new);
@@ -449,10 +451,11 @@ new_assemble_BDF(arg_data_list &arg_data_v,const Nodedata *nodedata,
             vmesh_phalf.prod(SHAPE,vloc_mesh,-1,-1,1);
             vmesh_mhalf.prod(SHAPE,vloc_mesh1,-1,-1,1);
             
-            qv_phalf.prod(Qn_phalf,vmesh_phalf,1,-1,-1);
-            qv_mhalf.prod(Qn_mhalf,vmesh_mhalf,1,-1,-1);
+            qv_phalf.prod(Qn_phalf,vmesh_phalf,-1,1,-1);
+            qv_mhalf.prod(Qn_mhalf,vmesh_mhalf,-1,1,-1);
             qv.set(0.0).axpy(qv_phalf,1.5).axpy(qv_mhalf,-0.5)
               .scale(1.0/detJaco_new);
+            rgcl.prod(qv,DSHAPEXI,-1,-1,1);
             
 	  } else if (ndim == 3) { // we need 3 points in 3D to integ
 				  // temporal average with
@@ -501,20 +504,33 @@ new_assemble_BDF(arg_data_list &arg_data_v,const Nodedata *nodedata,
 	  // state variables and gradient
 	  Un.prod(SHAPE,lstaten,-1,-1,1);//lstaten is at t_{n+1}
 	  adv_diff_ff->enthalpy_fun->enthalpy(Hn,Un);
-	  Uo.prod(SHAPE,lstateo,-1,-1,1);
+	  Uo.prod(SHAPE,lstateo,-1,-1,1);//lstateo is at t_{n}
 	  adv_diff_ff->enthalpy_fun->enthalpy(Ho,Uo);
+	  Uo1.prod(SHAPE,lstateo1,-1,-1,1);//lstateo1 is at t_{n-1}
+	  adv_diff_ff->enthalpy_fun->enthalpy(Ho1,Uo1);
 	  U.prod(SHAPE,lstate,-1,-1,1); // state at t_{n+alpha}
 	  adv_diff_ff->enthalpy_fun->enthalpy(Halpha,U);
 	  // This is d(JH)/dt (J is the jacobian of the
 	  // ALE transformation
 	  // Hn represents H in time t^{n+1} so that it must be affected
 	  // by detJaco_new
-	  dHdt.set(Hn).scale(detJaco_new/detJaco).axpy(Ho,-detJaco_old/detJaco)
-	    .scale(rec_Dt_m*dhdt_term_coef);
-	  // This is plain dH/dt
-	  dHdt2.set(Hn).rest(Ho).scale(rec_Dt_m*dhdt_term_coef);
 
-	  dHdt.rs();
+	  // dHdt.set(Hn).scale(detJaco_new/detJaco).axpy(Ho,-detJaco_old/detJaco)
+	  //   .scale(rec_Dt_m*dhdt_term_coef);
+
+	  dHdt.set(0.0)
+            .axpy(Hn,1.5*detJaco_new)
+            .axpy(Ho,-2.0*detJaco_old)
+            .axpy(Ho1,0.5*detJaco_old1)
+	    .scale(rec_Dt_m/detJaco);
+
+	  // This is plain dH/dt
+	  //dHdt2.set(Hn).rest(Ho).scale(rec_Dt_m*dhdt_term_coef);
+	  dHdt2.set(0.0)
+            .axpy(Hn,1.5)
+            .axpy(Ho,-2.0)
+            .axpy(Ho1,0.5)
+	    .scale(rec_Dt_m);
 
 	  // Pass to the flux function the true positive values
 	  grad_U.prod(dshapex,lstate,1,-1,-1,2);// grad U at t_{n+alpha}
@@ -717,7 +733,7 @@ new_assemble_BDF(arg_data_list &arg_data_v,const Nodedata *nodedata,
 	  // w = weak_form
 	  // tmp8.prod(dshapex,tmp11,-1,1,2,-1); // non-averaged shape function gradients
 	  tmp8.prod(dshapex_gcl,tmp11,-1,1,2,-1);
-          tmp8b.prod(qv,Halpha,1,2);
+          tmp8b.prod(rgcl,Halpha,1,2);
           tmp8.rest(tmp8b);
 	  tmp9.prod(SHAPE,tmp10,1,2); // tmp9 = SHAPE' * (G - dHdt)
 #if 0

@@ -436,7 +436,8 @@ int bdf_main() {
           ierr = AA->clean_mat(); CHKERRA(ierr);
         }
 	VOID_IT(argl);
-	argl.arg_add(&xold,IN_VECTOR);
+	argl.arg_add(&xn,IN_VECTOR);
+	argl.arg_add(&xn1,IN_VECTOR);
 
         if (!ADVDIF_CHECK_JAC) argl.arg_add(&x,IN_VECTOR);
         else argl.arg_add(&x,PERT_VECTOR);
