@@ -608,7 +608,7 @@ int bdf_main() {
     double delta_u;
     ierr = VecCopy(x,dx);
     scal=-1.;
-    ierr = VecAXPY(dx,scal,xold);
+    ierr = VecAXPY(dx,scal,xn);
     ierr  = VecNorm(dx,NORM_2,&delta_u); CHKERRA(ierr);
 
     if (tstep % nsave == 0){
