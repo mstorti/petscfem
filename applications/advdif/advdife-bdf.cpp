@@ -261,6 +261,8 @@ new_assemble_BDF(arg_data_list &arg_data_v,const Nodedata *nodedata,
   dshapex_gcl.resize(2,ndimel,nel);
   FMatrix Jaco(ndimel,ndim), Jaco_av(ndimel,ndim),
     Jaco_new(ndimel,ndim), Jaco_old(ndimel,ndim), Jaco_old1(ndimel,ndim),
+    Jaco_phalf(ndimel,ndim), Jaco_mhalf(ndimel,ndim),
+    iJaco_phalf(ndimel,ndimel), iJaco_mhalf(ndimel,ndimel),
     iJaco(ndimel,ndimel), iJaco_old(ndimel,ndimel), iJaco_old1(ndimel,ndimel),
     Q(ndimel,ndimel), Qn_phalf(ndimel,ndimel), Qn_mhalf(ndimel,ndimel), 
     Jaco_mid(ndimel,ndim),iJaco_mid(ndimel,ndim),
@@ -436,48 +438,56 @@ new_assemble_BDF(arg_data_list &arg_data_v,const Nodedata *nodedata,
 	  detJaco_old = Jaco_old.det();
 	  detJaco_old1 = Jaco_old1.det();
 	  
-	  if (ndim == 2){ // we need only two points in 2D to integ temporal average
-	    iJaco_new.inv(Jaco_new);
-	    iJaco_old.inv(Jaco_old);
-	    iJaco_old1.inv(Jaco_old1);
+          iJaco_new.inv(Jaco_new);
+          iJaco_old.inv(Jaco_old);
+          iJaco_old1.inv(Jaco_old1);
 
-	    Qn_phalf.set(0.0).axpy(iJaco_new,detJaco_new*0.5);
-	    Qn_phalf.axpy(iJaco_old,detJaco_old*0.5);
+	  if (1 || ndim == 2){ // we need only two points in 2D to integ temporal average
+	    Qn_phalf.set(0.0)
+              .axpy(iJaco_new,detJaco_new*0.5)
+              .axpy(iJaco_old,detJaco_old*0.5);
 
-	    Qn_mhalf.set(0.0).axpy(iJaco_old,detJaco_old*0.5);
-	    Qn_mhalf.axpy(iJaco_old1,detJaco_old1*0.5);
-            
-	    Q.set(0.0).axpy(Qn_phalf,1.5)
-              .axpy(Qn_mhalf,-0.5).scale(1.0/detJaco_new);
-	    dshapex_gcl.prod(Q,DSHAPEXI,1,-1,-1,2);
-
-            vmesh_phalf.prod(SHAPE,vloc_mesh,-1,-1,1);
-            vmesh_mhalf.prod(SHAPE,vloc_mesh1,-1,-1,1);
-            
-            qv_phalf.prod(Qn_phalf,vmesh_phalf,-1,1,-1);
-            qv_mhalf.prod(Qn_mhalf,vmesh_mhalf,-1,1,-1);
-            qv.set(0.0).axpy(qv_phalf,1.5).axpy(qv_mhalf,-0.5)
-              .scale(1.0/detJaco_new);
-            rgcl.prod(qv,DSHAPEXI,-1,-1,1);
+	    Qn_mhalf.set(0.0)
+              .axpy(iJaco_old,detJaco_old*0.5)
+              .axpy(iJaco_old1,detJaco_old1*0.5);
             
 	  } else if (ndim == 3) { // we need 3 points in 3D to integ
 				  // temporal average with
 				  // Gauss-Lobatto
-            PETSCFEM_ERROR0("Not implemented yet BDF and ndimel=3"); 
-	    iJaco_new.inv(Jaco_new);
-	    Q.set(0.0).axpy(iJaco_new,detJaco_new/6.0);
-	    iJaco_old.inv(Jaco_old);
-	    Q.axpy(iJaco_old,detJaco_old/6.0);
-	    
-	    // for 3D holy grial GCL mid point integ
-	    xloc_mid.set(xloc_new).scale(0.5).axpy(xloc_old,0.5).rs(); 
-	    Jaco_mid.prod(DSHAPEXI,xloc_mid,1,-1,-1,2);
-	    detJaco_mid = Jaco_mid.det();
-	    iJaco_mid.inv(Jaco_mid);
-	    Q.axpy(iJaco_mid,detJaco_mid*2.0/3.0);
-	    Q.scale(1.0/detJaco);
-	    dshapex_gcl.prod(Q,DSHAPEXI,1,-1,-1,2);
+            
+            Jaco_phalf.set(0.0).axpy(Jaco_new,0.5).axpy(Jaco_old,0.5);
+	    iJaco_phalf.inv(Jaco_phalf);
+            Jaco_mhalf.set(0.0).axpy(Jaco_old,0.5).axpy(Jaco_old1,0.5);
+	    iJaco_mhalf.inv(Jaco_mhalf);
+            double 
+              detJaco_phalf = Jaco_phalf.det(),
+              detJaco_mhalf = Jaco_mhalf.det();
+
+	    Qn_phalf.set(0.0)
+              .axpy(iJaco_new,detJaco_new)
+              .axpy(iJaco_phalf,detJaco_phalf*4)
+              .axpy(iJaco_old,detJaco_old)
+              .scale(1.0/6.0);
+	    Qn_mhalf.set(0.0)
+              .axpy(iJaco_old,detJaco_old)
+              .axpy(iJaco_mhalf,detJaco_mhalf*4)
+              .axpy(iJaco_old1,detJaco_old1)
+              .scale(1.0/6.0);
+
 	  }
+
+          Q.set(0.0).axpy(Qn_phalf,1.5)
+            .axpy(Qn_mhalf,-0.5).scale(1.0/detJaco_new);
+          dshapex_gcl.prod(Q,DSHAPEXI,1,-1,-1,2);
+
+          vmesh_phalf.prod(SHAPE,vloc_mesh,-1,-1,1);
+          vmesh_mhalf.prod(SHAPE,vloc_mesh1,-1,-1,1);
+            
+          qv_phalf.prod(Qn_phalf,vmesh_phalf,-1,1,-1);
+          qv_mhalf.prod(Qn_mhalf,vmesh_mhalf,-1,1,-1);
+          qv.set(0.0).axpy(qv_phalf,1.5).axpy(qv_mhalf,-0.5)
+            .scale(1.0/detJaco_new);
+          rgcl.prod(qv,DSHAPEXI,-1,-1,1);
 
           if (dont_use_average_jaco_fix) {
             dshapex_gcl.prod(iJaco_new,DSHAPEXI,1,-1,-1,2);
