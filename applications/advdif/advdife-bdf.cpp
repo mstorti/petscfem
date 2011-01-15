@@ -161,6 +161,15 @@ new_assemble_BDF(arg_data_list &arg_data_v,const Nodedata *nodedata,
   //o Don't use the averaged Jacobian ALE fix for the DGCL. This is only
   //  for debugging purposes, you should use the fix!! 
   NSGETOPTDEF(int,dont_use_average_jaco_fix,0);
+  //o Use this number of Gauss-Lobatto points for the
+  //  computation of the averaged Jacobian fix. If not
+  //  entered use the minimum number appropriate for the
+  //  given dimension, i.e. npg=2 for 2D, and npg=3 for 3D. 
+  NSGETOPTDEF(int,average_jaco_fix_npg,-1);
+  if (average_jaco_fix_npg==-1) average_jaco_fix_npg = ndim;
+  PETSCFEM_ASSERT(average_jaco_fix_npg==2 || average_jaco_fix_npg==3,
+                  "Not implemented yet average_jaco_fix_npg = %d",
+                  average_jaco_fix_npg);  
 
   //o key for computing reactive terms or not
   NSGETOPTDEF(int,compute_reactive_terms,1);
@@ -442,7 +451,10 @@ new_assemble_BDF(arg_data_list &arg_data_v,const Nodedata *nodedata,
           iJaco_old.inv(Jaco_old);
           iJaco_old1.inv(Jaco_old1);
 
-	  if (1 || ndim == 2){ // we need only two points in 2D to integ temporal average
+	  if (average_jaco_fix_npg == 2){ 
+
+            // we need only two points in 2D to integ
+            // temporal average
 	    Qn_phalf.set(0.0)
               .axpy(iJaco_new,detJaco_new*0.5)
               .axpy(iJaco_old,detJaco_old*0.5);
@@ -450,14 +462,19 @@ new_assemble_BDF(arg_data_list &arg_data_v,const Nodedata *nodedata,
 	    Qn_mhalf.set(0.0)
               .axpy(iJaco_old,detJaco_old*0.5)
               .axpy(iJaco_old1,detJaco_old1*0.5);
-            
-	  } else if (ndim == 3) { // we need 3 points in 3D to integ
-				  // temporal average with
-				  // Gauss-Lobatto
-            
-            Jaco_phalf.set(0.0).axpy(Jaco_new,0.5).axpy(Jaco_old,0.5);
+
+	  } else if (average_jaco_fix_npg == 3) { 
+
+            // we need 3 points in 3D to integ
+            // temporal average with
+            // Gauss-Lobatto
+            Jaco_phalf.set(0.0)
+              .axpy(Jaco_new,0.5)
+              .axpy(Jaco_old,0.5);
 	    iJaco_phalf.inv(Jaco_phalf);
-            Jaco_mhalf.set(0.0).axpy(Jaco_old,0.5).axpy(Jaco_old1,0.5);
+            Jaco_mhalf.set(0.0)
+              .axpy(Jaco_old,0.5)
+              .axpy(Jaco_old1,0.5);
 	    iJaco_mhalf.inv(Jaco_mhalf);
             double 
               detJaco_phalf = Jaco_phalf.det(),
@@ -474,7 +491,7 @@ new_assemble_BDF(arg_data_list &arg_data_v,const Nodedata *nodedata,
               .axpy(iJaco_old1,detJaco_old1)
               .scale(1.0/6.0);
 
-	  }
+	  } 
 
           Q.set(0.0).axpy(Qn_phalf,1.5)
             .axpy(Qn_mhalf,-0.5).scale(1.0/detJaco_new);
