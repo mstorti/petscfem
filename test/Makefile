@@ -7,7 +7,7 @@
 	newff burgers bug100 nonlr genload lupart distmap sparse graph sqcav	\
 	pfmat  aquifer nutatcyl mmove advec nsgenload plate gasflow-conv 	\
 	oscplate idmap sw_abso cubcav condwall project embgath alebcconv 	\
-	ductadv
+	ductadv dvector
 
 SRCS = $(wildcard *.cpp)
 
@@ -125,7 +125,7 @@ runtests: compile sector oscplate fastmat2 plano idmap constraint_bug	\
 	fstack advdif texthash log_vars newff burgers bug100 genload	\
 	lupart distmap sparse graph sqcav pfmat aquifer nutatcyl mmove	\
 	advec nsgenload cubcav project embgath alebcconv ductadv 	\
-	gasflow-conv
+	gasflow-conv dvector
 
 rp: runtests_p
 runtests_p: pfmat aquifer nutatcyl mmove	\
@@ -298,6 +298,11 @@ alebcconv:
 # Check strong temporal conservation with advdif
 ductadv:
 	$(MAKE) -C ductadv tests
+
+#----<*>----------<*>----------<*>----------<*>----------<*>----------<*>--
+# Check dvector_clone_parallel
+dvector:
+	$(MAKE) -C dvector tests
 
 #----<*>----------<*>----------<*>----------<*>----------<*>----------<*>--
 # Gasflow tests

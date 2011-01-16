@@ -17284,3 +17284,20 @@ importante debido a que la inicializacion esta mal.
    0.96373   0.98122   0.64105
    0.96085   0.97848   0.61632
    0.95758   0.97572   0.59423
+
+%=== Sun Jan 16 11:10:20 2011 mstorti@aquiles
+%
+%--[2011-01-16.14:10:20.mstorti-v34-end-0-g455b732]-----
+Después de implementar la BDF con Averaged Jacobian Formulation (AJF)
+y ver que todo anda bien, hago un merge (mstorti-v34) corrot todos los
+tests, anda todo bien. 
+%
+-------------------
+g_c++ y O_c++:
+%
+NOT OK------- -> 0
+CAN'T OPEN------- -> 1
+dvector/dvectest.out
+--------------------
+El test que no anda es porque no se esta corriendo, en algun momento
+se saco, no se porque. 
