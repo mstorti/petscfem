@@ -15,6 +15,39 @@ extern TextHashTable *GLOBAL_OPTIONS;
 #define MAXPROP 100
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>
+void adaptor::get_vals(adaptor::ArgHandle h,
+                       double *vals,int s) {
+  PETSCFEM_ASSERT0(elem>=0 && ielh>=0,
+                   "Current element not set. "
+                   "`export_vals()' was called probably from outside \n"
+                   "adaptor' element loop\n");
+  int index = h.index();
+  arg_data &arg = (*arg_data_vp)[index];
+  PETSCFEM_ASSERT0(!(h==NullArgHandle),
+                   "Invalid handle");
+  PETSCFEM_ASSERT(index>=0 && index<int(nargs()),
+                  "Invalid handle index, index %d, nargs\n",
+                  index,nargs());  
+  double *locst = arg.locst;
+  int rowsz=-1;
+  PETSCFEM_ASSERT(arg.options & IN_VECTOR,
+                  "Arg handle (index=%d,key=\"%s\") should be an IN_VECTOR",
+                  index,arg.arginfo.c_str());
+  rowsz=nel*ndof;
+  if (s>=0) {
+    PETSCFEM_ASSERT(s==rowsz,
+                    "Not given correct size. \n"
+                    "got %d, required %d\n",s,rowsz);  
+  }
+  memcpy(vals,locst+ielh*rowsz,rowsz*sizeof(double));
+}
+
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>
+void adaptor::get_vals(ArgHandle h,FastMat2 &a) {
+  get_vals(h,a.storage_begin(),a.size());
+}
+
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>
 void adaptor::export_vals(adaptor::ArgHandle h,
                           double *vals,int s) {
   PETSCFEM_ASSERT0(elem>=0 && ielh>=0,

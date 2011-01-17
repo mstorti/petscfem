@@ -138,6 +138,10 @@ public:
 
   void export_vals(ArgHandle h,FastMat2 &a); 
 
+  void get_vals(ArgHandle h,double *vals,int s=-1); 
+
+  void get_vals(ArgHandle h,FastMat2 &a); 
+
   /** Returns the stage we are performinf when computing 
       Jacobians by finite differences. The stage number 
       returned may be #j=-1# (no stage), #j=0# (initialization, 

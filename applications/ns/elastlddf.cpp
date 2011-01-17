@@ -10,7 +10,7 @@
 #include "nsi_tet.h"
 #include "adaptor.h"
 #include "nsgath.h"
-#include "elastld.h"
+#include "elastlddf.h"
 
 #define ELEMPROPS(j,k) VEC2(elemprops,j,k,nelprops)
 #define MAXPROPS 100
@@ -18,7 +18,7 @@
 #define USE_YOUNG_PER_ELEM
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>
-void ld_elasticity::init() {
+void ld_elasticity_df::init() {
 
   elprpsindx.mono(MAXPROPS);
   propel.mono(MAXPROPS);
@@ -76,7 +76,7 @@ void ld_elasticity::init() {
   // printf("rec_Dt: %d\n",rec_Dt);
   // SHV(rec_Dt);
   assert(!(rec_Dt>0. && rho==0.));
-  assert(ndof==2*ndim);
+  assert(ndof==ndim);
 
   ntens = ndim*(ndim+1)/2;
   nen = nel*ndim;
@@ -88,6 +88,9 @@ void ld_elasticity::init() {
   ustar.resize(2,nel,ndim);
   Id.resize(2,ndim,ndim).eye();
 
+  xmh.resize(2,nel,ndim);
+  xph.resize(2,nel,ndim);
+
   // I don't know right if this will work for
   // ndim==3 (may be yes)
   // assert(ndim==2);
@@ -95,7 +98,7 @@ void ld_elasticity::init() {
 }
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>
-void ld_elasticity::
+void ld_elasticity_df::
 before_chunk(const char *jobinfo) {
   GET_JOBINFO_FLAG(comp_prof);
   GET_JOBINFO_FLAG(comp_mat_res);
@@ -114,14 +117,18 @@ before_chunk(const char *jobinfo) {
 }
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>
-void ld_elasticity
+void ld_elasticity_df
 ::element_connector(const FastMat2 &xloc,
                     const FastMat2 &state_old,
                     const FastMat2 &state_new,
                     FastMat2 &res,FastMat2 &mat) {
   res.set(0.);
   mat.set(0.);
-
+  get_vals(state_mh,xmh);
+  get_vals(state_mh,xph);
+  PetscFinalize();
+  exit(0);
+    
 #ifdef USE_YOUNG_PER_ELEM
   load_props(propel.buff(),elprpsindx.buff(),nprops,
 	     &(ELEMPROPS(elem,0)));
@@ -239,100 +246,4 @@ void ld_elasticity
     res.rs().is(2,1,ndim).set(tmp8).rs();
   }
     
-}
-
-//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>
-void ld_elasticity_load
-::init() {
-  
-#define MAXPROPS 100
-  elprpsindx.mono(MAXPROPS);
-  propel.mono(MAXPROPS);
-
-  force.resize(1,ndim).set(0.);
-  const char *line2;
-  vector<double> force_v;
-  thash->get_entry("Tractions",line2);
-  if(line2) {
-    read_double_array(force_v,line2);
-    assert(force_v.size()==(unsigned int)ndim);
-    force.set(&force_v[0]);
-    //printf("Readed Tractions Fx=%f Fy=%f Fz=%f  \n",force_v[0],force_v[1],force_v[2]);
-  }
-  
-
-  int ierr, iprop=0;
-  pressure_indx = iprop; 
-  ierr = get_prop(iprop,elem_prop_names,
-		  thash,elprpsindx.buff(),propel.buff(), 
-		  "pressure",1);
-  nprops = iprop;
-
-  //o Poisson ratio
-  TGETOPTDEF(thash,double,defo_fac,1.);
-  //o Use new formulation (swap eqs, and rewrite acceleration)
-  TGETOPTDEF_ND(thash,int,use_new_form,1);
-  
-  nor.resize(1,ndim);
-  Jaco.resize(2,ndimel,ndim);
-  tmp.resize(2,nel,ndim);
-  tmp1.resize(2,nel,ndim);
-}
-
-//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>
-void ld_elasticity_load
-::element_connector(const FastMat2 &xloc,
-		    const FastMat2 &state_old,
-		    const FastMat2 &state_new,
-		    FastMat2 &res,FastMat2 &mat){
-  res.set(0.);
-  mat.set(0.);
-  load_props(propel.buff(),elprpsindx.buff(),nprops,
-	     &(ELEMPROPS(elem,0)));
-
-  double pressure = *(propel.buff()+pressure_indx);
-  
-  if (use_new_form) {
-    res.is(2,1,ndim);
-  }else{
-    res.is(2,ndim+1,2*ndim);
-  }
-
-  xstar.set(xloc);
-
-  state.set(state_old);
-  state.is(2,1,ndim);
-  xstar.axpy(state,defo_fac*(1-alpha));
-  state.rs();
-
-  state.set(state_new);
-  state.is(2,1,ndim);
-  xstar.axpy(state,defo_fac*alpha);
-  state.rs();
-
-#if 0
-  if (elem % 10==0)
-    printf("elem %d, pressure %f\n",
-	   elem,pressure,ELEMPROPS(elem,0),&ELEMPROPS(elem,0));
-#endif
-
-  for (int ipg=0; ipg<npg; ipg++) {
-
-    dshapexi.ir(3,ipg+1); // restriccion del indice 3 a ipg+1
-    shape.ir(2,ipg+1);
-    Jaco.prod(dshapexi,xstar,1,-1,-1,2);
-    double detJaco = Jaco.detsur(&nor);
-    if (detJaco<=0.) {
-      detj_error(detJaco,elem);
-      set_error(1);
-    }
-    double wpgdet = detJaco*wpg.get(ipg+1);
-
-    tmp.prod(shape,nor,1,2).scale(-wpg.get(ipg+1)*pressure);
-    tmp1.prod(shape,force,1,2).scale(wpgdet);
-    res.add(tmp).add(tmp1);
-  }
-  dshapexi.rs();
-  shape.rs();
-  res.rs();
 }
