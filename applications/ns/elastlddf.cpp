@@ -44,6 +44,12 @@ void ld_elasticity_df::init() {
   assert(Young_modulus>0.);
 #endif
 
+  //o Newmark gamma parameter
+  TGETOPTDEF(thash,double,newmark_gamma,0.5);
+
+  //o Newmark beta parameter
+  TGETOPTDEF(thash,double,newmark_beta,0.25);
+
   //o Poisson ratio
   TGETOPTDEF(thash,double,Poisson_ratio,0.);
   nu=Poisson_ratio;
@@ -121,12 +127,10 @@ void ld_elasticity_df
                     FastMat2 &res,FastMat2 &mat) {
   res.set(0.);
   mat.set(0.);
+  xnew.set(state_new);
+  xold.set(state_old);
   get_vals(state_mh_argh,xmh);
   get_vals(state_ph_argh,xph);
-  FMSHV(xmh);
-  FMSHV(xph);
-  PetscFinalize();
-  exit(0);
     
 #ifdef USE_YOUNG_PER_ELEM
   load_props(propel.buff(),elprpsindx.buff(),nprops,
@@ -165,19 +169,17 @@ void ld_elasticity_df
     iJaco.inv(Jaco);
     dshapex.prod(iJaco,dshapexi,1,-1,-1,2);
 
-    tmp3.set(state_new);
-    tmp3.is(2,1,ndim);
-    xnew.set(tmp3);
-    tmp3.rs().is(2,ndim+1,2*ndim);
-    vnew.set(tmp3);
-    tmp3.rs();
+    vold.set(xph).rest(xmh).scale(rec_Dt);
+    aold.set(xph).axpy(xold,-2.0).add(xmh).scale(rec_Dt*rec_Dt);
 
-    tmp3.set(state_old);
-    tmp3.is(2,1,ndim);
-    xold.set(tmp3);
-    tmp3.rs().is(2,ndim+1,2*ndim);
-    vold.set(tmp3);
-    tmp3.rs();
+    printf("rec_Dt %f\n",rec_Dt);
+    FMSHV(xph);
+    FMSHV(xmh);
+    FMSHV(vold);
+    FMSHV(aold);
+
+    PetscFinalize();
+    exit(0);
 
     ustar.set(xnew).scale(alpha).axpy(xold,1-alpha);
     vstar.set(vnew).scale(alpha).axpy(vold,1-alpha);

@@ -11,11 +11,13 @@ class  ld_elasticity_df : public adaptor {
 private:
   double rho,E,nu,lambda,mu,cdamp;
   int ntens,nen, use_new_form;
+  double newmark_gamma, newmark_beta;
 
   FastMat2 strain, stress, Jaco, iJaco, grad_u, F, 
     tmp, tmp1, tmp2, tmp3, tmp4, tmp5, tmp6, 
-    tmp7, tmp8, xnew, xmh, xph, vnew, vnew1, xold, vold, G_body, 
-    Id, ustar, vstar, a, res_pg, dv, dxdt;
+    tmp7, tmp8, xnew, xmh, xph, vnew, vnew1, xold, G_body, 
+    Id, ustar, vstar, a, res_pg, dv, dxdt,
+    vold,aold;
 
   dvector<int> elprpsindx; 
   int nprops;

@@ -141,6 +141,8 @@ int struct_main() {
   // Use new formulation 
   GLOBAL_OPTIONS->add_entry("use_displacement_formulation","1",0);
 #endif
+  GLOBAL_OPTIONS->add_entry("use_arg_handles","1",0);
+
   //o The number of outer stages for convergence in coupled problems.
   TGETOPTDEF(GLOBAL_OPTIONS,int,nstage,1);
   int fractional_step = 0;
@@ -388,7 +390,7 @@ int struct_main() {
   // Compute  profiles
   debug.trace("Computing profiles...");
   argl.clear();
-  argl.arg_add(A_tet,PROFILE|PFMAT);
+  argl.arg_add(A_tet,PROFILE|PFMAT,"A");
   ierr = assemble(mesh,argl,dofmap,"comp_prof",&time); CHKERRA(ierr); 
   debug.trace("After computing profile.");
   int update_jacobian_step=0;
@@ -413,62 +415,6 @@ int struct_main() {
     time.inc(Dt);
     if (!MY_RANK) printf("Time step: %d, time: %g %s\n",
 			 tstep,time.time(),(steady ? " (steady) " : ""));
-
-    //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
-    // Build octree for nearest neighbor calculation
-    int refresh_wall_data = LES && A_van_Driest>0.;
-    int rest_ok = update_wall_data 
-      && ((tstep-tstep_start) % update_wall_data)==0;
-    refresh_wall_data &= (tstep==tstep_start || rest_ok);
-    if (refresh_wall_data) {
-      PetscPrintf(PETSCFEM_COMM_WORLD,"--- Refreshing Wall_Data -- \n");
-#ifdef USE_ANN
-      argl.clear();
-      argl.arg_add(&data_pts,USER_DATA);
-      argl.arg_add(&elemset_pointer,USER_DATA);
-      ierr = assemble(mesh,argl,dofmap,"build_nneighbor_tree",&time); CHKERRQ(ierr); 
-      PetscSynchronizedFlush(PETSCFEM_COMM_WORLD);
-      dvector<double> buff;
-      buff.mono(data_pts.size());
-      ierr = MPI_Allreduce(&*data_pts.begin(),buff.buff(),
-			   data_pts.size(),MPI_DOUBLE,
-			   MPI_SUM,PETSCFEM_COMM_WORLD); CHKERRQ(ierr);
-      for (unsigned int j=0; j<data_pts.size(); j++) data_pts[j] = buff.ref(j);
-      buff.clear();
-
-      PetscPrintf(PETSCFEM_COMM_WORLD,"After nearest neighbor tree.\n");
-
-      wall_data.init(&data_pts,&elemset_pointer,ndim);
-
-      //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
-      // Find nearest neighbor for each volume element
-      argl.clear();
-      argl.arg_add(&wall_data,USER_DATA);
-      ierr = assemble(mesh,argl,dofmap,"get_nearest_wall_element",
-		      &time); CHKERRA(ierr); 
-#else
-      PETSCFEM_ERROR0("Not compiled with ANN library!!\n");
-#endif
-    }
-
-#if 0 && defined USE_ANN
-    ANNpoint point = annAllocPt(ndim);
-    ANNidx nn_idx;
-    ANNpoint nn = annAllocPt(ndim);
-    ANNdist dist;
-    int elem;
-
-
-    while (1) {
-      printf("\n\nEnter point: > ");
-      scanf("%lf %lf %lf",&(point[0]),&(point[1]),&(point[2]));
-      printf("\n");
-
-      wall_data->nearest(point,elemset,elem,nn_idx,nn,dist);
-      printf("Nearest neighbor id point %d, coords: %f %f %f, elem %d, elemset %p\n",
-	     nn_idx,nn[0],nn[1],nn[2],elem,elemset);
-    }
-#endif
 
     hook_list.time_step_pre(time_star.time(),tstep);
     ierr = VecCopy(x,xold);
@@ -526,7 +472,6 @@ int struct_main() {
         if (update_jacobian_this_iter) argl.arg_add(A_tet,OUT_MATRIX|PFMAT,"A");
         argl.arg_add(&hmin,VECTOR_MIN,"hmin");
         argl.arg_add(&glob_param,USER_DATA,"glob_param");
-        argl.arg_add(&wall_data,USER_DATA,"wall_data");
 
         const char *jobinfo = (update_jacobian_this_iter ? "comp_mat_res" : "comp_res");
 
@@ -581,9 +526,9 @@ int struct_main() {
           ierr = A_tet_c->clean_mat(); CHKERRA(ierr); 
 
           argl.clear();
-          argl.arg_add(&x,PERT_VECTOR);
-          argl.arg_add(&xold,IN_VECTOR);
-          argl.arg_add(A_tet_c,OUT_MATRIX_FDJ|PFMAT);
+          argl.arg_add(&x,PERT_VECTOR,"state");
+          argl.arg_add(&xold,IN_VECTOR,"state_old");
+          argl.arg_add(A_tet_c,OUT_MATRIX_FDJ|PFMAT,"A");
 
           update_jacobian_step++;
           if (update_jacobian_step >= update_jacobian_steps) 
