@@ -45,10 +45,10 @@ void ld_elasticity_df::init() {
 #endif
 
   //o Newmark gamma parameter
-  TGETOPTDEF(thash,double,newmark_gamma,0.5);
+  TGETOPTDEF_ND(thash,double,newmark_gamma,0.5);
 
   //o Newmark beta parameter
-  TGETOPTDEF(thash,double,newmark_beta,0.25);
+  TGETOPTDEF_ND(thash,double,newmark_beta,0.25);
 
   //o Poisson ratio
   TGETOPTDEF(thash,double,Poisson_ratio,0.);
@@ -80,6 +80,7 @@ void ld_elasticity_df::init() {
   // SHV(rec_Dt);
   assert(!(rec_Dt>0. && rho==0.));
   assert(ndof==ndim);
+  PETSCFEM_ASSERT0(rec_Dt>0.0,"Dt must be positive and finite.");
 
   ntens = ndim*(ndim+1)/2;
   nen = nel*ndim;
@@ -145,6 +146,8 @@ void ld_elasticity_df
 #endif
 #endif
 
+  double Dt = 1.0/rec_Dt, Dt2 = Dt*Dt;
+
   // printf("element %d, Young %f\n",elem,E);
 
   lambda = nu*E/((1+nu)*(1-2*nu));
@@ -171,12 +174,21 @@ void ld_elasticity_df
 
     vold.set(xph).rest(xmh).scale(rec_Dt);
     aold.set(xph).axpy(xold,-2.0).add(xmh).scale(rec_Dt*rec_Dt);
+    anew.set(xnew).rest(xold).axpy(vold,-Dt).scale(0.5*Dt2)
+      .axpy(aold,1.0-2.0*newmark_beta).scale(1.0/(2.0*newmark_beta));
+    vnew.set(vold)
+      .axpy(aold,(1.0-newmark_gamma)*Dt)
+      .axpy(anew,newmark_gamma*Dt);
 
     printf("rec_Dt %f\n",rec_Dt);
-    FMSHV(xph);
     FMSHV(xmh);
+    FMSHV(xold);
+    FMSHV(xph);
+    FMSHV(xnew);
     FMSHV(vold);
     FMSHV(aold);
+    FMSHV(vnew);
+    FMSHV(anew);
 
     PetscFinalize();
     exit(0);

@@ -15,9 +15,9 @@ private:
 
   FastMat2 strain, stress, Jaco, iJaco, grad_u, F, 
     tmp, tmp1, tmp2, tmp3, tmp4, tmp5, tmp6, 
-    tmp7, tmp8, xnew, xmh, xph, vnew, vnew1, xold, G_body, 
+    tmp7, tmp8, xnew, xmh, xph, vnew1, xold, G_body, 
     Id, ustar, vstar, a, res_pg, dv, dxdt,
-    vold,aold;
+    vold,aold, vnew, anew;
 
   dvector<int> elprpsindx; 
   int nprops;

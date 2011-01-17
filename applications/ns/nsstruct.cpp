@@ -419,6 +419,13 @@ int struct_main() {
     hook_list.time_step_pre(time_star.time(),tstep);
     ierr = VecCopy(x,xold);
     
+    // Just for debugging
+    double Dt2 = Dt*Dt;
+    ierr = VecSet(x,Dt2); CHKERRA(ierr);
+    ierr = VecSet(xold,0.0); CHKERRA(ierr);
+    ierr = VecSet(xmh,Dt2/4.0); CHKERRA(ierr);
+    ierr = VecSet(xph,Dt2/4.0); CHKERRA(ierr);
+
     for (int stage=0; stage<nstage; stage++) {
       
       PetscPrintf(PETSCFEM_COMM_WORLD,
