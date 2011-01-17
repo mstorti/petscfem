@@ -76,7 +76,8 @@ int struct_main() {
   hmin.resize(1);
 
   print_copyright();
-  PetscPrintf(PETSCFEM_COMM_WORLD,"-------- Navier-Stokes - Fluid Structure Interaction module ---------\n");
+  PetscPrintf(PETSCFEM_COMM_WORLD,"-------- Structure Code for Fluid "
+              "Structure Interaction module ---------\n");
 
   Debug debug(0,PETSCFEM_COMM_WORLD);
   GLOBAL_DEBUG = &debug;
@@ -121,7 +122,7 @@ int struct_main() {
     state(x,time), 
     state_old(xold,time_old),
     state_mh(xmh,time_mh),
-    state_ph(xmh,time_ph);
+    state_ph(xph,time_ph);
 
 #if 0
   //o If set, redirect output to this file.
@@ -372,6 +373,12 @@ int struct_main() {
   ierr = VecDuplicate(x,&dx); CHKERRA(ierr);
   ierr = VecDuplicate(x,&res); CHKERRA(ierr);
 
+  // Just for debugging
+  ierr = VecSet(x,Dt); CHKERRA(ierr);
+  ierr = VecSet(xold,0.0); CHKERRA(ierr);
+  ierr = VecSet(xmh,-Dt/2.0); CHKERRA(ierr);
+  ierr = VecSet(xph,+Dt/2.0); CHKERRA(ierr);
+
   //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
   // initialize state vectors
   scal=0;
@@ -514,7 +521,7 @@ int struct_main() {
         argl.arg_add(&state,IN_VECTOR|USE_TIME_DATA,"state");
         argl.arg_add(&state_old,IN_VECTOR|USE_TIME_DATA,"state_old");
         argl.arg_add(&state_mh,IN_VECTOR|USE_TIME_DATA,"state_mh");
-        argl.arg_add(&state_ph,IN_VECTOR|USE_TIME_DATA,"state_mh");
+        argl.arg_add(&state_ph,IN_VECTOR|USE_TIME_DATA,"state_ph");
         argl.arg_add(&res,OUT_VECTOR,"res");
         if (update_jacobian_this_iter) argl.arg_add(A_tet,OUT_MATRIX|PFMAT,"A");
         argl.arg_add(&hmin,VECTOR_MIN,"hmin");

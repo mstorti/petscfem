@@ -122,7 +122,9 @@ void ld_elasticity_df
   res.set(0.);
   mat.set(0.);
   get_vals(state_mh_argh,xmh);
-  get_vals(state_mh_argh,xph);
+  get_vals(state_ph_argh,xph);
+  FMSHV(xmh);
+  FMSHV(xph);
   PetscFinalize();
   exit(0);
     
