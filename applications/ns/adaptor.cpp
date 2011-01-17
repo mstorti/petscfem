@@ -371,7 +371,7 @@ int adaptor::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
       jpert=-1;
       element_connector_analytic(xloc,locstate2,locstate,veccontra,matlocfa);
 
-      if (comp_res && !use_arg_handles) {
+      if (comp_res) {
         veccontra.add(veccontr);
         veccontra.export_vals(&(RETVAL(ielh,0,0)));
       }

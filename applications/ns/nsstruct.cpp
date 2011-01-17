@@ -597,7 +597,7 @@ int struct_main() {
         if (relfac!=1.) PetscPrintf(PETSCFEM_COMM_WORLD,
                                     "relaxation factor %f\n",relfac);
         scal= relfac/alpha;
-        ierr = VecAXPY(x,scal,dx);
+        ierr = VecAXPY(x,scal,dx); CHKERRA(ierr);
 
 #if 0
         ierr = VecView(x,PETSC_VIEWER_STDOUT_WORLD); CHKERRA(ierr);

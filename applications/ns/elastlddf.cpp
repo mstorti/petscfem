@@ -150,6 +150,28 @@ void ld_elasticity_df
 
   double Dt = 1.0/rec_Dt, Dt2 = Dt*Dt;
 
+  vold.set(xph).rest(xmh).scale(rec_Dt);
+  aold.set(xph).axpy(xold,-2.0).add(xmh).scale(rec_Dt*rec_Dt);
+  anew.set(xnew).rest(xold).axpy(vold,-Dt).scale(2.0/Dt2)
+    .axpy(aold,1.0-2.0*newmark_beta).scale(1.0/(2.0*newmark_beta));
+  vnew.set(vold)
+    .axpy(aold,(1.0-newmark_gamma)*Dt)
+    .axpy(anew,newmark_gamma*Dt);
+
+#if 0
+  if (prtb_index()==0) {
+    printf("------------------\nrec_Dt %f\n",rec_Dt);
+    FMSHV(xmh);
+    FMSHV(xold);
+    FMSHV(xph);
+    FMSHV(xnew);
+    FMSHV(vold);
+    FMSHV(aold);
+    FMSHV(vnew);
+    FMSHV(anew);
+    printf("-----------------------------------\n");
+  }
+#endif
   // printf("element %d, Young %f\n",elem,E);
 
   lambda = nu*E/((1+nu)*(1-2*nu));
@@ -174,25 +196,6 @@ void ld_elasticity_df
     iJaco.inv(Jaco);
     dshapex.prod(iJaco,dshapexi,1,-1,-1,2);
 
-    vold.set(xph).rest(xmh).scale(rec_Dt);
-    aold.set(xph).axpy(xold,-2.0).add(xmh).scale(rec_Dt*rec_Dt);
-    anew.set(xnew).rest(xold).axpy(vold,-Dt).scale(0.5*Dt2)
-      .axpy(aold,1.0-2.0*newmark_beta).scale(1.0/(2.0*newmark_beta));
-    vnew.set(vold)
-      .axpy(aold,(1.0-newmark_gamma)*Dt)
-      .axpy(anew,newmark_gamma*Dt);
-
-#if 0
-    printf("rec_Dt %f\n",rec_Dt);
-    FMSHV(xmh);
-    FMSHV(xold);
-    FMSHV(xph);
-    FMSHV(xnew);
-    FMSHV(vold);
-    FMSHV(aold);
-    FMSHV(vnew);
-    FMSHV(anew);
-#endif
 
     grad_u.prod(xnew,dshapex,-1,1,2,-1);
     F.set(Id).add(grad_u);
@@ -213,6 +216,6 @@ void ld_elasticity_df
   }
   shape.rs();
   res.rs();
-  export_vals(res_h,res);
-  export_vals(mat_h,mat);
+  // export_vals(res_h,res);
+  // export_vals(mat_h,mat);
 }
