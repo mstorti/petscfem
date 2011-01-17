@@ -59,9 +59,6 @@ void ld_elasticity_df::init() {
   //o Use new formulation (swap eqs, and rewrite acceleration)
   TGETOPTDEF_ND(thash,int,use_new_form,1);
 
-  //o Use displacement only formulation
-  TGETOPTDEF_ND(GLOBAL_OPTIONS,int,use_displacement_formulation,0);
-
   G_body.resize(1,ndim).set(0.);
   const char *line;
   vector<double> G_body_v;
@@ -124,8 +121,8 @@ void ld_elasticity_df
                     FastMat2 &res,FastMat2 &mat) {
   res.set(0.);
   mat.set(0.);
-  get_vals(state_mh,xmh);
-  get_vals(state_mh,xph);
+  get_vals(state_mh_argh,xmh);
+  get_vals(state_mh_argh,xph);
   PetscFinalize();
   exit(0);
     

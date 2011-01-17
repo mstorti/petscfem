@@ -116,12 +116,9 @@ int struct_main() {
   TGETOPTDEF(GLOBAL_OPTIONS,double,start_comp_time,0.);
   time.set(start_comp_time);
   time_mh.set(start_comp_time);
-  time_mh.inc(-Dt/2);
   time_ph.set(start_comp_time);
-  time_ph.inc(Dt/2);
   State 
     state(x,time), 
-    statep(xp,time), 
     state_old(xold,time_old),
     state_mh(xmh,time_mh),
     state_ph(xmh,time_ph);
@@ -401,11 +398,14 @@ int struct_main() {
   for (int tstep=tstep_start; tstep<=nstep; tstep++) {
     TSTEP=tstep; //debug:=
     time_old.set(time.time());
+    time_mh.set(time.time());
+    time_mh.inc(-Dt/2);
+    time_ph.set(time.time());
+    time_ph.inc(+Dt/2);
     time_star.set(time.time()+alpha*Dt);
     time.inc(Dt);
     if (!MY_RANK) printf("Time step: %d, time: %g %s\n",
 			 tstep,time.time(),(steady ? " (steady) " : ""));
-
 
     //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
     // Build octree for nearest neighbor calculation
