@@ -20,8 +20,6 @@
 #include <applications/ns/nsi_tet.h>
 static char help[] = "PETSc-FEM Navier Stokes module\n\n";
 
-extern WallData wall_data;
-
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 /** Creates hooks depending on the name. 
     @param name (input) the name of the hook. 
@@ -419,13 +417,6 @@ int struct_main() {
     hook_list.time_step_pre(time_star.time(),tstep);
     ierr = VecCopy(x,xold);
     
-    // Just for debugging
-    double Dt2 = Dt*Dt;
-    ierr = VecSet(x,Dt2); CHKERRA(ierr);
-    ierr = VecSet(xold,0.0); CHKERRA(ierr);
-    ierr = VecSet(xmh,Dt2/4.0); CHKERRA(ierr);
-    ierr = VecSet(xph,Dt2/4.0); CHKERRA(ierr);
-
     for (int stage=0; stage<nstage; stage++) {
       
       PetscPrintf(PETSCFEM_COMM_WORLD,
@@ -519,6 +510,7 @@ int struct_main() {
 
         PetscViewer matlab;
         if (verify_jacobian_with_numerical_one) {
+          PETSCFEM_ERROR0("NOT IMPLEMENTED YET");  
           PETSCFEM_ERROR0("Not implemented for this version of struct code");  
           ierr = PetscViewerASCIIOpen(PETSCFEM_COMM_WORLD,
                                       "system.dat.tmp",&matlab); CHKERRA(ierr);
@@ -543,7 +535,6 @@ int struct_main() {
           if (update_jacobian_this_iter) argl.arg_add(A_tet,OUT_MATRIX|PFMAT);
           argl.arg_add(&hmin,VECTOR_MIN);
           argl.arg_add(&glob_param,USER_DATA);
-          argl.arg_add(&wall_data,USER_DATA);
           ierr = assemble(mesh,argl,dofmap,jobinfo,
                           &time_star); CHKERRA(ierr);
 

@@ -24,7 +24,7 @@ private:
   dvector<double> propel;
   int Young_modulus_indx;
   double Young_modulus_fac;
-  ArgHandle state_mh_argh, state_ph_argh;
+  ArgHandle state_mh_argh, state_ph_argh, res_h, mat_h;
 
 public: 
   void init();

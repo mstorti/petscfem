@@ -108,11 +108,13 @@ before_chunk(const char *jobinfo) {
   GET_JOBINFO_FLAG(comp_mat_res);
 
   PETSCFEM_ASSERT(comp_prof || comp_mat_res,
-                  "Only jobinfo=\"comp_mat_res\" processed. \n"
+                  "Only jobinfos=\"comp_mat_res\" or \"comp_prof\" processed. \n"
                   "Received unrecognized jobinfo %s\n",jobinfo);  
 
   int ierr;
   if (comp_mat_res) {
+    res_h = get_arg_handle("res","No handle for `res'\n");
+    mat_h = get_arg_handle("A","No handle for `A'\n");
     state_mh_argh = get_arg_handle("state_mh",
                                    "No handle for `state_mh'\n");
     state_ph_argh = get_arg_handle("state_ph",
@@ -180,6 +182,7 @@ void ld_elasticity_df
       .axpy(aold,(1.0-newmark_gamma)*Dt)
       .axpy(anew,newmark_gamma*Dt);
 
+#if 0
     printf("rec_Dt %f\n",rec_Dt);
     FMSHV(xmh);
     FMSHV(xold);
@@ -189,14 +192,9 @@ void ld_elasticity_df
     FMSHV(aold);
     FMSHV(vnew);
     FMSHV(anew);
+#endif
 
-    PetscFinalize();
-    exit(0);
-
-    ustar.set(xnew).scale(alpha).axpy(xold,1-alpha);
-    vstar.set(vnew).scale(alpha).axpy(vold,1-alpha);
-
-    grad_u.prod(ustar,dshapex,-1,1,2,-1);
+    grad_u.prod(xnew,dshapex,-1,1,2,-1);
     F.set(Id).add(grad_u);
     strain.prod(F,F,-1,1,-1,2).rest(Id).scale(0.5);
     tmp5.ctr(strain,-1,-1);
@@ -204,59 +202,17 @@ void ld_elasticity_df
     tmp4.set(Id).scale(trE*lambda).axpy(strain,2*mu);
     stress.prod(F,tmp4,1,-1,-1,2);
 
-    // Velocity from states dxdt = (xnew-xold)/dt
-    dxdt.set(xnew).rest(xold).scale(rec_Dt);
-
-    // Inertia term
-    if (use_new_form) {
-      // In this form the residual is [Rmom; Rvel] and
-      // acceleration is computed from displacements.  It is
-      // better conditioned (I guess), the resulting Jacobian
-      // is [I/Dt^2+K,0; -I/Dt,I]
-      vnew1.set(dxdt).axpy(vold,-(1.0-alpha)).scale(1.0/alpha);
-      a.set(vnew1).rest(vold).scale(rec_Dt)
-        .axpy(vstar,cdamp);
-    } else {
-      // In this form the residual is [Rvel; Rmom]
-      // and acceleration is computed from velocities
-      // only.  It is bad conditioned, the resulting Jacobian
-      // is [I/Dt,-I; I/Dt, K]
-      a.set(vnew).rest(vold).scale(rec_Dt)
-        .axpy(vstar,cdamp);
-    }
-    tmp.prod(shape,a,-1,-1,1).rest(G_body);
+    tmp.prod(shape,anew,-1,-1,1).rest(G_body);
     tmp2.prod(shape,tmp,1,2);
-    res.is(2,ndim+1,2*ndim).axpy(tmp2,-wpgdet*rho);
+    res.axpy(tmp2,-wpgdet*rho);
 
     // Elastic force residual computation
-#if 1
     res_pg.prod(dshapex,stress,-1,1,2,-1);
     res.axpy(res_pg,-wpgdet).rs();
-#else
-    tmp6.prod(ustar,shape,-1,1,-1);
-    res_pg.prod(shape,tmp6,1,2);
-    res.axpy(res_pg,1.0).rs();
-#endif
     
-    // Eqs. for displacements: (xnew-xold)/dt - vstar = 0
-    dv.set(dxdt).rest(vstar);
-    tmp.prod(shape,dv,-1,-1,1);
-    tmp2.prod(shape,tmp,1,2);
-    res.is(2,1,ndim).axpy(tmp2,-wpgdet).rs();
-
   }
   shape.rs();
   res.rs();
-
-  if (use_new_form) {
-    // Swap residual components
-    // [Rvel; Rmom] -> [Rmom; Rvel]
-    res.is(2,1,ndim);
-    tmp7.set(res);
-    res.rs().is(2,ndim+1,2*ndim);
-    tmp8.set(res);
-    res.set(tmp7).scale(-1.0);
-    res.rs().is(2,1,ndim).set(tmp8).rs();
-  }
-    
+  export_vals(res_h,res);
+  export_vals(mat_h,mat);
 }

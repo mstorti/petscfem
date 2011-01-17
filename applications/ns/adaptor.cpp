@@ -418,7 +418,8 @@ int adaptor::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
 	  matlocf.set(matlocf_fdj);
       }
       
-      if (comp_mat && !use_arg_handles) {
+      // if (comp_mat && !use_arg_handles) {
+      if (comp_mat) {
         matlocfa.add(matlocf);
         matlocfa.export_vals(&(RETVALMAT(ielh,0,0,0,0)));
       }
