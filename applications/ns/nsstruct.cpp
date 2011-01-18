@@ -397,9 +397,14 @@ int struct_main() {
   int update_jacobian_step=0;
 
   //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
-  debug.trace("Before reading initial vector...");
+  debug.trace("Before reading initial vectors...");
   ierr = opt_read_vector(mesh,x,dofmap,MY_RANK); CHKERRA(ierr);
-  debug.trace("After reading initial vector...");
+  //o Newmark beta parameter
+  TGETOPTDEF_S(GLOBAL_OPTIONS,string,initial_old_state,none);
+  PETSCFEM_ASSERT0(initial_old_state!="none",
+                   "initial_old_state is required");  
+  ierr = read_vector(initial_old_state.c_str(),xold,dofmap,MY_RANK);
+  debug.trace("After reading initial vectors...");
 
   // update_jacobian_this_step:= Flags whether this step the
   // jacobian should be updated or not 
