@@ -39,7 +39,7 @@ extern int reuse_mat;
 #define __FUNC__ "struct_main"
 int struct_main() {
 
-  Vec x, xph, xmh, xold, dx, dx_step, res; // approx solution, RHS, residual
+  Vec x, xph, xmh, xold, dxdt, d2xdt2, aux, dx, dx_step, res; // approx solution, RHS, residual
   PetscViewer matlab;
   PFMat *A_tet=NULL, *A_tet_c=NULL, *A_mom=NULL, 
     *A_poi=NULL, *A_prj=NULL;	// linear system matrix 
@@ -278,11 +278,13 @@ int struct_main() {
   glob_param.Dt=Dt;
   glob_param.state = &state;
   glob_param.state_old = &state_old;
-  //o Trapezoidal method parameter.  #alpha=1# :
-  // Backward Euler.  #alpha=0# : Forward Euler.
-  //  #alpha=0.5# : Crank-Nicholson. 
-  GETOPTDEF(double,alpha,1.); 
-  glob_param.alpha=alpha;
+  double alpha = 1.0;
+  glob_param.alpha = alpha;
+  PETSCFEM_ASSERT(steady==0,
+                  "Not implemented steady for struct code. steady= %d",steady);  
+  PETSCFEM_ASSERT(Dt>0.0 && isfinite(Dt),
+                  "Dt must be positive and finite. Dt %f",Dt);  
+  double Dt2 = Dt*Dt;
 
   vector<double> gather_values;
   //o Number of ``gathered'' quantities.
@@ -346,6 +348,10 @@ int struct_main() {
   //o Print, after execution, a report of the times a given option
   // was accessed. Useful for detecting if an option was used or not.
   GETOPTDEF(int,report_option_access,1);
+  //o Newmark gamma parameter
+  TGETOPTDEF(GLOBAL_OPTIONS,double,newmark_gamma,0.5);
+  //o Newmark beta parameter
+  TGETOPTDEF(GLOBAL_OPTIONS,double,newmark_beta,0.25);
 
   if (print_some_file=="<none>")
     print_some_file = "";
@@ -369,15 +375,12 @@ int struct_main() {
   ierr = VecDuplicate(x,&xold); CHKERRA(ierr);
   ierr = VecDuplicate(x,&xmh); CHKERRA(ierr);
   ierr = VecDuplicate(x,&xph); CHKERRA(ierr);
+  ierr = VecDuplicate(x,&dxdt); CHKERRA(ierr);
+  ierr = VecDuplicate(x,&d2xdt2); CHKERRA(ierr);
+  ierr = VecDuplicate(x,&aux); CHKERRA(ierr);
   ierr = VecDuplicate(x,&dx_step); CHKERRA(ierr);
   ierr = VecDuplicate(x,&dx); CHKERRA(ierr);
   ierr = VecDuplicate(x,&res); CHKERRA(ierr);
-
-  // Just for debugging
-  ierr = VecSet(x,Dt); CHKERRA(ierr);
-  ierr = VecSet(xold,0.0); CHKERRA(ierr);
-  ierr = VecSet(xmh,-Dt/2.0); CHKERRA(ierr);
-  ierr = VecSet(xph,+Dt/2.0); CHKERRA(ierr);
 
   //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
   // initialize state vectors
@@ -411,11 +414,25 @@ int struct_main() {
     time_ph.inc(+Dt/2);
     time_star.set(time.time()+alpha*Dt);
     time.inc(Dt);
+
+    // Build xmh and xph states (correspond to t^{n-1/2} t^{n+1/2}
+    ierr = VecCopy(x,xph); CHKERRA(ierr);
+    ierr = VecAXPY(xph,Dt/2.0,dxdt); CHKERRA(ierr);
+    ierr = VecAXPY(xph,Dt2/4.0,d2xdt2); CHKERRA(ierr);
+
+    ierr = VecCopy(x,xmh); CHKERRA(ierr);
+    ierr = VecAXPY(xph,-Dt/2.0,dxdt); CHKERRA(ierr);
+    ierr = VecAXPY(xph,Dt2/4.0,d2xdt2); CHKERRA(ierr);
+    
     if (!MY_RANK) printf("Time step: %d, time: %g %s\n",
 			 tstep,time.time(),(steady ? " (steady) " : ""));
 
     hook_list.time_step_pre(time_star.time(),tstep);
+    // Copy current state to old state, i.e. xold
+    // corresponds to t^{n} and x to t^{n+1}. But as an
+    // initialization we take x = xold + Dt*dxdt
     ierr = VecCopy(x,xold);
+    ierr = VecAXPY(x,Dt,dxdt); CHKERRA(ierr);
     
     for (int stage=0; stage<nstage; stage++) {
       
@@ -625,7 +642,7 @@ int struct_main() {
     
       // error difference
       scal = -1.0;
-      ierr = VecAXPY(dx_step,scal,x);
+      ierr = VecAXPY(dx_step,scal,x); CHKERRA(ierr);
       ierr  = VecNorm(dx_step,NORM_2,&norm); CHKERRA(ierr);
       PetscPrintf(PETSCFEM_COMM_WORLD,"============= delta_u = %10.3e\n",norm);
       print_vector_rota(save_file_pattern.c_str(),x,dofmap,&time,
@@ -657,6 +674,18 @@ int struct_main() {
       
     } // end for stage
     
+    // Build new d2xdt2
+    ierr = VecCopy(x,aux); CHKERRA(ierr);
+    ierr = VecAXPY(aux,-1.0,xold); CHKERRA(ierr);
+    ierr = VecAXPY(aux,-Dt,dxdt); CHKERRA(ierr);
+    ierr = VecScale(aux,2.0/Dt2); CHKERRA(ierr);
+    ierr = VecAXPY(aux,-(1-2*newmark_beta),d2xdt2); CHKERRA(ierr);
+    ierr = VecScale(aux,1.0/(2.0*newmark_beta)); CHKERRA(ierr);
+
+    // Build new d2xdt2
+    ierr = VecAXPY(dxdt,(1-newmark_gamma),d2xdt2); CHKERRA(ierr);
+    ierr = VecAXPY(dxdt,newmark_gamma,aux); CHKERRA(ierr);
+    ierr = VecCopy(aux,d2xdt2); CHKERRA(ierr);
 
     hook_list.time_step_post(time_star.time(),tstep,gather_values);
 
