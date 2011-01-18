@@ -429,9 +429,9 @@ int struct_main() {
     ierr = VecAXPY(xph,Dt2/4.0,d2xdt2); CHKERRA(ierr);
 
     ierr = VecCopy(x,xmh); CHKERRA(ierr);
-    ierr = VecAXPY(xph,-Dt/2.0,dxdt); CHKERRA(ierr);
-    ierr = VecAXPY(xph,Dt2/4.0,d2xdt2); CHKERRA(ierr);
-    
+    ierr = VecAXPY(xmh,-Dt/2.0,dxdt); CHKERRA(ierr);
+    ierr = VecAXPY(xmh,Dt2/4.0,d2xdt2); CHKERRA(ierr);
+
     if (!MY_RANK) printf("Time step: %d, time: %g %s\n",
 			 tstep,time.time(),(steady ? " (steady) " : ""));
 
@@ -440,7 +440,7 @@ int struct_main() {
     // corresponds to t^{n} and x to t^{n+1}. But as an
     // initialization we take x = xold + Dt*dxdt
     ierr = VecCopy(x,xold);
-    ierr = VecAXPY(x,Dt,dxdt); CHKERRA(ierr);
+    // ierr = VecAXPY(x,Dt,dxdt); CHKERRA(ierr);
     
     for (int stage=0; stage<nstage; stage++) {
       
@@ -624,12 +624,6 @@ int struct_main() {
         scal= relfac/alpha;
         ierr = VecAXPY(x,scal,dx); CHKERRA(ierr);
 
-#if 0
-        ierr = VecView(x,PETSC_VIEWER_STDOUT_WORLD); CHKERRA(ierr);
-        PetscFinalize();
-        exit(0);
-#endif
-
         if (save_newton_iters) {
           char save_file_nwt[200];
           sprintf(save_file_nwt,save_file_pattern_nwt.c_str(),
@@ -647,9 +641,6 @@ int struct_main() {
           break;
         }	
       } // end of loop over Newton subiteration (inwt)
-      ierr = VecView(x,PETSC_VIEWER_STDOUT_WORLD); CHKERRA(ierr);
-      PetscFinalize();
-      exit(0);
 
       // error difference
       scal = -1.0;
