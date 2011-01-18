@@ -404,6 +404,9 @@ int struct_main() {
   PETSCFEM_ASSERT0(initial_old_state!="none",
                    "initial_old_state is required");  
   ierr = read_vector(initial_old_state.c_str(),xold,dofmap,MY_RANK);
+  ierr = VecCopy(x,dxdt); CHKERRA(ierr);
+  ierr = VecAXPY(dxdt,-1.0,xold); CHKERRA(ierr);
+  ierr = VecScale(dxdt,1.0/Dt); CHKERRA(ierr);
   debug.trace("After reading initial vectors...");
 
   // update_jacobian_this_step:= Flags whether this step the
@@ -644,7 +647,10 @@ int struct_main() {
           break;
         }	
       } // end of loop over Newton subiteration (inwt)
-    
+      ierr = VecView(x,PETSC_VIEWER_STDOUT_WORLD); CHKERRA(ierr);
+      PetscFinalize();
+      exit(0);
+
       // error difference
       scal = -1.0;
       ierr = VecAXPY(dx_step,scal,x); CHKERRA(ierr);
