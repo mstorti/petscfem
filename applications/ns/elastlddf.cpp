@@ -151,9 +151,9 @@ void ld_elasticity_df
   double Dt = 1.0/rec_Dt, Dt2 = Dt*Dt;
 
   vold.set(xph).rest(xmh).scale(rec_Dt);
-  aold.set(xph).axpy(xold,-2.0).add(xmh).scale(rec_Dt*rec_Dt);
+  aold.set(xph).axpy(xold,-2.0).add(xmh).scale(4.0*rec_Dt*rec_Dt);
   anew.set(xnew).rest(xold).axpy(vold,-Dt).scale(2.0/Dt2)
-    .axpy(aold,1.0-2.0*newmark_beta).scale(1.0/(2.0*newmark_beta));
+    .axpy(aold,-(1.0-2.0*newmark_beta)).scale(1.0/(2.0*newmark_beta));
   vnew.set(vold)
     .axpy(aold,(1.0-newmark_gamma)*Dt)
     .axpy(anew,newmark_gamma*Dt);

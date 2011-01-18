@@ -426,11 +426,11 @@ int struct_main() {
     // Build xmh and xph states (correspond to t^{n-1/2} t^{n+1/2}
     ierr = VecCopy(x,xph); CHKERRA(ierr);
     ierr = VecAXPY(xph,Dt/2.0,dxdt); CHKERRA(ierr);
-    ierr = VecAXPY(xph,Dt2/4.0,d2xdt2); CHKERRA(ierr);
+    ierr = VecAXPY(xph,Dt2/8.0,d2xdt2); CHKERRA(ierr);
 
     ierr = VecCopy(x,xmh); CHKERRA(ierr);
     ierr = VecAXPY(xmh,-Dt/2.0,dxdt); CHKERRA(ierr);
-    ierr = VecAXPY(xmh,Dt2/4.0,d2xdt2); CHKERRA(ierr);
+    ierr = VecAXPY(xmh,Dt2/8.0,d2xdt2); CHKERRA(ierr);
 
     if (!MY_RANK) printf("Time step: %d, time: %g %s\n",
 			 tstep,time.time(),(steady ? " (steady) " : ""));
@@ -676,17 +676,22 @@ int struct_main() {
       
     } // end for stage
     
-    // Build new d2xdt2
+    // Build new acceleration in auxiliary vector `aux'
     ierr = VecCopy(x,aux); CHKERRA(ierr);
     ierr = VecAXPY(aux,-1.0,xold); CHKERRA(ierr);
     ierr = VecAXPY(aux,-Dt,dxdt); CHKERRA(ierr);
     ierr = VecScale(aux,2.0/Dt2); CHKERRA(ierr);
+    // at this point aux is the acceleration `beta'
+    // a_beta = (1-2*beta)*a_n + 2*beta*a_{n+1}
     ierr = VecAXPY(aux,-(1-2*newmark_beta),d2xdt2); CHKERRA(ierr);
     ierr = VecScale(aux,1.0/(2.0*newmark_beta)); CHKERRA(ierr);
+    // at this point aux = a_{n+1}
 
-    // Build new d2xdt2
-    ierr = VecAXPY(dxdt,(1-newmark_gamma),d2xdt2); CHKERRA(ierr);
-    ierr = VecAXPY(dxdt,newmark_gamma,aux); CHKERRA(ierr);
+    // Build new velocity `dxdt'
+    ierr = VecAXPY(dxdt,(1-newmark_gamma)*Dt,d2xdt2); CHKERRA(ierr);
+    ierr = VecAXPY(dxdt,newmark_gamma*Dt,aux); CHKERRA(ierr);
+
+    // Replace new value for acceleration `d2xdt2'
     ierr = VecCopy(aux,d2xdt2); CHKERRA(ierr);
 
     hook_list.time_step_post(time_star.time(),tstep,gather_values);
