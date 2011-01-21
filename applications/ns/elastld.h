@@ -38,7 +38,7 @@ public:
 class  ld_elasticity_load : public adaptor { 
 private:
   dvector<int> elprpsindx; 
-  int nprops;
+  int nprops, use_displacement_formulation;
   dvector<double> propel;
   int pressure_indx,use_new_form;
   FastMat2 nor, Jaco, tmp, xstar, state, force, tmp1;

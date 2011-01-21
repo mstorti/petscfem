@@ -83,8 +83,8 @@ void bless_elemset_ns(char *type,Elemset *& elemset) {
     SET_ELEMSET_TYPE(elasticity)
     SET_ELEMSET_TYPE(elasticity2)
     SET_ELEMSET_TYPE(ld_elasticity)
-    SET_ELEMSET_TYPE(ld_elasticity_df)
     SET_ELEMSET_TYPE(ld_elasticity_load)
+    SET_ELEMSET_TYPE(ld_elasticity_df)
 
     SET_ELEMSET_TYPE(nsi_tet_les_fm2)
     SET_ELEMSET_TYPE(nsi_tet_les_ls)

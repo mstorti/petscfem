@@ -245,6 +245,10 @@ void ld_elasticity
 void ld_elasticity_load
 ::init() {
   
+  int ierr;
+  //o Use the displacement only formulation
+  TGETOPTDEF(thash,int,use_displacement_formulation,0);
+
 #define MAXPROPS 100
   elprpsindx.mono(MAXPROPS);
   propel.mono(MAXPROPS);
@@ -260,8 +264,7 @@ void ld_elasticity_load
     //printf("Readed Tractions Fx=%f Fy=%f Fz=%f  \n",force_v[0],force_v[1],force_v[2]);
   }
   
-
-  int ierr, iprop=0;
+  int iprop=0;
   pressure_indx = iprop; 
   ierr = get_prop(iprop,elem_prop_names,
 		  thash,elprpsindx.buff(),propel.buff(), 
@@ -292,29 +295,27 @@ void ld_elasticity_load
 
   double pressure = *(propel.buff()+pressure_indx);
   
-  if (use_new_form) {
-    res.is(2,1,ndim);
-  }else{
-    res.is(2,ndim+1,2*ndim);
+  if (use_displacement_formulation) {
+    xstar.set(state).scale(defo_fac);
+  } else {
+    if (use_new_form) {
+      res.is(2,1,ndim);
+    }else{
+      res.is(2,ndim+1,2*ndim);
+    }
+
+    xstar.set(xloc);
+
+    state.set(state_old);
+    state.is(2,1,ndim);
+    xstar.axpy(state,defo_fac*(1-alpha));
+    state.rs();
+
+    state.set(state_new);
+    state.is(2,1,ndim);
+    xstar.axpy(state,defo_fac*alpha);
+    state.rs();
   }
-
-  xstar.set(xloc);
-
-  state.set(state_old);
-  state.is(2,1,ndim);
-  xstar.axpy(state,defo_fac*(1-alpha));
-  state.rs();
-
-  state.set(state_new);
-  state.is(2,1,ndim);
-  xstar.axpy(state,defo_fac*alpha);
-  state.rs();
-
-#if 0
-  if (elem % 10==0)
-    printf("elem %d, pressure %f\n",
-	   elem,pressure,ELEMPROPS(elem,0),&ELEMPROPS(elem,0));
-#endif
 
   for (int ipg=0; ipg<npg; ipg++) {
 
