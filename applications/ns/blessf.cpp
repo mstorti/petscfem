@@ -21,7 +21,6 @@
 #include "./elast.h"
 #include "./elast2.h"
 #include "./elastld.h"
-#include "./elastlddf.h"
 #include "./qharm.h"
 #include "./errestim.h"
 #include "./qharmm.h"
@@ -84,7 +83,7 @@ void bless_elemset_ns(char *type,Elemset *& elemset) {
     SET_ELEMSET_TYPE(elasticity2)
     SET_ELEMSET_TYPE(ld_elasticity)
     SET_ELEMSET_TYPE(ld_elasticity_load)
-    SET_ELEMSET_TYPE(ld_elasticity_df)
+    SET_ELEMSET_TYPE_ALIAS(ld_elasticity_df,ld_elasticity)
 
     SET_ELEMSET_TYPE(nsi_tet_les_fm2)
     SET_ELEMSET_TYPE(nsi_tet_les_ls)
