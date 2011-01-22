@@ -23,7 +23,22 @@ void ld_elasticity::init() {
   elprpsindx.mono(MAXPROPS);
   propel.mono(MAXPROPS);
 
-  int ierr, iprop=0;
+  int ierr;
+  //o Use displacement only based formulation. This is normally
+  //  set in the struct_main() routine, NOT by the user in the
+  //  user data file. 
+  TGETOPTDEF_ND(thash,int,use_displacement_formulation,0);
+
+  newmark_gamma = newmark_beta = NAN;
+  if (use_displacement_formulation) {
+    //o Newmark gamma parameter
+    TGETOPTDEF_ND(thash,double,newmark_gamma,0.5);
+
+    //o Newmark beta parameter
+    TGETOPTDEF_ND(thash,double,newmark_beta,0.25);
+  }
+
+  int iprop=0;
   Young_modulus_indx = iprop; 
 
 #ifdef USE_YOUNG_PER_ELEM
@@ -75,8 +90,18 @@ void ld_elasticity::init() {
   // Dos opciones para imprimir
   // printf("rec_Dt: %d\n",rec_Dt);
   // SHV(rec_Dt);
-  assert(!(rec_Dt>0. && rho==0.));
-  assert(ndof==2*ndim);
+  PETSCFEM_ASSERT(!(rec_Dt>0. && rho==0.),
+                  "If not steady, then rho must be positive. rec_Dt %f, rho %f",
+                  rec_Dt,rho);
+  if (!use_displacement_formulation) {
+    PETSCFEM_ASSERT(ndof==2*ndim,
+                    "If the displacement-velocity formulation is used, then ndof==2*ndim."
+                    "Entered ndof %d, ndim %d",ndof,ndim);  
+  } else {
+    PETSCFEM_ASSERT(ndof==ndim,
+                    "If the displacement only formulation is used, then ndof==ndim."
+                    "Entered ndof %d, ndim %d",ndof,ndim);  
+  }
 
   ntens = ndim*(ndim+1)/2;
   nen = nel*ndim;
@@ -88,9 +113,8 @@ void ld_elasticity::init() {
   ustar.resize(2,nel,ndim);
   Id.resize(2,ndim,ndim).eye();
 
-  // I don't know right if this will work for
-  // ndim==3 (may be yes)
-  // assert(ndim==2);
+  xmh.resize(2,nel,ndim);
+  xph.resize(2,nel,ndim);
 
 }
 
@@ -106,6 +130,8 @@ before_chunk(const char *jobinfo) {
 
   int ierr;
   if (comp_mat_res) {
+    res_h = get_arg_handle("res","No handle for `res'\n");
+    mat_h = get_arg_handle("A","No handle for `A'\n");
     state_mh_argh = get_arg_handle("state_mh",
                                    "No handle for `state_mh'\n");
     state_ph_argh = get_arg_handle("state_ph",
@@ -119,6 +145,12 @@ void ld_elasticity
                     const FastMat2 &state_old,
                     const FastMat2 &state_new,
                     FastMat2 &res,FastMat2 &mat) {
+
+  if (use_displacement_formulation) {
+    element_connector_df(xloc,state_old,state_new,res,mat);
+    return;
+  }
+
   res.set(0.);
   mat.set(0.);
 
@@ -288,6 +320,7 @@ void ld_elasticity_load
 		    const FastMat2 &state_old,
 		    const FastMat2 &state_new,
 		    FastMat2 &res,FastMat2 &mat){
+
   res.set(0.);
   mat.set(0.);
   load_props(propel.buff(),elprpsindx.buff(),nprops,
@@ -336,4 +369,102 @@ void ld_elasticity_load
   dshapexi.rs();
   shape.rs();
   res.rs();
+}
+
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>
+void ld_elasticity
+::element_connector_df(const FastMat2 &xloc,
+                       const FastMat2 &state_old,
+                       const FastMat2 &state_new,
+                       FastMat2 &res,FastMat2 &mat) {
+  res.set(0.);
+  mat.set(0.);
+  xnew.set(state_new);
+  xold.set(state_old);
+  get_vals(state_mh_argh,xmh);
+  get_vals(state_ph_argh,xph);
+    
+#ifdef USE_YOUNG_PER_ELEM
+  load_props(propel.buff(),elprpsindx.buff(),nprops,
+	     &(ELEMPROPS(elem,0)));
+  double Ex = *(propel.buff()+Young_modulus_indx);
+  E = Ex*Young_modulus_fac;
+#if 0
+  if (rand()%1000==0) {
+    xloc.print("xloc:");
+    printf("Ex %f, Young_modulus_fac %f\n",Ex,Young_modulus_fac);
+  }
+#endif
+#endif
+
+  double Dt = 1.0/rec_Dt, Dt2 = Dt*Dt;
+
+  vold.set(xph).rest(xmh).scale(rec_Dt);
+  aold.set(xph).axpy(xold,-2.0).add(xmh).scale(4.0*rec_Dt*rec_Dt);
+  anew.set(xnew).rest(xold).axpy(vold,-Dt).scale(2.0/Dt2)
+    .axpy(aold,-(1.0-2.0*newmark_beta)).scale(1.0/(2.0*newmark_beta));
+  vnew.set(vold)
+    .axpy(aold,(1.0-newmark_gamma)*Dt)
+    .axpy(anew,newmark_gamma*Dt);
+
+#if 0
+  if (prtb_index()==0) {
+    printf("------------------\nrec_Dt %f\n",rec_Dt);
+    FMSHV(xmh);
+    FMSHV(xold);
+    FMSHV(xph);
+    FMSHV(xnew);
+    FMSHV(vold);
+    FMSHV(aold);
+    FMSHV(vnew);
+    FMSHV(anew);
+    printf("-----------------------------------\n");
+  }
+#endif
+  // printf("element %d, Young %f\n",elem,E);
+
+  lambda = nu*E/((1+nu)*(1-2*nu));
+  mu = E/2/(1+nu);
+
+  // loop over Gauss points
+  for (int ipg=0; ipg<npg; ipg++) {
+    
+    dshapex.rs();
+    res.rs();
+
+    shape.ir(2,ipg+1);
+    dshapexi.ir(3,ipg+1); // restriccion del indice 3 a ipg+1
+    Jaco.prod(dshapexi,xloc,1,-1,-1,2);
+    
+    double detJaco = Jaco.det();
+    if (detJaco <= 0.) {
+      detj_error(detJaco,elem);
+      set_error(1);
+    }
+    double wpgdet = detJaco*wpg.get(ipg+1);
+    iJaco.inv(Jaco);
+    dshapex.prod(iJaco,dshapexi,1,-1,-1,2);
+
+
+    grad_u.prod(xnew,dshapex,-1,1,2,-1);
+    F.set(Id).add(grad_u);
+    strain.prod(F,F,-1,1,-1,2).rest(Id).scale(0.5);
+    tmp5.ctr(strain,-1,-1);
+    double trE = tmp5;
+    tmp4.set(Id).scale(trE*lambda).axpy(strain,2*mu);
+    stress.prod(F,tmp4,1,-1,-1,2);
+
+    tmp.prod(shape,anew,-1,-1,1).rest(G_body);
+    tmp2.prod(shape,tmp,1,2);
+    res.axpy(tmp2,-wpgdet*rho);
+
+    // Elastic force residual computation
+    res_pg.prod(dshapex,stress,-1,1,2,-1);
+    res.axpy(res_pg,-wpgdet).rs();
+    
+  }
+  shape.rs();
+  res.rs();
+  // export_vals(res_h,res);
+  // export_vals(mat_h,mat);
 }
