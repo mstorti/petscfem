@@ -191,9 +191,24 @@ int read_mesh(Mesh *& mesh,char *fcase,Dofmap *& dofmap,
 
     } else if (!strcmp(token,"nodedata")) {
 
+      int nread;
+
       PetscPrintf(PETSCFEM_COMM_WORLD," -- Reading nodes:\n");
-      token = strtok(NULL,bsp); assert(token); sscanf(token,"%d",&ndim);
-      token = strtok(NULL,bsp); assert(token); sscanf(token,"%d",&nu);
+
+#define RM_READ_INT(var)                                                \
+      token = strtok(NULL,bsp);                                         \
+      PETSCFEM_ASSERT(token,#var " is required! line read: \"%s\"",         \
+      fstack->line_read());                                             \
+      nread = sscanf(token,"%d",&var);                                  \
+      PETSCFEM_ASSERT(nread==1,"Could'nt read " #var "  in line: \"%s\", token \"%s\"", \
+                      fstack->line_read(),token); 
+
+      RM_READ_INT(ndim);
+      RM_READ_INT(nu);
+      RM_READ_INT(ndof);
+ 
+      token = strtok(NULL,bsp); 
+      PETSCFEM_ASSERT0(token,"nu not entered!"); sscanf(token,"%d",&nu);
       token = strtok(NULL,bsp); assert(token); sscanf(token,"%d",&ndof);
       PetscPrintf(PETSCFEM_COMM_WORLD, 
 		  "Dimension: %d, Size of nodedata vector: %d\n",ndim,nu);
