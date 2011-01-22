@@ -207,9 +207,6 @@ int read_mesh(Mesh *& mesh,char *fcase,Dofmap *& dofmap,
       RM_READ_INT(nu);
       RM_READ_INT(ndof);
  
-      token = strtok(NULL,bsp); 
-      PETSCFEM_ASSERT0(token,"nu not entered!"); sscanf(token,"%d",&nu);
-      token = strtok(NULL,bsp); assert(token); sscanf(token,"%d",&ndof);
       PetscPrintf(PETSCFEM_COMM_WORLD, 
 		  "Dimension: %d, Size of nodedata vector: %d\n",ndim,nu);
       read_hash_table(fstack,mesh->nodedata->options);

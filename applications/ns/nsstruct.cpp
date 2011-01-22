@@ -399,11 +399,13 @@ int struct_main() {
   //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
   debug.trace("Before reading initial vectors...");
   ierr = opt_read_vector(mesh,x,dofmap,MY_RANK); CHKERRA(ierr);
-  //o Newmark beta parameter
+  //o Initial state for time -Dt
   TGETOPTDEF_S(GLOBAL_OPTIONS,string,initial_old_state,none);
-  PETSCFEM_ASSERT0(initial_old_state!="none",
-                   "initial_old_state is required");  
-  ierr = read_vector(initial_old_state.c_str(),xold,dofmap,MY_RANK);
+  if (initial_old_state!="none") {
+    ierr = read_vector(initial_old_state.c_str(),xold,dofmap,MY_RANK);
+  } else {
+    ierr = VecCopy(x,xold); CHKERRA(ierr);
+  }
   ierr = VecCopy(x,dxdt); CHKERRA(ierr);
   ierr = VecAXPY(dxdt,-1.0,xold); CHKERRA(ierr);
   ierr = VecScale(dxdt,1.0/Dt); CHKERRA(ierr);
