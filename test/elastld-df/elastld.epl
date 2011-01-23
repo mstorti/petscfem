@@ -1,0 +1,111 @@
+# -*- mode: shell-script -*-
+# case: <:=$ENV{'case'}:>
+# <: require './data.pl'; :>
+## Derived quantities:
+## ==================
+global_options
+
+<:pr('ndim'):>
+<:pr('nstep'):>
+newmark_gamma 0.55
+newmark_beta 0.3
+
+print_some_file elastld-nodes.tmp
+save_file_some elastld-some-rslt.tmp
+nsome 1
+
+# initial_state ./elastld.ini.tmp
+# initial_old_state ./elastld.iniold.tmp
+
+save_file ./elastld.state.tmp
+
+save_file_pattern ./STEPS/elastld.state-%d.tmp
+nsave 1
+nsaverot 1
+nfile -1
+nrec 1
+
+#if 1
+solver "iisd"
+preco_type "jacobi"
+iisd_subpart_auto 10000
+maxits 500
+#else
+solver "petsc"
+preco_type "lu"
+maxits 1
+#endif
+
+# file containing the weight (speed) of processors
+# proc_weights weights.dat
+print_hostnames
+use_new_form 1
+
+# Iterative parameters
+tol_tet -1
+tol_newton -1
+atol 1e-12
+rtol 1e-4
+dtol 1e3
+nnwt 1
+
+print_internal_loop_conv
+# print_linear_system_and_stop
+# solve_system 0
+
+report_consumed_time
+activate_debug_print
+activate_debug_memory_usage
+
+<:pr('Dt'):>
+hook_list shell_hook shell 
+__END_HASH__
+
+##================================================================
+# ndim nu ndof
+nodedata <:=$ndim:> <:=$ndim:> <:=$ndim:> 
+data ./elastld.nod.tmp
+__END_HASH__
+
+##================================================================
+#if 0
+elemset ld_elasticity_df 4
+props Young_modulus[1]
+Young_modulus_fac 800
+geometry tetra
+npg 4
+data ./elastld.con-tetra-E.tmp
+#else
+elemset ld_elasticity_df 8
+Young_modulus 800
+geometry cartesian3d
+npg 8
+data ./elastld.con.tmp
+#endif
+
+Poisson_ratio 0.3
+density 0.1
+use_jacobian_fdj
+use_high_prec
+jacobian_fdj_epsilon 1e-4
+jacobian_fdj_print 0
+__END_HASH__
+
+end_elemsets
+
+fixa_amplitude dl_generic
+ext_filename ./bdry.efn
+fun_type 0
+## With the reinforcement at the base the frequencies are
+## Ly = 5
+## first mode: 2.51
+## second mode: 15.1
+omega 2.51
+A 0.2
+trelax  <:=$Tend:>
+<:pr('Tend'):>
+<:pr('Tstop'):>
+function_name "fixa"
+__END_HASH__
+__INCLUDE__ ./elastld.fixa-bot.tmp
+__END_FIXA__
