@@ -19,11 +19,15 @@ nsome 1
 
 save_file ./elastld.state.tmp
 
+#if 0
 save_file_pattern ./STEPS/elastld.state-%d.tmp
 nsave 1
 nsaverot 1
 nfile -1
 nrec 1
+#else
+nsaverot 0
+#endif
 
 #if 1
 solver "iisd"

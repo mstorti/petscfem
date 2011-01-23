@@ -37,6 +37,6 @@ if ($ndim==2) {
            Tend Tstop nstep Eratio Ntrail); 
 octave_export_vars(">data.m.tmp",@vars);
 
-system "octave -qH mkmesh.m > mkmesh.log.tmp";
+if (defined $mkmesh) { system "octave -qH mkmesh.m > mkmesh.log.tmp"; }
 
 1;

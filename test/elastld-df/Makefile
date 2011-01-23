@@ -23,6 +23,14 @@ NP := 1
 MCH := 
 endif
 
+tests:
+	$(MAKE) test_ld_elast
+
+test_ld_elast:
+	$(MAKE) mesh
+	$(MAKE) run $(call redir,$@.output.tmp)
+	$(OCTAVE) verif.m > test_ld_elast.check.tmp
+
 mesh:
 	make-depl $(CASE).epl $(CASE).depl -dmkmesh=1
 
