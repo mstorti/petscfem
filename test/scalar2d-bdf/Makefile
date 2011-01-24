@@ -4,8 +4,7 @@
 
 default: tests
 
-tests:
-	test_bdf_dgcl
+tests: test_bdf_dgcl_gaussian_diag test_bdf_dgcl
 
 ## activar para compilar la opcion sin debager
 # BOPT := O_c++
@@ -20,29 +19,31 @@ CASE_NAME_MMV := $(CASE)-mmv
 PROG := $(ADVDIF)
 LOC_PROG := advdif
 
-ifeq ($(HOSTNAME),aquiles)
-NP := $(shell procsel -n ./proctable)
-MCH := -1 -machinefile ./machi.dat
-else
 NP := 1
 MCH := 
-endif
 
-test_bdf_dgcl:
-	$(MAKE) mesh
-	$(MAKE) run
-
-mesh:
-	make-depl $(CASE).epl $(CASE).depl -d mkmesh=1
-#	$(OCTAVE) mkmesh.m
-
-run:
+test_bdf_dgcl_gaussian_diag:
+	make-depl $(CASE).epl $(CASE).depl -d adv_case=gaussian_diag
+	$(OCTAVE) mkmesh.m
+	$(MAKE) run $(call redir,$@.output.tmp)
 	$(MAKE) mmv-force.efn
 	mkstepsdir.pl
-	make-depl $(CASE).epl $(CASE).depl
-	cp -f data.pl *.epl *.depl ./STEPS/
 	$(MPI_HOME1)/bin/mpiexec $(MCH) -a $(CASE) \
-		-np $(NP) $(PROG) -code bdf -case $(CASE).depl
+		-np $(NP) $(PROG) -code bdf -case $(CASE).depl \
+		$(call redir,$@.output.tmp)
+	$(OCTAVE) verif.m > $@.check.tmp
+
+
+test_bdf_dgcl:
+	make-depl $(CASE).epl $(CASE).depl -d adv_case=bdf_dgcl
+	$(OCTAVE) mkmesh.m
+	$(MAKE) run $(call redir,$@.output.tmp)
+	$(MAKE) mmv-force.efn
+	mkstepsdir.pl
+	$(MPI_HOME1)/bin/mpiexec $(MCH) -a $(CASE) \
+		-np $(NP) $(PROG) -code bdf -case $(CASE).depl 
+		$(call redir,$@.output.tmp)
+	$(OCTAVE) verif.m > $@.check.tmp
 
 zip:
 	@shopt -s nullglob ;				\
@@ -71,3 +72,6 @@ prog:
 
 kill:
 	mpdkilljob -a $(CASE)
+
+local_clean::
+	-shopt -s nullglob ; rm -rf STEPS* *.vtk

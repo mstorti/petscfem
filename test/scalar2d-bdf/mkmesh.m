@@ -23,21 +23,27 @@ endif
 asavecon("gascont.con.tmp",icone,vele);
 
 nnod = rows(xnod);
-mkvtkfile("gascont.vtk","gascont.vtk",xnod(:,1:2),ones(nnod,1),"u");
+mkvtkfile("gascont.vtk","gascont.vtk",xnod(:,1:2),icone,ones(nnod,1),"u");
 
 uini = ones(nnod,1);
+ubdry = 1;
 if strcmp(adv_case,"gaussian");
   xx = xnod(:,1);
   yy = xnod(:,2);
   r = l2([xx-0.5*Ly,yy-0.25*Ly]);
   sigma = 0.1;
-  uini = 1+exp(-(r/sigma).^2);
+  uini = exp(-(r/sigma).^2);
+  ubdry = 0;
 elseif strcmp(adv_case,"gaussian_diag");
   xx = xnod(:,1);
   yy = xnod(:,2);
   r = l2([xx-0.25*Ly,yy-0.25*Ly]);
   sigma = 0.1;
-  uini = 1+exp(-(r/sigma).^2);
+  uini = exp(-(r/sigma).^2);
+  ubdry = 0;
+elseif strcmp(adv_case,"bdf_dgcl");
+  uini = ones(nnod,1);
+  ubdry = 1;
 endif
 
 asave("gascont.ini.tmp",uini);
@@ -48,7 +54,7 @@ top = find(abs(xnod(:,2)-1)<tol);
 left = find(abs(xnod(:,1))<tol);
 right = find(abs(xnod(:,1)-1)<tol);
 tmp = unique([bot;top;left;right]);
-pffixa("gascont.fixa.tmp",tmp,1,1);
+pffixa("gascont.fixa.tmp",tmp,1,ubdry);
 
 pfperi("gascont.periy.tmp",top,bot,1)
 pfperi("gascont.perix.tmp",right,left,1)

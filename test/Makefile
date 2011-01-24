@@ -7,7 +7,7 @@
 	newff burgers bug100 nonlr genload lupart distmap sparse graph sqcav	\
 	pfmat  aquifer nutatcyl mmove advec nsgenload plate gasflow-conv 	\
 	oscplate idmap sw_abso cubcav condwall project embgath alebcconv 	\
-	ductadv dvector elastld-df elastld-bubble
+	ductadv dvector elastld-df elastld-bubble scalar2d-bdf
 
 SRCS = $(wildcard *.cpp)
 
@@ -18,7 +18,7 @@ DIRS = circ fstack sector les turbchan turbchanw advdif texthash	\
 		nsgenload plate gasflow-conv idmap mmove advec plano	\
 		oscplate spillway sw_abso gfplate condwall project	\
 		embgath flow-reversal alebcconv ductadv dvector		\
-		elastld-df elastld-bubble
+		elastld-df elastld-bubble scalar2d-bdf
 
 CLEAN_DIRS = $(DIRS)
 DEPEND_DIRS = texthash distmap sparse aquifer plate fstack idmap
@@ -316,6 +316,11 @@ elastld-df:
 #----<*>----------<*>----------<*>----------<*>----------<*>----------<*>--
 # Elastld bubble test
 elastld-bubble:
+	$(MAKE) -C $@ tests
+
+#----<*>----------<*>----------<*>----------<*>----------<*>----------<*>--
+# Tests for the DGCL and BDF integrator
+scalar2d-bdf:
 	$(MAKE) -C $@ tests
 
 # makes an abridged acount of the tests

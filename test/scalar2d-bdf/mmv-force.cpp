@@ -36,6 +36,7 @@ private:
   dvector<double> coords0,coords;
   int ndim, nnod, nu;
   double U,Ly;
+  int nsaverot;
 public:
   mmv_force() : coords_buff(NULL) { }
   void init(Mesh &mesh_a,Dofmap &dofmap_a,
@@ -54,13 +55,17 @@ void mmv_force::init(Mesh &mesh_a,Dofmap &dofmap_a,
 		 const char *name) {
   int ierr;
   TGETOPTDEF_ND(GLOBAL_OPTIONS,int,ndim,0);
-  assert(ndim>0);
+  PETSCFEM_ASSERT0(ndim>0,"ndim is required!");  
 
   TGETOPTDEF_ND(GLOBAL_OPTIONS,double,U,NAN);
-  assert(!isnan(U));
+  PETSCFEM_ASSERT0(!isnan(U),"U is required!");  
 
   TGETOPTDEF_ND(GLOBAL_OPTIONS,double,Ly,NAN);
-  assert(!isnan(Ly));
+  PETSCFEM_ASSERT0(!isnan(Ly),"Ly is required!");  
+
+  TGETOPTDEF_ND(GLOBAL_OPTIONS,int,nsaverot,-1);
+  PETSCFEM_ASSERT0(nsaverot==0 || nsaverot==1,
+                   "nsaverot is required!");  
 
   coords_buff = mesh_a.nodedata->nodedata;
   nnod = mesh_a.nodedata->nnod;
@@ -103,10 +108,11 @@ void mmv_force::time_step_pre(double time,int step) {
     coords.e(j,1) = yy + shifty;
 #endif
   }
-  char line[1000];
-  sprintf(line,"STEPS/gascont-mmv.state-%d.tmp",step);
-  coords.print(line);
-  // coords.print();
+  if (nsaverot) {
+    char line[1000];
+    sprintf(line,"STEPS/gascont-mmv.state-%d.tmp",step);
+    coords.print(line);
+  }
   coords.export_vals(coords_buff);
 }
 

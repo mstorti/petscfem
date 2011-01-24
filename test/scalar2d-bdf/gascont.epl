@@ -1,6 +1,5 @@
 # -*- mode: shell-script -*-
-# case: <:=$ENV{'case'}:>
-# <: $code='fl'; require './data.pl'; :>
+# <: require './data.pl'; :>
 ## Derived quantities:
 ## ==================
 global_options
@@ -18,12 +17,17 @@ use_BDF_advdife
 
 nsave 1
 initial_state "gascont.ini.tmp"
-save_file "gascont.state.tmp"
+save_file gascont.state.<:=$adv_case:>.tmp
 
+#if 0
 save_file_pattern "STEPS/gascont.state-%d.tmp"
 nsaverot 1
 nfile <:=$nfile:> 
 nrec 1
+#else
+nsaverot 0
+#endif
+
 indx_ALE_xold 1
 # dont_use_average_jaco_fix
 
@@ -91,14 +95,14 @@ elemset newadvdif_advecfm2 3
 props advective_jacobians[2]
 geometry triangle
 npg 3
-diffusive_jacobians 0
+<:pr('diffusive_jacobians'):>
 diffusive_jacobians_mol 0
 data ./gascont.con.tmp
 __END_HASH__
 
 end_elemsets
 
-#if $adv_case eq 'gaussian'
+#if $adv_case eq 'bdf_dgcl'
 fixa
 __INCLUDE__ ./gascont.fixa.tmp
 __END_FIXA__

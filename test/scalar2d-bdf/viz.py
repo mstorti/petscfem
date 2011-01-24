@@ -21,11 +21,11 @@ nnod = grid.GetNumberOfPoints()
 
 tsleep = 0
 mkvid = 0
-finc = 5
+finc = 1
 Dt = 1
 frame = 1
 frame_end = 0
-val_range = [2,0.8]
+val_range = [1,-0.1]
 
 if mkvid:
     signal.signal(signal.SIGINT,utils.my_sigint_handler)
