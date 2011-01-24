@@ -410,6 +410,11 @@ expect("elastld-df/test_ld_elast.check.tmp",
        "Large displacement based on displacement only formulation ",
        "test OK . 1");
 
+#------/*/------/*/------/*/------/*/------/*/------/*/------/*/ 
+expect("elastld-bubble/test_bubble.check.tmp",
+       "Large displacement load element ",
+       "test OK . 1");
+
 end_section();
 
 end_section();

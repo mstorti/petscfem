@@ -7,7 +7,7 @@
 	newff burgers bug100 nonlr genload lupart distmap sparse graph sqcav	\
 	pfmat  aquifer nutatcyl mmove advec nsgenload plate gasflow-conv 	\
 	oscplate idmap sw_abso cubcav condwall project embgath alebcconv 	\
-	ductadv dvector elastld-df
+	ductadv dvector elastld-df elastld-bubble
 
 SRCS = $(wildcard *.cpp)
 
@@ -17,7 +17,8 @@ DIRS = circ fstack sector les turbchan turbchanw advdif texthash	\
 		pfmat cubcav aquifer bubbly nutatcyl aquifer fastmat2	\
 		nsgenload plate gasflow-conv idmap mmove advec plano	\
 		oscplate spillway sw_abso gfplate condwall project	\
-		embgath flow-reversal alebcconv ductadv dvector elastld-df
+		embgath flow-reversal alebcconv ductadv dvector		\
+		elastld-df elastld-bubble
 
 CLEAN_DIRS = $(DIRS)
 DEPEND_DIRS = texthash distmap sparse aquifer plate fstack idmap
@@ -125,7 +126,7 @@ runtests: compile sector oscplate fastmat2 plano idmap constraint_bug	\
 	fstack advdif texthash log_vars newff burgers bug100 genload	\
 	lupart distmap sparse graph sqcav pfmat aquifer nutatcyl mmove	\
 	advec nsgenload cubcav project embgath alebcconv ductadv 	\
-	gasflow-conv dvector elastld-df
+	gasflow-conv dvector elastld-df elastld-bubble
 
 rp: runtests_p
 runtests_p: pfmat aquifer nutatcyl mmove	\
@@ -312,6 +313,11 @@ gasflow-conv:
 #----<*>----------<*>----------<*>----------<*>----------<*>----------<*>--
 # Elastld tests
 elastld-df:
+	$(MAKE) -C $@ tests
+
+#----<*>----------<*>----------<*>----------<*>----------<*>----------<*>--
+# Elastld bubble test
+elastld-bubble:
 	$(MAKE) -C $@ tests
 
 # makes an abridged acount of the tests
