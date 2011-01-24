@@ -126,10 +126,10 @@ runtests: compile sector oscplate fastmat2 plano idmap constraint_bug	\
 	fstack advdif texthash log_vars newff burgers bug100 genload	\
 	lupart distmap sparse graph sqcav pfmat aquifer nutatcyl mmove	\
 	advec nsgenload cubcav project embgath alebcconv ductadv 	\
-	gasflow-conv dvector elastld-df elastld-bubble
+	gasflow-conv dvector elastld-df elastld-bubble scalar2d-bdf
 
 rp: runtests_p
-runtests_p: elastld-df elastld-bubble
+runtests_p: scalar2d-bdf
 
 #s Specific tests
 #----<*>----------<*>----------<*>----------<*>----------<*>----------<*>-----
