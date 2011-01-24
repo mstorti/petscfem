@@ -6,7 +6,7 @@ default: run
 
 tests: test_alebcconv
 
-BOPT := g_c++
+# BOPT := g_c++
 SRCS = 
 
 PETSCFEM_DIR := ../..

@@ -13,7 +13,7 @@ MACHI = -machinefile machi.dat
 LOC_PROG = ns
 PROG = $(NS)
 
-BOPT := g_c++
+# BOPT := g_c++
 PETSCFEM_DIR := ../..
 include $(PETSCFEM_DIR)/Makefile.base
 include $(PETSCFEM_DIR)/test/Makefile.base.test

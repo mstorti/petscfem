@@ -1,7 +1,7 @@
 
 default: condwall
 
-BOPT = O_c++
+# BOPT = O_c++
 PETSCFEM_DIR = ../..
 include $(PETSCFEM_DIR)/Makefile.base
 include $(PETSCFEM_DIR)/test/Makefile.base.test
