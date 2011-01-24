@@ -55,7 +55,7 @@ local_clean::
 #w Make all tests for a particular BOPT and keep log
 #w and make a tar with the results
 torture_1:
-	mpdboot
+	mpdboo
 	$(MAKE) -k runtests 2>&1 | tee make-tests-$(BOPT).log
 #
 	echo "-------------------------" | tee -a  make-tests-$(BOPT).log
@@ -126,12 +126,10 @@ runtests: compile sector oscplate fastmat2 plano idmap constraint_bug	\
 	fstack advdif texthash log_vars newff burgers bug100 genload	\
 	lupart distmap sparse graph sqcav pfmat aquifer nutatcyl mmove	\
 	advec nsgenload cubcav project embgath alebcconv ductadv 	\
-	gasflow-conv dvector elastld-df elastld-bubble
+	gasflow-conv dvector 
 
 rp: runtests_p
-runtests_p: pfmat aquifer nutatcyl mmove	\
-	advec nsgenload cubcav project embgath alebcconv ductadv 	\
-	gasflow-conv
+runtests_p: elastld-df elastld-bubble
 
 #s Specific tests
 #----<*>----------<*>----------<*>----------<*>----------<*>----------<*>-----

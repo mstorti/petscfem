@@ -18,13 +18,8 @@ CASE := bubble
 PROG := $(NS)
 LOC_PROG := ns
 
-ifeq ($(HOSTNAME),aquiles)
-NP := $(shell procsel -n ./proctable)
-MCH := -1 -machinefile ./machi.dat
-else
 NP := 1
 MCH := 
-endif
 
 test_bubble:
 	$(MAKE) mesh

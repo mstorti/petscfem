@@ -329,7 +329,7 @@ void ld_elasticity_load
   double pressure = *(propel.buff()+pressure_indx);
   
   if (use_displacement_formulation) {
-    xstar.set(state).scale(defo_fac);
+    xstar.set(xloc).axpy(state_new,defo_fac);
   } else {
     if (use_new_form) {
       res.is(2,1,ndim);
