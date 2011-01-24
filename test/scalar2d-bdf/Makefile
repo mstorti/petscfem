@@ -41,9 +41,9 @@ test_bdf_dgcl:
 	$(MAKE) mmv-force.efn
 	mkstepsdir.pl
 	$(MPI_HOME1)/bin/mpiexec $(MCH) -a $(CASE) \
-		-np $(NP) $(PROG) -code bdf -case $(CASE).depl 
+		-np $(NP) $(PROG) -code bdf -case $(CASE).depl \
 		$(call redir,$@.output.tmp)
-	$(OCTAVE) verif.m > $@.check.tmp
+	$(OCTAVE) bdf_dgcl_verif.m > $@.check.tmp
 
 zip:
 	@shopt -s nullglob ;				\

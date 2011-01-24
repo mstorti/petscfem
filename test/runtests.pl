@@ -767,6 +767,16 @@ expect("gasflow-conv/test_gasflow_1elem_jaco_verif.tmp",
        "Check gasflow element analytic Jacobian",
        "^test OK 1");
 
+#------/*/------/*/------/*/------/*/------/*/------/*/------/*/ 
+expect("scalar2d-bdf/test_bdf_dgcl_gaussian_diag.check.tmp",
+       "Check Gaussian advection with BDF and DGCLo",
+       "^test OK. 1.*adv_case gaussian_diag");
+
+#------/*/------/*/------/*/------/*/------/*/------/*/------/*/ 
+expect("scalar2d-bdf/test_bdf_dgcl.check.tmp",
+       "Check DGCL with the BDF integrator",
+       "^test OK. 1.*adv_case bdf_dgcl");
+
 end_section();
 
 #------/*/------/*/------/*/------/*/------/*/------/*/------/*/ 
