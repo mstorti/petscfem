@@ -1,0 +1,112 @@
+# -*- mode: shell-script -*-
+# case: <:=$ENV{'case'}:>
+# <: $code='fl'; require './data.pl'; :>
+## Derived quantities:
+## ==================
+global_options
+
+# time-integration weight
+<:pr('nstep'):>
+alpha 1.0
+<:pr('nstage'):>
+
+#if 0
+use_ALE_form
+#else
+use_BDF_advdife
+#endif
+
+nsave 1
+initial_state "gascont.ini.tmp"
+save_file "gascont.state.tmp"
+
+save_file_pattern "STEPS/gascont.state-%d.tmp"
+nsaverot 1
+nfile <:=$nfile:> 
+nrec 1
+indx_ALE_xold 1
+# dont_use_average_jaco_fix
+
+# print_some_file gascont.some-nodes.tmp
+# save_file_some ./STEPS/gascont.some-rslt.tmp
+# nsome 1
+
+#if 0
+solver "iisd"
+preco_type "jacobi"
+iisd_subpart_auto 4000
+maxits 150
+#else
+solver "petsc"
+preco_type "lu"
+maxits 1
+#endif
+
+# file containing the weight (speed) of processors
+proc_weights weights.dat
+
+#    Iterative parameters
+tol_tet 1e-5
+tol_newton 1e-10
+atol 1e-12
+rtol 1e-6
+dtol 1e3
+nnwt 1
+<:pr('Dt'):>
+
+#if 0
+print_linear_system_and_stop
+solve_system 0
+#endif
+
+print_internal_loop_conv
+weak_form 1
+temporal_stability_factor 0
+p_thrsh 1e-7
+
+ndim 2
+steady 0
+ALE_flag 1
+
+#if 1
+hook_list shell_hook shell \
+      dl_generic_hook mmv-force
+
+mmv-force.filename ./mmv-force.efn
+mmv-force.prefix mmv_force
+<:pr('U'):>
+<:pr('Ly'):>
+#endif
+
+__END_HASH__
+
+##================================================================
+# ndim nu ndof
+nodedata 2 6 1
+data ./gascont.nod.tmp
+__END_HASH__
+
+##================================================================
+elemset newadvdif_advecfm2 3
+props advective_jacobians[2]
+geometry triangle
+npg 3
+diffusive_jacobians 0
+diffusive_jacobians_mol 0
+data ./gascont.con.tmp
+__END_HASH__
+
+end_elemsets
+
+#if $adv_case eq 'gaussian'
+fixa
+__INCLUDE__ ./gascont.fixa.tmp
+__END_FIXA__
+#endif
+
+#if $adv_case eq 'gaussian_diag'
+constraint
+__INCLUDE__ ./gascont.periy.tmp
+__INCLUDE__ ./gascont.perix.tmp
+__END_CONSTRAINT__
+#endif
