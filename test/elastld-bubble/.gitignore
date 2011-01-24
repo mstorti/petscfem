@@ -1,0 +1,17 @@
+*.dat
+*.log
+STEPS*
+SAVED-STEPS
+YUV*
+*.octave
+elastld-results
+nohup.out
+tempo-yuv.png
+beam.vtk
+garbage
+ns
+results
+*.vtk
+*-bck*
+elastld-videos-stuff
+proctable

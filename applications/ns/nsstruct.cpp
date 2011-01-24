@@ -131,14 +131,12 @@ int struct_main() {
   }
 #endif
 
-#if 0
   // Check that `use_displacement_formulation' was not set by user
   TGETOPTDEF(GLOBAL_OPTIONS,int,use_displacement_formulation,-1);
   PETSCFEM_ASSERT0(use_displacement_formulation==-1,
                    "use_displacement_formulation must not be set by user");  
   // Use new formulation 
   GLOBAL_OPTIONS->add_entry("use_displacement_formulation","1",0);
-#endif
   GLOBAL_OPTIONS->add_entry("use_arg_handles","1",0);
 
   //o The number of outer stages for convergence in coupled problems.
