@@ -2,6 +2,8 @@
 TODO: [Mainly fixes go here...]
 =====
 
+* Check that in some ALE elements the check for enough columns in the
+  `H' fields is inverted, 
 * replace `rest()' for `substraction()' or similar in FastMat2, since
   `rest()' is erroneously translated from spanish `resta'. 
 * Add new print version feature to advdif and others. 

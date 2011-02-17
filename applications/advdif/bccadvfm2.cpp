@@ -245,8 +245,10 @@ void NewBcconv::new_assemble(arg_data_list &arg_data_v,const Nodedata *nodedata,
     // nodal computation of mesh velocity
     if (use_ALE_form) {
       // Compute mesh velocity (at each element node)
-      assert(nH >= ndim);
-      assert(indx_ALE_xold >= nH+1-ndim);
+      PETSCFEM_ASSERT0(nH >= ndim,
+                       "Not enough columns for retrieving old coordinates");  
+      PETSCFEM_ASSERT0(nH-indx_ALE_xold+1 >= ndim,
+                       "Not enough columns for retrieving old coordinates");  
       Hloc.is(2,indx_ALE_xold,indx_ALE_xold+ndim-1);
       xloc_old.set(Hloc);
       Hloc.rs();

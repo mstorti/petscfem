@@ -305,7 +305,7 @@ new_assemble_ALE_formulation(arg_data_list &arg_data_v,const Nodedata *nodedata,
   PETSCFEM_ASSERT(nH >= ndim,"This element requires the old mesh "
                   "position to be passed as an H field. nH %d, ndim %d",
                   nH,ndim);
-  PETSCFEM_ASSERT(indx_ALE_xold >= nH+1-ndim,
+  PETSCFEM_ASSERT(indx_ALE_xold <= nH+1-ndim,
                   "bad indx_ALE_xold, not remaining enough columns. "
                   "indx_ALE_xold %d, nH %d, ndim %d",
                   indx_ALE_xold,nH,ndim);  

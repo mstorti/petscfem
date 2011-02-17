@@ -8,17 +8,19 @@
 
 #include "gasflow.h"
 
+#define PF_ASSERT_AUX(cond) \
+  PETSCFEM_ASSERT0(cond,"failed to verify condition.")
+
 #define GF_GETOPTDEF_ND(type,var,def)				\
  { if (elemset) { EGETOPTDEF_ND(elemset,type,var,def); }	\
  else if (old_elemset)						\
       { TGETOPTDEF_ND(old_elemset->thash,type,var,def); }	\
- else assert(0); }
+ else PF_ASSERT_AUX(0); }
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:
 void gasflow_ff::start_chunk(int &ret_options) {
   int ierr;
   FastMat2 tmp5;
-
 
   if (elemset) {
     new_adv_dif_elemset = dynamic_cast<const NewAdvDif *>(elemset);
@@ -26,7 +28,7 @@ void gasflow_ff::start_chunk(int &ret_options) {
   } else if (old_elemset) {
     nel = old_elemset->nel;
     ndof = old_elemset->ndof;
-  } else assert(0);
+  } else PF_ASSERT_AUX(0);
 
   GF_GETOPTDEF_ND(int,ndim,0);
   GF_GETOPTDEF_ND(double,visco,0);
@@ -115,7 +117,7 @@ void gasflow_ff::start_chunk(int &ret_options) {
   if (new_adv_dif_elemset) {
     new_adv_dif_elemset->get_prop(G_body_prop,"G_body");
     if (G_body_prop.length>0)
-      assert(G_body_prop.length == ndim);
+      PF_ASSERT_AUX(G_body_prop.length == ndim);
     new_adv_dif_elemset
       ->get_prop(G_body_scale_prop,"G_body_scale");
   }
@@ -129,7 +131,7 @@ void gasflow_ff::start_chunk(int &ret_options) {
     old_elemset->thash->get_entry("G_body",line);
     if(line) {
       read_double_array(Uref_v,line);
-    assert(Uref_v.size()==(unsigned int)ndof);
+    PF_ASSERT_AUX(Uref_v.size()==(unsigned int)ndof);
     Uref.set(&Uref_v[0]);
     }
   } else {
@@ -144,13 +146,13 @@ void gasflow_ff::start_chunk(int &ret_options) {
   //  nonlinear range.
   GF_GETOPTDEF_ND(int,linear_abso,0);
 
-  assert(ndim>0);
-  assert(ndof==2+ndim);
+  PF_ASSERT_AUX(ndim>0);
+  PF_ASSERT_AUX(ndof==2+ndim);
 
-  assert(ga>0.);
-  assert(Rgas>0.);
-  assert(visco>0.);
-  assert(cond>0.);
+  PF_ASSERT_AUX(ga>0.);
+  PF_ASSERT_AUX(Rgas>0.);
+  PF_ASSERT_AUX(visco>0.);
+  PF_ASSERT_AUX(cond>0.);
   vl_indx = 2;
   vl_indxe = 2+ndim-1;
   vel.resize(1,ndim);
@@ -207,8 +209,8 @@ void gasflow_ff::start_chunk(int &ret_options) {
   tmp_vel.resize(1,ndim);
 
   if (sutherland_law>0) {
-     assert(Tem_infty>0.0);
-     assert(Tem_ref>0.0);
+     PF_ASSERT_AUX(Tem_infty>0.0);
+     PF_ASSERT_AUX(Tem_ref>0.0);
   }
 
   ip.resize(ndim+1);
@@ -769,7 +771,7 @@ void gasflow_ff::compute_flux(const FastMat2 &U,
 
   if (options & COMP_UPWIND) {
     advdf_e = dynamic_cast<const NewAdvDif *>(elemset);
-    assert(advdf_e);
+    PF_ASSERT_AUX(advdf_e);
 #define pi M_PI
     double Volume = advdf_e->volume();
     int axi = advdf_e->axi;
