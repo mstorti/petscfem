@@ -149,9 +149,9 @@ new_assemble_ALE_formulation(arg_data_list &arg_data_v,const Nodedata *nodedata,
   //  correspoding to nonlinearities in the
   //  diffusive Jacobian.
   NSGETOPTDEF(int,compute_dDdU_term,1);
-  //o Don't use the averaged Jacobian ALE fix for the DGCL. This is only
-  //  for debugging purposes, you should use the fix!! 
-  NSGETOPTDEF(int,dont_use_average_jaco_fix,0);
+  //o Use the averaged Jacobian ALE fix for the DGCL. This is only
+  //  for debugging purposes, you should use always the fix!! 
+  NSGETOPTDEF(int,use_average_jaco_fix,1);
 
   //o key for computing reactive terms or not
   NSGETOPTDEF(int,compute_reactive_terms,1);
@@ -305,7 +305,7 @@ new_assemble_ALE_formulation(arg_data_list &arg_data_v,const Nodedata *nodedata,
   PETSCFEM_ASSERT(nH >= ndim,"This element requires the old mesh "
                   "position to be passed as an H field. nH %d, ndim %d",
                   nH,ndim);
-  PETSCFEM_ASSERT(indx_ALE_xold <= nH+1-ndim,
+  PETSCFEM_ASSERT(indx_ALE_xold>=1 && nH-indx_ALE_xold+1 >= ndim,
                   "bad indx_ALE_xold, not remaining enough columns. "
                   "indx_ALE_xold %d, nH %d, ndim %d",
                   indx_ALE_xold,nH,ndim);  
@@ -377,6 +377,10 @@ new_assemble_ALE_formulation(arg_data_list &arg_data_v,const Nodedata *nodedata,
       Hloc.rs();
       xloc.scale(ALPHA).axpy(xloc_old,1-ALPHA);
       vloc_mesh.set(xloc_new).rest(xloc_old).scale(rec_Dt_m).rs();
+      if (k_elem==0) {
+        FMSHV(vloc_mesh);
+        FMSHV(lstate);
+      }
       if (0){
 	int kk,ielhh;
 	element.position(kk, ielhh);
@@ -429,7 +433,7 @@ new_assemble_ALE_formulation(arg_data_list &arg_data_v,const Nodedata *nodedata,
 	    Q.scale(1.0/detJaco);
 	    dshapex_gcl.prod(Q,DSHAPEXI,1,-1,-1,2);
 	  }
-          if (dont_use_average_jaco_fix) 
+          if (!use_average_jaco_fix) 
             dshapex_gcl.prod(iJaco,DSHAPEXI,1,-1,-1,2);
 	} else if (ndimel == 1) {
 	  // This allows to solve problems on streams like rivers or

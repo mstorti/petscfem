@@ -29,7 +29,7 @@ nsaverot 0
 #endif
 
 indx_ALE_xold 1
-# dont_use_average_jaco_fix
+# use_average_jaco_fix 0
 
 # print_some_file gascont.some-nodes.tmp
 # save_file_some ./STEPS/gascont.some-rslt.tmp

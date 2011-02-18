@@ -160,7 +160,7 @@ new_assemble_BDF(arg_data_list &arg_data_v,const Nodedata *nodedata,
   NSGETOPTDEF(int,compute_dDdU_term,1);
   //o Don't use the averaged Jacobian ALE fix for the DGCL. This is only
   //  for debugging purposes, you should use the fix!! 
-  NSGETOPTDEF(int,dont_use_average_jaco_fix,0);
+  NSGETOPTDEF(int,use_average_jaco_fix,1);
   //o Use this number of Gauss-Lobatto points for the
   //  computation of the averaged Jacobian fix. If not
   //  entered use the minimum number appropriate for the
@@ -506,7 +506,7 @@ new_assemble_BDF(arg_data_list &arg_data_v,const Nodedata *nodedata,
             .scale(1.0/detJaco_new);
           rgcl.prod(qv,DSHAPEXI,-1,-1,1);
 
-          if (dont_use_average_jaco_fix) {
+          if (!use_average_jaco_fix) {
             dshapex_gcl.prod(iJaco_new,DSHAPEXI,1,-1,-1,2);
             qv.prod(iJaco,vmesh_phalf,-1,1,-1);
             rgcl.prod(qv,DSHAPEXI,-1,-1,1);

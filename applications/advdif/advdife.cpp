@@ -631,8 +631,13 @@ void NewAdvDif::new_assemble(arg_data_list &arg_data_v,const Nodedata *nodedata,
     
       // nodal computation of mesh velocity
       if (ALE_flag) {
-        assert(nH >= ndim);
-        assert(indx_ALE_xold >= nH+1-ndim);
+        PETSCFEM_ASSERT(nH >= ndim,"This element requires the old mesh "
+                        "position to be passed as an H field. nH %d, ndim %d",
+                        nH,ndim);
+        PETSCFEM_ASSERT(indx_ALE_xold>=1 && nH-indx_ALE_xold+1 >= ndim,
+                        "bad indx_ALE_xold, not remaining enough columns. "
+                        "indx_ALE_xold %d, nH %d, ndim %d",
+                        indx_ALE_xold,nH,ndim);  
         Hloc.is(2,indx_ALE_xold,indx_ALE_xold+ndim-1);
         vloc_mesh.set(xloc).rest(Hloc).scale(rec_Dt_m*ALPHA).rs();
         Hloc.rs();
