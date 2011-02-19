@@ -377,6 +377,8 @@ new_assemble_ALE_formulation(arg_data_list &arg_data_v,const Nodedata *nodedata,
       Hloc.rs();
       xloc.scale(ALPHA).axpy(xloc_old,1-ALPHA);
       vloc_mesh.set(xloc_new).rest(xloc_old).scale(rec_Dt_m).rs();
+
+#if 0
       if (k_elem==0) {
         FMSHV(vloc_mesh);
         FMSHV(lstate);
@@ -391,6 +393,7 @@ new_assemble_ALE_formulation(arg_data_list &arg_data_v,const Nodedata *nodedata,
 	  vloc_mesh.print(" vloc_mesh^(n+1) :");
 	}
       }
+#endif
 
       // loop over Gauss points
       Jaco_av.set(0.);
@@ -652,7 +655,8 @@ new_assemble_ALE_formulation(arg_data_list &arg_data_v,const Nodedata *nodedata,
 	    veccontr.axpy(tmp_ALE_04,wpgdet);
 	    tmp_ALE_05.prod(tmp_ALE_03,tmp_ALE_01,1,2,4,3);
 	    matlocf.axpy(tmp_ALE_05,-wpgdet);
-	    // tmp2.prod(SHAPE,tmp1,1,2); // tmp2= SHAPE' * (G - dHdt - A_grad_U)
+	    // tmp2.prod(SHAPE,tmp1,1,2); 
+            // tmp2= SHAPE' * (G - dHdt - A_grad_U)
 	    tmp2.prod(SHAPE,A_grad_U,1,2); // tmp2= SHAPE' * A_grad_U
 	    veccontr.axpy(tmp2,-wpgdet);
 	  
@@ -671,14 +675,16 @@ new_assemble_ALE_formulation(arg_data_list &arg_data_v,const Nodedata *nodedata,
 	  
 	    tmp23.set(SHAPE).scale(-wpgdet);
 	    v_mesh_grad_N.prod(v_mesh,dshapex,-1,-1,1);
-	    tmp_ALE_jac.prod(v_mesh_grad_N,Cp,1,2,3);// el Cp tiene que estar en t_{n+alpha}
+            // el Cp tiene que estar en t_{n+alpha}
+	    tmp_ALE_jac.prod(v_mesh_grad_N,Cp,1,2,3);
 	    tmp14b.set(A_grad_N).rest(tmp_ALE_jac);
 	    tmp14.prod(tmp14b,tmp23,1,2,4,3);
 	    matlocf.add(tmp14);
 	  }	  
 	  // tmp8= DSHAPEX * (w*flux_c - flux_d - v_mesh*H)
 	  // w = weak_form
-	  // tmp8.prod(dshapex,tmp11,-1,1,2,-1); // non-averaged shape function gradients
+	  // tmp8.prod(dshapex,tmp11,-1,1,2,-1); 
+          // non-averaged shape function gradients
 	  tmp8.prod(dshapex_gcl,tmp11,-1,1,2,-1);
 	  tmp9.prod(SHAPE,tmp10,1,2); // tmp9 = SHAPE' * (G - dHdt)
 #if 0
