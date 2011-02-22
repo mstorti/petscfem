@@ -197,8 +197,10 @@ new_assemble_ALE_formulation(arg_data_list &arg_data_v,const Nodedata *nodedata,
   FMatrix grad_H(ndimel,nH);
 
   // Don't know how to handle the following combinations
-  assert(!(use_ALE_form && ndim!=ndimel));
-  assert(!(use_ALE_form && lumped_mass));
+  PETSCFEM_ASSERT0(!(use_ALE_form && ndim!=ndimel),
+                   "Not implemented yet");  
+  PETSCFEM_ASSERT0(!(use_ALE_form && lumped_mass),
+                   "Not implemented yet");  
 
   adv_diff_ff->set_profile(prof_fields); // profile by equations
   prof_nodes.set(1.);
