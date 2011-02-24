@@ -187,10 +187,10 @@ int fsi_main() {
   //o Update jacobian only until n-th Newton subiteration. 
   // Don't update if null. 
   GETOPTDEF(int,update_jacobian_iters,1);
-  assert(update_jacobian_iters>=1);
+  PETSCFEM_ASSERT0(update_jacobian_iters>=1,"Out of range");  
   //o Update jacobian each $n$-th Newton iteration
   GETOPTDEF(int,update_jacobian_start_iters,INF);
-  assert(update_jacobian_start_iters>=0);
+  PETSCFEM_ASSERT0(update_jacobian_start_iters>=0,"Out of range");  
 #undef INF
 
   //o _T: vector<double>
@@ -223,6 +223,9 @@ int fsi_main() {
   GETOPTDEF(int,solve_system,1);
   //o Measure performance of the 'comp\_mat\_res' jobinfo. 
   GETOPTDEF(int,measure_performance,0);
+  //o Check whether the states are finite (not Inf or NaN).
+  //  If this happens the program stops. 
+  GETOPTDEF(int,check_for_inf,0);
 
   //o Sets the save frequency in iterations 
   GETOPTDEF(int,nsave,10);
@@ -712,6 +715,10 @@ int fsi_main() {
 
 	  double normres;
 	  ierr  = VecNorm(res,NORM_2,&normres); CHKERRA(ierr);
+          if (check_for_inf) {
+            PETSCFEM_ASSERT0(isfinite(normres),
+                             "Detected Inf or NaN values in residual vector");  
+          }
 	  if (inwt==0) normres_external = normres;
 	  PetscPrintf(PETSCFEM_COMM_WORLD,
 		      "Newton subiter %d, norm_res  = %10.3e, update Jac. %d\n",
@@ -980,6 +987,10 @@ int fsi_main() {
       scal = -1.0;
       ierr = VecAXPY(dx_step,scal,x);
       ierr  = VecNorm(dx_step,NORM_2,&norm); CHKERRA(ierr);
+      if (check_for_inf) {
+        PETSCFEM_ASSERT0(isfinite(norm),
+                         "Detected Inf or NaN values in state vector");  
+      }
       PetscPrintf(PETSCFEM_COMM_WORLD,"============= delta_u = %10.3e\n",norm);
       print_vector_rota(save_file_pattern.c_str(),x,dofmap,&time,
 			tstep-1,nsaverot,nrec,nfile);
