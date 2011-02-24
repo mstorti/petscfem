@@ -41,6 +41,23 @@ int dual_time_main();
 
 Hook *advdif_hook_factory(const char *name);
 
+#if 0
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>
+int VecIsFinite(Vec x) {
+  double *xp;
+  int ierr,size;
+  ierr = VecGetArray(x,&xp); CHKERRQ(ierr);
+  ierr = VecGetLocalSize(x,&size); CHKERRQ(ierr);
+  int locok = 1, ok;
+  for (int j=0; j<size; j++) 
+    if (!isfinite(xp[j])) { locok = 0; break; }
+  ierr = VecRestoreArray(x,&xp);
+  ierr = MPI_Allreduce(&locok,&ok,1,MPI_INT,
+                       MPI_LAND,PETSCFEM_COMM_WORLD);
+  return ok;
+}
+#endif
+
 //-------<*>-------<*>-------<*>-------<*>-------<*>------- 
 #undef __FUNC__
 #define __FUNC__ "advdif_main"
@@ -268,6 +285,9 @@ int advdif_main(int argc,char **args) {
   //o Computes jacobian of residuals and prints to a file.
   //  May serve to debug computation of the analytic jacobians. 
   TGETOPTDEF_ND(mesh->global_options,int,verify_jacobian_with_numerical_one,0);
+  //o Check whether the states are finite (not Inf or NaN).
+  //  If this happens the program stops. 
+  GETOPTDEF(int,check_for_inf,0);
 
 #define INF INT_MAX
   //o Update jacobian each $n$-th time step. 
@@ -275,12 +295,11 @@ int advdif_main(int argc,char **args) {
   //o Update jacobian only until n-th Newton subiteration. 
   // Don't update if null. 
   GETOPTDEF(int,update_jacobian_iters,1);
-  assert(update_jacobian_iters>=1);
+  PETSCFEM_ASSERT0(update_jacobian_iters>=1,"Out of range");  
   //o Update jacobian each $n$-th Newton iteration
   GETOPTDEF(int,update_jacobian_start_iters,INF);
-  assert(update_jacobian_start_iters>=0);
+  PETSCFEM_ASSERT0(update_jacobian_start_iters>=0,"Out of range");  
 #undef INF
-
 
   vector<double> gather_values;
   //o Number of ``gathered'' quantities.
@@ -528,14 +547,34 @@ int advdif_main(int argc,char **args) {
       }
 
       ierr  = VecNorm(res,NORM_2,&normres); CHKERRA(ierr);
+      if (check_for_inf) {
+#if 0
+        PETSCFEM_ASSERT0(VecIsFinite(res),
+                         "Detected Inf or NaN values in residual vector");  
+#else
+        PETSCFEM_ASSERT0(isfinite(normres),
+                         "Detected Inf or NaN values in residual vector");  
+#endif
+      }
       if (inwt==0) normres_ext = normres;
       PetscPrintf(PETSCFEM_COMM_WORLD,
 		  "Newton subiter %d, norm_res  = %10.3e\n",
 		  inwt,normres);
       scal=omega_newton/alpha;
       ierr = VecAXPY(x,scal,dx);
+      if (check_for_inf) {
+#if 0
+        PETSCFEM_ASSERT0(VecIsFinite(x),
+                         "Detected Inf or NaN values in state vector");  
+#else
+        double normx;
+        ierr  = VecNorm(x,NORM_2,&normx); CHKERRA(ierr);
+        PETSCFEM_ASSERT0(isfinite(normx),
+                         "Detected Inf or NaN values in state vector");  
+#endif
+      }
       if (normres < tol_newton) break;
-    }
+      } // end of Newton loop
 
     // Prints residual and mass matrix in Matlab format
     // Define time step depending on strategy. Automatic time step,
