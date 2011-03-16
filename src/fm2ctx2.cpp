@@ -120,6 +120,7 @@ FastMatCache* FastMat2::CacheCtx2
     as.clear();
 #endif
   } else {
+    was_cached = 0;
     cache = new FastMatCache;
   }
   return cache;

@@ -3218,6 +3218,7 @@ double FastMat2::get(INT_VAR_ARGS_ND) const {
   }
 #endif
   FastMatCache *cache = ctx->step();
+  double val;
 
   if (!ctx->was_cached) {
     Indx indx,fdims;
@@ -3239,8 +3240,9 @@ double FastMat2::get(INT_VAR_ARGS_ND) const {
     ctx->op_count.get += 1;
   }
 
+  val = *cache->from;
   if (!ctx->use_cache) delete cache;
-  return *cache->from;
+  return val;
 }
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
