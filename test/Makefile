@@ -100,6 +100,7 @@ torture_O:
 
 #w torture for BOPT=g_c++ and BOPT=g_c++,
 #w store results in tars and logs.
+#w You probably want to do $ make torture &> ../torture.log &
 torture:
 	$(MAKE) lclean
 	$(MAKE) BOPT=g_c++ torture_1
