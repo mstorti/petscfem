@@ -28,7 +28,7 @@ test_bdf_dgcl_gaussian_diag:
 	$(MAKE) run $(call redir,$@.output.tmp)
 	$(MAKE) mmv-force.efn
 	mkstepsdir.pl
-	$(MPI_HOME1)/bin/mpiexec $(MCH) -a $(CASE) \
+	$(MPIEXEC) $(MCH) -a $(CASE) \
 		-np $(NP) $(PROG) -code bdf -case $(CASE).depl \
 		$(call redir,$@.output.tmp)
 	$(OCTAVE) verif.m > $@.check.tmp
@@ -40,7 +40,7 @@ test_bdf_dgcl:
 	$(MAKE) run $(call redir,$@.output.tmp)
 	$(MAKE) mmv-force.efn
 	mkstepsdir.pl
-	$(MPI_HOME1)/bin/mpiexec $(MCH) -a $(CASE) \
+	$(MPIEXEC) $(MCH) -a $(CASE) \
 		-np $(NP) $(PROG) -code bdf -case $(CASE).depl \
 		$(call redir,$@.output.tmp)
 	$(OCTAVE) bdf_dgcl_verif.m > $@.check.tmp
