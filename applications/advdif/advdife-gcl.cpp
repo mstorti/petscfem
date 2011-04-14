@@ -428,7 +428,7 @@ new_assemble_GCL_compliant(arg_data_list &arg_data_v,const Nodedata *nodedata,
     // nodal computation of mesh velocity
     if (ALE_flag) {
       assert(nH >= ndim);
-      assert(indx_ALE_xold >= nH+1-ndim);
+      assert(indx_ALE_xold <= nH+1-ndim);
       Hloc.is(2,indx_ALE_xold,indx_ALE_xold+ndim-1);
       xloc_old.set(Hloc);
       Hloc.rs();

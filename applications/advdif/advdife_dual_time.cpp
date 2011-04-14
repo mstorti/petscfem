@@ -423,7 +423,7 @@ void NewAdvDif
     // nodal computation of mesh velocity
     if (ALE_flag) {
       assert(nH >= ndim);
-      assert(indx_ALE_xold >= nH+1-ndim);
+      assert(indx_ALE_xold <= nH+1-ndim);
       Hloc.is(2,indx_ALE_xold,indx_ALE_xold+ndim-1);
       vloc_mesh.set(xloc).rest(Hloc).scale(rec_Dt_m).rs();
       Hloc.rs();
