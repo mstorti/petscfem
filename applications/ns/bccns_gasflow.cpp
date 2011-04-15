@@ -14,7 +14,7 @@ extern TextHashTable *GLOBAL_OPTIONS;
 
 // ======================================================================================
 #define set_state_bcc {						\
-	vel_supg.set(vel).rest(v_mesh).rs();			\
+	vel_supg.set(vel).minus(v_mesh).rs();			\
         if(axi>0){						\
           vel_supg.setel(0.,axi);				\
         }							\
@@ -273,7 +273,7 @@ int bcconv_ns_gasflow::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
       assert(nH >= ndim);
       assert(indx_ALE_xold >= nH+1-ndim);
       Hloc.is(2,indx_ALE_xold,indx_ALE_xold+ndim-1);
-      vloc_mesh.set(xloc).rest(Hloc).scale(rec_Dt).rs();
+      vloc_mesh.set(xloc).minus(Hloc).scale(rec_Dt).rs();
       Hloc.rs();
     }
 

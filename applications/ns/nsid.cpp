@@ -119,8 +119,8 @@ int ns_id::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
     ielh++;
 
     if (comp_mat_res || comp_res) {
-      locstate.set(&(LOCST(ielh,0,0))).rest(x_ref);
-      locstate2.set(&(LOCST2(ielh,0,0))).rest(x_ref);
+      locstate.set(&(LOCST(ielh,0,0))).minus(x_ref);
+      locstate2.set(&(LOCST2(ielh,0,0))).minus(x_ref);
       lumped_vc = 0;
       if (ns_id_lumped_cn) 
 	lumped_vc += ns_id_lumped_cn * locstate2.sum_all();

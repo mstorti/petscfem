@@ -424,7 +424,7 @@ int nsi_tet_keps_rot::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
 	  alfa_v.set(flocstate);
 	  flocstate2.ir(1,nelr+2);
 	  omega_v.axpy(flocstate2,1-alpha);
-	  alfa_v.rest(flocstate2);
+	  alfa_v.minus(flocstate2);
 
 	  // It doesn't make sense to have `steady' option in effect
 	  // and non-inertial frame with `omega' or linear acceleration
@@ -626,8 +626,8 @@ int nsi_tet_keps_rot::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
 	xpg.prod(SHAPE,xloc,-1,-1,1);
 
         // position vector to compute rotation terms
-	//	pos_v.set(xpg).rest(xop).add(x_o_op);
-	pos_v.set(xpg).rest(xop);
+	//	pos_v.set(xpg).minus(xop).add(x_o_op);
+	pos_v.set(xpg).minus(xop);
 
 	// state variables and gradient
 	u.prod(SHAPE,ucols,-1,-1,1);
@@ -796,8 +796,8 @@ int nsi_tet_keps_rot::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
 	  dmatu.prod(u,grad_u_star,-1,-1,1);
 #endif
 
-	  du.set(u_star).rest(u);
-	  dmatu.axpy(du,rec_Dt/alpha).rest(G_body);
+	  du.set(u_star).minus(u);
+	  dmatu.axpy(du,rec_Dt/alpha).minus(G_body);
 
 	  // adding rotational forces, only for the residual contribution 
           dmatu.add(acel_rot);
@@ -919,7 +919,7 @@ int nsi_tet_keps_rot::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
           reskap.axpy(tmp6_ke,wpgdet_c);
 
           // adding temporal terms here due to the lumped mass matrix option
-	  tmp10_ke.set(kapcol_star).rest(kapcol);
+	  tmp10_ke.set(kapcol_star).minus(kapcol);
 	  tmp11_ke.prod(tmp7_ke,tmp10_ke,1,-1,-1);
 	  reskap.axpy(tmp11_ke,-wpgdet*rec_Dt/alpha);
 #else
@@ -939,7 +939,7 @@ int nsi_tet_keps_rot::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
           tmp6_ke.set(W_supg_e).scale(Peps-Peps_2);
           reseps.axpy(tmp6_ke,wpgdet_c);
 
-	  tmp10_ke.set(epscol_star).rest(epscol);
+	  tmp10_ke.set(epscol_star).minus(epscol);
 	  tmp11_ke.prod(tmp8_ke,tmp10_ke,1,-1,-1);
 	  reseps.axpy(tmp11_ke,-wpgdet*rec_Dt/alpha);
 #else
@@ -1056,9 +1056,9 @@ int nsi_tet_keps_rot::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
  
 	  matlocf.ir(2,ndim+1).is(4,1,ndim);
 	  tmp17.prod(P_pspg,dmatw,3,1,2).scale(wpgdet);
-	  matlocf.rest(tmp17);
+	  matlocf.minus(tmp17);
 	  tmp17.prod(dshapex,SHAPE,3,2,1).scale(wpgdet);
-	  matlocf.rest(tmp17).rs();
+	  matlocf.minus(tmp17).rs();
 
 	  //matlocf.ir(2,ndof).ir(4,ndof).axpy(tmp13,-wpgdet).rs();
 	  matlocf.ir(2,ndim+1).ir(4,ndim+1).axpy(tmp13,-wpgdet).rs();

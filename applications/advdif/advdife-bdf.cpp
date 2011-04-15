@@ -417,8 +417,8 @@ new_assemble_BDF(arg_data_list &arg_data_v,const Nodedata *nodedata,
         xloc_old1.set(xloc);
       }
       xloc.scale(ALPHA).axpy(xloc_old,1-ALPHA);
-      vloc_mesh.set(xloc_new).rest(xloc_old).scale(rec_Dt_m).rs();
-      vloc_mesh1.set(xloc_old).rest(xloc_old1).scale(rec_Dt_m).rs();
+      vloc_mesh.set(xloc_new).minus(xloc_old).scale(rec_Dt_m).rs();
+      vloc_mesh1.set(xloc_old).minus(xloc_old1).scale(rec_Dt_m).rs();
       if (0){
 	int kk,ielhh;
 	element.position(kk, ielhh);
@@ -562,7 +562,7 @@ new_assemble_BDF(arg_data_list &arg_data_v,const Nodedata *nodedata,
 	    .scale(rec_Dt_m/detJaco);
 
 	  // This is plain dH/dt
-	  //dHdt2.set(Hn).rest(Ho).scale(rec_Dt_m*dhdt_term_coef);
+	  //dHdt2.set(Hn).minus(Ho).scale(rec_Dt_m*dhdt_term_coef);
 	  dHdt2.set(0.0)
             .axpy(Hn,1.5)
             .axpy(Ho,-2.0)
@@ -647,7 +647,7 @@ new_assemble_BDF(arg_data_list &arg_data_v,const Nodedata *nodedata,
 					  A_grad_U,grad_U,G_source,
 					  tau_supg,delta_sc,
 					  lambda_max_pg, nor,lambda,Vr,Vr_inv,0);
-		flux_pert.rest(flux).scale(1./eps_fd);
+		flux_pert.minus(flux).scale(1./eps_fd);
 		flux_pert.t();
 		A_fd_jac.ir(3,jdof).set(flux_pert).rs();
 		flux_pert.rs();
@@ -659,7 +659,7 @@ new_assemble_BDF(arg_data_list &arg_data_v,const Nodedata *nodedata,
 	      }
 	      Id_ndim.rs();
 	      A_jac.rs();
-	      A_jac_err.set(A_jac).rest(A_fd_jac);
+	      A_jac_err.set(A_jac).minus(A_fd_jac);
 #define FM2_NORM sum_abs_all
 	      double A_jac_norm     = A_jac.FM2_NORM();
 	      double A_jac_err_norm = A_jac_err.FM2_NORM();
@@ -701,19 +701,19 @@ new_assemble_BDF(arg_data_list &arg_data_v,const Nodedata *nodedata,
 	  if (lambda_max_pg > lambda_max) lambda_max = lambda_max_pg;
 
 	  tmp10.set(G_source);	// tmp10 = G - dHdt
-	  if (!lumped_mass) tmp10.rest(dHdt);
+	  if (!lumped_mass) tmp10.minus(dHdt);
 	  tmp10j.set(G_source);	// tmp10 = G - dHdt
-	  if (!lumped_mass) tmp10j.rest(dHdt2);
+	  if (!lumped_mass) tmp10j.minus(dHdt2);
 	
 	  // For the stabilization term use dHdt2
 	  // (i.e. not including dJ/dt term)
 	  // tmp1= G - dHdt2 - A_grad_U
-	  tmp1.rs().set(tmp10j).rest(A_grad_U); 
+	  tmp1.rs().set(tmp10j).minus(A_grad_U); 
 	
 	  if (use_Ajac_old) {
 	    Ao_grad_U.prod(Ao,grad_U,-1,1,-2,-1,-2);
 	    //tmp1= G - dHdt - A_grad_U
-	    tmp1_old.rs().set(tmp10).rest(Ao_grad_U);
+	    tmp1_old.rs().set(tmp10).minus(Ao_grad_U);
 	  }
 
 	  adv_diff_ff->set_state(Un);//para obtener el Cp^{n+1}
@@ -747,14 +747,14 @@ new_assemble_BDF(arg_data_list &arg_data_v,const Nodedata *nodedata,
 	    tmp2.prod(SHAPE,A_grad_U,1,2); // tmp2= SHAPE' * A_grad_U
 	    veccontr.axpy(tmp2,-wpgdet);
 	  
-	    tmp11.set(0.).rest(fluxd); // tmp11 = - flux_d
+	    tmp11.set(0.).minus(fluxd); // tmp11 = - flux_d
 	  
 	    tmp23.set(SHAPE).scale(wpgdet);
 	    tmp14.prod(A_grad_N,tmp23,3,2,4,1);
 	    matlocf.add(tmp14);
 	  } else {
 	    // tmp11 = flux_c - flux_d
-	    tmp11.set(flux).rest(fluxd); 
+	    tmp11.set(flux).minus(fluxd); 
 	    // Add ALE correction to flux
 	    // tmp11 = flux_c - v_mesh*H^{n+alpha} - flux_d
 	    // tmp_ALE_flux.prod(Halpha,v_mesh,1,2);
@@ -762,7 +762,7 @@ new_assemble_BDF(arg_data_list &arg_data_v,const Nodedata *nodedata,
 	    tmp23.set(SHAPE).scale(-wpgdet);
 	    v_mesh_grad_N.prod(v_mesh,dshapex,-1,-1,1);
 	    tmp_ALE_jac.prod(v_mesh_grad_N,Cp,1,2,3);// el Cp tiene que estar en t_{n+alpha}
-	    tmp14b.set(A_grad_N).rest(tmp_ALE_jac);
+	    tmp14b.set(A_grad_N).minus(tmp_ALE_jac);
 	    tmp14.prod(tmp14b,tmp23,1,2,4,3);
 	    matlocf.add(tmp14);
 	  }	  
@@ -771,7 +771,7 @@ new_assemble_BDF(arg_data_list &arg_data_v,const Nodedata *nodedata,
 	  // tmp8.prod(dshapex,tmp11,-1,1,2,-1); // non-averaged shape function gradients
 	  tmp8.prod(dshapex_gcl,tmp11,-1,1,2,-1);
           tmp8b.prod(rgcl,Halpha,1,2);
-          tmp8.rest(tmp8b);
+          tmp8.minus(tmp8b);
 	  tmp9.prod(SHAPE,tmp10,1,2); // tmp9 = SHAPE' * (G - dHdt)
 #if 0
 	  FMSHV(tmp8);

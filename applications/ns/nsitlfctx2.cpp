@@ -435,7 +435,7 @@ assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
       assert(nH >= ndim);
       assert(indx_ALE_xold >= nH+1-ndim);
       Hloc.is(2,indx_ALE_xold,indx_ALE_xold+ndim-1);
-      vloc_mesh.set(xloc).rest(Hloc).scale(rec_Dt).rs();
+      vloc_mesh.set(xloc).minus(Hloc).scale(rec_Dt).rs();
       Hloc.rs();
     }
     
@@ -451,7 +451,7 @@ assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
       shear_vel = wall_elemset->elemprops_add[wall_elem];
 
       xc.sum(xloc,-1,1).scale(1./double(nel));
-      dist_to_wall.set(xc).rest(wall_coords);
+      dist_to_wall.set(xc).minus(wall_coords);
 
 #else
       PETSCFEM_ERROR0("Not compiled with ANN library!!\n");
@@ -566,7 +566,7 @@ assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
 	  double tr = (double) tmp15.prod(strain_rate,strain_rate,-1,-2,-1,-2);
 	  //	  double van_D;
 	  if (A_van_Driest>0.) {
-	    //	    dist_to_wall.prod(SHAPE,xloc,-1,-1,1).rest(wall_coords);
+	    //	    dist_to_wall.prod(SHAPE,xloc,-1,-1,1).minus(wall_coords);
 	    ywall = sqrt(dist_to_wall.sum_square_all());
 	    double y_plus = ywall*shear_vel/(VISC/rho);
 	    van_D = 1.-exp(-y_plus/A_van_Driest);
@@ -585,12 +585,12 @@ assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
 
 #if 1
 	// XXX tau_supg and tau_pspg computed in u^n
-	vel_supg.set(u).rest(v_mesh).rs();
+	vel_supg.set(u).minus(v_mesh).rs();
 #else
 	if (use_explicit_upwind)
-	  vel_supg.set(u).rest(v_mesh).rs();
+	  vel_supg.set(u).minus(v_mesh).rs();
 	else
-	  vel_supg.set(u_star).rest(v_mesh).rs();
+	  vel_supg.set(u_star).minus(v_mesh).rs();
 #endif
         if (axi>0) { vel_supg.setel(0.,axi); }
 	
@@ -643,9 +643,9 @@ assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
 #if 1
 	// XXX tau_supg and tau_pspg computed in u^n
 	if (use_explicit_upwind)
-	  vel_supg.set(u).rest(v_mesh).rs();
+	  vel_supg.set(u).minus(v_mesh).rs();
 	else
-	  vel_supg.set(u_star).rest(v_mesh).rs();
+	  vel_supg.set(u_star).minus(v_mesh).rs();
 	if (axi>0) { vel_supg.setel(0.,axi); }
 #endif
 
@@ -653,9 +653,9 @@ assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
 	  vrel.set(0.); 
 	  vel_supg.set(0.);
 	} else if (oseen_form) { 
-	  vrel.set(u).rest(v_mesh).rs(); 
+	  vrel.set(u).minus(v_mesh).rs(); 
 	} else { 
-	  vrel.set(u_star).rest(v_mesh).rs(); 
+	  vrel.set(u_star).minus(v_mesh).rs(); 
 	}
 	
 	// P_supg es un vector fila
@@ -668,14 +668,14 @@ assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
 	P_pspg.set(dshapex).scale(tau_pspg/rho);  //debug:=
 
 	// implicit version - General Trapezoidal rule - parameter alpha
-	du.set(u_star).rest(u);
+	du.set(u_star).minus(u);
 	dmatu.prod(vrel,grad_u_star,-1,-1,1);
-	dmatu.axpy(du,rec_Dt/alpha).rest(G_body);
+	dmatu.axpy(du,rec_Dt/alpha).minus(G_body);
 
 	if (body_force) {
 	  F_body.set(0.);
 	  this->bf_eval_pg(SHAPE,dshapex,F_body);
-	  dmatu.rest(F_body);
+	  dmatu.minus(F_body);
 	}
 	
 	
@@ -703,7 +703,7 @@ assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
 
 	// SUPG perturbation - momentum
 	tmp4.prod(P_supg,respert,1,2);
-	resmom.rest(tmp4);
+	resmom.minus(tmp4);
 
 	// PSPG perturbation - continuity
 	tmp5.prod(P_pspg,respert,-1,1,-1);
@@ -767,9 +767,9 @@ assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
 
 	  matlocf.ir(2,ndof).is(4,1,ndim);
 	  tmp17.prod(P_pspg,dmatw,3,1,2).scale(wpgdet);
-	  matlocf.rest(tmp17);
+	  matlocf.minus(tmp17);
 	  tmp17.prod(dshapex,SHAPE,3,2,1).scale(wpgdet);
-	  matlocf.rest(tmp17);
+	  matlocf.minus(tmp17);
 	  matlocf.rs();
 
 	  tmp13.prod(P_pspg,dshapex,-1,1,-1,2);

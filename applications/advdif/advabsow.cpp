@@ -246,7 +246,7 @@ res(int k,FastMat2 &U,FastMat2 &r,
 #endif
     // residual is the projection of U-Uref
     // on to the space of incoming waves
-    dU.set(Uo).rest(Uref);
+    dU.set(Uo).minus(Uref);
     r.prod(Pi_m,dU,1,-1,-1);
     // The vector of reactions is the pojector on
     // to the incoming wave space: w = Cp * Pi_m
@@ -267,12 +267,12 @@ res(int k,FastMat2 &U,FastMat2 &r,
     r.set(Uo).mult(mask);
     //#define INCLUDE_ULAMBDA_TERM
 #ifdef INCLUDE_ULAMBDA_TERM
-    rlam.set(1.0).rest(mask).mult(Ulambda);
+    rlam.set(1.0).minus(mask).mult(Ulambda);
     r.add(rlam);
 #endif
     jac.ir(2,1).d(1,3).set(mask).rs();
 #ifdef INCLUDE_ULAMBDA_TERM
-    jac.ir(2,2).d(1,3).set(1.0).rest(mask).rs();
+    jac.ir(2,2).d(1,3).set(1.0).minus(mask).rs();
 #endif
     w.ctr(jac,3,1,2);
   }

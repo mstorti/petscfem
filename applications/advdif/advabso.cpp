@@ -213,7 +213,7 @@ res(int k,FastMat2 &U,FastMat2 &r,
 #endif
   // residual is the projection of U-Uref
   // on to the space of incoming waves
-  dU.set(Uo).rest(Uref);
+  dU.set(Uo).minus(Uref);
   r.prod(Pi_m,dU,1,-1,-1);
   // The vector of reactions is the pojector on
   // to the incoming wave space: w = Cp * Pi_m

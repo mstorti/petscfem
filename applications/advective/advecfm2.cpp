@@ -251,7 +251,7 @@ int AdvectiveFM2::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
 #endif
 	if (lambda_max_pg>lambda_max) lambda_max=lambda_max_pg;
 
-	tmp1.rs().set(G_source).rest(A_grad_U);
+	tmp1.rs().set(G_source).minus(A_grad_U);
 	// Termino Galerkin
 	if (weak_form) {
 	  // version debilitada

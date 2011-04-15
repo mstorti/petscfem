@@ -86,7 +86,7 @@ int main() {
   B.add(A).print("B+A (2*A): ");
 
   // rest A to B, so that it remains the same
-  B.rest(A).print("B+A-A (B): ");
+  B.minus(A).print("B+A-A (B): ");
 
   // add 10*A to B
   B.axpy(A,10.).print("B+10.*A: ");

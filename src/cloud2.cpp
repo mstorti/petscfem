@@ -147,7 +147,7 @@ void Cloud2FastMat2::coef(FastMat2 &x, FastMat2 &w) {
 void Cloud2FastMat2::coef(FastMat2 &x, FastMat2 &w,FastMat2 &x0) {
   // xi = (x-x0)/h
   tmp(1).prod(tmp(0),x0,1,2);
-  xi.set(x).rest(tmp(1));
+  xi.set(x).minus(tmp(1));
   double h = xi.max_abs_all();
   h_m = h;
   xi.scale(1./h);

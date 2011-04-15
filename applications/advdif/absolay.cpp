@@ -254,7 +254,7 @@ new_assemble(arg_data_list &arg_data_v,const Nodedata *nodedata,
       Ualpha.set(0.).axpy(Uo,1-ALPHA).axpy(Un,ALPHA);
       tmp1.prod(Habso,SHAPE,SHAPE,2,4,1,3);
       matloc.axpy(tmp1,ALPHA*Kabso*wpgdet);
-      dU.set(Ualpha).rest(Uref);
+      dU.set(Ualpha).minus(Uref);
       tmp2.prod(SHAPE,Habso,dU,1,2,-1,-1);
       veccontr.axpy(tmp2,-Kabso*wpgdet);
     }

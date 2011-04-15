@@ -61,7 +61,7 @@ void plane::init(const TextHashTable *thash) {
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 double plane::f(const FastMat2 &x) {
-  dx.set(x).rest(x0);
+  dx.set(x).minus(x0);
   tmp.prod(dx,n,-1,-1);
   return double(tmp);
 }
@@ -100,7 +100,7 @@ void sphere::init(const TextHashTable *thash) {
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 double sphere::f(const FastMat2 &x) {
-  dx.set(x).rest(x0);
+  dx.set(x).minus(x0);
   return dx.norm_p_all(2.0);
 }
 
@@ -150,7 +150,7 @@ void cylinder::init(const TextHashTable *thash) {
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 double cylinder::f(const FastMat2 &x) {
-  dx.set(x).rest(x0);
+  dx.set(x).minus(x0);
   tmp.prod(dx,n,-1,-1);
   return sqrt(dx.sum_square_all()-square(tmp.get())/n.sum_square_all());
 }
@@ -370,7 +370,7 @@ int SurfGatherer::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
 	xc.sum(xi,1,-1).scale(1./double(nint));
 	xi.rs();
 	// Rest `xc' from all `xi'
-	for (int j=1; j<=nint; j++) xi.ir(2,j).rest(xc);
+	for (int j=1; j<=nint; j++) xi.ir(2,j).minus(xc);
 	xi.rs();
 	// Computes normal as gradient of f in the center
 	double epsil = 1e-3,fp,fm;
@@ -506,7 +506,7 @@ int SurfGatherer::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
 	xi.ir(2,2);
 	dx2.set(xi);
 	xi.ir(2,1);
-	dx2.rest(xi);
+	dx2.minus(xi);
 	xi.rs();
 	double seg_len = dx2.norm_p_all();
 

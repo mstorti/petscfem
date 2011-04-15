@@ -1057,7 +1057,7 @@ void newadvecfm2_ff_t::compute_flux(COMPUTE_FLUX_ARGS) {
         for (int k=1; k<=ndof; k++) {
           vel_vec_per_field.ir(1,k);
           tmp16.set(vel_vec_per_field);
-          tmp16.rest(e->v_mesh);
+          tmp16.minus(e->v_mesh);
           vel_per_field.setel(tmp16.norm_p_all(),k);
           Uintri.ir(1,k).prod(iJaco_cpy,tmp16,1,-1,-1);
         }

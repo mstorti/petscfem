@@ -1142,3 +1142,5 @@ void FastMat2::init123() {
   }
 }
 
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+FastMat2 & FastMat2::rest(const FastMat2 & A ) { return minus(A); }

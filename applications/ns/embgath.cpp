@@ -524,7 +524,7 @@ void visc_force_integrator
   // int flag = (rand()%1000==0);
   int flag = 0;
 
-  grad_uold.is(2,1,ndim_m).rest(rigid_grad_u);
+  grad_uold.is(2,1,ndim_m).minus(rigid_grad_u);
   strain_rate.set(grad_uold);
   grad_uold.t();
   strain_rate.add(grad_uold).scale(0.5);
@@ -538,7 +538,7 @@ void visc_force_integrator
   sigma_old.set(strain_rate).scale(2.*viscosity*dev_comp_mask);
   sigma_old.d(1,2).add(-uold.get(ndim_m+1)*pressure_comp_mask).rs();
 
-  grad_u.is(2,1,ndim_m).rest(rigid_grad_u);
+  grad_u.is(2,1,ndim_m).minus(rigid_grad_u);
   strain_rate.set(grad_u);
   grad_u.t();
   strain_rate.add(grad_u).scale(0.5);
@@ -563,7 +563,7 @@ void visc_force_integrator
     // Position offset of local point to center of moments
     SHV(xpg);
     SHV(x_center);
-    dx.set(xpg).rest(x_center);
+    dx.set(xpg).minus(x_center);
     SHV(dx);
     // Moment contribution = force X dx
     moment.cross(dx,force);

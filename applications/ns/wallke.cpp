@@ -312,7 +312,7 @@ int wallke::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
           shape_p = gp_data.FM2_shape[ipg];
         }
 
-	u_star.prod(SHAPE,ucols_star,-1,-1,1).rest(u_wall);
+	u_star.prod(SHAPE,ucols_star,-1,-1,1).minus(u_wall);
 	// Warning: here `u_star' refers to the vector at time
 	// t_star  = t + alpha * Dt, in the trapeziodal method
 	double Ustar = sqrt(u_star.sum_square_all());

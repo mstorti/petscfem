@@ -225,7 +225,7 @@ void Diff::new_assemble(arg_data_list &arg_data_v,const Nodedata *nodedata,
 	Uo.prod(SHAPE,stateo,-1,-1,1);
 	diff_ff->enthalpy(Ho,Uo);
 
-	dUdt.set(Hn).rest(Ho).scale(rec_Dt);
+	dUdt.set(Hn).minus(Ho).scale(rec_Dt);
 	dUdt.rs();
 
 	// U:= the state at time $t^n+\alpha*\Dt$
@@ -237,7 +237,7 @@ void Diff::new_assemble(arg_data_list &arg_data_v,const Nodedata *nodedata,
 	diff_ff->compute_flux(U,grad_U,fluxd,G_source,H,grad_H);
 
 	tmp10.set(G_source);	// tmp10 = G - dUdt
-	if (!lumped_mass) tmp10.rest(dUdt);
+	if (!lumped_mass) tmp10.minus(dUdt);
 
 	diff_ff->comp_N_Cp_N(N_Cp_N,SHAPE,wpgdet*rec_Dt/alpha);
 	if (lumped_mass) {
@@ -279,13 +279,13 @@ void Diff::new_assemble(arg_data_list &arg_data_v,const Nodedata *nodedata,
 #endif
 	// Compute derivative of local element state
 	// The Dt is already included in the mass matrix
-	dUloc.set(staten).rest(stateo);
+	dUloc.set(staten).minus(stateo);
 	state.rs();
 
 	// Compute inertia term with lumped mass
 	veccontr_mass.prod(matlocf_mass,dUloc,1,2,-1,-2,-1,-2);
 	// Add (rest) to vector contribution to be returned
-	veccontr.rest(veccontr_mass);
+	veccontr.minus(veccontr_mass);
 	// Add to matrix contribution to be returned
 	matlocf.add(matlocf_mass);
       }

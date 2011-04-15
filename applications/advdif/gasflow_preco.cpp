@@ -678,7 +678,7 @@ void gasflow_preco_ff::compute_flux(const FastMat2 &U,
   // En el paper de LESIEUR Y COMTE usan viscosidad laminar en la ecuacion de energia
   viscous_work.prod(sigma,vel,1,-1,-1).scale(visco_l);
   heat_flux.set(grad_T).scale(-cond_eff);
-  fluxd.ir(1,ndof).set(viscous_work).rest(heat_flux).rs();
+  fluxd.ir(1,ndof).set(viscous_work).minus(heat_flux).rs();
 
   // Diffusive jacobians
   if(ndim==3) {
@@ -842,8 +842,8 @@ void gasflow_preco_ff::compute_flux(const FastMat2 &U,
 
     const FastMat2 &grad_N = *advdf_e->grad_N();
     
-    // vel_supg.set(vel_old).rest(v_mesh).rs();
-    vel_supg.set(vel).rest(v_mesh).rs();
+    // vel_supg.set(vel_old).minus(v_mesh).rs();
+    vel_supg.set(vel).minus(v_mesh).rs();
     if(axi>0){
       vel_supg.setel(0.,axi);
     }
@@ -867,10 +867,10 @@ void gasflow_preco_ff::compute_flux(const FastMat2 &U,
 	tmp2v.eye(tau_supg_delta);
 	tmp3v.prod(Cpv,tmp1v,1,-1,-1,2);
 	tau_supg.prod(tmp3v,iprecov,1,-1,-1,2);
-	tau_supg.rest(tmp2v);
+	tau_supg.minus(tmp2v);
       }
 
-      tau_supg.d(1,2).rest(tau_supg_d).rs();
+      tau_supg.d(1,2).minus(tau_supg_d).rs();
       for (int j=1; j<=ndof; j++) {
 	double vaux = double(tau_supg.get(j,j));
 	vaux = (vaux > 0.0 ? vaux : 0.0);

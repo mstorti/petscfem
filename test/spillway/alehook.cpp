@@ -550,8 +550,8 @@ void ale_mmv_hook::time_step_pre(double time,int step) {
 #endif
 
     // Segments 0-1 1-2
-    x01.set(x1).rest(x0);
-    x12.set(x2).rest(x1);
+    x01.set(x1).minus(x0);
+    x12.set(x2).minus(x1);
     double l01 = x01.norm_p_all(2);
     double l12 = x12.norm_p_all(2);
 

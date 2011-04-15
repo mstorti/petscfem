@@ -809,7 +809,16 @@ public:
   FastMat2 & add(const FastMat2 & A);
 
   //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
-  /** Substract a matrix.
+  /** Substract a matrix, equivalent {\tt *this -= A}
+      @author M. Storti
+      @param A (input) matrix to substract
+      @return a reference to the matrix.
+  */ 
+  FastMat2 & minus(const FastMat2 & A);
+
+  //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+  /** Substract a matrix, equivalent #*this -= A#. 
+      (OBSOLETE: use #minus()#)
       @author M. Storti
       @param A (input) matrix to substract
       @return a reference to the matrix.

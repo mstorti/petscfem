@@ -81,10 +81,10 @@ int main() {
     }
     x.rs();
     a.set(x.ir(1,2));
-    a.rest(x.ir(1,1));
+    a.minus(x.ir(1,1));
 
     b.set(x.ir(1,3));
-    b.rest(x.ir(1,1));
+    b.minus(x.ir(1,1));
 
     J.ir(1,1).set(a);
     J.ir(1,2).set(b).rs();

@@ -655,8 +655,8 @@ int nsi_tet_keps::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
 	  dmatu.prod(u,grad_u_star,-1,-1,1);
 #endif
 
-	  du.set(u_star).rest(u);
-	  dmatu.axpy(du,rec_Dt/alpha).rest(G_body);
+	  du.set(u_star).minus(u);
+	  dmatu.axpy(du,rec_Dt/alpha).minus(G_body);
 	
 	  div_u_star = double(tmp10.prod(dshapex,ucols_star,-1,-2,-2,-1));
 
@@ -774,7 +774,7 @@ int nsi_tet_keps::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
           reskap.axpy(tmp6_ke,wpgdet_c);
 
           // adding temporal terms here due to the lumped mass matrix option
-	  tmp10_ke.set(kapcol_star).rest(kapcol);
+	  tmp10_ke.set(kapcol_star).minus(kapcol);
 	  tmp11_ke.prod(tmp7_ke,tmp10_ke,1,-1,-1);
 	  reskap.axpy(tmp11_ke,-wpgdet*rec_Dt/alpha);
 #else
@@ -794,7 +794,7 @@ int nsi_tet_keps::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
           tmp6_ke.set(W_supg_e).scale(Peps-Peps_2);
           reseps.axpy(tmp6_ke,wpgdet_c);
 
-	  tmp10_ke.set(epscol_star).rest(epscol);
+	  tmp10_ke.set(epscol_star).minus(epscol);
 	  tmp11_ke.prod(tmp8_ke,tmp10_ke,1,-1,-1);
 	  reseps.axpy(tmp11_ke,-wpgdet*rec_Dt/alpha);
 #else
@@ -917,9 +917,9 @@ int nsi_tet_keps::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
 	  //matlocf.ir(2,ndof).is(4,1,ndim);
 	  matlocf.ir(2,ndim+1).is(4,1,ndim);
 	  tmp17.prod(P_pspg,dmatw,3,1,2).scale(wpgdet);
-	  matlocf.rest(tmp17);
+	  matlocf.minus(tmp17);
 	  tmp17.prod(dshapex,SHAPE,3,2,1).scale(wpgdet);
-	  matlocf.rest(tmp17).rs();
+	  matlocf.minus(tmp17).rs();
 
 	  //matlocf.ir(2,ndof).ir(4,ndof).axpy(tmp13,-wpgdet).rs();
 	  matlocf.ir(2,ndim+1).ir(4,ndim+1).axpy(tmp13,-wpgdet).rs();

@@ -126,7 +126,7 @@ void force_integrator::set_pg_values(vector<double> &pg_values,FastMat2 &u,
   force.export_vals(&*pg_values.begin());
   if (compute_moment) {
     // Position offset of local point to center of moments
-    dx.set(xpg).rest(x_center);
+    dx.set(xpg).minus(x_center);
     // Moment contribution = force X dx
     moment.cross(dx,force);
     // export forces to return vector

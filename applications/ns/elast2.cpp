@@ -193,7 +193,7 @@ void elasticity2::element_connector(const FastMat2 &xloc,
     // Inertia term
     double coef_damp = 1.0;
     if (cdamp>0.0) coef_damp = 1.0+cdamp/rec_Dt;
-    a.set(vnew).scale(coef_damp).rest(vold);
+    a.set(vnew).scale(coef_damp).minus(vold);
     tmp.prod(shape,a,-1,-1,1);
     tmp2.prod(shape,tmp,1,2);
     res.is(2,ndim+1,2*ndim).axpy(tmp2,-wpgdet*rec_Dt*rho);
@@ -214,7 +214,7 @@ void elasticity2::element_connector(const FastMat2 &xloc,
       .axpy(mat_pg2,wpgdet).rs();
     
     // Eqs. for displacements: (xnew-xold)/dt - vstar = 0
-    dv.set(xnew).rest(xold).scale(rec_Dt).rest(vstar);
+    dv.set(xnew).minus(xold).scale(rec_Dt).minus(vstar);
     tmp.prod(shape,dv,-1,-1,1);
     tmp2.prod(shape,tmp,1,2);
     res.is(2,1,ndim).axpy(tmp2,-wpgdet);

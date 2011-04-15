@@ -407,7 +407,7 @@ int fracstep::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
 	assert(nH >= ndim);
 	assert(indx_ALE_xold >= nH+1-ndim);
 	Hloc.is(2,indx_ALE_xold,indx_ALE_xold+ndim-1);
-	vloc_mesh.set(xloc).rest(Hloc).scale(rec_Dt).rs();
+	vloc_mesh.set(xloc).minus(Hloc).scale(rec_Dt).rs();
 	Hloc.rs();
       }
     }
@@ -513,7 +513,7 @@ int fracstep::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
 	double tr = (double) tmp15.prod(strain_rate,strain_rate,-1,-2,-1,-2);
 	double van_D;
 	if (A_van_Driest>0.) {
-	  dist_to_wall.prod(SHAPE,xloc,-1,-1,1).rest(wall_coords);
+	  dist_to_wall.prod(SHAPE,xloc,-1,-1,1).minus(wall_coords);
 	  double ywall = sqrt(dist_to_wall.sum_square_all());
 	  double y_plus = ywall*shear_vel/VISC;
 	  van_D = 1.-exp(-y_plus/A_van_Driest);
@@ -529,7 +529,7 @@ int fracstep::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
 	if (0) {
 	  u2 = u.sum_square_all(); 
 	} else {
-	  vel_supg.set(u).rest(v_mesh).rs();
+	  vel_supg.set(u).minus(v_mesh).rs();
 	  if(axi>0){
 	    vel_supg.setel(0.,axi);
 	  }
@@ -585,9 +585,9 @@ int fracstep::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
 	tmp1.prod(u,grad_u,-1,-1,1).scale(-(1-alpha));
 	tmp2.prod(u_star,grad_u_star,-1,-1,1).scale(-alpha);
 	} else {
-	vrel.set(u).rest(v_mesh).rs();
+	vrel.set(u).minus(v_mesh).rs();
 	tmp1.prod(vrel,grad_u,-1,-1,1).scale(-(1-alpha));
-	vrel.set(u_star).rest(v_mesh).rs();
+	vrel.set(u_star).minus(v_mesh).rs();
 	tmp2.prod(vrel,grad_u_star,-1,-1,1).scale(-alpha);
 	}
 	tmp1.add(tmp2).axpy(grad_p,-(gammap/rho));
@@ -608,7 +608,7 @@ int fracstep::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
 	SHV(resmom);
 	
 	// Parte temporal
-	tmp6.set(u_star).rest(u);
+	tmp6.set(u_star).minus(u);
 	tmp7.prod(W,tmp6,1,2);
 	resmom.axpy(tmp7,-wpgdet/Dt);
 	SHV(resmom);
@@ -694,7 +694,7 @@ int fracstep::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
 	u.prod(SHAPE,locstate,-1,-1,1);
 	locstate.rs();
 
-	tmp14.set(u_star).rest(u).axpy(grad_p_star,-Dt/rho);
+	tmp14.set(u_star).minus(u).axpy(grad_p_star,-Dt/rho);
 	if (gammap) tmp14.axpy(grad_p,+gammap*Dt/rho);
 	tmp15.prod(SHAPE,tmp14,1,2);
 	resmom.axpy(tmp15,wpgdet);
