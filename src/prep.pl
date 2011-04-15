@@ -40,7 +40,7 @@ sub genone {
 sub genone_all {
     genone('set','','**pto++ = **pfrom++') ;
     genone('add','','**pto++ += **pfrom++','sum') ;
-    genone('rest','','**pto++ -= **pfrom++','sum') ;
+    genone('minus','','**pto++ -= **pfrom++','sum') ;
     genone('mult','','**pto++ *= **pfrom++','mult') ;
     genone('div','','**pto++ /= **pfrom++','div') ;
     genone('rcp',',double c',

@@ -147,7 +147,7 @@ void renorm::compute_H_term(FastMat2 &phi) {
       reshrot[0] = scale*(3-prop[0]-prop[1]);
       reshrot[1] = scale*(prop[0]);
       reshrot[2] = scale*(prop[1]);
-      // Procedure for substracting area H(phi)=0;
+      // Procedure for subtracting area H(phi)=0;
       inv = 1; 
       for (int j=0; j<nel; j++) reshp[j] = 0.0;
       double area=NAN;
