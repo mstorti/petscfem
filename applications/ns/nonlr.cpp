@@ -199,7 +199,7 @@ void wall_law_res::res(int k,FastMat2 & U,FastMat2 & r,
   load_props(propel,elprpsindx,nprops,&(ELEMPROPS(k,0)));
   u_wall.set(propel+u_wall_indx);
   U.ir(1,1).is(2,1,ndim);
-  du_wall.set(U).rest(u_wall);
+  du_wall.set(U).minus(u_wall);
   double u = sqrt(du_wall.sum_square_all());
   double tau_w, ustar,yplus,dustar_du;
   U.is(2);

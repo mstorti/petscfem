@@ -39,7 +39,7 @@ res_new(int k,FastMat2 &U,FastMat2 & r,
   U1.is(1,1,ndim);
   U2.is(1,1,ndim);
   r.set(0.).is(1,1,ndim).set(U2)
-    .rest(U1).rs();
+    .minus(U1).rs();
   U1.rs();
   U2.rs();
   jac.is(1,1,ndim).ir(2,1).is(3,1,ndim).eye(-1).rs();

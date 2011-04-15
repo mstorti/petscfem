@@ -333,7 +333,7 @@ void AdvDif::new_assemble(arg_data_list &arg_data_v,const Nodedata *nodedata,
 	Un.prod(SHAPE,lstaten,-1,-1,1);
 	Uo.prod(SHAPE,lstateo,-1,-1,1);
 	Ualpha.set(0.).axpy(Uo,1-ALPHA).axpy(Un,ALPHA);
-	dUdt.set(Un).rest(Uo).scale(1./DT);
+	dUdt.set(Un).minus(Uo).scale(1./DT);
 	for (int k=0; k<nlog_vars; k++) {
 	  int jdof=log_vars[k];
 	  double UU=exp(Ualpha.get(jdof));
@@ -358,9 +358,9 @@ void AdvDif::new_assemble(arg_data_list &arg_data_v,const Nodedata *nodedata,
 	if (lambda_max_pg>lambda_max) lambda_max=lambda_max_pg;
 
 	tmp10.set(G_source);	// tmp10 = G - dUdt
-	if (!lumped_mass) tmp10.rest(dUdt);
+	if (!lumped_mass) tmp10.minus(dUdt);
 	if (beta_supg==1.) {
-	  tmp1.rs().set(tmp10).rest(A_grad_U); //tmp1= G - dUdt - A_grad_U
+	  tmp1.rs().set(tmp10).minus(A_grad_U); //tmp1= G - dUdt - A_grad_U
 	} else {
 	  tmp1.set(dUdt).scale(-beta_supg).add(G_source);
 	}
@@ -380,7 +380,7 @@ void AdvDif::new_assemble(arg_data_list &arg_data_v,const Nodedata *nodedata,
 	if (weak_form) {
 	  assert(!lumped_mass && beta_supg==1.); // Not implemented yet!!
 	  // weak version
-	  tmp11.set(flux).rest(fluxd); // tmp11 = flux_c - flux_d
+	  tmp11.set(flux).minus(fluxd); // tmp11 = flux_c - flux_d
 
 	  tmp23.set(SHAPE).scale(-wpgdet*ALPHA);
 #if 1     // La verdad es que no se cual de estos dos es!!!
@@ -389,13 +389,13 @@ void AdvDif::new_assemble(arg_data_list &arg_data_v,const Nodedata *nodedata,
 	  matlocf.add(tmp14);
 #else
 	  tmp14.prod(A_grad_N,tmp23,3,2,4,1);
-	  matlocf.rest(tmp14);
+	  matlocf.minus(tmp14);
 #endif
 	} else {
 	  // tmp2.prod(SHAPE,tmp1,1,2); // tmp2= SHAPE' * (G - dUdt - A_grad_U)
 	  tmp2.prod(SHAPE,A_grad_U,1,2); // tmp2= SHAPE' * A_grad_U
 	  veccontr.axpy(tmp2,-wpgdet);
-	  tmp11.set(0.).rest(fluxd); // tmp11 = - flux_d
+	  tmp11.set(0.).minus(fluxd); // tmp11 = - flux_d
 
 	  tmp23.set(SHAPE).scale(wpgdet*ALPHA);
 #if 1     // La verdad es que no se cual de estos dos es!!!
@@ -404,7 +404,7 @@ void AdvDif::new_assemble(arg_data_list &arg_data_v,const Nodedata *nodedata,
 	  matlocf.add(tmp14);
 #else
 	  tmp14.prod(A_grad_N,tmp23,1,2,4,3);
-	  matlocf.rest(tmp14);
+	  matlocf.minus(tmp14);
 #endif
 
 	}
@@ -525,7 +525,7 @@ void AdvDif::new_assemble(arg_data_list &arg_data_v,const Nodedata *nodedata,
 #endif
 	// Compute derivative of local element state
 	// The Dt is already included in the mass matrix
-	dUloc.set(lstaten).rest(lstateo);
+	dUloc.set(lstaten).minus(lstateo);
 	dUloc_c.set(dUloc);
 	// correct the logarithmic variables for a factor $U^{n+\alpha}$
 	for (int k=0; k<nlog_vars; k++) {
@@ -541,7 +541,7 @@ void AdvDif::new_assemble(arg_data_list &arg_data_v,const Nodedata *nodedata,
 	// Compute inertia term with lumped mass
 	veccontr_mass.prod(matlocf_mass,dUloc_c,1,2,-1,-2,-1,-2);
 	// Add (rest) to vector contribution to be returned
-	veccontr.rest(veccontr_mass);
+	veccontr.minus(veccontr_mass);
 	// Scale mass matrix by $U^{n+\alpha}/Dt*(1+alpha\DU)$
 	for (int k=0; k<nlog_vars; k++) {
 	  int jdof=log_vars[k];

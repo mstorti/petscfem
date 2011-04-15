@@ -242,13 +242,13 @@ void GenLoad::new_assemble(arg_data_list &arg_data_v,const Nodedata *nodedata,
       tmp4.prod(tmp3,jac_in,1,3,2,4);
       matloc.is(1,1,nel2).is(3,1,nel2).add(tmp4);
       if (double_layer) {
-	matloc.is(1).is(1,nel2+1,nel).rest(tmp4);
-	veccontr.is(1,nel2+1,nel).rest(vecc2);
+	matloc.is(1).is(1,nel2+1,nel).minus(tmp4);
+	veccontr.is(1,nel2+1,nel).minus(vecc2);
 	veccontr.rs();
 	// Contribution to jacobian from exterior side
 	tmp4.prod(tmp3,jac_out,1,3,2,4);
 	matloc.rs().is(1,1,nel2).is(3,nel2+1,nel).add(tmp4);
-	matloc.is(1).is(1,nel2+1,nel).rest(tmp4);
+	matloc.is(1).is(1,nel2+1,nel).minus(tmp4);
       }
       matloc.rs();
     }

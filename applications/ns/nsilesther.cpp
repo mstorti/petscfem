@@ -549,7 +549,7 @@ int nsi_tet_les_ther::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
 		double tr = (double) tmp15.prod(strain_rate,strain_rate,-1,-2,-1,-2);
 		double van_D=NAN;
 		if (A_van_Driest>0.) {
-		  dist_to_wall.prod(SHAPE,xloc,-1,-1,1).rest(wall_coords);
+		  dist_to_wall.prod(SHAPE,xloc,-1,-1,1).minus(wall_coords);
 		  double ywall = sqrt(dist_to_wall.sum_square_all());
 		  double y_plus = ywall*shear_vel/(mu_l/rho);   // modified Beto 2/MAY/08
 		  double van_D = 1.-exp(-y_plus/A_van_Driest);
@@ -659,8 +659,8 @@ int nsi_tet_les_ther::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
 	  dmatu.prod(u,grad_u_star,-1,-1,1);
 #endif
 
-	  du.set(u_star).rest(u);
-	  dmatu.axpy(du,rec_Dt/alpha).rest(G_body);
+	  du.set(u_star).minus(u);
+	  dmatu.axpy(du,rec_Dt/alpha).minus(G_body);
 
 	  div_u_star = double(tmp10.prod(dshapex,ucols_star,-1,-2,-2,-1));
 
@@ -708,7 +708,7 @@ int nsi_tet_les_ther::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
         if (comp_mat_res_th || comp_res_th) {
 
 	  // thermal residue
-	  // dT.set(T_star).rest(T).scale(rho*Cp);
+	  // dT.set(T_star).minus(T).scale(rho*Cp);
 	  //	  dT = (T_star-T)/(rho*Cp);
 	  dT = (T_star-T)*(rho*Cp);
 	  // Guarda que pasa con esto? Aparentemente deberia ser la
@@ -718,7 +718,7 @@ int nsi_tet_les_ther::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
 	  tmp1_th.set(dT).scale(rec_Dt/alpha).add(-Q_body);
 #else  // Este es el original (Beto). No compila
 	  // (esta escrito tipo Newmat)
-	  //tmp1_th.set(dT).scale(1/(alpha*Dt)).rest(Q_body);
+	  //tmp1_th.set(dT).scale(1/(alpha*Dt)).minus(Q_body);
 	  tmp1_th = dT*rec_Dt/alpha-Q_body;
 #endif
 	  //resther.axpy(SHAPE,-wpgdet*tmp1_th);
@@ -853,9 +853,9 @@ int nsi_tet_les_ther::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
 	  //matlocf.ir(2,ndof).is(4,1,ndim);
 	  matlocf.ir(2,ndim+1).is(4,1,ndim);
 	  tmp17.prod(P_pspg,dmatw,3,1,2).scale(wpgdet);
-	  matlocf.rest(tmp17);
+	  matlocf.minus(tmp17);
 	  tmp17.prod(dshapex,SHAPE,3,2,1).scale(wpgdet);
-	  matlocf.rest(tmp17).rs();
+	  matlocf.minus(tmp17).rs();
 
 	  //matlocf.ir(2,ndof).ir(4,ndof).axpy(tmp13,-wpgdet).rs();
 	  matlocf.ir(2,ndim+1).ir(4,ndim+1).axpy(tmp13,-wpgdet).rs();

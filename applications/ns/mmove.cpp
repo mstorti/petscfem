@@ -189,7 +189,7 @@ element_connector(const FastMat2 &xloc,
     resp.print("resp:");
     res.print("res:");
 #endif
-    mat.ir(3,k).set(resp).rest(res).rs();
+    mat.ir(3,k).set(resp).minus(res).rs();
   }
   mat.scale(1/eps);
   x0.reshape(2,nel,ndim);
@@ -203,7 +203,7 @@ element_connector(const FastMat2 &xloc,
   } 
   res.scale(-1.);
 
-  dstate.set(state_new).rest(state_old);
+  dstate.set(state_new).minus(state_old);
   res_Dir.prod(mat,dstate,1,2,-1,-2,-1,-2);
   res.axpy(res_Dir,-1.);
   

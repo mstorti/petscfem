@@ -425,7 +425,7 @@ void NewAdvDif
       assert(nH >= ndim);
       assert(indx_ALE_xold <= nH+1-ndim);
       Hloc.is(2,indx_ALE_xold,indx_ALE_xold+ndim-1);
-      vloc_mesh.set(xloc).rest(Hloc).scale(rec_Dt_m).rs();
+      vloc_mesh.set(xloc).minus(Hloc).scale(rec_Dt_m).rs();
       Hloc.rs();
     }
     
@@ -482,7 +482,7 @@ void NewAdvDif
 	  tmp_ALE_02.prod(v_mesh,grad_U,-1,-1,1);
 	}
 
-	tmp11.set(0.).rest(fluxd);
+	tmp11.set(0.).minus(fluxd);
 	tmp8.prod(dshapex,tmp11,-1,1,2,-1);
 	veccontr.axpy(tmp8,wpgdet_low);
 
@@ -493,20 +493,20 @@ void NewAdvDif
 	}
 	
 	// Psuedo-temporal derivate
-	dUdpt.set(Un).rest(Upo).scale(rec_Dpt);
+	dUdpt.set(Un).minus(Upo).scale(rec_Dpt);
 	tmp100.prod(preco,dUdpt,1,-1,-1);
 
-	dUdt.set(Hn).rest(Ho).scale(rec_Dt_m);
+	dUdt.set(Hn).minus(Ho).scale(rec_Dt_m);
 	
 	tmp10.set(G_source);	// tmp10 = G - dUdt
-	if (!lumped_mass) tmp10.rest(dUdt);
-	tmp10.rest(tmp100);	// tmp10 = G - dUdt - Gamma*dUdtau
+	if (!lumped_mass) tmp10.minus(dUdt);
+	tmp10.minus(tmp100);	// tmp10 = G - dUdt - Gamma*dUdtau
 	
-	tmp1.rs().set(tmp10).rest(A_grad_U); //tmp1= G - dUdt - Gamma*dUdtau - A_grad_U
+	tmp1.rs().set(tmp10).minus(A_grad_U); //tmp1= G - dUdt - Gamma*dUdtau - A_grad_U
 	
 	if (use_Ajac_old) {
 	  Ao_grad_U.prod(Ao,grad_U,-1,1,-2,-1,-2);
-	  tmp1_old.rs().set(tmp10).rest(Ao_grad_U); //tmp1= G - dUdt - Gamma*dUdtau - A_grad_U
+	  tmp1_old.rs().set(tmp10).minus(Ao_grad_U); //tmp1= G - dUdt - Gamma*dUdtau - A_grad_U
 	}
 	
 	for (int jel=1; jel<=nel; jel++) {
@@ -615,10 +615,10 @@ void NewAdvDif
 	Uo.prod(SHAPE,lstateo,-1,-1,1);
 	adv_diff_ff->enthalpy_fun->enthalpy(Ho,Uo);
 	Ualpha.set(0.).axpy(Uo,1-ALPHA).axpy(Un,ALPHA);
-	dUdt.set(Hn).rest(Ho).scale(rec_Dt_m);
+	dUdt.set(Hn).minus(Ho).scale(rec_Dt_m);
 
 	Upo.prod(SHAPE,lstatepo,-1,-1,1);
-	dUdpt.set(Un).rest(Upo).scale(rec_Dpt);
+	dUdpt.set(Un).minus(Upo).scale(rec_Dpt);
 
 	for (int k=0; k<nlog_vars; k++) {
 	  int jdof=log_vars[k];
@@ -698,7 +698,7 @@ void NewAdvDif
 					A_grad_U,grad_U,G_source,
 					tau_supg,delta_sc,
 					lambda_max_pg, nor,lambda,Vr,Vr_inv,0);
-	      flux_pert.rest(flux).scale(1./eps_fd);
+	      flux_pert.minus(flux).scale(1./eps_fd);
 	      flux_pert.t();
 	      A_fd_jac.ir(3,jdof).set(flux_pert).rs();
 	      flux_pert.rs();
@@ -710,7 +710,7 @@ void NewAdvDif
 	    }
 	    Id_ndim.rs();
 	    A_jac.rs();
-	    A_jac_err.set(A_jac).rest(A_fd_jac);
+	    A_jac_err.set(A_jac).minus(A_fd_jac);
 #define FM2_NORM sum_abs_all
 	    double A_jac_norm = A_jac.FM2_NORM();
 	    double A_jac_err_norm = A_jac_err.FM2_NORM();
@@ -755,14 +755,14 @@ void NewAdvDif
 	tmp100.prod(preco,dUdpt,1,-1,-1);
 
 	tmp10.set(G_source);	// tmp10 = G - dUdt
-	if (!lumped_mass) tmp10.rest(dUdt);
-	tmp10.rest(tmp100);	// tmp10 = G - dUdt - Gamma*dUdtau
+	if (!lumped_mass) tmp10.minus(dUdt);
+	tmp10.minus(tmp100);	// tmp10 = G - dUdt - Gamma*dUdtau
 
-	tmp1.rs().set(tmp10).rest(A_grad_U); //tmp1= G - dUdt - Gamma*dUdtau - A_grad_U
+	tmp1.rs().set(tmp10).minus(A_grad_U); //tmp1= G - dUdt - Gamma*dUdtau - A_grad_U
 
 	if (use_Ajac_old) {
 	  Ao_grad_U.prod(Ao,grad_U,-1,1,-2,-1,-2);
-	  tmp1_old.rs().set(tmp10).rest(Ao_grad_U); //tmp1= G - dUdt - Gamma*dUdtau - A_grad_U
+	  tmp1_old.rs().set(tmp10).minus(Ao_grad_U); //tmp1= G - dUdt - Gamma*dUdtau - A_grad_U
 	}
 	
 	if (BOOL_COMP_JAC){
@@ -803,7 +803,7 @@ void NewAdvDif
 	  if (use_low_gpdata){
 	    tmp11.set(flux); // tmp11 = flux_c (viscous part is integrated in 1 PG)
 	  } else {
-	    tmp11.set(flux).rest(fluxd); // tmp11 = flux_c - flux_d
+	    tmp11.set(flux).minus(fluxd); // tmp11 = flux_c - flux_d
 	  }
 
 	  if (BOOL_COMP_JAC){
@@ -816,11 +816,11 @@ void NewAdvDif
 	  tmp2.prod(SHAPE,A_grad_U,1,2); // tmp2= SHAPE' * A_grad_U
 	  veccontr.axpy(tmp2,-wpgdet);
 
-	  //	  tmp11.set(0.).rest(fluxd); // tmp11 = - flux_d
+	  //	  tmp11.set(0.).minus(fluxd); // tmp11 = - flux_d
 	  if (use_low_gpdata){
 	    tmp11.set(0.); // tmp11 = 0 (viscous part is integrated in 1 PG)
 	  } else {
-	    tmp11.set(0.).rest(fluxd); // tmp11 = - flux_d
+	    tmp11.set(0.).minus(fluxd); // tmp11 = - flux_d
 	  }
 
 	  if (BOOL_COMP_JAC){
@@ -1042,7 +1042,7 @@ void NewAdvDif
 	  adv_diff_ff->get_Cp(Cp_bis);
 	  Cp_bis.scale(rec_Dt_m);
 	    
-	  dUdt.set(Hn).rest(Ho).scale(rec_Dt_m);
+	  dUdt.set(Hn).minus(Ho).scale(rec_Dt_m);
 	    
 	  for (int k=0; k<nlog_vars; k++) {
 	    int jdof=log_vars[k];
@@ -1051,7 +1051,7 @@ void NewAdvDif
 	  }
 	  dUdt.rs();
 	    
-	  tmp10.set(G_source).rest(dUdt);	// tmp10 = G - dUdt
+	  tmp10.set(G_source).minus(dUdt);	// tmp10 = G - dUdt
 	    
 	  if (BOOL_COMP_JAC){
 	    adv_diff_ff->get_C(Cr);

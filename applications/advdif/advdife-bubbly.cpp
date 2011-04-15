@@ -515,7 +515,7 @@ extern const char * jobinfo_fields;
 
 /*
 	Ualpha.set(0.).axpy(Uo,1-ALPHA).axpy(Un,ALPHA);
-	dUdt.set(Hn).rest(Ho).scale(rec_Dt_m);
+	dUdt.set(Hn).minus(Ho).scale(rec_Dt_m);
 	for (int k=0; k<nlog_vars; k++) {
 	  int jdof=log_vars[k];
 	  double UU=exp(Ualpha.get(jdof));
@@ -551,7 +551,7 @@ extern const char * jobinfo_fields;
 
     if (weak_form==1 || weak_form==-1) {
 	Ualpha.set(0.).axpy(Uo,1-ALPHA).axpy(Un,ALPHA);
-	dUdt.set(Hn).rest(Ho).scale(rec_Dt_m);
+	dUdt.set(Hn).minus(Ho).scale(rec_Dt_m);
 	for (int k=0; k<nlog_vars; k++) {
 	  int jdof=log_vars[k];
 	  double UU=exp(Ualpha.get(jdof));
@@ -561,7 +561,7 @@ extern const char * jobinfo_fields;
 } else {
 	adv_diff_ff->get_Cp(Cp_bis);
 	// usamos Ualpha como Delta U aqui
-	Ualpha.set(Un).rest(Uo);
+	Ualpha.set(Un).minus(Uo);
 	dUdt.prod(Cp_bis,Ualpha,1,-1,-1).scale(rec_Dt_m);
 }
 
@@ -592,7 +592,7 @@ extern const char * jobinfo_fields;
 				    A_grad_U,grad_U,G_source,
 				    tau_supg,delta_sc,
 				    lambda_max_pg, nor,lambda,Vr,Vr_inv,0);
-	  flux_pert.rest(flux).scale(1./eps_fd);
+	  flux_pert.minus(flux).scale(1./eps_fd);
 	  flux_pert.t();
 	  A_fd_jac.ir(3,jdof).set(flux_pert).rs();
 	  flux_pert.rs();
@@ -603,7 +603,7 @@ extern const char * jobinfo_fields;
 
 	if (!lumped_mass_phase) {
 	  tmp10.set(G_source);	// tmp10 = G - dUdt
-	  tmp10.rest(dUdt);
+	  tmp10.minus(dUdt);
 	} else {
 	  tmp10.set(G_source);	// tmp10 = G (only the non lumped part of source)
 
@@ -613,11 +613,11 @@ extern const char * jobinfo_fields;
 	      dUdt.is(1,indx_g[i]);
 	    }
 	    dUdt.set(0.).rs();
-	    tmp10.rest(dUdt);
+	    tmp10.minus(dUdt);
 	  }
 	}
 
-	tmp1.rs().set(tmp10).rest(A_grad_U); //tmp1= G - dUdt - A_grad_U
+	tmp1.rs().set(tmp10).minus(A_grad_U); //tmp1= G - dUdt - A_grad_U
 
 	if (!lumped_mass_phase) {
 	  adv_diff_ff->enthalpy_fun->comp_W_Cp_N(N_Cp_N,SHAPE,SHAPE,wpgdet*rec_Dt_m);
@@ -650,7 +650,7 @@ extern const char * jobinfo_fields;
 	// Termino Galerkin
 	if (weak_form) {
 	  // weak version
-	  tmp11.set(flux).rest(fluxd); // tmp11 = flux_c - flux_d
+	  tmp11.set(flux).minus(fluxd); // tmp11 = flux_c - flux_d
 
 	  tmp23.set(SHAPE).scale(-wpgdet*ALPHA);
 	  tmp14.prod(A_grad_N,tmp23,1,2,4,3);
@@ -659,7 +659,7 @@ extern const char * jobinfo_fields;
 	  // tmp2.prod(SHAPE,tmp1,1,2); // tmp2= SHAPE' * (G - dUdt - A_grad_U)
 	  tmp2.prod(SHAPE,A_grad_U,1,2); // tmp2= SHAPE' * A_grad_U
 	  veccontr.axpy(tmp2,-wpgdet);
-	  tmp11.set(0.).rest(fluxd); // tmp11 = - flux_d
+	  tmp11.set(0.).minus(fluxd); // tmp11 = - flux_d
 
 	  tmp23.set(SHAPE).scale(wpgdet*ALPHA);
 	  tmp14.prod(A_grad_N,tmp23,3,2,4,1);
@@ -842,12 +842,12 @@ extern const char * jobinfo_fields;
 	Cp_bis.scale(rec_Dt_m);
 
 	if (weak_form==1 || weak_form==-1) {
-	  dUdt.set(Hn).rest(Ho).scale(rec_Dt_m);
+	  dUdt.set(Hn).minus(Ho).scale(rec_Dt_m);
 	}
 	else {
 	  dUdt.prod(Cp_bis,Un,1,-1,-1);
 	  Ho.prod(Cp_bis,Uo,1,-1,-1);
-          dUdt.rest(Ho);
+          dUdt.minus(Ho);
 	}
 
 	for (int k=0; k<nlog_vars; k++) {
@@ -865,7 +865,7 @@ extern const char * jobinfo_fields;
 	  dUdt.set(0.).rs();
 	}
 
-	tmp10.set(G_source).rest(dUdt);	// tmp10 = G - dUdt
+	tmp10.set(G_source).minus(dUdt);	// tmp10 = G - dUdt
 
 	adv_diff_ff->get_C(Cr);
 
@@ -941,7 +941,7 @@ extern const char * jobinfo_fields;
 #endif
 	// Compute derivative of local element state
 	// The Dt is already included in the mass matrix
-	dUloc.set(lstaten).rest(lstateo);
+	dUloc.set(lstaten).minus(lstateo);
 	dUloc_c.set(dUloc);
 	// correct the logarithmic variables for a factor $U^{n+\alpha}$
 	for (int k=0; k<nlog_vars; k++) {
@@ -957,7 +957,7 @@ extern const char * jobinfo_fields;
 	// Compute inertia term with lumped mass
 	veccontr_mass.prod(matlocf_mass,dUloc_c,1,2,-1,-2,-1,-2);
 	// Add (rest) to vector contribution to be returned
-	veccontr.rest(veccontr_mass);
+	veccontr.minus(veccontr_mass);
 	// Scale mass matrix by $U^{n+\alpha}/Dt*(1+alpha\DU)$
 	for (int k=0; k<nlog_vars; k++) {
 	  int jdof=log_vars[k];

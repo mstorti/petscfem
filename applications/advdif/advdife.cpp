@@ -639,7 +639,7 @@ void NewAdvDif::new_assemble(arg_data_list &arg_data_v,const Nodedata *nodedata,
                         "indx_ALE_xold %d, nH %d, ndim %d",
                         indx_ALE_xold,nH,ndim);  
         Hloc.is(2,indx_ALE_xold,indx_ALE_xold+ndim-1);
-        vloc_mesh.set(xloc).rest(Hloc).scale(rec_Dt_m*ALPHA).rs();
+        vloc_mesh.set(xloc).minus(Hloc).scale(rec_Dt_m*ALPHA).rs();
         Hloc.rs();
       }
 
@@ -706,7 +706,7 @@ void NewAdvDif::new_assemble(arg_data_list &arg_data_v,const Nodedata *nodedata,
 
           //	  if (use_Ajac_old) Ao_grad_U.prod(Ao,grad_U,-1,1,-2,-1,-2);
 
-          tmp11.set(0.).rest(fluxd);
+          tmp11.set(0.).minus(fluxd);
           tmp8.prod(dshapex,tmp11,-1,1,2,-1);
           veccontr.axpy(tmp8,wpgdet_low);
 	
@@ -714,16 +714,16 @@ void NewAdvDif::new_assemble(arg_data_list &arg_data_v,const Nodedata *nodedata,
                                             dshapex,wpgdet_low);
           matlocf.add(grad_N_D_grad_N);
 	
-	  dUdt.set(Hn).rest(Ho).scale(rec_Dt_m);
+	  dUdt.set(Hn).minus(Ho).scale(rec_Dt_m);
 	  
 	  tmp10.set(G_source);	// tmp10 = G - dUdt
-	  if (!lumped_mass) tmp10.rest(dUdt);
+	  if (!lumped_mass) tmp10.minus(dUdt);
 	  
-          tmp1.rs().set(tmp10).rest(A_grad_U); //tmp1= G - dUdt - A_grad_U
+          tmp1.rs().set(tmp10).minus(A_grad_U); //tmp1= G - dUdt - A_grad_U
 	  
           if (use_Ajac_old) {
             Ao_grad_U.prod(Ao,grad_U,-1,1,-2,-1,-2);
-            tmp1_old.rs().set(tmp10).rest(Ao_grad_U); //tmp1= G - dUdt - A_grad_U
+            tmp1_old.rs().set(tmp10).minus(Ao_grad_U); //tmp1= G - dUdt - A_grad_U
           }
 	
           for (int jel=1; jel<=nel; jel++) {
@@ -862,11 +862,11 @@ void NewAdvDif::new_assemble(arg_data_list &arg_data_v,const Nodedata *nodedata,
           Uo.prod(SHAPE,lstateo,-1,-1,1);
           adv_diff_ff->enthalpy_fun->enthalpy(Ho,Uo);
           Ualpha.set(0.).axpy(Uo,1-ALPHA).axpy(Un,ALPHA);
-          dUdt.set(Hn).rest(Ho).scale(rec_Dt_m);
+          dUdt.set(Hn).minus(Ho).scale(rec_Dt_m);
 
           /*
             adv_diff_ff->get_Cp(Cp_bis);
-            dUdt.set(Un).rest(Uo).scale(rec_Dt_m);
+            dUdt.set(Un).minus(Uo).scale(rec_Dt_m);
             dUdt.prod(Cp_bis,dUdt,1,-1,-1);
           */
 
@@ -955,7 +955,7 @@ void NewAdvDif::new_assemble(arg_data_list &arg_data_v,const Nodedata *nodedata,
                                           A_grad_U,grad_U,G_source,
                                           tau_supg,delta_sc,
                                           lambda_max_pg, nor,lambda,Vr,Vr_inv,0);
-                flux_pert.rest(flux).scale(1./eps_fd);
+                flux_pert.minus(flux).scale(1./eps_fd);
                 flux_pert.t();
                 A_fd_jac.ir(3,jdof).set(flux_pert).rs();
                 flux_pert.rs();
@@ -967,7 +967,7 @@ void NewAdvDif::new_assemble(arg_data_list &arg_data_v,const Nodedata *nodedata,
               }
               Id_ndim.rs();
               A_jac.rs();
-              A_jac_err.set(A_jac).rest(A_fd_jac);
+              A_jac_err.set(A_jac).minus(A_fd_jac);
 #define FM2_NORM sum_abs_all
               double A_jac_norm = A_jac.FM2_NORM();
               double A_jac_err_norm = A_jac_err.FM2_NORM();
@@ -1009,13 +1009,13 @@ void NewAdvDif::new_assemble(arg_data_list &arg_data_v,const Nodedata *nodedata,
           if (lambda_max_pg>lambda_max) lambda_max=lambda_max_pg;
 
           tmp10.set(G_source);	// tmp10 = G - dUdt
-          if (!lumped_mass) tmp10.rest(dUdt);
+          if (!lumped_mass) tmp10.minus(dUdt);
 
-          tmp1.rs().set(tmp10).rest(A_grad_U); //tmp1= G - dUdt - A_grad_U
+          tmp1.rs().set(tmp10).minus(A_grad_U); //tmp1= G - dUdt - A_grad_U
 
           if (use_Ajac_old) {
             Ao_grad_U.prod(Ao,grad_U,-1,1,-2,-1,-2);
-            tmp1_old.rs().set(tmp10).rest(Ao_grad_U); //tmp1= G - dUdt - A_grad_U
+            tmp1_old.rs().set(tmp10).minus(Ao_grad_U); //tmp1= G - dUdt - A_grad_U
           }
 
 	// MODIF BETO 8/6
@@ -1050,11 +1050,11 @@ void NewAdvDif::new_assemble(arg_data_list &arg_data_v,const Nodedata *nodedata,
 	  // Not implemented yet!!
 	  // weak version
 
-	  //	  tmp11.set(flux).rest(fluxd); // tmp11 = flux_c - flux_d
+	  //	  tmp11.set(flux).minus(fluxd); // tmp11 = flux_c - flux_d
 	  if (use_low_gpdata){
 	  tmp11.set(flux); // tmp11 = flux_c (viscous part is integrated in 1 PG)
 	  } else {
-	  tmp11.set(flux).rest(fluxd); // tmp11 = flux_c - flux_d
+	  tmp11.set(flux).minus(fluxd); // tmp11 = flux_c - flux_d
 	  }
 
             tmp23.set(SHAPE).scale(-wpgdet);
@@ -1065,11 +1065,11 @@ void NewAdvDif::new_assemble(arg_data_list &arg_data_v,const Nodedata *nodedata,
             tmp2.prod(SHAPE,A_grad_U,1,2); // tmp2= SHAPE' * A_grad_U
             veccontr.axpy(tmp2,-wpgdet);
 
-            //	  tmp11.set(0.).rest(fluxd); // tmp11 = - flux_d
+            //	  tmp11.set(0.).minus(fluxd); // tmp11 = - flux_d
             if (use_low_gpdata){
               tmp11.set(0.); // tmp11 = 0 (viscous part is integrated in 1 PG)
             } else {
-              tmp11.set(0.).rest(fluxd); // tmp11 = - flux_d
+              tmp11.set(0.).minus(fluxd); // tmp11 = - flux_d
             }
 
             tmp23.set(SHAPE).scale(wpgdet);
@@ -1337,7 +1337,7 @@ void NewAdvDif::new_assemble(arg_data_list &arg_data_v,const Nodedata *nodedata,
 	    adv_diff_ff->get_Cp(Cp_bis);
 	    Cp_bis.scale(rec_Dt_m);
 	    
-	    dUdt.set(Hn).rest(Ho).scale(rec_Dt_m);
+	    dUdt.set(Hn).minus(Ho).scale(rec_Dt_m);
 	    
 	    for (int k=0; k<nlog_vars; k++) {
 	      int jdof=log_vars[k];
@@ -1346,7 +1346,7 @@ void NewAdvDif::new_assemble(arg_data_list &arg_data_v,const Nodedata *nodedata,
 	    }
 	    dUdt.rs();
 	    
-	    tmp10.set(G_source).rest(dUdt);	// tmp10 = G - dUdt
+	    tmp10.set(G_source).minus(dUdt);	// tmp10 = G - dUdt
 	    
 	    adv_diff_ff->get_C(Cr);
 
@@ -1438,7 +1438,7 @@ void NewAdvDifFF::comp_P_supg(FastMat2 &P_supg) {
       tmp_P_supg_ALE_3
         .prod(tmp_P_supg_ALE_2,e->tau_supg,1,2,-1,-1,3);
     }
-    P_supg.rest(tmp_P_supg_ALE_3);
+    P_supg.minus(tmp_P_supg_ALE_3);
   }
 }
 

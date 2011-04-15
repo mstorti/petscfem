@@ -24,7 +24,7 @@ extern TextHashTable *GLOBAL_OPTIONS;
 
 // set state
 #define set_state {						\
-	vel_supg.set(vel).rest(v_mesh).rs();			\
+	vel_supg.set(vel).minus(v_mesh).rs();			\
         if(axi>0){						\
           vel_supg.setel(0.,axi);				\
         }							\
@@ -69,7 +69,7 @@ extern TextHashTable *GLOBAL_OPTIONS;
   fluxd.is(1,vl_indx,vl_indxe).set(sigma).scale(visco_eff).rs();			\
   viscous_work.prod(sigma,vel,1,-1,-1).scale(visco_l);					\
   heat_flux.set(grad_T).scale(-cond_eff);						\
-  fluxd.ir(1,ndof).set(viscous_work).rest(heat_flux).rs();				\
+  fluxd.ir(1,ndof).set(viscous_work).minus(heat_flux).rs();				\
 }
 
 // ======================================================================================
@@ -90,7 +90,7 @@ extern TextHashTable *GLOBAL_OPTIONS;
 	  double tr = (double) tmp15.prod(strain_rate,strain_rate,-1,-2,-1,-2);		\
 	  double van_D;									\
 	  if (A_van_Driest>0.) {							\
-	    dist_to_wall.prod(SHAPE,xloc,-1,-1,1).rest(wall_coords);			\
+	    dist_to_wall.prod(SHAPE,xloc,-1,-1,1).minus(wall_coords);			\
 	    double ywall = sqrt(dist_to_wall.sum_square_all());				\
 	    double y_plus = ywall*shear_vel/VISC;					\
 	    van_D = 1.-exp(-y_plus/A_van_Driest);					\
@@ -655,7 +655,7 @@ assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
       assert(nH >= ndim);
       assert(indx_ALE_xold >= nH+1-ndim);
       Hloc.is(2,indx_ALE_xold,indx_ALE_xold+ndim-1);
-      vloc_mesh.set(xloc).rest(Hloc).scale(rec_Dt).rs();
+      vloc_mesh.set(xloc).minus(Hloc).scale(rec_Dt).rs();
       Hloc.rs();
     }
     
@@ -839,10 +839,10 @@ assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
 	if (0) {
 	// DEBUG
 	Cpjac.eye();
-	dUpdt.set(Up).rest(Up_old).scale(rec_Dt);
+	dUpdt.set(Up).minus(Up_old).scale(rec_Dt);
 	dUcdt.prod(Cpjac,dUpdt,1,-1,-1);
 	} else {
-	dUcdt.set(Uc).rest(Uc_old).scale(rec_Dt);
+	dUcdt.set(Uc).minus(Uc_old).scale(rec_Dt);
 	}
 	// G (source) (ndof)
 	G_source.set(0.0);
@@ -882,7 +882,7 @@ assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
 	tmp5_S.prod(dshapex,flux_sc,-1,1,2,-1);
 
 	res.set(tmp1_G).axpy(tmp1_S,1.0).axpy(tmp2_G,-1.0).axpy(tmp2_S,1.0);
-	res.add(tmp3_G).rest(tmp4_G).rest(tmp4_S).add(tmp5_S);
+	res.add(tmp3_G).minus(tmp4_G).minus(tmp4_S).add(tmp5_S);
 	veccontr.axpy(res,-wpgdet);
 
 	// matrices computations

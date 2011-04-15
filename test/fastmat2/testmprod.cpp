@@ -81,7 +81,7 @@ void test() {
       tmp.clear().set(res2);
     }
     // res2.print("using 2-nat prod\n ");
-    res2.rest(res);
+    res2.minus(res);
     double erro = res2.norm_2_all();
     printf("Nmat %d: error %g, ok<tol? %d\n",Nmat,erro,erro<tol);
     all_ok &= erro<tol;

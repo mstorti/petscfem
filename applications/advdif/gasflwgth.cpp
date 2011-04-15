@@ -70,7 +70,7 @@ gasflow_force_integrator
     .export_vals(&*pg_values.begin());
 
   if (comp_moments) {
-    dx.set(xpg).rest(x0);
+    dx.set(xpg).minus(x0);
     M.cross(dx,F)
       .export_vals(&pg_values[ndim_m]);
   }

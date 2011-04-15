@@ -391,7 +391,7 @@ int adaptor::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
 	  veccontrp.reshape(1,nen);
           if (!use_high_prec) {
             matlocf_fdj.ir(2,jpert).set(veccontrp)
-              .rest(veccontr).scale(afact).rs();
+              .minus(veccontr).scale(afact).rs();
           } else {
             locstatep.reshape(1,nen).set(locstate)
               .addel(-epsil,jpert).reshape(2,nel,ndof);
@@ -401,7 +401,7 @@ int adaptor::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
             veccontrm.reshape(1,nen);
             double af = -1.0/(2.0*alpha*epsil);
             matlocf_fdj.ir(2,jpert).set(veccontrp)
-              .rest(veccontrm).scale(af).rs();
+              .minus(veccontrm).scale(af).rs();
           }
 	}
         jpert=-1;

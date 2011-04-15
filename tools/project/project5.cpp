@@ -270,7 +270,7 @@
 //       x2prj.prod(C,L,1,-1,-1);
 //       C.rs();
 //       // Form distance vector
-//       dx2.set(x2).rest(x2prj);
+//       dx2.set(x2).minus(x2prj);
 //       double d2 = dx2.norm_p_all(2.0);
 //       if (q==0 || d2<d2min) {
 // 	d2min = d2;

@@ -217,13 +217,13 @@ new_assemble(arg_data_list &arg_data_v,const Nodedata *nodedata,
 	U_pert.set(U);      	
 	U_pert.addel(eps_fd,jele,jdof);
 	res(elem,U_pert,res_pert,lambda_pert,fd_jac);
-	res_pert.rest(r).scale(1./eps_fd);
+	res_pert.minus(r).scale(1./eps_fd);
 	res_fd_jac.ir(2,jele).ir(3,jdof)
 	  .set(res_pert).rs();
       }
     }
     d_res_fd_jac
-      .set(jac).rest(res_fd_jac);
+      .set(jac).minus(res_fd_jac);
     double erro = d_res_fd_jac.sum_abs_all();
     if (erro>1e-10) printf("error %g\n",erro);
 #endif	

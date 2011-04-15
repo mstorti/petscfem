@@ -32,11 +32,11 @@ pg_connector(const FastMat2 &xpg,
 	     const FastMat2 &grad_state_new_pg,
 	     FastMat2 &res_pg,FastMat2 &mat_pg) {
   assert(ndof==1);
-  du.set(state_new_pg).rest(state_old_pg).scale(rec_Dt);
+  du.set(state_new_pg).minus(state_old_pg).scale(rec_Dt);
   double g = grad_H.sum_square_all();
   g = pow(g,norm_expo/2.0);
   G.setel(g,1);
-  tmp.set(G).rest(du);
+  tmp.set(G).minus(du);
   res_pg.prod(shape(),tmp,1,2);
   mat_pg.set(0.0);
 }

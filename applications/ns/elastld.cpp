@@ -210,14 +210,14 @@ void ld_elasticity
 
     grad_u.prod(ustar,dshapex,-1,1,2,-1);
     F.set(Id).add(grad_u);
-    strain.prod(F,F,-1,1,-1,2).rest(Id).scale(0.5);
+    strain.prod(F,F,-1,1,-1,2).minus(Id).scale(0.5);
     tmp5.ctr(strain,-1,-1);
     double trE = tmp5;
     tmp4.set(Id).scale(trE*lambda).axpy(strain,2*mu);
     stress.prod(F,tmp4,1,-1,-1,2);
 
     // Velocity from states dxdt = (xnew-xold)/dt
-    dxdt.set(xnew).rest(xold).scale(rec_Dt);
+    dxdt.set(xnew).minus(xold).scale(rec_Dt);
 
     // Inertia term
     if (use_new_form) {
@@ -226,17 +226,17 @@ void ld_elasticity
       // better conditioned (I guess), the resulting Jacobian
       // is [I/Dt^2+K,0; -I/Dt,I]
       vnew1.set(dxdt).axpy(vold,-(1.0-alpha)).scale(1.0/alpha);
-      a.set(vnew1).rest(vold).scale(rec_Dt)
+      a.set(vnew1).minus(vold).scale(rec_Dt)
         .axpy(vstar,cdamp);
     } else {
       // In this form the residual is [Rvel; Rmom]
       // and acceleration is computed from velocities
       // only.  It is bad conditioned, the resulting Jacobian
       // is [I/Dt,-I; I/Dt, K]
-      a.set(vnew).rest(vold).scale(rec_Dt)
+      a.set(vnew).minus(vold).scale(rec_Dt)
         .axpy(vstar,cdamp);
     }
-    tmp.prod(shape,a,-1,-1,1).rest(G_body);
+    tmp.prod(shape,a,-1,-1,1).minus(G_body);
     tmp2.prod(shape,tmp,1,2);
     res.is(2,ndim+1,2*ndim).axpy(tmp2,-wpgdet*rho);
 
@@ -251,7 +251,7 @@ void ld_elasticity
 #endif
     
     // Eqs. for displacements: (xnew-xold)/dt - vstar = 0
-    dv.set(dxdt).rest(vstar);
+    dv.set(dxdt).minus(vstar);
     tmp.prod(shape,dv,-1,-1,1);
     tmp2.prod(shape,tmp,1,2);
     res.is(2,1,ndim).axpy(tmp2,-wpgdet).rs();
@@ -399,9 +399,9 @@ void ld_elasticity
 
   double Dt = 1.0/rec_Dt, Dt2 = Dt*Dt;
 
-  vold.set(xph).rest(xmh).scale(rec_Dt);
+  vold.set(xph).minus(xmh).scale(rec_Dt);
   aold.set(xph).axpy(xold,-2.0).add(xmh).scale(4.0*rec_Dt*rec_Dt);
-  anew.set(xnew).rest(xold).axpy(vold,-Dt).scale(2.0/Dt2)
+  anew.set(xnew).minus(xold).axpy(vold,-Dt).scale(2.0/Dt2)
     .axpy(aold,-(1.0-2.0*newmark_beta)).scale(1.0/(2.0*newmark_beta));
   vnew.set(vold)
     .axpy(aold,(1.0-newmark_gamma)*Dt)
@@ -448,13 +448,13 @@ void ld_elasticity
 
     grad_u.prod(xnew,dshapex,-1,1,2,-1);
     F.set(Id).add(grad_u);
-    strain.prod(F,F,-1,1,-1,2).rest(Id).scale(0.5);
+    strain.prod(F,F,-1,1,-1,2).minus(Id).scale(0.5);
     tmp5.ctr(strain,-1,-1);
     double trE = tmp5;
     tmp4.set(Id).scale(trE*lambda).axpy(strain,2*mu);
     stress.prod(F,tmp4,1,-1,-1,2);
 
-    tmp.prod(shape,anew,-1,-1,1).rest(G_body);
+    tmp.prod(shape,anew,-1,-1,1).minus(G_body);
     tmp2.prod(shape,tmp,1,2);
     res.axpy(tmp2,-wpgdet*rho);
 

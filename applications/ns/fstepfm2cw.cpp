@@ -205,7 +205,7 @@ int fracstep_fm2_cw::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
 	locstate.ir(1,1).is(2,1,ndim);
 	du.set(locstate);
 	locstate.ir(1,2);
-	du.rest(locstate);
+	du.minus(locstate);
 	locstate.rs();
 	veccontr.rs().ir(1,1).is(2,1,ndim)
 	  .axpy(du,-KP);

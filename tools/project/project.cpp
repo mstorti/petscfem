@@ -268,7 +268,7 @@ void FemInterp::interp(const dvector<double> &xnod2,
       x2prj.prod(C,L,1,-1,-1);
       C.rs();
       // Form distance vector
-      dx2.set(x2).rest(x2prj);
+      dx2.set(x2).minus(x2prj);
       double d2 = dx2.norm_p_all(2.0);
       if (q==0 || d2<d2min) {
         ctx.jump(br8);
@@ -333,8 +333,8 @@ void nod_vol(const dvector<double> &xnod,
     x1.set(&xnod.e(n1-1,0));
     x2.set(&xnod.e(n2-1,0));
     x3.set(&xnod.e(n3-1,0));
-    a.set(x2).rest(x1);
-    b.set(x3).rest(x1);
+    a.set(x2).minus(x1);
+    b.set(x3).minus(x1);
     c.cross(a,b);
     double area_elem = 0.5*c.norm_p_all(2.0);
     area_tot += area_elem;

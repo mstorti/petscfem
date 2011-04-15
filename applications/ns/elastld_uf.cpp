@@ -145,16 +145,16 @@ void ld_elasticity::element_connector(const FastMat2 &xloc,
 
     grad_u.prod(ustar,dshapex,-1,1,2,-1);
     F.set(Id).add(grad_u);
-    strain.prod(F,F,-1,1,-1,2).rest(Id).scale(0.5);
+    strain.prod(F,F,-1,1,-1,2).minus(Id).scale(0.5);
     tmp5.ctr(strain,-1,-1);
     double trE = tmp5;
     tmp4.set(Id).scale(trE*lambda).axpy(strain,2*mu);
     stress.prod(F,tmp4,1,-1,-1,2);
 
     // Inertia term
-    a.set(vnew).rest(vold).scale(rec_Dt)
+    a.set(vnew).minus(vold).scale(rec_Dt)
       .axpy(vstar,cdamp);
-    tmp.prod(shape,a,-1,-1,1).rest(G_body);
+    tmp.prod(shape,a,-1,-1,1).minus(G_body);
     tmp2.prod(shape,tmp,1,2);
     res.is(2,ndim+1,2*ndim).axpy(tmp2,-wpgdet*rho);
 
@@ -171,7 +171,7 @@ void ld_elasticity::element_connector(const FastMat2 &xloc,
     mass_pg.prod(shape,shape,1,2).scale(wpgdet*rec_Dt*rho/alpha);
 
     // Eqs. for displacements: (xnew-xold)/dt - vstar = 0
-    dv.set(xnew).rest(xold).scale(rec_Dt).rest(vstar);
+    dv.set(xnew).minus(xold).scale(rec_Dt).minus(vstar);
     tmp.prod(shape,dv,-1,-1,1);
     tmp2.prod(shape,tmp,1,2);
     res.is(2,1,ndim).axpy(tmp2,-wpgdet);

@@ -369,7 +369,7 @@ void lin_gen_load::q(FastMat2 &U_in,FastMat2 &U_out,
 		     FastMat2 &flux_in,FastMat2 &jac) {
   const_flux.set(propel+const_flux_indx);
   // Compute state difference at the Gauss point
-  tmp1.set(U_out).rest(U_in);
+  tmp1.set(U_out).minus(U_in);
   // Scale by film coefficient matrix. 
   flux_in.prod(h_film,tmp1,1,-1,-1).add(const_flux);
   // Fill Jaocbian
@@ -381,7 +381,7 @@ void lin_gen_load::q(FastMat2 &U_in,FastMat2 &U_out,
 void lin_gen_load::q(FastMat2 &U_in,FastMat2 &flux_in,FastMat2 &jac) {
   const_flux.set(propel+const_flux_indx);
   // Compute state difference at the Gauss point
-  tmp1.set(U_out_sl).rest(U_in);
+  tmp1.set(U_out_sl).minus(U_in);
   // Scale by film coefficient matrix. 
   flux_in.prod(h_film,tmp1,1,-1,-1).add(const_flux);
   // Fill Jaocbian

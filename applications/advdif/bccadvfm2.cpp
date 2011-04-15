@@ -253,7 +253,7 @@ void NewBcconv::new_assemble(arg_data_list &arg_data_v,const Nodedata *nodedata,
       xloc_old.set(Hloc);
       Hloc.rs();
       xloc.scale(ALPHA).axpy(xloc_old,1-ALPHA);
-      vloc_mesh.set(xloc_new).rest(xloc_old).scale(rec_Dt).rs();
+      vloc_mesh.set(xloc_new).minus(xloc_old).scale(rec_Dt).rs();
     }
 
     // DUDA: esto no se puede sacar fuera del lazo
@@ -328,7 +328,7 @@ void NewBcconv::new_assemble(arg_data_list &arg_data_v,const Nodedata *nodedata,
         v_mesh.prod(SHAPE,vloc_mesh,-1,-1,1);
         // Compute ALE flux and correct advective flux
         ALE_flux.prod(Halpha,v_mesh,1,2);
-        flux.rest(ALE_flux);
+        flux.minus(ALE_flux);
       }
 
       // normal = pvec(Jaco.SubMatrix(1,1,1,ndim).t(),

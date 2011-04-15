@@ -481,14 +481,14 @@ void gasflow_ff::compute_flux(const FastMat2 &U,
   // Momentum rows and first column
   Y.eye(square(velmod)).scale(g1/2.);
   Ajac.ir(3,1).is(2,vl_indx,vl_indxe).add(Y).rs();
-  Ajac.ir(3,1).is(2,vl_indx,vl_indxe).rest(Amom).rs();
+  Ajac.ir(3,1).is(2,vl_indx,vl_indxe).minus(Amom).rs();
 
   // Momentum columns and last row
-  Ajac.ir(2,ndof).is(3,vl_indx,vl_indxe).rest(Amom).scale(g1);
+  Ajac.ir(2,ndof).is(3,vl_indx,vl_indxe).minus(Amom).scale(g1);
   Y.eye(ene).scale(ga);
   Ajac.add(Y);
   Y.eye(square(velmod)).scale(g1/2.);
-  Ajac.rest(Y).rs();
+  Ajac.minus(Y).rs();
 
   // First column and last row
   tmp00 = g1*square(velmod)-ga*ene;
@@ -626,7 +626,7 @@ void gasflow_ff::compute_flux(const FastMat2 &U,
   // En el paper de LESIEUR Y COMTE usan viscosidad laminar en la ecuacion de energia
   viscous_work.prod(sigma,vel,1,-1,-1).scale(visco_l);
   heat_flux.set(grad_T).scale(-cond_eff);
-  fluxd.ir(1,ndof).set(viscous_work).rest(heat_flux).rs();
+  fluxd.ir(1,ndof).set(viscous_work).minus(heat_flux).rs();
 
   // Diffusive jacobians
   if(ndim==3) {
@@ -798,7 +798,7 @@ void gasflow_ff::compute_flux(const FastMat2 &U,
     const FastMat2 &grad_N = *advdf_e->grad_N();
 
     //vel_supg.set(vel_old);
-    vel_supg.set(vel_old).rest(v_mesh).rs();
+    vel_supg.set(vel_old).minus(v_mesh).rs();
 
     if(axi>0){
       vel_supg.setel(0.,axi);
@@ -825,7 +825,7 @@ void gasflow_ff::compute_flux(const FastMat2 &U,
       //DEBUG
       if(tau_scalar==0) {
         tau_supg.eye(tau_supg_a-tau_supg_delta);
-	tau_supg.d(1,2).rest(tau_supg_d).rs();
+	tau_supg.d(1,2).minus(tau_supg_d).rs();
       } else {
 	tau_supg.eye(tau_supg_a-0.0*tau_supg_delta);
       }
@@ -944,7 +944,7 @@ void gasflow_ff::comp_P_supg(FastMat2 &P_supg) {
   tmp_P_supg_ALE_1.prod(grad_N,v_mesh,-1,1,-1);
   tmp_P_supg_ALE_2.prod(Cp,tmp_P_supg_ALE_1,2,3,1);
   tmp_P_supg_ALE_3.prod(tmp_P_supg_ALE_2,tau_supg_c,1,2,-1,-1,3);
-  P_supg.rest(tmp_P_supg_ALE_3);
+  P_supg.minus(tmp_P_supg_ALE_3);
 
 }
 #endif

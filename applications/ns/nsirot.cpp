@@ -507,8 +507,8 @@ int nsi_rot::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
 	}
 
     // position vector to compute rotation terms
-	//	pos_v.set(xpg).rest(xop).add(x_o_op);
-	pos_v.set(xpg).rest(xop);
+	//	pos_v.set(xpg).minus(xop).add(x_o_op);
+	pos_v.set(xpg).minus(xop);
 
 	// state variables and gradient
 	u.prod(SHAPE,ucols,-1,-1,1);
@@ -609,8 +609,8 @@ int nsi_rot::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
 	  dmatu.prod(u,grad_u_star,-1,-1,1);
 #endif
 
-	  du.set(u_star).rest(u);
-	  dmatu.axpy(du,rec_Dt/alpha).rest(G_body);
+	  du.set(u_star).minus(u);
+	  dmatu.axpy(du,rec_Dt/alpha).minus(G_body);
 
 	  // adding rotational forces, only for the residual contribution
 	  dmatu.add(acel_rot);
@@ -697,9 +697,9 @@ int nsi_rot::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
 	  //matlocf.ir(2,ndof).is(4,1,ndim);
 	  matlocf.ir(2,ndim+1).is(4,1,ndim);
 	  tmp17.prod(P_pspg,dmatw,3,1,2).scale(wpgdet);
-	  matlocf.rest(tmp17);
+	  matlocf.minus(tmp17);
 	  tmp17.prod(dshapex,SHAPE,3,2,1).scale(wpgdet);
-	  matlocf.rest(tmp17).rs();
+	  matlocf.minus(tmp17).rs();
 
 	  //matlocf.ir(2,ndof).ir(4,ndof).axpy(tmp13,-wpgdet).rs();
 	  matlocf.ir(2,ndim+1).ir(4,ndim+1).axpy(tmp13,-wpgdet).rs();

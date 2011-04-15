@@ -107,7 +107,7 @@ void electrophoresis::pg_connector(const FastMat2 &xpg,
   FastMat2& du = FM2TMP;
   FastMat2& dmatu = FM2TMP;
   FastMat2& Du = FM2TMP;
-  du.set(u_star).rest(u0);
+  du.set(u_star).minus(u0);
   dmatu
     .prod(vel,grad_u_star,-1,-1,1)
     .axpy(du, rec_Dt/alpha);

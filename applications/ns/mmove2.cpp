@@ -65,7 +65,7 @@ double mesh_move2::disfun(FastMat2 &x) {
       x.ir(1,k);
       xedge.set(x);
       x.ir(1,l);
-      xedge.rest(x);
+      xedge.minus(x);
       sum_ledge2 += xedge.sum_square_all();
     }
   }
@@ -90,8 +90,8 @@ double mesh_move2::disfun(FastMat2 &x) {
     x.ir(1,n3);
     dx.set(x);
     x.ir(1,n1);
-    xedge.rest(x);
-    dx.rest(x);
+    xedge.minus(x);
+    dx.minus(x);
     double l2 = xedge.sum_square_all();
     sum_l2 += l2;
     s.setel(-xedge.get(2),1);
@@ -120,8 +120,8 @@ double mesh_move2::disfun(FastMat2 &x) {
     x.ir(1,n3);
     dx.set(x);
     x.ir(1,n1);
-    xedge.rest(x);
-    dx.rest(x);
+    xedge.minus(x);
+    dx.minus(x);
     double l2 = xedge.sum_square_all();
     s.setel(-xedge.get(2),1);
     s.setel(+xedge.get(1),2);
@@ -185,7 +185,7 @@ void mesh_move2::element_connector(const FastMat2 &xloc,
     xp.set(x).addel(-2*epsi,j);
     gdisfun(xp,gm);
 
-    mat.ir(2,j).set(gp).rest(gm).scale(1./(2*epsi));
+    mat.ir(2,j).set(gp).minus(gm).scale(1./(2*epsi));
   }
   mat.rs().reshape(4,nel,ndof,nel,ndof);
 #if 0
