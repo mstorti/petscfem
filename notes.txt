@@ -17307,3 +17307,13 @@ se saco, no se porque.
 %--[2011-04-15.11:21:00.mstorti-v36-end-5-g53bdf0d]-----
 Hago el cambio en FastMat2 de `rest()' a `minus()', lo reemplazo en
 todo PF, corro los tests, dan los 191 OK en ambos g_c++, O_c++
+
+%=== Sun Jun 26 20:09:15 2011 mstorti@aquiles
+%
+%--[2011-06-26.23:09:15.mstorti-v36-end-6-g30d398c]-----
+Me da bastante disipativo. Si le pongo taufac=0.25 entonces da
+ruidoso. Vuelvo a taufac=1 y corro con 121 nodos en la direccion x,
+tenemos c=sqrt(g*h0) = 1, omega=2*pi/0.3= 20.94, k=w/c=20.94,
+lambda=2*pi/k = 0.3. Como tenemos Lx2=1.5, tenemos 5 ondas completas
+en x. O sea que como tenemos 120 nodos en x, tenemos 24 nodos por
+onda. 

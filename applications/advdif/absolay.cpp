@@ -162,19 +162,19 @@ new_assemble(arg_data_list &arg_data_v,const Nodedata *nodedata,
                     "habso_data size %d",ndof,habso_data.size());
     if (1) {
       Habso.set(habso_data.buff());
-      Habso.print("Habso = Hp:");
+      if (!MY_RANK) Habso.print("Habso = Hp:");
     } else if(0) {
       Habso.set(habso_data.buff()+ndof*ndof);
-      Habso.print("Habso = Hm:");
+      if (!MY_RANK) Habso.print("Habso = Hm:");
     } else {
       FastMat2 Haux(2,ndof,ndof);
       Habso.set(habso_data.buff());
       Haux.set(habso_data.buff()+ndof*ndof);
       Habso.add(Haux);
-      Habso.print("Habso = Hp+Hm:");
+      if (!MY_RANK) Habso.print("Habso = Hp+Hm:");
     }
     Uref.set(habso_data.buff()+2*ndof*ndof);
-    Uref.print("Uref:");
+    if (!MY_RANK) Uref.print("Uref:");
   }
   
 #if 0
