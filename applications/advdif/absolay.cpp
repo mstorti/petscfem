@@ -30,9 +30,7 @@ new_assemble(arg_data_list &arg_data_v,const Nodedata *nodedata,
 
   int locdof,kldof,lldof;
 
-  NSGETOPTDEF(int,npg,0); //nd
   NSGETOPTDEF(int,ndim,0); //nd
-  assert(npg>0);
   assert(ndim>0);
 
   int nelprops,nel,ndof;
@@ -64,8 +62,8 @@ new_assemble(arg_data_list &arg_data_v,const Nodedata *nodedata,
   vector<double> *dtmin;
   int jdtmin;
   GlobParam *glob_param=NULL;
+  double alpha = 1.0;
   // The trapezoidal rule integration parameter
-#define ALPHA (glob_param->alpha)
 #define DT (glob_param->Dt)
   arg_data *staten=NULL,*stateo=NULL,*retval=NULL,
     *fdj_jac=NULL,*jac_prof=NULL,*Ajac=NULL;
@@ -79,6 +77,7 @@ new_assemble(arg_data_list &arg_data_v,const Nodedata *nodedata,
 #define WAS_SET arg_data_v[jdtmin].was_set
     Ajac = &arg_data_v[++j];//[4]
     glob_param = (GlobParam *)arg_data_v[++j].user_data;;
+    alpha = (glob_param->alpha);
 
     if (ADVDIF_CHECK_JAC)
       fdj_jac = &arg_data_v[++j];
@@ -104,14 +103,13 @@ new_assemble(arg_data_list &arg_data_v,const Nodedata *nodedata,
   PETSCFEM_ASSERT0(Kabso>=0.0,
                    "Kabso must be non-negatvive");  
   
-  // Initialize flux functions
-  int ff_options=0;
-  // adv_diff_ff->start_chunk(ff_options);
-  // int ndimel = adv_diff_ff->dim();
-  int ndimel = ndim;
+  // The case `ndimel=0' is a special case for concentrated
+  // absorbing boundary condition, NOT distributed. 
+  NSGETOPTDEF(int,ndimel,-1); //nd
   if (ndimel<0) ndimel = ndim;
+  int use_layer = ndimel>0;
+  if (!use_layer) alpha = 1.0;
 
-  // adv_diff_ff->set_profile(prof_fields); // profile by equations
   matloc.set(1.0);
   if (comp_prof) {
     jac_prof = &arg_data_v[0];
@@ -132,24 +130,8 @@ new_assemble(arg_data_list &arg_data_v,const Nodedata *nodedata,
     dUloc(nel,ndof);
   FastMat2 Un(1,ndof),Uo(1,ndof),Ualpha(1,ndof),
     Jaco(2,ndimel,ndim),iJaco(2,ndimel,ndimel),
-    dU(1,ndof),dshapex(2,ndimel,nel), normal(1,ndim),tmp1,tmp2;
-
-#if 0
-  static int flag=0;
-  static FastMat2 Habsoc(2,ndof,ndof);
-  if (!flag) {
-    flag = 1;
-    FastMat2 tmp3(2,ndof,ndof),tmp4(2,ndof,ndof);
-    tmp3.fun(rnd);
-    Habsoc.eye().axpy(tmp3,0.25);
-    tmp4.ctr(tmp3,2,1);
-    Habsoc.axpy(tmp4,0.25);
-  }
-  Habso.set(Habsoc);
-#endif
-#if 0
-  Habso.eye(h0).setel(1.0,ndim+1,ndim+1);
-#endif
+    dU(1,ndof),dshapex(2,ndimel,nel), normal(1,ndim),tmp1,tmp2,
+    shape(1,nel);
 
   if (!flag) {
     flag = 1;
@@ -160,22 +142,21 @@ new_assemble(arg_data_list &arg_data_v,const Nodedata *nodedata,
     PETSCFEM_ASSERT(habso_data.size()==2*ndof*ndof+ndof,
                     "habso_data must be 2*ndof*ndof. ndof %d, "
                     "habso_data size %d",ndof,habso_data.size());
-    if (1) {
-      Habso.set(habso_data.buff());
-      if (!MY_RANK) Habso.print("Habso = Hp:");
-    } else if(0) {
+
+    if (use_layer>0) Habso.set(habso_data.buff());
+    else {
       Habso.set(habso_data.buff()+ndof*ndof);
-      if (!MY_RANK) Habso.print("Habso = Hm:");
-    } else {
-      FastMat2 Haux(2,ndof,ndof);
-      Habso.set(habso_data.buff());
-      Haux.set(habso_data.buff()+ndof*ndof);
-      Habso.add(Haux);
-      if (!MY_RANK) Habso.print("Habso = Hp+Hm:");
+      
     }
+
     Uref.set(habso_data.buff()+2*ndof*ndof);
-    if (!MY_RANK) Uref.print("Uref:");
+    // FIXME:= this is not done if the master has not elements
+    if (!MY_RANK) {
+      Habso.print("Habso: ");
+      Uref.print("Uref:");
+    }
   }
+  
   
 #if 0
   Habso.print("Habso: ");
@@ -187,7 +168,13 @@ new_assemble(arg_data_list &arg_data_v,const Nodedata *nodedata,
 
   //o Type of element geometry to define Gauss Point data
   NGETOPTDEF_S(string,geometry,cartesian2d);
-  GPdata gp_data(geometry.c_str(),ndimel,nel,npg,GP_FASTMAT2);
+  GPdata gp_data;
+  int npg=1;
+  if (use_layer>0) {
+    NSGETOPTDEF_ND(int,npg,0); //nd
+    assert(npg>0);
+    gp_data.init(geometry.c_str(),ndimel,nel,npg,GP_FASTMAT2);
+  }
 
 #define DSHAPEXI (*gp_data.FM2_dshapexi[ipg])
 #define SHAPE	 (*gp_data.FM2_shape[ipg])
@@ -202,7 +189,6 @@ new_assemble(arg_data_list &arg_data_v,const Nodedata *nodedata,
   FastMatCacheList cache_list;
   if (use_fastmat2_cache) FastMat2::activate_cache(&cache_list);
 
-  // printf("[%d] %s start: %d last: %d\n",MY_RANK,jobinfo,el_start,el_last);
   for (ElementIterator element = elemlist.begin();
        element!=elemlist.end(); element++) try {
 
@@ -227,35 +213,40 @@ new_assemble(arg_data_list &arg_data_v,const Nodedata *nodedata,
     }
 
     // State at time t_{n+\alpha}
-    lstate.set(0.).axpy(lstaten,ALPHA).axpy(lstateo,(1-ALPHA));
+    lstate.set(0.).axpy(lstaten,alpha).axpy(lstateo,(1-alpha));
     veccontr.set(0.);
     matloc.set(0.0);
 
     for (ipg=0; ipg<npg; ipg++) {
       
-      //      Matrix xpg = SHAPE * xloc;
-      Jaco.prod(DSHAPEXI,xloc,1,-1,-1,2);
-
-      PETSCFEM_ASSERT0(ndim==ndimel,"not implemented yet");
-      // iJaco.inv(Jaco);
-      detJaco = Jaco.det();
-
-      if (detJaco<=0.) {
-        int k,ielh;
-        element.position(k,ielh);
-        detj_error(detJaco,k);
-        set_error(1);
+      if (use_layer>0) {
+        //      Matrix xpg = SHAPE * xloc;
+        Jaco.prod(DSHAPEXI,xloc,1,-1,-1,2);
+        
+        PETSCFEM_ASSERT0(ndim==ndimel,"not implemented yet");
+        // iJaco.inv(Jaco);
+        detJaco = Jaco.det();
+        
+        if (detJaco<=0.) {
+          int k,ielh;
+          element.position(k,ielh);
+          detj_error(detJaco,k);
+          set_error(1);
+        }
+        wpgdet = detJaco*WPG;
+        shape.set(SHAPE);
+      } else {
+        shape.set(1.0);
+        wpgdet = 1.0;
       }
-      wpgdet = detJaco*WPG;
-      // dshapex.prod(iJaco,DSHAPEXI,1,-1,-1,2);
 
-      Un.prod(SHAPE,lstate,-1,-1,1);
-      Uo.prod(SHAPE,lstateo,-1,-1,1);
-      Ualpha.set(0.).axpy(Uo,1-ALPHA).axpy(Un,ALPHA);
-      tmp1.prod(Habso,SHAPE,SHAPE,2,4,1,3);
-      matloc.axpy(tmp1,ALPHA*Kabso*wpgdet);
+      Un.prod(shape,lstate,-1,-1,1);
+      Uo.prod(shape,lstateo,-1,-1,1);
+      Ualpha.set(0.).axpy(Uo,1-alpha).axpy(Un,alpha);
+      tmp1.prod(Habso,shape,shape,2,4,1,3);
+      matloc.axpy(tmp1,alpha*Kabso*wpgdet);
       dU.set(Ualpha).minus(Uref);
-      tmp2.prod(SHAPE,Habso,dU,1,2,-1,-1);
+      tmp2.prod(shape,Habso,dU,1,2,-1,-1);
       veccontr.axpy(tmp2,-Kabso*wpgdet);
     }
     
