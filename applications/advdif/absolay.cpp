@@ -107,8 +107,14 @@ new_assemble(arg_data_list &arg_data_v,const Nodedata *nodedata,
   // absorbing boundary condition, NOT distributed. 
   NSGETOPTDEF(int,ndimel,-1); //nd
   if (ndimel<0) ndimel = ndim;
-  int use_layer = ndimel>0;
-  if (!use_layer) alpha = 1.0;
+
+  NSGETOPTDEF(int,use_layer,0); //nd
+  // It seems that when using penalizatin you can't 
+  // use alpha<1.0
+  if (!use_layer) {
+    alpha = 1.0;
+    ndimel = 0;
+  }
 
   matloc.set(1.0);
   if (comp_prof) {
@@ -146,7 +152,6 @@ new_assemble(arg_data_list &arg_data_v,const Nodedata *nodedata,
     if (use_layer>0) Habso.set(habso_data.buff());
     else {
       Habso.set(habso_data.buff()+ndof*ndof);
-      
     }
 
     Uref.set(habso_data.buff()+2*ndof*ndof);
