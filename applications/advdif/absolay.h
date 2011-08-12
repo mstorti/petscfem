@@ -51,7 +51,7 @@ public:
 
   void initialize();
   void time_step_pre(int step);
-  void time_step_post();
+  void time_step_post(int step);
 };
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
@@ -68,7 +68,7 @@ public:
   }
   void time_step_post(double time,int step,
 		      const vector<double> &gather_values) {
-    absorbing_layer_elemset_p->time_step_post();
+    absorbing_layer_elemset_p->time_step_post(step);
   }
   void stage(const char *jobinfo,int stage,
 	     double time,void *data) { }

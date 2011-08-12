@@ -278,12 +278,15 @@ new_assemble(arg_data_list &arg_data_v,const Nodedata *nodedata,
 }
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
-void AbsorbingLayer::time_step_pre(int step) { 
-  if (!MY_RANK) printf("in abso_hook::time_step_pre()\n");
-  if (step==0) {
+void AbsorbingLayer::time_step_pre(int step) { }
+
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+void AbsorbingLayer::time_step_post(int step) {
+  if (!MY_RANK) printf("in abso_hook::time_step_post()\n");
+  if (step==1) {
     PETSCFEM_ASSERT0(uhist.size()==0,"uhist should be empty here");  
     PETSCFEM_ASSERT0(whist.size()==0,"whist should be empty here");  
-    u.cat("./STEPS/fsabso2d.state-0.tmp.gz");
+    u.cat("./fsabso2d.state.tmp");
     assert(u.size()%ndof==0);
     nnod = u.size()/ndof;
     if (!MY_RANK) printf("abso_hook: detected nnod %d\n",nnod);
@@ -292,14 +295,11 @@ void AbsorbingLayer::time_step_pre(int step) {
     whist.a_resize(3,nstep_histo,nnod,ndof);
     whist.set(0.0);
   }
-  char file[100];
-  sprintf(file,"./STEPS/fsabso2d.state-%d.tmp.gz",step);
-  u.read(file);
-  PetscFinalize();
-  exit(0);
-}
-
-//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
-void AbsorbingLayer::time_step_post() {
-  if (!MY_RANK) printf("in abso_hook::time_step_post()\n");
+  if (step>0) {
+    char file[100];
+    sprintf(file,"./fsabso2d.state.tmp",step);
+    u.read(file);
+    PetscFinalize();
+    exit(0);
+  }
 }
