@@ -295,11 +295,24 @@ void AbsorbingLayer::time_step_post(int step) {
     whist.a_resize(3,nstep_histo,nnod,ndof);
     whist.set(0.0);
   }
-  if (step>0) {
-    char file[100];
-    sprintf(file,"./fsabso2d.state.tmp",step);
-    u.read(file);
-    PetscFinalize();
-    exit(0);
+
+  char file[100];
+  sprintf(file,"./fsabso2d.state.tmp",step);
+  u.read(file);
+
+  for (int j=nstep_histo-1; j>=1; j--) {
+    for (int l=1; l<nnod; l++) {
+      for (int k=1; k<ndof; k++) {
+        uhist.e(j,l,k) = uhist.e(j-1,l,k);
+        whist.e(j,l,k) = whist.e(j-1,l,k);
+      }
+    }
+  }
+
+  for (int l=1; l<nnod; l++) {
+    for (int k=1; k<ndof; k++) {
+      uhist.e(0,l,k) = u.e(l,k);
+      // whist(0,l,k) = ????
+    }
   }
 }
