@@ -7,6 +7,7 @@
 #include <src/hook.h>
 #include <src/dxhook.h>
 #include "./advective.h"
+#include "./absolay.h"
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 class advdif_dx_hook : public dx_hook {
@@ -18,6 +19,7 @@ class advdif_dx_hook : public dx_hook {
 Hook *advdif_hook_factory(const char *name) {
   Hook *hook=NULL;
   if CHECK_HOOK(advdif_dx_hook);
+  else if CHECK_HOOK(abso_hook);
   // else if CHECK_HOOK(dx_hook);
   return hook;
 }

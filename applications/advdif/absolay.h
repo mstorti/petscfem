@@ -12,6 +12,8 @@
 #include <src/fastmat2.h>
 #include <src/elemset.h>
 #include "./advective.h"
+#include <src/hook.h>
+#include <src/texthf.h>
 
 /** Perfectly Matched Layer type elemset */
 class AbsorbingLayer : public NewElemset { 
@@ -36,6 +38,26 @@ public:
   NewAssembleFunction new_assemble;
   /// The ask function for the elemset. 
   ASK_FUNCTION;
+};
+
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+class abso_hook : public Hook {
+private:
+  // store this amount of time steps
+  int nstep_histo;
+  int nnod,ndof;
+  // U, adn W values are stored here
+  dvector<double> uhist,whist,u;
+public:
+  abso_hook() { }
+  void init(Mesh &mesh_a,Dofmap &dofmap,
+	    TextHashTableFilter *options,const char *name);
+  void time_step_pre(double time,int step);
+  void time_step_post(double time,int step,
+		      const vector<double> &gather_values);
+  void stage(const char *jobinfo,int stage,
+	     double time,void *data) { }
+  void close();
 };
 
 #endif

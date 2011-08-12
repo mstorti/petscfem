@@ -269,3 +269,40 @@ new_assemble(arg_data_list &arg_data_v,const Nodedata *nodedata,
   set_error(1);
 
 }
+
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+void abso_hook::init(Mesh &mesh_a,Dofmap &dofmap,
+	  TextHashTableFilter *options,const char *name) {
+  if (!MY_RANK) printf("in abso_hook::init()\n");
+  nstep_histo = 4;
+  ndof = 3;
+}
+
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+void abso_hook::time_step_pre(double time,int step) { 
+  if (!MY_RANK) printf("in abso_hook::time_step_pre()\n");
+#if 0
+  if (step==0) {
+    PETSCFEM_ASSERT0(uhist.size()==0,"uhist should be empty here");  
+    PETSCFEM_ASSERT0(whist.size()==0,"whist should be empty here");  
+    u.cat("./STEPS/fsabso2d.state-0.tmp.gz");
+    nnod = u.size()/ndof;
+    uhist.a_resize(3,nstep_histo,nnod,ndof);
+    uhist.set(0.0);
+    whist.a_resize(3,nstep_histo,nnod,ndof);
+    whist.set(0.0);
+  }
+  char file[100];
+  sprintf(file,"./STEPS/fsabso2d.state-%d.tmp.gz",step);
+  u.read(file);
+#endif
+}
+
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+void abso_hook::time_step_post(double time,int step,
+			      const vector<double> &gather_values) {
+  if (!MY_RANK) printf("in abso_hook::time_step_post()\n");
+}
+
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+void abso_hook::close() {}
