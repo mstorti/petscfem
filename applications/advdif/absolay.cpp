@@ -2,6 +2,13 @@
 // $Id: absolay.cpp,v 1.2.20.1 2007/02/23 19:18:07 rodrigop Exp $
 #include "./absolay.h"
 
+AbsorbingLayer *absorbing_layer_elemset_p = NULL;
+
+void AbsorbingLayer::initialize() {
+  nstep_histo = 4;
+  ndof = 3;
+}
+
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:
 #undef __FUNC__
 #define __FUNC__ "int advective::ask(char *,int &)"
@@ -271,22 +278,15 @@ new_assemble(arg_data_list &arg_data_v,const Nodedata *nodedata,
 }
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
-void abso_hook::init(Mesh &mesh_a,Dofmap &dofmap,
-	  TextHashTableFilter *options,const char *name) {
-  if (!MY_RANK) printf("in abso_hook::init()\n");
-  nstep_histo = 4;
-  ndof = 3;
-}
-
-//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
-void abso_hook::time_step_pre(double time,int step) { 
+void AbsorbingLayer::time_step_pre(int step) { 
   if (!MY_RANK) printf("in abso_hook::time_step_pre()\n");
-#if 0
   if (step==0) {
     PETSCFEM_ASSERT0(uhist.size()==0,"uhist should be empty here");  
     PETSCFEM_ASSERT0(whist.size()==0,"whist should be empty here");  
     u.cat("./STEPS/fsabso2d.state-0.tmp.gz");
+    assert(u.size()%ndof==0);
     nnod = u.size()/ndof;
+    if (!MY_RANK) printf("abso_hook: detected nnod %d\n",nnod);
     uhist.a_resize(3,nstep_histo,nnod,ndof);
     uhist.set(0.0);
     whist.a_resize(3,nstep_histo,nnod,ndof);
@@ -295,14 +295,11 @@ void abso_hook::time_step_pre(double time,int step) {
   char file[100];
   sprintf(file,"./STEPS/fsabso2d.state-%d.tmp.gz",step);
   u.read(file);
-#endif
+  PetscFinalize();
+  exit(0);
 }
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
-void abso_hook::time_step_post(double time,int step,
-			      const vector<double> &gather_values) {
+void AbsorbingLayer::time_step_post() {
   if (!MY_RANK) printf("in abso_hook::time_step_post()\n");
 }
-
-//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
-void abso_hook::close() {}
