@@ -157,7 +157,7 @@ new_assemble_ALE_formulation(arg_data_list &arg_data_v,const Nodedata *nodedata,
   NSGETOPTDEF(int,compute_reactive_terms,1);
 
   static int ale_with_no_weak_form_warning_given = 0;
-  if (!ale_with_no_weak_form_warning_given
+  if (!MY_RANK && !ale_with_no_weak_form_warning_given
       && !weak_form && use_ALE_form) {
     printf("=============================================\n"
            "=============================================\n"

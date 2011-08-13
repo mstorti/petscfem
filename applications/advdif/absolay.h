@@ -12,6 +12,11 @@
 #include <src/fastmat2.h>
 #include <src/elemset.h>
 #include "./advective.h"
+#include <src/hook.h>
+#include <src/texthf.h>
+
+class AbsorbingLayer;
+extern AbsorbingLayer  *absorbing_layer_elemset_p;
 
 /** Perfectly Matched Layer type elemset */
 class AbsorbingLayer : public NewElemset { 
@@ -24,18 +29,50 @@ protected:
 private:
   int flag;
   FastMat2 Habso,Uref;
+  // store this amount of time steps
+  int nstep_histo;
+  int nnod,ndof;
+  // U, adn W values are stored here
+  dvector<double> uhist,whist,u;
 
 public:
   /// Contructor from the pointer to the fux function
   AbsorbingLayer(NewAdvDifFF *adv_diff_ff_a=NULL) :
-    adv_diff_ff(adv_diff_ff_a), flag(0) {};
-  /** Destructor. */
+    adv_diff_ff(adv_diff_ff_a), flag(0) { 
+    assert(!absorbing_layer_elemset_p);
+    absorbing_layer_elemset_p = this; 
+  } 
   ~AbsorbingLayer() {delete adv_diff_ff;}
   
   /// The assemble function for the elemset. 
   NewAssembleFunction new_assemble;
   /// The ask function for the elemset. 
   ASK_FUNCTION;
+
+  void initialize();
+  void time_step_pre(int step);
+  void time_step_post(int step);
+};
+
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+class abso_hook : public Hook {
+private:
+public:
+  abso_hook() { }
+  void init(Mesh &mesh_a,Dofmap &dofmap,
+	    TextHashTableFilter *options,const char *name) {
+    assert(absorbing_layer_elemset_p);
+  }
+  void time_step_pre(double time,int step) {
+    absorbing_layer_elemset_p->time_step_pre(step);
+  }
+  void time_step_post(double time,int step,
+		      const vector<double> &gather_values) {
+    absorbing_layer_elemset_p->time_step_post(step);
+  }
+  void stage(const char *jobinfo,int stage,
+	     double time,void *data) { }
+  void close() { }
 };
 
 #endif
