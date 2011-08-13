@@ -1,6 +1,7 @@
 //__INSERT_LICENSE__
 //$Id: graphdv.cpp,v 1.6 2004/10/22 17:33:53 mstorti Exp $
 
+#include <cstddef>
 #include <src/graphdv.h>
 #include <cassert>
 
