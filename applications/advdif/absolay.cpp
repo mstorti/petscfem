@@ -149,32 +149,26 @@ new_assemble(arg_data_list &arg_data_v,const Nodedata *nodedata,
   if (!flag) {
     flag = 1;
     Habso.resize(2,ndof,ndof);
+    C.resize(2,ndof,ndof);
+    Ay.resize(2,ndof,ndof);
     Uref.resize(1,ndof);
     dvector<double> habso_data;
     habso_data.cat(habso_file.c_str());
-    PETSCFEM_ASSERT(habso_data.size()==2*ndof*ndof+ndof,
-                    "habso_data must be 2*ndof*ndof. ndof %d, "
+    PETSCFEM_ASSERT(habso_data.size()==3*ndof*ndof+ndof,
+                    "habso_data must be 3*ndof*ndof. ndof %d, "
                     "habso_data size %d",ndof,habso_data.size());
 
-    if (use_layer>0) Habso.set(habso_data.buff());
-    else {
-      Habso.set(habso_data.buff()+ndof*ndof);
-    }
+    Habso.set(habso_data.buff());
+    C.set(habso_data.buff()+ndof*ndof);
+    Ay.set(habso_data.buff()+2*ndof*ndof);
+    Uref.set(habso_data.buff()+3*ndof*ndof);
 
-    Uref.set(habso_data.buff()+2*ndof*ndof);
     // FIXME:= this is not done if the master has not elements
-    if (!MY_RANK) {
-      Habso.print("Habso: ");
-      Uref.print("Uref:");
-    }
+    Habso.print("Habso: ");
+    C.print("C: ");
+    Ay.print("Ay: ");
+    Uref.print("Uref:");
   }
-  
-  
-#if 0
-  Habso.print("Habso: ");
-  PetscFinalize();
-  exit(0);
-#endif
   
   nen = nel*ndof;
 

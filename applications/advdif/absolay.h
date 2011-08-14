@@ -28,7 +28,7 @@ protected:
 
 private:
   int flag;
-  FastMat2 Habso,Uref;
+  FastMat2 Habso,C,Ay,Uref;
   // store this amount of time steps
   int nstep_histo;
   int nnod,ndof;
