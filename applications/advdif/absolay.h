@@ -33,7 +33,9 @@ private:
   int nstep_histo;
   int nnod,ndof;
   // U, adn W values are stored here
-  dvector<double> uhist,whist,u;
+  dvector<double> uhist,whist,u,w;
+  int Nx,Ny;
+  double hy,Dt;
 
 public:
   /// Contructor from the pointer to the fux function

@@ -71,7 +71,6 @@ new_assemble(arg_data_list &arg_data_v,const Nodedata *nodedata,
   GlobParam *glob_param=NULL;
   double alpha = 1.0;
   // The trapezoidal rule integration parameter
-#define DT (glob_param->Dt)
   arg_data *staten=NULL,*stateo=NULL,*retval=NULL,
     *fdj_jac=NULL,*jac_prof=NULL,*Ajac=NULL;
   if (comp_res) {
@@ -128,6 +127,15 @@ new_assemble(arg_data_list &arg_data_v,const Nodedata *nodedata,
     jac_prof = &arg_data_v[0];
     matloc.export_vals(jac_prof->profile);
   }
+
+  //o Number of elements in x direction
+  NSGETOPTDEF_ND(int,Nx,-1); //nd
+  //o Number of elements in y direction
+  NSGETOPTDEF_ND(int,Ny,-1); //nd
+  //o Size of elements in y direction
+  NSGETOPTDEF_ND(double,hy,NAN); //nd
+  //o Time step
+  NSGETOPTDEF_ND(double,Dt,NAN); //nd
 
   int nlog_vars;
   const int *log_vars;
@@ -288,11 +296,10 @@ void AbsorbingLayer::time_step_post(int step) {
     uhist.set(0.0);
     whist.a_resize(3,nstep_histo,nnod,ndof);
     whist.set(0.0);
+    w.a_resize(2,nnod,ndof);
   }
 
-  char file[100];
-  sprintf(file,"./fsabso2d.state.tmp",step);
-  u.read(file);
+  u.read("./fsabso2d.state.tmp");
 
   for (int j=nstep_histo-1; j>=1; j--) {
     for (int l=1; l<nnod; l++) {
@@ -303,10 +310,29 @@ void AbsorbingLayer::time_step_post(int step) {
     }
   }
 
+  PETSCFEM_ASSERT(Nx>0,"Nx is required. Nx %d",Nx);  
+  PETSCFEM_ASSERT(Ny>0,"Ny is required. Ny %d",Ny);  
+  PETSCFEM_ASSERT(!isnan(hy),"hy is required. hy %f",hy);  
+  PETSCFEM_ASSERT(hy>0.0,"hy must be positive. hy %f",hy);  
   for (int l=1; l<nnod; l++) {
+    int 
+      j = l/(Ny+1),             // x-position of node l
+      k = l%(Ny+1),             // y-position of node l
+      kN = modulo(k+1,Ny+1),       // y-position of North node
+      kS = modulo(k-1,Ny+1),       // y-position of North node
+      lN = (Ny+1)*j+kN,             // node at North of l
+      lS = (Ny+1)*j+kS;             // node at North of l
+
     for (int k=1; k<ndof; k++) {
       uhist.e(0,l,k) = u.e(l,k);
-      // whist(0,l,k) = ????
+      double 
+        dudy = (uhist.e(0,lN,k)-uhist.e(0,lS,k))/(2*hy),
+        ww = (2.0*Dt*dudy+4.0*whist.e(1,l,k)-whist.e(2,l,k))/3.0;
+      whist.e(0,l,k) = ww;
+      w.e(l,k) = ww;
     }
   }
+  char file[100];
+  sprintf(file,"./STEPS/fsabso2d.w-%d.tmp",step);
+  w.print(file);
 }
