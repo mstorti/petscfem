@@ -34,7 +34,7 @@ private:
   int nnod,ndof;
   // U, adn W values are stored here
   dvector<double> uhist,whist,u,w;
-  int Nx,Ny;
+  int Nx,Ny,nsaverotw;
   double hy,Dt;
 
 public:

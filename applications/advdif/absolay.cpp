@@ -96,6 +96,11 @@ new_assemble(arg_data_list &arg_data_v,const Nodedata *nodedata,
   //  use of caches in routines like fluxes, etc...
   NSGETOPTDEF(int,use_fastmat2_cache,1);
 
+  //o Frequency for saving states
+  NSGETOPTDEF(int,nsaverot,0);
+  NSGETOPTDEF_ND(int,nsaverotw,0);
+  nsaverotw = (nsaverotw>0 ? nsaverotw : nsaverot);
+
   //o Gravity
   NSGETOPTDEF(double,gravity,0.0);
 
@@ -314,6 +319,7 @@ void AbsorbingLayer::time_step_post(int step) {
   PETSCFEM_ASSERT(Ny>0,"Ny is required. Ny %d",Ny);  
   PETSCFEM_ASSERT(!isnan(hy),"hy is required. hy %f",hy);  
   PETSCFEM_ASSERT(hy>0.0,"hy must be positive. hy %f",hy);  
+
   for (int l=1; l<nnod; l++) {
     int 
       j = l/(Ny+1),             // x-position of node l
@@ -332,7 +338,10 @@ void AbsorbingLayer::time_step_post(int step) {
       w.e(l,k) = ww;
     }
   }
-  char file[100];
-  sprintf(file,"./STEPS/fsabso2d.w-%d.tmp",step);
-  w.print(file);
+
+  if (nsaverotw>0 && (nstep % nsaverotw == 0)) {
+    char file[100];
+    sprintf(file,"./STEPS/fsabso2d.w-%d.tmp",step);
+    w.print(file);
+  }
 }
