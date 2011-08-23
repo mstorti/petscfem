@@ -128,15 +128,6 @@ new_assemble(arg_data_list &arg_data_v,const Nodedata *nodedata,
     matloc.export_vals(jac_prof->profile);
   }
 
-  //o Number of elements in x direction
-  NSGETOPTDEF_ND(int,Nx,-1); //nd
-  //o Number of elements in y direction
-  NSGETOPTDEF_ND(int,Ny,-1); //nd
-  //o Size of elements in y direction
-  NSGETOPTDEF_ND(double,hy,NAN); //nd
-  //o Time step
-  NSGETOPTDEF_ND(double,Dt,NAN); //nd
-
   int nlog_vars;
   const int *log_vars;
   // adv_diff_ff->get_log_vars(nlog_vars,log_vars);
@@ -289,9 +280,25 @@ void AbsorbingLayer::init_hook() {
   //o Frequency for saving w states
   NSGETOPTDEF_ND(int,nsaverotw,0);
   nsaverotw = (nsaverotw>0 ? nsaverotw : nsaverot);
-  printf("[%d] nsaverotw %d\n",MY_RANK,nsaverotw);
-  PetscFinalize();
-  exit(0);
+
+  //o Number of elements in x direction
+  NSGETOPTDEF_ND(int,Nx,-1); //nd
+  PETSCFEM_ASSERT(Nx>0,"Nx is required. Nx %d",Nx);  
+
+  //o Number of elements in y direction
+  NSGETOPTDEF_ND(int,Ny,-1); //nd
+  PETSCFEM_ASSERT(Ny>0,"Ny is required. Ny %d",Ny);  
+
+  //o Size of elements in y direction
+  NSGETOPTDEF_ND(double,hy,NAN); //nd
+  PETSCFEM_ASSERT(!isnan(hy),"hy is required. hy %f",hy);  
+  PETSCFEM_ASSERT(hy>0.0,"hy must be positive. hy %f",hy);  
+
+  //o Time step
+  NSGETOPTDEF_ND(double,Dt,NAN); //nd
+  PETSCFEM_ASSERT(!isnan(Dt),"Dt is required. Dt %f",Dt);  
+  PETSCFEM_ASSERT(Dt>0.0,"Dt must be positive. Dt %f",Dt);  
+
 }
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
@@ -311,35 +318,31 @@ void AbsorbingLayer::time_step_post(int step) {
     uhist.set(0.0);
     whist.a_resize(3,nstep_histo,nnod,ndof);
     whist.set(0.0);
+    u.reshape(2,nnod,ndof);
     w.a_resize(2,nnod,ndof);
   }
 
   u.read("./fsabso2d.state.tmp");
 
   for (int j=nstep_histo-1; j>=1; j--) {
-    for (int l=1; l<nnod; l++) {
-      for (int k=1; k<ndof; k++) {
+    for (int l=0; l<nnod; l++) {
+      for (int k=0; k<ndof; k++) {
         uhist.e(j,l,k) = uhist.e(j-1,l,k);
         whist.e(j,l,k) = whist.e(j-1,l,k);
       }
     }
   }
 
-  PETSCFEM_ASSERT(Nx>0,"Nx is required. Nx %d",Nx);  
-  PETSCFEM_ASSERT(Ny>0,"Ny is required. Ny %d",Ny);  
-  PETSCFEM_ASSERT(!isnan(hy),"hy is required. hy %f",hy);  
-  PETSCFEM_ASSERT(hy>0.0,"hy must be positive. hy %f",hy);  
-
-  for (int l=1; l<nnod; l++) {
+  for (int l=0; l<nnod; l++) {
     int 
       j = l/(Ny+1),             // x-position of node l
-      k = l%(Ny+1),             // y-position of node l
-      kN = modulo(k+1,Ny+1),       // y-position of North node
-      kS = modulo(k-1,Ny+1),       // y-position of North node
+      kk = l%(Ny+1),             // y-position of node l
+      kN = modulo(kk+1,Ny+1),       // y-position of North node
+      kS = modulo(kk-1,Ny+1),       // y-position of North node
       lN = (Ny+1)*j+kN,             // node at North of l
       lS = (Ny+1)*j+kS;             // node at North of l
 
-    for (int k=1; k<ndof; k++) {
+    for (int k=0; k<ndof; k++) {
       uhist.e(0,l,k) = u.e(l,k);
       double 
         dudy = (uhist.e(0,lN,k)-uhist.e(0,lS,k))/(2*hy),
