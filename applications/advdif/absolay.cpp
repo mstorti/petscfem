@@ -96,11 +96,6 @@ new_assemble(arg_data_list &arg_data_v,const Nodedata *nodedata,
   //  use of caches in routines like fluxes, etc...
   NSGETOPTDEF(int,use_fastmat2_cache,1);
 
-  //o Frequency for saving states
-  NSGETOPTDEF(int,nsaverot,0);
-  NSGETOPTDEF_ND(int,nsaverotw,0);
-  nsaverotw = (nsaverotw>0 ? nsaverotw : nsaverot);
-
   //o Gravity
   NSGETOPTDEF(double,gravity,0.0);
 
@@ -285,6 +280,21 @@ new_assemble(arg_data_list &arg_data_v,const Nodedata *nodedata,
 }
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+void AbsorbingLayer::init_hook() { 
+  int ierr;
+
+  //o Frequency for saving states
+  NSGETOPTDEF(int,nsaverot,0);
+
+  //o Frequency for saving w states
+  NSGETOPTDEF_ND(int,nsaverotw,0);
+  nsaverotw = (nsaverotw>0 ? nsaverotw : nsaverot);
+  printf("[%d] nsaverotw %d\n",MY_RANK,nsaverotw);
+  PetscFinalize();
+  exit(0);
+}
+
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 void AbsorbingLayer::time_step_pre(int step) { }
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
@@ -339,7 +349,7 @@ void AbsorbingLayer::time_step_post(int step) {
     }
   }
 
-  if (nsaverotw>0 && (nstep % nsaverotw == 0)) {
+  if (nsaverotw>0 && (step % nsaverotw == 0)) {
     char file[100];
     sprintf(file,"./STEPS/fsabso2d.w-%d.tmp",step);
     w.print(file);

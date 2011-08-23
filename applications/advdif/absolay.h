@@ -52,6 +52,7 @@ public:
   ASK_FUNCTION;
 
   void initialize();
+  void init_hook();
   void time_step_pre(int step);
   void time_step_post(int step);
 };
@@ -64,6 +65,7 @@ public:
   void init(Mesh &mesh_a,Dofmap &dofmap,
 	    TextHashTableFilter *options,const char *name) {
     assert(absorbing_layer_elemset_p);
+    absorbing_layer_elemset_p->init_hook();
   }
   void time_step_pre(double time,int step) {
     absorbing_layer_elemset_p->time_step_pre(step);
