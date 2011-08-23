@@ -74,9 +74,6 @@ void ld_elasticity::init() {
   //o Use new formulation (swap eqs, and rewrite acceleration)
   TGETOPTDEF_ND(thash,int,use_new_form,1);
 
-  //o Use displacement only formulation
-  TGETOPTDEF_ND(GLOBAL_OPTIONS,int,use_displacement_formulation,0);
-
   G_body.resize(1,ndim).set(0.);
   const char *line;
   vector<double> G_body_v;
@@ -129,7 +126,7 @@ before_chunk(const char *jobinfo) {
                   "Received unrecognized jobinfo %s\n",jobinfo);  
 
   int ierr;
-  if (comp_mat_res) {
+  if (comp_mat_res && use_displacement_formulation) {
     res_h = get_arg_handle("res","No handle for `res'\n");
     mat_h = get_arg_handle("A","No handle for `A'\n");
     state_mh_argh = get_arg_handle("state_mh",
@@ -319,7 +316,7 @@ void ld_elasticity_load
 ::element_connector(const FastMat2 &xloc,
 		    const FastMat2 &state_old,
 		    const FastMat2 &state_new,
-		    FastMat2 &res,FastMat2 &mat){
+		    FastMat2 &res,FastMat2 &mat) {
 
   res.set(0.);
   mat.set(0.);
@@ -331,11 +328,8 @@ void ld_elasticity_load
   if (use_displacement_formulation) {
     xstar.set(xloc).axpy(state_new,defo_fac);
   } else {
-    if (use_new_form) {
-      res.is(2,1,ndim);
-    }else{
-      res.is(2,ndim+1,2*ndim);
-    }
+    if (use_new_form) res.is(2,1,ndim);
+    else res.is(2,ndim+1,2*ndim);
 
     xstar.set(xloc);
 
