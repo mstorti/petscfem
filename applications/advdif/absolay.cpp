@@ -333,6 +333,10 @@ void AbsorbingLayer::time_step_post(int step) {
     }
   }
 
+  for (int l=0; l<nnod; l++) 
+    for (int k=0; k<ndof; k++) 
+      uhist.e(0,l,k) = u.e(l,k);
+
   for (int l=0; l<nnod; l++) {
     int 
       j = l/(Ny+1),             // x-position of node l
@@ -343,7 +347,6 @@ void AbsorbingLayer::time_step_post(int step) {
       lS = (Ny+1)*j+kS;             // node at North of l
 
     for (int k=0; k<ndof; k++) {
-      uhist.e(0,l,k) = u.e(l,k);
       double 
         dudy = (uhist.e(0,lN,k)-uhist.e(0,lS,k))/(2*hy),
         ww = (2.0*Dt*dudy+4.0*whist.e(1,l,k)-whist.e(2,l,k))/3.0;
