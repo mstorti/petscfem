@@ -62,8 +62,7 @@ class abso_hook : public Hook {
 private:
 public:
   abso_hook() { }
-  void init(Mesh &mesh_a,Dofmap &dofmap,
-	    TextHashTableFilter *options,const char *name) {
+  void init(Mesh &mesh_a,Dofmap &dofmap,const char *name) {
     assert(absorbing_layer_elemset_p);
     absorbing_layer_elemset_p->init_hook();
   }
