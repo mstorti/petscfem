@@ -28,7 +28,7 @@ protected:
 
 private:
   int flag;
-  FastMat2 Habso,C,Ay,Uref;
+  FastMat2 Habso,C,Ay,Hm,Uref;
   // store this amount of time steps
   int nstep_histo;
   int nnod,ndof;
@@ -36,14 +36,12 @@ private:
   dvector<double> uhist,whist,u,w;
   int Nx,Ny,nsaverotw;
   double hy,Dt;
+  int use_addhoc_surface_abso;
 
 public:
   /// Contructor from the pointer to the fux function
   AbsorbingLayer(NewAdvDifFF *adv_diff_ff_a=NULL) :
-    adv_diff_ff(adv_diff_ff_a), flag(0) { 
-    assert(!absorbing_layer_elemset_p);
-    absorbing_layer_elemset_p = this; 
-  } 
+    adv_diff_ff(adv_diff_ff_a), flag(0) { } 
   ~AbsorbingLayer() {delete adv_diff_ff;}
   
   /// The assemble function for the elemset. 

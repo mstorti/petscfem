@@ -4,9 +4,20 @@
 
 AbsorbingLayer *absorbing_layer_elemset_p = NULL;
 
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>
 void AbsorbingLayer::initialize() {
+  int ierr;
   nstep_histo = 4;
   ndof = 3;
+
+  //o Use Habso = Hm, currently only for 0-dim
+  // absorption add-hoc for examples
+  NSGETOPTDEF_ND(int,use_addhoc_surface_abso,0); //nd
+
+  if (!use_addhoc_surface_abso) {
+    assert(!absorbing_layer_elemset_p);
+    absorbing_layer_elemset_p = this;
+  } 
 }
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:
@@ -150,17 +161,21 @@ new_assemble(arg_data_list &arg_data_v,const Nodedata *nodedata,
     Habso.resize(2,ndof,ndof);
     C.resize(2,ndof,ndof);
     Ay.resize(2,ndof,ndof);
+    Hm.resize(2,ndof,ndof);
     Uref.resize(1,ndof);
     dvector<double> habso_data;
     habso_data.cat(habso_file.c_str());
-    PETSCFEM_ASSERT(habso_data.size()==3*ndof*ndof+ndof,
+    PETSCFEM_ASSERT(habso_data.size()==4*ndof*ndof+ndof,
                     "habso_data must be 3*ndof*ndof. ndof %d, "
                     "habso_data size %d",ndof,habso_data.size());
 
     Habso.set(habso_data.buff());
     C.set(habso_data.buff()+ndof*ndof);
     Ay.set(habso_data.buff()+2*ndof*ndof);
-    Uref.set(habso_data.buff()+3*ndof*ndof);
+    Hm.set(habso_data.buff()+4*ndof*ndof);
+    Uref.set(habso_data.buff()+4*ndof*ndof);
+
+    if (use_addhoc_surface_abso) Habso.set(Hm);
 
     // FIXME:= this is not done if the master has not elements
     Habso.print("Habso: ");
@@ -267,7 +282,6 @@ new_assemble(arg_data_list &arg_data_v,const Nodedata *nodedata,
   FastMat2::deactivate_cache();
 } catch (GenericError e) {
   set_error(1);
-
 }
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
