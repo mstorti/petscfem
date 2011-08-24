@@ -11,11 +11,22 @@ void AbsorbingLayer::initialize() {
   ndof = 3;
 
   //o Use Habso = Hm, currently only for 0-dim
-  // absorption add-hoc for examples
+  //  absorption add-hoc for examples. The absorbing matrix at
+  //  the surface is computed with an add-hoc formula
+  //  that is perfectly absorbing only for a given incident direction. 
+  //  It's of little use in the general case, it's used here 
+  //  only for validating the general absorbing layer. 
   NSGETOPTDEF_ND(int,use_addhoc_surface_abso,0); //nd
 
+  //o Characteristic time for relaxing the relation 
+  //  between W and U (in secs)
+  NSGETOPTDEF_ND(double,taurelax,NAN);
+  PETSCFEM_ASSERT0(!isnan(taurelax),"taurelax is required");  
+  printf("[%d] TRACE 0 - taurelax %f\n",MY_RANK,taurelax);
+  
   if (!use_addhoc_surface_abso) {
-    assert(!absorbing_layer_elemset_p);
+    PETSCFEM_ASSERT0(!absorbing_layer_elemset_p
+                     ,"Only one absorbing layer elemset allowed");  
     absorbing_layer_elemset_p = this;
   } 
 }
@@ -119,7 +130,7 @@ new_assemble(arg_data_list &arg_data_v,const Nodedata *nodedata,
   NSGETOPTDEF(double,Kabso,1.0);
   PETSCFEM_ASSERT0(Kabso>=0.0,
                    "Kabso must be non-negatvive");  
-  
+
   // The case `ndimel=0' is a special case for concentrated
   // absorbing boundary condition, NOT distributed. 
   NSGETOPTDEF(int,ndimel,-1); //nd
@@ -172,7 +183,7 @@ new_assemble(arg_data_list &arg_data_v,const Nodedata *nodedata,
     Habso.set(habso_data.buff());
     C.set(habso_data.buff()+ndof*ndof);
     Ay.set(habso_data.buff()+2*ndof*ndof);
-    Hm.set(habso_data.buff()+4*ndof*ndof);
+    Hm.set(habso_data.buff()+3*ndof*ndof);
     Uref.set(habso_data.buff()+4*ndof*ndof);
 
     if (use_addhoc_surface_abso) Habso.set(Hm);
@@ -181,6 +192,7 @@ new_assemble(arg_data_list &arg_data_v,const Nodedata *nodedata,
     Habso.print("Habso: ");
     C.print("C: ");
     Ay.print("Ay: ");
+    Hm.print("Habso: ");
     Uref.print("Uref:");
   }
   
@@ -351,25 +363,37 @@ void AbsorbingLayer::time_step_post(int step) {
     for (int k=0; k<ndof; k++) 
       uhist.e(0,l,k) = u.e(l,k);
 
+  double kfac = 1.0/(1.0+2.0*Dt/taurelax/3.0);
+  printf("[%d] TRACE 1 - taurelax %f\n",MY_RANK,taurelax);
+  PETSCFEM_ASSERT0(!isnan(taurelax),"taurelax is required");  
+
+  printf("kfac %f\n",kfac);
   for (int l=0; l<nnod; l++) {
     int 
       j = l/(Ny+1),             // x-position of node l
-      kk = l%(Ny+1),             // y-position of node l
-      kN = modulo(kk+1,Ny+1),       // y-position of North node
-      kS = modulo(kk-1,Ny+1),       // y-position of North node
-      lN = (Ny+1)*j+kN,             // node at North of l
-      lS = (Ny+1)*j+kS;             // node at North of l
+      kk = l%(Ny+1),            // y-position of node l
+      kN,                       // y-position of North node
+      kS,                       // y-position of North node
+      lN,                       // node at North of l
+      lS;                       // node at North of l
+
+    kN = kk+1;
+    if (kN>=Ny+1) kN -= Ny;
+    kS = kk-1;
+    if (kS<0) kS += Ny;
+    lN = (Ny+1)*j+kN;             // node at North of l
+    lS = (Ny+1)*j+kS;             // node at North of l
 
     for (int k=0; k<ndof; k++) {
       double 
         dudy = (uhist.e(0,lN,k)-uhist.e(0,lS,k))/(2*hy),
-        ww = (2.0*Dt*dudy+4.0*whist.e(1,l,k)-whist.e(2,l,k))/3.0;
+        ww = kfac*(2.0*Dt*dudy+4.0*whist.e(1,l,k)-whist.e(2,l,k))/3.0;
       whist.e(0,l,k) = ww;
       w.e(l,k) = ww;
     }
   }
 
-  if (nsaverotw>0 && (step % nsaverotw == 0)) {
+  if (!MY_RANK && nsaverotw>0 && (step % nsaverotw == 0)) {
     char file[100];
     sprintf(file,"./STEPS/fsabso2d.w-%d.tmp",step);
     w.print(file);

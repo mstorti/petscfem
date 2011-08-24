@@ -37,11 +37,12 @@ private:
   int Nx,Ny,nsaverotw;
   double hy,Dt;
   int use_addhoc_surface_abso;
+  double taurelax;
 
 public:
   /// Contructor from the pointer to the fux function
   AbsorbingLayer(NewAdvDifFF *adv_diff_ff_a=NULL) :
-    adv_diff_ff(adv_diff_ff_a), flag(0) { } 
+    adv_diff_ff(adv_diff_ff_a), flag(0), taurelax(NAN) { } 
   ~AbsorbingLayer() {delete adv_diff_ff;}
   
   /// The assemble function for the elemset. 
