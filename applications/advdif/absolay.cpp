@@ -22,7 +22,6 @@ void AbsorbingLayer::initialize() {
   //  between W and U (in secs)
   NSGETOPTDEF_ND(double,taurelax,NAN);
   PETSCFEM_ASSERT0(!isnan(taurelax),"taurelax is required");  
-  printf("[%d] TRACE 0 - taurelax %f\n",MY_RANK,taurelax);
   
   if (!use_addhoc_surface_abso) {
     PETSCFEM_ASSERT0(!absorbing_layer_elemset_p
@@ -364,10 +363,7 @@ void AbsorbingLayer::time_step_post(int step) {
       uhist.e(0,l,k) = u.e(l,k);
 
   double kfac = 1.0/(1.0+2.0*Dt/taurelax/3.0);
-  printf("[%d] TRACE 1 - taurelax %f\n",MY_RANK,taurelax);
-  PETSCFEM_ASSERT0(!isnan(taurelax),"taurelax is required");  
 
-  printf("kfac %f\n",kfac);
   for (int l=0; l<nnod; l++) {
     int 
       j = l/(Ny+1),             // x-position of node l
@@ -381,8 +377,8 @@ void AbsorbingLayer::time_step_post(int step) {
     if (kN>=Ny+1) kN -= Ny;
     kS = kk-1;
     if (kS<0) kS += Ny;
-    lN = (Ny+1)*j+kN;             // node at North of l
-    lS = (Ny+1)*j+kS;             // node at North of l
+    lN = (Ny+1)*j+kN;           // node at North of l
+    lS = (Ny+1)*j+kS;           // node at North of l
 
     for (int k=0; k<ndof; k++) {
       double 
