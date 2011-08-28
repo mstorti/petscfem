@@ -10,6 +10,16 @@ void AbsorbingLayer::initialize() {
   nstep_histo = 4;
   ndof = 3;
 
+  NSGETOPTDEF_ND(int,ndim,0); //nd
+  assert(ndim>0);
+
+  // The case `ndimel=0' is a special case for concentrated
+  // absorbing boundary condition, NOT distributed. 
+  NSGETOPTDEF_ND(int,ndimel,-1); //nd
+  if (ndimel<0) ndimel = ndim;
+
+  NSGETOPTDEF(int,use_layer,0); //nd
+
   elem_params(nel,ndof,nelprops);
   nen = nel*ndof;
 
@@ -51,7 +61,12 @@ void AbsorbingLayer::initialize() {
   C.set(habso_data.buff()+ndof*ndof);
   Ay.set(habso_data.buff()+2*ndof*ndof);
   Hm.set(habso_data.buff()+3*ndof*ndof);
+  H0.set(habso_data.buff()+3*ndof*ndof);
+  H1.set(habso_data.buff()+3*ndof*ndof);
   Uref.set(habso_data.buff()+4*ndof*ndof);
+
+  H0.set(C);
+  H1.set(Ay);
 
   if (use_addhoc_surface_abso) Habso.set(Hm);
 
@@ -66,6 +81,34 @@ void AbsorbingLayer::initialize() {
                      ,"Only one absorbing layer elemset allowed");  
     absorbing_layer_elemset_p = this;
   } 
+
+  //o Frequency for saving states
+  NSGETOPTDEF(int,nsaverot,0);
+
+  //o Frequency for saving w states
+  NSGETOPTDEF_ND(int,nsaverotw,0);
+  nsaverotw = (nsaverotw>0 ? nsaverotw : nsaverot);
+
+  //o Number of elements in x direction
+  NSGETOPTDEF_ND(int,Nx,-1); //nd
+  PETSCFEM_ASSERT(Nx>0,"Nx is required. Nx %d",Nx);  
+
+  //o Number of elements in y direction
+  NSGETOPTDEF_ND(int,Ny,-1); //nd
+  PETSCFEM_ASSERT(Ny>0,"Ny is required. Ny %d",Ny);  
+
+  //o Size of elements in y direction
+  NSGETOPTDEF_ND(double,hy,NAN); //nd
+  PETSCFEM_ASSERT(!isnan(hy),"hy is required. hy %f",hy);  
+  PETSCFEM_ASSERT(hy>0.0,"hy must be positive. hy %f",hy);  
+
+  //o Time step
+  NSGETOPTDEF_ND(double,Dt,NAN); //nd
+  PETSCFEM_ASSERT(!isnan(Dt),"Dt is required. Dt %f",Dt);  
+  PETSCFEM_ASSERT(Dt>0.0,"Dt must be positive. Dt %f",Dt);  
+
+  kfac = 1.0/(1.0+2.0*Dt/taurelax/3.0);
+  cfac = 2.0*Dt/(3.0*hy)*kfac;
 }
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:
@@ -78,8 +121,22 @@ int AbsorbingLayer::ask(const char *jobinfo,int &skip_elemset) {
    return 0;
 }
 
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>
 double rnd(double) {
   return 2.0*drand()-1.0;
+}
+
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>
+void AbsorbingLayer::node2jk(int node,int &j,int &k) {
+  j = node/(Ny+1);
+  k = node%(Ny+1);
+}
+
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>
+int AbsorbingLayer::jk2node(int j,int k) {
+  int kk = k;
+  if (kk<0 || kk>=Ny+1) kk = modulo(kk,Ny+1);
+  return (Ny+1)*j+kk;
 }
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:
@@ -95,9 +152,6 @@ new_assemble(arg_data_list &arg_data_v,const Nodedata *nodedata,
   int ierr=0;
 
   int locdof,kldof,lldof;
-
-  NSGETOPTDEF(int,ndim,0); //nd
-  assert(ndim>0);
 
   // Unpack Dofmap
   int neq,nnod;
@@ -154,13 +208,7 @@ new_assemble(arg_data_list &arg_data_v,const Nodedata *nodedata,
   //o Gravity
   NSGETOPTDEF(double,gravity,0.0);
 
-  // The case `ndimel=0' is a special case for concentrated
-  // absorbing boundary condition, NOT distributed. 
-  NSGETOPTDEF(int,ndimel,-1); //nd
-  if (ndimel<0) ndimel = ndim;
-
-  NSGETOPTDEF(int,use_layer,0); //nd
-  // It seems that when using penalizatin you can't 
+  // It seems that when using penalization we must 
   // use alpha<1.0
   if (!use_layer) {
     alpha = 1.0;
@@ -188,11 +236,8 @@ new_assemble(arg_data_list &arg_data_v,const Nodedata *nodedata,
   FastMat2 Un(1,ndof),Uo(1,ndof),Ualpha(1,ndof),
     Jaco(2,ndimel,ndim),iJaco(2,ndimel,ndimel),
     dU(1,ndof),dshapex(2,ndimel,nel), normal(1,ndim),tmp1,tmp2,
-    shape(1,nel);
+    shape(1,nel),tmp3,dUy(1,ndof),Wbar(1,ndof);
 
-  if (!flag) {
-  }
-  
   nen = nel*ndof;
 
   //o Type of element geometry to define Gauss Point data
@@ -217,12 +262,15 @@ new_assemble(arg_data_list &arg_data_v,const Nodedata *nodedata,
 
   FastMatCacheList cache_list;
   if (use_fastmat2_cache) FastMat2::activate_cache(&cache_list);
+  vector<int> icone(nel);
 
   for (ElementIterator element = elemlist.begin();
        element!=elemlist.end(); element++) try {
 
     element.position(k_elem,k_chunk);
     FastMat2::reset_cache();
+
+    element_connect(element,&icone[0]);
 
     // Initialize element
     // adv_diff_ff->element_hook(element);
@@ -272,11 +320,25 @@ new_assemble(arg_data_list &arg_data_v,const Nodedata *nodedata,
       Un.prod(shape,lstate,-1,-1,1);
       Uo.prod(shape,lstateo,-1,-1,1);
       Ualpha.set(0.).axpy(Uo,1-alpha).axpy(Un,alpha);
-      tmp1.prod(Habso,shape,shape,2,4,1,3);
-      matloc.axpy(tmp1,alpha*Kabso*wpgdet);
-      dU.set(Ualpha).minus(Uref);
-      tmp2.prod(shape,Habso,dU,1,2,-1,-1);
-      veccontr.axpy(tmp2,-Kabso*wpgdet);
+
+      if (nel==1) {
+        tmp1.prod(Habso,shape,shape,2,4,1,3);
+        matloc.axpy(tmp1,alpha*Kabso*wpgdet);
+        dU.set(Ualpha).minus(Uref);
+        tmp2.prod(shape,Habso,dU,1,2,-1,-1);
+        veccontr.axpy(tmp2,-Kabso*wpgdet);
+      } else if (nel==3) {
+        veccontr.set(0.0);
+        matloc.set(0.0);
+        dU.is(1,2);
+        veccontr.is(1,2).prod(H0,dU,1,-1,-1);
+        dU.rs().is(1,3);
+        dUy.set(dU);
+        dU.rs().is(1,1);
+        dUy.minus(dU).scale(cfac).add(Wbar);
+        tmp3.prod(H1,dUy,1,-1,-1);
+        veccontr.add(tmp3).rs();
+      }
     }
     
     veccontr.export_vals(element.ret_vector_values(*retval));
@@ -294,35 +356,7 @@ new_assemble(arg_data_list &arg_data_v,const Nodedata *nodedata,
 }
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
-void AbsorbingLayer::init_hook() { 
-  int ierr;
-
-  //o Frequency for saving states
-  NSGETOPTDEF(int,nsaverot,0);
-
-  //o Frequency for saving w states
-  NSGETOPTDEF_ND(int,nsaverotw,0);
-  nsaverotw = (nsaverotw>0 ? nsaverotw : nsaverot);
-
-  //o Number of elements in x direction
-  NSGETOPTDEF_ND(int,Nx,-1); //nd
-  PETSCFEM_ASSERT(Nx>0,"Nx is required. Nx %d",Nx);  
-
-  //o Number of elements in y direction
-  NSGETOPTDEF_ND(int,Ny,-1); //nd
-  PETSCFEM_ASSERT(Ny>0,"Ny is required. Ny %d",Ny);  
-
-  //o Size of elements in y direction
-  NSGETOPTDEF_ND(double,hy,NAN); //nd
-  PETSCFEM_ASSERT(!isnan(hy),"hy is required. hy %f",hy);  
-  PETSCFEM_ASSERT(hy>0.0,"hy must be positive. hy %f",hy);  
-
-  //o Time step
-  NSGETOPTDEF_ND(double,Dt,NAN); //nd
-  PETSCFEM_ASSERT(!isnan(Dt),"Dt is required. Dt %f",Dt);  
-  PETSCFEM_ASSERT(Dt>0.0,"Dt must be positive. Dt %f",Dt);  
-
-}
+void AbsorbingLayer::init_hook() { }
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 void AbsorbingLayer::time_step_pre(int step) { }
@@ -360,23 +394,27 @@ void AbsorbingLayer::time_step_post(int step) {
     for (int k=0; k<ndof; k++) 
       uhist.e(0,l,k) = u.e(l,k);
 
-  double kfac = 1.0/(1.0+2.0*Dt/taurelax/3.0);
-
   for (int l=0; l<nnod; l++) {
-    int 
-      j = l/(Ny+1),             // x-position of node l
-      kk = l%(Ny+1),            // y-position of node l
-      kN,                       // y-position of North node
-      kS,                       // y-position of North node
-      lN,                       // node at North of l
-      lS;                       // node at North of l
+    // int 
+    // j = l/(Ny+1),             // x-position of node l
+    // kk = l%(Ny+1),            // y-position of node l
+    // kN,                       // y-position of North node
+    // kS,                       // y-position of North node
+    // lN,                       // node at North of l
+    // lS;                       // node at North of l
+    // kN = kk+1;
+    // if (kN>=Ny+1) kN -= Ny;
+    // kS = kk-1;
+    // if (kS<0) kS += Ny;
+    // lN = (Ny+1)*j+kN;           // node at North of l
+    // lS = (Ny+1)*j+kS;           // node at North of l
 
-    kN = kk+1;
-    if (kN>=Ny+1) kN -= Ny;
-    kS = kk-1;
-    if (kS<0) kS += Ny;
-    lN = (Ny+1)*j+kN;           // node at North of l
-    lS = (Ny+1)*j+kS;           // node at North of l
+    int j,k,lN,lS;
+    node2jk(l,j,k);
+    lN = jk2node(j,k+1);
+    lS = jk2node(j,k-1);
+    assert(lN==icone[2]-1);
+    assert(lS==icone[0]-1);
 
     for (int k=0; k<ndof; k++) {
       double 

@@ -28,7 +28,7 @@ protected:
 
 private:
   int flag;
-  FastMat2 Habso,C,Ay,Hm,Uref;
+  FastMat2 Habso,C,Ay,Hm,Uref,H0,H1;
   // store this amount of time steps
   int nstep_histo;
   int nnod,ndof;
@@ -36,9 +36,9 @@ private:
   dvector<double> uhist,whist,u,w;
   int Nx,Ny,nsaverotw;
   double hy,Dt;
-  int use_addhoc_surface_abso;
-  double taurelax,Kabso;
-  int nelprops,nel,nen;
+  int use_addhoc_surface_abso,use_layer;
+  double taurelax,Kabso,kfac,cfac;
+  int ndim,ndimel,nelprops,nel,nen;
 
 public:
   /// Contructor from the pointer to the fux function
@@ -55,6 +55,8 @@ public:
   void init_hook();
   void time_step_pre(int step);
   void time_step_post(int step);
+  void node2jk(int node,int &j,int &k);
+  int jk2node(int j,int k);
 };
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
