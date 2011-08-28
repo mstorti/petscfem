@@ -37,7 +37,8 @@ private:
   int Nx,Ny,nsaverotw;
   double hy,Dt;
   int use_addhoc_surface_abso;
-  double taurelax;
+  double taurelax,Kabso;
+  int nelprops,nel,nen;
 
 public:
   /// Contructor from the pointer to the fux function

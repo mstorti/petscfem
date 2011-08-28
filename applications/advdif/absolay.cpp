@@ -10,6 +10,19 @@ void AbsorbingLayer::initialize() {
   nstep_histo = 4;
   ndof = 3;
 
+  elem_params(nel,ndof,nelprops);
+  nen = nel*ndof;
+
+  //o Contains the Habso matrix: Hp (ndof x ndof),
+  //  Hm (ndof x ndof),Uref (ndof)
+  NGETOPTDEF_S(string,habso_file,"<none>");
+  PETSCFEM_ASSERT0(habso_file!="<none>","habso_mat is required");  
+
+  //o Scales volume damping term
+  NSGETOPTDEF(double,Kabso,1.0);
+  PETSCFEM_ASSERT0(Kabso>=0.0,
+                   "Kabso must be non-negatvive");  
+
   //o Use Habso = Hm, currently only for 0-dim
   //  absorption add-hoc for examples. The absorbing matrix at
   //  the surface is computed with an add-hoc formula
@@ -23,6 +36,31 @@ void AbsorbingLayer::initialize() {
   NSGETOPTDEF_ND(double,taurelax,NAN);
   PETSCFEM_ASSERT0(!isnan(taurelax),"taurelax is required");  
   
+  Habso.resize(2,ndof,ndof);
+  C.resize(2,ndof,ndof);
+  Ay.resize(2,ndof,ndof);
+  Hm.resize(2,ndof,ndof);
+  Uref.resize(1,ndof);
+  dvector<double> habso_data;
+  habso_data.cat(habso_file.c_str());
+  PETSCFEM_ASSERT(habso_data.size()==4*ndof*ndof+ndof,
+                  "habso_data must be 3*ndof*ndof. ndof %d, "
+                  "habso_data size %d",ndof,habso_data.size());
+
+  Habso.set(habso_data.buff());
+  C.set(habso_data.buff()+ndof*ndof);
+  Ay.set(habso_data.buff()+2*ndof*ndof);
+  Hm.set(habso_data.buff()+3*ndof*ndof);
+  Uref.set(habso_data.buff()+4*ndof*ndof);
+
+  if (use_addhoc_surface_abso) Habso.set(Hm);
+
+  Habso.print("Habso: ");
+  C.print("C: ");
+  Ay.print("Ay: ");
+  Hm.print("Habso: ");
+  Uref.print("Uref:");
+
   if (!use_addhoc_surface_abso) {
     PETSCFEM_ASSERT0(!absorbing_layer_elemset_p
                      ,"Only one absorbing layer elemset allowed");  
@@ -60,10 +98,6 @@ new_assemble(arg_data_list &arg_data_v,const Nodedata *nodedata,
 
   NSGETOPTDEF(int,ndim,0); //nd
   assert(ndim>0);
-
-  int nelprops,nel,ndof;
-  elem_params(nel,ndof,nelprops);
-  int nen = nel*ndof;
 
   // Unpack Dofmap
   int neq,nnod;
@@ -120,16 +154,6 @@ new_assemble(arg_data_list &arg_data_v,const Nodedata *nodedata,
   //o Gravity
   NSGETOPTDEF(double,gravity,0.0);
 
-  //o Contains the Habso matrix: Hp (ndof x ndof),
-  //  Hm (ndof x ndof),Uref (ndof)
-  NGETOPTDEF_S(string,habso_file,"<none>");
-  PETSCFEM_ASSERT0(habso_file!="<none>","habso_mat is required");  
-
-  //o Scales volume damping term
-  NSGETOPTDEF(double,Kabso,1.0);
-  PETSCFEM_ASSERT0(Kabso>=0.0,
-                   "Kabso must be non-negatvive");  
-
   // The case `ndimel=0' is a special case for concentrated
   // absorbing boundary condition, NOT distributed. 
   NSGETOPTDEF(int,ndimel,-1); //nd
@@ -167,32 +191,6 @@ new_assemble(arg_data_list &arg_data_v,const Nodedata *nodedata,
     shape(1,nel);
 
   if (!flag) {
-    flag = 1;
-    Habso.resize(2,ndof,ndof);
-    C.resize(2,ndof,ndof);
-    Ay.resize(2,ndof,ndof);
-    Hm.resize(2,ndof,ndof);
-    Uref.resize(1,ndof);
-    dvector<double> habso_data;
-    habso_data.cat(habso_file.c_str());
-    PETSCFEM_ASSERT(habso_data.size()==4*ndof*ndof+ndof,
-                    "habso_data must be 3*ndof*ndof. ndof %d, "
-                    "habso_data size %d",ndof,habso_data.size());
-
-    Habso.set(habso_data.buff());
-    C.set(habso_data.buff()+ndof*ndof);
-    Ay.set(habso_data.buff()+2*ndof*ndof);
-    Hm.set(habso_data.buff()+3*ndof*ndof);
-    Uref.set(habso_data.buff()+4*ndof*ndof);
-
-    if (use_addhoc_surface_abso) Habso.set(Hm);
-
-    // FIXME:= this is not done if the master has not elements
-    Habso.print("Habso: ");
-    C.print("C: ");
-    Ay.print("Ay: ");
-    Hm.print("Habso: ");
-    Uref.print("Uref:");
   }
   
   nen = nel*ndof;
