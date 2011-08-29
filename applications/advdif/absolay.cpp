@@ -236,7 +236,7 @@ new_assemble(arg_data_list &arg_data_v,const Nodedata *nodedata,
   FastMat2 Un(1,ndof),Uo(1,ndof),Ualpha(1,ndof),
     Jaco(2,ndimel,ndim),iJaco(2,ndimel,ndimel),
     dU(1,ndof),dshapex(2,ndimel,nel), normal(1,ndim),tmp1,tmp2,
-    shape(1,nel),tmp3,dUy(1,ndof),Wbar(1,ndof);
+    shape(1,nel),tmp3,dUy(1,ndof),Wbar(1,ndof),W1(1,ndof),W2(2,ndof);
 
   nen = nel*ndof;
 
@@ -326,13 +326,13 @@ new_assemble(arg_data_list &arg_data_v,const Nodedata *nodedata,
         veccontr.axpy(tmp2,-Kabso*wpgdet);
       } else if (nel==3) {
         element_connect(element,&locnodes[0]);
-        int node,j,k,lN,lS;
-        node = locnodes[1];
-        node2jk(node-1,j,k);
-        lN = jk2node(j,k+1);
-        lS = jk2node(j,k-1);
-        assert(lN==locnodes[2]-1);
-        assert(lS==locnodes[0]-1);
+        int node = locnodes[1];
+        // int j,k,lN,lS;
+        // node2jk(node-1,j,k);
+        // lN = jk2node(j,k+1);
+        // lS = jk2node(j,k-1);
+        // assert(lN==locnodes[2]-1);
+        // assert(lS==locnodes[0]-1);
         veccontr.set(0.0);
         matloc.set(0.0);
         lstate.ir(1,2);
@@ -341,6 +341,9 @@ new_assemble(arg_data_list &arg_data_v,const Nodedata *nodedata,
         lstate.ir(1,3);
         dUy.set(lstate);
         lstate.ir(1,1);
+        W1.set(whist.e(0,node-1,0));
+        W2.set(whist.e(1,node-1,0));
+        Wbar.set(0.0).axpy(W1,4.0).axpy(W2,-1.0);
         dUy.minus(lstate).scale(cfac).add(Wbar);
         lstate.rs();
         tmp3.prod(H1,dUy,1,-1,-1);
