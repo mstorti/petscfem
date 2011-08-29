@@ -346,6 +346,8 @@ new_assemble(arg_data_list &arg_data_v,const Nodedata *nodedata,
         tmp3.prod(H1,dUy,1,-1,-1);
         veccontr.add(tmp3).rs();
         lstate.rs();
+        veccontr.set(0.0);
+        matloc.set(0.0);
       }
     }
     
