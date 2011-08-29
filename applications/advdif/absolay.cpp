@@ -11,7 +11,7 @@ void AbsorbingLayer::initialize() {
   ndof = 3;
 
   NSGETOPTDEF_ND(int,ndim,0); //nd
-  assert(ndim>0);
+  PETSCFEM_ASSERT0(ndim>0,"ndim is required");  
 
   // The case `ndimel=0' is a special case for concentrated
   // absorbing boundary condition, NOT distributed. 
@@ -89,18 +89,20 @@ void AbsorbingLayer::initialize() {
   NSGETOPTDEF_ND(int,nsaverotw,0);
   nsaverotw = (nsaverotw>0 ? nsaverotw : nsaverot);
 
-  //o Number of elements in x direction
-  NSGETOPTDEF_ND(int,Nx,-1); //nd
-  PETSCFEM_ASSERT(Nx>0,"Nx is required. Nx %d",Nx);  
-
-  //o Number of elements in y direction
-  NSGETOPTDEF_ND(int,Ny,-1); //nd
-  PETSCFEM_ASSERT(Ny>0,"Ny is required. Ny %d",Ny);  
-
-  //o Size of elements in y direction
-  NSGETOPTDEF_ND(double,hy,NAN); //nd
-  PETSCFEM_ASSERT(!isnan(hy),"hy is required. hy %f",hy);  
-  PETSCFEM_ASSERT(hy>0.0,"hy must be positive. hy %f",hy);  
+  if (use_layer) {
+    //o Number of elements in x direction
+    NSGETOPTDEF_ND(int,Nx,-1); //nd
+    PETSCFEM_ASSERT(Nx>0,"Nx is required. Nx %d",Nx);  
+    
+    //o Number of elements in y direction
+    NSGETOPTDEF_ND(int,Ny,-1); //nd
+    PETSCFEM_ASSERT(Ny>0,"Ny is required. Ny %d",Ny);  
+    
+    //o Size of elements in y direction
+    NSGETOPTDEF_ND(double,hy,NAN); //nd
+    PETSCFEM_ASSERT(!isnan(hy),"hy is required. hy %f",hy);  
+    PETSCFEM_ASSERT(hy>0.0,"hy must be positive. hy %f",hy);  
+  }
 
   //o Time step
   NSGETOPTDEF_ND(double,Dt,NAN); //nd
@@ -210,10 +212,8 @@ new_assemble(arg_data_list &arg_data_v,const Nodedata *nodedata,
 
   // It seems that when using penalization we must 
   // use alpha<1.0
-  if (!use_layer) {
-    alpha = 1.0;
-    ndimel = 0;
-  }
+  alpha = 1.0;
+  if (!use_layer) ndimel = 0;
 
   matloc.set(1.0);
   if (comp_prof) {
@@ -244,7 +244,7 @@ new_assemble(arg_data_list &arg_data_v,const Nodedata *nodedata,
   NGETOPTDEF_S(string,geometry,cartesian2d);
   GPdata gp_data;
   int npg=1;
-  if (use_layer>0) {
+  if (0 && use_layer>0) {
     NSGETOPTDEF_ND(int,npg,0); //nd
     assert(npg>0);
     gp_data.init(geometry.c_str(),ndimel,nel,npg,GP_FASTMAT2);
@@ -262,15 +262,13 @@ new_assemble(arg_data_list &arg_data_v,const Nodedata *nodedata,
 
   FastMatCacheList cache_list;
   if (use_fastmat2_cache) FastMat2::activate_cache(&cache_list);
-  vector<int> icone(nel);
+  vector<int> locnodes(nel);
 
   for (ElementIterator element = elemlist.begin();
        element!=elemlist.end(); element++) try {
 
     element.position(k_elem,k_chunk);
     FastMat2::reset_cache();
-
-    element_connect(element,&icone[0]);
 
     // Initialize element
     // adv_diff_ff->element_hook(element);
@@ -296,7 +294,7 @@ new_assemble(arg_data_list &arg_data_v,const Nodedata *nodedata,
 
     for (ipg=0; ipg<npg; ipg++) {
       
-      if (use_layer>0) {
+      if (0 && use_layer>0) {
         //      Matrix xpg = SHAPE * xloc;
         Jaco.prod(DSHAPEXI,xloc,1,-1,-1,2);
         
@@ -317,27 +315,37 @@ new_assemble(arg_data_list &arg_data_v,const Nodedata *nodedata,
         wpgdet = 1.0;
       }
 
-      Un.prod(shape,lstate,-1,-1,1);
-      Uo.prod(shape,lstateo,-1,-1,1);
-      Ualpha.set(0.).axpy(Uo,1-alpha).axpy(Un,alpha);
-
       if (nel==1) {
+        Un.prod(shape,lstaten,-1,-1,1);
+        Uo.prod(shape,lstateo,-1,-1,1);
+        Ualpha.set(0.).axpy(Uo,1-alpha).axpy(Un,alpha);
         tmp1.prod(Habso,shape,shape,2,4,1,3);
         matloc.axpy(tmp1,alpha*Kabso*wpgdet);
         dU.set(Ualpha).minus(Uref);
         tmp2.prod(shape,Habso,dU,1,2,-1,-1);
         veccontr.axpy(tmp2,-Kabso*wpgdet);
       } else if (nel==3) {
+        element_connect(element,&locnodes[0]);
+        int node,j,k,lN,lS;
+        node = locnodes[1];
+        node2jk(node-1,j,k);
+        lN = jk2node(j,k+1);
+        lS = jk2node(j,k-1);
+        assert(lN==locnodes[2]-1);
+        assert(lS==locnodes[0]-1);
         veccontr.set(0.0);
         matloc.set(0.0);
-        dU.is(1,2);
-        veccontr.is(1,2).prod(H0,dU,1,-1,-1);
-        dU.rs().is(1,3);
-        dUy.set(dU);
-        dU.rs().is(1,1);
-        dUy.minus(dU).scale(cfac).add(Wbar);
+        lstate.ir(1,2);
+        dU.set(lstate).minus(Uref);
+        veccontr.ir(1,2).prod(H0,dU,1,-1,-1);
+        lstate.ir(1,3);
+        dUy.set(lstate);
+        lstate.ir(1,1);
+        dUy.minus(lstate).scale(cfac).add(Wbar);
+        lstate.rs();
         tmp3.prod(H1,dUy,1,-1,-1);
         veccontr.add(tmp3).rs();
+        lstate.rs();
       }
     }
     
@@ -368,7 +376,7 @@ void AbsorbingLayer::time_step_post(int step) {
     PETSCFEM_ASSERT0(uhist.size()==0,"uhist should be empty here");  
     PETSCFEM_ASSERT0(whist.size()==0,"whist should be empty here");  
     u.cat("./fsabso2d.state.tmp");
-    assert(u.size()%ndof==0);
+    PETSCFEM_ASSERT0(u.size()%ndof==0,"incorrect u size");  
     nnod = u.size()/ndof;
     if (!MY_RANK) printf("abso_hook: detected nnod %d\n",nnod);
     uhist.a_resize(3,nstep_histo,nnod,ndof);
@@ -413,8 +421,6 @@ void AbsorbingLayer::time_step_post(int step) {
     node2jk(l,j,k);
     lN = jk2node(j,k+1);
     lS = jk2node(j,k-1);
-    assert(lN==icone[2]-1);
-    assert(lS==icone[0]-1);
 
     for (int k=0; k<ndof; k++) {
       double 
