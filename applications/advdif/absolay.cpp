@@ -8,7 +8,6 @@ AbsorbingLayer *absorbing_layer_elemset_p = NULL;
 void AbsorbingLayer::initialize() {
   int ierr;
   nstep_histo = 4;
-  ndof = 3;
 
   NSGETOPTDEF_ND(int,ndim,0); //nd
   PETSCFEM_ASSERT0(ndim>0,"ndim is required");  
@@ -22,6 +21,13 @@ void AbsorbingLayer::initialize() {
 
   elem_params(nel,ndof,nelprops);
   nen = nel*ndof;
+
+  uhist.a_resize(3,nstep_histo,nnod,ndof);
+  uhist.set(0.0);
+  whist.a_resize(3,nstep_histo,nnod,ndof);
+  whist.set(0.0);
+  u.a_resize(2,nnod,ndof);
+  w.a_resize(2,nnod,ndof);
 
   //o Contains the Habso matrix: Hp (ndof x ndof),
   //  Hm (ndof x ndof),Uref (ndof)
@@ -110,7 +116,6 @@ void AbsorbingLayer::initialize() {
   PETSCFEM_ASSERT(Dt>0.0,"Dt must be positive. Dt %f",Dt);  
 
   kfac = 1.0/(1.0+2.0*Dt/taurelax/3.0);
-  cfac = 2.0*Dt/(3.0*hy)*kfac;
 }
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:
@@ -236,7 +241,7 @@ new_assemble(arg_data_list &arg_data_v,const Nodedata *nodedata,
   FastMat2 Un(1,ndof),Uo(1,ndof),Ualpha(1,ndof),
     Jaco(2,ndimel,ndim),iJaco(2,ndimel,ndimel),
     dU(1,ndof),dshapex(2,ndimel,nel), normal(1,ndim),tmp1,tmp2,
-    shape(1,nel),tmp3,dUy(1,ndof),Wbar(1,ndof),W1(1,ndof),W2(2,ndof);
+    shape(1,nel),tmp3,W(1,ndof),Wbar(1,ndof),W1(1,ndof),W2(2,ndof);
 
   nen = nel*ndof;
 
@@ -333,22 +338,31 @@ new_assemble(arg_data_list &arg_data_v,const Nodedata *nodedata,
         // lS = jk2node(j,k-1);
         // assert(lN==locnodes[2]-1);
         // assert(lS==locnodes[0]-1);
+        W1.set(whist.e(0,node-1,0));
+        W2.set(whist.e(1,node-1,0));
+        Wbar.set(0.0).axpy(W1,4.0).axpy(W2,-1.0);
+
         veccontr.set(0.0);
-        matloc.set(0.0);
         lstate.ir(1,2);
         dU.set(lstate).minus(Uref);
         veccontr.ir(1,2).prod(H0,dU,1,-1,-1);
         lstate.ir(1,3);
-        dUy.set(lstate);
+        W.set(lstate);
         lstate.ir(1,1);
-        W1.set(whist.e(0,node-1,0));
-        W2.set(whist.e(1,node-1,0));
-        Wbar.set(0.0).axpy(W1,4.0).axpy(W2,-1.0);
-        dUy.minus(lstate).scale(cfac).add(Wbar);
+        W.minus(lstate).scale(2.0*Dt/hy)
+          .add(Wbar).scale(kfac/3.0);
         lstate.rs();
-        tmp3.prod(H1,dUy,1,-1,-1);
+        tmp3.prod(H1,W,1,-1,-1);
         veccontr.add(tmp3).rs();
         lstate.rs();
+
+        double cfac = kfac*2.0*Dt/(3.0*hy);
+        matloc.set(0.0).ir(1,2);
+        matloc.ir(3,1).axpy(H1,cfac);
+        matloc.ir(3,2).axpy(H0,1.0);
+        matloc.ir(3,3).axpy(H1,-cfac);
+        matloc.rs();
+
         veccontr.set(0.0);
         matloc.set(0.0);
       }
@@ -377,21 +391,6 @@ void AbsorbingLayer::time_step_pre(int step) { }
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 void AbsorbingLayer::time_step_post(int step) {
   if (!MY_RANK) printf("in abso_hook::time_step_post()\n");
-  if (step==1) {
-    PETSCFEM_ASSERT0(uhist.size()==0,"uhist should be empty here");  
-    PETSCFEM_ASSERT0(whist.size()==0,"whist should be empty here");  
-    u.cat("./fsabso2d.state.tmp");
-    PETSCFEM_ASSERT0(u.size()%ndof==0,"incorrect u size");  
-    nnod = u.size()/ndof;
-    if (!MY_RANK) printf("abso_hook: detected nnod %d\n",nnod);
-    uhist.a_resize(3,nstep_histo,nnod,ndof);
-    uhist.set(0.0);
-    whist.a_resize(3,nstep_histo,nnod,ndof);
-    whist.set(0.0);
-    u.reshape(2,nnod,ndof);
-    w.a_resize(2,nnod,ndof);
-  }
-
   u.read("./fsabso2d.state.tmp");
 
   for (int j=nstep_histo-1; j>=1; j--) {
