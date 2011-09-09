@@ -4,6 +4,9 @@
 
 AbsorbingLayer *absorbing_layer_elemset_p = NULL;
 
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+void AbsorbingLayer::init_hook() { }
+
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>
 void AbsorbingLayer::initialize() {
   int ierr;
@@ -18,6 +21,9 @@ void AbsorbingLayer::initialize() {
   if (ndimel<0) ndimel = ndim;
 
   NSGETOPTDEF(int,use_layer,0); //nd
+
+  NSGETOPTDEF_ND(int,nnod,-1);
+  PETSCFEM_ASSERT0(nnod>0,"nnod is required");
 
   elem_params(nel,ndof,nelprops);
   nen = nel*ndof;
@@ -76,11 +82,13 @@ void AbsorbingLayer::initialize() {
 
   if (use_addhoc_surface_abso) Habso.set(Hm);
 
-  Habso.print("Habso: ");
-  C.print("C: ");
-  Ay.print("Ay: ");
-  Hm.print("Habso: ");
-  Uref.print("Uref:");
+  if (!MY_RANK) {
+    Habso.print("Habso: ");
+    C.print("C: ");
+    Ay.print("Ay: ");
+    Hm.print("Habso: ");
+    Uref.print("Uref:");
+  }
 
   if (!use_addhoc_surface_abso) {
     PETSCFEM_ASSERT0(!absorbing_layer_elemset_p
@@ -161,9 +169,12 @@ new_assemble(arg_data_list &arg_data_v,const Nodedata *nodedata,
   int locdof,kldof,lldof;
 
   // Unpack Dofmap
-  int neq,nnod;
+  int neq;
   neq = dofmap->neq;
-  nnod = dofmap->nnod;
+  if (nnod!=dofmap->nnod) {
+    printf("nnod %d != dofmap->nnod %d\n",nnod,dofmap->nnod);
+    abort();
+  }
 
   // Unpack nodedata
   int nu=nodedata->nu;
@@ -363,8 +374,9 @@ new_assemble(arg_data_list &arg_data_v,const Nodedata *nodedata,
         matloc.ir(3,3).axpy(H1,-cfac);
         matloc.rs();
 
-        veccontr.set(0.0);
-        matloc.set(0.0);
+        // Kabso = 0.0;
+        veccontr.scale(Kabso);
+        matloc.scale(Kabso);
       }
     }
     
@@ -381,9 +393,6 @@ new_assemble(arg_data_list &arg_data_v,const Nodedata *nodedata,
 } catch (GenericError e) {
   set_error(1);
 }
-
-//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
-void AbsorbingLayer::init_hook() { }
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 void AbsorbingLayer::time_step_pre(int step) { }
@@ -437,7 +446,8 @@ void AbsorbingLayer::time_step_post(int step) {
 
   if (!MY_RANK && nsaverotw>0 && (step % nsaverotw == 0)) {
     char file[100];
-    sprintf(file,"./STEPS/fsabso2d.w-%d.tmp",step);
+    int indx = step/nsaverotw-1;
+    sprintf(file,"./STEPS/fsabso2d.w-%d.tmp",indx);
     w.print(file);
   }
 }
