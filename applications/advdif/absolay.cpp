@@ -86,7 +86,7 @@ void AbsorbingLayer::initialize() {
     Habso.print("Habso: ");
     C.print("C: ");
     Ay.print("Ay: ");
-    Hm.print("Habso: ");
+    Hm.print("Hm: ");
     Uref.print("Uref:");
   }
 
@@ -227,7 +227,7 @@ new_assemble(arg_data_list &arg_data_v,const Nodedata *nodedata,
   NSGETOPTDEF(double,gravity,0.0);
 
   // It seems that when using penalization we must 
-  // use alpha<1.0
+  // use alpha=1.0
   alpha = 1.0;
   if (!use_layer) ndimel = 0;
 
@@ -340,6 +340,9 @@ new_assemble(arg_data_list &arg_data_v,const Nodedata *nodedata,
         dU.set(Ualpha).minus(Uref);
         tmp2.prod(shape,Habso,dU,1,2,-1,-1);
         veccontr.axpy(tmp2,-Kabso*wpgdet);
+        // Kabso = 0.0;
+        veccontr.scale(Kabso);
+        matloc.scale(Kabso);
       } else if (nel==3) {
         element_connect(element,&locnodes[0]);
         int node = locnodes[1];
@@ -364,6 +367,7 @@ new_assemble(arg_data_list &arg_data_v,const Nodedata *nodedata,
           .add(Wbar).scale(kfac/3.0);
         lstate.rs();
         tmp3.prod(H1,W,1,-1,-1);
+        tmp3_max = max(tmp3.norm_p_all(),tmp3_max);
         veccontr.add(tmp3).rs();
         lstate.rs();
 
@@ -375,8 +379,8 @@ new_assemble(arg_data_list &arg_data_v,const Nodedata *nodedata,
         matloc.rs();
 
         // Kabso = 0.0;
-        veccontr.scale(Kabso);
-        matloc.scale(Kabso);
+        veccontr.scale(-Kabso);
+        matloc.scale(-Kabso);
       }
     }
     
@@ -395,11 +399,19 @@ new_assemble(arg_data_list &arg_data_v,const Nodedata *nodedata,
 }
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
-void AbsorbingLayer::time_step_pre(int step) { }
+void AbsorbingLayer::time_step_pre(int step) { 
+  tmp3_max = 0.0;
+}
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 void AbsorbingLayer::time_step_post(int step) {
-  if (!MY_RANK) printf("in abso_hook::time_step_post()\n");
+  double tmp;
+  MPI_Reduce(&tmp3_max,&tmp,1,MPI_DOUBLE,MPI_MAX,0,PETSCFEM_COMM_WORLD); 
+  tmp3_max = tmp;
+  if (!MY_RANK) {
+    printf("in abso_hook::time_step_post()\n");
+    printf("max ||tmp3|| %f\n",tmp3_max);
+  }
   u.read("./fsabso2d.state.tmp");
 
   for (int j=nstep_histo-1; j>=1; j--) {

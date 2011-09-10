@@ -39,6 +39,7 @@ private:
   int use_addhoc_surface_abso,use_layer;
   double taurelax,Kabso,kfac;
   int ndim,ndimel,nelprops,nel,nen;
+  double tmp3_max;
 
 public:
   /// Contructor from the pointer to the fux function
