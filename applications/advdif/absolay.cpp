@@ -340,9 +340,6 @@ new_assemble(arg_data_list &arg_data_v,const Nodedata *nodedata,
         dU.set(Ualpha).minus(Uref);
         tmp2.prod(shape,Habso,dU,1,2,-1,-1);
         veccontr.axpy(tmp2,-Kabso*wpgdet);
-        // Kabso = 0.0;
-        veccontr.scale(Kabso);
-        matloc.scale(Kabso);
       } else if (nel==3) {
         element_connect(element,&locnodes[0]);
         int node = locnodes[1];
@@ -368,22 +365,20 @@ new_assemble(arg_data_list &arg_data_v,const Nodedata *nodedata,
         lstate.rs();
         tmp3.prod(H1,W,1,-1,-1);
         tmp3_max = max(tmp3.norm_p_all(),tmp3_max);
-        veccontr.add(tmp3).rs();
+        // veccontr.add(tmp3).rs();
         lstate.rs();
 
         double cfac = kfac*2.0*Dt/(3.0*hy);
-        matloc.set(0.0).ir(1,2);
-        matloc.ir(3,1).axpy(H1,cfac);
+        matloc.rs().set(0.0).ir(1,2);
+        // matloc.ir(3,1).axpy(H1,cfac);
         matloc.ir(3,2).axpy(H0,1.0);
-        matloc.ir(3,3).axpy(H1,-cfac);
-        matloc.rs();
+        // matloc.ir(3,3).axpy(H1,-cfac);
 
-        // Kabso = 0.0;
-        veccontr.scale(-Kabso);
-        matloc.scale(-Kabso);
+        veccontr.rs().scale(-Kabso);
+        matloc.rs().scale(Kabso);
       }
     }
-    
+
     veccontr.export_vals(element.ret_vector_values(*retval));
     matloc.export_vals(element.ret_mat_values(*Ajac));
     
