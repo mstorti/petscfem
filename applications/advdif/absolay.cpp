@@ -116,6 +116,11 @@ void AbsorbingLayer::initialize() {
     NSGETOPTDEF_ND(double,hy,NAN); //nd
     PETSCFEM_ASSERT(!isnan(hy),"hy is required. hy %f",hy);  
     PETSCFEM_ASSERT(hy>0.0,"hy must be positive. hy %f",hy);  
+
+    //o Size of elements in x direction
+    NSGETOPTDEF_ND(double,hx,NAN); //nd
+    PETSCFEM_ASSERT(!isnan(hx),"hx is required. hx %f",hx);  
+    PETSCFEM_ASSERT(hx>0.0,"hx must be positive. hx %f",hx);  
   }
 
   //o Time step
@@ -235,7 +240,7 @@ new_assemble(arg_data_list &arg_data_v,const Nodedata *nodedata,
   alpha = 1.0;
   if (!use_layer) ndimel = 0;
 
-  Matloc.set(1.0);
+  matloc.set(1.0);
   if (comp_prof) {
     jac_prof = &arg_data_v[0];
     matloc.export_vals(jac_prof->profile);
@@ -283,6 +288,7 @@ new_assemble(arg_data_list &arg_data_v,const Nodedata *nodedata,
   FastMatCacheList cache_list;
   if (use_fastmat2_cache) FastMat2::activate_cache(&cache_list);
   vector<int> locnodes(nel);
+  double kvol = Kabso*hy*hx;
 
   for (ElementIterator element = elemlist.begin();
        element!=elemlist.end(); element++) try {
@@ -379,8 +385,8 @@ new_assemble(arg_data_list &arg_data_v,const Nodedata *nodedata,
         matloc.ir(3,2).axpy(H0,1.0);
         // matloc.ir(3,3).axpy(H1,-cfac);
 
-        veccontr.rs().scale(-Kabso);
-        matloc.rs().scale(Kabso/alpha_glob);
+        veccontr.rs().scale(-kvol);
+        matloc.rs().scale(kvol/alpha_glob);
       }
     }
 

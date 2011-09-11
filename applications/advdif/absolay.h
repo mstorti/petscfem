@@ -35,7 +35,7 @@ private:
   // U, adn W values are stored here
   dvector<double> uhist,whist,u,w;
   int Nx,Ny,nsaverotw;
-  double hy,Dt;
+  double hy,hx,Dt;
   int use_addhoc_surface_abso,use_layer;
   double taurelax,Kabso,kfac;
   int ndim,ndimel,nelprops,nel,nen;
