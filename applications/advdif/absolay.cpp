@@ -41,7 +41,7 @@ void AbsorbingLayer::initialize() {
   PETSCFEM_ASSERT0(habso_file!="<none>","habso_mat is required");  
 
   //o Scales volume damping term
-  NSGETOPTDEF(double,Kabso,1.0);
+  NSGETOPTDEF_ND(double,Kabso,1.0);
   PETSCFEM_ASSERT0(Kabso>=0.0,
                    "Kabso must be non-negatvive");  
 
