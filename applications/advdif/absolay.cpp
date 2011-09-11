@@ -196,7 +196,7 @@ new_assemble(arg_data_list &arg_data_v,const Nodedata *nodedata,
   vector<double> *dtmin;
   int jdtmin;
   GlobParam *glob_param=NULL;
-  double alpha = 1.0;
+  double alpha = 1.0, alpha_glob=NAN;
   // The trapezoidal rule integration parameter
   arg_data *staten=NULL,*stateo=NULL,*retval=NULL,
     *fdj_jac=NULL,*jac_prof=NULL,*Ajac=NULL;
@@ -210,7 +210,7 @@ new_assemble(arg_data_list &arg_data_v,const Nodedata *nodedata,
 #define WAS_SET arg_data_v[jdtmin].was_set
     Ajac = &arg_data_v[++j];//[4]
     glob_param = (GlobParam *)arg_data_v[++j].user_data;;
-    alpha = (glob_param->alpha);
+    alpha_glob = (glob_param->alpha);
 
     if (ADVDIF_CHECK_JAC)
       fdj_jac = &arg_data_v[++j];
@@ -227,11 +227,15 @@ new_assemble(arg_data_list &arg_data_v,const Nodedata *nodedata,
   NSGETOPTDEF(double,gravity,0.0);
 
   // It seems that when using penalization we must 
-  // use alpha=1.0
+  // use alpha=1.0, because otherwise it is unstable. 
+  // However due to how the Newton scheme
+  // is implemented in advdif, we must return in matloc 
+  // the Jacobian as matloc = -d(veccontr)/dU/alpha_glob
+  // where alpha_glob is the alpha used in the program. 
   alpha = 1.0;
   if (!use_layer) ndimel = 0;
 
-  matloc.set(1.0);
+  Matloc.set(1.0);
   if (comp_prof) {
     jac_prof = &arg_data_v[0];
     matloc.export_vals(jac_prof->profile);
@@ -331,12 +335,13 @@ new_assemble(arg_data_list &arg_data_v,const Nodedata *nodedata,
         wpgdet = 1.0;
       }
 
+      assert(!isnan(alpha_glob));
       if (nel==1) {
         Un.prod(shape,lstaten,-1,-1,1);
         Uo.prod(shape,lstateo,-1,-1,1);
         Ualpha.set(0.).axpy(Uo,1-alpha).axpy(Un,alpha);
         tmp1.prod(Habso,shape,shape,2,4,1,3);
-        matloc.axpy(tmp1,alpha*Kabso*wpgdet);
+        matloc.axpy(tmp1,alpha*Kabso*wpgdet/alpha_glob);
         dU.set(Ualpha).minus(Uref);
         tmp2.prod(shape,Habso,dU,1,2,-1,-1);
         veccontr.axpy(tmp2,-Kabso*wpgdet);
@@ -375,7 +380,7 @@ new_assemble(arg_data_list &arg_data_v,const Nodedata *nodedata,
         // matloc.ir(3,3).axpy(H1,-cfac);
 
         veccontr.rs().scale(-Kabso);
-        matloc.rs().scale(Kabso);
+        matloc.rs().scale(Kabso/alpha_glob);
       }
     }
 
