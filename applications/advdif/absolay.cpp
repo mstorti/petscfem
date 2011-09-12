@@ -80,14 +80,17 @@ void AbsorbingLayer::initialize() {
   H0.set(C);
   H1.set(Ay);
 
-  if (use_addhoc_surface_abso) Habso.set(Hm0);
+  if (use_addhoc_surface_abso) {
+    Habso.set(Hm);
+    // Habso.set(Hm0);
+  }
 
   if (!MY_RANK) {
     Habso.print("Habso: ");
     C.print("C: ");
     Ay.print("Ay: ");
     Hm.print("Hm: ");
-    Hm0.print("Hm: ");
+    Hm0.print("Hm0: ");
     Uref.print("Uref:");
   }
 
