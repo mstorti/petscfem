@@ -28,20 +28,23 @@ protected:
 
 private:
   int flag;
-  FastMat2 Habso,Uref;
+  FastMat2 Habso,C,Ay,Hm,Hm0,Uref,H0,H1;
   // store this amount of time steps
   int nstep_histo;
   int nnod,ndof;
   // U, adn W values are stored here
-  dvector<double> uhist,whist,u;
+  dvector<double> uhist,whist,u,w;
+  int Nx,Ny,nsaverotw;
+  double hy,hx,Dt;
+  int use_addhoc_surface_abso,use_layer;
+  double taurelax,Kabso,kfac;
+  int ndim,ndimel,nelprops,nel,nen;
+  double tmp3_max;
 
 public:
   /// Contructor from the pointer to the fux function
   AbsorbingLayer(NewAdvDifFF *adv_diff_ff_a=NULL) :
-    adv_diff_ff(adv_diff_ff_a), flag(0) { 
-    assert(!absorbing_layer_elemset_p);
-    absorbing_layer_elemset_p = this; 
-  } 
+    adv_diff_ff(adv_diff_ff_a), flag(0), taurelax(NAN) { } 
   ~AbsorbingLayer() {delete adv_diff_ff;}
   
   /// The assemble function for the elemset. 
@@ -50,8 +53,11 @@ public:
   ASK_FUNCTION;
 
   void initialize();
+  void init_hook();
   void time_step_pre(int step);
   void time_step_post(int step);
+  void node2jk(int node,int &j,int &k);
+  int jk2node(int j,int k);
 };
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
@@ -59,9 +65,9 @@ class abso_hook : public Hook {
 private:
 public:
   abso_hook() { }
-  void init(Mesh &mesh_a,Dofmap &dofmap,
-	    TextHashTableFilter *options,const char *name) {
+  void init(Mesh &mesh_a,Dofmap &dofmap,const char *name) {
     assert(absorbing_layer_elemset_p);
+    absorbing_layer_elemset_p->init_hook();
   }
   void time_step_pre(double time,int step) {
     absorbing_layer_elemset_p->time_step_pre(step);

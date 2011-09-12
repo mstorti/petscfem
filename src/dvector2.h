@@ -433,7 +433,7 @@ print(const char *name,int rowsz) {
   ierr = 0;
   FILE *fid = fopen(name,"w");
   if (!fid) {
-    printf("dvector<T>::read(): can't open file \"%s\"\n",name);
+    printf("dvector<T>::print(): can't open file \"%s\"\n",name);
     abort();
   }
   print(fid,rowsz);
