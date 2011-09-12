@@ -17317,3 +17317,31 @@ tenemos c=sqrt(g*h0) = 1, omega=2*pi/0.3= 20.94, k=w/c=20.94,
 lambda=2*pi/k = 0.3. Como tenemos Lx2=1.5, tenemos 5 ondas completas
 en x. O sea que como tenemos 120 nodos en x, tenemos 24 nodos por
 onda. 
+
+%=== Fri Aug 19 12:41:57 2011 mstorti@galileo
+%
+%--[2011-08-19.15:41:57.mstorti-v37-start-16-g583d1df]-----
+Me dice Luciano que tiene un error de los handles con el
+ld_elasticity, con la formulaicon en desplazamientos. 
+
+/u/lgarelli/valid_estruct/ en coyote
+----------
+elemset ld_elasticity 4
+geometry tetra
+npg 4
+<:pr('Young_modulus'):>
+<:pr('Poisson_ratio'):>
+density <:=$rho_sld:>
+use_jacobian_fdj 
+use_high_prec 0
+jacobian_fdj_epsilon 1e-3
+jacobian_fdj_print 0
+data ./beam-estruct_tetra.con.tmp
+-------------Salida:
+Reading vector from file "estruct.ini.tmp"
+Dofmap::solve: solved projection in 0 iters
+Done reading file 'estruct.ini.tmp'
+Time step: 1, time: 0.002 
+No handle for `state_mh'
+make: *** [run_struct] Error 6
+
