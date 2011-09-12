@@ -62,10 +62,11 @@ void AbsorbingLayer::initialize() {
   C.resize(2,ndof,ndof);
   Ay.resize(2,ndof,ndof);
   Hm.resize(2,ndof,ndof);
+  Hm0.resize(2,ndof,ndof);
   Uref.resize(1,ndof);
   dvector<double> habso_data;
   habso_data.cat(habso_file.c_str());
-  PETSCFEM_ASSERT(habso_data.size()==4*ndof*ndof+ndof,
+  PETSCFEM_ASSERT(habso_data.size()==5*ndof*ndof+ndof,
                   "habso_data must be 3*ndof*ndof. ndof %d, "
                   "habso_data size %d",ndof,habso_data.size());
 
@@ -73,20 +74,20 @@ void AbsorbingLayer::initialize() {
   C.set(habso_data.buff()+ndof*ndof);
   Ay.set(habso_data.buff()+2*ndof*ndof);
   Hm.set(habso_data.buff()+3*ndof*ndof);
-  H0.set(habso_data.buff()+3*ndof*ndof);
-  H1.set(habso_data.buff()+3*ndof*ndof);
-  Uref.set(habso_data.buff()+4*ndof*ndof);
+  Hm0.set(habso_data.buff()+4*ndof*ndof);
+  Uref.set(habso_data.buff()+5*ndof*ndof);
 
   H0.set(C);
   H1.set(Ay);
 
-  if (use_addhoc_surface_abso) Habso.set(Hm);
+  if (use_addhoc_surface_abso) Habso.set(Hm0);
 
   if (!MY_RANK) {
     Habso.print("Habso: ");
     C.print("C: ");
     Ay.print("Ay: ");
     Hm.print("Hm: ");
+    Hm0.print("Hm: ");
     Uref.print("Uref:");
   }
 
