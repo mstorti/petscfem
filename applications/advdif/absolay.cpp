@@ -154,6 +154,7 @@ double rnd(double) {
 void AbsorbingLayer::node2jk(int node,int &j,int &k) {
   j = node/(Ny+1);
   k = node%(Ny+1);
+  k = modulo(k,Ny);
 }
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>
@@ -452,10 +453,11 @@ void AbsorbingLayer::time_step_post(int step) {
     // lN = (Ny+1)*j+kN;           // node at North of l
     // lS = (Ny+1)*j+kS;           // node at North of l
 
-    int j,k,lN,lS;
+    int j,k,lN,lS,kk;
     node2jk(l,j,k);
-    lN = jk2node(j,k+1);
-    lS = jk2node(j,k-1);
+    lN = jk2node(j,modulo(k+1,Ny));
+    lS = jk2node(j,modulo(k-1,Ny));
+    // if (!MY_RANK) printf("lS %d, l %d, lN %d\n",lS,l,lN);
 
     for (int k=0; k<ndof; k++) {
       double 
