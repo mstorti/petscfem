@@ -22,6 +22,9 @@ void AbsorbingLayer::initialize() {
 
   NSGETOPTDEF(int,use_layer,0); //nd
 
+  //0 Include higher order term
+  NSGETOPTDEF(int,use_h1_term,1);
+
   NSGETOPTDEF_ND(int,nnod,-1);
   PETSCFEM_ASSERT0(nnod>0,"nnod is required");
 
@@ -379,16 +382,20 @@ new_assemble(arg_data_list &arg_data_v,const Nodedata *nodedata,
         W.minus(lstate).scale(2.0*Dt/hy)
           .add(Wbar).scale(kfac/3.0);
         lstate.rs();
-        tmp3.prod(H1,W,1,-1,-1);
-        tmp3_max = max(tmp3.norm_p_all(),tmp3_max);
-        // veccontr.add(tmp3).rs();
-        lstate.rs();
+        if (use_h1_term) {
+          tmp3.prod(H1,W,1,-1,-1);
+          tmp3_max = max(tmp3.norm_p_all(),tmp3_max);
+          veccontr.add(tmp3).rs();
+          lstate.rs();
+        }
 
         double cfac = kfac*2.0*Dt/(3.0*hy);
         matloc.rs().set(0.0).ir(1,2);
-        // matloc.ir(3,1).axpy(H1,cfac);
         matloc.ir(3,2).axpy(H0,1.0);
-        // matloc.ir(3,3).axpy(H1,-cfac);
+        if (use_h1_term) {
+          matloc.ir(3,1).axpy(H1,cfac);
+          matloc.ir(3,3).axpy(H1,-cfac);
+        }
 
         veccontr.rs().scale(-kvol);
         matloc.rs().scale(kvol/alpha_glob);

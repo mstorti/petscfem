@@ -36,7 +36,8 @@ private:
   dvector<double> uhist,whist,u,w;
   int Nx,Ny,nsaverotw;
   double hy,hx,Dt;
-  int use_addhoc_surface_abso,use_layer;
+  int use_addhoc_surface_abso,use_layer,
+    use_h1_term;
   double taurelax,Kabso,kfac;
   int ndim,ndimel,nelprops,nel,nen;
   double tmp3_max;
