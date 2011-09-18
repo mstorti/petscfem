@@ -376,17 +376,16 @@ new_assemble(arg_data_list &arg_data_v,const Nodedata *nodedata,
         lstate.ir(1,2);
         dU.set(lstate).minus(Uref);
         veccontr.ir(1,2).prod(H0,dU,1,-1,-1);
-        lstate.ir(1,3);
-        W.set(lstate);
-        lstate.ir(1,1);
-        W.minus(lstate).scale(2.0*Dt/hy)
-          .add(Wbar).scale(kfac/3.0);
-        lstate.rs();
         if (use_h1_term) {
+          lstate.ir(1,3);
+          W.set(lstate);
+          lstate.ir(1,1);
+          W.minus(lstate).scale(2.0*Dt/hy)
+            .add(Wbar).scale(kfac/3.0);
+          lstate.rs();
           tmp3.prod(H1,W,1,-1,-1);
           tmp3_max = max(tmp3.norm_p_all(),tmp3_max);
           veccontr.add(tmp3).rs();
-          lstate.rs();
         }
 
         double cfac = kfac*2.0*Dt/(3.0*hy);
