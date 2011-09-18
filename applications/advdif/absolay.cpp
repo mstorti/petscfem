@@ -392,8 +392,8 @@ new_assemble(arg_data_list &arg_data_v,const Nodedata *nodedata,
         matloc.rs().set(0.0).ir(1,2);
         matloc.ir(3,2).axpy(H0,1.0);
         if (use_h1_term) {
-          matloc.ir(3,1).axpy(H1,cfac);
-          matloc.ir(3,3).axpy(H1,-cfac);
+          matloc.ir(3,1).axpy(H1,-cfac);
+          matloc.ir(3,3).axpy(H1,+cfac);
         }
 
         veccontr.rs().scale(-kvol);
