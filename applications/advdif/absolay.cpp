@@ -88,8 +88,8 @@ void AbsorbingLayer::initialize() {
   H1.set(Ay);
 
   if (use_addhoc_surface_abso) {
-    Habso.set(Hm);
-    // Habso.set(Hm0);
+    // Habso.set(Hm);
+    Habso.set(Hm0);
   }
 
   if (!MY_RANK) {
