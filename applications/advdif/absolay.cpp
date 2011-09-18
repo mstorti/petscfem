@@ -23,7 +23,7 @@ void AbsorbingLayer::initialize() {
   NSGETOPTDEF(int,use_layer,0); //nd
 
   //0 Include higher order term
-  NSGETOPTDEF(int,use_h1_term,1);
+  NSGETOPTDEF_ND(int,use_h1_term,1);
 
   NSGETOPTDEF_ND(int,nnod,-1);
   PETSCFEM_ASSERT0(nnod>0,"nnod is required");
