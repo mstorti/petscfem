@@ -40,7 +40,7 @@ private:
     use_h1_term;
   double taurelax,Kabso,kfac;
   int ndim,ndimel,nelprops,nel,nen;
-  double tmp3_max;
+  double tmp3_max,h1fac;
 
 public:
   /// Contructor from the pointer to the fux function

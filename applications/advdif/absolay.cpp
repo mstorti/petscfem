@@ -48,6 +48,10 @@ void AbsorbingLayer::initialize() {
   PETSCFEM_ASSERT0(Kabso>=0.0,
                    "Kabso must be non-negatvive");  
 
+  //o Scales volume damping term
+  NSGETOPTDEF_ND(double,h1fac,NAN);
+  PETSCFEM_ASSERT0(!isnan(h1fac),"h1fac is required");  
+
   //o Use Habso = Hm, currently only for 0-dim
   //  absorption add-hoc for examples. The absorbing matrix at
   //  the surface is computed with an add-hoc formula
@@ -385,10 +389,10 @@ new_assemble(arg_data_list &arg_data_v,const Nodedata *nodedata,
           lstate.rs();
           tmp3.prod(H1,W,1,-1,-1);
           tmp3_max = max(tmp3.norm_p_all(),tmp3_max);
-          veccontr.add(tmp3).rs();
+          veccontr.axpy(tmp3,h1fac).rs();
         }
 
-        double cfac = kfac*2.0*Dt/(3.0*hy);
+        double cfac = h1fac*kfac*2.0*Dt/(3.0*hy);
         matloc.rs().set(0.0).ir(1,2);
         matloc.ir(3,2).axpy(H0,1.0);
         if (use_h1_term) {
