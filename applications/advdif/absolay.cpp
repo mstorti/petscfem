@@ -88,8 +88,9 @@ void AbsorbingLayer::initialize() {
   H1.set(Ay);
 
   if (use_addhoc_surface_abso) {
-    // Habso.set(Hm);
-    Habso.set(Hm0);
+    Habso.set(Hm);
+    // Habso.set(Hm0);
+    Habso.scale(-1.0);
   }
 
   if (!MY_RANK) {
@@ -111,8 +112,8 @@ void AbsorbingLayer::initialize() {
   NSGETOPTDEF(int,nsaverot,0);
 
   //o Frequency for saving w states
-  NSGETOPTDEF_ND(int,nsaverotw,0);
-  nsaverotw = (nsaverotw>0 ? nsaverotw : nsaverot);
+  NSGETOPTDEF_ND(int,nsaverotw,-1);
+  nsaverotw = (nsaverotw>=0 ? nsaverotw : nsaverot);
 
   if (use_layer) {
     //o Number of elements in x direction
@@ -239,9 +240,6 @@ new_assemble(arg_data_list &arg_data_v,const Nodedata *nodedata,
   //  library for internal computations. Note that this affects also the
   //  use of caches in routines like fluxes, etc...
   NSGETOPTDEF(int,use_fastmat2_cache,1);
-
-  //o Gravity
-  NSGETOPTDEF(double,gravity,0.0);
 
   // It seems that when using penalization we must 
   // use alpha=1.0, because otherwise it is unstable. 
