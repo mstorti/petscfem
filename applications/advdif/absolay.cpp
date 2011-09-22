@@ -88,8 +88,8 @@ void AbsorbingLayer::initialize() {
   H1.set(Ay);
 
   if (use_addhoc_surface_abso) {
-    Habso.set(Hm);
-    // Habso.set(Hm0);
+    // Habso.set(Hm);
+    Habso.set(Hm0);
     Habso.scale(-1.0);
   }
 
@@ -390,10 +390,10 @@ new_assemble(arg_data_list &arg_data_v,const Nodedata *nodedata,
           veccontr.axpy(tmp3,h1fac).rs();
         }
 
-        double cfac = h1fac*kfac*2.0*Dt/(3.0*hy);
         matloc.rs().set(0.0).ir(1,2);
         matloc.ir(3,2).axpy(H0,1.0);
         if (use_h1_term) {
+          double cfac = h1fac*kfac*2.0*Dt/(3.0*hy);
           matloc.ir(3,1).axpy(H1,-cfac);
           matloc.ir(3,3).axpy(H1,+cfac);
         }
