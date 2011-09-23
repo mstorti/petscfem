@@ -37,7 +37,7 @@ private:
   int Nx,Ny,nsaverotw;
   double hy,hx,Dt;
   int use_addhoc_surface_abso,use_layer,
-    use_h1_term;
+    use_h1_term,addhoc_surface_abso_use_hm;
   double taurelax,Kabso,kfac;
   int ndim,ndimel,nelprops,nel,nen;
   double tmp3_max,h1fac;

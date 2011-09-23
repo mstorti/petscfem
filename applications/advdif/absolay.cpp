@@ -58,7 +58,12 @@ void AbsorbingLayer::initialize() {
   //  that is perfectly absorbing only for a given incident direction. 
   //  It's of little use in the general case, it's used here 
   //  only for validating the general absorbing layer. 
-  NSGETOPTDEF_ND(int,use_addhoc_surface_abso,0); //nd
+  NSGETOPTDEF_ND(int,use_addhoc_surface_abso,0);
+
+  // If true, then the surface absorbing condition uses
+  // a matrix computed for a specific incidence angle.
+  // Then it is of no practical use, it is only for debugging.
+  NSGETOPTDEF_ND(int,addhoc_surface_abso_use_hm,0);
 
   //o Characteristic time for relaxing the relation 
   //  between W and U (in secs)
@@ -88,12 +93,19 @@ void AbsorbingLayer::initialize() {
   H1.set(Ay);
 
   if (use_addhoc_surface_abso) {
-    // Habso.set(Hm);
-    Habso.set(Hm0);
+    if (addhoc_surface_abso_use_hm) Habso.set(Hm);
+    else Habso.set(Hm0);
     Habso.scale(-1.0);
   }
 
   if (!MY_RANK) {
+    printf("addhoc_surface_abso_use_hm %d\n",
+           addhoc_surface_abso_use_hm);
+    if (addhoc_surface_abso_use_hm) {
+      printf("Using HM (not HM0) i.e. a surface absorbing condition "
+             "    computed for a specific incidence angle."
+             "    Then it is of no practical use, it is only for debugging.");
+    }
     Habso.print("Habso: ");
     C.print("C: ");
     Ay.print("Ay: ");
@@ -382,7 +394,7 @@ new_assemble(arg_data_list &arg_data_v,const Nodedata *nodedata,
           lstate.ir(1,3);
           W.set(lstate);
           lstate.ir(1,1);
-          W.minus(lstate).scale(2.0*Dt/hy)
+          W.minus(lstate).scale(Dt/hy)
             .add(Wbar).scale(kfac/3.0);
           lstate.rs();
           tmp3.prod(H1,W,1,-1,-1);
@@ -393,7 +405,7 @@ new_assemble(arg_data_list &arg_data_v,const Nodedata *nodedata,
         matloc.rs().set(0.0).ir(1,2);
         matloc.ir(3,2).axpy(H0,1.0);
         if (use_h1_term) {
-          double cfac = h1fac*kfac*2.0*Dt/(3.0*hy);
+          double cfac = h1fac*kfac*Dt/(3.0*hy);
           matloc.ir(3,1).axpy(H1,-cfac);
           matloc.ir(3,3).axpy(H1,+cfac);
         }
