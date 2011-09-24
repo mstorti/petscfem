@@ -3,6 +3,14 @@
 #include "./absolay.h"
 
 AbsorbingLayer *absorbing_layer_elemset_p = NULL;
+static int abso_current_step;
+#define STEP_DBG 500
+struct data_t {
+  int node;
+  double w1,w2;
+};
+vector<data_t> store;
+extern int abso_inwt;
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 void AbsorbingLayer::init_hook() { }
@@ -22,8 +30,13 @@ void AbsorbingLayer::initialize() {
 
   NSGETOPTDEF(int,use_layer,0); //nd
 
-  //0 Include higher order term
+  //o Include higher order term
   NSGETOPTDEF_ND(int,use_h1_term,1);
+
+  //o If defined means replace the computation 
+  //  of W for the absorbing layer by an addhoc 
+  //  formula W=-ky/omega*U, with magic_abso_coef=ky/omega
+  NSGETOPTDEF_ND(double,magic_abso_coef,NAN);
 
   NSGETOPTDEF_ND(int,nnod,-1);
   PETSCFEM_ASSERT0(nnod>0,"nnod is required");
@@ -98,6 +111,12 @@ void AbsorbingLayer::initialize() {
     Habso.scale(-1.0);
   }
 
+  if (!isnan(magic_abso_coef)) {
+    H0.axpy(Ay,-magic_abso_coef);
+    PETSCFEM_ASSERT0(!use_h1_term,"if magic_abso_coef is entered, "
+                     "then use_h1_term should be deactivated");  
+  }
+
   if (!MY_RANK) {
     printf("addhoc_surface_abso_use_hm %d\n",
            addhoc_surface_abso_use_hm);
@@ -153,6 +172,7 @@ void AbsorbingLayer::initialize() {
   PETSCFEM_ASSERT(Dt>0.0,"Dt must be positive. Dt %f",Dt);  
 
   kfac = 1.0/(1.0+2.0*Dt/taurelax/3.0);
+  // kfac = 1.0; // equivalent to taurelax = Inf
 }
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:
@@ -215,7 +235,6 @@ new_assemble(arg_data_list &arg_data_v,const Nodedata *nodedata,
   // source term in the momentum eqs.
   int nH = nu-ndim;
   FMatrix  Hloc(nel,nH),H(nH);
-
   if(nnod!=nodedata->nnod) {
     printf("nnod from dofmap and nodedata don't coincide\n");
     exit(1);
@@ -287,7 +306,7 @@ new_assemble(arg_data_list &arg_data_v,const Nodedata *nodedata,
 
   nen = nel*ndof;
 
-  //o Type of element geometry to define Gauss Point data
+  //o Type of element geometry to define Gauss Point data_t
   NGETOPTDEF_S(string,geometry,cartesian2d);
   GPdata gp_data;
   int npg=1;
@@ -390,16 +409,26 @@ new_assemble(arg_data_list &arg_data_v,const Nodedata *nodedata,
         lstate.ir(1,2);
         dU.set(lstate).minus(Uref);
         veccontr.ir(1,2).prod(H0,dU,1,-1,-1);
-        // double bugfac=2.0; // -> HAS BUG
-        // double bugfac=1.0; // -> NO BUG
-        double bugfac=1.0; 
         if (use_h1_term) {
           lstate.ir(1,3);
           W.set(lstate);
           lstate.ir(1,1);
-          W.minus(lstate).scale(bugfac*Dt/hy)
+          W.minus(lstate).scale(Dt/hy)
             .add(Wbar).scale(kfac/3.0);
+          if (0 && abso_current_step==STEP_DBG && abso_inwt==1) {
+            data_t d;
+            d.node = node;
+            double *p = W.storage_begin();
+            d.w1 = p[0];
+            d.w2 = p[1];
+            store.push_back(d);
+          }
           lstate.rs();
+          if (!isnan(magic_abso_coef)) {
+            lstate.ir(1,2);
+            W.set(lstate).scale(-magic_abso_coef);
+            lstate.rs();
+          }
           tmp3.prod(H1,W,1,-1,-1);
           tmp3_max = max(tmp3.norm_p_all(),tmp3_max);
           veccontr.axpy(tmp3,h1fac).rs();
@@ -408,7 +437,7 @@ new_assemble(arg_data_list &arg_data_v,const Nodedata *nodedata,
         matloc.rs().set(0.0).ir(1,2);
         matloc.ir(3,2).axpy(H0,1.0);
         if (use_h1_term) {
-          double cfac = h1fac*kfac*bugfac*Dt/(3.0*hy);
+          double cfac = h1fac*kfac*Dt/(3.0*hy);
           matloc.ir(3,1).axpy(H1,-cfac);
           matloc.ir(3,3).axpy(H1,+cfac);
         }
@@ -435,6 +464,9 @@ new_assemble(arg_data_list &arg_data_v,const Nodedata *nodedata,
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 void AbsorbingLayer::time_step_pre(int step) { 
   tmp3_max = 0.0;
+  if (!MY_RANK && step==STEP_DBG) 
+    printf("in pre: entering step %d\n",step);
+  abso_current_step=step;
 }
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
@@ -484,11 +516,27 @@ void AbsorbingLayer::time_step_post(int step) {
 
     for (int k=0; k<ndof; k++) {
       double 
-        dudy = (uhist.e(0,lN,k)-uhist.e(0,lS,k))/(2*hy),
+        dudy = (uhist.e(0,lN,k)-uhist.e(0,lS,k))/(2.0*hy),
         ww = kfac*(2.0*Dt*dudy+4.0*whist.e(1,l,k)-whist.e(2,l,k))/3.0;
       whist.e(0,l,k) = ww;
       w.e(l,k) = ww;
     }
+  }
+
+  if (0 && !MY_RANK && step==STEP_DBG) {
+    w.print("w.state.tmp");
+    u.print("u.state.tmp");
+  }
+
+  if (0 && step==(STEP_DBG+2)) {
+    for (unsigned int j=0; j<store.size(); j++) {
+      data_t &dd = store[j];
+      PetscSynchronizedPrintf(PETSCFEM_COMM_WORLD, 
+                              "%d %f %f\n",dd.node,dd.w1,dd.w2);
+    }
+    PetscSynchronizedFlush(PETSCFEM_COMM_WORLD); 
+    PetscFinalize();
+    exit(0);
   }
 
   if (!MY_RANK && nsaverotw>0 && (step % nsaverotw == 0)) {

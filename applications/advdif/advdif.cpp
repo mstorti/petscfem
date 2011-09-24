@@ -17,7 +17,7 @@
 #include <time.h>
 
 static char help[] = "Basic finite element program.\n\n";
-
+int abso_inwt;
 
 extern int print_internal_loop_conv_g;
 extern int consistent_supg_matrix_g;
@@ -417,6 +417,7 @@ int advdif_main(int argc,char **args) {
     hook_list.time_step_pre(time.time()+Dt,tstep); //hook needs t_{n+1}
 
     for (int inwt=0; inwt<nnwt; inwt++) {
+      abso_inwt = inwt;
 
       // Initializes res
       scal=0;
