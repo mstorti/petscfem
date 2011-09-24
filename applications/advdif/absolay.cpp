@@ -391,7 +391,8 @@ new_assemble(arg_data_list &arg_data_v,const Nodedata *nodedata,
         dU.set(lstate).minus(Uref);
         veccontr.ir(1,2).prod(H0,dU,1,-1,-1);
         // double bugfac=2.0; // -> HAS BUG
-        double bugfac=1.0; // -> NO BUG
+        // double bugfac=1.0; // -> NO BUG
+        double bugfac=1.0; 
         if (use_h1_term) {
           lstate.ir(1,3);
           W.set(lstate);
