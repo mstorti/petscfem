@@ -111,7 +111,7 @@ void AbsorbingLayer::initialize() {
     Habso.scale(-1.0);
   }
 
-  if (!isnan(magic_abso_coef)) {
+  if (0 && !isnan(magic_abso_coef)) {
     H0.axpy(Ay,-magic_abso_coef);
     PETSCFEM_ASSERT0(!use_h1_term,"if magic_abso_coef is entered, "
                      "then use_h1_term should be deactivated");  
@@ -302,7 +302,8 @@ new_assemble(arg_data_list &arg_data_v,const Nodedata *nodedata,
   FastMat2 Un(1,ndof),Uo(1,ndof),Ualpha(1,ndof),
     Jaco(2,ndimel,ndim),iJaco(2,ndimel,ndimel),
     dU(1,ndof),dshapex(2,ndimel,nel), normal(1,ndim),tmp1,tmp2,
-    shape(1,nel),tmp3,W(1,ndof),Wbar(1,ndof),W1(1,ndof),W2(2,ndof);
+    shape(1,nel),tmp3,W(1,ndof),Wbar(1,ndof),W1(1,ndof),W2(1,ndof),
+    Wmagic(1,ndof);
 
   nen = nel*ndof;
 
@@ -424,10 +425,17 @@ new_assemble(arg_data_list &arg_data_v,const Nodedata *nodedata,
             store.push_back(d);
           }
           lstate.rs();
-          if (!isnan(magic_abso_coef)) {
+          if (1 || !isnan(magic_abso_coef)) {
             lstate.ir(1,2);
-            W.set(lstate).scale(-magic_abso_coef);
+            Wmagic.set(lstate).scale(-magic_abso_coef);
             lstate.rs();
+            if (rand()%200==0) {
+              double 
+                *Wp = W.storage_begin(),
+                *Wmp = Wmagic.storage_begin();
+              printf("node %d W %f %f Wmagic %f %f\n",
+                     node,Wp[0],Wp[1],Wmp[0],Wmp[1]);
+            }
           }
           tmp3.prod(H1,W,1,-1,-1);
           tmp3_max = max(tmp3.norm_p_all(),tmp3_max);
@@ -437,9 +445,13 @@ new_assemble(arg_data_list &arg_data_v,const Nodedata *nodedata,
         matloc.rs().set(0.0).ir(1,2);
         matloc.ir(3,2).axpy(H0,1.0);
         if (use_h1_term) {
-          double cfac = h1fac*kfac*Dt/(3.0*hy);
-          matloc.ir(3,1).axpy(H1,-cfac);
-          matloc.ir(3,3).axpy(H1,+cfac);
+          if (0 && !isnan(magic_abso_coef)) {
+            matloc.axpy(Ay,-magic_abso_coef);
+          } else {
+            double cfac = h1fac*kfac*Dt/(3.0*hy);
+            matloc.ir(3,1).axpy(H1,-cfac);
+            matloc.ir(3,3).axpy(H1,+cfac);
+          }
         }
 
         veccontr.rs().scale(-kvol);
