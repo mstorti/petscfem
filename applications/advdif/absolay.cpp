@@ -34,6 +34,8 @@ void AbsorbingLayer::initialize() {
   NSGETOPTDEF_ND(double,magic_abso_coef1,NAN);
   PETSCFEM_ASSERT0(isnan(magic_abso_coef1)==isnan(magic_abso_coef),
                    "the magic coefs must be both defined or undefined");  
+  if (!MY_RANK && !isnan(magic_abso_coef)) 
+    printf("using magic coefs 0/1 %f %f\n",magic_abso_coef,magic_abso_coef1);
 
   NSGETOPTDEF_ND(int,nnod,-1);
   PETSCFEM_ASSERT0(nnod>0,"nnod is required");
