@@ -38,10 +38,17 @@ private:
   double hy,hx,Dt;
   int use_addhoc_surface_abso,use_layer,
     use_h1_term,addhoc_surface_abso_use_hm;
-  double taurelax,Kabso,kfac,magic_abso_coef;
+  double taurelax,Kabso,kfac,
+    magic_abso_coef,magic_abso_coef1;
   int ndim,ndimel,nelprops,nel,nen;
   double tmp3_max,h1fac;
+  int print_w_values,abso_current_step;
 
+  struct data_t {
+    int node,inwt;
+    double w1,w2,u1,u2;
+  };
+  vector<data_t> store;
 public:
   /// Contructor from the pointer to the fux function
   AbsorbingLayer(NewAdvDifFF *adv_diff_ff_a=NULL) :

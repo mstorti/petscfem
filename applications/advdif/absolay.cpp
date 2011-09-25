@@ -3,13 +3,7 @@
 #include "./absolay.h"
 
 AbsorbingLayer *absorbing_layer_elemset_p = NULL;
-static int abso_current_step;
 #define STEP_DBG 500
-struct data_t {
-  int node;
-  double w1,w2;
-};
-vector<data_t> store;
 extern int abso_inwt;
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
@@ -37,6 +31,9 @@ void AbsorbingLayer::initialize() {
   //  of W for the absorbing layer by an addhoc 
   //  formula W=-ky/omega*U, with magic_abso_coef=ky/omega
   NSGETOPTDEF_ND(double,magic_abso_coef,NAN);
+  NSGETOPTDEF_ND(double,magic_abso_coef1,NAN);
+  PETSCFEM_ASSERT0(isnan(magic_abso_coef1)==isnan(magic_abso_coef),
+                   "the magic coefs must be both defined or undefined");  
 
   NSGETOPTDEF_ND(int,nnod,-1);
   PETSCFEM_ASSERT0(nnod>0,"nnod is required");
@@ -303,11 +300,11 @@ new_assemble(arg_data_list &arg_data_v,const Nodedata *nodedata,
     Jaco(2,ndimel,ndim),iJaco(2,ndimel,ndimel),
     dU(1,ndof),dshapex(2,ndimel,nel), normal(1,ndim),tmp1,tmp2,
     shape(1,nel),tmp3,W(1,ndof),Wbar(1,ndof),W1(1,ndof),W2(1,ndof),
-    Wmagic(1,ndof);
+    Wmagic(1,ndof),U1(1,ndof);
 
   nen = nel*ndof;
 
-  //o Type of element geometry to define Gauss Point data_t
+  //o Type of element geometry to define Gauss Point data
   NGETOPTDEF_S(string,geometry,cartesian2d);
   GPdata gp_data;
   int npg=1;
@@ -404,6 +401,7 @@ new_assemble(arg_data_list &arg_data_v,const Nodedata *nodedata,
         // assert(lS==locnodes[0]-1);
         W1.set(whist.e(0,node-1,0));
         W2.set(whist.e(1,node-1,0));
+        U1.set(uhist.e(0,node-1,0));
         Wbar.set(0.0).axpy(W1,4.0).axpy(W2,-1.0);
 
         veccontr.set(0.0);
@@ -416,28 +414,36 @@ new_assemble(arg_data_list &arg_data_v,const Nodedata *nodedata,
           lstate.ir(1,1);
           W.minus(lstate).scale(Dt/hy)
             .add(Wbar).scale(kfac/3.0);
-          if (0 && abso_current_step==STEP_DBG && abso_inwt==1) {
+          // if (0 && abso_current_step==STEP_DBG && abso_inwt==1)
+          if (print_w_values && abso_inwt==1) {
             data_t d;
             d.node = node;
             double *p = W.storage_begin();
             d.w1 = p[0];
             d.w2 = p[1];
+            p = dU.storage_begin();
+            d.u1 = p[0];
+            d.u2 = p[1];
+            d.inwt = abso_inwt;
             store.push_back(d);
           }
           lstate.rs();
-          if (1 || !isnan(magic_abso_coef)) {
+          if (!isnan(magic_abso_coef)) {
             lstate.ir(1,2);
-            Wmagic.set(lstate).scale(-magic_abso_coef);
+            Wmagic.set(lstate).scale(magic_abso_coef)
+              .axpy(U1,magic_abso_coef1);
             lstate.rs();
-            if (rand()%200==0) {
+            if (0 && rand()%200==0) {
               double 
                 *Wp = W.storage_begin(),
                 *Wmp = Wmagic.storage_begin();
               printf("node %d W %f %f Wmagic %f %f\n",
                      node,Wp[0],Wp[1],Wmp[0],Wmp[1]);
             }
+            tmp3.prod(H1,Wmagic,1,-1,-1);
+          } else {
+            tmp3.prod(H1,W,1,-1,-1);
           }
-          tmp3.prod(H1,W,1,-1,-1);
           tmp3_max = max(tmp3.norm_p_all(),tmp3_max);
           veccontr.axpy(tmp3,h1fac).rs();
         }
@@ -445,7 +451,7 @@ new_assemble(arg_data_list &arg_data_v,const Nodedata *nodedata,
         matloc.rs().set(0.0).ir(1,2);
         matloc.ir(3,2).axpy(H0,1.0);
         if (use_h1_term) {
-          if (0 && !isnan(magic_abso_coef)) {
+          if (!isnan(magic_abso_coef)) {
             matloc.axpy(Ay,-magic_abso_coef);
           } else {
             double cfac = h1fac*kfac*Dt/(3.0*hy);
@@ -479,6 +485,9 @@ void AbsorbingLayer::time_step_pre(int step) {
   if (!MY_RANK && step==STEP_DBG) 
     printf("in pre: entering step %d\n",step);
   abso_current_step=step;
+  // print_w_values = (step%50==0);
+  print_w_values = 0;
+  if (print_w_values) store.clear();
 }
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
@@ -540,15 +549,19 @@ void AbsorbingLayer::time_step_post(int step) {
     u.print("u.state.tmp");
   }
 
-  if (0 && step==(STEP_DBG+2)) {
+  // if (0 && step==(STEP_DBG+2)) {
+  if (print_w_values) {
+    if(!MY_RANK) 
+      PetscSynchronizedPrintf(PETSCFEM_COMM_WORLD,
+                              "-------- step %d: node u1 u2 w1 w2----------\n");
     for (unsigned int j=0; j<store.size(); j++) {
       data_t &dd = store[j];
       PetscSynchronizedPrintf(PETSCFEM_COMM_WORLD, 
-                              "%d %f %f\n",dd.node,dd.w1,dd.w2);
+                              "%d %f %f %f %f\n",dd.node,dd.u1,dd.u2,dd.w1,dd.w2);
     }
     PetscSynchronizedFlush(PETSCFEM_COMM_WORLD); 
-    PetscFinalize();
-    exit(0);
+    // PetscFinalize();
+    // exit(0);
   }
 
   if (!MY_RANK && nsaverotw>0 && (step % nsaverotw == 0)) {
