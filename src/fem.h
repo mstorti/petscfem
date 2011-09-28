@@ -636,6 +636,9 @@ inline PetscErrorCode PetscViewerDestroy_Compat(PetscViewer *a)
 inline PetscErrorCode ISDestroy_Compat(IS *a)
 {IS b = *a; *a=0; return ISDestroy(b);}
 #define ISDestroy ISDestroy_Compat
+inline PetscErrorCode VecScatterDestroy_Compat(VecScatter *a)
+{VecScatter b = *a; *a=0; return VecScatterDestroy(b);}
+#define VecScatterDestroy VecScatterDestroy_Compat
 inline PetscErrorCode VecDestroy_Compat(Vec *a)
 {Vec b = *a; *a=0; return VecDestroy(b);}
 #define VecDestroy VecDestroy_Compat

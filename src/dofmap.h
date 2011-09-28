@@ -257,9 +257,9 @@ public:
   /// node partitioning (as returned by Metis)
   int *npart;
   /// Scatter to convert to sequential vector with ghost values
-  VecScatter *ghost_scatter;
+  VecScatter ghost_scatter;
   /// scatter to print
-  VecScatter *scatter_print;
+  VecScatter scatter_print;
 
   // This is used temporarily in order to store the mappings between
   // edofs and fixations

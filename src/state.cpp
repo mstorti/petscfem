@@ -30,9 +30,10 @@ State::State(const State &v)
 #define __FUNC__ "State::~State()" 
 State::~State() {
   if (vec) {
+    Vec *p = vec;
     int ierr = VecDestroy(vec);
+    delete p;
     assert(ierr==0); ierr=0;
-    delete vec;
   }
 }
 

@@ -65,9 +65,9 @@ int assemble(Mesh *mesh,arg_list argl,
       ARGVJ.x = x;
       ARGVJ.ghost_vec = ghost_vec;
       
-      ierr = VecScatterBegin(*dofmap->ghost_scatter,*x,*ghost_vec,
+      ierr = VecScatterBegin(dofmap->ghost_scatter,*x,*ghost_vec,
 			     INSERT_VALUES,SCATTER_FORWARD); CHKERRA(ierr); 
-      ierr = VecScatterEnd(*dofmap->ghost_scatter,*x,*ghost_vec,
+      ierr = VecScatterEnd(dofmap->ghost_scatter,*x,*ghost_vec,
 			   INSERT_VALUES,SCATTER_FORWARD); CHKERRA(ierr); 
       ierr = VecGetArray(*ghost_vec,
 			 &(ARGVJ.ghost_vals)); CHKERRQ(ierr);
@@ -278,10 +278,11 @@ int assemble(Mesh *mesh,arg_list argl,
       delete[] ARGVJ.locst;
       ierr = VecRestoreArray(*(ARGVJ.ghost_vec),
 			     &(ARGVJ.ghost_vals)); CHKERRQ(ierr); 
-      ierr = VecDestroy((ARGVJ.ghost_vec));
       ierr = VecRestoreArray(*(ARGVJ.x),
-			     &(ARGVJ.sstate)); CHKERRQ(ierr); 
-      delete ARGVJ.ghost_vec;
+			     &(ARGVJ.sstate)); CHKERRQ(ierr);
+      Vec *ghost_vec = ARGVJ.ghost_vec;
+      ierr = VecDestroy(ARGVJ.ghost_vec);
+      delete ghost_vec;
     }
 
     if (argl[j].options & DELETE_RETVAL) 

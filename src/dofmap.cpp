@@ -323,4 +323,6 @@ Dofmap::Dofmap() :
 Dofmap::~Dofmap() {
   DELETE_SCLR(id);
   DELETE_VCTR(tpwgts);
+  VecScatterDestroy(&ghost_scatter);
+  VecScatterDestroy(&scatter_print);
 }

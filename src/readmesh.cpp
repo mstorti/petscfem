@@ -1800,9 +1800,6 @@ int read_mesh(Mesh *& mesh,char *fcase,Dofmap *& dofmap,
   Vec x,ghost_vec,xseq;
   IS is_ghost_glob,is_ghost_loc,is_print;
 
-  dofmap->ghost_scatter = new VecScatter;
-  dofmap->scatter_print = new VecScatter;
-
   dofmap->create_MPI_vector(x);
   dofmap->create_MPI_ghost_vector(ghost_vec);
 
@@ -1816,7 +1813,7 @@ int read_mesh(Mesh *& mesh,char *fcase,Dofmap *& dofmap,
   ierr = ISCreateStride(PETSCFEM_COMM_WORLD,nghost_dofs,0,1,&is_ghost_loc);
 
   ierr = VecScatterCreate(x,is_ghost_glob,ghost_vec,is_ghost_loc,
-			  dofmap->ghost_scatter); CHKERRQ(ierr); 
+			  &dofmap->ghost_scatter); CHKERRQ(ierr); 
 
   ierr = ISDestroy(&is_ghost_glob); CHKERRQ(ierr); 
   ierr = ISDestroy(&is_ghost_loc); CHKERRQ(ierr); 
@@ -1826,7 +1823,7 @@ int read_mesh(Mesh *& mesh,char *fcase,Dofmap *& dofmap,
   
   ierr = ISCreateStride(PETSCFEM_COMM_WORLD,neql,0,1,&is_print);
   ierr = VecScatterCreate(x,is_print,xseq,is_print,
-			  dofmap->scatter_print); CHKERRQ(ierr); 
+			  &dofmap->scatter_print); CHKERRQ(ierr); 
   
   ierr = ISDestroy(&is_print); CHKERRQ(ierr); 
 
