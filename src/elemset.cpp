@@ -176,7 +176,7 @@ int vector_assoc_gather(vector<double> *vector_assoc,
     // printf("On proc [%d] j=%d gathered val %f\n",
     // myrank,j,(*vector_assoc)[j]);
   }
-  ierr = VecDestroy(one_elem_per_proc);
+  ierr = VecDestroy(&one_elem_per_proc);
   return 0;
 }
 
@@ -785,7 +785,7 @@ int assemble(Mesh *mesh,arg_list argl,
     if (argl[j].options & DOWNLOAD_VECTOR) {
       ierr = VecRestoreArray(*(ARGVJ.ghost_vec),
 			     &(ARGVJ.ghost_vals)); CHKERRQ(ierr); 
-      ierr = VecDestroy(*(ARGVJ.ghost_vec));
+      ierr = VecDestroy((ARGVJ.ghost_vec));
       ierr = VecRestoreArray(*(ARGVJ.x),
 			     &(ARGVJ.sstate)); CHKERRQ(ierr); 
       delete ARGVJ.ghost_vec;

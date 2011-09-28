@@ -68,9 +68,9 @@ int IISD_ksp_ll_view(Mat A, PetscViewer viewer) {
 int IISDMat::ksp_ll_view(PetscViewer viewer) {
   int ierr;
   PetscViewer sviewer = 0;
-  PetscTruth iascii;
+  PetscBool iascii;
   ierr = PetscViewerGetSingleton(viewer,&sviewer);CHKERRQ(ierr);
-  ierr = PetscTypeCompare((PetscObject)viewer,PETSC_VIEWER_ASCII,&iascii);
+  ierr = PetscTypeCompare((PetscObject)viewer,PETSCVIEWERASCII,&iascii);
   CHKERRQ(ierr);
   if (iascii) {
     ierr = PetscViewerASCIIPrintf(viewer,

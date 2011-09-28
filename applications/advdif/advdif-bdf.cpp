@@ -39,7 +39,7 @@ Hook *advdif_hook_factory(const char *name);
 int bdf_main() {
 
 #define CNLEN 100
-  PetscTruth flg;
+  PetscBool flg;
   char code_name[CNLEN];
   int ierr;
 
@@ -698,16 +698,16 @@ int bdf_main() {
     print_vector(save_file_res.c_str(),res,dofmap,&time);
   if (report_option_access && MY_RANK==0) TextHashTable::print_stat();
 
-  ierr = VecDestroy(x); CHKERRA(ierr); 
-  ierr = VecDestroy(xold); CHKERRA(ierr); 
-  ierr = VecDestroy(dx); CHKERRA(ierr); 
-  ierr = VecDestroy(res); CHKERRA(ierr); 
+  ierr = VecDestroy(&x); CHKERRA(ierr); 
+  ierr = VecDestroy(&xold); CHKERRA(ierr); 
+  ierr = VecDestroy(&dx); CHKERRA(ierr); 
+  ierr = VecDestroy(&res); CHKERRA(ierr); 
   if (use_BDF) {
-    ierr = VecDestroy(xn); CHKERRA(ierr); 
-    ierr = VecDestroy(xn1); CHKERRA(ierr); 
+    ierr = VecDestroy(&xn); CHKERRA(ierr); 
+    ierr = VecDestroy(&xn1); CHKERRA(ierr); 
   }
 #ifdef DIAG_MAT_MATRIX
-  ierr = MatDestroy(A); CHKERRA(ierr); 
+  ierr = MatDestroy(&A); CHKERRA(ierr); 
 #endif
   
   delete A;

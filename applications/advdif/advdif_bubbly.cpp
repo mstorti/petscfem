@@ -60,7 +60,7 @@ int bubbly_main() {
   double omega_newton_in=NAN;
 
 
-  PetscTruth flg;
+  PetscBool flg;
   // nu:= dimension of the state vector per node
   PetscScalar  neg_one = -1.0, one = 1.0, value[3];
   PetscScalar *px;
@@ -643,19 +643,19 @@ int bubbly_main() {
     print_vector(save_file_res.c_str(),res,dofmap,&time);
   if (report_option_access && MY_RANK==0) TextHashTable::print_stat();
 
-  ierr = VecDestroy(x); CHKERRA(ierr);
-  ierr = VecDestroy(xold); CHKERRA(ierr);
-  ierr = VecDestroy(dx); CHKERRA(ierr);
-  ierr = VecDestroy(res); CHKERRA(ierr);
-  ierr = VecDestroy(res_out); CHKERRA(ierr);
-  ierr = VecDestroy(dx_out); CHKERRA(ierr);
+  ierr = VecDestroy(&x); CHKERRA(ierr);
+  ierr = VecDestroy(&xold); CHKERRA(ierr);
+  ierr = VecDestroy(&dx); CHKERRA(ierr);
+  ierr = VecDestroy(&res); CHKERRA(ierr);
+  ierr = VecDestroy(&res_out); CHKERRA(ierr);
+  ierr = VecDestroy(&dx_out); CHKERRA(ierr);
 
     for (int kstage=0; kstage<nstage; kstage++) {
 
 #ifdef DIAG_MAT_MATRIX
-//  ierr = MatDestroy(A_liq); CHKERRA(ierr);
-//  ierr = MatDestroy(A_gas); CHKERRA(ierr);
-  ierr = MatDestroy(A_stage[kstage]); CHKERRA(ierr);
+//  ierr = MatDestroy(&A_liq); CHKERRA(ierr);
+//  ierr = MatDestroy(&A_gas); CHKERRA(ierr);
+  ierr = MatDestroy(&A_stage[kstage]); CHKERRA(ierr);
 #endif
 
 //  delete A_liq,A_gas;

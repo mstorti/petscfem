@@ -54,7 +54,7 @@ int mmove2_main() {
     jdof, k, kk, nfixa,
     kdof, ldof, lloc, nel, nen, neq, nu,
     myrank;
-  PetscTruth flg;
+  PetscBool flg;
   // Initialize time
   Time time,time_old; 
   GlobParam glob_param;
@@ -790,13 +790,13 @@ int mmove2_main() {
   if (report_option_access && MY_RANK==0) TextHashTable::print_stat();
   print_vector(save_file.c_str(),x,dofmap,&time);
 
-  // ierr = VecDestroy(x); CHKERRA(ierr); 
-  ierr = VecDestroy(x); CHKERRA(ierr); 
-  ierr = VecDestroy(xold); CHKERRA(ierr); 
-  ierr = VecDestroy(dx); CHKERRA(ierr); 
-  ierr = VecDestroy(dx_step); CHKERRA(ierr); 
-  ierr = VecDestroy(res); CHKERRA(ierr); 
-  ierr = VecDestroy(res_delta); CHKERRA(ierr); 
+  // ierr = VecDestroy(&x); CHKERRA(ierr); 
+  ierr = VecDestroy(&x); CHKERRA(ierr); 
+  ierr = VecDestroy(&xold); CHKERRA(ierr); 
+  ierr = VecDestroy(&dx); CHKERRA(ierr); 
+  ierr = VecDestroy(&dx_step); CHKERRA(ierr); 
+  ierr = VecDestroy(&res); CHKERRA(ierr); 
+  ierr = VecDestroy(&res_delta); CHKERRA(ierr); 
 
   DELETE_SCLR(Ap);
   DELETE_SCLR(dofmap);

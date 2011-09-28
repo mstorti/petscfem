@@ -142,7 +142,7 @@ int print_vector(const char *filename,const Vec x,const Dofmap *dofmap,
   MPI_Bcast(&ierr,1,MPI_INT,0,PETSCFEM_COMM_WORLD);
   PETSCFEM_ASSERT0(!ierr,"Couldn't open output file");
   ierr = VecRestoreArray(vseq,&vseq_vals); CHKERRQ(ierr); 
-  ierr = VecDestroy(vseq);CHKERRQ(ierr);
+  ierr = VecDestroy(&vseq);CHKERRQ(ierr);
   return 0;
 }
 
@@ -176,7 +176,7 @@ int state2fields(double *fields,const Vec x,const Dofmap *dofmap,
     }
   }
   ierr = VecRestoreArray(vseq,&vseq_vals); CHKERRQ(ierr); 
-  ierr = VecDestroy(vseq);
+  ierr = VecDestroy(&vseq);
   return 0;
 }
 
@@ -241,7 +241,7 @@ int print_some(const char *filename,const Vec x,Dofmap *dofmap,
     fclose(output);
   }
   ierr = VecRestoreArray(vseq,&sol); CHKERRA(ierr); 
-  ierr = VecDestroy(vseq);CHKERRA(ierr);
+  ierr = VecDestroy(&vseq);CHKERRA(ierr);
   return 0;
 }
 

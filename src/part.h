@@ -4,6 +4,7 @@
 #ifndef PART_H
 #define PART_H
 
+#include <cstdlib>
 #include <cassert>
 
 using namespace std;

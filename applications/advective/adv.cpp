@@ -76,7 +76,7 @@ int advective_main(int argc,char **args) {
     jdof, k, kk, nfixa,
     kdof, ldof, lloc, ndim, nel, nen, neq, nu,
     myrank;
-  PetscTruth flg;
+  PetscBool flg;
   // nu:= dimension of the state vector per node
   PetscScalar  neg_one = -1.0, one = 1.0, value[3];
   PetscScalar *px;
@@ -343,7 +343,7 @@ int advective_main(int argc,char **args) {
 
       ierr = KSPSolve(ksp_mass,res,dx); CHKERRA(ierr); 
       ierr = KSPGetIterationNumber(ksp_mass,&its); CHKERRA(ierr); 
-      ierr = KSPDestroy(ksp_mass);
+      ierr = KSPDestroy(&ksp_mass);
 
     } else {
 
@@ -433,12 +433,12 @@ int advective_main(int argc,char **args) {
   }
   print_vector(save_file.c_str(),x,dofmap,&time);
 
-  ierr = VecDestroy(x); CHKERRA(ierr); 
-  ierr = VecDestroy(xold); CHKERRA(ierr); 
-  ierr = VecDestroy(dx); CHKERRA(ierr); 
-  ierr = VecDestroy(res); CHKERRA(ierr); 
+  ierr = VecDestroy(&x); CHKERRA(ierr); 
+  ierr = VecDestroy(&xold); CHKERRA(ierr); 
+  ierr = VecDestroy(&dx); CHKERRA(ierr); 
+  ierr = VecDestroy(&res); CHKERRA(ierr); 
 #ifdef DIAG_MAT_MATRIX
-  ierr = MatDestroy(A_mass); CHKERRA(ierr); 
+  ierr = MatDestroy(&A_mass); CHKERRA(ierr); 
 #endif
   
   PetscFinalize();

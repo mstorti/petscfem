@@ -64,7 +64,7 @@ int ns_main(int argc,char **args) {
     jdof, k, kk, nfixa,
     kdof, ldof, lloc, nel, nen, neq, nu,
     myrank;
-  PetscTruth flg;
+  PetscBool flg;
   // Initialize time
   Time time,time_old,time_star; 
   GlobParam glob_param;
@@ -1096,12 +1096,12 @@ int ns_main(int argc,char **args) {
   if (report_option_access && MY_RANK==0) TextHashTable::print_stat();
   print_vector(save_file.c_str(),x,dofmap,&time);
 
-  // ierr = VecDestroy(x); CHKERRA(ierr); 
-  ierr = VecDestroy(x); CHKERRA(ierr); 
-  ierr = VecDestroy(xold); CHKERRA(ierr); 
-  ierr = VecDestroy(dx); CHKERRA(ierr); 
-  ierr = VecDestroy(dx_step); CHKERRA(ierr); 
-  ierr = VecDestroy(res); CHKERRA(ierr); 
+  // ierr = VecDestroy(&x); CHKERRA(ierr); 
+  ierr = VecDestroy(&x); CHKERRA(ierr); 
+  ierr = VecDestroy(&xold); CHKERRA(ierr); 
+  ierr = VecDestroy(&dx); CHKERRA(ierr); 
+  ierr = VecDestroy(&dx_step); CHKERRA(ierr); 
+  ierr = VecDestroy(&res); CHKERRA(ierr); 
 
   if (!fractional_step) {
     delete A_tet;
@@ -1110,7 +1110,7 @@ int ns_main(int argc,char **args) {
     delete A_mom;
     delete A_poi;
     delete A_prj;
-    ierr = VecDestroy(xp); CHKERRA(ierr); 
+    ierr = VecDestroy(&xp); CHKERRA(ierr); 
   }
 
   DELETE_SCLR(dofmap);

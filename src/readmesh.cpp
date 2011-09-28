@@ -1811,14 +1811,15 @@ int read_mesh(Mesh *& mesh,char *fcase,Dofmap *& dofmap,
 
   ierr = ISCreateGeneral(PETSCFEM_COMM_WORLD,nghost_dofs,
 			 &*dofmap->ghost_dofs->begin(),
+                         PETSC_COPY_VALUES,
 			 &is_ghost_glob);  CHKERRQ(ierr); 
   ierr = ISCreateStride(PETSCFEM_COMM_WORLD,nghost_dofs,0,1,&is_ghost_loc);
 
   ierr = VecScatterCreate(x,is_ghost_glob,ghost_vec,is_ghost_loc,
 			  dofmap->ghost_scatter); CHKERRQ(ierr); 
 
-  ierr = ISDestroy(is_ghost_glob); CHKERRQ(ierr); 
-  ierr = ISDestroy(is_ghost_loc); CHKERRQ(ierr); 
+  ierr = ISDestroy(&is_ghost_glob); CHKERRQ(ierr); 
+  ierr = ISDestroy(&is_ghost_loc); CHKERRQ(ierr); 
 
   int neql = (myrank==0 ? dofmap->neq : 0);
   ierr = VecCreateSeq(PETSC_COMM_SELF,neql,&xseq);  CHKERRQ(ierr);
@@ -1827,7 +1828,7 @@ int read_mesh(Mesh *& mesh,char *fcase,Dofmap *& dofmap,
   ierr = VecScatterCreate(x,is_print,xseq,is_print,
 			  dofmap->scatter_print); CHKERRQ(ierr); 
   
-  ierr = ISDestroy(is_print); CHKERRQ(ierr); 
+  ierr = ISDestroy(&is_print); CHKERRQ(ierr); 
 
 #if 0
   for (int jj=dof1; jj<=dof2; jj++) {
@@ -1851,9 +1852,9 @@ int read_mesh(Mesh *& mesh,char *fcase,Dofmap *& dofmap,
   PetscSynchronizedFlush(PETSCFEM_COMM_WORLD);
 #endif
 
-  ierr = VecDestroy(x);
-  ierr = VecDestroy(ghost_vec);
-  ierr = VecDestroy(xseq);
+  ierr = VecDestroy(&x);
+  ierr = VecDestroy(&ghost_vec);
+  ierr = VecDestroy(&xseq);
 
 #if 0
   ierr = VecGhostGetLocalForm(gx,&lx); CHKERRQ(ierr);

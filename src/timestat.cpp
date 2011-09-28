@@ -20,7 +20,7 @@ void TimeStat::init() {
 
 void TimeStat::add(double t) {
   if (t<t_min || t >= t_max) {
-    *out++;
+    out++;
     *cout += t;
   } else {
     int jbin = int(floor((log(t)-log(t_min))/dt));

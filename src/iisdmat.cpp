@@ -276,7 +276,7 @@ int PFPETScMat::build_ksp() {
     CHKERRQ(ierr);
   }
   if (preco_side == "right")
-    ierr = KSPSetPreconditionerSide(ksp,PC_RIGHT);
+    ierr = KSPSetPCSide(ksp,PC_RIGHT);
   else if (preco_side == "left") {}
   else PetscPrintf(PETSCFEM_COMM_WORLD,
 		   "PFPETScMat::build_ksp: bad \"preco_side\" option: %s\n",
@@ -692,7 +692,7 @@ int IISDMat::view(PetscViewer viewer) {
       ierr = PetscViewerSetFormat(matlab,
 			     PETSC_VIEWER_ASCII_MATLAB); PF_CHKERRQ(ierr);
       ierr = MatView(A_LL,matlab); PF_CHKERRQ(ierr);
-      ierr = PetscViewerDestroy(matlab);
+      ierr = PetscViewerDestroy(&matlab);
     }
   } else {
 #ifdef USE_SUPERLU
@@ -830,7 +830,7 @@ int IISDMat::set_value_a(int row,int col,PetscScalar value,
 int type##Destroy_maybe(type &v) {		\
   int ierr=0;					\
   if (v) {					\
-    ierr = type##Destroy(v); CHKERRQ(ierr);	\
+    ierr = type##Destroy(&v); CHKERRQ(ierr);	\
     v = NULL;					\
   }						\
   return ierr;					\
@@ -1046,7 +1046,7 @@ int IISDMat::maybe_factor_and_solve(Vec &res,Vec &dx,int factored=0) {
     ierr = ViewerSetFormat(matlab,
 			   PETSC_VIEWER_ASCII_MATLAB,"dxiisd"); PF_CHKERRQ(ierr);
     ierr = VecView(dx,matlab);
-    ierr = ViewerDestroy(matlab);
+    ierr = ViewerDestroy(&matlab);
 #endif
     ierr = VecDestroy_maybe(res_i); PF_CHKERRQ(ierr); 
     ierr = VecDestroy_maybe(x_i); PF_CHKERRQ(ierr); 
@@ -1101,7 +1101,7 @@ int IISDMat::maybe_factor_and_solve(Vec &res,Vec &dx,int factored=0) {
 	ierr = KSPSolve(ksp_lll,y_loc_seq,x_loc_seq); PF_CHKERRQ(ierr); 
 	ierr = KSPGetIterationNumber(ksp_lll,&itss); PF_CHKERRQ(ierr); 
 
-	ierr = KSPDestroy(ksp_lll); CHKERRA(ierr); PF_CHKERRQ(ierr); 
+	ierr = KSPDestroy(&ksp_lll); CHKERRA(ierr); PF_CHKERRQ(ierr); 
 
       } else { // local_solver == SuperLU
 

@@ -4,6 +4,19 @@
 #include "sparse2.h"
 
 //---:---<*>---:---<*>---:a---<*>---:---<*>---:---<*>---:---<*>---: 
+
+#if PETSC_VERSION_(3,1,0) || PETSC_VERSION_(3,0,0)
+inline PetscErrorCode VecDestroy_Compat(Vec *a)
+{Vec b = *a; *a=0; return VecDestroy(b);}
+#define VecDestroy VecDestroy_Compat
+inline PetscErrorCode MatDestroy_Compat(Mat *a)
+{Mat b = *a; *a=0; return MatDestroy(b);}
+#define MatDestroy MatDestroy_Compat
+inline PetscErrorCode KSPDestroy_Compat(KSP *a)
+{KSP b = *a; *a=0; return KSPDestroy(b);}
+#define KSPDestroy KSPDestroy_Compat
+#endif
+
 #if (PETSC_VERSION_MAJOR    == 2 && \
      PETSC_VERSION_MINOR    == 3 && \
      PETSC_VERSION_SUBMINOR == 3)
@@ -245,8 +258,8 @@ namespace Sparse {
     memcpy(b,xx,m*sizeof(double));
     ierr = VecRestoreArray(x_vec,&xx); assert(!ierr); 
 
-    ierr = VecDestroy(x_vec); assert(!ierr); 
-    ierr = VecDestroy(b_vec); assert(!ierr); 
+    ierr = VecDestroy(&x_vec); assert(!ierr); 
+    ierr = VecDestroy(&b_vec); assert(!ierr); 
 
   }
 
@@ -254,8 +267,8 @@ namespace Sparse {
   void PETScMat::clean_factor() {
 
     int ierr;
-    ierr = MatDestroy(A); assert(!ierr);
-    ierr = KSPDestroy(ksp); assert(!ierr);
+    ierr = MatDestroy(&A); assert(!ierr);
+    ierr = KSPDestroy(&ksp); assert(!ierr);
 
   }
   

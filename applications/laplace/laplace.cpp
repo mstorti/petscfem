@@ -49,7 +49,7 @@ int laplace_main(int argc,char **args) {
   KSP     ksp;        /* Krylov subspace method context */
   double  norm, *sol, scal; /* norm of solution error */
   int     ierr,  size,  ndim, nel, nen, neq, myrank=-1, its;
-  PetscTruth flg;
+  PetscBool flg;
   double tol=2e-6;
   char fcase[FLEN+1];
   Dofmap *dofmap;

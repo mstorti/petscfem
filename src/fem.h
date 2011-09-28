@@ -621,6 +621,35 @@ void detj_error(double &detJaco,int elem);
 // CHKERRA is now obsolete in PETSc (see changes for PETSc 2.1)
 #define CHKERRA CHKERRQ
 
+#if PETSC_VERSION_(3,1,0) || PETSC_VERSION_(3,0,0)
+
+typedef PetscTruth PetscBool;
+
+#define PETSCVIEWERASCII PETSC_VIEWER_ASCII
+
+#define ISCreateGeneral(a,b,c,d,e)\
+        ISCreateGeneral(a,b,c,e)
+
+inline PetscErrorCode PetscViewerDestroy_Compat(PetscViewer *a)
+{PetscViewer b = *a; *a=0; return PetscViewerDestroy(b);}
+#define PetscViewerDestroy PetscViewerDestroy_Compat
+inline PetscErrorCode ISDestroy_Compat(IS *a)
+{IS b = *a; *a=0; return ISDestroy(b);}
+#define ISDestroy ISDestroy_Compat
+inline PetscErrorCode VecDestroy_Compat(Vec *a)
+{Vec b = *a; *a=0; return VecDestroy(b);}
+#define VecDestroy VecDestroy_Compat
+inline PetscErrorCode MatDestroy_Compat(Mat *a)
+{Mat b = *a; *a=0; return MatDestroy(b);}
+#define MatDestroy MatDestroy_Compat
+inline PetscErrorCode KSPDestroy_Compat(KSP *a)
+{KSP b = *a; *a=0; return KSPDestroy(b);}
+#define KSPDestroy KSPDestroy_Compat
+
+#define KSPSetPCSide KSPSetPreconditionerSide
+
+#endif
+
 
 #if PETSC_VERSION_(2,3,2)
 #define VecScatterBegin(ctx,x,y,im,sm) \

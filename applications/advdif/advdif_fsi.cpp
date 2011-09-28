@@ -49,7 +49,7 @@ int fsi_main() {
     jdof, k, kk, nfixa,
     kdof, ldof, lloc, ndim, nel, nen, neq, nu,
     myrank;
-  PetscTruth flg;
+  PetscBool flg;
   // nu:= dimension of the state vector per node
   PetscScalar  neg_one = -1.0, one = 1.0, value[3];
   PetscScalar *px;
@@ -443,9 +443,7 @@ int fsi_main() {
 	    ierr = A->solve(res,dx); CHKERRA(ierr); 
 	    debug.trace("After solving linear system.");
 	  }
-	  // ierr = SLESDestroy(sles);
-	  // ierr = A->destroy_sles(); CHKERRA(ierr); 
-	  
+
 	} else {
 	  
 	  VOID_IT(argl);
@@ -641,12 +639,12 @@ int fsi_main() {
     print_vector(save_file_res.c_str(),res,dofmap,&time);
   if (report_option_access && MY_RANK==0) TextHashTable::print_stat();
 
-  ierr = VecDestroy(x); CHKERRA(ierr); 
-  ierr = VecDestroy(xold); CHKERRA(ierr); 
-  ierr = VecDestroy(dx); CHKERRA(ierr); 
-  ierr = VecDestroy(res); CHKERRA(ierr); 
+  ierr = VecDestroy(&x); CHKERRA(ierr); 
+  ierr = VecDestroy(&xold); CHKERRA(ierr); 
+  ierr = VecDestroy(&dx); CHKERRA(ierr); 
+  ierr = VecDestroy(&res); CHKERRA(ierr); 
 #ifdef DIAG_MAT_MATRIX
-  ierr = MatDestroy(A); CHKERRA(ierr); 
+  ierr = MatDestroy(&A); CHKERRA(ierr); 
 #endif
   
   delete A;

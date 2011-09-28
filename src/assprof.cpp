@@ -278,7 +278,7 @@ int assemble(Mesh *mesh,arg_list argl,
       delete[] ARGVJ.locst;
       ierr = VecRestoreArray(*(ARGVJ.ghost_vec),
 			     &(ARGVJ.ghost_vals)); CHKERRQ(ierr); 
-      ierr = VecDestroy(*(ARGVJ.ghost_vec));
+      ierr = VecDestroy((ARGVJ.ghost_vec));
       ierr = VecRestoreArray(*(ARGVJ.x),
 			     &(ARGVJ.sstate)); CHKERRQ(ierr); 
       delete ARGVJ.ghost_vec;

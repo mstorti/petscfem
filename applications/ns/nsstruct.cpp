@@ -48,7 +48,7 @@ int struct_main() {
     jdof, k, kk, nfixa,
     kdof, ldof, lloc, nel, nen, neq, nu,
     myrank;
-  PetscTruth flg;
+  PetscBool flg;
   // Initialize time
   // time = t^{n+1} -> to be computed
   // time_old = t^{n} (known)
@@ -737,12 +737,12 @@ int struct_main() {
   if (report_option_access && MY_RANK==0) TextHashTable::print_stat();
   print_vector(save_file.c_str(),x,dofmap,&time);
 
-  // ierr = VecDestroy(x); CHKERRA(ierr); 
-  ierr = VecDestroy(x); CHKERRA(ierr); 
-  ierr = VecDestroy(xold); CHKERRA(ierr); 
-  ierr = VecDestroy(dx); CHKERRA(ierr); 
-  ierr = VecDestroy(dx_step); CHKERRA(ierr); 
-  ierr = VecDestroy(res); CHKERRA(ierr); 
+  // ierr = VecDestroy(&x); CHKERRA(ierr); 
+  ierr = VecDestroy(&x); CHKERRA(ierr); 
+  ierr = VecDestroy(&xold); CHKERRA(ierr); 
+  ierr = VecDestroy(&dx); CHKERRA(ierr); 
+  ierr = VecDestroy(&dx_step); CHKERRA(ierr); 
+  ierr = VecDestroy(&res); CHKERRA(ierr); 
 
   delete A_tet;
   delete A_tet_c;
