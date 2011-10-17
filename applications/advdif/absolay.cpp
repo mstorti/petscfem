@@ -302,7 +302,7 @@ new_assemble(arg_data_list &arg_data_v,const Nodedata *nodedata,
     Jaco(2,ndimel,ndim),iJaco(2,ndimel,ndimel),
     dU(1,ndof),dshapex(2,ndimel,nel), normal(1,ndim),tmp1,tmp2,
     shape(1,nel),tmp3,W(1,ndof),Wbar(1,ndof),W1(1,ndof),W2(1,ndof),
-    Wmagic(1,ndof),U1(1,ndof);
+    Wmagic(1,ndof),U1(1,ndof),dudy(1,ndof);
 
   nen = nel*ndof;
 
@@ -415,8 +415,9 @@ new_assemble(arg_data_list &arg_data_v,const Nodedata *nodedata,
           lstate.ir(1,3);
           W.set(lstate);
           lstate.ir(1,1);
-          W.minus(lstate).scale(Dt/hy)
-            .add(Wbar).scale(kfac/3.0);
+          W.minus(lstate).scale(0.5/hy);
+          dudy.set(W);
+          W.scale(Dt).add(Wbar).scale(kfac/3.0);
           // if (0 && abso_current_step==STEP_DBG && abso_inwt==1)
           lstate.rs();
           lstate.ir(1,2);
@@ -428,10 +429,12 @@ new_assemble(arg_data_list &arg_data_v,const Nodedata *nodedata,
             double 
               *Up = dU.storage_begin(),
               *Wp = W.storage_begin(),
-              *Wmagicp = Wmagic.storage_begin();
-            printf("node %d step %d U %f %f W %f %f Wmagic %f %f\n",
+              *Wmagicp = Wmagic.storage_begin(),
+              *dudyp = dudy.storage_begin();
+            printf("node %d step %d U %f %f W %f %f Wmagic %f %f dudy %f %f\n",
                    NODE_DBG,abso_current_step,
-                   Up[0],Up[1],Wp[0],Wp[1],Wmagicp[0],Wmagicp[1]);
+                   Up[0],Up[1],Wp[0],Wp[1],Wmagicp[0],Wmagicp[1],
+                   dudyp[0],dudyp[1]);
           }
           if (!isnan(magic_abso_coef)) {
             if (print_w_values && abso_inwt==1) {
