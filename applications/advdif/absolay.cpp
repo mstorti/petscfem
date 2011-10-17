@@ -401,9 +401,9 @@ new_assemble(arg_data_list &arg_data_v,const Nodedata *nodedata,
         // lS = jk2node(j,k-1);
         // assert(lN==locnodes[2]-1);
         // assert(lS==locnodes[0]-1);
-        W1.set(whist.e(0,node-1,0));
-        W2.set(whist.e(1,node-1,0));
-        U1.set(uhist.e(0,node-1,0));
+        W1.set(&whist.e(0,node-1,0));
+        W2.set(&whist.e(1,node-1,0));
+        U1.set(&uhist.e(0,node-1,0));
         Wbar.set(0.0).axpy(W1,4.0).axpy(W2,-1.0);
 
         veccontr.set(0.0);
@@ -417,7 +417,7 @@ new_assemble(arg_data_list &arg_data_v,const Nodedata *nodedata,
           lstate.ir(1,1);
           W.minus(lstate).scale(0.5/hy);
           dudy.set(W);
-          W.scale(Dt).add(Wbar).scale(kfac/3.0);
+          W.scale(2.0*Dt).add(Wbar).scale(kfac/3.0);
           // if (0 && abso_current_step==STEP_DBG && abso_inwt==1)
           lstate.rs();
           lstate.ir(1,2);
@@ -430,11 +430,13 @@ new_assemble(arg_data_list &arg_data_v,const Nodedata *nodedata,
               *Up = dU.storage_begin(),
               *Wp = W.storage_begin(),
               *Wmagicp = Wmagic.storage_begin(),
+              *Wbarp = Wbar.storage_begin(),
               *dudyp = dudy.storage_begin();
-            printf("node %d step %d U %f %f W %f %f Wmagic %f %f dudy %f %f\n",
+            printf("node %d step %d U %f %f W %f %f Wmagic "
+                   "%f %f dudy %f %f Wbar %f %f\n",
                    NODE_DBG,abso_current_step,
                    Up[0],Up[1],Wp[0],Wp[1],Wmagicp[0],Wmagicp[1],
-                   dudyp[0],dudyp[1]);
+                   dudyp[0],dudyp[1],Wbarp[0],Wbarp[1]);
           }
           if (!isnan(magic_abso_coef)) {
             if (print_w_values && abso_inwt==1) {
@@ -571,6 +573,14 @@ void AbsorbingLayer::time_step_post(int step) {
            uhist.e(1,NODE_DBG-1,0),
            whist.e(0,NODE_DBG-1,0),
            whist.e(1,NODE_DBG-1,0));
+    printf("node %d W0 %f %f W1 %f %f W2 %f %f\n",
+           NODE_DBG,
+           whist.e(0,NODE_DBG-1,0),
+           whist.e(0,NODE_DBG-1,1),
+           whist.e(1,NODE_DBG-1,0),
+           whist.e(1,NODE_DBG-1,1),
+           whist.e(2,NODE_DBG-1,0),
+           whist.e(2,NODE_DBG-1,1));
   }
 
   if (0 && !MY_RANK && step==STEP_DBG) {
