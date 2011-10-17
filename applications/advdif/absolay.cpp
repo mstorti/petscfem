@@ -410,6 +410,7 @@ new_assemble(arg_data_list &arg_data_v,const Nodedata *nodedata,
         lstate.ir(1,2);
         dU.set(lstate).minus(Uref);
         veccontr.ir(1,2).prod(H0,dU,1,-1,-1);
+        int use_wmagic = 1;
         if (use_h1_term) {
           lstate.ir(1,3);
           W.set(lstate);
@@ -417,35 +418,39 @@ new_assemble(arg_data_list &arg_data_v,const Nodedata *nodedata,
           W.minus(lstate).scale(Dt/hy)
             .add(Wbar).scale(kfac/3.0);
           // if (0 && abso_current_step==STEP_DBG && abso_inwt==1)
-          if (print_w_values && abso_inwt==1) {
-            data_t d;
-            d.node = node;
-            double *p = W.storage_begin();
-            d.w1 = p[0];
-            d.w2 = p[1];
-            p = dU.storage_begin();
-            d.u1 = p[0];
-            d.u2 = p[1];
-            d.inwt = abso_inwt;
-            store.push_back(d);
-          }
           lstate.rs();
-          if (!isnan(magic_abso_coef)) {
-            lstate.ir(1,2);
-            Wmagic.set(lstate).scale(magic_abso_coef)
-              .axpy(U1,magic_abso_coef1);
-            lstate.rs();
-            if (0 && rand()%200==0) {
-              double 
-                *Wp = W.storage_begin(),
-                *Wmp = Wmagic.storage_begin();
-              printf("node %d W %f %f Wmagic %f %f\n",
-                     node,Wp[0],Wp[1],Wmp[0],Wmp[1]);
-            }
-            tmp3.prod(H1,Wmagic,1,-1,-1);
-          } else {
-            tmp3.prod(H1,W,1,-1,-1);
+          lstate.ir(1,2);
+          Wmagic.set(lstate).scale(magic_abso_coef)
+            .axpy(U1,-magic_abso_coef1);
+          lstate.rs();
+#define NODE_DBG 1662
+          if (node==NODE_DBG && abso_inwt==1) {
+            double 
+              *Up = dU.storage_begin(),
+              *Wp = W.storage_begin(),
+              *Wmagicp = Wmagic.storage_begin();
+            printf("node %d step %d U %f %f W %f %f Wmagic %f %f\n",
+                   NODE_DBG,abso_current_step,
+                   Up[0],Up[1],Wp[0],Wp[1],Wmagicp[0],Wmagicp[1]);
           }
+          if (!isnan(magic_abso_coef)) {
+            if (print_w_values && abso_inwt==1) {
+              lstate.rs();
+              double *p;
+              nodes.push_back(node);
+              p = dU.storage_begin();
+              values.push_back(p[0]);
+              values.push_back(p[1]);
+              p = W.storage_begin();
+              values.push_back(p[0]);
+              values.push_back(p[1]);
+              p = Wmagic.storage_begin();
+              values.push_back(p[0]);
+              values.push_back(p[1]);
+            }
+          }
+          if (use_wmagic) tmp3.prod(H1,Wmagic,1,-1,-1);
+          else tmp3.prod(H1,W,1,-1,-1);
           tmp3_max = max(tmp3.norm_p_all(),tmp3_max);
           veccontr.axpy(tmp3,h1fac).rs();
         }
@@ -453,7 +458,7 @@ new_assemble(arg_data_list &arg_data_v,const Nodedata *nodedata,
         matloc.rs().set(0.0).ir(1,2);
         matloc.ir(3,2).axpy(H0,1.0);
         if (use_h1_term) {
-          if (!isnan(magic_abso_coef)) {
+          if (use_wmagic) {
             matloc.axpy(Ay,-magic_abso_coef);
           } else {
             double cfac = h1fac*kfac*Dt/(3.0*hy);
@@ -487,9 +492,12 @@ void AbsorbingLayer::time_step_pre(int step) {
   if (!MY_RANK && step==STEP_DBG) 
     printf("in pre: entering step %d\n",step);
   abso_current_step=step;
-  // print_w_values = (step%50==0);
+  print_w_values = (step%50==0);
   print_w_values = 0;
-  if (print_w_values) store.clear();
+  if (print_w_values) {
+    nodes.clear();
+    values.clear();
+  }
 }
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
@@ -516,6 +524,7 @@ void AbsorbingLayer::time_step_post(int step) {
     for (int k=0; k<ndof; k++) 
       uhist.e(0,l,k) = u.e(l,k);
 
+  double DUDY[2]={NAN,NAN};
   for (int l=0; l<nnod; l++) {
     // int 
     // j = l/(Ny+1),             // x-position of node l
@@ -535,15 +544,30 @@ void AbsorbingLayer::time_step_post(int step) {
     node2jk(l,j,k);
     lN = jk2node(j,modulo(k+1,Ny));
     lS = jk2node(j,modulo(k-1,Ny));
-    // if (!MY_RANK) printf("lS %d, l %d, lN %d\n",lS,l,lN);
-
-    for (int k=0; k<ndof; k++) {
-      double 
-        dudy = (uhist.e(0,lN,k)-uhist.e(0,lS,k))/(2.0*hy),
-        ww = kfac*(2.0*Dt*dudy+4.0*whist.e(1,l,k)-whist.e(2,l,k))/3.0;
-      whist.e(0,l,k) = ww;
-      w.e(l,k) = ww;
+    if (!MY_RANK && l==NODE_DBG-1) {
+      printf("lS %d, l %d, lN %d\n",lS,l,lN);
+      printf("uS %f uN %f\n",uhist.e(0,lS,0),uhist.e(0,lN,0));
     }
+
+    for (int kdof=0; kdof<ndof; kdof++) {
+      double 
+        dudy = (uhist.e(0,lN,kdof)-uhist.e(0,lS,kdof))/(2.0*hy),
+        ww = kfac*(2.0*Dt*dudy+4.0*whist.e(1,l,kdof)
+                   -whist.e(2,l,kdof))/3.0;
+      if (l==NODE_DBG-1) DUDY[kdof] = dudy;
+      whist.e(0,l,kdof) = ww;
+      w.e(l,kdof) = ww;
+    }
+  }
+  if (!MY_RANK) {
+    printf("node %d dudy %f %f uS %f uO %f uN %f uprev %f wh %f %f\n",
+           NODE_DBG,DUDY[0],DUDY[1],
+           uhist.e(0,NODE_DBG-2,0),
+           uhist.e(0,NODE_DBG-1,0),
+           uhist.e(0,NODE_DBG-0,0),
+           uhist.e(1,NODE_DBG-1,0),
+           whist.e(0,NODE_DBG-1,0),
+           whist.e(1,NODE_DBG-1,0));
   }
 
   if (0 && !MY_RANK && step==STEP_DBG) {
@@ -555,15 +579,26 @@ void AbsorbingLayer::time_step_post(int step) {
   if (print_w_values) {
     if(!MY_RANK) 
       PetscSynchronizedPrintf(PETSCFEM_COMM_WORLD,
-                              "-------- step %d: node u1 u2 w1 w2----------\n");
-    for (unsigned int j=0; j<store.size(); j++) {
-      data_t &dd = store[j];
-      PetscSynchronizedPrintf(PETSCFEM_COMM_WORLD, 
-                              "%d %f %f %f %f\n",dd.node,dd.u1,dd.u2,dd.w1,dd.w2);
+                              "-------- step %d: node u w wmagic ----------\n",
+                              abso_current_step);
+    int ndata=6;
+    int OKG,OK = (values.size()==ndata*nodes.size());
+    MPI_Allreduce(&OK,&OKG,1,MPI_INT,MPI_LAND,PETSCFEM_COMM_WORLD);
+    if (!OKG) {
+      PetscSynchronizedPrintf(PETSCFEM_COMM_WORLD,
+                              "[%d] values %d nodes %d ndata %d OK %d\n",
+                              MY_RANK,values.size(),nodes.size(),ndata,OK);
+      PetscSynchronizedFlush(PETSCFEM_COMM_WORLD); 
+      PETSCFEM_ERROR0("Not OK");  
+    }
+    for (unsigned int j=0; j<nodes.size(); j++) {
+      PetscSynchronizedPrintf(PETSCFEM_COMM_WORLD,"%d ",nodes[j]);
+      for (int k=0; k<ndata; k++) 
+        PetscSynchronizedPrintf(PETSCFEM_COMM_WORLD,"%f ",values[j*ndata+k]);
+      PetscSynchronizedPrintf(PETSCFEM_COMM_WORLD,"\n");
+      
     }
     PetscSynchronizedFlush(PETSCFEM_COMM_WORLD); 
-    // PetscFinalize();
-    // exit(0);
   }
 
   if (!MY_RANK && nsaverotw>0 && (step % nsaverotw == 0)) {

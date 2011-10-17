@@ -44,11 +44,8 @@ private:
   double tmp3_max,h1fac;
   int print_w_values,abso_current_step;
 
-  struct data_t {
-    int node,inwt;
-    double w1,w2,u1,u2;
-  };
-  vector<data_t> store;
+  vector<int> nodes;
+  vector<double> values;
 public:
   /// Contructor from the pointer to the fux function
   AbsorbingLayer(NewAdvDifFF *adv_diff_ff_a=NULL) :
