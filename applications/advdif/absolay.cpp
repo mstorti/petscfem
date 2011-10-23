@@ -410,7 +410,7 @@ new_assemble(arg_data_list &arg_data_v,const Nodedata *nodedata,
         lstate.ir(1,2);
         dU.set(lstate).minus(Uref);
         veccontr.ir(1,2).prod(H0,dU,1,-1,-1);
-        int use_wmagic = 1;
+        int use_wmagic = 0;
         if (use_h1_term) {
           lstate.ir(1,3);
           W.set(lstate);
@@ -425,7 +425,7 @@ new_assemble(arg_data_list &arg_data_v,const Nodedata *nodedata,
             .axpy(U1,-magic_abso_coef1);
           lstate.rs();
 #define NODE_DBG 1662
-          if (node==NODE_DBG && abso_inwt==1) {
+          if (0 && node==NODE_DBG && abso_inwt==1) {
             double 
               *Up = dU.storage_begin(),
               *Wp = W.storage_begin(),
@@ -549,7 +549,7 @@ void AbsorbingLayer::time_step_post(int step) {
     node2jk(l,j,k);
     lN = jk2node(j,modulo(k+1,Ny));
     lS = jk2node(j,modulo(k-1,Ny));
-    if (!MY_RANK && l==NODE_DBG-1) {
+    if (0 && !MY_RANK && l==NODE_DBG-1) {
       printf("lS %d, l %d, lN %d\n",lS,l,lN);
       printf("uS %f uN %f\n",uhist.e(0,lS,0),uhist.e(0,lN,0));
     }
@@ -564,7 +564,7 @@ void AbsorbingLayer::time_step_post(int step) {
       w.e(l,kdof) = ww;
     }
   }
-  if (!MY_RANK) {
+  if (0 && !MY_RANK) {
     printf("node %d dudy %f %f uS %f uO %f uN %f uprev %f wh %f %f\n",
            NODE_DBG,DUDY[0],DUDY[1],
            uhist.e(0,NODE_DBG-2,0),
