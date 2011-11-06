@@ -246,8 +246,8 @@ comp_matrices(GetSurfCtx &ctx,
     edgeb.set(X);
 
     X.ir(1,1);
-    edgea.rest(X);
-    edgeb.rest(X);
+    edgea.minus(X);
+    edgeb.minus(X);
     X.rs();
 
     surf.cross(edgea,edgeb);

@@ -33,9 +33,7 @@ public:
   virtual void comp_Uintri(FastMat2 & A,FastMat2 & B)=0;
   virtual void comp_flux(FastMat2 & A,FastMat2 & B) =0 ;
   virtual void comp_vel_per_field(FastMat2 &vel_per_field)=0;
-  virtual void comp_vel_vec_per_field(FastMat2 &vel_vec_per_field) {
-    assert("Not defined comp_vel_vec_per_field() fun.");
-  }
+  virtual void comp_vel_vec_per_field(FastMat2 &vel_vec_per_field);
 };
 
 class DJac {
@@ -61,7 +59,7 @@ private:
   int LES;
   double C_smag,A_van_Driest,Pr_t;
   string diffusive_jacobians_type;
-  FastMat2 strain_rate,tmp15,tmp16;
+  FastMat2 strain_rate,tmp15,tmp16,tmp17;
 
   const NewAdvDif *advdf_e;
 

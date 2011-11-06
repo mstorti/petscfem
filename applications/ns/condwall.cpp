@@ -88,11 +88,11 @@ res_old(int k,FastMat2 &U,FastMat2 &r,
     // Closed
     r.set(0.0);
     U1.is(1,1,ndim);
-    r.is(1,1,ndim).set(U1).rest(u1).rs();
+    r.is(1,1,ndim).set(U1).minus(u1).rs();
     U1.rs();
     U2.is(1,1,ndim);
     r.rs().is(1,ndof+1,ndof+ndim)
-      .set(U2).rest(u2).rs();
+      .set(U2).minus(u2).rs();
     U2.rs();
 
     w.set(0.);
@@ -105,7 +105,7 @@ res_old(int k,FastMat2 &U,FastMat2 &r,
       .is(3,1,ndim).eye().rs();
   } else {
     // Open
-    r.set(0.).is(1,1,ndof).set(U1).rest(U2)
+    r.set(0.).is(1,1,ndof).set(U1).minus(U2)
       .rs().scale(-1.0);
     w.set(0.).is(3,1,ndof)
       .ir(1,1).eye()

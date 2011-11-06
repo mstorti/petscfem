@@ -78,7 +78,7 @@ element_connector(const FastMat2 &xloc,
   x0.set(xloc).add(state_old);
 
   if (relax_factor_now!=1.0) {
-    dx.set(x).rest(x0);
+    dx.set(x).minus(x0);
     x.set(x0).axpy(dx,relax_factor_now);
   }
 
@@ -174,9 +174,9 @@ element_connector(const FastMat2 &xloc,
     for (int i=1;i<=ndim;i++) {
       vaux2.ir(2,1).set(w.ir(1,i)).rs();
       vaux1.set(w.ir(1,ind[i+1]));
-      vaux2.ir(2,2).set(vaux1.rest(w.ir(1,ind[i]))).rs();
+      vaux2.ir(2,2).set(vaux1.minus(w.ir(1,ind[i]))).rs();
       vaux1.set(w.ir(1,ind[i]));
-      vaux2.ir(2,3).set(vaux1.rest(w.ir(1,ind[i-1]))).rs();
+      vaux2.ir(2,3).set(vaux1.minus(w.ir(1,ind[i-1]))).rs();
       for (int l=1;l<=ndim;l++) {
 	vaux1.ir(1,l).norm_2(vaux2.ir(2,l)).rs();
       }
@@ -215,7 +215,7 @@ element_connector(const FastMat2 &xloc,
   tmp.prod(d2SldW2,dWdu,1,2,-1,-2,-1,-2,3,4);
   d2Sldu2.prod(tmp,dWdu,-1,-2,3,4,-1,-2,1,2);
 
-  dQ.set(dVdu).scale(Sl).rest(dSldu.scale(V)).scale(C/pow(Sl,2));
+  dQ.set(dVdu).scale(Sl).minus(dSldu.scale(V)).scale(C/pow(Sl,2));
 
   dSldu.scale(1./V);
 

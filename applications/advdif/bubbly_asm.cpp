@@ -628,7 +628,7 @@ if (0) {
 	  double van_D;
 /*
 	  if (A_van_Driest>0.) {
-	    dist_to_wall.prod(SHAPE,xloc,-1,-1,1).rest(wall_coords);
+	    dist_to_wall.prod(SHAPE,xloc,-1,-1,1).minus(wall_coords);
 	    double ywall = sqrt(dist_to_wall.sum_square_all());
 	    double y_plus = ywall*shear_vel/VISC;
 	    van_D = 1.-exp(-y_plus/A_van_Driest);
@@ -731,7 +731,7 @@ if (0) {
 	  Dmat_vl.prod(v_l,grad_v_l,-1,1,-1).axpy(v_l,rec_Dt).axpy(v_l_old,-rec_Dt);
 	  Dmat_vg.prod(v_g,grad_v_g,-1,1,-1).axpy(v_g,rec_Dt).axpy(v_g_old,-rec_Dt);
 
-	  tmp2_vm.set(Dmat_vg).scale(alpha_g).rest(Dmat_vl);
+	  tmp2_vm.set(Dmat_vg).scale(alpha_g).minus(Dmat_vl);
 	  tmp2_vm.scale(rho_l*C_vm);
 	  G_source.is(1,vl_indx,vl_indxe).add(tmp2_vm).rs();
 
@@ -747,7 +747,7 @@ if (0) {
   if (comp_interphase_terms==1) {
   assert(d_bubble>0);
   C1_drag = 3./4.*visco_l/d_bubble/d_bubble;
-  v_g_l.set(v_g).rest(v_l);
+  v_g_l.set(v_g).minus(v_l);
   v_slip = v_g_l.sum_square_all();
   v_slip = sqrt(v_slip);
   Rey_bubble =rho_l*d_bubble*v_slip/visco_l;
@@ -788,7 +788,7 @@ if (0) {
 
           Phi_1.prod(v_g_l,v_g_l,1,2).scale(-tmp4_drag*dRedU/v_slip);
           Phi_2.set(Id).scale(Rey_bubble*C_drag_ff);
-          Phi_1.rest(Phi_2);
+          Phi_1.minus(Phi_2);
 
 	  Phi_1.scale(C1_drag*f_drag_alpha);
 

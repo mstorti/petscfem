@@ -374,7 +374,7 @@ void coupling_inv_hook::time_step_pre(double t,int step) {
     uu.addel(-Uinf,1);
 
     x1.set(ext_node_data[k-1]->x);
-    dx.set(ext_node_data[k]->x).rest(x1);
+    dx.set(ext_node_data[k]->x).minus(x1);
     
     double dpot = dpot_fm.prod(dx,uu,-1,-1).get();
     ext_node_data[k]->phi = ext_node_data[k-1]->phi + dpot;
@@ -441,12 +441,12 @@ void coupling_inv_hook::time_step_post(double time,int step,
     int k_center = k + (k==0? 1 : k==nnod_ext-1? -1 : 0);
     xc.set(ext_node_data[k]->x);
 
-    x.ir(1,1).set(ext_node_data[k_center-1]->x).rest(xc);
-    x.ir(1,2).set(ext_node_data[k_center]->x).rest(xc);
-    x.ir(1,3).set(ext_node_data[k_center+1]->x).rest(xc);
-    x.ir(1,4).set(ext_node_data[k_center-1]->x1).rest(xc);
-    x.ir(1,5).set(ext_node_data[k_center]->x1).rest(xc);
-    x.ir(1,6).set(ext_node_data[k_center+1]->x1).rest(xc);
+    x.ir(1,1).set(ext_node_data[k_center-1]->x).minus(xc);
+    x.ir(1,2).set(ext_node_data[k_center]->x).minus(xc);
+    x.ir(1,3).set(ext_node_data[k_center+1]->x).minus(xc);
+    x.ir(1,4).set(ext_node_data[k_center-1]->x1).minus(xc);
+    x.ir(1,5).set(ext_node_data[k_center]->x1).minus(xc);
+    x.ir(1,6).set(ext_node_data[k_center+1]->x1).minus(xc);
 
     pot.setel(ext_node_data[k_center-1]->phi,1);
     pot.setel(ext_node_data[k_center]->phi,2);
@@ -458,7 +458,7 @@ void coupling_inv_hook::time_step_post(double time,int step,
     x.ir(1,3);
     t.set(x);
     x.ir(1,1);
-    t.rest(x);
+    t.minus(x);
     t.scale(1./t.norm_p_all(2.));
     norm.setel(-t.get(1),2);
     norm.setel(+t.get(2),1);
@@ -468,7 +468,7 @@ void coupling_inv_hook::time_step_post(double time,int step,
     x.ir(1,3);
     jac.ir(2,1).set(x);
     x.ir(1,1);
-    jac.rest(x).scale(0.5);
+    jac.minus(x).scale(0.5);
     x.rs();
     jac.rs();
     ijac.inv(jac);

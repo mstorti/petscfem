@@ -827,7 +827,7 @@ assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
 	  double tr = (double) tmp15.prod(strain_rate,strain_rate,-1,-2,-1,-2);
 	  double van_D;
 	  if (0 && A_van_Driest>0.) {
-	    dist_to_wall.prod(SHAPE,xloc,-1,-1,1).rest(wall_coords);
+	    dist_to_wall.prod(SHAPE,xloc,-1,-1,1).minus(wall_coords);
 	    double ywall = sqrt(dist_to_wall.sum_square_all());
 	    double y_plus = ywall*shear_vel/VISC;
 	    van_D = 1.-exp(-y_plus/A_van_Driest);
@@ -979,8 +979,8 @@ assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
 #endif
 
 	// momentum equation residue	
-	du.set(u_star).rest(u);
-	dmatu.axpy(du,rec_Dt/alpha).rest(G_body);
+	du.set(u_star).minus(u);
+	dmatu.axpy(du,rec_Dt/alpha).minus(G_body);
 	
 	// Selective Darcy term
 	FastMat2::branch();
@@ -1068,7 +1068,7 @@ assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
 
 	//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 	// disperse phases part
-	du_g.set(vf_star).rest(vf).scale(rec_Dt/alpha);
+	du_g.set(vf_star).minus(vf).scale(rec_Dt/alpha);
 
 	tmp11_g.prod(dshapex,grad_vf_star,-1,1,-1,2);
 
@@ -1089,7 +1089,7 @@ assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
 	  // Galerkin terms
 	  dresmom_g.axpy(SHAPE,(double(du_g.get(j))-alpha_source));
 	  tmp1_g.prod(dshapex,v_g_vp,-1,1,-1).scale(double(alpha_g_vp.get(j)));
-	  dresmom_g.rest(tmp1_g);
+	  dresmom_g.minus(tmp1_g);
 	  // Diffusion term
 	  dresmom_g.axpy(tmp11_g,double(visco_g_eff_vp.get(j)));
 	  // Shock capturing term
@@ -1111,7 +1111,7 @@ assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
 	  matloc_alpha_g.add(tmp3_g);
 	  // - gNi v_g Nj ( weak form term)
 	  tmp4_g.prod(tmp2_g,SHAPE,1,2);
-	  matloc_alpha_g.rest(tmp4_g);
+	  matloc_alpha_g.minus(tmp4_g);
 	  // diffusion term
 	  matloc_alpha_g.axpy(gNi_gNj,double(visco_g_eff_vp.get(j)));
 	  // shock-capturing term
@@ -1286,9 +1286,9 @@ assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
 	  // d_R(cont)/d_vel
 	  matlocf.ir(2,ndim+1).is(4,1,ndim);
 	  tmp17.prod(P_pspg,dmatw,3,1,2).scale(wpgdet*factor_cont);
-	  matlocf.rest(tmp17);
+	  matlocf.minus(tmp17);
 	  tmp17.prod(dshapex,SHAPE,3,1,2).scale(-rho_m*wpgdet*factor_cont);
-	  matlocf.rest(tmp17).rs();
+	  matlocf.minus(tmp17).rs();
 	  // d_R(cont)/d_p
 	  matlocf.ir(2,ndim+1).ir(4,ndim+1).axpy(tmp13,-wpgdet*factor_cont).rs();
 

@@ -483,12 +483,12 @@ void bubbly_ff::compute_beta_pmm() {
 
   double tol=1.0e-10;
 
-  v_rel.set(v_l).rest(v_g);
+  v_rel.set(v_l).minus(v_g);
   tmp_beta_1.prod(v_g,v_g,-1,-1);
   double v1 = double(tmp_beta_1)*rho_g*alpha_l;
   tmp_beta_2.set(v_g).scale(rho_g*alpha_l);
   tmp_beta_3.set(v_l).scale(rho_l*alpha_g);
-  tmp_beta_2.rest(tmp_beta_3);
+  tmp_beta_2.minus(tmp_beta_3);
 
   double v2 = -(double(tmp_beta_31.prod(tmp_beta_2,v_g,-1,-1)) +
 		double(tmp_beta_32.prod(v_rel,v_l,-1,-1).scale(rho_l*alpha_g)));
@@ -534,7 +534,7 @@ void bubbly_ff::compute_beta_pmm() {
 
   double tol=1.0e-10;
 
-  v_rel.set(v_l).rest(v_g);
+  v_rel.set(v_l).minus(v_g);
   double v_rel_mod = sqrt(v_rel.sum_square_all());
 
   double v1 = sqrt(v_g.sum_square_all());
@@ -1180,7 +1180,7 @@ if (0) {
 	  double van_D;
 /*
 	  if (A_van_Driest>0.) {
-	    dist_to_wall.prod(SHAPE,xloc,-1,-1,1).rest(wall_coords);
+	    dist_to_wall.prod(SHAPE,xloc,-1,-1,1).minus(wall_coords);
 	    double ywall = sqrt(dist_to_wall.sum_square_all());
 	    double y_plus = ywall*shear_vel/VISC;
 	    van_D = 1.-exp(-y_plus/A_van_Driest);
@@ -1277,7 +1277,7 @@ if (0) {
   grad_p.set(grad_U);
   grad_U.rs();
 
-  v_g_l.set(v_g).rest(v_l);
+  v_g_l.set(v_g).minus(v_l);
   v_slip = v_g_l.sum_square_all();
   v_slip = sqrt(v_slip);
 
@@ -1331,7 +1331,7 @@ if (0) {
 /*
           Phi_1.prod(v_g_l,v_g_l,1,2).scale(-tmp4_drag*dRedU/v_slip);
           Phi_2.set(Id).scale(Rey_bubble*C_drag_ff);
-          Phi_1.rest(Phi_2);
+          Phi_1.minus(Phi_2);
 */
           Phi_1.prod(v_g_l,v_g_l,1,2).scale(tmp4_drag*dRedU/v_slip);
           Phi_2.set(Id).scale(Rey_bubble*C_drag_ff);
@@ -1374,7 +1374,7 @@ if (0) {
     tmp1_lift.set(v_g_l).scale(C_lift*rho_l*alpha_g);
     rotor_v_l.set(grad_v_l);
     grad_v_l.t();
-    rotor_v_l.rest(grad_v_l);
+    rotor_v_l.minus(grad_v_l);
     grad_v_l.rs();
     tmp2_lift.prod(tmp1_lift,rotor_v_l,-1,1,-1);
 
@@ -1572,7 +1572,7 @@ if (0) {
       Ajac.is(2,vl_indx,vl_indxe).ir(3,2).axpy(Id,coef_interfacial_pressure).rs();
 
      if (comp_virtual_mass>0) {
-	  tmp2_vm.set(Dmat_vg).rest(Dmat_vl);
+	  tmp2_vm.set(Dmat_vg).minus(Dmat_vl);
 
 //	  tmp2_vm.scale(rho_l*C_vm*alpha_g);
 	  tmp2_vm.scale(rho_l*C_vm*alpha_g_old);
@@ -1605,7 +1605,7 @@ if (0) {
     Cjac.is(1,vl_indx,vl_indxe).is(2,vl_indx,vl_indxe).add(tmp_vm).rs();
     tmp_vm.set(grad_v_g).scale(0.0).axpy(Id,rec_Dt).scale(-rho_l*C_vm*alpha_g_old);
     Cjac.is(1,vl_indx,vl_indxe).is(2,vg_indx,vg_indxe).add(tmp_vm).rs();
-//    tmp2_vm.set(Dmat_vg).rest(Dmat_vl).scale(-rho_l*C_vm);
+//    tmp2_vm.set(Dmat_vg).minus(Dmat_vl).scale(-rho_l*C_vm);
 //    Cjac.is(1,vl_indx,vl_indxe).ir(2,2).add(tmp2_vm).rs();
 	  }
 

@@ -92,7 +92,7 @@ new_assemble(arg_data_list &arg_data_v,const Nodedata *nodedata,
       x0.set(xloc);
       for (int j=1; j<=ndim; j++) {
 	xloc.ir(1,j+1);
-	A.ir(2,j).set(xloc).rest(x0);
+	A.ir(2,j).set(xloc).minus(x0);
       }
       xloc.rs();
       A.rs();

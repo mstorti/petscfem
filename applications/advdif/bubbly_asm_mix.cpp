@@ -863,7 +863,7 @@ void bubbly_ff::compute_flux(const FastMat2 &U,
   double van_D;
 /*
 	  if (A_van_Driest>0.) {
-		dist_to_wall.prod(SHAPE,xloc,-1,-1,1).rest(wall_coords);
+		dist_to_wall.prod(SHAPE,xloc,-1,-1,1).minus(wall_coords);
 		double ywall = sqrt(dist_to_wall.sum_square_all());
 		double y_plus = ywall*shear_vel/VISC;
 		van_D = 1.-exp(-y_plus/A_van_Driest);

@@ -246,7 +246,7 @@ void StreamLossFilmFun::q(FastMat2 &uin,FastMat2 &uout,FastMat2 &flux,
   flux.is(1,ndof);
   uin.is(1,ndof);
   uout.is(1,ndof);
-  flux.set(uout).rest(H_in).rest(uin).scale(k);
+  flux.set(uout).minus(H_in).minus(uin).scale(k);
   jacin.eye(k);
   jacout.eye(-k);
   flux.rs();

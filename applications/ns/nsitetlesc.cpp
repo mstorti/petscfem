@@ -479,7 +479,7 @@ assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
 	  double tr = (double) tmp15.prod(strain_rate,strain_rate,-1,-2,-1,-2);
 	  double van_D;
 	  if (A_van_Driest>0.) {
-	    dist_to_wall.prod(SHAPE,xloc,-1,-1,1).rest(wall_coords);
+	    dist_to_wall.prod(SHAPE,xloc,-1,-1,1).minus(wall_coords);
 	    double ywall = sqrt(dist_to_wall.sum_square_all());
 	    double y_plus = ywall*shear_vel/VISC;
 	    van_D = 1.-exp(-y_plus/A_van_Driest);
@@ -584,8 +584,8 @@ assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
 	dmatu.prod(u,grad_u_star,-1,-1,1);
 #endif
 	
-	du.set(u_star).rest(u);
-	dmatu.axpy(du,rec_Dt/alpha).rest(G_body);
+	du.set(u_star).minus(u);
+	dmatu.axpy(du,rec_Dt/alpha).minus(G_body);
 	
 	div_u_star = double(tmp10.prod(dshapex,ucols_star,-1,-2,-2,-1));
 
@@ -683,10 +683,10 @@ assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
 	  }
 	  matlocf.ir(2,ndof).is(4,1,ndim);
 	  tmp17.prod(P_pspg,dmatw,3,1,2).scale(wpgdet);
-	  matlocf.rest(tmp17);
+	  matlocf.minus(tmp17);
 	  // Continuity Galerkin
 	  tmp17.prod(dshapex,SHAPE,3,2,1).scale(wpgdet);
-	  matlocf.rest(tmp17).rs();
+	  matlocf.minus(tmp17).rs();
 	  if (c2_flag) {
 	    tmp20.prod(SHAPE,SHAPE,1,2);
 	    matlocf.rs().ir(2,ndof).ir(4,ndof);

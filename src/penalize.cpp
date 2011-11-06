@@ -118,7 +118,7 @@ new_assemble(arg_data_list &arg_data_v,const Nodedata *nodedata,
 	    U_pert.set(U);      	
 	    U_pert.addel(eps_fd,jele,jdof);
 	    restr->res(elem,U_pert,res_pert,lambda_pert,fd_jac);
-	    res_pert.rest(r).scale(1./eps_fd);
+	    res_pert.minus(r).scale(1./eps_fd);
 	    res_fd_jac.ir(2,jele).ir(3,jdof)
 	      .set(res_pert).rs();
 	  }

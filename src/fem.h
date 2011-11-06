@@ -372,7 +372,7 @@ if (!(bool_cond)) {                             \
 // Only bool condition
 #define PETSCFEM_WARNINGB(bool_cond)            \
 if (!(bool_cond)) {                             \
-  printf("Warning (failed assertion)");         \
+  printf("Warning (failed assertion): ");         \
   PETSCFEM_WARN0(#bool_cond);}
 
 // Bool condition and message

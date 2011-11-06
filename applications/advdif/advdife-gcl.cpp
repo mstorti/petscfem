@@ -154,7 +154,7 @@ new_assemble_GCL_compliant(arg_data_list &arg_data_v,const Nodedata *nodedata,
   NSGETOPTDEF(int,compute_reactive_terms,1);
 
   static int ale_with_no_weak_form_warning_given = 0;
-  if (!ale_with_no_weak_form_warning_given
+  if (!MY_RANK && !ale_with_no_weak_form_warning_given
       && !weak_form && ALE_flag) {
     printf("=============================================\n"
            "=============================================\n"
@@ -428,12 +428,12 @@ new_assemble_GCL_compliant(arg_data_list &arg_data_v,const Nodedata *nodedata,
     // nodal computation of mesh velocity
     if (ALE_flag) {
       assert(nH >= ndim);
-      assert(indx_ALE_xold >= nH+1-ndim);
+      assert(indx_ALE_xold <= nH+1-ndim);
       Hloc.is(2,indx_ALE_xold,indx_ALE_xold+ndim-1);
       xloc_old.set(Hloc);
       Hloc.rs();
       xloc.scale(ALPHA).axpy(xloc_old,1-ALPHA);
-      vloc_mesh.set(xloc_new).rest(xloc_old).scale(rec_Dt_m*ALPHA).rs();
+      vloc_mesh.set(xloc_new).minus(xloc_old).scale(rec_Dt_m*ALPHA).rs();
     } 
 
     if (0){
@@ -499,7 +499,7 @@ new_assemble_GCL_compliant(arg_data_list &arg_data_v,const Nodedata *nodedata,
 
 	//	  if (use_Ajac_old) Ao_grad_U.prod(Ao,grad_U,-1,1,-2,-1,-2);
 
-	tmp11.set(0.).rest(fluxd);
+	tmp11.set(0.).minus(fluxd);
 	tmp8.prod(dshapex,tmp11,-1,1,2,-1);
 	veccontr.axpy(tmp8,wpgdet_low);
 	
@@ -507,16 +507,16 @@ new_assemble_GCL_compliant(arg_data_list &arg_data_v,const Nodedata *nodedata,
 					  dshapex,wpgdet_low);
 	matlocf.add(grad_N_D_grad_N);
 	
-	dUdt.set(Hn).rest(Ho).scale(rec_Dt_m);
+	dUdt.set(Hn).minus(Ho).scale(rec_Dt_m);
 	
 	tmp10.set(G_source);	// tmp10 = G - dUdt
-	if (!lumped_mass) tmp10.rest(dUdt);
+	if (!lumped_mass) tmp10.minus(dUdt);
 	
-	tmp1.rs().set(tmp10).rest(A_grad_U); //tmp1= G - dUdt - A_grad_U
+	tmp1.rs().set(tmp10).minus(A_grad_U); //tmp1= G - dUdt - A_grad_U
 	
 	if (use_Ajac_old) {
 	  Ao_grad_U.prod(Ao,grad_U,-1,1,-2,-1,-2);
-	  tmp1_old.rs().set(tmp10).rest(Ao_grad_U); //tmp1= G - dUdt - A_grad_U
+	  tmp1_old.rs().set(tmp10).minus(Ao_grad_U); //tmp1= G - dUdt - A_grad_U
 	}
 	
 	for (int jel=1; jel<=nel; jel++) {
@@ -672,7 +672,7 @@ new_assemble_GCL_compliant(arg_data_list &arg_data_v,const Nodedata *nodedata,
           .axpy(Ho,-detJaco_old/detJaco)
           .scale(rec_Dt_m);
         // This is plain dH/dt
-	dUdt2.set(Hn).rest(Ho).scale(rec_Dt_m);
+	dUdt2.set(Hn).minus(Ho).scale(rec_Dt_m);
 
 	for (int k=0; k<nlog_vars; k++) {
 	  int jdof=log_vars[k];
@@ -763,7 +763,7 @@ new_assemble_GCL_compliant(arg_data_list &arg_data_v,const Nodedata *nodedata,
 					A_grad_U,grad_U,G_source,
 					tau_supg,delta_sc,
 					lambda_max_pg, nor,lambda,Vr,Vr_inv,0);
-	      flux_pert.rest(flux).scale(1./eps_fd);
+	      flux_pert.minus(flux).scale(1./eps_fd);
 	      flux_pert.t();
 	      A_fd_jac.ir(3,jdof).set(flux_pert).rs();
 	      flux_pert.rs();
@@ -775,7 +775,7 @@ new_assemble_GCL_compliant(arg_data_list &arg_data_v,const Nodedata *nodedata,
 	    }
 	    Id_ndim.rs();
 	    A_jac.rs();
-	    A_jac_err.set(A_jac).rest(A_fd_jac);
+	    A_jac_err.set(A_jac).minus(A_fd_jac);
 #define FM2_NORM sum_abs_all
 	    double A_jac_norm = A_jac.FM2_NORM();
 	    double A_jac_err_norm = A_jac_err.FM2_NORM();
@@ -817,21 +817,21 @@ new_assemble_GCL_compliant(arg_data_list &arg_data_v,const Nodedata *nodedata,
 	if (lambda_max_pg>lambda_max) lambda_max=lambda_max_pg;
 
 	tmp10.set(G_source);	// tmp10 = G - dUdt
-	if (!lumped_mass) tmp10.rest(dUdt);
+	if (!lumped_mass) tmp10.minus(dUdt);
         if (ALE_flag) {
           tmp10j.set(G_source);	// tmp10 = G - dUdt
-          if (!lumped_mass) tmp10j.rest(dUdt2);
+          if (!lumped_mass) tmp10j.minus(dUdt2);
         }
 
         // For the stabilization term use dUdt2
         // (i.e. not including dJ/dt term)
         // tmp1= G - dUdt - A_grad_U
-	tmp1.rs().set(tmp10j).rest(A_grad_U); 
+	tmp1.rs().set(tmp10j).minus(A_grad_U); 
 
 	if (use_Ajac_old) {
 	  Ao_grad_U.prod(Ao,grad_U,-1,1,-2,-1,-2);
           //tmp1= G - dUdt - A_grad_U
-	  tmp1_old.rs().set(tmp10).rest(Ao_grad_U);
+	  tmp1_old.rs().set(tmp10).minus(Ao_grad_U);
 	}
 
 	// MODIF BETO 8/6
@@ -866,18 +866,18 @@ new_assemble_GCL_compliant(arg_data_list &arg_data_v,const Nodedata *nodedata,
 	  // Not implemented yet!!
 	  // weak version
 
-	  //	  tmp11.set(flux).rest(fluxd); // tmp11 = flux_c - flux_d
+	  //	  tmp11.set(flux).minus(fluxd); // tmp11 = flux_c - flux_d
 	  if (use_low_gpdata){
             // tmp11 = flux_c (viscous part is integrated in 1 PG)
             tmp11.set(flux); 
 	  } else {
             // tmp11 = flux_c - flux_d
-            tmp11.set(flux).rest(fluxd); 
+            tmp11.set(flux).minus(fluxd); 
             // Add ALE correction to flux
             // tmp11 = flux_c - v_mesh*H - flux_d
             if (ALE_flag) {
               tmp_ALE_flux.prod(Halpha,v_mesh,1,2);
-              tmp11.rest(tmp_ALE_flux);
+              tmp11.minus(tmp_ALE_flux);
             }
 	  }
 
@@ -885,7 +885,7 @@ new_assemble_GCL_compliant(arg_data_list &arg_data_v,const Nodedata *nodedata,
           if (ALE_flag) {
             v_mesh_grad_N.prod(v_mesh,dshapex,-1,-1,1);
             tmp_ALE_jac.prod(v_mesh_grad_N,Cp,1,2,3);
-            tmp14b.set(A_grad_N).rest(tmp_ALE_jac);
+            tmp14b.set(A_grad_N).minus(tmp_ALE_jac);
             tmp14.prod(tmp14b,tmp23,1,2,4,3);
           } else {
             tmp14.prod(A_grad_N,tmp23,1,2,4,3);
@@ -896,11 +896,11 @@ new_assemble_GCL_compliant(arg_data_list &arg_data_v,const Nodedata *nodedata,
 	  tmp2.prod(SHAPE,A_grad_U,1,2); // tmp2= SHAPE' * A_grad_U
 	  veccontr.axpy(tmp2,-wpgdet);
 
-	  //	  tmp11.set(0.).rest(fluxd); // tmp11 = - flux_d
+	  //	  tmp11.set(0.).minus(fluxd); // tmp11 = - flux_d
 	  if (use_low_gpdata){
 	  tmp11.set(0.); // tmp11 = 0 (viscous part is integrated in 1 PG)
 	  } else {
-	  tmp11.set(0.).rest(fluxd); // tmp11 = - flux_d
+	  tmp11.set(0.).minus(fluxd); // tmp11 = - flux_d
 	  }
 
 	  tmp23.set(SHAPE).scale(wpgdet);
@@ -1160,7 +1160,7 @@ new_assemble_GCL_compliant(arg_data_list &arg_data_v,const Nodedata *nodedata,
 	    adv_diff_ff->get_Cp(Cp);
 	    Cp.scale(rec_Dt_m);
 	    
-	    dUdt.set(Hn).rest(Ho).scale(rec_Dt_m);
+	    dUdt.set(Hn).minus(Ho).scale(rec_Dt_m);
 	    
 	    for (int k=0; k<nlog_vars; k++) {
 	      int jdof=log_vars[k];
@@ -1169,7 +1169,7 @@ new_assemble_GCL_compliant(arg_data_list &arg_data_v,const Nodedata *nodedata,
 	    }
 	    dUdt.rs();
 	    
-	    tmp10.set(G_source).rest(dUdt);	// tmp10 = G - dUdt
+	    tmp10.set(G_source).minus(dUdt);	// tmp10 = G - dUdt
 	    
 	    adv_diff_ff->get_C(Cr);
 

@@ -218,12 +218,12 @@ new_assemble(arg_data_list &arg_data_v,
 	U_pert.set(U);      	
 	U_pert.addel(eps_fd,jele,jdof);
 	res(element,U_pert,res_pert,lambda_pert,fd_jac);
-	res_pert.rest(r).scale(1./eps_fd);
+	res_pert.minus(r).scale(1./eps_fd);
 	res_fd_jac.ir(3,jele).ir(2,jdof)
 	  .set(res_pert).rs();
       }
     }
-    res_fd_jac.rest(jac);
+    res_fd_jac.minus(jac);
     eps_fd=1e-4; // para parar
     double erro = res_fd_jac.sum_abs_all();
     // printf("error %g\n",erro);

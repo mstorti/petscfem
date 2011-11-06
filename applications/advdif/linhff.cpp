@@ -15,7 +15,7 @@
 void LinearHFilmFun::q(FastMat2 &uin,FastMat2 &uout,FastMat2 &flux,
 		       FastMat2 &jacin,FastMat2 &jacout) {
 
-  dU.set(uout).rest(uin);
+  dU.set(uout).minus(uin);
   h->prod(flux,dU);
   h->jac(jacin);
   jacout.set(jacin);

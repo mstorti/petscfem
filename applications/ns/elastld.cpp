@@ -74,9 +74,6 @@ void ld_elasticity::init() {
   //o Use new formulation (swap eqs, and rewrite acceleration)
   TGETOPTDEF_ND(thash,int,use_new_form,1);
 
-  //o Use displacement only formulation
-  TGETOPTDEF_ND(GLOBAL_OPTIONS,int,use_displacement_formulation,0);
-
   G_body.resize(1,ndim).set(0.);
   const char *line;
   vector<double> G_body_v;
@@ -129,7 +126,7 @@ before_chunk(const char *jobinfo) {
                   "Received unrecognized jobinfo %s\n",jobinfo);  
 
   int ierr;
-  if (comp_mat_res) {
+  if (comp_mat_res && use_displacement_formulation) {
     res_h = get_arg_handle("res","No handle for `res'\n");
     mat_h = get_arg_handle("A","No handle for `A'\n");
     state_mh_argh = get_arg_handle("state_mh",
@@ -210,14 +207,14 @@ void ld_elasticity
 
     grad_u.prod(ustar,dshapex,-1,1,2,-1);
     F.set(Id).add(grad_u);
-    strain.prod(F,F,-1,1,-1,2).rest(Id).scale(0.5);
+    strain.prod(F,F,-1,1,-1,2).minus(Id).scale(0.5);
     tmp5.ctr(strain,-1,-1);
     double trE = tmp5;
     tmp4.set(Id).scale(trE*lambda).axpy(strain,2*mu);
     stress.prod(F,tmp4,1,-1,-1,2);
 
     // Velocity from states dxdt = (xnew-xold)/dt
-    dxdt.set(xnew).rest(xold).scale(rec_Dt);
+    dxdt.set(xnew).minus(xold).scale(rec_Dt);
 
     // Inertia term
     if (use_new_form) {
@@ -226,17 +223,17 @@ void ld_elasticity
       // better conditioned (I guess), the resulting Jacobian
       // is [I/Dt^2+K,0; -I/Dt,I]
       vnew1.set(dxdt).axpy(vold,-(1.0-alpha)).scale(1.0/alpha);
-      a.set(vnew1).rest(vold).scale(rec_Dt)
+      a.set(vnew1).minus(vold).scale(rec_Dt)
         .axpy(vstar,cdamp);
     } else {
       // In this form the residual is [Rvel; Rmom]
       // and acceleration is computed from velocities
       // only.  It is bad conditioned, the resulting Jacobian
       // is [I/Dt,-I; I/Dt, K]
-      a.set(vnew).rest(vold).scale(rec_Dt)
+      a.set(vnew).minus(vold).scale(rec_Dt)
         .axpy(vstar,cdamp);
     }
-    tmp.prod(shape,a,-1,-1,1).rest(G_body);
+    tmp.prod(shape,a,-1,-1,1).minus(G_body);
     tmp2.prod(shape,tmp,1,2);
     res.is(2,ndim+1,2*ndim).axpy(tmp2,-wpgdet*rho);
 
@@ -251,7 +248,7 @@ void ld_elasticity
 #endif
     
     // Eqs. for displacements: (xnew-xold)/dt - vstar = 0
-    dv.set(dxdt).rest(vstar);
+    dv.set(dxdt).minus(vstar);
     tmp.prod(shape,dv,-1,-1,1);
     tmp2.prod(shape,tmp,1,2);
     res.is(2,1,ndim).axpy(tmp2,-wpgdet).rs();
@@ -319,7 +316,7 @@ void ld_elasticity_load
 ::element_connector(const FastMat2 &xloc,
 		    const FastMat2 &state_old,
 		    const FastMat2 &state_new,
-		    FastMat2 &res,FastMat2 &mat){
+		    FastMat2 &res,FastMat2 &mat) {
 
   res.set(0.);
   mat.set(0.);
@@ -331,11 +328,8 @@ void ld_elasticity_load
   if (use_displacement_formulation) {
     xstar.set(xloc).axpy(state_new,defo_fac);
   } else {
-    if (use_new_form) {
-      res.is(2,1,ndim);
-    }else{
-      res.is(2,ndim+1,2*ndim);
-    }
+    if (use_new_form) res.is(2,1,ndim);
+    else res.is(2,ndim+1,2*ndim);
 
     xstar.set(xloc);
 
@@ -399,9 +393,9 @@ void ld_elasticity
 
   double Dt = 1.0/rec_Dt, Dt2 = Dt*Dt;
 
-  vold.set(xph).rest(xmh).scale(rec_Dt);
+  vold.set(xph).minus(xmh).scale(rec_Dt);
   aold.set(xph).axpy(xold,-2.0).add(xmh).scale(4.0*rec_Dt*rec_Dt);
-  anew.set(xnew).rest(xold).axpy(vold,-Dt).scale(2.0/Dt2)
+  anew.set(xnew).minus(xold).axpy(vold,-Dt).scale(2.0/Dt2)
     .axpy(aold,-(1.0-2.0*newmark_beta)).scale(1.0/(2.0*newmark_beta));
   vnew.set(vold)
     .axpy(aold,(1.0-newmark_gamma)*Dt)
@@ -448,13 +442,13 @@ void ld_elasticity
 
     grad_u.prod(xnew,dshapex,-1,1,2,-1);
     F.set(Id).add(grad_u);
-    strain.prod(F,F,-1,1,-1,2).rest(Id).scale(0.5);
+    strain.prod(F,F,-1,1,-1,2).minus(Id).scale(0.5);
     tmp5.ctr(strain,-1,-1);
     double trE = tmp5;
     tmp4.set(Id).scale(trE*lambda).axpy(strain,2*mu);
     stress.prod(F,tmp4,1,-1,-1,2);
 
-    tmp.prod(shape,anew,-1,-1,1).rest(G_body);
+    tmp.prod(shape,anew,-1,-1,1).minus(G_body);
     tmp2.prod(shape,tmp,1,2);
     res.axpy(tmp2,-wpgdet*rho);
 

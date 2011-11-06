@@ -435,7 +435,7 @@ assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
       assert(nH >= ndim);
       assert(indx_ALE_xold >= nH+1-ndim);
       Hloc.is(2,indx_ALE_xold,indx_ALE_xold+ndim-1);
-      vloc_mesh.set(xloc).rest(Hloc).scale(rec_Dt).rs();
+      vloc_mesh.set(xloc).minus(Hloc).scale(rec_Dt).rs();
       Hloc.rs();
     }
     
@@ -454,7 +454,7 @@ assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
       shear_vel = wall_elemset->elemprops_add[wall_elem];
 
       xc.sum(xloc,-1,1).scale(1./double(nel));
-      dist_to_wall.set(xc).rest(wall_coords);
+      dist_to_wall.set(xc).minus(wall_coords);
 
 #else
       PETSCFEM_ERROR0("Not compiled with ANN library!!\n");
@@ -551,7 +551,7 @@ assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
 	  double tr = (double) tmp15.prod(strain_rate,strain_rate,-1,-2,-1,-2);
 	  //	  double van_D;
 	  if (A_van_Driest>0.) {
-	    //	    dist_to_wall.prod(SHAPE,xloc,-1,-1,1).rest(wall_coords);
+	    //	    dist_to_wall.prod(SHAPE,xloc,-1,-1,1).minus(wall_coords);
 	    ywall = sqrt(dist_to_wall.sum_square_all());
 	    double y_plus = ywall*shear_vel/VISC;
 	    van_D = 1.-exp(-y_plus/A_van_Driest);
@@ -568,7 +568,7 @@ assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
 		 ielh, ywall, van_D,nu_eff);
 
 
-	vel_supg.set(u).rest(v_mesh).rs();
+	vel_supg.set(u).minus(v_mesh).rs();
 
 	/*
 	  u2 = vel_supg.sum_square_all();
@@ -656,17 +656,17 @@ assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
 
 	// implicit version - General Trapezoidal rule - parameter alpha
 #ifdef ADD_GRAD_DIV_U_TERM
-	vrel.set(u_star).rest(v_mesh).rs();
+	vrel.set(u_star).minus(v_mesh).rs();
 	//	dmatu.prod(u_star,grad_u_star,-1,-1,1);
 	dmatu.prod(vrel,grad_u_star,-1,-1,1);
 #else
-	vrel.set(u).rest(v_mesh).rs();
+	vrel.set(u).minus(v_mesh).rs();
 	//	dmatu.prod(u,grad_u_star,-1,-1,1);
 	dmatu.prod(vrel,grad_u_star,-1,-1,1);
 #endif
 	
-	du.set(u_star).rest(u);
-	dmatu.axpy(du,rec_Dt/alpha).rest(G_body);
+	du.set(u_star).minus(u);
+	dmatu.axpy(du,rec_Dt/alpha).minus(G_body);
 
 	// Selective Darcy term
 	FastMat2::branch();
@@ -743,10 +743,10 @@ assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
 	matlocmom.prod(W_supg,massm,1,2).scale(rho);
 
 	//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
-	//	vrel.set(u_star).rest(v_mesh).rs();
+	//	vrel.set(u_star).minus(v_mesh).rs();
 
 	// diffusive part
-	//	vrel.set(u).rest(v_mesh).rs();
+	//	vrel.set(u).minus(v_mesh).rs();
 	tmp7.prod(dshapex,dshapex,-1,1,-1,2);
 	matlocmom.axpy(tmp7,nu_eff);
 
@@ -781,9 +781,9 @@ assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
 	  }
 	  matlocf.ir(2,ndof).is(4,1,ndim);
 	  tmp17.prod(P_pspg,dmatw,3,1,2).scale(wpgdet);
-	  matlocf.rest(tmp17);
+	  matlocf.minus(tmp17);
 	  tmp17.prod(dshapex,SHAPE,3,2,1).scale(wpgdet);
-	  matlocf.rest(tmp17).rs();
+	  matlocf.minus(tmp17).rs();
 
 	  matlocf.ir(2,ndof).ir(4,ndof).axpy(tmp13,-wpgdet).rs();
 

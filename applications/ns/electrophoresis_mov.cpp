@@ -189,7 +189,7 @@ void electrophoresis_mov::pg_connector(const FastMat2 &xpg,
  if (EVAL_RES) {
    //temporal derivative
   FastMat2& du = FM2TMP;
-  du.set(u_star).rest(u0).scale(rec_Dt/alpha);
+  du.set(u_star).minus(u0).scale(rec_Dt/alpha);
   
 // convective term
 
@@ -226,7 +226,7 @@ void electrophoresis_mov::pg_connector(const FastMat2 &xpg,
    // B_supg.prod(K1,u_star,1,2,-1,-1);//ndof,ndof
    //H_supg.set(K);
    //C_supg.prod(H_supg,shape(),1,3,2);//ndof,nel,ndof
-   D_supg.set(A_supg);//.rest(C_supg);//ndof,nel,ndof CAMBIAR
+   D_supg.set(A_supg);//.minus(C_supg);//ndof,nel,ndof CAMBIAR
 
    F_supg.prod(aux_supg2,grad_u_star,1,-1,-2,-1,-2)//ndof
      //.add(tmpru)// CAMBIAR

@@ -478,6 +478,12 @@ comp_vel_per_field(FastMat2 &vel_per_field) {
   ff.u.rs();
 }
 
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>
+void AJac::comp_vel_vec_per_field(FastMat2 &vel_vec_per_field) {
+  vel_vec_per_field.set(NAN);
+  // PETSCFEM_ERROR0("Not defined comp_vel_vec_per_field() fun.");
+}
+
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 #undef __FUNC__
 #define __FUNC__ \
@@ -1036,7 +1042,7 @@ void newadvecfm2_ff_t::compute_flux(COMPUTE_FLUX_ARGS) {
   Ucpy.set(U);
   a_jac->comp_flux(flux,Ucpy);
   
-  
+  int has_comp_vel_vec_per_field = 1;
   if (options & COMP_UPWIND) {
     
     iJaco_cpy.set(iJaco);
@@ -1054,15 +1060,38 @@ void newadvecfm2_ff_t::compute_flux(COMPUTE_FLUX_ARGS) {
       const NewAdvDif *e = new_adv_dif_elemset;
       if (e->ALE_form()) {
         a_jac->comp_vel_vec_per_field(vel_vec_per_field);
-        for (int k=1; k<=ndof; k++) {
-          vel_vec_per_field.ir(1,k);
-          tmp16.set(vel_vec_per_field);
-          tmp16.rest(e->v_mesh);
-          vel_per_field.setel(tmp16.norm_p_all(),k);
-          Uintri.ir(1,k).prod(iJaco_cpy,tmp16,1,-1,-1);
+        // We detect if `vel_vec_per_field' is defined
+        // for this flux function, because the default 
+        // one returns all NAN
+        has_comp_vel_vec_per_field =
+          vel_vec_per_field.size()==0 
+          || !isnan(vel_vec_per_field.get(1,1));
+        if (has_comp_vel_vec_per_field) {
+          for (int k=1; k<=ndof; k++) {
+            vel_vec_per_field.ir(1,k);
+            tmp16.set(vel_vec_per_field);
+            tmp16.minus(e->v_mesh);
+            vel_per_field.setel(tmp16.norm_p_all(),k);
+            Uintri.ir(1,k).prod(iJaco_cpy,tmp16,1,-1,-1);
+          }
+          vel_vec_per_field.rs();
+          Uintri.rs();
+        } else {
+          // if `vel_vec_per_field' is not defined then
+          // we simply add the field velocity to the 
+          // module of the ALE mesh velocity
+          double vk,avmesh = e->v_mesh.norm_2_all();
+          for (int k=1; k<=ndof; k++) {
+            vk = avmesh+vel_per_field.get(k);
+            vel_per_field.setel(vk,k);
+            // Add Uintri contribution. We simply add 
+            // -iJaco*vmesh to the (already computed) Uintri
+            // This can be BAD, but I don't know how to do it better. 
+            tmp17.prod(iJaco_cpy,e->v_mesh,1,-1,-1);
+            Uintri.ir(1,k).minus(tmp17);
+          }
+          Uintri.rs();
         }
-        vel_vec_per_field.rs();
-        Uintri.rs();
       }
     }
 

@@ -127,9 +127,9 @@ FastMat2 & FastMat2::add(const FastMat2 & A ) {
   return *this;
 }  
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
-FastMat2 & FastMat2::rest(const FastMat2 & A ) {
+FastMat2 & FastMat2::minus(const FastMat2 & A ) {
 
-  CTX2_CHECK("rest",this,&A);
+  CTX2_CHECK("minus",this,&A);
 
   if (!ctx->was_cached  ) {
     assert(A.defined);
@@ -3218,7 +3218,6 @@ double FastMat2::get(INT_VAR_ARGS_ND) const {
   }
 #endif
   FastMatCache *cache = ctx->step();
-  double val;
 
   if (!ctx->was_cached) {
     Indx indx,fdims;
@@ -3240,9 +3239,8 @@ double FastMat2::get(INT_VAR_ARGS_ND) const {
     ctx->op_count.get += 1;
   }
 
-  val = *cache->from;
   if (!ctx->use_cache) delete cache;
-  return val;
+  return *cache->from;
 }
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 

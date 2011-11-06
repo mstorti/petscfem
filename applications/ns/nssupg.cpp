@@ -186,7 +186,7 @@ int ns_sup_g::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
       // elevation at t^*
       eta_star.set(eta_new).scale(alpha).axpy(eta,1-alpha);
       // Residual of free surface equation at t^* (nodal values).
-      tmp.set(eta_new).rest(eta).scale(-rec_Dt*C_EQ)
+      tmp.set(eta_new).minus(eta).scale(-rec_Dt*C_EQ)
 	.add(-average_elevation*C_FSL*C_EQ)
 	.add(w_star);
 
