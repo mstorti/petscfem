@@ -508,9 +508,10 @@ void AbsorbingLayer::time_step_pre(int step) {
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 void AbsorbingLayer::time_step_post(int step) {
   double tmp;
-  MPI_Reduce(&tmp3_max,&tmp,1,MPI_DOUBLE,MPI_MAX,0,PETSCFEM_COMM_WORLD); 
+  MPI_Reduce(&tmp3_max,&tmp,1,MPI_DOUBLE,MPI_MAX,
+             0,PETSCFEM_COMM_WORLD); 
   tmp3_max = tmp;
-  if (!MY_RANK) {
+  if (0 && !MY_RANK) {
     printf("in abso_hook::time_step_post()\n");
     printf("max ||tmp3|| %f\n",tmp3_max);
   }
