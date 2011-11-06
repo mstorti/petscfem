@@ -17345,3 +17345,14 @@ Time step: 1, time: 0.002
 No handle for `state_mh'
 make: *** [run_struct] Error 6
 
+%=== Sun Nov  6 08:27:39 2011 mstorti@aquiles
+%
+%--[2011-11-06.11:27:39.mstorti-v36-end-64-g2f9b362]-----
+Corro todos los tests, da todo OK. 
+%
+g_C++ y O_C++:
+Summary: "All tests" -- OK: 191.  Not OK: 0. Couldn't open: 0. Total: 191
+-------------------------
+ABRIDGED: 
+NOT OK------- -> 0
+CAN'T OPEN------- -> 0
