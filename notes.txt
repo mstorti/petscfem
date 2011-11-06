@@ -17356,3 +17356,14 @@ Summary: "All tests" -- OK: 191.  Not OK: 0. Couldn't open: 0. Total: 191
 ABRIDGED: 
 NOT OK------- -> 0
 CAN'T OPEN------- -> 0
+%
+%--[2011-11-06.12:35:02.mstorti-v36-end-69-gb746626]-----
+Hago el merge con el branch master y vuelvo a correr los tests. Da
+todo OK
+%
+g_C++ y O_C++:
+Summary: "All tests" -- OK: 191.  Not OK: 0. Couldn't open: 0. Total: 191
+-------------------------
+ABRIDGED: 
+NOT OK------- -> 0
+CAN'T OPEN------- -> 0
