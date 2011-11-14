@@ -1320,6 +1320,13 @@ public:
   FastMat2 & export_vals(Matrix & A);
 
   //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+  /** Sets the storage area to an external buffer.
+      @author M. Storti
+      @param ap (input) pointer to external buffer
+  */ 
+  void set_external_storage(double *ap);
+
+  //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
   /** Returns a pointer to the start of the storage matrix. 
       @author M. Storti
       @returns as mentioned
@@ -1526,6 +1533,8 @@ private:
   int storage;
   /// The array of values. Should be of size `storage'. 
   double *store;
+  /// Is the storage external
+  int storage_is_external;
   /// dimensions
   DimArray dims;
   /// Pointer to dims, as an array

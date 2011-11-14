@@ -480,7 +480,7 @@ void FastMat2::set_default_ctx(void) {
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 FastMat2::FastMat2(void) 
-  : store(NULL), defined(0)  { 
+  : store(NULL), storage_is_external(0), defined(0)  { 
   set_default_ctx();
 }
 
@@ -501,9 +501,18 @@ FastMat2::FastMat2(CacheCtx *ctx_a,const Indx & dims_)
 }
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+void FastMat2::set_external_storage(double *ap) {
+  assert(defined == (store != NULL || storage_is_external));
+  assert(defined);
+  if (store && !storage_is_external) delete[] store;
+  store = ap;
+  storage_is_external = 1;
+}
+
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 FastMat2::~FastMat2(void) {
-  assert(defined == (store != NULL));
-  if (defined) delete[] store;
+  // assert(defined == (store != NULL || storage_is_external));
+  if (store && !storage_is_external) delete[] store;
 }
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
@@ -571,6 +580,7 @@ FastMat2 & FastMat2::resize(const int ndims, INT_VAR_ARGS_ND) {
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 FastMat2 & FastMat2::resize(const Indx &indx) {
 
+  assert(!storage_is_external);
   // This can't be cached
   if (ctx->was_cached) {
     printf("fastmat2: can't call resize() while in cached mode\n");
@@ -590,6 +600,7 @@ FastMat2 & FastMat2::resize(const Indx &indx) {
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 FastMat2 & FastMat2::clear() {
 
+  assert(!storage_is_external);
   // This can't be cached
   if (ctx->was_cached) {
     printf("fastmat2: can't call clear() while in cached mode\n");

@@ -12,7 +12,7 @@
 #BOPT = 
 
 ifeq ($(BOPT),)
-BOPT = g_c++
+BOPT = O_c++
 endif
 export BOPT
 
