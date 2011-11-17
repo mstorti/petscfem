@@ -255,7 +255,6 @@ void prod2_subcache_t
     }
   }
   nrowc = nrowa;
-  ncolc = ncolb;
     
   kf=0;
   for (int j=0; j<niB; j++) {
@@ -270,6 +269,7 @@ void prod2_subcache_t
       nrowb *= Bfdims[j];
     }
   }
+  ncolc = ncolb;
   assert(ncola==nrowb);
 
   // Get dimensions of matrices
@@ -326,8 +326,6 @@ void prod2_subcache_t
       transa!= CblasNoTrans || transb!= CblasNoTrans) return;
   call_dgemm_opt = 1;
   gfun = gemm_fun_table[gemm_fun_table_indx(nrowa,ncola,ncolb)];
-  printf("gfun %p, &p_2_3_4 %p\n",p_2_3_4);
-  exit(0);
 }
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>
@@ -392,31 +390,34 @@ void prod2_subcache_t::make_prod() {
   if (!asl_ok) for (int j=0; j<nA; j++) a[j] = *ap[j];
   if (!bsl_ok) for (int j=0; j<nB; j++) b[j] = *bp[j];
 
-  // Call DGEMM
+  if (call_dgemm_opt) gfun(Ap,Bp,Cp);
+  else {
+    // Call DGEMM
 #ifdef CALL_BLAS_LAPACK_FROM_PETSC
-  PetscScalar _DOne=1.0,_DZero=0.0;
+    PetscScalar _DOne=1.0,_DZero=0.0;
 
-  // This way it works, but makes C'=A'*B'
-  if (transc==CblasNoTrans) 
-    BLASgemm_(cbt2str(transa),cbt2str(transb),
-              &nrowa,&ncolb,&ncola,
-              &_DOne,Ap,&lda,
-              Bp,&ldb,
-              &_DZero,Cp,&ldc);
-  else 
-    BLASgemm_(cbt2str(flip(transb)),cbt2str(flip(transa)),
-              &ncolb,&nrowa,&ncola,
-              &_DOne,Bp,&ldb,
-              Ap,&lda,
-              &_DZero,Cp,&ldc);
+    // This way it works, but makes C'=A'*B'
+    if (transc==CblasNoTrans) 
+      BLASgemm_(cbt2str(transa),cbt2str(transb),
+                &nrowa,&ncolb,&ncola,
+                &_DOne,Ap,&lda,
+                Bp,&ldb,
+                &_DZero,Cp,&ldc);
+    else 
+      BLASgemm_(cbt2str(flip(transb)),cbt2str(flip(transa)),
+                &ncolb,&nrowa,&ncola,
+                &_DOne,Bp,&ldb,
+                Ap,&lda,
+                &_DZero,Cp,&ldc);
 #else
-  if (transc==CblasNoTrans) 
-    cblas_dgemm(CblasRowMajor,transa,transb,nrowa,ncolb,
-                ncola,1.0,Ap,lda,Bp,ldb,0.0,Cp,ldc);
-  else cblas_dgemm(CblasRowMajor,flip(transb),flip(transa),
-                   ncolb,nrowa,ncola,1.0,Bp,ldb,Ap,lda,0.0,
-                   Cp,ldc);
+    if (transc==CblasNoTrans) 
+      cblas_dgemm(CblasRowMajor,transa,transb,nrowa,ncolb,
+                  ncola,1.0,Ap,lda,Bp,ldb,0.0,Cp,ldc);
+    else cblas_dgemm(CblasRowMajor,flip(transb),flip(transa),
+                     ncolb,nrowa,ncola,1.0,Bp,ldb,Ap,lda,0.0,
+                     Cp,ldc);
 #endif
+  }
 
   // Copy from c auxiliary buffer to C
   // internal buffer if needed
