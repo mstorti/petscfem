@@ -1,5 +1,6 @@
 #! /usr/bin/perl -w
 use strict;
+my $nmax=7;
 
 sub indx {
     my ($i,$j,$n,$m) = @_;
@@ -7,8 +8,8 @@ sub indx {
 }
 
 open GEMMCODE,">gemmcode.cpp";
+print GEMMCODE "#define NMAX $nmax\n";
 
-my $nmax=5;
 my @loads;
 for (my $n=1; $n<=$nmax; $n++) {
     for (my $m=1; $m<=$nmax; $m++) {

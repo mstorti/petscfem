@@ -31,11 +31,12 @@ extern "C" {
 
 int FASTMAT2_USE_PROD2=1;
 
-const int nmax=5;
+#include "./gemmcode.cpp"
+
+const int nmax=NMAX;
 typedef void (*gemm_fun_t)(double *a,double *b,double *c);
 static vector<gemm_fun_t> gemm_fun_table;
 int gemm_fun_table_was_initialized=0;
-#include "./gemmcode.cpp"
 
 static int gemm_fun_table_indx(int n,int m,int p) {
   return ((n-1)*nmax+m-1)*nmax+p-1;
