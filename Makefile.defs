@@ -3,20 +3,19 @@
 #$Id merge-with-petsc-233-54-g351bf64 Fri Oct 26 13:00:35 2007 -0300$
 
 # This is PETSc-FEM `Makefile.defs' file for host: generic
-# 
 MPICC  := mpicc -fPIC
 MPICXX := mpicxx -fPIC
 MPIF90 := mpif90 -fPIC
 MPILD  := ${MPICXX}
 MPIEXEC:= mpiexec
 
+# This is PETSc-FEM `Makefile.defs' file for host: generic
+
 ## PETSc
 ## -----
 ifeq ($(PETSC_DIR),)
-PETSC_DIR = /usr/local/petsc/3.1
+PETSC_DIR := /usr/local/petsc/3.0.0
 endif
-PETSC_ARCH_G = linux-gnu-O
-PETSC_ARCH_O = linux-gnu-O
 
 
 ## OTHERS
@@ -33,7 +32,7 @@ endif
 GLIB_INC_CFG = ${GLIB_LIB_DIR}/glib-2.0/include
 GLIB_LIBNAME = glib-2.0
 
-PF_PKG_DIR = $(PETSCFEM_DIR)/../petscfem-packages
+PF_PKG_DIR = $(PETSCFEM_DIR)/../../petscfem-packages
 ANN      = $(PF_PKG_DIR)
 LIBRETTO = $(PF_PKG_DIR)
 MESCHACH = $(PF_PKG_DIR)
@@ -75,6 +74,10 @@ WARN_FLAGS  = -Wall
 WARN_FLAGS += -Wno-long-long -Wno-unused-variable
 #WARN_FLAGS += -pedantic
 
+# Which GNU compiler is being used (may be egc++ also, not tested however). 
+GNUCXX = g++
+FC := gfortran
+
 # Set to yes/no if you plan to use dynamically loaded functions
 # (extension `.efn'). If you have problems in linking them set to 'no'
 USE_DYNAMICALLY_LOADED_EXTENDED_FUNCTIONS = yes
@@ -98,8 +101,14 @@ SMC =
 # generate the doc.
 LATEX2HTML = /usr/local/latex2html/latex2html
 
-#DEVELOPER_MODE := yes
-DEVELOPER_MODE := no
+# PETSC_DIR := /home/mstorti/PETSC/petsc-3.0.0-p5
+# PETSC_ARCH := linux-atlas-conf
 
-ATLAS_LIB_DIR := /usr/lib64/atlas
-ATLAS_INC_DIR := /usr/include/atlas
+PETSC_DIR=/home/rodrigop/PETSc-FEM/petsc-3.2
+PETSC_ARCH=arch-atlas-conf
+PETSC_ARCH_g := $(PETSC_ARCH)
+PETSC_ARCH_O := $(PETSC_ARCH)
+DEVELOPER_MODE := yes
+MKLPATH := 
+ATLAS_INC_DIR := /home/rodrigop/SOFT/atlas/include
+ATLAS_LIB_DIR := /home/rodrigop/SOFT/atlas/lib

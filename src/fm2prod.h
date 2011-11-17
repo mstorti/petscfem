@@ -7,8 +7,8 @@
 extern FastMat2Stats glob_fm2stats;
 extern int FASTMAT2_USE_DGEMM;
 extern int FASTMAT2_USE_PROD2;
+extern const int nmax;
 #define USE_MPROD_FOR_2MATS
-
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>
 // We store a vector of these structures in the cache, and
