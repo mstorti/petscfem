@@ -37,6 +37,7 @@ const int nmax=NMAX;
 typedef void (*gemm_fun_t)(double *a,double *b,double *c);
 static vector<gemm_fun_t> gemm_fun_table;
 int gemm_fun_table_was_initialized=0;
+int FASTMAT2_USE_MYDGEMM=1;
 
 static int gemm_fun_table_indx(int n,int m,int p) {
   return ((n-1)*nmax+m-1)*nmax+p-1;
@@ -392,7 +393,7 @@ void prod2_subcache_t::make_prod() {
   if (!asl_ok) for (int j=0; j<nA; j++) a[j] = *ap[j];
   if (!bsl_ok) for (int j=0; j<nB; j++) b[j] = *bp[j];
 
-  if (call_dgemm_opt) gfun(Ap,Bp,Cp);
+  if (FASTMAT2_USE_MYDGEMM && call_dgemm_opt) gfun(Ap,Bp,Cp);
   else {
     // Call DGEMM
 #ifdef CALL_BLAS_LAPACK_FROM_PETSC

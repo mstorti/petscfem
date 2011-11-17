@@ -101,14 +101,12 @@ SMC =
 # generate the doc.
 LATEX2HTML = /usr/local/latex2html/latex2html
 
-# PETSC_DIR := /home/mstorti/PETSC/petsc-3.0.0-p5
-# PETSC_ARCH := linux-atlas-conf
-
-PETSC_DIR=/home/rodrigop/PETSc-FEM/petsc-3.2
-PETSC_ARCH=arch-atlas-conf
-PETSC_ARCH_g := $(PETSC_ARCH)
-PETSC_ARCH_O := $(PETSC_ARCH)
+PETSC_DIR := /home/mstorti/PETSC/petsc-3.0.0-p5
+PETSC_ARCH := linux-mkl
+PETSC_ARCH_g := linux-mkl
+PETSC_ARCH_O := linux-mkl
 DEVELOPER_MODE := yes
-MKLPATH := 
-ATLAS_INC_DIR := /home/rodrigop/SOFT/atlas/include
-ATLAS_LIB_DIR := /home/rodrigop/SOFT/atlas/lib
+
+MKLPATH := /opt/intel/composerxe-2011.2.137/mkl/lib/intel64
+ATLAS_INC_DIR := 
+ATLAS_LIB_DIR := 
