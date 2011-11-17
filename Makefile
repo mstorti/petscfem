@@ -138,6 +138,11 @@ doc:
 pflib:
 	$(MAKE) -C src compile distclean
 
+#w Builds both versions of the library
+pfliball:
+	$(MAKE) BOPT=g_c++ -C src compile
+	$(MAKE) BOPT=O_c++ -C src compile
+
 TAGDIRS = src $(APPDIRS)
 #s other targets
 #w Builds/refresh Emacs tags tables

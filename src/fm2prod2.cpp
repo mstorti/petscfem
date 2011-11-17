@@ -320,8 +320,14 @@ void prod2_subcache_t
 
   // Check for special fast functions
   call_dgemm_opt = 0;
-  if (nrowa>nmax || ncola>nmax || ncolb>nmax) return;
-    
+  if (nrowa>nmax || ncola>nmax || ncolb>nmax ||
+      nrowa<1 || ncola<1 || ncolb<1 ||
+      lda!=ncola || ldb!=ncolb || ldc!=ncolc ||
+      transa!= CblasNoTrans || transb!= CblasNoTrans) return;
+  call_dgemm_opt = 1;
+  gfun = gemm_fun_table[gemm_fun_table_indx(nrowa,ncola,ncolb)];
+  printf("gfun %p, &p_2_3_4 %p\n",p_2_3_4);
+  exit(0);
 }
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>
