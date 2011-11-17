@@ -6,7 +6,7 @@
 
 #include <algorithm>
 
-#define CALL_BLAS_LAPACK_FROM_PETSC
+// #define CALL_BLAS_LAPACK_FROM_PETSC
 #ifdef CALL_BLAS_LAPACK_FROM_PETSC
 #include <petsc.h>
 #include <petscblaslapack.h>
@@ -38,7 +38,7 @@ int gemm_fun_table_was_initialized=0;
 #include "./gemmcode.cpp"
 
 static int gemm_fun_table_indx(int n,int m,int p) {
-  return (n*nmax+m)*nmax+p;
+  return ((n-1)*nmax+m-1)*nmax+p-1;
 }
 
 static void gemm_fun_table_load(int n,int m,int p,gemm_fun_t f) {
@@ -320,12 +320,13 @@ void prod2_subcache_t
 
   // Check for special fast functions
   call_dgemm_opt = 0;
-  if (nrowa>nmax || ncola>nmax || ncolb>nmax ||
-      nrowa<1 || ncola<1 || ncolb<1 ||
-      lda!=ncola || ldb!=ncolb || ldc!=ncolc ||
-      transa!= CblasNoTrans || transb!= CblasNoTrans) return;
-  call_dgemm_opt = 1;
-  gfun = gemm_fun_table[gemm_fun_table_indx(nrowa,ncola,ncolb)];
+  if (!(nrowa>nmax || ncola>nmax || ncolb>nmax ||
+        nrowa<1 || ncola<1 || ncolb<1 ||
+        lda!=ncola || ldb!=ncolb || ldc!=ncolc ||
+        transa!= CblasNoTrans || transb!= CblasNoTrans)) {
+    call_dgemm_opt = 1;
+    gfun = gemm_fun_table[gemm_fun_table_indx(nrowa,ncola,ncolb)];
+  }
 }
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>
