@@ -210,15 +210,21 @@ public:
   static int gemm_fun_table_was_initialized;
   static int FASTMAT2_USE_MYDGEMM;
 
-  int gemm_fun_table_indx(int n,int m,int p) {
+  static int gemm_fun_table_indx(int n,int m,int p) {
     return ((n-1)*nmax+m-1)*nmax+p-1;
   }
 
-  void gemm_fun_table_load(int n,int m,int p,gemm_fun_t f) {
+  static gemm_fun_t get_fun(int n,int m,int p) {
+    int indx = gemm_fun_table_indx(n,m,p);
+    return gemm_fun_table[indx];
+  }
+
+  static void gemm_fun_table_load(int n,int m,int p,gemm_fun_t f) {
     gemm_fun_table[gemm_fun_table_indx(n,m,p)] = f;
   }
 
-  void load_funs();
+  static void init_funs();
+  static void load_funs();
 
   vector<double *> ap,bp,cp;  
   double *Ap,*Bp,*Cp;
