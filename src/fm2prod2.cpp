@@ -12,6 +12,8 @@
 #include <src/fastlib2.h>
 #include <src/fm2prod.h>
 
+int FASTMAT2_USE_PROD2;
+
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>
 void FastMat2::get_addresses(Indx permA,Indx Afdims,
                              vector<double *> &ap) const {
