@@ -1,21 +1,34 @@
 #! /usr/bin/perl -w
 use strict;
-my $nmax=7;
+my $nmax=5;
 
 sub indx {
     my ($i,$j,$n,$m) = @_;
     return $i*$m+$j;
 }
 
-open GEMMCODE,">gemmcode.cpp";
-print GEMMCODE "#define NMAX $nmax\n";
+my $warning = <<'EOM';
+// This file was automatically created by "mkcode.pl"
+// It is supposed not to be modified by hand. 
+// It is not a standard header file. You should
+// not include it in a program, this is only
+// included once in file "fm2prod2.cpp"
+EOM
 
+open GEMMCODE,">mygmcode.h";
+print GEMMCODE $warning;
+
+open DEFFUNS,">mygmdefs.h";
+print DEFFUNS $warning;
+print DEFFUNS "#define PF_MYDGEMM_NMAX $nmax\n";
 my @loads;
 for (my $n=1; $n<=$nmax; $n++) {
     for (my $m=1; $m<=$nmax; $m++) {
         for (my $p=1; $p<=$nmax; $p++) {
             print GEMMCODE "//","-" x 80,"\n";
-            print GEMMCODE "static void p_${n}_${m}_${p}(double *a,double *b,double *c) {\n";
+            my $fun = "p_${n}_${m}_${p}";
+            print GEMMCODE "void prod2_subcache_t::$fun(double *a,double *b,double *c) {\n";
+            print DEFFUNS "void $fun(double *a,double *b,double *c);\n";
             for (my $j=0; $j<$n; $j++) {
                 for (my $l=0; $l<$p; $l++) {
                     printf GEMMCODE "c[%d] = ",indx($j,$l,$n,$p);
@@ -34,8 +47,10 @@ for (my $n=1; $n<=$nmax; $n++) {
     }
 }
 close GEMMCODE;
+close DEFFUNS;
 
-open LOADFUNS,">loadfuns.cpp";
+open LOADFUNS,">mygmload.h";
+print LOADFUNS $warning;
 # print LOADFUNS "\n\n//","-" x 80,"\n";
 print LOADFUNS @loads;
 close LOADFUNS;
