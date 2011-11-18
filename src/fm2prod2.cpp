@@ -6,76 +6,11 @@
 
 #include <algorithm>
 
-// #define CALL_BLAS_LAPACK_FROM_PETSC
-#ifdef CALL_BLAS_LAPACK_FROM_PETSC
-#include <petsc.h>
-#include <petscblaslapack.h>
-enum CBLAS_ORDER {CblasRowMajor=101, CblasColMajor=102 };
-enum CBLAS_TRANSPOSE {CblasNoTrans=111, CblasTrans=112, CblasConjTrans=113,
-                      AtlasConj=114};
-#else
-#ifdef USE_MKL
-#include <mkl_cblas.h>
-#else
-extern "C" {
-#include <cblas.h>
-}
-#endif
-#endif
-
 #include <src/fem.h>
 #include <src/fastmat2.h>
 #include <src/fm2stats.h>
 #include <src/fastlib2.h>
 #include <src/fm2prod.h>
-
-int FASTMAT2_USE_PROD2=1;
-
-// #include "./gemmcode.cpp"
-
-//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>
-class prod2_subcache_t : public FastMatSubCache {
-public:
-#include "./mygmdefs"  
-  static int nmax=PF_MYDGEMM_NMAX;
-  typedef void (*gemm_fun_t)(double *a,double *b,double *c);
-  static vector<gemm_fun_t> gemm_fun_table;
-  int gemm_fun_table_was_initialized=0;
-  int FASTMAT2_USE_MYDGEMM=1;
-
-  static int gemm_fun_table_indx(int n,int m,int p) {
-    return ((n-1)*nmax+m-1)*nmax+p-1;
-  }
-
-  static void gemm_fun_table_load(int n,int m,int p,gemm_fun_t f) {
-    gemm_fun_table[gemm_fun_table_indx(n,m,p)] = f;
-  }
-
-  static void load_funs() {
-    gemm_fun_table.resize(nmax*nmax*nmax);
-#include "./loadfuns.cpp"
-  }
-
-  vector<double *> ap,bp,cp;  
-  double *Ap,*Bp,*Cp;
-  vector<double> a,b,c;
-  int nA,nB,nC, 
-    nrowa,ncola,
-    nrowb,ncolb,
-    nrowc,ncolc;
-  int asl_ok,lda,
-    bsl_ok,ldb,
-    csl_ok,ldc;
-  CBLAS_TRANSPOSE transa,transb,transc;
-  int call_dgemm_opt;
-  gemm_fun_t gfun;
-  void init(const FastMat2 &A,const FastMat2 &B,
-            FastMat2 &C,
-            vector<int> &ixa, 
-            vector<int> &ixb);
-  void make_prod();
-  prod2_subcache_t() : gfun(NULL) {}
-};
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>
 void FastMat2::get_addresses(Indx permA,Indx Afdims,

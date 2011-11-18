@@ -28,7 +28,7 @@ for (my $n=1; $n<=$nmax; $n++) {
             print GEMMCODE "//","-" x 80,"\n";
             my $fun = "p_${n}_${m}_${p}";
             print GEMMCODE "void prod2_subcache_t::$fun(double *a,double *b,double *c) {\n";
-            print DEFFUNS "void $fun(double *a,double *b,double *c);\n";
+            print DEFFUNS "static void $fun(double *a,double *b,double *c);\n";
             for (my $j=0; $j<$n; $j++) {
                 for (my $l=0; $l<$p; $l++) {
                     printf GEMMCODE "c[%d] = ",indx($j,$l,$n,$p);

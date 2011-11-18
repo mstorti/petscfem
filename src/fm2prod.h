@@ -4,6 +4,23 @@
 #ifndef PETSCFEM_FM2PROD_H
 #define PETSCFEM_FM2PROD_H
 
+// #define CALL_BLAS_LAPACK_FROM_PETSC
+#ifdef CALL_BLAS_LAPACK_FROM_PETSC
+#include <petsc.h>
+#include <petscblaslapack.h>
+enum CBLAS_ORDER {CblasRowMajor=101, CblasColMajor=102 };
+enum CBLAS_TRANSPOSE {CblasNoTrans=111, CblasTrans=112, CblasConjTrans=113,
+                      AtlasConj=114};
+#else
+#ifdef USE_MKL
+#include <mkl_cblas.h>
+#else
+extern "C" {
+#include <cblas.h>
+}
+#endif
+#endif
+
 extern FastMat2Stats glob_fm2stats;
 extern int FASTMAT2_USE_DGEMM;
 extern int FASTMAT2_USE_PROD2;
@@ -182,5 +199,46 @@ compute_heuristic_order(const mat_info_cont_t &mat_info_cont,
 intmax_t 
 compute_natural_order(const mat_info_cont_t &mat_info_cont,
                       vector<int> &order,int reverse=0);
+
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>
+class prod2_subcache_t : public FastMatSubCache {
+public:
+#include "./mygmdefs.h"  
+  static int nmax;
+  typedef void (*gemm_fun_t)(double *a,double *b,double *c);
+  static vector<gemm_fun_t> gemm_fun_table;
+  static int gemm_fun_table_was_initialized;
+  static int FASTMAT2_USE_MYDGEMM;
+
+  int gemm_fun_table_indx(int n,int m,int p) {
+    return ((n-1)*nmax+m-1)*nmax+p-1;
+  }
+
+  void gemm_fun_table_load(int n,int m,int p,gemm_fun_t f) {
+    gemm_fun_table[gemm_fun_table_indx(n,m,p)] = f;
+  }
+
+  void load_funs();
+
+  vector<double *> ap,bp,cp;  
+  double *Ap,*Bp,*Cp;
+  vector<double> a,b,c;
+  int nA,nB,nC, 
+    nrowa,ncola,
+    nrowb,ncolb,
+    nrowc,ncolc;
+  int asl_ok,lda,
+    bsl_ok,ldb,
+    csl_ok,ldc;
+  CBLAS_TRANSPOSE transa,transb,transc;
+  int call_dgemm_opt;
+  gemm_fun_t gfun;
+  void init(const FastMat2 &A,const FastMat2 &B,
+            FastMat2 &C,
+            vector<int> &ixa, 
+            vector<int> &ixb);
+  void make_prod();
+  prod2_subcache_t() : gfun(NULL) {}
+};
 
 #endif
