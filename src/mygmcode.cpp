@@ -12,7 +12,10 @@ vector<prod2_subcache_t::gemm_fun_t> prod2_subcache_t::gemm_fun_table;
 
 void prod2_subcache_t::load_funs() {
   gemm_fun_table.resize(nmax*nmax*nmax);
+#define LOADFUN(n,m,p) gemm_fun_table_load(n,m,p,&prod2_subcache_t::p_##n##_##m##_##p)
 #include "./mygmload.h"
 }
 
+#define DEFFUN2(fun) \
+  void prod2_subcache_t::fun(double *__restrict__ a,double  *__restrict__ b,double *__restrict__ c)
 #include "./mygmcode.h"

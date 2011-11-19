@@ -203,6 +203,9 @@ compute_natural_order(const mat_info_cont_t &mat_info_cont,
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>
 class prod2_subcache_t : public FastMatSubCache {
 public:
+
+#define DECLFUN(fun) \
+  static void fun(double *__restrict__ a,double * __restrict__ b,double * __restrict__ c)
 #include "./mygmdefs.h"  
   static int nmax;
   typedef void (*gemm_fun_t)(double *a,double *b,double *c);

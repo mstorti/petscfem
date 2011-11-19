@@ -1,6 +1,6 @@
 #! /usr/bin/perl -w
 use strict;
-my $nmax=10;
+my $nmax=3;
 
 sub indx {
     my ($i,$j,$n,$m) = @_;
@@ -27,8 +27,9 @@ for (my $n=1; $n<=$nmax; $n++) {
         for (my $p=1; $p<=$nmax; $p++) {
             print GEMMCODE "//","-" x 80,"\n";
             my $fun = "p_${n}_${m}_${p}";
-            print GEMMCODE "void prod2_subcache_t::$fun(double *a,double *b,double *c) {\n";
-            print DEFFUNS "static void $fun(double *a,double *b,double *c);\n";
+            ## print GEMMCODE "void prod2_subcache_t::$fun(double *a,double *b,double *c) {\n";
+            print GEMMCODE "DEFFUN2($fun) {\n";
+            print DEFFUNS "DECLFUN($fun);\n";
             for (my $j=0; $j<$n; $j++) {
                 for (my $l=0; $l<$p; $l++) {
                     printf GEMMCODE "c[%d] = ",indx($j,$l,$n,$p);
@@ -42,7 +43,8 @@ for (my $n=1; $n<=$nmax; $n++) {
                 }
             }
             print GEMMCODE "}\n";
-            push @loads,"gemm_fun_table_load($n,$m,$p,&p_${n}_${m}_${p});\n"
+            ## push @loads,"gemm_fun_table_load($n,$m,$p,&p_${n}_${m}_${p});\n"
+            push @loads,"LOADFUN($n,$m,$p);\n"
         }
     }
 }
