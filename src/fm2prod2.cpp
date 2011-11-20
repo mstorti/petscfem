@@ -4,6 +4,7 @@
 #include <cstdio>
 #include <unistd.h>
 
+#include <map>
 #include <algorithm>
 
 #include <src/fem.h>
@@ -12,7 +13,7 @@
 #include <src/fastlib2.h>
 #include <src/fm2prod.h>
 
-int FASTMAT2_USE_PROD2;
+int FASTMAT2_USE_PROD2=1;
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>
 void FastMat2::get_addresses(Indx permA,Indx Afdims,
@@ -265,6 +266,7 @@ void prod2_subcache_t
 
   // Check for special fast functions
   call_dgemm_opt = 0;
+  nmax = 0; // Short-circuited to false!!
   int nmax1 = (nmax_compiled<nmax ? nmax_compiled : nmax);
   if (!(nrowa>nmax1 || ncola>nmax1 || ncolb>nmax1 ||
         nrowa<1 || ncola<1 || ncolb<1 ||
@@ -337,6 +339,12 @@ void prod2_subcache_t::make_prod() {
   if (!asl_ok) for (int j=0; j<nA; j++) a[j] = *ap[j];
   if (!bsl_ok) for (int j=0; j<nB; j++) b[j] = *bp[j];
 
+#ifdef DO_SIZE_STATS
+  mat_sz_t m;
+  m.m = nrowa; m.n=ncola; m.p=ncolb;
+  stat_table[m]++;
+#endif
+
   if (FASTMAT2_USE_MYDGEMM && call_dgemm_opt) gfun(Ap,Bp,Cp);
   else {
     // Call DGEMM
@@ -370,3 +378,22 @@ void prod2_subcache_t::make_prod() {
   // internal buffer if needed
   if (!csl_ok) for (int j=0; j<nC; j++) *cp[j] = c[j];
 }
+
+#ifdef DO_SIZE_STATS
+map<prod2_subcache_t::mat_sz_t,int> prod2_subcache_t::stat_table;
+void prod2_subcache_t::report_stats() {
+  map<mat_sz_t,int>::iterator q = stat_table.begin();
+  while (q!=stat_table.end()) {
+    const mat_sz_t &s = q->first;
+    printf("%d %d %d %d\n",s.m,s.n,s.p,q->second);
+    q++;
+  }
+}
+
+bool prod2_subcache_t::mat_sz_t
+::operator<(const mat_sz_t &rhs) const {
+  if (m!=rhs.m) return m<rhs.m;
+  if (n!=rhs.n) return n<rhs.n;
+  return p<rhs.p;
+}
+#endif
