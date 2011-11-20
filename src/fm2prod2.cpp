@@ -334,16 +334,14 @@ void prod2_subcache_t::make_prod() {
   // Makes the product by calling to BLAS DGEMM
   if (nC==0) return;
 
+#ifdef DO_SIZE_STATS
+  double start = MPI_Wtime();
+#endif
+
   // Copy from A,B internal buffers to
   // auxiliary buffers if needed
   if (!asl_ok) for (int j=0; j<nA; j++) a[j] = *ap[j];
   if (!bsl_ok) for (int j=0; j<nB; j++) b[j] = *bp[j];
-
-#ifdef DO_SIZE_STATS
-  mat_sz_t m;
-  m.m = nrowa; m.n=ncola; m.p=ncolb;
-  stat_table[m]++;
-#endif
 
   if (FASTMAT2_USE_MYDGEMM && call_dgemm_opt) gfun(Ap,Bp,Cp);
   else {
@@ -377,17 +375,29 @@ void prod2_subcache_t::make_prod() {
   // Copy from c auxiliary buffer to C
   // internal buffer if needed
   if (!csl_ok) for (int j=0; j<nC; j++) *cp[j] = c[j];
+
+#ifdef DO_SIZE_STATS
+  mat_sz_t m;
+  m.m = nrowa; m.n=ncola; m.p=ncolb;
+  stats_t &s = stat_table[m];
+  s.count++;
+  s.time += MPI_Wtime()-start;
+#endif
+
 }
 
 #ifdef DO_SIZE_STATS
-map<prod2_subcache_t::mat_sz_t,int> prod2_subcache_t::stat_table;
+map<prod2_subcache_t::mat_sz_t,prod2_subcache_t::stats_t> prod2_subcache_t::stat_table;
 void prod2_subcache_t::report_stats() {
-  map<mat_sz_t,int>::iterator q = stat_table.begin();
+  map<mat_sz_t,stats_t>::iterator q = stat_table.begin();
+  double total_time=0.0;
   while (q!=stat_table.end()) {
     const mat_sz_t &s = q->first;
-    printf("%d %d %d %d\n",s.m,s.n,s.p,q->second);
+    printf("%d %d %d %d %g\n",s.m,s.n,s.p,q->second.count,q->second.time);
+    total_time += q->second.time;
     q++;
   }
+  printf("total time in prod: %g\n",total_time);
 }
 
 bool prod2_subcache_t::mat_sz_t

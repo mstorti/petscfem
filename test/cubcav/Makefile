@@ -118,6 +118,9 @@ yuv_compress:
 k:
 	-killall ns_O.bin job.pl
 
+testfm2:
+	$(MAKE) CASE=$(CASE_NAME) case=plain_bupl2 run 
+
 #================================================================
 #w Basic test for block uploading. This is somewhat trivial since
 #w for NS the profile is full. 

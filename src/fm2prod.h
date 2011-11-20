@@ -218,7 +218,12 @@ public:
     int m,n,p; 
     bool operator<(const mat_sz_t &rhs) const;
   };
-  static map<mat_sz_t,int> stat_table;
+  struct stats_t { 
+    int count; 
+    double time;
+    stats_t() : count(0), time(0.0) { }
+  };
+  static map<mat_sz_t,stats_t> stat_table;
   static void report_stats();
 #endif
 
