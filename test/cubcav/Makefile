@@ -119,7 +119,7 @@ k:
 	-killall ns_O.bin job.pl
 
 #================================================================
-#w Basic test for block uploading. This somewhat trivial since
+#w Basic test for block uploading. This is somewhat trivial since
 #w for NS the profile is full. 
 block_uploading:
 	$(MAKE) CASE=$(CASE_NAME) case=plain_bupl0 run 
