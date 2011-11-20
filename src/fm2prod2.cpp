@@ -387,19 +387,40 @@ void prod2_subcache_t::make_prod() {
 }
 
 #ifdef DO_SIZE_STATS
+
+bool prod2_subcache_t
+::comp(const prod2_subcache_t::spair_t &a,
+       const prod2_subcache_t::spair_t &b) {
+  return a.second.time>b.second.time;
+}
+
 map<prod2_subcache_t::mat_sz_t,prod2_subcache_t::stats_t> prod2_subcache_t::stat_table;
 void prod2_subcache_t::report_stats() {
   map<mat_sz_t,stats_t>::iterator q = stat_table.begin();
-  double total_time=0.0;
+  double ctime=0.0;
+  vector<spair_t> v;
   while (q!=stat_table.end()) {
-    const mat_sz_t &s = q->first;
-    printf("%d %d %d %d %g\n",s.m,s.n,s.p,q->second.count,q->second.time);
-    total_time += q->second.time;
+    v.push_back(spair_t(q->first,q->second));
     q++;
   }
-  printf("total time in prod: %g\n",total_time);
+  sort(v.begin(),v.end(),comp);
+  double total = 0.0;
+  for (unsigned int j=0; j<v.size(); j++) {
+    const stats_t &s = v[j].second;
+    total += s.time;
+  }
+  for (unsigned int j=0; j<v.size(); j++) {
+    const mat_sz_t &z = v[j].first;
+    const stats_t &s = v[j].second;
+    ctime += s.time;
+    printf("%d %d %d %d %g [%.2f%%] (cum %g [%f%%])\n",
+           z.m,z.n,z.p,s.count,
+           s.time,100.0*s.time/total,
+           ctime,ctime/total*100.0);
+  }
 }
 
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>
 bool prod2_subcache_t::mat_sz_t
 ::operator<(const mat_sz_t &rhs) const {
   if (m!=rhs.m) return m<rhs.m;
