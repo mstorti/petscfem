@@ -5,6 +5,7 @@
 #include <src/fastlib2.h>
 #include <src/fm2prod.h>
 
+int prod2_subcache_t::nmax_compiled=PF_MYDGEMM_NMAX;
 int prod2_subcache_t::nmax=PF_MYDGEMM_NMAX;
 int prod2_subcache_t::gemm_fun_table_was_initialized=0;
 int prod2_subcache_t::FASTMAT2_USE_MYDGEMM=1;

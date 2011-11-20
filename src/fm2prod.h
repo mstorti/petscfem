@@ -207,7 +207,7 @@ public:
 #define DECLFUN(fun) \
   static void fun(double *__restrict__ a,double * __restrict__ b,double * __restrict__ c)
 #include "./mygmdefs.h"  
-  static int nmax;
+  static int nmax, nmax_compiled;
   typedef void (*gemm_fun_t)(double *a,double *b,double *c);
   static vector<gemm_fun_t> gemm_fun_table;
   static int gemm_fun_table_was_initialized;

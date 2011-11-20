@@ -265,7 +265,8 @@ void prod2_subcache_t
 
   // Check for special fast functions
   call_dgemm_opt = 0;
-  if (!(nrowa>nmax || ncola>nmax || ncolb>nmax ||
+  int nmax1 = (nmax_compiled<nmax ? nmax_compiled : nmax);
+  if (!(nrowa>nmax1 || ncola>nmax1 || ncolb>nmax1 ||
         nrowa<1 || ncola<1 || ncolb<1 ||
         lda!=ncola || ldb!=ncolb || ldc!=ncolc ||
         transa!= CblasNoTrans || transb!= CblasNoTrans)) {
