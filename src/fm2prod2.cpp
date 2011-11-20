@@ -267,7 +267,7 @@ void prod2_subcache_t
   // Check for special fast functions
   call_dgemm_opt = 0;
   // nmax = 0; // Short-circuited to false!!
-  int nmax1 = (nmax_compiled<nmax ? nmax_compiled : nmax);
+  int nmax1 = (NMAX<nmax ? NMAX : nmax);
   if (!(nrowa>nmax1 || ncola>nmax1 || ncolb>nmax1 ||
         nrowa<1 || ncola<1 || ncolb<1 ||
         lda!=ncola || ldb!=ncolb || ldc!=ncolc ||
@@ -276,8 +276,10 @@ void prod2_subcache_t
     gfun = gemm_fun_table[gemm_fun_table_indx(nrowa,ncola,ncolb)];
   }
 #ifdef DO_SIZE_STATS
-  total_calls++;
-  fmgemm_calls += call_dgemm_opt;
+  if (do_size_stats) {
+    total_calls++;
+    fmgemm_calls += call_dgemm_opt;
+  }
 #endif
 }
 
@@ -339,7 +341,8 @@ void prod2_subcache_t::make_prod() {
   if (nC==0) return;
 
 #ifdef DO_SIZE_STATS
-  double start = MPI_Wtime();
+  double start;
+  if (do_size_stats) start = MPI_Wtime();
 #endif
 
   // Copy from A,B internal buffers to
@@ -381,11 +384,13 @@ void prod2_subcache_t::make_prod() {
   if (!csl_ok) for (int j=0; j<nC; j++) *cp[j] = c[j];
 
 #ifdef DO_SIZE_STATS
-  mat_sz_t m;
-  m.m = nrowa; m.n=ncola; m.p=ncolb;
-  stats_t &s = stat_table[m];
-  s.count++;
-  s.time += MPI_Wtime()-start;
+  if (do_size_stats) {
+    mat_sz_t m;
+    m.m = nrowa; m.n=ncola; m.p=ncolb;
+    stats_t &s = stat_table[m];
+    s.count++;
+    s.time += MPI_Wtime()-start;
+  }
 #endif
 
 }
@@ -400,6 +405,7 @@ bool prod2_subcache_t
 
 int prod2_subcache_t::total_calls=0;
 int prod2_subcache_t::fmgemm_calls=0;
+int prod2_subcache_t::do_size_stats=0;
 
 map<prod2_subcache_t::mat_sz_t,prod2_subcache_t::stats_t> prod2_subcache_t::stat_table;
 void prod2_subcache_t::report_stats() {

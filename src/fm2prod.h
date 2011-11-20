@@ -208,7 +208,7 @@ public:
 #define DECLFUN(fun) \
   static void fun(double *__restrict__ a,double * __restrict__ b,double * __restrict__ c)
 #include "./mygmdefs.h"  
-  static int nmax, nmax_compiled;
+  static int nmax, NMAX;
   typedef void (*gemm_fun_t)(double *a,double *b,double *c);
   static vector<gemm_fun_t> gemm_fun_table;
   static int gemm_fun_table_was_initialized;
@@ -227,11 +227,11 @@ public:
   static void report_stats();
   typedef pair< mat_sz_t,stats_t> spair_t;
   static bool comp(const spair_t &a,const spair_t &b);
-  static int total_calls, fmgemm_calls;
+  static int do_size_stats,total_calls,fmgemm_calls;
 #endif
 
   static int gemm_fun_table_indx(int n,int m,int p) {
-    return ((n-1)*nmax+m-1)*nmax+p-1;
+    return ((n-1)*NMAX+m-1)*NMAX+p-1;
   }
 
   static gemm_fun_t get_fun(int n,int m,int p) {

@@ -492,7 +492,7 @@ FastMat2::FastMat2(const Indx & dims_) {
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 FastMat2::FastMat2(CacheCtx *ctx_a) 
-  : ctx(ctx_a), store(NULL), defined(0)  { }
+  : ctx(ctx_a), store(NULL), storage_is_external(0), defined(0)  { }
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 FastMat2::FastMat2(CacheCtx *ctx_a,const Indx & dims_) 
@@ -771,6 +771,7 @@ void FastMat2::define_matrix(void) {
   if (storage>0) {
     store = new double[storage];
     defined=1;
+    storage_is_external = 0;
   } else {
     store=NULL;
     defined=0;

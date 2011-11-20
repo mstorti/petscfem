@@ -130,7 +130,9 @@ runtests: compile sector oscplate fastmat2 plano idmap constraint_bug	\
 	gasflow-conv dvector elastld-df elastld-bubble scalar2d-bdf
 
 rp: runtests_p
-runtests_p: scalar2d-bdf
+runtests_p: nutatcyl mmove	\
+	advec nsgenload cubcav project embgath alebcconv ductadv 	\
+	gasflow-conv dvector elastld-df elastld-bubble scalar2d-bdf
 
 #s Specific tests
 #----<*>----------<*>----------<*>----------<*>----------<*>----------<*>-----

@@ -127,7 +127,6 @@ viscosity <:=$nu:>
 >>endif
 __END_HASH__
 
->>if 0
 elemset field_surf_integrator <:=$nel:>
 name integrator
 geometry <:=$geom:>
@@ -139,7 +138,6 @@ x0 0. 0. 0.
 gather_pos 0
 f_vals 0.12 0.35
 __END_HASH__
->>endif
 
 end_elemsets
 

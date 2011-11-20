@@ -57,6 +57,11 @@ extern WallData   wall_data;
 #define __FUNC__ "ns_main"
 int ns_main(int argc,char **args) {
 
+#ifdef DO_SIZE_STATS
+  prod2_subcache_t::do_size_stats=1;
+#endif
+  prod2_subcache_t::nmax=0;
+
   PetscFemInitialize(&argc,&args,(char *)0,help);
 
   Vec x, xp, dx, xold, dx_step, res; // approx solution, RHS, residual

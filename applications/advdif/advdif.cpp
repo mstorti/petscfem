@@ -12,6 +12,10 @@
 #include <src/pfmat.h>
 #include <src/hook.h>
 
+#include <src/fm2stats.h>
+#include <src/fastlib2.h>
+#include <src/fm2prod.h>
+
 #include "advective.h"
 
 #include <time.h>
@@ -63,6 +67,10 @@ int VecIsFinite(Vec x) {
 #define __FUNC__ "advdif_main"
 int advdif_main(int argc,char **args) {
 
+#ifdef DO_SIZE_STATS
+  prod2_subcache_t::do_size_stats=1;
+#endif
+  prod2_subcache_t::nmax=0;
   PetscFemInitialize(&argc,&args,(char *)0,help);
   
 #define CNLEN 100
@@ -678,6 +686,10 @@ int advdif_main(int argc,char **args) {
   
   delete A;
   delete AA;
+
+#ifdef DO_SIZE_STATS
+  prod2_subcache_t::report_stats();
+#endif
 
   PetscFinalize();
   exit(0);

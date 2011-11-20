@@ -46,6 +46,7 @@ fd_jac_3:
 
 #---<*>---//---<*>---//---<*>---//---<*>---//---<*>---// 
 
+BOPT := g_c++
 PETSCFEM_DIR = ../..
 include $(PETSCFEM_DIR)/Makefile.base
 include ../Makefile.base.test

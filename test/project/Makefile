@@ -1,7 +1,7 @@
 default: test3d
 ## default: tests
 
-# BOPT := O_c++
+BOPT := g_c++
 
 PETSCFEM_DIR := ../..
 
@@ -15,6 +15,9 @@ tests:  bin test2d test3d
 
 bin:
 	$(MAKE) -C ../../tools/project/ project4.bin
+
+reprog:
+	$(MAKE) -C ../../tools/project/ -W project4.cpp project4.bin
 
 test2d:
 	octave -qH mkdata.m
