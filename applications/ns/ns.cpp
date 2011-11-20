@@ -13,6 +13,10 @@
 #include <src/hook.h>
 #include <src/iisdmatstat.h>
 
+#include <src/fm2stats.h>
+#include <src/fastlib2.h>
+#include <src/fm2prod.h>
+
 // For level set mass control
 double total_liquid_volume, total_liquid_volume_g, liquid_volume_ini=NAN;
 
@@ -1120,5 +1124,8 @@ int ns_main(int argc,char **args) {
 #endif
 
   PetscFinalize();
+#ifdef DO_SIZE_STATS
+  prod2_subcache_t::report_stats();
+#endif
   exit(0);
 }

@@ -266,7 +266,7 @@ void prod2_subcache_t
 
   // Check for special fast functions
   call_dgemm_opt = 0;
-  nmax = 0; // Short-circuited to false!!
+  // nmax = 0; // Short-circuited to false!!
   int nmax1 = (nmax_compiled<nmax ? nmax_compiled : nmax);
   if (!(nrowa>nmax1 || ncola>nmax1 || ncolb>nmax1 ||
         nrowa<1 || ncola<1 || ncolb<1 ||
@@ -275,6 +275,10 @@ void prod2_subcache_t
     call_dgemm_opt = 1;
     gfun = gemm_fun_table[gemm_fun_table_indx(nrowa,ncola,ncolb)];
   }
+#ifdef DO_SIZE_STATS
+  total_calls++;
+  fmgemm_calls += call_dgemm_opt;
+#endif
 }
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>
@@ -394,6 +398,9 @@ bool prod2_subcache_t
   return a.second.time>b.second.time;
 }
 
+int prod2_subcache_t::total_calls=0;
+int prod2_subcache_t::fmgemm_calls=0;
+
 map<prod2_subcache_t::mat_sz_t,prod2_subcache_t::stats_t> prod2_subcache_t::stat_table;
 void prod2_subcache_t::report_stats() {
   map<mat_sz_t,stats_t>::iterator q = stat_table.begin();
@@ -418,6 +425,7 @@ void prod2_subcache_t::report_stats() {
            s.time,100.0*s.time/total,
            ctime,ctime/total*100.0);
   }
+  printf("Total prods %d, use FMGEMM %d\n",total_calls,fmgemm_calls);
 }
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>

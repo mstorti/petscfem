@@ -17356,3 +17356,8 @@ Summary: "All tests" -- OK: 191.  Not OK: 0. Couldn't open: 0. Total: 191
 ABRIDGED: 
 NOT OK------- -> 0
 CAN'T OPEN------- -> 0
+
+%=== Sun Nov 20 17:00:17 2011 mstorti@nikola
+%
+%--[2011-11-20.20:00:17.mstorti-v38-start-18-g98596e6]-----
+Implementado la libreria FMGEMM. 
