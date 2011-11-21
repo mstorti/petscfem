@@ -298,6 +298,7 @@ void prod2_subcache_t
     gfun = gemm_fun_table[gemm_fun_table_indx(nrowa,ncola,ncolb,jat,jbt)];
   }
 #ifdef DO_SIZE_STATS
+  printf("use FMGEMM: %d\n",call_dgemm_opt);
   if (do_size_stats) {
     total_calls++;
     fmgemm_calls += call_dgemm_opt;

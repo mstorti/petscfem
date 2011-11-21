@@ -110,7 +110,13 @@ readlist.h: readlist.eperl
 
 mprod.h mproddef.h: mprod.pl mprod1.h mprodtmpl.h
 	./mprod.pl
+endif
 
+ifeq ($(DEVELOPER_MODE),yes)
+## Generates automatic code for fast implementation of DGEMM 
+## a.k.a. FMGEMM library
+mygmcode.h mygmdefs.h mygmload.h: mkmydgcode.pl
+	./mkmydgcode.pl
 endif
 
 # This doesn't compile with -O2
