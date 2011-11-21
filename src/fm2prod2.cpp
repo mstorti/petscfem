@@ -13,6 +13,7 @@
 #include <src/fm2stats.h>
 #include <src/fastlib2.h>
 #include <src/fm2prod.h>
+#include <src/vecmacros.h>
 
 int FASTMAT2_USE_PROD2=1;
 
@@ -75,6 +76,25 @@ void prod2_subcache_t::init_funs() {
     load_funs();
     gemm_fun_table_was_initialized = 1;
   }
+}
+
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>
+int prod2_subcache_t
+::gemm_fun_table_indx(int n,int m,int p,int jat,int jbt) {
+  return VEC_ADDR_5(n-1,m-1,NMAX,p-1,NMAX,jat,2,jbt,2);
+}
+
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>
+prod2_subcache_t::gemm_fun_t prod2_subcache_t
+::get_fun(int n,int m,int p,int jat,int jbt) {
+  int indx = gemm_fun_table_indx(n,m,p,jat,jbt);
+  return gemm_fun_table[indx];
+}
+
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>
+void prod2_subcache_t
+::gemm_fun_table_load(int n,int m,int p,int jat,int jbt,gemm_fun_t f) {
+  gemm_fun_table[gemm_fun_table_indx(n,m,p,jat,jbt)] = f;
 }
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>
@@ -271,10 +291,11 @@ void prod2_subcache_t
   int nmax1 = (NMAX<nmax ? NMAX : nmax);
   if (!(nrowa>nmax1 || ncola>nmax1 || ncolb>nmax1 ||
         nrowa<1 || ncola<1 || ncolb<1 ||
-        lda!=ncola || ldb!=ncolb || ldc!=ncolc ||
-        transa!= CblasNoTrans || transb!= CblasNoTrans || transc != CblasNoTrans)) {
+        lda!=ncola || ldb!=ncolb || ldc!=ncolc || transc != CblasNoTrans)) {
+    int jat = (transa==CblasNoTrans ? 0 : 1);
+    int jbt = (transb==CblasNoTrans ? 0 : 1);
     call_dgemm_opt = 1;
-    gfun = gemm_fun_table[gemm_fun_table_indx(nrowa,ncola,ncolb)];
+    gfun = gemm_fun_table[gemm_fun_table_indx(nrowa,ncola,ncolb,jat,jbt)];
   }
 #ifdef DO_SIZE_STATS
   if (do_size_stats) {
@@ -412,6 +433,19 @@ void prod2_subcache_t::make_prod() {
   }
 #endif
 
+}
+
+int prod2_subcache_t::NMAX=PF_MYDGEMM_NMAX;
+int prod2_subcache_t::nmax=PF_MYDGEMM_NMAX;
+int prod2_subcache_t::gemm_fun_table_was_initialized=0;
+int prod2_subcache_t::FASTMAT2_USE_MYDGEMM=1;
+vector<prod2_subcache_t::gemm_fun_t> prod2_subcache_t::gemm_fun_table;
+
+void prod2_subcache_t::load_funs() {
+  gemm_fun_table.resize(NMAX*NMAX*NMAX*4);
+#define LOADFUN(n,m,p,jat,jbt,fun) \
+  gemm_fun_table_load(n,m,p,jat,jbt,&prod2_subcache_t::fun)
+#include "./mygmload.h"
 }
 
 #ifdef DO_SIZE_STATS

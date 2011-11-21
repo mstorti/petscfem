@@ -204,7 +204,7 @@ compute_natural_order(const mat_info_cont_t &mat_info_cont,
 class prod2_subcache_t : public FastMatSubCache {
 public:
 
-#define DO_SIZE_STATS
+  // #define DO_SIZE_STATS
 #define DECLFUN(fun) \
   static void fun(double *__restrict__ a,double * __restrict__ b,double * __restrict__ c)
 #include "./mygmdefs.h"  
@@ -230,19 +230,9 @@ public:
   static int do_size_stats,total_calls,fmgemm_calls;
 #endif
 
-  static int gemm_fun_table_indx(int n,int m,int p) {
-    return ((n-1)*NMAX+m-1)*NMAX+p-1;
-  }
-
-  static gemm_fun_t get_fun(int n,int m,int p) {
-    int indx = gemm_fun_table_indx(n,m,p);
-    return gemm_fun_table[indx];
-  }
-
-  static void gemm_fun_table_load(int n,int m,int p,gemm_fun_t f) {
-    gemm_fun_table[gemm_fun_table_indx(n,m,p)] = f;
-  }
-
+  static int gemm_fun_table_indx(int n,int m,int p,int jat,int jbt);
+  static gemm_fun_t get_fun(int n,int m,int p,int jat,int jbt);
+  static void gemm_fun_table_load(int n,int m,int p,int jat,int jbt,gemm_fun_t f);
   static void init_funs();
   static void load_funs();
 
