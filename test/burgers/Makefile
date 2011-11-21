@@ -46,7 +46,7 @@ fd_jac_3:
 
 #---<*>---//---<*>---//---<*>---//---<*>---//---<*>---// 
 
-BOPT := g_c++
+# BOPT := g_c++
 PETSCFEM_DIR = ../..
 include $(PETSCFEM_DIR)/Makefile.base
 include ../Makefile.base.test
@@ -84,6 +84,9 @@ CLEAN_DIRS := jacotest
 
 PROG := $(ADVDIF)
 LOC_PROG := advdif
+
+prog:
+	$(MAKE) -C $(PETSCFEM_DIR) BOPT=g_c++ $(LOC_PROG)
 
 #w Makes local link for running with debugger
 link:

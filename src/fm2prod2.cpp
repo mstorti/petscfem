@@ -2,6 +2,7 @@
 #include <cmath>
 #include <ctime>
 #include <cstdio>
+#include <cstring>
 #include <unistd.h>
 
 #include <map>
@@ -271,7 +272,7 @@ void prod2_subcache_t
   if (!(nrowa>nmax1 || ncola>nmax1 || ncolb>nmax1 ||
         nrowa<1 || ncola<1 || ncolb<1 ||
         lda!=ncola || ldb!=ncolb || ldc!=ncolc ||
-        transa!= CblasNoTrans || transb!= CblasNoTrans)) {
+        transa!= CblasNoTrans || transb!= CblasNoTrans || transc != CblasNoTrans)) {
     call_dgemm_opt = 1;
     gfun = gemm_fun_table[gemm_fun_table_indx(nrowa,ncola,ncolb)];
   }
@@ -341,7 +342,7 @@ void prod2_subcache_t::make_prod() {
   if (nC==0) return;
 
 #ifdef DO_SIZE_STATS
-  double start;
+  double start=NAN;
   if (do_size_stats) start = MPI_Wtime();
 #endif
 
@@ -350,8 +351,26 @@ void prod2_subcache_t::make_prod() {
   if (!asl_ok) for (int j=0; j<nA; j++) a[j] = *ap[j];
   if (!bsl_ok) for (int j=0; j<nB; j++) b[j] = *bp[j];
 
-  if (FASTMAT2_USE_MYDGEMM && call_dgemm_opt) gfun(Ap,Bp,Cp);
-  else {
+  if (FASTMAT2_USE_MYDGEMM && call_dgemm_opt) {
+    gfun(Ap,Bp,Cp);
+#if 1
+    // Perform a check
+    vector<double> cv(nrowc*ncolc);
+    if (transc==CblasNoTrans) 
+      cblas_dgemm(CblasRowMajor,transa,transb,nrowa,ncolb,
+                  ncola,1.0,Ap,lda,Bp,ldb,0.0,&cv[0],ldc);
+    else cblas_dgemm(CblasRowMajor,flip(transb),flip(transa),
+                     ncolb,nrowa,ncola,1.0,Bp,ldb,Ap,lda,0.0,
+                     &cv[0],ldc);
+    double erro=0.0,tol=1e-10,cnorm=0.0;
+    for (unsigned int j=0; j<cv.size(); j++) {
+      erro += fabs(cv[j]-Cp[j]);
+      cnorm += Cp[j];
+    }
+    // printf("FMGEMM error %g, tol %g, ||C|| %g\n",erro,tol,cnorm);
+    PETSCFEM_ASSERT(erro<tol,"FMGEMM error %g, tol %g, ||C|| %g\n",erro,tol,cnorm);
+#endif
+  } else {
     // Call DGEMM
 #ifdef CALL_BLAS_LAPACK_FROM_PETSC
     PetscScalar _DOne=1.0,_DZero=0.0;

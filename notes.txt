@@ -17361,3 +17361,7 @@ CAN'T OPEN------- -> 0
 %
 %--[2011-11-20.20:00:17.mstorti-v38-start-18-g98596e6]-----
 Implementado la libreria FMGEMM. 
+%
+%--[2011-11-20.23:33:54.mstorti-v38-start-21-g4f024c2]-----
+Corre todos los tests (pero con FMGEMM desactivado, o sea 
+prod2_subcache_t::nmax=0). 

@@ -321,7 +321,12 @@ ifeq ($(USE_OPENMP),yes)
 OMP_LDFLAGS := -fopenmp
 endif
 
-LDFLAGS = -Wl,-E,-rpath,$(LD_LIBRARY_PATH)	\
+ifeq ($(BOPT),g_c++)
+LDDBGFLAG := -g3 
+endif
+
+LDFLAGS = $(LDDBGFLAG)				\
+	  -Wl,-E,-rpath,$(LD_LIBRARY_PATH)	\
           $(PROG_LIB)				\
 	  $(PTHREADS_LIB)			\
 	  -L$(PETSCFEM_DIR)/src			\
@@ -340,18 +345,20 @@ LDFLAGS = -Wl,-E,-rpath,$(LD_LIBRARY_PATH)	\
 	  $(PETSC_LDFLAGS)			\
 	  $(OMP_LDFLAGS)
 
-LDFLAGS_NO_PROG_LIB =					\
-	  $(PTHREADS_LIB)				\
-	  -L$(PETSCFEM_DIR)/src	-lpetscfem$(osfx) -lc	\
-          $(ANN_LDFLAGS)				\
-          $(GLIB_LDFLAGS)				\
-          $(LIBRETTO_LDFLAGS)				\
-	  $(MESCHACH_LDFLAGS)				\
-          $(METIS_LDFLAGS)				\
-	  $(NEWMAT_LDFLAGS)				\
-	  $(SSL_LDFLAGS)				\
-          $(SUPERLU_LDFLAGS)				\
-	  $(PETSC_LDFLAGS)				\
+LDFLAGS_NO_PROG_LIB =				\
+	  $(LDDBGFLAG)				\
+	  $(PTHREADS_LIB)			\
+	  -L$(PETSCFEM_DIR)/src			\
+	  -lpetscfem$(osfx) -lc			\
+          $(ANN_LDFLAGS)			\
+          $(GLIB_LDFLAGS)			\
+          $(LIBRETTO_LDFLAGS)			\
+	  $(MESCHACH_LDFLAGS)			\
+          $(METIS_LDFLAGS)			\
+	  $(NEWMAT_LDFLAGS)			\
+	  $(SSL_LDFLAGS)			\
+          $(SUPERLU_LDFLAGS)			\
+	  $(PETSC_LDFLAGS)			\
 	  $(OMP_LDFLAGS)
 
 CBLAS_FOUND := no
@@ -503,7 +510,7 @@ compdate.cpp:
 ifeq ($(BOPT),O_c++)
 COPTFLAGS := -DNDEBUG -O3 -funroll-loops
 else
-COPTFLAGS := -g3
+COPTFLAGS := -g3 -O0
 endif
 
 %.o: %.cpp

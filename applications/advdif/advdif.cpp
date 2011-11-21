@@ -70,7 +70,7 @@ int advdif_main(int argc,char **args) {
 #ifdef DO_SIZE_STATS
   prod2_subcache_t::do_size_stats=1;
 #endif
-  prod2_subcache_t::nmax=0;
+  // prod2_subcache_t::nmax=0;
   PetscFemInitialize(&argc,&args,(char *)0,help);
   
 #define CNLEN 100
