@@ -212,7 +212,7 @@ public:
   typedef void (*gemm_fun_t)(double *a,double *b,double *c);
   static vector<gemm_fun_t> gemm_fun_table;
   static int gemm_fun_table_was_initialized;
-  static int FASTMAT2_USE_MYDGEMM;
+  static int FASTMAT2_USE_FMGEMM;
 #ifdef DO_SIZE_STATS
   struct mat_sz_t { 
     int m,n,p; 

@@ -373,7 +373,7 @@ void prod2_subcache_t::make_prod() {
   if (!asl_ok) for (int j=0; j<nA; j++) a[j] = *ap[j];
   if (!bsl_ok) for (int j=0; j<nB; j++) b[j] = *bp[j];
 
-  if (FASTMAT2_USE_MYDGEMM && call_dgemm_opt) {
+  if (FASTMAT2_USE_FMGEMM && call_dgemm_opt) {
     gfun(Ap,Bp,Cp);
 #if 1
     // Perform a check
@@ -436,10 +436,10 @@ void prod2_subcache_t::make_prod() {
 
 }
 
-int prod2_subcache_t::NMAX=PF_MYDGEMM_NMAX;
-int prod2_subcache_t::nmax=PF_MYDGEMM_NMAX;
+int prod2_subcache_t::NMAX=PF_FMGEMM_NMAX;
+int prod2_subcache_t::nmax=PF_FMGEMM_NMAX;
 int prod2_subcache_t::gemm_fun_table_was_initialized=0;
-int prod2_subcache_t::FASTMAT2_USE_MYDGEMM=1;
+int prod2_subcache_t::FASTMAT2_USE_FMGEMM=1;
 vector<prod2_subcache_t::gemm_fun_t> prod2_subcache_t::gemm_fun_table;
 
 void prod2_subcache_t::load_funs() {

@@ -20,7 +20,7 @@ print GEMMCODE $warning;
 
 open DEFFUNS,">mygmdefs.h";
 print DEFFUNS $warning;
-print DEFFUNS "#define PF_MYDGEMM_NMAX $nmax\n";
+print DEFFUNS "#define PF_FMGEMM_NMAX $nmax\n";
 my @loads;
 for (my $jat=0; $jat<2; $jat++) {
     my $at = ($jat==0? "n" : "t");

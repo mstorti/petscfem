@@ -3,7 +3,7 @@
 // It is not a standard header file. You should
 // not include it in a program, this is only
 // included once in file "fm2prod2.cpp"
-#define PF_MYDGEMM_NMAX 4
+#define PF_FMGEMM_NMAX 4
 DECLFUN(p_1_1_1_nn);
 DECLFUN(p_1_1_2_nn);
 DECLFUN(p_1_1_3_nn);
