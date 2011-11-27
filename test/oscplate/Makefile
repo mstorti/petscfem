@@ -97,5 +97,7 @@ oscplate4_30deg: ns
 	mv oscsome.sal oscsome4_30deg.sal
 	$(OCTAVE) oscplate4_30deg.m &> oscplate4_30dego.sal
 
+link:
+	ln -sf $(NS_G) .
 
 #s

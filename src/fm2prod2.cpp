@@ -387,7 +387,7 @@ void prod2_subcache_t::make_prod() {
   if (!asl_ok) for (int j=0; j<nA; j++) a[j] = *ap[j];
   if (!bsl_ok) for (int j=0; j<nB; j++) b[j] = *bp[j];
 
-  printf("use FMGEMM: %d\n",FASTMAT2_USE_FMGEMM && use_fmgemm);
+  // printf("use FMGEMM: %d\n",FASTMAT2_USE_FMGEMM && use_fmgemm);
   if (FASTMAT2_USE_FMGEMM && use_fmgemm) {
     if (transc==CblasNoTrans) gfun(Ap,Bp,Cp);
     else gfun(Bp,Ap,Cp);

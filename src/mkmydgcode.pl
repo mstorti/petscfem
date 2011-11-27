@@ -1,6 +1,6 @@
 #! /usr/bin/perl -w
 use strict;
-my $nmax=4;
+my $nmax=8;
 
 sub indx {
     my ($i,$j,$n,$m,$t) = @_;
