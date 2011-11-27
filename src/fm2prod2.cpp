@@ -303,11 +303,13 @@ void prod2_subcache_t
   // Check appropriate leading dimensions in A and B
   ok = ok && (jat? lda==nrowa : lda==ncola);
   ok = ok && (jbt? ldb==nrowb : ldb==ncolb);
-  // Not implemented yet C transpose
-  ok = ok && !jct;
+  ok = ok && (jct? ldc==nrowc : ldc==ncolc);
   if (ok) {
     use_fmgemm = 1;
-    gfun = gemm_fun_table[gemm_fun_table_indx(nrowa,ncola,ncolb,jat,jbt)];
+    if (!jct) 
+      gfun = gemm_fun_table[gemm_fun_table_indx(nrowa,ncola,ncolb,jat,jbt)];
+    else
+      gfun = gemm_fun_table[gemm_fun_table_indx(ncolb,ncola,nrowa,!jbt,!jat)];
   }
 #ifdef DO_SIZE_STATS
   last_call_used_fmgemm = use_fmgemm;
@@ -387,8 +389,9 @@ void prod2_subcache_t::make_prod() {
 
   printf("use FMGEMM: %d\n",FASTMAT2_USE_FMGEMM && use_fmgemm);
   if (FASTMAT2_USE_FMGEMM && use_fmgemm) {
-    gfun(Ap,Bp,Cp);
-#if 1
+    if (transc==CblasNoTrans) gfun(Ap,Bp,Cp);
+    else gfun(Bp,Ap,Cp);
+#if 0
     // Perform a check
     vector<double> cv(nrowc*ncolc);
     if (transc==CblasNoTrans) 
