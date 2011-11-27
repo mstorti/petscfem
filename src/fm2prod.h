@@ -227,7 +227,7 @@ public:
   static void report_stats();
   typedef pair< mat_sz_t,stats_t> spair_t;
   static bool comp(const spair_t &a,const spair_t &b);
-  static int do_size_stats,total_calls,fmgemm_calls;
+  static int do_size_stats,total_calls,fmgemm_calls,last_call_used_fmgemm;
 #endif
 
   static int gemm_fun_table_indx(int n,int m,int p,int jat,int jbt);
@@ -247,7 +247,7 @@ public:
     bsl_ok,ldb,
     csl_ok,ldc;
   CBLAS_TRANSPOSE transa,transb,transc;
-  int call_dgemm_opt;
+  int use_fmgemm;
   gemm_fun_t gfun;
   void init(const FastMat2 &A,const FastMat2 &B,
             FastMat2 &C,

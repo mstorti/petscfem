@@ -286,21 +286,34 @@ void prod2_subcache_t
   }
 
   // Check for special fast functions
-  call_dgemm_opt = 0;
+  use_fmgemm = 0;
   // nmax = 0; // Short-circuited to false!!
   int nmax1 = (NMAX<nmax ? NMAX : nmax);
-  if (!(nrowa>nmax1 || ncola>nmax1 || ncolb>nmax1 ||
-        nrowa<1 || ncola<1 || ncolb<1 ||
-        lda!=ncola || ldb!=ncolb || ldc!=ncolc || transc != CblasNoTrans)) {
-    int jat = (transa==CblasNoTrans ? 0 : 1);
-    int jbt = (transb==CblasNoTrans ? 0 : 1);
-    call_dgemm_opt = 1;
+  // if (!(nrowa>nmax1 || ncola>nmax1 || ncolb>nmax1 ||
+  //       nrowa<1 || ncola<1 || ncolb<1 ||
+  //       lda!=ncola || ldb!=ncolb || ldc!=ncolc || transc != CblasNoTrans)) {
+
+  // Check matrix dimensions are in range suppoted by FMGEMM
+  int ok = nrowa<=nmax1 && ncola<=nmax1 && ncolb<=nmax1 &&
+    nrowa>=1 && ncola>=1 && ncolb>=1;
+  int jat = (transa==CblasNoTrans ? 0 : 1);
+  int jbt = (transb==CblasNoTrans ? 0 : 1);
+  int jct = (transc==CblasNoTrans ? 0 : 1);
+
+  // Check appropriate leading dimensions in A and B
+  ok = ok && (jat? lda==nrowa : lda==ncola);
+  ok = ok && (jbt? ldb==nrowb : ldb==ncolb);
+  // Not implemented yet C transpose
+  ok = ok && !jct;
+  if (ok) {
+    use_fmgemm = 1;
     gfun = gemm_fun_table[gemm_fun_table_indx(nrowa,ncola,ncolb,jat,jbt)];
   }
 #ifdef DO_SIZE_STATS
+  last_call_used_fmgemm = use_fmgemm;
   if (do_size_stats) {
     total_calls++;
-    fmgemm_calls += call_dgemm_opt;
+    fmgemm_calls += use_fmgemm;
   }
 #endif
 }
@@ -372,8 +385,8 @@ void prod2_subcache_t::make_prod() {
   if (!asl_ok) for (int j=0; j<nA; j++) a[j] = *ap[j];
   if (!bsl_ok) for (int j=0; j<nB; j++) b[j] = *bp[j];
 
-  printf("use FMGEMM: %d\n",FASTMAT2_USE_FMGEMM && call_dgemm_opt);
-  if (FASTMAT2_USE_FMGEMM && call_dgemm_opt) {
+  printf("use FMGEMM: %d\n",FASTMAT2_USE_FMGEMM && use_fmgemm);
+  if (FASTMAT2_USE_FMGEMM && use_fmgemm) {
     gfun(Ap,Bp,Cp);
 #if 1
     // Perform a check
@@ -389,8 +402,8 @@ void prod2_subcache_t::make_prod() {
       erro += fabs(cv[j]-Cp[j]);
       cnorm += Cp[j];
     }
-    // printf("FMGEMM error %g, tol %g, ||C|| %g\n",erro,tol,cnorm);
-    PETSCFEM_ASSERT(erro<tol,"FMGEMM error %g, tol %g, ||C|| %g\n",erro,tol,cnorm);
+    printf("FMGEMM error %g, tol %g, ||C|| %g\n",erro,tol,cnorm);
+    // PETSCFEM_ASSERT(erro<tol,"FMGEMM error %g, tol %g, ||C|| %g\n",erro,tol,cnorm);
 #endif
   } else {
     // Call DGEMM
@@ -460,6 +473,7 @@ bool prod2_subcache_t
 int prod2_subcache_t::total_calls=0;
 int prod2_subcache_t::fmgemm_calls=0;
 int prod2_subcache_t::do_size_stats=0;
+int prod2_subcache_t::last_call_used_fmgemm=-1;
 
 map<prod2_subcache_t::mat_sz_t,prod2_subcache_t::stats_t> prod2_subcache_t::stat_table;
 void prod2_subcache_t::report_stats() {
