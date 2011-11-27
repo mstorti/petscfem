@@ -298,7 +298,6 @@ void prod2_subcache_t
     gfun = gemm_fun_table[gemm_fun_table_indx(nrowa,ncola,ncolb,jat,jbt)];
   }
 #ifdef DO_SIZE_STATS
-  printf("use FMGEMM: %d\n",call_dgemm_opt);
   if (do_size_stats) {
     total_calls++;
     fmgemm_calls += call_dgemm_opt;
@@ -373,6 +372,7 @@ void prod2_subcache_t::make_prod() {
   if (!asl_ok) for (int j=0; j<nA; j++) a[j] = *ap[j];
   if (!bsl_ok) for (int j=0; j<nB; j++) b[j] = *bp[j];
 
+  printf("use FMGEMM: %d\n",FASTMAT2_USE_FMGEMM && call_dgemm_opt);
   if (FASTMAT2_USE_FMGEMM && call_dgemm_opt) {
     gfun(Ap,Bp,Cp);
 #if 1

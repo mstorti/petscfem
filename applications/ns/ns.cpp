@@ -604,7 +604,7 @@ int ns_main(int argc,char **args) {
       //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
       // TET ALGORITHM
       
-      double normres_external=NAN;
+      // double normres_external=NAN;
       for (int inwt=0; inwt<nnwt; inwt++) {
 
 	glob_param.inwt = inwt;
@@ -771,7 +771,7 @@ int ns_main(int argc,char **args) {
 
 	double normres;
 	ierr  = VecNorm(res,NORM_2,&normres); CHKERRA(ierr);
-	if (inwt==0) normres_external = normres;
+	// if (inwt==0) normres_external = normres;
         if (check_for_inf) {
           PETSCFEM_ASSERT0(isfinite(normres),
                            "Detected Inf or NaN values in residual vector");  
