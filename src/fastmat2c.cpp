@@ -650,7 +650,7 @@ FastMat2::prod(const FastMat2 &A,const FastMat2 &B,
       } else {
 	nd2 = Bfdims[k2-niA-1];
       }
-      assert(nd1==nd2);
+      PETSCFEM_ASSERT0(nd1==nd2,"paired contracted indices don't match");  
       ndimsc[j]=nd1;
     }
 

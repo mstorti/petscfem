@@ -293,7 +293,7 @@ void prod2_subcache_t
   //       nrowa<1 || ncola<1 || ncolb<1 ||
   //       lda!=ncola || ldb!=ncolb || ldc!=ncolc || transc != CblasNoTrans)) {
 
-  // Check matrix dimensions are in range suppoted by FMGEMM
+  // Check if matrix dimensions are in range supported by FMGEMM
   int ok = nrowa<=nmax1 && ncola<=nmax1 && ncolb<=nmax1 &&
     nrowa>=1 && ncola>=1 && ncolb>=1;
   int jat = (transa==CblasNoTrans ? 0 : 1);

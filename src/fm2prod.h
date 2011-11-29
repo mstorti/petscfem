@@ -25,6 +25,9 @@ extern FastMat2Stats glob_fm2stats;
 extern int FASTMAT2_USE_DGEMM;
 extern int FASTMAT2_USE_PROD2;
 extern const int nmax;
+// If not set: for product of 2 matrices a special code is used
+// avoiding the overhead of the multiprod algorithm
+// Currently it can't be deactivated
 #define USE_MPROD_FOR_2MATS
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>
@@ -204,15 +207,39 @@ compute_natural_order(const mat_info_cont_t &mat_info_cont,
 class prod2_subcache_t : public FastMatSubCache {
 public:
 
-#define DO_SIZE_STATS
-#define DECLFUN(fun) \
+  // ----------- FMGEMM STUFF ----------------
+  // If set: do some statistics about how many computations
+  // call the FMGEMM functions
+  // #define DO_SIZE_STATS
+  // Utility macro for simplifiying the declaration of the FMGEMM functions
+  // in `mygmdefs.h'
+#define DECLFUN(fun)                                                    \
   static void fun(double *__restrict__ a,double * __restrict__ b,double * __restrict__ c)
+  // This header contains the definitions of all the FMGEMM functions 
+  // (there are NMAX*NMAX*NMAX*4 such functions
 #include "./mygmdefs.h"  
+  // nmax is a variable that can be changed at runtime by the user, so
+  // regulating the size of the matrices for which the FMGEMM functions
+  // are called
+  // NMAX stores the maximum order for the FMGEMM matrices that have
+  // been compiled, so nmax must be nmax<=NMAX
+  // NMAX is set by the $nmax variable in the `mkmydgcode.pl' Perl script
   static int nmax, NMAX;
+  // This is the typical FMGEMM function that is called
+  // pointers to this functions are saved in a vector.
+  // The pointer to the function is saved in the cache
   typedef void (*gemm_fun_t)(double *a,double *b,double *c);
+  // Pointers to the functions are stored in this table.
+  // Later this table is used as a multiarray vector of shape
+  // [NMAX,NMAX,NMAX,2,2]
   static vector<gemm_fun_t> gemm_fun_table;
+  // This is a static flag that indicates whether this table
+  // has been initialiazed or not
   static int gemm_fun_table_was_initialized;
+  // If set to 0 then FMGEMM are not called. This can be changed
+  // at runtime
   static int FASTMAT2_USE_FMGEMM;
+
 #ifdef DO_SIZE_STATS
   struct mat_sz_t { 
     int m,n,p; 
@@ -227,7 +254,10 @@ public:
   static void report_stats();
   typedef pair< mat_sz_t,stats_t> spair_t;
   static bool comp(const spair_t &a,const spair_t &b);
-  static int do_size_stats,total_calls,fmgemm_calls,last_call_used_fmgemm;
+  static int do_size_stats, // choose at runtime whether to do stats or not
+    total_calls,            // total FastMat2 prod calls
+    fmgemm_calls,           // FastMat2 prod calls that use FMGEMM
+    last_call_used_fmgemm;  // flags where the last call used FMGEMM or not
 #endif
 
   static int gemm_fun_table_indx(int n,int m,int p,int jat,int jbt);
