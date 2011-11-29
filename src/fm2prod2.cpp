@@ -71,7 +71,7 @@ check_superlinear(vector<double *> &ap, int nrow,int ncol,
 }
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>
-void prod2_subcache_t::init_funs() {
+void prod2_subcache_t::init() {
   if (!gemm_fun_table_was_initialized) {
     load_funs();
     gemm_fun_table_was_initialized = 1;
@@ -101,7 +101,7 @@ void prod2_subcache_t
 void prod2_subcache_t
 ::init(const FastMat2 &A,const FastMat2 &B,FastMat2 &C,
        vector<int> &ixa,vector<int> &ixb) {
-  init_funs();
+  init();
   // get the free indices of A and B
   Indx ii,Afdims,Bfdims,Cfdims;
   // Afdims, Bfdims:= are the dimensions of the `free'
@@ -321,13 +321,22 @@ void prod2_subcache_t
 }
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>
-// This is the function that makes the product of two matrices.
-// The others for 3,4,etc... are wrappers to this one. 
-// Computes C = A*B, where C is *this
 FastMat2 & 
 FastMat2::prod2(const FastMat2 &A,const FastMat2 &B,
                 vector<int> &ixa, 
                 vector<int> &ixb) {
+  PETSCFEM_ERROR0("Eliminated auxiliary prod2 function");  
+  return *this;
+}
+
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>
+// This is the function that makes the product of two matrices.
+// The others for 3,4,etc... are wrappers to this one. 
+// Computes C = A*B, where C is *this
+FastMat2 & 
+FastMat2::prod(const FastMat2 &A,const FastMat2 &B,
+               vector<int> &ixa, 
+               vector<int> &ixb) {
 
 #ifndef NDEBUG
   if (ctx->do_check_labels) {

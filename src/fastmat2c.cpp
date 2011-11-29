@@ -511,6 +511,7 @@ FastMat2::prod(vector<const FastMat2 *> &mat_list,
 
 fastmat_stats_t fastmat_stats;
 
+#if 0
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>
 // This is the function that makes the product of two matrices.
 // The others for 3,4,etc... are wrappers to this one. 
@@ -829,6 +830,7 @@ FastMat2::prod(const FastMat2 &A,const FastMat2 &B,
   fastmat_stats.tcall += MPI_Wtime()-start;
   return *this;
 }
+#endif
 
 #ifdef USE_MPROD_FOR_2MATS
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>

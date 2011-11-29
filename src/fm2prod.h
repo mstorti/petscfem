@@ -263,7 +263,7 @@ public:
   static int gemm_fun_table_indx(int n,int m,int p,int jat,int jbt);
   static gemm_fun_t get_fun(int n,int m,int p,int jat,int jbt);
   static void gemm_fun_table_load(int n,int m,int p,int jat,int jbt,gemm_fun_t f);
-  static void init_funs();
+  static void init();
   static void load_funs();
 
   vector<double *> ap,bp,cp;  

@@ -5,8 +5,10 @@
 #include <cstdio>
 
 using namespace std;
-#include "fem.h"
-#include "fastmat2.h"
+#include <src/fem.h>
+#include <src/fastmat2.h>
+#include <src/fm2stats.h>
+#include <src/fm2prod.h>
 
 FastMat2::CacheCtx1 FastMat2::global_cache_ctx1;
 FastMat2::CacheCtx2 FastMat2::global_cache_ctx2;
@@ -1156,3 +1158,8 @@ void FastMat2::init123() {
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 FastMat2 & FastMat2::rest(const FastMat2 & A ) { return minus(A); }
+
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>
+void FastMat2::init() {
+  prod2_subcache_t::init();
+}
