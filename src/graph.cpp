@@ -130,7 +130,8 @@ void Graph::part(int max_partgraph_vertices,
 	  break;
 	}
       }
-      assert(disconnected_was_found);
+      PETSCFEM_ASSERT0(disconnected_was_found,
+                       "Internal error. Disconnected graph found.");  
     }
 
     // Take the first element

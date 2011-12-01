@@ -83,8 +83,7 @@ int nsi_tet_les_asm::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
   int nen = nel*ndof;
 
   // Unpack Dofmap
-  int *ident,neq,nnod;
-  neq = dofmap->neq;
+  int *ident,nnod;
   nnod = dofmap->nnod;
 
   // Unpack nodedata
@@ -252,7 +251,7 @@ int nsi_tet_les_asm::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
   double *grad_div_u_cache=NULL;
   int grad_div_u_was_cached=0;
 
-  int elem, ipg,node, jdim, kloc,lloc,ldof;
+  int PFUNUSED elem, ipg,node, jdim, kloc,lloc,ldof;
 
   FMatrix dshapex,dshapext,Jaco(ndim,ndim),iJaco(ndim,ndim),
     grad_u(ndim,ndim),grad_u_star,strain_rate(ndim,ndim),resmom(nel,ndim),

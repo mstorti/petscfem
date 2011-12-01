@@ -1,6 +1,7 @@
 //__INSERT_LICENSE__
 //$Id merge-with-petsc-233-55-g52bd457 Fri Oct 26 13:57:07 2007 -0300$
 
+#include <src/fem.h>
 #include <src/sparse2.h>
 
 extern MPI_Comm PETSCFEM_COMM_WORLD;
@@ -72,8 +73,8 @@ namespace Sparse {
 
     m = a.rows();
     n = a.cols();
-    assert(length()==m);
-    assert(v.length()==n);
+    PETSCFEM_ASSERT0(length()==m,"Not matching lengths");  
+    PETSCFEM_ASSERT0(m==n,"Not matching lengths");  
 
     e = a.end();
     for (i=a.begin(); i!=e; i++) {
@@ -386,7 +387,7 @@ namespace Sparse {
 
     clear();
     for (j=0; j<fill*len; j++) {
-      k = irand(0,len-1);
+      k = Random::irand(0,len-1);
       set(k,g.get());
     }
     return *this;
@@ -721,8 +722,8 @@ namespace Sparse {
     m = rows();
     n = cols();
     for (j=0; j<fill*m*n; j++) {
-      k = irand(0,m-1);
-      l = irand(0,n-1);
+      k = Random::irand(0,m-1);
+      l = Random::irand(0,n-1);
       set(k,l,g.get());
     }
     return *this;
@@ -734,13 +735,13 @@ namespace Sparse {
     RowCIt i,e;
     VecCIt jk,ee;
     Vec a_row,b_row,row;
-    int j,k,n,m,p;
+    int j,k,n;
     double a_jk;
 
     fsm.fill();
-    m = rows();
+    // m = rows();
     n = cols();
-    p = a.cols();
+    // p = a.cols();
     assert(m==a.rows());
     assert(n==b.cols());
     assert(p==b.rows());
@@ -805,7 +806,7 @@ namespace Sparse {
     // If some value is not in the map, then it represents
     // `not_represented_val' (probably 0).
     m = length();
-    for (j=0; j<length(); j++) {
+    for (j=0; j<m; j++) {
       if (find(j)!=e) {
 	val = op.op(val,not_represented_val);
 	break;
@@ -827,7 +828,7 @@ namespace Sparse {
     // If some value is not in the map, then it represents
     // `not_represented_val' (probably 0).
     m = length();
-    for (j=0; j<length(); j++) {
+    for (j=0; j<m; j++) {
       if (find(j)!=e) {
 	acc.accum(v,not_represented_val);
 	break;
@@ -990,7 +991,6 @@ namespace Sparse {
     *this = B;
 #endif
 
-    int m;
     RowCIt row,e;
 
     clear();
@@ -999,7 +999,6 @@ namespace Sparse {
     ncols = B.ncols;
     grow_m = B.grow_m;
 
-    m = B.rows();
     e = B.end();
     for (row = B.begin(); row!=e; row++) insert(*row);
     fsm.fill();

@@ -86,8 +86,10 @@ int fracstep_fm2_cw::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
   // rec_Dt is the reciprocal of Dt (i.e. 1/Dt)
   // for steady solutions it is set to 0. (Dt=inf)
   GlobParam *glob_param=NULL;
-  double Dt;
-  arg_data *A_mom_arg,*A_poi_arg,*A_prj_arg;
+  double PFUNUSED Dt;
+  arg_data PFUNUSED *A_mom_arg;
+  arg_data PFUNUSED *A_poi_arg;
+  arg_data PFUNUSED *A_prj_arg;
   if (comp_mat_prof) {
     int ja=0;
     retvalmat_mom = arg_data_v[ja++].retval;

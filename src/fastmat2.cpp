@@ -916,7 +916,7 @@ double *FastMat2::location(const Indx & indx) const {
   int ndims = n_dims;
   // int ndims = dims.size();
   // Indx aindx(ndims,0);
-  int kd=0, pos = 0,m;
+  int kd=0, pos = 0, PFUNUSED m;
   for (int jd=0; jd<ndims; jd++) {
     int l = set_indx[jd];
     if (l==0) {

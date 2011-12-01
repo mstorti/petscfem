@@ -27,9 +27,9 @@ void pot_grad::elemset_init() {
 
   
   found = nodedata->get_field(potname,&ncols,&potptr);
-  assert(found); assert(ncols==1);
+  PETSCFEM_ASSERT0(found,"Error");  
+  PETSCFEM_ASSERT0(ncols==1,"Error");  
   potcol.resize(1,nel);
-
   
 }
 

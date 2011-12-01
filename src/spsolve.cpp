@@ -1,10 +1,12 @@
 //__INSERT_LICENSE__
 //$Id: spsolve.cpp,v 1.17.104.1 2007/02/19 20:23:56 mstorti Exp $
 
-#include "sparse2.h"
+#include <src/fem.h>
+#include <src/sparse2.h>
 
 //---:---<*>---:---<*>---:a---<*>---:---<*>---:---<*>---:---<*>---: 
 
+#if 0
 #if PETSC_VERSION_(3,1,0) || PETSC_VERSION_(3,0,0)
 inline PetscErrorCode VecDestroy_Compat(Vec *a)
 {Vec b = *a; *a=0; return VecDestroy(b);}
@@ -24,6 +26,8 @@ inline PetscErrorCode KSPDestroy_Compat(KSP *a)
 #define MatSetOption(mat,opt,flg) MatSetOption((mat),(opt))
 #endif
 #endif
+#endif
+
 //---:---<*>---:---<*>---:a---<*>---:---<*>---:---<*>---:---<*>---: 
 
 extern "C" {
@@ -174,7 +178,7 @@ namespace Sparse {
   void PETScMat::fact_and_solve() {
 
     vector<int> d_nnz;
-    int *d_nnz_p,m,j,k,ierr;
+    int *d_nnz_p,m,j,k,PFUNUSED ierr;
     RowCIt row,e;
     VecCIt l,el;
     double w;
@@ -237,7 +241,7 @@ namespace Sparse {
   //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
   void PETScMat::solve_only() {
 
-    int m,ierr,its;
+    int m,PFUNUSED ierr,its;
     double *xx,*bb;
     ::Vec b_vec,x_vec;
 
@@ -267,9 +271,10 @@ namespace Sparse {
   void PETScMat::clean_factor() {
 
     int ierr;
-    ierr = MatDestroy(&A); assert(!ierr);
-    ierr = KSPDestroy(&ksp); assert(!ierr);
-
+    ierr = MatDestroy(&A); 
+    PETSCFEM_ASSERT0(!ierr,"Error");  
+    ierr = KSPDestroy(&ksp); 
+    PETSCFEM_ASSERT0(!ierr,"Error");  
   }
   
 }

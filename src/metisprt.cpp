@@ -76,8 +76,8 @@ void metis_part(MPI_Comm comm,
 		int iisd_subpart,int print_statistics) {
   
   Elemset *elemset;
-  int *icone,nel,node,nvrtx,/*adjcount,*/j,elem,elemk,vrtx,
-    visited,locel,k,jj,vrtxj,vrtxjj,p,ierr,nvsubdo;
+  int nel,node,nvrtx,j,elem,elemk,vrtx,
+    visited,locel,k,jj,vrtxj,vrtxjj,p,PFUNUSED ierr,nvsubdo;
   const int *elem_icone;
   double weight_scale=1.;
   
@@ -231,7 +231,7 @@ void metis_part(MPI_Comm comm,
     elemset  = *(Elemset **)da_ref(mesh->elemsetlist,ielset);
     if (!elemset->isfat) continue;
     //if (myrank==0) printf("elemento: %d, conec: %d\n",ielset,elemset);
-    icone = elemset->icone;
+    // icone = elemset->icone;
     nel = elemset->nel;
     const int *conn; int nell;
     for (int iel=0; iel<elemset->nelem; iel++) {

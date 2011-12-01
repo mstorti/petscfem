@@ -270,8 +270,7 @@ assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
   int nen = nel*ndof;
 
   // Unpack Dofmap
-  int *ident,neq,nnod;
-  neq = dofmap->neq;
+  int *ident,nnod;
   nnod = dofmap->nnod;
 
   // Unpack nodedata
@@ -509,9 +508,9 @@ assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
   int vl_indx=2, vl_indxe = vl_indx+ndim-1;
 
   double rho,p,rho_old,p_old,rho_star;
-  double visco_supg,cond_supg,nu_eff,cond_eff,tau_supg_a,visco_eff,nu_tur,
-    visco_l,visco_bar,cond_t;
-  double sutherland_factor = 1.0,Tem,delta_sc,delta_sc_aniso;
+  double visco_supg,PFUNUSED cond_supg,nu_eff,cond_eff,tau_supg_a,visco_eff,nu_tur,
+    visco_l,PFUNUSED visco_bar,cond_t;
+  double sutherland_factor = 1.0,Tem,delta_sc,PFUNUSED delta_sc_aniso;
 
   FastMat2 u_old;
 
@@ -696,7 +695,7 @@ assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
       double Area = detJaco*WPG_SUM;
       double h_pspg,Delta;
 
-      double g1,rho_ene,ene,entalpy,Cv,int_ene,Cp;
+      double g1,rho_ene,PFUNUSED ene,entalpy,Cv,PFUNUSED int_ene,Cp;
 
       if (ndim==2) {
 	h_pspg = sqrt(4.*Area/pi);

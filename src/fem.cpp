@@ -16,7 +16,7 @@ int MY_RANK=0, SIZE=1;
 
 int PetscFemInitialize(int *argc,char ***args,
                        const char file[],const char help[]) {
-  int ierr;
+  int PFUNUSED ierr;
   ierr = PetscInitialize(argc,args,file,help);
   PETSCFEM_COMM_WORLD = PETSC_COMM_WORLD;
   ierr = MPI_Comm_size(PETSCFEM_COMM_WORLD,&SIZE);
@@ -116,7 +116,7 @@ int compute_prof(Darray *da,Dofmap *dofmap,int myrank,
   da_destroy(da);
   // wait_from_console("despues de destruir da ");
 
-  double avo,avd,avdcorr;
+  double avo,avd, PFUNUSED avdcorr;
   avo = double(sumo)/double(neqp);
   avd = double(sumd)/double(neqp);
   avdcorr = double(sumdcorr)/double(neqp);

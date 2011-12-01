@@ -401,8 +401,7 @@ assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
   int nen = nel*ndof;
 
   // Unpack Dofmap
-  int *ident,neq,nnod;
-  neq = dofmap->neq;
+  int *ident,nnod;
   nnod = dofmap->nnod;
 
   // Unpack nodedata
@@ -641,7 +640,7 @@ assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
   //o Direction of gravity
   TGETOPTDEF(thash,int,g_dir,ndim);
 
-  double rho_g=NAN,vslip,rho_m=NAN,rho_m_old,arho_l,
+  double rho_g=NAN,vslip,rho_m=NAN,PFUNUSED rho_m_old,arho_l,
     arho_g,vslip_m,alpha_l,alpha_g;
   double d_bubble,visco_m_eff,visco_t,visco_g,visco_g_eff,visco_l_eff;
   vector<int> alpha_indx_vp;

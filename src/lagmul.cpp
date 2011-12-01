@@ -131,7 +131,7 @@ new_assemble(arg_data_list &arg_data_v,const Nodedata *nodedata,
   xloc_m.resize(2,nel,ndim);
   if (comp_mat) matloc_prof.set(1.);
 
-  int nu=nodedata->nu;
+  // int nu=nodedata->nu;
   //int nH = nu-ndim;
 
   FastMat2 r(1,nr),w(3,nel,ndof,nr),jac(3,nr,nel,ndof);

@@ -25,7 +25,7 @@ template<class T>
 void 
 dvector_clone_parallel(dvector<T> &w,int root=0) {
   int size = w.size();
-  int ierr = MPI_Bcast(&size,1,MPI_INT,
+  int PFUNUSED ierr = MPI_Bcast(&size,1,MPI_INT,
 		       root,PETSCFEM_COMM_WORLD);
   assert(!ierr);
   

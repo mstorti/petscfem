@@ -674,5 +674,7 @@ inline PetscErrorCode KSPDestroy_Compat(KSP *a)
 #define MatSetOption(mat,opt,flg) MatSetOption( (mat), (assert(flg),(opt)) )
 #endif
 
+#define PFUNUSED __attribute__ ((unused)) 
+
 #endif
 //@}

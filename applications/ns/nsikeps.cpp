@@ -113,8 +113,7 @@ int nsi_tet_keps::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
   int nen = nel*ndof;
 
   // Unpack Dofmap
-  int *ident,neq,nnod;
-  neq = dofmap->neq;
+  int *ident,nnod;
   nnod = dofmap->nnod;
 
   // Unpack nodedata
@@ -258,7 +257,7 @@ int nsi_tet_keps::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
   double *grad_div_u_cache=NULL;
   int grad_div_u_was_cached=0;
 
-  int elem, ipg,node, jdim, kloc,lloc,ldof;
+  int PFUNUSED elem, ipg,node, jdim, kloc,lloc,ldof;
 
   FMatrix dshapex,dshapext,Jaco(ndim,ndim),iJaco(ndim,ndim),
     grad_u(ndim,ndim),grad_u_star,strain_rate(ndim,ndim),resmom(nel,ndim),
@@ -418,7 +417,7 @@ int nsi_tet_keps::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
       epscol_star.set(epscol_new).scale(alpha).axpy(epscol,1-alpha);
     }
     
-    double shear_vel;
+    double PFUNUSED shear_vel;
     int wall_elem;
     if (LES && comp_mat_res) {
 #ifdef USE_ANN
@@ -461,7 +460,7 @@ int nsi_tet_keps::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
       // Combined factor that affects the turbulence
       // production (for debugging)
       double tpf = turbulence_coef*turb_prod_coef;
-      double h_pspg,Delta;
+      double h_pspg,PFUNUSED Delta;
       if (ndim==2) {
 	h_pspg = sqrt(4.*Area/pi);
 	Delta = sqrt(Area);

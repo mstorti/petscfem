@@ -116,7 +116,7 @@ int get_string_from_string(string &buf,string &ret) {
   static int was_compiled=0;
   if (!was_compiled) {
     was_compiled=1;
-    int ierr = regcomp (&regex[0],"^[ \t]*\"\\([^\"]*\\)\"",0);
+    int PFUNUSED ierr = regcomp (&regex[0],"^[ \t]*\"\\([^\"]*\\)\"",0);
     assert(ierr==0);
     ierr = regcomp (&regex[1],"^[ \t]*\\([^ \t]*\\)",0);
     assert(ierr==0);

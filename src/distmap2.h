@@ -32,7 +32,7 @@ processor(kv_iterator k) const {
 #define SEND(p,q) VEC2(to_send,p,q,size)
 template <class Key,class Val,class Partitioner>
 void DistMap<Key,Val,Partitioner>::scatter() {
-  int ierr;
+  int PFUNUSED ierr;
   HPChrono hpc;
   typename map<Key,Val>::iterator iter, next;
   // kv_iterator iter;

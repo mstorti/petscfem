@@ -29,10 +29,12 @@ extern "C" {
 // Defined in Meschach matrix.h!!
 #undef catch
 
-#include "texthash.h"
-#include "fstack.h"
-#include "util2.h"
+// #include <src/fem.h>
+#include <src/texthash.h>
+#include <src/fstack.h>
+#include <src/util2.h>
 
+#if 0
 #undef __FUNC__
 #define __FUNC__ "mat_function(const Matrix &A,Matrix &funA,scalarfun)"
 int mat_function(const Matrix &A,Matrix &funA,scalarfun fun,void * user_data) {
@@ -84,6 +86,7 @@ int matrix_abs(const Matrix &A,Matrix &absA) {
   mat_function(A,absA,&fabs_1,NULL);
   return 0;
 }
+#endif
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 /** Computes eigenvalues of a generic (may-be non-symmetric) matrix. 
@@ -98,6 +101,7 @@ int matrix_abs(const Matrix &A,Matrix &absA) {
 // with `meschach'
 #define SHV(x) cout << #x ": " << x << endl
 
+#if 0
 #undef __FUNC__
 #define __FUNC__ "non_symm_eigenvals(const Matrix &,Matrix &,Matrix &)"
 int non_symm_eigenvals(const Matrix &A,Matrix &lambda,Matrix &Vre,
@@ -110,7 +114,7 @@ int non_symm_eigenvals(const Matrix &A,Matrix &lambda,Matrix &Vre,
   int m,n;
   m=A.Nrows();
   n=A.Ncols();
-  assert(m==n);
+  PETSCFEM_ASSERT0(m==n,"Only for square matrices");  
   AA = m_get(m,m);
   Q = m_get(m,m);
   X_re = m_get(m,m);
@@ -136,14 +140,13 @@ int non_symm_eigenvals(const Matrix &A,Matrix &lambda,Matrix &Vre,
     /* extract eigenvalues */
     schur_evals(AA,evals_re,evals_im);
 
-    double min_la=INFINITY, max_la=-INFINITY, kmax, absla;
+    double min_la=INFINITY, max_la=-INFINITY, absla;
     for (int k=0; k<m; k++) {
       absla = sqrt(evals_re->ve[k]*evals_re->ve[k] 
 		   +evals_im->ve[k]*evals_im->ve[k]);
       if (k==0 || absla <min_la)
 	min_la = absla;
       if (k==0 || absla >min_la) {
-	kmax = k;
 	max_la = absla;
       }
     }
@@ -174,6 +177,7 @@ int non_symm_eigenvals(const Matrix &A,Matrix &lambda,Matrix &Vre,
   V_FREE(evals_im);
   return 0;
 }
+#endif
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 #undef __FUNC__

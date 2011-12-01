@@ -119,7 +119,7 @@ int PETScMat::create_a() {
   lgraph->clear();
 
   // Print statistics
-  double avo,avd,avdcorr;
+  double avo,avd,PFUNUSED avdcorr;
   avo = double(sumo)/double(neqp); // Average off-diag
   avd = double(sumd)/double(neqp); // Average diag
   avdcorr = double(sumdcorr)/double(neqp); // Average corrected

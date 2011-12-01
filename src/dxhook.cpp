@@ -91,7 +91,7 @@ public:
 void FieldGenLine::parse(const char *line) {
   vector<string> tokens;
   tokenize(line,tokens);
-  int ierr;
+  int PFUNUSED ierr;
   int jtok=0;
   int ntoks = tokens.size();
   while (jtok < ntoks) {
@@ -412,7 +412,7 @@ void dx_hook::send_state(int step,build_state_fun_t build_state_fun) try {
 
     // Parse DX options
     unsigned int j=0;
-    int ans;
+    int PFUNUSED ans;
     while (1) {
       if (j>=tokens.size()) break;
       if (tokens[j]=="steps") {

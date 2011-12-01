@@ -73,14 +73,14 @@ int wall::ask(const char *jobinfo,int &skip_elemset) {
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:
 void wall::initialize() {
-  int ierr;
+  int PFUNUSED ierr;
   ierr = get_int(thash,"ndim",&ndim);
   assert(!ierr);
   // convert pointers
   elemset_pointer.push_back(ElemToPtr(nelem,this));
-  assert(elemset_pointer.size()==1); // Not implemented yet
-				// Number of wall elemsets >1
-				// see above!!
+  // See above!!
+  PETSCFEM_ASSERT0(elemset_pointer.size()==1,
+                   "Not implemented yet. Number of wall elemsets >1");  
 }
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:

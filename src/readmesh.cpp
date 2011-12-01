@@ -77,7 +77,7 @@ int read_mesh(Mesh *& mesh,char *fcase,Dofmap *& dofmap,
   char *key,*val;
   int ndim,nu,ndof,nnod=0,ierr,ierro,numfat,node,jdof,kdof,edof;
   int pos, nelem, nel, nelprops, neliprops, nread, elemsetnum=0,
-	fat_flag,iele,k,nfixa, *ident,rflag;
+	iele,k,nfixa, *ident,rflag;
   double *dptr,dval; 
 
   TextHashTable *thash;
@@ -296,7 +296,6 @@ int read_mesh(Mesh *& mesh,char *fcase,Dofmap *& dofmap,
 
       TRACE(-5.3);
       // Now read elemset's
-      fat_flag=0;
       token = strtok(NULL,bsp);
       PETSCFEM_ASSERT0(token,"Couldn't find elemset name.");  
       type = new char[strlen(token)+1];
@@ -1616,12 +1615,11 @@ int read_mesh(Mesh *& mesh,char *fcase,Dofmap *& dofmap,
       }
     } else {
       elemset->epart = new int[nelem];
-      const int *conn; int nell;
+      const int *conn; 
       for (iele=0; iele<nelem; iele++) {
 	// Decide in which processor will be computed this element
-	assert(nel>0);		// Elements should have at least one
-				// node
-	nell = elemset->real_nodes(iele,conn);
+        int nell = elemset->real_nodes(iele,conn);
+        PETSCFEM_ASSERT0(nell>0,"Elements should have at least one node");  
 	node = conn[0];
 	proc = npart[node-1];
 	if (proc<1 || proc>size) {

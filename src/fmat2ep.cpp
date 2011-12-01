@@ -642,7 +642,7 @@ FastMat2 & FastMat2::ctr(const FastMat2 & A,
     for (int j=0; j<nc; j++) {
       int k1 = icontr[2*j];
       int k2 = icontr[2*j+1];
-      int nd1,nd2;
+      int nd1, PFUNUSED nd2;
       nd1 = Afdims[k1-1];
       nd2 = Afdims[k2-1];
       assert(nd1==nd2);

@@ -214,7 +214,7 @@ int assemble(Mesh *mesh,arg_list argl,
 
 #define ARGVJ (arg_data_v[j])
 
-  int iele,nelem,nel,ndof,*icone,ndoft,kloc,kdof,
+  int iele,nelem,nel,ndof,ndoft,kloc,kdof,
     myrank,ierr,kdoft,iele_here,k;
 
   Darray *ghostel;
@@ -267,7 +267,7 @@ int assemble(Mesh *mesh,arg_list argl,
   // Flag whether any argument corresponds to that iteration mode. 
   // Iteration modes are mutually exclusive, so that we must check
   // that `!any_include_ghost_elems || !any_not_include_ghost_elems'
-  int any_include_ghost_elems=0, any_not_include_ghost_elems=0; 
+  int PFUNUSED any_include_ghost_elems=0, PFUNUSED any_not_include_ghost_elems=0; 
   for (j=0; j<narg; j++) {
     /// Copy the options to the arg_data_v structure. 
     ARGVJ.options = argl[j].options; 
@@ -372,7 +372,7 @@ int assemble(Mesh *mesh,arg_list argl,
     // Put the state in a locst per element and pass
     // to the elemset routine. 
 
-    icone = elemset->icone;
+    // icone = elemset->icone;
     nelem = elemset->nelem;
     nel   = elemset->nel;
     ndof  = elemset->ndof;
@@ -450,7 +450,7 @@ int assemble(Mesh *mesh,arg_list argl,
     if (any_fdj) pref = new double[chunk_size*ndoft];
 
     int el_start = 0, chunk = 0, 
-      el_last=0, last_chunk=0;
+      el_last=0, PFUNUSED last_chunk=0;
 
     //#define DEBUG_CHUNK_PROCESSING
 #ifdef DEBUG_CHUNK_PROCESSING

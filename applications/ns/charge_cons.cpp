@@ -27,22 +27,24 @@ void charge_cons::elemset_init() {
   bool found; int ncols;
   
   found = nodedata->get_field(sigma_name,&ncols,&sigmaptr);
-  assert(found); assert(ncols==1);
+  PETSCFEM_ASSERT0(found,"Error");  
+  PETSCFEM_ASSERT0(ncols==1,"Error");  
   sigmacol.resize(1,nel);
   
   found = nodedata->get_field(beta_name,&ncols,&betaptr);
-  assert(found); assert(ncols==1);
+  PETSCFEM_ASSERT0(found,"Error");  
+  PETSCFEM_ASSERT0(ncols==1,"Error");  
   betacol.resize(1,nel);
 
   found = nodedata->get_field(gamma_name,&ncols,&gammaptr);
-  assert(found); assert(ncols==1);
+  PETSCFEM_ASSERT0(found,"Error");  
+  PETSCFEM_ASSERT0(ncols==1,"Error");  
   gammacol.resize(1,nel);
 
   found = nodedata->get_field(velname,&ncols,&velptr);
-  assert(found); assert(ncols==ndim);
+  PETSCFEM_ASSERT0(found,"Error");  
+  PETSCFEM_ASSERT0(ncols==1,"Error");  
   velcol.resize(2,nel,ndim);
- 
-
   
 }
 

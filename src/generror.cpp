@@ -7,6 +7,7 @@
 using namespace std;
 
 #include <petsc.h>
+#include <src/fem.h>
 #include <src/generror.h>
 #include <src/autostr.h>
 
@@ -35,7 +36,7 @@ GenericError(const char *s,...) {
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 void petscfem_check_par_err(int ierro,GenericError &ge) {
-  int ierr = MPI_Bcast (&ierro,1,MPI_INT,0,PETSCFEM_COMM_WORLD);	
+  int PFUNUSED ierr = MPI_Bcast (&ierro,1,MPI_INT,0,PETSCFEM_COMM_WORLD);	
 #if 0
   ierr = PetscSynchronizedPrintf(PETSCFEM_COMM_WORLD,
 			  "[%d] ierro %d\n",ierro,MY_RANK);

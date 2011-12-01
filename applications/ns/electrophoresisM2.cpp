@@ -72,13 +72,15 @@ void electrophoresisM2::elemset_init() {
   bool found; int ncols;
 
   found = nodedata->get_field(velname,&ncols,&velptr);
-  assert(found); assert(ncols==ndim);
+  PETSCFEM_ASSERT0(found,"Error");  
+  PETSCFEM_ASSERT0(ncols==ndim,"Error");  
   velcol.resize(2,nel,ndim);
  
 
 
   found = nodedata->get_field(potname,&ncols,&potptr);
-  assert(found); assert(ncols==1);
+  PETSCFEM_ASSERT0(found,"Error");  
+  PETSCFEM_ASSERT0(ncols==1,"Error");  
   potcol.resize(1,nel);
   
 }
