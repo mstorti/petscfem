@@ -256,11 +256,10 @@ void NewAdvDif::new_assemble(arg_data_list &arg_data_v,const Nodedata *nodedata,
 
   int nelprops,nel,ndof;
   elem_params(nel,ndof,nelprops);
-  int nen = nel*ndof;
+  // int nen = nel*ndof;
 
   // Unpack Dofmap
-  int neq,nnod;
-  neq = dofmap->neq;
+  int nnod;
   nnod = dofmap->nnod;
 
   // Unpack nodedata
@@ -285,7 +284,7 @@ void NewAdvDif::new_assemble(arg_data_list &arg_data_v,const Nodedata *nodedata,
   // lambda_max:= the maximum eigenvalue of the jacobians.
   // used to compute the critical time step.
   double lambda_max=NAN;
-  int jdtmin;
+  int PFUNUSED jdtmin;
   GlobParam *glob_param=NULL;
   // The trapezoidal rule integration parameter
 #define ALPHA (glob_param->alpha)
