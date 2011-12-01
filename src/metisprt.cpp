@@ -77,7 +77,8 @@ void metis_part(MPI_Comm comm,
   
   Elemset *elemset;
   int nel,node,nvrtx,j,elem,elemk,vrtx,
-    visited,locel,k,jj,vrtxj,vrtxjj,p,PFUNUSED ierr,nvsubdo;
+    visited,locel,k,jj,vrtxj,vrtxjj,p,nvsubdo;
+  int PFUNUSED ierr;
   const int *elem_icone;
   double weight_scale=1.;
   

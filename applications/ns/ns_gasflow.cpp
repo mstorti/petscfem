@@ -508,9 +508,9 @@ assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
   int vl_indx=2, vl_indxe = vl_indx+ndim-1;
 
   double rho,p,rho_old,p_old,rho_star;
-  double visco_supg,PFUNUSED cond_supg,nu_eff,cond_eff,tau_supg_a,visco_eff,nu_tur,
-    visco_l,PFUNUSED visco_bar,cond_t;
-  double sutherland_factor = 1.0,Tem,delta_sc,PFUNUSED delta_sc_aniso;
+  double PFUNUSED visco_supg,cond_supg,nu_eff,cond_eff,tau_supg_a,visco_eff,nu_tur,
+    visco_l,visco_bar,cond_t;
+  double PFUNUSED sutherland_factor = 1.0,Tem,delta_sc,delta_sc_aniso;
 
   FastMat2 u_old;
 

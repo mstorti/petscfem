@@ -460,7 +460,7 @@ int nsi_tet_keps::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
       // Combined factor that affects the turbulence
       // production (for debugging)
       double tpf = turbulence_coef*turb_prod_coef;
-      double h_pspg,PFUNUSED Delta;
+      double PFUNUSED h_pspg,Delta;
       if (ndim==2) {
 	h_pspg = sqrt(4.*Area/pi);
 	Delta = sqrt(Area);

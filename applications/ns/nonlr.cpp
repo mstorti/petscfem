@@ -53,7 +53,7 @@ int NonLinearRes::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
   double *locst=NULL,*retval=NULL,*retvalmat=NULL;
   double PFUNUSED *locst2=NULL;
   GlobParam *glob_param=NULL;
-  double PFUNUSED *hmin=NULL,Dt,PFUNUSED rec_Dt;
+  double PFUNUSED *hmin=NULL,Dt,rec_Dt;
   int PFUNUSED ja_hmin;
 #define WAS_SET arg_data_v[ja_hmin].was_set
   if (comp_mat_res || comp_mat_res_ke) {

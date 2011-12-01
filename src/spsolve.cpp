@@ -178,7 +178,7 @@ namespace Sparse {
   void PETScMat::fact_and_solve() {
 
     vector<int> d_nnz;
-    int *d_nnz_p,m,j,k,PFUNUSED ierr;
+    int PFUNUSED *d_nnz_p,m,j,k,ierr;
     RowCIt row,e;
     VecCIt l,el;
     double w;
@@ -241,7 +241,7 @@ namespace Sparse {
   //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
   void PETScMat::solve_only() {
 
-    int m,PFUNUSED ierr,its;
+    int PFUNUSED  m,ierr,its;
     double *xx,*bb;
     ::Vec b_vec,x_vec;
 

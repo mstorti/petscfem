@@ -485,7 +485,7 @@ int nsi_rot::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
 //      double wpgdet_c = wpgdet * turbulence_coef * turb_prod_coef;
       // Combined factor that affects the turbulence
       // production (for debugging)
-      double h_pspg,PFUNUSED Delta;
+      double PFUNUSED h_pspg,Delta;
       if (ndim==2) {
 	h_pspg = sqrt(4.*Area/pi);
 	Delta = sqrt(Area);

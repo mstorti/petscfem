@@ -200,7 +200,7 @@ int bcconv_ns_gasflow::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
     flux(2,ndof,ndim),Id_ndim(2,ndim,ndim);
 
   double velmod,u2;
-  double g1,rho_ene,PFUNUSED ene,entalpy,Cv,PFUNUSED int_ene,PFUNUSED Cp;
+  double PFUNUSED g1,rho_ene,ene,entalpy,Cv,int_ene,Cp;
   double rho,p; 
 
   Id_ndim.eye();
