@@ -1,3 +1,4 @@
+// -*- mode: c++ -*-
 //__INSERT_LICENSE__
 //$Id: distcont2.h,v 1.6.10.1 2007/02/19 20:23:56 mstorti Exp $
 
@@ -239,6 +240,7 @@ void DistCont<Container,ValueType,Partitioner>::scatter() {
 	    int PFUNUSED ierr;
 	    ierr = MPI_Send(send_buff[dest],SEND(myrank,dest),MPI_CHAR,
 			    dest,myrank,comm);
+            PETSCFEM_ASSERT0(ierr==0,"Error");  
 	  }
 	} else {
 	  // Receive stage
@@ -252,6 +254,7 @@ void DistCont<Container,ValueType,Partitioner>::scatter() {
 	    ierr = MPI_Recv(recv_buff,max_recv_buff_size,MPI_CHAR,
 			    MPI_ANY_SOURCE,MPI_ANY_TAG,
 			    comm,&status);
+            PETSCFEM_ASSERT0(ierr==0,"Error");  
 	    // Get rank of source 
 	    source = status.MPI_SOURCE;
 	    // printf("[%d] received source %d, tag %d\n",

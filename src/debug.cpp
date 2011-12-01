@@ -58,7 +58,7 @@ void Debug::release_proc(int proc) {
     return;
   }
   if (!flags[proc])
-    ierr = MPI_Send(&dummy,1,MPI_INT,proc,release_barrier,comm);
+    MPI_Send(&dummy,1,MPI_INT,proc,release_barrier,comm);
   flags[proc]=1;
 }
 
@@ -107,6 +107,7 @@ void Debug::trace(const char *s) {
     PetscPrintf(PETSCFEM_COMM_WORLD,
 		"-- %s -- [Memory usage(kB): min %d, max %d, avrg %d]\n",
 		s,mem_min,mem_max,mem_avrg);
+    PETSCFEM_ASSERT0(ierr==0,"Error");  
   }
   if (!active()) return;
   int PFUNUSED ierr,nread,proc;

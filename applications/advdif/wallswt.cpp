@@ -147,7 +147,7 @@ void wall_swfm2t::new_assemble(arg_data_list &arg_data_v,const Nodedata *nodedat
   
   GPdata gp_data(geometry.c_str(),ndimel,nel,npg,GP_FASTMAT2);
 
-  double detJaco,p_star,wpgdet;
+  double PFUNUSED detJaco,p_star,wpgdet;
   int elem, ipg,node, jdim, kloc,lloc,ldof;
   FMatrix Jaco(ndimel,ndim),resmom(nel,ndim),normal(ndim);
   FMatrix grad_p_star(ndim),u,u_star,ucolsn,ucolso,ucols_star,

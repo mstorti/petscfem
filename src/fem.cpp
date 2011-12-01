@@ -44,6 +44,7 @@ int PetscFemInitialize(int *argc,char ***args,
   dvector<char> ppc;
   dvector_clone_parallel(ppc);
 
+  PETSCFEM_ASSERT0(ierr==0,"Initialization error");  
   return 0;
 }
 

@@ -348,6 +348,7 @@ int PFPETScMat::monitor(int n,double rnorm) {
 			  "--------------------------------------\n");
     ierr = PetscPrintf(comm,
 		       "iteration %d KSP Residual_norm = %14.12e \n",n,rnorm);
+    PETSCFEM_ASSERT0(ierr==0,"Error");  
   }
   return 0;
 }

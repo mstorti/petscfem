@@ -735,16 +735,16 @@ namespace Sparse {
     RowCIt i,e;
     VecCIt jk,ee;
     Vec a_row,b_row,row;
-    int j,k,n;
+    int j,k,n,m,p;
     double a_jk;
 
     fsm.fill();
-    // m = rows();
+    m = rows();
     n = cols();
-    // p = a.cols();
-    assert(m==a.rows());
-    assert(n==b.cols());
-    assert(p==b.rows());
+    p = a.cols();
+    PETSCFEM_ASSERT0(m==a.rows(),"A row size don't match");  
+    PETSCFEM_ASSERT0(n==b.cols(),"B col size don't match");  
+    PETSCFEM_ASSERT0(p==b.rows(),"B row size don't match");  
 
     e = a.end();
     for (i=a.begin(); i!=e; i++) {

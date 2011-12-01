@@ -169,7 +169,7 @@ void AdvDif::new_assemble(arg_data_list &arg_data_v,const Nodedata *nodedata,
     stateo = &arg_data_v[++j];
     staten = &arg_data_v[++j];
     retval  = &arg_data_v[++j];
-    jdtmin = ++j;
+    j++; // jdtmin = ++j;
 #define DTMIN ((*(arg_data_v[jdtmin].vector_assoc))[0])
 #define WAS_SET arg_data_v[jdtmin].was_set
     Ajac = &arg_data_v[++j];

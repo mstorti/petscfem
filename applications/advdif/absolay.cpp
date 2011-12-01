@@ -218,8 +218,6 @@ new_assemble(arg_data_list &arg_data_v,const Nodedata *nodedata,
   int locdof,kldof,lldof;
 
   // Unpack Dofmap
-  int neq;
-  neq = dofmap->neq;
   if (nnod!=dofmap->nnod) {
     printf("nnod %d != dofmap->nnod %d\n",nnod,dofmap->nnod);
     abort();
@@ -242,11 +240,11 @@ new_assemble(arg_data_list &arg_data_v,const Nodedata *nodedata,
   // lambda_max:= the maximum eigenvalue of the jacobians.
   // used to compute the critical time step.
   vector<double> *dtmin;
-  int jdtmin;
+  int PFUNUSED jdtmin;
   GlobParam *glob_param=NULL;
   double alpha = 1.0, alpha_glob=NAN;
   // The trapezoidal rule integration parameter
-  arg_data *staten=NULL,*stateo=NULL,*retval=NULL,
+  arg_data PFUNUSED *staten=NULL,*stateo=NULL,*retval=NULL,
     *fdj_jac=NULL,*jac_prof=NULL,*Ajac=NULL;
   if (comp_res) {
     int j=-1;
@@ -286,7 +284,7 @@ new_assemble(arg_data_list &arg_data_v,const Nodedata *nodedata,
     matloc.export_vals(jac_prof->profile);
   }
 
-  int nlog_vars;
+  int PFUNUSED nlog_vars;
   const int *log_vars;
   // adv_diff_ff->get_log_vars(nlog_vars,log_vars);
   //o Use log-vars for $k$ and $\epsilon$

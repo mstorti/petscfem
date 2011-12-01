@@ -74,14 +74,13 @@ void NewBcconv::new_assemble(arg_data_list &arg_data_v,const Nodedata *nodedata,
 
   int  nel,ndof,nelprops;
   elem_params(nel,ndof,nelprops);
-  int nen = nel*ndof;
+  int PFUNUSED nen = nel*ndof;
   FastMat2 bcconv_factor;
 
   adv_diff_ff->get_bcconv_factor(bcconv_factor);
 
   // Unpack Dofmap
-  int neq,nnod;
-  neq = dofmap->neq;
+  int nnod;
   nnod = dofmap->nnod;
 
   // Unpack nodedata
@@ -96,7 +95,7 @@ void NewBcconv::new_assemble(arg_data_list &arg_data_v,const Nodedata *nodedata,
     exit(1);
   }
 
-  int jdtmin;
+  int PFUNUSED jdtmin;
   arg_data *staten=NULL,*stateo=NULL,*retval=NULL,
     *fdj_jac=NULL,*jac_prof=NULL,*Ajac=NULL;
   GlobParam *glob_param=NULL;
@@ -196,7 +195,7 @@ void NewBcconv::new_assemble(arg_data_list &arg_data_v,const Nodedata *nodedata,
   GPdata gp_data(geometry.c_str(),ndimelf,nel,npg,GP_FASTMAT2);
 
   // Definiciones para descargar el lazo interno
-  double detJaco, detJaco_new, detJaco_old, detJaco_mid, delta_sc;
+  double PFUNUSED detJaco, detJaco_new, detJaco_old, detJaco_mid, delta_sc;
 
   int elem, ipg,node, jdim, kloc,lloc,ldof;
 

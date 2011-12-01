@@ -296,7 +296,7 @@ void NewAdvDif::new_assemble(arg_data_list &arg_data_v,const Nodedata *nodedata,
     stateo = &arg_data_v[++j]; //[0]
     staten = &arg_data_v[++j]; //[1]
     retval  = &arg_data_v[++j];//[2]
-    jdtmin = ++j;//[3]
+    j++; // jdtmin = ++j;//[3]
 #define DTMIN ((*(arg_data_v[jdtmin].vector_assoc))[0])
 #define WAS_SET arg_data_v[jdtmin].was_set
     Ajac = &arg_data_v[++j];//[4]
@@ -458,8 +458,6 @@ void NewAdvDif::new_assemble(arg_data_list &arg_data_v,const Nodedata *nodedata,
     true_lstateo(2,nel,ndof),true_lstaten(2,nel,ndof);
 
   FastMat2 true_lstate_abs(2,nel,ndof);
-
-  nen = nel*ndof;
 
   //o Type of element geometry to define Gauss Point data
   NGETOPTDEF_S(string,geometry,cartesian2d);

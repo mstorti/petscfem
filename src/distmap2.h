@@ -74,6 +74,7 @@ void DistMap<Key,Val,Partitioner>::scatter() {
   // gather/scatter all `to_send' data 
   ierr = MPI_Allreduce(to_send,to_send_buff,size*size,MPI_INT, 
 		       MPI_SUM,comm);
+  PETSCFEM_ASSERT0(ierr==0,"Error");  
   // recopy `to_send_buff' to `to_send'
   memcpy(to_send,to_send_buff,size*size*sizeof(int));
 

@@ -66,7 +66,6 @@ void GenLoad::new_assemble(arg_data_list &arg_data_v,const Nodedata *nodedata,
   // element (if `double_layer' is in effect)
   int nelprops,nel,ndof,nel2;
   elem_params(nel,ndof,nelprops);
-  int nen = nel*ndof;
 
   NSGETOPTDEF(int,npg,0); //nd
   NSGETOPTDEF(int,ndim,0); //nd
@@ -99,7 +98,6 @@ void GenLoad::new_assemble(arg_data_list &arg_data_v,const Nodedata *nodedata,
     un(&ctx,2,nel,ndof),uo(&ctx,2,nel,ndof),ustar(&ctx,2,nel,ndof),
     vecc2(&ctx),h_in(&ctx),h_out(&ctx),Hloc(&ctx,2,nel,nH);
 
-  nen = nel*ndof;
   FastMat2 matloc(&ctx,4,nel,ndof,nel,ndof),matlocf(&ctx,4,nel,ndof,nel,ndof),
     S(&ctx,1,ndim),flux(&ctx,1,ndof),load(&ctx,1,ndof),jac_in(&ctx),
     jac_out(&ctx),Jaco(&ctx),tmp1(&ctx),tmp2(&ctx),tmp3(&ctx),tmp4(&ctx);
@@ -107,7 +105,7 @@ void GenLoad::new_assemble(arg_data_list &arg_data_v,const Nodedata *nodedata,
   double detJ;
   FastMat2 u_in(&ctx),u_out(&ctx),U_in(&ctx),U_out(&ctx);
 
-  int jdtmin;
+  int PFUNUSED jdtmin;
   GlobParam *glob_param=NULL;
   // The trapezoidal rule integration parameter 
 #define ALPHA (glob_param->alpha)

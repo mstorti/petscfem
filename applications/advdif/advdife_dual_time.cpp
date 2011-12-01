@@ -54,11 +54,10 @@ void NewAdvDif
 
   int nelprops,nel,ndof;
   elem_params(nel,ndof,nelprops);
-  int nen = nel*ndof;
+  int PFUNUSED nen = nel*ndof;
 
   // Unpack Dofmap
-  int neq,nnod;
-  neq = dofmap->neq;
+  int nnod;
   nnod = dofmap->nnod;
 
   // Unpack nodedata
@@ -85,7 +84,7 @@ void NewAdvDif
   // used to compute the critical time step.
   vector<double> *dtmin;
   double lambda_max=NAN;
-  int jdtmin;
+  int PFUNUSED jdtmin;
   GlobParam *glob_param=NULL;
   // The trapezoidal rule integration parameter
 #define ALPHA (glob_param->alpha)

@@ -58,8 +58,7 @@ void Diff::new_assemble(arg_data_list &arg_data_v,const Nodedata *nodedata,
   int nen = nel*ndof;
 
   // Unpack Dofmap
-  int neq,nnod;
-  neq = dofmap->neq;
+  int nnod;
   nnod = dofmap->nnod;
 
   // Unpack nodedata
@@ -84,7 +83,7 @@ void Diff::new_assemble(arg_data_list &arg_data_v,const Nodedata *nodedata,
   // used to compute the critical time step. 
   vector<double> *dtmin;
   double lambda_max;
-  int jdtmin;
+  int PFUNUSED jdtmin;
   GlobParam *glob_param=NULL;
   double alpha=1.0,rec_Dt=0.0;
 
