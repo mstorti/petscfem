@@ -112,7 +112,10 @@ public:
   // A table that stores in which orders must peformed
   // the products
   vector<int> order;
-  multiprod_subcache_t(FastMatCache *cache_a) { }
+  multiprod_subcache_t(FastMatCache *cache_a,FastMat2::CacheCtx *ctx,
+                       FastMat2 &result,
+                       vector<const FastMat2 *> &mat_list,
+                       Indx &indx);
   ~multiprod_subcache_t();
   // This makes the product when cached
   void make_prod();
