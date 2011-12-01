@@ -41,7 +41,9 @@ void electrophoresis::elemset_init() {
   bool found; int ncols;
 
   found = nodedata->get_field(velname,&ncols,&velptr);
-  assert(found); assert(ncols==ndim);
+  PETSCFEM_ASSERT0(found,"Error");  
+  PETSCFEM_ASSERT0(ncols==1,"Error");  
+  // assert(found); assert(ncols==ndim);
   velcol.resize(2,nel,ndim);
   vel.resize(1,ndim);
 

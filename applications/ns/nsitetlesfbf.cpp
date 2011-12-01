@@ -32,9 +32,13 @@ bf_init(Nodedata* nodedata)
 
   bool found; int ncols;
   found = nodedata->get_field(potential_field,&ncols,&potn_ptr);
-  assert(found); assert(ncols==1);
+  PETSCFEM_ASSERT0(found,"Error");  
+  PETSCFEM_ASSERT0(ncols==1,"Error");  
+  // assert(found); assert(ncols==1);
   found = nodedata->get_field(charge_field,&ncols,&chrg_ptr);
-  assert(found); assert(ncols==1);
+  PETSCFEM_ASSERT0(found,"Error");  
+  PETSCFEM_ASSERT0(ncols==1,"Error");  
+  // assert(found); assert(ncols==1);
 
   potncol.resize(1,nel);
   chrgcol.resize(1,nel);
