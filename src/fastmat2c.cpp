@@ -838,7 +838,8 @@ FastMat2::prod(const FastMat2 &A,const FastMat2 &B,
 }
 
 #ifdef USE_MPROD_FOR_2MATS
-//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>
+#if 0
+// OLD VERSION (CALLS PROD)
 FastMat2 & 
 FastMat2::prod(const FastMat2 & A0,
                const FastMat2 & A1,
@@ -883,6 +884,54 @@ FastMat2::prod(const FastMat2 & A0,
 
   return *this;
 }
+#else
+// NEW VERSION (CREATES EXPLICITLY THE MPROD CACHE)
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>
+FastMat2 & 
+FastMat2::prod(const FastMat2 & A0,
+               const FastMat2 & A1,
+               const int m,INT_VAR_ARGS_ND) {
+
+#ifndef NDEBUG
+  if (ctx->do_check_labels) {
+    ctx->check_clear();
+    ctx->check("prod_mat_wrapper",this);
+    ctx->check(&A0);
+    ctx->check(&A1);
+
+    Indx indx;
+    indx.push_back(m);
+    // READ_INT_ARG_LIST(indx);
+    READ_ARG_LIST(arg,indx,INT_ARG_LIST_DEFAULT_VAL,EXIT2);
+    ctx->check(indx);
+  }
+#endif
+
+  FastMatCache *cache = ctx->step();
+  multiprod_subcache_t *mpsc=NULL;
+  if (!ctx->was_cached) {
+    
+    assert(!cache->sc);
+    vector<const FastMat2 *> mat_list;
+    mat_list.push_back(&A0);
+    mat_list.push_back(&A1);
+    
+    Indx indx;
+    indx.push_back(m);
+    READ_INT_ARG_LIST(indx);
+    mpsc = new multiprod_subcache_t(cache,ctx,*this,mat_list,indx);
+    cache->sc = mpsc;
+  }
+
+  mpsc = dynamic_cast<multiprod_subcache_t *> (cache->sc);
+  assert(mpsc);
+  mpsc->make_prod();
+
+  if (!ctx->use_cache) delete cache;
+
+  return *this;
+}
+#endif
 #endif
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>
