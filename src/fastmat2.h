@@ -500,6 +500,8 @@ private:
   void set_default_ctx();
 
 public:
+  // initialize de library
+  static void init(); 
   //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
   /** Default constructor
       @author M. Storti

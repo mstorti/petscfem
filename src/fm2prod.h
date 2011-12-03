@@ -213,7 +213,7 @@ public:
   // ----------- FMGEMM STUFF ----------------
   // If set: do some statistics about how many computations
   // call the FMGEMM functions
-  // #define DO_SIZE_STATS
+#define DO_SIZE_STATS
   // Utility macro for simplifiying the declaration of the FMGEMM functions
   // in `fmgemmdefs.h'
   // #define DECLFUN(fun) 
@@ -265,7 +265,7 @@ public:
   static int table_indx(int n,int m,int p,int jat,int jbt);
   static gemm_fun_t get_fun(int n,int m,int p,int jat,int jbt);
   static void table_load(int n,int m,int p,int jat,int jbt,gemm_fun_t f);
-  static void init_funs();
+  static void init();
   static void load_funs();
 
   vector<double *> ap,bp,cp;  

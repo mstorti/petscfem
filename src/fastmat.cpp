@@ -6,7 +6,7 @@
 #include <cassert>
 
 #include <newmat.h>
-#include "fastmat.h"
+#include <src/fastmat.h>
 
 int FastMat::count=0;
 
@@ -17,7 +17,6 @@ int FastMat::lastid=0;
 #endif
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
-
 FastMat::FastMat(int m_,int n_,double *s) :
   store(s), m(m_), n(n_) {
 

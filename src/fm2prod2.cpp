@@ -71,10 +71,10 @@ check_superlinear(vector<double *> &ap, int nrow,int ncol,
 }
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>
-void prod2_subcache_t::init_funs() {
+void prod2_subcache_t::init() {
   if (!table_was_initialized) {
-    load_funs();
     table_was_initialized = 1;
+    load_funs();
   }
 }
 
@@ -101,7 +101,7 @@ void prod2_subcache_t
 void prod2_subcache_t
 ::init(const FastMat2 &A,const FastMat2 &B,FastMat2 &C,
        vector<int> &ixa,vector<int> &ixb) {
-  init_funs();
+  init();
   // get the free indices of A and B
   Indx ii,Afdims,Bfdims,Cfdims;
   // Afdims, Bfdims:= are the dimensions of the `free'

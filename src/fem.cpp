@@ -10,6 +10,7 @@
 #include <src/getprop.h>
 #include <src/pfmat.h>
 #include <src/dvecpar.h>
+//#include <src/fastmat2.h>
 
 MPI_Comm PETSCFEM_COMM_WORLD=0;
 int MY_RANK=0, SIZE=1;
@@ -43,6 +44,8 @@ int PetscFemInitialize(int *argc,char ***args,
   dvector_clone_parallel(ppf);
   dvector<char> ppc;
   dvector_clone_parallel(ppc);
+
+  FastMat2::init();
 
   PETSCFEM_ASSERT0(ierr==0,"Initialization error");  
   return 0;
