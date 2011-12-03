@@ -18,7 +18,7 @@ iisdgraph iisdmat iisdmat2 interpola lagmul linkgraph mainutl		\
 matchg measperf metisprt penalize petscmat pfmat pfobject propef	\
 randomg readmesh rhhook secant shllhook sparse spdirect spetscmat	\
 spsolve srfgath state sttfilter surf2vol syncbuff tempfun		\
-tempfun2 texthash texthf timestat util2 util3 utils fm2prod2 mygmcode
+tempfun2 texthash texthf timestat util2 util3 utils fm2prod2 fmgemmcode
 
 # C files
 CLIBOBJS_ =  getarrgr.tab mkl_gf
@@ -113,11 +113,11 @@ mprod.h mproddef.h: mprod.pl mprod1.h mprodtmpl.h
 endif
 
 ## ifeq ($(DEVELOPER_MODE),yes)
-ifeq (no,yes)
+ifeq (1,1)
 ## Generates automatic code for fast implementation of DGEMM 
 ## a.k.a. FMGEMM library
-mygmcode.h mygmdefs.h mygmload.h: mkmydgcode.pl
-	./mkmydgcode.pl
+fmgemmcode.h fmgemmdefs.h fmgemmload.h: mkfmgemm.pl
+	$<
 endif
 
 # This doesn't compile with -O2
