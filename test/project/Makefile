@@ -1,7 +1,7 @@
 default: test3d
 ## default: tests
 
-BOPT := g_c++
+# BOPT := g_c++
 
 PETSCFEM_DIR := ../..
 

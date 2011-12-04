@@ -23,6 +23,9 @@ print DEFFUNS $warning;
 print DEFFUNS "#define PF_FMGEMM_NMAX $nmax\n";
 my @loads;
 my $tindx=0;
+## WARNING: the order in which the indices are traversed
+## must agree with the way the functions are indexed in the table
+## in int prod2_subcache_t::table_indx().
 for (my $n=1; $n<=$nmax; $n++) {
     for (my $m=1; $m<=$nmax; $m++) {
         for (my $p=1; $p<=$nmax; $p++) {

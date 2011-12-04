@@ -2,6 +2,9 @@
 TODO: [Mainly fixes go here...]
 =====
 
+* check FastMat2::set_external_storage(): what for the cached pointers??
+* implement CALL_BLAS_LAPACK_FROM_PETSC
+* replace assert() by other macro everywhere
 * replace `rest()' for `substraction()' or similar in FastMat2, since
   `rest()' is erroneously translated from spanish `resta'. 
 * Add new print version feature to advdif and others. 

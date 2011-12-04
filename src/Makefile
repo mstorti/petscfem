@@ -113,7 +113,7 @@ mprod.h mproddef.h: mprod.pl mprod1.h mprodtmpl.h
 endif
 
 ## ifeq ($(DEVELOPER_MODE),yes)
-ifeq (1,1)
+ifeq (1,0)
 ## Generates automatic code for fast implementation of DGEMM 
 ## a.k.a. FMGEMM library
 fmgemmcode.h fmgemmdefs.h fmgemmload.h: mkfmgemm.pl
