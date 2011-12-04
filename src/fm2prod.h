@@ -112,6 +112,8 @@ public:
   // A table that stores in which orders must peformed
   // the products
   vector<int> order;
+  // A vector of the caches for each product
+  vector<prod2_subcache_t *> pscv;
   multiprod_subcache_t(FastMatCache *cache_a,FastMat2::CacheCtx *ctx,
                        FastMat2 &result,
                        vector<const FastMat2 *> &mat_list,

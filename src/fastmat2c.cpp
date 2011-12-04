@@ -124,6 +124,9 @@ multiprod_subcache_t::~multiprod_subcache_t() {
     mat_info &mi = mat_info_cont[j];
     if (mi.type == TMP && mi.Ap) delete mi.Ap;
   }
+  for (unsigned int j=0; j<pscv.size(); j++)
+    delete pscv[j];
+  pscv.clear();
 }
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>
@@ -131,6 +134,7 @@ void multiprod_subcache_t::make_prod() {
   // The `order' table contained for each product
   // 3 integers: the destination matrix, and the 2
   // input matrix
+#if 0
   int nprod = nmat-1,
     qkey, rkey, skey;
     //#define VERBOSE
@@ -159,6 +163,11 @@ void multiprod_subcache_t::make_prod() {
     smi.Ap->print(line);
 #endif
   }
+#endif
+
+  int nprod = nmat-1;
+  for (int j=0; j<nprod; j++)
+    pscv[j]->make_prod();
 }
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>
@@ -514,6 +523,26 @@ multiprod_subcache_t
     printf("]\n");
 #endif
   }
+
+ 
+  int nprod = nmat-1,skey;
+    //#define VERBOSE
+#ifdef VERBOSE
+  char line[100];
+#endif
+  for (int j=0; j<nprod; j++) {
+    mat_info 
+      // Destination matrices
+      &smi = mat_info_cont[order[3*j]],
+      // Source matrices
+      &qmi = mat_info_cont[order[3*j+1]],
+      &rmi = mat_info_cont[order[3*j+2]];
+
+    // Makes the product, calling prod(a,b,indxa,indxb)
+    pscv.push_back(new prod2_subcache_t());
+    pscv.back()->init(*qmi.Ap,*rmi.Ap,*smi.Ap,qmi.contract,rmi.contract);
+  }
+ 
 }
 
 fastmat_stats_t fastmat_stats;
