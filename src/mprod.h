@@ -8,6 +8,12 @@
 FastMat2 & prod(
                 const FastMat2 & A0,
                 const FastMat2 & A1,
+const int m,INT_VAR_ARGS);
+
+
+FastMat2 & prod(
+                const FastMat2 & A0,
+                const FastMat2 & A1,
                 const FastMat2 & A2,
 const int m,INT_VAR_ARGS);
 

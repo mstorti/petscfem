@@ -1,4 +1,5 @@
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>
 FastMat2 & 
 FastMat2::prod(__MATS__
                const int m,INT_VAR_ARGS_ND) {
@@ -6,7 +7,7 @@ FastMat2::prod(__MATS__
 #ifndef NDEBUG
   if (ctx->do_check_labels) {
     ctx->check_clear();
-    ctx->check("prod_mat_wrapper" "__NMAT__",this);
+    ctx->check("prod_mat_wrapper",this);
     __CTX_CHECK__
 
     Indx indx;
@@ -18,23 +19,24 @@ FastMat2::prod(__MATS__
 #endif
 
   FastMatCache *cache = ctx->step();
-  mprodwrp_subcache_t *mpwrpsc=NULL;
+  multiprod_subcache_t *mpsc=NULL;
   if (!ctx->was_cached) {
-    mpwrpsc = new mprodwrp_subcache_t;
+    
     assert(!cache->sc);
-    cache->sc = mpwrpsc;
-    vector<const FastMat2 *> &mat_list = mpwrpsc->mat_list;
+    vector<const FastMat2 *> mat_list;
     __PACK__
     
-    Indx &indx = mpwrpsc->indx;
+    Indx indx;
     indx.push_back(m);
     READ_INT_ARG_LIST(indx);
+    mpsc = new multiprod_subcache_t(cache,ctx,*this,mat_list,indx);
+    cache->sc = mpsc;
   }
 
-  mpwrpsc = dynamic_cast<mprodwrp_subcache_t *> (cache->sc);
-  assert(mpwrpsc);
+  mpsc = dynamic_cast<multiprod_subcache_t *> (cache->sc);
+  assert(mpsc);
+  mpsc->make_prod();
 
-  prod(mpwrpsc->mat_list,mpwrpsc->indx);
   if (!ctx->use_cache) delete cache;
 
   return *this;

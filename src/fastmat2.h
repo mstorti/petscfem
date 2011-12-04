@@ -965,6 +965,7 @@ public:
   */ 
   double trace();
 
+#if 0
   //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
   /** Product operation. {\tt (*this) = A * B} (generalized by index contraction)
       @author M. Storti
@@ -975,6 +976,7 @@ public:
   */ 
   FastMat2 & prod(const FastMat2 & A,const FastMat2 & B,const int
 		  m,INT_VAR_ARGS);
+#endif
 
   // The file "mprod.h" is generated automatically by
   // `mprod.pl' and generates programatically

@@ -868,7 +868,7 @@ FastMat2::prod(const FastMat2 &A,const FastMat2 &B,
 }
 #endif
 
-#ifdef USE_MPROD_FOR_2MATS
+#if 0 && defined(USE_MPROD_FOR_2MATS)
 #if 0
 // OLD VERSION (CALLS PROD)
 FastMat2 & 

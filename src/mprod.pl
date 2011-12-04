@@ -19,7 +19,7 @@ print MPHDR $warning;
 print MPHDR2 $warning;
 
 my $nmatmax=10;
-for (my $nmat=3;$nmat<=$nmatmax; $nmat++) {
+for (my $nmat=2;$nmat<=$nmatmax; $nmat++) {
     my $mats = "";
     my $pack = "";
     my $ctx_check = "";
