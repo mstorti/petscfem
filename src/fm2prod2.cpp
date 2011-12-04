@@ -321,13 +321,21 @@ void prod2_subcache_t
 }
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>
-// This is the function that makes the product of two matrices.
-// The others for 3,4,etc... are wrappers to this one. 
-// Computes C = A*B, where C is *this
 FastMat2 & 
 FastMat2::prod2(const FastMat2 &A,const FastMat2 &B,
                 vector<int> &ixa, 
                 vector<int> &ixb) {
+  return prod(A,B,ixa,ixb);
+}
+
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>
+// This is the function that makes the product of two matrices.
+// The others for 3,4,etc... are wrappers to this one. 
+// Computes C = A*B, where C is *this
+FastMat2 & 
+FastMat2::prod(const FastMat2 &A,const FastMat2 &B,
+               vector<int> &ixa, 
+               vector<int> &ixb) {
 
 #ifndef NDEBUG
   if (ctx->do_check_labels) {

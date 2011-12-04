@@ -213,7 +213,7 @@ public:
   // ----------- FMGEMM STUFF ----------------
   // If set: do some statistics about how many computations
   // call the FMGEMM functions
-#define DO_SIZE_STATS
+  //#define DO_SIZE_STATS
   // Utility macro for simplifiying the declaration of the FMGEMM functions
   // in `fmgemmdefs.h'
   // #define DECLFUN(fun) 
