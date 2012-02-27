@@ -2,6 +2,7 @@
 TODO: [Mainly fixes go here...]
 =====
 
+* make opt2 call mmove2_main, and opt3 call mmove3_main
 * check FastMat2::set_external_storage(): what for the cached pointers??
 * implement CALL_BLAS_LAPACK_FROM_PETSC
 * replace assert() by other macro everywhere

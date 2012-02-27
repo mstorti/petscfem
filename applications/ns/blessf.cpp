@@ -24,6 +24,7 @@
 #include "./qharm.h"
 #include "./errestim.h"
 #include "./qharmm.h"
+#include "./lubrication.h"
 #include "./nsgath.h"
 #include "./embgath.h"
 #include "./nssup.h"
@@ -73,6 +74,7 @@ void bless_elemset_ns(char *type,Elemset *& elemset) {
     SET_ELEMSET_TYPE(qharm)
     SET_ELEMSET_TYPE(error_estimator)
     SET_ELEMSET_TYPE(qharmm)
+    SET_ELEMSET_TYPE(lubrication)
     SET_ELEMSET_TYPE(ns_id)
     SET_ELEMSET_TYPE(nodeload)
     SET_ELEMSET_TYPE(ns_sup)

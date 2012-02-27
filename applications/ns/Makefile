@@ -26,7 +26,7 @@ LIBOBJS = ns.o mmvmain.o mmv2main.o nsstruct.o ns_fsi.o compdate.o	\
 	nsitetlesls.o electrophoresis.o  electrophoresisM.o flowrev.o	\
 	renorm.o renorm2.o renorm3.o nsitlfctx2.o					\
 	electrophoresisM2.o electrophoresisM.o electrophoresis_mov.o	\
-        poisson.o charge_cons.o pot_grad.o
+        poisson.o charge_cons.o pot_grad.o lubrication.o
 
 MYOBJS =
 
