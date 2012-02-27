@@ -70,12 +70,18 @@ void lubrication::lub_init() {
     PFDBREQ(L);
     PFDBREQ(R);
     PFDBREQ(c);
+    double epsil;
+    PFDBREQ(epsil);
   
     e0x=0.0;
     e0y=0.0;
+    e1x=epsil*c;
+    e1y=0.0;
 
-    e1x=0.*c;
-    e1y=0.5*c;
+    e0xdot=0.0;
+    e0ydot=0.0;
+    e1xdot=0.0;
+    e1ydot=0.0;
 
   } else {
     PETSCFEM_ASSERT0(lubrication_p==this,
@@ -96,7 +102,7 @@ void lubrication::pg_connector(const FastMat2 &xpg,
 			 const FastMat2 &state_new_pg,
 			 const FastMat2 &grad_state_new_pg,
 			 FastMat2 &res_pg,FastMat2 &mat_pg) {
-  double 
+  double rhs,
     xx = xpg.get(1),
     phi = xx/R,
     dex = e1x-e0x,
@@ -104,7 +110,11 @@ void lubrication::pg_connector(const FastMat2 &xpg,
     h = c-dex*cos(phi)-dey*sin(phi),
     kond = rho*CB(h)/(12.0*viscosity),
     Omega = (Omega1+Omega0)/2.0,
-    rhs = rho*Omega*R*(-dex*sin(phi)+dey*cos(phi));
+    dexdot = e1xdot-e0xdot,
+    deydot = e1ydot-e0ydot;
+  rhs = Omega*R*(-dex*sin(phi)+dey*cos(phi))
+    + (dexdot*cos(phi)+deydot*sin(phi));
+  rhs *= rho;
   cond.eye(kond);
   G.set(rhs);
 

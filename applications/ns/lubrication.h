@@ -21,7 +21,8 @@ private:
   L,R,                // Length and radious of bearing
   rho,viscosity,nu,c, // density,viscosity,kin. viscosity, clearance
     Omega0,Omega1, // rotation velocities for stator and rotor
-    e0x,e0y,e1x,e1y; // displacements of center for stator and rotor
+    e0x,e0y,e1x,e1y, // displacements of center for stator and rotor
+    e0xdot,e0ydot,e1xdot,e1ydot; // temporal deriv. of displacements
 public:
   void lub_init();
   void elemset_init();
