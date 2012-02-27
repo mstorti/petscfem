@@ -74,8 +74,8 @@ void lubrication::lub_init() {
     e0x=0.0;
     e0y=0.0;
 
-    e1x=0.5*c;
-    e1y=0.0;
+    e1x=0.*c;
+    e1y=0.5*c;
 
   } else {
     PETSCFEM_ASSERT0(lubrication_p==this,
@@ -101,7 +101,7 @@ void lubrication::pg_connector(const FastMat2 &xpg,
     phi = xx/R,
     dex = e1x-e0x,
     dey = e1y-e0y,
-    h = c + dex*cos(phi)+dey*sin(phi),
+    h = c-dex*cos(phi)-dey*sin(phi),
     kond = rho*CB(h)/(12.0*viscosity),
     Omega = (Omega1+Omega0)/2.0,
     rhs = rho*Omega*R*(-dex*sin(phi)+dey*cos(phi));
