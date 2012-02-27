@@ -12,43 +12,81 @@
 #include "adaptor.h"
 #include "lubrication.h"
 
+lubrication *lubrication_p=NULL;
+
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
-void lubrication::elemset_init() {
-  int ierr;
-  cond.resize(2,ndof,ndof);
-  //o Thermal conductivity
-  // read_cond_matrix(thash,"conductivity",ndof,cond);
-  cond.eye(1.0);
+void lubrication::lub_init() {
+  if (!lubrication_p) {
+    lubrication_p = this;
+    int ierr;
+    PETSCFEM_ASSERT0(ndof==1,"lubrication requires...");  
+    PETSCFEM_ASSERT0(ndim==2,"lubrication requires...");  
 
-  C.resize(2,ndof,ndof);
-  //o Reaction jacobian matrix
-  // read_cond_matrix(thash,"C",ndof,C);
-  C.set(0.0);
+    cond.resize(2,ndof,ndof);
+    //o Thermal conductivity
+    // read_cond_matrix(thash,"conductivity",ndof,cond);
+    cond.eye(1.0);
 
-  Cp.resize(2,ndof,ndof);
-  //o Reaction jacobian matrix
-  // read_cond_matrix(thash,"Cp",ndof,Cp);
-  Cp.set(0.0);
+    C.resize(2,ndof,ndof);
+    //o Reaction jacobian matrix
+    // read_cond_matrix(thash,"C",ndof,C);
+    C.set(0.0);
 
-  //o Steady flag
-  // TGETOPTDEF(thash,int,steady,0);
-  int steady=1;
+    Cp.resize(2,ndof,ndof);
+    //o Reaction jacobian matrix
+    // read_cond_matrix(thash,"Cp",ndof,Cp);
+    Cp.set(0.0);
 
-  //o Time step
-  TGETOPTDEF_ND(thash,double,Dt,NAN);
-  PETSCFEM_ASSERT0(steady || !isnan(Dt),"Dt is required if not steady");  
-  if (steady && isnan(Dt)) Dt=1.0;
-  PETSCFEM_ASSERT0(Dt>=0.0,"Dt is required must be non-negative");  
+    //o Steady flag
+    // TGETOPTDEF(thash,int,steady,0);
+    int steady=1;
 
-  rec_Dt = (steady? 0.0 : 1.0/Dt);
+    //o Time step
+    TGETOPTDEF_ND(thash,double,Dt,NAN);
+    PETSCFEM_ASSERT0(steady || !isnan(Dt),"Dt is required if not steady");  
+    if (steady && isnan(Dt)) Dt=1.0;
+    PETSCFEM_ASSERT0(Dt>=0.0,"Dt is required must be non-negative");  
 
-  //o _T: double[ndof] _N: state_ref _D: null vector 
-  // _DOC: Reference state value. _END
-  x_ref.resize(1,ndof).set(0.);
-  // ierr = get_double(thash,"state_ref",x_ref.storage_begin(),1,ndof);
-  // PETSCFEM_ASSERT0(!ierr,"Erro retriveing option state_ref");  
+    rec_Dt = (steady? 0.0 : 1.0/Dt);
 
-  G.resize(1,ndof).set(1.0);
+    //o _T: double[ndof] _N: state_ref _D: null vector 
+    // _DOC: Reference state value. _END
+    x_ref.resize(1,ndof).set(0.);
+    // ierr = get_double(thash,"state_ref",x_ref.storage_begin(),1,ndof);
+    // PETSCFEM_ASSERT0(!ierr,"Erro retriveing option state_ref");  
+
+    G.resize(1,ndof).set(1.0);
+
+#define PFDBREQ(name)                                           \
+    TGETOPTDEF_ND(thash,double,name,NAN);                       \
+    PETSCFEM_ASSERT0(!isnan(name),#name " is required!!");  
+  
+    PFDBREQ(rho);
+    PFDBREQ(viscosity);
+    nu = viscosity/rho;
+    PFDBREQ(Omega0);
+    PFDBREQ(Omega1);
+
+    PFDBREQ(L);
+    PFDBREQ(R);
+    PFDBREQ(c);
+  
+    e0x=0.0;
+    e0y=0.0;
+
+    e1x=0.5*c;
+    e1y=0.0;
+
+  } else {
+    PETSCFEM_ASSERT0(lubrication_p==this,
+                     "Currently there can be only an instance of lubrication.");  
+  }
+
+}
+
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>
+void lubrication::elemset_init() { 
+  lub_init();
 }
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
@@ -58,6 +96,18 @@ void lubrication::pg_connector(const FastMat2 &xpg,
 			 const FastMat2 &state_new_pg,
 			 const FastMat2 &grad_state_new_pg,
 			 FastMat2 &res_pg,FastMat2 &mat_pg) {
+  double 
+    xx = xpg.get(1),
+    phi = xx/R,
+    dex = e1x-e0x,
+    dey = e1y-e0y,
+    h = c + dex*cos(phi)+dey*sin(phi),
+    kond = rho*CB(h)/(12.0*viscosity),
+    Omega = (Omega1+Omega0)/2.0,
+    rhs = rho*Omega*R*(-dex*sin(phi)+dey*cos(phi));
+  cond.eye(kond);
+  G.set(rhs);
+
 #define tmp1 tmp(1)
 #define tmp2 tmp(2)
   tmp1.prod(dshapex(),grad_state_new_pg,-1,1,-1,2);
@@ -76,4 +126,26 @@ void lubrication::pg_connector(const FastMat2 &xpg,
   tmp(5).prod(tmp(4),C,1,3,2,4);
   tmp(10).prod(tmp(4),Cp,1,3,2,4);
   mat_pg.add(tmp(5)).axpy(tmp(10),rec_Dt);
+}
+
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>
+void lub_force_integrator::init() { 
+  PETSCFEM_ASSERT0(lubrication_p,
+                   "lubrication elemeset instance should be initialized already");  
+  assert(gather_length>=1); 
+}
+
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>
+void lub_force_integrator::set_pg_values(vector<double> &pg_values,FastMat2 &u,
+                   FastMat2 &uold,FastMat2 &xpg,FastMat2 &Jaco,
+                   double wpgdet,double time) {
+  lubrication_p->set_pg_values(pg_values,u,uold,xpg,Jaco,wpgdet,time);
+}
+
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>
+void lubrication::set_pg_values(vector<double> &pg_values,FastMat2 &u,
+                                FastMat2 &uold,FastMat2 &xpg,FastMat2 &Jaco,
+                                double wpgdet,double time) {
+  // Just the area so far...
+  pg_values[0] = wpgdet;
 }
