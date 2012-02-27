@@ -132,7 +132,7 @@ void lubrication::pg_connector(const FastMat2 &xpg,
 void lub_force_integrator::init() { 
   PETSCFEM_ASSERT0(lubrication_p,
                    "lubrication elemeset instance should be initialized already");  
-  assert(gather_length>=1); 
+  assert(gather_length>=2); 
 }
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>
@@ -146,6 +146,11 @@ void lub_force_integrator::set_pg_values(vector<double> &pg_values,FastMat2 &u,
 void lubrication::set_pg_values(vector<double> &pg_values,FastMat2 &u,
                                 FastMat2 &uold,FastMat2 &xpg,FastMat2 &Jaco,
                                 double wpgdet,double time) {
+  double 
+    xx = xpg.get(1),
+    P = u.get(1),
+    phi = xx/R;
   // Just the area so far...
-  pg_values[0] = wpgdet;
+  pg_values[0] = -wpgdet*P*cos(phi);
+  pg_values[1] = -wpgdet*P*sin(phi);
 }
