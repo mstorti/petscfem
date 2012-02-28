@@ -57,6 +57,8 @@ void lubrication::lub_init() {
 
     G.resize(1,ndof).set(1.0);
 
+    TGETOPTDEF_ND(thash,int,use_cavitation_model,0);
+
 #define PFDBREQ(name)                                           \
     TGETOPTDEF_ND(thash,double,name,NAN);                       \
     PETSCFEM_ASSERT0(!isnan(name),#name " is required!!");  
@@ -112,7 +114,7 @@ void lubrication::pg_connector(const FastMat2 &xpg,
     Omega = (Omega1+Omega0)/2.0,
     dexdot = e1xdot-e0xdot,
     deydot = e1ydot-e0ydot;
-  rhs = Omega*R*(-dex*sin(phi)+dey*cos(phi))
+  rhs = Omega*(-dex*sin(phi)+dey*cos(phi))
     + (dexdot*cos(phi)+deydot*sin(phi));
   rhs *= rho;
   cond.eye(kond);
@@ -160,6 +162,7 @@ void lubrication::set_pg_values(vector<double> &pg_values,FastMat2 &u,
     xx = xpg.get(1),
     P = u.get(1),
     phi = xx/R;
+  if (use_cavitation_model && P<0.0) P = 0.0;
   // Just the area so far...
   pg_values[0] = -wpgdet*P*cos(phi);
   pg_values[1] = -wpgdet*P*sin(phi);
