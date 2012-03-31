@@ -106,6 +106,5 @@ LATEX2HTML = /usr/local/latex2html/latex2html
 
 DEVELOPER_MODE := yes
 
-MKLPATH := /opt/intel/composerxe-2011.2.137/mkl/lib/intel64
-ATLAS_INC_DIR := 
-ATLAS_LIB_DIR := 
+ATLAS_INC_DIR := /usr/include/atlas
+ATLAS_LIB_DIR := /usr/lib64/atlas
