@@ -35,7 +35,7 @@ endif
 GLIB_INC_CFG = ${GLIB_LIB_DIR}/glib-2.0/include
 GLIB_LIBNAME = glib-2.0
 
-PF_PKG_DIR = $(PETSCFEM_DIR)/../../petscfem-packages
+PF_PKG_DIR = $(PETSCFEM_DIR)/../petscfem-packages
 ANN      = $(PF_PKG_DIR)
 LIBRETTO = $(PF_PKG_DIR)
 MESCHACH = $(PF_PKG_DIR)
