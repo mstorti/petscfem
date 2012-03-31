@@ -14,9 +14,12 @@ MPIEXEC:= mpiexec
 ## PETSc
 ## -----
 ifeq ($(PETSC_DIR),)
-PETSC_DIR := /usr/local/petsc/3.0.0
+PETSC_DIR := /usr/local/petsc/3.1
 endif
 
+PETSC_ARCH := linux-gnu-O
+PETSC_ARCH_g := linux-gnu-O
+PETSC_ARCH_O := linux-gnu-O
 
 ## OTHERS
 ## ------
@@ -101,10 +104,6 @@ SMC =
 # generate the doc.
 LATEX2HTML = /usr/local/latex2html/latex2html
 
-PETSC_DIR := /home/mstorti/PETSC/petsc-3.0.0-p5
-PETSC_ARCH := linux-mkl
-PETSC_ARCH_g := linux-mkl
-PETSC_ARCH_O := linux-mkl
 DEVELOPER_MODE := yes
 
 MKLPATH := /opt/intel/composerxe-2011.2.137/mkl/lib/intel64
