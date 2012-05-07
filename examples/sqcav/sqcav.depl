@@ -50,9 +50,10 @@ __END_ELEMSET__
 end_elemsets
 
 fixa
-# fijacion en la presion
+# impose pressure on some node
 21 3 0.
-# fijaciones de velocidad en las paredes
-__INCLUDE__ sqcav.fixa-wall.tmp
+# impose velocity (1,0) on top of cavity
 __INCLUDE__ sqcav.fixa-top.tmp
+# impose null velocities on the rest of boundaries
+__INCLUDE__ sqcav.fixa-wall.tmp
 __END_FIXA__

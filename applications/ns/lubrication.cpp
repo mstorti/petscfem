@@ -75,21 +75,20 @@ void lubrication::lub_init() {
     double epsil;
     PFDBREQ(epsil);
   
-    e0x=0.0;
-    e0y=0.0;
-    e1x=epsil*c;
-    e1y=0.0;
+    TGETOPTDEF_ND(thash,double,e0x,0.0);
+    TGETOPTDEF_ND(thash,double,e0y,0.0);
+    TGETOPTDEF_ND(thash,double,e1x,0.0);
+    TGETOPTDEF_ND(thash,double,e1y,0.0);
 
-    e0xdot=0.0;
-    e0ydot=0.0;
-    e1xdot=0.0;
-    e1ydot=0.0;
+    TGETOPTDEF_ND(thash,double,e0xdot,0.0);
+    TGETOPTDEF_ND(thash,double,e0ydot,0.0);
+    TGETOPTDEF_ND(thash,double,e1xdot,0.0);
+    TGETOPTDEF_ND(thash,double,e1ydot,0.0);
 
   } else {
     PETSCFEM_ASSERT0(lubrication_p==this,
                      "Currently there can be only an instance of lubrication.");  
   }
-
 }
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>
