@@ -5,7 +5,7 @@ ndim 2
 
 nsave 1
 nstep 1000
-save_file "sqcav.state.tmp"
+save_file sqcav.state.tmp
 
 # type of solver (may be "iisd", "petsc"...)
 solver "iisd"
@@ -34,7 +34,7 @@ __END_HASH__
 
 # ndim nu ndof
 nodes  2  2  3
-__INCLUDE__ sqcav.nod.tmp
+__INCLUDE__ sqcav.nod.txt
 __END_NODES__
 
 elemset nsi_tet_les_fm2 4
@@ -44,7 +44,7 @@ npg 4
 viscosity 0.001
 LES 0
 __END_HASH__
-__INCLUDE__ sqcav.con.tmp
+__INCLUDE__ sqcav.con.txt
 __END_ELEMSET__
 
 end_elemsets
@@ -53,7 +53,7 @@ fixa
 # impose pressure on some node
 21 3 0.
 # impose velocity (1,0) on top of cavity
-__INCLUDE__ sqcav.fixa-top.tmp
+__INCLUDE__ sqcav.fixa-top.txt
 # impose null velocities on the rest of boundaries
-__INCLUDE__ sqcav.fixa-wall.tmp
+__INCLUDE__ sqcav.fixa-wall.txt
 __END_FIXA__
