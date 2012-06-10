@@ -68,7 +68,7 @@ dx_test_%_np2:
 dx:
 	$(MAKE) -C ../../dx
 
-# BOPT = g_c++
+BOPT = O_c++
 PETSCFEM_DIR = ../..
 include $(PETSCFEM_DIR)/Makefile.base
 include $(PETSCFEM_DIR)/test/Makefile.base.test
@@ -89,6 +89,7 @@ endif
 output_file := output.CASE_$(CASE).np_$(np).case_$(case)$(meas_perf).out.tmp
 
 #w Runs program
+np = 2
 run:  data
 	-${MPIEXEC} $(MCH) -n $(np) $(PROG) -case $(CASE).depl \
 	 	      	   $(REDIR) $(output_file)

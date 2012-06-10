@@ -41,7 +41,7 @@ report_consumed_time
 activate_debug_print
 
 # file containing the weight (speed) of processors
-proc_weights weights.dat
+# proc_weights weights.dat
 max_partgraph_vertices 2000
 max_partgraph_vertices_proc 2000
 

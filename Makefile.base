@@ -363,10 +363,8 @@ LDFLAGS_NO_PROG_LIB =				\
 
 CBLAS_FOUND := no
 
-q23:
-	@echo PETSC_LDFLAGS: $(PETSC_LDFLAGS)
-
 ifneq ($(MKLPATH),)
+## $(info USING MKL!!)
 CPPFLAGS += -I$(MKL_INCLUDE) -DUSE_MKL_FIX -DUSE_MKL
 MKL_LDFLAGS := -lmkl_gf_lp64 -lmkl_gnu_thread -lmkl_core -lpetscfem$(osfx)
 #	-lpthread -lgfortran ./mkl_gf.o
@@ -375,6 +373,7 @@ LDFLAGS_NO_PROG_LIB += $(MKL_LDFLAGS)
 CBLAS_FOUND := yes
 else
 ifneq ($(ATLAS_INC_DIR),)
+## $(info using ATLAS!!)
 CPPFLAGS += -I$(ATLAS_INC_DIR)
 MKL_LDFLAGS := -L$(ATLAS_LIB_DIR) -lcblas
 LDFLAGS += $(MKL_LDFLAGS)
@@ -453,6 +452,9 @@ EPERLFLAGS =
 
 #w makes local links to all binaries 
 all_link: ns.link advdif.link adv.link laplace.link
+
+q23:
+	@echo LDFLAGS_NO_PROG_LIB $(LDFLAGS_NO_PROG_LIB)
 
 BIN = $(LNK)/$(LNK).bin
 ns.link:		LNK=ns

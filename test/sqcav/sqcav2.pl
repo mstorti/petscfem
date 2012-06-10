@@ -24,7 +24,7 @@ if ($case eq 'g_body') {
 }
 $U = 1;				# typical velocity scale
 $L = 1;				# Side of the cavity
-$N = 20;
+$N = 200;
 $hratio = 4;			# refinement (h_center/h_wall)
 $Re = 400 unless defined $Re;			# Reynolds number
 $viscosity = $L/$Re;		# viscosity
