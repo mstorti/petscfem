@@ -15,6 +15,16 @@
 void elasticity2::init() {
 
   int ierr;
+  TGETOPTDEF_ND(thash,int,use_displacement_formulation,0);
+
+  newmark_gamma = newmark_beta = NAN;
+  if (use_displacement_formulation) {
+    //o Newmark gamma parameter
+    TGETOPTDEF_ND(thash,double,newmark_gamma,0.5);
+
+    //o Newmark beta parameter
+    TGETOPTDEF_ND(thash,double,newmark_beta,0.25);
+  }
 
 #define ELEMPROPS(j,k) VEC2(elemprops,j,k,nelprops)
 #define MAXPROPS 100
@@ -40,7 +50,7 @@ void elasticity2::init() {
   //o Poisson ratio
   TGETOPTDEF(thash,double,Poisson_ratio,0.);
   nu=Poisson_ratio;
-  assert(nu>=0. && nu<0.5);
+  PETSCFEM_ASSERT0(nu>=0. && nu<0.5,"Not correct Poisson ratio value");  
 
   //o Density
   TGETOPTDEF(thash,double,density,0.);
@@ -59,8 +69,19 @@ void elasticity2::init() {
   // Dos opciones para imprimir
   // printf("rec_Dt: %d\n",rec_Dt);
   // SHV(rec_Dt);
-  assert(!(rec_Dt>0. && rho==0.));
-  assert(ndof==2*ndim);
+  PETSCFEM_ASSERT0(!(rec_Dt>0. && rho==0.),
+                   "If computation is not steady then density is required");  
+  if (!use_displacement_formulation) {
+    PETSCFEM_ASSERT(ndof==2*ndim,
+                    "If the displacement-velocity formulation is used, "
+                    "then ndof==2*ndim."
+                    "Entered ndof %d, ndim %d",ndof,ndim);  
+  } else {
+    PETSCFEM_ASSERT(ndof==ndim,
+                    "If the displacement only formulation is used, "
+                    "then ndof==ndim."
+                    "Entered ndof %d, ndim %d",ndof,ndim);  
+  }
 
   ntens = ndim*(ndim+1)/2;
   nen = nel*ndim;
@@ -70,6 +91,8 @@ void elasticity2::init() {
   Jaco.resize(2,ndim,ndim);
   dshapex.resize(2,ndim,nel);  
   mass_pg.resize(2,nel,nel);
+  Mass.resize(4,nel,ndof,nel,ndof);
+  Kstiff.resize(4,nel,ndof,nel,ndof);
 
   // Plane strain
   if (ndim==2) {
@@ -103,15 +126,45 @@ void elasticity2::init() {
 	.rs().d(1,2).is(1,4,6).set(c2)
 	.rs().scale(c1);
   } else {
-    PetscPrintf(PETSCFEM_COMM_WORLD,"wrong dimension: %d\n",ndim);
-    assert(0);
+    PETSCFEM_ERROR("wrong dimension: %d\n",ndim);
+  }
+
+  xmh.resize(2,nel,ndim);
+  xph.resize(2,nel,ndim);
+}
+
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>
+void elasticity2::
+before_chunk(const char *jobinfo) {
+  GET_JOBINFO_FLAG(comp_prof);
+  GET_JOBINFO_FLAG(comp_mat_res);
+
+  PETSCFEM_ASSERT(comp_prof || comp_mat_res,
+                  "Only jobinfo=\"comp_mat_res\" processed. \n"
+                  "Received unrecognized jobinfo %s\n",jobinfo);  
+
+  int ierr;
+  if (use_displacement_formulation && comp_mat_res) {
+    res_h = get_arg_handle("res","No handle for `res'\n");
+    mat_h = get_arg_handle("A","No handle for `A'\n");
+    state_mh_argh = get_arg_handle("state_mh",
+                                   "No handle for `state_mh'\n");
+    state_ph_argh = get_arg_handle("state_ph",
+                                   "No handle for `state_ph'\n");
   }
 }
 
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>
 void elasticity2::element_connector(const FastMat2 &xloc,
 				   const FastMat2 &state_old,
 				   const FastMat2 &state_new,
-				   FastMat2 &res,FastMat2 &mat){
+				   FastMat2 &res,FastMat2 &mat) {
+
+  if (use_displacement_formulation) {
+    element_connector_df(xloc,state_old,state_new,res,mat);
+    return;
+  }
+
   load_props(propel.buff(),elprpsindx.buff(),nprops,
 	     &(ELEMPROPS(elem,0)));
   double Young_modulus = *(propel.buff()+Young_modulus_indx);
@@ -234,6 +287,149 @@ void elasticity2::element_connector(const FastMat2 &xloc,
   // tmp4.ctr(mat,2,1,4,3);
   // tmp4.print(nel*ndof);
     
+}
+
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>
+void elasticity2
+::element_connector_df(const FastMat2 &xloc,
+                       const FastMat2 &state_old,
+                       const FastMat2 &state_new,
+                       FastMat2 &res,FastMat2 &mat) {
+
+  load_props(propel.buff(),elprpsindx.buff(),nprops,
+	     &(ELEMPROPS(elem,0)));
+  double Young_modulus = *(propel.buff()+Young_modulus_indx);
+
+  res.set(0.);
+  mat.set(0.);
+  xnew.set(state_new);
+  xold.set(state_old);
+  get_vals(state_mh_argh,xmh);
+  get_vals(state_ph_argh,xph);
+    
+#ifdef USE_YOUNG_PER_ELEM
+  load_props(propel.buff(),elprpsindx.buff(),nprops,
+	     &(ELEMPROPS(elem,0)));
+  double Ex = *(propel.buff()+Young_modulus_indx);
+  E = Ex*Young_modulus_fac;
+#if 0
+  if (rand()%1000==0) {
+    xloc.print("xloc:");
+    printf("Ex %f, Young_modulus_fac %f\n",Ex,Young_modulus_fac);
+  }
+#endif
+#endif
+
+  double Dt = 1.0/rec_Dt, Dt2 = Dt*Dt;
+
+  vold.set(xph).minus(xmh).scale(rec_Dt);
+  aold.set(xph).axpy(xold,-2.0).add(xmh).scale(4.0*rec_Dt*rec_Dt);
+  anew.set(xnew).minus(xold).axpy(vold,-Dt).scale(2.0/Dt2)
+    .axpy(aold,-(1.0-2.0*newmark_beta)).scale(1.0/(2.0*newmark_beta));
+  vnew.set(vold)
+    .axpy(aold,(1.0-newmark_gamma)*Dt)
+    .axpy(anew,newmark_gamma*Dt);
+
+#if 0
+  if (prtb_index()==0) {
+    printf("------------------\nrec_Dt %f\n",rec_Dt);
+    FMSHV(xmh);
+    FMSHV(xold);
+    FMSHV(xph);
+    FMSHV(xnew);
+    FMSHV(vold);
+    FMSHV(aold);
+    FMSHV(vnew);
+    FMSHV(anew);
+    printf("-----------------------------------\n");
+  }
+#endif
+  // printf("element %d, Young %f\n",elem,E);
+
+  double E = Young_modulus;
+  double lambda = nu*E/((1+nu)*(1-2*nu));
+  double mu = E/2/(1+nu);
+  B.reshape(3,ntens,nel,ndim);
+
+  Mass.set(0.0);
+  Kstiff.set(0.0);
+
+  // loop over Gauss points
+  for (int ipg=0; ipg<npg; ipg++) {
+    
+    dshapexi.ir(3,ipg+1); // restriccion del indice 3 a ipg+1
+    Jaco.prod(dshapexi,xloc,1,-1,-1,2);
+    
+    double detJaco = Jaco.det();
+    if (detJaco <= 0.) {
+      printf("Jacobian of element %d is negative or null\n"
+	     " Jacobian: %f\n",elem,detJaco);
+      PetscFinalize();
+      exit(0);
+    }
+    double wpgdet = detJaco*wpg.get(ipg+1);
+    iJaco.inv(Jaco);
+    dshapex.prod(iJaco,dshapexi,1,-1,-1,2);
+    
+    // construccion de matriz B
+    if (ndim==2) {
+      B.ir(1,1).ir(3,1).set(dshapex.ir(1,1));
+      B.ir(1,2).ir(3,2).set(dshapex.ir(1,2));
+      B.ir(1,3).ir(3,1).set(dshapex.ir(1,2));
+      B.ir(1,3).ir(3,2).set(dshapex.ir(1,1));
+    } else if (ndim==3) {
+      B.ir(1,1).ir(3,1).set(dshapex.ir(1,1));
+      B.ir(1,2).ir(3,2).set(dshapex.ir(1,2));
+      B.ir(1,3).ir(3,3).set(dshapex.ir(1,3));
+
+      B.ir(1,4).ir(3,2).set(dshapex.ir(1,1));
+      B.ir(1,4).ir(3,1).set(dshapex.ir(1,2));
+
+      B.ir(1,5).ir(3,3).set(dshapex.ir(1,1));
+      B.ir(1,5).ir(3,1).set(dshapex.ir(1,3));
+
+      B.ir(1,6).ir(3,3).set(dshapex.ir(1,2));
+      B.ir(1,6).ir(3,2).set(dshapex.ir(1,3));
+    }
+    B.rs();
+
+    shape.ir(2,ipg+1);
+
+    // Eq. for velocity (dofs=[ndim+1,2*ndim])
+    // Res = [ -M*(xnew-xold)/dt + M*vstar;
+    //         -M*rho*(vnew-vold)/dt - K*xstar
+    // Jac = -D(res)/DU = [M/(Dt*alpha) -M;
+    //                     K             M*rho/(Dt*alpha)]
+    // (recordar que Jac debe ser -1/alpha*d(Res)/d(X) 
+
+    mass_pg.prod(shape,shape,1,2).scale(wpgdet*rec_Dt*rho/alpha);
+    double coef_damp = 1.0;
+    for (int k=1; k<=ndim; k++) 
+      Mass.ir(2,k).ir(4,k).axpy(mass_pg,coef_damp);
+    Mass.rs();
+
+    // Jacobian computation
+    mat_pg1.prod(C,B,1,-1,-1,2,3).scale(Young_modulus);
+    mat_pg2.prod(B,mat_pg1,-1,1,2,-1,3,4);
+    Kstiff.axpy(mat_pg2,wpgdet).rs();
+    
+    dshapex.rs();
+    res.rs();
+  }
+  
+#if 0
+  aux.ctr(Mass,2,1,4,3);
+  aux.print(nel*ndof,"M: ");
+
+  aux.ctr(Kstiff,2,1,4,3);
+  Kstiff.print(nel*ndof,"K: ");
+  aux2.sum(Kstiff,1,2,-1,-1);
+  aux2.print(24,"sum over rows: ");
+  aux2.sum(Kstiff,-1,-1,1,2);
+  aux2.print(24,"sum over columns: ");
+#endif
+
+  exit(0);
 }
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>
