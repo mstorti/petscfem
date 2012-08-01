@@ -124,7 +124,7 @@ void DistCont<Container,ValueType,Partitioner>::scatter() {
     // FOR NON-ASSOCIATIVE CONTAINERS (`erase()' doesn't remove the object,
     // i.e. random-access containers like vectors-deques.)
     for (iter = this->begin(); iter != this->end(); iter++) 
-      if (!belongs(iter,plist)) erase(iter);
+      if (!belongs(iter,plist)) this->erase(iter);
   } else if (iter_mode == associative_iter_mode) {
     //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:
     //FOR ASSOCIATIVE CONTAINERS (`erase()' does remove the object,
@@ -133,7 +133,7 @@ void DistCont<Container,ValueType,Partitioner>::scatter() {
     while (1) {
       iter = this->begin();
       if (belongs(iter,plist) || iter == this->end()) break;
-      erase(iter);
+      this->erase(iter);
     }
     if (iter != this->end()) {
       // This implementation is very careful with respect to not reusing
@@ -149,7 +149,7 @@ void DistCont<Container,ValueType,Partitioner>::scatter() {
 	if (belongs(next,plist)) {
 	  iter = next;		// advance iterator
 	} else {
-	  erase(next);		// remove item
+	  this->erase(next);		// remove item
 	}
       }
     }
