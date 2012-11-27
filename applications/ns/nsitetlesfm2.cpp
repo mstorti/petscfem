@@ -170,6 +170,8 @@ assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
   }
   //o Add LES for this particular elemset.
   SGETOPTDEF(int,LES,0);
+  //o Add LES/SUPG interaction for this particular elemset.
+  SGETOPTDEF(int,les_supg_interaction,0);
   //o Cache  #grad_div_u#  matrix
   SGETOPTDEF(int,cache_grad_div_u,0);
   //o Smagorinsky constant.
@@ -636,7 +638,7 @@ assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
 	  resmom.axpy(tmp11,-wpgdet);
 	}
 	
-	if (LES) {
+	if (LES && les_supg_interaction) {
 	  double nu_str = nu_t - tau_supg * square(velmod);
 	  if (nu_str < 0.0) nu_str = 0.0;
 	  nu_str -= nu_t;
