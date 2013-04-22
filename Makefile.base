@@ -267,8 +267,12 @@ endif
 	$(CXX) -E ${CFLAGS} $(CPPFLAGS) $< > $@ ; chmod u-w $@
 
 #w Extension functions
+EFN_LIBRARY_PATH:=
+ifneq ($(EFN_LIBRARY_PATH),)
+EFNLIBS:=-Wl$(EFN_LIBRARY_PATH)
+endif
 %.efn: %.o
-	${CXX_CLINKER} -g -shared -Wl$(EFN_LIBRARY_PATH) -o $@ $< $(EFN_LDFLAGS)
+	${CXX_CLINKER} -g -shared $(EFNLIBS) -o $@ $< $(EFN_LDFLAGS)
 
 #w Guile snarfer files
 %.x: %.cpp
