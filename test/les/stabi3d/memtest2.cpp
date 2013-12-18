@@ -144,7 +144,7 @@ int main(int argc,char **argv) {
       }
     }
     checked++;
-    if (checked % 100==0) 
+    if (checked % report==0) 
       fprintf(output,"checked %d, failed %d\n",checked,failed);
   }
   for (int j=0; j<nblocks; j++) {
