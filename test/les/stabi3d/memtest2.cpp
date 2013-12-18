@@ -1,13 +1,16 @@
 //__INSERT_LICENSE__
 // $Id: memtest2.cpp,v 1.7 2004/07/19 11:47:42 mstorti Exp $
-#define _GNU_SOURCE
+// #define _GNU_SOURCE
 #include <cstdlib>
 #include <cstdio>
 #include <cmath>
-#include <vector>
-#include <algorithm>
+#include <cstring>
 #include <unistd.h>
 #include <ctype.h>
+#include <cassert>
+
+#include <vector>
+#include <algorithm>
 
 using namespace std;
 
@@ -47,7 +50,7 @@ int main(int argc,char **argv) {
   int len;
   double block_size_m = 1.0;
   int block_size;
-  double ramp;
+  double ramp=0.95;
 
   while ((c = getopt(argc, argv, "s:l:m:p:g:h")) != -1) {
     switch (c) {
@@ -105,15 +108,17 @@ int main(int argc,char **argv) {
   MAX = int(double(RAND_MAX)/3.0);
   vector<int *> buffers;
   vector<int> check_sums;
+  int vrbs = 0;
   while (1) {
     int *p = (int *)malloc(sizeof(int)*block_size);
     if(!p) break;
     rand_fill(p,block_size);
     buffers.push_back(p);
-    fprintf(output,"%.2f MB alloc\n",
-	   double(buffers.size())
-	   *double(block_size)*double(sizeof(int))
-	   /pow(2.,20.));
+    if(vrbs)
+      fprintf(output,"%.2f MB alloc\n",
+              double(buffers.size())
+              *double(block_size)*double(sizeof(int))
+              /pow(2.,20.));
     if (buffers.size() >= nblocks) break;
   }
   nblocks = buffers.size();
@@ -139,7 +144,8 @@ int main(int argc,char **argv) {
       }
     }
     checked++;
-    if (checked % 100) fprintf(output,"checked %d, failed %d\n",checked,failed);
+    if (checked % 100==0) 
+      fprintf(output,"checked %d, failed %d\n",checked,failed);
   }
   for (int j=0; j<nblocks; j++) {
     free(buffers[j]);
