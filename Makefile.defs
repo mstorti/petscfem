@@ -30,6 +30,7 @@ GLIB_LIB_DIR = /usr/lib64
 else
 GLIB_LIB_DIR = /usr/lib
 endif
+## This dir is where `glibconfig.h' lives 
 GLIB_INC_CFG = ${GLIB_LIB_DIR}/glib-2.0/include
 GLIB_LIBNAME = glib-2.0
 

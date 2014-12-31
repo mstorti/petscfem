@@ -17396,3 +17396,9 @@ Guillermo. Practicamente sería igual a la `mstorti-v31-start' que esa
 si la tengo `mstorti-v37-start-121-g8025681'. 
 %
 Hay que ver porque dan diferente. 
+
+%=== Wed Dec 31 17:02:35 2014 mstorti@galileo
+%
+%----2014-12-31.20:02:35.mstorti-v39-start-17-g9cc03fa-----
+Al actualizar a Fedora21 en galileo me da error al linkeditar cblas
+con Atlas. Entonces tengo que cambiar 

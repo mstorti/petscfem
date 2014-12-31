@@ -48,7 +48,7 @@ namespace Sparse {
 
   extern Scale scale_fun_obj;
 
-  typedef double ScalarFunD(double v,void * user_data = NULL);
+  typedef double ScalarFunD(double v,void * user_data);
   typedef double ScalarFun(double v);
 
   class ScalarFunWrapper : public ScalarFunObj {

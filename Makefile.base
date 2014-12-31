@@ -379,7 +379,7 @@ else
 ifneq ($(ATLAS_INC_DIR),)
 ## $(info using ATLAS!!)
 CPPFLAGS += -I$(ATLAS_INC_DIR)
-MKL_LDFLAGS := -L$(ATLAS_LIB_DIR) -lcblas
+MKL_LDFLAGS := -L$(ATLAS_LIB_DIR) -lblas -ltatlas
 LDFLAGS += $(MKL_LDFLAGS)
 LDFLAGS_NO_PROG_LIB += $(MKL_LDFLAGS)
 CBLAS_FOUND := yes
