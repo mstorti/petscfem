@@ -62,7 +62,7 @@ $(LIBPETSCFEM)(%.o): %.o
 # 2015-06-04: ar ru gives error now "ar: `u' modifier ignored since
 # `D' is the default (see `U')"
 # The I remove u and add D, which is the default anyway
-	ar Dr $@ $<
+	ar Uur $@ $<
 	-rm -f $<
 
 .SECONDARY: fm2eperl.cpp
