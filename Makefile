@@ -294,4 +294,10 @@ clean_O:
 sync:
 	cvs up .
 
+#w Init the repo (do link forf .git/info/exclude for instance)
+init:
+	if [ ! -L ./.git/info/exclude ] ; then				\
+		ln -sf ../../.git-exclude ./.git/info/exclude ;		\
+	fi
+
 #s
