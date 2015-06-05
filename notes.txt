@@ -17402,3 +17402,11 @@ Hay que ver porque dan diferente.
 %----2014-12-31.20:02:35.mstorti-v39-start-17-g9cc03fa-----
 Al actualizar a Fedora21 en galileo me da error al linkeditar cblas
 con Atlas. Entonces tengo que cambiar 
+
+%=== Fri Jun  5 08:00:16 2015 mstorti@galileo
+%
+%----2015-06-05.11:00:16.mstorti-v39-start-20-g3ce448b-----
+Using GCC 5.1.1 at compilation "ar" complies with "ar: `u' modifier
+ignored since `D' is the default (see `U')" D means "deterministic" so
+that it doesn't store timestamps UIDs etc... So I added -U because I
+need timestamps. So now the options are -Uur. 
