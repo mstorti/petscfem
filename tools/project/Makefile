@@ -27,6 +27,8 @@ project2.bin: project2.o
 project3.bin: project3.o project.o
 	${CXX_CLINKER} -o $@ $^  $(LDFLAGS_NO_PROG_LIB)
 
+#w Make "project4.bin" which projects results from a FEM mesh
+# to another
 project4.bin: project4.o project.o
 	${CXX_CLINKER} -o $@ $^  $(LDFLAGS_NO_PROG_LIB)
 
@@ -46,3 +48,6 @@ fluent.dx: fluent-in.dx
 	make-depl $< $@
 
 #s
+
+what:
+	@makewhat.pl -s Makefile

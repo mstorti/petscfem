@@ -297,7 +297,7 @@ sync:
 #w Init the repo (do link forf .git/info/exclude for instance)
 init:
 	if [ ! -L ./.git/info/exclude ] ; then				\
-		ln -sf ../../.git-exclude ./.git/info/exclude ;		\
+		ln -sf ../../tools/git-exclude ./.git/info/exclude ;	\
 	fi
 
 #s
