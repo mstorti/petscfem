@@ -295,7 +295,7 @@ void FemInterp::interp(const dvector<double> &xnod2,
       fprintf(fid,"%d %d ",n2+1,k1min+1);
       const double *L = Lmin.storage_begin();
       for (int j=0; j<nel; j++)
-        fprintf(fid,"%f ",L[j]);
+        fprintf(fid,"%.15f ",L[j]);
       fprintf(fid,"\n");
     }
     u1_loc.rs();

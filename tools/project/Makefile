@@ -1,7 +1,7 @@
 #__INSERT_LICENSE__
 .PHONY: all
 
-default: project3.bin
+default: project4.bin
 
 SRCS := project.cpp project2.cpp project3.cpp project4.cpp \
 	project-wrp.cpp project5.cpp
@@ -48,6 +48,8 @@ fluent.dx: fluent-in.dx
 	make-depl $< $@
 
 #s
+#what:
+#	@makewhat.pl -s Makefile
 
-what:
-	@makewhat.pl -s Makefile
+tags2:
+	etags *.cpp *.h 
