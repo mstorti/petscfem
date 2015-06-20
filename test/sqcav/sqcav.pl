@@ -6,6 +6,7 @@ get_var_env('case',undef);
 print "# case entering sqcav.pl: $case\n";
 get_var_env('meas_perf',undef);
 get_var_env('use_triangles',0);
+$use_triangles = 0;
 
 $press_term=0;
 if ($case eq 'press_term') {

@@ -2,7 +2,7 @@ require "$ENV{'PETSCFEM_DIR'}/test/eperlini.pl";# Initializes ePerl
 get_var_env('weak_form',0);
 get_var_env('case',undef);
 get_var_env('meas_perf',undef);
-$use_triangles=0;
+$use_triangles=1;
 $save_file = ($case ? "sqcav.$case.tmp" : "sqcav.state.tmp");
 $ref_file = "sqcav.$case.ref";
 
@@ -37,6 +37,7 @@ $nstep = 500;
 $weak_form = 0;
 $cache_gdu = 0;
 $update_jacobian =0;
+$nel = ($use_triangles? 3 : 4);
 
 # `scalar' avoids returning the first match, which can be zero
 # and then can be interpreted as `false' 
@@ -75,6 +76,7 @@ if (scalar $case =~ /weak_form_(\d)/) {
     die "don't know case \"$case\"\n";
 }
 $fractional_step = 1;
+$elemset = (!$fractional_step ? nsi_tet_les_fm2 : fracstep_fm2);
 # if ($fractional_step) { $solver = "iisd"; }
 #
 #__END_TRANSCRIPT__

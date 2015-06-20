@@ -89,7 +89,7 @@ endif
 output_file := output.CASE_$(CASE).np_$(np).case_$(case)$(meas_perf).out.tmp
 
 #w Runs program
-np = 2
+np = 4
 run:  data
 	-${MPIEXEC} $(MCH) -n $(np) $(PROG) -case $(CASE).depl \
 	 	      	   $(REDIR) $(output_file)

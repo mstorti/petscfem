@@ -7,6 +7,7 @@
 #include <cstdarg>
 #include <cassert>
 #include <vector>
+#include <typeinfo>
 #include <src/fem.h>
 #define CHUNK_SIZE_INIT 10000
 
@@ -387,7 +388,8 @@ clone(const dvector<T> &w) {
 template<class T>
 dvector<T>& dvector<T>::
 axpy(double alpha,const dvector<T> &w) {
-  assert(0);
+  PETSCFEM_ERROR("Not implemented yet for type haha %s",
+                 typeid(T).name());  
   return *this;
 }
 
@@ -395,7 +397,7 @@ axpy(double alpha,const dvector<T> &w) {
 template<class T>
 dvector<T>& dvector<T>::
 scale(double alpha) {
-  assert(0);
+  PETSCFEM_ERROR0("Not implemented yet");  
   return *this;
 }
 
