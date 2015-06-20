@@ -379,10 +379,16 @@ else
 ifneq ($(ATLAS_INC_DIR),)
 ## $(info using ATLAS!!)
 CPPFLAGS += -I$(ATLAS_INC_DIR)
-MKL_LDFLAGS := -L$(ATLAS_LIB_DIR) -lblas -ltatlas
 LDFLAGS += $(MKL_LDFLAGS)
 LDFLAGS_NO_PROG_LIB += $(MKL_LDFLAGS)
 CBLAS_FOUND := yes
+
+ifeq ($(ATLAS_LIBS),)
+ATLAS_LIBS := -lblas -ltatlas
+endif
+
+MKL_LDFLAGS := -L$(ATLAS_LIB_DIR) $(ATLAS_LIBS)
+
 else
 $(warning No CBLAS library found. Must set the MKLPATH or ATLAS_(LIB|INC)_DIR) variables)
 endif
@@ -396,8 +402,12 @@ PROG_LIB = lib$(PROG)$(osfx).a
 $(PROG_LIB): $(PROG_LIB)($(LIBOBJS))
 	ranlib $@
 
+ifeq ($(ARCMD),)
+ARCMD := ar Uur
+endif
+
 $(PROG_LIB)(%.o): %.o
-	ar Uur $@ $<
+	$(ARCMD) $@ $<
 	-rm -f $<
 
 PROG_BIN = $(PROG)$(osfx).bin
@@ -532,3 +542,4 @@ endif
 	ar x $<
 	$(CXX_CLINKER) -shared -o $@ *.o
 	-rm -f *.o
+

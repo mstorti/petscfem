@@ -58,7 +58,7 @@ $(LIBPETSCFEM): $(LIBPETSCFEM)($(LIBOBJS))
 	ranlib $@
 
 $(LIBPETSCFEM)(%.o): %.o
-	ar Uur $@ $<
+	$(ARCMD) $@ $<
 	-rm -f $<
 
 .SECONDARY: fm2eperl.cpp

@@ -104,3 +104,11 @@ DEVELOPER_MODE := no
 
 ATLAS_LIB_DIR := /usr/lib64/atlas
 ATLAS_INC_DIR := /usr/include/atlas
+# Now the ATLAS libraries are: libblas and libtatlas. 
+# For older versions ATLAS: libcblas. In that case 
+# uncomment the following line
+# ATLAS_LIBS := -lcblas
+
+## `ar' commands have changed. If you receive complaints 
+## from `ar' then uncomment this
+## ARCMD := ar ru
