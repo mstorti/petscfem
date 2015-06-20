@@ -349,6 +349,10 @@ Free surface algorithms.
 
 Adaptive refinement. 
 
+=item Pablo Kler * C<< <pabloakler@gmail.com> >>
+
+Electrokinetic module. 
+
 =back 
 
 * CIMEC, Internacional Center for Computational Methods in Engineering,

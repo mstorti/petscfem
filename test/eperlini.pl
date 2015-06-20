@@ -422,7 +422,7 @@ sub asave {
 ##   ...
 ##   <:print_hook:>
 sub add_hook {
-    @hook_list = () unless defined @hook_list;
+    @hook_list = () unless @hook_list;
     push @hook_list,@_;
 }
 

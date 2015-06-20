@@ -152,8 +152,10 @@ void FemInterp::interp(const dvector<double> &xnod2,
   assert(xnod2.size(1) == ndim);
   ui.a_resize(2,nnod2,ndof).defrag();
 
-  double d2min=NAN;			// Minimum distance to elements in mesh1
-  int k1min=0;			// Element in mesh1 with minimum distance
+  // Minimum distance to elements in mesh1
+  double d2min=NAN;
+  // Element in mesh1 with minimum distance
+  int k1min=0; 
 
   nn_idx_v.resize(knbr);
   ANNidx *nn_idx = &nn_idx_v[0];
@@ -293,7 +295,7 @@ void FemInterp::interp(const dvector<double> &xnod2,
       fprintf(fid,"%d %d ",n2+1,k1min+1);
       const double *L = Lmin.storage_begin();
       for (int j=0; j<nel; j++)
-        fprintf(fid,"%f ",L[j]);
+        fprintf(fid,"%.15f ",L[j]);
       fprintf(fid,"\n");
     }
     u1_loc.rs();

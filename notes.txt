@@ -17365,3 +17365,48 @@ Implementado la libreria FMGEMM.
 %--[2011-11-20.23:33:54.mstorti-v38-start-21-g4f024c2]-----
 Corre todos los tests (pero con FMGEMM desactivado, o sea 
 prod2_subcache_t::nmax=0). 
+
+%=== Wed Jul  4 13:10:20 2012 mstorti@galileo
+%
+%--[2012-07-04.16:10:20.mstorti-v39-start-11-g62943cb]-----
+
+Luciano reporta que no le andan bien las condiciones abosrbentes en la
+tobera, mientas que antes si andaban. Me dice que la version que 
+-| Versión que tengo compilada en aquiles (NO FUNCA)
+-| 
+-| Advective-Diffusive module built on Jul  4 2012, 12:49:14, with GCC 4.3.0
+-| on host: Linux aquiles 2.6.24 #1 SMP Thu Nov 20 \
+-|          13:21:28 ARST 2008 x86_64 x86_64 x86_64 GNU/Linux
+-| PETSc-FEM Version mstorti-v36-end-121-g8025681 (Git)
+-| Full Commit: 8025681db478cb142390894fced123b1dfbb8213
+-| Date: Sat Mar 31 13:48:54 2012 -0300
+-| 
+-| Versión tomada desde el path de guillermo  /u/hgcastro/PETSc-FEM/petscfem
+-| (FUNCA)
+-| 
+-| Advective-Diffusive module built on Nov 29 2011, 12:48:13, with GCC 4.3.0
+-| on host: Linux aquiles 2.6.24 #1 SMP Thu Nov 20 \
+-|          13:21:28 ARST 2008 x86_64 x86_64 x86_64 GNU/Linux
+-| PETSc-FEM Version mstorti-v36-end-73-g29bf4b0 'clean (Git)
+-| Full Commit: 29bf4b0395d55224d2bfb2ad3d896926f6490f6c
+-| Date: <unknown>
+
+Ahora bien la 29bf4b039 es una version con pequeñas modificaaciones de
+Guillermo. Practicamente sería igual a la `mstorti-v31-start' que esa
+si la tengo `mstorti-v37-start-121-g8025681'. 
+%
+Hay que ver porque dan diferente. 
+
+%=== Wed Dec 31 17:02:35 2014 mstorti@galileo
+%
+%----2014-12-31.20:02:35.mstorti-v39-start-17-g9cc03fa-----
+Al actualizar a Fedora21 en galileo me da error al linkeditar cblas
+con Atlas. Entonces tengo que cambiar 
+
+%=== Fri Jun  5 08:00:16 2015 mstorti@galileo
+%
+%----2015-06-05.11:00:16.mstorti-v39-start-20-g3ce448b-----
+Using GCC 5.1.1 at compilation "ar" complies with "ar: `u' modifier
+ignored since `D' is the default (see `U')" D means "deterministic" so
+that it doesn't store timestamps UIDs etc... So I added -U because I
+need timestamps. So now the options are -Uur. 

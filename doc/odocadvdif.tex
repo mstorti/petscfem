@@ -41,6 +41,13 @@ Chooses automatically the time step from the
 selected Courant number
  (found in file: \verb+advdif.cpp+)
 %----<>----<>----<>----<>----<>----<>----<>----<>----<>----<>
+\index{check\_for\_inf@\verb+check_for_inf+}
+\item\verb+int check_for_inf+ {\rm(default=\verb|0|)}:
+
+Check whether the states are finite (not Inf or NaN).
+ If this happens the program stops. 
+ (found in file: \verb+advdif.cpp+)
+%----<>----<>----<>----<>----<>----<>----<>----<>----<>----<>
 \index{consistent\_supg\_matrix@\verb+consistent_supg_matrix+}
 \item\verb+int consistent_supg_matrix+ {\rm(default=\verb|0|)}:
 

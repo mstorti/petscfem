@@ -267,8 +267,12 @@ endif
 	$(CXX) -E ${CFLAGS} $(CPPFLAGS) $< > $@ ; chmod u-w $@
 
 #w Extension functions
+EFN_LIBRARY_PATH:=
+ifneq ($(EFN_LIBRARY_PATH),)
+EFNLIBS:=-Wl$(EFN_LIBRARY_PATH)
+endif
 %.efn: %.o
-	${CXX_CLINKER} -g -shared -Wl$(EFN_LIBRARY_PATH) -o $@ $< $(EFN_LDFLAGS)
+	${CXX_CLINKER} -g -shared $(EFNLIBS) -o $@ $< $(EFN_LDFLAGS)
 
 #w Guile snarfer files
 %.x: %.cpp
@@ -375,7 +379,7 @@ else
 ifneq ($(ATLAS_INC_DIR),)
 ## $(info using ATLAS!!)
 CPPFLAGS += -I$(ATLAS_INC_DIR)
-MKL_LDFLAGS := -L$(ATLAS_LIB_DIR) -lcblas
+MKL_LDFLAGS := -L$(ATLAS_LIB_DIR) -lblas -ltatlas
 LDFLAGS += $(MKL_LDFLAGS)
 LDFLAGS_NO_PROG_LIB += $(MKL_LDFLAGS)
 CBLAS_FOUND := yes
@@ -393,7 +397,7 @@ $(PROG_LIB): $(PROG_LIB)($(LIBOBJS))
 	ranlib $@
 
 $(PROG_LIB)(%.o): %.o
-	ar ru $@ $<
+	ar Uur $@ $<
 	-rm -f $<
 
 PROG_BIN = $(PROG)$(osfx).bin

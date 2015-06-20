@@ -737,25 +737,25 @@ public:
 
   virtual ~NewElemset() {}
 
-  Elemset::initialize;
-  Elemset::ask;
-  Elemset::name;
-  Elemset::elem_params;
-  Elemset::local_store_address;
-  Elemset::element_node_data;
-  Elemset::element_props;
-  Elemset::element_connect;
-  Elemset::element_vector_values;
-  Elemset::element_ret_vector_values;
-  Elemset::element_ret_fdj_values;
-  Elemset::element_ret_mat_values;
-  Elemset::read;
-  Elemset::clear_error;
-  Elemset::set_error;
-  Elemset::check_error;
-  Elemset::handle_error;
-  Elemset::size;
-  Elemset::option_table;
+  using Elemset::initialize;
+  using Elemset::ask;
+  using Elemset::name;
+  using Elemset::elem_params;
+  using Elemset::local_store_address;
+  using Elemset::element_node_data;
+  using Elemset::element_props;
+  using Elemset::element_connect;
+  using Elemset::element_vector_values;
+  using Elemset::element_ret_vector_values;
+  using Elemset::element_ret_fdj_values;
+  using Elemset::element_ret_mat_values;
+  using Elemset::read;
+  using Elemset::clear_error;
+  using Elemset::set_error;
+  using Elemset::check_error;
+  using Elemset::handle_error;
+  using Elemset::size;
+  using Elemset::option_table;
 
   // Elemset::thash;
   void get_entry(const char *k,const char *&v) const {

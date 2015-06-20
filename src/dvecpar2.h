@@ -23,7 +23,7 @@ public:
 
 template<class T>
 void 
-dvector_clone_parallel(dvector<T> &w,int root=0) {
+dvector_clone_parallel(dvector<T> &w,int root) {
   int size = w.size();
   int PFUNUSED ierr = MPI_Bcast(&size,1,MPI_INT,
 		       root,PETSCFEM_COMM_WORLD);
@@ -57,7 +57,7 @@ dvector_clone_parallel(dvector<T> &w,int root=0) {
 template<class T>
 void 
 dvector_read_parallel(const char *file,
-		      dvector<T> &w,int root=0) {
+		      dvector<T> &w,int root) {
   if (MY_RANK==root) {
     if (w.size()==0) {
       w.cat(file).defrag();

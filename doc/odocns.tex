@@ -42,6 +42,13 @@ Backward Euler.  \verb+alpha=0+ : Forward Euler.
 Coefficient for volume control
  (found in file: \verb+ns.cpp+)
 %----<>----<>----<>----<>----<>----<>----<>----<>----<>----<>
+\index{check\_for\_inf@\verb+check_for_inf+}
+\item\verb+int check_for_inf+ {\rm(default=\verb|0|)}:
+
+Check whether the states are finite (not Inf or NaN).
+ If this happens the program stops. 
+ (found in file: \verb+ns.cpp+)
+%----<>----<>----<>----<>----<>----<>----<>----<>----<>----<>
 \index{delta\_time@\verb+delta_time+}
 \item\verb+double delta_time+ {\rm(default=\verb|0|)}:
 
