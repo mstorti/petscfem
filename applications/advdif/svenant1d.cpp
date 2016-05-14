@@ -33,7 +33,7 @@ void svenant1d_ff::start_chunk(int &ret_options) {
   //o Width of channel
   GF_GETOPTDEF_ND(double,channel_width,0.0);
   assert(channel_width>0.);
-  w = channel_width;
+  w = channel_width=NAN;
 
   //o Gravity acceleration
   GF_GETOPTDEF_ND(double,gravity,0.0);
