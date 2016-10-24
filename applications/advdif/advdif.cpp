@@ -66,6 +66,7 @@ int VecIsFinite(Vec x) {
 #undef __FUNC__
 #define __FUNC__ "advdif_main"
 int advdif_main(int argc,char **args) {
+  setvbuf(stdout,NULL,_IONBF,0);
 
 #ifdef DO_SIZE_STATS
   prod2_subcache_t::do_size_stats=1;
