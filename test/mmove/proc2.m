@@ -12,6 +12,6 @@ else
   printf("Min/max vol %f/%f\n",minv,maxv);
   ratio = maxv/minv;
   max_ratio = 25;
-  printf("Max/min ratio < max_ratio OK ? %d, ratio %f, max_ratio %f\n", \
+  printf("Max/min ratio < max_ratio OK ? %d, ratio %f, max_ratio %f\n", ...
 	 ratio<max_ratio,ratio,max_ratio);
 endif

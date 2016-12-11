@@ -10,7 +10,7 @@ icone = icone(:,[1 4 3 2]);
 #       icone(:,[1 3 4])];
 
 asave("step3d.nod.tmp",xnod);
-asave("step3d.con.tmp",icone);
+asavecon("step3d.con.tmp",icone);
 
 tol=1e-5;
 x0 = find(abs(xnod(:,1))<tol);

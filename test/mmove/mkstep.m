@@ -11,7 +11,7 @@ if !strcmp(shape,"quad")
 endif
 
 asave("step.nod.tmp",xnod);
-asave("step.con.tmp",icone);
+asavecon("step.con.tmp",icone);
 
 fid = fopen("step.fixa.tmp","w");
 for k=1:N+1

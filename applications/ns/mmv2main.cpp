@@ -175,6 +175,9 @@ int mmove2_main() {
     Debug::init();
   }
 
+  // Force using handles
+  GLOBAL_OPTIONS->add_entry("use_arg_handles","1",0);
+
   //o Activate printing in debugging
   GETOPTDEF(int,activate_debug_print,0);
   if (activate_debug_print) debug.activate("print");

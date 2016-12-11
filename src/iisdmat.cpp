@@ -97,6 +97,9 @@ PFPETScMat::PFPETScMat(int MM,const DofPartitioner &pp,MPI_Comm comm_)
   }
 }
 
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>
+Mat PFPETScMat::get_petsc_mat() { return A; }
+
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 int PFPETScMat::clean_prof_a() { 
   lgraph->clear(); 

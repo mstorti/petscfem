@@ -112,3 +112,6 @@ ATLAS_INC_DIR := /usr/include/atlas
 ## `ar' commands have changed. If you receive complaints 
 ## from `ar' then uncomment this
 ## ARCMD := ar ru
+
+## For HDF5 datafile support
+HDF5LIBS := -lhdf5 -lhdf5_cpp

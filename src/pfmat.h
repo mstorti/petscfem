@@ -80,6 +80,7 @@ protected:
   int solve_only_A() { return solve_only_a(*res_p,*dx_p); }
 
 public:
+  virtual Mat get_petsc_mat() { return Mat(NULL); }
   /// This is the `factory' of `PFMat' matrices.
   static PFMat *dispatch(int N,DofPartitioner &part,const char *s);
 

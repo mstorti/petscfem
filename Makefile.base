@@ -347,7 +347,7 @@ LDFLAGS = $(LDDBGFLAG)				\
           $(SUPERLU_LDFLAGS)			\
 	  $(SSL_LDFLAGS)			\
 	  $(PETSC_LDFLAGS)			\
-	  $(OMP_LDFLAGS)
+	  $(OMP_LDFLAGS) $(HDF5LIBS)
 
 LDFLAGS_NO_PROG_LIB =				\
 	  $(LDDBGFLAG)				\
@@ -363,7 +363,7 @@ LDFLAGS_NO_PROG_LIB =				\
 	  $(SSL_LDFLAGS)			\
           $(SUPERLU_LDFLAGS)			\
 	  $(PETSC_LDFLAGS)			\
-	  $(OMP_LDFLAGS)
+	  $(OMP_LDFLAGS) $(HDF5LIBS)
 
 CBLAS_FOUND := no
 

@@ -110,6 +110,7 @@ public:
   virtual int build_ksp();
   virtual int set_preco(const string & preco_type);
   int monitor(int n,double rnorm);
+  Mat get_petsc_mat();
 
   /// Adds an element to the matrix profile
   int set_profile_a(int j,int k) {
