@@ -95,7 +95,7 @@ void h5petsc_mat_save(Mat J, const char *filename) {
 
   H5::DataSet dscols =
     file.createDataSet("cols",H5::PredType::NATIVE_INT,dataspace);
-  dsrows.write(cols.data(),H5::PredType::NATIVE_INT);
+  dscols.write(cols.data(),H5::PredType::NATIVE_INT);
 
   H5::DataSet dsvals =
     file.createDataSet("vals",H5::PredType::NATIVE_DOUBLE,dataspace);
@@ -109,6 +109,18 @@ void h5petsc_mat_save(Mat J, const char *filename) {
   H5::DataSet dssz =
     file.createDataSet("sizes",H5::PredType::NATIVE_INT,ds2);
   dssz.write(sz.data(),H5::PredType::NATIVE_INT);
+}
+
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>
+int h5petsc_vec_save(Vec x,const char *filename,const char *varname) {
+  PetscObjectSetName((PetscObject)x,varname);
+  PetscViewer viewer;
+  int ierr;
+  ierr = PetscViewerHDF5Open(PETSC_COMM_WORLD,filename,
+			     FILE_MODE_WRITE,&viewer); CHKERRQ(ierr);
+  ierr = VecView(x,viewer);CHKERRQ(ierr);
+  ierr = PetscViewerDestroy(&viewer); CHKERRQ(ierr);
+  return ierr;
 }
 
 //-------<*>-------<*>-------<*>-------<*>-------<*>------- 
@@ -604,8 +616,8 @@ int advdif_main(int argc,char **args) {
         }
 #else
         Mat AA = A->get_petsc_mat();
-        printf("AA %p\n",AA);
-        // h5petsc_mat_save(AA,"adfdifsys.h5");
+        h5petsc_mat_save(AA,"advdifsys.h5");
+        h5petsc_vec_save(res,"res.h5","res");
 #endif
 	PetscFinalize();
 	exit(0);
