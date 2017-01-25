@@ -15,6 +15,13 @@ extern int MY_RANK,SIZE;
 
 #define MPI_TYPE_UNDEFINED INT_MAX
 
+// In some installations, depending on the sepcifics of MPI
+// it seems that MPI_DATATYPE is a pointer and then it
+// complains when compared to an INT_MAX. I tried to use the
+// following define and obvioulsy it complains but I didn't confirm
+// if it really works. 
+// #define MPI_TYPE_UNDEFINED NULL
+
 template<class T>
 class dvector_mpi_type {
 public:

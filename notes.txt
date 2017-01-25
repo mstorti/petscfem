@@ -17410,3 +17410,54 @@ Using GCC 5.1.1 at compilation "ar" complies with "ar: `u' modifier
 ignored since `D' is the default (see `U')" D means "deterministic" so
 that it doesn't store timestamps UIDs etc... So I added -U because I
 need timestamps. So now the options are -Uur. 
+
+%=== Tue Jan 24 09:12:56 2017 mstorti@galileo
+%
+%----2017-01-24.12:12:56.mstorti-v39-start-31-gbbf0731-----
+Ver que en la máquina de Bruno (Kubuntu) da
+%
+/usr/include/glib-2.0/glib/gversionmacros.h:237:2: error: #error "GLIB_VERSION_MIN_REQUIRED must be >= GLIB_VERSION_2_26" 
+#error "GLIB_VERSION_MIN_REQUIRED must be >= GLIB_VERSION_2_26" 
+ ^ 
+In file included from /usr/include/glib-2.0/glib/galloca.h:32:0, 
+                from /usr/include/glib-2.0/glib.h:30, 
+                from ../../src/texthash.h:13, 
+                from ../../src/fem.h:34, 
+                from ../../src/utils.h:12, 
+                from distmat.cpp:10: 
+/usr/include/glib-2.0/glib/gtypes.h:501:2: error: #error unknown ENDIAN type 
+#error unknown ENDIAN type
+%
+%----2017-01-25.13:22:28.mstorti-v39-start-31-gbbf0731-----
+Resulta que hay un problema con la definición de MPI_DATATYPE. En
+algunas instalaciones (hasta ahora) parecía ser un int y en otras un
+puntero. El MPI_TYPE_UNDEFINED era un macro que inventé yo y debería
+ser un tipo que nunca se usa (como el puntero nulo). Si el header de
+dvector encuentra que un dvector<T> para ese T no tiene definido el
+MPI_DATATYPE entonces lo manda como MPI_CHAR. La cosa es que cuando
+era int lo defini como 
+%
+#define MPI_TYPE_UNDEFINED INT_MAX 
+%
+(muy trycky) pero después resulta que ahora parece que es un puntero
+entonces lo que se podría usar es 
+%
+#define MPI_TYPE_UNDEFINED NULL
+%
+Probe de esa forma y a Bruno le compiló bien (OJO después hay que ver
+si realmente funciona). 
+%
+%----2017-01-25.13:52:57.mstorti-v39-start-31-gbbf0731-----
+Constato que en los headers de MPI que tengo la definicion es
+%
+typedef int MPI_Datatype;
+%
+Pareceria que en el de Bruno debe tener que es pointer o algo sí. Ahí
+se lo pedí.
+%
+%----2017-01-25.14:07:31.mstorti-v39-start-31-gbbf0731-----
+Me bajo la ultima version de MPICH 3.2 de la pagina y sigue estando
+como "int". 
+%
+%----2017-01-25.14:19:15.mstorti-v39-start-31-gbbf0731-----
+En cuanto 

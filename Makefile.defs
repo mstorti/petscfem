@@ -33,6 +33,18 @@ endif
 ## This dir is where `glibconfig.h' lives 
 GLIB_INC_CFG = ${GLIB_LIB_DIR}/glib-2.0/include
 GLIB_LIBNAME = glib-2.0
+## NOTE: If have trouble configuring GLIB try using "pkg-config"
+##
+## $ pkg-config --cflags glib-2.0   ## This gives you the INC dirs
+## -> -I/usr/include/glib-2.0 -I/usr/lib64/glib-2.0/include
+##
+## $ pkg-config --libs glib-2.0  ## This gives the LIBNAME 
+## -> -lglib-2.0
+##
+## Then use:
+## GLIB_INC_DIR = /usr/include/glib-2.0
+## GLIB_INC_CFG = /usr/lib64/glib-2.0/include
+## GLIB_LIBNAME = glib-2.0
 
 PF_PKG_DIR = $(PETSCFEM_DIR)/../petscfem-packages
 ANN      = $(PF_PKG_DIR)
