@@ -179,6 +179,7 @@ CPPFLAGS := \
 	$(ANN_CPPFLAGS)		\
 	$(SSL_CPPFLAGS)		\
 	$(SUPERLU_CPPFLAGS)	\
+	$(HDF5_FLAGS)
 
 ifeq ($(USE_OPENMP),yes) 
 CPPFLAGS += -fopenmp

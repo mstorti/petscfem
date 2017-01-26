@@ -1,7 +1,9 @@
 //__INSERT_LICENSE__
 //$Id: advdif.cpp,v 1.71.10.2 2007/02/23 19:18:07 rodrigop Exp $
 
+#ifdef USE_HDF5
 #include "H5Cpp.h"
+#endif
 
 #include <src/debug.h>
 #include <set>
@@ -64,6 +66,7 @@ int VecIsFinite(Vec x) {
 }
 #endif
 
+#ifdef USE_HDF5
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>
 void h5petsc_mat_save(Mat J, const char *filename) {
   int m,n;
@@ -122,6 +125,7 @@ int h5petsc_vec_save(Vec x,const char *filename,const char *varname) {
   ierr = PetscViewerDestroy(&viewer); CHKERRQ(ierr);
   return ierr;
 }
+#endif
 
 //-------<*>-------<*>-------<*>-------<*>-------<*>------- 
 #undef __FUNC__
@@ -591,7 +595,7 @@ int advdif_main(int argc,char **args) {
       
       if (print_linear_system_and_stop && 
 	  inwt==inwt_stop && tstep==time_step_stop) {
-#if 0
+#ifndef USE_HDF5
 	PetscPrintf(PETSCFEM_COMM_WORLD,
 		    "Printing residual and matrix for debugging and stopping..\n");
 	PetscViewer matlab;
