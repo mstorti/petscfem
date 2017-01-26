@@ -599,14 +599,19 @@ int advdif_main(int argc,char **args) {
 			       "mat.output",&matlab); CHKERRA(ierr);
 	ierr = PetscViewerSetFormat_WRAPPER(matlab, 
 			       PETSC_VIEWER_ASCII_MATLAB,"res");
+
+	PetscObjectSetName((PetscObject)res,"Vec_0");
 	ierr = VecView(res,matlab);
 	if (solve_system) {
 	  ierr = PetscViewerSetFormat_WRAPPER(matlab, 
 				 PETSC_VIEWER_ASCII_MATLAB,"dx");
 	  ierr = VecView(dx,matlab);
 	}
+
 	ierr = PetscViewerSetFormat_WRAPPER(matlab, 
 			       PETSC_VIEWER_ASCII_MATLAB,"A");
+	Mat AP = A->get_petsc_mat();
+	PetscObjectSetName((PetscObject)AP,"Mat_1");
 	ierr = A->view(matlab);
 	print_vector(save_file_res.c_str(),res,dofmap,&time); // debug:=
         if (ADVDIF_CHECK_JAC) {
