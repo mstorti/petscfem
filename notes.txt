@@ -13078,8 +13078,8 @@ Copio el mail que le envio
 > 
 > Tiene lo del preco/dual-time. Hice unos cambios
 > 
-> * lo del advdife especifico para el preco/dual-time ahora está en
->  una función `new_assemble_preco', entonces al entrar en
+> * lo del advdife especifico para el preco/dual-time ahora estÃ¡ en
+>  una funciÃ³n `new_assemble_preco', entonces al entrar en
 >  `new_assemble' asse lo siguiente:
 > 
 > >   if (use_GCL_compliant) {
@@ -13095,23 +13095,23 @@ Copio el mail que le envio
 > * El precoflag ahora no se lee mas del archivo de datos, sino que
 >  setea en el `dual_time_main()'. Es decir que al llamar al programa
 >  con `-code dual_time' se setea la variable `precoflag' y queda
->  prendida para toda la corrida. La variable está guardad en
->  `GLOB_PARAM' así que para verla hay que hacer, por ejemplo
+>  prendida para toda la corrida. La variable estÃ¡ guardad en
+>  `GLOB_PARAM' asÃ­ que para verla hay que hacer, por ejemplo
 > 
 >    extern GlobParam *GLOB_PARAM;
 > 
 >    if (GLOB_PARAM->precoflag) {  ...   }
 > 
->   Si no nos gusta, y queremos volver a pasarla como opción en la
->   tabla se puede volver atrás.
+>   Si no nos gusta, y queremos volver a pasarla como opciÃ³n en la
+>   tabla se puede volver atrÃ¡s.
 > 
-> * El `advabso' ahora quedó el que dejaste vos, es decir con las
->  modificaciones para el precoflag, que creo eran pocas y no jodían
+> * El `advabso' ahora quedÃ³ el que dejaste vos, es decir con las
+>  modificaciones para el precoflag, que creo eran pocas y no jodÃ­an
 >  demasiado.
 > 
-> Yo corrí el ejemplo con el `advabsow' que tenía y corre. Probe a
+> Yo corrÃ­ el ejemplo con el `advabsow' que tenÃ­a y corre. Probe a
 > ponerle el precoflag (es decir corriendo con -code dual_time) y
-> también corre, por supuesto reemplazando el elemset `gasflow' por
+> tambiÃ©n corre, por supuesto reemplazando el elemset `gasflow' por
 > `gasflow_preco'.
 > 
 > Entonces me parece que lo que falta ahora es que le agregues al
@@ -13427,13 +13427,13 @@ encima del que tenia. Corro con la version CTX1 y efectivamente para
 este caso anda en 4.5secs/Mprtcls. 
 %
 %-- 17:38:07 -- mstorti-v24-end-2-g3db44ea -----
-Recupero el estado que tenía cuando hice esas pruebas. Directamente
-exporto una nueva versión en un directorio petscfem-cpy:
+Recupero el estado que tenÃ­a cuando hice esas pruebas. Directamente
+exporto una nueva versiÃ³n en un directorio petscfem-cpy:
 petscfem:    version 63b456 de 2009-03-19 14:17
-trcprtf.cpp: versión 031eec de 2009-03-19 14:44
+trcprtf.cpp: versiÃ³n 031eec de 2009-03-19 14:44
 %
 %-- 17:41:11 -- mstorti-v24-end-2-g3db44ea -----
-Si efectivamente con esa combinación recupero la tasa de
+Si efectivamente con esa combinaciÃ³n recupero la tasa de
 4.5~secs/Mprtcls.
 %
 Del mas nuevo al mas viejo
@@ -13492,7 +13492,7 @@ sincronizacion al escribir.
 %-- 10:26:21 -- fastmat2-omp-start -----
 Empiezo a ver el tema de FastMat2 + OpenMP. Empiezo una branch
 nueva, ya que tengo miedo introducir modificaciones no deseadas al
-código de FastMat2. 
+cÃ³digo de FastMat2. 
 %
 Como referencia, corriendo en galileo, el pico de eficiencia se
 obtiene para matrices de 30x30, con N=1000. 
@@ -13522,9 +13522,9 @@ O sea que al agregarle el OMP, y con 1 solo thread la eficiencia baja
 un factor 2.5!!
 %
 %-- 14:30:28 -- fastmat2-omp-start-1-g4296408 -----
-Eso es medio raro porque para esos parámetros la cantidad de tarea que
-se está haciendo no es despreciable. Para cada línea se están haciendo
-unas 30 operaciones. Hmmm será eso, tal vez convendría probar con
+Eso es medio raro porque para esos parÃ¡metros la cantidad de tarea que
+se estÃ¡ haciendo no es despreciable. Para cada lÃ­nea se estÃ¡n haciendo
+unas 30 operaciones. Hmmm serÃ¡ eso, tal vez convendrÃ­a probar con
 mayor granularidad. 
 %
 %-- 18:53:14 -- fastmat2-omp-start-1-g4296408 -----
@@ -13548,7 +13548,7 @@ elapsed: 0.424 [sec], ops: 1.000 [Gflop], rate: 2.358 [Gflops]
 O sea logro una eficiencia cercana al 100%
 (/ 2.358 1.186 2.0) => 0.994
 %
-si paralelizo el lazo más externo sobre los productos. 
+si paralelizo el lazo mÃ¡s externo sobre los productos. 
 %
 Si paralelizo el lazo externo en myprod(), o sea el lazo sobre las
 filas de la matriz destino. 
@@ -13617,8 +13617,8 @@ es decir la granularidad es
 *2 gran = n^2
 *3 gran = n
 %
-Graficando la eficiencia en función de la granularidad, se ve que
-efectivamente están completamente correlacionados. 
+Graficando la eficiencia en funciÃ³n de la granularidad, se ve que
+efectivamente estÃ¡n completamente correlacionados. 
 %
 %-- 21:22:25 -- fastmat2-omp-start-2-g4578ee3 -----
 Ahora veo si se puede ganar algo usando vectores, es decir
@@ -13631,7 +13631,7 @@ elapsed: 9.049 [sec], ops: 10.000 [Gflop], rate: 1.105 [Gflops]
 	sum += pa[k] * pb[k*n];
 elapsed: 8.978 [sec], ops: 10.000 [Gflop], rate: 1.114 [Gflops]
 %
-O sea que si hay una diferencia es mínima. 
+O sea que si hay una diferencia es mÃ­nima. 
 ------- Usando lazo while en vez de for
       while (pa<paend) {
         sum += *pa * *pb;
@@ -13639,7 +13639,7 @@ O sea que si hay una diferencia es mínima.
         pb += n;
       }
 elapsed: 8.903 [sec], ops: 10.000 [Gflop], rate: 1.123 [Gflops]
-O sea que se gana un poco, pero mínimo. 
+O sea que se gana un poco, pero mÃ­nimo. 
 %
 %-- 21:29:50 -- fastmat2-omp-start-3-g6b915aa -----
 Influencia del __restrict__
@@ -13663,7 +13663,7 @@ elapsed: 44.560 [sec], ops: 50.000 [Gflop], rate: 1.122 [Gflops]
 %-- 21:59:13 -- fastmat2-omp-start-3-g6b915aa -----
 INFLUENCIA DEL STRIDE 2 ----
 Para realzar el efecto hago el producto A'*B que seria el peor caso
-(aunque ahi invirtiendo el orden de los lazos estaría bien). La
+(aunque ahi invirtiendo el orden de los lazos estarÃ­a bien). La
 eficiencia baja bastante. Pero ojo que hice un cambio ya que ahora
 hago el producto de dos matrices diferentes con lo cual el tema del
 cache puede ser mas importante. Es decir antes hacia el producto de A(i)
@@ -13699,7 +13699,7 @@ elapsed: 15.677 [sec], ops: 10.000 [Gflop], rate: 0.638 [Gflops]
 %
 %-- 10:20:17 -- fastmat2-omp-start-4-g8edb29e -----
 Verifico que el problema no es el overhead de las FastMat2, tampoco
-parece tener mucha influencia el tamaño de las matrices. 
+parece tener mucha influencia el tamaÃ±o de las matrices. 
 %
 > [mstorti@galileo tests]$ ./testfm2d.bin -F 1 -n 100 -N 1000 -t 1 -T 1
 > nthreads 1
@@ -13717,11 +13717,11 @@ parece tener mucha influencia el tamaño de las matrices.
 %
 %
 %-- 10:36:50 -- fastmat2-omp-start-4-g8edb29e -----
-% INFLUENCIA DEL TAMAÑO DE LA MATRIZ
+% INFLUENCIA DEL TAMAÃ‘O DE LA MATRIZ
 %
-Aparentemente podría ser que para matrices muy grandes el problema
-esté limitado por el tamaño del cache. Pruebo con n=50 y 30 y
-efectivamente en 50 hay un máximo, parece.
+Aparentemente podrÃ­a ser que para matrices muy grandes el problema
+estÃ© limitado por el tamaÃ±o del cache. Pruebo con n=50 y 30 y
+efectivamente en 50 hay un mÃ¡ximo, parece.
 %
 > [mstorti@galileo tests]$ ./testfm2d.bin -F 1 -n 100 -N 500 -t 1 -T 1
 > nthreads 1
@@ -13773,13 +13773,13 @@ Hago un barrido en n, con Fastmat2
 %
 %-- 12:17:19 -- fastmat2-omp-start-6-g94100f9 -----
 Se observa que,
-* FastMat2 es mas eficiente para matrices pequeñas
-  (n<60-100). Teniendo una meseta en el rando 30-60 o 30-100. Depués
-  la eficiencia baja, más o menos un factor 2. 
-  Esto se puede deber a la demanda de más memoria, es decir a que
+* FastMat2 es mas eficiente para matrices pequeÃ±as
+  (n<60-100). Teniendo una meseta en el rando 30-60 o 30-100. DepuÃ©s
+  la eficiencia baja, mÃ¡s o menos un factor 2. 
+  Esto se puede deber a la demanda de mÃ¡s memoria, es decir a que
   FastMat2 hace mayor uso de cache. 
 * El comportamiento en coyote y en galileo es similar, siendo coyote
-  más rápido por un 30-50%. 
+  mÃ¡s rÃ¡pido por un 30-50%. 
 * Pruebo a no actualizar el indice del cache es decir
     if (j==0) lc = cache->line_cache_start+j; //DBG!!
     // lc = cache->line_cache_start+j;
@@ -13980,7 +13980,7 @@ elapsed: 1.253 [sec], ops: 4.000 [Gflop], rate: 3.192 [Gflops]
 n: 100, N: 1000, M: 1000, loop: 2, fm2: 1, nthreads 1
 elapsed: 1.974 [sec], ops: 4.000 [Gflop], rate: 2.026 [Gflops]
 %
-Esto estaría de acuerdo con las performances obtenidas con las Atlas,
+Esto estarÃ­a de acuerdo con las performances obtenidas con las Atlas,
 descriptos en la tabla anterior. 
 
 %=== Wed Apr  8 06:24:21 2009 mstorti@galileo
@@ -14130,8 +14130,8 @@ Al instalar nuevas maquinas Xeon Quad-Core para que ande el
 no este bien la eficiencia por lo reportado en `notes-info.txt':
 %
 Este es el mail que le habia mandado a Ale Dabin
-> El día 1 de diciembre de 2008 7:12, Mario Storti
-> <mario.storti@gmail.com> escribió:
+> El dÃ­a 1 de diciembre de 2008 7:12, Mario Storti
+> <mario.storti@gmail.com> escribiÃ³:
 >> Ale, ahi probe todos los kernels.  Lo que hay que mirar es la columna
 >> que dice `Total' que es el tiempo por iteracion en segundos.  Parece
 >> que las noticias no son buenas, es decir el unico que funciona es el
@@ -14196,7 +14196,7 @@ avrg: 15.081 2.291 2.308 11.851 2.747 1.045 Total: 35.323
 %-- 12:13:09 -- fastmat2-omp-start-28-gd9d7fd1 -----
 Enviado a dabin y jdelia:
 > 
-> Gente, ahí hice la prueba en node6@coyote con el nuevo kernel
+> Gente, ahÃ­ hice la prueba en node6@coyote con el nuevo kernel
 > (2.6.29.1). Hago un recuerdo de como es la historia
 > 
 > * En un cierto momento habiamos notado que los kernels >=2.6.25 tenian
@@ -14397,7 +14397,7 @@ La conclusion seria:
   tiempo corresponde a la resolucion, pero OJO que esto puede cambiar
   en 3D ya que comparativamente en 3D los metodos directos llevan mas
   tiempo porque el ancho de banda es mayor (para un numero fijo de
-  DOF's) y los iterativos mejor porque baja el número de condición. 
+  DOF's) y los iterativos mejor porque baja el nÃºmero de condiciÃ³n. 
 
 * Ahora voy a probar: 
   1) Que pasa en 3D. (La respuesta deberia ser que PETSc
@@ -14538,10 +14538,10 @@ are interpreted as a replacement pattern for `printf()'.
 %=== Mon Jun  1 23:17:55 2009 mstorti@galileo
 %
 %--[2009-06-02.02:17:55.mstorti-v25-end-16-g912d37d]-----
-Estoy viendo el tema de la convergencia cuadrática con advdif en
+Estoy viendo el tema de la convergencia cuadrÃ¡tica con advdif en
 petscfe-cases/gasflow/gfnwttest. Con shocap=0.2 y tau_fac=1 no da
-cuadrático, pero converge bastante bien. Sin shocap da casi igual, y
-sin shocap y tau_fac=0 también. 
+cuadrÃ¡tico, pero converge bastante bien. Sin shocap da casi igual, y
+sin shocap y tau_fac=0 tambiÃ©n. 
 %
 octave> h = readconv("norm_res","nohup.log");
 octave> h
@@ -14668,8 +14668,8 @@ sqcav/check.iisd.verif.np1.tmp
 sqcav/check.iisd.verif.np2.tmp
 %
 %--[2009-06-06.18:14:35.mstorti-v26-end-8-g2aa9da5]-----
-`oscplate/oscplate1.sal' se debia a un pequeño cambio en la solucion,
-no se porque, pero es pequeño. Ademas aproveche y actualice todos los
+`oscplate/oscplate1.sal' se debia a un pequeÃ±o cambio en la solucion,
+no se porque, pero es pequeÃ±o. Ademas aproveche y actualice todos los
 tests en oscplate a hacer checks corriendo Octave. 
 %
 %--[2009-06-06.18:27:33.mstorti-v26-end-9-ge4a140e]-----
@@ -14750,7 +14750,7 @@ originado por el cambio reciente en oscplate2.  Tests guardados en
 petscfem-runtests-2009-06-06b
 %
 %--[2009-06-06.22:25:34.mstorti-v26-end-13-g1b235ff]-----
-Efectivamente era un pequeño problema, así que los tests serían
+Efectivamente era un pequeÃ±o problema, asÃ­ que los tests serÃ­an
 NOT OK------- -> 8
 sqcav/check.fs.verif.tmp
 idmap/tidmap.sal
@@ -14795,7 +14795,7 @@ los voy a mover a petscfem-cases y voy a dejar el convergence alli.
 %=== Sun Jun  7 23:44:59 2009 mstorti@galileo
 %
 %--[2009-06-08.02:44:59.mstorti-v26-end-32-g91efec3]-----
-Estoy empezando a ver lo del nsstruct, es decir con dos o más estados
+Estoy empezando a ver lo del nsstruct, es decir con dos o mÃ¡s estados
 anteriores. Aparentemente todo el trabajo se dio mas o menos en esta fecha
 %
 commit 91d7cdbc27a30beef99b3cf9e84df76fa41405de
@@ -14866,7 +14866,7 @@ Stokes) y ahi no da error.
 %=== Mon Jun 15 01:07:10 2009 mstorti@galileo
 %
 %--[2009-06-15.04:07:10.mstorti-v26-end-61-g072f47c]-----
-Agregué varios teste por el tema del `visc_force_integrator' y corro
+AgreguÃ© varios teste por el tema del `visc_force_integrator' y corro
 los tests:
 %
 ---------- G_C++ = O_C++ ------
@@ -14915,7 +14915,7 @@ Plan de trabajo:
   2009-06-17 14:29:18
   Con un paso de tiempo bajo (Dt=0.001) la nueva form converge muy
   bien. 
-. Ver como es para tiempos pequeños
+. Ver como es para tiempos pequeÃ±os
   2009-06-17 14:33:53
   Uso Dt=0.001
   Tanto con la nueva como con la vieja formulacion converge muy bien. 
@@ -15008,7 +15008,7 @@ CTX1     0.62       0.80
 CTX2     0.514      0.735
 %
 Con lo cual se ve que hay una degradacion. Tal ves esto se haga cada
-vez peor a medida que hay matrices mas pequeñas. 
+vez peor a medida que hay matrices mas pequeÃ±as. 
 %
 %--[2009-08-24.18:21:40.mstorti-v28-end-0-gfe455b6]-----
 -|  [mstorti@galileo test-effic]$ OMP_NUM_THREADS=1 ./testfm2omp.bin \
@@ -15228,7 +15228,7 @@ Una cosa que no cierra bien es si lo esta haciendo con DGEMM o no.
 
 Corro en aquiles en node19. Es un script de octave `proc2.m' que
 va barriendo N. Para cada N corre el problema con dos o 3 matrices en el
-cual va barriendo según ntimes para después fitear una curva y sacar
+cual va barriendo segÃºn ntimes para despuÃ©s fitear una curva y sacar
 un n1/2 y el rate en Gflops. A su vez pada cada (N,ntimes) hace el
 producto muchas veces y de esas saca la n1/4. 
 %
@@ -16510,7 +16510,7 @@ y pruebo con esa con el programa
   179     261     2.54     2.46
   215     150     1.80     1.80
 %
-N= tamaño de la matriz
+N= tamaÃ±o de la matriz
 ntimes= nro de veces que se ejecuta el producto
 ROLD= rate con la version vieja mstorti-v28-end-4-g0b4d6d3
 RNEW = rate con la version actual mstorti-v28-end-56-ga225e38). 
@@ -16607,7 +16607,7 @@ CAN'T OPEN------- -> 0
 Me llama la atencion porque no andan los de FS. Aparentemente 
 no anda desde hace rato. Para que ande hay que irse hasta 
 mstorti-v21-end-18-g97e8d77 (Sun Sep 7 22:01:50 2008 -0300). 
-O sea 1 año y medio. 
+O sea 1 aÃ±o y medio. 
 %
 %--[2010-05-31.00:12:21.multiprod-end-27-g9b5dcbe]-----
 Hago merge con el master y corro los tests. Me da lo siguiente
@@ -16706,7 +16706,7 @@ newff/adv_dif_stdy_bcconv.vrf.tmp
 El de `newff/adv_dif_stdy_bcconv.vrf.tmp' se debia a que 
 cuando se hizo el `bccadvfm2_ale.cpp' por lo del HG-GCL entonces
 quedo sin definir el detJaco, mejor dicho en 0, por lo que salta un
-error, si bien después el detJaco no se usa. Ahora quedan los 8
+error, si bien despuÃ©s el detJaco no se usa. Ahora quedan los 8
 errores que habia hace un tiempo. 
 %
 NOT OK------- -> 8
@@ -16812,8 +16812,8 @@ Corro los tests de nuevo por unos cambios que hice
 %=== Tue Jun 15 08:35:35 2010 mstorti@aquiles
 %
 %--[2010-06-15.11:35:35.mstorti-v31-end-26-ga7f9247]-----
-Implemento la versión de FastMat2::prod() basada en DGEMM. Anda todo
-bastante bien, parece ser bastante más rápida y con un n{1/2}
+Implemento la versiÃ³n de FastMat2::prod() basada en DGEMM. Anda todo
+bastante bien, parece ser bastante mÃ¡s rÃ¡pida y con un n{1/2}
 menor. Corro todos los tests y parece todo OK. 
 %
 %--[2010-06-15.11:37:24.mstorti-v31-end-26-ga7f9247]-----
@@ -16948,7 +16948,7 @@ PROD2: 4.119secs
 VERSION VIEJA: 4.984
 %
 O sea que el overhead al pasar de la version vieja a la nueva es muy
-pequeño. 
+pequeÃ±o. 
 %
 %--[2010-06-17.14:14:19.mstorti-v31-end-38-g88b6586]-----
 Corro lo mismo en node1:
@@ -17004,14 +17004,14 @@ nelem 40000, rates in secs/Ke: 0.112 0.007 0.022 0.007 0.028 0.003 total: 0.358
 hostname galileo, FASTMAT2_USE_PROD2 1
 OMP_NUM_THREADS , PF-VERS mstorti-v31-end-39-gccdee57 'clean
 %
-Con ATLAS todavía baja un poquito mas
+Con ATLAS todavÃ­a baja un poquito mas
 PROD-OLD: 15.758
 MKL: 5.394 (-66%)
 ATLAS: 4.499 (-72%)
 %
 %--[2010-06-17.22:10:25.mstorti-v32-start-38-gd1534c4]-----
 Empiezo a ver el tema de como se comporta el prod2() comparado con el
-viejo en funcion del tamaño. Los resultados crudos están en
+viejo en funcion del tamaÃ±o. Los resultados crudos estÃ¡n en
 petscfem-cases/garage/multiprod/notes.txt
 %
 El rate en Gflops es bastante consistente. El n{1/2} puede fluctuar
@@ -17069,13 +17069,13 @@ Pentium. Cuando lo corro en debugger tira el siguiente error.
 %
 %--[2010-06-18.14:04:32.mstorti-v32-start-39-g29167e9]-----
 Los resultados de este test son consistentes con los de PETSs-FEM. hay
-que considerar el regimen para tamaños de matrices relativamente
-pequeños. 
+que considerar el regimen para tamaÃ±os de matrices relativamente
+pequeÃ±os. 
 
 %=== Fri Jun 18 15:02:24 2010 mstorti@galileo
 %
 %--[2010-06-18.18:02:24.mstorti-v32-start-40-g0280dac]-----
-Estoy viendo el tema del monolítico. Con la version nueva (prod2+MKL)
+Estoy viendo el tema del monolÃ­tico. Con la version nueva (prod2+MKL)
 y 8000 hexas tarda unos 
 %
 PROD-OLD:   16.9secs (2.1) secs/Ke ). nohup-run30.log
@@ -17217,7 +17217,7 @@ amplitud entonces si hay reflexion te aparece en la amplitud una
 oscilacion (porque se parece a una standing wave) mientras que si NO
 hay reflexion entonces la amplitud deberia ser constante. 
 %
-Entonces verifico que con la condicion estándar (H\propto Hplus(theta=0)) donde
+Entonces verifico que con la condicion estÃ¡ndar (H\propto Hplus(theta=0)) donde
 Hplus = V*(D>0)*inv(V) se obtiene una cierta reflexion, mientras que
 con H \propto Hplus(theta=thetain) no hay oscilacion. En forma
 preliminar parece estar bien pero quiero hacer un doble chequeo. 
@@ -17232,7 +17232,7 @@ havmean 0.040, ripple 0.002 (rel 5.181%)
 Con Habso(theta=-) no da nada de ripple!!
 %
 %--[2010-08-17.13:04:59.mstorti-v33-start-8-gd5f603d]-----
-Con Habso(theta=+) da más ripple que con theta=0, o sea que está
+Con Habso(theta=+) da mÃ¡s ripple que con theta=0, o sea que estÃ¡
 bien. 
 havmean 0.040, ripple 0.003 (rel 7.149%)
 %
@@ -17242,7 +17242,7 @@ Efectivamente vuelvo a correr con -ky y me da 0 ripple.
 %=== Thu Aug 19 10:43:17 2010 mstorti@aquiles
 %
 %--[2010-08-19.13:43:17.mstorti-v33-start-8-gd5f603d]-----
-Voy a probar a ver si poniendo alfa=0.5 se mejora la disipación, o sea
+Voy a probar a ver si poniendo alfa=0.5 se mejora la disipaciÃ³n, o sea
 la amplitud no disminuye tanto con x. 
 %
 %--[2010-08-19.14:00:53.mstorti-v33-start-8-gd5f603d]-----
@@ -17251,11 +17251,11 @@ digamos que con alpha=0.55 decae de 0.045 a 0.037 en L=0.5 (20 %),
 mientras que con alpha=0.5 decae de 0.045 a 0.043 (5%). 
 %
 %--[2010-08-19.17:58:16.mstorti-v33-start-8-gd5f603d]-----
-Con la malla refinada la amortiguación no cambia mucho. 
+Con la malla refinada la amortiguaciÃ³n no cambia mucho. 
 %
 %--[2010-08-19.19:54:35.mstorti-v33-start-8-gd5f603d]-----
-Noto que hay un poco de reflexión en x=Lx+Labso y como en realidad no
-estamos filtrando las LG waves, debe ser eso. Así que voy a desrefinar
+Noto que hay un poco de reflexiÃ³n en x=Lx+Labso y como en realidad no
+estamos filtrando las LG waves, debe ser eso. AsÃ­ que voy a desrefinar
 (ref=2) y aumentar el Kabso. 
 %
 %--[2010-08-19.20:32:00.mstorti-v33-start-8-gd5f603d]-----
@@ -17288,7 +17288,7 @@ importante debido a que la inicializacion esta mal.
 %=== Sun Jan 16 11:10:20 2011 mstorti@aquiles
 %
 %--[2011-01-16.14:10:20.mstorti-v34-end-0-g455b732]-----
-Después de implementar la BDF con Averaged Jacobian Formulation (AJF)
+DespuÃ©s de implementar la BDF con Averaged Jacobian Formulation (AJF)
 y ver que todo anda bien, hago un merge (mstorti-v34) corrot todos los
 tests, anda todo bien. 
 %
@@ -17372,7 +17372,7 @@ prod2_subcache_t::nmax=0).
 
 Luciano reporta que no le andan bien las condiciones abosrbentes en la
 tobera, mientas que antes si andaban. Me dice que la version que 
--| Versión que tengo compilada en aquiles (NO FUNCA)
+-| VersiÃ³n que tengo compilada en aquiles (NO FUNCA)
 -| 
 -| Advective-Diffusive module built on Jul  4 2012, 12:49:14, with GCC 4.3.0
 -| on host: Linux aquiles 2.6.24 #1 SMP Thu Nov 20 \
@@ -17381,7 +17381,7 @@ tobera, mientas que antes si andaban. Me dice que la version que
 -| Full Commit: 8025681db478cb142390894fced123b1dfbb8213
 -| Date: Sat Mar 31 13:48:54 2012 -0300
 -| 
--| Versión tomada desde el path de guillermo  /u/hgcastro/PETSc-FEM/petscfem
+-| VersiÃ³n tomada desde el path de guillermo  /u/hgcastro/PETSc-FEM/petscfem
 -| (FUNCA)
 -| 
 -| Advective-Diffusive module built on Nov 29 2011, 12:48:13, with GCC 4.3.0
@@ -17391,8 +17391,8 @@ tobera, mientas que antes si andaban. Me dice que la version que
 -| Full Commit: 29bf4b0395d55224d2bfb2ad3d896926f6490f6c
 -| Date: <unknown>
 
-Ahora bien la 29bf4b039 es una version con pequeñas modificaaciones de
-Guillermo. Practicamente sería igual a la `mstorti-v31-start' que esa
+Ahora bien la 29bf4b039 es una version con pequeÃ±as modificaaciones de
+Guillermo. Practicamente serÃ­a igual a la `mstorti-v31-start' que esa
 si la tengo `mstorti-v37-start-121-g8025681'. 
 %
 Hay que ver porque dan diferente. 
@@ -17414,7 +17414,7 @@ need timestamps. So now the options are -Uur.
 %=== Tue Jan 24 09:12:56 2017 mstorti@galileo
 %
 %----2017-01-24.12:12:56.mstorti-v39-start-31-gbbf0731-----
-Ver que en la máquina de Bruno (Kubuntu) da
+Ver que en la mÃ¡quina de Bruno (Kubuntu) da
 %
 /usr/include/glib-2.0/glib/gversionmacros.h:237:2: error: #error "GLIB_VERSION_MIN_REQUIRED must be >= GLIB_VERSION_2_26" 
 #error "GLIB_VERSION_MIN_REQUIRED must be >= GLIB_VERSION_2_26" 
@@ -17429,9 +17429,9 @@ In file included from /usr/include/glib-2.0/glib/galloca.h:32:0,
 #error unknown ENDIAN type
 %
 %----2017-01-25.13:22:28.mstorti-v39-start-31-gbbf0731-----
-Resulta que hay un problema con la definición de MPI_DATATYPE. En
-algunas instalaciones (hasta ahora) parecía ser un int y en otras un
-puntero. El MPI_TYPE_UNDEFINED era un macro que inventé yo y debería
+Resulta que hay un problema con la definiciÃ³n de MPI_DATATYPE. En
+algunas instalaciones (hasta ahora) parecÃ­a ser un int y en otras un
+puntero. El MPI_TYPE_UNDEFINED era un macro que inventÃ© yo y deberÃ­a
 ser un tipo que nunca se usa (como el puntero nulo). Si el header de
 dvector encuentra que un dvector<T> para ese T no tiene definido el
 MPI_DATATYPE entonces lo manda como MPI_CHAR. La cosa es que cuando
@@ -17439,12 +17439,12 @@ era int lo defini como
 %
 #define MPI_TYPE_UNDEFINED INT_MAX 
 %
-(muy trycky) pero después resulta que ahora parece que es un puntero
-entonces lo que se podría usar es 
+(muy trycky) pero despuÃ©s resulta que ahora parece que es un puntero
+entonces lo que se podrÃ­a usar es 
 %
 #define MPI_TYPE_UNDEFINED NULL
 %
-Probe de esa forma y a Bruno le compiló bien (OJO después hay que ver
+Probe de esa forma y a Bruno le compilÃ³ bien (OJO despuÃ©s hay que ver
 si realmente funciona). 
 %
 %----2017-01-25.13:52:57.mstorti-v39-start-31-gbbf0731-----
@@ -17452,12 +17452,13 @@ Constato que en los headers de MPI que tengo la definicion es
 %
 typedef int MPI_Datatype;
 %
-Pareceria que en el de Bruno debe tener que es pointer o algo sí. Ahí
-se lo pedí.
+Pareceria que en el de Bruno debe tener que es pointer o algo sÃ­. AhÃ­
+se lo pedÃ­.
 %
 %----2017-01-25.14:07:31.mstorti-v39-start-31-gbbf0731-----
 Me bajo la ultima version de MPICH 3.2 de la pagina y sigue estando
 como "int". 
 %
 %----2017-01-25.14:19:15.mstorti-v39-start-31-gbbf0731-----
-En cuanto 
+texthash.cpp: In member function â€˜void TextHashTable::get_entry(const char*, TextHashTableVal*&) constâ€™:
+texthash.cpp:188:3: warning: nonnull argument â€˜thisâ€™ compared to NULL [-Wnonnull-compare]

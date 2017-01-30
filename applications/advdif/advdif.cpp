@@ -406,6 +406,9 @@ int advdif_main(int argc,char **args) {
   TGETOPTDEF_S(GLOBAL_OPTIONS,string,save_file,outvector.out);
   save_file_res = save_file + string(".res");
 
+  //o Use HDF5 for saving linear system
+  TGETOPTDEF(mesh->global_options,int,use_hdf5,0);
+  
 #if 0
   PetscViewer matlab;
   ierr = PetscViewerASCIIOpen(PETSCFEM_COMM_WORLD,
@@ -595,39 +598,45 @@ int advdif_main(int argc,char **args) {
       
       if (print_linear_system_and_stop && 
 	  inwt==inwt_stop && tstep==time_step_stop) {
-#ifndef USE_HDF5
-	PetscPrintf(PETSCFEM_COMM_WORLD,
-		    "Printing residual and matrix for debugging and stopping..\n");
-	PetscViewer matlab;
-	ierr = PetscViewerASCIIOpen(PETSCFEM_COMM_WORLD,
-			       "mat.output",&matlab); CHKERRA(ierr);
-	ierr = PetscViewerSetFormat_WRAPPER(matlab, 
-			       PETSC_VIEWER_ASCII_MATLAB,"res");
-
-	PetscObjectSetName((PetscObject)res,"Vec_0");
-	ierr = VecView(res,matlab);
-	if (solve_system) {
-	  ierr = PetscViewerSetFormat_WRAPPER(matlab, 
-				 PETSC_VIEWER_ASCII_MATLAB,"dx");
-	  ierr = VecView(dx,matlab);
-	}
-
-	ierr = PetscViewerSetFormat_WRAPPER(matlab, 
-			       PETSC_VIEWER_ASCII_MATLAB,"A");
-	Mat AP = A->get_petsc_mat();
-	PetscObjectSetName((PetscObject)AP,"Mat_1");
-	ierr = A->view(matlab);
-	print_vector(save_file_res.c_str(),res,dofmap,&time); // debug:=
-        if (ADVDIF_CHECK_JAC) {
+        if (!use_hdf5) {
+          PetscPrintf(PETSCFEM_COMM_WORLD,
+                      "Printing residual and matrix for debugging and stopping..\n");
+          PetscViewer matlab;
+          ierr = PetscViewerASCIIOpen(PETSCFEM_COMM_WORLD,
+                                      "mat.output",&matlab); CHKERRA(ierr);
           ierr = PetscViewerSetFormat_WRAPPER(matlab, 
-                                              PETSC_VIEWER_ASCII_MATLAB,"AA");
-          ierr = AA->view(matlab);
-        }
+                                              PETSC_VIEWER_ASCII_MATLAB,"res");
+
+          PetscObjectSetName((PetscObject)res,"Vec_0");
+          ierr = VecView(res,matlab);
+          if (solve_system) {
+            ierr = PetscViewerSetFormat_WRAPPER(matlab, 
+                                                PETSC_VIEWER_ASCII_MATLAB,"dx");
+            ierr = VecView(dx,matlab);
+          }
+
+          ierr = PetscViewerSetFormat_WRAPPER(matlab, 
+                                              PETSC_VIEWER_ASCII_MATLAB,"A");
+          Mat AP = A->get_petsc_mat();
+          PetscObjectSetName((PetscObject)AP,"Mat_1");
+          ierr = A->view(matlab);
+          print_vector(save_file_res.c_str(),res,dofmap,&time); // debug:=
+          if (ADVDIF_CHECK_JAC) {
+            ierr = PetscViewerSetFormat_WRAPPER(matlab, 
+                                                PETSC_VIEWER_ASCII_MATLAB,"AA");
+            ierr = AA->view(matlab);
+          }
+        } else {
+#ifdef USE_HDF5
+          Mat AA = A->get_petsc_mat();
+          h5petsc_mat_save(AA,"advdifsys.h5");
+          h5petsc_vec_save(res,"res.h5","res");
 #else
-        Mat AA = A->get_petsc_mat();
-        h5petsc_mat_save(AA,"advdifsys.h5");
-        h5petsc_vec_save(res,"res.h5","res");
+          PETSCFEM_ERROR0("Save in HDF5 format requested but code "
+                         "was not compiled with HDF5 support\n");
+          
 #endif
+        }
 	PetscFinalize();
 	exit(0);
       }

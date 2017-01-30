@@ -185,7 +185,14 @@ void TextHashTable::get_entry_recursive(const char * key,
 void TextHashTable::get_entry(const char * key,TextHashTableVal *& value) const {
   int glob_was_visited=0;
   value=NULL;
-  if (this) get_entry_recursive(key,value,glob_was_visited);
+  // g++ complains about this line. It seems that it's
+  // trivial, if we are inside an object it is guaranteed
+  // that the pointer is not null if (this)
+  // get_entry_recursive(key,value,glob_was_visited); See
+  // also
+  // http://stackoverflow.com/questions/1844005/checking-if-this-is-null
+  // So I plainly call the recursive function
+  get_entry_recursive(key,value,glob_was_visited);
   //  if (value) return;
   if (!value && !glob_was_visited && global_options)
     global_options->get_entry_recursive(key,value,glob_was_visited);
