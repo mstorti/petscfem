@@ -19,7 +19,7 @@ else
   asave("qharm.nod.tmp",xnod);
 endif
 
-asave("qharm.con.tmp",icone);
+asavecon("qharm.con.tmp",icone);
 
 tol=1e-5;
 wall=find(abs(y)<tol)';

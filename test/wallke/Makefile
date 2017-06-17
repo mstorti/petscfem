@@ -23,6 +23,7 @@ tests: test_case_a
 
 .PHONY: data force
 NP := $(shell procsel $(PETSCFEM_PROCTABLE))
+cont := no
 test_case_%_data: 
 	-if [ ! "$(cont)" = "y" ] ; then rm -f *.tmp ; fi 
 	$(MAKE) EPERLFLAGS='-d case=$* -d cont=$(cont)' data

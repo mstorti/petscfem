@@ -18,7 +18,7 @@ if use_triangles
 endif
 
 asave("sqcav.nod.tmp",xnod);
-asave("sqcav.con.tmp",icone);
+asavecon("sqcav.con.tmp",icone);
 
 nnod = rows(xnod);
 if ! exist("u_rini"); u_rini=1; end
@@ -35,7 +35,7 @@ nlid=length(lid);
 b = unique([find(abs(x)<tol);
             find(abs(x-1)<tol);
             find(abs(y)<tol)]);
-b=complement(lid,b);
+b=setdiff(lid,b);
 nb=length(b);
 
 if g_body 
@@ -49,7 +49,8 @@ fixa=[lid' ones(nlid,2)*diag([1 utop]);
       b' ones(nb,2)*diag([1 0]);
       b' ones(nb,2)*diag([2 0])];
 
-asave("sqcav.fixa.tmp",fixa);
+pffixa3("sqcav.fixa.tmp",fixa);
+# asave("sqcav.fixa.tmp",fixa);
 
 ## y coordinates of nodes on the centerline
 ny = (N/2)*(N+1)+(1:N+1)';

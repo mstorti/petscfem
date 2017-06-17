@@ -8,6 +8,9 @@
 # <:pr('file3'):> 
 # <:pr('synchro'):> 
 # <:pr('allf'):> 
+# <:pr('solver'):> 
+# <:pr('preco_type'):> 
+# <:pr('iisd_subpart'):> 
 #================================================================
 global_options
 
@@ -32,7 +35,7 @@ activate_debug_print
 #endif
 
 # file containing the weight (speed) of processors
-proc_weights weights.dat
+# proc_weights weights.dat
 
 #    Iterative parameters
 tol_tet 1e-5

@@ -1,3 +1,4 @@
 ##__INSERT_LICENSE__
 ## $Id: startup.m,v 1.2 2003/01/08 15:49:05 mstorti Exp $
-LOADPATH = [LOADPATH ":../wkepipe"];
+## LOADPATH = [LOADPATH ":../wkepipe"];
+addpath("../wkepipe");

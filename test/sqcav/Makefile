@@ -89,7 +89,7 @@ endif
 output_file := output.CASE_$(CASE).np_$(np).case_$(case)$(meas_perf).out.tmp
 
 #w Runs program
-np = 4
+# np = 4
 run:  data
 	-${MPIEXEC} $(MCH) -n $(np) $(PROG) -case $(CASE).depl \
 	 	      	   $(REDIR) $(output_file)
@@ -122,6 +122,9 @@ test_big:
 test_g_body:
 	$(MAKE) case=g_body runs
 	$(OCTAVE) check.g_body.m > check.g_body.verif.tmp
+
+qqq:
+	$(MAKE) case=weak_form_0 runs
 
 ###--------<*>--------<*>--------<*>--------<*>--------<*>--------<*>--------<*> 
 # tests the square cavity in a 20x20 mesh at Re=1000

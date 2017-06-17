@@ -4,12 +4,21 @@ source("data.m.tmp");
 NN=2*(N+1);
 x=aload("wallke.nod.tmp");
 x=x(1:2:NN,1);
-u=aload("save.state");
+u=aload("outvector0.out");
 v=u(1:2:NN,2);
 plot(x,v)
 
 Chi=0.4;
 C_mu=0.09;
+
+function yplus = iwallf(f)
+
+  f1=5;
+  f2 = 2.5*log(30)+5.5;
+  yplus  = (f<f1) .* f + (f>=f1 & f<f2) .* exp((f+3.05)/5.0) + ...
+      (f>f2) .* exp((f-5.5)/2.5);
+
+endfunction
 
 #dudy=(v(2)-v(1))/(x(2)-x(1));	# first order
 dudy = cloud(x(1:3)-x(1),1,2)*v(1:3);  # 2nd order precision
@@ -67,4 +76,3 @@ if strcmp(ocase,"poiseuille")
 elseif strcmp(ocase,"couette")
   plot([0;x],[[0;v/max(v)], [0;v]/max(v)],x_co,u_co,"o")
 endif
-

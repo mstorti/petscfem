@@ -24,6 +24,7 @@ $ocase = $case;
 octave_export_vars(">data.m.tmp",qw(nu g N hratio L ocase));
 :>//
 
+# case: <:=$case:>
 #default definitions
 #===========================================================
 global_options
@@ -42,7 +43,7 @@ print_internal_loop_conv
 save_file_pattern "outvector%d.out"
 #nsaverot 1000000
 
-#if 1
+#if 0
 initial_state "save.state"
 #elsif $case eq 'poiseuille'
 initial_state "wallke.ini.tmp"
