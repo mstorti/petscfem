@@ -30,13 +30,13 @@ x=xnod(:,1);
 y=xnod(:,2);
 
 tol=1e-5;
-lid=find(abs(y-1)<tol)';
+lid=find(abs(y-1)<tol);
 nlid=length(lid);
-b = unique([find(abs(x)<tol);
+bdry = unique([find(abs(x)<tol);
             find(abs(x-1)<tol);
             find(abs(y)<tol)]);
-b=setdiff(lid,b);
-nb=length(b);
+bdry = setdiff(bdry,lid);
+nb = length(bdry);
 
 if g_body 
   utop = 0;
@@ -44,10 +44,10 @@ else
   utop = 1;
 endif
 
-fixa=[lid' ones(nlid,2)*diag([1 utop]);
-      lid' ones(nlid,2)*diag([2 0]);
-      b' ones(nb,2)*diag([1 0]);
-      b' ones(nb,2)*diag([2 0])];
+fixa=[lid ones(nlid,2)*diag([1 utop]);
+      lid ones(nlid,2)*diag([2 0]);
+      bdry ones(nb,2)*diag([1 0]);
+      bdry ones(nb,2)*diag([2 0])];
 
 pffixa3("sqcav.fixa.tmp",fixa);
 # asave("sqcav.fixa.tmp",fixa);
