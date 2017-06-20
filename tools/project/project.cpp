@@ -168,7 +168,7 @@ void FemInterp::interp(const dvector<double> &xnod2,
   // the `knbr' elements reported by `ANN'. 
   // int nelem_check = (ndimel==ndim? nelem+knbr : knbr);
   int nelem_check = knbr;
-  printf("start interpolation...\n");
+  // printf("start interpolation...\n");
   double start = MPI_Wtime();
   FILE *fid=NULL;
   if (print_area_coords.size()>0) 
@@ -308,10 +308,10 @@ void FemInterp::interp(const dvector<double> &xnod2,
   }
   if (print_area_coords.size())
     fclose(fid);
-  printf("end interpolation... elapsed %f\n",MPI_Wtime()-start);
+  // printf("end interpolation... elapsed %f\n",MPI_Wtime()-start);
   annDeallocPt(nn);
   // delete[] nn_idx;
-  printf("Averg. nbr of tries %f\n",tryav/nnod2);
+  // printf("Averg. nbr of tries %f\n",tryav/nnod2);
 }
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 

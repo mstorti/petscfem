@@ -243,9 +243,8 @@ public:
       @param j,k,l (input) the sizes of each argument */
   dvector<T> & reshape(int rank,...);
 
-  /** Reshapes the tensor with #rank# dimensions, and the rest of arguments
-      are the size of each dimension.
-      @param shape (input) an integer vector with the shape. */
+  /** Reshapes the tensor with shape #shape#.
+      @param shape (input) an integer vector with the desired shape. */
   dvector<T> & reshape(const vector<int> &shape);
 
   /** Export the shape of the dvector to vector #shape#. 
