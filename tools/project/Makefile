@@ -54,5 +54,5 @@ fluent.dx: fluent-in.dx
 tags2:
 	etags *.cpp *.h 
 
-libpfproj.so: project4.o
+libpfproj.so: project.o
 	${CXX_CLINKER} -g -shared $(EFNLIBS) -o $@ $< $(EFN_LDFLAGS)
