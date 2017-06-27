@@ -71,6 +71,7 @@ int h5petsc_vec_save(Vec x,const char *filename,const char *varname) {
 void h5_dvector_read(const char *filename,
                      const char *dsetname,
                      dvector<double> &w) {
+  if (!filename) return;
   H5::H5File h5file(filename,H5F_ACC_RDONLY);
   H5::DataSet dataset = h5file.openDataSet(dsetname);
   H5::DataSpace space = dataset.getSpace();
@@ -84,7 +85,7 @@ void h5_dvector_read(const char *filename,
   PETSCFEM_ASSERT(sz==w.size(),"Wrong size, sz(w) %d, sz(h5) %d",
                   w.size(),sz);
   w.defrag();
-  dataset.read(w.buff(), H5::PredType::NATIVE_DOUBLE);
+  dataset.read(w.buff(),H5::PredType::NATIVE_DOUBLE);
 }
 
 #else
@@ -94,10 +95,10 @@ void h5petsc_mat_save(Mat J, const char *filename) { H5ERR; }
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>
 int h5petsc_vec_save(Vec x,const char *filename,
-                     const char *varname) { H5ERR; }
+                     const char *varname) { H5ERR; return 0; }
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>
-void h5_dvector_read(const char *filename,
+void h5_dvector_read(const char *filename,const char *dsetname,
                      dvector<double> &w) { H5ERR; }
 
 #endif
