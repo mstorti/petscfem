@@ -171,38 +171,3 @@ void petscfem_print_date(void) {
 	   ctime(&t));
   }
 }
-
-//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>
-void h5_dvector_read(const char *filename,
-                     const char *dataset,
-                     dvector<double> &w) {
-#if 0
-  H5::H5File file(filename,H5F_ACC_TRUNC);
-
-  hsize_t ncoefs = rows.size();
-  H5::DataSpace dataspace(1,&ncoefs);
-
-  // Create the dataset.
-  H5::DataSet dsrows =
-    file.createDataSet("rows",H5::PredType::NATIVE_INT,dataspace);
-  dsrows.write(rows.data(),H5::PredType::NATIVE_INT);
-
-  H5::DataSet dscols =
-    file.createDataSet("cols",H5::PredType::NATIVE_INT,dataspace);
-  dscols.write(cols.data(),H5::PredType::NATIVE_INT);
-
-  H5::DataSet dsvals =
-    file.createDataSet("vals",H5::PredType::NATIVE_DOUBLE,dataspace);
-  dsvals.write(vals.data(),H5::PredType::NATIVE_DOUBLE);
-
-  vector<int> sz(2);
-  sz[0] = m;
-  sz[1] = n;
-  hsize_t ssz = 2;
-  H5::DataSpace ds2(1,&ssz);
-  H5::DataSet dssz =
-    file.createDataSet("sizes",H5::PredType::NATIVE_INT,ds2);
-  dssz.write(sz.data(),H5::PredType::NATIVE_INT);
-#endif
-  
-}

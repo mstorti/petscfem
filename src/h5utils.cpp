@@ -82,7 +82,8 @@ void h5_dvector_read(const char *filename,
   int sz = 1;
   for (int j=0; j<ndims; j++) sz *= dims[j];
   PETSCFEM_ASSERT(sz==w.size(),"Wrong size, sz(w) %d, sz(h5) %d",
-                  w.size(),sz);  
+                  w.size(),sz);
+  w.defrag();
   dataset.read(w.buff(), H5::PredType::NATIVE_DOUBLE);
 }
 
