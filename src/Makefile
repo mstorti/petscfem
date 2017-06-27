@@ -18,7 +18,8 @@ iisdgraph iisdmat iisdmat2 interpola lagmul linkgraph mainutl		\
 matchg measperf metisprt penalize petscmat pfmat pfobject propef	\
 randomg readmesh rhhook secant shllhook sparse spdirect spetscmat	\
 spsolve srfgath state sttfilter surf2vol syncbuff tempfun		\
-tempfun2 texthash texthf timestat util2 util3 utils fm2prod2 fmgemmcode
+tempfun2 texthash texthf timestat util2 util3 utils fm2prod2 \
+fmgemmcode h5utils
 
 # C files
 CLIBOBJS_ =  getarrgr.tab mkl_gf
