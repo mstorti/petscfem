@@ -15,6 +15,7 @@
 #include <src/fm2stats.h>
 #include <src/fastlib2.h>
 #include <src/fm2prod.h>
+#include <src/h5utils.h>
 
 #include "advective.h"
 

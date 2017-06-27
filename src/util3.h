@@ -4,6 +4,7 @@
 #ifndef PETSCFEM_UTIL3_H
 #define PETSCFEM_UTIL3_H
 #include <string>
+
 #ifdef USE_SSL
 #include <SSL/sockets.h>
 #endif

@@ -3,9 +3,11 @@
  
 #include <src/fem.h>
 #include <src/utils.h>
-#include <src/utils.h>
+#include <src/h5utils.h>
 
 #ifdef USE_HDF5
+#include "H5Cpp.h"
+
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>
 void h5petsc_mat_save(Mat J, const char *filename) {
   int m,n;
@@ -64,14 +66,37 @@ int h5petsc_vec_save(Vec x,const char *filename,const char *varname) {
   ierr = PetscViewerDestroy(&viewer); CHKERRQ(ierr);
   return ierr;
 }
-#else
-//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>
-void h5petsc_mat_save(Mat J, const char *filename) {
-  PETSCFEM_ERROR0("Not compiled with HDF5 support");
-}
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>
-int h5petsc_vec_save(Vec x,const char *filename,const char *varname) {
-  PETSCFEM_ERROR0("Not compiled with HDF5 support");
+void h5_dvector_read(const char *filename,
+                     const char *dsetname,
+                     dvector<double> &w) {
+  H5::H5File h5file(filename,H5F_ACC_RDONLY);
+  H5::DataSet dataset = h5file.openDataSet(dsetname);
+  H5::DataSpace space = dataset.getSpace();
+  int rank = space.getSimpleExtentNdims();
+  assert(rank==2 || rank==1);
+
+  vector<hsize_t> dims(rank);
+  int ndims = space.getSimpleExtentDims(dims.data(),NULL);
+  int sz = 1;
+  for (int j=0; j<ndims; j++) sz *= dims[j];
+  PETSCFEM_ASSERT(sz==w.size(),"Wrong size, sz(w) %d, sz(h5) %d",
+                  w.size(),sz);  
+  dataset.read(w.buff(), H5::PredType::NATIVE_DOUBLE);
 }
+
+#else
+#define H5ERR PETSCFEM_ERROR0("Not compiled with HDF5 support")
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>
+void h5petsc_mat_save(Mat J, const char *filename) { H5ERR; }
+
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>
+int h5petsc_vec_save(Vec x,const char *filename,
+                     const char *varname) { H5ERR; }
+
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>
+void h5_dvector_read(const char *filename,
+                     dvector<double> &w) { H5ERR; }
+
 #endif
