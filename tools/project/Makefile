@@ -47,12 +47,11 @@ libproject.so: project.o project-wrp.o
 fluent.dx: fluent-in.dx
 	make-depl $< $@
 
-#s
-#what:
-#	@makewhat.pl -s Makefile
-
+#w Make the tags
 tags2:
 	etags *.cpp *.h 
 
+#w Make the shared lib 
 libpfproj.so: project.o
 	${CXX_CLINKER} -g -shared $(EFNLIBS) -o $@ $< $(EFN_LDFLAGS)
+
