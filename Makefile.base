@@ -96,6 +96,14 @@ endif
 
 include ${PETSC_DIR}/conf/variables
 include ${PETSC_DIR}/conf/rules
+
+## NOT OK. The correct is the one above. It includes
+## automatically these below
+# PCONFDIR := ${PETSC_DIR}/${PETSC_ARCH}/conf
+# include ${PCONFDIR}/petscvariables
+# include ${PCONFDIR}/petscrules
+
+#include ${PETSC_DIR}/conf/rules
 PACKAGES_INCLUDES = ${MPI_INCLUDE} ${X11_INCLUDE} ${BLASLAPACK_INCLUDE}
 PACKAGES_LIBS     = ${MPI_LIB} ${X11_LIB} ${BLASLAPACK_LIB}
 

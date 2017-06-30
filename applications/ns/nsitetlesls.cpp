@@ -302,6 +302,8 @@ assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
   //o Kinematic viscosities for level set
   TGETOPTDEF(thash,double,nu_l,1.);
   TGETOPTDEF(thash,double,nu_g,1.);
+  //o Maximum viscosities for mu_eff in LS+LES
+  TGETOPTDEF(thash,double,mu_max,0.1);
   //o Transition strip for level set
   TGETOPTDEF(thash,double,epsilon,0.);
 
@@ -343,7 +345,7 @@ assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
 
   FMatrix Jaco(ndim,ndim),iJaco(ndim,ndim),
     grad_u(ndim,ndim),grad_u_star,strain_rate(ndim,ndim),resmom(nel,ndim),
-    dresmom(nel,ndim),matij(ndof,ndof),Uintri,svec;
+    dresmom(nel,ndim),matij(ndof,ndof),Uintri,svec,strain_rate_old(ndim,ndim);
 
   FMatrix grad_p_star(ndim),u,u_star,du,
     uintri(ndim),rescont(nel),dmatu(ndim),ucols,ucols_new,
@@ -415,6 +417,8 @@ assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
     xloc.rs();
     Hloc.rs();
     philoc.rs();
+    // printf("elem %d\n",elem);
+    // philoc.print();
 
     if ( A_van_Driest>0.&& get_nearest_wall_element ) {
       assert(LES);
@@ -480,8 +484,8 @@ assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
     for (int nn = 1; nn <= nel; nn++){
       vphi = double(qqq.set(phi0.ir(1,nn)));
       phi0.rs();
-      if (0){//(elem==1170) {
-	printf("elem 1170 vphi %f nn %d\n",vphi,nn);
+      if (0) { //(elem==3759) {
+	printf("elem %d vphi %f nn %d\n",elem,vphi,nn);
       }
       if (abs(vphi)<=0.5){
 	double vv = tanh(pi*vphi/0.5);
@@ -526,8 +530,6 @@ assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
     }
 
     if (0) { //(elem==1170) {
-      printf("elem 1170\n");
-      v01.print();
       r01.print();
     }
 
@@ -640,7 +642,7 @@ assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
 	    printf("density %f \n",rho);
 	  }
 	  if (0)//(rand()%4000==0) // debugger
-	    printf("elem %d, density dev %g\n",elem,rho-1.0);
+	    printf("elem %d, density dev %g\n",elem,rho);
 	}
 
 	// state variables and gradient
@@ -663,6 +665,17 @@ assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
 	  strain_rate.scale(0.5);
 	}
 
+	if (laplace_form) {
+	  strain_rate_old.set(grad_u);
+	  strain_rate_old.scale(0.5);
+	} else {
+	  strain_rate_old.set(grad_u);
+	  grad_u.t();
+	  strain_rate_old.add(grad_u);
+	  grad_u.rs();
+	  strain_rate_old.scale(0.5);
+	}
+
 	v_mesh.set(0.0);
 	if (ALE_flag) {
 	  v_mesh.prod(SHAPE,vloc_mesh,-1,-1,1);
@@ -677,10 +690,12 @@ assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
 	  if ( mu_eff<nu_m ) mu_eff = nu_m/rho_g; // partial fix
 // 	  if (rand()%1000==0) // debugger
 // 	    printf("elem %d, viscosity %g\n",elem,nu_eff);
-	}
+	} // else { // descomentar para arreglar lo de la viscosidad
+	//   mu_eff = VISC; 
+	// }
 	if (LES) {
 	  double van_D=NAN,ywall=NAN;
-	  double tr = (double) tmp15.prod(strain_rate,strain_rate,-1,-2,-1,-2);
+	  double tr = (double) tmp15.prod(strain_rate_old,strain_rate_old,-1,-2,-1,-2);
 	  //	  double van_D;
 	  if (A_van_Driest>0.) {
 	    //	    dist_to_wall.prod(SHAPE,xloc,-1,-1,1).minus(wall_coords);
@@ -689,15 +704,30 @@ assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
 	    van_D = 1.-exp(-y_plus/A_van_Driest);
 	  } else van_D = 1.;
 	  
+	  //double nu_t = SQ(0.15)*sqrt(2*tr); // para lmix=cte - sloshing.
 	  double nu_t = SQ(C_smag*Delta*van_D)*sqrt(2*tr);
-	  mu_eff = VISC + rho * nu_t;
+	  mu_eff = mu_eff + rho * nu_t;
+	  //	  mu_eff = VISC + rho * nu_t;
+	  if (mu_eff>mu_max) {
+	    mu_eff = mu_max;
+	  } 
+
+	  // if (elem==1670){
+	  //   printf("element %d , mu_eff: %f, rho: %f\n",
+	  // 	   elem, mu_eff, rho);
+	  // }
+	  // if (elem==13){
+	  //   printf("element %d , mu_eff: %f, rho: %f\n",
+	  // 	   elem, mu_eff, rho);
+	  // }
 
 	  if (print_van_Driest && (k % 1==0))
 	    printf("element %d , y: %f,van_D: %f, nu_eff: %f\n",
 		   ielh, ywall, van_D, mu_eff/rho);
 
-	} else {
-	  mu_eff = VISC;
+	} else { // quitar desde else para arreglar lo de la
+		 // viscosidad (linea en "if (LEVEL_SET_flag)")
+	  //	  mu_eff = VISC; //comentado por Laura para Level Set, arreglar!
 	}
 
 #if 1

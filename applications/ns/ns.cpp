@@ -317,8 +317,10 @@ int ns_main(int argc,char **args) {
   //o Flag for VOLUME CONTROL in level set
   GETOPTDEF(int,volume_control_flag,0);
 
-  //o Coefficient for volume control
+  //o Coefficient for volume control for LS
   GETOPTDEF(double,C_volume,0);
+  //o FS development * gradient of phi for LS volume control 
+  GETOPTDEF(double,D_volume,1.0);
 
   vector<double> gather_values;
   //o Number of ``gathered'' quantities.
@@ -588,10 +590,9 @@ int ns_main(int argc,char **args) {
       ierr = read_vector("state-adv.tmp",x,dofmap,MY_RANK); CHKERRA(ierr);
       // Volume control
       if (volume_control_flag && !isnan(liquid_volume_ini)){
-	double Dphi = -C_volume*delta_time*(total_liquid_volume_g-liquid_volume_ini);
+	double Dphi = -C_volume*(total_liquid_volume_g-liquid_volume_ini)/D_volume;
 	ierr = VecShift(x,Dphi); CHKERRA(ierr);
-	//	printf("Dt %.10f \n",delta_time);
-	printf("Dphi %.10f \n",Dphi);
+	PetscPrintf(PETSCFEM_COMM_WORLD,"Dphi %.10f \n",Dphi);
       }
     }
 
@@ -812,10 +813,12 @@ int ns_main(int argc,char **args) {
 
       } // end of loop over Newton subiteration (inwt)
 
-      if (!MY_RANK && report_total_liquid_volume) { 
+      if (report_total_liquid_volume) { 
         // prints total liquid volume for level set control
-	printf("Total liquid volume %.10f\n",total_liquid_volume_g);
-	if (isnan(liquid_volume_ini)) liquid_volume_ini = total_liquid_volume_g;
+	PetscPrintf(PETSCFEM_COMM_WORLD,"Total liquid volume %.10f\n",
+                    total_liquid_volume_g);
+	if (isnan(liquid_volume_ini))
+          liquid_volume_ini = total_liquid_volume_g;
       }
 
     } else {
