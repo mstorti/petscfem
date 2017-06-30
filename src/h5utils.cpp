@@ -57,6 +57,7 @@ void h5petsc_mat_save(Mat J, const char *filename) {
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>
 int h5petsc_vec_save(Vec x,const char *filename,const char *varname) {
+#if 0
   PetscObjectSetName((PetscObject)x,varname);
   PetscViewer viewer;
   int ierr;
@@ -64,6 +65,22 @@ int h5petsc_vec_save(Vec x,const char *filename,const char *varname) {
 			     FILE_MODE_WRITE,&viewer); CHKERRQ(ierr);
   ierr = VecView(x,viewer);CHKERRQ(ierr);
   ierr = PetscViewerDestroy(&viewer); CHKERRQ(ierr);
+#else
+  int n;
+  VecGetSize(x,&n);
+
+  double *xp;
+  int ierr;
+  ierr = VecGetArray(x,&xp); CHKERRQ(ierr);
+  H5::H5File file(filename,H5F_ACC_TRUNC);
+  hsize_t nn = n;
+  H5::DataSpace dataspace(1,&nn);
+  // Create the dataset.
+  H5::DataSet xdset =
+    file.createDataSet("res",H5::PredType::NATIVE_DOUBLE,dataspace);
+  xdset.write(xp,H5::PredType::NATIVE_DOUBLE);
+  ierr = VecRestoreArray(x,&xp); CHKERRQ(ierr);
+#endif
   return ierr;
 }
 
