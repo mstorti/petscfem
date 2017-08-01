@@ -1,5 +1,4 @@
 //__INSERT_LICENSE__
-//$Id: mainutl.cpp,v 1.33.10.1 2007/02/19 20:23:56 mstorti Exp $
  
 #include "fem.h"
 #include "utils.h"
@@ -10,6 +9,9 @@
 #include "generror.h"
 #include <src/debug.h>
 #include <src/dvector.h>
+#include "H5Cpp.h"
+
+using namespace H5;
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 #undef __FUNC__
@@ -148,16 +150,39 @@ int print_vector_ascii(const char *filename,const Vec x,const Dofmap *dofmap,
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>
 int print_vector_h5(const char *filename,const Vec x,const Dofmap *dofmap,
-                    const TimeData *time_data,const int append) {
+                    const TimeData *time_data,const int
+                    append) {
+  // Equivalent to print_vector() but saves in ascii
+  // format. Right now it just saves in an independent file
+  // with dataset /u of size (nnod,ndof)
   PETSCFEM_ASSERT0(append==0,"Not implemented yet HDF5 save with append");  
+  // Get sized
   int nnod = dofmap->nnod;
   int ndof = dofmap->ndof;
-  dvector<double> state;
-  state.a_resize(2,nnod,ndof);
-  state.defrag();
+  // Storage are for the state
+  vector<double> state(nnod*ndof);
+  // state.a_resize(2,nnod,ndof);
+  // state.defrag();
   Time t = GLOB_PARAM->state->t();
-  state2fields(state.buff(),*GLOB_PARAM->state,dofmap,&t);
-  exit(0);
+  // Gahter the state from all the processors and resolve
+  // for BCs 
+  state2fields(state.data(),*GLOB_PARAM->state,dofmap,&t);
+
+  if (MY_RANK==0) {
+    // In master save on the HDF5 file
+    printf("Writing vector to file \"%s\"\n",filename);
+    // Open the file
+    H5File file(filename,H5F_ACC_TRUNC);
+    // Dataset sizes
+    vector<hsize_t> sz;
+    sz.push_back(nnod);
+    sz.push_back(ndof);
+    DataSpace dataspace(2,sz.data());
+    // Create ad write the dataste
+    DataSet udset =
+      file.createDataSet("u",PredType::NATIVE_DOUBLE,dataspace);
+    udset.write(state.data(),PredType::NATIVE_DOUBLE);
+  }
   return 0;
 }
 
@@ -168,6 +193,7 @@ int print_vector(const char *filename,const Vec x,const Dofmap *dofmap,
                  const TimeData *time_data,const int append) {
   int ierr,retval;
   TGETOPTDEF(GLOBAL_OPTIONS,int,use_hdf5,0);
+  // Dispatch to the correct function
   if (use_hdf5) 
     retval = print_vector_h5(filename,x,dofmap,time_data,append);
   else
