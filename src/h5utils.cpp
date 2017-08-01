@@ -5,6 +5,54 @@
 #include <src/utils.h>
 #include <src/h5utils.h>
 
+// Given a distributed PETSc vector `vec' gather all the
+// ranges in all processor in a full vector of doubles
+// `values'.  This full vector is available in all the
+// processors.
+// WARNING: this may be inefficient and non
+// scalable, it is just a dirty trick to have access to all
+// the values of the vectors in all the processor.
+// Usage:
+// Vec v;
+// // ... create and fill v eith values at each processor
+// // ... do the Assembly
+// vector<double> values;
+// vec_gather(MPI_COMM_WORLD,v,values);
+// //... now you have all the elements of `v' in `values'
+void vec_gather(MPI_Comm comm,Vec v,vector<double> &values) {
+  // n: global size of vector
+  // nlocal: local (PETSc) size
+  int n,nlocal;
+  // Get the global size
+  VecGetSize(v,&n);
+  // Resize the local buffer
+  values.clear();
+  values.resize(n,0.0);
+  // Get the local size
+  VecGetLocalSize(v,&nlocal);
+
+  // Gather all the local sizes in order to compute the
+  // counts and displs for the Allgatherv
+  int size, myrank;
+  MPI_Comm_rank(comm,&myrank);
+  MPI_Comm_size(comm,&size);
+  vector<int> counts(size),displs(size);
+  MPI_Allgather(&nlocal,1,MPI_INT,
+                &counts[0],1,MPI_INT,comm);
+  displs[0]=0;
+  for (int j=1; j<size; j++)
+    displs[j] = displs[j-1] + counts[j-1];
+
+  // Get the internal values of the PETSc vector
+  double *vp;
+  VecGetArray(v,&vp);
+  // Do the Allgatherv to the local vector
+  MPI_Allgatherv(vp,nlocal,MPI_DOUBLE,
+                 &values[0],&counts[0],&displs[0],MPI_DOUBLE,comm);
+  // Restore the array
+  VecRestoreArray(v,&vp);
+}
+
 #ifdef USE_HDF5
 #include "H5Cpp.h"
 
@@ -57,31 +105,16 @@ void h5petsc_mat_save(Mat J, const char *filename) {
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>
 int h5petsc_vec_save(Vec x,const char *filename,const char *varname) {
-#if 0
-  PetscObjectSetName((PetscObject)x,varname);
-  PetscViewer viewer;
-  int ierr;
-  ierr = PetscViewerHDF5Open(PETSC_COMM_WORLD,filename,
-			     FILE_MODE_WRITE,&viewer); CHKERRQ(ierr);
-  ierr = VecView(x,viewer);CHKERRQ(ierr);
-  ierr = PetscViewerDestroy(&viewer); CHKERRQ(ierr);
-#else
-  int n;
-  VecGetSize(x,&n);
-
-  double *xp;
-  int ierr;
-  ierr = VecGetArray(x,&xp); CHKERRQ(ierr);
+  vector<double> vx;
+  vec_gather(PETSC_COMM_WORLD,x,vx);
   H5::H5File file(filename,H5F_ACC_TRUNC);
-  hsize_t nn = n;
-  H5::DataSpace dataspace(1,&nn);
+  hsize_t n = vx.size();
+  H5::DataSpace dataspace(1,&n);
   // Create the dataset.
   H5::DataSet xdset =
     file.createDataSet("res",H5::PredType::NATIVE_DOUBLE,dataspace);
-  xdset.write(xp,H5::PredType::NATIVE_DOUBLE);
-  ierr = VecRestoreArray(x,&xp); CHKERRQ(ierr);
-#endif
-  return ierr;
+  xdset.write(vx.data(),H5::PredType::NATIVE_DOUBLE);
+  return 0;
 }
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>
@@ -117,5 +150,5 @@ int h5petsc_vec_save(Vec x,const char *filename,
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>
 void h5_dvector_read(const char *filename,const char *dsetname,
                      dvector<double> &w) { H5ERR; }
-
 #endif
+

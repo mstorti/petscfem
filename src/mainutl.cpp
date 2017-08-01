@@ -80,7 +80,7 @@ void print_vector_rota(const char *filenamepat,const Vec x,const
 		       Dofmap *dofmap,const TimeData *time_data,
 		       const int j,const int nsave,const int nrec,
 		       const int nfile) {
-  
+
   if (nsave==0) return;
   div_t ressave,resrec;
 
@@ -102,9 +102,9 @@ void print_vector_rota(const char *filenamepat,const Vec x,const
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 #undef __FUNC__
-#define __FUNC__ "print_vector" 
-int print_vector(const char *filename,const Vec x,const Dofmap *dofmap,
-		 const TimeData *time_data,const int append) {
+#define __FUNC__ "print_vector_ascii" 
+int print_vector_ascii(const char *filename,const Vec x,const Dofmap *dofmap,
+                       const TimeData *time_data,const int append) {
 
   double *vseq_vals/*,*sstate*/;
   Vec vseq;
@@ -146,13 +146,42 @@ int print_vector(const char *filename,const Vec x,const Dofmap *dofmap,
   return 0;
 }
 
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>
+int print_vector_h5(const char *filename,const Vec x,const Dofmap *dofmap,
+                    const TimeData *time_data,const int append) {
+  PETSCFEM_ASSERT0(append==0,"Not implemented yet HDF5 save with append");  
+  int nnod = dofmap->nnod;
+  int ndof = dofmap->ndof;
+  dvector<double> state;
+  state.a_resize(2,nnod,ndof);
+  state.defrag();
+  Time t = GLOB_PARAM->state->t();
+  state2fields(state.buff(),*GLOB_PARAM->state,dofmap,&t);
+  exit(0);
+  return 0;
+}
+
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*> 
+#undef __FUNC__
+#define __FUNC__ "print_vector"
+int print_vector(const char *filename,const Vec x,const Dofmap *dofmap,
+                 const TimeData *time_data,const int append) {
+  int ierr,retval;
+  TGETOPTDEF(GLOBAL_OPTIONS,int,use_hdf5,0);
+  if (use_hdf5) 
+    retval = print_vector_h5(filename,x,dofmap,time_data,append);
+  else
+    retval = print_vector_ascii(filename,x,dofmap,time_data,append);
+  return retval;
+}
+
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 #undef __FUNC__
 #define __FUNC__ "state2fields" 
 int state2fields(double *fields,const Vec x,const Dofmap *dofmap,
 		 const TimeData *time_data) {
 
-  double *vseq_vals/*,*sstate*/;
+  double *vseq_vals;
   Vec vseq;
   
   // fixme:= Now we can make this without a scatter. We can use

@@ -301,3 +301,13 @@ init:
 	fi
 
 #s
+
+#w Make all the tags
+tags3:
+	rm -f tempo.txt
+	find . -name '*.c' >> tempo.txt
+	find . -name '*.h' >> tempo.txt
+	find . -name '*.cpp' >> tempo.txt
+	find . -name '*.f' >> tempo.txt
+	etags `cat tempo.txt`
+	rm tempo.txt
