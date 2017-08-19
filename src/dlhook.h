@@ -88,5 +88,34 @@ prefix##_stage_fun(const char *jobinfo,int stage,			\
 extern "C" void								\
 prefix##_close_fun(void *fun_data) { ((prefix *)fun_data)->close(); }
 
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>
+class dl_generic_hook2 : public Hook {
+private:
+  Hook *hookp;
+  string name;
+  TextHashTableFilter *options;
+public:
+  dl_generic_hook2() { }
+  ~dl_generic_hook2() { if (hookp) delete hookp; }
+  void init(Mesh &mesh,Dofmap &dofmap,const char *name);
+  void time_step_pre(double time,int step) {
+    hookp->time_step_pre(time,step);
+  }
+  void time_step_post(double time,int step,
+                      const vector<double> &gather_values) {
+    hookp->time_step_post(time,step,gather_values);
+  }
+  void stage(const char *jobinfo,int stage,
+             double time,void *data) {
+    hookp->stage(jobinfo,stage,time,data);
+  }
+  void getprop(const string &prop,
+               int elem,const vector<double> &x,double time,
+               int len,double *vals) {
+    hookp->getprop(prop,elem,x,time,len,vals);
+  }
+  virtual void close() { hookp->close(); }
+};
+
 #endif
 #endif

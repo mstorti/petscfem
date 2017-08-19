@@ -16,6 +16,7 @@ Hook * Hook::factory(const char *name) {
   if (0) {} // this is tricky!!
 #ifdef USE_DLEF
   else if CHECK_HOOK(dl_generic_hook);
+  else if CHECK_HOOK(dl_generic_hook2);
 #endif
   else if CHECK_HOOK(shell_hook);
   return hook;

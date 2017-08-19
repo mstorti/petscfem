@@ -50,4 +50,26 @@ void dl_generic_hook::init(Mesh &mesh,Dofmap &dofmap,
 
   (*init_fun)(mesh,dofmap,name_a,options,fun_data);
 }
+
+void dl_generic_hook2::init(Mesh &mesh,Dofmap &dofmap,
+                            const char *name_a) {
+  const char *error;
+  string s;
+
+  name = string(name_a);
+  options = new TextHashTableFilter(mesh.global_options);
+  options->push(name.c_str());
+  string filename("");
+  options->get_string("filename",filename);
+  PETSCFEM_ASSERT(filename!="","Couldn't find filename entry for "
+		  "dl_generic_hook \"%s\"\n",name_a);  
+  // Get `dlopen()' handle to the extension function
+  void *handle = dlopen(filename.c_str(),RTLD_NOW);
+  error = dlerror();
+  PETSCFEM_ASSERT(!error && handle,"Hook %s, can't dlopen() \"%s\" in file \"%s\".\n"
+		  "    Error \"%s\"\n",name_a,s.c_str(),filename.c_str(),error);
+  exit(0);
+  // hookp->init(mesh,dofmap,name);
+}
+
 #endif
