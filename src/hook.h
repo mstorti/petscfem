@@ -8,6 +8,9 @@
 class Hook;
 typedef Hook *HookFactory(const char *name);
 
+// This special hook is for computing properties
+extern Hook *PF_PROP_HOOK;
+
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 /// Hooks are executed previous and after the time step. 
 class Hook {
@@ -33,6 +36,11 @@ public:
       It is an outer loop to guarantee convergence for coupled problems */
   virtual void stage(const char *jobinfo,int stage,
 		     double time,void *data) {}
+  // Compute properties PROP, at element ELEM, center X, time TIME.
+  // The PROP should have length LEN. The values are put at *VALS
+  virtual void getprop(const string &prop,
+                       int elem,const vector<double> &x,double time,
+                       int len,double *vals) { }
   /** This is executed after the finalization of the program */ 
   virtual void close() {}
 };

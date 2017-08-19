@@ -9,6 +9,8 @@
 #include <src/dlhook.h>
 #include <src/shllhook.h>
 
+Hook *PF_PROP_HOOK=NULL;
+
 Hook * Hook::factory(const char *name) {
   Hook *hook=NULL;
   if (0) {} // this is tricky!!

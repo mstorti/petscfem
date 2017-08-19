@@ -6,6 +6,7 @@
 #include <src/readmesh.h>
 #include <src/getprop.h>
 #include <src/fastmat2.h>
+#include <src/hook.h>
 
 #include "./nsi_tet.h"
 #include "./nsitetlesf.h"
@@ -43,7 +44,7 @@ int nsi_tet_les_full::
 assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
 	 Dofmap *dofmap,const char *jobinfo,int myrank,
 	 int el_start,int el_last,int iter_mode,
-	 const TimeData *time_) {
+	 const TimeData *time_data) {
   // default
   GET_JOBINFO_FLAG(comp_prof);
   GET_JOBINFO_FLAG(comp_res);
@@ -348,6 +349,8 @@ assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
 
   FastMatCacheList cache_list;
   FastMat2::activate_cache(&cache_list);
+  double time = double(*(const Time *)time_data);
+  vector<double> xce(ndim);
 
   int ielh=-1;
   for (int k=el_start; k<=el_last; k++) {
@@ -357,6 +360,9 @@ assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
     load_props(propel,elprpsindx,nprops,&(ELEMPROPS(k,0)));
     elem = k;
 
+    if (PF_PROP_HOOK) 
+      PF_PROP_HOOK->getprop("G_body",elem,xce,time,ndim,G_body.storage_begin());
+
     // Load local node coordinates in local vector
     for (kloc=0; kloc<nel; kloc++) {
       node = ICONE(k,kloc);
@@ -365,11 +371,13 @@ assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
     }
     xloc.rs();
     Hloc.rs();
+    // Compute the center of the element
+    xc.sum(xloc,-1,1).scale(1./double(nel));
+    xc.export_vals(xce.data());
 
     if ( A_van_Driest>0.&& get_nearest_wall_element ) {
       assert(LES);
 #ifdef USE_ANN
-      xc.sum(xloc,-1,1).scale(1./double(nel));
       int nn;
       wall_data->nearest(xc.storage_begin(),nn);
       NN_IDX(k) = nn;
@@ -433,7 +441,6 @@ assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
       wall_coords.set(wall_coords_);
       shear_vel = wall_elemset->elemprops_add[wall_elem];
 
-      xc.sum(xloc,-1,1).scale(1./double(nel));
       dist_to_wall.set(xc).minus(wall_coords);
 
 #else
