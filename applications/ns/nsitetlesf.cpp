@@ -360,9 +360,6 @@ assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
     load_props(propel,elprpsindx,nprops,&(ELEMPROPS(k,0)));
     elem = k;
 
-    if (PF_PROP_HOOK) 
-      PF_PROP_HOOK->getprop("G_body",elem,xce,time,ndim,G_body.storage_begin());
-
     // Load local node coordinates in local vector
     for (kloc=0; kloc<nel; kloc++) {
       node = ICONE(k,kloc);
@@ -375,6 +372,10 @@ assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
     xc.sum(xloc,-1,1).scale(1./double(nel));
     xc.export_vals(xce.data());
 
+    if (PF_PROP_HOOK) 
+      PF_PROP_HOOK->getprop("G_body",elem,xce,time,ndim,
+                            G_body.storage_begin());
+    
     if ( A_van_Driest>0.&& get_nearest_wall_element ) {
       assert(LES);
 #ifdef USE_ANN

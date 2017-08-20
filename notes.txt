@@ -17462,3 +17462,39 @@ como "int".
 %----2017-01-25.14:19:15.mstorti-v39-start-31-gbbf0731-----
 texthash.cpp: In member function ‘void TextHashTable::get_entry(const char*, TextHashTableVal*&) const’:
 texthash.cpp:188:3: warning: nonnull argument ‘this’ compared to NULL [-Wnonnull-compare]
+
+%=== Sat Aug 19 19:57:28 2017 mstorti@galileo
+%
+%----2017-08-19.22:57:28.mstorti-v39-start-52-g124c0178-----
+Quiero agregar un feature que permita  calcular el G_body (o cualquier
+otra propiedad) por el usuario. Para eso el usuario debe escribir una
+funcion tipo
+%
+void getprop(const string &prop,
+ int elem,const vector<double> &x,double time,
+ int len,double *vals)
+%
+esta funcion es llamada en el lazo de los elementos de nsi_tet_les por
+ejemplo. Todos los argumentos son de entrada menos el vals que es un
+arreglo de dobles donde el usuario tiene que pisar los valores.
+%
+Lo que se me ocurre es directamente usar los hooks. Es decir, uno de
+los hooks es un hook especial al cual le es pasada esta función. (Más
+adelante podríamos tener un hook especial para cada elemset.)
+%
+Por ahora tiene que hacer el cálculo para cada propiedad, pero
+facilmente podríamos armar una funcion que haga unos calculos para
+cada elemento, antes de todo. Habría que pasarle los ELEMPROPS. Pero
+si no también el mismo hook puede leer un archivo, incluso en HDF5 y
+tomar los datos de ahí. 
+%
+Al modificar el DLHOOK me di cuenta que  se puede hacer más fácil.
+Leyendo este artiículo veo que a lo único que hay que hacerle DLOPEN
+es a la función que devuelve un puntero al hook. 
+http://www.linuxjournal.com/article/3687
+%
+Lo trato de implementar pero accidentalmente detecto que en realidad
+la vieja definición funciona, y le puedo agregar métodos como el
+getprop y no hay un wrapper para el método sino que  directamente la
+agrego y la carga. Parece funcionar vamos a ver. Si fuera así se
+podría eliminar todos los wrapper que hice. 
