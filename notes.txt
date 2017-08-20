@@ -17498,3 +17498,10 @@ la vieja definición funciona, y le puedo agregar métodos como el
 getprop y no hay un wrapper para el método sino que  directamente la
 agrego y la carga. Parece funcionar vamos a ver. Si fuera así se
 podría eliminar todos los wrapper que hice. 
+%
+%----2017-08-20.12:44:50.mstorti-v39-start-53-g680f240-----
+Empieza a tirar un error sobre las opciones de debug. Parece que si se 
+desactiva el debug completamente entonces no le deja hacer no se que
+cosa. Me imagino que cuando le pones -O0 habría que ponerle también
+algún flag para que no tire el error. 
+#warning _FORTIFY_SOURCE requires compiling with optimization (-O) [-Wcpp]
