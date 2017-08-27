@@ -203,6 +203,9 @@ public:
       @return reference to self  */ 
   dvector<T>& scale(double alpha);
 
+  /** Transpose the array (assume rank is 2) */ 
+  dvector<T>& transpose();
+
   /// Write to a stream
   dvector<T>& print(FILE *fid=stdout,int rowsz=0);
 

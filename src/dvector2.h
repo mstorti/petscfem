@@ -703,5 +703,26 @@ dvector<T>::export_vals(T* array) const {
   return *this;
 }
 
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>
+template<class T>
+dvector<T>& dvector<T>::transpose() {
+  // makes z = w'; uses temporary dvector
+  vector<int> wshape,zshape(2);
+  get_shape(wshape);
+  int rank = wshape.size();
+  // PETSCFEM_ASSERT(rank==2,"bad rank %d",rank);
+  assert(rank==2);
+  zshape[0] = wshape[1];
+  zshape[1] = wshape[0];
+  int m=wshape[0],n=wshape[1];
+  dvector<T> z;
+  z.a_resize(2,n,m);
+  for (int j=0; j<m; j++) 
+    for (int k=0; k<n; k++) 
+      z.e(k,j) = e(j,k);
+  clone(z);
+  return *this;
+}
+
 #endif
 

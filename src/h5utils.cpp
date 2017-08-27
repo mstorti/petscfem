@@ -147,8 +147,10 @@ void h5_dvector_write(dvector<double> &w,const char *filename,
                      const char *varname) {
   w.defrag();
   H5::H5File *filep=NULL;
-  try { filep = new H5::H5File(filename,H5F_ACC_EXCL); }
-  catch(...) { filep = new H5::H5File(filename,H5F_ACC_RDWR); }
+  if (!access(filename,F_OK)) 
+    filep = new H5::H5File(filename,H5F_ACC_RDWR);
+  else 
+    filep = new H5::H5File(filename,H5F_ACC_TRUNC);
   vector<int> shape;
   w.get_shape(shape);
   int rank=shape.size();
