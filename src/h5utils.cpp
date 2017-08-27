@@ -132,10 +132,33 @@ void h5_dvector_read(const char *filename,
   int ndims = space.getSimpleExtentDims(dims.data(),NULL);
   int sz = 1;
   for (int j=0; j<ndims; j++) sz *= dims[j];
+  if (w.size()==0) w.resize(sz);
   PETSCFEM_ASSERT(sz==w.size(),"Wrong size, sz(w) %d, sz(h5) %d",
                   w.size(),sz);
   w.defrag();
   dataset.read(w.buff(),H5::PredType::NATIVE_DOUBLE);
+  vector<int> shape(rank);
+  for (int j=0; j<rank; j++) shape[j] = int(dims[j]);
+  w.reshape(shape);
+}
+
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>
+void h5_dvector_write(dvector<double> &w,const char *filename,
+                     const char *varname) {
+  w.defrag();
+  H5::H5File file(filename,H5F_ACC_TRUNC);
+  vector<int> shape;
+  w.get_shape(shape);
+  int rank=shape.size();
+  PETSCFEM_ASSERT(rank==1 || rank==2,
+                  "Not implemented yet rank %d",rank);  
+  vector<hsize_t> hshape(rank);
+  for (int j=0; j<rank; j++) hshape[j] = shape[j];
+  H5::DataSpace dataspace(rank,hshape.data());
+  // Create the dataset.
+  H5::DataSet xdset =
+    file.createDataSet("res",H5::PredType::NATIVE_DOUBLE,dataspace);
+  xdset.write(w.buff(),H5::PredType::NATIVE_DOUBLE);
 }
 
 #else
