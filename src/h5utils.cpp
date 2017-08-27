@@ -146,7 +146,9 @@ void h5_dvector_read(const char *filename,
 void h5_dvector_write(dvector<double> &w,const char *filename,
                      const char *varname) {
   w.defrag();
-  H5::H5File file(filename,H5F_ACC_TRUNC);
+  H5::H5File *filep=NULL;
+  try { filep = new H5::H5File(filename,H5F_ACC_EXCL); }
+  catch(...) { filep = new H5::H5File(filename,H5F_ACC_RDWR); }
   vector<int> shape;
   w.get_shape(shape);
   int rank=shape.size();
@@ -157,8 +159,9 @@ void h5_dvector_write(dvector<double> &w,const char *filename,
   H5::DataSpace dataspace(rank,hshape.data());
   // Create the dataset.
   H5::DataSet xdset =
-    file.createDataSet("res",H5::PredType::NATIVE_DOUBLE,dataspace);
+    filep->createDataSet(varname,H5::PredType::NATIVE_DOUBLE,dataspace);
   xdset.write(w.buff(),H5::PredType::NATIVE_DOUBLE);
+  delete filep;
 }
 
 #else
