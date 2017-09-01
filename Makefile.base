@@ -96,6 +96,8 @@ endif
 
 include ${PETSC_DIR}/conf/variables
 include ${PETSC_DIR}/conf/rules
+SHELL := /bin/bash
+
 
 ## NOT OK. The correct is the one above. It includes
 ## automatically these below
