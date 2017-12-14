@@ -164,7 +164,7 @@ int print_vector_h5(const char *filename,const Vec x,const Dofmap *dofmap,
   // state.a_resize(2,nnod,ndof);
   // state.defrag();
   Time t = GLOB_PARAM->state->t();
-  // Gahter the state from all the processors and resolve
+  // Gather the state from all the processors and resolve
   // for BCs 
   state2fields(state.data(),*GLOB_PARAM->state,dofmap,&t);
 

@@ -134,7 +134,7 @@ void LocalGraph::set_ngbrs(int loc1,GSet &ngbrs_v) {
 #define __FUNC__ "IISDMat::create_a"
 int IISDMat::create_a() {
 
-#define comm PETSCFEM_COMM_WORLD
+  // #define comm PETSCFEM_COMM_WORLD
   int myrank,size,max_partgraph_vertices_proc,proc_l;
   int k,/*pos,*/keq,leq,/*jj,*/row,row_type,col_type,od,
     /*d_nz,o_nz,nrows,ierr,n_loc_h,n_int_h,k1h,k2h,*/rank,

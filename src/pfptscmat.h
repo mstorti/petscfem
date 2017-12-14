@@ -88,9 +88,6 @@ protected:
     ~PFPETScPart() {}
   } pf_part;
 
-  /// The communicator
-  MPI_Comm comm;
-
   /// Cleans linear system 'ksp'
   int clean_factor_a();
 
@@ -101,6 +98,9 @@ protected:
   int clean_prof_a();
 
 public:
+
+  /// The communicator
+  MPI_Comm comm;
 
   PFPETScMat(int MM,const DofPartitioner &pp,MPI_Comm comm_);
 
