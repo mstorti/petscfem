@@ -35,7 +35,11 @@ enum PETScFEMErrors {
 };
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
-PFPETScMat::~PFPETScMat() {}
+PFPETScMat::~PFPETScMat() {
+  MatDestroy_maybe(A);
+  MatDestroy_maybe(P);
+  //  KSPDestroy_maybe(ksp);
+}
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 // Adjacency graph classes
@@ -385,6 +389,10 @@ IISDMat::~IISDMat() {
     ierr = VecDestroy_maybe(wb); assert(!ierr); 
     ierr = VecDestroy_maybe(xb); assert(!ierr); 
   }
+  ierr = MatDestroy_maybe(A_LL); assert(!ierr); 
+  ierr = MatDestroy_maybe(A_LI); assert(!ierr); 
+  ierr = MatDestroy_maybe(A_IL); assert(!ierr); 
+  ierr = MatDestroy_maybe(A_II); assert(!ierr); 
 }
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
@@ -831,13 +839,14 @@ int IISDMat::set_value_a(int row,int col,PetscScalar value,
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 #define PETSC_OBJECT_DESTROY_MAYBE(type)	\
-int type##Destroy_maybe(type &v) {		\
-  int ierr=0;					\
-  if (v) {					\
-    ierr = type##Destroy(&v); CHKERRQ(ierr);	\
-    v = NULL;					\
-  }						\
-  return ierr;					\
+int type##Destroy_maybe(type &v) {              \
+  int flag, ierr=0;                             \
+  MPI_Finalized(&flag);                         \
+  if (!flag && v) {                             \
+    ierr = type##Destroy(&v); CHKERRQ(ierr);    \
+    v = NULL;                                   \
+  }                                             \
+  return ierr;                                  \
 }
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
