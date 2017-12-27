@@ -36,9 +36,13 @@ enum PETScFEMErrors {
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 PFPETScMat::~PFPETScMat() {
+  // This is uglyyyyy. It is caused because in the ctor it
+  // may happen that P=A, i.e. they are ptrs to the same
+  // PETSc matrices. We should use `shared_ptr'
+  if (A==P) P=NULL;
   MatDestroy_maybe(A);
   MatDestroy_maybe(P);
-  //  KSPDestroy_maybe(ksp);
+  KSPDestroy_maybe(ksp);
 }
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
