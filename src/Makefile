@@ -199,5 +199,5 @@ libpetscfem_O.so:
 #w Make the dynamic libs
 dlibs:
 	rm -f *.so
-	shopt -s nullglob ; for lib in *.a ; do mv -f *.a q ; done
+	shopt -s nullglob ; for lib in *.a ; do mv -f $$lib q ; done
 	$(MAKE) libpetscfem_g.so libpetscfem_O.so
