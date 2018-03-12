@@ -16,6 +16,7 @@
 #include <src/fm2stats.h>
 #include <src/fastlib2.h>
 #include <src/fm2prod.h>
+#include <src/h5utils.h>
 
 // For level set mass control
 double total_liquid_volume, total_liquid_volume_g, liquid_volume_ini=NAN;
@@ -768,8 +769,6 @@ int ns_main(int argc,char **args) {
               ierr = VecView(dx,matlab);
             }
 	
-            PetscFinalize();
-            exit(0);
           } else {
 #ifdef USE_HDF5
             PETSCFEM_ASSERT0(!fractional_step,
@@ -783,6 +782,8 @@ int ns_main(int argc,char **args) {
           
 #endif
           }
+          PetscFinalize();
+          exit(0);
 	}	
 
 	double normres;
