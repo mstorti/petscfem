@@ -191,13 +191,13 @@ pfversion.h: force
 	if ! docdate.pl -l C -o pfversion.h ; then cp $(PFVH) pfversion.h ; fi
 
 libpetscfem_g.so:
-	$(MPICXX) -shared -Wl,--whole-archive -o libpetscfem_g.so q/libpetscfem_g.a -Wl,--no-whole-archive
+	$(MPICXX) -shared -Wl,--whole-archive -o libpetscfem_g.so static/libpetscfem_g.a -Wl,--no-whole-archive
 
 libpetscfem_O.so:
-	$(MPICXX) -shared -Wl,--whole-archive -o libpetscfem_O.so q/libpetscfem_O.a -Wl,--no-whole-archive
+	$(MPICXX) -shared -Wl,--whole-archive -o libpetscfem_O.so static/libpetscfem_O.a -Wl,--no-whole-archive
 
 #w Make the dynamic libs
 dlibs:
 	rm -f *.so
-	shopt -s nullglob ; for lib in *.a ; do mv -f $$lib q ; done
+	shopt -s nullglob ; for lib in *.a ; do mv -f $$lib static ; done
 	$(MAKE) libpetscfem_g.so libpetscfem_O.so
