@@ -26,14 +26,12 @@ MYOBJS =
 
 .INTERMEDIATE: $(LIBOBJS) 
 
-TAGFLAGS = $(TAGINCL)="../../src/TAGS"
 
 SRCS := $(MYOBJS:.o=.cpp) $(LIBOBJS:.o=.cpp)
 
 include $(PETSCFEM_DIR)/Makefile.base
 
-# ffeuler.o: ffeuler.cpp
-# 	-${CC} -c ${COPTFLAGS} ${CFLAGS} ${CCPPFLAGS} -O0 $<
+TAGFLAGS := $(TAGFLAGS) $(TAGINCL)="../../src/TAGS"
 
 advdif_bubbly.o : CCPPFLAGS += -O0
 

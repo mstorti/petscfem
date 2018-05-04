@@ -20,7 +20,7 @@
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 /** Accessing a 1-dimensional array as 2 dimensional. 
-    Typical use: \#define MATRIX(j,k) VEC2(j,k,dk)
+    Typical use: \#define MATRIX(j,k) VEC2(name,j,k,dk)
     @author M. Storti
     @param name (input) name of the array
     @param j (input) row index 
@@ -32,7 +32,7 @@
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 /** Accessing a 1-dimensional array as 3 dimensional. 
     Last index runs faster.
-    Typical use: \#define MATRIX(j,k,l) VEC2(j,k,dk,l,dl)
+    Typical use: \#define MATRIX(j,k,l) VEC2(name,j,k,dk,l,dl)
     @author M. Storti
     @param name (input) name of the array
     @param j (input) first index 
@@ -46,7 +46,7 @@
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 /** Accessing a 1-dimensional array as 4 dimensional. 
     Last index runs faster.
-    Typical use: \#define MATRIX(j,k,l) VEC2(j,k,dk,l,dl)
+    Typical use: \#define MATRIX(j,k,l) VEC4(name,j,k,dk,l,dl,0,d0)
     @author M. Storti
     @param name (input) name of the array
     @param j (input) first index 
@@ -60,9 +60,9 @@
 #define VEC4(name,j,k,dk,l,dl,p,dp) ((name)[VEC_ADDR_4(j,k,dk,l,dl,p,dp)])
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
-/** Accessing a 1-dimensional array as 4 dimensional. 
+/** Accessing a 1-dimensional array as 5 dimensional. 
     Last index runs faster.
-    Typical use: \#define MATRIX(j,k,l,p,q) VEC2(j,k,dk,l,dl,p,dp,q,dq)
+    Typical use: \#define MATRIX(j,k,l,p,q) VEC5(name,j,k,dk,l,dl,p,dp,q,dq)
     @author M. Storti
     @param name (input) name of the array
     @param j (input) 1st index 
