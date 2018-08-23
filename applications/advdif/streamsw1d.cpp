@@ -251,7 +251,7 @@ void streamsw1d_ff::compute_flux(const FastMat2 &U,
       .is(1,1,ndimel)
       .add(-g*area*ppq)
       .add(-0.5*g*pq*(h*wl_width-area))
-      .add(cfric*g*area*Sf) //le saco el signo menos, supuestamente es asi
+      .add(-cfric*g*area*Sf) //le saco el signo menos, supuestamente es asi
       .rs();
   }
 }
