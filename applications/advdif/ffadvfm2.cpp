@@ -745,7 +745,7 @@ void newadvecfm2_ff_t::start_chunk(int &ret_options) {
 
   strain_rate.resize(2,ndim,ndim);
 
-  ret_options &= !SCALAR_TAU; // tell the advective element routine
+  ret_options &= ~SCALAR_TAU; // tell the advective element routine
 
   // Read enthalpy jacobians
   //o _T: double[var_len]

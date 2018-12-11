@@ -11,6 +11,7 @@
 #include <src/sttfilter.h>
 #include <src/pfmat.h>
 #include <src/hook.h>
+#include <src/h5utils.h>
 
 // PETSc now doesn't have the string argument that represents the variable name
 // so that I will use this wrapper until I find how to set names in Ascii matlab viewers.
@@ -337,6 +338,9 @@ int struct_main() {
   TGETOPTDEF_S(GLOBAL_OPTIONS,string,save_file,outvector.out);
   save_file_res = save_file + string(".res");
 
+  //o Use HDF5 for saving linear system
+  TGETOPTDEF(mesh->global_options,int,use_hdf5,0);
+  
   //o Name of file where to read the nodes for the ``print some'' 
   // feature. 
   TGETOPTDEF_S(GLOBAL_OPTIONS,string,print_some_file,<none>);
@@ -581,28 +585,40 @@ int struct_main() {
         }
 
         if (print_linear_system_and_stop) {
-          PetscPrintf(PETSCFEM_COMM_WORLD,
-                      "Printing residual and matrix for"
-                      " debugging and stopping.\n");
-          ierr = PetscViewerASCIIOpen(PETSCFEM_COMM_WORLD,
-                                      "system.dat",&matlab); CHKERRA(ierr);
-          ierr = PetscViewerSetFormat_WRAPPER(matlab,
-                                              PETSC_VIEWER_ASCII_MATLAB,"atet"); CHKERRA(ierr);
-          ierr = A_tet->view(matlab);
-          ierr = PetscViewerSetFormat_WRAPPER(matlab,
-                                              PETSC_VIEWER_ASCII_MATLAB,"res"); CHKERRA(ierr);
-          ierr = VecView(res,matlab);
-
-          if (solve_system) {
+          if (!use_hdf5) {
+            PetscPrintf(PETSCFEM_COMM_WORLD,
+                        "Printing residual and matrix for"
+                        " debugging and stopping.\n");
+            ierr = PetscViewerASCIIOpen(PETSCFEM_COMM_WORLD,
+                                        "system.dat",&matlab); CHKERRA(ierr);
             ierr = PetscViewerSetFormat_WRAPPER(matlab,
-                                                PETSC_VIEWER_ASCII_MATLAB,"dx");
-            CHKERRA(ierr);
-            ierr = VecView(dx,matlab);
+                                                PETSC_VIEWER_ASCII_MATLAB,"atet"); CHKERRA(ierr);
+            ierr = A_tet->view(matlab);
+            ierr = PetscViewerSetFormat_WRAPPER(matlab,
+                                                PETSC_VIEWER_ASCII_MATLAB,"res"); CHKERRA(ierr);
+            ierr = VecView(res,matlab);
+
+            if (solve_system) {
+              ierr = PetscViewerSetFormat_WRAPPER(matlab,
+                                                  PETSC_VIEWER_ASCII_MATLAB,"dx");
+              CHKERRA(ierr);
+              ierr = VecView(dx,matlab);
+            }
+          } else {
+#ifdef USE_HDF5
+            PETSCFEM_ASSERT0(!fractional_step,
+                             "Can't save linear system if fractional step is used");  
+            Mat AA = A_tet->get_petsc_mat();
+            h5petsc_mat_save(AA,"nssys.h5");
+            h5petsc_vec_save(res,"nsres.h5","res");
+#else
+            PETSCFEM_ERROR0("Save in HDF5 format requested but code "
+                            "was not compiled with HDF5 support\n");
+          
+#endif
           }
-	
           PetscFinalize();
           exit(0);
-
         }	
 
         double normres;

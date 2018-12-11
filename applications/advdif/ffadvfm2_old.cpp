@@ -94,7 +94,7 @@ int advecfm2_ff_t::operator()(ADVDIFFF_ARGS) {
     if (na==ndim*ndof && nd==ndof && nc==ndof) {
       // An advection velocity and a diffusivity and a reactive for each field 
       u.set(&*ajacv.begin());
-      ret_options &= !SCALAR_TAU; // tell the advective element routine
+      ret_options &= ~SCALAR_TAU; // tell the advective element routine
 				// that we are returning a non-scalar tau
       A_jac_l.set(0.);
       D_jac_l.set(0.);
@@ -133,7 +133,7 @@ int advecfm2_ff_t::operator()(ADVDIFFF_ARGS) {
 	ret_options |= SCALAR_TAU; // tell the advective element routine
 				// that we are returning a scalar tau
       } else {
-	ret_options &= !SCALAR_TAU; // tell the advective element routine
+	ret_options &= ~SCALAR_TAU; // tell the advective element routine
 				// that we are returning a scalar tau
       }
 	
