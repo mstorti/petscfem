@@ -11,6 +11,7 @@
 #include <src/util2.h>
 #include <src/pfmat.h>
 #include <src/hook.h>
+#include <src/h5utils.h>
 
 #include "advective.h"
 
@@ -41,8 +42,9 @@ Hook *advdif_hook_factory(const char *name);
 //-------<*>-------<*>-------<*>-------<*>-------<*>------- 
 #undef __FUNC__
 #define __FUNC__ "advdif_chim"
-int chimera_main(int argc,char **args) {
-
+int chimera_main() {
+  PetscBool flg;
+  int ierr;
   Vec     x, dx, xold, res; /* approx solution, RHS, residual*/
   PFMat *A,*AA;			// linear system matrix 
   PFMat *A_tet, *A_tet_c;
@@ -385,8 +387,6 @@ int chimera_main(int argc,char **args) {
     hook_list.time_step_pre(time.time()+Dt,tstep); //hook needs t_{n+1}
 
     for (int inwt=0; inwt<nnwt; inwt++) {
-      abso_inwt = inwt;
-
       // Initializes res
       scal=0;
       ierr = VecSet(res,scal); CHKERRA(ierr);
