@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: advdif.cpp,v 1.71.10.2 2007/02/23 19:18:07 rodrigop Exp $
+//$Id merge-with-petsc-233-55-g52bd457 Fri Oct 26 13:57:07 2007 -0300$
 
 #include <src/debug.h>
 #include <set>
@@ -12,85 +12,37 @@
 #include <src/pfmat.h>
 #include <src/hook.h>
 
-#include <src/fm2stats.h>
-#include <src/fastlib2.h>
-#include <src/fm2prod.h>
-#include <src/h5utils.h>
-
 #include "advective.h"
 
 #include <time.h>
 
 static char help[] = "Basic finite element program.\n\n";
-int abso_inwt;
 
-extern int print_internal_loop_conv_g;
-extern int consistent_supg_matrix_g;
-extern int  local_time_step_g;
-extern int  comp_mat_each_time_step_g;
+extern int print_internal_loop_conv_g,
+  consistent_supg_matrix_g,
+  local_time_step_g,
+  comp_mat_each_time_step_g,
+  verify_jacobian_with_numerical_one;
 
 #define VECVIEW(name,label) \
 ierr = PetscViewerSetFormat(matlab, \
 		       PETSC_VIEWER_ASCII_MATLAB,#label); \
 ierr = VecView(name,matlab); CHKERRA(ierr)
 
-// PETSc now doesn't have the string argument that represents the variable name
-// so that I will use this wrapper until I find how to set names in Ascii matlab viewers.
+// PETSc now doesn't have the string argument that
+// represents the variable name so that I will use this
+// wrapper until I find how to set names in Ascii matlab
+// viewers.
 #define PetscViewerSetFormat_WRAPPER(viewer,format,name) \
           PetscViewerSetFormat(viewer,format)
 
-int bubbly_main();
-int fsi_main();
-int bdf_main();
-int dual_time_main();
-int chimera_main();
-
 Hook *advdif_hook_factory(const char *name);
-
-#if 0
-//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>
-int VecIsFinite(Vec x) {
-  double *xp;
-  int ierr,size;
-  ierr = VecGetArray(x,&xp); CHKERRQ(ierr);
-  ierr = VecGetLocalSize(x,&size); CHKERRQ(ierr);
-  int locok = 1, ok;
-  for (int j=0; j<size; j++) 
-    if (!isfinite(xp[j])) { locok = 0; break; }
-  ierr = VecRestoreArray(x,&xp);
-  ierr = MPI_Allreduce(&locok,&ok,1,MPI_INT,
-                       MPI_LAND,PETSCFEM_COMM_WORLD);
-  return ok;
-}
-#endif
-
 
 //-------<*>-------<*>-------<*>-------<*>-------<*>------- 
 #undef __FUNC__
-#define __FUNC__ "advdif_main"
-int advdif_main(int argc,char **args) {
-  setvbuf(stdout,NULL,_IONBF,0);
+#define __FUNC__ "advdif_chim"
+int chimera_main(int argc,char **args) {
 
-#ifdef DO_SIZE_STATS
-  prod2_subcache_t::do_size_stats=1;
-#endif
-  // prod2_subcache_t::nmax=0;
-  PetscFemInitialize(&argc,&args,(char *)0,help);
-  
-#define CNLEN 100
-  PetscBool flg;
-  char code_name[CNLEN];
-  int ierr = PetscOptionsGetString(PETSC_NULL,"-code",code_name,CNLEN,&flg);
-
-  if (flg) {
-    if (!strcmp(code_name,"fsi")) return fsi_main();
-    if (!strcmp(code_name,"bdf")) return bdf_main();
-    if (!strcmp(code_name,"bubbly")) return bubbly_main();
-    if (!strcmp(code_name,"dual_time")) return dual_time_main();
-    if (!strcmp(code_name,"chim")) return chimera_main();
-    PETSCFEM_ERROR("Unknown -code option: \"%s\"\n",code_name);
-  }
-  
   Vec     x, dx, xold, res; /* approx solution, RHS, residual*/
   PFMat *A,*AA;			// linear system matrix 
   PFMat *A_tet, *A_tet_c;
