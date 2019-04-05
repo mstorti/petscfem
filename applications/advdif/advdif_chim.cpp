@@ -39,6 +39,12 @@ ierr = VecView(name,matlab); CHKERRA(ierr)
 
 Hook *advdif_hook_factory(const char *name);
 
+class chimera_mat_shell_t {
+public:
+  Mat A;
+  chimera_mat_shell_t() : A(NULL) {}
+};
+
 //-------<*>-------<*>-------<*>-------<*>-------<*>------- 
 #undef __FUNC__
 #define __FUNC__ "advdif_chim"
@@ -74,7 +80,8 @@ int chimera_main() {
   // elemsetlist =  da_create(sizeof(Elemset *));
   print_copyright();
   PetscPrintf(PETSCFEM_COMM_WORLD,
-	      "-------- Generic Advective-Diffusive  module ---------\n");
+	      "-------- Generic Advective-Diffusive  module ---------\n"
+	      "-------- CHIMERA MODULE ---------\n");
 
   Debug debug(0,PETSCFEM_COMM_WORLD);
   GLOBAL_DEBUG = &debug;
@@ -425,7 +432,24 @@ int chimera_main() {
 
 	if (!print_linear_system_and_stop || solve_system) {
 	  debug.trace("Before solving linear system...");
-	  ierr = A->solve(res,dx); CHKERRA(ierr); 
+#if 0 // ORIG CODE
+	  ierr = A->solve(res,dx); CHKERRA(ierr);
+#else
+          chimera_mat_shell_t cms;
+          cms.A = A->get_petsc_mat();
+          KSP ksp;         /* linear solver context */
+          PC pc;           /* preconditioner context */
+          ierr = KSPCreate(PETSCFEM_COMM_WORLD,&ksp);CHKERRQ(ierr);
+
+          ierr = KSPSetOperators(ksp,cms.A,cms.A,DIFFERENT_NONZERO_PATTERN);
+          CHKERRQ(ierr);
+
+          ierr = KSPGetPC(ksp,&pc);CHKERRQ(ierr);
+          ierr = PCSetType(pc,PCJACOBI);CHKERRQ(ierr);
+          ierr = KSPSetTolerances(ksp,1.e-7,PETSC_DEFAULT,PETSC_DEFAULT,
+                                  PETSC_DEFAULT);CHKERRQ(ierr);
+          ierr = KSPSolve(ksp,res,dx);CHKERRQ(ierr); 
+#endif
 	  debug.trace("After solving linear system.");
 	}
       } else {
