@@ -45,6 +45,14 @@ public:
   chimera_mat_shell_t() : A(NULL) {}
 };
 
+int mat_mult(Mat A,Vec x,Vec y) {
+  void *ctx;
+  int ierr = MatShellGetContext(A,&ctx); CHKERRQ(ierr);
+  chimera_mat_shell_t &cms = *(chimera_mat_shell_t*)ctx;
+  ierr = MatMult(cms.A,x,y); CHKERRQ(ierr);
+  return 0;
+}
+
 //-------<*>-------<*>-------<*>-------<*>-------<*>------- 
 #undef __FUNC__
 #define __FUNC__ "advdif_chim"
@@ -435,19 +443,28 @@ int chimera_main() {
 #if 0 // ORIG CODE
 	  ierr = A->solve(res,dx); CHKERRA(ierr);
 #else
+          Mat Ashell;
           chimera_mat_shell_t cms;
+          int neq,nlocal;
+          ierr = VecGetSize(dx,&neq);CHKERRQ(ierr);          
+          ierr = VecGetLocalSize(dx,&nlocal);CHKERRQ(ierr);          
+          ierr = MatCreateShell(PETSC_COMM_WORLD,nlocal,nlocal,neq,neq,
+                                &cms,&Ashell);
+          MatShellSetOperation(Ashell,MATOP_MULT,(void (*)(void))(&mat_mult));
           cms.A = A->get_petsc_mat();
           KSP ksp;         /* linear solver context */
           PC pc;           /* preconditioner context */
           ierr = KSPCreate(PETSCFEM_COMM_WORLD,&ksp);CHKERRQ(ierr);
 
-          ierr = KSPSetOperators(ksp,cms.A,cms.A,DIFFERENT_NONZERO_PATTERN);
+          ierr = KSPSetOperators(ksp,Ashell,Ashell,DIFFERENT_NONZERO_PATTERN);
           CHKERRQ(ierr);
 
+          ierr = KSPSetType(ksp,KSPGMRES); CHKERRQ(ierr);
           ierr = KSPGetPC(ksp,&pc);CHKERRQ(ierr);
-          ierr = PCSetType(pc,PCJACOBI);CHKERRQ(ierr);
+          ierr = PCSetType(pc,PCNONE); CHKERRQ(ierr);
           ierr = KSPSetTolerances(ksp,1.e-7,PETSC_DEFAULT,PETSC_DEFAULT,
                                   PETSC_DEFAULT);CHKERRQ(ierr);
+          ierr = KSPMonitorSet(ksp,KSPMonitorDefault,NULL,NULL);
           ierr = KSPSolve(ksp,res,dx);CHKERRQ(ierr); 
 #endif
 	  debug.trace("After solving linear system.");
