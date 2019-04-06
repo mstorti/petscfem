@@ -54,7 +54,7 @@ int mat_mult(Mat A,Vec x,Vec y) {
   ierr = MatMult(cms.A,x,y); CHKERRQ(ierr);
   // Here we can add some extra contribution to the
   // residuals
-  double coef=1e3;
+  double coef=1e5;
   int size;
   MPI_Comm_size(PETSCFEM_COMM_WORLD,&size);
   PETSCFEM_ASSERT0(size==1,"Only one processor so far");  
