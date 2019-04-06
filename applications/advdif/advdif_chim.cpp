@@ -56,6 +56,7 @@ public:
   // from the other domain, maps the equation number to the
   // node number
   map<int,int> ibeq2node;
+  double coefpen;
 };
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>
@@ -72,8 +73,11 @@ int chimera_mat_shell_t::init(Mat A_,Vec res) {
 
   Dofmap *dofmap = GLOBAL_DOFMAP;
   int nnod = dofmap->nnod;
+  int neq = dofmap->neq;
   PETSCFEM_ASSERT0(dofmap->ndof==1,"Only 1 dof/node so far");  
   static int flag=0;
+  double *resp;
+  ierr = VecGetArray(res,&resp); CHKERRQ(ierr);  
   int count=0;
   for (int node=0; node<nnod; node++) {
     int m;
@@ -91,12 +95,14 @@ int chimera_mat_shell_t::init(Mat A_,Vec res) {
     if (m==1) {
       PETSCFEM_ASSERT0(coefs[0]==1.0,"Dofmap is not identity!!");
       int jeq = dofs[0];
-      if (fabs(XNOD(node,0)-0.5)<tol) {
+      if (jeq<neq && fabs(XNOD(node,0)-0.5)<tol) {
         ibeq2node[jeq] = node;
+        resp[jeq] = coefpen*2.0;
         count++;
       }
     }
   }
+  ierr = VecRestoreArray(res,&resp); CHKERRQ(ierr);  
   if (!flag) {
     flag=1;
     printf("count %d\n",count);
@@ -112,10 +118,9 @@ int chimera_mat_shell_t::mat_mult(Vec x,Vec y) {
   double *xp,*yp;
   ierr = VecGetArray(x,&xp); CHKERRQ(ierr);  
   ierr = VecGetArray(y,&yp); CHKERRQ(ierr);  
-  double coef=1e3;
   for (auto &q : ibeq2node) {
     int jeq = q.first;
-    yp[jeq] += coef*xp[jeq];
+    yp[jeq] += coefpen*xp[jeq];
   }
   ierr = VecRestoreArray(x,&xp); CHKERRQ(ierr);  
   ierr = VecRestoreArray(y,&yp); CHKERRQ(ierr);  
@@ -131,7 +136,6 @@ int mat_mult(Mat A,Vec x,Vec y) {
   cms.mat_mult(x,y);
   return 0;
 }
-
 
 //-------<*>-------<*>-------<*>-------<*>-------<*>------- 
 #undef __FUNC__
@@ -526,6 +530,7 @@ int chimera_main() {
 #else
           Mat Ashell;
           chimera_mat_shell_t cms;
+          cms.coefpen = 1e5;
           cms.init(A->get_petsc_mat(),res);
           int neq,nlocal;
           ierr = VecGetSize(dx,&neq);CHKERRQ(ierr);          
