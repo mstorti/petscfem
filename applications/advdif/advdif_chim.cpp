@@ -41,13 +41,16 @@ Hook *advdif_hook_factory(const char *name);
 extern Mesh *GLOBAL_MESH;
 Dofmap *GLOBAL_DOFMAP;
 
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>
 class chimera_mat_shell_t {
 public:
   chimera_mat_shell_t() : A(NULL) {}
-  
+
+  // Initializes the problem before starting the iterative solver
   int init(Mat A,Vec res);
+  // This is called in each iteration of the solver iteration loop
   int mat_mult(Mat A,Vec x,Vec y);
-  // The unrelying PETSc matrix
+  // The underlying PETSc matrix
   Mat A;
   // For the internal boundaries (those that must be interpolated
   // from the other domain, maps the equation number to the
@@ -55,6 +58,7 @@ public:
   map<int,int> ibeq2node;
 };
 
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>
 int chimera_mat_shell_t::init(Mat A_,Vec res) {
   int ierr;
   A = A_;
@@ -76,7 +80,7 @@ int chimera_mat_shell_t::init(Mat A_,Vec res) {
     const int *dofs;
     const double *coefs;
     // Dofmap works with base 1 nodes and dofs...
-    dofmap->get_row(node-1,1,m,&dofs,&coefs);
+    dofmap->get_row(node+1,1,m,&dofs,&coefs);
     PETSCFEM_ASSERT0(m<=1,"Dofmap is not identity!!");
 #if 0    
     printf("node %d (%g,%g):",node,XNOD(node-1,0),XNOD(node-1,1));
@@ -100,6 +104,7 @@ int chimera_mat_shell_t::init(Mat A_,Vec res) {
   return 0;
 }
 
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>
 int chimera_mat_shell_t::mat_mult(Mat A_,Vec x,Vec y) {
   // Here we can add some extra contribution to the
   // residuals
@@ -117,6 +122,7 @@ int chimera_mat_shell_t::mat_mult(Mat A_,Vec x,Vec y) {
   return 0;
 }
 
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>
 int mat_mult(Mat A,Vec x,Vec y) {
   void *ctx;
   int ierr = MatShellGetContext(A,&ctx); CHKERRQ(ierr);
