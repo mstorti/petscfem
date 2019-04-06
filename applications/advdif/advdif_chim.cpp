@@ -61,23 +61,34 @@ public:
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>
 int chimera_mat_shell_t::init(Mat A_,Vec res) {
+  // We prepare the system to solve A\res
   int ierr;
+  // Store a pointer to the underlying PETSc matrix
   A = A_;
+  // Check that only one processor is being used
   int size;
   MPI_Comm_size(PETSCFEM_COMM_WORLD,&size);
-  PETSCFEM_ASSERT0(size==1,"Only one processor so far");  
+  PETSCFEM_ASSERT0(size==1,"Only one processor so far");
 
+  // Get the coordinates of the nodes
   double *xnod = GLOBAL_MESH->nodedata->nodedata;
 #define XNOD(j,k) VEC2(xnod,j,k,nu)
   int nu = GLOBAL_MESH->nodedata->nu;
 
+  // Get the dofmap in order to map equations to nodes
   Dofmap *dofmap = GLOBAL_DOFMAP;
   int nnod = dofmap->nnod;
   int neq = dofmap->neq;
-  PETSCFEM_ASSERT0(dofmap->ndof==1,"Only 1 dof/node so far");  
-  static int flag=0;
+  // So far only used for scalar problems (ndof==1)
+  PETSCFEM_ASSERT0(dofmap->ndof==1,"Only 1 dof/node so far");
+  // The RHS vector. If we will replace the equation for
+  // some node JEQ to PHI[JEQ]=VAL then we have to set the
+  // RHS[JEQ] to VAL and set the corresponding row to 1
+  // (Identity) In this stage we just set the rows of the
+  // matrix to Identity and the RHS.
   double *resp;
-  ierr = VecGetArray(res,&resp); CHKERRQ(ierr);  
+  ierr = VecGetArray(res,&resp); CHKERRQ(ierr);
+  // COUNT will be the number of rows that are set
   int count=0;
   for (int node=0; node<nnod; node++) {
     int m;
@@ -85,28 +96,24 @@ int chimera_mat_shell_t::init(Mat A_,Vec res) {
     const double *coefs;
     // Dofmap works with base 1 nodes and dofs...
     dofmap->get_row(node+1,1,m,&dofs,&coefs);
-    PETSCFEM_ASSERT0(m<=1,"Dofmap is not identity!!");
-#if 0    
-    printf("node %d (%g,%g):",node,XNOD(node-1,0),XNOD(node-1,1));
-    for (int l=0; l<m; l++) printf(" %d",dofs[l]);
-    printf("\n");
-#endif
+    PETSCFEM_ASSERT0(m==1,"Dofmap is not a permutation of the identity!!");
     double tol=1e-5;
-    if (m==1) {
-      PETSCFEM_ASSERT0(coefs[0]==1.0,"Dofmap is not identity!!");
-      int jeq = dofs[0];
-      if (jeq<neq && fabs(XNOD(node,0)-0.5)<tol) {
-        ibeq2node[jeq] = node;
-        resp[jeq] = coefpen*2.0;
-        count++;
-      }
+    PETSCFEM_ASSERT0(coefs[0]==1.0,"Dofmap is not identity!!");
+    int jeq = dofs[0];
+    if (jeq<neq && fabs(XNOD(node,0)-0.5)<tol) {
+      ibeq2node[jeq] = node;
+      resp[jeq] = coefpen*5.0;
+      count++;
     }
   }
-  ierr = VecRestoreArray(res,&resp); CHKERRQ(ierr);  
-  if (!flag) {
-    flag=1;
-    printf("count %d\n",count);
-  }
+  // Replace the rows at the nodes
+  int nrows = ibeq2node.size();
+  PETSCFEM_ASSERT0(nrows==count,"Detected problem with equation numbering");
+  vector<int> rows;
+  for (auto &q : ibeq2node) rows.push_back(q.first);
+  ierr = MatZeroRows(A,nrows,rows.data(),1.0,NULL,NULL); CHKERRQ(ierr);
+  ierr = VecRestoreArray(res,&resp); CHKERRQ(ierr);
+  printf("count %d\n",count);
   return 0;
 }
 
@@ -116,14 +123,14 @@ int chimera_mat_shell_t::mat_mult(Vec x,Vec y) {
   // residuals
   int ierr;
   double *xp,*yp;
-  ierr = VecGetArray(x,&xp); CHKERRQ(ierr);  
-  ierr = VecGetArray(y,&yp); CHKERRQ(ierr);  
+  ierr = VecGetArray(x,&xp); CHKERRQ(ierr);
+  ierr = VecGetArray(y,&yp); CHKERRQ(ierr);
   for (auto &q : ibeq2node) {
     int jeq = q.first;
     yp[jeq] += coefpen*xp[jeq];
   }
-  ierr = VecRestoreArray(x,&xp); CHKERRQ(ierr);  
-  ierr = VecRestoreArray(y,&yp); CHKERRQ(ierr);  
+  ierr = VecRestoreArray(x,&xp); CHKERRQ(ierr);
+  ierr = VecRestoreArray(y,&yp); CHKERRQ(ierr);
   return 0;
 }
 
@@ -137,14 +144,14 @@ int mat_mult(Mat A,Vec x,Vec y) {
   return 0;
 }
 
-//-------<*>-------<*>-------<*>-------<*>-------<*>------- 
+//-------<*>-------<*>-------<*>-------<*>-------<*>-------
 #undef __FUNC__
 #define __FUNC__ "advdif_chim"
 int chimera_main() {
   PetscBool flg;
   int ierr;
   Vec     x, dx, xold, res; /* approx solution, RHS, residual*/
-  PFMat *A,*AA;			// linear system matrix 
+  PFMat *A,*AA;			// linear system matrix
   PFMat *A_tet, *A_tet_c;
   double  *sol, scal, normres, normres_ext=NAN;    /* norm of solution error */
   int     i, n = 10, col[3], its, size, node,
@@ -215,7 +222,7 @@ int chimera_main() {
   //o Prints the convergence history when solving a consistent matrix
   GETOPTDEF(int,print_internal_loop_conv,0);
   print_internal_loop_conv_g=print_internal_loop_conv;
-  //o Measure performance of the  #comp_mat_res#  jobinfo. 
+  //o Measure performance of the  #comp_mat_res#  jobinfo.
   GETOPTDEF(int,measure_performance,0);
 
   //o Save state vector frequency (in steps)
@@ -226,48 +233,48 @@ int chimera_main() {
   //o Sets the number of states saved in a given file
   // in the ``rotary save'' mechanism (see \ref{sec:rotary_save}
   GETOPTDEF(int,nrec,1000000);
-  //o Sets the number of files in the ``rotary save'' mechanism. 
+  //o Sets the number of files in the ``rotary save'' mechanism.
   // (see \ref{sec:rotary_save})
   GETOPTDEF(int,nfile,1);
 
-  //o The number of time steps. 
+  //o The number of time steps.
   GETOPTDEF(int,nstep,10000);
-  //o Output CPU time statistics for frequency in time steps. 
+  //o Output CPU time statistics for frequency in time steps.
   GETOPTDEF(int,nstep_cpu_stat,10);
   //o After computing the linear system prints Jacobian and
-  // right hand side and stops.. 
+  // right hand side and stops..
   GETOPTDEF(int,print_linear_system_and_stop,0);
-  //o Solve system before  #print\_linear_system_and_stop# 
+  //o Solve system before  #print\_linear_system_and_stop#
   GETOPTDEF(int,solve_system,1);
   //o If #print_linear_system_and_stop# is active,
-  // then print system in this Newton iteration 
+  // then print system in this Newton iteration
   GETOPTDEF(int,inwt_stop,0);
   //o If #print_linear_system_and_stop# is active,
   // then print system in this time step
   GETOPTDEF(int,time_step_stop,1);
-  //o Print the residual each  #nsave#  steps. 
+  //o Print the residual each  #nsave#  steps.
   GETOPTDEF(int,print_residual,0);
 
   //o Sets the save frequency in iterations for the ``print some''
   // mechanism. (see doc in the Navier-Stokes module)
   GETOPTDEF(int,nsome,10000);
-  //o Name of file where to read the nodes for the ``print some'' 
-  // feature. 
+  //o Name of file where to read the nodes for the ``print some''
+  // feature.
   TGETOPTDEF_S(GLOBAL_OPTIONS,string,print_some_file,);
-  //o Name of file where to save node values for the ``print some'' 
-  // feature. 
+  //o Name of file where to save node values for the ``print some''
+  // feature.
   TGETOPTDEF_S(GLOBAL_OPTIONS,string,save_file_some,outvsome.out);
-  //o Access mode to the ``some'' file. If 0 rewind file. If 1 
+  //o Access mode to the ``some'' file. If 0 rewind file. If 1
   //  append to previous  results.
   TGETOPTDEF(GLOBAL_OPTIONS,int,save_file_some_append,1);
   //o Print, after execution, a report of the times a given option
   // was accessed. Useful for detecting if an option was used or not.
   GETOPTDEF(int,report_option_access,1);
-  //o Update jacobian each $n$-th time step. 
+  //o Update jacobian each $n$-th time step.
   GETOPTDEF(int,update_jacobian_steps,0);
   //o Use IISD (Interface Iterative Subdomain Direct) or not.
   GETOPTDEF(int,use_iisd,0);
-  //o Type of solver. May be  #iisd#  or  #petsc# . 
+  //o Type of solver. May be  #iisd#  or  #petsc# .
   TGETOPTDEF_S(GLOBAL_OPTIONS,string,solver,petsc);
   if (use_iisd) solver = string("iisd");
 
@@ -283,31 +290,31 @@ int chimera_main() {
 		       save_file_some_append);
 
   // warning: passed to advective.cpp via a global variable
-  //o Uses consistent SUPG matrix for the temporal term or not. 
+  //o Uses consistent SUPG matrix for the temporal term or not.
   GETOPTDEF(int,consistent_supg_matrix,0);
   consistent_supg_matrix_g = consistent_supg_matrix;
-  //o Chooses automatically the time step from the 
+  //o Chooses automatically the time step from the
   // selected Courant number
   GETOPTDEF(int,auto_time_step,1);
   // warning: passed to advective.cpp via a global variable
   //o Chooses a time step that varies locally. (Only makes sense
-  // when looking for steady state solutions. 
+  // when looking for steady state solutions.
   GETOPTDEF(int,local_time_step,1);
   local_time_step_g=local_time_step;
   //o The Courant number.
   GETOPTDEF(double,Courant,0.6);
-  //o Time step. 
+  //o Time step.
   GETOPTDEF(double,Dt,0.);
-  //o Flag if steady solution or not (uses Dt=inf). If  #steady# 
-  // is set to 1, then the computations are as if $\Dt=\infty$. 
-  // The value of  #Dt#  is used for printing etc... If  #Dt# 
+  //o Flag if steady solution or not (uses Dt=inf). If  #steady#
+  // is set to 1, then the computations are as if $\Dt=\infty$.
+  // The value of  #Dt#  is used for printing etc... If  #Dt#
   // is not set and  #steady#  is set then  #Dt#  is set to one.
   GETOPTDEF(int,steady,0);
   if (steady && Dt==0.) Dt=1.;
   glob_param.Dt = Dt;
   glob_param.steady = steady;
   //o The parameter of the trapezoidal rule
-  // for temporal integration. 
+  // for temporal integration.
   GETOPTDEF(double,alpha,1.);
   glob_param.alpha=alpha;
 #define ALPHA (glob_param.alpha)
@@ -318,26 +325,26 @@ int chimera_main() {
     local_time_step=0;
   }
   //o Number of iterations in the Newton loop. (
-  // for the implicit method. 
+  // for the implicit method.
   GETOPTDEF(int,nnwt,3);
   if (ALPHA==0.) nnwt=1;
 
   //o Flag for launching RENORM process
   GETOPTDEF(int,RENORM_flag,0);
 
-  comp_mat_each_time_step_g = 
+  comp_mat_each_time_step_g =
     consistent_supg_matrix || local_time_step;
 
   //o Counts time from here.
   GETOPTDEF(double,start_comp_time,0.);
   //o Counts time from here. (superseded by
   //  #start_comp_time# for compatibility with Navier-Stokes
-  //  module). 
+  //  module).
   GETOPTDEF(double,start_time,NAN);
   if (!isnan(start_time) && start_comp_time!=0.0)
     start_comp_time = start_time;
-  
-  //o Tolerance when solving with the mass matrix. 
+
+  //o Tolerance when solving with the mass matrix.
   GETOPTDEF(double,tol_mass,1e-3);
   //o Tolerance when solving the sublinear problem
   // at each iteration.
@@ -350,28 +357,28 @@ int chimera_main() {
   //o Relaxation factor for the Newton iteration
   GETOPTDEF(double,omega_newton,1.);
   //o Computes jacobian of residuals and prints to a file.
-  //  May serve to debug computation of the analytic jacobians. 
+  //  May serve to debug computation of the analytic jacobians.
   TGETOPTDEF_ND(mesh->global_options,int,verify_jacobian_with_numerical_one,0);
   //o Check whether the states are finite (not Inf or NaN).
-  //  If this happens the program stops. 
+  //  If this happens the program stops.
   GETOPTDEF(int,check_for_inf,0);
 
 #define INF INT_MAX
-  //o Update jacobian each $n$-th time step. 
+  //o Update jacobian each $n$-th time step.
   GETOPTDEF(int,update_jacobian_start_steps,INF);
-  //o Update jacobian only until n-th Newton subiteration. 
-  // Don't update if null. 
+  //o Update jacobian only until n-th Newton subiteration.
+  // Don't update if null.
   GETOPTDEF(int,update_jacobian_iters,1);
-  PETSCFEM_ASSERT0(update_jacobian_iters>=1,"Out of range");  
+  PETSCFEM_ASSERT0(update_jacobian_iters>=1,"Out of range");
   //o Update jacobian each $n$-th Newton iteration
   GETOPTDEF(int,update_jacobian_start_iters,INF);
-  PETSCFEM_ASSERT0(update_jacobian_start_iters>=0,"Out of range");  
+  PETSCFEM_ASSERT0(update_jacobian_start_iters>=0,"Out of range");
 #undef INF
 
   vector<double> gather_values;
   //o Number of ``gathered'' quantities.
   GETOPTDEF(int,ngather,0);
-  //o Print values in this file 
+  //o Print values in this file
   TGETOPTDEF_S(GLOBAL_OPTIONS,string,gather_file,gather.out);
   // Initialize gather_file
   FILE *gather_file_f;
@@ -381,7 +388,7 @@ int chimera_main() {
     fclose(gather_file_f);
   }
 
-  //o Chooses the preconditioning operator. 
+  //o Chooses the preconditioning operator.
   TGETOPTDEF_S(GLOBAL_OPTIONS,string,preco_type,jacobi);
   // I had to do this since `c_str()' returns `const char *'
   char *preco_type_ = new char[preco_type.size()+1];
@@ -401,13 +408,13 @@ int chimera_main() {
 
   //o Use HDF5 for saving linear system
   TGETOPTDEF(mesh->global_options,int,use_hdf5,0);
-  
+
 #if 0
   PetscViewer matlab;
   ierr = PetscViewerASCIIOpen(PETSCFEM_COMM_WORLD,
 			 "matns.m",&matlab); CHKERRA(ierr);
 #endif
-  //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+  //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:
 
   dofmap->create_MPI_vector(x);
 
@@ -420,19 +427,19 @@ int chimera_main() {
   glob_param.x = x;
   glob_param.xold = xold;
 
-  //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+  //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:
   // initialize state vectors
   scal=0;
   ierr = VecSet(x,scal); CHKERRA(ierr);
 
   arg_list argl,arglf;
 
-  //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+  //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:
   // Hook stuff
   HookList hook_list;
   hook_list.init(*mesh,*dofmap,advdif_hook_factory);
 
-  //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+  //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:
   // Compute  profiles
   debug.trace("Computing profiles...");
   VOID_IT(argl);
@@ -446,13 +453,13 @@ int chimera_main() {
     ierr = assemble(mesh,argl,dofmap,"comp_prof",&time); CHKERRA(ierr);
   }
 
-  //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+  //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:
   ierr = opt_read_vector(mesh,x,dofmap,MY_RANK); CHKERRA(ierr);
 
   //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:
   // This is for taking statistics of the
   // CPU time consumed by a time steptime
-  Chrono chrono; 
+  Chrono chrono;
 #define STAT_STEPS 5
   double cpu[STAT_STEPS],cpuav;
   int update_jacobian_this_step,update_jacobian_this_iter;
@@ -469,7 +476,7 @@ int chimera_main() {
 	  }
 	}
 	cpuav = 0;
-	for (int jstep=0; jstep<STAT_STEPS; jstep++) 
+	for (int jstep=0; jstep<STAT_STEPS; jstep++)
 	  cpuav+= cpu[jstep];
 	cpuav /= STAT_STEPS;
 	if (tstep % nstep_cpu_stat == 0)
@@ -493,10 +500,10 @@ int chimera_main() {
 
       if (comp_mat_each_time_step_g) {
 
-	//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
-	// ierr = A->build_ksp(GLOBAL_OPTIONS); CHKERRA(ierr); 
+	//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:
+	// ierr = A->build_ksp(GLOBAL_OPTIONS); CHKERRA(ierr);
 
-	ierr = A->clean_mat(); CHKERRA(ierr); 
+	ierr = A->clean_mat(); CHKERRA(ierr);
         if (ADVDIF_CHECK_JAC) {
           ierr = AA->clean_mat(); CHKERRA(ierr);
         }
@@ -530,11 +537,11 @@ int chimera_main() {
 #else
           Mat Ashell;
           chimera_mat_shell_t cms;
-          cms.coefpen = 1e5;
+          cms.coefpen = 1.0;
           cms.init(A->get_petsc_mat(),res);
           int neq,nlocal;
-          ierr = VecGetSize(dx,&neq);CHKERRQ(ierr);          
-          ierr = VecGetLocalSize(dx,&nlocal);CHKERRQ(ierr);          
+          ierr = VecGetSize(dx,&neq);CHKERRQ(ierr);
+          ierr = VecGetLocalSize(dx,&nlocal);CHKERRQ(ierr);
           ierr = MatCreateShell(PETSC_COMM_WORLD,nlocal,nlocal,neq,neq,
                                 &cms,&Ashell);
           MatShellSetOperation(Ashell,MATOP_MULT,(void (*)(void))(&mat_mult));
@@ -551,7 +558,7 @@ int chimera_main() {
           ierr = KSPSetTolerances(ksp,1.e-7,PETSC_DEFAULT,PETSC_DEFAULT,
                                   PETSC_DEFAULT); CHKERRQ(ierr);
           ierr = KSPMonitorSet(ksp,KSPMonitorDefault,NULL,NULL); CHKERRQ(ierr);
-          ierr = KSPSolve(ksp,res,dx); CHKERRQ(ierr); 
+          ierr = KSPSolve(ksp,res,dx); CHKERRQ(ierr);
 #endif
 	  debug.trace("After solving linear system.");
 	}
@@ -571,7 +578,7 @@ int chimera_main() {
 	ierr = assemble(mesh,argl,dofmap,"comp_res",&time_star); CHKERRA(ierr);
 
 	if (!print_linear_system_and_stop || solve_system) {
-	  ierr = A->solve(res,dx); CHKERRA(ierr); 
+	  ierr = A->solve(res,dx); CHKERRA(ierr);
 	}
       }
 
@@ -585,18 +592,18 @@ int chimera_main() {
 	  ierr = PetscViewerSetFormat_WRAPPER(matlab,
 					      PETSC_VIEWER_ASCII_MATLAB,
 					      "atet"); CHKERRA(ierr);
-	  
-	  ierr = A_tet->view(matlab); CHKERRQ(ierr); 
-	  
+
+	  ierr = A_tet->view(matlab); CHKERRQ(ierr);
+
 	  ierr = A_tet_c->duplicate(MAT_DO_NOT_COPY_VALUES,*A_tet); CHKERRA(ierr);
-	  ierr = A_tet->clean_mat(); CHKERRA(ierr); 
-	  ierr = A_tet_c->clean_mat(); CHKERRA(ierr); 
-	  
+	  ierr = A_tet->clean_mat(); CHKERRA(ierr);
+	  ierr = A_tet_c->clean_mat(); CHKERRA(ierr);
+
 	  argl.clear();
 	  argl.arg_add(&x,PERT_VECTOR);
 	  argl.arg_add(&xold,IN_VECTOR);
 	  argl.arg_add(A_tet_c,OUT_MATRIX_FDJ|PFMAT);
-	  
+
 	  argl.arg_add(A_tet,OUT_MATRIX|PFMAT);
 	  argl.arg_add(&hmin,VECTOR_MIN);
 
@@ -604,17 +611,17 @@ int chimera_main() {
 	  argl.arg_add(wall_data,USER_DATA);
 	  ierr = assemble(mesh,argl,dofmap,jobinfo,
 			  &time_star); CHKERRA(ierr);
-	  
+
 	  ierr = PetscViewerSetFormat_WRAPPER(matlab,
 					      PETSC_VIEWER_ASCII_MATLAB,"atet_fdj"); CHKERRA(ierr);
-	  ierr = A_tet_c->view(matlab); CHKERRQ(ierr); 
-	  
+	  ierr = A_tet_c->view(matlab); CHKERRQ(ierr);
+
 	  PetscFinalize();
 	  exit(0);
 	}
 #endif
-      
-      if (print_linear_system_and_stop && 
+
+      if (print_linear_system_and_stop &&
 	  inwt==inwt_stop && tstep==time_step_stop) {
         if (!use_hdf5) {
           PetscPrintf(PETSCFEM_COMM_WORLD,
@@ -622,25 +629,25 @@ int chimera_main() {
           PetscViewer matlab;
           ierr = PetscViewerASCIIOpen(PETSCFEM_COMM_WORLD,
                                       "mat.output",&matlab); CHKERRA(ierr);
-          ierr = PetscViewerSetFormat_WRAPPER(matlab, 
+          ierr = PetscViewerSetFormat_WRAPPER(matlab,
                                               PETSC_VIEWER_ASCII_MATLAB,"res");
 
           PetscObjectSetName((PetscObject)res,"Vec_0");
           ierr = VecView(res,matlab);
           if (solve_system) {
-            ierr = PetscViewerSetFormat_WRAPPER(matlab, 
+            ierr = PetscViewerSetFormat_WRAPPER(matlab,
                                                 PETSC_VIEWER_ASCII_MATLAB,"dx");
             ierr = VecView(dx,matlab);
           }
 
-          ierr = PetscViewerSetFormat_WRAPPER(matlab, 
+          ierr = PetscViewerSetFormat_WRAPPER(matlab,
                                               PETSC_VIEWER_ASCII_MATLAB,"A");
           Mat AP = A->get_petsc_mat();
           PetscObjectSetName((PetscObject)AP,"Mat_1");
           ierr = A->view(matlab);
           print_vector(save_file_res.c_str(),res,dofmap,&time); // debug:=
           if (ADVDIF_CHECK_JAC) {
-            ierr = PetscViewerSetFormat_WRAPPER(matlab, 
+            ierr = PetscViewerSetFormat_WRAPPER(matlab,
                                                 PETSC_VIEWER_ASCII_MATLAB,"AA");
             ierr = AA->view(matlab);
           }
@@ -652,7 +659,7 @@ int chimera_main() {
 #else
           PETSCFEM_ERROR0("Save in HDF5 format requested but code "
                          "was not compiled with HDF5 support\n");
-          
+
 #endif
         }
 	PetscFinalize();
@@ -663,10 +670,10 @@ int chimera_main() {
       if (check_for_inf) {
 #if 0
         PETSCFEM_ASSERT0(VecIsFinite(res),
-                         "Detected Inf or NaN values in residual vector");  
+                         "Detected Inf or NaN values in residual vector");
 #else
         PETSCFEM_ASSERT0(isfinite(normres),
-                         "Detected Inf or NaN values in residual vector");  
+                         "Detected Inf or NaN values in residual vector");
 #endif
       }
       if (inwt==0) normres_ext = normres;
@@ -678,12 +685,12 @@ int chimera_main() {
       if (check_for_inf) {
 #if 0
         PETSCFEM_ASSERT0(VecIsFinite(x),
-                         "Detected Inf or NaN values in state vector");  
+                         "Detected Inf or NaN values in state vector");
 #else
         double normx;
         ierr  = VecNorm(x,NORM_2,&normx); CHKERRA(ierr);
         PETSCFEM_ASSERT0(isfinite(normx),
-                         "Detected Inf or NaN values in state vector");  
+                         "Detected Inf or NaN values in state vector");
 #endif
       }
       if (normres < tol_newton) break;
@@ -691,7 +698,7 @@ int chimera_main() {
 
     // Prints residual and mass matrix in Matlab format
     // Define time step depending on strategy. Automatic time step,
-    // local time step, etc... 
+    // local time step, etc...
     if (auto_time_step) Dt = Courant*dtmin[0];
     if (local_time_step) Dt = Courant;
     if (Dt<=0.) {
@@ -748,11 +755,11 @@ int chimera_main() {
       if (MY_RANK==0) {
 	if (gather_file == "") {
 	  printf("Gather results: \n");
-	  for (unsigned int j=0; j < gather_values.size(); j++) 
+	  for (unsigned int j=0; j < gather_values.size(); j++)
 	    printf("v_component_%d = %12.10e\n",j,gather_values[j]);
 	} else {
 	  gather_file_f = fopen(gather_file.c_str(),"a");
-	  for (unsigned int j=0; j<gather_values.size(); j++) 
+	  for (unsigned int j=0; j<gather_values.size(); j++)
 	    fprintf(gather_file_f,"%12.10e ",gather_values[j]);
 	  fprintf(gather_file_f,"\n");
 	  fclose(gather_file_f);
@@ -769,25 +776,25 @@ int chimera_main() {
 
     if (print_some_file!="" && tstep % nsome == 0)
       print_some(save_file_some.c_str(),x,dofmap,node_list,&time);
-    
+
     if (normres_ext < tol_steady) break;
-      
+
   }
   hook_list.close();
 
   print_vector(save_file.c_str(),x,dofmap,&time);
-  if (print_residual) 
+  if (print_residual)
     print_vector(save_file_res.c_str(),res,dofmap,&time);
   if (report_option_access && MY_RANK==0) TextHashTable::print_stat();
 
-  ierr = VecDestroy(&x); CHKERRA(ierr); 
-  ierr = VecDestroy(&xold); CHKERRA(ierr); 
-  ierr = VecDestroy(&dx); CHKERRA(ierr); 
-  ierr = VecDestroy(&res); CHKERRA(ierr); 
+  ierr = VecDestroy(&x); CHKERRA(ierr);
+  ierr = VecDestroy(&xold); CHKERRA(ierr);
+  ierr = VecDestroy(&dx); CHKERRA(ierr);
+  ierr = VecDestroy(&res); CHKERRA(ierr);
 #ifdef DIAG_MAT_MATRIX
-  ierr = MatDestroy(&A); CHKERRA(ierr); 
+  ierr = MatDestroy(&A); CHKERRA(ierr);
 #endif
-  
+
   delete A;
   delete AA;
 
