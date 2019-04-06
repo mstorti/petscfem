@@ -56,7 +56,6 @@ public:
   // from the other domain, maps the equation number to the
   // node number
   map<int,int> ibeq2node;
-  double coefpen;
 };
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>
@@ -102,7 +101,7 @@ int chimera_mat_shell_t::init(Mat A_,Vec res) {
     int jeq = dofs[0];
     if (jeq<neq && fabs(XNOD(node,0)-0.5)<tol) {
       ibeq2node[jeq] = node;
-      resp[jeq] = coefpen*5.0;
+      resp[jeq] = 5.0;
       count++;
     }
   }
@@ -127,7 +126,7 @@ int chimera_mat_shell_t::mat_mult(Vec x,Vec y) {
   ierr = VecGetArray(y,&yp); CHKERRQ(ierr);
   for (auto &q : ibeq2node) {
     int jeq = q.first;
-    yp[jeq] += coefpen*xp[jeq];
+    // yp[jeq] += xp[jeq];
   }
   ierr = VecRestoreArray(x,&xp); CHKERRQ(ierr);
   ierr = VecRestoreArray(y,&yp); CHKERRQ(ierr);
@@ -537,7 +536,6 @@ int chimera_main() {
 #else
           Mat Ashell;
           chimera_mat_shell_t cms;
-          cms.coefpen = 1.0;
           cms.init(A->get_petsc_mat(),res);
           int neq,nlocal;
           ierr = VecGetSize(dx,&neq);CHKERRQ(ierr);
