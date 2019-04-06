@@ -66,17 +66,38 @@ int mat_mult(Mat A,Vec x,Vec y) {
   Dofmap *dofmap = GLOBAL_DOFMAP;
   int nnod = dofmap->nnod;
   PETSCFEM_ASSERT0(dofmap->ndof==1,"Only 1 dof/node so far");  
+  double *xp,*yp;
+  VecGetArray(x,&xp); CHKERRQ(ierr);  
+  VecGetArray(y,&yp); CHKERRQ(ierr);  
+  static int flag=0;
+  int count=0;
   for (int j=1; j<=nnod; j++) {
     int m;
     const int *dofs;
     const double *coefs;
     dofmap->get_row(j,1,m,&dofs,&coefs);
     assert(m<=1);
+#if 0    
     printf("node %d (%g,%g):",j,XNOD(j-1,0),XNOD(j-1,1));
     for (int l=0; l<m; l++) printf(" %d",dofs[l]);
     printf("\n");
+#endif
+    double tol=1e-5;
+    if (m==1) {
+      PETSCFEM_ASSERT0(coefs[0]==1.0,"Dofmap not identity!!");
+      int jeq = dofs[0];
+      if (fabs(XNOD(j-1,0)-0.5)<tol) {
+        yp[jeq] += coef*xp[jeq];
+        count++;
+      }
+    }
   }
-  exit(0);
+  if (!flag) {
+    flag=1;
+    printf("count %d\n",count);
+  }
+  VecRestoreArray(x,&xp); CHKERRQ(ierr);  
+  VecRestoreArray(y,&yp); CHKERRQ(ierr);  
   
   return 0;
 }
