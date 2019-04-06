@@ -43,18 +43,21 @@ Dofmap *GLOBAL_DOFMAP;
 
 class chimera_mat_shell_t {
 public:
-  Mat A;
   chimera_mat_shell_t() : A(NULL) {}
+  
+  int init(Mat A,Vec res);
+  int mat_mult(Mat A,Vec x,Vec y);
+  // The unrelying PETSc matrix
+  Mat A;
+  // For the internal boundaries (those that must be interpolated
+  // from the other domain, maps the equation number to the
+  // node number
+  map<int,int> ibeq2node;
 };
 
-int mat_mult(Mat A,Vec x,Vec y) {
-  void *ctx;
-  int ierr = MatShellGetContext(A,&ctx); CHKERRQ(ierr);
-  chimera_mat_shell_t &cms = *(chimera_mat_shell_t*)ctx;
-  ierr = MatMult(cms.A,x,y); CHKERRQ(ierr);
-  // Here we can add some extra contribution to the
-  // residuals
-  double coef=1e5;
+int chimera_mat_shell_t::init(Mat A_,Vec res) {
+  int ierr;
+  A = A_;
   int size;
   MPI_Comm_size(PETSCFEM_COMM_WORLD,&size);
   PETSCFEM_ASSERT0(size==1,"Only one processor so far");  
@@ -66,28 +69,26 @@ int mat_mult(Mat A,Vec x,Vec y) {
   Dofmap *dofmap = GLOBAL_DOFMAP;
   int nnod = dofmap->nnod;
   PETSCFEM_ASSERT0(dofmap->ndof==1,"Only 1 dof/node so far");  
-  double *xp,*yp;
-  VecGetArray(x,&xp); CHKERRQ(ierr);  
-  VecGetArray(y,&yp); CHKERRQ(ierr);  
   static int flag=0;
   int count=0;
-  for (int j=1; j<=nnod; j++) {
+  for (int node=0; node<nnod; node++) {
     int m;
     const int *dofs;
     const double *coefs;
-    dofmap->get_row(j,1,m,&dofs,&coefs);
-    assert(m<=1);
+    // Dofmap works with base 1 nodes and dofs...
+    dofmap->get_row(node-1,1,m,&dofs,&coefs);
+    PETSCFEM_ASSERT0(m<=1,"Dofmap is not identity!!");
 #if 0    
-    printf("node %d (%g,%g):",j,XNOD(j-1,0),XNOD(j-1,1));
+    printf("node %d (%g,%g):",node,XNOD(node-1,0),XNOD(node-1,1));
     for (int l=0; l<m; l++) printf(" %d",dofs[l]);
     printf("\n");
 #endif
     double tol=1e-5;
     if (m==1) {
-      PETSCFEM_ASSERT0(coefs[0]==1.0,"Dofmap not identity!!");
+      PETSCFEM_ASSERT0(coefs[0]==1.0,"Dofmap is not identity!!");
       int jeq = dofs[0];
-      if (fabs(XNOD(j-1,0)-0.5)<tol) {
-        yp[jeq] += coef*xp[jeq];
+      if (fabs(XNOD(node,0)-0.5)<tol) {
+        ibeq2node[jeq] = node;
         count++;
       }
     }
@@ -96,11 +97,35 @@ int mat_mult(Mat A,Vec x,Vec y) {
     flag=1;
     printf("count %d\n",count);
   }
-  VecRestoreArray(x,&xp); CHKERRQ(ierr);  
-  VecRestoreArray(y,&yp); CHKERRQ(ierr);  
-  
   return 0;
 }
+
+int chimera_mat_shell_t::mat_mult(Mat A_,Vec x,Vec y) {
+  // Here we can add some extra contribution to the
+  // residuals
+  int ierr;
+  double *xp,*yp;
+  VecGetArray(x,&xp); CHKERRQ(ierr);  
+  VecGetArray(y,&yp); CHKERRQ(ierr);  
+  double coef=1e3;
+  for (auto &q : ibeq2node) {
+    int jeq = q.first;
+    yp[jeq] += coef*xp[jeq];
+  }
+  VecRestoreArray(x,&xp); CHKERRQ(ierr);  
+  VecRestoreArray(y,&yp); CHKERRQ(ierr);  
+  return 0;
+}
+
+int mat_mult(Mat A,Vec x,Vec y) {
+  void *ctx;
+  int ierr = MatShellGetContext(A,&ctx); CHKERRQ(ierr);
+  ierr = MatMult(A,x,y); CHKERRQ(ierr);
+  chimera_mat_shell_t &cms = *(chimera_mat_shell_t*)ctx;
+  cms.mat_mult(A,x,y);
+  return 0;
+}
+
 
 //-------<*>-------<*>-------<*>-------<*>-------<*>------- 
 #undef __FUNC__
@@ -495,13 +520,14 @@ int chimera_main() {
 #else
           Mat Ashell;
           chimera_mat_shell_t cms;
+          cms.init(A->get_petsc_mat(),res);
           int neq,nlocal;
           ierr = VecGetSize(dx,&neq);CHKERRQ(ierr);          
           ierr = VecGetLocalSize(dx,&nlocal);CHKERRQ(ierr);          
           ierr = MatCreateShell(PETSC_COMM_WORLD,nlocal,nlocal,neq,neq,
                                 &cms,&Ashell);
           MatShellSetOperation(Ashell,MATOP_MULT,(void (*)(void))(&mat_mult));
-          cms.A = A->get_petsc_mat();
+          MatSetOption(cms.A,MAT_KEEP_NONZERO_PATTERN,PETSC_TRUE);
           KSP ksp;         /* linear solver context */
           PC pc;           /* preconditioner context */
           ierr = KSPCreate(PETSCFEM_COMM_WORLD,&ksp);CHKERRQ(ierr);
