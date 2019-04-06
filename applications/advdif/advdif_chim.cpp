@@ -49,7 +49,7 @@ public:
   // Initializes the problem before starting the iterative solver
   int init(Mat A,Vec res);
   // This is called in each iteration of the solver iteration loop
-  int mat_mult(Mat A,Vec x,Vec y);
+  int mat_mult(Vec x,Vec y);
   // The underlying PETSc matrix
   Mat A;
   // For the internal boundaries (those that must be interpolated
@@ -105,20 +105,20 @@ int chimera_mat_shell_t::init(Mat A_,Vec res) {
 }
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>
-int chimera_mat_shell_t::mat_mult(Mat A_,Vec x,Vec y) {
+int chimera_mat_shell_t::mat_mult(Vec x,Vec y) {
   // Here we can add some extra contribution to the
   // residuals
   int ierr;
   double *xp,*yp;
-  VecGetArray(x,&xp); CHKERRQ(ierr);  
-  VecGetArray(y,&yp); CHKERRQ(ierr);  
+  ierr = VecGetArray(x,&xp); CHKERRQ(ierr);  
+  ierr = VecGetArray(y,&yp); CHKERRQ(ierr);  
   double coef=1e3;
   for (auto &q : ibeq2node) {
     int jeq = q.first;
     yp[jeq] += coef*xp[jeq];
   }
-  VecRestoreArray(x,&xp); CHKERRQ(ierr);  
-  VecRestoreArray(y,&yp); CHKERRQ(ierr);  
+  ierr = VecRestoreArray(x,&xp); CHKERRQ(ierr);  
+  ierr = VecRestoreArray(y,&yp); CHKERRQ(ierr);  
   return 0;
 }
 
@@ -126,9 +126,9 @@ int chimera_mat_shell_t::mat_mult(Mat A_,Vec x,Vec y) {
 int mat_mult(Mat A,Vec x,Vec y) {
   void *ctx;
   int ierr = MatShellGetContext(A,&ctx); CHKERRQ(ierr);
-  ierr = MatMult(A,x,y); CHKERRQ(ierr);
   chimera_mat_shell_t &cms = *(chimera_mat_shell_t*)ctx;
-  cms.mat_mult(A,x,y);
+  ierr = MatMult(cms.A,x,y); CHKERRQ(ierr);
+  cms.mat_mult(x,y);
   return 0;
 }
 
