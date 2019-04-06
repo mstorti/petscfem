@@ -38,6 +38,8 @@ ierr = VecView(name,matlab); CHKERRA(ierr)
           PetscViewerSetFormat(viewer,format)
 
 Hook *advdif_hook_factory(const char *name);
+extern Mesh *GLOBAL_MESH;
+Dofmap *GLOBAL_DOFMAP;
 
 class chimera_mat_shell_t {
 public:
@@ -50,6 +52,32 @@ int mat_mult(Mat A,Vec x,Vec y) {
   int ierr = MatShellGetContext(A,&ctx); CHKERRQ(ierr);
   chimera_mat_shell_t &cms = *(chimera_mat_shell_t*)ctx;
   ierr = MatMult(cms.A,x,y); CHKERRQ(ierr);
+  // Here we can add some extra contribution to the
+  // residuals
+  double coef=1e3;
+  int size;
+  MPI_Comm_size(PETSCFEM_COMM_WORLD,&size);
+  PETSCFEM_ASSERT0(size==1,"Only one processor so far");  
+
+  double *xnod = GLOBAL_MESH->nodedata->nodedata;
+#define XNOD(j,k) VEC2(xnod,j,k,nu)
+  int nu = GLOBAL_MESH->nodedata->nu;
+
+  Dofmap *dofmap = GLOBAL_DOFMAP;
+  int nnod = dofmap->nnod;
+  PETSCFEM_ASSERT0(dofmap->ndof==1,"Only 1 dof/node so far");  
+  for (int j=1; j<=nnod; j++) {
+    int m;
+    const int *dofs;
+    const double *coefs;
+    dofmap->get_row(j,1,m,&dofs,&coefs);
+    assert(m<=1);
+    printf("node %d (%g,%g):",j,XNOD(j-1,0),XNOD(j-1,1));
+    for (int l=0; l<m; l++) printf(" %d",dofs[l]);
+    printf("\n");
+  }
+  exit(0);
+  
   return 0;
 }
 
@@ -105,6 +133,7 @@ int chimera_main() {
   // Read data
   ierr = read_mesh(mesh,fcase,dofmap,neq,SIZE,MY_RANK); CHKERRA(ierr);
   GLOBAL_OPTIONS = mesh->global_options;
+  GLOBAL_DOFMAP = dofmap;
 
   //o Activate debugging
   GETOPTDEF(int,activate_debug,0);
@@ -456,16 +485,15 @@ int chimera_main() {
           PC pc;           /* preconditioner context */
           ierr = KSPCreate(PETSCFEM_COMM_WORLD,&ksp);CHKERRQ(ierr);
 
-          ierr = KSPSetOperators(ksp,Ashell,Ashell,DIFFERENT_NONZERO_PATTERN);
-          CHKERRQ(ierr);
-
+          ierr = KSPSetOperators(ksp,Ashell,Ashell,
+                                 DIFFERENT_NONZERO_PATTERN); CHKERRQ(ierr);
           ierr = KSPSetType(ksp,KSPGMRES); CHKERRQ(ierr);
-          ierr = KSPGetPC(ksp,&pc);CHKERRQ(ierr);
+          ierr = KSPGetPC(ksp,&pc); CHKERRQ(ierr);
           ierr = PCSetType(pc,PCNONE); CHKERRQ(ierr);
           ierr = KSPSetTolerances(ksp,1.e-7,PETSC_DEFAULT,PETSC_DEFAULT,
-                                  PETSC_DEFAULT);CHKERRQ(ierr);
-          ierr = KSPMonitorSet(ksp,KSPMonitorDefault,NULL,NULL);
-          ierr = KSPSolve(ksp,res,dx);CHKERRQ(ierr); 
+                                  PETSC_DEFAULT); CHKERRQ(ierr);
+          ierr = KSPMonitorSet(ksp,KSPMonitorDefault,NULL,NULL); CHKERRQ(ierr);
+          ierr = KSPSolve(ksp,res,dx); CHKERRQ(ierr); 
 #endif
 	  debug.trace("After solving linear system.");
 	}
