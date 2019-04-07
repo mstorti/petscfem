@@ -14,6 +14,7 @@
 #include <src/pfmat.h>
 #include <src/hook.h>
 #include <src/h5utils.h>
+#include <src/dvector.h>
 
 #include "advective.h"
 
@@ -60,23 +61,38 @@ public:
   // from the other domain, maps the equation number to the
   // node number
   map<int,int> ibeq2node;
+  // Options for this Chimera module
+  Json::Value opts;
+  // Number of nodes of the W1 and W2 domains
+  int nnod1,nnod2,nelem1,nelem2;
+  dvector<double> z12,z21;
 };
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>
 int chimera_mat_shell_t::init(Mat A_,Vec res) {
 
 #ifdef USE_JSONCPP
+  // Read data needed from a JSON file
   ifstream in("data.json");
-  Json::Value opts;
   in >> opts;
   cout << "Input opts: ====================" << endl
        << opts << endl;
-  int nnod1 = opts["nnod1"].asInt();
-  printf("nnod1 %d\n",nnod1);
+  nnod1 = opts["nnod1"].asInt();
+  nnod2 = opts["nnod2"].asInt();
+  nelem1 = opts["nelem1"].asInt();
+  nelem2 = opts["nelem2"].asInt();
+  printf("nnod1 %d, nelem1 %d, nnod2 %d, nelem2 %d\n",
+         nnod1,nelem1,nnod2,nelem2);
+  // Read the interpolators (computed in Octave probably)
+  h5_dvector_read("./interp.h5","/z12/value",z12);
+  z12.print();
+  h5_dvector_read("./interp.h5","/z21/value",z21);
+  z21.print();
+  exit(0);
+  
 #else
   PETSCFEM_ERROR0("Not compiled with JSONCPP support\n");
 #endif
-  exit(0);
   
   // We prepare the system to solve A\res
   int ierr;
