@@ -89,6 +89,7 @@ int chimera_mat_shell_t::init(Mat A_,Vec res) {
   ierr = VecGetArray(res,&resp); CHKERRQ(ierr);
   // COUNT will be the number of rows that are set
   int count=0;
+  PETSCFEM_ASSERT0(nnod==neq,"Not allowed Dirichlet conditions in PF-CHIMERA");
   for (int node=0; node<nnod; node++) {
     int m;
     const int *dofs;
@@ -98,10 +99,13 @@ int chimera_mat_shell_t::init(Mat A_,Vec res) {
     PETSCFEM_ASSERT0(m==1,"Dofmap is not a permutation of the identity!!");
     double tol=1e-5;
     PETSCFEM_ASSERT0(coefs[0]==1.0,"Dofmap is not identity!!");
-    int jeq = dofs[0];
-    if (jeq<neq && fabs(XNOD(node,0)-0.5)<tol) {
+    int jeq = dofs[0]-1;
+    // printf("node %d, jeq %d, x %g %g\n",
+    //        node,jeq,XNOD(node,0),XNOD(node,1));
+    if (XNOD(node,0)<tol || XNOD(node,0)>1.0-tol 
+        || XNOD(node,1)<tol || XNOD(node,1)>1.0-tol) {
       ibeq2node[jeq] = node;
-      resp[jeq] = 5.0;
+      resp[jeq] = 0.0;
       count++;
     }
   }
@@ -548,11 +552,11 @@ int chimera_main() {
           PC pc;           /* preconditioner context */
           ierr = KSPCreate(PETSCFEM_COMM_WORLD,&ksp);CHKERRQ(ierr);
 
-          ierr = KSPSetOperators(ksp,Ashell,Ashell,
+          ierr = KSPSetOperators(ksp,Ashell,cms.A,
                                  DIFFERENT_NONZERO_PATTERN); CHKERRQ(ierr);
           ierr = KSPSetType(ksp,KSPGMRES); CHKERRQ(ierr);
           ierr = KSPGetPC(ksp,&pc); CHKERRQ(ierr);
-          ierr = PCSetType(pc,PCNONE); CHKERRQ(ierr);
+          ierr = PCSetType(pc,PCLU); CHKERRQ(ierr);
           ierr = KSPSetTolerances(ksp,1.e-7,PETSC_DEFAULT,PETSC_DEFAULT,
                                   PETSC_DEFAULT); CHKERRQ(ierr);
           ierr = KSPMonitorSet(ksp,KSPMonitorDefault,NULL,NULL); CHKERRQ(ierr);
@@ -579,45 +583,6 @@ int chimera_main() {
 	  ierr = A->solve(res,dx); CHKERRA(ierr);
 	}
       }
-
-      //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:
-      // FEM matrix jacobian debug  (perturbation)
-#if 0
-	PetscViewer matlab;
-	if (verify_jacobian_with_numerical_one) {
-	  ierr = PetscViewerASCIIOpen(PETSCFEM_COMM_WORLD,
-				      "system.dat.tmp",&matlab); CHKERRA(ierr);
-	  ierr = PetscViewerSetFormat_WRAPPER(matlab,
-					      PETSC_VIEWER_ASCII_MATLAB,
-					      "atet"); CHKERRA(ierr);
-
-	  ierr = A_tet->view(matlab); CHKERRQ(ierr);
-
-	  ierr = A_tet_c->duplicate(MAT_DO_NOT_COPY_VALUES,*A_tet); CHKERRA(ierr);
-	  ierr = A_tet->clean_mat(); CHKERRA(ierr);
-	  ierr = A_tet_c->clean_mat(); CHKERRA(ierr);
-
-	  argl.clear();
-	  argl.arg_add(&x,PERT_VECTOR);
-	  argl.arg_add(&xold,IN_VECTOR);
-	  argl.arg_add(A_tet_c,OUT_MATRIX_FDJ|PFMAT);
-
-	  argl.arg_add(A_tet,OUT_MATRIX|PFMAT);
-	  argl.arg_add(&hmin,VECTOR_MIN);
-
-	  argl.arg_add(&glob_param,USER_DATA);
-	  argl.arg_add(wall_data,USER_DATA);
-	  ierr = assemble(mesh,argl,dofmap,jobinfo,
-			  &time_star); CHKERRA(ierr);
-
-	  ierr = PetscViewerSetFormat_WRAPPER(matlab,
-					      PETSC_VIEWER_ASCII_MATLAB,"atet_fdj"); CHKERRA(ierr);
-	  ierr = A_tet_c->view(matlab); CHKERRQ(ierr);
-
-	  PetscFinalize();
-	  exit(0);
-	}
-#endif
 
       if (print_linear_system_and_stop &&
 	  inwt==inwt_stop && tstep==time_step_stop) {
