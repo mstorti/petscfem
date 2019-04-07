@@ -160,7 +160,7 @@ endif
 
 ## JSON
 ifneq ($(JSON),)
-JSON_CPPFLAGS =  -DUSE_JSON -I$(JSON)/include
+JSON_CPPFLAGS =  -DUSE_JSONCPP -I$(JSON)/include
 JSON_LDFLAGS  = -L$(JSON)/lib -ljsoncpp
 endif
 

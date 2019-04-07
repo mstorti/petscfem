@@ -65,12 +65,17 @@ public:
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>
 int chimera_mat_shell_t::init(Mat A_,Vec res) {
 
+#ifdef USE_JSONCPP
   ifstream in("data.json");
   Json::Value opts;
   in >> opts;
   cout << "Input opts: ====================" << endl
        << opts << endl;
   int nnod1 = opts["nnod1"].asInt();
+  printf("nnod1 %d\n",nnod1);
+#else
+  PETSCFEM_ERROR0("Not compiled with JSONCPP support\n");
+#endif
   exit(0);
   
   // We prepare the system to solve A\res
