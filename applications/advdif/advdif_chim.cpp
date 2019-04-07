@@ -3,6 +3,8 @@
 
 #include <src/debug.h>
 #include <set>
+#include <iostream>
+#include <fstream>
 
 #include <src/fem.h>
 #include <src/readmesh.h>
@@ -16,6 +18,8 @@
 #include "advective.h"
 
 #include <time.h>
+#include <json/json.h>
+using namespace std;
 
 static char help[] = "Basic finite element program.\n\n";
 
@@ -60,6 +64,15 @@ public:
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>
 int chimera_mat_shell_t::init(Mat A_,Vec res) {
+
+  ifstream in("data.json");
+  Json::Value opts;
+  in >> opts;
+  cout << "Input opts: ====================" << endl
+       << opts << endl;
+  int nnod1 = opts["nnod1"].asInt();
+  exit(0);
+  
   // We prepare the system to solve A\res
   int ierr;
   // Store a pointer to the underlying PETSc matrix
