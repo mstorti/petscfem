@@ -87,7 +87,10 @@ public:
   // external and internal boundaries)
   set<int> ebdry,bdry1,bdry2;
   // Auxiliary functions for reading the interpolators
-  void mkptr(dvector<double> &z12,int nnod1,vector<int> &z12ptr);
+  void mkptr(dvector<double> &z12,
+             int rstart1,int nnod1,
+             int rstart2,int nnod2,
+             vector<int> &z12ptr);
   // Read integer array from H5 double dataset
   void h5d2i(const char *file,const char *dset,dvector<int> &w);
   // Problem specific: marks external bdry nodes (nodes at
@@ -135,7 +138,9 @@ void chimera_mat_shell_t
 }
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>
-void chimera_mat_shell_t::mkptr(dvector<double> &z12,int nnod1,
+void chimera_mat_shell_t::mkptr(dvector<double> &z12,
+                                int rstart1,int nnod1,
+                                int rstart2,int nnod2,
                                 vector<int> &z12ptr) {
   int ncoef=z12.size(0);
   z12ptr.resize(nnod1+1);
@@ -146,8 +151,10 @@ void chimera_mat_shell_t::mkptr(dvector<double> &z12,int nnod1,
       k = dbl2int(z12.e(l,1));
     double ajk = z12.e(l,2);
     // printf("l %d, a(%d,%d) = %g\n",l,j,k,ajk);
-    PETSCFEM_ASSERT0(j<=nnod1,"interpolator bad row index");
-    PETSCFEM_ASSERT0(k<=nnod2,"interpolator bad col index");
+    PETSCFEM_ASSERT0(j>=rstart1,"interpolator bad row index");
+    PETSCFEM_ASSERT0(j<rstart1+nnod1,"interpolator bad row index");
+    PETSCFEM_ASSERT0(k>=rstart2,"interpolator bad row index");
+    PETSCFEM_ASSERT0(k<rstart2+nnod2,"interpolator bad row index");
     while (jlast<=j) z12ptr[jlast++] = l;
   }
   while (jlast<=nnod1) z12ptr[jlast++] = ncoef;
@@ -176,8 +183,8 @@ int chimera_mat_shell_t::init(Mat A_,Vec res) {
   // Compute the ptr arrays. The rows in Z12 corresponding to
   // row J are in range [Z12PTR(J),Z12PTR(J+1))
   PETSCFEM_ASSERT0(z12.size(1)==3,"interpolator bad columns number");
-  mkptr(z12,nnod1,z12ptr);
-  mkptr(z21,nnod2,z21ptr);
+  mkptr(z12,0,nnod1,nnod1,nnod2,z12ptr);
+  mkptr(z21,nnod1,nnod2,0,nnod1,z21ptr);
   // for (int j=0; j<=nnod1; j++) 
   //   printf("z12ptr[%d] = %d\n",j,z12ptr[j]);
   // for (int j=0; j<=nnod2; j++) 
@@ -263,10 +270,14 @@ int chimera_mat_shell_t::mat_mult(Vec x,Vec y) {
   double *xp,*yp;
   ierr = VecGetArray(x,&xp); CHKERRQ(ierr);
   ierr = VecGetArray(y,&yp); CHKERRQ(ierr);
+#if 0  
+  // Interpolate de values for at the internal W1 bdry 
   for (auto &q : bdry1) {
     int jeq = node2eq[q];
+    int rstart = z12ptr[];
     // yp[jeq] += xp[jeq];
   }
+#endif
   ierr = VecRestoreArray(x,&xp); CHKERRQ(ierr);
   ierr = VecRestoreArray(y,&yp); CHKERRQ(ierr);
   return 0;
