@@ -49,14 +49,15 @@ Dofmap *GLOBAL_DOFMAP;
 // Converts double to int, checking that the double is really an int
 static int dbl2int(double z) {
   int k = int(z);
-  PETSCFEM_ASSERT(fabs(z-k),"Double is not integer! %g",z);
+  PETSCFEM_ASSERT(fabs(z-double(k))==0.0,
+                  "Double is not integer! %g",z);
   return k;
 }
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>
 class chimera_mat_shell_t {
 public:
-  chimera_mat_shell_t() : A(NULL) {}
+  chimera_mat_shell_t() : A(NULL), xnod(NULL) {}
 
   // Initializes the problem before starting the iterative solver
   int init(Mat A,Vec res);
@@ -64,6 +65,10 @@ public:
   int mat_mult(Vec x,Vec y);
   // The underlying PETSc matrix
   Mat A;
+  // Pointer to internal PF array of node coordinates
+  double *xnod;
+  int nu;
+#define XNOD(j,k) VEC2(xnod,j,k,nu)
   // For the internal boundaries (those that must be interpolated
   // from the other domain, maps the equation number to the
   // node number
@@ -80,12 +85,40 @@ public:
   vector<int> z12ptr,z21ptr;
   // List of nodes at the boundaries of W1 and W2 (includes
   // external and internal boundaries)
-  dvector<int> bdry1,bdry2;
+  set<int> ebdry,bdry1,bdry2;
   // Auxiliary functions for reading the interpolators
   void mkptr(dvector<double> &z12,int nnod1,vector<int> &z12ptr);
   // Read integer array from H5 double dataset
   void h5d2i(const char *file,const char *dset,dvector<int> &w);
+  // Problem specific: marks external bdry nodes (nodes at
+  // bdries of the subdomains not at external bdries)
+  int isexternal(double *x);
+  // Read the bdry from H5 and separate external and internal nodes
+  void readbdry(const char *file,const char *dset,set<int> &ebdry,
+                set<int> &ibdry,int shift,int domain);
 };
+
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>
+int chimera_mat_shell_t
+::isexternal(double *x) {
+  double tol=1e-6;
+  return x[0]<tol || x[0]>1.0-tol || x[1]<tol || x[1]>1.0-tol;
+}
+
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>
+void chimera_mat_shell_t
+::readbdry(const char *file,const char *dset,set<int> &ebdry,
+           set<int> &ibdry,int shift,int domain) {
+  dvector<int> z;
+  h5d2i(file,dset,z);
+  int n = z.size();
+  for (int j=0; j<n; j++) {
+    int node = z.ref(j);
+    printf("node %d, x %f %f\n",node,XNOD(node,0),XNOD(node,1));
+    if (isexternal(&XNOD(node,0))) ebdry.insert(node);
+    else ibdry.insert(shift+node);
+  }
+}
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>
 void chimera_mat_shell_t
@@ -112,7 +145,7 @@ void chimera_mat_shell_t::mkptr(dvector<double> &z12,int nnod1,
       j = dbl2int(z12.e(l,0)),
       k = dbl2int(z12.e(l,1));
     double ajk = z12.e(l,2);
-    printf("l %d, a(%d,%d) = %g\n",l,j,k,ajk);
+    // printf("l %d, a(%d,%d) = %g\n",l,j,k,ajk);
     PETSCFEM_ASSERT0(j<=nnod1,"interpolator bad row index");
     PETSCFEM_ASSERT0(k<=nnod2,"interpolator bad col index");
     while (jlast<=j) z12ptr[jlast++] = l;
@@ -150,9 +183,16 @@ int chimera_mat_shell_t::init(Mat A_,Vec res) {
   // for (int j=0; j<=nnod2; j++) 
   //   printf("z21ptr[%d] = %d\n",j,z21ptr[j]);
 
+  // Get the coordinates of the nodes
+  xnod = GLOBAL_MESH->nodedata->nodedata;
+  nu = GLOBAL_MESH->nodedata->nu;
+
   // Read the array of bdry nodes
-  h5d2i("interp.h5","/bdry1/value",bdry1);
-  bdry1.print();
+  readbdry("interp.h5","/bdry1/value",ebdry,bdry1,0,0);
+  readbdry("interp.h5","/bdry2/value",ebdry,bdry2,nnod1,1);
+  printf("nbdry %zu\n",ebdry.size());
+  for (auto &k : ebdry)
+    printf("node %d, x %g,%g\n",k,XNOD(k,0),XNOD(k,1));
   exit(0);
   
 #else
@@ -168,10 +208,6 @@ int chimera_mat_shell_t::init(Mat A_,Vec res) {
   MPI_Comm_size(PETSCFEM_COMM_WORLD,&size);
   PETSCFEM_ASSERT0(size==1,"Only one processor so far");
 
-  // Get the coordinates of the nodes
-  double *xnod = GLOBAL_MESH->nodedata->nodedata;
-#define XNOD(j,k) VEC2(xnod,j,k,nu)
-  int nu = GLOBAL_MESH->nodedata->nu;
 
   // Get the dofmap in order to map equations to nodes
   Dofmap *dofmap = GLOBAL_DOFMAP;
@@ -188,7 +224,7 @@ int chimera_mat_shell_t::init(Mat A_,Vec res) {
   ierr = VecGetArray(res,&resp); CHKERRQ(ierr);
   // COUNT will be the number of rows that are set
   int count=0;
-  PETSCFEM_ASSERT0(nnod==neq,"Not allowed Dirichlet conditions in PF-CHIMERA");
+  PETSCFEM_ASSERT0(nnod==neq,"Not allowed Dirichlet conditions through FIXA for PF-CHIMERA");
   for (int node=0; node<nnod; node++) {
     int m;
     const int *dofs;
