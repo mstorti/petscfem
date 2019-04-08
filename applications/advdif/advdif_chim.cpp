@@ -98,7 +98,7 @@ public:
   int isexternal(double *x);
   // Read the bdry from H5 and separate external and internal nodes
   void readbdry(const char *file,const char *dset,set<int> &ebdry,
-                set<int> &ibdry,int shift,int domain);
+                set<int> &ibdry,int domain);
 };
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>
@@ -111,12 +111,12 @@ int chimera_mat_shell_t
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>
 void chimera_mat_shell_t
 ::readbdry(const char *file,const char *dset,set<int> &ebdry,
-           set<int> &ibdry,int shift,int domain) {
+           set<int> &ibdry,int domain) {
   dvector<int> z;
   h5d2i(file,dset,z);
   int n = z.size();
   for (int j=0; j<n; j++) {
-    int node = z.ref(j)+shift;
+    int node = z.ref(j);
     // printf("node %d, x %f %f\n",node,XNOD(node,0),XNOD(node,1));
     if (isexternal(&XNOD(node,0))) ebdry.insert(node);
     else ibdry.insert(node);
@@ -195,8 +195,8 @@ int chimera_mat_shell_t::init(Mat A_,Vec res) {
   nu = GLOBAL_MESH->nodedata->nu;
 
   // Read the array of bdry nodes
-  readbdry("interp.h5","/bdry1/value",ebdry,bdry1,0,0);
-  readbdry("interp.h5","/bdry2/value",ebdry,bdry2,nnod1,1);
+  readbdry("interp.h5","/bdry1/value",ebdry,bdry1,0);
+  readbdry("interp.h5","/bdry2/value",ebdry,bdry2,1);
   printf("nbdry external %zu\n",ebdry.size());
   printf("nbdry bdry1 %zu\n",bdry1.size());
   printf("nbdry bdry2 %zu\n",bdry2.size());
