@@ -46,6 +46,13 @@ Hook *advdif_hook_factory(const char *name);
 extern Mesh *GLOBAL_MESH;
 Dofmap *GLOBAL_DOFMAP;
 
+// Converts double to int, checking that the double is really an int
+static int dbl2int(double z) {
+  int k = int(z);
+  PETSCFEM_ASSERT(fabs(z-k),"Double is not integer! %g",z);
+  return k;
+}
+
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>
 class chimera_mat_shell_t {
 public:
@@ -71,9 +78,30 @@ public:
   // CSR pointers and then we store the beginning and end
   // for a certain ROW in the correspondings Z12PTR array.
   vector<int> z12ptr,z21ptr;
+  // List of nodes at the boundaries of W1 and W2 (includes
+  // external and internal boundaries)
+  dvector<int> bdry1,bdry2;
+  // Auxiliary functions for reading the interpolators
   void mkptr(dvector<double> &z12,int nnod1,vector<int> &z12ptr);
+  // Read integer array from H5 double dataset
+  void h5d2i(const char *file,const char *dset,dvector<int> &w);
 };
 
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>
+void chimera_mat_shell_t
+::h5d2i(const char *file,const char *dset,dvector<int> &w) {
+  dvector<double> z;
+  h5_dvector_read(file,dset,z);
+  vector<int> shape;
+  z.get_shape(shape);
+  int n = z.size();
+  w.resize(n);
+  for (int j=0; j<n; j++)
+    w.ref(j) = dbl2int(z.ref(j));
+  z.reshape(shape);
+}
+
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>
 void chimera_mat_shell_t::mkptr(dvector<double> &z12,int nnod1,
                                 vector<int> &z12ptr) {
   int ncoef=z12.size(0);
@@ -81,8 +109,8 @@ void chimera_mat_shell_t::mkptr(dvector<double> &z12,int nnod1,
   int jlast=0;
   for (int l=0; l<ncoef; l++) {
     int
-      j = int(z12.e(l,0)),
-      k = int(z12.e(l,1));
+      j = dbl2int(z12.e(l,0)),
+      k = dbl2int(z12.e(l,1));
     double ajk = z12.e(l,2);
     printf("l %d, a(%d,%d) = %g\n",l,j,k,ajk);
     PETSCFEM_ASSERT0(j<=nnod1,"interpolator bad row index");
@@ -107,19 +135,24 @@ int chimera_mat_shell_t::init(Mat A_,Vec res) {
   nelem2 = opts["nelem2"].asInt();
   printf("nnod1 %d, nelem1 %d, nnod2 %d, nelem2 %d\n",
          nnod1,nelem1,nnod2,nelem2);
-  // Read the interpolators (computed in Octave probably)
+  // Load the interpolators (computed in Octave right now probably)
   h5_dvector_read("./interp.h5","/z12/value",z12);
   // z12.print();
   h5_dvector_read("./interp.h5","/z21/value",z21);
   // z21.print();
-  // Compute the ptr array
+  // Compute the ptr arrays. The rows in Z12 corresponding to
+  // row J are in range [Z12PTR(J),Z12PTR(J+1))
   PETSCFEM_ASSERT0(z12.size(1)==3,"interpolator bad columns number");
   mkptr(z12,nnod1,z12ptr);
   mkptr(z21,nnod2,z21ptr);
   // for (int j=0; j<=nnod1; j++) 
   //   printf("z12ptr[%d] = %d\n",j,z12ptr[j]);
-  for (int j=0; j<=nnod2; j++) 
-    printf("z21ptr[%d] = %d\n",j,z21ptr[j]);
+  // for (int j=0; j<=nnod2; j++) 
+  //   printf("z21ptr[%d] = %d\n",j,z21ptr[j]);
+
+  // Read the array of bdry nodes
+  h5d2i("interp.h5","/bdry1/value",bdry1);
+  bdry1.print();
   exit(0);
   
 #else
