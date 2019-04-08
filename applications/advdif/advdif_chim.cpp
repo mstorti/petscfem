@@ -72,7 +72,7 @@ public:
   // For the internal boundaries (those that must be interpolated
   // from the other domain, maps the equation number to the
   // node number
-  map<int,int> ibeq2node;
+  map<int,int> eq2node,node2eq;
   // Options for this Chimera module
   Json::Value opts;
   // Number of nodes of the W1 and W2 domains
@@ -114,9 +114,9 @@ void chimera_mat_shell_t
   int n = z.size();
   for (int j=0; j<n; j++) {
     int node = z.ref(j)+shift;
-    printf("node %d, x %f %f\n",node,XNOD(node,0),XNOD(node,1));
+    // printf("node %d, x %f %f\n",node,XNOD(node,0),XNOD(node,1));
     if (isexternal(&XNOD(node,0))) ebdry.insert(node);
-    else ibdry.insert(shift);
+    else ibdry.insert(node);
   }
 }
 
@@ -190,10 +190,11 @@ int chimera_mat_shell_t::init(Mat A_,Vec res) {
   // Read the array of bdry nodes
   readbdry("interp.h5","/bdry1/value",ebdry,bdry1,0,0);
   readbdry("interp.h5","/bdry2/value",ebdry,bdry2,nnod1,1);
-  printf("nbdry %zu\n",ebdry.size());
-  for (auto &k : ebdry)
-    printf("node %d, x %g,%g\n",k,XNOD(k,0),XNOD(k,1));
-  exit(0);
+  printf("nbdry external %zu\n",ebdry.size());
+  printf("nbdry bdry1 %zu\n",bdry1.size());
+  printf("nbdry bdry2 %zu\n",bdry2.size());
+  // for (auto &k : ebdry)
+  //   printf("node %d, x %g,%g\n",k,XNOD(k,0),XNOD(k,1));
   
 #else
   PETSCFEM_ERROR0("Not compiled with JSONCPP support\n");
@@ -235,20 +236,19 @@ int chimera_mat_shell_t::init(Mat A_,Vec res) {
     double tol=1e-5;
     PETSCFEM_ASSERT0(coefs[0]==1.0,"Dofmap is not identity!!");
     int jeq = dofs[0]-1;
-    // printf("node %d, jeq %d, x %g %g\n",
-    //        node,jeq,XNOD(node,0),XNOD(node,1));
-    if (XNOD(node,0)<tol || XNOD(node,0)>1.0-tol 
-        || XNOD(node,1)<tol || XNOD(node,1)>1.0-tol) {
-      ibeq2node[jeq] = node;
-      resp[jeq] = 0.0;
-      count++;
-    }
+    eq2node[jeq] = node;
+    node2eq[node] = jeq;
   }
-  // Replace the rows at the nodes
-  int nrows = ibeq2node.size();
-  PETSCFEM_ASSERT0(nrows==count,"Detected problem with equation numbering");
+  // Replace all the rows for the external and internal
+  // boundary nodes for the identity matrix Replace the rows
+  set<int> srows = ebdry;
+  for (auto &q : bdry1) srows.insert(q);
+  for (auto &q : bdry2) srows.insert(q);
+  printf("total bdry nodes %zu\n",srows.size());
+  
   vector<int> rows;
-  for (auto &q : ibeq2node) rows.push_back(q.first);
+  for (auto &q : srows) rows.push_back(q);
+  int nrows = rows.size();
   ierr = MatZeroRows(A,nrows,rows.data(),1.0,NULL,NULL); CHKERRQ(ierr);
   ierr = VecRestoreArray(res,&resp); CHKERRQ(ierr);
   printf("count %d\n",count);
@@ -263,8 +263,8 @@ int chimera_mat_shell_t::mat_mult(Vec x,Vec y) {
   double *xp,*yp;
   ierr = VecGetArray(x,&xp); CHKERRQ(ierr);
   ierr = VecGetArray(y,&yp); CHKERRQ(ierr);
-  for (auto &q : ibeq2node) {
-    int jeq = q.first;
+  for (auto &q : bdry1) {
+    int jeq = node2eq[q];
     // yp[jeq] += xp[jeq];
   }
   ierr = VecRestoreArray(x,&xp); CHKERRQ(ierr);
