@@ -71,7 +71,26 @@ public:
   // CSR pointers and then we store the beginning and end
   // for a certain ROW in the correspondings Z12PTR array.
   vector<int> z12ptr,z21ptr;
+  void mkptr(dvector<double> &z12,int nnod1,vector<int> &z12ptr);
 };
+
+void chimera_mat_shell_t::mkptr(dvector<double> &z12,int nnod1,
+                                vector<int> &z12ptr) {
+  int ncoef=z12.size(0);
+  z12ptr.resize(nnod1+1);
+  int jlast=0;
+  for (int l=0; l<ncoef; l++) {
+    int
+      j = int(z12.e(l,0)),
+      k = int(z12.e(l,1));
+    double ajk = z12.e(l,2);
+    printf("l %d, a(%d,%d) = %g\n",l,j,k,ajk);
+    PETSCFEM_ASSERT0(j<=nnod1,"interpolator bad row index");
+    PETSCFEM_ASSERT0(k<=nnod2,"interpolator bad col index");
+    while (jlast<=j) z12ptr[jlast++] = l;
+  }
+  while (jlast<=nnod1) z12ptr[jlast++] = ncoef;
+}
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>
 int chimera_mat_shell_t::init(Mat A_,Vec res) {
@@ -95,20 +114,7 @@ int chimera_mat_shell_t::init(Mat A_,Vec res) {
   // z21.print();
   // Compute the ptr array
   PETSCFEM_ASSERT0(z12.size(1)==3,"interpolator bad columns number");
-  int ncoef=z12.size(0);
-  z12ptr.resize(nnod1+1);
-  int jlast=0;
-  for (int l=0; l<ncoef; l++) {
-    int
-      j = int(z12.e(l,0)),
-      k = int(z12.e(l,1));
-    double ajk = z12.e(l,2);
-    printf("l %d, a(%d,%d) = %g\n",l,j,k,ajk);
-    PETSCFEM_ASSERT0(j<=nnod1,"interpolator bad row index");
-    PETSCFEM_ASSERT0(k<=nnod2,"interpolator bad col index");
-    while (jlast<=j) z12ptr[jlast++] = l;
-  }
-  while (jlast<=nnod1) z12ptr[jlast++] = ncoef;
+  mkptr(z12,nnod1,z12ptr);
   for (int j=0; j<=nnod1; j++)
     printf("z12ptr[%d] = %d\n",j,z12ptr[j]);
   exit(0);
