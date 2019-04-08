@@ -115,8 +115,11 @@ int chimera_mat_shell_t::init(Mat A_,Vec res) {
   // Compute the ptr array
   PETSCFEM_ASSERT0(z12.size(1)==3,"interpolator bad columns number");
   mkptr(z12,nnod1,z12ptr);
-  for (int j=0; j<=nnod1; j++)
-    printf("z12ptr[%d] = %d\n",j,z12ptr[j]);
+  mkptr(z21,nnod2,z21ptr);
+  // for (int j=0; j<=nnod1; j++) 
+  //   printf("z12ptr[%d] = %d\n",j,z12ptr[j]);
+  for (int j=0; j<=nnod2; j++) 
+    printf("z21ptr[%d] = %d\n",j,z21ptr[j]);
   exit(0);
   
 #else
