@@ -113,10 +113,10 @@ void chimera_mat_shell_t
   h5d2i(file,dset,z);
   int n = z.size();
   for (int j=0; j<n; j++) {
-    int node = z.ref(j);
+    int node = z.ref(j)+shift;
     printf("node %d, x %f %f\n",node,XNOD(node,0),XNOD(node,1));
     if (isexternal(&XNOD(node,0))) ebdry.insert(node);
-    else ibdry.insert(shift+node);
+    else ibdry.insert(shift);
   }
 }
 
