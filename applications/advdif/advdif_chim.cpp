@@ -283,19 +283,17 @@ int chimera_mat_shell_t::mat_mult(Vec x,Vec y) {
                     "Can't find interpolator for boundary "
                     "node %d, x(%f,%f)",node1,XNOD(node1,0),XNOD(node1,1));
     // Look for node in the interpolator with largest coefficient
-    int node2=-1;
-    double cmax=-1.0;
+    double val=0.0;
     for (int l=rstart; l<rend; l++) {
       ajk_t &a = z[l];
-      int k=z[l].k;
-      if (fabs(a.ajk)>cmax) { cmax=fabs(a.ajk); node2=k; }
+      int jeqk = node2eq[a.k];
+      val += a.ajk*xp[jeqk];
     }
     int jeq1 = node2eq[node1];
-    int jeq2 = node2eq[node2];
     // printf("node1 %d x(%f %f) eq %d ---> node2 %d x(%f %f) eq %d\n",
     //        node1,XNOD(node1,0),XNOD(node1,1),jeq1,
     //        node2,XNOD(node2,0),XNOD(node2,1),jeq2);
-    yp[jeq1] += -xp[jeq2];
+    yp[jeq1] += -val;
   }
   ierr = VecRestoreArray(x,&xp); CHKERRQ(ierr);
   ierr = VecRestoreArray(y,&yp); CHKERRQ(ierr);
