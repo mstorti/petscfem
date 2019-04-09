@@ -55,6 +55,20 @@ static int dbl2int(double z) {
 }
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>
+struct ajk_t {
+  int j,k;
+  double ajk;
+  ajk_t(int j_,int k_,double ajk_)
+    : j(j_), k(k_), ajk(ajk_) {}
+};
+
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>
+bool comp(ajk_t a,ajk_t b) {
+  if (a.j!=b.j) return a.j<a.k;
+  return a.k<b.k;
+}
+
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>
 class chimera_mat_shell_t {
 public:
   chimera_mat_shell_t() : A(NULL), xnod(NULL) {}
@@ -78,19 +92,21 @@ public:
   // Number of nodes of the W1 and W2 domains
   int nnod1,nnod2,nelem1,nelem2;
   // The interpolators in format (ROW,COL,COEF)
-  dvector<double> z12,z21;
+  vector<ajk_t> z;
   // The interpolators are ordered by ROW so that we can use
   // CSR pointers and then we store the beginning and end
   // for a certain ROW in the correspondings Z12PTR array.
-  vector<int> z12ptr,z21ptr;
+  vector<int> zptr;
   // List of nodes at the boundaries of W1 and W2 (includes
   // external and internal boundaries)
   set<int> ebdry,bdry1,bdry2;
+#if 0  
   // Auxiliary functions for reading the interpolators
   void mkptr(dvector<double> &z12,
              int rstart1,int nnod1,
              int rstart2,int nnod2,
              vector<int> &z12ptr);
+#endif
   // Read integer array from H5 double dataset
   void h5d2i(const char *file,const char *dset,dvector<int> &w);
   // Problem specific: marks external bdry nodes (nodes at
@@ -137,6 +153,7 @@ void chimera_mat_shell_t
   z.reshape(shape);
 }
 
+#if 0
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>
 void chimera_mat_shell_t::mkptr(dvector<double> &z12,
                                 int rstart1,int nnod1,
@@ -159,6 +176,7 @@ void chimera_mat_shell_t::mkptr(dvector<double> &z12,
   }
   while (jlast<=nnod1) z12ptr[jlast++] = ncoef;
 }
+#endif
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>
 int chimera_mat_shell_t::init(Mat A_,Vec res) {
@@ -175,21 +193,10 @@ int chimera_mat_shell_t::init(Mat A_,Vec res) {
   nelem2 = opts["nelem2"].asInt();
   printf("nnod1 %d, nelem1 %d, nnod2 %d, nelem2 %d\n",
          nnod1,nelem1,nnod2,nelem2);
-  // Load the interpolators (computed in Octave right now probably)
-  h5_dvector_read("./interp.h5","/z12/value",z12);
-  // z12.print();
-  h5_dvector_read("./interp.h5","/z21/value",z21);
-  // z21.print();
-  // Compute the ptr arrays. The rows in Z12 corresponding to
-  // row J are in range [Z12PTR(J),Z12PTR(J+1))
-  PETSCFEM_ASSERT0(z12.size(1)==3,"interpolator bad columns number");
-  mkptr(z12,0,nnod1,nnod1,nnod2,z12ptr);
-  mkptr(z21,nnod1,nnod2,0,nnod1,z21ptr);
-  // for (int j=0; j<=nnod1; j++) 
-  //   printf("z12ptr[%d] = %d\n",j,z12ptr[j]);
-  // for (int j=0; j<=nnod2; j++) 
-  //   printf("z21ptr[%d] = %d\n",j,z21ptr[j]);
 
+  // mkptr(z12,0,nnod1,nnod1,nnod2,z12ptr);
+  // mkptr(z21,nnod1,nnod2,0,nnod1,z21ptr);
+  
   // Get the coordinates of the nodes
   xnod = GLOBAL_MESH->nodedata->nodedata;
   nu = GLOBAL_MESH->nodedata->nu;
@@ -216,10 +223,28 @@ int chimera_mat_shell_t::init(Mat A_,Vec res) {
   MPI_Comm_size(PETSCFEM_COMM_WORLD,&size);
   PETSCFEM_ASSERT0(size==1,"Only one processor so far");
 
-
   // Get the dofmap in order to map equations to nodes
   Dofmap *dofmap = GLOBAL_DOFMAP;
   int nnod = dofmap->nnod;
+
+  // Load the interpolators (computed in Octave right now probably)
+  dvector<double> w;
+  h5_dvector_read("./interp.h5","/z/value",w);
+  int ncoef = w.size(0);
+  printf("ncoef %d\n",ncoef);
+  PETSCFEM_ASSERT0(w.size(1)==3,"Bad z column size");
+  for (int l=0; l<ncoef; l++) {
+    int
+      j=dbl2int(w.e(l,0)),
+      k=dbl2int(w.e(l,1));
+    double a = w.e(l,2);
+    ajk_t ajk(j,k,a);
+    z.push_back(ajk);
+  }
+  
+  w.clear();
+  exit(0);
+  
   int neq = dofmap->neq;
   // So far only used for scalar problems (ndof==1)
   PETSCFEM_ASSERT0(dofmap->ndof==1,"Only 1 dof/node so far");

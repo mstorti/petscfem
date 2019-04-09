@@ -101,6 +101,7 @@ void h5petsc_mat_save(Mat J, const char *filename) {
   H5::DataSet dssz =
     file.createDataSet("sizes",H5::PredType::NATIVE_INT,ds2);
   dssz.write(sz.data(),H5::PredType::NATIVE_INT);
+  file.close();
 }
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>
@@ -114,6 +115,7 @@ int h5petsc_vec_save(Vec x,const char *filename,const char *varname) {
   H5::DataSet xdset =
     file.createDataSet("res",H5::PredType::NATIVE_DOUBLE,dataspace);
   xdset.write(vx.data(),H5::PredType::NATIVE_DOUBLE);
+  file.close();
   return 0;
 }
 
@@ -140,6 +142,7 @@ void h5_dvector_read(const char *filename,
   vector<int> shape(rank);
   for (int j=0; j<rank; j++) shape[j] = int(dims[j]);
   w.reshape(shape);
+  h5file.close();
 }
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>
@@ -163,6 +166,7 @@ void h5_dvector_write(dvector<double> &w,const char *filename,
   H5::DataSet xdset =
     filep->createDataSet(varname,H5::PredType::NATIVE_DOUBLE,dataspace);
   xdset.write(w.buff(),H5::PredType::NATIVE_DOUBLE);
+  filep->close();
   delete filep;
 }
 
