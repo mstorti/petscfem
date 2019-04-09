@@ -97,7 +97,7 @@ public:
   vector<int> zptr;
   // List of nodes at the boundaries of W1 and W2 (includes
   // external and internal boundaries)
-  set<int> ebdry,bdry1,bdry2;
+  set<int> ebdry,ibdry;
   // Read integer array from H5 double dataset
   void h5d2i(const char *file,const char *dset,dvector<int> &w);
   // Problem specific: marks external bdry nodes (nodes at
@@ -168,11 +168,10 @@ int chimera_mat_shell_t::init(Mat A_,Vec res) {
   nu = GLOBAL_MESH->nodedata->nu;
 
   // Read the array of bdry nodes
-  readbdry("interp.h5","/bdry1/value",ebdry,bdry1,0);
-  readbdry("interp.h5","/bdry2/value",ebdry,bdry2,1);
+  readbdry("interp.h5","/bdry1/value",ebdry,ibdry,0);
+  readbdry("interp.h5","/bdry2/value",ebdry,ibdry,1);
   printf("nbdry external %zu\n",ebdry.size());
-  printf("nbdry bdry1 %zu\n",bdry1.size());
-  printf("nbdry bdry2 %zu\n",bdry2.size());
+  printf("nbdry bdry %zu\n",ibdry.size());
   // for (auto &k : ebdry)
   //   printf("node %d, x %g,%g\n",k,XNOD(k,0),XNOD(k,1));
   
@@ -250,13 +249,8 @@ int chimera_mat_shell_t::init(Mat A_,Vec res) {
   }
   // Replace all the rows for the external and internal
   // boundary nodes for the identity matrix Replace the rows
-  set<int> srows = ebdry;
-  for (auto &q : bdry1) srows.insert(q);
-  for (auto &q : bdry2) srows.insert(q);
-  printf("total bdry nodes %zu\n",srows.size());
-  
   vector<int> rows;
-  for (auto &q : srows) rows.push_back(q);
+  for (auto &node : ibdry) rows.push_back(node2eq[node]);
   int nrows = rows.size();
   ierr = MatZeroRows(A,nrows,rows.data(),1.0,NULL,NULL); CHKERRQ(ierr);
   ierr = VecRestoreArray(res,&resp); CHKERRQ(ierr);
@@ -274,20 +268,28 @@ int chimera_mat_shell_t::mat_mult(Vec x,Vec y) {
   ierr = VecGetArray(x,&xp); CHKERRQ(ierr);
   ierr = VecGetArray(y,&yp); CHKERRQ(ierr);
   // Interpolate de values at the internal W1 bdry 
-  for (auto &node : bdry1) {
-    printf("node %d x %f %f\n",
-           node,XNOD(node,0),XNOD(node,1));
-    int jeq = node2eq[node];
+  for (auto &node1 : ibdry) {
+    printf("node1 %d x %f %f\n",
+           node1,XNOD(node1,0),XNOD(node1,1));
     int
-      rstart = zptr[node],
-      rend = zptr[node+1];
+      rstart = zptr[node1],
+      rend = zptr[node1+1];
+    PETSCFEM_ASSERT(rend>rstart,
+                    "Can't find interpolator for boundary "
+                    "node %d, x(%f,%f)",node1,XNOD(node1,0),XNOD(node1,1));
+    // Look for node in the interpolator with largest coefficient
+    int node2=-1;
+    double cmax=-1.0;
     for (int l=rstart; l<rend; l++) {
       ajk_t &a = z[l];
       int k=z[l].k;
-      printf("---> node %d x(%f %f)-> %g\n",
-             a.k,XNOD(k,0),XNOD(k,1),a.ajk);
+      if (fabs(a.ajk)>cmax) { cmax=fabs(a.ajk); node2=k; }
     }
-    exit(0);
+    // printf("---> node %d x(%f %f)\n",
+    //        node2,XNOD(node2,0),XNOD(node2,1));
+    int jeq1 = node2eq[node1];
+    int jeq2 = node2eq[node2];
+    yp[jeq1] += -xp[jeq2];
   }
   ierr = VecRestoreArray(x,&xp); CHKERRQ(ierr);
   ierr = VecRestoreArray(y,&yp); CHKERRQ(ierr);
