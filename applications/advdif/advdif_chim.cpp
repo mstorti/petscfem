@@ -1,10 +1,8 @@
-//__INSERT_LICENSE__
-//$Id merge-with-petsc-233-55-g52bd457 Fri Oct 26 13:57:07 2007 -0300$
-
 #include <src/debug.h>
 #include <set>
 #include <iostream>
 #include <fstream>
+#include <algorithm>
 
 #include <src/fem.h>
 #include <src/readmesh.h>
@@ -63,8 +61,8 @@ struct ajk_t {
 };
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>
-bool comp(ajk_t a,ajk_t b) {
-  if (a.j!=b.j) return a.j<a.k;
+bool ajk_comp(ajk_t a,ajk_t b) {
+  if (a.j!=b.j) return a.j<b.j;
   return a.k<b.k;
 }
 
@@ -100,13 +98,6 @@ public:
   // List of nodes at the boundaries of W1 and W2 (includes
   // external and internal boundaries)
   set<int> ebdry,bdry1,bdry2;
-#if 0  
-  // Auxiliary functions for reading the interpolators
-  void mkptr(dvector<double> &z12,
-             int rstart1,int nnod1,
-             int rstart2,int nnod2,
-             vector<int> &z12ptr);
-#endif
   // Read integer array from H5 double dataset
   void h5d2i(const char *file,const char *dset,dvector<int> &w);
   // Problem specific: marks external bdry nodes (nodes at
@@ -152,31 +143,6 @@ void chimera_mat_shell_t
     w.ref(j) = dbl2int(z.ref(j));
   z.reshape(shape);
 }
-
-#if 0
-//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>
-void chimera_mat_shell_t::mkptr(dvector<double> &z12,
-                                int rstart1,int nnod1,
-                                int rstart2,int nnod2,
-                                vector<int> &z12ptr) {
-  int ncoef=z12.size(0);
-  z12ptr.resize(nnod1+1);
-  int jlast=0;
-  for (int l=0; l<ncoef; l++) {
-    int
-      j = dbl2int(z12.e(l,0)),
-      k = dbl2int(z12.e(l,1));
-    double ajk = z12.e(l,2);
-    // printf("l %d, a(%d,%d) = %g\n",l,j,k,ajk);
-    PETSCFEM_ASSERT0(j>=rstart1,"interpolator bad row index");
-    PETSCFEM_ASSERT0(j<rstart1+nnod1,"interpolator bad row index");
-    PETSCFEM_ASSERT0(k>=rstart2,"interpolator bad row index");
-    PETSCFEM_ASSERT0(k<rstart2+nnod2,"interpolator bad row index");
-    while (jlast<=j) z12ptr[jlast++] = l;
-  }
-  while (jlast<=nnod1) z12ptr[jlast++] = ncoef;
-}
-#endif
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>
 int chimera_mat_shell_t::init(Mat A_,Vec res) {
@@ -241,9 +207,20 @@ int chimera_mat_shell_t::init(Mat A_,Vec res) {
     ajk_t ajk(j,k,a);
     z.push_back(ajk);
   }
-  
   w.clear();
-  exit(0);
+
+  sort(z.begin(),z.end(),ajk_comp);
+
+  zptr.resize(nnod+1);
+  int jlast=0;
+  for (int l=0; l<ncoef; l++) {
+    int j = z[l].j,k = z[l].k;
+    // printf("l %d, jk %d %d, coef %f\n",l,j,k,z[l].ajk);
+    while (jlast<=j) {
+      zptr[jlast++] = l;
+    }
+  }
+  while (jlast<=nnod) zptr[jlast++] = ncoef;
   
   int neq = dofmap->neq;
   // So far only used for scalar problems (ndof==1)
@@ -289,20 +266,29 @@ int chimera_mat_shell_t::init(Mat A_,Vec res) {
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>
 int chimera_mat_shell_t::mat_mult(Vec x,Vec y) {
+  printf("entering mat_mult\n");
   // Here we can add some extra contribution to the
   // residuals
   int ierr;
   double *xp,*yp;
   ierr = VecGetArray(x,&xp); CHKERRQ(ierr);
   ierr = VecGetArray(y,&yp); CHKERRQ(ierr);
-#if 0  
-  // Interpolate de values for at the internal W1 bdry 
-  for (auto &q : bdry1) {
-    int jeq = node2eq[q];
-    int rstart = z12ptr[];
-    // yp[jeq] += xp[jeq];
+  // Interpolate de values at the internal W1 bdry 
+  for (auto &node : bdry1) {
+    printf("node %d x %f %f\n",
+           node,XNOD(node,0),XNOD(node,1));
+    int jeq = node2eq[node];
+    int
+      rstart = zptr[node],
+      rend = zptr[node+1];
+    for (int l=rstart; l<rend; l++) {
+      ajk_t &a = z[l];
+      int k=z[l].k;
+      printf("---> node %d x(%f %f)-> %g\n",
+             a.k,XNOD(k,0),XNOD(k,1),a.ajk);
+    }
+    exit(0);
   }
-#endif
   ierr = VecRestoreArray(x,&xp); CHKERRQ(ierr);
   ierr = VecRestoreArray(y,&yp); CHKERRQ(ierr);
   return 0;
