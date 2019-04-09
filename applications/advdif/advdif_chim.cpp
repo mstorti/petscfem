@@ -170,10 +170,8 @@ int chimera_mat_shell_t::init(Mat A_,Vec res) {
   // Read the array of bdry nodes
   readbdry("interp.h5","/bdry1/value",ebdry,ibdry,0);
   readbdry("interp.h5","/bdry2/value",ebdry,ibdry,1);
-  printf("nbdry external %zu\n",ebdry.size());
-  printf("nbdry bdry %zu\n",ibdry.size());
-  // for (auto &k : ebdry)
-  //   printf("node %d, x %g,%g\n",k,XNOD(k,0),XNOD(k,1));
+  printf("nbdry external %zu, internal %zu\n",
+         ebdry.size(),ibdry.size());
   
 #else
   PETSCFEM_ERROR0("Not compiled with JSONCPP support\n");
@@ -229,11 +227,11 @@ int chimera_mat_shell_t::init(Mat A_,Vec res) {
   // RHS[JEQ] to VAL and set the corresponding row to 1
   // (Identity) In this stage we just set the rows of the
   // matrix to Identity and the RHS.
-  double *resp;
-  ierr = VecGetArray(res,&resp); CHKERRQ(ierr);
   // COUNT will be the number of rows that are set
   int count=0;
-  PETSCFEM_ASSERT0(nnod==neq,"Not allowed Dirichlet conditions through FIXA for PF-CHIMERA");
+  PETSCFEM_ASSERT0(nnod==neq,
+                   "Not allowed Dirichlet conditions "
+                   "through FIXA for PF-CHIMERA");
   for (int node=0; node<nnod; node++) {
     int m;
     const int *dofs;
@@ -250,17 +248,26 @@ int chimera_mat_shell_t::init(Mat A_,Vec res) {
   // Replace all the rows for the external and internal
   // boundary nodes for the identity matrix Replace the rows
   vector<int> rows;
-  for (auto &node : ibdry) rows.push_back(node2eq[node]);
+
+  double *resp;
+  ierr = VecGetArray(res,&resp); CHKERRQ(ierr);
+  set<int> fixed = ebdry;
+  for (auto &q : ibdry) fixed.insert(q);
+  for (auto &node : fixed) {
+    int jeq = node2eq[node];
+    rows.push_back(jeq);
+    resp[jeq] = 0.0;
+  }
+  ierr = VecRestoreArray(res,&resp); CHKERRQ(ierr);
+  
   int nrows = rows.size();
   ierr = MatZeroRows(A,nrows,rows.data(),1.0,NULL,NULL); CHKERRQ(ierr);
-  ierr = VecRestoreArray(res,&resp); CHKERRQ(ierr);
-  printf("count %d\n",count);
+  printf("nrows %d\n",nrows);
   return 0;
 }
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>
 int chimera_mat_shell_t::mat_mult(Vec x,Vec y) {
-  printf("entering mat_mult\n");
   // Here we can add some extra contribution to the
   // residuals
   int ierr;
@@ -269,8 +276,6 @@ int chimera_mat_shell_t::mat_mult(Vec x,Vec y) {
   ierr = VecGetArray(y,&yp); CHKERRQ(ierr);
   // Interpolate de values at the internal W1 bdry 
   for (auto &node1 : ibdry) {
-    printf("node1 %d x %f %f\n",
-           node1,XNOD(node1,0),XNOD(node1,1));
     int
       rstart = zptr[node1],
       rend = zptr[node1+1];
@@ -285,10 +290,11 @@ int chimera_mat_shell_t::mat_mult(Vec x,Vec y) {
       int k=z[l].k;
       if (fabs(a.ajk)>cmax) { cmax=fabs(a.ajk); node2=k; }
     }
-    // printf("---> node %d x(%f %f)\n",
-    //        node2,XNOD(node2,0),XNOD(node2,1));
     int jeq1 = node2eq[node1];
     int jeq2 = node2eq[node2];
+    // printf("node1 %d x(%f %f) eq %d ---> node2 %d x(%f %f) eq %d\n",
+    //        node1,XNOD(node1,0),XNOD(node1,1),jeq1,
+    //        node2,XNOD(node2,0),XNOD(node2,1),jeq2);
     yp[jeq1] += -xp[jeq2];
   }
   ierr = VecRestoreArray(x,&xp); CHKERRQ(ierr);
@@ -301,7 +307,9 @@ int mat_mult(Mat A,Vec x,Vec y) {
   void *ctx;
   int ierr = MatShellGetContext(A,&ctx); CHKERRQ(ierr);
   chimera_mat_shell_t &cms = *(chimera_mat_shell_t*)ctx;
+  // Make the base contribution to the matrix-vector product
   ierr = MatMult(cms.A,x,y); CHKERRQ(ierr);
+  // Add the extra therm (restrictions between fos by chimera)
   cms.mat_mult(x,y);
   return 0;
 }
