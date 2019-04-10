@@ -248,7 +248,6 @@ int chimera_mat_shell_t::init(Mat A_,Vec res) {
   // Replace all the rows for the external and internal
   // boundary nodes for the identity matrix Replace the rows
   vector<int> rows;
-
   double *resp;
   ierr = VecGetArray(res,&resp); CHKERRQ(ierr);
   set<int> fixed = ebdry;
@@ -266,6 +265,8 @@ int chimera_mat_shell_t::init(Mat A_,Vec res) {
   return 0;
 }
 
+int DBG_MM=0;
+
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>
 int chimera_mat_shell_t::mat_mult(Vec x,Vec y) {
   // Here we can add some extra contribution to the
@@ -274,7 +275,7 @@ int chimera_mat_shell_t::mat_mult(Vec x,Vec y) {
   double *xp,*yp;
   ierr = VecGetArray(x,&xp); CHKERRQ(ierr);
   ierr = VecGetArray(y,&yp); CHKERRQ(ierr);
-  // Interpolate de values at the internal W1 bdry 
+  // Interpolate de values at the internal W1 bdry
   for (auto &node1 : ibdry) {
     int
       rstart = zptr[node1],
@@ -282,23 +283,32 @@ int chimera_mat_shell_t::mat_mult(Vec x,Vec y) {
     PETSCFEM_ASSERT(rend>rstart,
                     "Can't find interpolator for boundary "
                     "node %d, x(%f,%f)",node1,XNOD(node1,0),XNOD(node1,1));
+    // printf("node1 %d x(%f %f)\n",
+    //        node1,XNOD(node1,0),XNOD(node1,1));
     // Look for node in the interpolator with largest coefficient
-    double val=0.0;
+    double val=0.0,sumcoef=0.0;
     for (int l=rstart; l<rend; l++) {
       ajk_t &a = z[l];
+      int node2=a.k;
+      // printf("-> node2 %d x(%f %f) coef %g\n",
+      //        node2,XNOD(node2,0),XNOD(node2,1),a.ajk);
       int jeqk = node2eq[a.k];
+      if (DBG_MM)
+        printf("node2 %d, x %f %f, phi %f\n",
+               node2,XNOD(node2,0),XNOD(node2,1),xp[jeqk]);
+      sumcoef += a.ajk;
       val += a.ajk*xp[jeqk];
     }
     int jeq1 = node2eq[node1];
-    // printf("node1 %d x(%f %f) eq %d ---> node2 %d x(%f %f) eq %d\n",
-    //        node1,XNOD(node1,0),XNOD(node1,1),jeq1,
-    //        node2,XNOD(node2,0),XNOD(node2,1),jeq2);
+    if (DBG_MM) printf("node1 %d x(%f %f) id %f, interp %f,sumcoef %f\n",
+                       node1,XNOD(node1,0),XNOD(node1,1),yp[jeq1],val,sumcoef);
     yp[jeq1] += -val;
   }
   ierr = VecRestoreArray(x,&xp); CHKERRQ(ierr);
   ierr = VecRestoreArray(y,&yp); CHKERRQ(ierr);
   return 0;
 }
+
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>
 int mat_mult(Mat A,Vec x,Vec y) {
@@ -726,6 +736,11 @@ int chimera_main() {
                                   PETSC_DEFAULT); CHKERRQ(ierr);
           ierr = KSPMonitorSet(ksp,KSPMonitorDefault,NULL,NULL); CHKERRQ(ierr);
           ierr = KSPSolve(ksp,res,dx); CHKERRQ(ierr);
+          ierr = VecZeroEntries(res);
+          // ierr = VecView(res,PETSC_VIEWER_STDOUT_WORLD); CHKERRA(ierr);          
+          DBG_MM = 1;
+          ierr = MatMult(Ashell,dx,res); CHKERRQ(ierr);
+          // ierr = VecView(res,PETSC_VIEWER_STDOUT_WORLD); CHKERRA(ierr);          
 #endif
 	  debug.trace("After solving linear system.");
 	}
