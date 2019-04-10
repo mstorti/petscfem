@@ -737,10 +737,8 @@ int chimera_main() {
           ierr = KSPMonitorSet(ksp,KSPMonitorDefault,NULL,NULL); CHKERRQ(ierr);
           ierr = KSPSolve(ksp,res,dx); CHKERRQ(ierr);
           ierr = VecZeroEntries(res);
-          // ierr = VecView(res,PETSC_VIEWER_STDOUT_WORLD); CHKERRA(ierr);          
-          DBG_MM = 1;
-          ierr = MatMult(Ashell,dx,res); CHKERRQ(ierr);
-          // ierr = VecView(res,PETSC_VIEWER_STDOUT_WORLD); CHKERRA(ierr);          
+          // DBG_MM = 1;
+          // ierr = MatMult(Ashell,dx,res); CHKERRQ(ierr);
 #endif
 	  debug.trace("After solving linear system.");
 	}
