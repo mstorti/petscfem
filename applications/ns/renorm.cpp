@@ -20,11 +20,11 @@ void renorm::init() {
 
   //o Poisson ratio
   TGETOPTDEF_ND(thash,double,creac,NAN);
-  PETSCFEM_ASSERT0(!isnan(creac),"creac is required");  
+  PETSCFEM_ASSERT0(!ISNAN(creac),"creac is required");  
 
   //o Poisson ratio
   TGETOPTDEF_ND(thash,double,kond,NAN);
-  PETSCFEM_ASSERT0(!isnan(kond),"kond is required");  
+  PETSCFEM_ASSERT0(!ISNAN(kond),"kond is required");  
 
   //o Poisson ratio
   TGETOPTDEF_ND(thash,double,mpenal,NAN);
@@ -247,7 +247,7 @@ void renorm::element_connector(const FastMat2 &xloc,
 
   //  printf("total mass %f \n",total_liquid_volume);
 
-//   if (!isnan(mpenal) && mpenal>0) {
+//   if (!ISNAN(mpenal) && mpenal>0) {
 //     xlocc.set(xloc);
 //     xarea.set(xloc);
 //     compute_H_term(phi);

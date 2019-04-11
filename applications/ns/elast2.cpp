@@ -48,7 +48,7 @@ void elasticity2::init() {
 
   //o Characteristic time for damping term
   TGETOPTDEF(thash,double,tau_damp,NAN);
-  if (isnan(tau_damp)) cdamp=0.0;
+  if (ISNAN(tau_damp)) cdamp=0.0;
   else {
     PETSCFEM_ASSERT(tau_damp>0.0,
                     "tau_damp must be positive, entered %g",

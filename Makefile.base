@@ -160,8 +160,8 @@ endif
 
 ## JSON
 ifneq ($(JSON),)
-JSON_CPPFLAGS =  -DUSE_JSONCPP -I$(JSON)/include
-JSON_LDFLAGS  = -L$(JSON)/lib -ljsoncpp
+JSON_CPPFLAGS =  -DUSE_JSONCPP -I$(JSON_INC_DIR)
+JSON_LDFLAGS  = -L$(JSON_LIB_DIR) -l$(JSON_LIBNAME)
 endif
 
 CC          = $(MPICC)

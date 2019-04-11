@@ -4,7 +4,7 @@
 #ifndef AMPLI_H
 #define AMPLI_H
 
-#include <math.h>
+#include <cmath>
 #include <src/fem.h>
 #include <src/getprop.h>
 

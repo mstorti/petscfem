@@ -593,7 +593,7 @@ int ns_main(int argc,char **args) {
     if (RENORM_flag){
       ierr = read_vector("state-adv.tmp",x,dofmap,MY_RANK); CHKERRA(ierr);
       // Volume control
-      if (volume_control_flag && !isnan(liquid_volume_ini)){
+      if (volume_control_flag && !ISNAN(liquid_volume_ini)){
 	double Dphi = -C_volume*(total_liquid_volume_g-liquid_volume_ini)/D_volume;
 	ierr = VecShift(x,Dphi); CHKERRA(ierr);
 	PetscPrintf(PETSCFEM_COMM_WORLD,"Dphi %.10f \n",Dphi);
@@ -834,7 +834,7 @@ int ns_main(int argc,char **args) {
         // prints total liquid volume for level set control
 	PetscPrintf(PETSCFEM_COMM_WORLD,"Total liquid volume %.10f\n",
                     total_liquid_volume_g);
-	if (isnan(liquid_volume_ini))
+	if (ISNAN(liquid_volume_ini))
           liquid_volume_ini = total_liquid_volume_g;
       }
 

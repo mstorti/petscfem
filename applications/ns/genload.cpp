@@ -359,7 +359,7 @@ void lin_gen_load::start_chunk_c() {
   const_flux_indx = iprop; 
   ierr = get_prop(iprop,elem_prop_names,thash,elprpsindx,propel, 
 		  "const_flux",ndof);
-  PETSCFEM_ASSERT0(!isnan(*(propel+const_flux_indx)),
+  PETSCFEM_ASSERT0(!ISNAN(*(propel+const_flux_indx)),
                    "Must enter value for \"const_flux\"");  
   nprops = iprop;
 }

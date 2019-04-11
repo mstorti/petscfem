@@ -18,15 +18,15 @@ void renorm2::init() {
 
   //o Constant affecting #||\grad phi||^2# term
   TGETOPTDEF_ND(thash,double,c_grad_phi,NAN);
-  PETSCFEM_ASSERT0(!isnan(c_grad_phi),"c_grad_phi is required");  
+  PETSCFEM_ASSERT0(!ISNAN(c_grad_phi),"c_grad_phi is required");  
 
   //o Constant affecting Laplacian term
   TGETOPTDEF_ND(thash,double,kond,NAN);
-  PETSCFEM_ASSERT0(!isnan(kond),"kond is required");  
+  PETSCFEM_ASSERT0(!ISNAN(kond),"kond is required");  
 
   //o Constant affecting reaction term
   TGETOPTDEF_ND(thash,double,c_reac,NAN);
-  PETSCFEM_ASSERT0(!isnan(c_reac),
+  PETSCFEM_ASSERT0(!ISNAN(c_reac),
                    "c_reac is required");  
 
   //o Constant affecting reaction term

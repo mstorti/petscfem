@@ -519,7 +519,7 @@ int chimera_main() {
   //  #start_comp_time# for compatibility with Navier-Stokes
   //  module).
   GETOPTDEF(double,start_time,NAN);
-  if (!isnan(start_time) && start_comp_time!=0.0)
+  if (!ISNAN(start_time) && start_comp_time!=0.0)
     start_comp_time = start_time;
 
   //o Tolerance when solving with the mass matrix.

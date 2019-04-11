@@ -20,11 +20,11 @@ void renorm3::init() {
 
   //o Poisson ratio
   TGETOPTDEF_ND(thash,double,creac,NAN);
-  PETSCFEM_ASSERT0(!isnan(creac),"creac is required");  
+  PETSCFEM_ASSERT0(!ISNAN(creac),"creac is required");  
 
   //o Poisson ratio
   TGETOPTDEF_ND(thash,double,kond,NAN);
-  PETSCFEM_ASSERT0(!isnan(kond),"kond is required");  
+  PETSCFEM_ASSERT0(!ISNAN(kond),"kond is required");  
 
   //o Poisson ratio
   TGETOPTDEF_ND(thash,double,mpenal,NAN);

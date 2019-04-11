@@ -42,7 +42,7 @@ void force_integrator::init() {
   nu = NAN;
   if (add_wall_law_contrib) {
     PETSCFEM_ASSERT0(!add_wall_law_contrib || 
-                     (!isnan(y_wall) && !isnan(rho) && !isnan(viscosity)),
+                     (!ISNAN(y_wall) && !ISNAN(rho) && !ISNAN(viscosity)),
                      "add_wall_law_contrib was set, but not physical "
                      "values were given");
     PETSCFEM_ASSERT0(viscosity>=0,"viscosity must be non-negative"); 

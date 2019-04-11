@@ -64,11 +64,11 @@ int volabso::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
   SGETOPTDEF(double,abso_fac,1.0);
   //o Gravity
   SGETOPTDEF(double,gravity,NAN);
-  PETSCFEM_ASSERT0(!isnan(gravity),"gravity is required");  
+  PETSCFEM_ASSERT0(!ISNAN(gravity),"gravity is required");  
   PETSCFEM_ASSERT0(gravity>=0.0,"gravity must be nonnegative");  
   //o Water depth reference value
   SGETOPTDEF(double,h0,NAN);
-  PETSCFEM_ASSERT0(!isnan(h0),"h0 is required");  
+  PETSCFEM_ASSERT0(!ISNAN(h0),"h0 is required");  
   PETSCFEM_ASSERT0(h0>=0.0,"h0 must be nonnegative");  
 
   //o Type of element geometry to define Gauss Point data

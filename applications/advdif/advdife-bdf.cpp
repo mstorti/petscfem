@@ -598,7 +598,7 @@ new_assemble_BDF(arg_data_list &arg_data_v,const Nodedata *nodedata,
 	  if (shocap_aniso > 0. || shocap_aniso_const > 0.){
 	    jvec_old.set(NAN);
 	    adv_diff_ff->compute_shock_cap_aniso(delta_aniso_old,jvec_old);
-	    if (isnan(jvec_old.get(1))) {
+	    if (ISNAN(jvec_old.get(1))) {
 	      if (shocap_aniso_const > 0.0) {
 		jvec_old.set(0.0);
 	      } else {
@@ -823,7 +823,7 @@ new_assemble_BDF(arg_data_list &arg_data_v,const Nodedata *nodedata,
 	  if (shocap > 0. || shocap_const > 0.) {
 	    delta_sc_v.set(NAN);
 	    adv_diff_ff->compute_delta_sc_v(delta_sc_v);
-	    if (isnan(delta_sc_v.get(1))) {
+	    if (ISNAN(delta_sc_v.get(1))) {
 	      if (shocap_const > 0.0) {
 		delta_sc_v.set(0.0);
 	      } else {
@@ -865,7 +865,7 @@ new_assemble_BDF(arg_data_list &arg_data_v,const Nodedata *nodedata,
 	    delta_aniso = 0.0;
 	    jvec.set(NAN);
 	    adv_diff_ff->compute_shock_cap_aniso(delta_aniso,jvec);
-	    if (isnan(jvec.get(1))) {
+	    if (ISNAN(jvec.get(1))) {
 	      if (shocap_aniso_const > 0.0) {
 		jvec.set(0.0);
 	      } else {

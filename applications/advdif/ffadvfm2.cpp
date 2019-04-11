@@ -1,10 +1,7 @@
-//__INSERT_LICENSE__
-//$Id merge-with-petsc-233-55-g52bd457 Fri Oct 26 13:57:07 2007 -0300$
-
-#include <stdio.h>
-#include <string.h>
+#include <cstdio>
 #include <vector>
 #include <cassert>
+#include <string.h>
 //#include <string>
 
 #include <src/fem.h>
@@ -1065,7 +1062,7 @@ void newadvecfm2_ff_t::compute_flux(COMPUTE_FLUX_ARGS) {
         // one returns all NAN
         has_comp_vel_vec_per_field =
           vel_vec_per_field.size()==0 
-          || !isnan(vel_vec_per_field.get(1,1));
+          || !ISNAN(vel_vec_per_field.get(1,1));
         if (has_comp_vel_vec_per_field) {
           for (int k=1; k<=ndof; k++) {
             vel_vec_per_field.ir(1,k);
