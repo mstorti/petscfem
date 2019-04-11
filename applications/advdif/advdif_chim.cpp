@@ -342,9 +342,9 @@ int chimera_main() {
   char fcase[FLEN+1];
   Darray *da; // este me parece que se puede sacar!!
   //Elemset *elemset;
-  Dofmap *dofmap;
+  Dofmap *dofmap = NULL;
   dofmap = new Dofmap;
-  Mesh *mesh;
+  Mesh *mesh = NULL;
   vector<double> dtmin(1,0.);
   Vec a;
   GlobParam glob_param;
@@ -739,6 +739,8 @@ int chimera_main() {
           ierr = VecZeroEntries(res);
           // DBG_MM = 1;
           // ierr = MatMult(Ashell,dx,res); CHKERRQ(ierr);
+          ierr = KSPDestroy(&ksp);CHKERRQ(ierr);
+          ierr = MatDestroy(&Ashell);CHKERRQ(ierr);
 #endif
 	  debug.trace("After solving linear system.");
 	}
@@ -938,6 +940,8 @@ int chimera_main() {
 
   delete A;
   delete AA;
+  DELETE_SCLR(dofmap);
+  DELETE_SCLR(mesh);
 
 #ifdef DO_SIZE_STATS
   prod2_subcache_t::report_stats();

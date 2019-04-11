@@ -126,13 +126,13 @@ int Dofmap::edof(const int node,const int field) const {
 #define __FUNC__ "Dofmap::get_dofval"
 double  Dofmap::get_dofval(const int & jeq,double const *sstate,
 			   double const *ghost_vals,const TimeData *time_data) const {
-  vector<int>::iterator it;
   if (dof1 <= jeq && jeq <= dof2) {
     return sstate[jeq-dof1];
   } else if (jeq<=neq) {
-    it = lower_bound(ghost_dofs->begin(),ghost_dofs->end(),jeq-1);
+    vector<int>::const_iterator it;
+    it = lower_bound(ghost_dofs.begin(),ghost_dofs.end(),jeq-1);
     assert(*it == jeq-1);
-    return *(ghost_vals+(it-ghost_dofs->begin()));
+    return *(ghost_vals+(it-ghost_dofs.begin()));
   } else {
     // printf("jeq %d -> \n",jeq);
     // fixed[jeq-neq-1].print();
@@ -295,7 +295,7 @@ int Dofmap::create_MPI_ghost_vector(Vec &v) {
   int myrank, ierr;
   MPI_Comm_rank(PETSCFEM_COMM_WORLD,&myrank);
   ierr = VecCreateSeq(PETSC_COMM_SELF,
-		      ghost_dofs->size(),&v); CHKERRQ(ierr);
+		      ghost_dofs.size(),&v); CHKERRQ(ierr);
   return ierr;
 }
 
@@ -314,7 +314,7 @@ Dofmap::Dofmap() :
   idmap2(NULL), special_ptr(NULL), sp_eq(NULL), coefs(NULL),
   comm(PETSCFEM_COMM_WORLD),
   nnod(0), neq(0), dof1(0), dof2(0), neqf(0), neqtot(0), ndof(0),
-  ident(NULL), ghost_dofs(NULL), id(NULL),  fixa(NULL), q(NULL),
+  ident(NULL), id(NULL),  fixa(NULL), q(NULL),
   startproc(NULL), neqproc(NULL), size(0), tpwgts(NULL), npart(NULL),
   ghost_scatter(NULL), scatter_print(NULL)
 { }
@@ -325,4 +325,7 @@ Dofmap::~Dofmap() {
   DELETE_VCTR(tpwgts);
   VecScatterDestroy(&ghost_scatter);
   VecScatterDestroy(&scatter_print);
+  if (neqproc) delete[] neqproc;
+  if (startproc) delete[] startproc;
+  if (npart) delete[] npart;
 }

@@ -231,7 +231,7 @@ public:
   int *ident;
 
   /// The STL vector containing ghost\_dofs (ordered, base 0)
-  vector<int> *ghost_dofs;
+  vector<int> ghost_dofs;
 
   /// this will replace ident in a future
   idmap *id;

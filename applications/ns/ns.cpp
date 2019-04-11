@@ -84,8 +84,8 @@ int ns_main(int argc,char **args) {
   
   // ierr = MatCreateShell(PETSCFEM_COMM_WORLD,int m,int n,int M,int N,void *ctx,Mat *A)
   char fcase[FLEN+1],output_file[FLEN+1];
-  Dofmap *dofmap;
-  Mesh *mesh;
+  Dofmap *dofmap=NULL;
+  Mesh *mesh=NULL;
   // arglf:= argument list for computing gathered quantities as forces
   arg_list argl, arglf;
   vector<double> hmin;

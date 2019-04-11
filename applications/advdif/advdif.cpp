@@ -105,11 +105,9 @@ int advdif_main(int argc,char **args) {
   char fcase[FLEN+1];
   Darray *da; // este me parece que se puede sacar!!
   //Elemset *elemset;
-  Dofmap *dofmap;
-  dofmap = new Dofmap;
-  Mesh *mesh;
+  Dofmap *dofmap = new Dofmap;
+  Mesh *mesh = NULL;
   vector<double> dtmin(1,0.);
-  Vec a;
   GlobParam glob_param;
   GLOB_PARAM = &glob_param;
   string save_file_res;
@@ -330,8 +328,8 @@ int advdif_main(int argc,char **args) {
   //o Chooses the preconditioning operator. 
   TGETOPTDEF_S(GLOBAL_OPTIONS,string,preco_type,jacobi);
   // I had to do this since `c_str()' returns `const char *'
-  char *preco_type_ = new char[preco_type.size()+1];
-  strcpy(preco_type_,preco_type.c_str());
+  // char *preco_type_ = new char[preco_type.size()+1];
+  // strcpy(preco_type_,preco_type.c_str());
 
   Time time,time_star;
   time.set(start_comp_time);
@@ -714,11 +712,13 @@ int advdif_main(int argc,char **args) {
   
   delete A;
   delete AA;
+  DELETE_SCLR(dofmap);
+  DELETE_SCLR(mesh);
 
 #ifdef DO_SIZE_STATS
   prod2_subcache_t::report_stats();
 #endif
 
   PetscFinalize();
-  exit(0);
+  return 0;
 }
