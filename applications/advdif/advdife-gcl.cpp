@@ -699,15 +699,6 @@ new_assemble_GCL_compliant(arg_data_list &arg_data_v,const Nodedata *nodedata,
 				  tau_supg,delta_sc_old,
 				  lambda_max_pg, nor,lambda,Vr,Vr_inv,
 				  COMP_SOURCE | COMP_UPWIND);
-        if (PF_PROP_HOOK) {
-          // printf("PF_PROP_HOOK %p\n",PF_PROP_HOOK);
-          xpg.export_vals(xpgv.data());
-          PF_PROP_HOOK->getprop("source_term",elem,xpgv,time_m,ndim,
-                                G_source.storage_begin());
-          double *s = G_source.storage_begin();
-          // printf("elem %d, x %f %f, source %f\n",elem,xpgv[0],xpgv[1],*s);
-        }
-
 	adv_diff_ff->comp_A_grad_N(Ao_grad_N,dshapex);
 	Ao_grad_U.set(A_grad_U);
 	if (shocap>0. || shocap_aniso>0.)
@@ -820,6 +811,16 @@ new_assemble_GCL_compliant(arg_data_list &arg_data_v,const Nodedata *nodedata,
 
 	if (lambda_max_pg>lambda_max) lambda_max=lambda_max_pg;
 
+        if (PF_PROP_HOOK) {
+          // printf("PF_PROP_HOOK %p\n",PF_PROP_HOOK);
+          xpg.export_vals(xpgv.data());
+          PF_PROP_HOOK->getprop("source_term",elem,xpgv,time_m,ndim,
+                                G_source.storage_begin());
+          // double *s = G_source.storage_begin();
+          // printf("elem %d, x %f %f, source %f\n",elem,xpgv[0],xpgv[1],*s);
+        }
+
+        // FMSHV(G_source);
 	tmp10.set(G_source);	// tmp10 = G - dUdt
 	if (!lumped_mass) tmp10.minus(dUdt);
         if (ALE_flag) {

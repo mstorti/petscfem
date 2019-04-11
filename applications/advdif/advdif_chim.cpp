@@ -311,9 +311,9 @@ int chimera_mat_shell_t::mat_mult(Vec x,Vec y) {
 
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>
-int mat_mult(Mat A,Vec x,Vec y) {
+int mat_mult(Mat Ashell,Vec x,Vec y) {
   void *ctx;
-  int ierr = MatShellGetContext(A,&ctx); CHKERRQ(ierr);
+  int ierr = MatShellGetContext(Ashell,&ctx); CHKERRQ(ierr);
   chimera_mat_shell_t &cms = *(chimera_mat_shell_t*)ctx;
   // Make the base contribution to the matrix-vector product
   ierr = MatMult(cms.A,x,y); CHKERRQ(ierr);

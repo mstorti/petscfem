@@ -13,6 +13,7 @@ extern int comp_mat_each_time_step_g,
 #include <src/util2.h>
 #include <src/fastmat2.h>
 #include <src/generror.h>
+#include <src/hook.h>
 
 #include "nwadvdif.h"
 
@@ -111,7 +112,8 @@ new_assemble_ALE_formulation(arg_data_list &arg_data_v,const Nodedata *nodedata,
   }
 
   FastMat2 matlocf(4,nel,ndof,nel,ndof),
-    matlocf_mass(4,nel,ndof,nel,ndof);
+    matlocf_mass(4,nel,ndof,nel,ndof),xpg(1,ndim);
+  vector<double> xpgv(ndim);
   FastMat2 prof_nodes(2,nel,nel), prof_fields(2,ndof,ndof),
     matlocf_fix(4,nel,ndof,nel,ndof);
   FastMat2 Id_ndof(2,ndof,ndof),Id_nel(2,nel,nel),
@@ -399,7 +401,7 @@ new_assemble_ALE_formulation(arg_data_list &arg_data_v,const Nodedata *nodedata,
       // loop over Gauss points
       Jaco_av.set(0.);
       for (ipg = 0; ipg < npg; ipg++) {
-	//      Matrix xpg = SHAPE * xloc;
+        xpg.prod(SHAPE,xloc,-1,-1,1);
 	Jaco.prod(DSHAPEXI,xloc,1,-1,-1,2); // xloc is at t_{n+alpha}
 	Jaco_av.add(Jaco);
 	Jaco_new.prod(DSHAPEXI,xloc_new,1,-1,-1,2);
@@ -613,6 +615,13 @@ new_assemble_ALE_formulation(arg_data_list &arg_data_v,const Nodedata *nodedata,
 	  }
 
 	  if (lambda_max_pg > lambda_max) lambda_max = lambda_max_pg;
+
+          if (PF_PROP_HOOK) {
+            // printf("PF_PROP_HOOK %p\n",PF_PROP_HOOK);
+            xpg.export_vals(xpgv.data());
+            PF_PROP_HOOK->getprop("source_term",k_elem,xpgv,time_m,ndim,
+                                  G_source.storage_begin());
+          }
 
 	  tmp10.set(G_source);	// tmp10 = G - dHdt
 	  if (!lumped_mass) tmp10.minus(dHdt);
