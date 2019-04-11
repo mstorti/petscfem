@@ -700,9 +700,12 @@ new_assemble_GCL_compliant(arg_data_list &arg_data_v,const Nodedata *nodedata,
 				  lambda_max_pg, nor,lambda,Vr,Vr_inv,
 				  COMP_SOURCE | COMP_UPWIND);
         if (PF_PROP_HOOK) {
+          // printf("PF_PROP_HOOK %p\n",PF_PROP_HOOK);
           xpg.export_vals(xpgv.data());
           PF_PROP_HOOK->getprop("source_term",elem,xpgv,time_m,ndim,
                                 G_source.storage_begin());
+          double *s = G_source.storage_begin();
+          // printf("elem %d, x %f %f, source %f\n",elem,xpgv[0],xpgv[1],*s);
         }
 
 	adv_diff_ff->comp_A_grad_N(Ao_grad_N,dshapex);
