@@ -112,7 +112,7 @@ new_assemble_ALE_formulation(arg_data_list &arg_data_v,const Nodedata *nodedata,
   }
 
   FastMat2 matlocf(4,nel,ndof,nel,ndof),
-    matlocf_mass(4,nel,ndof,nel,ndof),xpg(1,ndim);
+    matlocf_mass(4,nel,ndof,nel,ndof);
   vector<double> xpgv(ndim);
   FastMat2 prof_nodes(2,nel,nel), prof_fields(2,ndof,ndof),
     matlocf_fix(4,nel,ndof,nel,ndof);
@@ -237,7 +237,7 @@ new_assemble_ALE_formulation(arg_data_list &arg_data_v,const Nodedata *nodedata,
   FMatrix veccontr(nel,ndof), veccontr_mass(nel,ndof),
     xloc(nel,ndim), xloc_old(nel,ndim), xloc_new(nel,ndim), lstate(nel,ndof),
     lstateo(nel,ndof), lstaten(nel,ndof), dUloc_c(nel,ndof),
-    dUloc(nel,ndof), matloc, xloc_mid(nel,ndim);
+    dUloc(nel,ndof),matloc,xloc_mid(nel,ndim),xpg(ndim);
 
   nen = nel*ndof;
 
@@ -615,9 +615,7 @@ new_assemble_ALE_formulation(arg_data_list &arg_data_v,const Nodedata *nodedata,
 	  }
 
 	  if (lambda_max_pg > lambda_max) lambda_max = lambda_max_pg;
-
           if (PF_PROP_HOOK) {
-            // printf("PF_PROP_HOOK %p\n",PF_PROP_HOOK);
             xpg.export_vals(xpgv.data());
             PF_PROP_HOOK->getprop("source_term",k_elem,xpgv,time_m,ndim,
                                   G_source.storage_begin());

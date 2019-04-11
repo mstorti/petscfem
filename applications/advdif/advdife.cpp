@@ -497,6 +497,7 @@ void NewAdvDif::new_assemble(arg_data_list &arg_data_v,const Nodedata *nodedata,
   tau_supg.resize(2,ndof,ndof);
   P_supg.resize(3,nel,ndof,ndof);
   grad_U_norm.resize(2,ndimel,ndof);
+  Cp.resize(2,ndof,ndof);
 
   FMatrix Jaco_axi(2,2);
   int ind_axi_1, ind_axi_2;
@@ -1222,8 +1223,10 @@ void NewAdvDif::new_assemble(arg_data_list &arg_data_v,const Nodedata *nodedata,
           // This computes either the standard `P_supg' perturbation
           // function or other written by the user in the
           // flux-function.
-          if (!use_Ajac_old)
+          if (!use_Ajac_old) {
+            adv_diff_ff->get_Cp(Cp);
             adv_diff_ff->comp_P_supg(P_supg);
+          }
 	  
           for (int jel=1; jel<=nel; jel++) {
             P_supg.ir(1,jel);
