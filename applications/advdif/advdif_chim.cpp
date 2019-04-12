@@ -710,19 +710,20 @@ int chimera_main() {
 
 	if (!print_linear_system_and_stop || solve_system) {
 	  debug.trace("Before solving linear system...");
-#if 0 // ORIG CODE
+#if 1 // ORIG CODE
 	  ierr = A->solve(res,dx); CHKERRA(ierr);
 #else
           Mat Ashell;
           chimera_mat_shell_t cms;
-          cms.init(A->get_petsc_mat(),res);
+          Mat Apetsc = A->get_petsc_mat();
+          MatSetOption(Apetsc,MAT_KEEP_NONZERO_PATTERN,PETSC_TRUE);
+          cms.init(Apetsc,res);
           int neq,nlocal;
           ierr = VecGetSize(dx,&neq);CHKERRQ(ierr);
           ierr = VecGetLocalSize(dx,&nlocal);CHKERRQ(ierr);
           ierr = MatCreateShell(PETSC_COMM_WORLD,nlocal,nlocal,neq,neq,
                                 &cms,&Ashell);
           MatShellSetOperation(Ashell,MATOP_MULT,(void (*)(void))(&mat_mult));
-          MatSetOption(cms.A,MAT_KEEP_NONZERO_PATTERN,PETSC_TRUE);
           KSP ksp;         /* linear solver context */
           PC pc;           /* preconditioner context */
           ierr = KSPCreate(PETSCFEM_COMM_WORLD,&ksp);CHKERRQ(ierr);
