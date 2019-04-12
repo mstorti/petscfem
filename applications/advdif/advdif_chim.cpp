@@ -604,6 +604,9 @@ int chimera_main() {
   // Set pointers in glob_param
   glob_param.x = x;
   glob_param.xold = xold;
+  State state(x,time),state_old(xold,time);
+  glob_param.state = &state;
+  glob_param.state_old = &state_old;
 
   //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:
   // initialize state vectors
@@ -710,7 +713,7 @@ int chimera_main() {
 
 	if (!print_linear_system_and_stop || solve_system) {
 	  debug.trace("Before solving linear system...");
-#if 1 // ORIG CODE
+#if 0 // ORIG CODE
 	  ierr = A->solve(res,dx); CHKERRA(ierr);
 #else
           Mat Ashell;
