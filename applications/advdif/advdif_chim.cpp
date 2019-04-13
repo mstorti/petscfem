@@ -71,8 +71,11 @@ class chimera_mat_shell_t {
 public:
   chimera_mat_shell_t() : A(NULL), xnod(NULL) {}
 
-  // Initializes the problem before starting the iterative solver
-  int init(Mat A,Vec res);
+  // Initializes the problem
+  int init0(Mat A);
+  // Initializes the problem before starting the iterative
+  // solver
+  int init1(Vec res);
   // This is called in each iteration of the solver iteration loop
   int mat_mult(Vec x,Vec y);
   // The underlying PETSc matrix
@@ -88,7 +91,7 @@ public:
   // Options for this Chimera module
   Json::Value opts;
   // Number of nodes of the W1 and W2 domains
-  int nnod1,nnod2,nelem1,nelem2;
+  int nnod,nnod1,nnod2,nelem1,nelem2;
   // The interpolators in format (ROW,COL,COEF)
   vector<ajk_t> z;
   // The interpolators are ordered by ROW so that we can use
@@ -106,6 +109,8 @@ public:
   // Read the bdry from H5 and separate external and internal nodes
   void readbdry(const char *file,const char *dset,set<int> &ebdry,
                 set<int> &ibdry,int domain);
+  // This stores the rows that are fixed
+  vector<int> rows;
 };
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>
@@ -145,7 +150,7 @@ void chimera_mat_shell_t
 }
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>
-int chimera_mat_shell_t::init(Mat A_,Vec res) {
+int chimera_mat_shell_t::init0(Mat A_) {
 
 #ifdef USE_JSONCPP
   // Read data needed from a JSON file
@@ -160,16 +165,14 @@ int chimera_mat_shell_t::init(Mat A_,Vec res) {
   printf("nnod1 %d, nelem1 %d, nnod2 %d, nelem2 %d\n",
          nnod1,nelem1,nnod2,nelem2);
 
-  // mkptr(z12,0,nnod1,nnod1,nnod2,z12ptr);
-  // mkptr(z21,nnod1,nnod2,0,nnod1,z21ptr);
-  
   // Get the coordinates of the nodes
   xnod = GLOBAL_MESH->nodedata->nodedata;
   nu = GLOBAL_MESH->nodedata->nu;
+  nnod = GLOBAL_MESH->nodedata->nnod;
 
   // Read the array of bdry nodes
-  readbdry("interp.h5","/bdry1/value",ebdry,ibdry,0);
-  readbdry("interp.h5","/bdry2/value",ebdry,ibdry,1);
+  readbdry("mesh.h5","/bdry1/value",ebdry,ibdry,0);
+  readbdry("mesh.h5","/bdry2/value",ebdry,ibdry,1);
   printf("nbdry external %zu, internal %zu\n",
          ebdry.size(),ibdry.size());
   
@@ -190,35 +193,6 @@ int chimera_mat_shell_t::init(Mat A_,Vec res) {
   Dofmap *dofmap = GLOBAL_DOFMAP;
   int nnod = dofmap->nnod;
 
-  // Load the interpolators (computed in Octave right now probably)
-  dvector<double> w;
-  h5_dvector_read("./interp.h5","/z/value",w);
-  int ncoef = w.size(0);
-  printf("ncoef %d\n",ncoef);
-  PETSCFEM_ASSERT0(w.size(1)==3,"Bad z column size");
-  for (int l=0; l<ncoef; l++) {
-    int
-      j=dbl2int(w.e(l,0)),
-      k=dbl2int(w.e(l,1));
-    double a = w.e(l,2);
-    ajk_t ajk(j,k,a);
-    z.push_back(ajk);
-  }
-  w.clear();
-
-  sort(z.begin(),z.end(),ajk_comp);
-
-  zptr.resize(nnod+1);
-  int jlast=0;
-  for (int l=0; l<ncoef; l++) {
-    int j = z[l].j,k = z[l].k;
-    // printf("l %d, jk %d %d, coef %f\n",l,j,k,z[l].ajk);
-    while (jlast<=j) {
-      zptr[jlast++] = l;
-    }
-  }
-  while (jlast<=nnod) zptr[jlast++] = ncoef;
-  
   int neq = dofmap->neq;
   // So far only used for scalar problems (ndof==1)
   PETSCFEM_ASSERT0(dofmap->ndof==1,"Only 1 dof/node so far");
@@ -247,21 +221,55 @@ int chimera_mat_shell_t::init(Mat A_,Vec res) {
   }
   // Replace all the rows for the external and internal
   // boundary nodes for the identity matrix Replace the rows
-  vector<int> rows;
-  double *resp;
-  ierr = VecGetArray(res,&resp); CHKERRQ(ierr);
   set<int> fixed = ebdry;
   for (auto &q : ibdry) fixed.insert(q);
   for (auto &node : fixed) {
     int jeq = node2eq[node];
     rows.push_back(jeq);
-    resp[jeq] = 0.0;
   }
-  ierr = VecRestoreArray(res,&resp); CHKERRQ(ierr);
-  
+  return 0;
+}
+
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>
+int chimera_mat_shell_t::init1(Vec res) {
+  int ierr;
+  double *resp;
+  ierr = VecGetArray(res,&resp); CHKERRQ(ierr);
+  for (auto &jeq : rows) resp[jeq] = 0.0;
   int nrows = rows.size();
   ierr = MatZeroRows(A,nrows,rows.data(),1.0,NULL,NULL); CHKERRQ(ierr);
   printf("nrows %d\n",nrows);
+  ierr = VecRestoreArray(res,&resp); CHKERRQ(ierr);
+
+  // Load the interpolators (computed in Octave right now probably)
+  dvector<double> w;
+  h5_dvector_read("./interp.h5","/z/value",w);
+  int ncoef = w.size(0);
+  printf("ncoef %d\n",ncoef);
+  PETSCFEM_ASSERT0(w.size(1)==3,"Bad z column size");
+  for (int l=0; l<ncoef; l++) {
+    int
+      j=dbl2int(w.e(l,0)),
+      k=dbl2int(w.e(l,1));
+    double a = w.e(l,2);
+    ajk_t ajk(j,k,a);
+    z.push_back(ajk);
+  }
+  w.clear();
+
+  sort(z.begin(),z.end(),ajk_comp);
+
+  zptr.clear();
+  zptr.resize(nnod+1,-1);
+  int jlast=0;
+  for (int l=0; l<ncoef; l++) {
+    int j = z[l].j,k = z[l].k;
+    // printf("l %d, jk %d %d, coef %f\n",l,j,k,z[l].ajk);
+    while (jlast<=j) {
+      zptr[jlast++] = l;
+    }
+  }
+  while (jlast<=nnod) zptr[jlast++] = ncoef;
   return 0;
 }
 
@@ -637,6 +645,31 @@ int chimera_main() {
   //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:
   ierr = opt_read_vector(mesh,x,dofmap,MY_RANK); CHKERRA(ierr);
 
+  // Initialize the CHIMERA stuff
+  Mat Ashell;
+  chimera_mat_shell_t cms;
+  Mat Apetsc = A->get_petsc_mat();
+  MatSetOption(Apetsc,MAT_KEEP_NONZERO_PATTERN,PETSC_TRUE);
+  cms.init0(Apetsc);
+  int nlocal;
+  // ierr = VecGetSize(dx,&neq);CHKERRQ(ierr);
+  ierr = VecGetLocalSize(dx,&nlocal);CHKERRQ(ierr);
+  ierr = MatCreateShell(PETSC_COMM_WORLD,nlocal,nlocal,neq,neq,
+                        &cms,&Ashell);
+  MatShellSetOperation(Ashell,MATOP_MULT,(void (*)(void))(&mat_mult));
+  KSP ksp;         /* linear solver context */
+  PC pc;           /* preconditioner context */
+  ierr = KSPCreate(PETSCFEM_COMM_WORLD,&ksp);CHKERRQ(ierr);
+
+  ierr = KSPSetOperators(ksp,Ashell,cms.A,
+                         DIFFERENT_NONZERO_PATTERN); CHKERRQ(ierr);
+  ierr = KSPSetType(ksp,KSPGMRES); CHKERRQ(ierr);
+  ierr = KSPGetPC(ksp,&pc); CHKERRQ(ierr);
+  ierr = PCSetType(pc,PCLU); CHKERRQ(ierr);
+  ierr = KSPSetTolerances(ksp,1.e-7,PETSC_DEFAULT,PETSC_DEFAULT,
+                          PETSC_DEFAULT); CHKERRQ(ierr);
+  ierr = KSPMonitorSet(ksp,KSPMonitorDefault,NULL,NULL); CHKERRQ(ierr);
+  
   //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:
   // This is for taking statistics of the
   // CPU time consumed by a time steptime
@@ -716,35 +749,8 @@ int chimera_main() {
 #if 0 // ORIG CODE
 	  ierr = A->solve(res,dx); CHKERRA(ierr);
 #else
-          Mat Ashell;
-          chimera_mat_shell_t cms;
-          Mat Apetsc = A->get_petsc_mat();
-          MatSetOption(Apetsc,MAT_KEEP_NONZERO_PATTERN,PETSC_TRUE);
-          cms.init(Apetsc,res);
-          int neq,nlocal;
-          ierr = VecGetSize(dx,&neq);CHKERRQ(ierr);
-          ierr = VecGetLocalSize(dx,&nlocal);CHKERRQ(ierr);
-          ierr = MatCreateShell(PETSC_COMM_WORLD,nlocal,nlocal,neq,neq,
-                                &cms,&Ashell);
-          MatShellSetOperation(Ashell,MATOP_MULT,(void (*)(void))(&mat_mult));
-          KSP ksp;         /* linear solver context */
-          PC pc;           /* preconditioner context */
-          ierr = KSPCreate(PETSCFEM_COMM_WORLD,&ksp);CHKERRQ(ierr);
-
-          ierr = KSPSetOperators(ksp,Ashell,cms.A,
-                                 DIFFERENT_NONZERO_PATTERN); CHKERRQ(ierr);
-          ierr = KSPSetType(ksp,KSPGMRES); CHKERRQ(ierr);
-          ierr = KSPGetPC(ksp,&pc); CHKERRQ(ierr);
-          ierr = PCSetType(pc,PCLU); CHKERRQ(ierr);
-          ierr = KSPSetTolerances(ksp,1.e-7,PETSC_DEFAULT,PETSC_DEFAULT,
-                                  PETSC_DEFAULT); CHKERRQ(ierr);
-          ierr = KSPMonitorSet(ksp,KSPMonitorDefault,NULL,NULL); CHKERRQ(ierr);
+          cms.init1(res);
           ierr = KSPSolve(ksp,res,dx); CHKERRQ(ierr);
-          ierr = VecZeroEntries(res);
-          // DBG_MM = 1;
-          // ierr = MatMult(Ashell,dx,res); CHKERRQ(ierr);
-          ierr = KSPDestroy(&ksp);CHKERRQ(ierr);
-          ierr = MatDestroy(&Ashell);CHKERRQ(ierr);
 #endif
 	  debug.trace("After solving linear system.");
 	}
@@ -941,6 +947,12 @@ int chimera_main() {
 #ifdef DIAG_MAT_MATRIX
   ierr = MatDestroy(&A); CHKERRA(ierr);
 #endif
+
+  // ierr = VecZeroEntries(res);
+  // DBG_MM = 1;
+  // ierr = MatMult(Ashell,dx,res); CHKERRQ(ierr);
+  ierr = KSPDestroy(&ksp);CHKERRQ(ierr);
+  ierr = MatDestroy(&Ashell);CHKERRQ(ierr);
 
   delete A;
   delete AA;
