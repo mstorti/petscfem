@@ -227,6 +227,7 @@ int chimera_mat_shell_t::init0(Mat A_) {
     int jeq = node2eq[node];
     rows.push_back(jeq);
   }
+  printf("Imposed rows (external+internal) bdries %zu\n",rows.size());
   return 0;
 }
 
@@ -238,7 +239,6 @@ int chimera_mat_shell_t::init1(Vec res) {
   for (auto &jeq : rows) resp[jeq] = 0.0;
   int nrows = rows.size();
   ierr = MatZeroRows(A,nrows,rows.data(),1.0,NULL,NULL); CHKERRQ(ierr);
-  printf("nrows %d\n",nrows);
   ierr = VecRestoreArray(res,&resp); CHKERRQ(ierr);
 
   // Load the interpolators (computed in Octave right now probably)
@@ -247,14 +247,12 @@ int chimera_mat_shell_t::init1(Vec res) {
   int ncoef = w.size(0);
   printf("Loaded interpolators. ncoef %d\n",ncoef);
   PETSCFEM_ASSERT0(w.size(1)==3,"Bad z column size");
-  printf("859 coefs -> \n");
   z.clear();
   for (int l=0; l<ncoef; l++) {
     int
       j=dbl2int(w.e(l,0)),
       k=dbl2int(w.e(l,1));
     double a = w.e(l,2);
-    if (j==859) printf("k %d, ajk %f\n",k,a);
     ajk_t ajk(j,k,a);
     z.push_back(ajk);
   }
@@ -271,7 +269,6 @@ int chimera_mat_shell_t::init1(Vec res) {
       zptr[jlast++] = l;
     }
   }
-  printf("zptr 859 rng %d %d\n",zptr[859],zptr[860]);
   while (jlast<=nnod) zptr[jlast++] = ncoef;
   return 0;
 }
