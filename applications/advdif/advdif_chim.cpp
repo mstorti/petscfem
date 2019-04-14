@@ -245,20 +245,22 @@ int chimera_mat_shell_t::init1(Vec res) {
   dvector<double> w;
   h5_dvector_read("./interp.h5","/z/value",w);
   int ncoef = w.size(0);
-  printf("ncoef %d\n",ncoef);
+  printf("Loaded interpolators. ncoef %d\n",ncoef);
   PETSCFEM_ASSERT0(w.size(1)==3,"Bad z column size");
+  printf("859 coefs -> \n");
+  z.clear();
   for (int l=0; l<ncoef; l++) {
     int
       j=dbl2int(w.e(l,0)),
       k=dbl2int(w.e(l,1));
     double a = w.e(l,2);
+    if (j==859) printf("k %d, ajk %f\n",k,a);
     ajk_t ajk(j,k,a);
     z.push_back(ajk);
   }
   w.clear();
 
   sort(z.begin(),z.end(),ajk_comp);
-
   zptr.clear();
   zptr.resize(nnod+1,-1);
   int jlast=0;
@@ -269,6 +271,7 @@ int chimera_mat_shell_t::init1(Vec res) {
       zptr[jlast++] = l;
     }
   }
+  printf("zptr 859 rng %d %d\n",zptr[859],zptr[860]);
   while (jlast<=nnod) zptr[jlast++] = ncoef;
   return 0;
 }
