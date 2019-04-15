@@ -76,6 +76,8 @@ public:
   // Initializes the problem before starting the iterative
   // solver
   int init1(Vec res);
+  // Init the specific case
+  virtual void init_case()=0;
   // This is called in each iteration of the solver iteration loop
   int mat_mult(Vec x,Vec y);
   // The underlying PETSc matrix
@@ -84,6 +86,8 @@ public:
   double *xnod;
   int nu;
 #define XNOD(j,k) VEC2(xnod,j,k,nu)
+  // Returns component K of coordinates of node J
+  double xcoords(int j,int k) { return XNOD(j,k); }
   // For the internal boundaries (those that must be interpolated
   // from the other domain, maps the equation number to the
   // node number
@@ -98,20 +102,71 @@ public:
   // CSR pointers and then we store the beginning and end
   // for a certain ROW in the correspondings Z12PTR array.
   vector<int> zptr;
-  // List of nodes at the boundaries of W1 and W2 (includes
-  // external and internal boundaries)
-  set<int> ebdry,ibdry;
   // Read integer array from H5 double dataset
   void h5d2i(const char *file,const char *dset,dvector<int> &w);
   // Problem specific: marks external bdry nodes (nodes at
   // bdries of the subdomains not at external bdries)
   int isexternal(double *x);
+#if 0  
   // Read the bdry from H5 and separate external and internal nodes
   void readbdry(const char *file,const char *dset,set<int> &ebdry,
                 set<int> &ibdry,int domain);
+#endif
+  // Mark which nodes are imposed. They may be external
+  // boundary nodes (ebdry) and internal bdry nodes (ibdry),
+  // i.e. nodes that are inside the physical domain but in
+  // the boundary to other overlapping region and so their
+  // values must be interpolated from the other domain. 
+  virtual void mark_bdry_nodes(set<int> &ebdry,set<int> &ibdry)=0;
   // This stores the rows that are fixed
   vector<int> rows;
+  set<int> ibdry,ebdry;
 };
+
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>
+class chimera_square_t : public chimera_mat_shell_t {
+public:
+  set<int> ibdrycase,ebdrycase;
+  void init_case();
+  void mark_bdry_nodes(set<int> &ebdry,set<int> &ibdry);
+};
+
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>
+void chimera_square_t::init_case() {
+
+  dvector<int> bdry1,bdry2;
+  h5d2i("mesh.h5","/bdry1/value",bdry1);
+  h5d2i("mesh.h5","/bdry2/value",bdry2);
+
+  set<int> bdry;
+  int n;
+  n = bdry1.size();
+  for (int j=0; j<n; j++) bdry.insert(bdry1.ref(j));
+  n = bdry2.size();
+  for (int j=0; j<n; j++) bdry.insert(bdry2.ref(j));
+  bdry1.clear();
+  bdry2.clear();
+  
+  double tol=1e-6;
+  set<double> tmp;
+  ebdrycase.clear();
+  ibdrycase.clear();
+  for (auto &node : bdry) {
+    double x=xcoords(node,0), y=xcoords(node,1);
+    if (x<tol || x>1-tol || y< tol || y>1-tol) ebdrycase.insert(node);
+    else ibdrycase.insert(node);
+  }
+  printf("init-case: %zu external nodes, %zu internal nodes\n",
+         ebdrycase.size(),ibdrycase.size());
+  exit(0);
+}
+
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>
+void chimera_square_t
+::mark_bdry_nodes(set<int> &ebdry,set<int> &ibdry) {
+  ibdry = ibdrycase;
+  ebdry = ebdrycase;
+}
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>
 int chimera_mat_shell_t
@@ -120,6 +175,7 @@ int chimera_mat_shell_t
   return x[0]<tol || x[0]>1.0-tol || x[1]<tol || x[1]>1.0-tol;
 }
 
+#if 0
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>
 void chimera_mat_shell_t
 ::readbdry(const char *file,const char *dset,set<int> &ebdry,
@@ -134,6 +190,7 @@ void chimera_mat_shell_t
     else ibdry.insert(node);
   }
 }
+#endif
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>
 void chimera_mat_shell_t
@@ -170,12 +227,6 @@ int chimera_mat_shell_t::init0(Mat A_) {
   nu = GLOBAL_MESH->nodedata->nu;
   nnod = GLOBAL_MESH->nodedata->nnod;
 
-  // Read the array of bdry nodes
-  readbdry("mesh.h5","/bdry1/value",ebdry,ibdry,0);
-  readbdry("mesh.h5","/bdry2/value",ebdry,ibdry,1);
-  printf("nbdry external %zu, internal %zu\n",
-         ebdry.size(),ibdry.size());
-  
 #else
   PETSCFEM_ERROR0("Not compiled with JSONCPP support\n");
 #endif
@@ -219,8 +270,21 @@ int chimera_mat_shell_t::init0(Mat A_) {
     eq2node[jeq] = node;
     node2eq[node] = jeq;
   }
+  init_case();
+  return 0;
+}
+
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>
+int chimera_mat_shell_t::init1(Vec res) {
+
+  // List of nodes at the boundaries of W1 and W2 (includes
+  // external and internal boundaries)
+  set<int> ebdry,ibdry;
+  mark_bdry_nodes(ebdry,ibdry);
+
   // Replace all the rows for the external and internal
   // boundary nodes for the identity matrix Replace the rows
+  rows.clear();
   set<int> fixed = ebdry;
   for (auto &q : ibdry) fixed.insert(q);
   for (auto &node : fixed) {
@@ -228,11 +292,7 @@ int chimera_mat_shell_t::init0(Mat A_) {
     rows.push_back(jeq);
   }
   printf("Imposed rows (external+internal) bdries %zu\n",rows.size());
-  return 0;
-}
-
-//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>
-int chimera_mat_shell_t::init1(Vec res) {
+  
   int ierr;
   double *resp;
   ierr = VecGetArray(res,&resp); CHKERRQ(ierr);
@@ -647,7 +707,7 @@ int chimera_main() {
 
   // Initialize the CHIMERA stuff
   Mat Ashell;
-  chimera_mat_shell_t cms;
+  chimera_square_t cms;
   Mat Apetsc = A->get_petsc_mat();
   MatSetOption(Apetsc,MAT_KEEP_NONZERO_PATTERN,PETSC_TRUE);
   cms.init0(Apetsc);
