@@ -158,7 +158,6 @@ void chimera_square_t::init_case() {
   }
   printf("init-case: %zu external nodes, %zu internal nodes\n",
          ebdrycase.size(),ibdrycase.size());
-  exit(0);
 }
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>
@@ -166,13 +165,6 @@ void chimera_square_t
 ::mark_bdry_nodes(set<int> &ebdry,set<int> &ibdry) {
   ibdry = ibdrycase;
   ebdry = ebdrycase;
-}
-
-//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>
-int chimera_mat_shell_t
-::isexternal(double *x) {
-  double tol=1e-6;
-  return x[0]<tol || x[0]>1.0-tol || x[1]<tol || x[1]>1.0-tol;
 }
 
 #if 0
@@ -279,7 +271,6 @@ int chimera_mat_shell_t::init1(Vec res) {
 
   // List of nodes at the boundaries of W1 and W2 (includes
   // external and internal boundaries)
-  set<int> ebdry,ibdry;
   mark_bdry_nodes(ebdry,ibdry);
 
   // Replace all the rows for the external and internal
@@ -291,6 +282,7 @@ int chimera_mat_shell_t::init1(Vec res) {
     int jeq = node2eq[node];
     rows.push_back(jeq);
   }
+  fixed.clear();
   printf("Imposed rows (external+internal) bdries %zu\n",rows.size());
   
   int ierr;
@@ -343,6 +335,7 @@ int chimera_mat_shell_t::mat_mult(Vec x,Vec y) {
   double *xp,*yp;
   ierr = VecGetArray(x,&xp); CHKERRQ(ierr);
   ierr = VecGetArray(y,&yp); CHKERRQ(ierr);
+  
   // Interpolate de values at the internal W1 bdry
   for (auto &node1 : ibdry) {
     int
