@@ -102,5 +102,16 @@ void mmv_force_hook_t::
 time_step_post(double time,int step,
 	       const vector<double> &gather_values) {
   // Call the hook for the user
-  time_step_post(time,step,gather_values);
+  time_step_post_user(time,step,gather_values);
+}
+
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>
+void mmv_force_hook_t::close() {
+  // Call the hook for the user
+  close_user();
+}
+
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>
+void init_hooks() {
+  mmv_force_hook_t MMV_FORCE_HOOK_DUMMY;
 }

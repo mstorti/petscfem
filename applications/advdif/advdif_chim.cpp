@@ -14,7 +14,8 @@
 #include <src/h5utils.h>
 #include <src/dvector.h>
 
-#include "advective.h"
+#include <applications/advdif/advective.h>
+// #include <applications/advdif/mmvforce.h>
 
 #include <time.h>
 #include <json/json.h>
@@ -383,10 +384,17 @@ int mat_mult(Mat Ashell,Vec x,Vec y) {
   return 0;
 }
 
+void init_hooks();
+
 //-------<*>-------<*>-------<*>-------<*>-------<*>-------
 #undef __FUNC__
 #define __FUNC__ "advdif_chim"
 int chimera_main() {
+  //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>
+  // This is just because otherwise the main program doesn't
+  // link the functions for
+  init_hooks();
+  
   PetscBool flg;
   int ierr;
   Vec     x, dx, xold, res; /* approx solution, RHS, residual*/

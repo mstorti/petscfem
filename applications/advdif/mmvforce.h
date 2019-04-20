@@ -12,14 +12,10 @@ private:
   int chimera_save;
   double *coords_buff;
   dvector<double> coords0,coords;
-  int ndim, nnod, nu;
   int nsaverot,frame;
-  // The displacement of the center of geometry
-  vector<double> dx;
-  // The center of the source
-  vector<double> xcs;
   
 public:
+  int ndim, nnod, nu;
   mmv_force_hook_t();
   void init(Mesh &mesh_a,Dofmap &dofmap_a,
 	    TextHashTableFilter *options,
@@ -27,23 +23,22 @@ public:
   void time_step_pre(double time,int step);
   void time_step_post(double time,int step,
 		      const vector<double> &gather_values);
-  void close() {}
+  void close();
 
   virtual void
   init_user(Mesh &mesh_a,Dofmap &dofmap_a,
             TextHashTableFilter *options,
-            const char *name);
+            const char *name) { }
   virtual void
   time_step_pre_user(double time,int step) { } 
   virtual void
   time_step_post_user(double time,int step,
                       const vector<double> &gather_values) { }
   virtual void close_user() {}
-
   virtual void
   compute_coords(dvector<double> &coords0,
                  dvector<double> &coords,
-                 double time,double step);
+                 double time,double step) { }
 };
 
 #endif
