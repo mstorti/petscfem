@@ -98,9 +98,7 @@ public:
   dl_generic_hook2() { }
   ~dl_generic_hook2() { if (hookp) delete hookp; }
   void init(Mesh &mesh,Dofmap &dofmap,const char *name);
-  void time_step_pre(double time,int step) {
-    hookp->time_step_pre(time,step);
-  }
+  void time_step_pre(double time,int step);
   void time_step_post(double time,int step,
                       const vector<double> &gather_values) {
     hookp->time_step_post(time,step,gather_values);
@@ -116,6 +114,13 @@ public:
   }
   virtual void close() { hookp->close(); }
 };
+
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>
+#define DL_GENERIC_HOOK2(prefix)                \
+extern "C"                                      \
+Hook * prefix##_get_hook_fun() {                \
+  return new prefix##_hook_t;                   \
+}
 
 #endif
 #endif

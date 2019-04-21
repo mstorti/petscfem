@@ -28,7 +28,6 @@ mmv_force_hook_t::mmv_force_hook_t() : coords_buff(NULL) { }
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*> 
 void mmv_force_hook_t::init(Mesh &mesh_a,Dofmap &dofmap_a,
-		 TextHashTableFilter *options,
 		 const char *name) {
   int ierr;
   TGETOPTDEF_ND(GLOBAL_OPTIONS,int,ndim,0);
@@ -48,7 +47,7 @@ void mmv_force_hook_t::init(Mesh &mesh_a,Dofmap &dofmap_a,
 
   TGETOPTDEF_ND(GLOBAL_OPTIONS,int,chimera_save,0);
   // Call the hook for the user
-  init_user(mesh_a,dofmap_a,options,name);
+  init_user(mesh_a,dofmap_a,name);
 }
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>

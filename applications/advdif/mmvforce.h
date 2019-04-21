@@ -17,18 +17,14 @@ private:
 public:
   int ndim, nnod, nu;
   mmv_force_hook_t();
-  void init(Mesh &mesh_a,Dofmap &dofmap_a,
-	    TextHashTableFilter *options,
-	    const char *name);
+  void init(Mesh &mesh_a,Dofmap &dofmap_a,const char *name);
   void time_step_pre(double time,int step);
   void time_step_post(double time,int step,
 		      const vector<double> &gather_values);
   void close();
 
   virtual void
-  init_user(Mesh &mesh_a,Dofmap &dofmap_a,
-            TextHashTableFilter *options,
-            const char *name) { }
+  init_user(Mesh &mesh_a,Dofmap &dofmap_a,const char *name) { }
   virtual void
   time_step_pre_user(double time,int step) { } 
   virtual void
