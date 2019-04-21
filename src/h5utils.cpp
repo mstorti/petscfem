@@ -167,6 +167,31 @@ void h5_dvector_write(dvector<double> &w,const char *filename,
   delete filep;
 }
 
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>
+// Converts double to int, checking that the double is really an int
+int dbl2int(double z) {
+  int k = int(z);
+  PETSCFEM_ASSERT(fabs(z-double(k))==0.0,
+                  "Double is not integer! %g",z);
+  return k;
+}
+
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*> Read a
+// Read a dvector stored as a double in HDF5 and convert to
+// INT (checking that the values are really integer)
+void h5_dvector_read_d2i(const char *file,const char *dset,
+                         dvector<int> &w) {
+  dvector<double> z;
+  h5_dvector_read(file,dset,z);
+  vector<int> shape;
+  z.get_shape(shape);
+  int n = z.size();
+  w.resize(n);
+  for (int j=0; j<n; j++)
+    w.ref(j) = dbl2int(z.ref(j));
+  z.reshape(shape);
+}
+
 #else
 #define H5ERR PETSCFEM_ERROR0("Not compiled with HDF5 support")
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>
