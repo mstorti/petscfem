@@ -13,6 +13,7 @@
 #include <src/hook.h>
 #include <src/h5utils.h>
 #include <src/dvector.h>
+#include <applications/advdif/chimera.h>
 
 #include <applications/advdif/advective.h>
 // #include <applications/advdif/mmvforce.h>
@@ -67,6 +68,9 @@ bool ajk_comp(ajk_t a,ajk_t b) {
   return a.k<b.k;
 }
 
+// The underlying PETSc matrix
+chimera_hook_t *CHIMERA_HOOK_P=NULL;
+
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>
 class chimera_mat_shell_t {
 public:
@@ -77,8 +81,6 @@ public:
   // Initializes the problem before starting the iterative
   // solver
   int init1(Vec res);
-  // Init the specific case
-  virtual void init_case()=0;
   // This is called in each iteration of the solver iteration loop
   int mat_mult(Vec x,Vec y);
   // The underlying PETSc matrix
@@ -118,72 +120,10 @@ public:
   // i.e. nodes that are inside the physical domain but in
   // the boundary to other overlapping region and so their
   // values must be interpolated from the other domain. 
-  virtual void mark_bdry_nodes(set<int> &ebdry,set<int> &ibdry)=0;
   // This stores the rows that are fixed
   vector<int> rows;
   set<int> ibdry,ebdry;
 };
-
-//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>
-class chimera_square_t : public chimera_mat_shell_t {
-public:
-  set<int> ibdrycase,ebdrycase;
-  void init_case();
-  void mark_bdry_nodes(set<int> &ebdry,set<int> &ibdry);
-};
-
-//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>
-void chimera_square_t::init_case() {
-
-  dvector<int> bdry1,bdry2;
-  h5d2i("mesh.h5","/bdry1/value",bdry1);
-  h5d2i("mesh.h5","/bdry2/value",bdry2);
-
-  set<int> bdry;
-  int n;
-  n = bdry1.size();
-  for (int j=0; j<n; j++) bdry.insert(bdry1.ref(j));
-  n = bdry2.size();
-  for (int j=0; j<n; j++) bdry.insert(bdry2.ref(j));
-  bdry1.clear();
-  bdry2.clear();
-  
-  double tol=1e-6;
-  set<double> tmp;
-  ebdrycase.clear();
-  ibdrycase.clear();
-  for (auto &node : bdry) {
-    double x=xcoords(node,0), y=xcoords(node,1);
-    if (x<tol || x>1-tol || y< tol || y>1-tol) ebdrycase.insert(node);
-    else ibdrycase.insert(node);
-  }
-  printf("init-case: %zu external nodes, %zu internal nodes\n",
-         ebdrycase.size(),ibdrycase.size());
-}
-
-//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>
-void chimera_square_t
-::mark_bdry_nodes(set<int> &ebdry,set<int> &ibdry) {
-  ibdry = ibdrycase;
-  ebdry = ebdrycase;
-}
-
-#if 0
-//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>
-void chimera_mat_shell_t
-::readbdry(const char *file,const char *dset,set<int> &ebdry,
-           set<int> &ibdry,int domain) {
-  dvector<int> z;
-  h5d2i(file,dset,z);
-  int n = z.size();
-  for (int j=0; j<n; j++) {
-    int node = z.ref(j);
-    // printf("node %d, x %f %f\n",node,XNOD(node,0),XNOD(node,1));
-    if (isexternal(&XNOD(node,0))) ebdry.insert(node);
-    else ibdry.insert(node);
-  }
-}
-#endif
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>
 void chimera_mat_shell_t
@@ -263,7 +203,6 @@ int chimera_mat_shell_t::init0(Mat A_) {
     eq2node[jeq] = node;
     node2eq[node] = jeq;
   }
-  init_case();
   return 0;
 }
 
@@ -271,8 +210,9 @@ int chimera_mat_shell_t::init0(Mat A_) {
 int chimera_mat_shell_t::init1(Vec res) {
 
   // List of nodes at the boundaries of W1 and W2 (includes
-  // external and internal boundaries)
-  mark_bdry_nodes(ebdry,ibdry);
+  // external and internal boundaries).
+  // Call a hook from the user
+  CHIMERA_HOOK_P->mark_bdry_nodes(ebdry,ibdry);
 
   // Replace all the rows for the external and internal
   // boundary nodes for the identity matrix Replace the rows
@@ -370,7 +310,6 @@ int chimera_mat_shell_t::mat_mult(Vec x,Vec y) {
   ierr = VecRestoreArray(y,&yp); CHKERRQ(ierr);
   return 0;
 }
-
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>
 int mat_mult(Mat Ashell,Vec x,Vec y) {
@@ -708,7 +647,7 @@ int chimera_main() {
 
   // Initialize the CHIMERA stuff
   Mat Ashell;
-  chimera_square_t cms;
+  chimera_mat_shell_t cms;
   Mat Apetsc = A->get_petsc_mat();
   MatSetOption(Apetsc,MAT_KEEP_NONZERO_PATTERN,PETSC_TRUE);
   cms.init0(Apetsc);

@@ -7,7 +7,7 @@
 class mmv_force_hook_t : public Hook {
 private:
   // File pattern to save the coordinates of the moving mesh
-  string xaleppatern;
+  string xalepattern;
   // Save the coordinates in a temp file to use with the Chimera module
   int chimera_save;
   double *coords_buff;

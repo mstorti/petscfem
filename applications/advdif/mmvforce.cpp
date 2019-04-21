@@ -34,7 +34,7 @@ void mmv_force_hook_t::init(Mesh &mesh_a,Dofmap &dofmap_a,
   assert(ndim>0);
 
   TGETOPTDEF_ND(GLOBAL_OPTIONS,int,nsaverot,0);
-  TGETOPTDEF_S_ND(GLOBAL_OPTIONS,string,xaleppatern,"");
+  TGETOPTDEF_S_ND(GLOBAL_OPTIONS,string,xalepattern,"");
   
   coords_buff = mesh_a.nodedata->nodedata;
   nnod = mesh_a.nodedata->nnod;
@@ -62,6 +62,9 @@ void mmv_force_hook_t::time_step_pre(double time,int step) {
     }
   }
 
+  // Call the hook for the user
+  time_step_pre_user(time,step);
+
   // Call the user function to compute the new coords
   // Shift the coords at t[n] from slot 0 to slot 1.
   compute_coords(coords0,coords,time,step);
@@ -83,17 +86,17 @@ void mmv_force_hook_t::time_step_pre(double time,int step) {
     // go to the Chimera module
     system("octave-cli -qH mkinterpolators.m > mkinterpolators.log");
   }
-  if (xaleppatern.size()>0
+  printf("xalepattern %s\n",xalepattern.c_str());
+  if (xalepattern.size()>0
       && step%nsaverot==0) {
     // Save coords to H5 file
     // The name of the H5 file for this coords
     char line[1000];
-    sprintf(line,xaleppatern.c_str(),frame++);
+    sprintf(line,xalepattern.c_str(),frame++);
+    printf("xale file %s\n",line);
     h5_dvector_write(xale,line,"xale");
   }
   coords.export_vals(coords_buff);
-  // Call the hook for the user
-  time_step_pre_user(time,step);
 }
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>
