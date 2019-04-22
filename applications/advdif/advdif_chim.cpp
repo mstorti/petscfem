@@ -240,15 +240,16 @@ int mat_mult(Mat Ashell,Vec x,Vec y) {
   return 0;
 }
 
+// FIXME:= is it needed??
 void init_hooks();
 
 //-------<*>-------<*>-------<*>-------<*>-------<*>-------
 #undef __FUNC__
-#define __FUNC__ "advdif_chim"
+#define __FUNC__ "chimera_main"
 int chimera_main() {
   //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>
   // This is just because otherwise the main program doesn't
-  // link the functions for
+  // link the functions. FIXME:= is it needed??
   init_hooks();
   
   PetscBool flg;
@@ -276,10 +277,6 @@ int chimera_main() {
   GLOB_PARAM = &glob_param;
   string save_file_res;
 
-  // euler_volume::set_flux_fun(&flux_fun_euler);
-  // euler_absorb::flux_fun = &flux_fun_euler;
-
-  // elemsetlist =  da_create(sizeof(Elemset *));
   print_copyright();
   PetscPrintf(PETSCFEM_COMM_WORLD,
 	      "-------- Generic Advective-Diffusive  module ---------\n"
