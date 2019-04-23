@@ -168,9 +168,6 @@ int chimera_mat_shell_t::init1(Vec x,Vec res) {
   int jlast=0;
   for (int l=0; l<ncoef; l++) {
     int j = z[l].j,k = z[l].k;
-    if (j==0) printf("l %d, jk %d (%f %f) %d (%f %f), coef %f\n",
-                     l,j,XNOD(j,0),XNOD(j,0),
-                     k,XNOD(k,0),XNOD(k,1),z[l].ajk);
     while (jlast<=j) {
       zptr[jlast++] = l;
     }
