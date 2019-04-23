@@ -122,9 +122,11 @@ int chimera_mat_shell_t::init0(Mat A_) {
   return 0;
 }
 
+int DBG_MM=0;
+
 #define XNOD(j,k) VEC2(xnod,j,k,nu)
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>
-int chimera_mat_shell_t::init1(Vec res) {
+int chimera_mat_shell_t::init1(Vec x,Vec res) {
 
   // List of nodes at the boundaries of W1 and W2 (includes
   // external and internal boundaries).
@@ -135,8 +137,6 @@ int chimera_mat_shell_t::init1(Vec res) {
   // boundary nodes for the identity matrix Replace the rows
   set<int> fixed = ebdry;
   for (auto &q : ibdry) fixed.insert(q);
-  PETSCFEM_ASSERT0(fixed.find(0)!=fixed.end(),
-                   "Can't find node 0 in fixed bdry nodes");
   rows.clear();
   for (auto &node : fixed) {
     int jeq = node2eq[node];
@@ -145,16 +145,6 @@ int chimera_mat_shell_t::init1(Vec res) {
   fixed.clear();
   printf("Imposed rows (external+internal) bdries %zu\n",rows.size());
   
-  int ierr;
-  double *resp;
-  ierr = VecGetArray(res,&resp); CHKERRQ(ierr);
-  for (auto &jeq : rows) resp[jeq] = 0.0;
-  PETSCFEM_ASSERT0(rows[0]==0,"Can't find node==0 in PETSc zeroed rows");
-  int nrows = rows.size();
-  
-  ierr = MatZeroRows(A,nrows,rows.data(),1.0,NULL,NULL); CHKERRQ(ierr);
-  ierr = VecRestoreArray(res,&resp); CHKERRQ(ierr);
-
   // Load the interpolators (computed in Octave right now probably)
   dvector<double> w;
   h5_dvector_read("./interp.h5","/z/value",w);
@@ -186,10 +176,56 @@ int chimera_mat_shell_t::init1(Vec res) {
     }
   }
   while (jlast<=nnod) zptr[jlast++] = ncoef;
+
+  int ierr;
+  double *resp,*xp;
+  ierr = VecGetArray(res,&resp); CHKERRQ(ierr);
+  ierr = VecGetArray(x,&xp); CHKERRQ(ierr);
+  // For external bdry nodes the RHS of the eq is simply 0,
+  // because we assume homogeneous Dirichlet condition
+  for (auto &jeq : ebdry) resp[jeq] = 0.0;
+  // For internal bdry nodes we must set the difference
+  // between the value of PHI and the interpolated value
+  // from the other domain. But as we solve in incremental
+  // form PHI = X+DX, so we have to put in the RHS
+  // rhs{j} = phi{j} - sum{k} a{jk}*phi{k}
+  // rhs{j} = x{j} - sum{k} a{jk}*x{k} + dx{j} - sum{k} a{jk}*dx{k}
+  // The term dx{j}-sum{k} a{jk}*dx{k} added by
+  // the MatMult product. 
+  // So we put in the RHS the following:
+  // rhs{j} = x{j} - sum{k} a{jk}*x{k}
+  for (auto &node1 : ibdry) {
+    resp[node1] = -xp[node1];
+    int
+      rstart = zptr[node1],
+      rend = zptr[node1+1];
+    PETSCFEM_ASSERT(rend>rstart,
+                    "Can't find interpolator for boundary "
+                    "node %d, x(%f,%f)",node1,XNOD(node1,0),XNOD(node1,1));
+    double val=0.0,sumcoef=0.0;
+    for (int l=rstart; l<rend; l++) {
+      ajk_t &a = z[l];
+      int node2=a.k;
+      int jeqk = node2eq[a.k];
+      if (DBG_MM && node1==0)
+        printf("node2 %d, x %f %f, phi %f\n",
+               node2,XNOD(node2,0),XNOD(node2,1),xp[jeqk]);
+      sumcoef += a.ajk;
+      val += a.ajk*xp[jeqk];
+    }
+    resp[node1] += val;
+  }
+
+  // Set the rows for the external and internal boundaries
+  // to the identity
+  int nrows = rows.size();
+  ierr = MatZeroRows(A,nrows,rows.data(),1.0,NULL,NULL); CHKERRQ(ierr);
+  ierr = VecRestoreArray(res,&resp); CHKERRQ(ierr);
+  ierr = VecRestoreArray(x,&xp); CHKERRQ(ierr);
+  
   return 0;
 }
 
-int DBG_MM=0;
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>
 int chimera_mat_shell_t::mat_mult(Vec x,Vec y) {
@@ -672,11 +708,9 @@ int chimera_main() {
 
 	if (!print_linear_system_and_stop || solve_system) {
 	  debug.trace("Before solving linear system...");
-#if 0 // ORIG CODE
-	  ierr = A->solve(res,dx); CHKERRA(ierr);
-#else
-          cms.init1(res);
+          cms.init1(x,res);
           ierr = KSPSolve(ksp,res,dx); CHKERRQ(ierr);
+#if 0          
           DBG_MM = 1;
           ierr = MatMult(Ashell,dx,res); CHKERRQ(ierr);
           DBG_MM = 0;

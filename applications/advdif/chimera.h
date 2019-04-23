@@ -25,7 +25,7 @@ public:
   int init0(Mat A);
   // Initializes the problem before starting the iterative
   // solver
-  int init1(Vec res);
+  int init1(Vec x,Vec res);
   // This is called in each iteration of the solver iteration loop
   int mat_mult(Vec x,Vec y);
   // The underlying PETSc matrix
