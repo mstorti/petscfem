@@ -122,6 +122,7 @@ int chimera_mat_shell_t::init0(Mat A_) {
   return 0;
 }
 
+#define XNOD(j,k) VEC2(xnod,j,k,nu)
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>
 int chimera_mat_shell_t::init1(Vec res) {
 
@@ -132,9 +133,11 @@ int chimera_mat_shell_t::init1(Vec res) {
 
   // Replace all the rows for the external and internal
   // boundary nodes for the identity matrix Replace the rows
-  rows.clear();
   set<int> fixed = ebdry;
   for (auto &q : ibdry) fixed.insert(q);
+  PETSCFEM_ASSERT0(fixed.find(0)!=fixed.end(),
+                   "Can't find node 0 in fixed bdry nodes");
+  rows.clear();
   for (auto &node : fixed) {
     int jeq = node2eq[node];
     rows.push_back(jeq);
@@ -146,7 +149,9 @@ int chimera_mat_shell_t::init1(Vec res) {
   double *resp;
   ierr = VecGetArray(res,&resp); CHKERRQ(ierr);
   for (auto &jeq : rows) resp[jeq] = 0.0;
+  PETSCFEM_ASSERT0(rows[0]==0,"Can't find node==0 in PETSc zeroed rows");
   int nrows = rows.size();
+  
   ierr = MatZeroRows(A,nrows,rows.data(),1.0,NULL,NULL); CHKERRQ(ierr);
   ierr = VecRestoreArray(res,&resp); CHKERRQ(ierr);
 
@@ -173,7 +178,9 @@ int chimera_mat_shell_t::init1(Vec res) {
   int jlast=0;
   for (int l=0; l<ncoef; l++) {
     int j = z[l].j,k = z[l].k;
-    // printf("l %d, jk %d %d, coef %f\n",l,j,k,z[l].ajk);
+    if (j==0) printf("l %d, jk %d (%f %f) %d (%f %f), coef %f\n",
+                     l,j,XNOD(j,0),XNOD(j,0),
+                     k,XNOD(k,0),XNOD(k,1),z[l].ajk);
     while (jlast<=j) {
       zptr[jlast++] = l;
     }
@@ -184,7 +191,6 @@ int chimera_mat_shell_t::init1(Vec res) {
 
 int DBG_MM=0;
 
-#define XNOD(j,k) VEC2(xnod,j,k,nu)
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>
 int chimera_mat_shell_t::mat_mult(Vec x,Vec y) {
   // Here we can add some extra contribution to the
@@ -193,6 +199,9 @@ int chimera_mat_shell_t::mat_mult(Vec x,Vec y) {
   double *xp,*yp;
   ierr = VecGetArray(x,&xp); CHKERRQ(ierr);
   ierr = VecGetArray(y,&yp); CHKERRQ(ierr);
+
+  int j2 = 297;
+  if (DBG_MM) printf("x[0] %f, x[%d] %f\n",xp[0],j2,xp[j2]);
   
   // Interpolate de values at the internal W1 bdry
   for (auto &node1 : ibdry) {
@@ -212,17 +221,19 @@ int chimera_mat_shell_t::mat_mult(Vec x,Vec y) {
       // printf("-> node2 %d x(%f %f) coef %g\n",
       //        node2,XNOD(node2,0),XNOD(node2,1),a.ajk);
       int jeqk = node2eq[a.k];
-      if (DBG_MM)
+      if (DBG_MM && node1==0)
         printf("node2 %d, x %f %f, phi %f\n",
                node2,XNOD(node2,0),XNOD(node2,1),xp[jeqk]);
       sumcoef += a.ajk;
       val += a.ajk*xp[jeqk];
     }
     int jeq1 = node2eq[node1];
-    if (DBG_MM) printf("node1 %d x(%f %f) id %f, interp %f,sumcoef %f\n",
-                       node1,XNOD(node1,0),XNOD(node1,1),yp[jeq1],val,sumcoef);
+    if (DBG_MM && node1==0)
+      printf("node1 %d x(%f %f) id %f, interp %f,sumcoef %f\n",
+             node1,XNOD(node1,0),XNOD(node1,1),yp[jeq1],val,sumcoef);
     yp[jeq1] += -val;
   }
+  if (DBG_MM) printf("y[0] %f\n",yp[0]);
   ierr = VecRestoreArray(x,&xp); CHKERRQ(ierr);
   ierr = VecRestoreArray(y,&yp); CHKERRQ(ierr);
   return 0;
@@ -666,6 +677,9 @@ int chimera_main() {
 #else
           cms.init1(res);
           ierr = KSPSolve(ksp,res,dx); CHKERRQ(ierr);
+          DBG_MM = 1;
+          ierr = MatMult(Ashell,dx,res); CHKERRQ(ierr);
+          DBG_MM = 0;
 #endif
 	  debug.trace("After solving linear system.");
 	}
@@ -864,8 +878,6 @@ int chimera_main() {
 #endif
 
   // ierr = VecZeroEntries(res);
-  // DBG_MM = 1;
-  // ierr = MatMult(Ashell,dx,res); CHKERRQ(ierr);
   ierr = KSPDestroy(&ksp);CHKERRQ(ierr);
   ierr = MatDestroy(&Ashell);CHKERRQ(ierr);
 
