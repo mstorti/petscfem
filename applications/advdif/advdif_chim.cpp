@@ -17,7 +17,6 @@
 #include <src/dvector.h>
 #include <applications/advdif/chimera.h>
 #include <applications/advdif/advective.h>
-// #include <applications/advdif/mmvforce.h>
 
 using namespace std;
 
@@ -126,12 +125,12 @@ int DBG_MM=0;
 
 #define XNOD(j,k) VEC2(xnod,j,k,nu)
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>
-int chimera_mat_shell_t::init1(Vec x,Vec res) {
+int chimera_mat_shell_t::init1(Vec x,Vec res,double time,int step) {
 
   // List of nodes at the boundaries of W1 and W2 (includes
   // external and internal boundaries).
   // Call a hook from the user
-  CHIMERA_HOOK_P->mark_bdry_nodes(ebdry,ibdry);
+  CHIMERA_HOOK_P->mark_bdry_nodes(ebdry,ibdry,time,step);
 
   // Replace all the rows for the external and internal
   // boundary nodes for the identity matrix Replace the rows
@@ -705,7 +704,7 @@ int chimera_main() {
 
 	if (!print_linear_system_and_stop || solve_system) {
 	  debug.trace("Before solving linear system...");
-          cms.init1(x,res);
+          cms.init1(x,res,time.time()+Dt,tstep);
           ierr = KSPSolve(ksp,res,dx); CHKERRQ(ierr);
 #if 0          
           DBG_MM = 1;

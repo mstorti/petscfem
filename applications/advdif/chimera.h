@@ -2,10 +2,14 @@
 #define PETSCFEM_CHIMERA_H
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>
-// Marks the nodes that are bdry (internal and external)
+// Marks the nodes that are bdry (internal and external) We
+// put this as a hook but in fact the only think that we use
+// is that it is linked dinamically.
 class chimera_hook_t : public Hook {
 public:
-  virtual void mark_bdry_nodes(set<int> &ebdry,set<int> &ibdry) { }
+  virtual void
+  mark_bdry_nodes(set<int> &ebdry,set<int> &ibdry,
+                  double time,int step) { }
 };
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>
@@ -25,7 +29,7 @@ public:
   int init0(Mat A);
   // Initializes the problem before starting the iterative
   // solver
-  int init1(Vec x,Vec res);
+  int init1(Vec x,Vec res,double time,int step);
   // This is called in each iteration of the solver iteration loop
   int mat_mult(Vec x,Vec y);
   // The underlying PETSc matrix
@@ -49,16 +53,9 @@ public:
   // CSR pointers and then we store the beginning and end
   // for a certain ROW in the correspondings Z12PTR array.
   vector<int> zptr;
-  // Read integer array from H5 double dataset
-  void h5d2i(const char *file,const char *dset,dvector<int> &w);
   // Problem specific: marks external bdry nodes (nodes at
   // bdries of the subdomains not at external bdries)
   int isexternal(double *x);
-#if 0  
-  // Read the bdry from H5 and separate external and internal nodes
-  void readbdry(const char *file,const char *dset,set<int> &ebdry,
-                set<int> &ibdry,int domain);
-#endif
   // Mark which nodes are imposed. They may be external
   // boundary nodes (ebdry) and internal bdry nodes (ibdry),
   // i.e. nodes that are inside the physical domain but in
