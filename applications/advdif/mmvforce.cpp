@@ -84,7 +84,7 @@ void mmv_force_hook_t::time_step_pre(double time,int step) {
     h5_dvector_write(xale,fname,"xale");
     // FIXME:= the computation of the interpolators should
     // go to the Chimera module
-    system("octave-cli -qH mkinterpolators.m > mkinterpolators.log");
+    system("octave-cli -qH mkint.m > mkinterpolators.log");
   }
   printf("xalepattern %s\n",xalepattern.c_str());
   if (xalepattern.size()>0
