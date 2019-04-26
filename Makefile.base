@@ -164,6 +164,12 @@ JSON_CPPFLAGS =  -DUSE_JSONCPP -I$(JSON_INC_DIR)
 JSON_LDFLAGS  = -L$(JSON_LIB_DIR) -l$(JSON_LIBNAME)
 endif
 
+## PETSc-FEM internal libproject library
+ifeq ($(USE_PF_LIBPROJECT),yes)
+PFLIBPROJ_DIR := $(PETSCFEM_DIR)/tools/project
+PFLIBPROJ_LDFLAGS  = -L$(PFLIBPROJ_DIR) -lpfproj
+endif
+
 CC          = $(MPICC)
 CXX         = $(MPICXX)
 F90         = $(MPIF90)
@@ -350,11 +356,10 @@ LDFLAGS = $(LDDBGFLAG)					\
 	  $(PTHREADS_LIB)				\
 	  -L$(PETSCFEM_DIR)/src				\
 	  -Wl,-rpath,$(abspath $(PETSCFEM_DIR))/src	\
-	  $(PF_PKG_LIBS_DIR) 				\
+	  $(PF_PKG_LIBS_DIR)				\
 	  -lpetscfem$(osfx)				\
           $(PROG_LIB)					\
           -lpetscfem$(osfx) -lc				\
-          $(ANN_LDFLAGS)				\
           $(GLIB_LDFLAGS)				\
 	  $(LIBRETTO_LDFLAGS)				\
           $(MESCHACH_LDFLAGS)				\
@@ -364,14 +369,15 @@ LDFLAGS = $(LDDBGFLAG)					\
           $(SUPERLU_LDFLAGS)				\
 	  $(SSL_LDFLAGS)				\
 	  $(PETSC_LDFLAGS)				\
-	  $(OMP_LDFLAGS) $(HDF5LIBS) $(JSON_LDFLAGS)
+	  $(OMP_LDFLAGS) $(HDF5LIBS) $(JSON_LDFLAGS)	\
+	  $(PFLIBPROJ_LDFLAGS)				\
+          $(ANN_LDFLAGS)
 
 LDFLAGS_NO_PROG_LIB =				\
 	  $(LDDBGFLAG)				\
 	  $(PTHREADS_LIB)			\
 	  -L$(PETSCFEM_DIR)/src			\
 	  -lpetscfem$(osfx) -lc			\
-          $(ANN_LDFLAGS)			\
           $(GLIB_LDFLAGS)			\
           $(LIBRETTO_LDFLAGS)			\
 	  $(MESCHACH_LDFLAGS)			\
@@ -380,7 +386,10 @@ LDFLAGS_NO_PROG_LIB =				\
 	  $(SSL_LDFLAGS)			\
           $(SUPERLU_LDFLAGS)			\
 	  $(PETSC_LDFLAGS)			\
-	  $(OMP_LDFLAGS) $(HDF5LIBS)  $(JSON_LDFLAGS)
+	  $(OMP_LDFLAGS) $(HDF5LIBS)		\
+	  $(JSON_LDFLAGS)			\
+	  $(PFLIBPROJ_LDFLAGS)			\
+          $(ANN_LDFLAGS)
 
 CBLAS_FOUND := no
 
@@ -559,4 +568,3 @@ endif
 	ar x $<
 	$(CXX_CLINKER) -shared -o $@ *.o
 	-rm -f *.o
-

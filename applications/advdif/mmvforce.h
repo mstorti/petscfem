@@ -11,10 +11,10 @@ private:
   // Save the coordinates in a temp file to use with the Chimera module
   int chimera_save;
   double *coords_buff;
-  dvector<double> coords0,coords;
   int nsaverot,frame;
   
 public:
+  dvector<double> coords0,coords;
   int ndim, nnod, nu;
   mmv_force_hook_t();
   void init(Mesh &mesh_a,Dofmap &dofmap_a,const char *name);

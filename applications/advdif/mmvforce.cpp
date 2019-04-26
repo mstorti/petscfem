@@ -22,6 +22,8 @@
 #include <src/debug.h>
 #include <src/h5utils.h>
 #include <applications/advdif/mmvforce.h>
+#include <ANN/ANN.h>
+#include <tools/project/project.h>
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>
 mmv_force_hook_t::mmv_force_hook_t() : coords_buff(NULL) { }
