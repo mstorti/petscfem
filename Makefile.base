@@ -167,7 +167,8 @@ endif
 ## PETSc-FEM internal libproject library
 ifeq ($(USE_PF_LIBPROJECT),yes)
 PFLIBPROJ_DIR := $(PETSCFEM_DIR)/tools/project
-PFLIBPROJ_LDFLAGS  = -L$(PFLIBPROJ_DIR) -lpfproj
+PFLIBPROJ_LDFLAGS  = -L$(PFLIBPROJ_DIR) \
+	-Wl,-rpath,$(abspath $(PFLIBPROJ_DIR)) -lpfproj
 endif
 
 CC          = $(MPICC)
