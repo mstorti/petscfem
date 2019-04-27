@@ -84,6 +84,12 @@ public:
   set<int> ibdry,ebdry;
 };
 
+// The PETSc MatMult operation for Chimera MatShell object 
+int chimera_mat_mult(Mat Ashell,Vec x,Vec y);
+
+// FIXME:= is it needed??
+void init_hooks();
+
 extern chimera_hook_t *CHIMERA_HOOK_P;
 
 #endif

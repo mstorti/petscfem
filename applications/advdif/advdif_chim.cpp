@@ -374,7 +374,8 @@ int chimera_main() {
   ierr = VecGetLocalSize(dx,&nlocal);CHKERRQ(ierr);
   ierr = MatCreateShell(PETSC_COMM_WORLD,nlocal,nlocal,neq,neq,
                         &cms,&Ashell);
-  MatShellSetOperation(Ashell,MATOP_MULT,(void (*)(void))(&mat_mult));
+  MatShellSetOperation(Ashell,MATOP_MULT,
+                       (void (*)(void))(&chimera_mat_mult));
   KSP ksp;         /* linear solver context */
   PC pc;           /* preconditioner context */
   ierr = KSPCreate(PETSCFEM_COMM_WORLD,&ksp);CHKERRQ(ierr);

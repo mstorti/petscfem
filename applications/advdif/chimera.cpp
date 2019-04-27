@@ -21,6 +21,8 @@
 #include <tools/project/project.h>
 
 using namespace std;
+extern Mesh *GLOBAL_MESH;
+extern Dofmap *GLOBAL_DOFMAP;
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>
 bool ajk_comp(ajk_t a,ajk_t b) {
@@ -318,7 +320,7 @@ int chimera_mat_shell_t::mat_mult(Vec x,Vec y) {
 }
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>
-int mat_mult(Mat Ashell,Vec x,Vec y) {
+int chimera_mat_mult(Mat Ashell,Vec x,Vec y) {
   void *ctx;
   int ierr = MatShellGetContext(Ashell,&ctx); CHKERRQ(ierr);
   chimera_mat_shell_t &cms = *(chimera_mat_shell_t*)ctx;
@@ -328,6 +330,3 @@ int mat_mult(Mat Ashell,Vec x,Vec y) {
   cms.mat_mult(x,y);
   return 0;
 }
-
-// FIXME:= is it needed??
-void init_hooks();
