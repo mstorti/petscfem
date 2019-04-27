@@ -29,6 +29,13 @@ private:
 
   vector<int> restricted;
 public:
+  // This global string controls the mode of interpolation.
+  // If empty it simply returns the values interpolated from
+  // U1 to U2. If non empty it saves the interpolation
+  // coefficients in a file with this name.  If
+  // print_area_coords="USE_RETVAL" (-n USE_RETVAL), then the
+  // coefficients are returned via U2. 
+  string print_area_coords;
   int use_cache, use_delaunay;
   double tol;
 

@@ -51,7 +51,8 @@ fluent.dx: fluent-in.dx
 tags2:
 	etags *.cpp *.h 
 
-#w Make the shared lib 
 libpfproj.so: project.o
 	${CXX_CLINKER} -g -shared $(EFNLIBS) -o $@ $< $(EFN_LDFLAGS)
 
+#w Make the shared lib 
+lib: libpfproj.so

@@ -97,17 +97,23 @@ void mmv_force_hook_t::time_step_pre(double time,int step) {
 #define ICONE(j,k) VEC2(elemset->icone,j,k,nel)
     dvector<int> icone;
     icone.a_resize(2,nelem,nel);
-
     for (int e=0; e<nelem; e++) 
       for (int k=0; k<nel; k++)
         icone.e(e,k) = ICONE(e,k);
+    printf("read %d elems nel=%d from PF Elemset %s\n",
+           nelem,nel,elemset->name());
+
     // Number of neighbors to be search by ANN
     int nngbr=10;
     FemInterp fem_interp;
-    dvector<double> xnod;
-    xnod.a_resize(nnod,ndim);
-    fem_interp.init(10,ndof,ndim,xnod,icone);
-    // fem_interp.interp(xnod2,u1,u2);
+    fem_interp.print_area_coords="USE_RETVAL";
+    fem_interp.init(10,ndof,ndim,xale,icone);
+    dvector<double> u1,u2;
+    u1.a_resize(2,nnod,ndof);
+    double z=0.0;
+    u1.set(z);
+    fem_interp.interp(xale,u1,u2);
+    printf("u2 size: %d %d\n",u2.size(0),u2.size(1));
     exit(0);
 #else
     const char *fname = "./coords.h5";
