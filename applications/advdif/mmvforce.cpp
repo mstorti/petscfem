@@ -70,7 +70,8 @@ void mmv_force_hook_t::init(Mesh &mesh_a,Dofmap &dofmap_a,
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>
 void mmv_force_hook_t::time_step_pre(double time,int step) {
-  // Shift the coords at t[n] from slot 0 to slot 1.
+  // Shift the coords at t{n} from slot 0 (columns [0,ndim)
+  // to slot 1 (columns [ndimi,2*ndim)).
   // Then call the user function to compute the new coords
   // in slot 0
   for (int j=0; j<nnod; j++) {
@@ -83,9 +84,12 @@ void mmv_force_hook_t::time_step_pre(double time,int step) {
   // Call the user function to compute the new coords
   // Shift the coords at t[n] from slot 0 to slot 1.
   compute_coords(coords0,coords,time,step);
-  
+
+  // If appropriate depending NSAVEROT,save the coordinates
+  // to a HDF5 file according to XALEPATTERN filename pattern
   if (xalepattern.size()>0
       && step%nsaverot==0) {
+    // Copy the values to a temporary dvector
     dvector<double> xale;
     xale.a_resize(2,nnod,ndim);
     // coords is nnod x 2*ndim, we have to copy the first ndim
@@ -102,6 +106,7 @@ void mmv_force_hook_t::time_step_pre(double time,int step) {
     printf("xale file %s\n",line);
     h5_dvector_write(xale,line,"xale");
   }
+  // Copy the vals to the internal PF array
   coords.export_vals(coords_buff);
 }
 
@@ -120,6 +125,10 @@ void mmv_force_hook_t::close() {
 }
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>
+// FIXME:= I'm not sure if this is needed. It seems that if
+// not present the class may not be instantiated so we get a
+// dynamic link error. So as a workaround I build a dummy
+// object. This forbids me to use a pure virtual class.
 void init_hooks() {
   mmv_force_hook_t MMV_FORCE_HOOK_DUMMY;
 }

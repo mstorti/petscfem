@@ -2,9 +2,10 @@
 #define PETSCFEM_CHIMERA_H
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>
-// Marks the nodes that are bdry (internal and external) We
-// put this as a hook but in fact the only think that we use
-// is that it is linked dinamically.
+// This is (let's say) wrapper hook to define nodes that are
+// bdry (internal and external). We put this as a hook but in
+// fact the only think that we use is that it is linked
+// dinamically. But in fact we don't use at as hook (properly speaking). 
 class chimera_hook_t : public Hook {
 public:
   virtual void
@@ -13,35 +14,53 @@ public:
 };
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>
+// Auxiliary struct to store coefficients in the sparse
+// interpolator. It represents the row and column indices
+// J,K and the coefficient AJK.  Normally the interpolated
+// callue for node j is phi{j} = sum{k} a{jk}*phi{k}
 struct ajk_t {
+  // Row and column indices
   int j,k;
+  // Interpolator coefficient
   double ajk;
+  // Utility constructor
   ajk_t(int j_,int k_,double ajk_)
     : j(j_), k(k_), ajk(ajk_) {}
 };
 
-//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*> This
+// This class is the context for the PETSc MatShell object.
+// When the MatShell object will call the MatMult operation
+// we will pass it to this object. 
 class chimera_mat_shell_t {
 public:
   chimera_mat_shell_t() : A(NULL), xnod(NULL) {}
 
   // Initializes the problem
-  int init0(Mat A);
-  // Initializes the problem before starting the iterative
-  // solver
-  int init1(Vec x,Vec res,double time,int step);
-  // This is called in each iteration of the solver iteration loop
+  int init(Mat A);
+  // Do some tasks before starting the iterative solver
+  int before_solve(Vec x,Vec res,double time,int step);
+  // This is the matrix vector product and is called in each
+  // iteration of the solver loop. It computes the product
+  // of the FEM part (matrix A) and then the matrix-free
+  // part due to the interpolation and boundary conditions.
   int mat_mult(Vec x,Vec y);
-  // The underlying PETSc matrix
+  // The underlying PETSc matrix (assmbled by FEM)
   Mat A;
   // Pointer to internal PF array of node coordinates
   double *xnod;
+  // Number of columns in XNOD
   int nu;
   // Returns component K of coordinates of node J
   // double xcoords(int j,int k) { return XNOD(j,k); }
   // For the internal boundaries (those that must be interpolated
   // from the other domain, maps the equation number to the
-  // node number
+  // node number.
+  // WARNING:= right now I think that in mny places we are
+  // using that the equation number and the node are the
+  // same. This restricts that the boundary conditions are
+  // imposed in the Chimera module itself and no
+  // parallelism.
   map<int,int> eq2node,node2eq;
   // Options for this Chimera module
   Json::Value opts;
@@ -55,14 +74,13 @@ public:
   vector<int> zptr;
   // Problem specific: marks external bdry nodes (nodes at
   // bdries of the subdomains not at external bdries)
-  int isexternal(double *x);
+  // int isexternal(double *x);
+
   // Mark which nodes are imposed. They may be external
   // boundary nodes (ebdry) and internal bdry nodes (ibdry),
   // i.e. nodes that are inside the physical domain but in
   // the boundary to other overlapping region and so their
   // values must be interpolated from the other domain. 
-  // This stores the rows that are fixed
-  vector<int> rows;
   set<int> ibdry,ebdry;
 };
 
