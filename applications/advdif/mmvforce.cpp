@@ -22,8 +22,6 @@
 #include <src/debug.h>
 #include <src/h5utils.h>
 #include <applications/advdif/mmvforce.h>
-#include <ANN/ANN.h>
-#include <tools/project/project.h>
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>
 mmv_force_hook_t::mmv_force_hook_t() : coords_buff(NULL) { }
@@ -81,48 +79,12 @@ void mmv_force_hook_t::time_step_pre(double time,int step) {
     }
   }
   if (chimera_save) {
-#if 1
-    // We extract the data (xnod,icone) from the PF internal
-    // data.
-    // We assume that we have only one elemset
-    PETSCFEM_ASSERT0(Elemset::elemset_table.size()==1,
-                     "More than one elemset defined. Not supported yet.");
-    
-    map<string,Elemset *>::iterator 
-      q = Elemset::elemset_table.begin();
-    Elemset *elemset = q->second;
-    int nelem = elemset->size();
-    int nel,ndof,nelprops;
-    elemset->elem_params(nel,ndof,nelprops);
-#define ICONE(j,k) VEC2(elemset->icone,j,k,nel)
-    dvector<int> icone;
-    icone.a_resize(2,nelem,nel);
-    for (int e=0; e<nelem; e++) 
-      for (int k=0; k<nel; k++)
-        icone.e(e,k) = ICONE(e,k);
-    printf("read %d elems nel=%d from PF Elemset %s\n",
-           nelem,nel,elemset->name());
-
-    // Number of neighbors to be search by ANN
-    int nngbr=10;
-    FemInterp fem_interp;
-    fem_interp.print_area_coords="USE_RETVAL";
-    fem_interp.init(10,ndof,ndim,xale,icone);
-    dvector<double> u1,u2;
-    u1.a_resize(2,nnod,ndof);
-    double z=0.0;
-    u1.set(z);
-    fem_interp.interp(xale,u1,u2);
-    printf("u2 size: %d %d\n",u2.size(0),u2.size(1));
-    exit(0);
-#else
     const char *fname = "./coords.h5";
     if (!access(fname,F_OK)) unlink(fname);
     h5_dvector_write(xale,fname,"xale");
     // FIXME:= the computation of the interpolators should
     // go to the Chimera module
     system("octave-cli -qH mkint.m > mkinterpolators.log");
-#endif
   }
   printf("xalepattern %s\n",xalepattern.c_str());
   if (xalepattern.size()>0

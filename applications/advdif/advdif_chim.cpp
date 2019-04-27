@@ -17,6 +17,8 @@
 #include <src/dvector.h>
 #include <applications/advdif/chimera.h>
 #include <applications/advdif/advective.h>
+#include <ANN/ANN.h>
+#include <tools/project/project.h>
 
 using namespace std;
 
@@ -127,6 +129,7 @@ int DBG_MM=0;
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>
 int chimera_mat_shell_t::init1(Vec x,Vec res,double time,int step) {
 
+  int ierr;
   // List of nodes at the boundaries of W1 and W2 (includes
   // external and internal boundaries).
   // Call a hook from the user
@@ -143,13 +146,66 @@ int chimera_mat_shell_t::init1(Vec x,Vec res,double time,int step) {
   }
   fixed.clear();
   printf("Imposed rows (external+internal) bdries %zu\n",rows.size());
-  
-  // Load the interpolators (computed in Octave right now probably)
+
   dvector<double> w;
-  h5_dvector_read("./interp.h5","/z/value",w);
+  TGETOPTDEF(GLOBAL_OPTIONS,int,chimera_save,0);
+  if (chimera_save) {
+    // Load the interpolators (computed in Octave right now probably)
+    h5_dvector_read("./interp.h5","/z/value",w);
+  } else {
+    // We extract the data (xnod,icone) from the PF internal
+    // data.
+    // We assume that we have only one elemset
+    PETSCFEM_ASSERT0(Elemset::elemset_table.size()==1,
+                     "More than one elemset defined. Not supported yet.");
+    
+    map<string,Elemset *>::iterator 
+      q = Elemset::elemset_table.begin();
+    Elemset *elemset = q->second;
+    int nelem = elemset->size();
+    int nel,ndof,nelprops;
+    elemset->elem_params(nel,ndof,nelprops);
+#define ICONE(j,k) VEC2(elemset->icone,j,k,nel)
+    dvector<int> icone;
+    icone.a_resize(2,nelem,nel);
+    for (int e=0; e<nelem; e++) 
+      for (int k=0; k<nel; k++)
+        icone.e(e,k) = ICONE(e,k);
+    printf("read %d elems nel=%d from PF Elemset %s\n",
+           nelem,nel,elemset->name());
+
+    TGETOPTDEF(GLOBAL_OPTIONS,int,ndim,0);
+    assert(ndim>0);
+
+    Nodedata *nd = GLOBAL_MESH->nodedata;
+    double *xnod = nd->nodedata;
+    int nnod = nd->nnod;
+    int nu = nd->nu;
+    PETSCFEM_ASSERT0(nu==2*ndim,"Not correct dims");
+    
+    // Number of neighbors to be search by ANN
+    int nngbr=10;
+    FemInterp fem_interp;
+    fem_interp.print_area_coords="USE_RETVAL";
+    dvector<double> xale;
+    xale.a_resize(2,nnod,ndim);
+    for (int j=0; j<nnod; j++)
+      for (int k=0; k<ndim; k++)
+        xale.e(j,k) = XNOD(j,k);
+    fem_interp.init(10,ndof,ndim,xale,icone);
+    dvector<double> u1;
+    u1.a_resize(2,nnod,ndof);
+    double z=0.0;
+    u1.set(z);
+    fem_interp.interp(xale,u1,w);
+    printf("interpolator size: %d %d\n",w.size(0),w.size(1));
+    exit(0);
+  }
+
   int ncoef = w.size(0);
   printf("Loaded interpolators. ncoef %d\n",ncoef);
   PETSCFEM_ASSERT0(w.size(1)==3,"Bad z column size");
+  
   z.clear();
   for (int l=0; l<ncoef; l++) {
     int
@@ -173,7 +229,6 @@ int chimera_mat_shell_t::init1(Vec x,Vec res,double time,int step) {
   }
   while (jlast<=nnod) zptr[jlast++] = ncoef;
 
-  int ierr;
   double *resp,*xp;
   ierr = VecGetArray(res,&resp); CHKERRQ(ierr);
   ierr = VecGetArray(x,&xp); CHKERRQ(ierr);
