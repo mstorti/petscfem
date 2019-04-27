@@ -45,7 +45,6 @@ void mmv_force_hook_t::init(Mesh &mesh_a,Dofmap &dofmap_a,
   coords.clone(coords0);
   frame=0;
 
-  TGETOPTDEF_ND(GLOBAL_OPTIONS,int,chimera_save,0);
   // Call the hook for the user
   init_user(mesh_a,dofmap_a,name);
 }
@@ -69,26 +68,17 @@ void mmv_force_hook_t::time_step_pre(double time,int step) {
   // Shift the coords at t[n] from slot 0 to slot 1.
   compute_coords(coords0,coords,time,step);
   
-  dvector<double> xale;
-  xale.a_resize(2,nnod,ndim);
-  // coords is nnod x 2*ndim, we have to copy the first ndim
-  // cols to a temporary array xale
-  for (int j=0; j<nnod; j++) {
-    for (int k=0; k<ndim; k++) {
-      xale.e(j,k) = coords.e(j,k);
-    }
-  }
-  if (chimera_save) {
-    const char *fname = "./coords.h5";
-    if (!access(fname,F_OK)) unlink(fname);
-    h5_dvector_write(xale,fname,"xale");
-    // FIXME:= the computation of the interpolators should
-    // go to the Chimera module
-    system("octave-cli -qH mkint.m > mkinterpolators.log");
-  }
-  printf("xalepattern %s\n",xalepattern.c_str());
   if (xalepattern.size()>0
       && step%nsaverot==0) {
+    dvector<double> xale;
+    xale.a_resize(2,nnod,ndim);
+    // coords is nnod x 2*ndim, we have to copy the first ndim
+    // cols to a temporary array xale
+    for (int j=0; j<nnod; j++) {
+      for (int k=0; k<ndim; k++) {
+        xale.e(j,k) = coords.e(j,k);
+      }
+    }
     // Save coords to H5 file
     // The name of the H5 file for this coords
     char line[1000];

@@ -147,9 +147,35 @@ int chimera_mat_shell_t::init1(Vec x,Vec res,double time,int step) {
   fixed.clear();
   printf("Imposed rows (external+internal) bdries %zu\n",rows.size());
 
+  TGETOPTDEF(GLOBAL_OPTIONS,int,use_octave_interpolator,0);
+  Nodedata *nd = GLOBAL_MESH->nodedata;
+  double *xnod = nd->nodedata;
+  int nnod = nd->nnod;
+  int nu = nd->nu;
+  TGETOPTDEF(GLOBAL_OPTIONS,int,ndim,0);
+  assert(ndim>0);
+
+  PETSCFEM_ASSERT0(nu==2*ndim,"Not correct dims");
+
+  // Get the PF current coords
+  dvector<double> xale;
+  xale.a_resize(2,nnod,ndim);
+  for (int j=0; j<nnod; j++)
+    for (int k=0; k<ndim; k++)
+      xale.e(j,k) = XNOD(j,k);
+  
   dvector<double> w;
-  TGETOPTDEF(GLOBAL_OPTIONS,int,chimera_save,0);
-  if (chimera_save) {
+  if (use_octave_interpolator) {
+    // Write coordinates to a HDF5 file so as to call then
+    // an Octave scrpt and compute externally the
+    // interpolators
+    // Save the file
+    const char *fname = "./coords.h5";
+    if (!access(fname,F_OK)) unlink(fname);
+    h5_dvector_write(xale,fname,"xale");
+    // FIXME:= the computation of the interpolators should
+    // go to the Chimera module
+    system("octave-cli -qH mkint.m > mkinterpolators.log");
     // Load the interpolators (computed in Octave right now probably)
     h5_dvector_read("./interp.h5","/z/value",w);
   } else {
@@ -174,24 +200,10 @@ int chimera_mat_shell_t::init1(Vec x,Vec res,double time,int step) {
     printf("read %d elems nel=%d from PF Elemset %s\n",
            nelem,nel,elemset->name());
 
-    TGETOPTDEF(GLOBAL_OPTIONS,int,ndim,0);
-    assert(ndim>0);
-
-    Nodedata *nd = GLOBAL_MESH->nodedata;
-    double *xnod = nd->nodedata;
-    int nnod = nd->nnod;
-    int nu = nd->nu;
-    PETSCFEM_ASSERT0(nu==2*ndim,"Not correct dims");
-    
     // Number of neighbors to be search by ANN
     int nngbr=10;
     FemInterp fem_interp;
     fem_interp.print_area_coords="USE_RETVAL";
-    dvector<double> xale;
-    xale.a_resize(2,nnod,ndim);
-    for (int j=0; j<nnod; j++)
-      for (int k=0; k<ndim; k++)
-        xale.e(j,k) = XNOD(j,k);
     fem_interp.init(10,ndof,ndim,xale,icone);
     dvector<double> u1;
     u1.a_resize(2,nnod,ndof);
@@ -201,6 +213,7 @@ int chimera_mat_shell_t::init1(Vec x,Vec res,double time,int step) {
     printf("interpolator size: %d %d\n",w.size(0),w.size(1));
     exit(0);
   }
+  xale.clear();
 
   int ncoef = w.size(0);
   printf("Loaded interpolators. ncoef %d\n",ncoef);
