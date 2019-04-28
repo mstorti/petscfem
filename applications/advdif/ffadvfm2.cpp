@@ -11,6 +11,7 @@
 #include <src/utils.h>
 #include <src/util2.h>
 #include <src/fastmat2.h>
+#include <src/hook.h>
 
 #include "nwadvdif.h"
 
@@ -687,6 +688,15 @@ void newadvecfm2_ff_t::element_hook(ElementIterator &element_) {
 
   advjac = elemset->prop_array(element,advective_jacobians_prop);
   u.set(advjac);
+  if (PF_PROP_HOOK) {
+    int elem,bid;
+    element.position(elem,bid);
+    double time=0.0;
+    int ndim=2;
+    PF_PROP_HOOK->getprop("advective_jacobians",elem,
+                          elemset->xpgv,time,ndim,
+                          u.storage_begin());
+  }
 
   difjac_mol = elemset->prop_array(element,diffusive_jacobians_mol_prop);
   difjac = elemset->prop_array(element,diffusive_jacobians_prop);

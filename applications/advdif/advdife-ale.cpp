@@ -113,7 +113,6 @@ new_assemble_ALE_formulation(arg_data_list &arg_data_v,const Nodedata *nodedata,
 
   FastMat2 matlocf(4,nel,ndof,nel,ndof),
     matlocf_mass(4,nel,ndof,nel,ndof);
-  vector<double> xpgv(ndim);
   FastMat2 prof_nodes(2,nel,nel), prof_fields(2,ndof,ndof),
     matlocf_fix(4,nel,ndof,nel,ndof);
   FastMat2 Id_ndof(2,ndof,ndof),Id_nel(2,nel,nel),
@@ -238,7 +237,7 @@ new_assemble_ALE_formulation(arg_data_list &arg_data_v,const Nodedata *nodedata,
     xloc(nel,ndim), xloc_old(nel,ndim), xloc_new(nel,ndim), lstate(nel,ndof),
     lstateo(nel,ndof), lstaten(nel,ndof), dUloc_c(nel,ndof),
     dUloc(nel,ndof),matloc,xloc_mid(nel,ndim),xpg(ndim);
-
+  xpgv.resize(ndim,0.0);
   nen = nel*ndof;
 
   //o Type of element geometry to define Gauss Point data
@@ -277,7 +276,8 @@ new_assemble_ALE_formulation(arg_data_list &arg_data_v,const Nodedata *nodedata,
   FastMat2 A_grad_N(3,nel,ndof,ndof),
     grad_N_D_grad_N(4,nel,ndof,nel,ndof),N_N_C(4,nel,ndof,nel,ndof),
     N_P_C(3,ndof,nel,ndof),N_Cp_N(4,nel,ndof,nel,ndof),
-    P_Cp(2,ndof,ndof),grad_N_dDdU_N(4,nel,ndof,nel,ndof);
+    P_Cp(2,ndof,ndof),grad_N_dDdU_N(4,nel,ndof,nel,ndof),
+    dummyshape(1,nel),xc(1,ndim);
 
   Ao_grad_N.resize(3,nel,ndof,ndof);
   tau_supg.resize(2,ndof,ndof);
@@ -285,6 +285,7 @@ new_assemble_ALE_formulation(arg_data_list &arg_data_v,const Nodedata *nodedata,
   Cp.resize(2,ndof,ndof);
   Cp_old.resize(2,ndof,ndof);
   Uo.resize(1,ndof);
+  dummyshape.set(1.0/nel);
 
   FMatrix Jaco_axi(2,2);
   int ind_axi_1, ind_axi_2;
@@ -323,12 +324,17 @@ new_assemble_ALE_formulation(arg_data_list &arg_data_v,const Nodedata *nodedata,
       element.position(k_elem,k_chunk);
       FastMat2::reset_cache();
 
-      // Initialize element
-      adv_diff_ff->element_hook(element);
       // Get nodedata info (coords. etc...)
       element.node_data(nodedata,xloc.storage_begin(),
 			Hloc.storage_begin());
       xloc_new.set(xloc);
+      // Initialize element
+      if (PF_PROP_HOOK) {
+        // If a properties hook does exist, then compute the center of the element
+        xc.prod(dummyshape,xloc,-1,-1,1);
+        xc.export_vals(xpgv.data());
+      }
+      adv_diff_ff->element_hook(element);
 
       if (comp_prof) {
 	matlocf.export_vals(element.ret_mat_values(*jac_prof));
