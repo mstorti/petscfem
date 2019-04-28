@@ -51,8 +51,12 @@ Dofmap *GLOBAL_DOFMAP;
 #define __FUNC__ "chimera_main"
 int chimera_main() {
   //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>
-  // This is just because otherwise the main program doesn't
-  // link the functions. FIXME:= is it needed??
+  // This is basically the ADVDIF main but adapted to the
+  // Chimera stuff.
+  
+  // This function is just because otherwise the main
+  // program doesn't link the functions. FIXME:= is it
+  // needed??
   init_hooks();
   
   PetscBool flg;
@@ -362,20 +366,29 @@ int chimera_main() {
   //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:
   ierr = opt_read_vector(mesh,x,dofmap,MY_RANK); CHKERRA(ierr);
 
-  // Initialize the CHIMERA stuff
-  Mat Ashell;
+  // Initialize the CHIMERA stuff.
+  // This is the Chimera object
   chimera_mat_shell_t cms;
 
+  // This is the standard FEM matrix contaning the non-matrix-free part 
   Mat Apetsc = A->get_petsc_mat();
   MatSetOption(Apetsc,MAT_KEEP_NONZERO_PATTERN,PETSC_TRUE);
+  // We store in the Chimera object a pointer to the PETSc matrix
   cms.init(Apetsc);
+
+  // This is the MatShell PETSc object that is a wrapper to
+  // the Chimera object
+  // Get the local size
   int nlocal;
-  // ierr = VecGetSize(dx,&neq);CHKERRQ(ierr);
   ierr = VecGetLocalSize(dx,&nlocal);CHKERRQ(ierr);
+  // Build the MatShell object. Sets the context object to the Chimera object
+  Mat Ashell;
   ierr = MatCreateShell(PETSC_COMM_WORLD,nlocal,nlocal,neq,neq,
                         &cms,&Ashell);
+  // Set the mat-mult operation
   MatShellSetOperation(Ashell,MATOP_MULT,
                        (void (*)(void))(&chimera_mat_mult));
+  // Build the KSP and PC stuff
   KSP ksp;         /* linear solver context */
   PC pc;           /* preconditioner context */
   ierr = KSPCreate(PETSCFEM_COMM_WORLD,&ksp);CHKERRQ(ierr);
@@ -465,9 +478,12 @@ int chimera_main() {
 
 	if (!print_linear_system_and_stop || solve_system) {
 	  debug.trace("Before solving linear system...");
+          // Call the user function so as to prepare for the iterative solver 
           cms.before_solve(x,res,time.time()+Dt,tstep);
+          // Call the KSP solver
           ierr = KSPSolve(ksp,res,dx); CHKERRQ(ierr);
-#if 0          
+#if 0
+          // 
           DBG_MM = 1;
           ierr = MatMult(Ashell,dx,res); CHKERRQ(ierr);
           DBG_MM = 0;
