@@ -318,6 +318,48 @@ int chimera_mat_shell_t
 
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>
+int chimera_mat_shell_t::mat_mult_transpose(Vec x,Vec y) {
+  // Here we add the extra contribution to the
+  // residuals (matrix-free)
+  int ierr;
+  // Get the pointer to the internal PETSc arrays
+  double *xp,*yp;
+  ierr = VecGetArray(x,&xp); CHKERRQ(ierr);
+  ierr = VecGetArray(y,&yp); CHKERRQ(ierr);
+
+  // The Identity term is already computed since in the
+  // MatZeros call we added a 1.0 term in the diagonal. 
+  // Interpolate de values at the internal W1 bdry
+  for (auto &node1 : ibdry) {
+    // Range of indices in the Z array
+    int
+      rstart = zptr[node1],
+      rend = zptr[node1+1];
+    PETSCFEM_ASSERT(rend>rstart,
+                    "Can't find interpolator for boundary "
+                    "node %d, x(%f,%f)",node1,XNOD(node1,0),XNOD(node1,1));
+    double val=0.0,sumcoef=0.0;
+    int jeq1 = node2eq[node1];
+    for (int l=rstart; l<rend; l++) {
+      ajk_t &a = z[l];
+      int node2=a.k;
+      // printf("-> node2 %d x(%f %f) coef %g\n",
+      //        node2,XNOD(node2,0),XNOD(node2,1),a.ajk);
+      int jeqk = node2eq[a.k];
+      if (DBG_MM && node1==0)
+        printf("node2 %d, x %f %f, phi %f\n",
+               node2,XNOD(node2,0),XNOD(node2,1),xp[jeqk]);
+      sumcoef += a.ajk;
+      yp[jeqk] -= a.ajk*xp[jeq1];
+    }
+  }
+  // Restore the arrays
+  ierr = VecRestoreArray(x,&xp); CHKERRQ(ierr);
+  ierr = VecRestoreArray(y,&yp); CHKERRQ(ierr);
+  return 0;
+}
+
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>
 int chimera_mat_shell_t::mat_mult(Vec x,Vec y) {
   // Here we add the extra contribution to the
   // residuals (matrix-free)
@@ -384,5 +426,28 @@ int chimera_mat_mult(Mat Ashell,Vec x,Vec y) {
   // Add the extra therm (restrictions between domains by
   // Chimera). This is the matrix-free contribution
   cms.mat_mult(x,y);
+  return 0;
+}
+
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>
+int chimera_mat_mult_transpose(Mat Ashell,Vec x,Vec y) {
+  // This is the mat-vec function to use in the MatShell object
+
+  // The PETSc context contains the Chimera object
+  void *ctx;
+  int ierr = MatShellGetContext(Ashell,&ctx); CHKERRQ(ierr);
+
+  // Convert the void pointer to a Chimera object reference
+  chimera_mat_shell_t &cms = *(chimera_mat_shell_t*)ctx;
+  // The matrix-vector product contains two parts: the
+  // standard FEM part stored in a PETSc standard matrix
+  // (stored by coefs), and a matrix free part that
+  // implements the Chimera bindings between the domains.
+  
+  // Make the base contribution to the standard matrix-vector product
+  ierr = MatMultTranspose(cms.A,x,y); CHKERRQ(ierr);
+  // Add the extra therm (restrictions between domains by
+  // Chimera). This is the matrix-free contribution
+  cms.mat_mult_transpose(x,y);
   return 0;
 }

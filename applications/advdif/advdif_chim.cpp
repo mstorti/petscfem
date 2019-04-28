@@ -296,11 +296,11 @@ int chimera_main() {
   }
 
   //o Chooses the preconditioning operator.
-  TGETOPTDEF_S(GLOBAL_OPTIONS,string,preco_type,jacobi);
-  // I had to do this since `c_str()' returns `const char *'
-  char *preco_type_ = new char[preco_type.size()+1];
-  strcpy(preco_type_,preco_type.c_str());
+  TGETOPTDEF_S(GLOBAL_OPTIONS,string,preco_type,pclu);
 
+  //o Chooses the KSP method
+  TGETOPTDEF_S(GLOBAL_OPTIONS,string,ksp_type,gmres);
+  
   Time time,time_star;
   time.set(start_comp_time);
   glob_param.time = &time;
@@ -385,9 +385,12 @@ int chimera_main() {
   Mat Ashell;
   ierr = MatCreateShell(PETSC_COMM_WORLD,nlocal,nlocal,neq,neq,
                         &cms,&Ashell);
-  // Set the mat-mult operation
+  // Set the MatMult operation
   MatShellSetOperation(Ashell,MATOP_MULT,
                        (void (*)(void))(&chimera_mat_mult));
+  // Set the MatMultTranspoe operation
+  MatShellSetOperation(Ashell,MATOP_MULT_TRANSPOSE,
+                       (void (*)(void))(&chimera_mat_mult_transpose));
   // Build the KSP and PC stuff
   KSP ksp;         /* linear solver context */
   PC pc;           /* preconditioner context */
@@ -395,9 +398,10 @@ int chimera_main() {
 
   ierr = KSPSetOperators(ksp,Ashell,cms.A,
                          DIFFERENT_NONZERO_PATTERN); CHKERRQ(ierr);
-  ierr = KSPSetType(ksp,KSPGMRES); CHKERRQ(ierr);
+  ierr = KSPSetType(ksp,ksp_type.c_str()); CHKERRQ(ierr);
   ierr = KSPGetPC(ksp,&pc); CHKERRQ(ierr);
-  ierr = PCSetType(pc,PCLU); CHKERRQ(ierr);
+  printf("using preco_type %s\n",preco_type.c_str());
+  ierr = PCSetType(pc,preco_type.c_str()); CHKERRQ(ierr);
   ierr = KSPSetTolerances(ksp,1.e-7,PETSC_DEFAULT,PETSC_DEFAULT,
                           PETSC_DEFAULT); CHKERRQ(ierr);
   ierr = KSPMonitorSet(ksp,KSPMonitorDefault,NULL,NULL); CHKERRQ(ierr);

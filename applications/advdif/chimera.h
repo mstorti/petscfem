@@ -45,6 +45,7 @@ public:
   // of the FEM part (matrix A) and then the matrix-free
   // part due to the interpolation and boundary conditions.
   int mat_mult(Vec x,Vec y);
+  int mat_mult_transpose(Vec x,Vec y);
   // The underlying PETSc matrix (assmbled by FEM)
   Mat A;
   // Pointer to internal PF array of node coordinates
@@ -84,8 +85,10 @@ public:
   set<int> ibdry,ebdry;
 };
 
-// The PETSc MatMult operation for Chimera MatShell object 
+// The PETSc MatMult and MatMultTranspose operations for
+// Chimera MatShell object
 int chimera_mat_mult(Mat Ashell,Vec x,Vec y);
+int chimera_mat_mult_transpose(Mat Ashell,Vec x,Vec y);
 
 // FIXME:= is it needed??
 void init_hooks();
