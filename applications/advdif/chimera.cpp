@@ -233,7 +233,8 @@ int chimera_mat_shell_t
   printf("Loaded interpolators. ncoef %d\n",ncoef);
   PETSCFEM_ASSERT0(w.size(1)==3,"Bad z column size");
 
-  // Store the coefs in Z
+  // Store the coefs in Z, each AJK_T entry contains the row
+  // column (J,K) indices and the coefficient AJK. 
   z.clear();
   for (int l=0; l<ncoef; l++) {
     int
@@ -245,7 +246,8 @@ int chimera_mat_shell_t
   }
   w.clear();
 
-  // Sort the coefs so as to have the coefs orderedby rows
+  // Sort the coefs so as to have all the coefficients for a
+  // given row together
   sort(z.begin(),z.end(),ajk_comp);
   // Compute the ZPTR indices so as to have a CSR storage of
   // the interpolation coefs
@@ -316,11 +318,12 @@ int chimera_mat_shell_t
   return 0;
 }
 
-
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>
 int chimera_mat_shell_t::mat_mult_transpose(Vec x,Vec y) {
-  // Here we add the extra contribution to the
-  // residuals (matrix-free)
+  // Here we add the extra contribution to the residuals
+  // (matrix-free) (with the matrix transposed). The
+  // transposed version is needed by some iterative Krylov
+  // methods, for instance BiCG.
   int ierr;
   // Get the pointer to the internal PETSc arrays
   double *xp,*yp;
@@ -431,7 +434,10 @@ int chimera_mat_mult(Mat Ashell,Vec x,Vec y) {
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>
 int chimera_mat_mult_transpose(Mat Ashell,Vec x,Vec y) {
-  // This is the mat-vec function to use in the MatShell object
+  // This is the mat-vec function to use in the MatShell
+  // object (with the matrix transposed). This function is
+  // needed by some iterative Krylov methods, for instance
+  // BiCG.
 
   // The PETSc context contains the Chimera object
   void *ctx;

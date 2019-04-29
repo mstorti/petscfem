@@ -371,10 +371,10 @@ int chimera_main() {
   chimera_mat_shell_t cms;
 
   // This is the standard FEM matrix contaning the non-matrix-free part 
-  Mat Apetsc = A->get_petsc_mat();
-  MatSetOption(Apetsc,MAT_KEEP_NONZERO_PATTERN,PETSC_TRUE);
+  Mat Afem = A->get_petsc_mat();
+  MatSetOption(Afem,MAT_KEEP_NONZERO_PATTERN,PETSC_TRUE);
   // We store in the Chimera object a pointer to the PETSc matrix
-  cms.init(Apetsc);
+  cms.init(Afem);
 
   // This is the MatShell PETSc object that is a wrapper to
   // the Chimera object
@@ -396,7 +396,7 @@ int chimera_main() {
   PC pc;           /* preconditioner context */
   ierr = KSPCreate(PETSCFEM_COMM_WORLD,&ksp);CHKERRQ(ierr);
 
-  ierr = KSPSetOperators(ksp,Ashell,cms.A,
+  ierr = KSPSetOperators(ksp,Ashell,cms.Afem,
                          DIFFERENT_NONZERO_PATTERN); CHKERRQ(ierr);
   ierr = KSPSetType(ksp,ksp_type.c_str()); CHKERRQ(ierr);
   ierr = KSPGetPC(ksp,&pc); CHKERRQ(ierr);

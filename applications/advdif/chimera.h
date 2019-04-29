@@ -34,20 +34,20 @@ struct ajk_t {
 // we will pass it to this object. 
 class chimera_mat_shell_t {
 public:
-  chimera_mat_shell_t() : A(NULL), xnod(NULL) {}
+  chimera_mat_shell_t() : Afem(NULL), xnod(NULL) {}
 
   // Initializes the problem
-  int init(Mat A);
+  int init(Mat Afem);
   // Do some tasks before starting the iterative solver
   int before_solve(Vec x,Vec res,double time,int step);
   // This is the matrix vector product and is called in each
   // iteration of the solver loop. It computes the product
-  // of the FEM part (matrix A) and then the matrix-free
+  // of the FEM part (matrix Afem) and then the matrix-free
   // part due to the interpolation and boundary conditions.
   int mat_mult(Vec x,Vec y);
   int mat_mult_transpose(Vec x,Vec y);
   // The underlying PETSc matrix (assmbled by FEM)
-  Mat A;
+  Mat Afem;
   // Pointer to internal PF array of node coordinates
   double *xnod;
   // Number of columns in XNOD
