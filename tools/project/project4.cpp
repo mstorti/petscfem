@@ -48,9 +48,7 @@ void read_mesh(dvector<double> &xnod1,const char *XNOD1,
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 int main(int argc,char **argv) {
 
-  printf("starting project4 main\n");
   MPI_Init(&argc,&argv);
-  printf("TRACE 0.0.0\n");
   int ndim = 2;
   int ndimel = 2;
   int nel = ndim+1; // Only for simplices right now
@@ -58,12 +56,10 @@ int main(int argc,char **argv) {
   int use_delaunay=0;
   string print_area_coords = "";
 
-  printf("TRACE 0.0\n");
   dvector<double> xnod1, xnod2, u1, u2,
     area1, area2;
   dvector<int> ico1;
 
-  printf("TRACE 0.1\n");
   char *xnod1f = strdup("xnod1.tmp");
   char *icone1f = strdup("icone1.tmp");
   char *state1f = strdup("state1.tmp");
@@ -123,18 +119,15 @@ int main(int argc,char **argv) {
   }
   PETSCFEM_ASSERT0(!use_delaunay,
                    "Not implemented Delaunay triangulation");  
-  printf("TRACE 0.2\n");
 
 #if 0
   printf("print_area_coords: %s, size %d\n",
          print_area_coords.c_str(),print_area_coords.size());
 #endif
 
-  printf("TRACE 1\n");
   read_mesh(xnod1,xnod1f, xnod2,xnod2f,
 	    u1,state1f,u2,ico1,icone1f,
 	    ndim,ndimel,nel,ndof,use_delaunay);
-  printf("TRACE 2\n");
 
 #if 0 // Si los datos vienen `concentrados' por nodos.
   nod_vol(xnod1,ico1,area1);
@@ -154,11 +147,8 @@ int main(int argc,char **argv) {
     fem_interp.init(10,ndof,ndimel,xnod1);
   }
   u2.clear();
-  printf("TRACE 3\n");
   fem_interp.interp(xnod2,u1,u2);
-  printf("TRACE 4\n");
   u2.print(state2f);
-  printf("TRACE 5\n");
 
 #if 0
   dvector<int> ico2;
@@ -176,6 +166,5 @@ int main(int argc,char **argv) {
   u2.print("u2n.dat");
 #endif
   MPI_Finalize();
-  printf("ending project4 main\n");
   return 0;
 }
