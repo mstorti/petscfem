@@ -388,7 +388,7 @@ int chimera_main() {
   // Set the MatMult operation
   MatShellSetOperation(Ashell,MATOP_MULT,
                        (void (*)(void))(&chimera_mat_mult));
-  // Set the MatMultTranspoe operation
+  // Set the MatMultTranspose operation
   MatShellSetOperation(Ashell,MATOP_MULT_TRANSPOSE,
                        (void (*)(void))(&chimera_mat_mult_transpose));
   // Build the KSP and PC stuff
