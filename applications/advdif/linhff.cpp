@@ -25,8 +25,9 @@ void LinearHFilmFun::q(FastMat2 &uin,FastMat2 &uout,FastMat2 &flux,
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 void LinearHFilmFun::q(FastMat2 &uin,FastMat2 &flux,FastMat2 &jacin) {
-  jacin.set(0.);
-  flux.set(0.);
+  dU.set(uin).scale(-1.);
+  h->prod(flux,dU);
+  h->jac(jacin);
   s->add(flux);
 }
 

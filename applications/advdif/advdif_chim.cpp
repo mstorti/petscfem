@@ -587,7 +587,7 @@ int chimera_main() {
 #endif
       }
       if (normres < tol_newton) break;
-      } // end of Newton loop
+    } // end of Newton loop
 
     // Prints residual and mass matrix in Matlab format
     // Define time step depending on strategy. Automatic time step,
