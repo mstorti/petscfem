@@ -37,7 +37,7 @@ public:
   chimera_mat_shell_t() : Afem(NULL), xnod(NULL) {}
 
   // Initializes the problem
-  int init(Mat Afem);
+  int init(Mat Afem_);
   // Do some tasks before starting the iterative solver
   int before_solve(Vec x,Vec res,double time,int step);
   // This is the matrix vector product and is called in each

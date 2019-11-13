@@ -41,7 +41,7 @@ chimera_hook_t *CHIMERA_HOOK_P=NULL;
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>
 // Initialize the MatShell object context
-int chimera_mat_shell_t::init(Mat A_) {
+int chimera_mat_shell_t::init(Mat Afem_) {
 
 #ifdef USE_JSONCPP
   // Read data needed from a JSON file
@@ -68,7 +68,7 @@ int chimera_mat_shell_t::init(Mat A_) {
   // We prepare the system to solve A\res
   int ierr;
   // Store a pointer to the underlying PETSc matrix
-  A = A_;
+  Afem = Afem_;
   // Check that only one processor is being used
   int size;
   MPI_Comm_size(PETSCFEM_COMM_WORLD,&size);
@@ -137,7 +137,7 @@ int chimera_mat_shell_t
   // Set the rows for the external and internal boundaries
   // to the identity
   int nrows = rows.size();
-  ierr = MatZeroRows(A,nrows,rows.data(),1.0,NULL,NULL); CHKERRQ(ierr);
+  ierr = MatZeroRows(Afem,nrows,rows.data(),1.0,NULL,NULL); CHKERRQ(ierr);
   printf("Imposed rows (external+internal) bdries %zu\n",rows.size());
   rows.clear();
 
@@ -425,7 +425,7 @@ int chimera_mat_mult(Mat Ashell,Vec x,Vec y) {
   // implements the Chimera bindings between the domains.
   
   // Make the base contribution to the standard matrix-vector product
-  ierr = MatMult(cms.A,x,y); CHKERRQ(ierr);
+  ierr = MatMult(cms.Afem,x,y); CHKERRQ(ierr);
   // Add the extra therm (restrictions between domains by
   // Chimera). This is the matrix-free contribution
   cms.mat_mult(x,y);
@@ -451,7 +451,7 @@ int chimera_mat_mult_transpose(Mat Ashell,Vec x,Vec y) {
   // implements the Chimera bindings between the domains.
   
   // Make the base contribution to the standard matrix-vector product
-  ierr = MatMultTranspose(cms.A,x,y); CHKERRQ(ierr);
+  ierr = MatMultTranspose(cms.Afem,x,y); CHKERRQ(ierr);
   // Add the extra therm (restrictions between domains by
   // Chimera). This is the matrix-free contribution
   cms.mat_mult_transpose(x,y);

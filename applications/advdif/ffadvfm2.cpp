@@ -686,22 +686,30 @@ comp_vel_vec_per_field(FastMat2 &vel_vec_per_field) {
 void newadvecfm2_ff_t::element_hook(ElementIterator &element_) {
   element = element_;
 
+  int elem,bid;
+  if (PF_PROP_HOOK) element.position(elem,bid);
+  double time=0.0;
+  
   advjac = elemset->prop_array(element,advective_jacobians_prop);
   u.set(advjac);
-  if (PF_PROP_HOOK) {
-    int elem,bid;
-    element.position(elem,bid);
-    double time=0.0;
-    int ndim=2;
+  if (PF_PROP_HOOK) 
     PF_PROP_HOOK->getprop("advective_jacobians",elem,
-                          elemset->xpgv,time,ndim,
+                          elemset->xpgv,time,
+                          advective_jacobians_prop.length,
                           u.storage_begin());
-  }
 
   difjac_mol = elemset->prop_array(element,diffusive_jacobians_mol_prop);
   difjac = elemset->prop_array(element,diffusive_jacobians_prop);
   //  difjac = difjac_mol;
   d_jac->update(difjac);
+  if (PF_PROP_HOOK) {
+    int m = diffusive_jacobians_prop.length;
+    vector<double> tmp(m,0.0);
+    for (int j=0; j<m; j++) tmp[j] = difjac[j];
+    PF_PROP_HOOK->getprop("diffusive_jacobians",elem,
+                          elemset->xpgv,time,m,tmp.data());
+    d_jac->update(tmp.data());
+  }
 
   reacjac = elemset->prop_array(element,reactive_jacobians_prop);
   C_jac.set(reacjac);
@@ -712,12 +720,6 @@ void newadvecfm2_ff_t::element_hook(ElementIterator &element_) {
   e_jac = elemset->prop_array(element,enthalpy_jacobians_prop);
   enthalpy_fun->update(e_jac);
 }  
-
-//  enum advective_jacobian_type {
-//    undefined, global_vector, vector_per_field, full};
-
-//  enum diffusive_jacobians_type {
-//    undefined, global_scalar, scalar_per_field, full};
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 #undef __FUNC__
