@@ -706,6 +706,7 @@ void newadvecfm2_ff_t::element_hook(ElementIterator &element_) {
     int m = diffusive_jacobians_prop.length;
     vector<double> tmp(m,0.0);
     for (int j=0; j<m; j++) tmp[j] = difjac[j];
+    printf("m %d, diff %f\n",m,tmp[0]);
     PF_PROP_HOOK->getprop("diffusive_jacobians",elem,
                           elemset->xpgv,time,m,tmp.data());
     d_jac->update(tmp.data());

@@ -328,12 +328,13 @@ new_assemble_ALE_formulation(arg_data_list &arg_data_v,const Nodedata *nodedata,
       element.node_data(nodedata,xloc.storage_begin(),
 			Hloc.storage_begin());
       xloc_new.set(xloc);
-      // Initialize element
+      // Compute element center for passing to the PROP_HOOK 
       if (PF_PROP_HOOK) {
         // If a properties hook does exist, then compute the center of the element
         xc.prod(dummyshape,xloc,-1,-1,1);
         xc.export_vals(xpgv.data());
       }
+      // Initialize element
       adv_diff_ff->element_hook(element);
 
       if (comp_prof) {
