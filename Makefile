@@ -282,7 +282,10 @@ torture:
 	$(MAKE) -C test torture
 
 #w Cleans all libraries and binaries
-clean_all: clean_g clean_O
+clean_all: 
+	$(MAKE) clean_g 
+	$(MAKE) clean_O
+	-${RM} `find . -name '*.o'`
 
 clean_g:
 	-${RM} `find . -name '*_g.a'` `find . -name '*_g.bin'` 
