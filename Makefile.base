@@ -557,6 +557,7 @@ COPTFLAGS := -DNDEBUG -O3 -funroll-loops
 else
 COPTFLAGS := -g3 -O0
 endif
+CPPFLAGS := -std=c++0x $(CPPFLAGS)
 
 %.o: %.cpp
 	$(CXX) -c ${COPTFLAGS} ${CFLAGS} ${CPPFLAGS} -o $@ $<
