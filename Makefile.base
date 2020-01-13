@@ -206,6 +206,10 @@ ifeq ($(USE_DYNAMICALLY_LOADED_EXTENDED_FUNCTIONS),yes)
 CPPFLAGS += -DUSE_DLEF
 endif
 
+ifeq ($(USE_PF_LIBPROJECT),yes)
+CPPFLAGS += -DUSE_PF_LIBPROJECT
+endif
+
 ifneq ($(SSL),)
 ifeq ($(USE_DX),)
 USE_DX := yes

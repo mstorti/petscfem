@@ -205,6 +205,7 @@ int chimera_mat_shell_t
     printf("read %d elems nel=%d from PF Elemset %s\n",
            nelem,nel,elemset->name());
 
+#ifdef USE_PF_LIBPROJECT
     // Interpolate with the FemInterp class in the
     // petscfem/tools/libpfproj library.
     // The interpolator object
@@ -225,6 +226,9 @@ int chimera_mat_shell_t
     fem_interp.interp(xale,u1,w);
     printf("interpolator size: %d %d\n",w.size(0),w.size(1));
     PETSCFEM_ERROR0("Not implemented yet: interpolators in C++\n");
+#else
+  PETSCFEM_ERROR0("Not compiled with LIBPROJ library (tools/project/libproj)\n");
+#endif
   }
   xale.clear();
 
