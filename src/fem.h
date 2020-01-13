@@ -675,6 +675,7 @@ inline PetscErrorCode KSPDestroy_Compat(KSP *a)
 #endif
 
 #define PFUNUSED __attribute__ ((unused)) 
+#define ISNAN std::isnan
 
 #endif
 //@}

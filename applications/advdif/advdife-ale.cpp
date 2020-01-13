@@ -13,6 +13,7 @@ extern int comp_mat_each_time_step_g,
 #include <src/util2.h>
 #include <src/fastmat2.h>
 #include <src/generror.h>
+#include <src/hook.h>
 
 #include "nwadvdif.h"
 
@@ -235,8 +236,8 @@ new_assemble_ALE_formulation(arg_data_list &arg_data_v,const Nodedata *nodedata,
   FMatrix veccontr(nel,ndof), veccontr_mass(nel,ndof),
     xloc(nel,ndim), xloc_old(nel,ndim), xloc_new(nel,ndim), lstate(nel,ndof),
     lstateo(nel,ndof), lstaten(nel,ndof), dUloc_c(nel,ndof),
-    dUloc(nel,ndof), matloc, xloc_mid(nel,ndim);
-
+    dUloc(nel,ndof),matloc,xloc_mid(nel,ndim),xpg(ndim);
+  xpgv.resize(ndim,0.0);
   nen = nel*ndof;
 
   //o Type of element geometry to define Gauss Point data
@@ -275,7 +276,8 @@ new_assemble_ALE_formulation(arg_data_list &arg_data_v,const Nodedata *nodedata,
   FastMat2 A_grad_N(3,nel,ndof,ndof),
     grad_N_D_grad_N(4,nel,ndof,nel,ndof),N_N_C(4,nel,ndof,nel,ndof),
     N_P_C(3,ndof,nel,ndof),N_Cp_N(4,nel,ndof,nel,ndof),
-    P_Cp(2,ndof,ndof),grad_N_dDdU_N(4,nel,ndof,nel,ndof);
+    P_Cp(2,ndof,ndof),grad_N_dDdU_N(4,nel,ndof,nel,ndof),
+    dummyshape(1,nel),xc(1,ndim);
 
   Ao_grad_N.resize(3,nel,ndof,ndof);
   tau_supg.resize(2,ndof,ndof);
@@ -283,6 +285,7 @@ new_assemble_ALE_formulation(arg_data_list &arg_data_v,const Nodedata *nodedata,
   Cp.resize(2,ndof,ndof);
   Cp_old.resize(2,ndof,ndof);
   Uo.resize(1,ndof);
+  dummyshape.set(1.0/nel);
 
   FMatrix Jaco_axi(2,2);
   int ind_axi_1, ind_axi_2;
@@ -321,12 +324,18 @@ new_assemble_ALE_formulation(arg_data_list &arg_data_v,const Nodedata *nodedata,
       element.position(k_elem,k_chunk);
       FastMat2::reset_cache();
 
-      // Initialize element
-      adv_diff_ff->element_hook(element);
       // Get nodedata info (coords. etc...)
       element.node_data(nodedata,xloc.storage_begin(),
 			Hloc.storage_begin());
       xloc_new.set(xloc);
+      // Compute element center for passing to the PROP_HOOK 
+      if (PF_PROP_HOOK) {
+        // If a properties hook does exist, then compute the center of the element
+        xc.prod(dummyshape,xloc,-1,-1,1);
+        xc.export_vals(xpgv.data());
+      }
+      // Initialize element
+      adv_diff_ff->element_hook(element);
 
       if (comp_prof) {
 	matlocf.export_vals(element.ret_mat_values(*jac_prof));
@@ -399,7 +408,7 @@ new_assemble_ALE_formulation(arg_data_list &arg_data_v,const Nodedata *nodedata,
       // loop over Gauss points
       Jaco_av.set(0.);
       for (ipg = 0; ipg < npg; ipg++) {
-	//      Matrix xpg = SHAPE * xloc;
+        xpg.prod(SHAPE,xloc,-1,-1,1);
 	Jaco.prod(DSHAPEXI,xloc,1,-1,-1,2); // xloc is at t_{n+alpha}
 	Jaco_av.add(Jaco);
 	Jaco_new.prod(DSHAPEXI,xloc_new,1,-1,-1,2);
@@ -513,7 +522,7 @@ new_assemble_ALE_formulation(arg_data_list &arg_data_v,const Nodedata *nodedata,
 	  if (shocap_aniso > 0. || shocap_aniso_const > 0.){
 	    jvec_old.set(NAN);
 	    adv_diff_ff->compute_shock_cap_aniso(delta_aniso_old,jvec_old);
-	    if (isnan(jvec_old.get(1))) {
+	    if (ISNAN(jvec_old.get(1))) {
 	      if (shocap_aniso_const > 0.0) {
 		jvec_old.set(0.0);
 	      } else {
@@ -613,6 +622,11 @@ new_assemble_ALE_formulation(arg_data_list &arg_data_v,const Nodedata *nodedata,
 	  }
 
 	  if (lambda_max_pg > lambda_max) lambda_max = lambda_max_pg;
+          if (PF_PROP_HOOK) {
+            xpg.export_vals(xpgv.data());
+            PF_PROP_HOOK->getprop("source_term",k_elem,xpgv,time_m,ndim,
+                                  G_source.storage_begin());
+          }
 
 	  tmp10.set(G_source);	// tmp10 = G - dHdt
 	  if (!lumped_mass) tmp10.minus(dHdt);
@@ -739,7 +753,7 @@ new_assemble_ALE_formulation(arg_data_list &arg_data_v,const Nodedata *nodedata,
 	  if (shocap > 0. || shocap_const > 0.) {
 	    delta_sc_v.set(NAN);
 	    adv_diff_ff->compute_delta_sc_v(delta_sc_v);
-	    if (isnan(delta_sc_v.get(1))) {
+	    if (ISNAN(delta_sc_v.get(1))) {
 	      if (shocap_const > 0.0) {
 		delta_sc_v.set(0.0);
 	      } else {
@@ -781,7 +795,7 @@ new_assemble_ALE_formulation(arg_data_list &arg_data_v,const Nodedata *nodedata,
 	    delta_aniso = 0.0;
 	    jvec.set(NAN);
 	    adv_diff_ff->compute_shock_cap_aniso(delta_aniso,jvec);
-	    if (isnan(jvec.get(1))) {
+	    if (ISNAN(jvec.get(1))) {
 	      if (shocap_aniso_const > 0.0) {
 		jvec.set(0.0);
 	      } else {

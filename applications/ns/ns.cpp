@@ -84,8 +84,8 @@ int ns_main(int argc,char **args) {
   
   // ierr = MatCreateShell(PETSCFEM_COMM_WORLD,int m,int n,int M,int N,void *ctx,Mat *A)
   char fcase[FLEN+1],output_file[FLEN+1];
-  Dofmap *dofmap;
-  Mesh *mesh;
+  Dofmap *dofmap=NULL;
+  Mesh *mesh=NULL;
   // arglf:= argument list for computing gathered quantities as forces
   arg_list argl, arglf;
   vector<double> hmin;
@@ -593,7 +593,7 @@ int ns_main(int argc,char **args) {
     if (RENORM_flag){
       ierr = read_vector("state-adv.tmp",x,dofmap,MY_RANK); CHKERRA(ierr);
       // Volume control
-      if (volume_control_flag && !isnan(liquid_volume_ini)){
+      if (volume_control_flag && !ISNAN(liquid_volume_ini)){
 	double Dphi = -C_volume*(total_liquid_volume_g-liquid_volume_ini)/D_volume;
 	ierr = VecShift(x,Dphi); CHKERRA(ierr);
 	PetscPrintf(PETSCFEM_COMM_WORLD,"Dphi %.10f \n",Dphi);
@@ -834,7 +834,7 @@ int ns_main(int argc,char **args) {
         // prints total liquid volume for level set control
 	PetscPrintf(PETSCFEM_COMM_WORLD,"Total liquid volume %.10f\n",
                     total_liquid_volume_g);
-	if (isnan(liquid_volume_ini))
+	if (ISNAN(liquid_volume_ini))
           liquid_volume_ini = total_liquid_volume_g;
       }
 

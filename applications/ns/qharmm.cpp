@@ -49,8 +49,8 @@ void qharmm::elemset_init() {
 
   //o Time step
   TGETOPTDEF_ND(thash,double,Dt,NAN);
-  PETSCFEM_ASSERT0(steady || !isnan(Dt),"Dt is required if not steady");  
-  if (steady && isnan(Dt)) Dt=1.0;
+  PETSCFEM_ASSERT0(steady || !ISNAN(Dt),"Dt is required if not steady");  
+  if (steady && ISNAN(Dt)) Dt=1.0;
   PETSCFEM_ASSERT0(Dt>=0.0,"Dt is required must be non-negative");  
 
   rec_Dt = (steady? 0.0 : 1.0/Dt);

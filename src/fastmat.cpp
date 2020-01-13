@@ -1,7 +1,7 @@
 //__INSERT_LICENSE__
 //$Id: fastmat.cpp,v 1.7 2007/01/30 19:03:44 mstorti Exp $
 
-#include <math.h>
+#include <cmath>
 #include <stdio.h>
 #include <cassert>
 

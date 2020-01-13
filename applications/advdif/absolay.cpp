@@ -32,9 +32,9 @@ void AbsorbingLayer::initialize() {
   //  formula W=-ky/omega*U, with magic_abso_coef=ky/omega
   NSGETOPTDEF_ND(double,magic_abso_coef,NAN);
   NSGETOPTDEF_ND(double,magic_abso_coef1,NAN);
-  PETSCFEM_ASSERT0(isnan(magic_abso_coef1)==isnan(magic_abso_coef),
+  PETSCFEM_ASSERT0(ISNAN(magic_abso_coef1)==ISNAN(magic_abso_coef),
                    "the magic coefs must be both defined or undefined");  
-  if (!MY_RANK && !isnan(magic_abso_coef)) 
+  if (!MY_RANK && !ISNAN(magic_abso_coef)) 
     printf("using magic coefs 0/1 %f %f\n",magic_abso_coef,magic_abso_coef1);
 
   NSGETOPTDEF_ND(int,nnod,-1);
@@ -62,7 +62,7 @@ void AbsorbingLayer::initialize() {
 
   //o Scales volume damping term
   NSGETOPTDEF_ND(double,h1fac,NAN);
-  PETSCFEM_ASSERT0(!isnan(h1fac),"h1fac is required");  
+  PETSCFEM_ASSERT0(!ISNAN(h1fac),"h1fac is required");  
 
   //o Use Habso = Hm, currently only for 0-dim
   //  absorption add-hoc for examples. The absorbing matrix at
@@ -80,7 +80,7 @@ void AbsorbingLayer::initialize() {
   //o Characteristic time for relaxing the relation 
   //  between W and U (in secs)
   NSGETOPTDEF_ND(double,taurelax,NAN);
-  PETSCFEM_ASSERT0(!isnan(taurelax),"taurelax is required");  
+  PETSCFEM_ASSERT0(!ISNAN(taurelax),"taurelax is required");  
   
   Habso.resize(2,ndof,ndof);
   C.resize(2,ndof,ndof);
@@ -110,7 +110,7 @@ void AbsorbingLayer::initialize() {
     Habso.scale(-1.0);
   }
 
-  if (0 && !isnan(magic_abso_coef)) {
+  if (0 && !ISNAN(magic_abso_coef)) {
     H0.axpy(Ay,-magic_abso_coef);
     PETSCFEM_ASSERT0(!use_h1_term,"if magic_abso_coef is entered, "
                      "then use_h1_term should be deactivated");  
@@ -156,18 +156,18 @@ void AbsorbingLayer::initialize() {
     
     //o Size of elements in y direction
     NSGETOPTDEF_ND(double,hy,NAN); //nd
-    PETSCFEM_ASSERT(!isnan(hy),"hy is required. hy %f",hy);  
+    PETSCFEM_ASSERT(!ISNAN(hy),"hy is required. hy %f",hy);  
     PETSCFEM_ASSERT(hy>0.0,"hy must be positive. hy %f",hy);  
 
     //o Size of elements in x direction
     NSGETOPTDEF_ND(double,hx,NAN); //nd
-    PETSCFEM_ASSERT(!isnan(hx),"hx is required. hx %f",hx);  
+    PETSCFEM_ASSERT(!ISNAN(hx),"hx is required. hx %f",hx);  
     PETSCFEM_ASSERT(hx>0.0,"hx must be positive. hx %f",hx);  
   }
 
   //o Time step
   NSGETOPTDEF_ND(double,Dt,NAN); //nd
-  PETSCFEM_ASSERT(!isnan(Dt),"Dt is required. Dt %f",Dt);  
+  PETSCFEM_ASSERT(!ISNAN(Dt),"Dt is required. Dt %f",Dt);  
   PETSCFEM_ASSERT(Dt>0.0,"Dt must be positive. Dt %f",Dt);  
 
   kfac = 1.0/(1.0+2.0*Dt/taurelax/3.0);
@@ -380,7 +380,7 @@ new_assemble(arg_data_list &arg_data_v,const Nodedata *nodedata,
         wpgdet = 1.0;
       }
 
-      assert(!isnan(alpha_glob));
+      assert(!ISNAN(alpha_glob));
       if (nel==1) {
         Un.prod(shape,lstaten,-1,-1,1);
         Uo.prod(shape,lstateo,-1,-1,1);
@@ -436,7 +436,7 @@ new_assemble(arg_data_list &arg_data_v,const Nodedata *nodedata,
                    Up[0],Up[1],Wp[0],Wp[1],Wmagicp[0],Wmagicp[1],
                    dudyp[0],dudyp[1],Wbarp[0],Wbarp[1]);
           }
-          if (!isnan(magic_abso_coef)) {
+          if (!ISNAN(magic_abso_coef)) {
             if (print_w_values && abso_inwt==1) {
               lstate.rs();
               double *p;

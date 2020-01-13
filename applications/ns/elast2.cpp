@@ -48,7 +48,7 @@ void elasticity2::init() {
 
   //o Characteristic time for damping term
   TGETOPTDEF(thash,double,tau_damp,NAN);
-  if (isnan(tau_damp)) cdamp=0.0;
+  if (ISNAN(tau_damp)) cdamp=0.0;
   else {
     PETSCFEM_ASSERT(tau_damp>0.0,
                     "tau_damp must be positive, entered %g",
@@ -111,7 +111,7 @@ void elasticity2::init() {
 void elasticity2::element_connector(const FastMat2 &xloc,
 				   const FastMat2 &state_old,
 				   const FastMat2 &state_new,
-				   FastMat2 &res,FastMat2 &mat){
+				   FastMat2 &res,FastMat2 &mat) {
   load_props(propel.buff(),elprpsindx.buff(),nprops,
 	     &(ELEMPROPS(elem,0)));
   double Young_modulus = *(propel.buff()+Young_modulus_indx);
@@ -233,7 +233,11 @@ void elasticity2::element_connector(const FastMat2 &xloc,
   res.rs();
   // tmp4.ctr(mat,2,1,4,3);
   // tmp4.print(nel*ndof);
-    
+#if 0  
+  mat.reshape(2,nel*ndof,nel*ndof);
+  FMSHV(mat);
+  exit(0);
+#endif
 }
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>

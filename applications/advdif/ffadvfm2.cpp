@@ -1,10 +1,8 @@
-//__INSERT_LICENSE__
-//$Id merge-with-petsc-233-55-g52bd457 Fri Oct 26 13:57:07 2007 -0300$
-
-#include <stdio.h>
-#include <string.h>
+#include <cmath>
+#include <cstdio>
 #include <vector>
 #include <cassert>
+#include <string.h>
 //#include <string>
 
 #include <src/fem.h>
@@ -13,6 +11,7 @@
 #include <src/utils.h>
 #include <src/util2.h>
 #include <src/fastmat2.h>
+#include <src/hook.h>
 
 #include "nwadvdif.h"
 
@@ -231,6 +230,14 @@ void newadvecfm2_ff_t::NullDjac
 ::comp_dif_per_field(FastMat2 &dif_per_field) {
   dif_per_field.set(0.);
 }  
+
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>
+void newadvecfm2_ff_t::GlobalScalar
+::update(const double *difjac) {
+  // Very tricky.....
+  double *d = (double *)ff.difjac;
+  *d = *difjac;
+};
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 #undef __FUNC__
@@ -687,13 +694,30 @@ comp_vel_vec_per_field(FastMat2 &vel_vec_per_field) {
 void newadvecfm2_ff_t::element_hook(ElementIterator &element_) {
   element = element_;
 
+  int elem,bid;
+  if (PF_PROP_HOOK) element.position(elem,bid);
+  double time=0.0;
+  
   advjac = elemset->prop_array(element,advective_jacobians_prop);
   u.set(advjac);
+  if (PF_PROP_HOOK) 
+    PF_PROP_HOOK->getprop("advective_jacobians",elem,
+                          elemset->xpgv,time,
+                          advective_jacobians_prop.length,
+                          u.storage_begin());
 
   difjac_mol = elemset->prop_array(element,diffusive_jacobians_mol_prop);
   difjac = elemset->prop_array(element,diffusive_jacobians_prop);
   //  difjac = difjac_mol;
   d_jac->update(difjac);
+  if (PF_PROP_HOOK) {
+    int m = diffusive_jacobians_prop.length;
+    vector<double> tmp(m,0.0);
+    for (int j=0; j<m; j++) tmp[j] = difjac[j];
+    PF_PROP_HOOK->getprop("diffusive_jacobians",elem,
+                          elemset->xpgv,time,m,tmp.data());
+    d_jac->update(tmp.data());
+  }
 
   reacjac = elemset->prop_array(element,reactive_jacobians_prop);
   C_jac.set(reacjac);
@@ -704,12 +728,6 @@ void newadvecfm2_ff_t::element_hook(ElementIterator &element_) {
   e_jac = elemset->prop_array(element,enthalpy_jacobians_prop);
   enthalpy_fun->update(e_jac);
 }  
-
-//  enum advective_jacobian_type {
-//    undefined, global_vector, vector_per_field, full};
-
-//  enum diffusive_jacobians_type {
-//    undefined, global_scalar, scalar_per_field, full};
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 #undef __FUNC__
@@ -745,7 +763,7 @@ void newadvecfm2_ff_t::start_chunk(int &ret_options) {
 
   strain_rate.resize(2,ndim,ndim);
 
-  ret_options &= !SCALAR_TAU; // tell the advective element routine
+  ret_options &= ~SCALAR_TAU; // tell the advective element routine
 
   // Read enthalpy jacobians
   //o _T: double[var_len]
@@ -1065,7 +1083,7 @@ void newadvecfm2_ff_t::compute_flux(COMPUTE_FLUX_ARGS) {
         // one returns all NAN
         has_comp_vel_vec_per_field =
           vel_vec_per_field.size()==0 
-          || !isnan(vel_vec_per_field.get(1,1));
+          || !ISNAN(vel_vec_per_field.get(1,1));
         if (has_comp_vel_vec_per_field) {
           for (int k=1; k<=ndof; k++) {
             vel_vec_per_field.ir(1,k);

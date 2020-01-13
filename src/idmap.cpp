@@ -8,7 +8,7 @@
 #include <algorithm>
 #include <newmatio.h>
 #include <cassert>
-#include <math.h>
+#include <cmath>
 
 #include <petscksp.h>
 

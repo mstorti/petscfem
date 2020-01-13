@@ -11,8 +11,6 @@
 
 #include "./project.h"
 
-string print_area_coords;
-
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 void FemInterp::clear() {
   if (kdtree) delete kdtree;
@@ -151,6 +149,7 @@ void FemInterp::interp(const dvector<double> &xnod2,
   int nnod2 = xnod2.size(0);
   assert(xnod2.size(1) == ndim);
   ui.a_resize(2,nnod2,ndof).defrag();
+  dvector<double> uicoefs;
 
   // Minimum distance to elements in mesh1
   double d2min=NAN;
@@ -171,8 +170,13 @@ void FemInterp::interp(const dvector<double> &xnod2,
   // printf("start interpolation...\n");
   double start = MPI_Wtime();
   FILE *fid=NULL;
-  if (print_area_coords.size()>0) 
-    fid = fopen(print_area_coords.c_str(),"w");
+  if (print_area_coords.size()>0) {
+    if (print_area_coords=="USE_RETVAL") {
+      uicoefs.a_resize(2,nnod2,2+nel);
+    } else {
+      fid = fopen(print_area_coords.c_str(),"w");
+    }
+  }
   ctx.use_cache = use_cache;
   for (int n2=0; n2<nnod2; n2++) {
     ctx.jump(br1);
@@ -292,11 +296,18 @@ void FemInterp::interp(const dvector<double> &xnod2,
       u1_loc.set(&u.e(node-1,0));
     }
     if (print_area_coords.size()>0) {
-      fprintf(fid,"%d %d ",n2+1,k1min+1);
-      const double *L = Lmin.storage_begin();
-      for (int j=0; j<nel; j++)
-        fprintf(fid,"%.15f ",L[j]);
-      fprintf(fid,"\n");
+      if (print_area_coords=="USE_RETVAL") {
+        uicoefs.e(n2,0) = n2;
+        uicoefs.e(n2,1) = k1min;
+        const double *L = Lmin.storage_begin();
+        for (int j=0; j<nel; j++) uicoefs.e(n2,2+j) = L[j];
+      } else {
+        fprintf(fid,"%d %d ",n2+1,k1min+1);
+        const double *L = Lmin.storage_begin();
+        for (int j=0; j<nel; j++)
+          fprintf(fid,"%.15f ",L[j]);
+        fprintf(fid,"\n");
+      }
     }
     u1_loc.rs();
     // Interpolate
@@ -306,8 +317,13 @@ void FemInterp::interp(const dvector<double> &xnod2,
     tryav += q+1;
     u2.export_vals(&ui.e(n2,0));
   }
-  if (print_area_coords.size())
-    fclose(fid);
+  if (print_area_coords.size()) {
+    if (print_area_coords=="USE_RETVAL") {
+      ui.clone(uicoefs);
+    } else {
+      fclose(fid);
+    }
+  }
   // printf("end interpolation... elapsed %f\n",MPI_Wtime()-start);
   annDeallocPt(nn);
   // delete[] nn_idx;

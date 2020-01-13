@@ -352,7 +352,7 @@ int read_mesh(Mesh *& mesh,char *fcase,Dofmap *& dofmap,
       // Read iprops line
       thash->get_entry("iprops",cline);
       neliprops=0; 
-      GHashTable *iprops = g_hash_table_new(&g_str_hash,&g_str_equal);
+      // GHashTable *iprops = g_hash_table_new(&g_str_hash,&g_str_equal);
       // GHashTable *iprops = g_hash_table_new(&hash_func,&key_compare_func);
       if (cline!=NULL) {
 	//astr_copy_s(linecopy,line);
@@ -1753,12 +1753,11 @@ int read_mesh(Mesh *& mesh,char *fcase,Dofmap *& dofmap,
   
   // Convert ghost_dof_set en dofmap
   set<int>::iterator it;
-  dofmap->ghost_dofs = new vector<int>;
   for (it=ghost_dof_set.begin(); it!=ghost_dof_set.end(); it++) 
-    dofmap->ghost_dofs->push_back(*it);
+    dofmap->ghost_dofs.push_back(*it);
   PetscSynchronizedFlush(PETSCFEM_COMM_WORLD);
   VOID_IT(ghost_dof_set);
-  int nghost_dofs = dofmap->ghost_dofs->size();
+  int nghost_dofs = dofmap->ghost_dofs.size();
 
   // This dof_here stuff may be done with STL sets
   int ndofhere = 0;
@@ -1805,7 +1804,7 @@ int read_mesh(Mesh *& mesh,char *fcase,Dofmap *& dofmap,
   ierr = VecGetSize(ghost_vec,&nghost_tot); CHKERRQ(ierr);
 
   ierr = ISCreateGeneral(PETSCFEM_COMM_WORLD,nghost_dofs,
-			 &*dofmap->ghost_dofs->begin(),
+			 dofmap->ghost_dofs.data(),
                          PETSC_COPY_VALUES,
 			 &is_ghost_glob);  CHKERRQ(ierr); 
   ierr = ISCreateStride(PETSCFEM_COMM_WORLD,nghost_dofs,0,1,&is_ghost_loc);
@@ -1843,7 +1842,7 @@ int read_mesh(Mesh *& mesh,char *fcase,Dofmap *& dofmap,
   PetscSynchronizedPrintf(PETSCFEM_COMM_WORLD,"Local ghost values on [%d]\n",myrank);
   for (int jj=0; jj<nghost_dofs; jj++ ) 
     PetscSynchronizedPrintf(PETSCFEM_COMM_WORLD,"local %d, dof %d  -> %g\n",
-			    jj,(*dofmap->ghost_dofs)[jj],array[jj]);
+			    jj,dofmap->ghost_dofs[jj],array[jj]);
   PetscSynchronizedFlush(PETSCFEM_COMM_WORLD);
 #endif
 
@@ -1876,7 +1875,7 @@ int read_mesh(Mesh *& mesh,char *fcase,Dofmap *& dofmap,
   for (int jj=0; jj<nghost_dofs; jj++ ) {
     int local = neqproc[myrank]+jj;
     PetscSynchronizedPrintf(PETSCFEM_COMM_WORLD,"local %d, global %d -> %g\n",
-			    local,(*(dofmap->ghost_dofs))[jj],array[local]);
+			    local,dofmap->ghost_dofs[jj],array[local]);
   }
 
   PetscSynchronizedFlush(PETSCFEM_COMM_WORLD);

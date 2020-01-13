@@ -1,6 +1,3 @@
-//__INSERT_LICENSE__
-//$Id merge-with-petsc-233-55-g52bd457 Fri Oct 26 13:57:07 2007 -0300$
- 
 #include <src/fem.h>
 #include <src/utils.h>
 #include <src/h5utils.h>
@@ -101,6 +98,7 @@ void h5petsc_mat_save(Mat J, const char *filename) {
   H5::DataSet dssz =
     file.createDataSet("sizes",H5::PredType::NATIVE_INT,ds2);
   dssz.write(sz.data(),H5::PredType::NATIVE_INT);
+  file.close();
 }
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>
@@ -114,6 +112,7 @@ int h5petsc_vec_save(Vec x,const char *filename,const char *varname) {
   H5::DataSet xdset =
     file.createDataSet("res",H5::PredType::NATIVE_DOUBLE,dataspace);
   xdset.write(vx.data(),H5::PredType::NATIVE_DOUBLE);
+  file.close();
   return 0;
 }
 
@@ -140,6 +139,7 @@ void h5_dvector_read(const char *filename,
   vector<int> shape(rank);
   for (int j=0; j<rank; j++) shape[j] = int(dims[j]);
   w.reshape(shape);
+  h5file.close();
 }
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>
@@ -163,7 +163,33 @@ void h5_dvector_write(dvector<double> &w,const char *filename,
   H5::DataSet xdset =
     filep->createDataSet(varname,H5::PredType::NATIVE_DOUBLE,dataspace);
   xdset.write(w.buff(),H5::PredType::NATIVE_DOUBLE);
+  filep->close();
   delete filep;
+}
+
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>
+// Converts double to int, checking that the double is really an int
+int dbl2int(double z) {
+  int k = int(z);
+  PETSCFEM_ASSERT(fabs(z-double(k))==0.0,
+                  "Double is not integer! %g",z);
+  return k;
+}
+
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*> Read a
+// Read a dvector stored as a double in HDF5 and convert to
+// INT (checking that the values are really integer)
+void h5_dvector_read_d2i(const char *file,const char *dset,
+                         dvector<int> &w) {
+  dvector<double> z;
+  h5_dvector_read(file,dset,z);
+  vector<int> shape;
+  z.get_shape(shape);
+  int n = z.size();
+  w.resize(n);
+  for (int j=0; j<n; j++)
+    w.ref(j) = dbl2int(z.ref(j));
+  z.reshape(shape);
 }
 
 #else

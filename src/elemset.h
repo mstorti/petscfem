@@ -794,6 +794,9 @@ public:
   double prop_val(ElementIterator &element,Property &prop) const;
   double prop_val(ElementIterator &element,Property &prop,double t) const;
   const double *prop_array(ElementIterator &element,Property &prop) const;
+  // This is for computing per elemnt properties through a
+  // special hook (PF_PROP_HOOK)
+  vector<double> xpgv;
 };
 
 #if 0

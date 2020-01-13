@@ -1,6 +1,5 @@
 # mode: -*- makefile -*-
 #__INSERT_LICENSE__
-#$Id merge-with-petsc-233-55-g52bd457 Fri Oct 26 13:57:07 2007 -0300$
 
 SHELL = /bin/bash
 

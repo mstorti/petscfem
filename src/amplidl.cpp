@@ -3,7 +3,7 @@
 
 #ifdef USE_DLEF
 
-#include <math.h>
+#include <cmath>
 
 #include "fem.h"
 #include "getprop.h"

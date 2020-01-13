@@ -19,6 +19,7 @@ State & State::axpy(double alpha,const State &v) {
 State::State(const State &v) 
   : vec(NULL), 
     time(v.time) {
+  PETSCFEM_ERROR0("NO MORE USED!");
   vec = new Vec;
   int ierr = VecDuplicate(*v.vec,vec); 
   PETSCFEM_ASSERT0(ierr==0,"Error");  
@@ -29,7 +30,7 @@ State::State(const State &v)
 #undef __FUNC__
 #define __FUNC__ "State::~State()" 
 State::~State() {
-  if (vec) {
+  if (0 && vec) {
     Vec *p = vec;
     int ierr = VecDestroy(vec);
     delete p;

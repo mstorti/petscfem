@@ -43,6 +43,7 @@ int bubbly_main();
 int fsi_main();
 int bdf_main();
 int dual_time_main();
+int chimera_main();
 
 Hook *advdif_hook_factory(const char *name);
 
@@ -86,6 +87,7 @@ int advdif_main(int argc,char **args) {
     if (!strcmp(code_name,"bdf")) return bdf_main();
     if (!strcmp(code_name,"bubbly")) return bubbly_main();
     if (!strcmp(code_name,"dual_time")) return dual_time_main();
+    if (!strcmp(code_name,"chim")) return chimera_main();
     PETSCFEM_ERROR("Unknown -code option: \"%s\"\n",code_name);
   }
   
@@ -103,11 +105,9 @@ int advdif_main(int argc,char **args) {
   char fcase[FLEN+1];
   Darray *da; // este me parece que se puede sacar!!
   //Elemset *elemset;
-  Dofmap *dofmap;
-  dofmap = new Dofmap;
-  Mesh *mesh;
+  Dofmap *dofmap = new Dofmap;
+  Mesh *mesh = NULL;
   vector<double> dtmin(1,0.);
-  Vec a;
   GlobParam glob_param;
   GLOB_PARAM = &glob_param;
   string save_file_res;
@@ -278,7 +278,7 @@ int advdif_main(int argc,char **args) {
   //  #start_comp_time# for compatibility with Navier-Stokes
   //  module). 
   GETOPTDEF(double,start_time,NAN);
-  if (!isnan(start_time) && start_comp_time!=0.0)
+  if (!ISNAN(start_time) && start_comp_time!=0.0)
     start_comp_time = start_time;
   
   //o Tolerance when solving with the mass matrix. 
@@ -328,8 +328,8 @@ int advdif_main(int argc,char **args) {
   //o Chooses the preconditioning operator. 
   TGETOPTDEF_S(GLOBAL_OPTIONS,string,preco_type,jacobi);
   // I had to do this since `c_str()' returns `const char *'
-  char *preco_type_ = new char[preco_type.size()+1];
-  strcpy(preco_type_,preco_type.c_str());
+  // char *preco_type_ = new char[preco_type.size()+1];
+  // strcpy(preco_type_,preco_type.c_str());
 
   Time time,time_star;
   time.set(start_comp_time);
@@ -363,6 +363,9 @@ int advdif_main(int argc,char **args) {
   // Set pointers in glob_param
   glob_param.x = x;
   glob_param.xold = xold;
+  State state(x,time),state_old(xold,time);
+  glob_param.state = &state;
+  glob_param.state_old = &state_old;
 
   //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
   // initialize state vectors
@@ -709,11 +712,13 @@ int advdif_main(int argc,char **args) {
   
   delete A;
   delete AA;
+  DELETE_SCLR(dofmap);
+  DELETE_SCLR(mesh);
 
 #ifdef DO_SIZE_STATS
   prod2_subcache_t::report_stats();
 #endif
 
   PetscFinalize();
-  exit(0);
+  return 0;
 }

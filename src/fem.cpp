@@ -38,12 +38,17 @@ int PetscFemInitialize(int *argc,char ***args,
   // aquiles (Fedora 9), but not in minerva (Fedora 7), neither
   // apparently on more recent versions of Fedora. 
   dvector<double> ppd;
+  // It seems that now the compiler requires that the cloned array must not be empty
+  ppd.a_resize(1,2);
   dvector_clone_parallel(ppd);
   dvector<int> ppi;
+  ppi.a_resize(1,2);
   dvector_clone_parallel(ppi);
   dvector<float> ppf;
+  ppf.a_resize(1,2);
   dvector_clone_parallel(ppf);
   dvector<char> ppc;
+  ppc.a_resize(1,2);
   dvector_clone_parallel(ppc);
   h5_dvector_read(NULL,NULL,ppd);
 

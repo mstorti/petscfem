@@ -3,7 +3,7 @@
 
 //__INSERT_LICENSE__
 //$Id merge-with-petsc-233-50-g0ace95e Fri Oct 19 17:49:52 2007 -0300$
-#include <math.h>
+#include <cmath>
 #include <stdio.h>
 #ifdef USE_MKL
 #include <mkl_cblas.h>

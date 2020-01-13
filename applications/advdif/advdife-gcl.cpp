@@ -14,6 +14,7 @@ extern int comp_mat_each_time_step_g,
 #include <src/util2.h>
 #include <src/fastmat2.h>
 #include <src/generror.h>
+#include <src/hook.h>
 
 #include "nwadvdif.h"
 
@@ -244,7 +245,8 @@ new_assemble_GCL_compliant(arg_data_list &arg_data_v,const Nodedata *nodedata,
   FMatrix veccontr(nel,ndof),veccontr_mass(nel,ndof),
     xloc(nel,ndim),xloc_old(nel,ndim),xloc_new(nel,ndim),lstate(nel,ndof),
     lstateo(nel,ndof),lstaten(nel,ndof),dUloc_c(nel,ndof),
-    dUloc(nel,ndof),matloc;
+    dUloc(nel,ndof),matloc,xpg(ndim);
+  vector<double> xpgv(ndim);
   FastMat2 true_lstate(2,nel,ndof),
     true_lstateo(2,nel,ndof),true_lstaten(2,nel,ndof);
 
@@ -415,14 +417,8 @@ new_assemble_GCL_compliant(arg_data_list &arg_data_v,const Nodedata *nodedata,
     }
     volume_flag = 1;
 
-    if (0){
-      // DEBUG
-      int kk,ielhh;
-      element.position(kk,ielhh);
-      printf("Element %d \n",kk);
-      lstate.print("Estado :");
-      // END DEBUG
-    }
+    int elem,ielhh;
+    element.position(elem,ielhh);
     
     // nodal computation of mesh velocity
     if (ALE_flag) {
@@ -575,7 +571,7 @@ new_assemble_GCL_compliant(arg_data_list &arg_data_v,const Nodedata *nodedata,
     Jaco_av.set(0.);
     for (ipg=0; ipg<npg; ipg++) {
       
-      //      Matrix xpg = SHAPE * xloc;
+      xpg.prod(SHAPE,xloc,-1,-1,1);
       Jaco.prod(DSHAPEXI,xloc,1,-1,-1,2);
       Jaco_av.add(Jaco);
       if (use_GCL_compliant) {
@@ -637,7 +633,7 @@ new_assemble_GCL_compliant(arg_data_list &arg_data_v,const Nodedata *nodedata,
 
       volume_flag = 1;
 
-      // This is incorrect. Master elment volume is included in the
+      // This is incorrect. Master element volume is included in the
       // Gauss point weight.
       // Volume = double(npg)*wpgdet/gp_data.master_volume;
       */
@@ -815,6 +811,16 @@ new_assemble_GCL_compliant(arg_data_list &arg_data_v,const Nodedata *nodedata,
 
 	if (lambda_max_pg>lambda_max) lambda_max=lambda_max_pg;
 
+        if (PF_PROP_HOOK) {
+          // printf("PF_PROP_HOOK %p\n",PF_PROP_HOOK);
+          xpg.export_vals(xpgv.data());
+          PF_PROP_HOOK->getprop("source_term",elem,xpgv,time_m,ndim,
+                                G_source.storage_begin());
+          // double *s = G_source.storage_begin();
+          // printf("elem %d, x %f %f, source %f\n",elem,xpgv[0],xpgv[1],*s);
+        }
+
+        // FMSHV(G_source);
 	tmp10.set(G_source);	// tmp10 = G - dUdt
 	if (!lumped_mass) tmp10.minus(dUdt);
         if (ALE_flag) {

@@ -83,7 +83,7 @@ void match_graph(const dvector<double> &bw,
   for (int j=0; j<N; j++) {
     for (int k=0; k<N; k++) {
       if (j==k || (proc.e(j)>=0 && proc.e(k)>=0)) continue;
-      if (isnan(max_flux) || bflux.e(j,k)>max_flux) {
+      if (ISNAN(max_flux) || bflux.e(j,k)>max_flux) {
         max_flux = bflux.e(j,k);
         dj = j; dk = k;
       }
@@ -99,7 +99,7 @@ void match_graph(const dvector<double> &bw,
   for (int j=0; j<N; j++) {
     for (int k=0; k<N; k++) {
       if (j==k || (proc.e(j)>=0 && proc.e(k)>=0)) continue;
-      if (isnan(max_bw) || bw.e(j,k)>max_bw) {
+      if (ISNAN(max_bw) || bw.e(j,k)>max_bw) {
         max_bw = bw.e(j,k);
         pj = j; pk = k;
       }
@@ -123,13 +123,13 @@ void match_graph(const dvector<double> &bw,
     for (int j=0; j<N; j++) {
       for (int k=0; k<N; k++) {
         if ((proc.e(j)>=0) == (proc.e(k)>=0)) continue;
-        if (isnan(max_flux) || bflux.e(j,k)>max_flux) {
+        if (ISNAN(max_flux) || bflux.e(j,k)>max_flux) {
           max_flux = bflux.e(j,k);
           dj = j; dk = k;
         }
       }
     }
-    if (isnan(max_flux)) break;
+    if (ISNAN(max_flux)) break;
 #ifdef DBG
     printf("max flux edge (%d,%d) -> %f\n",dj,dk,max_flux);
 #endif
@@ -151,12 +151,12 @@ void match_graph(const dvector<double> &bw,
     assert(pf>=0);
     for (int p=0; p<N; p++) {
       if (domain.e(p)>=0) continue;
-      if (isnan(max_bw) || bw.e(pf,p)>max_bw) {
+      if (ISNAN(max_bw) || bw.e(pf,p)>max_bw) {
         max_bw = bw.e(pf,p);
         pnf = p;
       }
     }
-    assert(!isnan(max_bw));
+    assert(!ISNAN(max_bw));
     proc.e(dnf) = pnf;
     domain.e(pnf) = dnf;
 #ifdef DBG
@@ -180,7 +180,7 @@ void repart(const dvector<double> &bflux,
   for (int j=0; j<ndom; j++) {
     for (int k=0; k<ndom; k++) {
       if (j==k) continue;
-      if (isnan(bflux_max) || bflux.e(j,k)>bflux_max)
+      if (ISNAN(bflux_max) || bflux.e(j,k)>bflux_max)
         bflux_max = bflux.e(j,k);
     }
   }
@@ -237,7 +237,7 @@ void perfo(const dvector<double> &bw,
       int pj = proc.e(dj);
       int pk = proc.e(dk);
       double rate = bflux.e(dj,dk)/bw.e(pj,pk);
-      if (isnan(perfo_max) || rate>perfo_max) 
+      if (ISNAN(perfo_max) || rate>perfo_max) 
         perfo_max = rate;
       perfo_sum += rate;
     }

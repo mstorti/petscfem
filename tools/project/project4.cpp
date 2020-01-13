@@ -10,8 +10,6 @@
 #include <ANN/ANN.h>
 #include "./project.h"
 
-extern string print_area_coords;
-
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 void read_mesh(dvector<double> &xnod1,const char *XNOD1,
 	       dvector<double> &xnod2,const char *XNOD2,
@@ -56,7 +54,7 @@ int main(int argc,char **argv) {
   int nel = ndim+1; // Only for simplices right now
   int ndof = 1;
   int use_delaunay=0;
-  print_area_coords = "";
+  string print_area_coords = "";
 
   dvector<double> xnod1, xnod2, u1, u2,
     area1, area2;
@@ -140,6 +138,7 @@ int main(int argc,char **argv) {
 #endif
 
   FemInterp fem_interp;
+  fem_interp.print_area_coords = print_area_coords;
   if (!use_delaunay) {
     fem_interp.init(10,ndof,ndimel,xnod1,ico1);
   } else {

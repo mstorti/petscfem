@@ -307,7 +307,7 @@ public:
     void comp_dif_per_field(FastMat2 &dif_per_field);
     void comp_grad_N_D_grad_N(FastMat2 &grad_N_D_grad_N,
 			      FastMat2 & dshapex,double w);
-    void update(const double *difjac) {};
+    void update(const double *difjac);
   };
   GlobalScalar global_scalar_djac;
 

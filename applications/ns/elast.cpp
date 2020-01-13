@@ -289,4 +289,3 @@ void elasticity::element_connector(const FastMat2 &xloc,
   }
     
 }
-

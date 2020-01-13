@@ -31,15 +31,12 @@ LIBOBJS = ns.o mmvmain.o mmv2main.o nsstruct.o ns_fsi.o compdate.o	\
 MYOBJS =
 
 
-TAGFLAGS = $(TAGINCL)="../../src/TAGS"
-#TAGFLAGS = --include="../../src/TAGS"
-
 # for makedepend
 SRCS := $(MYOBJS:.o=.cpp) $(LIBOBJS:.o=.cpp)
 
 include $(PETSCFEM_DIR)/Makefile.base
 
-# CPPFLAGS += -DROSI_COUPLING_MODULE
+TAGFLAGS := $(TAGFLAGS) $(TAGINCL)="../../src/TAGS"
 
 # documentation of options with the script `odoc.pl'
 odocns: ../../doc/odocns.tex ../../doc/odocnse.tex \
