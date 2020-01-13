@@ -17505,3 +17505,10 @@ desactiva el debug completamente entonces no le deja hacer no se que
 cosa. Me imagino que cuando le pones -O0 habría que ponerle también
 algún flag para que no tire el error. 
 #warning _FORTIFY_SOURCE requires compiling with optimization (-O) [-Wcpp]
+
+%>>-------------------------------------------------------------
+%>>((2020-01-12.20:53:19)(mstorti@cluster62)(mstorti-v39-start-70-g0ea893c1))
+Tengo problemas para usar PF en pirayu. Antes estaba andando pero
+ahora me da un error al correr. Parece que hay una inconsistencia
+entre las librerias de MPI al menos. 
+%
