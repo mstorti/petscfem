@@ -151,6 +151,7 @@ int read_mesh(Mesh *& mesh,char *fcase,Dofmap *& dofmap,
 
       dofmap->ndof = ndof;
       node = 0;
+      
       double *row = new double[nu];
       darray *xnod;
       xnod = da_create(nu*sizeof(double));
@@ -221,60 +222,74 @@ int read_mesh(Mesh *& mesh,char *fcase,Dofmap *& dofmap,
       const char *data = NULL;
       mesh->nodedata->options->get_entry("data",data);
       assert(data);
-      AutoString datas;
-      datas.set(data).deblank();
-      data = datas.str();
-      FileStack *fstack_nodes_data=NULL;
-      if (!myrank) {
-	fstack_nodes_data = new FileStack(data);
-	ierro = !fstack_nodes_data->ok();
-      }
-      CHECK_PAR_ERR(ierro,"Error reading nodes");
-      if (!myrank) try {
-	xnod = da_create(nu*sizeof(double));
-	while (!fstack_nodes_data->get_line(line)) {
-	  astr_copy_s(linecopy, line);
-	  node++;
-	  for (int kk=0; kk<nu; kk++) {
-	    token = strtok((kk==0 ? line : NULL),bsp);
-	    PETSCFEM_ASSERT_GE1(token!=NULL,
-			       "Error reading coordinates in line[4]:\n\"%s\"\n"
-			       "Not enough values in line!!\n",astr_chars(linecopy));
-	    int nread = sscanf(token,"%lf",row+kk);
-	    PETSCFEM_ASSERT_GE1(nread == 1,
-			    "Error reading coordinates in line[5]:\n\"%s\"",line);
-	  }
-	  int indx = da_append (xnod,row);
-	  PETSCFEM_ASSERT_GE0(indx>=0,"Insufficient memory reading nodes");
-	} 
-	ierro = fstack_nodes_data->last_error()!=FileStack::eof;
-	PETSCFEM_ASSERT_GE1(!ierro,"Couldn't process correctly node data file %s\n",
-			   fstack_nodes_data->file_name());
-	nnod=node;
-	fstack_nodes_data->close();
-	delete fstack_nodes_data;
-      } 
-      CHECK_PAR_ERR_GE;
 
-      ierr = MPI_Bcast (&nnod,1,MPI_INT,0,PETSCFEM_COMM_WORLD);
-      dofmap->nnod = nnod;
-      mesh->nodedata->nnod = nnod;
-      PetscPrintf(PETSCFEM_COMM_WORLD,"Read %d nodes\n",nnod);
+      TGETOPTDEF(thash,int,use_hdf5,0);
+      if (use_hdf5) {
+        TGETOPTDEF_S(thash,string,data,NONE);
+        PETSCFEM_ASSERT0(data!="NONE","data entry is required if use_hdf5");  
+        TGETOPTDEF_S(thash,string,dset,NONE);
+        PETSCFEM_ASSERT0(dset!="NONE","dset entry is required if use_hdf5");  
+        dvector<double> dvxnod;
+        h5_dvector_read(data.c_str(),dset.c_str(),dvxnod);
+        printf("read %d doubles\n",dvxnod.size());
+        exit(0);
+        dvxnod.clear();
+      } else {
+        AutoString datas;
+        datas.set(data).deblank();
+        data = datas.str();
+        FileStack *fstack_nodes_data=NULL;
+        if (!myrank) {
+          fstack_nodes_data = new FileStack(data);
+          ierro = !fstack_nodes_data->ok();
+        }
+        CHECK_PAR_ERR(ierro,"Error reading nodes");
+        if (!myrank) try {
+            xnod = da_create(nu*sizeof(double));
+            while (!fstack_nodes_data->get_line(line)) {
+              astr_copy_s(linecopy, line);
+              node++;
+              for (int kk=0; kk<nu; kk++) {
+                token = strtok((kk==0 ? line : NULL),bsp);
+                PETSCFEM_ASSERT_GE1(token!=NULL,
+                                    "Error reading coordinates in line[4]:\n\"%s\"\n"
+                                    "Not enough values in line!!\n",astr_chars(linecopy));
+                int nread = sscanf(token,"%lf",row+kk);
+                PETSCFEM_ASSERT_GE1(nread == 1,
+                                    "Error reading coordinates in line[5]:\n\"%s\"",line);
+              }
+              int indx = da_append (xnod,row);
+              PETSCFEM_ASSERT_GE0(indx>=0,"Insufficient memory reading nodes");
+            } 
+            ierro = fstack_nodes_data->last_error()!=FileStack::eof;
+            PETSCFEM_ASSERT_GE1(!ierro,"Couldn't process correctly node data file %s\n",
+                                fstack_nodes_data->file_name());
+            nnod=node;
+            fstack_nodes_data->close();
+            delete fstack_nodes_data;
+          } 
+        CHECK_PAR_ERR_GE;
+
+        ierr = MPI_Bcast (&nnod,1,MPI_INT,0,PETSCFEM_COMM_WORLD);
+        dofmap->nnod = nnod;
+        mesh->nodedata->nnod = nnod;
+        PetscPrintf(PETSCFEM_COMM_WORLD,"Read %d nodes\n",nnod);
       
-      delete[] row;
-      mesh->nodedata->nodedata = new double[nnod*nu];
-      if (!myrank) {
-	for (node=0; node<nnod; node++) {
-	  row = (double *) da_ref(xnod,node);
-	  for (int kk=0; kk<nu; kk++) {
-	    NODEDATA(node,kk) = row[kk];
-	  }
-	}
-	da_destroy(xnod);
-      }
+        delete[] row;
+        mesh->nodedata->nodedata = new double[nnod*nu];
+        if (!myrank) {
+          for (node=0; node<nnod; node++) {
+            row = (double *) da_ref(xnod,node);
+            for (int kk=0; kk<nu; kk++) {
+              NODEDATA(node,kk) = row[kk];
+            }
+          }
+          da_destroy(xnod);
+        }
 
-      ierr = MPI_Bcast (mesh->nodedata->nodedata,nnod*nu,
-			MPI_DOUBLE,0,PETSCFEM_COMM_WORLD);
+        ierr = MPI_Bcast (mesh->nodedata->nodedata,nnod*nu,
+                          MPI_DOUBLE,0,PETSCFEM_COMM_WORLD);
+      }
 
       // calling dofmap constructor
       dofmap->id = new idmap(nnod*ndof,NULL_MAP);
@@ -408,11 +423,12 @@ int read_mesh(Mesh *& mesh,char *fcase,Dofmap *& dofmap,
       double *elemprops = NULL;
       int *elemiprops = NULL;
       if (use_hdf5) {
+        PETSCFEM_ASSERT(size==1,"Not implemented yet MPI size>1. Size=%d",size);
         TGETOPTDEF_S(thash,string,data,NONE);
-        PETSCFEM_ASSERT0(data!="NONE",
-                         "data entry is required if use_hdf5");  
-        dvector<int> dvicone;
+        PETSCFEM_ASSERT0(data!="NONE","data entry is required if use_hdf5");  
         TGETOPTDEF_S(thash,string,dset,NONE);
+        PETSCFEM_ASSERT0(dset!="NONE","dset entry is required if use_hdf5");  
+        dvector<int> dvicone;
         h5_dvector_read(data.c_str(),dset.c_str(),dvicone);
         printf("read %d ints\n",dvicone.size());
         nelem = dvicone.size();
