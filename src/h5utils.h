@@ -12,4 +12,12 @@ void h5_dvector_write(dvector<double> &w,const char *filename,const char *varnam
 void h5_dvector_read_d2i(const char *file,const char *dset,dvector<int> &w);
 int dbl2int(double z);
 
+void h5_dvector_read(const char *filename,
+                     const char *dsetname,
+                     dvector<double> &w);
+
+void h5_dvector_read(const char *filename,
+                     const char *dsetname,
+                     dvector<int> &w);
+
 #endif

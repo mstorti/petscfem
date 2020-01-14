@@ -34,6 +34,7 @@ extern "C" {
 #include <src/pfobject.h>
 #include <src/dvecpar.h>
 #include <src/mshpart.h>
+#include <src/h5utils.h>
 
 //#define TRACE_READMESH
 #ifdef TRACE_READMESH
@@ -400,226 +401,269 @@ int read_mesh(Mesh *& mesh,char *fcase,Dofmap *& dofmap,
       int node;
       TRACE(-5.3.2);
 
-      const char *data=NULL;
-      thash->get_entry("data",data);
-      if (!data) {
-	while (1) {
-	  ierr = fstack->get_line(line);
-	  PETSCFEM_ASSERT0(ierr==0,"Couldn't find __END_ELEMSET__ tag");  
-	  
-	  // reading element connectivities
-	  for (int jel=0; jel<nel; jel++) {
-	    token =  strtok(( jel==0 ? line : NULL),bsp);
-	    if (!token) fstack->print();
-	    PETSCFEM_ASSERT(token,
-			    "Error reading element connectivities at\n"
-			    "%s:%d: at (or after) line: \"%s\"",fstack->file_name(),
-			    fstack->line_number(),
-			    fstack->line_read());
-	    if (jel==0 && !strcmp(token,"__END_ELEMSET__"))
-	      goto DONE;
-	    sscanf(token ,"%d",&node);
-	    icorow[jel]= node;
-	    // This should be done AFTER reading the nodes 
-	    // Set all nodes that are connected to an element as degrees of freedom
-	    for (int kdof=1; kdof<=ndof; kdof++) {
-	      edof = dofmap->edof(node,kdof);
-	      dofmap->id->set_elem(edof,edof,1.);
-	    }
-	  }
-
-	  // reading element properties
-	  for (int jprop=0; jprop<nelprops; jprop++) {
-	    token = strtok(NULL,bsp);
-	    if (token==NULL) {
-	      PetscPrintf(PETSCFEM_COMM_WORLD,
-			  "fails to read per-element property %d,\n at line \"%s\"",
-			  jprop+1,line);
-	      PFEMERRQ("\n");
-	    }
-	    sscanf(token,"%lf",proprow+jprop);
-	  }
-
-	  // reading integer element properties
-	  for (int jprop=0; jprop<neliprops; jprop++) {
-	    token = strtok(NULL,bsp);
-	    if (token==NULL) {
-	      PetscPrintf(PETSCFEM_COMM_WORLD,
-			  "fails to read integer per-element"
-			  " property %d,\n at line \"%s\"",
-			  jprop+1,line);
-	      PFEMERRQ("\n");
-	    }
-	    sscanf(token,"%d",iproprow+jprop);
-	  }
-	
-	  // Copying to buffer
-	  abuf_zero (buff);
-	  abuf_cat_buf (buff,(unsigned char *)icorow,nel*sizeof(int));
-	  abuf_cat_buf (buff,(unsigned char *)proprow,nelprops*sizeof(double));
-	  abuf_cat_buf (buff,(unsigned char *)iproprow,neliprops*sizeof(int));
-	  unsigned char *pp = abuf_data(buff);
-
-	  int indxi = da_append(da_icone,abuf_data(buff));
-	  if ( indxi==-1 ) PFEMERRQ("Insufficient memory reading elements");
-	}
-	TRACE(-5.3.2.1);
-      DONE:;
-      } else {
-        AutoString datas;
-        datas.set(data).deblank();
-        data = datas.str();
-	Autobuf *tempo = abuf_create();
-	FileStack *file_connect=NULL;
-	if (!myrank) {
-	  file_connect = new FileStack(data);
-	  ierro = !file_connect->ok();
-	}
-	CHECK_PAR_ERR(ierro,"Error opening connectivity file");
-	if (!myrank) {
-	  nelem=0;
-	  while (!file_connect->get_line(line)) {
-	    // reading element connectivities
-	    for (int jel=0; jel<nel; jel++) {
-	      token =  strtok(( jel==0 ? line : NULL),bsp);
-	      if (!token) file_connect->print();
-	      PETSCFEM_ASSERT(token,
-			      "Error reading element connectivities at\n"
-			      "%s:%d: \"%s\"",file_connect->file_name(),
-			      file_connect->line_number(),
-			      file_connect->line_read());
-	      sscanf(token ,"%d",&node);
-	      icorow[jel]= node;
-	    }
-
-	    // reading element properties
-	    for (int jprop=0; jprop<nelprops; jprop++) {
-	      token = strtok(NULL,bsp);
-	      if (token==NULL) {
-		PetscPrintf(PETSCFEM_COMM_WORLD,
-			    "fails to read per-element property %d,\n at line \"%s\"",
-			    jprop+1,line);
-		PFEMERRQ("\n");
-	      }
-	      sscanf(token,"%lf",proprow+jprop);
-	    }
-
-	    // reading integer element properties
-	    for (int jprop=0; jprop<neliprops; jprop++) {
-	      token = strtok(NULL,bsp);
-	      if (token==NULL) {
-		PetscPrintf(PETSCFEM_COMM_WORLD,
-			    "fails to read integer per-element"
-			    " property %d,\n at line \"%s\"",
-			    jprop+1,line);
-		PFEMERRQ("\n");
-	      }
-	      sscanf(token,"%d",iproprow+jprop);
-	    }
-	
-	    // Copying to buffer
-	    ierr = abuf_cat_buf (tempo,(unsigned char *)icorow,nel*sizeof(int));
-	    CHKERRQ(ierr);
-	    ierr = abuf_cat_buf (tempo,(unsigned char *)proprow,nelprops*sizeof(double));
-	    CHKERRQ(ierr);
-	    ierr = abuf_cat_buf (tempo,(unsigned char *)iproprow,neliprops*sizeof(int));
-	    CHKERRQ(ierr);
-	    nelem++;
-	  }
-	  ierro = file_connect->last_error()!=FileStack::eof;
-	  if (ierro) printf("Couldn't process correctly connectivity file%s\n",
-			    file_connect->file_name());
-	  file_connect->close();
-	  delete file_connect;
-	}
-	CHECK_PAR_ERR(ierro,"Error reading connectivity file");
-	ierr = MPI_Bcast (&nelem,1,MPI_INT,0,PETSCFEM_COMM_WORLD);
-	// Resize `da_icone' in other processors
-	if (myrank) ierr =  abuf_set (tempo,nelem*rowsize,0);
-	  
-	// Broadcast all `icone' data using MPI
-	ierr = MPI_Bcast (abuf_data(tempo),nelem*rowsize,MPI_CHAR,0,PETSCFEM_COMM_WORLD);
-
-	// This should be done AFTER reading the nodes 
-	// Set all nodes that are connected to an element as degrees of freedom
-	for (int e=0; e<nelem; e++) {
-	  memcpy (icorow,abuf_data(tempo)+e*rowsize,nel*sizeof(int));
-	  for (int jel=0; jel<nel; jel++) {
-	    node = icorow[jel];
-	    for (int kdof=1; kdof<=ndof; kdof++) {
-	      edof = dofmap->edof(node,kdof);
-	      dofmap->id->set_elem(edof,edof,1.);
-	    }
-	  }
-	  // Copying data from tempo tu `da_icone'
-	  int indxi = da_append(da_icone,abuf_data(tempo)+e*rowsize);
-	  if ( indxi==-1 ) PFEMERRQ("Insufficient memory reading elements");
-	}
-	abuf_destroy(tempo);
-      }	
-    
-      TRACE(-5.3.3);
-      elemsetnum++;
-      delete[] icorow;
-
-      nelem = da_length(da_icone);
-
-      double *elemprops = new double[nelem*nelprops];
-      int *elemiprops = new int[nelem*neliprops];
-      icone = new int[nel*nelem];
-      unsigned char *buffp;
-      
-      TRACE(-5.3.4);
-      for (iele=0; iele<nelem; iele++) {
-	icorow=(int *) da_ref(da_icone,iele);
-	for (int kk=0; kk<nel; kk++) {
-	  ICONE(iele,kk) = icorow[kk];
-	}
-
-	buffp = (unsigned char *)da_ref(da_icone,iele)+nel*sizeof(int);
-	memcpy ((void *)proprow,buffp,nelprops*sizeof(double));
-	for (int kk=0; kk<nelprops; kk++) {
-	  ELEMPROPS(iele,kk) = proprow[kk];
-	}
-
-	buffp += nelprops*sizeof(double);
-	memcpy ((void *)iproprow,buffp,neliprops*sizeof(int));
-	for (int kk=0; kk<neliprops; kk++) {
-	  ELEMIPROPS(iele,kk) = iproprow[kk];
-	}
-
-      }
-      TRACE(-5.3.5);
-
-      delete[] proprow;
-      delete[] iproprow;
-      da_destroy(da_icone);
-      abuf_destroy(buff);
-
-      int nelprops_add, neliprops_add;
+      TGETOPTDEF(thash,int,use_hdf5,0);
+      int nelprops_add=-1, neliprops_add=-1;
       double *elemprops_add=NULL;
       int *elemiprops_add=NULL;
-      //o Additional properties (used by the element routine)
-      TGETOPTDEF(thash,int,additional_props,0);
-      nelprops_add = additional_props;
-      TRACE(-5.3.6);
-      if (nelprops_add>0) {
-	elemprops_add = new
-	  double[nelem*nelprops_add];
-	for (int k=0; k<nelem*nelprops_add; k++)
-	  elemprops_add[k]=0.;
-      }
+      double *elemprops = NULL;
+      int *elemiprops = NULL;
+      printf("use_hdf5: %d\n",use_hdf5);
+      if (use_hdf5) {
+        TGETOPTDEF_S(thash,string,data,NONE);
+        PETSCFEM_ASSERT0(data!="NONE",
+                         "data entry is required if use_hdf5");  
+        dvector<int> dvicone;
+        TGETOPTDEF_S(thash,string,dset,NONE);
+        h5_dvector_read(data.c_str(),dset.c_str(),dvicone);
+        printf("read %d ints\n",dvicone.size());
+        nelem = dvicone.size();
+        PETSCFEM_ASSERT(nelem%nel==0,
+                        "bad elemset HDF5 dataset size, "
+                        "size %d, nel %d",nelem,nel);  
+        nelem /= nel;
+        dvicone.reshape(nelem,nel);
+        for (iele=0; iele<nelem; iele++) {
+          for (int kk=0; kk<nel; kk++) {
+            node = dvicone.e(iele,kk);
+            ICONE(iele,kk) = node;
+            for (int kdof=1; kdof<=ndof; kdof++) {
+              edof = dofmap->edof(node,kdof);
+              dofmap->id->set_elem(edof,edof,1.);
+            }
+          }
+        }
+        dvicone.clear();
+#define CHECKVAR(var) PETSCFEM_ASSERT(var==0,                      \
+          "Not implemented yet for HDF5 connectivities. "       \
+          "%s %d",#var,var);
+        CHECKVAR(nelprops);
+        CHECKVAR(neliprops);
+        CHECKVAR(nelprops_add);
+        CHECKVAR(neliprops_add);
+        // PETSCFEM_ASSERT(nelprops==0,
+        //                 "nelprops>0 not implemented yet "
+        //                 "for HDF5 connectivities. nelprops %d",nelprops);
+        exit(0);
+      } else {
+        const char *data=NULL;
+        thash->get_entry("data",data);
+        if (!data) {
+          while (1) {
+            ierr = fstack->get_line(line);
+            PETSCFEM_ASSERT0(ierr==0,"Couldn't find __END_ELEMSET__ tag");  
+	  
+            // reading element connectivities
+            for (int jel=0; jel<nel; jel++) {
+              token =  strtok(( jel==0 ? line : NULL),bsp);
+              if (!token) fstack->print();
+              PETSCFEM_ASSERT(token,
+                              "Error reading element connectivities at\n"
+                              "%s:%d: at (or after) line: \"%s\"",fstack->file_name(),
+                              fstack->line_number(),
+                              fstack->line_read());
+              if (jel==0 && !strcmp(token,"__END_ELEMSET__"))
+                goto DONE;
+              sscanf(token ,"%d",&node);
+              icorow[jel]= node;
+              // This should be done AFTER reading the nodes 
+              // Set all nodes that are connected to an element as degrees of freedom
+              for (int kdof=1; kdof<=ndof; kdof++) {
+                edof = dofmap->edof(node,kdof);
+                dofmap->id->set_elem(edof,edof,1.);
+              }
+            }
 
-      //o int additional properties (used by the element routine)
-      TGETOPTDEF(thash,int,additional_iprops,0);
-      neliprops_add = additional_iprops;
-      if (neliprops_add>0) {
-	elemiprops_add = new 
-	  int[nelem*neliprops_add];
-	for (int k=0; k<nelem*neliprops_add; k++)
-	  elemiprops_add[k]=0;
+            // reading element properties
+            for (int jprop=0; jprop<nelprops; jprop++) {
+              token = strtok(NULL,bsp);
+              if (token==NULL) {
+                PetscPrintf(PETSCFEM_COMM_WORLD,
+                            "fails to read per-element property %d,\n at line \"%s\"",
+                            jprop+1,line);
+                PFEMERRQ("\n");
+              }
+              sscanf(token,"%lf",proprow+jprop);
+            }
+
+            // reading integer element properties
+            for (int jprop=0; jprop<neliprops; jprop++) {
+              token = strtok(NULL,bsp);
+              if (token==NULL) {
+                PetscPrintf(PETSCFEM_COMM_WORLD,
+                            "fails to read integer per-element"
+                            " property %d,\n at line \"%s\"",
+                            jprop+1,line);
+                PFEMERRQ("\n");
+              }
+              sscanf(token,"%d",iproprow+jprop);
+            }
+	
+            // Copying to buffer
+            abuf_zero (buff);
+            abuf_cat_buf (buff,(unsigned char *)icorow,nel*sizeof(int));
+            abuf_cat_buf (buff,(unsigned char *)proprow,nelprops*sizeof(double));
+            abuf_cat_buf (buff,(unsigned char *)iproprow,neliprops*sizeof(int));
+            unsigned char *pp = abuf_data(buff);
+
+            int indxi = da_append(da_icone,abuf_data(buff));
+            if ( indxi==-1 ) PFEMERRQ("Insufficient memory reading elements");
+          }
+          TRACE(-5.3.2.1);
+        DONE:;
+        } else {
+          AutoString datas;
+          datas.set(data).deblank();
+          data = datas.str();
+          TGETOPTDEF(thash,int,use_hdf5,0);
+          Autobuf *tempo = abuf_create();
+          FileStack *file_connect=NULL;
+          if (!myrank) {
+            file_connect = new FileStack(data);
+            ierro = !file_connect->ok();
+          }
+          CHECK_PAR_ERR(ierro,"Error opening connectivity file");
+          if (!myrank) {
+            nelem=0;
+            while (!file_connect->get_line(line)) {
+              // reading element connectivities
+              for (int jel=0; jel<nel; jel++) {
+                token =  strtok(( jel==0 ? line : NULL),bsp);
+                if (!token) file_connect->print();
+                PETSCFEM_ASSERT(token,
+                                "Error reading element connectivities at\n"
+                                "%s:%d: \"%s\"",file_connect->file_name(),
+                                file_connect->line_number(),
+                                file_connect->line_read());
+                sscanf(token ,"%d",&node);
+                icorow[jel]= node;
+              }
+
+              // reading element properties
+              for (int jprop=0; jprop<nelprops; jprop++) {
+                token = strtok(NULL,bsp);
+                if (token==NULL) {
+                  PetscPrintf(PETSCFEM_COMM_WORLD,
+                              "fails to read per-element property %d,\n at line \"%s\"",
+                              jprop+1,line);
+                  PFEMERRQ("\n");
+                }
+                sscanf(token,"%lf",proprow+jprop);
+              }
+
+              // reading integer element properties
+              for (int jprop=0; jprop<neliprops; jprop++) {
+                token = strtok(NULL,bsp);
+                if (token==NULL) {
+                  PetscPrintf(PETSCFEM_COMM_WORLD,
+                              "fails to read integer per-element"
+                              " property %d,\n at line \"%s\"",
+                              jprop+1,line);
+                  PFEMERRQ("\n");
+                }
+                sscanf(token,"%d",iproprow+jprop);
+              }
+	
+              // Copying to buffer
+              ierr = abuf_cat_buf (tempo,(unsigned char *)icorow,nel*sizeof(int));
+              CHKERRQ(ierr);
+              ierr = abuf_cat_buf (tempo,(unsigned char *)proprow,nelprops*sizeof(double));
+              CHKERRQ(ierr);
+              ierr = abuf_cat_buf (tempo,(unsigned char *)iproprow,neliprops*sizeof(int));
+              CHKERRQ(ierr);
+              nelem++;
+            }
+            ierro = file_connect->last_error()!=FileStack::eof;
+            if (ierro) printf("Couldn't process correctly connectivity file%s\n",
+                              file_connect->file_name());
+            file_connect->close();
+            delete file_connect;
+          }
+          CHECK_PAR_ERR(ierro,"Error reading connectivity file");
+          ierr = MPI_Bcast (&nelem,1,MPI_INT,0,PETSCFEM_COMM_WORLD);
+          // Resize `da_icone' in other processors
+          if (myrank) ierr =  abuf_set (tempo,nelem*rowsize,0);
+	  
+          // Broadcast all `icone' data using MPI
+          ierr = MPI_Bcast (abuf_data(tempo),nelem*rowsize,MPI_CHAR,0,PETSCFEM_COMM_WORLD);
+
+          // This should be done AFTER reading the nodes 
+          // Set all nodes that are connected to an element as degrees of freedom
+          for (int e=0; e<nelem; e++) {
+            memcpy (icorow,abuf_data(tempo)+e*rowsize,nel*sizeof(int));
+            for (int jel=0; jel<nel; jel++) {
+              node = icorow[jel];
+              for (int kdof=1; kdof<=ndof; kdof++) {
+                edof = dofmap->edof(node,kdof);
+                dofmap->id->set_elem(edof,edof,1.);
+              }
+            }
+            // Copying data from tempo tu `da_icone'
+            int indxi = da_append(da_icone,abuf_data(tempo)+e*rowsize);
+            if ( indxi==-1 ) PFEMERRQ("Insufficient memory reading elements");
+          }
+          abuf_destroy(tempo);
+        }	
+    
+        TRACE(-5.3.3);
+        elemsetnum++;
+        delete[] icorow;
+
+        nelem = da_length(da_icone);
+
+        elemprops = new double[nelem*nelprops];
+        elemiprops = new int[nelem*neliprops];
+        icone = new int[nel*nelem];
+        unsigned char *buffp;
+      
+        TRACE(-5.3.4);
+        for (iele=0; iele<nelem; iele++) {
+          icorow=(int *) da_ref(da_icone,iele);
+          for (int kk=0; kk<nel; kk++) {
+            ICONE(iele,kk) = icorow[kk];
+          }
+
+          buffp = (unsigned char *)da_ref(da_icone,iele)+nel*sizeof(int);
+          memcpy ((void *)proprow,buffp,nelprops*sizeof(double));
+          for (int kk=0; kk<nelprops; kk++) {
+            ELEMPROPS(iele,kk) = proprow[kk];
+          }
+
+          buffp += nelprops*sizeof(double);
+          memcpy ((void *)iproprow,buffp,neliprops*sizeof(int));
+          for (int kk=0; kk<neliprops; kk++) {
+            ELEMIPROPS(iele,kk) = iproprow[kk];
+          }
+
+        }
+        TRACE(-5.3.5);
+
+        delete[] proprow;
+        delete[] iproprow;
+        da_destroy(da_icone);
+        abuf_destroy(buff);
+
+        //o Additional properties (used by the element routine)
+        TGETOPTDEF(thash,int,additional_props,0);
+        nelprops_add = additional_props;
+        TRACE(-5.3.6);
+        if (nelprops_add>0) {
+          elemprops_add = new
+            double[nelem*nelprops_add];
+          for (int k=0; k<nelem*nelprops_add; k++)
+            elemprops_add[k]=0.;
+        }
+
+        //o int additional properties (used by the element routine)
+        TGETOPTDEF(thash,int,additional_iprops,0);
+        neliprops_add = additional_iprops;
+        if (neliprops_add>0) {
+          elemiprops_add = new 
+            int[nelem*neliprops_add];
+          for (int k=0; k<nelem*neliprops_add; k++)
+            elemiprops_add[k]=0;
+        }
+        TRACE(-5.3.7);
       }
-      TRACE(-5.3.7);
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
       // Bless with the appropriate type

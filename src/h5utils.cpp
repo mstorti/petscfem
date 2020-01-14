@@ -117,9 +117,10 @@ int h5petsc_vec_save(Vec x,const char *filename,const char *varname) {
 }
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>
+template<class T>
 void h5_dvector_read(const char *filename,
                      const char *dsetname,
-                     dvector<double> &w) {
+                     dvector<T> &w,H5::PredType type) {
   if (!filename) return;
   H5::H5File h5file(filename,H5F_ACC_RDONLY);
   H5::DataSet dataset = h5file.openDataSet(dsetname);
@@ -135,11 +136,27 @@ void h5_dvector_read(const char *filename,
   PETSCFEM_ASSERT(sz==w.size(),"Wrong size, sz(w) %d, sz(h5) %d",
                   w.size(),sz);
   w.defrag();
-  dataset.read(w.buff(),H5::PredType::NATIVE_DOUBLE);
+  dataset.read(w.buff(),type);
   vector<int> shape(rank);
   for (int j=0; j<rank; j++) shape[j] = int(dims[j]);
   w.reshape(shape);
   h5file.close();
+}
+
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>
+void h5_dvector_read(const char *filename,
+                     const char *dsetname,
+                     dvector<double> &w) {
+  h5_dvector_read(filename,dsetname,w,
+                  H5::PredType::NATIVE_DOUBLE);
+}
+
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>
+void h5_dvector_read(const char *filename,
+                     const char *dsetname,
+                     dvector<int> &w) {
+  h5_dvector_read(filename,dsetname,w,
+                  H5::PredType::NATIVE_INT);
 }
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>
