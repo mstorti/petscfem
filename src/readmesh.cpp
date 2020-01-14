@@ -81,14 +81,14 @@ int read_mesh(Mesh *& mesh,char *fcase,Dofmap *& dofmap,
 	iele,k,nfixa, *ident,rflag;
   double *dptr,dval; 
 
-  TextHashTable *thash;
-  Nodedata *nodedata;
+  TextHashTable *thash=NULL;
+  Nodedata *nodedata=NULL;
 
   row_t row,col,row0;
   row_t::iterator kndx;
 
-  Elemset *elemset;
-  int *icone,etype,*dof_here;
+  Elemset *elemset=NULL;
+  int *icone=NULL,etype,*dof_here=NULL;
   mesh = new Mesh;
   GLOBAL_MESH = mesh;
   mesh->nodedata = new Nodedata;
@@ -407,7 +407,6 @@ int read_mesh(Mesh *& mesh,char *fcase,Dofmap *& dofmap,
       int *elemiprops_add=NULL;
       double *elemprops = NULL;
       int *elemiprops = NULL;
-      printf("use_hdf5: %d\n",use_hdf5);
       if (use_hdf5) {
         TGETOPTDEF_S(thash,string,data,NONE);
         PETSCFEM_ASSERT0(data!="NONE",
@@ -417,11 +416,17 @@ int read_mesh(Mesh *& mesh,char *fcase,Dofmap *& dofmap,
         h5_dvector_read(data.c_str(),dset.c_str(),dvicone);
         printf("read %d ints\n",dvicone.size());
         nelem = dvicone.size();
+
+        elemprops = new double[nelem*nelprops];
+        elemiprops = new int[nelem*neliprops];
+        icone = new int[nel*nelem];
+        
         PETSCFEM_ASSERT(nelem%nel==0,
                         "bad elemset HDF5 dataset size, "
                         "size %d, nel %d",nelem,nel);  
         nelem /= nel;
-        dvicone.reshape(nelem,nel);
+        dvicone.reshape(2,nelem,nel);
+        dvicone.defrag();
         for (iele=0; iele<nelem; iele++) {
           for (int kk=0; kk<nel; kk++) {
             node = dvicone.e(iele,kk);
@@ -436,6 +441,11 @@ int read_mesh(Mesh *& mesh,char *fcase,Dofmap *& dofmap,
 #define CHECKVAR(var) PETSCFEM_ASSERT(var==0,                      \
           "Not implemented yet for HDF5 connectivities. "       \
           "%s %d",#var,var);
+        TGETOPTDEF(thash,int,additional_props,0);
+        nelprops_add = additional_props;
+        TGETOPTDEF(thash,int,additional_iprops,0);
+        neliprops_add = additional_iprops;
+
         CHECKVAR(nelprops);
         CHECKVAR(neliprops);
         CHECKVAR(nelprops_add);
@@ -443,7 +453,6 @@ int read_mesh(Mesh *& mesh,char *fcase,Dofmap *& dofmap,
         // PETSCFEM_ASSERT(nelprops==0,
         //                 "nelprops>0 not implemented yet "
         //                 "for HDF5 connectivities. nelprops %d",nelprops);
-        exit(0);
       } else {
         const char *data=NULL;
         thash->get_entry("data",data);
