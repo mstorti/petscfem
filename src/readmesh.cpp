@@ -223,16 +223,31 @@ int read_mesh(Mesh *& mesh,char *fcase,Dofmap *& dofmap,
       mesh->nodedata->options->get_entry("data",data);
       assert(data);
 
+      thash = mesh->nodedata->options;
       TGETOPTDEF(thash,int,use_hdf5,0);
       if (use_hdf5) {
+        PETSCFEM_ASSERT(size==1,"H5 read coords. Not implemented "
+                        "yet MPI size>1. Size=%d",size);
         TGETOPTDEF_S(thash,string,data,NONE);
         PETSCFEM_ASSERT0(data!="NONE","data entry is required if use_hdf5");  
         TGETOPTDEF_S(thash,string,dset,NONE);
         PETSCFEM_ASSERT0(dset!="NONE","dset entry is required if use_hdf5");  
         dvector<double> dvxnod;
         h5_dvector_read(data.c_str(),dset.c_str(),dvxnod);
+        dvxnod.defrag();
         printf("read %d doubles\n",dvxnod.size());
-        exit(0);
+        nnod = dvxnod.size();
+        PETSCFEM_ASSERT(nnod%nu==0,
+                        "bad size HDF5 xnod size %d",nnod);  
+        nnod /= nu;
+        dvxnod.reshape(2,nnod,nu);
+        mesh->nodedata->nodedata = new double[nnod*nu];
+        dofmap->nnod = nnod;
+        mesh->nodedata->nnod = nnod;
+        for (node=0; node<nnod; node++) {
+          for (int kk=0; kk<nu; kk++) 
+            NODEDATA(node,kk) = dvxnod.e(node,kk);
+        }
         dvxnod.clear();
       } else {
         AutoString datas;
@@ -430,6 +445,7 @@ int read_mesh(Mesh *& mesh,char *fcase,Dofmap *& dofmap,
         PETSCFEM_ASSERT0(dset!="NONE","dset entry is required if use_hdf5");  
         dvector<int> dvicone;
         h5_dvector_read(data.c_str(),dset.c_str(),dvicone);
+        dvicone.defrag();
         printf("read %d ints\n",dvicone.size());
         nelem = dvicone.size();
 
@@ -442,7 +458,6 @@ int read_mesh(Mesh *& mesh,char *fcase,Dofmap *& dofmap,
                         "size %d, nel %d",nelem,nel);  
         nelem /= nel;
         dvicone.reshape(2,nelem,nel);
-        dvicone.defrag();
         for (iele=0; iele<nelem; iele++) {
           for (int kk=0; kk<nel; kk++) {
             node = dvicone.e(iele,kk);
