@@ -117,6 +117,23 @@ int h5petsc_vec_save(Vec x,const char *filename,const char *varname) {
 }
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>
+// Split the file/dataset combination FDNAME in the FILE and
+// DSET parts. For instance if fdname=./mesh.h5:/u/value then
+// file=./mesh.h5, dset=/u/value
+static void h5_file_dset_split(string &fdname,string &file,
+                               string &dset) {
+  int len = fdname.size();
+  int j;
+  for (j=0; j<len; j++) if (fdname[j]==':') break;
+  PETSCFEM_ASSERT(j<len,"Couldn't find colon in HDF5 "
+                  "file/dataset name: %s",fdname.c_str());  
+  file = fdname.substr(0,j);
+  dset = fdname.substr(j+1,len);
+  // printf("fdname %s, file %s, dset %s\n",
+  //        fdname.c_str(),file.c_str(),dset.c_str());
+}
+
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>
 template<class T>
 void h5_dvector_read(const char *filename,
                      const char *dsetname,
@@ -141,6 +158,27 @@ void h5_dvector_read(const char *filename,
   for (int j=0; j<rank; j++) shape[j] = int(dims[j]);
   w.reshape(shape);
   h5file.close();
+}
+
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>
+template<class T>
+void h5_dvector_read2(const char *fdname,
+                     dvector<T> &w) {
+  string file,dset, fds=fdname;
+  h5_file_dset_split(fds,file,dset);
+  h5_dvector_read(file.c_str(),dset.c_str(),w);
+}
+
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>
+void h5_dvector_read(const char *fdname,
+                     dvector<double> &w) {
+  h5_dvector_read2(fdname,w);
+}
+
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>
+void h5_dvector_read(const char *fdname,
+                     dvector<int> &w) {
+  h5_dvector_read2(fdname,w);
 }
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>

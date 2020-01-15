@@ -230,10 +230,11 @@ int read_mesh(Mesh *& mesh,char *fcase,Dofmap *& dofmap,
                         "yet MPI size>1. Size=%d",size);
         TGETOPTDEF_S(thash,string,data,NONE);
         PETSCFEM_ASSERT0(data!="NONE","data entry is required if use_hdf5");  
-        TGETOPTDEF_S(thash,string,dset,NONE);
-        PETSCFEM_ASSERT0(dset!="NONE","dset entry is required if use_hdf5");  
+        // TGETOPTDEF_S(thash,string,dset,NONE);
+        // PETSCFEM_ASSERT0(dset!="NONE","dset entry is required if use_hdf5");  
         dvector<double> dvxnod;
-        h5_dvector_read(data.c_str(),dset.c_str(),dvxnod);
+
+        h5_dvector_read(data.c_str(),dvxnod);
         dvxnod.defrag();
         printf("read %d doubles\n",dvxnod.size());
         nnod = dvxnod.size();
@@ -441,10 +442,10 @@ int read_mesh(Mesh *& mesh,char *fcase,Dofmap *& dofmap,
         PETSCFEM_ASSERT(size==1,"Not implemented yet MPI size>1. Size=%d",size);
         TGETOPTDEF_S(thash,string,data,NONE);
         PETSCFEM_ASSERT0(data!="NONE","data entry is required if use_hdf5");  
-        TGETOPTDEF_S(thash,string,dset,NONE);
-        PETSCFEM_ASSERT0(dset!="NONE","dset entry is required if use_hdf5");  
+        // TGETOPTDEF_S(thash,string,dset,NONE);
+        // PETSCFEM_ASSERT0(dset!="NONE","dset entry is required if use_hdf5");  
         dvector<int> dvicone;
-        h5_dvector_read(data.c_str(),dset.c_str(),dvicone);
+        h5_dvector_read(data.c_str(),dvicone);
         dvicone.defrag();
         printf("read %d ints\n",dvicone.size());
         nelem = dvicone.size();

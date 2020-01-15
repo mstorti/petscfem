@@ -20,4 +20,10 @@ void h5_dvector_read(const char *filename,
                      const char *dsetname,
                      dvector<int> &w);
 
+void h5_dvector_read(const char *fdname,
+                     dvector<double> &w);
+
+void h5_dvector_read(const char *fdname,
+                     dvector<int> &w);
+
 #endif
