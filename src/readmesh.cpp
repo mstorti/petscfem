@@ -470,21 +470,40 @@ int read_mesh(Mesh *& mesh,char *fcase,Dofmap *& dofmap,
           }
         }
         dvicone.clear();
-#define CHECKVAR(var) PETSCFEM_ASSERT(var==0,                      \
-          "Not implemented yet for HDF5 connectivities. "       \
-          "%s %d",#var,var);
+
         TGETOPTDEF(thash,int,additional_props,0);
         nelprops_add = additional_props;
         TGETOPTDEF(thash,int,additional_iprops,0);
         neliprops_add = additional_iprops;
 
-        CHECKVAR(nelprops);
+        // Reading per element property  w/HDF5
+        if (nelprops>0) {
+          dvector<double> dvprops;
+          TGETOPTDEF_S(thash,string,dataprops,NONE);
+          PETSCFEM_ASSERT(dataprops!="NONE",
+                          "dataprops entry is required if use_hdf5 and "
+                          "nelprops>0. nelprops: %d",nelprops);  
+          h5_dvector_read(dataprops.c_str(),dvprops);
+          dvprops.defrag();
+          printf("dataprops read %d doubles\n",dvprops.size());
+          int sz = dvprops.size();
+          PETSCFEM_ASSERT(sz==nelem*nelprops,
+                          "Bad dataprops size %d, nelem %d, nelprops %d",
+                          sz,nelem,nelprops);
+          // reading element properties
+          for (int k=0; k<nelem; k++) 
+            for (int jprop=0; jprop<nelprops; jprop++) 
+              ELEMPROPS(k,jprop) = dvprops.e(k,jprop);
+        }
+
+        // Check that other 'per element' properties are
+        // void, because until it is implemented in HDF5
+#define CHECKVAR(var) PETSCFEM_ASSERT(var==0,                      \
+          "Not implemented yet for HDF5 connectivities. "       \
+          "%s %d",#var,var);
         CHECKVAR(neliprops);
         CHECKVAR(nelprops_add);
         CHECKVAR(neliprops_add);
-        // PETSCFEM_ASSERT(nelprops==0,
-        //                 "nelprops>0 not implemented yet "
-        //                 "for HDF5 connectivities. nelprops %d",nelprops);
       } else {
         const char *data=NULL;
         thash->get_entry("data",data);
