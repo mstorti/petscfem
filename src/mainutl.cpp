@@ -70,7 +70,7 @@ int read_hash_table(FileStack *& fstack,TextHashTable *& thash) {
       thash->add_entry(key,val);
     }
   }
-  g_hash_table_freeze(thash->hash);
+  // g_hash_table_freeze(thash->hash);
   return 0;
 }
 #endif

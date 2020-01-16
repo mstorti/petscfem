@@ -303,7 +303,7 @@ void TextHashTable::read(FileStack *& fstack) {
 		  "%s:%d: at (or after) line: \"%s\"",fstack->file_name(),
 		  fstack->line_number(),
 		  fstack->line_read());
-  g_hash_table_freeze(hash);
+  // g_hash_table_freeze(hash);
 }
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 

@@ -226,30 +226,37 @@ int read_mesh(Mesh *& mesh,char *fcase,Dofmap *& dofmap,
       thash = mesh->nodedata->options;
       TGETOPTDEF(thash,int,use_hdf5,0);
       if (use_hdf5) {
-        PETSCFEM_ASSERT(size==1,"H5 read coords. Not implemented "
-                        "yet MPI size>1. Size=%d",size);
+        // PETSCFEM_ASSERT(size==1,"H5 read coords. Not implemented "
+        //                 "yet MPI size>1. Size=%d",size);
         TGETOPTDEF_S(thash,string,data,NONE);
         PETSCFEM_ASSERT0(data!="NONE","data entry is required if use_hdf5");  
         // TGETOPTDEF_S(thash,string,dset,NONE);
         // PETSCFEM_ASSERT0(dset!="NONE","dset entry is required if use_hdf5");  
         dvector<double> dvxnod;
-
-        h5_dvector_read(data.c_str(),dvxnod);
-        dvxnod.defrag();
-        printf("read %d doubles\n",dvxnod.size());
-        nnod = dvxnod.size();
-        PETSCFEM_ASSERT(nnod%nu==0,
-                        "bad size HDF5 xnod size %d",nnod);  
+        if (!myrank) {
+          // Read the vector in the master
+          h5_dvector_read(data.c_str(),dvxnod);
+          dvxnod.defrag();
+          printf("read %d doubles\n",dvxnod.size());
+          nnod = dvxnod.size();
+          PETSCFEM_ASSERT(nnod%nu==0,
+                          "bad size HDF5 xnod size %d",nnod);
+        }
+        ierr = MPI_Bcast(&nnod,1,MPI_INT,0,PETSCFEM_COMM_WORLD);
+        CHKERRQ(ierr);
         nnod /= nu;
-        dvxnod.reshape(2,nnod,nu);
         mesh->nodedata->nodedata = new double[nnod*nu];
         dofmap->nnod = nnod;
         mesh->nodedata->nnod = nnod;
-        for (node=0; node<nnod; node++) {
-          for (int kk=0; kk<nu; kk++) 
-            NODEDATA(node,kk) = dvxnod.e(node,kk);
+        if (!myrank) {
+          for (node=0; node<nnod; node++) {
+            for (int kk=0; kk<nu; kk++) 
+              NODEDATA(node,kk) = dvxnod.e(node,kk);
+          }
         }
         dvxnod.clear();
+        ierr = MPI_Bcast (mesh->nodedata->nodedata,nnod*nu,
+                          MPI_DOUBLE,0,PETSCFEM_COMM_WORLD);
       } else {
         AutoString datas;
         datas.set(data).deblank();
@@ -377,7 +384,7 @@ int read_mesh(Mesh *& mesh,char *fcase,Dofmap *& dofmap,
 	  strcpy(key,prop_name);
 	  g_hash_table_insert (props,(void *)key,phe);
 	}
-	g_hash_table_freeze(props);
+	// g_hash_table_freeze(props);
       }
       nelprops = posit;
 
@@ -414,7 +421,7 @@ int read_mesh(Mesh *& mesh,char *fcase,Dofmap *& dofmap,
 	  strcpy(key,token);
 	  g_hash_table_insert (props,(void *)key,phe);
 	}
-	g_hash_table_freeze(props);
+	// g_hash_table_freeze(props);
 	delete[] buf;
       }
 
@@ -439,37 +446,43 @@ int read_mesh(Mesh *& mesh,char *fcase,Dofmap *& dofmap,
       double *elemprops = NULL;
       int *elemiprops = NULL;
       if (use_hdf5) {
-        PETSCFEM_ASSERT(size==1,"Not implemented yet MPI size>1. Size=%d",size);
+        // PETSCFEM_ASSERT(size==1,"Not implemented yet MPI size>1. Size=%d",size);
         TGETOPTDEF_S(thash,string,data,NONE);
         PETSCFEM_ASSERT0(data!="NONE","data entry is required if use_hdf5");  
         // TGETOPTDEF_S(thash,string,dset,NONE);
         // PETSCFEM_ASSERT0(dset!="NONE","dset entry is required if use_hdf5");  
         dvector<int> dvicone;
-        h5_dvector_read(data.c_str(),dvicone);
-        dvicone.defrag();
-        printf("read %d ints\n",dvicone.size());
-        nelem = dvicone.size();
+        if (!myrank) {
+          h5_dvector_read(data.c_str(),dvicone);
+          dvicone.defrag();
+          printf("read %d ints\n",dvicone.size());
+          nelem = dvicone.size();
+          PETSCFEM_ASSERT(nelem%nel==0,
+                          "bad elemset HDF5 dataset size, "
+                          "size %d, nel %d",nelem,nel);  
+          nelem /= nel;
+        }
+        ierr = MPI_Bcast(&nelem,1,MPI_INT,0,PETSCFEM_COMM_WORLD);
 
         elemprops = new double[nelem*nelprops];
         elemiprops = new int[nelem*neliprops];
-        icone = new int[nel*nelem];
-        
-        PETSCFEM_ASSERT(nelem%nel==0,
-                        "bad elemset HDF5 dataset size, "
-                        "size %d, nel %d",nelem,nel);  
-        nelem /= nel;
-        dvicone.reshape(2,nelem,nel);
-        for (iele=0; iele<nelem; iele++) {
-          for (int kk=0; kk<nel; kk++) {
-            node = dvicone.e(iele,kk);
-            ICONE(iele,kk) = node;
-            for (int kdof=1; kdof<=ndof; kdof++) {
-              edof = dofmap->edof(node,kdof);
-              dofmap->id->set_elem(edof,edof,1.);
+        icone = new int[nelem*nel];
+
+        if (!myrank) {
+          dvicone.reshape(2,nelem,nel);
+          for (iele=0; iele<nelem; iele++) {
+            for (int kk=0; kk<nel; kk++) {
+              node = dvicone.e(iele,kk);
+              ICONE(iele,kk) = node;
+              for (int kdof=1; kdof<=ndof; kdof++) {
+                edof = dofmap->edof(node,kdof);
+                dofmap->id->set_elem(edof,edof,1.);
+              }
             }
           }
+          dvicone.clear();
         }
-        dvicone.clear();
+        ierr = MPI_Bcast(icone,nelem*nel,MPI_INT,0,PETSCFEM_COMM_WORLD);
 
         TGETOPTDEF(thash,int,additional_props,0);
         nelprops_add = additional_props;
@@ -478,22 +491,27 @@ int read_mesh(Mesh *& mesh,char *fcase,Dofmap *& dofmap,
 
         // Reading per element property  w/HDF5
         if (nelprops>0) {
-          dvector<double> dvprops;
-          TGETOPTDEF_S(thash,string,dataprops,NONE);
-          PETSCFEM_ASSERT(dataprops!="NONE",
-                          "dataprops entry is required if use_hdf5 and "
-                          "nelprops>0. nelprops: %d",nelprops);  
-          h5_dvector_read(dataprops.c_str(),dvprops);
-          dvprops.defrag();
-          printf("dataprops read %d doubles\n",dvprops.size());
-          int sz = dvprops.size();
-          PETSCFEM_ASSERT(sz==nelem*nelprops,
-                          "Bad dataprops size %d, nelem %d, nelprops %d",
-                          sz,nelem,nelprops);
-          // reading element properties
-          for (int k=0; k<nelem; k++) 
-            for (int jprop=0; jprop<nelprops; jprop++) 
-              ELEMPROPS(k,jprop) = dvprops.e(k,jprop);
+          if (!myrank) {
+            dvector<double> dvprops;
+            TGETOPTDEF_S(thash,string,dataprops,NONE);
+            PETSCFEM_ASSERT(dataprops!="NONE",
+                            "dataprops entry is required if use_hdf5 and "
+                            "nelprops>0. nelprops: %d",nelprops);  
+            h5_dvector_read(dataprops.c_str(),dvprops);
+            dvprops.defrag();
+            // printf("dataprops read %d doubles\n",dvprops.size());
+            int sz = dvprops.size();
+            PETSCFEM_ASSERT(sz==nelem*nelprops,
+                            "Bad dataprops size %d, nelem %d, nelprops %d",
+                            sz,nelem,nelprops);
+            // reading element properties
+            for (int k=0; k<nelem; k++) 
+              for (int jprop=0; jprop<nelprops; jprop++) 
+                ELEMPROPS(k,jprop) = dvprops.e(k,jprop);
+            dvprops.clear();
+          }
+          ierr = MPI_Bcast(elemprops,nelem*nelprops,MPI_DOUBLE,0,
+                           PETSCFEM_COMM_WORLD);
         }
 
         // Check that other 'per element' properties are
