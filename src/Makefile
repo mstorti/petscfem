@@ -118,7 +118,7 @@ ifeq (1,0)
 ## Generates automatic code for fast implementation of DGEMM 
 ## a.k.a. FMGEMM library
 fmgemmcode.h fmgemmdefs.h fmgemmload.h: mkfmgemm.pl
-	$<
+	./$<
 endif
 
 # This doesn't compile with -O2

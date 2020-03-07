@@ -170,6 +170,8 @@ assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
   }
   //o Add LES for this particular elemset.
   SGETOPTDEF(int,LES,0);
+  //o Add LES/SUPG interaction for this particular elemset.
+  SGETOPTDEF(int,les_supg_interaction,0);
   //o Cache  #grad_div_u#  matrix
   SGETOPTDEF(int,cache_grad_div_u,0);
   //o Smagorinsky constant.
@@ -238,7 +240,7 @@ assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
 
   FMatrix Jaco(ndim,ndim),iJaco(ndim,ndim),
     grad_u(ndim,ndim),grad_u_star,strain_rate(ndim,ndim),resmom(nel,ndim),
-    dresmom(nel,ndim),matij(ndof,ndof),Uintri,svec;
+    dresmom(nel,ndim),matij(ndof,ndof),Uintri,svec,tmples(ndim,ndim),tmples2(ndim,ndim),tmples3(nel,ndim);
 
   FMatrix grad_p_star(ndim),u,u_star,du,
     uintri(ndim),rescont(nel),dmatu(ndim),ucols,ucols_new,
@@ -496,7 +498,7 @@ assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
 	}
 
 	// Smagorinsky turbulence model
-	double nu_eff=NAN,van_D=NAN,ywall=NAN;
+	double nu_eff=NAN,van_D=NAN,ywall=NAN,nu_t=NAN;
 	if (LES) {
 	  double tr = (double) tmp15.prod(strain_rate,strain_rate,-1,-2,-1,-2);
 	  //	  double van_D;
@@ -507,10 +509,11 @@ assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
 	    van_D = 1.-exp(-y_plus/A_van_Driest);
 	  } else van_D = 1.;
 	  
-	  double nu_t = square(C_smag*Delta*van_D)*sqrt(2*tr);
+	  nu_t = square(C_smag*Delta*van_D)*sqrt(2*tr);
 	  nu_eff = VISC + nu_t;
 	} else {
 	  nu_eff = VISC;
+	  nu_t = 0.0;
 	}
 
 	if (print_van_Driest && (k % 1==0)) 
@@ -634,7 +637,17 @@ assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
 	  tmp11.prod(shape,grad_p_star,1,2).add(tmp6);
 	  resmom.axpy(tmp11,-wpgdet);
 	}
-
+	
+	if (LES && les_supg_interaction) {
+	  double nu_str = nu_t - tau_supg * square(velmod);
+	  if (nu_str < 0.0) nu_str = 0.0;
+	  nu_str -= nu_t;
+	  tmples.prod(svec,svec,1,2).scale(2.*nu_str);
+	  tmples2.prod(strain_rate,tmples,1,-1,-1,2);
+	  tmples3.prod(tmples2,dshapex,2,-1,-1,1);
+	  resmom.axpy(tmples3,-wpgdet);
+	}
+	
 	// SUPG perturbation - momentum
 	tmp3.set(grad_p_star).axpy(dmatu,rho);
 	tmp4.prod(P_supg,tmp3,1,2);
