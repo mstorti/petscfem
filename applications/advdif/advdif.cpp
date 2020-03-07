@@ -266,6 +266,15 @@ int advdif_main(int argc,char **args) {
   //o Flag for launching RENORM process
   GETOPTDEF(int,RENORM_flag,0);
 
+  //o Flag for volume conservation in ALE
+  GETOPTDEF(int,VCONS_ALE,0);
+  //o Total initial volume for reference - volume conservation - ALE FS
+  TGETOPTDEF(GLOBAL_OPTIONS,double,initial_volume,0.);
+  //o Free surface horizontal projection - volume conservation - ALE FS
+  TGETOPTDEF(GLOBAL_OPTIONS,double,efs,0.);
+  //o Volume control coefficient - volume conservation - ALE FS
+  TGETOPTDEF(GLOBAL_OPTIONS,double,Cvol_ale,0.1);
+
   comp_mat_each_time_step_g = 
     consistent_supg_matrix || local_time_step;
 
@@ -420,6 +429,29 @@ int advdif_main(int argc,char **args) {
     if (RENORM_flag)
       ierr = read_vector("state-ren.tmp",x,dofmap,MY_RANK); CHKERRA(ierr);
 
+    // Volume preservation in ALE
+    if ((VCONS_ALE) && (tstep>2)){
+      FILE *fd; // File pointer
+      char buff[1024];
+      
+      if ((fd = fopen("gather.out", "r")) != NULL) // open file
+	{
+	  fseek(fd, -18, SEEK_END); 
+	  //	  fseek(fd, 0, SEEK_SET); // make sure start from 0
+	  
+	  while(!feof(fd))
+	    {
+	      memset(buff, 0x00, 1024); // clean buffer
+	      fscanf(fd, "%[^\n]\n", buff); // read file 
+	    }
+	  printf("Current volume :: %s\n", buff);
+	  double current_volume = atof(buff);
+	  double delta_eta_V = (current_volume - initial_volume)/efs;
+	  ierr = VecShift(x,-Cvol_ale*delta_eta_V); CHKERRA(ierr);
+	  PetscPrintf(PETSCFEM_COMM_WORLD,"Delta eta %.10f \n",-0.1*delta_eta_V);
+	}
+      fclose(fd);
+    }
     ierr = VecCopy(x,xold);
     //    hook_list.time_step_pre(time_star.time(),tstep);
     hook_list.time_step_pre(time.time()+Dt,tstep); //hook needs t_{n+1}

@@ -13,20 +13,40 @@
 
 #define GETOPT_PROP(type,name,default) elemset->get_prop(name##_prop,#name) //nd
 
+class AJacsm {
+public:
+  virtual ~AJacsm() { }
+public:
+  virtual void comp_A_grad_N(FastMat2 & A,FastMat2 & B)=0;
+  virtual void comp_A_grad_U(FastMat2 & A,FastMat2 & B)=0;
+  virtual void comp_A_jac_n(FastMat2 &A_jac_n, FastMat2 &normal)=0;
+  virtual void comp_Uintri(FastMat2 & A,FastMat2 & B)=0;
+  virtual void comp_flux(FastMat2 & A,FastMat2 & B) =0 ;
+  virtual void comp_vel_per_field(FastMat2 &vel_per_field)=0;
+  virtual void comp_vel_vec_per_field(FastMat2 &vel_vec_per_field) {
+    assert("Not defined comp_vel_vec_per_field() fun.");
+  }
+};
+
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 /** The flux function for flow in a channel with arbitrary shape and
     using the Kinematic Wave Model.
 */ 
 class smoke_ff : public AdvDifFFWEnth {
 private:
-  int ndim, use_nodal_vel, nodal_vel_indx;
+  int ndim, use_nodal_vel, nodal_vel_indx, fs_advdif_supg;
   Property u_prop, G_prop;
   double phi, omega, drdphi, Cr, phieq, diff_max, diff, 
-    tau_fac, diffusivity0;
-  FastMat2 u, U, Cp, W_N, A, Uintri, tmp2, tmp0, tmp3;
+    tau_fac, diffusivity0, Dt;
+  FastMat2 u, s, U, Cp, W_N, A, Uintri, tmp2, tmp0, tmp3;
   int nel,ndof,nelprops;
-  ElementIterator element_m;
+  ElementIterator element;
+  const double *advjac;
+  Property advective_jacobians_prop;
   FastMat2Tmp tmp;
+
+  //  AJacsm *a_jac;
+
 public:
   smoke_ff(const NewElemset *e) : AdvDifFFWEnth(e) {}
   ~smoke_ff();

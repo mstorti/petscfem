@@ -14,9 +14,12 @@ MPIEXEC:= mpiexec
 ## PETSc
 ## -----
 ifeq ($(PETSC_DIR),)
-PETSC_DIR := /usr/local/petsc/3.0.0
+PETSC_DIR := /usr/local/petsc/3.1
 endif
 
+PETSC_ARCH := linux-gnu
+PETSC_ARCH_g := linux-gnu
+PETSC_ARCH_O := linux-gnu-O
 
 ## OTHERS
 ## ------
@@ -32,7 +35,7 @@ endif
 GLIB_INC_CFG = ${GLIB_LIB_DIR}/glib-2.0/include
 GLIB_LIBNAME = glib-2.0
 
-PF_PKG_DIR = $(PETSCFEM_DIR)/../../petscfem-packages
+PF_PKG_DIR = $(PETSCFEM_DIR)/../petscfem-packages
 ANN      = $(PF_PKG_DIR)
 LIBRETTO = $(PF_PKG_DIR)
 MESCHACH = $(PF_PKG_DIR)
@@ -101,12 +104,7 @@ SMC =
 # generate the doc.
 LATEX2HTML = /usr/local/latex2html/latex2html
 
-PETSC_DIR := /home/mstorti/PETSC/petsc-3.0.0-p5
-PETSC_ARCH := linux-mkl
-PETSC_ARCH_g := linux-mkl
-PETSC_ARCH_O := linux-mkl
 DEVELOPER_MODE := yes
 
-MKLPATH := /opt/intel/composerxe-2011.2.137/mkl/lib/intel64
-ATLAS_INC_DIR := 
-ATLAS_LIB_DIR := 
+ATLAS_INC_DIR := /usr/include/atlas
+ATLAS_LIB_DIR := /usr/lib64/atlas

@@ -13,6 +13,9 @@ void smoke_ff::start_chunk(int &ret_options) {
   // Get element integer props
   elemset->elem_params(nel,ndof,nelprops);
 
+  //o Time step
+  TGETOPTDEF_ND(GLOBAL_OPTIONS,double,Dt,0);
+  //  printf("delta t %f\n",Dt);
   //o Frequency of oscillating local source. 
   EGETOPTDEF_ND(elemset,double,omega,0.);
   //o Coefficient scaling the reaction 
@@ -26,20 +29,31 @@ void smoke_ff::start_chunk(int &ret_options) {
   //o Use nodal velocities
   EGETOPTDEF_ND(elemset,int,use_nodal_vel,0);
 
+  //o FS stabilization
+  EGETOPTDEF_ND(elemset,int,fs_advdif_supg,0);
+
   //o Index of velocity in the H fields
   EGETOPTDEF_ND(elemset,int,nodal_vel_indx,1);
 
   if (!use_nodal_vel) {
+    //   elemset->get_prop(advective_jacobians_prop,"advective_jacobians");
+   // int a = advective_jacobians_prop.length; 
+   // printf("advective jacobians prop length %d\n", a);
     elemset->get_prop(u_prop,"u");
     PETSCFEM_ASSERT0(u_prop.length==ndim,
                      "u property must have length ndim");  
+
   }
 
-  elemset->get_prop(G_prop,"G");
-  PETSCFEM_ASSERT0(G_prop.length==0 || G_prop.length==2,
-                   "G property, if given, must have length 2");  
-  u.resize(1,ndim);
+  if (!fs_advdif_supg){
+    elemset->get_prop(G_prop,"G");
+    PETSCFEM_ASSERT0(G_prop.length==0 || G_prop.length==2,
+		     "G property, if given, must have length 2");  
+  }
 
+  u.resize(1,ndim); 
+
+    
   //o Diffusivity
   EGETOPTDEF(elemset,double,diffusivity,0.0);
   PETSCFEM_ASSERT(diffusivity>=0.0,
@@ -65,11 +79,25 @@ void smoke_ff::start_chunk(int &ret_options) {
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>
 void smoke_ff
-::element_hook(ElementIterator &element) {
+::element_hook(ElementIterator &element_) {
+
 #if 0
-  element_m = element;
-  if (!use_nodal_vel)  
-    u.set(elemset->prop_array(element_m,u_prop));
+  if (!use_nodal_vel){
+    element = element_;
+    advjac = elemset->prop_array(element,advective_jacobians_prop);
+    u.set(advjac);
+    u.print();
+  }
+#endif
+
+#if 1
+  element = element_;
+  if (!use_nodal_vel){  
+    //    double *ad = (double *)elemset->prop_array(element,u_prop);
+    //    u.set(*ad);
+    u.set(elemset->prop_array(element,u_prop));
+    //    u.print();
+  }
 #endif
 }
 
@@ -101,13 +129,23 @@ void smoke_ff::compute_flux(COMPUTE_FLUX_ARGS) {
   if (use_nodal_vel) {
     int n1 = nodal_vel_indx;
     int n2 = n1 + ndim - 1;
+    //    H.print();
     PETSCFEM_ASSERT0(H.dim(1)>=n2,"Not enough components in H field");  
     H.is(1,n1,n2);
     u.set(H);
     H.rs();
+    if (fs_advdif_supg){
+      int n3= n2+1;
+      H.is(1,n3);
+      s.set(H);
+      H.rs();
+    }
+  } else if (fs_advdif_supg) {
+    s.set(H);
   } else {
-    u.set(elemset->prop_array(element_m,u_prop));
+    u.set(elemset->prop_array(element,u_prop));
   }
+
   A.ir(2,1).ir(3,1).set(u).rs();
   double vel = sqrt(u.sum_square_all());
   double G = 0.0;
@@ -116,9 +154,13 @@ void smoke_ff::compute_flux(COMPUTE_FLUX_ARGS) {
                      "Not NewAdvDifElemset available"); 
     double t = new_adv_dif_elemset->time();
     const double *GG 
-      = elemset->prop_array(element_m,G_prop);
+      = elemset->prop_array(element,G_prop);
     G = GG[0] * sin(omega*t) + GG[1] * cos(omega*t);
   }
+  if (fs_advdif_supg){
+    G = s.get(1);
+  }
+  
   // Convective flux
   // flux(j,mu) = A(j,mu,nu) * U(nu)
   flux.prod(A,U,2,1,-1,-1);
@@ -145,7 +187,7 @@ void smoke_ff::compute_flux(COMPUTE_FLUX_ARGS) {
     // Intrinsic velocity
     Uintri.prod(iJaco,u,1,-1,-1);
     // This has scale of U/h, i.e. 1/T
-    double tau, 
+    double tau=0, 
       Uh = sqrt(Uintri.sum_square_all()),
       h = 2./sqrt(tmp0.sum_square(iJaco,1,-1).max_all());
 
@@ -157,13 +199,22 @@ void smoke_ff::compute_flux(COMPUTE_FLUX_ARGS) {
       // magic function
       double magic = (fabs(Pe)>1.e-4 ? 1./tanh(Pe)-1./Pe : Pe/3.); 
       tau = 1.0/Uh*magic;
-    } else {
+    } else if (diff>1e-10){
       // remove singularity when v=0
       tau = h*h/(12.*diff);
     }
 
+    if (0){
+      //    if (fs_advdif_supg){
+      double tau_s1 = square(2*vel/h);
+      double tau_s2 = square(2/Dt);
+      tau = 1/sqrt(tau_s1+tau_s2);
+      if (vel < 1e-6) tau = 0.0;
+    }
+
     // Set tau_(1,1) = scalar tau
     tau_supg.setel(tau_fac*tau,1,1);
+    //tau_supg.print();
   }
 }
 
