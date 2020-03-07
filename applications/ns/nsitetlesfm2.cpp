@@ -66,7 +66,8 @@ assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
   int nen = nel*ndof;
 
   // Unpack Dofmap
-  int *ident,nnod;
+  int *ident,neq,nnod;
+  neq = dofmap->neq;
   nnod = dofmap->nnod;
 
   // Unpack nodedata
@@ -137,7 +138,7 @@ assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
   // allocate local vecs
   int kdof;
   FastMat2 veccontr(2,nel,ndof),xloc(2,nel,ndim),locstate(2,nel,ndof), 
-    locstate2(2,nel,ndof),xpg,G_body(1,ndim),
+    locstate2(2,nel,ndof),G_body(1,ndim),
     vrel;
 
   if (ndof != ndim+1) {
@@ -170,12 +171,12 @@ assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
   }
   //o Add LES for this particular elemset.
   SGETOPTDEF(int,LES,0);
-  //o Add LES/SUPG interaction for this particular elemset.
-  SGETOPTDEF(int,les_supg_interaction,0);
   //o Cache  #grad_div_u#  matrix
   SGETOPTDEF(int,cache_grad_div_u,0);
   //o Smagorinsky constant.
-  SGETOPTDEF(double,C_smag,0.18); // Dijo Beto
+  TGETOPTDEF(thash,double,C_smag,0.18); // Dijo Beto
+  //o Mixing length for moving meshes. 
+  TGETOPTDEF(thash,double,lmix,0.); 
   //o van Driest constant for the damping law.
   SGETOPTDEF(double,A_van_Driest,0); 
   assert(A_van_Driest>=0.);
@@ -212,7 +213,6 @@ assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
   G_body.set(0.);
   ierr = get_double(thash,"G_body",
 		    G_body.storage_begin(),1,ndim);
-
   double pi = 4*atan(1.0);
 
   DEFPROP(viscosity);
@@ -226,6 +226,32 @@ assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
   TGETOPTDEF_S(thash,string,geometry,cartesian2d);
   //GPdata gp_data(geom,ndim,nel,npg);
   GPdata gp_data(geometry.c_str(),ndim,nel,npg,GP_FASTMAT2);
+  //o Maximum viscosities for mu_eff in LES
+  TGETOPTDEF(thash,double,mu_max,0.1);
+
+  // Parameters for FS absorbing layer (FSABSO)
+  //o Intensity factor for FS absorbing layer
+  TGETOPTDEF(thash,double,fsabso_K,0.0);
+  //o Activates or deactivates the use of FS abso layer
+  TGETOPTDEF(thash,int,use_fsabso,fsabso_K!=0.0);
+  // Parameters for FS absorbing layer (FSABSO)
+  //o Reference height for FS absorbing layer
+  TGETOPTDEF(thash,double,fsabso_h0,0.0);
+  //o The mean velocity at the boundary, for the absorbing layer
+  TGETOPTDEF(thash,double,fsabso_u0,0.0);
+  //o The atmospheric pressure
+  TGETOPTDEF(thash,double,fsabso_patm,0.0);
+  //o The direction normal to the boundary
+  TGETOPTDEF(thash,int,fsabso_normal_dir,1);
+  //o The starting x-coordinate of the absorbing elements
+  TGETOPTDEF(thash,double,fsabso_initial_coordinate,0.0);
+  //o The transition width
+  TGETOPTDEF(thash,double,fsabso_trans_length,0.0);
+
+  double gravity = G_body.norm_2_all();
+
+  double fsabso_c0 = sqrt(gravity*fsabso_h0);
+  // End parameters for FS absorbing layer
 
   // Definiciones para descargar el lazo interno
   double detJaco, UU, u2, Peclet, psi, tau_supg, tau_pspg, div_u_star,
@@ -240,14 +266,15 @@ assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
 
   FMatrix Jaco(ndim,ndim),iJaco(ndim,ndim),
     grad_u(ndim,ndim),grad_u_star,strain_rate(ndim,ndim),resmom(nel,ndim),
-    dresmom(nel,ndim),matij(ndof,ndof),Uintri,svec,tmples(ndim,ndim),tmples2(ndim,ndim),tmples3(nel,ndim);
+    dresmom(nel,ndim),matij(ndof,ndof),Uintri,svec;
 
   FMatrix grad_p_star(ndim),u,u_star,du,
     uintri(ndim),rescont(nel),dmatu(ndim),ucols,ucols_new,
     ucols_star,pcol_star,pcol_new,pcol,fm_p_star,tmp1,tmp2,tmp3,tmp4,tmp5,tmp6,
     massm,tmp7,tmp8,tmp9,tmp10,tmp11,tmp13,tmp14,tmp15,dshapex_c,xc,
     wall_coords(ndim),dist_to_wall,tmp16,tmp162,tmp17,tmp18,tmp19;
-  FastMat2 tmp20(2,nel,nel),tmp21,vel_supg;
+  FastMat2 tmp20(2,nel,nel),tmp21,tmp22,tmp23,tmp24,vel_supg;
+  FastMat2 H(2,ndof,ndof);
 
   double tmp12;
   double tsf = temporal_stability_factor;
@@ -257,6 +284,16 @@ assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
   FMatrix Jaco_axi(2,2),u_axi;
   int ind_axi_1, ind_axi_2;
   double detJaco_axi;
+
+  // FS abso parameters
+  FastMat2 fsabso_nor(1,ndim),fsabso_nor2(1,ndim),fsabso_nor3(1,ndim),
+    tmp32,tmp31,tmp33,xcoord(1,ndim);
+  
+  // FIXME:= sets FS abso normal to the boundary
+  fsabso_nor.set(0.0).setel(1.0,fsabso_normal_dir);
+  fsabso_nor2.set(0.0).setel(1.0,fsabso_normal_dir);
+  fsabso_nor3.set(0.0).setel(1.0,fsabso_normal_dir);
+  // FS abso parameters
          
   if (axi) assert(ndim==3);
 
@@ -388,7 +425,7 @@ assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
       assert(nH >= ndim);
       assert(indx_ALE_xold >= nH+1-ndim);
       Hloc.is(2,indx_ALE_xold,indx_ALE_xold+ndim-1);
-      vloc_mesh.set(xloc).minus(Hloc).scale(rec_Dt).rs();
+      vloc_mesh.set(xloc).rest(Hloc).scale(rec_Dt).rs();
       Hloc.rs();
     }
     
@@ -404,7 +441,7 @@ assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
       shear_vel = wall_elemset->elemprops_add[wall_elem];
 
       xc.sum(xloc,-1,1).scale(1./double(nel));
-      dist_to_wall.set(xc).minus(wall_coords);
+      dist_to_wall.set(xc).rest(wall_coords);
 
 #else
       PETSCFEM_ERROR0("Not compiled with ANN library!!\n");
@@ -445,6 +482,8 @@ assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
 	// El pow() da segmentation violation cuando corro con -O !!        
 	h_pspg = cbrt(6*Area/pi);
 	Delta = cbrt(Area);
+	// For tetras (Laura)
+	Delta = cbrt(Area/0.1179);
       } else if (ndim==3 && axi>0) {
         ind_axi_1 = (  axi   % 3)+1;
         ind_axi_2 = ((axi+1) % 3)+1;
@@ -498,30 +537,39 @@ assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
 	}
 
 	// Smagorinsky turbulence model
-	double nu_eff=NAN,van_D=NAN,ywall=NAN,nu_t=NAN;
+	double mu_eff=NAN,van_D=NAN,ywall=NAN;
 	if (LES) {
 	  double tr = (double) tmp15.prod(strain_rate,strain_rate,-1,-2,-1,-2);
 	  //	  double van_D;
 	  if (A_van_Driest>0.) {
-	    //	    dist_to_wall.prod(shape,xloc,-1,-1,1).minus(wall_coords);
+	    //	    dist_to_wall.prod(shape,xloc,-1,-1,1).rest(wall_coords);
 	    ywall = sqrt(dist_to_wall.sum_square_all());
 	    double y_plus = ywall*shear_vel/VISC;
 	    van_D = 1.-exp(-y_plus/A_van_Driest);
 	  } else van_D = 1.;
-	  
-	  nu_t = square(C_smag*Delta*van_D)*sqrt(2*tr);
-	  nu_eff = VISC + nu_t;
+	  double nu_t = 0.0; 
+	  if (lmix>0) {
+	    nu_t = SQ(lmix*van_D)*sqrt(2*tr);
+	  } else {
+	    nu_t = SQ(C_smag*Delta*van_D)*sqrt(2*tr);
+	  }
+	  mu_eff = VISC + rho*nu_t; 
+	  if (mu_eff>mu_max) {
+	    mu_eff = mu_max;
+	  }
 	} else {
-	  nu_eff = VISC;
-	  nu_t = 0.0;
+	  mu_eff = VISC;
 	}
+      	// if (rand()%25000==0) {// debugger
+      	//   printf("elem %d, mu_eff %g, C_smag %g, rho %g\n",elem,mu_eff,C_smag,rho);
+	// } 
 
 	if (print_van_Driest && (k % 1==0)) 
-	  printf("element %d , y: %f,van_D: %f, nu_eff: %f\n",
-		 ielh, ywall, van_D,nu_eff);
+	  printf("element %d , y: %f,van_D: %f, mu_eff: %f\n",
+		 ielh, ywall, van_D,mu_eff);
 
 
-	vel_supg.set(u).minus(v_mesh).rs();
+	vel_supg.set(u).rest(v_mesh).rs();
 
 	/*
 	  u2 = vel_supg.sum_square_all();
@@ -539,7 +587,9 @@ assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
 	u2 = vel_supg.sum_square_all();
 	
 #ifdef STANDARD_UPWIND
-	
+
+	double nu_eff = mu_eff/rho;
+
 	velmod = sqrt(u2);
         tol=1.0e-16;
         h_supg=0;
@@ -609,45 +659,85 @@ assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
 
 	// implicit version - General Trapezoidal rule - parameter alpha
 #ifdef ADD_GRAD_DIV_U_TERM
-	vrel.set(u_star).minus(v_mesh).rs();
+	vrel.set(u_star).rest(v_mesh).rs();
 	//	dmatu.prod(u_star,grad_u_star,-1,-1,1);
 	dmatu.prod(vrel,grad_u_star,-1,-1,1);
 #else
-	vrel.set(u).minus(v_mesh).rs();
+	vrel.set(u).rest(v_mesh).rs();
 	//	dmatu.prod(u,grad_u_star,-1,-1,1);
 	dmatu.prod(vrel,grad_u_star,-1,-1,1);
 #endif
 	
-	du.set(u_star).minus(u);
-	dmatu.axpy(du,rec_Dt/alpha).minus(G_body);
+	du.set(u_star).rest(u);
+	dmatu.axpy(du,rec_Dt/alpha).rest(G_body);
 	
 	div_u_star = double(tmp10.prod(dshapex,ucols_star,-1,-2,-2,-1));
 
+        double fsabso_cont = 0.0;
+	// Transition function value
+	double fsabso_trfct = 1.0;
+	xcoord.set(0.); // xcoord es la componente, no la coordenada
+	xcoord.ir(1,1).set(1.0).rs();
+
+        if (use_fsabso) {
+          tmp32.prod(u_star,fsabso_nor,-1,-1);
+          double du = double(tmp32) - fsabso_u0; // en velocidad paralela a u0
+          tmp31.prod(xloc,shape,G_body,-1,-2,-1,-2); 
+          double zpg = -double(tmp31)/gravity; // gp vertical coordinate
+	  double pres;
+      	  pres = double(tmp22.prod(shape,pcol_star,-1,-1));
+	  pcol_star.rs();
+	  double p_ref; // reference pressure
+
+
+	  p_ref = (fsabso_h0-zpg)*rho*gravity; 
+          double deta 
+            = (pres - p_ref)/((rho)*gravity);
+
+#if 0
+          fsabso_cont = fsabso_h0*(fsabso_u0-fsabso_c0)
+            *(deta/fsabso_h0-du/fsabso_c0);
+          double fsabso_mom = fsabso_c0*(fsabso_u0-fsabso_c0)
+            *(deta/fsabso_h0-du/fsabso_c0);
+#else
+          fsabso_cont = -deta/fsabso_h0;
+          double fsabso_mom = du;
+#endif
+	  double xpg_abso,xnorm,xmax_tran; 
+	  tmp33.prod(xloc,shape,xcoord,-1,-2,-1,-2); 
+	  xpg_abso = double(tmp33);
+	  xmax_tran = fsabso_initial_coordinate + fsabso_trans_length;
+
+	  if (xpg_abso < xmax_tran ){
+	    assert(fsabso_trans_length > 0);
+	    xnorm = (xpg_abso-fsabso_initial_coordinate)/fsabso_trans_length;
+	    fsabso_trfct = (3-2*xnorm)*xnorm*xnorm;
+	    //fsabso_trfct = 1; // for debugging
+	  }
+
+	  // proyecta en dirección de la normal 
+#if 0
+	  dmatu.axpy(fsabso_nor,0.5*fsabso_trfct*fsabso_K*fsabso_mom); 
+#else
+	  dmatu.axpy(fsabso_nor,fsabso_trfct*fsabso_K*fsabso_mom); 
+#endif
+        }
+
 	// Galerkin - momentum
 	// resmom tiene que tener nel*ndim
-	dresmom.prod(shape,dmatu,1,2).rs();
+	dresmom.prod(shape,dmatu,1,2).rs(); // para qué el rs?
 	resmom.axpy(dresmom,-wpgdet * rho);
 
 	if (weak_form) {
-	  tmp1.set(strain_rate).scale(2*nu_eff).axpy(eye,-p_star);
+	  tmp1.set(strain_rate).scale(2*mu_eff).axpy(eye,-p_star);
 	  tmp2.prod(dshapex,tmp1,-1,1,-1,2);
 	  resmom.axpy(tmp2,-wpgdet);
 	} else {
-	  tmp6.prod(dshapex,strain_rate,-1,1,-1,2).scale(2*nu_eff);
+	  tmp6.prod(dshapex,strain_rate,-1,1,-1,2).scale(2*mu_eff);
 	  tmp11.prod(shape,grad_p_star,1,2).add(tmp6);
 	  resmom.axpy(tmp11,-wpgdet);
 	}
-	
-	if (LES && les_supg_interaction) {
-	  double nu_str = nu_t - tau_supg * square(velmod);
-	  if (nu_str < 0.0) nu_str = 0.0;
-	  nu_str -= nu_t;
-	  tmples.prod(svec,svec,1,2).scale(2.*nu_str);
-	  tmples2.prod(strain_rate,tmples,1,-1,-1,2);
-	  tmples3.prod(tmples2,dshapex,2,-1,-1,1);
-	  resmom.axpy(tmples3,-wpgdet);
-	}
-	
+
 	// SUPG perturbation - momentum
 	tmp3.set(grad_p_star).axpy(dmatu,rho);
 	tmp4.prod(P_supg,tmp3,1,2);
@@ -658,7 +748,15 @@ assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
 	dshapex.rs();
 
 	// Galerkin - continuity
-	rescont.axpy(shape,wpgdet*div_u_star);
+        if (use_fsabso) {
+#if 0
+	  rescont.axpy(shape,wpgdet*(div_u_star-0.5*fsabso_trfct*fsabso_K*fsabso_cont/fsabso_h0));
+#else
+	  rescont.axpy(shape,wpgdet*(div_u_star-fsabso_trfct*fsabso_K*fsabso_cont));
+#endif
+	} else {
+	  rescont.axpy(shape,wpgdet*div_u_star);
+	}
 
 	// PSPG perturbation - continuity
 	tmp5.prod(P_pspg,tmp3,-1,1,-1);
@@ -682,12 +780,12 @@ assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
 	matlocmom.prod(W_supg,massm,1,2).scale(rho);
 
 	//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
-	//	vrel.set(u_star).minus(v_mesh).rs();
+	//	vrel.set(u_star).rest(v_mesh).rs();
 
 	// diffusive part
-	//	vrel.set(u).minus(v_mesh).rs();
+	//	vrel.set(u).rest(v_mesh).rs();
 	tmp7.prod(dshapex,dshapex,-1,1,-1,2);
-	matlocmom.axpy(tmp7,nu_eff);
+	matlocmom.axpy(tmp7,mu_eff);
 
 	// dmatw =  rho * ((1/Dt)*shape + u * dshapex);
 	dmatw.set(massm).scale(rho);
@@ -720,25 +818,51 @@ assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
 	  }
 	  matlocf.ir(2,ndof).is(4,1,ndim);
 	  tmp17.prod(P_pspg,dmatw,3,1,2).scale(wpgdet);
-	  matlocf.minus(tmp17);
+	  matlocf.rest(tmp17);
 	  tmp17.prod(dshapex,shape,3,2,1).scale(wpgdet);
-	  matlocf.minus(tmp17).rs();
+	  matlocf.rest(tmp17).rs();
 
 	  matlocf.ir(2,ndof).ir(4,ndof).axpy(tmp13,-wpgdet).rs();
 
 	  if (!cache_grad_div_u) {
-            tmp19.set(dshapex).scale(nu_eff*wpgdet);
+            tmp19.set(dshapex).scale(mu_eff*wpgdet);
             tmp18.prod(dshapex,tmp19,2,3,4,1);
             matlocf.is(2,1,ndim).is(4,1,ndim).add(tmp18).rs();
             tmp19.set(dshapex).scale(delta_supg*rho*wpgdet);
             tmp18.prod(dshapex,tmp19,2,1,4,3);
             matlocf.is(2,1,ndim).is(4,1,ndim).add(tmp18).rs();
 	  } else {
-	    grad_div_u_coef += (delta_supg*rho+nu_eff)*wpgdet;
+	    grad_div_u_coef += (delta_supg*rho+mu_eff)*wpgdet;
 	    if (!grad_div_u_was_cached) {
 	      tmp18.prod(dshapex,dshapex,2,1,4,3);
 	      grad_div_u.add(tmp18);
 	    }
+	  }
+	  // Abso part
+	  H.set(0.); 
+	  if (use_fsabso) {
+	    tmp23.prod(W_supg,shape,1,2);
+#if 0	    
+	    H.ir(1,1).ir(2,1).set(-0.5);
+	    H.rs();
+	    fsabso_nor2.set(fsabso_nor);
+	    fsabso_nor3.set(fsabso_nor);
+	    H.ir(2,ndof).is(1,1,ndim).set(fsabso_nor2.scale(fsabso_c0/(2*gravity*fsabso_h0)));
+	    H.rs();
+	    H.ir(1,ndof).is(2,1,ndim).set(fsabso_nor3.scale(fsabso_h0/(2*fsabso_c0)/fsabso_h0));
+	    H.rs();
+	    H.ir(1,ndof).ir(2,ndof).set(-1.0/(2*rho*gravity)/fsabso_h0);
+	    H.rs();
+	    H.scale(fsabso_trfct*fsabso_K*(fsabso_u0-fsabso_c0));
+#else
+	    H.ir(1,1).ir(2,1).set(1);
+	    H.rs();
+	    H.ir(1,ndof).ir(2,ndof).set(1.0/(gravity*fsabso_h0));
+	    H.rs();
+	    H.scale(fsabso_trfct*fsabso_K);
+#endif
+	    tmp24.prod(tmp23,H,1,3,2,4);
+	    matlocf.axpy(tmp24,-wpgdet*rho);
 	  }
 	}
 

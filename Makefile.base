@@ -268,7 +268,8 @@ endif
 
 #w Extension functions
 %.efn: %.o
-	${CXX_CLINKER} -g -shared -Wl$(EFN_LIBRARY_PATH) -o $@ $< $(EFN_LDFLAGS)
+#	${CXX_CLINKER} -g -shared -Wl$(EFN_LIBRARY_PATH) -o $@ $< $(EFN_LDFLAGS)
+	${CXX_CLINKER} -g -shared -o $@ $< $(EFN_LDFLAGS)
 
 #w Guile snarfer files
 %.x: %.cpp
