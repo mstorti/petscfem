@@ -17614,10 +17614,10 @@ reversa). Ese commit es: mstorti-v39-start-11-g3e368557
 %
 ROLLBACK
 ;======
-. OJO chequear linea en src/Makefile:
+. DONE: OJO chequear linea en src/Makefile:
 > fem2eperl3$(osfx).o: fm2eperl3.cpp
-deberia ser fm2 no fem2!!
-. Sacar el -fpermissive en galileo:PETSC/Makefile.defs
+> deberia ser fm2 no fem2!!
+. DONE: Sacar el -fpermissive en galileo:PETSC/Makefile.defs 
 %
 No compila porque no encuentra cblas. No se si puede ser algo nuevo
 porque yo no haya recompilado PF hace un tiempo. Voy a mandar la

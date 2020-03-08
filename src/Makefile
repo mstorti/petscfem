@@ -74,7 +74,7 @@ fm2eperl2.cpp: fmat2ep2.cpp prep.pl fmat2.pl
 	if [ -e $@ ] ; then chmod +w $@ ; rm $@ ; fi
 	$(EPERL) -B '//<' -E '//>' $< > $@ ; chmod -w $@
 
-fem2eperl3$(osfx).o: fm2eperl3.cpp
+fm2eperl3$(osfx).o: fm2eperl3.cpp
 fm2eperl3.cpp: fmat2ep3.cpp prep.pl fmat2.pl
 	if [ -e $@ ] ; then chmod +w $@ ; rm $@ ; fi
 	$(EPERL) -B '//<' -E '//>' $< > $@ ; chmod -w $@
