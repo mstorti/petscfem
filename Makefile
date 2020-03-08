@@ -313,9 +313,3 @@ tags3:
 	find . -name '*.f' >> tempo.txt
 	etags `cat tempo.txt`
 	rm tempo.txt
-
-qqq:
-# 	@echo "PETSC_CPPFLAGS: $(PETSC_CPPFLAGS)"
-# 	@echo "PETSC_LDFLAGS: $(PETSC_LDFLAGS)"
-	@echo "PETSC_INCLUDE: $(PETSC_INCLUDE)"
-	@echo "PETSC_CC_INCLUDES: $(PETSC_CC_INCLUDES)"

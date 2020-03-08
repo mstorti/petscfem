@@ -17511,4 +17511,121 @@ algún flag para que no tire el error.
 Tengo problemas para usar PF en pirayu. Antes estaba andando pero
 ahora me da un error al correr. Parece que hay una inconsistencia
 entre las librerias de MPI al menos. 
+
+%>>-------------------------------------------------------------
+%>>((2020-03-06.20:03:40)(mstorti@galileo)(chimera.0-90-g99ee68f5))
+Hago un merge desde la version de Laura. La version que tengo yo en
+galileo es
+> [mstorti@galileo petscfem]$ git branch
+>   master
+> * mstorti-v39
+> [mstorti@galileo petscfem]$ git describe master
+> mstorti-v39-start-2-gc653b3f8
+> [mstorti@galileo petscfem]$ git describe mstorti-v39
+> chimera.0-90-g99ee68f5
 %
+En lbattaglia@coyote
+> [lbattaglia@coyote petscfem-ale]$ git branch
+> * master
+> [lbattaglia@coyote petscfem-ale]$ git describe
+> mstorti-v37-start-124-g5df0ab0
+> [lbattaglia@coyote petscfem-ale]$ 
+%
+Resulta que no andaba el push/pull desde aquiles:GIT/petscfem-repo a
+aquiles:/repos/git/petscfem y era porque este ultimo tiene usario
+git-user, entonces lo que hay que hacer es que el usuario ponga su
+clave publica en git-user y poner git-user@aquiles:/repos/git/petscfem
+para que funque.
+En el mismo aquiles se puede poner localhost. 
+%
+Haciendo esto veo que los master son iguales y los mstorti-v39 tambien. 
+%
+Pareceria como que el commit en lbattaglia/petscfem-ale
+
+%>>-------------------------------------------------------------
+%>>((2020-03-06.23:00:41)(mstorti@galileo)()
+En el parche de LB que va de 
+> commit 43fad90e385e02c6f4f31e0daa98fdb2748ce5d7
+> commit 081abb224911d4b9f47d50190a59f6fad4cf028d
+Todos esos commits parece que los tengo, el ultimo que no tengo es de Rodrigo Paz.
+%
+> commit 5df0ab0aec36cf6992ca9bb01a5f96fe5b8242f7
+%
+Habria que verificar que efectivamente los parches esten. Mi idea es
+tomar el repo de LB (una copia para no hacer lio) y aplicar el patch
+en un branch que arranca en 081abb22, entonces despues lo comparo con
+los descendientes de 081abb22 que va por master y vamos chequeando si
+coincide con alguno de ellos.  
+%
+Bueno al final me enrede y no pude hacer eso. Lo que si que todos los
+hunks en 43fad90e..081abb22 y tambien el final 5df0ab0a parece que
+estan incluidos en master, asi que no se bien como hacer. Voy a tratar
+de ver en que commits estan esos commits. 
+%
+Ahora se me ocurre otra posibilidad, cargar directamente los commits
+de LBCOY a aprtir de 081abb22 en un branch y que quede ahí
+aislado. Simultaneamente tratar de hacer un merge de eso en el trunk o
+mstorti-v19.  
+%
+Bueno aplico todos los parches en 081abb22 y anda todo OK. Ahora le
+voy a aplicar el parche de Laura.  
+%
+El parche final ($ git diff) o sea los cambios locales, es grandisimo
+(182kb) y afecta a muchos archivos. Para mi que ahi paso algo, es
+decir el working directory no corresponde a ese estado del repo git
+interno. 
+%
+Lo que se me ocurre es aplicar el parche y buscar cual es el commit
+mas cercano, para mi que debe haber uno bastante mas cercano. 
+%
+En realidad el parche es muy grande porque parece que en algún momento
+se cambio el chmod de muchos archivos tipo
+> diff --git a/.gitignore b/.gitignore
+> old mode 100644
+> new mode 100755
+%
+Si saco todos chmod entonces el parche es pequeño queda de 29kb a ese
+lo llamo petscfem-cases/patches/lbcoy2b.patch. 
+%
+Una vez que aplico el parche deberia haber quedado tal cual como está
+el código en lbattaglia@coyote:petscfem-ale, eso está en el branch
+lbcoy, en el commit mstorti-v39-start-8-gca24a82a. 
+%
+Aparentemente esa version se parece mas al master que a la mia
+mstorti-v39
+%
+> [mstorti@galileo petscfem]$ git diff master | wc
+>    1228    3924   40416
+> [mstorti@galileo petscfem]$ git diff mstorti-v39 | wc
+>   13120   52608  406417
+%
+Voy a probar a hacer un merge de lbcoy a master, y por lo menos ver si
+compila. Aunque lo que subiriamos a Zenodo es el commit LBCOY. 
+%
+Parece que pude mergear los branches LBCOY (el que estaba en la cuenta
+de Laura) con MASTER. El ultimo parche (lbcoy2b.patch) parece que está
+todo incorporado ya que chequeo con
+%
+> $ git apply --check -R lbcoy2b.patch
+%
+y no tira nada, quiere decir que todos los cambios que están en
+lbcoy2b.patch ya fueron aplicados (porque el parche actua bien en
+reversa). Ese commit es: mstorti-v39-start-11-g3e368557
+%
+ROLLBACK
+;======
+. OJO chequear linea en src/Makefile:
+> fem2eperl3$(osfx).o: fm2eperl3.cpp
+deberia ser fm2 no fem2!!
+. Sacar el -fpermissive en galileo:PETSC/Makefile.defs
+%
+No compila porque no encuentra cblas. No se si puede ser algo nuevo
+porque yo no haya recompilado PF hace un tiempo. Voy a mandar la
+version de master a PETSC/petscfem-cpy y que en PETSC/petscfem quede
+mstorti-v39. 
+
+%>>-------------------------------------------------------------
+%>>((2020-03-08.01:02:52)(mstorti@galileo)()
+Bueno el tem de CBLAS era lo que se hizo en el commit 
+mstorti-v39-start-26-gd4da7909 donde hay que tener en cuenta que las
+nuevas versiones de ATLAS ienen -lblas -ltatlas. 
