@@ -189,7 +189,10 @@ local_clean:: local_dist_clean
 		make-info.log pod2htm?.tmp
 
 SWDIRS := 
-local_sw:: readme 
+local_sw::
+ifeq ($(DEVELOPER_MODE),yes)
+	$(MAKE) readme
+endif
 
 #w Clean leaving PS and HTML
 local_dist_clean::

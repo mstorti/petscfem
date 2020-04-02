@@ -62,6 +62,7 @@ $(LIBPETSCFEM)(%.o): %.o
 	$(ARCMD) $@ $<
 	-rm -f $<
 
+ifeq ($(DEVELOPER_MODE),yes))
 .SECONDARY: fm2eperl.cpp
 
 fm2eperl$(osfx).o: fm2eperl.cpp
@@ -78,6 +79,7 @@ fm2eperl3$(osfx).o: fm2eperl3.cpp
 fm2eperl3.cpp: fmat2ep3.cpp prep.pl fmat2.pl
 	if [ -e $@ ] ; then chmod +w $@ ; rm $@ ; fi
 	$(EPERL) -B '//<' -E '//>' $< > $@ ; chmod -w $@
+endif
 
 ## I disable this (enable if neccessary)
 ## generation of FSM files is left to `developper' mode
