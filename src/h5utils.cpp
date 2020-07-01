@@ -102,7 +102,8 @@ void h5petsc_mat_save(Mat J, const char *filename) {
 }
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>
-int h5petsc_vec_save(Vec x,const char *filename,const char *varname) {
+int h5petsc_vec_save(Vec x,const char *filename,
+                     const char *varname) {
   vector<double> vx;
   vec_gather(PETSC_COMM_WORLD,x,vx);
   H5::H5File file(filename,H5F_ACC_TRUNC);
@@ -110,7 +111,7 @@ int h5petsc_vec_save(Vec x,const char *filename,const char *varname) {
   H5::DataSpace dataspace(1,&n);
   // Create the dataset.
   H5::DataSet xdset =
-    file.createDataSet("res",H5::PredType::NATIVE_DOUBLE,dataspace);
+    file.createDataSet(varname,H5::PredType::NATIVE_DOUBLE,dataspace);
   xdset.write(vx.data(),H5::PredType::NATIVE_DOUBLE);
   file.close();
   return 0;

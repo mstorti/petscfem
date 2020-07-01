@@ -17626,6 +17626,49 @@ mstorti-v39.
 
 %>>-------------------------------------------------------------
 %>>((2020-03-08.01:02:52)(mstorti@galileo)()
-Bueno el tem de CBLAS era lo que se hizo en el commit 
+Bueno el tema de CBLAS era lo que se hizo en el commit 
 mstorti-v39-start-26-gd4da7909 donde hay que tener en cuenta que las
-nuevas versiones de ATLAS ienen -lblas -ltatlas. 
+nuevas versiones de ATLAS tienen -lblas -ltatlas. 
+%
+This should be equal to the state at lbattaglia@coyote:petscfem-ale
+add les_supg_interaction feature
+
+NO SE QUE ES:
+mstorti-v37-start-117-g081abb22
+
+%>>-------------------------------------------------------------
+%>>((2020-03-08.01:29:04)(mstorti@galileo)(chimera.0-93-g472e564c))
+En este momento tenemos 6151 commits de acuerdo a $ git shortlog -s
+Si hago $ git rev-list --all --count me da: 6872
+%
+PLAN DE TRABAJO
+;==============
+. Primero verificar queal clonar tome todos los commits.
+.. Puedo haer un pequeño ejemplo con un branch que despues reemplazo
+por un tag y ver que pasa al clonarlo. 
+.. Puedo buscar un tag/branch y ver que paso.
+.. OJO que en realidad el problema se daria solo con los dangling
+tags.
+% 
+. Un ejemplo es 5095eb93 ("Running tests", 2008-12-12) 
+ mstorti-v23-end2-0-g5095eb93
+. Clono ese repo con --bare y efectivamente copia el commit al destino final
+. Otro caso es mstorti-v6-branch-end-0-g32141959, tampoco tiene hijos y no esta en
+un branch. 
+. Para contar y listar todos los commits de un repo hay que hacer
+> $ git log --oneline --all | wc -l
+En nuestro caso me da 6872 que es lo mismo que da
+> $ git rev-list --all --count me da: 6872
+. Cuando lo hago en petscfem-cpy me da dos menos: 6870. Puede ser que
+haya hecho un par de commits despues que hice el clone
+. Efectivamente los dos commits de diferencia son un WIP y el index. 
+%
+Entonces ahora lo que voy a hacer es crear el GitHub nomas, a partir
+de galileo:PETSC/petscfem. Ahhh antes voy a chequear aquiles. 
+%
+Hago el repo en GitHub y le mando con
+$ git push -u origin --all
+pero despues cuando hago clone desde eso me resulta que
+solo tengo 6162 commits o sea que perdi como 700. 
+%
+Los commits son esos dangling que mencione
