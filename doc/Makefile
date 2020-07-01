@@ -157,7 +157,10 @@ index.html: index.tex
 		-no_subdir -split 0 index
 
 #w Make the README in text and html format
-readme: ../README ../README.html ./README.1
+readme:
+ifeq ($(DEVELOPER_MODE),yes)
+	$(MAKE) ../README ../README.html ./README.1
+endif
 
 README.pod: README.podin ../VERSION
 	-chmod +w README.pod
@@ -189,7 +192,10 @@ local_clean:: local_dist_clean
 		make-info.log pod2htm?.tmp
 
 SWDIRS := 
-local_sw:: readme 
+local_sw::
+ifeq ($(DEVELOPER_MODE),yes)
+	$(MAKE) readme
+endif
 
 #w Clean leaving PS and HTML
 local_dist_clean::
