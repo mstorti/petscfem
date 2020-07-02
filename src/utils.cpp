@@ -247,7 +247,7 @@ int wait_from_console(char *s) {
     if (s!=NULL) printf("%s --- ",s);
     printf("Continue? (n/RET=y) > ");
     fflush(stdout);
-    scanf("%c",&ans);
+    assert(scanf("%c",&ans)!=EOF);
   }
   ierr = MPI_Bcast (&ans, 1, MPI_CHAR, 0,PETSCFEM_COMM_WORLD);
   CHKERRQ(ierr); 
