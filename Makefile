@@ -34,16 +34,6 @@ all: sw doc pflib $(APPS)
 #w Builds all necessary things after checking out a version
 #w from the CVS repository
 local_sw:: 
-# 	First of all make scripts executable
-	chmod 755 tools/eperl tools/eperl_min ./make/appatch 		\
-		./make/mkpatch ./make/mkvers				\
-		./src/insdeb.pl ./test/runtests.pl 			\
-		./test/turbchan/verify.pl				\
-		./tools/coall ./tools/checktag ./tools/eperl		\
-		./tools/insert_license.pl ./tools/makeltag		\
-		./tools/maketag ./tools/makewhat.pl ./tools/myexpect.pl	\
-		./tools/odoc.pl ./tools/petscload.pl ./tools/pfcpp	\
-		./doc/manual/vrfdocpp.pl ./src/insdeb.pl ./doc/fixul.pl
 	$(MAKE) sync_version
 	cd tools; ln -sf hexenco.pl ident2iso ; ln -sf hexenco.pl iso2ident
 	$(MAKE) -C src getarrgr.tab.c getarrgr.tab.h pfversion.h
@@ -131,7 +121,9 @@ finaldoc:
 #w Builds the doc
 doc:
 	$(MAKE) sync_version
+ifeq ($(DEVELOPER_MODE),yes)
 	$(MAKE) -C doc all distclean
+endif
 
 #w Builds the library
 pflib:
