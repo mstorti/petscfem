@@ -62,7 +62,7 @@ $(LIBPETSCFEM)(%.o): %.o
 	$(ARCMD) $@ $<
 	-rm -f $<
 
-ifeq ($(DEVELOPER_MODE),yes))
+ifeq ($(DEVELOPER_MODE),yes)
 .SECONDARY: fm2eperl.cpp
 
 fm2eperl$(osfx).o: fm2eperl.cpp
