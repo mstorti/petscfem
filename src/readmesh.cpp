@@ -36,7 +36,7 @@ extern "C" {
 #include <src/mshpart.h>
 #include <src/h5utils.h>
 
-#define TRACE_READMESH
+// #define TRACE_READMESH
 #ifdef TRACE_READMESH
 #undef TRACE
 #define TRACE(n)				\
@@ -187,7 +187,6 @@ int read_mesh(Mesh *& mesh,char *fcase,Dofmap *& dofmap,
       }
       da_destroy(xnod);
 
-      TRACE(-5.1);
       // calling dofmap constructor
       dofmap->id = new idmap(nnod*ndof,NULL_MAP);
 
@@ -333,7 +332,6 @@ int read_mesh(Mesh *& mesh,char *fcase,Dofmap *& dofmap,
 
     } else if (!strcmp(token,"elemset")) {
 
-      TRACE(-5.3);
       // Now read elemset's
       token = strtok(NULL,bsp);
       PETSCFEM_ASSERT0(token,"Couldn't find elemset name.");  
@@ -425,7 +423,6 @@ int read_mesh(Mesh *& mesh,char *fcase,Dofmap *& dofmap,
 	delete[] buf;
       }
 
-      TRACE(-5.3.1);
       // read connectivity and element properties
       Autobuf *buff;
       Darray *da_icone;
@@ -437,7 +434,6 @@ int read_mesh(Mesh *& mesh,char *fcase,Dofmap *& dofmap,
       buff = abuf_create();
       iele=0;
       int node;
-      TRACE(-5.3.2);
 
       TGETOPTDEF(thash,int,use_hdf5,0);
       int nelprops_add=-1, neliprops_add=-1;
@@ -464,19 +460,13 @@ int read_mesh(Mesh *& mesh,char *fcase,Dofmap *& dofmap,
           dvicone.reshape(2,nelem,nel);
         }
         ierr = MPI_Bcast(&nelem,1,MPI_INT,0,PETSCFEM_COMM_WORLD);
-        TRACE(-5.3.2.1);
 
         elemprops = new double[nelem*nelprops];
         elemiprops = new int[nelem*neliprops];
         icone = new int[nelem*nel];
-        TRACE(-5.3.2.1.0);
 
         dvector_clone_parallel(dvicone);
-        TRACE(-5.3.2.1.1);
-        exit(0);
         dvicone.defrag();
-        TRACE(-5.3.2.1.2);
-        TRACE(-5.3.2.1.3);
         for (iele=0; iele<nelem; iele++) {
           for (int kk=0; kk<nel; kk++) {
             node = dvicone.e(iele,kk);
@@ -487,11 +477,8 @@ int read_mesh(Mesh *& mesh,char *fcase,Dofmap *& dofmap,
             }
           }
         }
-        TRACE(-5.3.2.1.4);
         dvicone.clear();
         ierr = MPI_Bcast(icone,nelem*nel,MPI_INT,0,PETSCFEM_COMM_WORLD);
-        TRACE(-5.3.2.2);
-        exit(0);
 
         TGETOPTDEF(thash,int,additional_props,0);
         nelprops_add = additional_props;
@@ -595,7 +582,6 @@ int read_mesh(Mesh *& mesh,char *fcase,Dofmap *& dofmap,
             int indxi = da_append(da_icone,abuf_data(buff));
             if ( indxi==-1 ) PFEMERRQ("Insufficient memory reading elements");
           }
-          TRACE(-5.3.2.1);
         DONE:;
         } else {
           AutoString datas;
@@ -691,7 +677,6 @@ int read_mesh(Mesh *& mesh,char *fcase,Dofmap *& dofmap,
           abuf_destroy(tempo);
         }	
     
-        TRACE(-5.3.3);
         elemsetnum++;
         delete[] icorow;
 
@@ -702,7 +687,6 @@ int read_mesh(Mesh *& mesh,char *fcase,Dofmap *& dofmap,
         icone = new int[nel*nelem];
         unsigned char *buffp;
       
-        TRACE(-5.3.4);
         for (iele=0; iele<nelem; iele++) {
           icorow=(int *) da_ref(da_icone,iele);
           for (int kk=0; kk<nel; kk++) {
@@ -722,7 +706,6 @@ int read_mesh(Mesh *& mesh,char *fcase,Dofmap *& dofmap,
           }
 
         }
-        TRACE(-5.3.5);
 
         delete[] proprow;
         delete[] iproprow;
@@ -732,7 +715,6 @@ int read_mesh(Mesh *& mesh,char *fcase,Dofmap *& dofmap,
         //o Additional properties (used by the element routine)
         TGETOPTDEF(thash,int,additional_props,0);
         nelprops_add = additional_props;
-        TRACE(-5.3.6);
         if (nelprops_add>0) {
           elemprops_add = new
             double[nelem*nelprops_add];
@@ -749,7 +731,6 @@ int read_mesh(Mesh *& mesh,char *fcase,Dofmap *& dofmap,
           for (int k=0; k<nelem*neliprops_add; k++)
             elemiprops_add[k]=0;
         }
-        TRACE(-5.3.7);
       }
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
@@ -786,7 +767,6 @@ int read_mesh(Mesh *& mesh,char *fcase,Dofmap *& dofmap,
 
       elemset->read(fstack);
       elemset->initialize();
-      TRACE(-5.3.8);
 
       PetscPrintf(PETSCFEM_COMM_WORLD,
 		  "elemset number %d, name \"%s\", pointer %p, number of elements %d\n",
@@ -796,7 +776,6 @@ int read_mesh(Mesh *& mesh,char *fcase,Dofmap *& dofmap,
       da_append(mesh->elemsetlist,&elemset);
       PetscPrintf(PETSCFEM_COMM_WORLD,"Ends reading  elemset\n");
 
-      TRACE(-5.4);
       
     } else if (!strcmp(token,"end_elemsets")) {
 
@@ -805,13 +784,11 @@ int read_mesh(Mesh *& mesh,char *fcase,Dofmap *& dofmap,
 
     } else if (!strcmp(token,"fixa")) {
 
-      TRACE(-5.5);
       PetscPrintf(PETSCFEM_COMM_WORLD," -- Reading fixations\n"); 
       // Read fixations
       // dofmap->fixa = da_create(sizeof(fixa_entry));
       // fixa_entry fe;
       nfixa=0;
-      TRACE(-5.5.1);
       while (1) {
 	ierr = fstack->get_line(line);
 	PETSCFEM_ASSERT0(ierr==0,"Can't find __END_FIXA__ tag");  
@@ -854,9 +831,7 @@ int read_mesh(Mesh *& mesh,char *fcase,Dofmap *& dofmap,
 	  dofmap->fixed_dofs[keq]=dofmap->fixed.size()-1;
 	}
       }
-      TRACE(-5.5.2);
       PetscPrintf(PETSCFEM_COMM_WORLD,"Total fixations: %d\n",nfixa);
-      TRACE(-5.6);
 
     } else if (!strcmp(token,"fixa_amplitude")) {
 
@@ -1009,7 +984,6 @@ int read_mesh(Mesh *& mesh,char *fcase,Dofmap *& dofmap,
     }
 
   }
-  TRACE(-4.-1);
 
   PETSCFEM_ASSERT(fstack->last_error()==FileStack::eof,
 		  "Couldn't process correctly main data "
@@ -1020,7 +994,6 @@ int read_mesh(Mesh *& mesh,char *fcase,Dofmap *& dofmap,
     
   fstack->close();
   delete fstack;
-  TRACE(-4.-1.0);
 
   // Read processor info
   const char *proc_weights;
@@ -1033,7 +1006,6 @@ int read_mesh(Mesh *& mesh,char *fcase,Dofmap *& dofmap,
   tpwgts = new float[size];
   dofmap->tpwgts = tpwgts; // add to dofmap
   mesh->global_options->get_entry("proc_weights",proc_weights);
-  TRACE(-4.-1.1);
   PetscPrintf(PETSCFEM_COMM_WORLD,"size: %d\n",size);
   if (size==1 || proc_weights == NULL) {
 
@@ -1241,21 +1213,17 @@ int read_mesh(Mesh *& mesh,char *fcase,Dofmap *& dofmap,
   }
   PetscPrintf(PETSCFEM_COMM_WORLD,"Starts partitioning.\n"); 
 
-  TRACE(-4.0);
     
   int *vpart = new int[nelemfat];
   if (partflag==0 || partflag==2) {
 
-    TRACE(-4.0.0);
     metis_part(nelemfat,mesh,nelemsets,vpart,
 	       nelemsetptr,n2eptr,node2elem,size,myrank,
 	       partflag,tpwgts,max_partgraph_vertices,
 	       iisd_subpart,print_partitioning_statistics);
-    TRACE(-4.0.1);
 
   } else if (partflag==1) {
 
-    TRACE(-4.0.2);
     int *mnel = new int[size+1];
     if (size>1) {
       if (myrank==0) printf("Hitchicking partition, partflag = %d\n",partflag);
@@ -1272,11 +1240,9 @@ int read_mesh(Mesh *& mesh,char *fcase,Dofmap *& dofmap,
         vpart[jjy]=0;
     }	
     delete[] mnel;
-    TRACE(-4.0.3);
 
   } else if (partflag==3 || partflag==4) {
       
-    TRACE(-4.0.4);
     // random partitioning 
     if (myrank==0) {
       for (int j=0; j < nelemfat; j++) {
@@ -1291,11 +1257,9 @@ int read_mesh(Mesh *& mesh,char *fcase,Dofmap *& dofmap,
       }
     }
     ierr = MPI_Bcast (vpart,nelemfat,MPI_INT,0,PETSCFEM_COMM_WORLD);
-    TRACE(-4.0.5);
     
   } else assert(0); // something went wrong
 
-  TRACE(-4.1);
   PetscPrintf(PETSCFEM_COMM_WORLD,"Ends partitioning.\n");
 
   // Partition nodes. Assign to each node the partition of the first
@@ -1310,7 +1274,6 @@ int read_mesh(Mesh *& mesh,char *fcase,Dofmap *& dofmap,
   // connected to any fat elemset or not. 
   int node_not_connected_to_fat=0;
   
-  TRACE(-3.0);
   int print_nodal_partitioning=0;
   ierr = get_int(mesh->global_options,
 		 "print_nodal_partitioning",
@@ -1324,7 +1287,6 @@ int read_mesh(Mesh *& mesh,char *fcase,Dofmap *& dofmap,
     PetscPrintf(PETSCFEM_COMM_WORLD,
                 "\nNodal partitioning (node/processor): \n");
 
-  TRACE(-3.1);
   // Node interface between processor statistics
   int c1,c2,D1,D2,P1,P2;
   ii_stat.set(0.0);
@@ -1465,7 +1427,6 @@ int read_mesh(Mesh *& mesh,char *fcase,Dofmap *& dofmap,
       printf("%d elements in processor %d\n",nelem_part[proc],proc);
   }
 
-  TRACE(-3.2);
   if (myrank == 0 && size > 1) {
     PetscPrintf(PETSCFEM_COMM_WORLD,
                 "---\nInter-processor node connections\n");
@@ -1488,7 +1449,6 @@ int read_mesh(Mesh *& mesh,char *fcase,Dofmap *& dofmap,
   ii_stat.clear();
   ii_stat2.clear();
 
-  TRACE(-3.3);
   for (node=0; node<nnod; node++) {
     if (n2eptr[node]==n2eptr[node+1]) {
       node_not_connected_to_fat++;
@@ -1521,7 +1481,6 @@ int read_mesh(Mesh *& mesh,char *fcase,Dofmap *& dofmap,
       PetscPrintf(PETSCFEM_COMM_WORLD,
 		  "%d   %d\n",node+1,npart[node]);
   }
-  TRACE(-3.4);
   if (print_nodal_partitioning)
     PetscPrintf(PETSCFEM_COMM_WORLD,"End nodal partitioning table\n\n");
 
@@ -1534,7 +1493,6 @@ int read_mesh(Mesh *& mesh,char *fcase,Dofmap *& dofmap,
   //o Prints element partitioning. 
   GETOPTDEF(int,debug_element_partitioning,0);
 
-  TRACE(-2.0);
   // Define the eparts of each fat elemset as the corresponding part
   // of vpart. 
   for (int ielset=0; ielset<nelemsets; ielset++) {
@@ -1555,7 +1513,6 @@ int read_mesh(Mesh *& mesh,char *fcase,Dofmap *& dofmap,
     }
   }
   
-  TRACE(-2.1);
   if (debug_element_partitioning==2) {
     PetscFinalize();
     exit(0);
@@ -1576,7 +1533,6 @@ int read_mesh(Mesh *& mesh,char *fcase,Dofmap *& dofmap,
     perm[k]=0;
   }
 
-  TRACE(-2.2);
 
   // First number all the edof's in processor 0, then on 1, etc...
   // perm contains the permutation. 
@@ -1590,7 +1546,6 @@ int read_mesh(Mesh *& mesh,char *fcase,Dofmap *& dofmap,
   map<int,int>::iterator end_fix;
   end_fix = dofmap->fixed_dofs.end();
   
-  TRACE(-2.3);
   // First, put perm = to minus the corresponding processor. 
   // The fixed dof's are set to `-(size+1)'  (number of processors + 1)
   for (k=1; k<=nnod*ndof; k++) {
@@ -1605,7 +1560,6 @@ int read_mesh(Mesh *& mesh,char *fcase,Dofmap *& dofmap,
     perm[k-1] = - npart[node-1];
   }
 
-  TRACE(-2.4);
   // Now, number first all the dofs in processor 0, then on 1, and so
   // on until processor size-1, and finally those fixed (set to perm=size)
   jdof=0;
@@ -1616,7 +1570,6 @@ int read_mesh(Mesh *& mesh,char *fcase,Dofmap *& dofmap,
     }
     neqproc[proc-1] = jdof-startproc[proc-1];
   }
-  TRACE(-2.5);
   neq  = startproc[size];
   dofmap->neq = neq;
   dofmap->neqf = neqproc[size];
@@ -1626,14 +1579,12 @@ int read_mesh(Mesh *& mesh,char *fcase,Dofmap *& dofmap,
 	      "Total number of independent fixations neqf: %d\n",
 	      neq,dofmap->neqf);
 
-  TRACE(-2.6);
   if (size>1) {
     for (proc=0; proc<size; proc++) 
       PetscPrintf(PETSCFEM_COMM_WORLD,
 		  "[%d] number of dof's: %d\n",proc,neqproc[proc]);
   }
   
-  TRACE(-1.0);
 
 #if 0
   // This is the old version related to the remap_cols() bug. A leak
@@ -1646,7 +1597,6 @@ int read_mesh(Mesh *& mesh,char *fcase,Dofmap *& dofmap,
   dofmap->id = idnew;
 #endif
  
-  TRACE(-1.1);
 
   //o Checks that the  #idmap#  has been correctly generated. 
   TGETOPTDEF(mesh->global_options,int,check_dofmap_id,0);
@@ -1655,7 +1605,6 @@ int read_mesh(Mesh *& mesh,char *fcase,Dofmap *& dofmap,
     dofmap->id->print_statistics();
   }
 
-  TRACE(-1.2);
 
   //o Prints the dofmap  #idmap#  object. 
   TGETOPTDEF(mesh->global_options,int,print_dofmap_id,0);
@@ -1693,7 +1642,6 @@ int read_mesh(Mesh *& mesh,char *fcase,Dofmap *& dofmap,
       (dofmap->fixed)[jj->second];
   }
 
-  TRACE(0);
 
   // swap fixed with fixed_remapped (reordered)
   dofmap->fixed.swap(fixed_remapped);
@@ -1720,7 +1668,6 @@ int read_mesh(Mesh *& mesh,char *fcase,Dofmap *& dofmap,
 
   for (keq=0; keq<neq; keq++) dof_here[keq]=0;
 
-  TRACE(1);
   int dof1,dof2; // interval of dof's that live in the processor
   dof1=startproc[myrank]+1;
   dof2=dof1+neqproc[myrank]-1;
@@ -1740,7 +1687,6 @@ int read_mesh(Mesh *& mesh,char *fcase,Dofmap *& dofmap,
     // fixme:= Aca hay codigo duplicado. Habria que hacer dos lazos
     // sobre los elemsets. Primero se define el epart para los no-fat
     // y despues se definen los dof_here
-    TRACE(2);
     if (elemset->isfat) {
       for (iele=0; iele<nelem; iele++) {
 	if(elemset->epart[iele]!=myrank+1) continue;
@@ -1796,7 +1742,6 @@ int read_mesh(Mesh *& mesh,char *fcase,Dofmap *& dofmap,
 	}
       }
     }
-    TRACE(3.1);
     { // Make a local scope.
       // Compute the epart2 and epart_p vectors. 
       // Later epart2 could be avoided and only using epart.
@@ -1840,7 +1785,6 @@ int read_mesh(Mesh *& mesh,char *fcase,Dofmap *& dofmap,
       exit(0);
 #endif    
     }
-    TRACE(3);
     // ghost_elems:= These are elements that have related dof's on the
     // processor, but they don't live on the processor.
     // Loops for defining profiles of matrices must loop over them
@@ -1866,7 +1810,6 @@ int read_mesh(Mesh *& mesh,char *fcase,Dofmap *& dofmap,
     CONTINUE:;
     }
 
-    TRACE(4);
     //o Defines a ``locker'' for each element
     TGETOPTDEF(elemset->thash,int,local_store,0);
     if (local_store) {
@@ -1876,7 +1819,6 @@ int read_mesh(Mesh *& mesh,char *fcase,Dofmap *& dofmap,
       }
     }
 
-    TRACE(4.1);
     
     // da_sort (elemset->ghost_elems,int_cmp,NULL);
     int nghostel = da_length(elemset->ghost_elems);
@@ -1885,7 +1827,6 @@ int read_mesh(Mesh *& mesh,char *fcase,Dofmap *& dofmap,
       sort(dap,dap+nghostel);
     }
 
-    TRACE(5);
     if (size>1) {
       PetscPrintf(PETSCFEM_COMM_WORLD,
 		  "For elemset type \"%s\", name \"%s\"\n",
@@ -1896,7 +1837,6 @@ int read_mesh(Mesh *& mesh,char *fcase,Dofmap *& dofmap,
 			      myrank,elemset->nelem_here,nghostel);
       PetscSynchronizedFlush(PETSCFEM_COMM_WORLD);
     }
-    TRACE(6);
 
   }
   
