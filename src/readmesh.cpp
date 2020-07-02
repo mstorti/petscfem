@@ -225,12 +225,9 @@ int read_mesh(Mesh *& mesh,char *fcase,Dofmap *& dofmap,
       thash = mesh->nodedata->options;
       TGETOPTDEF(thash,int,use_hdf5,0);
       if (use_hdf5) {
-        // PETSCFEM_ASSERT(size==1,"H5 read coords. Not implemented "
-        //                 "yet MPI size>1. Size=%d",size);
         TGETOPTDEF_S(thash,string,data,NONE);
         PETSCFEM_ASSERT0(data!="NONE","data entry is required if use_hdf5");  
-        // TGETOPTDEF_S(thash,string,dset,NONE);
-        // PETSCFEM_ASSERT0(dset!="NONE","dset entry is required if use_hdf5");  
+ 
         dvector<double> dvxnod;
         if (!myrank) {
           // Read the vector in the master
