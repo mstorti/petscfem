@@ -54,6 +54,7 @@ METIS    = $(PF_PKG_DIR)
 NEWMAT   = $(PF_PKG_DIR)
 SSL      = $(PF_PKG_DIR)
 SUPERLU  =
+JSON  = 
 
 ANN_INC_DIR = $(ANN)/include
 ANN_LIB_DIR = $(ANN)/lib
@@ -82,6 +83,10 @@ SSL_LIBNAME = simpleskts
 SUPERLU_INC_DIR = $(SUPERLU)/include
 SUPERLU_LIB_DIR = $(SUPERLU)/lib
 SUPERLU_LIBNAME = superlu
+
+JSON_INC_DIR = $(JSON)/include
+JSON_LIB_DIR = $(JSON)/lib
+JSON_LIBNAME = jsoncpp
 
 
 WARN_FLAGS  = -Wall 
