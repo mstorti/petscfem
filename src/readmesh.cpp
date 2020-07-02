@@ -497,6 +497,7 @@ int read_mesh(Mesh *& mesh,char *fcase,Dofmap *& dofmap,
             PETSCFEM_ASSERT(sz==nelem*nelprops,
                             "Bad dataprops size %d, nelem %d, nelprops %d",
                             sz,nelem,nelprops);
+            dvprops.reshape(2,nelem,nelprops);
             // reading element properties
             for (int k=0; k<nelem; k++) 
               for (int jprop=0; jprop<nelprops; jprop++) 
