@@ -36,7 +36,7 @@ extern "C" {
 #include <src/mshpart.h>
 #include <src/h5utils.h>
 
-//#define TRACE_READMESH
+#define TRACE_READMESH
 #ifdef TRACE_READMESH
 #undef TRACE
 #define TRACE(n)				\
@@ -468,20 +468,20 @@ int read_mesh(Mesh *& mesh,char *fcase,Dofmap *& dofmap,
         elemiprops = new int[nelem*neliprops];
         icone = new int[nelem*nel];
 
-        if (!myrank) {
-          dvicone.reshape(2,nelem,nel);
-          for (iele=0; iele<nelem; iele++) {
-            for (int kk=0; kk<nel; kk++) {
-              node = dvicone.e(iele,kk);
-              ICONE(iele,kk) = node;
-              for (int kdof=1; kdof<=ndof; kdof++) {
-                edof = dofmap->edof(node,kdof);
-                dofmap->id->set_elem(edof,edof,1.);
-              }
+        dvector_clone_parallel(dvicone);
+        dvicone.defrag();
+        dvicone.reshape(2,nelem,nel);
+        for (iele=0; iele<nelem; iele++) {
+          for (int kk=0; kk<nel; kk++) {
+            node = dvicone.e(iele,kk);
+            ICONE(iele,kk) = node;
+            for (int kdof=1; kdof<=ndof; kdof++) {
+              edof = dofmap->edof(node,kdof);
+              dofmap->id->set_elem(edof,edof,1.);
             }
           }
-          dvicone.clear();
         }
+        dvicone.clear();
         ierr = MPI_Bcast(icone,nelem*nel,MPI_INT,0,PETSCFEM_COMM_WORLD);
 
         TGETOPTDEF(thash,int,additional_props,0);
@@ -788,6 +788,7 @@ int read_mesh(Mesh *& mesh,char *fcase,Dofmap *& dofmap,
       PetscPrintf(PETSCFEM_COMM_WORLD,"Ends reading  elemset\n");
 
       TRACE(-5.4);
+      
     } else if (!strcmp(token,"end_elemsets")) {
 
       // nothing is done here
@@ -795,11 +796,13 @@ int read_mesh(Mesh *& mesh,char *fcase,Dofmap *& dofmap,
 
     } else if (!strcmp(token,"fixa")) {
 
+      TRACE(-5.5);
       PetscPrintf(PETSCFEM_COMM_WORLD," -- Reading fixations\n"); 
       // Read fixations
       // dofmap->fixa = da_create(sizeof(fixa_entry));
       // fixa_entry fe;
       nfixa=0;
+      TRACE(-5.5.1);
       while (1) {
 	ierr = fstack->get_line(line);
 	PETSCFEM_ASSERT0(ierr==0,"Can't find __END_FIXA__ tag");  
@@ -842,7 +845,9 @@ int read_mesh(Mesh *& mesh,char *fcase,Dofmap *& dofmap,
 	  dofmap->fixed_dofs[keq]=dofmap->fixed.size()-1;
 	}
       }
+      TRACE(-5.5.2);
       PetscPrintf(PETSCFEM_COMM_WORLD,"Total fixations: %d\n",nfixa);
+      TRACE(-5.6);
 
     } else if (!strcmp(token,"fixa_amplitude")) {
 
@@ -995,6 +1000,8 @@ int read_mesh(Mesh *& mesh,char *fcase,Dofmap *& dofmap,
     }
 
   }
+  TRACE(-4.-1);
+
   PETSCFEM_ASSERT(fstack->last_error()==FileStack::eof,
 		  "Couldn't process correctly main data "
 		  "file \"%s\"\n",fstack->file_name());  
@@ -1004,6 +1011,7 @@ int read_mesh(Mesh *& mesh,char *fcase,Dofmap *& dofmap,
     
   fstack->close();
   delete fstack;
+  TRACE(-4.-1.0);
 
   // Read processor info
   const char *proc_weights;
@@ -1016,6 +1024,7 @@ int read_mesh(Mesh *& mesh,char *fcase,Dofmap *& dofmap,
   tpwgts = new float[size];
   dofmap->tpwgts = tpwgts; // add to dofmap
   mesh->global_options->get_entry("proc_weights",proc_weights);
+  TRACE(-4.-1.1);
   PetscPrintf(PETSCFEM_COMM_WORLD,"size: %d\n",size);
   if (size==1 || proc_weights == NULL) {
 
@@ -1224,34 +1233,41 @@ int read_mesh(Mesh *& mesh,char *fcase,Dofmap *& dofmap,
   PetscPrintf(PETSCFEM_COMM_WORLD,"Starts partitioning.\n"); 
 
   TRACE(-4.0);
+    
   int *vpart = new int[nelemfat];
   if (partflag==0 || partflag==2) {
 
+    TRACE(-4.0.0);
     metis_part(nelemfat,mesh,nelemsets,vpart,
 	       nelemsetptr,n2eptr,node2elem,size,myrank,
 	       partflag,tpwgts,max_partgraph_vertices,
 	       iisd_subpart,print_partitioning_statistics);
+    TRACE(-4.0.1);
 
   } else if (partflag==1) {
 
+    TRACE(-4.0.2);
     int *mnel = new int[size+1];
     if (size>1) {
       if (myrank==0) printf("Hitchicking partition, partflag = %d\n",partflag);
       for (int nproc=0; nproc < size; nproc++) {
-	mnel[0] = 0;
-	mnel[nproc+1] = mnel[nproc]+int(nelemfat*tpwgts[nproc]);
-	if (mnel[size] < nelemfat) mnel[size] = nelemfat-1;
-	for (int jelem=mnel[nproc]; jelem < mnel[nproc+1]+1; jelem++) { 
-	  vpart[jelem]=nproc;
-	}
+        mnel[0] = 0;
+        mnel[nproc+1] = mnel[nproc]+int(nelemfat*tpwgts[nproc]);
+        if (mnel[size] < nelemfat) mnel[size] = nelemfat-1;
+        for (int jelem=mnel[nproc]; jelem < mnel[nproc+1]+1; jelem++) { 
+          vpart[jelem]=nproc;
+        }
       }
     } else {
       for (int jjy=0; jjy<nelemfat; jjy++) 
-	vpart[jjy]=0;
+        vpart[jjy]=0;
     }	
     delete[] mnel;
+    TRACE(-4.0.3);
 
   } else if (partflag==3 || partflag==4) {
+      
+    TRACE(-4.0.4);
     // random partitioning 
     if (myrank==0) {
       for (int j=0; j < nelemfat; j++) {
@@ -1266,6 +1282,8 @@ int read_mesh(Mesh *& mesh,char *fcase,Dofmap *& dofmap,
       }
     }
     ierr = MPI_Bcast (vpart,nelemfat,MPI_INT,0,PETSCFEM_COMM_WORLD);
+    TRACE(-4.0.5);
+    
   } else assert(0); // something went wrong
 
   TRACE(-4.1);
