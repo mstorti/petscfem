@@ -53,8 +53,7 @@ dvector_clone_parallel(dvector<T> &w,int root) {
   w.defrag();
   MPI_Datatype t = dvector_mpi_type<T>().type();
   if (t!=MPI_TYPE_UNDEFINED) {
-    ierr = MPI_Bcast(w.buff(), size, MPI_DOUBLE, 
-		     root,PETSCFEM_COMM_WORLD);
+    ierr = MPI_Bcast(w.buff(), size,t,root,PETSCFEM_COMM_WORLD);
     assert(!ierr);
   } else {
     ierr = MPI_Bcast(w.buff(), size*sizeof(T), MPI_CHAR, 

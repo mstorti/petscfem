@@ -461,16 +461,22 @@ int read_mesh(Mesh *& mesh,char *fcase,Dofmap *& dofmap,
                           "bad elemset HDF5 dataset size, "
                           "size %d, nel %d",nelem,nel);  
           nelem /= nel;
+          dvicone.reshape(2,nelem,nel);
         }
         ierr = MPI_Bcast(&nelem,1,MPI_INT,0,PETSCFEM_COMM_WORLD);
+        TRACE(-5.3.2.1);
 
         elemprops = new double[nelem*nelprops];
         elemiprops = new int[nelem*neliprops];
         icone = new int[nelem*nel];
+        TRACE(-5.3.2.1.0);
 
         dvector_clone_parallel(dvicone);
+        TRACE(-5.3.2.1.1);
+        exit(0);
         dvicone.defrag();
-        dvicone.reshape(2,nelem,nel);
+        TRACE(-5.3.2.1.2);
+        TRACE(-5.3.2.1.3);
         for (iele=0; iele<nelem; iele++) {
           for (int kk=0; kk<nel; kk++) {
             node = dvicone.e(iele,kk);
@@ -481,8 +487,11 @@ int read_mesh(Mesh *& mesh,char *fcase,Dofmap *& dofmap,
             }
           }
         }
+        TRACE(-5.3.2.1.4);
         dvicone.clear();
         ierr = MPI_Bcast(icone,nelem*nel,MPI_INT,0,PETSCFEM_COMM_WORLD);
+        TRACE(-5.3.2.2);
+        exit(0);
 
         TGETOPTDEF(thash,int,additional_props,0);
         nelprops_add = additional_props;
