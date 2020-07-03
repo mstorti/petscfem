@@ -855,7 +855,7 @@ int read_mesh(Mesh *& mesh,char *fcase,Dofmap *& dofmap,
 
       Amplitude *amp = Amplitude::old_factory(label,*fstack);
 
-      string datah5;
+      string datah5,dvalsh5;
       int use_hdf5_fixa=0;
       if (!amp) {
 	// Read options table
@@ -865,6 +865,8 @@ int read_mesh(Mesh *& mesh,char *fcase,Dofmap *& dofmap,
         datah5 = data;
         TGETOPTDEF(thash,int,use_hdf5,-1);
         use_hdf5_fixa = use_hdf5;
+        TGETOPTDEF_S(thash,string,datavals,NONE);
+        dvalsh5 = datavals;
             
 	// create a new Amplitude
 	amp = Amplitude::factory(label,thash);
@@ -894,10 +896,9 @@ int read_mesh(Mesh *& mesh,char *fcase,Dofmap *& dofmap,
           nfixa /= 2;
           dvfixa.reshape(2,nfixa,2);
 
-          TGETOPTDEF_S(thash,string,datavals,NONE);
-          PETSCFEM_ASSERT0(datavals!="NONE",
+          PETSCFEM_ASSERT0(dvalsh5!="NONE",
                            "datavals entry is required if use_hdf5");  
-          h5_dvector_read(datavals.c_str(),dvvals);
+          h5_dvector_read(dvalsh5.c_str(),dvvals);
           PETSCFEM_ASSERT(dvvals.size()==nfixa,
                           "datavals must have the same elemens "
                           "as fixa entries. "
@@ -910,6 +911,8 @@ int read_mesh(Mesh *& mesh,char *fcase,Dofmap *& dofmap,
 
         dvector_clone_parallel(dvvals);
         dvvals.defrag();
+        PetscPrintf(PETSCFEM_COMM_WORLD,
+                    "Reading fixations HDF5. %d fixations read\n",nfixa);
         exit(0);
 
 #if 0
