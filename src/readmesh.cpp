@@ -855,12 +855,16 @@ int read_mesh(Mesh *& mesh,char *fcase,Dofmap *& dofmap,
 
       Amplitude *amp = Amplitude::old_factory(label,*fstack);
 
+      string datah5;
+      int use_hdf5_fixa=0;
       if (!amp) {
 	// Read options table
 	TextHashTable *thash = new TextHashTable;
 	read_hash_table(fstack,thash);
         TGETOPTDEF_S(thash,string,data,NONE);
-        printf("data %s\n",data.c_str());
+        datah5 = data;
+        TGETOPTDEF(thash,int,use_hdf5,-1);
+        use_hdf5_fixa = use_hdf5;
             
 	// create a new Amplitude
 	amp = Amplitude::factory(label,thash);
@@ -872,57 +876,119 @@ int read_mesh(Mesh *& mesh,char *fcase,Dofmap *& dofmap,
       mesh->nodedata->options->get_entry("data",data);
       assert(data);
 
-      thash = mesh->nodedata->options;
       TGETOPTDEF(thash,int,use_hdf5,0);
       TGETOPTDEF(thash,int,use_hdf5_auto,0);
-      int hdf5 = use_hdf5 || (use_hdf5_auto && ishdf5(data));
-      // if (hdf5) ...
-      
-      nfixa=0;
-      while (1) {
-	ierr = fstack->get_line(line);
-	PETSCFEM_ASSERT0(ierr==0,"Can't find __END_FIXA__ tag");  
-	astr_copy_s(linecopy, line);
-	if (strstr(line,"__END_FIXA__")) break;
-	nfixa++;
-	int nr=sscanf(line,"%d %d %lf",&node,&kdof,&dval);
-	if (nr !=3) {
-	  PetscPrintf(PETSCFEM_COMM_WORLD,
-		      "Error reading fixations, for fixation %d\n",nfixa);
-	  CHKERRQ(1);
-	}
+      int hdf5 = use_hdf5;
+      if (use_hdf5_auto && ishdf5(data)) hdf5=1;
+      if (use_hdf5_fixa>=0) hdf5 = use_hdf5_fixa;
+      if (hdf5) {
+        dvector<int> dvfixa;
+        dvector<double> dvvals;
+        if (!myrank) {
+          h5_dvector_read(data,dvfixa);
+          dvfixa.defrag();
+          nfixa = dvfixa.size();
+          PETSCFEM_ASSERT(nfixa%2==0,
+                          "bad elemset HDF5 dataset size, "
+                          "size %d",nfixa);
+          nfixa /= 2;
+          dvfixa.reshape(2,nfixa,2);
 
-	dofmap->get_row(node,kdof,row);
-	if (row.size()!=1) {
-	  PetscPrintf(PETSCFEM_COMM_WORLD,
-		      "In line: %s\nFixation %d, imposed on an"
-		      " invalid node/field combination.\n",
-		      astr_chars(linecopy),nfixa);
-	}
+          TGETOPTDEF_S(thash,string,datavals,NONE);
+          PETSCFEM_ASSERT0(datavals!="NONE",
+                           "datavals entry is required if use_hdf5");  
+          h5_dvector_read(datavals.c_str(),dvvals);
+          PETSCFEM_ASSERT(dvvals.size()==nfixa,
+                          "datavals must have the same elemens "
+                          "as fixa entries. "
+                          "fixa entries %d, datavals entries %d",
+                          nfixa,dvvals.size());  
+        }
+        ierr = MPI_Bcast(&nfixa,1,MPI_INT,0,PETSCFEM_COMM_WORLD);
+        dvector_clone_parallel(dvfixa);
+        dvfixa.defrag();
+
+        dvector_clone_parallel(dvvals);
+        dvvals.defrag();
+        exit(0);
+
+#if 0
+        dofmap->get_row(node,kdof,row);
+        if (row.size()!=1) {
+          PetscPrintf(PETSCFEM_COMM_WORLD,
+                      "In line: %s\nFixation %d, imposed on an"
+                      " invalid node/field combination.\n",
+                      astr_chars(linecopy),nfixa);
+        }
 	  
-	int keq = row.begin()->first;
-	PETSCFEM_ASSERT(row.begin()->second == 1.,
-			"Fixation imposed on a bad node/field combination\n"
-			"node: %d, field: %d\n"
-			"%s:%d: \"%s\"",
-			node,kdof,
-			fstack->file_name(),
-			fstack->line_number(),
-			fstack->line_read());
+        int keq = row.begin()->first;
+        PETSCFEM_ASSERT(row.begin()->second == 1.,
+                        "Fixation imposed on a bad node/field combination\n"
+                        "node: %d, field: %d\n"
+                        "%s:%d: \"%s\"",
+                        node,kdof,
+                        fstack->file_name(),
+                        fstack->line_number(),
+                        fstack->line_read());
 	
-	edof = dofmap->edof(node,kdof);
-	map<int,int>::iterator q = dofmap->fixed_dofs.find(keq);
-	if (q!=dofmap->fixed_dofs.end()) {
-	  int j = q->second;
-	  // delete dofmap->fixed[j];
-	  dofmap->fixed[j] = fixation_entry(dval,amp,edof);
-	} else {
-	  dofmap->fixed.push_back(fixation_entry(dval,amp,edof));
-	  dofmap->fixed_dofs[keq]=dofmap->fixed.size()-1;
-	}
+        edof = dofmap->edof(node,kdof);
+        map<int,int>::iterator q = dofmap->fixed_dofs.find(keq);
+        if (q!=dofmap->fixed_dofs.end()) {
+          int j = q->second;
+          // delete dofmap->fixed[j];
+          dofmap->fixed[j] = fixation_entry(dval,amp,edof);
+        } else {
+          dofmap->fixed.push_back(fixation_entry(dval,amp,edof));
+          dofmap->fixed_dofs[keq]=dofmap->fixed.size()-1;
+        }
+#endif        
+      } else {
+        nfixa=0;
+        while (1) {
+          ierr = fstack->get_line(line);
+          PETSCFEM_ASSERT0(ierr==0,"Can't find __END_FIXA__ tag");  
+          astr_copy_s(linecopy, line);
+          if (strstr(line,"__END_FIXA__")) break;
+          nfixa++;
+          int nr=sscanf(line,"%d %d %lf",&node,&kdof,&dval);
+          if (nr !=3) {
+            PetscPrintf(PETSCFEM_COMM_WORLD,
+                        "Error reading fixations, for fixation %d\n",nfixa);
+            CHKERRQ(1);
+          }
+
+          dofmap->get_row(node,kdof,row);
+          if (row.size()!=1) {
+            PetscPrintf(PETSCFEM_COMM_WORLD,
+                        "In line: %s\nFixation %d, imposed on an"
+                        " invalid node/field combination.\n",
+                        astr_chars(linecopy),nfixa);
+          }
+	  
+          int keq = row.begin()->first;
+          PETSCFEM_ASSERT(row.begin()->second == 1.,
+                          "Fixation imposed on a bad node/field combination\n"
+                          "node: %d, field: %d\n"
+                          "%s:%d: \"%s\"",
+                          node,kdof,
+                          fstack->file_name(),
+                          fstack->line_number(),
+                          fstack->line_read());
+	
+          edof = dofmap->edof(node,kdof);
+          map<int,int>::iterator q = dofmap->fixed_dofs.find(keq);
+          if (q!=dofmap->fixed_dofs.end()) {
+            int j = q->second;
+            // delete dofmap->fixed[j];
+            dofmap->fixed[j] = fixation_entry(dval,amp,edof);
+          } else {
+            dofmap->fixed.push_back(fixation_entry(dval,amp,edof));
+            dofmap->fixed_dofs[keq]=dofmap->fixed.size()-1;
+          }
+        }
+        PetscPrintf(PETSCFEM_COMM_WORLD,
+                    "Total fixations with temporal amplitude: %d\n",nfixa);
       }
-      PetscPrintf(PETSCFEM_COMM_WORLD,
-		  "Total fixations with temporal amplitude: %d\n",nfixa);
 
     } else if (!strcmp(token,"constraint")) {
 
