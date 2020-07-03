@@ -50,6 +50,14 @@ using namespace std;
 Mesh *GLOBAL_MESH;
 #define IDENT(j,k) VEC2(ident,j,k,ndof)
 
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>
+static int ishdf5(const char *filedset) {
+  size_t len = strlen(filedset);
+  for (size_t j=0; j<len; j++)
+    if (filedset[j]==':') return 1;
+  return 0;
+}
+
 //-------<*>-------<*>-------<*>-------<*>-------<*>------- 
 #undef ICONE
 #define ICONE(j,k) (icone[nel*(j)+(k)]) 
@@ -110,7 +118,7 @@ int read_mesh(Mesh *& mesh,char *fcase,Dofmap *& dofmap,
   // Initialize number of eqs.
   neq=0;
   dofmap = new Dofmap;
-
+      
   while (!fstack->get_line(line)) {
       
     token = strtok(line,bsp);
@@ -224,7 +232,9 @@ int read_mesh(Mesh *& mesh,char *fcase,Dofmap *& dofmap,
 
       thash = mesh->nodedata->options;
       TGETOPTDEF(thash,int,use_hdf5,0);
-      if (use_hdf5) {
+      TGETOPTDEF(thash,int,use_hdf5_auto,0);
+      int hdf5 = use_hdf5 || (use_hdf5_auto && ishdf5(data));
+      if (hdf5) {
         TGETOPTDEF_S(thash,string,data,NONE);
         PETSCFEM_ASSERT0(data!="NONE","data entry is required if use_hdf5");  
  
@@ -432,15 +442,18 @@ int read_mesh(Mesh *& mesh,char *fcase,Dofmap *& dofmap,
       iele=0;
       int node;
 
-      TGETOPTDEF(thash,int,use_hdf5,0);
       int nelprops_add=-1, neliprops_add=-1;
       double *elemprops_add=NULL;
       int *elemiprops_add=NULL;
       double *elemprops = NULL;
       int *elemiprops = NULL;
-      if (use_hdf5) {
+
+      TGETOPTDEF_S(thash,string,data,NONE);
+      TGETOPTDEF(thash,int,use_hdf5,0);
+      TGETOPTDEF(thash,int,use_hdf5_auto,0);
+      int hdf5 = use_hdf5 || (use_hdf5_auto && ishdf5(data.c_str()));
+      if (hdf5) {
         // PETSCFEM_ASSERT(size==1,"Not implemented yet MPI size>1. Size=%d",size);
-        TGETOPTDEF_S(thash,string,data,NONE);
         PETSCFEM_ASSERT0(data!="NONE","data entry is required if use_hdf5");  
         // TGETOPTDEF_S(thash,string,dset,NONE);
         // PETSCFEM_ASSERT0(dset!="NONE","dset entry is required if use_hdf5");  
@@ -846,13 +859,25 @@ int read_mesh(Mesh *& mesh,char *fcase,Dofmap *& dofmap,
 	// Read options table
 	TextHashTable *thash = new TextHashTable;
 	read_hash_table(fstack,thash);
-	
+        TGETOPTDEF_S(thash,string,data,NONE);
+        printf("data %s\n",data.c_str());
+            
 	// create a new Amplitude
 	amp = Amplitude::factory(label,thash);
       }
       // amplitude_list:= stores a list of all the amplitudes defined 
       amplitude_list.push_back(amp);
 
+      const char *data = NULL;
+      mesh->nodedata->options->get_entry("data",data);
+      assert(data);
+
+      thash = mesh->nodedata->options;
+      TGETOPTDEF(thash,int,use_hdf5,0);
+      TGETOPTDEF(thash,int,use_hdf5_auto,0);
+      int hdf5 = use_hdf5 || (use_hdf5_auto && ishdf5(data));
+      // if (hdf5) ...
+      
       nfixa=0;
       while (1) {
 	ierr = fstack->get_line(line);

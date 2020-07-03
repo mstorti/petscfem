@@ -251,6 +251,21 @@ public:
 };
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+class cnst_ampl : public Amplitude {
+protected:
+  TextHashTable *thash;
+public:
+  void print() const {
+    PetscPrintf(PETSCFEM_COMM_WORLD,
+		"\"cnst\" fixa amplitude, options table: \n");
+    thash->print();
+  }
+  void init(TextHashTable *thash_) { }
+  double eval(const TimeData *time_data) { return 1.0; }
+  ~cnst_ampl() { delete thash; }
+};
+
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 class trigo_sin : public trigo_cos {
 public:
   double eval(const TimeData *time_data) {
@@ -273,6 +288,8 @@ Amplitude *Amplitude::factory(char *& label,
     amp = new trigo_cos;
   } else if (!strcmp(label,"sin")) {
     amp = new trigo_sin;
+  } else if (!strcmp(label,"cnst")) {
+    amp = new cnst_ampl;
   } else if (!strcmp(label,"dl_generic")) {
 #ifdef USE_DLEF
     amp = new DLGeneric;
