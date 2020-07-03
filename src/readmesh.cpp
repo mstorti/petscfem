@@ -874,16 +874,13 @@ int read_mesh(Mesh *& mesh,char *fcase,Dofmap *& dofmap,
       // amplitude_list:= stores a list of all the amplitudes defined 
       amplitude_list.push_back(amp);
 
-      const char *data = NULL;
-      mesh->nodedata->options->get_entry("data",data);
-      assert(data);
-
       TGETOPTDEF(thash,int,use_hdf5,0);
       TGETOPTDEF(thash,int,use_hdf5_auto,0);
       int hdf5 = use_hdf5;
-      if (use_hdf5_auto && ishdf5(data)) hdf5=1;
+      if (use_hdf5_auto && ishdf5(datah5.c_str())) hdf5=1;
       if (use_hdf5_fixa>=0) hdf5 = use_hdf5_fixa;
       if (hdf5) {
+        const char *data = datah5.c_str();
         dvector<int> dvfixa;
         dvector<double> dvvals;
         if (!myrank) {
@@ -895,6 +892,7 @@ int read_mesh(Mesh *& mesh,char *fcase,Dofmap *& dofmap,
                           "size %d",nfixa);
           nfixa /= 2;
           dvfixa.reshape(2,nfixa,2);
+          printf("data %s, nfixa %d\n",data,nfixa);
 
           PETSCFEM_ASSERT0(dvalsh5!="NONE",
                            "datavals entry is required if use_hdf5");  
