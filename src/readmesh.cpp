@@ -911,38 +911,39 @@ int read_mesh(Mesh *& mesh,char *fcase,Dofmap *& dofmap,
         dvvals.defrag();
         PetscPrintf(PETSCFEM_COMM_WORLD,
                     "Reading fixations HDF5. %d fixations read\n",nfixa);
-        exit(0);
-
-#if 0
-        dofmap->get_row(node,kdof,row);
-        if (row.size()!=1) {
-          PetscPrintf(PETSCFEM_COMM_WORLD,
-                      "In line: %s\nFixation %d, imposed on an"
-                      " invalid node/field combination.\n",
-                      astr_chars(linecopy),nfixa);
-        }
+        for (int j=0; j<nfixa; j++) {
+          node = dvfixa.e(j,0);
+          kdof = dvfixa.e(j,1);
+          dval = dvvals.ref(j);
+          dofmap->get_row(node,kdof,row);
+          if (row.size()!=1) {
+            PetscPrintf(PETSCFEM_COMM_WORLD,
+                        "In line: %s\nFixation %d, imposed on an"
+                        " invalid node/field combination.\n",
+                        astr_chars(linecopy),nfixa);
+          }
 	  
-        int keq = row.begin()->first;
-        PETSCFEM_ASSERT(row.begin()->second == 1.,
-                        "Fixation imposed on a bad node/field combination\n"
-                        "node: %d, field: %d\n"
-                        "%s:%d: \"%s\"",
-                        node,kdof,
-                        fstack->file_name(),
-                        fstack->line_number(),
-                        fstack->line_read());
+          int keq = row.begin()->first;
+          PETSCFEM_ASSERT(row.begin()->second == 1.,
+                          "Fixation imposed on a bad node/field combination\n"
+                          "node: %d, field: %d\n"
+                          "%s:%d: \"%s\"",
+                          node,kdof,
+                          fstack->file_name(),
+                          fstack->line_number(),
+                          fstack->line_read());
 	
-        edof = dofmap->edof(node,kdof);
-        map<int,int>::iterator q = dofmap->fixed_dofs.find(keq);
-        if (q!=dofmap->fixed_dofs.end()) {
-          int j = q->second;
-          // delete dofmap->fixed[j];
-          dofmap->fixed[j] = fixation_entry(dval,amp,edof);
-        } else {
-          dofmap->fixed.push_back(fixation_entry(dval,amp,edof));
-          dofmap->fixed_dofs[keq]=dofmap->fixed.size()-1;
+          edof = dofmap->edof(node,kdof);
+          map<int,int>::iterator q = dofmap->fixed_dofs.find(keq);
+          if (q!=dofmap->fixed_dofs.end()) {
+            int j = q->second;
+            // delete dofmap->fixed[j];
+            dofmap->fixed[j] = fixation_entry(dval,amp,edof);
+          } else {
+            dofmap->fixed.push_back(fixation_entry(dval,amp,edof));
+            dofmap->fixed_dofs[keq]=dofmap->fixed.size()-1;
+          }
         }
-#endif        
       } else {
         nfixa=0;
         while (1) {
