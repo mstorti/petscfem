@@ -356,6 +356,7 @@ PF_PKG_LIBS_DIR := -Wl,-rpath,$(abspath $(PF_PKG_DIR))/lib
 endif
 
 LDFLAGS = $(LDDBGFLAG)					\
+	  $(LD_FLAGS_PRE) 				\
 	  -Wl,-E,-rpath,$(LD_LIBRARY_PATH)		\
           $(PROG_LIB)					\
 	  $(PTHREADS_LIB)				\
