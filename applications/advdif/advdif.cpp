@@ -92,7 +92,7 @@ int advdif_main(int argc,char **args) {
   }
   
   Vec     x, dx, xold, res; /* approx solution, RHS, residual*/
-  PFMat *A,*AA;			// linear system matrix 
+  PFMat *A=NULL,*AA=NULL;			// linear system matrix 
   PFMat *A_tet, *A_tet_c;
   double  *sol, scal, normres, normres_ext=NAN;    /* norm of solution error */
   int     i, n = 10, col[3], its, size, node,
@@ -122,7 +122,7 @@ int advdif_main(int argc,char **args) {
 
   Debug debug(0,PETSCFEM_COMM_WORLD);
   GLOBAL_DEBUG = &debug;
-
+  
   ierr = PetscOptionsGetString(PETSC_NULL,"-case",fcase,FLEN,&flg); CHKERRA(ierr);
   if (!flg) {
     PetscPrintf(PETSCFEM_COMM_WORLD,
@@ -141,6 +141,7 @@ int advdif_main(int argc,char **args) {
     debug.activate();
     Debug::init();
   }
+
   //o Activate printing in debugging
   GETOPTDEF(int,activate_debug_print,0);
   if (activate_debug_print) debug.activate("print");
@@ -218,7 +219,8 @@ int advdif_main(int argc,char **args) {
   // Use IISD (Interface Iterative Subdomain Direct) or not.
   // A_tet = (use_iisd ? &IISD_A_tet : &PETSc_A_tet);
   A  = PFMat::dispatch(dofmap->neq,*dofmap,solver.c_str());
-  AA = PFMat::dispatch(dofmap->neq,*dofmap,solver.c_str());
+  if (ADVDIF_CHECK_JAC) 
+    AA = PFMat::dispatch(dofmap->neq,*dofmap,solver.c_str());
 
   set<int> node_list;
   print_some_file_init(mesh->global_options,
@@ -609,7 +611,7 @@ int advdif_main(int argc,char **args) {
 #endif
       }
       if (normres < tol_newton) break;
-      } // end of Newton loop
+    } // end of Newton loop
 
     // Prints residual and mass matrix in Matlab format
     // Define time step depending on strategy. Automatic time step,
@@ -701,7 +703,7 @@ int advdif_main(int argc,char **args) {
   if (print_residual) 
     print_vector(save_file_res.c_str(),res,dofmap,&time);
   if (report_option_access && MY_RANK==0) TextHashTable::print_stat();
-
+  
   ierr = VecDestroy(&x); CHKERRA(ierr); 
   ierr = VecDestroy(&xold); CHKERRA(ierr); 
   ierr = VecDestroy(&dx); CHKERRA(ierr); 
@@ -709,12 +711,12 @@ int advdif_main(int argc,char **args) {
 #ifdef DIAG_MAT_MATRIX
   ierr = MatDestroy(&A); CHKERRA(ierr); 
 #endif
-  
+
   delete A;
-  delete AA;
+  if (ADVDIF_CHECK_JAC) delete AA;
   DELETE_SCLR(dofmap);
   DELETE_SCLR(mesh);
-
+  
 #ifdef DO_SIZE_STATS
   prod2_subcache_t::report_stats();
 #endif

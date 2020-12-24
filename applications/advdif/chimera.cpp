@@ -118,7 +118,7 @@ int chimera_mat_shell_t
   int ierr;
   // List of nodes at the boundaries of W1 and W2 (includes
   // external and internal boundaries).
-  // Call a hook from the user. It is hook but in fact we
+  // Call a hook from the user. It is a hook but in fact we
   // just use that for dynamically loading this function
   CHIMERA_HOOK_P->mark_bdry_nodes(ebdry,ibdry,time,step);
 
@@ -175,7 +175,9 @@ int chimera_mat_shell_t
     if (!access(fname,F_OK)) unlink(fname);
     h5_dvector_write(xale,fname,"xale");
     // Call the Octave script
-    system("octave-cli -qH mkint.m > mkinterpolators.log");
+    // system("octave-cli -qH mkint.m > mkinterpolators.log");
+    // system("make interpolators &> mkinterpolators.log");
+    system("make interpolators");
     // Load the interpolators (computed in Octave right now probably)
     h5_dvector_read("./interp.h5","/z/value",w);
   } else {
@@ -273,6 +275,7 @@ int chimera_mat_shell_t
   ierr = VecGetArray(x,&xp); CHKERRQ(ierr);
   // For external bdry nodes the RHS of the eq is simply 0,
   // because we assume homogeneous Dirichlet condition. 
+  // for (auto &jeq : ebdry) resp[jeq] = 3.14-xp[jeq];
   for (auto &jeq : ebdry) resp[jeq] = 0.0;
   // For internal bdry nodes we must set the difference
   // between the value of PHI and the interpolated value
@@ -282,7 +285,7 @@ int chimera_mat_shell_t
   //         x{j} - sum{k} a{jk}*x{k} + dx{j} - sum{k} a{jk}*dx{k} = 0
 
   // The last terms dx{j}-sum{k} a{jk}*dx{k} are the
-  // homogeneous terms tadded by the MatMult product A*dx.
+  // homogeneous terms added by the MatMult product A*dx.
   
   // The first terms go to the rhs:
   //          A*dx = rhs{j} = rhs{j} = -x{j} + sum{k} a{jk}*x{k}
