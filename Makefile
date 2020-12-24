@@ -305,3 +305,7 @@ tags3:
 	find . -name '*.f' >> tempo.txt
 	etags `cat tempo.txt`
 	rm tempo.txt
+
+xxx:
+	@echo LDFLAGS $(LDFLAGS)
+##	@echo PETSC_LDFLAGS $(PETSC_LDFLAGS)

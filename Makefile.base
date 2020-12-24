@@ -373,8 +373,9 @@ LDFLAGS = $(LDDBGFLAG)					\
           $(SSL_LDFLAGS)				\
           $(SUPERLU_LDFLAGS)				\
 	  $(SSL_LDFLAGS)				\
+	  $(HDF5LIBS) 					\
 	  $(PETSC_LDFLAGS)				\
-	  $(OMP_LDFLAGS) $(HDF5LIBS) $(JSON_LDFLAGS)	\
+	  $(OMP_LDFLAGS) $(JSON_LDFLAGS)		\
 	  $(PFLIBPROJ_LDFLAGS)				\
           $(ANN_LDFLAGS)
 
@@ -390,8 +391,9 @@ LDFLAGS_NO_PROG_LIB =				\
 	  $(NEWMAT_LDFLAGS)			\
 	  $(SSL_LDFLAGS)			\
           $(SUPERLU_LDFLAGS)			\
+	  $(HDF5LIBS)				\
 	  $(PETSC_LDFLAGS)			\
-	  $(OMP_LDFLAGS) $(HDF5LIBS)		\
+	  $(OMP_LDFLAGS)			\
 	  $(JSON_LDFLAGS)			\
 	  $(PFLIBPROJ_LDFLAGS)			\
           $(ANN_LDFLAGS)
