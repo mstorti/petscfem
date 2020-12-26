@@ -9,7 +9,7 @@
 class chimera_hook_t : public Hook {
 public:
   virtual void
-  mark_bdry_nodes(set<int> &ebdry,set<int> &ibdry,
+  mark_bdry_nodes(map<int,double> &ebdry,set<int> &ibdry,
                   double time,int step) { }
 };
 
@@ -81,8 +81,11 @@ public:
   // boundary nodes (ebdry) and internal bdry nodes (ibdry),
   // i.e. nodes that are inside the physical domain but in
   // the boundary to other overlapping region and so their
-  // values must be interpolated from the other domain. 
-  set<int> ibdry,ebdry;
+  // values must be interpolated from the other domain.
+  // In the case of external boundaries the map must give
+  // the valu associated to that node
+  set<int> ibdry;
+  map<int,double> ebdry;
 };
 
 // The PETSc MatMult and MatMultTranspose operations for
