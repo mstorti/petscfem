@@ -174,3 +174,17 @@ void flow_rate_integrator::set_pg_values(vector<double> &pg_values,FastMat2 &u,
   u.rs();
   Q.export_vals(&*pg_values.begin());
 }
+
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>
+void volume_integrator::init() {
+  assert(gather_length==1);
+  
+}
+
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>
+void volume_integrator
+::set_pg_values(vector<double> &pg_values,FastMat2 &u,
+                FastMat2 &uold,FastMat2 &xpg,FastMat2 &Jaco,
+                double wpgdet,double time) {
+  pg_values[0] = wpgdet;
+}

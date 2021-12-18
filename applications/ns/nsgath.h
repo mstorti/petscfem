@@ -104,13 +104,11 @@ class volume_integrator : public gatherer {
 private:
 public:
   /// perform several checks and initialization
-  void init() { assert(gather_length==1); }
+  void init();
   /// add volume
   void set_pg_values(vector<double> &pg_values,FastMat2 &u,
 		     FastMat2 &uold,FastMat2 &xpg,FastMat2 &Jaco,
-		     double wpgdet,double time) {
-    pg_values[0] = wpgdet;
-  }
+		     double wpgdet,double time);
 };
 
 #endif

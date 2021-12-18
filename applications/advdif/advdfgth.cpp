@@ -37,3 +37,19 @@ void flow_rate_integrator::set_pg_values(vector<double> &pg_values,FastMat2 &u,
   u.rs();
   Q.export_vals(&*pg_values.begin());
 }
+
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+void field_integrator::init() {
+  int ierr;
+  //o Dof index to be integrated
+  TGETOPTDEF_ND(thash,int,kdof,0);
+  assert(gather_length==1);
+}
+
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+void field_integrator::set_pg_values(vector<double> &pg_values,FastMat2 &u,
+				     FastMat2 &uold,FastMat2 &xpg,FastMat2 &n,
+				     double wpgdet,double time) {
+  double val = *(u.storage_begin()+kdof);
+  pg_values[0] = wpgdet*val;
+}

@@ -105,6 +105,7 @@ void bless_elemset_advdif(char *type,Elemset *& elemset) {
     
     SET_ELEMSET_TYPE(flow_rate_integrator)
     SET_ELEMSET_TYPE(gasflow_force_integrator)
+    SET_ELEMSET_TYPE(field_integrator)
     SET_ELEMSET_TYPE(id)
     
     SET_ELEMSET_TYPE(smoke)
