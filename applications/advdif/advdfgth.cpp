@@ -43,13 +43,19 @@ void field_integrator::init() {
   int ierr;
   //o Dof index to be integrated
   TGETOPTDEF_ND(thash,int,kdof,0);
-  assert(gather_length==1);
+  assert(kdof<0 || gather_length==1);
 }
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 void field_integrator::set_pg_values(vector<double> &pg_values,FastMat2 &u,
 				     FastMat2 &uold,FastMat2 &xpg,FastMat2 &n,
 				     double wpgdet,double time) {
-  double val = *(u.storage_begin()+kdof);
-  pg_values[0] = wpgdet*val;
+  double *vals = u.storage_begin();
+  if (kdof==-1) {
+    int ndof = u.size();
+    for (int j=0; j<ndof; j++)
+      pg_values[j] = wpgdet*vals[j];
+  } else {
+    pg_values[0] = wpgdet*vals[0];
+  }
 }
