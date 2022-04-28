@@ -1007,7 +1007,6 @@ Elemset::Elemset() : type(NULL),
 		     local_store(NULL),
 		     thash(NULL),
 		     elem_prop_names(NULL), elem_iprop_names(NULL),
-                     per_element_vals(9000),
 		     ghost_elems(NULL),
                      elem_conne(NULL),
 		     error_code_m(0) { }
