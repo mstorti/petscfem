@@ -14,6 +14,7 @@
 #include <src/arglist.h>
 #include <src/getprop.h>
 #include <src/util3.h>
+#include <memory>
 
 enum ElemsetIteratorMode {
   ALL                  = 0x00001,
@@ -88,7 +89,7 @@ public:
   /// The name of the elemset
   string name_m;
   /// Per element vals to be dumped
-  dvector<double> per_element_vals;
+  unique_ptr<dvector<double>> per_element_vals_p;
   int per_element_vals_size;
   /// Makes some initialization from the hash table
   virtual void initialize() {}

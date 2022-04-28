@@ -91,13 +91,15 @@ void elasticity::init() {
     PETSCFEM_ASSERT0(per_element_vals_size==ntens,
                      "elasticity element stores stress values only");
     // FIXME:= this fails
-    // dvector<double> &vals = per_element_vals;
-    dvector<double> vals;
-    printf("vals %p\n",&vals);
-    vals.a_resize(2,nelem,ntens);
-    vals.defrag();
-    vals.set(0.0);
-    exit(0);
+    if (!!per_element_vals_p) {
+      per_element_vals_p.reset(new dvector<double>);
+      dvector<double> &vals = *per_element_vals_p;
+      printf("vals %p\n",&vals);
+      vals.a_resize(2,nelem,ntens);
+      vals.defrag();
+      vals.set(0.0);
+      exit(0);
+    }
   }
   // tal vez el resize blanquea
   B.resize(2,ntens,nen).set(0.);
@@ -234,7 +236,7 @@ void elasticity::element_connector(const FastMat2 &xloc,
       FMSHV(stress);
     }
     if (dump_elem_vals) {
-      dvector<double> &vals = per_element_vals;
+      dvector<double> &vals = *per_element_vals_p;
       // Store the stress for postprocessing
       double *w = stress.storage_begin();
       for (int j=0; j<ntens; j++) {
@@ -319,7 +321,7 @@ void elasticity::element_connector(const FastMat2 &xloc,
   }
   if (dump_elem_vals) {
     // Store the stress for postprocessing
-    dvector<double> &vals = per_element_vals;
+    dvector<double> &vals = *per_element_vals_p;
     for (int j=0; j<ntens; j++) vals.e(elem,j) /= ntens;
     if (elem%50==0) {
       SHV(elem);
