@@ -87,7 +87,9 @@ public:
   GHashTable *elem_iprop_names;
   /// The name of the elemset
   string name_m;
-
+  /// Per element vals to be dumped
+  dvector<double> per_element_vals;
+  int per_element_vals_size;
   /// Makes some initialization from the hash table
   virtual void initialize() {}
 

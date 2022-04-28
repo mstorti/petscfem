@@ -174,6 +174,7 @@ int adaptor::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
   PETSCFEM_ASSERT(ndim>=0,
 		  "ndim should be non-negative, ndim %d\n",ndim);  
   TGETOPTDEF_ND(thash,int,ndimel,ndim);
+  // TGETOPTDEF_ND(thash,int,dump_elem_vals,0);
   PETSCFEM_ASSERT(ndimel>=0 && ndimel<=ndim,
                   "Incorrect value for `ndimel': \n",ndimel);
 

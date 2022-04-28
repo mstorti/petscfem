@@ -83,7 +83,18 @@ void elasticity::init() {
 
   ntens = ndim*(ndim+1)/2;
   nen=nel*ndof;
-  
+
+  // Dump elemset values
+  TGETOPTDEF_ND(thash,int,per_element_vals_size,0);
+  int dump_elem_vals = (per_element_vals_size>0);
+  if (dump_elem_vals) {
+    PETSCFEM_ASSERT0(per_element_vals_size==ntens,
+                     "elasticity element stores stress values only");
+    dvector<double> &vals = per_element_vals;
+    vals.clear();
+    vals.a_resize(2,nelem,ntens);
+    vals.set(0.0);
+  }
   // tal vez el resize blanquea
   B.resize(2,ntens,nen).set(0.);
   C.resize(2,ntens,ntens).set(0.);
@@ -154,6 +165,7 @@ void elasticity::element_connector(const FastMat2 &xloc,
   // Levi-Civita tensor generation
   epsilon_LC.eps_LC();
   double J1,J2,coef;
+  int dump_elem_vals = (per_element_vals_size>0);
   
   // loop over Gauss points
   for (int ipg=0; ipg<npg; ipg++) {
@@ -167,7 +179,7 @@ void elasticity::element_connector(const FastMat2 &xloc,
     Jaco.prod(dshapexi,x_new,1,-1,-1,2);
     G.prod(Jaco,Jaco,-1,1,-1,2);
     my_fun2.apply(G,fG);
-    
+
     double detJaco = Jaco.det();
     double detJaco_def = Jaco_def.det();
     //**    if (detJaco_0<=0.) {
@@ -213,6 +225,20 @@ void elasticity::element_connector(const FastMat2 &xloc,
     B.rs();
     strain.prod(B,state_new,1,-1,-2,-1,-2);
     stress.prod(C,strain,1,-1,-1).scale(Young_modulus);
+    if (elem%50==0) {
+      SHV(elem);
+      FMSHV(stress);
+    }
+    if (dump_elem_vals) {
+      dvector<double> &vals = per_element_vals;
+      // Store the stress for postprocessing
+      double *w = stress.storage_begin();
+      for (int j=0; j<ntens; j++) {
+        PETSCFEM_ASSERT0((elem*ntens+j)<int(vals.size()),
+                         "bad size");
+        vals.e(elem,j) += w[j];
+      }
+    }
     
     // Residual computation
     res_pg.prod(B,stress,-1,1,2,-1);
@@ -287,5 +313,20 @@ void elasticity::element_connector(const FastMat2 &xloc,
     mat_pg3.prod(res_pg,dJaco,1,2,3,4).scale(-Jaco_pow/detJaco_def);
     mat.axpy(mat_pg3,wpgdet);
   }
-    
+  if (dump_elem_vals) {
+    // Store the stress for postprocessing
+    dvector<double> &vals = per_element_vals;
+    for (int j=0; j<ntens; j++) vals.e(elem,j) /= ntens;
+    if (elem%50==0) {
+      SHV(elem);
+      for (int j=0; j<ntens; j++)
+        printf("%f ",vals.e(elem,j));
+      printf("\n");
+    }
+  }
+}
+
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>
+void elasticity::clean() {
+  printf("in elasticity::clean()\n");
 }

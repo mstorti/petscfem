@@ -26,6 +26,7 @@ public:
 			 const FastMat2 &state_old,
 			 const FastMat2 &state_new,
 			 FastMat2 &res,FastMat2 &mat);
+  void clean();
 };
 
 #endif
