@@ -6,6 +6,7 @@
 #include <src/readmesh.h>
 #include <src/getprop.h>
 #include <src/fastmat2.h>
+#include <src/h5utils.h>
 #include "./fm2funm.h"
 
 #include "nsi_tet.h"
@@ -329,4 +330,8 @@ void elasticity::element_connector(const FastMat2 &xloc,
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>
 void elasticity::clean() {
   // per_element_vals_p->print();
+  static int cnt=0;
+  char line[100];
+  sprintf(line,"stress_%d",cnt++);
+  h5_dvector_write(*per_element_vals_p,"./stress.h5",line);
 }
