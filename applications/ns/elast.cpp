@@ -94,7 +94,6 @@ void elasticity::init() {
     if (!per_element_vals_p) {
       per_element_vals_p.reset(new dvector<double>);
       dvector<double> &vals = *per_element_vals_p;
-      printf("vals %p\n",&vals);
       vals.a_resize(2,nelem,ntens);
       vals.defrag();
       vals.set(0.0);
@@ -230,10 +229,6 @@ void elasticity::element_connector(const FastMat2 &xloc,
     B.rs();
     strain.prod(B,state_new,1,-1,-2,-1,-2);
     stress.prod(C,strain,1,-1,-1).scale(Young_modulus);
-    if (elem%50==0) {
-      SHV(elem);
-      FMSHV(stress);
-    }
     if (dump_elem_vals) {
       PETSCFEM_ASSERT0(!!per_element_vals_p,"Container not initialized");
       dvector<double> &vals = *per_element_vals_p;
@@ -333,5 +328,5 @@ void elasticity::element_connector(const FastMat2 &xloc,
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>
 void elasticity::clean() {
-  per_element_vals_p->print();
+  // per_element_vals_p->print();
 }
