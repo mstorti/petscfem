@@ -7,7 +7,7 @@
 
 //-------<*>-------<*>-------<*>-------<*>-------<*>------- 
 /// 
-class  elasticity : public adaptor { 
+class elasticity : public adaptor { 
 private:
   dvector<int> elprpsindx; 
   int nprops;

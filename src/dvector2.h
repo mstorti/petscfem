@@ -74,7 +74,8 @@ void dvector<T>::push_heap (int first, int p, int u) {
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 template<class T>
-dvector<T>::dvector(int cs) { 
+dvector<T>::dvector(int cs) {
+  printf("dvector %p, cs %d\n",this,cs);
   chunk_size = cs;
   chunks = NULL;
   size_m = nchunks = 0;
@@ -140,6 +141,7 @@ dvector<T>& dvector<T>::push(const T &t) {
     // allocate new chunk
     assert((unsigned int)nchunks == chunk_vector.size());
     // resync `chunk_vector' and `nchunks'
+    printf("dvector %p, alloc chunk %d\n",this,k);
     T* p = new T[chunk_size];
     chunk_vector.push_back(p);
     chunks = &*chunk_vector.begin();

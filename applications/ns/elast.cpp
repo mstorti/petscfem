@@ -90,10 +90,14 @@ void elasticity::init() {
   if (dump_elem_vals) {
     PETSCFEM_ASSERT0(per_element_vals_size==ntens,
                      "elasticity element stores stress values only");
-    dvector<double> &vals = per_element_vals;
-    vals.clear();
+    // FIXME:= this fails
+    // dvector<double> &vals = per_element_vals;
+    dvector<double> vals;
+    printf("vals %p\n",&vals);
     vals.a_resize(2,nelem,ntens);
+    vals.defrag();
     vals.set(0.0);
+    exit(0);
   }
   // tal vez el resize blanquea
   B.resize(2,ntens,nen).set(0.);
