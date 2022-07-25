@@ -125,7 +125,8 @@ int chimera_mat_shell_t
   // Replace all the rows for the external and internal
   // boundary nodes for the identity matrix Replace the rows
   // FIXED will be the union of IBDRY and EBDRY
-  set<int> fixed = ebdry;
+  set<int> fixed;
+  for (auto &q : ebdry) fixed.insert(q.first);
   for (auto &q : ibdry) fixed.insert(q);
   // This stores the rows that are fixed. It will be passed to PETSc MatZeros
   vector<int> rows;
@@ -176,8 +177,8 @@ int chimera_mat_shell_t
     h5_dvector_write(xale,fname,"xale");
     // Call the Octave script
     // system("octave-cli -qH mkint.m > mkinterpolators.log");
-    // system("make interpolators &> mkinterpolators.log");
-    system("make interpolators");
+    system("make interpolators &> mkinterpolators.log");
+    // system("make interpolators");
     // Load the interpolators (computed in Octave right now probably)
     h5_dvector_read("./interp.h5","/z/value",w);
   } else {
@@ -275,8 +276,12 @@ int chimera_mat_shell_t
   ierr = VecGetArray(x,&xp); CHKERRQ(ierr);
   // For external bdry nodes the RHS of the eq is simply 0,
   // because we assume homogeneous Dirichlet condition. 
-  // for (auto &jeq : ebdry) resp[jeq] = 3.14-xp[jeq];
-  for (auto &jeq : ebdry) resp[jeq] = 0.0;
+  for (auto &q : ebdry) {
+    int jeq = q.first;
+    double val = q.second;
+    resp[jeq] = val-xp[jeq];
+  }
+  // for (auto &jeq : ebdry) resp[jeq] = 0.0;
   // For internal bdry nodes we must set the difference
   // between the value of PHI and the interpolated value
   // from the other domain. But as we solve in incremental

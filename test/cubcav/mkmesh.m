@@ -17,7 +17,7 @@ x = x3(:,1);
 y = x3(:,2);
 z = x3(:,3);
 
-wall_f = abs(x)<tol  | abs(1-x)<tol | abs(z)<tol | abs(1-z)<tol | \
+wall_f = abs(x)<tol  | abs(1-x)<tol | abs(z)<tol | abs(1-z)<tol | ...
      abs(y)<tol;
 
 top_f = abs(y-1)<tol;
@@ -31,14 +31,14 @@ else
 endif
 
 asave("cubcav.nod.tmp",x3);
-asave("cubcav.con.tmp",i3);
+asavecon("cubcav.con.tmp",i3);
 if use_prismatic
   ico_prism = [i3(:,[1 2 3 5 6 7]);
 	       i3(:,[3 4 1 7 8 5])];
-  asave("cubcav.con-prism.tmp",ico_prism);
+  asavecon("cubcav.con-prism.tmp",ico_prism);
 elseif use_tetra
-  cmd = [getenv("PETSCFEM_DIR") \
-	 "/tools/hexasplit.bin" \
+  cmd = [getenv("PETSCFEM_DIR") ...
+	 "/tools/hexasplit.bin" ...
 	 " -i cubcav.con.tmp -o cubcav.con-tetra.tmp"];
   system(cmd);
 endif

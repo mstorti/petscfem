@@ -694,7 +694,7 @@ comp_vel_vec_per_field(FastMat2 &vel_vec_per_field) {
 void newadvecfm2_ff_t::element_hook(ElementIterator &element_) {
   element = element_;
 
-  int elem,bid;
+  int elem=-1,bid;
   if (PF_PROP_HOOK) element.position(elem,bid);
   double time=0.0;
   

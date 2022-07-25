@@ -74,7 +74,7 @@ void dvector<T>::push_heap (int first, int p, int u) {
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 template<class T>
-dvector<T>::dvector(int cs) { 
+dvector<T>::dvector(int cs) {
   chunk_size = cs;
   chunks = NULL;
   size_m = nchunks = 0;

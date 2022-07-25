@@ -306,6 +306,5 @@ tags3:
 	etags `cat tempo.txt`
 	rm tempo.txt
 
-xxx:
-	@echo LDFLAGS $(LDFLAGS)
-##	@echo PETSC_LDFLAGS $(PETSC_LDFLAGS)
+qqq:
+	@echo PETSC_LDFLAGS $(PETSC_LDFLAGS)

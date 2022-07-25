@@ -22,7 +22,7 @@ nsave 1
 # nstep 1
 chunk_size 40000
 
->>if $iisd_subpart
+>>if 0 && $iisd_subpart
 solver "iisd"
 # <:pr('iisd_subpart'):>
 iisd_subpart_auto 1000

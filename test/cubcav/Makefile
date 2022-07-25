@@ -174,7 +174,7 @@ step_server:
 #w Make link for debugging
 link:
 	$(MAKE) -C ../../ $(LOC_PROG)
-	ln -f $(PROG) $(LOC_PROG)
+	ln -sf $(PROG) .
 
 #w performance test:
 test_perfo:

@@ -1,5 +1,5 @@
 # -*- mode: shell-script -*-
-<:require 'sqcav.pl';:>//                            # ends ePerl block
+<:require './sqcav.pl';:>//                            # ends ePerl block
 # <:pr('dx_case'):> 
 # <:pr('dx'):> 
 # <:pr('file0'):> 

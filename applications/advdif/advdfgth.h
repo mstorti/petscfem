@@ -21,4 +21,19 @@ public:
 		     double wpgdet,double time);
 };
 
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>
+// Integrates the KDOF field over the elemset
+class field_integrator : public gatherer {
+private:
+  int kdof;
+public:
+  field_integrator() : kdof(0) {}
+  /// perform several checks and initialization
+  void init();
+  /// set forces 
+  void set_pg_values(vector<double> &pg_values,FastMat2 &u,
+		     FastMat2 &uold,FastMat2 &xpg,FastMat2 &Jaco,
+		     double wpgdet,double time);
+};
+
 #endif

@@ -5,5 +5,4 @@ vals = aload("cubcav-srfgath.gather.tmp");
 
 erro = merr(refval-vals);
 tol = 1e-10;
-printf("Srfgath values OK? > %d (error %g, tol %g)\n", \
-       erro<tol,erro,tol);
+printf("Srfgath values OK? > %d (error %g, tol %g)\n",erro<tol,erro,tol);
