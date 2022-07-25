@@ -260,5 +260,47 @@ int h5petsc_vec_save(Vec x,const char *filename,
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>
 void h5_dvector_read(const char *filename,const char *dsetname,
                      dvector<double> &w) { H5ERR; }
+
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>
+int h5petsc_vec_save(Vec x,const char *filename,
+                     const char *varname) { H5ERR; return 0; }
+
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>
+template<class T>
+void h5_dvector_read(const char *filename,
+                     const char *dsetname,
+                     dvector<T> &w,H5::PredType type) { H5ERR; }
+
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>
+template<class T>
+void h5_dvector_read2(const char *fdname,
+                     dvector<T> &w) { H5ERR; }
+
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>
+void h5_dvector_read(const char *fdname,
+                     dvector<double> &w) { H5ERR; }
+
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>
+void h5_dvector_read(const char *fdname,
+                     dvector<int> &w) { H5ERR; }
+
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>
+void h5_dvector_read(const char *filename,
+                     const char *dsetname,
+                     dvector<double> &w) { H5ERR; }
+
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>
+void h5_dvector_read(const char *filename,
+                     const char *dsetname,
+                     dvector<int> &w) { H5ERR; }
+
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>
+void h5_dvector_write(dvector<double> &w,const char *filename,
+                     const char *varname) { H5ERR; }
+
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*> Read a
+void h5_dvector_read_d2i(const char *file,const char *dset,
+                         dvector<int> &w) { H5ERR; }
+
 #endif
 

@@ -356,7 +356,7 @@ PF_PKG_LIBS_DIR := -Wl,-rpath,$(abspath $(PF_PKG_DIR))/lib
 endif
 
 LDFLAGS = $(LDDBGFLAG)					\
-	  $(LD_FLAGS_PRE) 				\
+	  $(LD_FLAGS_PRE)				\
 	  -Wl,-E,-rpath,$(LD_LIBRARY_PATH)		\
           $(PROG_LIB)					\
 	  $(PTHREADS_LIB)				\
@@ -374,11 +374,11 @@ LDFLAGS = $(LDDBGFLAG)					\
           $(SSL_LDFLAGS)				\
           $(SUPERLU_LDFLAGS)				\
 	  $(SSL_LDFLAGS)				\
-	  $(HDF5LIBS) 					\
-	  $(PETSC_LDFLAGS)				\
+	  $(HDF5LIBS)					\
 	  $(OMP_LDFLAGS) $(JSON_LDFLAGS)		\
 	  $(PFLIBPROJ_LDFLAGS)				\
-          $(ANN_LDFLAGS)
+          $(ANN_LDFLAGS)				\
+	  $(LD_FLAGS_POST)
 
 LDFLAGS_NO_PROG_LIB =				\
 	  $(LDDBGFLAG)				\
