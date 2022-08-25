@@ -210,10 +210,15 @@ void h5_dvector_write(dvector<double> &w,const char *filename,
   vector<int> shape;
   w.get_shape(shape);
   int rank=shape.size();
-  PETSCFEM_ASSERT(rank==1 || rank==2,
+  PETSCFEM_ASSERT(rank>=0 && rank<=2,
                   "Not implemented yet rank %d",rank);  
-  vector<hsize_t> hshape(rank);
-  for (int j=0; j<rank; j++) hshape[j] = shape[j];
+  vector<hsize_t> hshape;
+  if (rank>0) {
+    for (int j=0; j<rank; j++) hshape.push_back(shape[j]);
+  } else {
+    rank=1;
+    hshape.push_back(w.size());
+  }
   H5::DataSpace dataspace(rank,hshape.data());
   // Create the dataset.
   H5::DataSet xdset =

@@ -339,7 +339,7 @@ void elasticity::clean() {
     dvector<double> &vals = *per_element_vals_p;
     int nvals = vals.size();
     dvector<double> tmp;
-    if(myrank==0) tmp.mono(size,0.0);
+    if(myrank==0) tmp.mono(nvals,0.0);
     MPI_Reduce(vals.buff(),tmp.buff(),nvals,
                MPI_DOUBLE,MPI_SUM,0,PETSCFEM_COMM_WORLD);
     if(myrank==0) 

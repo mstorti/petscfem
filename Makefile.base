@@ -378,6 +378,7 @@ LDFLAGS = $(LDDBGFLAG)					\
           $(SUPERLU_LDFLAGS)				\
 	  $(SSL_LDFLAGS)				\
 	  $(HDF5LIBS)					\
+	  -Wl,-rpath,$(HDF5_LIB_DIR)			\
 	  $(PETSC_LDFLAGS)				\
 	  $(OMP_LDFLAGS) $(JSON_LDFLAGS)		\
 	  $(PFLIBPROJ_LDFLAGS)				\
