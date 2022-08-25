@@ -329,9 +329,20 @@ void elasticity::element_connector(const FastMat2 &xloc,
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>
 void elasticity::clean() {
-  // per_element_vals_p->print();
-  static int cnt=0;
-  char line[100];
-  sprintf(line,"stress_%d",cnt++);
-  h5_dvector_write(*per_element_vals_p,"./stress.h5",line);
+  if (per_element_vals_p) {
+    int myrank,size;
+    MPI_Comm_rank(PETSCFEM_COMM_WORLD,&myrank);
+    MPI_Comm_size(PETSCFEM_COMM_WORLD,&size);
+    static int cnt=0;
+    char line[100];
+    sprintf(line,"stress_%d",cnt++);
+    dvector<double> &vals = *per_element_vals_p;
+    int nvals = vals.size();
+    dvector<double> tmp;
+    if(myrank==0) tmp.mono(size,0.0);
+    MPI_Reduce(vals.buff(),tmp.buff(),nvals,
+               MPI_DOUBLE,MPI_SUM,0,PETSCFEM_COMM_WORLD);
+    if(myrank==0) 
+      h5_dvector_write(tmp,"./stress.h5",line);
+  }
 }
