@@ -20,6 +20,16 @@ void LinearHFilmFun::q(FastMat2 &uin,FastMat2 &uout,FastMat2 &flux,
   h->jac(jacin);
   jacout.set(jacin);
   jacout.scale(-1.);
+  static int k=0;
+  if (0 && k>10) {
+    FMSHV(uin);
+    FMSHV(uout);
+    FMSHV(flux);
+    FMSHV(jacin);
+    FMSHV(jacout);
+    exit(0);
+  }
+  k++;
   s->add(flux);
 }
 
