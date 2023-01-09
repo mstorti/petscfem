@@ -14,14 +14,15 @@
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 void LinearHFilmFun::q(FastMat2 &uin,FastMat2 &uout,FastMat2 &flux,
 		       FastMat2 &jacin,FastMat2 &jacout) {
-
+  static int k=0;
+  k++;
+#if 1
   dU.set(uout).minus(uin);
   h->prod(flux,dU);
   h->jac(jacin);
   jacout.set(jacin);
   jacout.scale(-1.);
-  static int k=0;
-  if (0 && k>10) {
+  if (k>10) {
     FMSHV(uin);
     FMSHV(uout);
     FMSHV(flux);
@@ -29,8 +30,21 @@ void LinearHFilmFun::q(FastMat2 &uin,FastMat2 &uout,FastMat2 &flux,
     FMSHV(jacout);
     exit(0);
   }
-  k++;
   s->add(flux);
+#else
+  printf("in linhff\n");
+  PETSCFEM_ASSERT(ndof==1,"bad ndof %d",ndof);
+  double
+    *uinp = uin.data(),
+    *uoutp = uout.data(),
+    *fluxp = flux.data(),
+    *jacinp = jacin.data(),
+    *jacoutp = jacout.data();
+  double hfilm=2;
+  *fluxp = hfilm*
+  if (k>10) { }
+  exit(0);
+#endif
 }
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
