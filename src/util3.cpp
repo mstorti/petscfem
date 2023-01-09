@@ -3,6 +3,7 @@
 #include <cstring>
 #include <cstdio>
 #include <cassert>
+#include <ctime>
 #include <string>
 #include <vector>
 #include <mpi.h>

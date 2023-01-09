@@ -428,8 +428,10 @@ int advdif_main(int argc,char **args) {
     }
     chrono.start();
 
-    if (RENORM_flag)
-      ierr = read_vector("state-ren.tmp",x,dofmap,MY_RANK); CHKERRA(ierr);
+    if (RENORM_flag) {
+      ierr = read_vector("state-ren.tmp",x,dofmap,MY_RANK);
+      CHKERRA(ierr);
+    }
 
     ierr = VecCopy(x,xold);
     //    hook_list.time_step_pre(time_star.time(),tstep);

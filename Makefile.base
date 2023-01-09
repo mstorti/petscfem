@@ -375,6 +375,7 @@ LDFLAGS = $(LDDBGFLAG)					\
           $(SUPERLU_LDFLAGS)				\
 	  $(SSL_LDFLAGS)				\
 	  $(HDF5LIBS)					\
+	  $(PETSC_LDFLAGS)				\
 	  $(OMP_LDFLAGS) $(JSON_LDFLAGS)		\
 	  $(PFLIBPROJ_LDFLAGS)				\
           $(ANN_LDFLAGS)				\
