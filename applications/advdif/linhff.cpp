@@ -11,12 +11,16 @@
 #include "advective.h"
 #include "genload.h"
 
+static double fluxfun(double DV) {
+  return 2*DV;
+}
+
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 void LinearHFilmFun::q(FastMat2 &uin,FastMat2 &uout,FastMat2 &flux,
 		       FastMat2 &jacin,FastMat2 &jacout) {
   static int k=0;
   k++;
-#if 1
+#if 0
   dU.set(uout).minus(uin);
   h->prod(flux,dU);
   h->jac(jacin);
@@ -32,18 +36,22 @@ void LinearHFilmFun::q(FastMat2 &uin,FastMat2 &uout,FastMat2 &flux,
   }
   s->add(flux);
 #else
-  printf("in linhff\n");
-  PETSCFEM_ASSERT(ndof==1,"bad ndof %d",ndof);
+  // printf("in linhff\n");
   double
     *uinp = uin.data(),
     *uoutp = uout.data(),
     *fluxp = flux.data(),
     *jacinp = jacin.data(),
     *jacoutp = jacout.data();
-  double hfilm=2;
-  *fluxp = hfilm*
-  if (k>10) { }
-  exit(0);
+  // double hfilm=2.0;
+  double DV = (*uoutp-*uinp);
+  double epsln = 1e-5;
+  *fluxp = fluxfun(DV);
+  double hfilm =( fluxfun(DV+epsln)-fluxfun(DV-epsln))/(2*epsln);
+  *jacinp = hfilm;
+  *jacoutp = -hfilm;
+  // if (k>10) {  }
+  // exit(0);
 #endif
 }
 
