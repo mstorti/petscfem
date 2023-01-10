@@ -29,49 +29,68 @@ static double regmax(double a,double b,double delta=1e-4) {
 }
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>
-static double fluxfun(double DV) {
-  double R0=100,Rinf=0.01,DV0=1,delta=0.1;
+class fluxfun_t {
+public:
+  double R0,Rinf,DV0,delta;
+  void init();
+  double fun(double DV);
+} fluxfun;
+
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>
+double fluxfun_t::fun(double DV) {
   return regmax(DV/R0,(DV-DV0)/Rinf,delta);
+}
+
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>
+void fluxfun_t::init() {
+  R0=100;
+  Rinf=0.01;
+  DV0=1;
+  delta=0.1;
 }
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 void LinearHFilmFun::q(FastMat2 &uin,FastMat2 &uout,FastMat2 &flux,
 		       FastMat2 &jacin,FastMat2 &jacout) {
-  static int k=0;
-  k++;
-#if 0
-  dU.set(uout).minus(uin);
-  h->prod(flux,dU);
-  h->jac(jacin);
-  jacout.set(jacin);
-  jacout.scale(-1.);
-  if (k>10) {
-    FMSHV(uin);
-    FMSHV(uout);
-    FMSHV(flux);
-    FMSHV(jacin);
-    FMSHV(jacout);
-    exit(0);
+  static int flag=0,use_elyzer_film=0;
+  if (!flag) {
+    flag=1;
+    use_elyzer_film=0;
+    if (use_elyzer_film) fluxfun.init();
   }
-  s->add(flux);
-#else
-  // printf("in linhff\n");
-  double
-    *uinp = uin.data(),
-    *uoutp = uout.data(),
-    *fluxp = flux.data(),
-    *jacinp = jacin.data(),
-    *jacoutp = jacout.data();
-  // double hfilm=2.0;
-  double DV = (*uoutp-*uinp);
-  double epsln = 1e-5;
-  *fluxp = fluxfun(DV);
-  double hfilm =(fluxfun(DV+epsln)-fluxfun(DV-epsln))/(2*epsln);
-  *jacinp = hfilm;
-  *jacoutp = -hfilm;
-  // if (k>10) {  }
-  // exit(0);
+
+  if (use_elyzer_film==0) {
+    dU.set(uout).minus(uin);
+    h->prod(flux,dU);
+    h->jac(jacin);
+    jacout.set(jacin);
+    jacout.scale(-1.);
+#if 0    
+    if (0) {
+      FMSHV(uin);
+      FMSHV(uout);
+      FMSHV(flux);
+      FMSHV(jacin);
+      FMSHV(jacout);
+      exit(0);
+    }
 #endif
+    s->add(flux);
+  } else {
+    double
+      *uinp = uin.data(),
+      *uoutp = uout.data(),
+      *fluxp = flux.data(),
+      *jacinp = jacin.data(),
+      *jacoutp = jacout.data();
+    // double hfilm=2.0;
+    double DV = (*uoutp-*uinp);
+    double epsln = 1e-5;
+    *fluxp = fluxfun.fun(DV);
+    double hfilm =(fluxfun.fun(DV+epsln)-fluxfun.fun(DV-epsln))/(2*epsln);
+    *jacinp = hfilm;
+    *jacoutp = -hfilm;
+  }
 }
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
