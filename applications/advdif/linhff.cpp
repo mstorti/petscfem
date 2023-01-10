@@ -43,10 +43,19 @@ double fluxfun_t::fun(double DV) {
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>
 void fluxfun_t::init() {
-  R0=100;
-  Rinf=0.01;
-  DV0=1;
-  delta=0.1;
+  int ierr;
+  TGETOPTDEF_ND(GLOBAL_OPTIONS,double,R0,NAN);
+  TGETOPTDEF_ND(GLOBAL_OPTIONS,double,Rinf,NAN);
+  TGETOPTDEF_ND(GLOBAL_OPTIONS,double,DV0,NAN);
+  TGETOPTDEF_ND(GLOBAL_OPTIONS,double,delta,NAN);
+  // R0=100;
+  // Rinf=0.01;
+  // DV0=1;
+  // delta=0.1;
+  if (!MY_RANK) 
+    printf("USER FLUXFUN initialized: R0 %g, Rinf %g, DV0 %g, delta %g\n",
+           R0,Rinf,DV0,delta);
+  exit(0);
 }
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
@@ -55,7 +64,8 @@ void LinearHFilmFun::q(FastMat2 &uin,FastMat2 &uout,FastMat2 &flux,
   static int flag=0,use_elyzer_film=0;
   if (!flag) {
     flag=1;
-    use_elyzer_film=0;
+    int ierr;
+    TGETOPTDEF_ND(GLOBAL_OPTIONS,int,use_elyzer_film,0);
     if (use_elyzer_film) fluxfun.init();
   }
 
