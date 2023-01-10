@@ -403,8 +403,10 @@ int bdf_main() {
     }
     chrono.start();
 
-    if (RENORM_flag)
-      ierr = read_vector("state-ren.tmp",x,dofmap,MY_RANK); CHKERRA(ierr);
+    if (RENORM_flag) {
+      ierr = read_vector("state-ren.tmp",x,dofmap,MY_RANK);
+      CHKERRA(ierr);
+    }
 
     // Compute xold = (4*x^{n} - x^{n-1})/3.0
     if (use_BDF) {
