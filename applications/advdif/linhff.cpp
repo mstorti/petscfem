@@ -11,8 +11,27 @@
 #include "advective.h"
 #include "genload.h"
 
+// Regularized version of the abs function
+static double regabs(double x,double delta=1e-4) {
+  return  (fabs(x)<1e-6? 1.0 : x/tanh(x));
+}
+
+#if 0
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>
+static double regmin(double a,double b,double delta=1e-4) {
+  return 0.5*(a+b)-0.5*regabs(a-b,delta);
+}
+#endif
+
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>
+static double regmax(double a,double b,double delta=1e-4) {
+  return 0.5*(a+b)+0.5*regabs(a-b,delta);
+}
+
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>
 static double fluxfun(double DV) {
-  return 2*DV;
+  double R0=100,Rinf=0.01,DV0=1,delta=0.1;
+  return regmax(DV/R0,(DV-DV0)/Rinf,delta);
 }
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
@@ -47,7 +66,7 @@ void LinearHFilmFun::q(FastMat2 &uin,FastMat2 &uout,FastMat2 &flux,
   double DV = (*uoutp-*uinp);
   double epsln = 1e-5;
   *fluxp = fluxfun(DV);
-  double hfilm =( fluxfun(DV+epsln)-fluxfun(DV-epsln))/(2*epsln);
+  double hfilm =(fluxfun(DV+epsln)-fluxfun(DV-epsln))/(2*epsln);
   *jacinp = hfilm;
   *jacoutp = -hfilm;
   // if (k>10) {  }
