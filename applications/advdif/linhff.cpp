@@ -38,7 +38,8 @@ public:
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>
 double fluxfun_t::fun(double DV) {
-  return regmax(DV/R0,(DV-DV0)/Rinf,delta);
+  double aDV=fabs(DV), sig=(DV>0? 1 : -1);
+  return sig*regmax(aDV/R0,(aDV-DV0)/Rinf,delta);
 }
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>
