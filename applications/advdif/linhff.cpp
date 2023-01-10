@@ -48,19 +48,17 @@ void fluxfun_t::init() {
   TGETOPTDEF_ND(GLOBAL_OPTIONS,double,Rinf,NAN);
   TGETOPTDEF_ND(GLOBAL_OPTIONS,double,DV0,NAN);
   TGETOPTDEF_ND(GLOBAL_OPTIONS,double,delta,NAN);
-  // R0=100;
-  // Rinf=0.01;
-  // DV0=1;
-  // delta=0.1;
   if (!MY_RANK) 
     printf("USER FLUXFUN initialized: R0 %g, Rinf %g, DV0 %g, delta %g\n",
            R0,Rinf,DV0,delta);
-  exit(0);
 }
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 void LinearHFilmFun::q(FastMat2 &uin,FastMat2 &uout,FastMat2 &flux,
 		       FastMat2 &jacin,FastMat2 &jacout) {
+  // FLAG is for doing the initialization just once
+  // USE_ELYZER_FILM is to flag if the special nonlinear functions
+  // must be taken
   static int flag=0,use_elyzer_film=0;
   if (!flag) {
     flag=1;
@@ -70,6 +68,7 @@ void LinearHFilmFun::q(FastMat2 &uin,FastMat2 &uout,FastMat2 &flux,
   }
 
   if (use_elyzer_film==0) {
+    // Use the normal linear functions
     dU.set(uout).minus(uin);
     h->prod(flux,dU);
     h->jac(jacin);
@@ -87,17 +86,24 @@ void LinearHFilmFun::q(FastMat2 &uin,FastMat2 &uout,FastMat2 &flux,
 #endif
     s->add(flux);
   } else {
+    // Use the functions provided by the user
+    // We dont use FastMat2 so we get the pointers to the
+    // internal data
     double
       *uinp = uin.data(),
       *uoutp = uout.data(),
       *fluxp = flux.data(),
       *jacinp = jacin.data(),
       *jacoutp = jacout.data();
-    // double hfilm=2.0;
+    // Difference potential about this film
     double DV = (*uoutp-*uinp);
+    // Small increment to take the Jacobian by finite differences
     double epsln = 1e-5;
+    // Call the function to get the flux
     *fluxp = fluxfun.fun(DV);
+    // Compute the Jacobian by finite differences
     double hfilm =(fluxfun.fun(DV+epsln)-fluxfun.fun(DV-epsln))/(2*epsln);
+    // Set the Jacobians
     *jacinp = hfilm;
     *jacoutp = -hfilm;
   }
