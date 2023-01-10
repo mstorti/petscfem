@@ -32,7 +32,7 @@ static double regmax(double a,double b,double delta=1e-4) {
 class fluxfun_t {
 public:
   double R0,Rinf,DV0,delta;
-  void init();
+  void init(NewElemset *e);
   double fun(double DV);
 } fluxfun;
 
@@ -42,9 +42,25 @@ double fluxfun_t::fun(double DV) {
   return sig*regmax(aDV/R0,(aDV-DV0)/Rinf,delta);
 }
 
+static double get_entry_d(NewElemset *e,const char *name) {
+  const char *s=NULL;
+  e->get_entry(name,s);
+  // printf("blabla %s\n",s);
+  PETSCFEM_ASSERT(s!=NULL,"not found entry %s!!",name);
+  return stod(s);
+}
+
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>
-void fluxfun_t::init() {
+void fluxfun_t::init(NewElemset *e) {
   int ierr;
+  printf("name %s\n",e->name());
+  // const char *s;
+  // e->get_entry("blabla",s);
+  // printf("blabla %s\n",s);
+  // PETSCFEM_ASSERT0(s!=NULL,"not found entry!!");
+  // double blabla = stod(s);
+  printf("blabla %g\n",get_entry_d(e,"blabla"));
+  exit(0);
   TGETOPTDEF_ND(GLOBAL_OPTIONS,double,R0,NAN);
   TGETOPTDEF_ND(GLOBAL_OPTIONS,double,Rinf,NAN);
   TGETOPTDEF_ND(GLOBAL_OPTIONS,double,DV0,NAN);
@@ -65,7 +81,7 @@ void LinearHFilmFun::q(FastMat2 &uin,FastMat2 &uout,FastMat2 &flux,
     flag=1;
     int ierr;
     TGETOPTDEF_ND(GLOBAL_OPTIONS,int,use_elyzer_film,0);
-    if (use_elyzer_film) fluxfun.init();
+    if (use_elyzer_film) fluxfun.init(elemset);
   }
 
   if (use_elyzer_film==0) {

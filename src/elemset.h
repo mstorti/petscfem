@@ -762,7 +762,8 @@ public:
 
   // Elemset::thash;
   void get_entry(const char *k,const char *&v) const {
-    thash->get_entry(k,v);};
+    thash->get_entry(k,v);
+  };
 
   int get_int(const char *name,
 	      int &retval,int defval=0,int n=1) const {
