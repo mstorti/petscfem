@@ -29,19 +29,12 @@ static double regmax(double a,double b,double delta=1e-4) {
 }
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>
-class fluxfun_t {
-public:
-  double R0,Rinf,DV0,delta;
-  void init(NewElemset *e);
-  double fun(double DV);
-} fluxfun;
-
-//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>
 double fluxfun_t::fun(double DV) {
   double aDV=fabs(DV), sig=(DV>0? 1 : -1);
   return sig*regmax(aDV/R0,(aDV-DV0)/Rinf,delta);
 }
 
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>
 static double get_entry_d(NewElemset *e,const char *name) {
   const char *s=NULL;
   e->get_entry(name,s);
@@ -59,12 +52,15 @@ void fluxfun_t::init(NewElemset *e) {
   // printf("blabla %s\n",s);
   // PETSCFEM_ASSERT0(s!=NULL,"not found entry!!");
   // double blabla = stod(s);
-  printf("blabla %g\n",get_entry_d(e,"blabla"));
-  exit(0);
-  TGETOPTDEF_ND(GLOBAL_OPTIONS,double,R0,NAN);
-  TGETOPTDEF_ND(GLOBAL_OPTIONS,double,Rinf,NAN);
-  TGETOPTDEF_ND(GLOBAL_OPTIONS,double,DV0,NAN);
-  TGETOPTDEF_ND(GLOBAL_OPTIONS,double,delta,NAN);
+#define GET_ENTRY_D(name) name = get_entry_d(e,#name)
+  GET_ENTRY_D(R0);
+  GET_ENTRY_D(Rinf);
+  GET_ENTRY_D(DV0);
+  GET_ENTRY_D(delta);
+  // TGETOPTDEF_ND(GLOBAL_OPTIONS,double,R0,NAN);
+  // TGETOPTDEF_ND(GLOBAL_OPTIONS,double,Rinf,NAN);
+  // TGETOPTDEF_ND(GLOBAL_OPTIONS,double,DV0,NAN);
+  // TGETOPTDEF_ND(GLOBAL_OPTIONS,double,delta,NAN);
   if (!MY_RANK) 
     printf("USER FLUXFUN initialized: R0 %g, Rinf %g, DV0 %g, delta %g\n",
            R0,Rinf,DV0,delta);
@@ -77,8 +73,8 @@ void LinearHFilmFun::q(FastMat2 &uin,FastMat2 &uout,FastMat2 &flux,
   // USE_ELYZER_FILM is to flag if the special nonlinear functions
   // must be taken
   static int flag=0,use_elyzer_film=0;
-  if (!flag) {
-    flag=1;
+  if (!fluxfun.flag) {
+    fluxfun.flag=1;
     int ierr;
     TGETOPTDEF_ND(GLOBAL_OPTIONS,int,use_elyzer_film,0);
     if (use_elyzer_film) fluxfun.init(elemset);

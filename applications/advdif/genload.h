@@ -19,6 +19,17 @@ public:
   //  virtual ~FASTMAT2SHELL()=0;
 };
 
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>
+class fluxfun_t {
+public:
+  int flag;
+  double R0,Rinf,DV0,delta;
+  void init(NewElemset *e);
+  double fun(double DV);
+  fluxfun_t() : flag(0) {}
+};
+
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>
 /// Generic surface flux function (film function) element
 class LinearHFilmFun : public HFilmFun {
 private:
@@ -106,9 +117,10 @@ public:
   void element_hook(ElementIterator &element);
   LinearHFilmFun(GenLoad *e) : HFilmFun(e) {}
   ~LinearHFilmFun();
+  fluxfun_t fluxfun;
 };
 
-
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>
 /// Linear surface flux element
 class lin_gen_load : public GenLoad { 
 public: 
