@@ -15,7 +15,8 @@ static int VRBS=0;
 
 // Regularized version of the abs function
 static double regabs(double x,double delta=1e-4) {
-  double y = (fabs(x)<1e-6? 1.0 : x/tanh(x));
+  double ax = x/delta,
+    y = delta*(fabs(ax)<1e-6? 1.0 : ax/tanh(ax));
   if (0 && VRBS) printf("x %g, y %g, delta %g\n",x,y,delta);
   return y;
 }
@@ -132,8 +133,8 @@ void LinearHFilmFun::q(FastMat2 &uin,FastMat2 &uout,FastMat2 &flux,
       for (int j=0; j<N; j++) {
         double
           x = a+double(j)/N*(b-a),
-          y = fluxfun.fun(DV);
-        printf("%g %g\n",x,y);
+          y = fluxfun.fun(x);
+        printf("DV %g flx %g\n",x,y);
       }
       VRBS = 0;
       exit(0);
