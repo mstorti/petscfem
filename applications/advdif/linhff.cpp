@@ -30,7 +30,10 @@ static double regmax(double a,double b,double delta=1e-4) {
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>
 double fluxfun_t::fun(double DV) {
-  double aDV=fabs(DV), sig=(DV>0? 1 : -1);
+  double
+    aDV=fabs(DV),
+    sig=(DV>0? 1 : -1),
+    DV0 = (sig>0? DV0p : DV0m);
   return sig*regmax(aDV/R0,(aDV-DV0)/Rinf,delta);
 }
 
@@ -55,15 +58,17 @@ void fluxfun_t::init(NewElemset *e) {
 #define GET_ENTRY_D(name) name = get_entry_d(e,#name)
   GET_ENTRY_D(R0);
   GET_ENTRY_D(Rinf);
-  GET_ENTRY_D(DV0);
+  GET_ENTRY_D(DV0p);
+  GET_ENTRY_D(DV0m);
   GET_ENTRY_D(delta);
   // TGETOPTDEF_ND(GLOBAL_OPTIONS,double,R0,NAN);
   // TGETOPTDEF_ND(GLOBAL_OPTIONS,double,Rinf,NAN);
   // TGETOPTDEF_ND(GLOBAL_OPTIONS,double,DV0,NAN);
   // TGETOPTDEF_ND(GLOBAL_OPTIONS,double,delta,NAN);
   if (!MY_RANK) 
-    printf("USER FLUXFUN initialized: R0 %g, Rinf %g, DV0 %g, delta %g\n",
-           R0,Rinf,DV0,delta);
+    printf("USER FLUXFUN initialized: R0 %g, Rinf %g, "
+           "DV0p %g, DV0m %g, delta %g\n",
+           R0,Rinf,DV0p,DV0m,delta);
 }
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
@@ -112,6 +117,17 @@ void LinearHFilmFun::q(FastMat2 &uin,FastMat2 &uout,FastMat2 &flux,
     double DV = (*uoutp-*uinp);
     // Small increment to take the Jacobian by finite differences
     double epsln = 1e-5;
+
+    int N=1000;
+    double a=-1,b=+1;
+    for (int j=0; j<N; j++) {
+      double
+        x = a+double(j)/N*(b-a),
+        y = fluxfun.fun(DV);
+      printf("%g %g\n",x,y);
+    }
+    exit(0);
+    
     // Call the function to get the flux
     *fluxp = fluxfun.fun(DV);
     // Compute the Jacobian by finite differences
