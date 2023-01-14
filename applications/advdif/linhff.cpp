@@ -11,9 +11,13 @@
 #include "advective.h"
 #include "genload.h"
 
+static int VRBS=0;
+
 // Regularized version of the abs function
 static double regabs(double x,double delta=1e-4) {
-  return  (fabs(x)<1e-6? 1.0 : x/tanh(x));
+  double y = (fabs(x)<1e-6? 1.0 : x/tanh(x));
+  if (0 && VRBS) printf("x %g, y %g, delta %g\n",x,y,delta);
+  return y;
 }
 
 #if 0
@@ -33,8 +37,10 @@ double fluxfun_t::fun(double DV) {
   double
     aDV=fabs(DV),
     sig=(DV>0? 1 : -1),
-    DV0 = (sig>0? DV0p : DV0m);
-  return sig*regmax(aDV/R0,(aDV-DV0)/Rinf,delta);
+    DV0 = (sig>0? DV0p : DV0m),
+    flux = regmax(aDV/R0,(aDV-DV0)/Rinf,delta);
+  if (0 && VRBS) printf("aDV %g, sig %g, DV0 %g, flux %g\n",aDV,sig,DV0,flux);
+  return sig*flux;
 }
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>
@@ -118,15 +124,20 @@ void LinearHFilmFun::q(FastMat2 &uin,FastMat2 &uout,FastMat2 &flux,
     // Small increment to take the Jacobian by finite differences
     double epsln = 1e-5;
 
-    int N=1000;
-    double a=-1,b=+1;
-    for (int j=0; j<N; j++) {
-      double
-        x = a+double(j)/N*(b-a),
-        y = fluxfun.fun(DV);
-      printf("%g %g\n",x,y);
+    static int cnt=0; cnt++;
+    if (cnt>2000) { 
+      int N=1000;
+      double a=-1,b=1;
+      VRBS = 1;
+      for (int j=0; j<N; j++) {
+        double
+          x = a+double(j)/N*(b-a),
+          y = fluxfun.fun(DV);
+        printf("%g %g\n",x,y);
+      }
+      VRBS = 0;
+      exit(0);
     }
-    exit(0);
     
     // Call the function to get the flux
     *fluxp = fluxfun.fun(DV);
