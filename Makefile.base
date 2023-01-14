@@ -112,6 +112,9 @@ PACKAGES_LIBS     = ${MPI_LIB} ${X11_LIB} ${BLASLAPACK_LIB}
 PETSC_CPPFLAGS = ${PETSC_CC_INCLUDES} ${PETSC_INCLUDE}
 PETSC_LDFLAGS  = ${PETSC_LIB} ${PETSC_KSP_LIB}
 
+qpetsc:
+	echo PETSC_LDFLAGS $(PETSC_LDFLAGS)
+
 ## ANN
 ifneq ($(ANN),)
 ANN_CPPFLAGS = -DUSE_ANN -I$(ANN_INC_DIR)
@@ -375,6 +378,7 @@ LDFLAGS = $(LDDBGFLAG)					\
           $(SUPERLU_LDFLAGS)				\
 	  $(SSL_LDFLAGS)				\
 	  $(HDF5LIBS)					\
+	  -Wl,-rpath,$(HDF5_LIB_DIR)			\
 	  $(PETSC_LDFLAGS)				\
 	  $(OMP_LDFLAGS) $(JSON_LDFLAGS)		\
 	  $(PFLIBPROJ_LDFLAGS)				\
@@ -464,7 +468,7 @@ $(PROG_BIN): $(MYOBJS) $(PROG_LIB) $(PROGOBJ) $(LIBPETSCFEM)
 	$(MAKE) -C $(PETSCFEM_DIR)/src -W version.cpp version.o
 	${CXX_CLINKER} $(PROF_FLAGS) -o $@			\
 		$(PROGOBJ) $(PETSCFEM_DIR)/src/version.o	\
-		$(MYOBJS) $(OTHER_OBJS) $(LDFLAGS)
+		$(MYOBJS) $(OTHER_OBJS) $(LDFLAGS) $(PF_EXTRA_LDFLAGS)
 
 $(LIBPETSCFEM)(%.o): force
 	$(MAKE) -C $(PETSCFEM_DIR)/src 'libpetscfem$(osfx).a($*.o)'
