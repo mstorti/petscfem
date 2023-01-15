@@ -126,7 +126,7 @@ void LinearHFilmFun::q(FastMat2 &uin,FastMat2 &uout,FastMat2 &flux,
     double epsln = 1e-5;
 
     static int cnt=0; cnt++;
-    if (cnt>2000) { 
+    if (0 && cnt>2000) { 
       int N=1000;
       double a=-1,b=1;
       VRBS = 1;
