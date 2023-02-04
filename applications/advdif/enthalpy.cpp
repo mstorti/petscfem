@@ -120,6 +120,8 @@ void FullEF::comp_P_Cp(FastMat2 &P_Cp,const FastMat2 &P_supg) {
   P_Cp.prod(P_supg,Cp,1,-1,-1,2);
 }
 
+#if 0
+// THIS VERSION WAS BASED ON FullEF, IT doesn't work
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 #undef __FUNC__
 #define __FUNC__ "void user_def_ef_t::init"
@@ -139,6 +141,8 @@ void user_def_ef_t::enthalpy(FastMat2 &H) {
 #define __FUNC__ "void user_def_ef_t::update"
 void user_def_ef_t::update(const double *ejac) {
   Cp.set(ejac);
+  // static const double cp=10.0;
+  // Cp.set(&cp);
 }
 
 #undef __FUNC__
@@ -155,3 +159,49 @@ void user_def_ef_t::comp_W_Cp_N(FastMat2 &W_Cp_N,
 void user_def_ef_t::comp_P_Cp(FastMat2 &P_Cp,const FastMat2 &P_supg) {
   P_Cp.prod(P_supg,Cp,1,-1,-1,2);
 }
+
+void user_def_ef_t::get_Cp(FastMat2 &Cp_a) {
+  Cp_a.eye(Cp);
+}
+
+#else
+// THIS VERSION IS BASED ON GlobalScalarEF
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+void user_def_ef_t::init(int ndof,int ndim,int nel) {
+  Cp=1.0;
+  eye_ndof.resize(2,ndof,ndof).set(0.).eye(1.);
+  htmp1.resize(1,nel);
+  htmp2.resize(2,nel,nel);
+}
+
+
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+void user_def_ef_t::enthalpy(FastMat2 &H) {
+  H.set(UU).scale(Cp);
+}
+
+void user_def_ef_t::update(const double *ejac) {
+  // Cp = *ejac;
+  // static const double cp=10.0;
+  // Cp.set(&cp);
+}
+
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+void user_def_ef_t::comp_W_Cp_N(FastMat2 &W_Cp_N,
+				 const FastMat2 &W,const FastMat2 &N,double w) {
+  htmp1.set(N).scale(w*Cp);
+  htmp2.prod(W,htmp1,1,2); // tmp12 = SHAPE' * SHAPE
+  W_Cp_N.prod(htmp2,eye_ndof,1,3,2,4); // tmp13 = SHAPE' * SHAPE * I
+}
+
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+void user_def_ef_t::comp_P_Cp(FastMat2 &P_Cp,const FastMat2 &P_supg) {
+  P_Cp.set(P_supg).scale(Cp);
+}
+
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>
+void user_def_ef_t::get_Cp(FastMat2 &Cp_a) {
+  Cp_a.eye(Cp);
+}
+
+#endif

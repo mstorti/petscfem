@@ -43,7 +43,10 @@ public:
 
 /// User defined EF
 class user_def_ef_t : public EnthalpyFun {
-  FastMat2 Cp,htmp1,htmp2;
+  /// Aux var. identity of size ndof
+  FastMat2 eye_ndof,htmp1,htmp2;
+  /// The actual Cp
+  double Cp;
 public:
   /// Initializes
   void init(int ndim,int ndof,int nel);
@@ -56,6 +59,8 @@ public:
 		   double w);
   /// Full implementation
   void comp_P_Cp(FastMat2 &P_Cp,const FastMat2 &P_supg);
+  // Return the Cp
+  void get_Cp(FastMat2 &Cp_a);
 };
 
 #endif
