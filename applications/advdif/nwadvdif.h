@@ -80,6 +80,7 @@ private:
   IdentityEF identity_ef;
   ScalarPerFieldEF scalar_per_field_ef;
   FullEF full_ef;
+  user_def_ef_t  user_def_ef;
   
 public:
 

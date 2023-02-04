@@ -119,3 +119,39 @@ void FullEF::comp_W_Cp_N(FastMat2 &W_Cp_N,
 void FullEF::comp_P_Cp(FastMat2 &P_Cp,const FastMat2 &P_supg) {
   P_Cp.prod(P_supg,Cp,1,-1,-1,2);
 }
+
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+#undef __FUNC__
+#define __FUNC__ "void user_def_ef_t::init"
+void user_def_ef_t::init(int ndof,int ndim,int nel) {
+  Cp.resize(2,ndof,ndof);
+  htmp1.resize(1,nel);
+  htmp2.resize(2,nel,nel);
+}
+
+#undef __FUNC__
+#define __FUNC__ "void user_def_ef_t::enthalpy"
+void user_def_ef_t::enthalpy(FastMat2 &H) {
+  H.prod(Cp,UU,1,-1,-1);
+}
+
+#undef __FUNC__
+#define __FUNC__ "void user_def_ef_t::update"
+void user_def_ef_t::update(const double *ejac) {
+  Cp.set(ejac);
+}
+
+#undef __FUNC__
+#define __FUNC__ "void user_def_ef_t::comp_W_Cp_N"
+void user_def_ef_t::comp_W_Cp_N(FastMat2 &W_Cp_N,
+			 const FastMat2 &W,const FastMat2 &N,double w) {
+  htmp1.set(N).scale(w);
+  htmp2.prod(W,htmp1,1,2);
+  W_Cp_N.prod(htmp2,Cp,1,3,2,4);
+}
+
+#undef __FUNC__
+#define __FUNC__ "void user_def_ef_t::comp_P_Cp"
+void user_def_ef_t::comp_P_Cp(FastMat2 &P_Cp,const FastMat2 &P_supg) {
+  P_Cp.prod(P_supg,Cp,1,-1,-1,2);
+}

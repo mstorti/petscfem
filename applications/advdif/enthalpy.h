@@ -41,4 +41,21 @@ public:
   void comp_P_Cp(FastMat2 &P_Cp,const FastMat2 &P_supg);
 };
 
+/// User defined EF
+class user_def_ef_t : public EnthalpyFun {
+  FastMat2 Cp,htmp1,htmp2;
+public:
+  /// Initializes
+  void init(int ndim,int ndof,int nel);
+  /// Full implementation
+  void update(const double *ejac);
+  /// Full implementation
+  void enthalpy(FastMat2 &H);
+  /// Full implementation
+  void comp_W_Cp_N(FastMat2 &W_Cp_N,const FastMat2 &W,const FastMat2 &N,
+		   double w);
+  /// Full implementation
+  void comp_P_Cp(FastMat2 &P_Cp,const FastMat2 &P_supg);
+};
+
 #endif
