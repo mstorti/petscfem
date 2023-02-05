@@ -726,6 +726,7 @@ void newadvecfm2_ff_t::element_hook(ElementIterator &element_) {
   S_body.set(s_body);
 
   e_jac = elemset->prop_array(element,enthalpy_jacobians_prop);
+  // I don't know if this is needed
   enthalpy_fun->update(e_jac);
 }  
 

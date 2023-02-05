@@ -46,7 +46,11 @@ class user_def_ef_t : public EnthalpyFun {
   /// Aux var. identity of size ndof
   FastMat2 eye_ndof,htmp1,htmp2;
   /// The actual Cp
-  double Cp;
+  double Cp1,Cp2,Tf;
+  // internal H fun
+  double hfun(double T);
+  // internal H fun
+  double Cpfun(double T);
 public:
   /// Initializes
   void init(int ndim,int ndof,int nel);
