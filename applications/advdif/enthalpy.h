@@ -45,6 +45,8 @@ public:
 class user_def_ef_t : public EnthalpyFun {
   /// Aux var. identity of size ndof
   FastMat2 eye_ndof,htmp1,htmp2;
+  // The elemset that uses this flux function
+  const NewElemset *elemset;
   /// The actual Cp
   double Cp1,Cp2,Tf,L,delta;
   // internal H fun
@@ -53,7 +55,8 @@ class user_def_ef_t : public EnthalpyFun {
   double Cpfun(double T);
 public:
   /// Initializes
-  void init(int ndim,int ndof,int nel,const NewAdvDif *elemset);
+  void init(int ndim,int ndof,int nel,
+            const NewElemset* elemset);
   /// Full implementation
   void update(const double *ejac);
   /// Full implementation

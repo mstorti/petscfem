@@ -122,12 +122,21 @@ void FullEF::comp_P_Cp(FastMat2 &P_Cp,const FastMat2 &P_supg) {
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 void user_def_ef_t::init(int ndof,int ndim,int nel,
-                         const NewAdvDif *elemset) {
-  Cp1=1.0;
-  Cp2=1.0;
-  L=5.0;
-  Tf=0.5;
-  delta=0.1;
+                         const NewElemset *elemset_) {
+  elemset = elemset_;
+  int ierr;
+  EGETOPTDEF_ND(elemset,double,Cp1,NAN);
+  EGETOPTDEF_ND(elemset,double,Cp2,NAN);
+  EGETOPTDEF_ND(elemset,double,L,NAN);
+  EGETOPTDEF_ND(elemset,double,Tf,NAN);
+  EGETOPTDEF_ND(elemset,double,delta,NAN);
+
+  // SHV(Cp1);
+  // SHV(Cp2);
+  // SHV(L);
+  // SHV(Tf);
+  // SHV(delta);
+
   eye_ndof.resize(2,ndof,ndof).set(0.).eye(1.);
   htmp1.resize(1,nel);
   htmp2.resize(2,nel,nel);
