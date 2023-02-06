@@ -808,9 +808,9 @@ void newadvecfm2_ff_t::start_chunk(int &ret_options) {
     enthalpy_fun = &full_ef;
     full_ef.init(ndof,ndim,nel);
   } else if (enthalpy_jacobians_type==string("user_def")) {
-    printf("using user defined enthalpy function\n");
+    // printf("using user defined enthalpy function\n");
     enthalpy_fun = &user_def_ef;
-    user_def_ef.init(ndof,ndim,nel);
+    user_def_ef.init(ndof,ndim,nel,elemset);
   } else 
     PETSCFEM_ERROR("Not implemented yet\n"
 		   "Enthalpy Jacobian does not fit in \n"

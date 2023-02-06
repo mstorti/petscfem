@@ -25,6 +25,18 @@ int string2dbl(string &s,double &b);
 */ 
 void tokenize(const char *line,vector<string> &tokens);
 
+// Regularized delta based on COS function, in interval [0,b]
+double pf_regdelta(double x,double b);
+
+// Regularized delta based on COS function, in interval [a,b]
+double pf_regdelta(double x,double a,double b);
+
+// Regularized Heaviside function based on COS, in interval [0,b]
+double pf_regheavis(double x,double b);
+
+// Regularized Heaviside function based on COS, in interval [a,b]
+double pf_regheavis(double x,double a,double b,double y0=0.0,double y1=1.0);
+
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 #define CHECK_COOKIE(keyword)							\
     { Sgetline(&buf,&Nbuf,sock);						\

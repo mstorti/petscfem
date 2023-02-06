@@ -120,83 +120,38 @@ void FullEF::comp_P_Cp(FastMat2 &P_Cp,const FastMat2 &P_supg) {
   P_Cp.prod(P_supg,Cp,1,-1,-1,2);
 }
 
-#if 0
-// THIS VERSION WAS BASED ON FullEF, IT doesn't work
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
-#undef __FUNC__
-#define __FUNC__ "void user_def_ef_t::init"
-void user_def_ef_t::init(int ndof,int ndim,int nel) {
-  Cp.resize(2,ndof,ndof);
-  htmp1.resize(1,nel);
-  htmp2.resize(2,nel,nel);
-}
-
-#undef __FUNC__
-#define __FUNC__ "void user_def_ef_t::enthalpy"
-void user_def_ef_t::enthalpy(FastMat2 &H) {
-  H.prod(Cp,UU,1,-1,-1);
-}
-
-#undef __FUNC__
-#define __FUNC__ "void user_def_ef_t::update"
-void user_def_ef_t::update(const double *ejac) {
-  Cp.set(ejac);
-  // static const double cp=10.0;
-  // Cp.set(&cp);
-}
-
-#undef __FUNC__
-#define __FUNC__ "void user_def_ef_t::comp_W_Cp_N"
-void user_def_ef_t::comp_W_Cp_N(FastMat2 &W_Cp_N,
-			 const FastMat2 &W,const FastMat2 &N,double w) {
-  htmp1.set(N).scale(w);
-  htmp2.prod(W,htmp1,1,2);
-  W_Cp_N.prod(htmp2,Cp,1,3,2,4);
-}
-
-#undef __FUNC__
-#define __FUNC__ "void user_def_ef_t::comp_P_Cp"
-void user_def_ef_t::comp_P_Cp(FastMat2 &P_Cp,const FastMat2 &P_supg) {
-  P_Cp.prod(P_supg,Cp,1,-1,-1,2);
-}
-
-void user_def_ef_t::get_Cp(FastMat2 &Cp_a) {
-  Cp_a.eye(Cp);
-}
-
-#else
-// THIS VERSION IS BASED ON GlobalScalarEF
-//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
-void user_def_ef_t::init(int ndof,int ndim,int nel) {
+void user_def_ef_t::init(int ndof,int ndim,int nel,
+                         const NewAdvDif *elemset) {
   Cp1=1.0;
-  Cp2=2.0;
+  Cp2=1.0;
+  L=5.0;
   Tf=0.5;
+  delta=0.1;
   eye_ndof.resize(2,ndof,ndof).set(0.).eye(1.);
   htmp1.resize(1,nel);
   htmp2.resize(2,nel,nel);
 }
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>
-void user_def_ef_t::update(const double *ejac) {
-  // double u = *UU.data();
-  // printf("u %p\n",UU.data());
-  // Cp = *ejac;
-  // static const double cp=10.0;
-  // Cp.set(&cp);
-}
+void user_def_ef_t::update(const double *ejac) {}
 
 // //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>
 // void user_def_ef_t::set_state(const FastMat2 &U) {
 //   UU.set(U);
 // }
 double user_def_ef_t::hfun(double T) {
-  return T<Tf? Cp1*T : Cp1*Tf+Cp2*(T-Tf);
+  double
+    hreg = T<Tf? Cp1*T : Cp1*Tf+Cp2*(T-Tf),
+    hlat = L*pf_regheavis(T-Tf,-0.5*delta,0.5*delta);
+  return hreg + hlat;
 }
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>
 double user_def_ef_t::Cpfun(double T) {
   double epsln=1e-5;
   return (hfun(T+epsln)-hfun(T-epsln))/(2.0*epsln);
+ // return (hfun(T+epsln)-hfun(T-epsln))/(2.0*epsln);
 }
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
@@ -230,5 +185,3 @@ void user_def_ef_t::get_Cp(FastMat2 &Cp_a) {
   double Cp=Cpfun(T);
   Cp_a.eye(Cp);
 }
-
-#endif
