@@ -130,12 +130,18 @@ void user_def_ef_t::init(int ndof,int ndim,int nel,
   EGETOPTDEF_ND(elemset,double,L,NAN);
   EGETOPTDEF_ND(elemset,double,Tf,NAN);
   EGETOPTDEF_ND(elemset,double,delta,NAN);
+  EGETOPTDEF_ND(elemset,double,Cp3,NAN);
 
-  // SHV(Cp1);
-  // SHV(Cp2);
-  // SHV(L);
-  // SHV(Tf);
-  // SHV(delta);
+  static int flag=0;
+  if (!flag) {
+    flag = 1;
+    SHV(Cp1);
+    SHV(Cp2);
+    SHV(L);
+    SHV(Tf);
+    SHV(delta);
+    SHV(Cp3);
+  }
 
   eye_ndof.resize(2,ndof,ndof).set(0.).eye(1.);
   htmp1.resize(1,nel);
@@ -143,17 +149,24 @@ void user_def_ef_t::init(int ndof,int ndim,int nel,
 }
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>
-void user_def_ef_t::update(const double *ejac) {}
+void user_def_ef_t::update(const double *ejac) {
+  mat_indx = int(*ejac);
+}
 
 // //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>
 // void user_def_ef_t::set_state(const FastMat2 &U) {
 //   UU.set(U);
 // }
 double user_def_ef_t::hfun(double T) {
-  double
-    hreg = T<Tf? Cp1*T : Cp1*Tf+Cp2*(T-Tf),
-    hlat = L*pf_regheavis(T-Tf,-0.5*delta,0.5*delta);
-  return hreg + hlat;
+  // printf("mat_indx %d\n",mat_indx);
+  if (mat_indx==0) {
+    double
+      hreg = T<Tf? Cp1*T : Cp1*Tf+Cp2*(T-Tf),
+      hlat = L*pf_regheavis(T-Tf,-0.5*delta,0.5*delta);
+    return hreg + hlat;
+  } else {
+    return Cp3*T;
+  }
 }
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>

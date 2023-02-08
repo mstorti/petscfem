@@ -47,8 +47,12 @@ class user_def_ef_t : public EnthalpyFun {
   FastMat2 eye_ndof,htmp1,htmp2;
   // The elemset that uses this flux function
   const NewElemset *elemset;
-  /// The actual Cp
+  /// Properties for material index 0
   double Cp1,Cp2,Tf,L,delta;
+  // Property for material indx 1
+  double Cp3;
+  /// Material index
+  int mat_indx;
   // internal H fun
   double hfun(double T);
   // internal H fun
