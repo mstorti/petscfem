@@ -22,7 +22,7 @@ public:
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>
 class fluxfun_t {
 public:
-  int flag;
+  int flag,use_elyzer_film;
   double R0,Rinf,DV0p,DV0m,delta;
   void init(NewElemset *e);
   double fun(double DV);

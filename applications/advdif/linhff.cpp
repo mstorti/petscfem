@@ -84,15 +84,16 @@ void LinearHFilmFun::q(FastMat2 &uin,FastMat2 &uout,FastMat2 &flux,
   // FLAG is for doing the initialization just once
   // USE_ELYZER_FILM is to flag if the special nonlinear functions
   // must be taken
-  static int flag=0,use_elyzer_film=0;
   if (!fluxfun.flag) {
     fluxfun.flag=1;
     int ierr;
-    TGETOPTDEF_ND(GLOBAL_OPTIONS,int,use_elyzer_film,0);
+    TGETOPTDEF(GLOBAL_OPTIONS,int,use_elyzer_film,0);
+    fluxfun.use_elyzer_film = use_elyzer_film;
     if (use_elyzer_film) fluxfun.init(elemset);
+    printf("elemset %p use_elyzer_film %d\n",elemset,use_elyzer_film);
   }
 
-  if (use_elyzer_film==0) {
+  if (fluxfun.use_elyzer_film==0) {
     // Use the normal linear functions
     dU.set(uout).minus(uin);
     h->prod(flux,dU);
