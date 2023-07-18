@@ -33,15 +33,29 @@ static double regmax(double a,double b,double delta=1e-4) {
   return 0.5*(a+b)+0.5*regabs(a-b,delta);
 }
 
+// This global variable allows to set the Rinf from a hook
+double FLUXFUN_H2_RINF=NAN;
+
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>
 double fluxfun_t::fun(double DV) {
+  // Store the last value so that report when the value changes
+  static double Rinf_last = NAN;
+  // If the user has set the global value in a hook copy on the used value
+  if (!ISNAN(FLUXFUN_H2_RINF)) Rinf = FLUXFUN_H2_RINF;
+  // Report if Rinf value was changed
+  if (!MY_RANK && Rinf!=Rinf_last) {
+    printf("Changed Rinf %f -> %f\n",Rinf_last,Rinf);
+    Rinf_last = Rinf;
+  }
   double
     aDV=fabs(DV),
     sig=(DV>0? 1 : -1),
     DV0 = (sig>0? DV0p : DV0m),
     flux = regmax(aDV/R0,(aDV-DV0)/Rinf,delta);
-  if (0 && VRBS) printf("aDV %g, sig %g, DV0 %g, flux %g\n",aDV,sig,DV0,flux);
-  return sig*flux;
+  flux *= sig;
+  if (0 && VRBS && rand()%1000==0)
+    printf("aDV %g, sig %g, DV0 %g, flux %g\n",aDV,sig,DV0,flux);
+  return flux;
 }
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>
@@ -56,7 +70,7 @@ static double get_entry_d(NewElemset *e,const char *name) {
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>
 void fluxfun_t::init(NewElemset *e) {
   int ierr;
-  printf("name %s\n",e->name());
+  // printf("name %s\n",e->name());
   // const char *s;
   // e->get_entry("blabla",s);
   // printf("blabla %s\n",s);
@@ -87,10 +101,12 @@ void LinearHFilmFun::q(FastMat2 &uin,FastMat2 &uout,FastMat2 &flux,
   if (!fluxfun.flag) {
     fluxfun.flag=1;
     int ierr;
-    TGETOPTDEF(GLOBAL_OPTIONS,int,use_elyzer_film,0);
-    fluxfun.use_elyzer_film = use_elyzer_film;
-    if (use_elyzer_film) fluxfun.init(elemset);
-    printf("elemset %p use_elyzer_film %d\n",elemset,use_elyzer_film);
+    int &uef = fluxfun.use_elyzer_film;
+    uef = get_entry_d(elemset,"use_elyzer_film");
+    // TGETOPTDEF(elemset->thash,int,use_elyzer_film,0);
+    // fluxfun.use_elyzer_film = use_elyzer_film;
+    if (uef) fluxfun.init(elemset);
+    if (!MY_RANK) printf("elemset %p use_elyzer_film %d\n",elemset,uef);
   }
 
   if (fluxfun.use_elyzer_film==0) {
@@ -135,6 +151,7 @@ void LinearHFilmFun::q(FastMat2 &uin,FastMat2 &uout,FastMat2 &flux,
         double
           x = a+double(j)/N*(b-a),
           y = fluxfun.fun(x);
+          // y = regmax(x,-x,0.1);
         printf("DV %g flx %g\n",x,y);
       }
       VRBS = 0;
