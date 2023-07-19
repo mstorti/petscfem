@@ -726,6 +726,7 @@ void newadvecfm2_ff_t::element_hook(ElementIterator &element_) {
   S_body.set(s_body);
 
   e_jac = elemset->prop_array(element,enthalpy_jacobians_prop);
+  // I don't know if this is needed
   enthalpy_fun->update(e_jac);
 }  
 
@@ -806,6 +807,10 @@ void newadvecfm2_ff_t::start_chunk(int &ret_options) {
 	     enthalpy_jacobians_prop.length == ndof*ndof) {
     enthalpy_fun = &full_ef;
     full_ef.init(ndof,ndim,nel);
+  } else if (enthalpy_jacobians_type==string("user_def")) {
+    // printf("using user defined enthalpy function\n");
+    enthalpy_fun = &user_def_ef;
+    user_def_ef.init(ndof,ndim,nel,elemset);
   } else 
     PETSCFEM_ERROR("Not implemented yet\n"
 		   "Enthalpy Jacobian does not fit in \n"

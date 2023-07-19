@@ -11,16 +11,161 @@
 #include "advective.h"
 #include "genload.h"
 
+static int VRBS=0;
+
+// Regularized version of the abs function
+static double regabs(double x,double delta=1e-4) {
+  double ax = x/delta,
+    y = delta*(fabs(ax)<1e-6? 1.0 : ax/tanh(ax));
+  if (0 && VRBS) printf("x %g, y %g, delta %g\n",x,y,delta);
+  return y;
+}
+
+#if 0
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>
+static double regmin(double a,double b,double delta=1e-4) {
+  return 0.5*(a+b)-0.5*regabs(a-b,delta);
+}
+#endif
+
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>
+static double regmax(double a,double b,double delta=1e-4) {
+  return 0.5*(a+b)+0.5*regabs(a-b,delta);
+}
+
+// This global variable allows to set the Rinf from a hook
+double FLUXFUN_H2_RINF=NAN;
+
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>
+double fluxfun_t::fun(double DV) {
+  // Store the last value so that report when the value changes
+  static double Rinf_last = NAN;
+  // If the user has set the global value in a hook copy on the used value
+  if (!ISNAN(FLUXFUN_H2_RINF)) Rinf = FLUXFUN_H2_RINF;
+  // Report if Rinf value was changed
+  if (!MY_RANK && Rinf!=Rinf_last) {
+    printf("Changed Rinf %f -> %f\n",Rinf_last,Rinf);
+    Rinf_last = Rinf;
+  }
+  double
+    aDV=fabs(DV),
+    sig=(DV>0? 1 : -1),
+    DV0 = (sig>0? DV0p : DV0m),
+    flux = regmax(aDV/R0,(aDV-DV0)/Rinf,delta);
+  flux *= sig;
+  if (0 && VRBS && rand()%1000==0)
+    printf("aDV %g, sig %g, DV0 %g, flux %g\n",aDV,sig,DV0,flux);
+  return flux;
+}
+
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>
+static double get_entry_d(NewElemset *e,const char *name) {
+  const char *s=NULL;
+  e->get_entry(name,s);
+  // printf("blabla %s\n",s);
+  PETSCFEM_ASSERT(s!=NULL,"not found entry %s!!",name);
+  return stod(s);
+}
+
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>
+void fluxfun_t::init(NewElemset *e) {
+  int ierr;
+  // printf("name %s\n",e->name());
+  // const char *s;
+  // e->get_entry("blabla",s);
+  // printf("blabla %s\n",s);
+  // PETSCFEM_ASSERT0(s!=NULL,"not found entry!!");
+  // double blabla = stod(s);
+#define GET_ENTRY_D(name) name = get_entry_d(e,#name)
+  GET_ENTRY_D(R0);
+  GET_ENTRY_D(Rinf);
+  GET_ENTRY_D(DV0p);
+  GET_ENTRY_D(DV0m);
+  GET_ENTRY_D(delta);
+  // TGETOPTDEF_ND(GLOBAL_OPTIONS,double,R0,NAN);
+  // TGETOPTDEF_ND(GLOBAL_OPTIONS,double,Rinf,NAN);
+  // TGETOPTDEF_ND(GLOBAL_OPTIONS,double,DV0,NAN);
+  // TGETOPTDEF_ND(GLOBAL_OPTIONS,double,delta,NAN);
+  if (!MY_RANK) 
+    printf("USER FLUXFUN initialized: R0 %g, Rinf %g, "
+           "DV0p %g, DV0m %g, delta %g\n",
+           R0,Rinf,DV0p,DV0m,delta);
+}
+
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 void LinearHFilmFun::q(FastMat2 &uin,FastMat2 &uout,FastMat2 &flux,
 		       FastMat2 &jacin,FastMat2 &jacout) {
+  // FLAG is for doing the initialization just once
+  // USE_ELYZER_FILM is to flag if the special nonlinear functions
+  // must be taken
+  if (!fluxfun.flag) {
+    fluxfun.flag=1;
+    int ierr;
+    int &uef = fluxfun.use_elyzer_film;
+    uef = get_entry_d(elemset,"use_elyzer_film");
+    // TGETOPTDEF(elemset->thash,int,use_elyzer_film,0);
+    // fluxfun.use_elyzer_film = use_elyzer_film;
+    if (uef) fluxfun.init(elemset);
+    if (!MY_RANK) printf("elemset %p use_elyzer_film %d\n",elemset,uef);
+  }
 
-  dU.set(uout).minus(uin);
-  h->prod(flux,dU);
-  h->jac(jacin);
-  jacout.set(jacin);
-  jacout.scale(-1.);
-  s->add(flux);
+  if (fluxfun.use_elyzer_film==0) {
+    // Use the normal linear functions
+    dU.set(uout).minus(uin);
+    h->prod(flux,dU);
+    h->jac(jacin);
+    jacout.set(jacin);
+    jacout.scale(-1.);
+#if 0    
+    if (0) {
+      FMSHV(uin);
+      FMSHV(uout);
+      FMSHV(flux);
+      FMSHV(jacin);
+      FMSHV(jacout);
+      exit(0);
+    }
+#endif
+    s->add(flux);
+  } else {
+    // Use the functions provided by the user
+    // We dont use FastMat2 so we get the pointers to the
+    // internal data
+    double
+      *uinp = uin.data(),
+      *uoutp = uout.data(),
+      *fluxp = flux.data(),
+      *jacinp = jacin.data(),
+      *jacoutp = jacout.data();
+    // Difference potential about this film
+    double DV = (*uoutp-*uinp);
+    // Small increment to take the Jacobian by finite differences
+    double epsln = 1e-5;
+
+    static int cnt=0; cnt++;
+    if (0 && cnt>2000) { 
+      int N=1000;
+      double a=-1,b=1;
+      VRBS = 1;
+      for (int j=0; j<N; j++) {
+        double
+          x = a+double(j)/N*(b-a),
+          y = fluxfun.fun(x);
+          // y = regmax(x,-x,0.1);
+        printf("DV %g flx %g\n",x,y);
+      }
+      VRBS = 0;
+      exit(0);
+    }
+    
+    // Call the function to get the flux
+    *fluxp = fluxfun.fun(DV);
+    // Compute the Jacobian by finite differences
+    double hfilm =(fluxfun.fun(DV+epsln)-fluxfun.fun(DV-epsln))/(2*epsln);
+    // Set the Jacobians
+    *jacinp = hfilm;
+    *jacoutp = -hfilm;
+  }
 }
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 

@@ -1,8 +1,9 @@
-//__INSERT_LICENSE__
-// $Id merge-with-petsc-233-50-g0ace95e Fri Oct 19 17:49:52 2007 -0300$
+#define _USE_MATH_DEFINES
+#include <cmath>
 #include <cstring>
 #include <cstdio>
 #include <cassert>
+#include <ctime>
 #include <string>
 #include <vector>
 #include <mpi.h>
@@ -170,4 +171,30 @@ void petscfem_print_date(void) {
 	   "\n-------------------------------------------------\n",
 	   ctime(&t));
   }
+}
+
+// Regularized delta based on COS function, in interval [0,b]
+double pf_regdelta(double x,double b) {
+  if (x<0.0 || x>b) return 0.0;
+  double rv = (1-cos(2.0*M_PI*x/b))/b;
+  // printf("x %f, b %f, regdelta rv %f\n",x,b,rv);
+  return rv;
+}
+
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>
+// Regularized delta based on COS function, in interval [a,b]
+double pf_regdelta(double x,double a,double b) { return pf_regdelta(x-a,b-a); }
+
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>
+// Regularized Heaviside function based on COS, in interval [0,b]
+double pf_regheavis(double x,double b) {
+  double xi=x/b;
+  return xi<0.0? 0.0 : xi>1.0? 1.0 : 0.5*(1.0-cos(M_PI*xi));
+}
+
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>
+// Regularized Heaviside function based on COS, in interval [a,b]
+double pf_regheavis(double x,double a,double b,
+                    double y0,double y1) {
+  return y0+(y1-y0)*pf_regheavis(x-a,b-a);
 }

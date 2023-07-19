@@ -41,4 +41,37 @@ public:
   void comp_P_Cp(FastMat2 &P_Cp,const FastMat2 &P_supg);
 };
 
+/// User defined EF
+class user_def_ef_t : public EnthalpyFun {
+  /// Aux var. identity of size ndof
+  FastMat2 eye_ndof,htmp1,htmp2;
+  // The elemset that uses this flux function
+  const NewElemset *elemset;
+  /// Properties for material index 0
+  double Cp1,Cp2,Tf,L,delta;
+  // Property for material indx 1
+  double Cp3;
+  /// Material index
+  int mat_indx;
+  // internal H fun
+  double hfun(double T);
+  // internal H fun
+  double Cpfun(double T);
+public:
+  /// Initializes
+  void init(int ndim,int ndof,int nel,
+            const NewElemset* elemset);
+  /// Full implementation
+  void update(const double *ejac);
+  /// Full implementation
+  void enthalpy(FastMat2 &H);
+  /// Full implementation
+  void comp_W_Cp_N(FastMat2 &W_Cp_N,const FastMat2 &W,const FastMat2 &N,
+		   double w);
+  /// Full implementation
+  void comp_P_Cp(FastMat2 &P_Cp,const FastMat2 &P_supg);
+  // Return the Cp
+  void get_Cp(FastMat2 &Cp_a);
+};
+
 #endif

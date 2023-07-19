@@ -1336,6 +1336,7 @@ public:
       @returns as mentioned
   */ 
   double *storage_begin();
+  double *data() { return storage_begin(); }
   //@}
   
   //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
