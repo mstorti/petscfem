@@ -55,27 +55,32 @@ static double get_entry_d(NewElemset *e,const char *name) {
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>
 void fluxfun_t::init(NewElemset *e) {
-  int ierr;
-  printf("name %s\n",e->name());
-  // const char *s;
-  // e->get_entry("blabla",s);
-  // printf("blabla %s\n",s);
-  // PETSCFEM_ASSERT0(s!=NULL,"not found entry!!");
-  // double blabla = stod(s);
+  flag=1;
+  // TGETOPTDEF(thash,int,use_elyzer_film,0);
+  use_elyzer_film = get_entry_d(e,"use_elyzer_film");
+  if (use_elyzer_film) {
+    int ierr;
+    printf("name %s\n",e->name());
+    // const char *s;
+    // e->get_entry("blabla",s);
+    // printf("blabla %s\n",s);
+    // PETSCFEM_ASSERT0(s!=NULL,"not found entry!!");
+    // double blabla = stod(s);
 #define GET_ENTRY_D(name) name = get_entry_d(e,#name)
-  GET_ENTRY_D(R0);
-  GET_ENTRY_D(Rinf);
-  GET_ENTRY_D(DV0p);
-  GET_ENTRY_D(DV0m);
-  GET_ENTRY_D(delta);
-  // TGETOPTDEF_ND(GLOBAL_OPTIONS,double,R0,NAN);
-  // TGETOPTDEF_ND(GLOBAL_OPTIONS,double,Rinf,NAN);
-  // TGETOPTDEF_ND(GLOBAL_OPTIONS,double,DV0,NAN);
-  // TGETOPTDEF_ND(GLOBAL_OPTIONS,double,delta,NAN);
-  if (!MY_RANK) 
-    printf("USER FLUXFUN initialized: R0 %g, Rinf %g, "
-           "DV0p %g, DV0m %g, delta %g\n",
-           R0,Rinf,DV0p,DV0m,delta);
+    GET_ENTRY_D(R0);
+    GET_ENTRY_D(Rinf);
+    GET_ENTRY_D(DV0p);
+    GET_ENTRY_D(DV0m);
+    GET_ENTRY_D(delta);
+    // TGETOPTDEF_ND(GLOBAL_OPTIONS,double,R0,NAN);
+    // TGETOPTDEF_ND(GLOBAL_OPTIONS,double,Rinf,NAN);
+    // TGETOPTDEF_ND(GLOBAL_OPTIONS,double,DV0,NAN);
+    // TGETOPTDEF_ND(GLOBAL_OPTIONS,double,delta,NAN);
+    if (!MY_RANK) 
+      printf("USER FLUXFUN initialized: R0 %g, Rinf %g, "
+             "DV0p %g, DV0m %g, delta %g\n",
+             R0,Rinf,DV0p,DV0m,delta);
+  }
 }
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
@@ -85,12 +90,9 @@ void LinearHFilmFun::q(FastMat2 &uin,FastMat2 &uout,FastMat2 &flux,
   // USE_ELYZER_FILM is to flag if the special nonlinear functions
   // must be taken
   if (!fluxfun.flag) {
-    fluxfun.flag=1;
-    int ierr;
-    TGETOPTDEF(GLOBAL_OPTIONS,int,use_elyzer_film,0);
-    fluxfun.use_elyzer_film = use_elyzer_film;
-    if (use_elyzer_film) fluxfun.init(elemset);
-    printf("elemset %p use_elyzer_film %d\n",elemset,use_elyzer_film);
+    fluxfun.init(elemset);
+    printf("elemset %p use_elyzer_film %d\n",
+           elemset,fluxfun.use_elyzer_film);
   }
 
   if (fluxfun.use_elyzer_film==0) {
