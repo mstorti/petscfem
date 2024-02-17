@@ -1,6 +1,6 @@
 #__INSERT_LICENSE__
 .PHONY: all
-
+export BOPT := g_c++
 default: run_nettest
 
 scripts = odoc.pl makewhat.pl
