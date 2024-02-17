@@ -177,6 +177,27 @@ void h5_dvector_read(const char *fdname,
 }
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>
+template<class T>
+void h5_dvector_write2(dvector<T> &w,
+                       const char *fdname) {
+  string file,dset, fds=fdname;
+  h5_file_dset_split(fds,file,dset);
+  h5_dvector_write(w,file.c_str(),dset.c_str());
+}
+
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>
+void h5_dvector_write(dvector<int> &w,
+                       const char *fdname) {
+  h5_dvector_write(w,fdname);
+}
+
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>
+void h5_dvector_write(dvector<double> &w,
+                       const char *fdname) {
+  h5_dvector_write(w,fdname);
+}
+
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>
 void h5_dvector_read(const char *fdname,
                      dvector<int> &w) {
   h5_dvector_read2(fdname,w);

@@ -103,8 +103,8 @@ int main (int argc, char **argv) {
   }
   fclose(fid);
 #endif
-#define TRACE(ss) printf("%s: %s %s %d\n",ss,__PRETTY_FUNCTION__,__FILE__,__LINE__)
-  TRACE("0");
+#define TRACEH(ss) printf("%s: %s %s %d\n",ss,__PRETTY_FUNCTION__,__FILE__,__LINE__)
+  // TRACEH("0");
   int nelem=shape[0],nel=shape[1];
   nnod=-1;
   for (int k=0; k<nelem; k++) 
@@ -112,7 +112,6 @@ int main (int argc, char **argv) {
       if (icone.e(k,l)>nnod) nnod=icone.e(k,l);
   printf("read %d elems, %d nodes\n",nelem,nnod);
   PETSCFEM_ASSERT0(nel==NEL,"Base mesh must be hexas");  
-  exit(0);
   
   // split[j] may be -1/+1 depending on whether the
   // node is marked up or down. split[j]==0 implies
@@ -245,6 +244,7 @@ int main (int argc, char **argv) {
 		  {2,7,5,6},
 		  {0,5,7,4},
 		  {0,5,2,7}};
+#if 0
   FILE *fid = fopen(icone_tetra.c_str(),"w");
   for (int k=0; k<nelem; k++) {
     // Connectivity row
@@ -268,5 +268,7 @@ int main (int argc, char **argv) {
     }
   }
   fclose(fid);
+#endif
+  h5_dvector_write(icone,icone_tetra.c_str());
   MPI_Finalize();
 }
