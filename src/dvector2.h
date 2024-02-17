@@ -561,6 +561,13 @@ void dvector<T>
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 template<class T>
+vector<int>
+dvector<T>::get_shape() const {
+  return shape;
+}
+
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+template<class T>
 void dvector<T>::recompute_shape() {
   int odim = 1;
   for (int k=1; k<rank_m; k++) odim *= shape[k];

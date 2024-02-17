@@ -10,6 +10,7 @@
 
 #include <mpi.h>
 #include <src/utils.h>
+#include <src/h5utils.h>
 #include <src/linkgraph.h>
 #include <src/dvector.h>
 //#include <src/dvector2.h>
@@ -79,6 +80,9 @@ int main (int argc, char **argv) {
   int incompat[] = {0,1,0,1,1,0,1,0};
 
   // Reads connectivities
+  h5_dvector_read(icone_file.c_str(),icone);
+  printf("icone shape %d %d\n",icone.shape[0],icone.shape[1]);
+  exit(0);
   FILE *fid = fopen(icone_file.c_str(),"r");
   assert(fid);
   int nelem=0;
