@@ -28,11 +28,12 @@ export BOPT
 # the directory _above_ the PETSC-FEM directory and configure the
 # variables inside.
 
-ifeq ($(PETSCFEM_DIR)/../Makefile.defs,$(wildcard $(PETSCFEM_DIR)/../Makefile.defs)) 
-include $(PETSCFEM_DIR)/../Makefile.defs
+ifeq ($(PETSCFEM_DIR)/../Makefile.defs,$(wildcard $(PETSCFEM_DIR)/../Makefile.defs))
+PFMKDEFS := $(PETSCFEM_DIR)/../Makefile.defs
 else
-include $(PETSCFEM_DIR)/Makefile.defs
+PFMKDEFS := $(PETSCFEM_DIR)/Makefile.defs
 endif
+include ${PFMKDEFS}
 
 ######  end of CONGIGURATION VARIABLES section  ####################
 
