@@ -244,6 +244,10 @@ int main (int argc, char **argv) {
 		  {2,7,5,6},
 		  {0,5,7,4},
 		  {0,5,2,7}};
+  int ntet=nelem*5;
+  dvector<int> iconetet;
+  iconetet.a_resize(2,ntet,4);
+  iconetet.defrag();
 #if 0
   FILE *fid = fopen(icone_tetra.c_str(),"w");
   for (int k=0; k<nelem; k++) {
@@ -268,7 +272,30 @@ int main (int argc, char **argv) {
     }
   }
   fclose(fid);
+#else
+  int ktet=0;
+  for (int k=0; k<nelem; k++) {
+    // Connectivity row
+    int *row = &icone.ref(k*NEL);
+#if 0
+    int mask = (split[row[0]-1]==1);
+    printf("%d  ",mask);
+    for (int j=0; j<NEL; j++) 
+      printf("%d",(split[row[j]-1]==1)==mask);
+    printf("\n");
 #endif
-  h5_dvector_write(icone,icone_tetra.c_str());
+    // Choose map depending on split value
+    map = (split[row[0]-1]==1 ? map_up : map_down);
+    // loop over local tetras
+    for (int t=0; t<5; t++) {
+      // loop over nodes in the tetra
+      for (int q=0; q<4; q++) 
+	// node of local tetra, eventually remapped
+        iconetet.e(ktet,q) = (row[map[tetra[t][q]]] - (dx ? 1 : 0));
+      ktet++;
+    }
+  }
+#endif
+  h5_dvector_write(iconetet,icone_tetra.c_str());
   MPI_Finalize();
 }
