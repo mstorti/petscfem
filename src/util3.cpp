@@ -198,3 +198,66 @@ double pf_regheavis(double x,double a,double b,
                     double y0,double y1) {
   return y0+(y1-y0)*pf_regheavis(x-a,b-a);
 }
+
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>
+double pf_regmin(double x1,double x2,double a) {
+  double ax = fabs((x2-x1)/a);
+  return 0.5*(x1+x2)-0.5*a*(ax<1.0?
+                            1-cos(M_PI*ax/2)*(2.0/M_PI) : ax);
+}
+
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>
+// Regularization of the abs function, with scale
+// A, and also returns the derivative DX
+double pf_regabs(double x,double a,double &dx) {
+  double
+    ax = fabs(x/a),
+    s=(x<0.0? -1.0 : 1.0),
+    y;
+  if (ax<1.0) {
+    double z=M_PI*ax/2;
+    y = a*(1-cos(z)*(2.0/M_PI));
+    dx = sin(z)*s;
+  } else {
+    y = x*s;
+    dx = s;
+  }
+  // SHV(x);
+  // SHV(a);
+  // SHV(ax);
+  // SHV(s);
+  // SHV(y);
+  // SHV(dx);
+  // cs_exit(0);
+  return y;
+}
+  
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>
+// Wrapper 
+double pf_regabs(double x,double a) {
+  double dx;
+  return pf_regabs(x,a,dx);
+}
+
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>
+// Wrapper. Characteristic width (b-a)/2, center  (a+b)/2
+double pf_regabs2(double x,double a,double b) {
+  double
+    delta = 0.5*(b-a),
+    xc = 0.5*(a+b);
+  return pf_regabs(x-xc,delta);
+}
+  
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>
+// Regularization of the MIN function, with scale A, and
+// also returns the parameter MU that is the weight of the
+// components Y1 and Y2. i.e., such that if Y=REGMIN(Y1,Y2) then
+// the derivatives satisfy
+// D(Y) = MU*D(Y1)+(1-MU)*D(Y2)
+double pf_regmin2(double y1,double y2,double a,double &mu) {
+  double
+    xi,
+    ymin = 0.5*(y1+y2)-0.5*pf_regabs(y2-y1,a,xi);
+  mu=0.5*(1+xi);
+  return ymin;
+}

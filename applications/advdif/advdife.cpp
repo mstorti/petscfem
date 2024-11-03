@@ -458,6 +458,7 @@ void NewAdvDif::new_assemble(arg_data_list &arg_data_v,const Nodedata *nodedata,
   FastMat2 true_lstate(2,nel,ndof),
     true_lstateo(2,nel,ndof),true_lstaten(2,nel,ndof);
   xpgv.resize(ndim,0.0);
+  upgv.resize(ndof,0.0);
 
   FastMat2 true_lstate_abs(2,nel,ndof);
 
@@ -495,7 +496,7 @@ void NewAdvDif::new_assemble(arg_data_list &arg_data_v,const Nodedata *nodedata,
     grad_N_D_grad_N(4,nel,ndof,nel,ndof),N_N_C(4,nel,ndof,nel,ndof),
     N_P_C(3,ndof,nel,ndof),N_Cp_N(4,nel,ndof,nel,ndof),
     P_Cp(2,ndof,ndof),grad_N_dDdU_N(4,nel,ndof,nel,ndof),
-    dummyshape(1,nel),xc(1,ndim);
+    dummyshape(1,nel),xc(1,ndim),uc(1,ndof);
   Ao_grad_N.resize(3,nel,ndof,ndof);
   tau_supg.resize(2,ndof,ndof);
   P_supg.resize(3,nel,ndof,ndof);
@@ -554,13 +555,6 @@ void NewAdvDif::new_assemble(arg_data_list &arg_data_v,const Nodedata *nodedata,
       element.node_data(nodedata,xloc.storage_begin(),
                         Hloc.storage_begin());
 
-      // Compute element center for passing to the PROP_HOOK 
-      if (PF_PROP_HOOK) {
-        // If a properties hook does exist, then compute the center of the element
-        xc.prod(dummyshape,xloc,-1,-1,1);
-        xc.export_vals(xpgv.data());
-      }
-      
       if (comp_prof) {
         matlocf.export_vals(element.ret_mat_values(*jac_prof));
         continue;
@@ -577,6 +571,15 @@ void NewAdvDif::new_assemble(arg_data_list &arg_data_v,const Nodedata *nodedata,
       log_transf(true_lstate ,lstate ,nlog_vars,log_vars);
       log_transf(true_lstateo,lstateo,nlog_vars,log_vars);
 
+      // Compute element center for passing to the PROP_HOOK 
+      if (PF_PROP_HOOK) {
+        // If a properties hook does exist, then compute the center of the element
+        xc.prod(dummyshape,xloc,-1,-1,1);
+        xc.export_vals(xpgv.data());
+        uc.prod(dummyshape,lstate,-1,-1,1);
+        uc.export_vals(upgv.data());
+      }
+      
       veccontr.set(0.);
       mass.set(0.);
       lmass.set(0.);

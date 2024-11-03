@@ -32,7 +32,7 @@ public:
     nproc = 1;
     plist[0] = part->processor(p.first);
   }
-  Partitioner<ImgValueType> (const DofPartitioner *pp) 
+  Partitioner(const DofPartitioner *pp) 
     : part(pp) { assert(pp!=NULL) ; }
 };
 

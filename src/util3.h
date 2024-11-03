@@ -37,6 +37,12 @@ double pf_regheavis(double x,double b);
 // Regularized Heaviside function based on COS, in interval [a,b]
 double pf_regheavis(double x,double a,double b,double y0=0.0,double y1=1.0);
 
+double pf_regmin(double x1,double x2,double a);
+double pf_regabs(double x,double a,double &dx);
+double pf_regabs(double x,double a);
+double pf_regabs2(double x,double a,double b);
+double pf_regmin2(double y1,double y2,double a,double &mu);
+
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 #define CHECK_COOKIE(keyword)							\
     { Sgetline(&buf,&Nbuf,sock);						\

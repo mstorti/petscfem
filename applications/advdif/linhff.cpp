@@ -142,21 +142,18 @@ void LinearHFilmFun::q(FastMat2 &uin,FastMat2 &uout,FastMat2 &flux,
     // Small increment to take the Jacobian by finite differences
     double epsln = 1e-5;
 
-    static int cnt=0; cnt++;
-    if (0 && cnt>2000) { 
-      int N=1000;
-      double a=-1,b=1;
-      VRBS = 1;
-      for (int j=0; j<N; j++) {
-        double
-          x = a+double(j)/N*(b-a),
-          y = fluxfun.fun(x);
-          // y = regmax(x,-x,0.1);
-        printf("DV %g flx %g\n",x,y);
-      }
-      VRBS = 0;
-      exit(0);
+#if 1    
+    int N=1000;
+    double a=-1,b=1;
+    VRBS = 1;
+    for (int j=0; j<N; j++) {
+      double
+        x = a+double(j)/N*(b-a),
+        y = pf_regabs(x,0.2);
+      printf("x %g regabs %g\n",x,y);
     }
+    exit(0);
+#endif
     
     // Call the function to get the flux
     *fluxp = fluxfun.fun(DV);

@@ -36,7 +36,7 @@ protected:
       @param comm_ (input) MPI communicator
       @return a reference to the matrix.
   */ 
-  DistMap<Key,Val,Partitioner>(Partitioner *pp=NULL,MPI_Comm comm_=PETSCFEM_COMM_WORLD);
+  DistMap(Partitioner *pp=NULL,MPI_Comm comm_=PETSCFEM_COMM_WORLD);
   /** User defines this function that determine to which processor
       belongs each entry
       @param k (input) iterator to the considered entry. 
