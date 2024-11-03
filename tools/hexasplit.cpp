@@ -10,6 +10,7 @@
 
 #include <mpi.h>
 #include <src/utils.h>
+#include <src/h5utils.h>
 #include <src/linkgraph.h>
 #include <src/dvector.h>
 //#include <src/dvector2.h>
@@ -79,6 +80,10 @@ int main (int argc, char **argv) {
   int incompat[] = {0,1,0,1,1,0,1,0};
 
   // Reads connectivities
+  h5_dvector_read(icone_file.c_str(),icone);
+  vector<int> shape = icone.get_shape();
+  // printf("icone shape %d %d\n",shape[0],shape[1]);
+#if 0
   FILE *fid = fopen(icone_file.c_str(),"r");
   assert(fid);
   int nelem=0;
@@ -97,7 +102,17 @@ int main (int argc, char **argv) {
     }
   }
   fclose(fid);
+#endif
+#define TRACEH(ss) printf("%s: %s %s %d\n",ss,__PRETTY_FUNCTION__,__FILE__,__LINE__)
+  // TRACEH("0");
+  int nelem=shape[0],nel=shape[1];
+  nnod=-1;
+  for (int k=0; k<nelem; k++) 
+    for (int l=0; l<nel; l++) 
+      if (icone.e(k,l)>nnod) nnod=icone.e(k,l);
   printf("read %d elems, %d nodes\n",nelem,nnod);
+  PETSCFEM_ASSERT0(nel==NEL,"Base mesh must be hexas");  
+  
   // split[j] may be -1/+1 depending on whether the
   // node is marked up or down. split[j]==0 implies
   // that the node is not split yet. 
@@ -229,7 +244,8 @@ int main (int argc, char **argv) {
 		  {2,7,5,6},
 		  {0,5,7,4},
 		  {0,5,2,7}};
-  fid = fopen(icone_tetra.c_str(),"w");
+#if 0
+  FILE *fid = fopen(icone_tetra.c_str(),"w");
   for (int k=0; k<nelem; k++) {
     // Connectivity row
     int *row = &icone.ref(k*NEL);
@@ -252,5 +268,7 @@ int main (int argc, char **argv) {
     }
   }
   fclose(fid);
+#endif
+  h5_dvector_write(icone,icone_tetra.c_str());
   MPI_Finalize();
 }

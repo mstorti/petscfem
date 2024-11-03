@@ -26,4 +26,7 @@ void h5_dvector_read(const char *fdname,
 void h5_dvector_read(const char *fdname,
                      dvector<int> &w);
 
+void h5_dvector_write(dvector<double> &w,const char *fdname);
+void h5_dvector_write(dvector<int> &w,const char *fdname);
+
 #endif
