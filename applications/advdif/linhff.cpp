@@ -92,6 +92,12 @@ void fluxfun_t::init(NewElemset *e) {
            R0,Rinf,DV0p,DV0m,delta);
 }
 
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>
+static double regpos2(double x,double delta) {
+  double xx = x-delta;
+  return 0.5*(xx+pf_regabs(xx,delta));
+}
+
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 void LinearHFilmFun::q(FastMat2 &uin,FastMat2 &uout,FastMat2 &flux,
 		       FastMat2 &jacin,FastMat2 &jacout) {
@@ -142,15 +148,17 @@ void LinearHFilmFun::q(FastMat2 &uin,FastMat2 &uout,FastMat2 &flux,
     // Small increment to take the Jacobian by finite differences
     double epsln = 1e-5;
 
-#if 1    
+#if 1
+    auto &f = fluxfun;
     int N=1000;
-    double a=-1,b=1;
-    VRBS = 1;
+    double a=0,b=1;
+    double delta=0.01;
     for (int j=0; j<N; j++) {
       double
         x = a+double(j)/N*(b-a),
-        y = pf_regabs(x,0.2);
-      printf("x %g regabs %g\n",x,y);
+        yflux = f.fun(x),
+        ynew = regpos2(x-f.DV0p,delta)/f.Rinf;
+      printf("x %g yflux %g ynew %g\n",x,yflux,ynew);
     }
     exit(0);
 #endif
