@@ -33,6 +33,12 @@ static double regmax(double a,double b,double delta=1e-4) {
   return 0.5*(a+b)+0.5*regabs(a-b,delta);
 }
 
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>
+static double regpos2(double x,double delta) {
+  double xx = x-delta;
+  return 0.5*(xx+pf_regabs(xx,delta));
+}
+
 // This global variable allows to set the Rinf from a hook
 double FLUXFUN_H2_RINF=NAN;
 
@@ -47,12 +53,19 @@ double fluxfun_t::fun(double DV) {
     printf("Changed Rinf %f -> %f\n",Rinf_last,Rinf);
     Rinf_last = Rinf;
   }
+#if 0
+  // OLD VERSION
   double
     aDV=fabs(DV),
     sig=(DV>0? 1 : -1),
     DV0 = (sig>0? DV0p : DV0m),
     flux = regmax(aDV/R0,(aDV-DV0)/Rinf,delta);
   flux *= sig;
+#else
+  // NEW VERSION TO BE USED WITH ITERATIVE PENALIZATION
+  const double delta=0.01;
+  flux = regpos2(x-DV0p,delta)/Rinf;
+#endif
   if (0 && VRBS && rand()%1000==0)
     printf("aDV %g, sig %g, DV0 %g, flux %g\n",aDV,sig,DV0,flux);
   return flux;
@@ -90,12 +103,6 @@ void fluxfun_t::init(NewElemset *e) {
     printf("USER FLUXFUN initialized: R0 %g, Rinf %g, "
            "DV0p %g, DV0m %g, delta %g\n",
            R0,Rinf,DV0p,DV0m,delta);
-}
-
-//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>
-static double regpos2(double x,double delta) {
-  double xx = x-delta;
-  return 0.5*(xx+pf_regabs(xx,delta));
 }
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
@@ -148,7 +155,7 @@ void LinearHFilmFun::q(FastMat2 &uin,FastMat2 &uout,FastMat2 &flux,
     // Small increment to take the Jacobian by finite differences
     double epsln = 1e-5;
 
-#if 1
+#if 0
     auto &f = fluxfun;
     int N=1000;
     double a=0,b=1;
