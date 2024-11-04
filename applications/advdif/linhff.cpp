@@ -22,16 +22,17 @@ static double regabs(double x,double delta=1e-4) {
 }
 
 #if 0
+// These are commented out because otheriwse the compiler complains about non used function
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>
 static double regmin(double a,double b,double delta=1e-4) {
   return 0.5*(a+b)-0.5*regabs(a-b,delta);
 }
-#endif
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>
 static double regmax(double a,double b,double delta=1e-4) {
   return 0.5*(a+b)+0.5*regabs(a-b,delta);
 }
+#endif
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>
 static double regpos2(double x,double delta) {
@@ -41,6 +42,8 @@ static double regpos2(double x,double delta) {
 
 // This global variable allows to set the Rinf from a hook
 double FLUXFUN_H2_RINF=NAN;
+double ZCURRENT=0.0,GLAST=NAN,GFUN=NAN,
+  ZCURRENTM=0.0,GLASTM=NAN,GFUNM=NAN;
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>
 double fluxfun_t::fun(double DV) {
@@ -61,14 +64,27 @@ double fluxfun_t::fun(double DV) {
     DV0 = (sig>0? DV0p : DV0m),
     flux = regmax(aDV/R0,(aDV-DV0)/Rinf,delta);
   flux *= sig;
-#else
-  // NEW VERSION TO BE USED WITH ITERATIVE PENALIZATION
-  const double delta=0.01;
-  flux = regpos2(x-DV0p,delta)/Rinf;
-#endif
   if (0 && VRBS && rand()%1000==0)
     printf("aDV %g, sig %g, DV0 %g, flux %g\n",aDV,sig,DV0,flux);
   return flux;
+#else
+  // const double Z=0.00819266;
+  // const double Z=8.2557e-03;
+  // FOR RINF=1e-4
+  // Z=0        => G=0.248333
+  // Z=0.248333 => G=0.134514
+  // Z=0.382847 => G=0.0728718
+  // Z=0.455718 => G=0.0394622
+  // NEW VERSION TO BE USED WITH ITERATIVE PENALIZATION
+  const double delta=0.01;
+  GFUN = DV-DV0p;
+  GFUNM = -DV-DV0m;
+  printf("in linhff: ZCURRENT %g, GFUN %g, ZCURRENTM %g, GFUNM %g\n",
+         ZCURRENT,GFUN,ZCURRENTM,GFUNM);
+  double fluxp = regpos2(ZCURRENT+GFUN,delta)/Rinf;
+  double fluxm = -regpos2(ZCURRENT+GFUNM,delta)/Rinf;
+  return fluxp+fluxm;
+#endif
 }
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>
@@ -172,6 +188,7 @@ void LinearHFilmFun::q(FastMat2 &uin,FastMat2 &uout,FastMat2 &flux,
     
     // Call the function to get the flux
     *fluxp = fluxfun.fun(DV);
+    GLAST = GFUN;
     // Compute the Jacobian by finite differences
     double hfilm =(fluxfun.fun(DV+epsln)-fluxfun.fun(DV-epsln))/(2*epsln);
     // Set the Jacobians
