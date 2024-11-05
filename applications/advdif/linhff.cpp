@@ -13,6 +13,10 @@
 
 static int VRBS=0;
 
+#if 0
+// These functions are commented out because otheriwse the
+// compiler complains about non used function
+
 // Regularized version of the abs function
 static double regabs(double x,double delta=1e-4) {
   double ax = x/delta,
@@ -21,8 +25,6 @@ static double regabs(double x,double delta=1e-4) {
   return y;
 }
 
-#if 0
-// These are commented out because otheriwse the compiler complains about non used function
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>
 static double regmin(double a,double b,double delta=1e-4) {
   return 0.5*(a+b)-0.5*regabs(a-b,delta);
@@ -42,8 +44,7 @@ static double regpos2(double x,double delta) {
 
 // This global variable allows to set the Rinf from a hook
 double FLUXFUN_H2_RINF=NAN;
-double ZCURRENT=0.0,GLAST=NAN,GFUN=NAN,
-  ZCURRENTM=0.0,GLASTM=NAN,GFUNM=NAN;
+lhff_info_t LHH_INFO;
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>
 double fluxfun_t::fun(double DV) {
@@ -77,12 +78,16 @@ double fluxfun_t::fun(double DV) {
   // Z=0.455718 => G=0.0394622
   // NEW VERSION TO BE USED WITH ITERATIVE PENALIZATION
   const double delta=0.01;
-  GFUN = DV-DV0p;
-  GFUNM = -DV-DV0m;
-  printf("in linhff: ZCURRENT %g, GFUN %g, ZCURRENTM %g, GFUNM %g\n",
-         ZCURRENT,GFUN,ZCURRENTM,GFUNM);
-  double fluxp = regpos2(ZCURRENT+GFUN,delta)/Rinf;
-  double fluxm = -regpos2(ZCURRENT+GFUNM,delta)/Rinf;
+  auto &epg = LHH_INFO.ELEMPG;
+  auto &I = LHH_INFO.table[epg];
+  I.gfun = DV-DV0p;
+  I.gfunm = -DV-DV0m;
+  // printf("in linhff: elem %d ipg %d, ZCURRENT %g, GFUN %g, ZCURRENTM %g, GFUNM %g\n",
+  //        epg.first,epg.second,I.zcurrent,I.gfun,I.zcurrentm,I.gfunm);
+  double fluxp = regpos2(I.zcurrent+I.gfun,delta)/Rinf;
+  double fluxm = -regpos2(I.zcurrentm+I.gfunm,delta)/Rinf;
+  I.fluxp = fluxp;
+  I.fluxm = fluxm;
   return fluxp+fluxm;
 #endif
 }
@@ -188,7 +193,10 @@ void LinearHFilmFun::q(FastMat2 &uin,FastMat2 &uout,FastMat2 &flux,
     
     // Call the function to get the flux
     *fluxp = fluxfun.fun(DV);
-    GLAST = GFUN;
+    auto &epg = LHH_INFO.ELEMPG;
+    auto &I = LHH_INFO.table[epg];
+    I.glast = I.gfun;
+    I.glastm = I.gfunm;
     // Compute the Jacobian by finite differences
     double hfilm =(fluxfun.fun(DV+epsln)-fluxfun.fun(DV-epsln))/(2*epsln);
     // Set the Jacobians

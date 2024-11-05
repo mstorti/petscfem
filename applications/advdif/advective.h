@@ -702,4 +702,22 @@ void detj_error(double &detJaco,int elem);
 */ 
 double ctff(double x, double & diff_ctff, double tol);
 
+struct lhff_info_t {
+  struct pg_info_t {
+    double zcurrent,glast,gfun,zcurrentm,glastm,gfunm,flux;
+    pg_info_t() {
+      zcurrent=0.0;
+      glast=NAN;
+      gfun=NAN;
+      zcurrentm=0.0;
+      gfunm=NAN;
+      glastm=NAN;
+      flux=NAN;
+    }
+  };
+  pair<int,int> ELEMPG;
+  map<pair<int,int>,pg_info_t> table;
+};
+extern lhff_info_t LHH_INFO;
+
 #endif
