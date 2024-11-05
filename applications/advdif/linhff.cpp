@@ -86,8 +86,6 @@ double fluxfun_t::fun(double DV) {
   //        epg.first,epg.second,I.zcurrent,I.gfun,I.zcurrentm,I.gfunm);
   double fluxp = regpos2(I.zcurrent+I.gfun,delta)/Rinf;
   double fluxm = -regpos2(I.zcurrentm+I.gfunm,delta)/Rinf;
-  I.fluxp = fluxp;
-  I.fluxm = fluxm;
   return fluxp+fluxm;
 #endif
 }
@@ -197,6 +195,7 @@ void LinearHFilmFun::q(FastMat2 &uin,FastMat2 &uout,FastMat2 &flux,
     auto &I = LHH_INFO.table[epg];
     I.glast = I.gfun;
     I.glastm = I.gfunm;
+    I.flux = *fluxp;
     // Compute the Jacobian by finite differences
     double hfilm =(fluxfun.fun(DV+epsln)-fluxfun.fun(DV-epsln))/(2*epsln);
     // Set the Jacobians
