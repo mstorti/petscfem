@@ -27,16 +27,6 @@ public:
 };
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>
-class fluxfun_h2_t {
-public:
-  int flag,use_elyzer_film;
-  double R0,Rinf,DV0p,DV0m,delta;
-  void init(NewElemset *e);
-  double fun(double DV);
-  fluxfun_h2_t() : flag(0) {}
-};
-
-//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>
 /// Generic surface flux function (film function) element
 class LinearHFilmFun : public HFilmFun {
 private:
