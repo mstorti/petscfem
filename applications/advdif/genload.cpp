@@ -48,6 +48,14 @@ HFilmFun::HFilmFun(GenLoad *e)
   : elemset(e), 
   H(e->H), H_out(e->H_out), H_in(e->H_in) {}
 
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>
+GenLoad::GenLoad() : H(H_m), H_out(H_out_m), H_in(H_m) {
+}
+
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>
+void GenLoad::initialize() {
+  h_film_fun->init(); // initialize hfilm function
+}
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 #undef __FUNC__
@@ -131,7 +139,8 @@ void GenLoad::new_assemble(arg_data_list &arg_data_v,const Nodedata *nodedata,
     matlocf.set(1.);
   }
 
-  h_film_fun->init(); // initialize hfilm function
+  // h_film_fun->init(); // initialize hfilm function
+  // Move this to the ctor?
   double hfilm;
   if (double_layer) {
     PETSCFEM_ASSERT0(nel % 2 ==0,"Number of nodes per element has to be even for "

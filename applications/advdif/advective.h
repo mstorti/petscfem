@@ -647,10 +647,11 @@ class GenLoad : public NewElemset {
   FastMat2 H_m,H_out_m;
 public: 
   const FastMat2 &H,&H_out,&H_in;
-  GenLoad() : H(H_m), H_out(H_out_m), H_in(H_m) {}
+  GenLoad();
   HFilmFun *h_film_fun;
   NewAssembleFunction new_assemble;
   ASK_FUNCTION;
+  void initialize();
   virtual ~GenLoad()=0;
 };
 
