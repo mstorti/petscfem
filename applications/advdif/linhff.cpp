@@ -34,20 +34,21 @@ static double regmin(double a,double b,double delta=1e-4) {
 static double regmax(double a,double b,double delta=1e-4) {
   return 0.5*(a+b)+0.5*regabs(a-b,delta);
 }
-#endif
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>
 static double regpos2(double x,double delta) {
   double xx = x-delta;
   return 0.5*(xx+pf_regabs(xx,delta));
 }
+#endif
 
 // This global variable allows to set the Rinf from a hook
 double FLUXFUN_H2_RINF=NAN;
 lhff_info_t LHH_INFO;
 
+#if 0
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>
-double fluxfun_t::fun(double DV) {
+double fluxfun_h2_t::fun(double DV) {
   // Store the last value so that report when the value changes
   static double Rinf_last = NAN;
   // If the user has set the global value in a hook copy on the used value
@@ -100,7 +101,7 @@ static double get_entry_d(NewElemset *e,const char *name) {
 }
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>
-void fluxfun_t::init(NewElemset *e) {
+void fluxfun_h2_t::init(NewElemset *e) {
   int ierr;
   // printf("name %s\n",e->name());
   // const char *s;
@@ -123,10 +124,12 @@ void fluxfun_t::init(NewElemset *e) {
            "DV0p %g, DV0m %g, delta %g\n",
            R0,Rinf,DV0p,DV0m,delta);
 }
+#endif
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 void LinearHFilmFun::q(FastMat2 &uin,FastMat2 &uout,FastMat2 &flux,
 		       FastMat2 &jacin,FastMat2 &jacout) {
+#if 0
   // FLAG is for doing the initialization just once
   // USE_ELYZER_FILM is to flag if the special nonlinear functions
   // must be taken
@@ -140,8 +143,9 @@ void LinearHFilmFun::q(FastMat2 &uin,FastMat2 &uout,FastMat2 &flux,
     if (uef) fluxfun.init(elemset);
     if (!MY_RANK) printf("elemset %p use_elyzer_film %d\n",elemset,uef);
   }
-
-  if (fluxfun.use_elyzer_film==0) {
+#endif
+  
+  if (!fluxfunp.get()) {
     // Use the normal linear functions
     dU.set(uout).minus(uin);
     h->prod(flux,dU);
@@ -190,14 +194,14 @@ void LinearHFilmFun::q(FastMat2 &uin,FastMat2 &uout,FastMat2 &flux,
 #endif
     
     // Call the function to get the flux
-    *fluxp = fluxfun.fun(DV);
+    *fluxp = fluxfunp->fun(DV);
     auto &epg = LHH_INFO.ELEMPG;
     auto &I = LHH_INFO.table[epg];
     I.glast = I.gfun;
     I.glastm = I.gfunm;
     I.flux = *fluxp;
     // Compute the Jacobian by finite differences
-    double hfilm =(fluxfun.fun(DV+epsln)-fluxfun.fun(DV-epsln))/(2*epsln);
+    double hfilm =(fluxfunp->fun(DV+epsln)-fluxfunp->fun(DV-epsln))/(2*epsln);
     // Set the Jacobians
     *jacinp = hfilm;
     *jacoutp = -hfilm;

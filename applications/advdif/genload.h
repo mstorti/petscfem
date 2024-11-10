@@ -22,11 +22,18 @@ public:
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>
 class fluxfun_t {
 public:
+  virtual void init(NewElemset *e) {}
+  virtual double fun(double DV)=0;
+};
+
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>
+class fluxfun_h2_t {
+public:
   int flag,use_elyzer_film;
   double R0,Rinf,DV0p,DV0m,delta;
   void init(NewElemset *e);
   double fun(double DV);
-  fluxfun_t() : flag(0) {}
+  fluxfun_h2_t() : flag(0) {}
 };
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>
@@ -117,7 +124,8 @@ public:
   void element_hook(ElementIterator &element);
   LinearHFilmFun(GenLoad *e) : HFilmFun(e) {}
   ~LinearHFilmFun();
-  fluxfun_t fluxfun;
+  unique_ptr<fluxfun_t> fluxfunp;
+  static map<NewElemset*,unique_ptr<fluxfun_t>> fluxfun_table;
 };
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>
