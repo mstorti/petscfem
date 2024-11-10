@@ -279,6 +279,8 @@ void LinearHFilmFun::init() {
   dU.resize(1,ndof);
   h->init();
   s->init();
+  // Just set the entry in the table
+  fluxfun_table[e];
 }  
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
