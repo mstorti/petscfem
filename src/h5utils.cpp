@@ -177,27 +177,6 @@ void h5_dvector_read(const char *fdname,
 }
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>
-template<class T>
-void h5_dvector_write2(dvector<T> &w,
-                       const char *fdname) {
-  string file,dset, fds=fdname;
-  h5_file_dset_split(fds,file,dset);
-  h5_dvector_write(w,file.c_str(),dset.c_str());
-}
-
-//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>
-void h5_dvector_write(dvector<int> &w,
-                       const char *fdname) {
-  h5_dvector_write(w,fdname);
-}
-
-//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>
-void h5_dvector_write(dvector<double> &w,
-                       const char *fdname) {
-  h5_dvector_write(w,fdname);
-}
-
-//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>
 void h5_dvector_read(const char *fdname,
                      dvector<int> &w) {
   h5_dvector_read2(fdname,w);
@@ -220,8 +199,9 @@ void h5_dvector_read(const char *filename,
 }
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>
-void h5_dvector_write(dvector<double> &w,const char *filename,
-                     const char *varname) {
+template<class T>
+void h5_dvector_write(dvector<T> &w,const char *filename,
+                      const char *varname,H5::PredType type) {
   w.defrag();
   H5::H5File *filep=NULL;
   if (!access(filename,F_OK)) 
@@ -243,10 +223,45 @@ void h5_dvector_write(dvector<double> &w,const char *filename,
   H5::DataSpace dataspace(rank,hshape.data());
   // Create the dataset.
   H5::DataSet xdset =
-    filep->createDataSet(varname,H5::PredType::NATIVE_DOUBLE,dataspace);
-  xdset.write(w.buff(),H5::PredType::NATIVE_DOUBLE);
+    filep->createDataSet(varname,type,dataspace);
+  xdset.write(w.buff(),type);
   filep->close();
   delete filep;
+}
+
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>
+template<class T>
+void h5_dvector_write2(dvector<T> &w,
+                       const char *fdname,H5::PredType type) {
+  string file,dset, fds=fdname;
+  h5_file_dset_split(fds,file,dset);
+  h5_dvector_write(w,file.c_str(),dset.c_str(),type);
+}
+
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>
+void h5_dvector_write(dvector<int> &w,
+                      const char *fdname) {
+  h5_dvector_write2(w,fdname,H5::PredType::NATIVE_INT);
+}
+
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>
+void h5_dvector_write(dvector<double> &w,
+                       const char *fdname) {
+  h5_dvector_write2(w,fdname,H5::PredType::NATIVE_DOUBLE);
+}
+
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>
+void h5_dvector_write(dvector<int> &w,
+                      const char *filename,
+                      const char *dsetname) {
+  h5_dvector_write(w,filename,dsetname,H5::PredType::NATIVE_INT);
+}
+
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>
+void h5_dvector_write(dvector<double> &w,
+                      const char *filename,
+                      const char *dsetname) {
+  h5_dvector_write(w,filename,dsetname,H5::PredType::NATIVE_DOUBLE);
 }
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>
