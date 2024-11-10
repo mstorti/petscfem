@@ -167,6 +167,10 @@ void GenLoad::new_assemble(arg_data_list &arg_data_v,const Nodedata *nodedata,
   for (ElementIterator element = elemlist.begin(); 
        element!=elemlist.end(); element++) {
 
+    auto &epg = LHH_INFO.ELEMPG;
+    int ke,ie;
+    element.position(ke,ie);
+    epg.first = ke;
     ctx.jump(b);
 
     // Load local node coordinates in local vector
@@ -212,6 +216,7 @@ void GenLoad::new_assemble(arg_data_list &arg_data_v,const Nodedata *nodedata,
     // loop over Gauss points
     for (ipg=0; ipg<npg; ipg++) {
 
+      epg.second = ipg;
       xloc.is(1,1,nel2);
       Jaco.prod(DSHAPEXI,xloc,1,-1,-1,2);
       xloc.rs();

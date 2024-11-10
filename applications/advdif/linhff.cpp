@@ -13,6 +13,10 @@
 
 static int VRBS=0;
 
+#if 0
+// These functions are commented out because otheriwse the
+// compiler complains about non used function
+
 // Regularized version of the abs function
 static double regabs(double x,double delta=1e-4) {
   double ax = x/delta,
@@ -21,20 +25,26 @@ static double regabs(double x,double delta=1e-4) {
   return y;
 }
 
-#if 0
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>
 static double regmin(double a,double b,double delta=1e-4) {
   return 0.5*(a+b)-0.5*regabs(a-b,delta);
 }
-#endif
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>
 static double regmax(double a,double b,double delta=1e-4) {
   return 0.5*(a+b)+0.5*regabs(a-b,delta);
 }
+#endif
+
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>
+static double regpos2(double x,double delta) {
+  double xx = x-delta;
+  return 0.5*(xx+pf_regabs(xx,delta));
+}
 
 // This global variable allows to set the Rinf from a hook
 double FLUXFUN_H2_RINF=NAN;
+lhff_info_t LHH_INFO;
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>
 double fluxfun_t::fun(double DV) {
@@ -47,6 +57,8 @@ double fluxfun_t::fun(double DV) {
     printf("Changed Rinf %f -> %f\n",Rinf_last,Rinf);
     Rinf_last = Rinf;
   }
+#if 0
+  // OLD VERSION
   double
     aDV=fabs(DV),
     sig=(DV>0? 1 : -1),
@@ -56,6 +68,26 @@ double fluxfun_t::fun(double DV) {
   if (0 && VRBS && rand()%1000==0)
     printf("aDV %g, sig %g, DV0 %g, flux %g\n",aDV,sig,DV0,flux);
   return flux;
+#else
+  // const double Z=0.00819266;
+  // const double Z=8.2557e-03;
+  // FOR RINF=1e-4
+  // Z=0        => G=0.248333
+  // Z=0.248333 => G=0.134514
+  // Z=0.382847 => G=0.0728718
+  // Z=0.455718 => G=0.0394622
+  // NEW VERSION TO BE USED WITH ITERATIVE PENALIZATION
+  const double delta=0.01;
+  auto &epg = LHH_INFO.ELEMPG;
+  auto &I = LHH_INFO.table[epg];
+  I.gfun = DV-DV0p;
+  I.gfunm = -DV-DV0m;
+  // printf("in linhff: elem %d ipg %d, ZCURRENT %g, GFUN %g, ZCURRENTM %g, GFUNM %g\n",
+  //        epg.first,epg.second,I.zcurrent,I.gfun,I.zcurrentm,I.gfunm);
+  double fluxp = regpos2(I.zcurrent+I.gfun,delta)/Rinf;
+  double fluxm = -regpos2(I.zcurrentm+I.gfunm,delta)/Rinf;
+  return fluxp+fluxm;
+#endif
 }
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>
@@ -142,24 +174,28 @@ void LinearHFilmFun::q(FastMat2 &uin,FastMat2 &uout,FastMat2 &flux,
     // Small increment to take the Jacobian by finite differences
     double epsln = 1e-5;
 
-    static int cnt=0; cnt++;
-    if (0 && cnt>2000) { 
-      int N=1000;
-      double a=-1,b=1;
-      VRBS = 1;
-      for (int j=0; j<N; j++) {
-        double
-          x = a+double(j)/N*(b-a),
-          y = fluxfun.fun(x);
-          // y = regmax(x,-x,0.1);
-        printf("DV %g flx %g\n",x,y);
-      }
-      VRBS = 0;
-      exit(0);
+#if 0
+    auto &f = fluxfun;
+    int N=1000;
+    double a=0,b=1;
+    double delta=0.01;
+    for (int j=0; j<N; j++) {
+      double
+        x = a+double(j)/N*(b-a),
+        yflux = f.fun(x),
+        ynew = regpos2(x-f.DV0p,delta)/f.Rinf;
+      printf("x %g yflux %g ynew %g\n",x,yflux,ynew);
     }
+    exit(0);
+#endif
     
     // Call the function to get the flux
     *fluxp = fluxfun.fun(DV);
+    auto &epg = LHH_INFO.ELEMPG;
+    auto &I = LHH_INFO.table[epg];
+    I.glast = I.gfun;
+    I.glastm = I.gfunm;
+    I.flux = *fluxp;
     // Compute the Jacobian by finite differences
     double hfilm =(fluxfun.fun(DV+epsln)-fluxfun.fun(DV-epsln))/(2*epsln);
     // Set the Jacobians

@@ -185,7 +185,7 @@ int get_prop(int & iprop,GHashTable *props,TextHashTable *thash,
   phe = (props_hash_entry *)g_hash_table_lookup(props,(void *)name);
   if(phe!=NULL) {
     int w = phe->width;
-    if (n!=w) ierr = 1; CHKERRA(ierr); 
+    if (n!=w) { ierr = 1; CHKERRA(ierr); }
     for (int k=0; k<w; k++) {
       elprpsindx[iprop]=(phe->position)+k;
       propel[iprop]=0.;

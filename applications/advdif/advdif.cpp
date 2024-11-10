@@ -64,7 +64,6 @@ int VecIsFinite(Vec x) {
 }
 #endif
 
-
 //-------<*>-------<*>-------<*>-------<*>-------<*>------- 
 #undef __FUNC__
 #define __FUNC__ "advdif_main"

@@ -123,6 +123,7 @@ void FullEF::comp_P_Cp(FastMat2 &P_Cp,const FastMat2 &P_supg) {
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 void user_def_ef_t::init(int ndof,int ndim,int nel,
                          const NewElemset *elemset_) {
+  printf("In user_def_ef_t::init\n");
   elemset = elemset_;
   int ierr;
   EGETOPTDEF_ND(elemset,double,Cp1,NAN);
@@ -158,7 +159,7 @@ void user_def_ef_t::update(const double *ejac) {
 //   UU.set(U);
 // }
 double user_def_ef_t::hfun(double T) {
-  // printf("mat_indx %d\n",mat_indx);
+  printf("mat_indx %d\n",mat_indx);
   if (mat_indx==0) {
     double
       hreg = T<Tf? Cp1*T : Cp1*Tf+Cp2*(T-Tf),

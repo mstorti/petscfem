@@ -46,10 +46,9 @@ public:
       @param iter_mode (input) tells what kind
       of container the class `Container' is. 
   */ 
-  DistCont<Container,
-    ValueType,Partitioner>(Partitioner *part=NULL,
-			   MPI_Comm comm_=PETSCFEM_COMM_WORLD,
-			   iter_mode_t iter_mode = associative_iter_mode);
+  DistCont(Partitioner *part=NULL,
+           MPI_Comm comm_=PETSCFEM_COMM_WORLD,
+           iter_mode_t iter_mode = associative_iter_mode);
   /** Computes the size of data needed to pack this entry 
       @param k (input) iterator to the entry
       @return the size in bytes of the packed object
