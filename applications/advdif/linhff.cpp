@@ -238,8 +238,12 @@ void LinearHFilmFun::SFull::element_hook(ElementIterator &element) {
   SS.set(s);
 }
 
+map<NewElemset*,unique_ptr<fluxfun_t>> LinearHFilmFun::fluxfun_table;
+
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 void LinearHFilmFun::init() {
+  static int call=0;
+  printf("In LinearHFilmFun::init, call %d\n",call++);
   elemset->elem_params(nel,ndof,nelprops);
   // Read hfilm coefficients. 
   //o _T: double[var_len]
@@ -249,42 +253,44 @@ void LinearHFilmFun::init() {
   //  #var_len=ndof*ndof#  a full matrix of relating the flux with
   // $\Delta !U$. 
   //  _END
-  elemset->get_prop(hfilm_coeff_prop,"hfilm_coeff");
-  if (hfilm_coeff_prop.length == ndof*ndof) {
-    h= new HFull(this);
-  } else if (hfilm_coeff_prop.length == 0) {
-    h= new HNull(this);
-  } else {
-    PETSCFEM_ERROR("Not valid size of hfilm_coeff: %d, ndof: %d\n",
-		   hfilm_coeff_prop.length,ndof);
-  }
+  if (!h.get()) {
+    elemset->get_prop(hfilm_coeff_prop,"hfilm_coeff");
+    if (hfilm_coeff_prop.length == ndof*ndof) {
+      h.reset(new HFull(this));
+    } else if (hfilm_coeff_prop.length == 0) {
+      h.reset(new HNull(this));
+    } else {
+      PETSCFEM_ERROR("Not valid size of hfilm_coeff: %d, ndof: %d\n",
+                     hfilm_coeff_prop.length,ndof);
+    }
 
-  // Read source term for generic load elemset. 
-  //o _T: double[var_len]
-  //  _N: hfilm_source _D: no default  _DOC: 
-  // Defines constant source term for the generic load on
-  // surfaces. May be of length 0 (null load) or  #ndof# 
-  // which represents a geven load per field. 
-  //  _END
-  elemset->get_prop(hfilm_source_prop,"hfilm_source");
-  if (hfilm_source_prop.length == ndof) {
-    s= new SFull(this);
-  } else if (hfilm_source_prop.length == 0) {
-    s= new SNull(this);
-  } else {
-    PETSCFEM_ERROR("Not valid size of hfilm_source: %d, ndof: %d\n",
-		   hfilm_source_prop.length,ndof);
+    // Read source term for generic load elemset. 
+    //o _T: double[var_len]
+    //  _N: hfilm_source _D: no default  _DOC: 
+    // Defines constant source term for the generic load on
+    // surfaces. May be of length 0 (null load) or  #ndof# 
+    // which represents a geven load per field. 
+    //  _END
+    elemset->get_prop(hfilm_source_prop,"hfilm_source");
+    if (hfilm_source_prop.length == ndof) {
+      s.reset(new SFull(this));
+    } else if (hfilm_source_prop.length == 0) {
+      s.reset(new SNull(this));
+    } else {
+      PETSCFEM_ERROR("Not valid size of hfilm_source: %d, ndof: %d\n",
+                     hfilm_source_prop.length,ndof);
+    }
   }
-
+  
   dU.resize(1,ndof);
   h->init();
   s->init();
   // Just set the entry in the table
-  fluxfun_table[e];
+  fluxfun_table[elemset];
 }  
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 LinearHFilmFun::~LinearHFilmFun() {
-  delete h;
-  delete s;
+  // delete h;
+  // delete s;
 }

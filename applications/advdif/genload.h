@@ -112,10 +112,9 @@ private:
   };
   
   int nel, ndof, nelprops;
-  H *h;
-  S *s;
-  Property hfilm_coeff_prop, 
-    hfilm_source_prop;
+  unique_ptr<H> h;
+  unique_ptr<S> s;
+  Property hfilm_coeff_prop,hfilm_source_prop;
 public:
   void q(FastMat2 &uin,FastMat2 &uout,FastMat2 &flux,
 	 FastMat2 &jacin,FastMat2 &jacout);
