@@ -801,6 +801,10 @@ public:
   // This are coords and state for computing per element properties through a
   // special hook (PF_PROP_HOOK)
   vector<double> xpgv,upgv;
+
+  // These may be set by some elemesets in order to get the
+  // current element and Gauss point index
+  static int CURRENT_ELEMENT,CURRENT_PG;
 };
 
 #if 0

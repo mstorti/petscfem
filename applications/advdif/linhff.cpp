@@ -11,10 +11,6 @@
 #include "advective.h"
 #include "genload.h"
 
-// This global variable allows to set the Rinf from a hook
-double FLUXFUN_H2_RINF=NAN;
-lhff_info_t LHH_INFO;
-
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 void LinearHFilmFun::q(FastMat2 &uin,FastMat2 &uout,FastMat2 &flux,
 		       FastMat2 &jacin,FastMat2 &jacout) {
@@ -34,6 +30,8 @@ void LinearHFilmFun::q(FastMat2 &uin,FastMat2 &uout,FastMat2 &flux,
   }
 #endif
   if (fluxfun_table[elemset]) {
+    // A fluxfun may have been set for this elemset in a hook.
+    // If this is so move it here, to the elemset
     TRACE("Moving fluxfun ptr");
     fluxfunp = move(fluxfun_table[elemset]);
   }
@@ -76,28 +74,8 @@ void LinearHFilmFun::q(FastMat2 &uin,FastMat2 &uout,FastMat2 &flux,
     // Small increment to take the Jacobian by finite differences
     double epsln = 1e-5;
 
-#if 0
-    auto &f = fluxfun;
-    int N=1000;
-    double a=0,b=1;
-    double delta=0.01;
-    for (int j=0; j<N; j++) {
-      double
-        x = a+double(j)/N*(b-a),
-        yflux = f.fun(x),
-        ynew = regpos2(x-f.DV0p,delta)/f.Rinf;
-      printf("x %g yflux %g ynew %g\n",x,yflux,ynew);
-    }
-    exit(0);
-#endif
-    
-    // Call the function to get the flux
-    *fluxp = fluxfunp->fun(DV);
-    auto &epg = LHH_INFO.ELEMPG;
-    auto &I = LHH_INFO.table[epg];
-    I.glast = I.gfun;
-    I.glastm = I.gfunm;
-    I.flux = *fluxp;
+    // Call the fluxfun function to get the flux
+    *fluxp = fluxfunp->fun(DV,1);
     // Compute the Jacobian by finite differences
     double hfilm =(fluxfunp->fun(DV+epsln)-fluxfunp->fun(DV-epsln))/(2*epsln);
     // Set the Jacobians

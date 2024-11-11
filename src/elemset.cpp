@@ -1067,3 +1067,6 @@ Nodedata::get_field(const string& name,int* cols,double** data)
   }
 }
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+
+int NewElemset::CURRENT_ELEMENT=-1;
+int NewElemset::CURRENT_PG=-1;

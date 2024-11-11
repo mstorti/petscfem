@@ -22,8 +22,12 @@ public:
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>
 class fluxfun_t {
 public:
+  // Initialize the function
   virtual void init(NewElemset *e) {}
-  virtual double fun(double DV)=0;
+  // Compute the flux for a given jump DV across the interface
+  // type=1 is the value at the interface, 0 is for
+  // doing FD computation of the film coef
+  virtual double fun(double DV,int type=0)=0;
 };
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>
@@ -113,7 +117,9 @@ public:
   void element_hook(ElementIterator &element);
   LinearHFilmFun(GenLoad *e) : HFilmFun(e) {}
   ~LinearHFilmFun();
+  // This is the fluxfun_t used for this elemeset
   unique_ptr<fluxfun_t> fluxfunp;
+  // This global table is filled in a hook, for instance
   static map<NewElemset*,unique_ptr<fluxfun_t>> fluxfun_table;
 };
 
