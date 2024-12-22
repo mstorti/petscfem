@@ -4,6 +4,7 @@
 #ifndef PETSCFEM_UTIL3_H
 #define PETSCFEM_UTIL3_H
 #include <string>
+#include <src/dvector.h>
 
 #ifdef USE_SSL
 #include <SSL/sockets.h>
@@ -50,6 +51,54 @@ double pf_regmin2(double y1,double y2,double a,double &mu);
     ierr = string2int(tokens[1],cookie2);					\
     PETSCFEM_ASSERT0((tokens[0]==#keyword "_OK" && !ierr && cookie==cookie2),	\
 		     "Bad response from DX client sending " #keyword "\n"); }
+
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>
+// Concatenate arrays that are defined in each process
+template<class T>
+void concat(std::vector<T> &in,std::vector<T> &out) {
+  int nproc,rank;
+  MPI_Comm_rank(MPI_COMM_WORLD,&rank);
+  MPI_Comm_size(MPI_COMM_WORLD,&nproc);
+  // Compute the counts and displacements for the Allgather
+  std::vector<int> counts(nproc,0), displs(nproc+1,0);
+  int szT = sizeof(T);
+  // We compute the sizes in bytes (this may be wrong!!)
+  int nhere = in.size()*szT;
+  counts[rank] = nhere;
+  // We use the MPI_COMM_WORLD, I don't know if this is right
+  // We gather all the local sizes so that we have in
+  // each processor the sizes of all the processors
+  MPI_Allgather(&nhere,1,MPI_INT,counts.data(),1,MPI_INT,MPI_COMM_WORLD);
+  // Compute the displs as cumsum of the sizes
+  displs[0]=0;
+  for (int j=0; j<nproc; j++)
+    displs[j+1] = displs[j]+counts[j];
+  // Resize the output vector
+  out.resize(displs[nproc]/szT);
+  // Dothe Allgather
+  MPI_Allgatherv(in.data(),nhere,MPI_CHAR,
+                 out.data(),counts.data(),displs.data(),MPI_CHAR,
+                 MPI_COMM_WORLD);
+}
+
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>
+// Concatenate arrays that are defined in each process
+template<class T>
+void concat(dvector<T> &in,dvector<T> &out) {
+  int nproc,rank;
+  MPI_Comm_rank(MPI_COMM_WORLD,&rank);
+  MPI_Comm_size(MPI_COMM_WORLD,&nproc);
+  std::vector<T> tmpin,tmpout;
+  int N = in.size();
+  for (int j=0; j<N; j++) 
+    tmpin.push_back(in.ref(j));
+  concat(tmpin,tmpout);
+  if (!rank) {
+    int M = tmpout.size();
+    out.mono(M);
+    for (int k=0; k<M; k++) out.ref(k) = tmpout[k];
+  }
+}
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 #ifdef USE_SSL
