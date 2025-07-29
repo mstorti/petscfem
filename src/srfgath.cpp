@@ -548,11 +548,13 @@ void field_surf_integrator
   for (int j=1; j<=ndof; j++) ip_values[j] = u.get(j);
 }
 
+unique_ptr<generic_surf_integrator_t> GENERIC_SURF_INTEGRATOR_PTR;
+
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>
 void gensurf_wrapper_t::init() {
-  printf("ing generic_surf_integrator_t\n");
+  printf("in gensurf_wrapper_t::init()\n");
   exit(0);
-  ptr->init();
+  GENERIC_SURF_INTEGRATOR_PTR->init();
 }
 
 #undef SHAPE    

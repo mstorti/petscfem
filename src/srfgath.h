@@ -91,11 +91,12 @@ public:
   virtual void init() {}
 };
 
+extern unique_ptr<generic_surf_integrator_t> GENERIC_SURF_INTEGRATOR_PTR;
+
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>
 // This is to be put in the EPL and cals
 class gensurf_wrapper_t : public SurfGatherer {
 public:
-  unique_ptr<generic_surf_integrator_t> ptr;
   void init() override;
   void set_ip_values(vector<double> &pg_values,FastMat2 &u,
 		     FastMat2 &xpg,FastMat2 &n,double time) override {}
