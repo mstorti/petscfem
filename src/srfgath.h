@@ -16,14 +16,15 @@ public:
     virtual double f(const FastMat2 &x)=0;
     virtual void close() { }
     virtual ~SurfFunction()=0;
-    static SurfFunction* factory(const TextHashTable *thash);
+    static void factory(const TextHashTable *thash,
+                   unique_ptr<SurfFunction> &p);
   };
 
 private:
-  SurfFunction *sf;
+  unique_ptr<SurfFunction> sf;
 
 public: 
-  SurfGatherer() : sf(NULL) { }
+  SurfGatherer() { }
   ~SurfGatherer();
 
   int gather_length;
@@ -91,6 +92,7 @@ public:
   virtual void init() {}
 };
 
+extern unique_ptr<SurfGatherer::SurfFunction> GLOBAL_SURF_PTR;
 extern unique_ptr<generic_surf_integrator_t> GENERIC_SURF_INTEGRATOR_PTR;
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>
