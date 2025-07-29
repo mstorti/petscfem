@@ -12,5 +12,6 @@
 void bless_elemset0(char *type,Elemset *& elemset) {
   if (elemset) return;
   SET_ELEMSET_TYPE(field_surf_integrator)
+  SET_ELEMSET_TYPE(gensurf_wrapper_t)
     { }
 }

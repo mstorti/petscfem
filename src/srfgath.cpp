@@ -548,6 +548,13 @@ void field_surf_integrator
   for (int j=1; j<=ndof; j++) ip_values[j] = u.get(j);
 }
 
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>
+void gensurf_wrapper_t::init() {
+  printf("ing generic_surf_integrator_t\n");
+  exit(0);
+  ptr->init();
+}
+
 #undef SHAPE    
 #undef DSHAPEXI 
 #undef WPG      
