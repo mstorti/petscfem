@@ -553,8 +553,8 @@ unique_ptr<generic_surf_integrator_t> GENERIC_SURF_INTEGRATOR_PTR;
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>
 void gensurf_wrapper_t::init() {
   printf("in gensurf_wrapper_t::init()\n");
-  exit(0);
   GENERIC_SURF_INTEGRATOR_PTR->init();
+  exit(0);
 }
 
 #undef SHAPE    
