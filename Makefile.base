@@ -202,7 +202,7 @@ CPPFLAGS := $(CPPFLAGS)				\
 	$(HDF5_FLAGS)				\
 	$(JSON_CPPFLAGS)
 
-CPPFLAGS += -Wno-overloaded-virtual
+CPPFLAGS += -Wno-overloaded-virtual -Wno-unused-result
 
 ifeq ($(USE_OPENMP),yes) 
 CPPFLAGS += -fopenmp
