@@ -90,19 +90,25 @@ public:
 class generic_surf_integrator_t {
 public:
   virtual void init() {}
+  virtual void set_ip_values(vector<double> &pg_values,FastMat2 &u,
+		     FastMat2 &xpg,FastMat2 &n,double time);
+  virtual int vals_per_plane();
 };
 
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>
+// Global pointers (should be done with a table or something
+// like that
 extern unique_ptr<SurfGatherer::SurfFunction> GLOBAL_SURF_PTR;
 extern unique_ptr<generic_surf_integrator_t> GENERIC_SURF_INTEGRATOR_PTR;
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>
-// This is to be put in the EPL and cals
+// This is to be put in the EPL and calls
 class gensurf_wrapper_t : public SurfGatherer {
 public:
   void init() override;
   void set_ip_values(vector<double> &pg_values,FastMat2 &u,
-		     FastMat2 &xpg,FastMat2 &n,double time) override {}
-  int vals_per_plane() override { return -1; }
+		     FastMat2 &xpg,FastMat2 &n,double time) override;
+  int vals_per_plane() override;
 };
 
 #endif

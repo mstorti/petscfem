@@ -179,8 +179,6 @@ void SurfGatherer::SurfFunction::factory(const TextHashTable *thash,
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 void SurfGatherer::initialize() {
-  SurfGatherer::SurfFunction::factory(thash,sf);
-  sf->init(thash);
 }
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
@@ -203,7 +201,11 @@ int SurfGatherer::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
 			   Dofmap *dofmap,const char *jobinfo,int myrank,
 			   int el_start,int el_last,int iter_mode,
 			   const TimeData *time) {
-  
+
+  if (!sf) {
+    SurfGatherer::SurfFunction::factory(thash,sf);
+    sf->init(thash);
+  }
   int ierr;
 
   GET_JOBINFO_FLAG(gather);
@@ -556,7 +558,17 @@ unique_ptr<SurfGatherer::SurfFunction> GLOBAL_SURF_PTR;
 void gensurf_wrapper_t::init() {
   printf("in gensurf_wrapper_t::init()\n");
   GENERIC_SURF_INTEGRATOR_PTR->init();
-  exit(0);
+}
+
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>
+void gensurf_wrapper_t::set_ip_values(vector<double> &pg_values,FastMat2 &u,
+                   FastMat2 &xpg,FastMat2 &n,double time) {
+  GENERIC_SURF_INTEGRATOR_PTR->set_ip_values(pg_values,u,xpg,n,time);
+}
+
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>
+int gensurf_wrapper_t::vals_per_plane() {
+  return GENERIC_SURF_INTEGRATOR_PTR->vals_per_plane();
 }
 
 #undef SHAPE    
