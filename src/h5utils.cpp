@@ -251,6 +251,14 @@ void h5_dvector_write(dvector<double> &w,
 }
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>
+void h5_dvector_write(dvector<double> &w,
+                      const char *fdroot,int slot) {
+  char fdname[1000];
+  sprintf(fdname,"%s_%d",fdroot,slot);
+  h5_dvector_write(w,fdname);
+}
+
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>
 void h5_dvector_write(dvector<int> &w,
                       const char *filename,
                       const char *dsetname) {
