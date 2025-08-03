@@ -91,8 +91,8 @@ class generic_surf_integrator_t {
 public:
   virtual void init() {}
   virtual void set_ip_values(vector<double> &pg_values,FastMat2 &u,
-		     FastMat2 &xpg,FastMat2 &n,double time);
-  virtual int vals_per_plane();
+		     FastMat2 &xpg,FastMat2 &n,double time)=0;
+  virtual int vals_per_plane()=0;
 };
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>

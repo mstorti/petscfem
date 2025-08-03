@@ -556,7 +556,7 @@ unique_ptr<SurfGatherer::SurfFunction> GLOBAL_SURF_PTR;
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>
 void gensurf_wrapper_t::init() {
-  printf("in gensurf_wrapper_t::init()\n");
+  // printf("in gensurf_wrapper_t::init()\n");
   GENERIC_SURF_INTEGRATOR_PTR->init();
 }
 
