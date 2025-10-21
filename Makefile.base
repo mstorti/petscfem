@@ -410,6 +410,7 @@ LDFLAGS_NO_PROG_LIB = $(LDDBGFLAG)			\
 	  $(OMP_LDFLAGS) $(JSON_LDFLAGS)		\
 	  $(PFLIBPROJ_LDFLAGS)				\
           $(ANN_LDFLAGS)				\
+          -lpetscfem$(osfx)				\
 	  $(LD_FLAGS_POST)
 
 CBLAS_FOUND := no
