@@ -308,3 +308,9 @@ tags3:
 
 qqq:
 	@echo PETSC_LDFLAGS $(PETSC_LDFLAGS)
+
+#w Build with cmake
+prog:
+	rrm -rf build
+	mkdir build
+	cd build ; cmake ..
