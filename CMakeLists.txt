@@ -10,27 +10,28 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(PFPCKGDIR $ENV{HOME}/PETSC/petscfem-packages)
 set(NEWMAT_ROOT ${PFPCKGDIR}) 
 
+set(PETSC_DIR /home/mstorti/PETSC/petsc-3.2-p7)
+set(PETSC_ARCH linux-gnu-O)
+
+set(PETSC_ROOT ${PETSC_DIR}/${PETSC_ARCH})
+set(PETSCLIB -L${PETSC_ROOT}/lib petsc)
+
 # 2. Crear un objetivo (target) para Newmat
 add_library(newmat_lib INTERFACE)
-
-# 3. Definir dónde están los headers y la librería (.a o .so)
-target_include_directories(newmat_lib INTERFACE ${NEWMAT_ROOT}/include/newmat)
-
-# Buscamos el archivo físico de la librería para no hardcodear nombres
+target_include_directories(newmat_lib INTERFACE ${NEWMAT_ROOT}/include/newmat ${PETSC_INCLUDES})
 find_library(NEWMAT_BINARY NAMES newmat PATHS ${NEWMAT_ROOT}/lib REQUIRED)
 target_link_libraries(newmat_lib INTERFACE ${NEWMAT_BINARY})
 
-# Buscar dependencias (PETSc es clave aquí)
-find_package(PkgConfig REQUIRED)
-## pkg_check_modules(PETSC REQUIRED petsc)
+find_package(MPI)
+
+link_directories(${PETSC_ROOT}/lib)
+link_libraries(petsc)
+set(PETSC_INCLUDES ${PETSC_DIR}/include ${PETSC_DIR}/${PETSC_ARCH}/include)
+include_directories(${PETSC_INCLUDES})
 
 set(PFPCKGDIR $ENV{HOME}/PETSC/petscfem-packages)
 set(HDF5_ROOT /home/mstorti/SOFT/hdf5-1814)
 set(CS_ROOT /home/scratch/mstorti/TO-BACKUP/DATA-CD/saturne-opt)
-set(PETSC_DIR /home/mstorti/PETSC/petsc-3.2-p7)
-set(PETSC_ARCH linux-gnu-O)
-set(PETSC_ROOT ${PETSC_DIR}/${PETSC_ARCH})
-set(PETSC_INCLUDES ${PETSC_DIR}/include ${PETSC_DIR}/${PETSC_ARCH}/include)
 
 # Incluir subdirectorios
 add_subdirectory(src)

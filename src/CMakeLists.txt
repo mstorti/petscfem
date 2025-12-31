@@ -23,7 +23,8 @@ add_library(petscfem_core STATIC
 target_include_directories(petscfem_core PUBLIC ${CMAKE_SOURCE_DIR})
 
 # Vincular con PETSc
-target_link_libraries(petscfem_core PUBLIC ${PETSC_LIBRARIES})
 target_compile_options(petscfem_core PUBLIC ${PETSC_CFLAGS_OTHER})
 
 target_link_libraries(petscfem_core PUBLIC newmat_lib)
+target_link_libraries(petscfem_core PUBLIC MPI::MPI_CXX)
+target_link_libraries(petscfem_core PUBLIC ${PETSC_LIBRARIES})
