@@ -1,6 +1,6 @@
 ## -*- mode: cmake -*-
 cmake_minimum_required(VERSION 3.15)
-project(PETScFEM LANGUAGES CXX Fortran)
+project(PETScFEM LANGUAGES CXX Fortran C)
 
 # Configuración de C++
 set(CMAKE_CXX_STANDARD 17)
@@ -69,9 +69,21 @@ set(PETSC_INCLUDES ${PETSC_DIR}/include ${PETSC_DIR}/${PETSC_ARCH}/include)
 include_directories(${PETSC_INCLUDES})
 message("PETSC_INCLUDES ${PETSC_INCLUDES}")
 
-set(PFPCKGDIR $ENV{HOME}/PETSC/petscfem-packages)
-set(HDF5_ROOT /home/mstorti/SOFT/hdf5-1814)
-set(CS_ROOT /home/scratch/mstorti/TO-BACKUP/DATA-CD/saturne-opt)
+# ATLAS_INC_DIR = /usr/include/flexiblas
+# ATLAS_LIB_DIR = /usr/lib64
+# ATLAS_LIBS := -lflexiblas -llapacke
+
+add_library(blas_lib INTERFACE)
+target_include_directories(blas_lib INTERFACE /usr/include/flexiblas)
+link_directories(/usr/lib64)
+target_link_libraries(blas_lib INTERFACE flexiblas lapacke)
+
+pkg_check_modules(JSONCPP REQUIRED jsoncpp)
+add_library(jsoncpp_lib INTERFACE)
+target_include_directories(jsoncpp_lib INTERFACE ${JSONCPP_INCLUDE_DIRS})
+target_link_libraries(jsoncpp_lib INTERFACE ${JSONCPP_LIBRARIES})
+# (Opcional) Si necesitas definir flags específicos
+## target_compile_options(jsoncpp_lib INTERFACE ${JSONCPP_CFLAGS_OTHER})
 
 # Incluir subdirectorios
 add_subdirectory(src)

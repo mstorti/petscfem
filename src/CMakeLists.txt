@@ -18,21 +18,25 @@ add_library(petscfem
   spetscmat.cpp spsolve.cpp srfgath.cpp state.cpp sttfilter.cpp
   surf2vol.cpp syncbuff.cpp tempfun.cpp tempfun2.cpp texthash.cpp
   texthf.cpp timestat.cpp util2.cpp util3.cpp utils.cpp fm2prod2.cpp
-  fmgemmcode.cpp h5utils.cpp version.cpp dgefa.f seval.f spline.f)
+  fmgemmcode.cpp h5utils.cpp version.cpp dgefa.f seval.f spline.f
+  getarrgr.tab.c)
 
 target_include_directories(petscfem PUBLIC ${CMAKE_SOURCE_DIR})
 
 # Vincular con PETSc
 target_compile_options(petscfem PUBLIC ${PETSC_CFLAGS_OTHER})
 
-target_link_libraries(petscfem PUBLIC newmat_lib)
-target_link_libraries(petscfem PUBLIC libretto_lib)
-target_link_libraries(petscfem PUBLIC metis_lib)
-target_link_libraries(petscfem PUBLIC meschach_lib)
-target_link_libraries(petscfem PUBLIC MPI::MPI_CXX)
-target_link_libraries(petscfem PUBLIC ${PETSC_LIBRARIES})
-target_link_libraries(petscfem PUBLIC ${GLIB_LIBRARIES})
-target_link_libraries(petscfem PUBLIC hdf5_lib)
+target_link_libraries(petscfem PUBLIC
+  newmat_lib
+  libretto_lib
+  metis_lib
+  meschach_lib
+  MPI::MPI_CXX
+  ${PETSC_LIBRARIES}
+  ${GLIB_LIBRARIES}
+  hdf5_lib
+  blas_lib
+  jsoncpp_lib )
 
 # IMPORTANTE: Debes agregar los directorios de include explícitamente si usas variables
 target_include_directories(petscfem PUBLIC ${GLIB_INCLUDE_DIRS})
