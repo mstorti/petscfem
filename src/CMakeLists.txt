@@ -18,7 +18,7 @@ add_library(petscfem
   spetscmat.cpp spsolve.cpp srfgath.cpp state.cpp sttfilter.cpp
   surf2vol.cpp syncbuff.cpp tempfun.cpp tempfun2.cpp texthash.cpp
   texthf.cpp timestat.cpp util2.cpp util3.cpp utils.cpp fm2prod2.cpp
-  fmgemmcode.cpp h5utils.cpp)
+  fmgemmcode.cpp h5utils.cpp version.cpp dgefa.f seval.f spline.f)
 
 target_include_directories(petscfem PUBLIC ${CMAKE_SOURCE_DIR})
 

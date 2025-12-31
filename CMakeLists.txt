@@ -1,6 +1,6 @@
 ## -*- mode: cmake -*-
 cmake_minimum_required(VERSION 3.15)
-project(PETScFEM LANGUAGES CXX)
+project(PETScFEM LANGUAGES CXX Fortran)
 
 # Configuración de C++
 set(CMAKE_CXX_STANDARD 17)
@@ -17,15 +17,17 @@ set(NEWMAT_ROOT ${PFPCKGDIR})
 set(LIBRETTO_ROOT ${PFPCKGDIR}) 
 set(METIS_ROOT ${PFPCKGDIR}) 
 set(MESCHACH_ROOT ${PFPCKGDIR}) 
-set(HDF5ROOT ${HOME}/SOFT/hdf5-1814)
+set(HDF5_ROOT $ENV{HOME}/SOFT/hdf5-1814)
 
-set(PETSC_DIR /home/mstorti/PETSC/petsc-3.2-p7)
-set(PETSC_ARCH linux-gnu-O)
+set(PETSC_DIR "/home/mstorti/PETSC/petsc-3.2-p7")
+set(PETSC_ARCH "linux-gnu-O")
+add_compile_definitions(PETSC_BOPT_FLAG="${PETSC_ARCH}")
 
 set(PETSC_ROOT ${PETSC_DIR}/${PETSC_ARCH})
 
 add_library(hdf5_lib INTERFACE)
-target_include_directories(hdf5_lib INTERFACE ${HDF5_ROOT}/include/hdf5)
+link_directories(${HDF5_ROOT}/lib)
+target_include_directories(hdf5_lib INTERFACE ${HDF5_ROOT}/include)
 target_link_libraries(hdf5_lib INTERFACE hdf5 hdf5_cpp)
 
 add_library(newmat_lib INTERFACE)
@@ -65,6 +67,7 @@ link_directories(${PETSC_ROOT}/lib)
 link_libraries(petsc)
 set(PETSC_INCLUDES ${PETSC_DIR}/include ${PETSC_DIR}/${PETSC_ARCH}/include)
 include_directories(${PETSC_INCLUDES})
+message("PETSC_INCLUDES ${PETSC_INCLUDES}")
 
 set(PFPCKGDIR $ENV{HOME}/PETSC/petscfem-packages)
 set(HDF5_ROOT /home/mstorti/SOFT/hdf5-1814)
@@ -72,6 +75,6 @@ set(CS_ROOT /home/scratch/mstorti/TO-BACKUP/DATA-CD/saturne-opt)
 
 # Incluir subdirectorios
 add_subdirectory(src)
-## add_subdirectory(applications/advdif)
+add_subdirectory(applications/advdif)
 ## add_subdirectory(applications/ns)
 
