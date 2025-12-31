@@ -40,3 +40,16 @@ target_link_libraries(petscfem PUBLIC
 
 # IMPORTANTE: Debes agregar los directorios de include explícitamente si usas variables
 target_include_directories(petscfem PUBLIC ${GLIB_INCLUDE_DIRS})
+
+file(GLOB CORE_HEADERS "*.h") 
+
+install(TARGETS petscfem
+    EXPORT petscfemTargets       # Opcional: útil si quieres que otros proyectos usen el tuyo
+    LIBRARY DESTINATION lib      # Para .so
+    ARCHIVE DESTINATION lib      # Para .a (si compilas estático)
+    RUNTIME DESTINATION bin      # Para .dll (si usaras Windows)
+)
+
+install(FILES ${CORE_HEADERS}
+    DESTINATION include/src
+)

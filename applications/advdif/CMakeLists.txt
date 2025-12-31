@@ -34,7 +34,22 @@ target_link_libraries(advdif_lib PUBLIC petscfem)
 add_executable(advdif_app ${ADVDIF_APP_SOURCES})
 
 # Configurar el nombre final del ejecutable
-set_target_properties(advdif_app PROPERTIES OUTPUT_NAME "petscfem-advdif")
+set_target_properties(advdif_app PROPERTIES OUTPUT_NAME "advdif")
 
 # Vincular el ejecutable con TU librería nueva (y hereda el core)
 target_link_libraries(advdif_app PRIVATE advdif_lib)
+
+file(GLOB ADVDIF_HEADERS "*.h")
+
+install(TARGETS advdif_lib
+    LIBRARY DESTINATION lib
+    ARCHIVE DESTINATION lib
+)
+
+install(TARGETS advdif_app
+    RUNTIME DESTINATION bin
+)
+
+install(FILES ${ADVDIF_HEADERS}
+    DESTINATION include/applications/advdif
+)
