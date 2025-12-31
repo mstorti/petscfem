@@ -26,5 +26,13 @@ target_include_directories(petscfem_core PUBLIC ${CMAKE_SOURCE_DIR})
 target_compile_options(petscfem_core PUBLIC ${PETSC_CFLAGS_OTHER})
 
 target_link_libraries(petscfem_core PUBLIC newmat_lib)
+target_link_libraries(petscfem_core PUBLIC libretto_lib)
+target_link_libraries(petscfem_core PUBLIC metis_lib)
+target_link_libraries(petscfem_core PUBLIC meschach_lib)
 target_link_libraries(petscfem_core PUBLIC MPI::MPI_CXX)
 target_link_libraries(petscfem_core PUBLIC ${PETSC_LIBRARIES})
+target_link_libraries(petscfem_core PUBLIC ${GLIB_LIBRARIES})
+target_link_libraries(petscfem_core PUBLIC hdf5_lib)
+
+# IMPORTANTE: Debes agregar los directorios de include explícitamente si usas variables
+target_include_directories(petscfem_core PUBLIC ${GLIB_INCLUDE_DIRS})

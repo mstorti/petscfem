@@ -30,6 +30,7 @@ extern "C" {
 #include <algorithm>
 #include <cassert>
 #include <queue>
+#include <random>
 #include <src/getprop.h>
 #include <src/pfobject.h>
 #include <src/dvecpar.h>
@@ -1450,7 +1451,12 @@ int read_mesh(Mesh *& mesh,char *fcase,Dofmap *& dofmap,
       procmap_rand.clone(procmap);
       procmap_rand.defrag();
       int *proc_p = procmap_rand.buff();
-      random_shuffle(proc_p,proc_p+size);
+
+      // Por esto (Estilo C++17):
+      std::random_device rd;  // Dispositivo para obtener una semilla aleatoria (seed)
+      std::mt19937 g(rd());   // Generador estándar (Mersenne Twister)
+      std::shuffle(proc_p, proc_p + size, g);
+      
       perfo(bw,ii_stat,procmap_rand,pmax,psum);
       printf("random permut: max %g, sum %g\n",pmax,psum);
 #endif

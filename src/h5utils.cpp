@@ -302,9 +302,11 @@ int h5petsc_vec_save(Vec x,const char *filename,
 void h5_dvector_read(const char *filename,const char *dsetname,
                      dvector<double> &w) { H5ERR; }
 
+#if 0
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>
 int h5petsc_vec_save(Vec x,const char *filename,
                      const char *varname) { H5ERR; return 0; }
+#endif
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>
 template<class T>
