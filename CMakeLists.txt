@@ -6,6 +6,9 @@ project(PETScFEM LANGUAGES CXX)
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
+set(BUILD_SHARED_LIBS ON)
+set(CMAKE_POSITION_INDEPENDENT_CODE ON)
+
 add_compile_definitions(USE_DLEF)
 add_compile_definitions(USE_HDF5)
 

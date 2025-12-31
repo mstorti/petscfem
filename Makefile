@@ -311,6 +311,10 @@ qqq:
 
 #w Build with cmake
 prog:
+	cd build ; cmake .. ; $(MAKE)
+
+#w Build with cmake
+reprog:
 	rrm -rf build
 	mkdir build
-	cd build ; cmake ..
+	$(MAKE) prog

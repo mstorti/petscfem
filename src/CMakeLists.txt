@@ -2,7 +2,7 @@
 
 # src/CMakeLists.txt
 ## file(GLOB_RECURSE SRC_FILES *.cpp)
-add_library(petscfem_core STATIC
+add_library(petscfem 
   amplidl.cpp arglist.cpp autostr.cpp blessf.cpp cloud.cpp cloud2.cpp
   debug.cpp distmat.cpp dlhook.cpp dofmap.cpp dofmap2.cpp dofmap3.cpp
   dvecpar.cpp dvector.cpp dxelmst.cpp dxhook.cpp elemlist.cpp
@@ -20,19 +20,19 @@ add_library(petscfem_core STATIC
   texthf.cpp timestat.cpp util2.cpp util3.cpp utils.cpp fm2prod2.cpp
   fmgemmcode.cpp h5utils.cpp)
 
-target_include_directories(petscfem_core PUBLIC ${CMAKE_SOURCE_DIR})
+target_include_directories(petscfem PUBLIC ${CMAKE_SOURCE_DIR})
 
 # Vincular con PETSc
-target_compile_options(petscfem_core PUBLIC ${PETSC_CFLAGS_OTHER})
+target_compile_options(petscfem PUBLIC ${PETSC_CFLAGS_OTHER})
 
-target_link_libraries(petscfem_core PUBLIC newmat_lib)
-target_link_libraries(petscfem_core PUBLIC libretto_lib)
-target_link_libraries(petscfem_core PUBLIC metis_lib)
-target_link_libraries(petscfem_core PUBLIC meschach_lib)
-target_link_libraries(petscfem_core PUBLIC MPI::MPI_CXX)
-target_link_libraries(petscfem_core PUBLIC ${PETSC_LIBRARIES})
-target_link_libraries(petscfem_core PUBLIC ${GLIB_LIBRARIES})
-target_link_libraries(petscfem_core PUBLIC hdf5_lib)
+target_link_libraries(petscfem PUBLIC newmat_lib)
+target_link_libraries(petscfem PUBLIC libretto_lib)
+target_link_libraries(petscfem PUBLIC metis_lib)
+target_link_libraries(petscfem PUBLIC meschach_lib)
+target_link_libraries(petscfem PUBLIC MPI::MPI_CXX)
+target_link_libraries(petscfem PUBLIC ${PETSC_LIBRARIES})
+target_link_libraries(petscfem PUBLIC ${GLIB_LIBRARIES})
+target_link_libraries(petscfem PUBLIC hdf5_lib)
 
 # IMPORTANTE: Debes agregar los directorios de include explícitamente si usas variables
-target_include_directories(petscfem_core PUBLIC ${GLIB_INCLUDE_DIRS})
+target_include_directories(petscfem PUBLIC ${GLIB_INCLUDE_DIRS})
