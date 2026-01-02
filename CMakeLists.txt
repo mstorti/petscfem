@@ -1,6 +1,6 @@
 ## -*- mode: cmake -*-
 cmake_minimum_required(VERSION 3.15)
-project(PETScFEM LANGUAGES CXX Fortran C)
+project(PETScFEM VERSION 1.0.0 LANGUAGES CXX Fortran C)
 
 # Configuración de C++
 set(CMAKE_CXX_STANDARD 17)
@@ -27,62 +27,63 @@ set(HDF5_ROOT $ENV{HOME}/SOFT/hdf5-1814)
 set(PETSC_DIR "/home/mstorti/PETSC/petsc-3.2-p7")
 set(PETSC_ARCH "linux-gnu-O")
 add_compile_definitions(PETSC_BOPT_FLAG="${PETSC_ARCH}")
-
 set(PETSC_ROOT ${PETSC_DIR}/${PETSC_ARCH})
 
+## HDF5
 add_library(hdf5_lib INTERFACE)
+list(APPEND CMAKE_INSTALL_RPATH "/home/mstorti/SOFT/hdf5-1814/lib")
 link_directories(${HDF5_ROOT}/lib)
 target_include_directories(hdf5_lib INTERFACE ${HDF5_ROOT}/include)
-target_link_libraries(hdf5_lib INTERFACE hdf5 hdf5_cpp)
+find_library(H5_STUB_LIB NAMES hdf5_f90cstub
+  PATHS ${HDF5_ROOT}/lib NO_DEFAULT_PATH REQUIRED)
+target_link_libraries(hdf5_lib INTERFACE hdf5 hdf5_cpp ${H5_STUB_LIB})
 
+## NEWMAT
 add_library(newmat_lib INTERFACE)
 target_include_directories(newmat_lib INTERFACE ${NEWMAT_ROOT}/include/newmat)
 find_library(NEWMAT_BINARY NAMES newmat PATHS ${NEWMAT_ROOT}/lib REQUIRED)
 target_link_libraries(newmat_lib INTERFACE ${NEWMAT_BINARY})
 
+## LIBRETTO
 add_library(libretto_lib INTERFACE)
 target_include_directories(libretto_lib INTERFACE ${LIBRETTO_ROOT}/include)
 find_library(LIBRETTO_BINARY NAMES ibretto PATHS ${LIBRETTO_ROOT}/lib REQUIRED)
 target_link_libraries(libretto_lib INTERFACE ${LIBRETTO_BINARY})
 
+## METIS
 add_library(metis_lib INTERFACE)
 target_include_directories(metis_lib INTERFACE ${METIS_ROOT}/include/metis)
 find_library(METIS_BINARY NAMES metis PATHS ${METIS_ROOT}/lib REQUIRED)
 target_link_libraries(metis_lib INTERFACE ${METIS_BINARY})
 
-# MESCHACH_INC_DIR = $(MESCHACH)/include/meschach
-# MESCHACH_LIB_DIR = $(MESCHACH)/lib
-# MESCHACH_LIBNAME = meschach
-
+## MESCHACH
 add_library(meschach_lib INTERFACE)
 target_include_directories(meschach_lib INTERFACE ${MESCHACH_ROOT}/include/meschach)
 find_library(MESCHACH_BINARY NAMES meschach PATHS ${MESCHACH_ROOT}/lib REQUIRED)
 target_link_libraries(meschach_lib INTERFACE ${MESCHACH_BINARY})
 
-find_package(PkgConfig REQUIRED)
-pkg_check_modules(GLIB REQUIRED glib-2.0)
-
-# Esto define automáticamente las variables:
-# ${GLIB_INCLUDE_DIRS} -> Tiene ambas rutas (/usr/include... y /usr/lib64/...)
-# ${GLIB_LIBRARIES}    -> Tiene la librería (glib-2.0)
-
+## MPI
 find_package(MPI)
 
-link_directories(${PETSC_ROOT}/lib)
-link_libraries(petsc)
-set(PETSC_INCLUDES ${PETSC_DIR}/include ${PETSC_DIR}/${PETSC_ARCH}/include)
-include_directories(${PETSC_INCLUDES})
-message("PETSC_INCLUDES ${PETSC_INCLUDES}")
+## PETSC
+find_library(PETSC_LIBRARY_FILE
+    NAMES petsc
+    PATHS ${PETSC_ROOT}/lib
+    NO_DEFAULT_PATH
+    REQUIRED)
+add_library(petsc_lib INTERFACE)
+target_include_directories(petsc_lib INTERFACE
+    ${PETSC_DIR}/include
+    ${PETSC_ROOT}/include)
+target_link_libraries(petsc_lib INTERFACE ${PETSC_LIBRARY_FILE})
 
-# ATLAS_INC_DIR = /usr/include/flexiblas
-# ATLAS_LIB_DIR = /usr/lib64
-# ATLAS_LIBS := -lflexiblas -llapacke
-
+## BLAS
 add_library(blas_lib INTERFACE)
 target_include_directories(blas_lib INTERFACE /usr/include/flexiblas)
 link_directories(/usr/lib64)
 target_link_libraries(blas_lib INTERFACE flexiblas lapacke)
 
+## JSONCPP
 pkg_check_modules(JSONCPP REQUIRED jsoncpp)
 add_library(jsoncpp_lib INTERFACE)
 target_include_directories(jsoncpp_lib INTERFACE ${JSONCPP_INCLUDE_DIRS})
@@ -94,4 +95,16 @@ target_link_libraries(jsoncpp_lib INTERFACE ${JSONCPP_LIBRARIES})
 add_subdirectory(src)
 add_subdirectory(applications/advdif)
 ## add_subdirectory(applications/ns)
+
+# Agregamos todas las librerías auxiliares al conjunto de exportación "petscfemTargets"
+install(TARGETS
+  petsc_lib
+  hdf5_lib 
+  newmat_lib 
+  libretto_lib 
+  metis_lib 
+  meschach_lib
+  blas_lib
+  jsoncpp_lib
+  EXPORT petscfemTargets)
 

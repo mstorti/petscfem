@@ -41,11 +41,14 @@ target_link_libraries(advdif_app PRIVATE advdif_lib)
 
 file(GLOB ADVDIF_HEADERS "*.h")
 
+# Instalar la librería (libadvdif.so)
 install(TARGETS advdif_lib
+    EXPORT petscfemTargets       # <--- AGREGAR ESTA LÍNEA
     LIBRARY DESTINATION lib
     ARCHIVE DESTINATION lib
 )
 
+# Instalar el ejecutable (opcional exportarlo, generalmente NO se exporta)
 install(TARGETS advdif_app
     RUNTIME DESTINATION bin
 )

@@ -21,7 +21,10 @@ add_library(petscfem
   fmgemmcode.cpp h5utils.cpp version.cpp dgefa.f seval.f spline.f
   getarrgr.tab.c)
 
-target_include_directories(petscfem PUBLIC ${CMAKE_SOURCE_DIR})
+target_include_directories(petscfem PUBLIC
+  $<BUILD_INTERFACE:${CMAKE_SOURCE_DIR}>      # Ruta absoluta (solo para compilar aquí)
+  $<INSTALL_INTERFACE:include>       # Ruta relativa (para cuando se instale)
+)
 
 # Vincular con PETSc
 target_compile_options(petscfem PUBLIC ${PETSC_CFLAGS_OTHER})
@@ -36,20 +39,52 @@ target_link_libraries(petscfem PUBLIC
   ${GLIB_LIBRARIES}
   hdf5_lib
   blas_lib
-  jsoncpp_lib )
+  jsoncpp_lib
+  petsc_lib)
 
 # IMPORTANTE: Debes agregar los directorios de include explícitamente si usas variables
 target_include_directories(petscfem PUBLIC ${GLIB_INCLUDE_DIRS})
 
 file(GLOB CORE_HEADERS "*.h") 
 
+# 1. Configurar helpers para versionado y config
+include(CMakePackageConfigHelpers)
+
+configure_package_config_file(
+    "${CMAKE_CURRENT_SOURCE_DIR}/petscfem-config.cmake.in"
+    "${CMAKE_CURRENT_BINARY_DIR}/petscfem-config.cmake"
+    INSTALL_DESTINATION lib/cmake/petscfem
+)
+
+write_basic_package_version_file(
+    "${CMAKE_CURRENT_BINARY_DIR}/petscfem-config-version.cmake"
+    VERSION ${PROJECT_VERSION}
+    COMPATIBILITY AnyNewerVersion
+)
+
+# 2. Instalar la librería CORE y asociarla al export 'petscfemTargets'
 install(TARGETS petscfem
-    EXPORT petscfemTargets       # Opcional: útil si quieres que otros proyectos usen el tuyo
-    LIBRARY DESTINATION lib      # Para .so
-    ARCHIVE DESTINATION lib      # Para .a (si compilas estático)
-    RUNTIME DESTINATION bin      # Para .dll (si usaras Windows)
+    EXPORT petscfemTargets     # <--- Mismo nombre que en el raíz
+    LIBRARY DESTINATION lib
+    ARCHIVE DESTINATION lib
+    RUNTIME DESTINATION bin
 )
 
 install(FILES ${CORE_HEADERS}
     DESTINATION include/src
+)
+
+# 3. GENERAR EL ARCHIVO MÁGICO (petscfemTargets.cmake)
+# Esto escribe en disco toda la info de tus librerías e includes
+install(EXPORT petscfemTargets
+    FILE petscfemTargets.cmake
+    NAMESPACE petscfem::       # Prefijo para usar (ej: petscfem::petscfem)
+    DESTINATION lib/cmake/petscfem
+)
+
+# 4. Instalar los archivos de configuración generados en el paso 1
+install(FILES
+    "${CMAKE_CURRENT_BINARY_DIR}/petscfem-config.cmake"
+    "${CMAKE_CURRENT_BINARY_DIR}/petscfem-config-version.cmake"
+    DESTINATION lib/cmake/petscfem
 )

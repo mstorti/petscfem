@@ -1,0 +1,14 @@
+@PACKAGE_INIT@
+
+include(CMakeFindDependencyMacro)
+
+# 1. Re-encontrar dependencias externas obligatorias
+# Esto asegura que la nueva APP también encuentre MPI y GLib
+find_dependency(MPI)
+find_dependency(PkgConfig)
+pkg_check_modules(GLIB REQUIRED glib-2.0)
+
+# 2. Incluir el archivo que define tus targets (core, hdf5_lib, etc.)
+include("${CMAKE_CURRENT_LIST_DIR}/petscfemTargets.cmake")
+
+check_required_components(petscfem)

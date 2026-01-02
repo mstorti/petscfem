@@ -10,10 +10,13 @@
 #include <src/shllhook.h>
 
 Hook *PF_PROP_HOOK=NULL;
+Hook::FactoryUser_t Hook::FactoryUser=NULL;
 
-Hook * Hook::factory(const char *name) {
+Hook* Hook::factory(const char *name) {
   Hook *hook=NULL;
+  printf("FactoryUser %p\n",FactoryUser);
   if (0) {} // this is tricky!!
+  else if (FactoryUser) hook=FactoryUser(name);
 #ifdef USE_DLEF
   else if CHECK_HOOK(dl_generic_hook);
   else if CHECK_HOOK(dl_generic_hook2);
