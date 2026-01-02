@@ -37,7 +37,7 @@ target_link_libraries(petscfem PUBLIC
   ${PETSC_LIBRARIES}
   ${GLIB_LIBRARIES}
   hdf5_lib
-  blas_lib
+  blas_lapack_lib
   jsoncpp_lib
   petsc_lib)
 
