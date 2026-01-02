@@ -137,6 +137,7 @@ target_link_libraries(jsoncpp_lib INTERFACE ${JSONCPP_LIBRARIES})
 # Incluir subdirectorios
 add_subdirectory(src)
 add_subdirectory(applications/advdif)
+add_subdirectory(applications/ns)
 ## add_subdirectory(applications/ns)
 
 # Agregamos todas las librerías auxiliares al conjunto de exportación "petscfemTargets"
