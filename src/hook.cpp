@@ -41,7 +41,9 @@ void HookList::init(Mesh &mesh,Dofmap &dofmap,
     if (!token) break;
 #if 1
     hook = Hook::factory(token);
+    printf("glob factory: %p\n",hook);
     if (!hook && hf) hook = hf(token);
+    printf("app factory: %p\n",hook);
     PETSCFEM_ASSERT(hook,"Couldn't create hook \"%s\"\n",token);
 
     token = strtok_r((n++ == 0 ? lcpy : NULL),"[ \t\n]",&save_ptr);
