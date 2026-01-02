@@ -1,7 +1,6 @@
 ## -*- mode: cmake -*-
 
 # src/CMakeLists.txt
-## file(GLOB_RECURSE SRC_FILES *.cpp)
 add_library(petscfem 
   amplidl.cpp arglist.cpp autostr.cpp blessf.cpp cloud.cpp cloud2.cpp
   debug.cpp distmat.cpp dlhook.cpp dofmap.cpp dofmap2.cpp dofmap3.cpp
