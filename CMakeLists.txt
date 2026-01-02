@@ -14,20 +14,35 @@ set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 set(CMAKE_INSTALL_RPATH "$ORIGIN/../lib")
 set(CMAKE_INSTALL_RPATH_USE_LINK_PATH TRUE)
 
+find_package(PkgConfig REQUIRED)
+
 add_compile_definitions(USE_DLEF)
 add_compile_definitions(USE_HDF5)
 
-set(PFPCKGDIR $ENV{HOME}/PETSC/petscfem-packages)
-set(NEWMAT_ROOT ${PFPCKGDIR}) 
-set(LIBRETTO_ROOT ${PFPCKGDIR}) 
-set(METIS_ROOT ${PFPCKGDIR}) 
-set(MESCHACH_ROOT ${PFPCKGDIR}) 
-set(HDF5_ROOT $ENV{HOME}/SOFT/hdf5-1814)
+cmake_host_system_information(RESULT HOSTNAME QUERY HOSTNAME)
+if(${HOSTNAME} STREQUAL galileo)
+  set(PFPCKGDIR $ENV{HOME}/PETSC/petscfem-packages)
+  set(NEWMAT_ROOT ${PFPCKGDIR}) 
+  set(LIBRETTO_ROOT ${PFPCKGDIR}) 
+  set(METIS_ROOT ${PFPCKGDIR}) 
+  set(MESCHACH_ROOT ${PFPCKGDIR}) 
+  set(HDF5_ROOT $ENV{HOME}/SOFT/hdf5-1814)
+  set(PETSC_DIR "/home/mstorti/PETSC/petsc-3.2-p7")
+  set(PETSC_ARCH "linux-gnu-O")
+elseif(${HOSTNAME} STREQUAL urubu)
+  set(PUB /share/storage/pub/mstorti)
+  set(PFPCKGDIR ${PUB}/petscfem-packages)
+  set(NEWMAT_ROOT ${PFPCKGDIR}) 
+  set(LIBRETTO_ROOT ${PFPCKGDIR}) 
+  set(METIS_ROOT ${PFPCKGDIR}) 
+  set(MESCHACH_ROOT ${PFPCKGDIR}) 
+  set(HDF5_ROOT ${PUB}/hdf5-1814)
+  set(PETSC_DIR ${PUB}/petsc-3.2-p7)
+  set(PETSC_ARCH linux-gnu-O)
+endif()
 
-set(PETSC_DIR "/home/mstorti/PETSC/petsc-3.2-p7")
-set(PETSC_ARCH "linux-gnu-O")
-add_compile_definitions(PETSC_BOPT_FLAG="${PETSC_ARCH}")
 set(PETSC_ROOT ${PETSC_DIR}/${PETSC_ARCH})
+add_compile_definitions(PETSC_BOPT_FLAG="${PETSC_ARCH}")
 
 ## HDF5
 add_library(hdf5_lib INTERFACE)
@@ -62,6 +77,9 @@ target_include_directories(meschach_lib INTERFACE ${MESCHACH_ROOT}/include/mesch
 find_library(MESCHACH_BINARY NAMES meschach PATHS ${MESCHACH_ROOT}/lib REQUIRED)
 target_link_libraries(meschach_lib INTERFACE ${MESCHACH_BINARY})
 
+## GLIB
+pkg_check_modules(GLIB REQUIRED glib-2.0)
+
 ## MPI
 find_package(MPI)
 
@@ -77,11 +95,36 @@ target_include_directories(petsc_lib INTERFACE
     ${PETSC_ROOT}/include)
 target_link_libraries(petsc_lib INTERFACE ${PETSC_LIBRARY_FILE})
 
+## BLAS LAPACK
+pkg_check_modules(FLEXIBLAS QUIET flexiblas)
+add_library(blas_lapack_lib INTERFACE)
+
+if(FLEXIBLAS_FOUND)
+  message(STATUS "FlexiBLAS detectado (Fedora moderno)")
+  target_link_libraries(blas_lapack_lib INTERFACE ${FLEXIBLAS_LIBRARIES})
+  target_include_directories(blas_lapack_lib INTERFACE ${FLEXIBLAS_INCLUDE_DIRS})
+else()
+  find_package(BLAS REQUIRED)
+  find_package(LAPACK REQUIRED)
+  target_link_libraries(blas_lapack_lib INTERFACE
+    ${LAPACK_LIBRARIES} ${BLAS_LIBRARIES})
+  message(STATUS "--- DEBUG BLAS/LAPACK ---")
+  message(STATUS "BLAS Libs: ${BLAS_LIBRARIES}")
+  message(STATUS "LAPACK Libs: ${LAPACK_LIBRARIES}")
+endif()
+
+## FLEXIBLAS
+# pkg_check_modules(FLEXIBLAS REQUIRED flexiblas)
+# add_library(blas_lib INTERFACE)
+# target_include_directories(blas_lib INTERFACE ${FLEXIBLAS_INCLUDE_DIRS})
+# target_link_libraries(blas_lib INTERFACE ${FLEXIBLAS_LIBRARIES})
+# target_compile_options(blas_lib INTERFACE ${FLEXIBLAS_CFLAGS_OTHER})
+
 ## BLAS
-add_library(blas_lib INTERFACE)
-target_include_directories(blas_lib INTERFACE /usr/include/flexiblas)
-link_directories(/usr/lib64)
-target_link_libraries(blas_lib INTERFACE flexiblas lapacke)
+# add_library(blas_lib INTERFACE)
+# target_include_directories(blas_lib INTERFACE /usr/include/flexiblas)
+# link_directories(/usr/lib64)
+# target_link_libraries(blas_lib INTERFACE flexiblas lapacke)
 
 ## JSONCPP
 pkg_check_modules(JSONCPP REQUIRED jsoncpp)
@@ -104,7 +147,7 @@ install(TARGETS
   libretto_lib 
   metis_lib 
   meschach_lib
-  blas_lib
+  blas_lapack_lib
   jsoncpp_lib
   EXPORT petscfemTargets)
 
