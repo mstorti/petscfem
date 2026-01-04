@@ -1517,10 +1517,12 @@ int read_mesh(Mesh *& mesh,char *fcase,Dofmap *& dofmap,
     for (int proc=0; proc<size; proc++) 
       printf("%d elements in processor %d\n",nelem_part[proc],proc);
   }
-
-  if (myrank == 0 && size > 1) {
+  
+  TGETOPTDEF(thash,int,print_inter_process_connection,0);
+  if (print_inter_process_connection
+      && myrank == 0 && size > 1) {
     PetscPrintf(PETSCFEM_COMM_WORLD,
-                "---\nInter-processor node connections\n");
+                "---\nInter-process node connections\n");
     // compute inverse map
     dvector<int> dommap;
     dommap.clone(procmap);
