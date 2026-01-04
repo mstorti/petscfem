@@ -39,6 +39,19 @@ elseif(${HOSTNAME} STREQUAL urubu)
   set(HDF5_ROOT ${PUB}/hdf5-1814)
   set(PETSC_DIR ${PUB}/petsc-3.2-p7)
   set(PETSC_ARCH linux-gnu-O)
+elseif(${HOSTNAME} STREQUAL pirayu)
+  set(PUB /home/pub/mstorti)
+  set(PFPCKGDIR ${PUB}/petscfem-packages)
+  set(NEWMAT_ROOT ${PFPCKGDIR}) 
+  set(LIBRETTO_ROOT ${PFPCKGDIR}) 
+  set(METIS_ROOT ${PFPCKGDIR}) 
+  set(MESCHACH_ROOT ${PFPCKGDIR}) 
+  set(HDF5_ROOT ${PUB}/hdf5-1814)
+  set(PETSC_DIR ${PUB}/petsc-3.2-p7)
+  set(PETSC_ARCH linux-gnu-O)
+  list(APPEND CMAKE_PREFIX_PATH ${PUB}/jsoncpp)
+  set(jsoncpp_DIR /home/pub/mstorti/jsoncpp/lib64/cmake/jsoncpp)
+#  find_package(jsoncpp REQUIRED CONFIG)
 endif()
 
 set(PETSC_ROOT ${PETSC_DIR}/${PETSC_ARCH})
@@ -68,8 +81,10 @@ target_link_libraries(libretto_lib INTERFACE ${LIBRETTO_BINARY})
 ## METIS
 add_library(metis_lib INTERFACE)
 target_include_directories(metis_lib INTERFACE ${METIS_ROOT}/include/metis)
-find_library(METIS_BINARY NAMES metis PATHS ${METIS_ROOT}/lib REQUIRED)
+find_library(METIS_BINARY NAMES metis PATHS ${METIS_ROOT}/lib
+  NO_DEFAULT_PATH REQUIRED)
 target_link_libraries(metis_lib INTERFACE ${METIS_BINARY})
+list(APPEND CMAKE_INSTALL_RPATH "${METIS_ROOT}/lib")
 
 ## MESCHACH
 add_library(meschach_lib INTERFACE)
@@ -83,6 +98,9 @@ pkg_check_modules(GLIB REQUIRED glib-2.0)
 ## MPI
 find_package(MPI)
 
+## X (for PETSc)
+find_package(X11 REQUIRED)
+
 ## PETSC
 find_library(PETSC_LIBRARY_FILE
     NAMES petsc
@@ -91,9 +109,13 @@ find_library(PETSC_LIBRARY_FILE
     REQUIRED)
 add_library(petsc_lib INTERFACE)
 target_include_directories(petsc_lib INTERFACE
-    ${PETSC_DIR}/include
-    ${PETSC_ROOT}/include)
-target_link_libraries(petsc_lib INTERFACE ${PETSC_LIBRARY_FILE})
+  ${PETSC_DIR}/include
+  ${PETSC_ROOT}/include)
+target_link_libraries(petsc_lib INTERFACE
+  ${PETSC_LIBRARY_FILE}
+  X11::X11
+  MPI::MPI_C
+  MPI::MPI_Fortran)
 
 ## BLAS LAPACK
 pkg_check_modules(FLEXIBLAS QUIET flexiblas)
@@ -127,8 +149,9 @@ endif()
 # target_link_libraries(blas_lib INTERFACE flexiblas lapacke)
 
 ## JSONCPP
-pkg_check_modules(JSONCPP REQUIRED jsoncpp)
-add_library(jsoncpp_lib INTERFACE)
+find_package(jsoncpp REQUIRED CONFIG)
+## pkg_check_modules(JSONCPP REQUIRED jsoncpp)
+## add_library(jsoncpp_lib INTERFACE)
 target_include_directories(jsoncpp_lib INTERFACE ${JSONCPP_INCLUDE_DIRS})
 target_link_libraries(jsoncpp_lib INTERFACE ${JSONCPP_LIBRARIES})
 # (Opcional) Si necesitas definir flags específicos
@@ -149,6 +172,5 @@ install(TARGETS
   metis_lib 
   meschach_lib
   blas_lapack_lib
-  jsoncpp_lib
+  ## jsoncpp_lib
   EXPORT petscfemTargets)
-
