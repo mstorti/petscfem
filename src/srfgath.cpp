@@ -155,36 +155,35 @@ double cylinder::f(const FastMat2 &x) {
   return sqrt(dx.sum_square_all()-square(tmp.get())/n.sum_square_all());
 }
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
-SurfGatherer::SurfFunction* 
-SurfGatherer::SurfFunction::factory(const TextHashTable *thash) {
+void SurfGatherer::SurfFunction::factory(const TextHashTable *thash,
+                                         unique_ptr<SurfGatherer::SurfFunction> &sf) {
   int ierr;
-  SurfGatherer::SurfFunction *sf=NULL;
+  // SurfGatherer::SurfFunction *sf=NULL;
   //o Defines the geomtry of the element
   TGETOPTDEF_S(thash,string,surf_fun_type,<none>);
   assert(surf_fun_type!="<none>");
 
 #define CHECK_SURF_TYPE(name)			\
   else if (surf_fun_type == #name)		\
-   { sf = new name; }
+    { sf = make_unique<name>(); }
 
   if (0) {}
   CHECK_SURF_TYPE(plane)
   CHECK_SURF_TYPE(sphere)
   CHECK_SURF_TYPE(cylinder)
+  else if (surf_fun_type=="global_surf") sf = move(GLOBAL_SURF_PTR);
   else 
     PETSCFEM_ERROR("SurfGatherer::SurfFunction::factory: "
 		   "unknown surf_fun_type \"%s\"\n",surf_fun_type.c_str());
-  return sf;
 }
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 void SurfGatherer::initialize() {
-  sf = SurfGatherer::SurfFunction::factory(thash);
-  sf->init(thash);
 }
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
-SurfGatherer::~SurfGatherer() { if (sf) delete sf; }
+// SurfGatherer::~SurfGatherer() { if (sf) delete sf; }
+SurfGatherer::~SurfGatherer() {  }
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 #undef __FUNC__
@@ -202,7 +201,11 @@ int SurfGatherer::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
 			   Dofmap *dofmap,const char *jobinfo,int myrank,
 			   int el_start,int el_last,int iter_mode,
 			   const TimeData *time) {
-  
+
+  if (!sf) {
+    SurfGatherer::SurfFunction::factory(thash,sf);
+    sf->init(thash);
+  }
   int ierr;
 
   GET_JOBINFO_FLAG(gather);
@@ -546,6 +549,26 @@ void field_surf_integrator
 		FastMat2 &xpg,FastMat2 &n,double time) {
   ip_values[0] = 1.0;
   for (int j=1; j<=ndof; j++) ip_values[j] = u.get(j);
+}
+
+unique_ptr<generic_surf_integrator_t> GENERIC_SURF_INTEGRATOR_PTR;
+unique_ptr<SurfGatherer::SurfFunction> GLOBAL_SURF_PTR;
+
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>
+void gensurf_wrapper_t::init() {
+  // printf("in gensurf_wrapper_t::init()\n");
+  GENERIC_SURF_INTEGRATOR_PTR->init();
+}
+
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>
+void gensurf_wrapper_t::set_ip_values(vector<double> &pg_values,FastMat2 &u,
+                   FastMat2 &xpg,FastMat2 &n,double time) {
+  GENERIC_SURF_INTEGRATOR_PTR->set_ip_values(pg_values,u,xpg,n,time);
+}
+
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>
+int gensurf_wrapper_t::vals_per_plane() {
+  return GENERIC_SURF_INTEGRATOR_PTR->vals_per_plane();
 }
 
 #undef SHAPE    

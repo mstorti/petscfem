@@ -16,14 +16,15 @@ public:
     virtual double f(const FastMat2 &x)=0;
     virtual void close() { }
     virtual ~SurfFunction()=0;
-    static SurfFunction* factory(const TextHashTable *thash);
+    static void factory(const TextHashTable *thash,
+                   unique_ptr<SurfFunction> &p);
   };
 
 private:
-  SurfFunction *sf;
+  unique_ptr<SurfFunction> sf;
 
 public: 
-  SurfGatherer() : sf(NULL) { }
+  SurfGatherer() { }
   ~SurfGatherer();
 
   int gather_length;
@@ -83,6 +84,31 @@ public:
   void set_ip_values(vector<double> &pg_values,FastMat2 &u,
 		     FastMat2 &xpg,FastMat2 &n,double time);
   int vals_per_plane();
+};
+
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>
+class generic_surf_integrator_t {
+public:
+  virtual void init() {}
+  virtual void set_ip_values(vector<double> &pg_values,FastMat2 &u,
+		     FastMat2 &xpg,FastMat2 &n,double time)=0;
+  virtual int vals_per_plane()=0;
+};
+
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>
+// Global pointers (should be done with a table or something
+// like that
+extern unique_ptr<SurfGatherer::SurfFunction> GLOBAL_SURF_PTR;
+extern unique_ptr<generic_surf_integrator_t> GENERIC_SURF_INTEGRATOR_PTR;
+
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>
+// This is to be put in the EPL and calls
+class gensurf_wrapper_t : public SurfGatherer {
+public:
+  void init() override;
+  void set_ip_values(vector<double> &pg_values,FastMat2 &u,
+		     FastMat2 &xpg,FastMat2 &n,double time) override;
+  int vals_per_plane() override;
 };
 
 #endif

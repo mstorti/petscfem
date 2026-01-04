@@ -423,6 +423,7 @@ LDFLAGS_NO_PROG_LIB = $(LDDBGFLAG)			\
 	  $(OMP_LDFLAGS) $(JSON_LDFLAGS)		\
 	  $(PFLIBPROJ_LDFLAGS)				\
           $(ANN_LDFLAGS)				\
+          -lpetscfem$(osfx)				\
 	  $(LD_FLAGS_POST)
 
 CBLAS_FOUND := no
@@ -590,7 +591,8 @@ COPTFLAGS := -DNDEBUG -O3 -funroll-loops
 else
 COPTFLAGS := -g3 -O0
 endif
-CPPFLAGS := -std=c++0x $(CPPFLAGS)
+## CPPFLAGS := -std=c++0x $(CPPFLAGS)
+CPPFLAGS := -std=c++14 $(CPPFLAGS)
 
 %.o: %.cpp
 	$(CXX) -c ${COPTFLAGS} ${CFLAGS} ${CPPFLAGS} -o $@ $<

@@ -10,10 +10,13 @@
 #include <src/shllhook.h>
 
 Hook *PF_PROP_HOOK=NULL;
+Hook::FactoryUser_t Hook::FactoryUser=NULL;
 
-Hook * Hook::factory(const char *name) {
+Hook* Hook::factory(const char *name) {
   Hook *hook=NULL;
+  printf("FactoryUser %p\n",FactoryUser);
   if (0) {} // this is tricky!!
+  else if (FactoryUser) hook=FactoryUser(name);
 #ifdef USE_DLEF
   else if CHECK_HOOK(dl_generic_hook);
   else if CHECK_HOOK(dl_generic_hook2);
@@ -38,7 +41,9 @@ void HookList::init(Mesh &mesh,Dofmap &dofmap,
     if (!token) break;
 #if 1
     hook = Hook::factory(token);
+    printf("glob factory: %p\n",hook);
     if (!hook && hf) hook = hf(token);
+    printf("app factory: %p\n",hook);
     PETSCFEM_ASSERT(hook,"Couldn't create hook \"%s\"\n",token);
 
     token = strtok_r((n++ == 0 ? lcpy : NULL),"[ \t\n]",&save_ptr);
