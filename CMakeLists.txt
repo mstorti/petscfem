@@ -15,6 +15,15 @@ set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 set(CMAKE_INSTALL_RPATH "$ORIGIN/../lib")
 set(CMAKE_INSTALL_RPATH_USE_LINK_PATH TRUE)
 
+## Base flags
+set(CXXOPTFLAGS "-fopenmp -std=c++14 ")
+
+## Choose debug or optimized flags
+## set(CXXOPTFLAGS "${CXXOPTFLAGS} -O0 -g3")
+set(CXXOPTFLAGS "${CXXOPTFLAGS} -O2 -funroll-loops")
+
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${CXXOPTFLAGS}")
+
 find_package(PkgConfig REQUIRED)
 
 add_compile_definitions(USE_DLEF)

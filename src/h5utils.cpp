@@ -222,13 +222,15 @@ void h5_dvector_write(dvector<T> &w,const char *filename,
   }
   H5::DataSpace dataspace(rank,hshape.data());
   // Create the dataset.
-  const char *var=varname;
+  char var[1000];
+  const char *p = var;
   if (step!=INT_MAX) {
-    char var[1000];
     sprintf(var,"%s_%d",varname,step);
+    p = var;
   }
+  // printf("save on %p: %s\n",p,p);
   H5::DataSet xdset =
-    filep->createDataSet(var,type,dataspace);
+    filep->createDataSet(p,type,dataspace);
   xdset.write(w.buff(),type);
   filep->close();
   delete filep;

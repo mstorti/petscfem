@@ -1,5 +1,7 @@
 @PACKAGE_INIT@
 
+include(CMakeFindDependencyMacro)
+
 # Esto automatiza la búsqueda para cualquier aplicación que use petscfem
 if(NOT TARGET jsoncpp_lib)
   # Pasamos la variable jsoncpp_DIR configurada durante la compilación de petscfem
