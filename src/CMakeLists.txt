@@ -34,7 +34,9 @@ target_link_libraries(petscfem PUBLIC
   metis_lib
   meschach_lib
   MPI::MPI_CXX
-  ${PETSC_LIBRARIES}
+  MPI::MPI_Fortran  # Agrega esto (para resolver mpi_init_)
+  petsc_lib
+##  ${PETSC_LIBRARIES}
   ${GLIB_LIBRARIES}
   hdf5_lib
   blas_lapack_lib
