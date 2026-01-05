@@ -1,4 +1,5 @@
 ## -*- mode: cmake -*-
+## This is petscfem/src/CMakeLists.txt
 
 # src/CMakeLists.txt
 add_library(petscfem 

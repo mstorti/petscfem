@@ -1,4 +1,5 @@
 ## -*- mode: cmake -*-
+## This is petscfem/applications/ns/CMakeLists.txt
 
 # 1. Definir los fuentes de la LIBRERÍA (Sin main.cpp)
 # Agrega aquí todos los .cpp que conforman la lógica de advdif
