@@ -42,6 +42,7 @@ target_link_libraries(petscfem PUBLIC
   hdf5_lib
   blas_lapack_lib
   jsoncpp_lib
+  ${CMAKE_DL_LIBS}
   petsc_lib)
 
 # IMPORTANTE: Debes agregar los directorios de include explícitamente si usas variables
