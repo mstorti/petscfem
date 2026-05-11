@@ -299,3 +299,7 @@ int main (int argc, char **argv) {
   h5_dvector_write(iconetet,icone_tetra.c_str());
   MPI_Finalize();
 }
+
+void bless_elemset(char*, Elemset*&) {}
+void petscfem_print_link_date() {}
+

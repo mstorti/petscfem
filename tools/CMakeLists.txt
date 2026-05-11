@@ -8,7 +8,7 @@ set(HEXASPLIT_APP_SOURCES hexasplit.cpp)
 add_executable(hexasplit_app ${HEXASPLIT_APP_SOURCES})
 
 # Vincular el ejecutable con TU librería nueva (y hereda el core)
-target_link_libraries(hexasplit_app PRIVATE projecto_lib PUBLIC petscfem ann_lib)
+target_link_libraries(hexasplit_app PRIVATE project_lib PUBLIC petscfem ann_lib)
 
 # Configurar el nombre final del ejecutable
 set_target_properties(hexasplit_app PROPERTIES OUTPUT_NAME "hexasplit")
