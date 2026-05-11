@@ -30,6 +30,7 @@ if(${HOSTNAME} STREQUAL galileo)
   set(LIBRETTO_ROOT ${PFPCKGDIR}) 
   set(METIS_ROOT ${PFPCKGDIR}) 
   set(MESCHACH_ROOT ${PFPCKGDIR}) 
+  set(ANN_ROOT ${PFPCKGDIR}) 
   set(HDF5_ROOT $ENV{HOME}/SOFT/hdf5-1814)
   set(PETSC_DIR "/home/mstorti/PETSC/petsc-3.2-p7")
   set(PETSC_ARCH "linux-gnu-O")
@@ -95,6 +96,12 @@ add_library(meschach_lib INTERFACE)
 target_include_directories(meschach_lib INTERFACE ${MESCHACH_ROOT}/include/meschach)
 find_library(MESCHACH_BINARY NAMES meschach PATHS ${MESCHACH_ROOT}/lib REQUIRED)
 target_link_libraries(meschach_lib INTERFACE ${MESCHACH_BINARY})
+
+## MESCHACH
+add_library(ann_lib INTERFACE)
+target_include_directories(ann_lib INTERFACE ${ANN_ROOT}/include/ann)
+find_library(ANN_BINARY NAMES ANN PATHS ${ANN_ROOT}/lib REQUIRED)
+target_link_libraries(ann_lib INTERFACE ${ANN_BINARY})
 
 ## GLIB
 pkg_check_modules(GLIB REQUIRED glib-2.0)
@@ -166,7 +173,8 @@ target_link_libraries(jsoncpp_lib INTERFACE ${JSONCPP_LIBRARIES})
 add_subdirectory(src)
 add_subdirectory(applications/advdif)
 add_subdirectory(applications/ns)
-## add_subdirectory(applications/ns)
+add_subdirectory(tools/project)
+add_subdirectory(tools)
 
 # Agregamos todas las librerías auxiliares al conjunto de exportación "petscfemTargets"
 install(TARGETS
@@ -176,6 +184,7 @@ install(TARGETS
   libretto_lib 
   metis_lib 
   meschach_lib
+  ann_lib
   blas_lapack_lib
   ## jsoncpp_lib
   EXPORT petscfemTargets)
