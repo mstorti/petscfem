@@ -14,6 +14,4 @@ target_link_libraries(hexasplit_app PRIVATE project_lib PUBLIC petscfem ann_lib)
 set_target_properties(hexasplit_app PROPERTIES OUTPUT_NAME "hexasplit")
 
 # Instalar el ejecutable (opcional exportarlo, generalmente NO se exporta)
-install(TARGETS advdif_app
-    RUNTIME DESTINATION bin
-)
+install(TARGETS hexasplit_app RUNTIME DESTINATION bin)
