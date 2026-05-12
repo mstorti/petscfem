@@ -168,3 +168,6 @@ int main(int argc,char **argv) {
   MPI_Finalize();
   return 0;
 }
+
+void bless_elemset(char*, Elemset*&) {}
+void petscfem_print_link_date() {}

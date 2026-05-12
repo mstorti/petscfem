@@ -1,11 +1,11 @@
-#!/usr/bin/perl
+#! /usr/bin/env perl
 # Filename:	eperl
 # Author:	David Ljung Madison <DaveSource.com>
 # See License:	http://MarginalHacks.com/License
   my $VERSION=	1.20;
 # Description:	Perl version of ePerl, embedded perl.
 
-my $PERL = "/usr/bin/perl";	# Should probably match #! on first line
+my $PERL = "perl";	# Should probably match #! on first line
 
 #        ____           _
 #    ___|  _ \ ___ _ __| |

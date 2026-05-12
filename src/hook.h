@@ -15,6 +15,8 @@ extern Hook *PF_PROP_HOOK;
 /// Hooks are executed previous and after the time step. 
 class Hook {
 public:
+  typedef Hook* (*FactoryUser_t)(const char *name);
+  static FactoryUser_t FactoryUser;
   virtual ~Hook() {}
   static Hook *factory(const char *name);
   /** Initializes the hook. 

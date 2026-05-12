@@ -107,8 +107,8 @@ SHELL := /bin/bash
 # include ${PCONFDIR}/petscrules
 
 #include ${PETSC_DIR}/conf/rules
-PACKAGES_INCLUDES = ${MPI_INCLUDE} ${X11_INCLUDE} ${BLASLAPACK_INCLUDE}
-PACKAGES_LIBS     = ${MPI_LIB} ${X11_LIB} ${BLASLAPACK_LIB}
+# PACKAGES_INCLUDES = ${MPI_INCLUDE} ${X11_INCLUDE} ${BLASLAPACK_INCLUDE}
+# PACKAGES_LIBS     = ${MPI_LIB} ${X11_LIB} ${BLASLAPACK_LIB}
 
 PETSC_CPPFLAGS = ${PETSC_CC_INCLUDES} ${PETSC_INCLUDE}
 PETSC_LDFLAGS  = ${PETSC_LIB} ${PETSC_KSP_LIB}
@@ -388,6 +388,19 @@ LDFLAGS = $(LDDBGFLAG)					\
           $(ANN_LDFLAGS)				\
 	  $(LD_FLAGS_POST)
 
+qq:
+#	@echo "----------------------------------------------------------------"
+#	@echo "PETSC_LDFLAGS ${PETSC_LDFLAGS}" | sed 's/ /\n/g'
+	@echo "----------------------------------------------------------------"
+	@echo "LDFLAGS ${LDFLAGS}" | sed 's/ /\n/g'
+#	@echo "----------------------------------------------------------------"
+#	@echo "LD_FLAGS_POST $(LD_FLAGS_POST)" | sed 's/ /\n/g'
+#	@echo "----------------------------------------------------------------"
+#	@echo "ANN_LDFLAGS $(ANN_LDFLAGS)" | sed 's/ /\n/g'
+#	@echo "----------------------------------------------------------------"
+#	@echo "MKL_LDFLAGS $(MKL_LDFLAGS)" | sed 's/ /\n/g'
+
+
 LDFLAGS_NO_PROG_LIB = $(LDDBGFLAG)			\
 	  $(LD_FLAGS_PRE)				\
 	  -Wl,-E,-rpath,$(LD_LIBRARY_PATH)		\
@@ -410,6 +423,7 @@ LDFLAGS_NO_PROG_LIB = $(LDDBGFLAG)			\
 	  $(OMP_LDFLAGS) $(JSON_LDFLAGS)		\
 	  $(PFLIBPROJ_LDFLAGS)				\
           $(ANN_LDFLAGS)				\
+          -lpetscfem$(osfx)				\
 	  $(LD_FLAGS_POST)
 
 CBLAS_FOUND := no
@@ -437,7 +451,7 @@ endif
 MKL_LDFLAGS := -L$(ATLAS_LIB_DIR) $(ATLAS_LIBS)
 
 else
-$(warning No CBLAS library found. Must set the MKLPATH or ATLAS_(LIB|INC)_DIR) variables)
+## $(warning No CBLAS library found. Must set the MKLPATH or ATLAS_(LIB|INC)_DIR) variables)
 endif
 endif
 

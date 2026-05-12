@@ -201,7 +201,7 @@ void h5_dvector_read(const char *filename,
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>
 template<class T>
 void h5_dvector_write(dvector<T> &w,const char *filename,
-                      const char *varname,H5::PredType type) {
+                      const char *varname,H5::PredType type,int step) {
   w.defrag();
   H5::H5File *filep=NULL;
   if (!access(filename,F_OK)) 
@@ -222,8 +222,15 @@ void h5_dvector_write(dvector<T> &w,const char *filename,
   }
   H5::DataSpace dataspace(rank,hshape.data());
   // Create the dataset.
+  char var[1000];
+  const char *p = var;
+  if (step!=INT_MAX) {
+    sprintf(var,"%s_%d",varname,step);
+    p = var;
+  }
+  // printf("save on %p: %s\n",p,p);
   H5::DataSet xdset =
-    filep->createDataSet(varname,type,dataspace);
+    filep->createDataSet(p,type,dataspace);
   xdset.write(w.buff(),type);
   filep->close();
   delete filep;
@@ -232,23 +239,25 @@ void h5_dvector_write(dvector<T> &w,const char *filename,
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>
 template<class T>
 void h5_dvector_write2(dvector<T> &w,
-                       const char *fdname,H5::PredType type) {
+                       const char *fdname,H5::PredType type,int step=INT_MAX) {
   string file,dset, fds=fdname;
   h5_file_dset_split(fds,file,dset);
-  h5_dvector_write(w,file.c_str(),dset.c_str(),type);
+  h5_dvector_write(w,file.c_str(),dset.c_str(),type,step);
 }
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>
 void h5_dvector_write(dvector<int> &w,
-                      const char *fdname) {
-  h5_dvector_write2(w,fdname,H5::PredType::NATIVE_INT);
+                      const char *fdname,int step) {
+  h5_dvector_write2(w,fdname,H5::PredType::NATIVE_INT,step);
 }
 
+#if 0
+// I dont know why this was duplicated with the one below
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>
-void h5_dvector_write(dvector<double> &w,
-                       const char *fdname) {
-  h5_dvector_write2(w,fdname,H5::PredType::NATIVE_DOUBLE);
+void h5_dvector_write(dvector<double> &w,const char *fdname,int step) {
+  h5_dvector_write2(w,fdname,H5::PredType::NATIVE_DOUBLE,step);
 }
+#endif
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>
 void h5_dvector_write(dvector<double> &w,
@@ -261,15 +270,15 @@ void h5_dvector_write(dvector<double> &w,
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>
 void h5_dvector_write(dvector<int> &w,
                       const char *filename,
-                      const char *dsetname) {
-  h5_dvector_write(w,filename,dsetname,H5::PredType::NATIVE_INT);
+                      const char *dsetname,int step) {
+  h5_dvector_write(w,filename,dsetname,H5::PredType::NATIVE_INT,step);
 }
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>
 void h5_dvector_write(dvector<double> &w,
                       const char *filename,
-                      const char *dsetname) {
-  h5_dvector_write(w,filename,dsetname,H5::PredType::NATIVE_DOUBLE);
+                      const char *dsetname,int step) {
+  h5_dvector_write(w,filename,dsetname,H5::PredType::NATIVE_DOUBLE,step);
 }
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>
@@ -310,9 +319,11 @@ int h5petsc_vec_save(Vec x,const char *filename,
 void h5_dvector_read(const char *filename,const char *dsetname,
                      dvector<double> &w) { H5ERR; }
 
+#if 0
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>
 int h5petsc_vec_save(Vec x,const char *filename,
                      const char *varname) { H5ERR; return 0; }
+#endif
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>
 template<class T>

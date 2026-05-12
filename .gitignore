@@ -12,3 +12,4 @@ make-tests-*.tar.gz
 *.patch
 src/pfversion.h
 torture.log
+build

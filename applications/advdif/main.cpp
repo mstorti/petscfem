@@ -1,3 +1,4 @@
+#if 0
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 
 class Elemset;
@@ -13,6 +14,7 @@ void bless_elemset(char *type,Elemset *& elemset) {
   if (elemset) return;
   bless_elemset_advdif(type, elemset);
 }
+#endif
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 
