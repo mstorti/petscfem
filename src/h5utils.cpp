@@ -251,13 +251,14 @@ void h5_dvector_write(dvector<int> &w,
   h5_dvector_write2(w,fdname,H5::PredType::NATIVE_INT,step);
 }
 
-#if 0
-// I dont know why this was duplicated with the one below
+// I dont know which version is the correct one
+#if 1
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>
 void h5_dvector_write(dvector<double> &w,const char *fdname,int step) {
   h5_dvector_write2(w,fdname,H5::PredType::NATIVE_DOUBLE,step);
 }
-#endif
+
+#else
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>
 void h5_dvector_write(dvector<double> &w,
@@ -266,6 +267,7 @@ void h5_dvector_write(dvector<double> &w,
   sprintf(fdname,"%s_%d",fdroot,slot);
   h5_dvector_write(w,fdname);
 }
+#endif
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>
 void h5_dvector_write(dvector<int> &w,
