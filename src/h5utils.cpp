@@ -202,6 +202,8 @@ void h5_dvector_read(const char *filename,
 template<class T>
 void h5_dvector_write(dvector<T> &w,const char *filename,
                       const char *varname,H5::PredType type,int step) {
+  printf("filename %s varname %s step %d\n",
+         filename,varname,step);
   w.defrag();
   H5::H5File *filep=NULL;
   if (!access(filename,F_OK)) 
@@ -223,7 +225,7 @@ void h5_dvector_write(dvector<T> &w,const char *filename,
   H5::DataSpace dataspace(rank,hshape.data());
   // Create the dataset.
   char var[1000];
-  const char *p = var;
+  const char *p = varname;
   if (step!=INT_MAX) {
     sprintf(var,"%s_%d",varname,step);
     p = var;
@@ -252,7 +254,7 @@ void h5_dvector_write(dvector<int> &w,
 }
 
 // I dont know which version is the correct one
-#if 1
+#if 0
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>
 void h5_dvector_write(dvector<double> &w,const char *fdname,int step) {
   h5_dvector_write2(w,fdname,H5::PredType::NATIVE_DOUBLE,step);
