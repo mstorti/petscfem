@@ -2,7 +2,9 @@
 #define GETD(X) X = opts.get(#X,NAN).asDouble(); \
   PETSCFEM_ASSERT0(!ISNAN(X),#X " is required")
 #define GETI(X) X = opts.get(#X,-1).asInt(); \
-  PETSCFEM_ASSERT0(X!=-1,#X " is required") 
+  PETSCFEM_ASSERT0(X!=-1,#X " is required")
+#define GETS(X) X = opts.get(#X,"__NONE__").asString(); \
+  PETSCFEM_ASSERT0(X!="__NONE__",#X " is required")
 // DEFINE version: Declares obtain and check the value
 #define GETDD(X) cs_real_t GETD(X)
 #define GETID(X) int GETI(X)

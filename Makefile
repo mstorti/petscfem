@@ -306,12 +306,9 @@ tags3:
 	etags `cat tempo.txt`
 	rm tempo.txt
 
-qqq:
-	@echo PETSC_LDFLAGS $(PETSC_LDFLAGS)
-
 #w Build with cmake
 prog:
-	cd build ; cmake .. ; $(MAKE)
+	cd build ; cmake .. ; $(MAKE) -j ; $(MAKE) install
 
 #w Build with cmake
 reprog:

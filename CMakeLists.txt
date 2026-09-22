@@ -8,6 +8,15 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 set(CMAKE_INSTALL_PREFIX ${CMAKE_SOURCE_DIR}/../petscfem-opt)
 
+set(CXXOPTFLAGS "-fopenmp -std=c++14 ")
+## Debug and optimized flags
+set(CXXOPTFLAGS "${CXXOPTFLAGS} -O0 -g3")
+## set(CXXOPTFLAGS "${CXXOPTFLAGS} -O2 -funroll-loops")
+
+set(CMAKE_CXX_FLAGS
+  "${CMAKE_CXX_FLAGS} -DHAVE_CONFIG_H ${CXXOPTFLAGS} ${CSUSFFLAGS}")
+message("CMAKE_CXX_FLAGS" ${CMAKE_CXX_FLAGS})
+
 set(BUILD_SHARED_LIBS ON)
 set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 
@@ -41,6 +50,7 @@ elseif(${HOSTNAME} STREQUAL urubu)
   set(LIBRETTO_ROOT ${PFPCKGDIR}) 
   set(METIS_ROOT ${PFPCKGDIR}) 
   set(MESCHACH_ROOT ${PFPCKGDIR}) 
+  set(ANN_ROOT ${PFPCKGDIR}) 
   set(HDF5_ROOT ${PUB}/hdf5-1814)
   set(PETSC_DIR ${PUB}/petsc-3.2-p7)
   set(PETSC_ARCH linux-gnu-O)
