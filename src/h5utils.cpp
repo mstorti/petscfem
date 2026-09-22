@@ -254,7 +254,7 @@ void h5_dvector_write(dvector<int> &w,
 }
 
 // I dont know which version is the correct one
-#if 0
+#if 1
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>
 void h5_dvector_write(dvector<double> &w,const char *fdname,int step) {
   h5_dvector_write2(w,fdname,H5::PredType::NATIVE_DOUBLE,step);
