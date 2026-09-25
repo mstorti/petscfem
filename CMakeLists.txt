@@ -27,6 +27,9 @@ set(CMAKE_INSTALL_RPATH_USE_LINK_PATH TRUE)
 set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -Wl,--disable-new-dtags")
 set(CMAKE_SHARED_LINKER_FLAGS "${CMAKE_SHARED_LINKER_FLAGS} -Wl,--disable-new-dtags")
 
+## set(CMAKE_CXX_FLAGS "-fopenmp -O0 -g3")
+set(CMAKE_CXX_FLAGS "-fopenmp -O2 -funroll-loops")
+
 find_package(PkgConfig REQUIRED)
 
 add_compile_definitions(USE_DLEF)
@@ -45,6 +48,7 @@ if(${HOSTNAME} STREQUAL galileo)
   set(PETSC_ARCH "linux-gnu-O")
 elseif(${HOSTNAME} STREQUAL urubu)
   set(PUB /share/storage/pub/mstorti)
+  set(CMAKE_INSTALL_PREFIX ${PUB}/petscfem-opt)
   set(PFPCKGDIR ${PUB}/petscfem-packages)
   set(NEWMAT_ROOT ${PFPCKGDIR}) 
   set(LIBRETTO_ROOT ${PFPCKGDIR}) 
